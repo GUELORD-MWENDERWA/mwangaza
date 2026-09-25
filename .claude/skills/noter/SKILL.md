@@ -16,7 +16,8 @@ argument-hint: "<ce qu'il faut noter>"
 | Blocage levé | retirer de « Bloquants » + « Journal » |
 | Question tranchée | retirer de « Questions ouvertes » + « Journal » avec la réponse ; appliquer la réponse dans le document concerné (`02`, `04`…) si elle le modifie |
 | Nouvelle question | « Questions ouvertes » (Q suivant, question, tâche, proposition) |
-| Case « Avant de coder » faite (domaine acheté, comptes créés…) | cocher dans `docs/05-plan-de-travail.md`, recompter « Avancement » + « Journal » |
+| Case « Avant de coder » faite (domaine acheté, comptes créés…) | cocher dans `docs/05-plan-de-travail.md`, recompter « Avancement », fermer l'issue GitHub `A.x` (`gh issue close <n> --comment "…"`) + « Journal » |
+| Recherche faite (web, bibliothèque, règle EPST) | note avec sources dans `docs/claude/recherches/AAAA-MM-JJ-sujet.md` + une ligne au « Journal » |
 | Document reçu de l'école | utiliser la skill `document-ecole` |
 
 Si l'information contredit un document de `docs/`, le signaler et demander avant de modifier le document.

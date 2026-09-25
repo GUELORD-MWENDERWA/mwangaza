@@ -184,3 +184,4 @@ Consultation des élèves et de leur situation financière, encaissement, impres
 | 2026-09 | Pas de SMS en V1 | Budget ; push et annonces gratuits |
 | 2026-09-25 | Suivi d'avancement dans `docs/06-suivi.md` ; skills Claude Code dans `.claude/skills/` | Savoir à tout moment où en est le projet ; même méthode à chaque tâche |
 | 2026-09-25 | Documents réels de l'ITIG avec données personnelles dans `docs/ecole-pilote/prive/`, hors Git | Confidentialité des élèves et du personnel |
+| 2026-09-25 | Dépôt GitHub privé ; un jalon par version, une issue par tâche, PR `Closes #n` | Progression visible par version ; historique relié aux tâches |

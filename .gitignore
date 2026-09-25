@@ -3,8 +3,11 @@
 .env.*
 !.env.example
 
-# Données personnelles réelles de l'école pilote
-docs/ecole-pilote/prive/
+# Données personnelles réelles et dépôt non trié de l'école pilote
+docs/ecole-pilote/prive/*
+!docs/ecole-pilote/prive/LISEZMOI.md
+docs/ecole-pilote/depot/*
+!docs/ecole-pilote/depot/LISEZMOI.md
 
 # Python
 __pycache__/

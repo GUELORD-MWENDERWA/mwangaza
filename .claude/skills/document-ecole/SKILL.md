@@ -8,8 +8,11 @@ argument-hint: "<chemin du fichier ou type de document>"
 
 ## 1. Ranger
 
-- Contient des **données personnelles** (noms d'élèves, téléphones, salaires nominatifs, reçus remplis) → `docs/ecole-pilote/prive/` (hors Git). Sinon → `docs/ecole-pilote/`.
-- Nom : `AAAA-MM-JJ-sujet.ext`. Si le fichier est ailleurs, proposer le déplacement ; ne jamais copier de données personnelles dans le dépôt, les tests ou les données de démonstration.
+- Sans argument : traiter chaque fichier de `docs/ecole-pilote/depot/` (sauf `LISEZMOI.md`).
+- Contient des **données personnelles** (noms d'élèves ou du personnel, téléphones, salaires nominatifs, reçus remplis) → `docs/ecole-pilote/prive/` (hors Git). Sinon → `docs/ecole-pilote/documents/`.
+- Nom : `AAAA-MM-JJ-sujet.ext`. Déplacer (pas copier) depuis `depot/` ; ne jamais copier de données personnelles dans le dépôt, les tests ou les données de démonstration.
+- Vérifier avec `git status --ignored` que le fichier privé est bien ignoré.
+- Faits publics nouveaux (adresse, options, calendrier…) → mettre à jour `docs/ecole-pilote/fiche-itig.md`.
 
 ## 2. Lire
 

@@ -11,7 +11,7 @@ Deux applications sur un même serveur :
 ## Où en est le projet ?
 
 → **[`docs/06-suivi.md`](docs/06-suivi.md)** : état actuel, avancement, bloquants, journal de chaque étape.
-Dans Claude Code : `/etat`.
+Dans Claude Code : `/etat`. Sur GitHub : onglet **Milestones** (une barre de progression par version, une issue par tâche).
 
 ## Organisation du dossier
 
@@ -27,7 +27,9 @@ Dans Claude Code : `/etat`.
 │   ├── 04-modele-de-donnees.md    entités, règles métier, permissions
 │   ├── 05-plan-de-travail.md      tâches ordonnées à cocher
 │   ├── 06-suivi.md                état actuel et journal
-│   └── ecole-pilote/              documents réels de l'ITIG (prive/ = hors Git)
+│   ├── ecole-pilote/              ITIG : fiche-itig.md, depot/ (tes fichiers, hors Git),
+│   │                              documents/ (rangés), prive/ (données personnelles, hors Git)
+│   └── claude/                    espace de travail de Claude : plans/, recherches/, revues/
 ├── maquettes/
 │   ├── README.md              système de design + inventaire des écrans
 │   ├── index.html             galerie : ouvrir dans un navigateur

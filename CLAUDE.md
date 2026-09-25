@@ -17,7 +17,11 @@ Lire `docs/06-suivi.md` (état actuel, tâche en cours, bloquants) avant toute a
 6. `docs/06-suivi.md` — état actuel du projet et journal de chaque étape
 7. `maquettes/README.md` — système de design et inventaire des écrans ; captures dans `maquettes/captures/`, structure et libellés dans `maquettes/gestion/*.html` et `maquettes/portail/*.html`
 
-Documents réels de l'école pilote : `docs/ecole-pilote/` (les fichiers contenant des données personnelles vont dans `docs/ecole-pilote/prive/`, ignoré par Git).
+École pilote : `docs/ecole-pilote/fiche-itig.md` (ce qu'on sait), `depot/` (l'utilisateur y dépose ses fichiers, hors Git), `documents/` (rangés, sans données personnelles), `prive/` (données personnelles, hors Git).
+
+Espace de travail de Claude : `docs/claude/` — `plans/` (plan de chaque tâche avant de coder), `recherches/` (notes avec sources), `revues/` (résultat de `/verifier`).
+
+GitHub (dépôt privé `GUELORD-MWENDERWA/mwangaza`) : un jalon par version (V1.0, V1.1, V1.2, V2), une issue par tâche titrée « <numéro> — … » ; la PR de la tâche contient `Closes #<n>`.
 
 Si une demande sort du périmètre de `02-perimetre-v1.md`, le signaler avant de coder.
 

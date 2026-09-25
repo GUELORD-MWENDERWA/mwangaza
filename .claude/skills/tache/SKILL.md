@@ -23,9 +23,11 @@ Suivre les étapes dans l'ordre. Annoncer chaque étape à l'utilisateur en une 
 
 ## 2. Démarrer
 
-1. Branche : `git switch -c tache/<numéro>-<mot-clé>` (ex. `tache/1.1-core-tenant`) depuis `main` à jour. Si le dépôt n'a encore aucun commit, proposer d'abord le commit initial.
-2. Dans `docs/06-suivi.md` → « État actuel » : tâche en cours, branche, date du jour.
-3. Présenter un plan court (fichiers créés / modifiés, tests prévus). Pour la tâche 0.1, **attendre la validation** avant de créer des fichiers (voir `PROMPT-DEMARRAGE.md`). Pour les autres, continuer sauf si le plan contient une décision non couverte par les documents.
+1. Issue GitHub de la tâche : `gh issue list --state open --search "\"$ARGUMENTS —\" in:title" --json number,title` → noter son numéro `#n`.
+2. Branche : `git switch main && git pull && git switch -c tache/<numéro>-<mot-clé>` (ex. `tache/1.1-core-tenant`).
+3. Dans `docs/06-suivi.md` → « État actuel » : tâche en cours, branche, issue, date du jour.
+4. Écrire le plan dans `docs/claude/plans/tache-<numéro>.md` (fichiers créés / modifiés, tests prévus, décisions à prendre, risques) et le résumer à l'utilisateur. Pour la tâche 0.1, **attendre la validation** avant de créer des fichiers (voir `PROMPT-DEMARRAGE.md`). Pour les autres, continuer sauf si le plan contient une décision non couverte par les documents.
+5. Commenter l'issue : `gh issue comment <n> --body "Démarrée — branche tache/…, plan : docs/claude/plans/tache-<numéro>.md"`.
 
 ## 3. Construire
 
@@ -36,7 +38,7 @@ Suivre les étapes dans l'ordre. Annoncer chaque étape à l'utilisateur en une 
 ## 4. Vérifier
 
 1. Lancer lint + tests (commandes de la section « Commandes » de `CLAUDE.md`). Montrer le résultat réel ; si un test échoue, le dire et corriger.
-2. Appliquer la skill `verifier` sur les changements.
+2. Appliquer la skill `verifier` sur les changements ; enregistrer le tableau dans `docs/claude/revues/tache-<numéro>.md`.
 3. Si la tâche touche un écran : lancer l'application et comparer à la capture de la maquette.
 
 ## 5. Clôturer (obligatoire)
@@ -50,6 +52,7 @@ Suivre les étapes dans l'ordre. Annoncer chaque étape à l'utilisateur en une 
      `### AAAA-MM-JJ — Tâche X.Y : titre` puis **Fait**, **Tests** (nombre, résultat), **Décisions**, **Reste / suite**.
 3. Décision technique nouvelle → ligne dans « Journal des décisions » de `docs/03-architecture-technique.md`.
 4. Nouvelle commande (tâches 0.x surtout) → section « Commandes » de `CLAUDE.md`.
-5. Proposer le message de commit en français, style conventionnel (`feat(finance): encaissement partiel`), terminé par la ligne Co-Authored-By. Ne commiter que si l'utilisateur le demande.
+5. Commit(s) en français, style conventionnel (`feat(finance): encaissement partiel`), terminés par la ligne Co-Authored-By. Commiter, pousser et ouvrir la PR seulement si l'utilisateur l'a demandé (une autorisation générale du type « commit et push à chaque tâche » suffit) ; sinon proposer les commandes.
+6. PR : `gh pr create --base main --title "<numéro> — <titre>" --body "…résumé, tests, revue…\n\nCloses #<n>"`. La fusion dans `main` ferme l'issue.
 
 Dernière ligne de la réponse : `📍 Tâche X.Y terminée — prochaine : X.Z`.

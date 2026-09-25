@@ -12,11 +12,13 @@ Lecture seule : ne modifie aucun fichier, sauf si l'utilisateur le demande ou si
 1. Lire `docs/06-suivi.md` en entier.
 2. Compter les cases de `docs/05-plan-de-travail.md` par bloc :
    `grep -c '^- \[x\]'` et `grep -c '^- \[ \]'` section par section (Avant de coder, Semaine 1 à 4, V1.1, V1.2).
-3. État Git : `git branch --show-current`, `git status --short | head`, `git log --oneline -5` (si le dépôt a des commits).
+3. État Git : `git branch --show-current`, `git status --short | head`, `git log --oneline -5`.
+   GitHub : progression des jalons `gh api repos/{owner}/{repo}/milestones --jq '.[] | "\(.title) \(.closed_issues)/\(.open_issues+.closed_issues)"'`, PR ouvertes `gh pr list`.
 4. Vérifier la cohérence entre les trois sources :
    - le tableau « Avancement » de `06-suivi.md` correspond aux cases de `05` ;
    - la « Tâche en cours » correspond à la branche courante ;
-   - une tâche cochée a une entrée dans le « Journal ».
+   - une tâche cochée a une entrée dans le « Journal » ;
+   - une tâche cochée a son issue GitHub fermée (et inversement).
    Signaler tout écart et proposer la correction.
 5. Déterminer la prochaine tâche : première case non cochée de `05` dont les prérequis (tâches précédentes du même bloc) sont faits, en tenant compte des bloquants de `06-suivi.md`.
 

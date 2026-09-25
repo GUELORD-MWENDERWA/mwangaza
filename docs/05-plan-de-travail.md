@@ -6,6 +6,8 @@ Pour lancer une tâche dans Claude Code : `/tache 2.3` (ou « Fais la tâche 2.3
 
 État actuel, tâche en cours, bloquants et journal de chaque étape : `06-suivi.md` (`/etat` dans Claude Code).
 
+Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **issue** portant son numéro (ex. « 1.1 — App core… »). La PR d'une tâche ferme son issue (`Closes #n`). Ce fichier reste la référence ; GitHub montre la progression de chaque version.
+
 ## Avant de coder (toi, cette semaine)
 
 - [ ] Récupérer auprès de l'ITIG les éléments listés au § 11 du cahier des charges (surtout : grille des frais, liste des élèves en Excel, modèle de reçu actuel)
@@ -66,6 +68,8 @@ Pour lancer une tâche dans Claude Code : `/tache 2.3` (ou « Fais la tâche 2.3
 - [ ] **5.5** Cartes d'élève PDF avec photo et QR ; pointage d'entrée par scan QR sur tablette, hors-ligne
 - [ ] **5.6** Pénalités de retard, validation d'inscription liée au paiement, documents téléversés
 - [ ] **5.7** Connexion Google, champs complémentaires de la fiche élève
+- [ ] **5.8** Communication : messages à une classe, calendrier des événements, circulaires PDF, convocations ; portail : calendrier, titulaire et enseignants avec contacts *(ajoutée le 2026-09-25 — cahier § 8.9, 8.10)*
+- [ ] **5.9** Espace enseignant : fiche de paie et horaire ; jeton de carte RFID / NFC de l'élève, révocable *(ajoutée le 2026-09-25 — cahier § 8.3, 8.5, 8.12)*
 
 ## Semaines 9 à 14 — V1.2 (ordre à ajuster selon la date des bulletins ITIG)
 
@@ -78,3 +82,29 @@ Pour lancer une tâche dans Claude Code : `/tache 2.3` (ou « Fais la tâche 2.3
 - [ ] **6.7** Discipline ; messagerie parent ↔ titulaire / administration ; rendez-vous
 - [ ] **6.8** Portail élèves ; espace enseignant et titulaire
 - [ ] **6.9** Transfert d'élève entre écoles de la plateforme ; attestations et certificats
+- [ ] **6.10** Portail parents V1.2 : présences en direct, notes, bulletins PDF, discipline, documents ; tableau de bord : taux de présence et résultats scolaires *(ajoutée le 2026-09-25 — cahier § 8.10, 8.13)*
+- [ ] **6.11** Congés et permissions du personnel ; sondages ; option de blocage des bulletins / examens en cas de dette (désactivée par défaut) *(ajoutée le 2026-09-25 — cahier § 8.4, 8.5, 8.9)*
+
+## V2 — après la V1.2 (proposition : ordre et découpage à valider avant de commencer)
+
+Chaque tâche V2 sera redécoupée en sous-tâches (7.1.1, 7.1.2…) au moment de la commencer.
+
+- [ ] **7.1** Réseau : tableau consolidé promoteur / coordination confessionnelle, comparaison entre années (cahier § 6.1, 8.13)
+- [ ] **7.2** Plateforme : abonnements et facturation des écoles (tarif par élève, offres Découverte / Standard / Réseau, essai), revendeurs, annonces à toutes les écoles, statistiques globales (§ 5, 6.1)
+- [ ] **7.3** Paiement en ligne Mobile Money via agrégateur, argent versé directement sur le compte de l'école (§ 5, 8.14)
+- [ ] **7.4** SMS et WhatsApp avec crédits achetés par l'école ; relances d'impayés par SMS (§ 8.4, 8.9)
+- [ ] **7.5** Applications Android et iPhone (Capacitor) publiées dans les stores (§ 8.10)
+- [ ] **7.6** Pré-inscription en ligne, test d'admission, liste d'attente (§ 8.3)
+- [ ] **7.7** Comptabilité SYSCOHADA complète : journal, grand livre, budget prévisionnel, rapprochement bancaire (§ 8.4)
+- [ ] **7.8** Emploi du temps automatique sans conflit ; devoirs et cours publiés (enseignant, élève, parent) (§ 8.6, 8.10–8.12)
+- [ ] **7.9** Évaluations d'atelier (écoles techniques) ; évaluation des enseignants (§ 8.5, 8.6)
+- [ ] **7.10** Rapports officiels EPST : statistiques de fin d'année, listes ENAFEP / Exetat, palmarès officiel (§ 8.13)
+- [ ] **7.11** Enseignement supérieur LMD : semestres, unités d'enseignement, crédits, sessions (§ 7)
+- [ ] **7.12** Vie scolaire : bibliothèque, cantine (menu dans le portail), transport (itinéraires, suivi GPS), internat (§ 8.10, 8.14)
+- [ ] **7.13** Gestion matérielle : inventaire, ateliers (équipements, matières d'œuvre, TP), boutique (uniformes, fournitures) (§ 8.14)
+- [ ] **7.14** Orientation scolaire, anciens élèves, site vitrine généré pour chaque école (`{ecole}.mwangaza.cd/`) (§ 8.14, architecture § 2)
+- [ ] **7.15** Sécurité en profondeur : Row Level Security PostgreSQL (architecture § 4)
+
+## Plus tard (non planifié)
+
+Migration depuis d'autres logiciels ; rapports transmis aux sous-divisions EPST ; maternelle ; intelligence artificielle (non prévue au départ).
