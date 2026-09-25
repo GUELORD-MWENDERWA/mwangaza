@@ -1,0 +1,102 @@
+---
+name: design
+description: Système de design Mwangaza (basalte, lampe, lac Kivu, Atkinson Hyperlegible) — jetons de couleur, thème Tailwind / shadcn, correspondance entre les classes des maquettes et les composants, formats des montants et des dates, règles d'accessibilité et de mise en page. À utiliser pour tout travail d'interface — thème, composant partagé, écran, impression — dans frontend/apps/gestion, frontend/apps/portail ou frontend/packages/ui.
+---
+
+# Système de design Mwangaza
+
+Sources de vérité, dans cet ordre : `maquettes/assets/styles.css` (bloc `:root`), `maquettes/README.md` § « Système de design », les captures `maquettes/captures/`. Ne pas inventer de couleur, de rayon ni de taille : les reprendre de ces fichiers. Si un besoin n'y est pas couvert, proposer une valeur cohérente et la noter (`/noter`).
+
+## Intention
+
+- **Basalte** (pierre volcanique de Goma) : barre latérale de la Gestion, en-tête du Portail.
+- **Lampe** (jaune, *mwangaza* = lumière) : repère de l'élément actif, logo, points d'attention. **Jamais en fond de page ni de grande surface.**
+- **Lac** (bleu-vert du lac Kivu) : toutes les actions principales, liens, focus.
+- Utilisateurs peu habitués à l'informatique, écrans de faible qualité : gros boutons, formulaires courts, texte lisible.
+
+## Jetons
+
+| Jeton | Valeur | Usage |
+|---|---|---|
+| `basalt` | `#2B2724` | barre latérale, en-tête portail |
+| `basalt-2` | `#3A3531` | élément actif / encart école sur basalte |
+| `basalt-ink` | `#EDE8E3` | texte sur basalte |
+| `lamp` | `#F2B632` | repère actif (barre 4 px à gauche), logo, compteur |
+| `lamp-soft` | `#FDF3D8` | bandeau d'information de marque (`lampb`), étiquette V1.x |
+| `lake` | `#0E5C6B` | `primary` : bouton principal, lien, focus, onglet actif |
+| `lake-700` | `#0A4652` | survol / texte sur `lake-50` |
+| `lake-50` | `#E6F0F2` | ligne sélectionnée, anneau de focus, fond avatar |
+| `ink` / `ink-2` / `ink-3` | `#1A2233` / `#4A5568` / `#77818F` | texte / secondaire / tertiaire |
+| `surface` | `#F3F5F6` | fond de page |
+| `card` | `#FFFFFF` | cartes |
+| `line` | `#DDE3E6` | bordures |
+| bordure de champ | `#C9D1D6` | `input` |
+| `ok` / `ok-50` | `#1F7A4D` / `#E5F3EB` | payé, soldé, à jour, en ligne, succès |
+| `due` / `due-50` | `#B42318` / `#FBE9E7` | en retard, erreur, danger, annulé |
+| `warn` / `warn-50` | `#9A5B00` / `#FFF1D6` | partiel, hors-ligne, avertissement |
+| `info` / `info-50` | `#0E5C6B` / `#E6F0F2` | information |
+
+Rayons : cartes 12 px, champs et boutons 8 px, pastilles 999 px. Ombre des cartes : `0 1px 2px rgba(26,34,51,.06), 0 4px 12px rgba(26,34,51,.05)`.
+
+### Correspondance shadcn/ui
+
+`--background` = surface · `--foreground` = ink · `--card` = card · `--border` = line · `--input` = `#C9D1D6` · `--primary` = lake · `--primary-foreground` = blanc · `--ring` = lake · `--accent` = lake-50 · `--accent-foreground` = lake-700 · `--muted-foreground` = ink-3 · `--destructive` = due · `--radius` = 8px (cartes : 12px) · `--sidebar` = basalt · `--sidebar-foreground` = basalt-ink · `--sidebar-accent` = basalt-2 · `--sidebar-primary` = lamp.
+Ajouter `ok`, `due`, `warn`, `info` (et leurs `-50`), `lamp`, `lamp-soft`, `basalt*`, `ink-2`, `ink-3` comme couleurs du thème Tailwind. Le thème vit dans `frontend/packages/ui` et est partagé par les deux applications.
+
+## Typographie
+
+- **Atkinson Hyperlegible** 400 et 700, fichiers `maquettes/assets/fonts/*.woff2` **embarqués dans l'application** (pas de Google Fonts : hors-ligne), `font-display: swap`, repli `system-ui, sans-serif`.
+- Base 15 px, interligne 1,45. `h1` 1,6 rem, `h2` 1,15 rem, `h3` 1 rem.
+- **Chiffres** : toujours `tabular-nums`, alignés à droite dans les tableaux, sans retour à la ligne (classe utilitaire `num`).
+
+## Composants (maquette → application)
+
+Les composants partagés vont dans `frontend/packages/ui`. Les construire une fois, les réutiliser partout.
+
+| Maquette | Composant | Notes |
+|---|---|---|
+| `.card` `.hd` `.bd` `.ft` | `Card` / `CardHeader` / `CardContent` / `CardFooter` | |
+| `.kpi` (`.lbl` `.val` `.sub` `.up` `.down`) | `Kpi` | valeur 1,65 rem gras, tabulaire |
+| `.btn` `.primary` `.danger` `.dangerf` `.ghost` · `.sm` `.lg` `.xl` | `Button` variantes `default`, `outline`, `destructive-outline`, `destructive`, `ghost` ; tailles `sm`, `lg`, `xl` | `xl` = pleine largeur, ≥ 60 px (caisse) ; raccourci clavier affiché en `.k` |
+| `.inp` `.inp.big` `.focus` `.err` | `Input`, `AmountInput` | hauteur ≥ 40 px ; `big` = saisie du montant en caisse (1,9 rem, ≥ 64 px) |
+| `label.f` `.req` `.help` `.errtxt` | `FormField` (react-hook-form + zod) | astérisque rouge pour obligatoire |
+| `.box` | `Checkbox` | |
+| `.seg` | `ToggleGroup` (choix unique) | ex. USD / FC |
+| `.toggle` | `Switch` | |
+| `.tbl` `tr.sel` `.errrow` `.warnrow` `tfoot` | `Table` | en-tête `#F8FAFA` ; ligne sélectionnée `lake-50` |
+| `.pill` `ok` `due` `warn` `info` `gray` | `StatusPill` | point de couleur devant le texte |
+| `.tag` `.tag.v` | `Tag` | `v` = marqueur de lot V1.1 / V1.2 |
+| `.banner` `info` `warn` `due` `ok` `lampb` | `Banner` (Alert) | icône à gauche |
+| `.tabs` | `Tabs` | onglet actif : texte et soulignement 3 px `lake` |
+| `.steps` `.done` `.on` | `Steps` | fait = `ok` avec ✓ ; en cours = `lake` |
+| `.bar` `i.ok` `i.warn` `i.due` | `Progress` | |
+| `.avatar` `.who` | `Avatar`, `PersonCell` | initiales sur `lake-50` |
+| `.sync.online` / `.sync.offline` | `SyncIndicator` | **toujours visible** dans la barre du haut de la Gestion |
+| `.keypad` `.pins` | `PinPad` | déverrouillage PIN |
+| `.side` `.brand` `.school` `.navlabel` `.nav a.on` `.soon` `.count` | coquille `AppShell` de la Gestion | 248 px ; groupes Pilotage / Scolarité / Finances / Communication / Paramètres ; entrée active = fond `basalt-2` + barre `lamp` ; entrées V1.1 / V1.2 **masquées** en V1.0 ; entrées filtrées par permission |
+| `.top` `.search` `.kbd` `.user` | barre du haut | recherche globale `Ctrl K` |
+| `.ptop` `.pnav` `.phone` | coquille du Portail | en-tête basalte, navigation basse à 4 entrées, largeur max 430 px |
+| `.thermal` | gabarit reçu 80 mm | `@page { size: 80mm auto; margin: 0 }` |
+| `.a4` | gabarit A4 | |
+| `.note` | **rien** | règle métier / critère d'acceptation, jamais affichée |
+
+## Formats d'affichage
+
+À implémenter une seule fois (`frontend/packages/money` et `frontend/packages/i18n`), jamais à la main dans un écran.
+
+- USD : `1 234,56 $` — séparateur de milliers insécable, virgule décimale, symbole après.
+- FC : `1 260 000 FC` — sans décimales.
+- Montants dans deux devises : `20,00 $ + 30 000 FC`.
+- Dates `19/10/2026`, heures `10:42`, fuseau de l'école (`Africa/Lubumbashi` par défaut).
+- Élève : `NOM POST-NOM` en majuscules, prénom en casse normale (`KAMBALE MUHINDO Josué`).
+- Anglais : mêmes règles de devise, formats de date selon la langue via i18next.
+
+## Mise en page et accessibilité
+
+- Page : contenu `padding 24px`, largeur max 1360 px, espacement vertical 20 px.
+- En-tête de page : fil d'Ariane (`.crumbs`), titre, sous-titre `ink-2`, actions à droite.
+- Sous 900 px : barre latérale cachée (prévoir un menu tiroir), grilles sur une colonne, recherche du haut masquée. La Gestion doit rester utilisable sur tablette et téléphone Android (captures mobiles : caisse, pointage, notes).
+- Focus visible : bordure `lake` + anneau 3 px `lake-50`. Erreur : bordure `due` + anneau `due-50`.
+- Contraste : texte `ink` sur `surface` / `card` ; ne pas écrire en `ink-3` un texte important.
+- Couleurs d'état **toujours** accompagnées d'un texte (« 5 j de retard », « soldé »), jamais la couleur seule.
+- Personnalisation par école (`School.primary_color`, logo) : prévue via variables CSS ; elle ne remplace jamais les couleurs d'état.

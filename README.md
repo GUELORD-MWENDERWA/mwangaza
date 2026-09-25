@@ -1,0 +1,59 @@
+# Mwangaza (nom de travail)
+
+Plateforme de gestion scolaire multi-écoles pour la RDC, lancement à Goma.
+École pilote : ITIG Don Bosco Goma.
+
+Deux applications sur un même serveur :
+
+- **Gestion** (`{ecole}.mwangaza.cd/app`) — le personnel gère élèves, frais, caisse, reçus. Fonctionne **hors-ligne**.
+- **Portail** (`parents.mwangaza.cd`) — les familles consultent paiements, reçus, échéances et annonces.
+
+## Où en est le projet ?
+
+→ **[`docs/06-suivi.md`](docs/06-suivi.md)** : état actuel, avancement, bloquants, journal de chaque étape.
+Dans Claude Code : `/etat`.
+
+## Organisation du dossier
+
+```
+.
+├── CLAUDE.md                  règles du projet, lues automatiquement par Claude Code
+├── PROMPT-DEMARRAGE.md        comment démarrer et quels prompts utiliser
+├── README.md                  ce fichier
+├── docs/
+│   ├── 01-cahier-des-charges.md   tout le produit visé (V1.0 → V2)
+│   ├── 02-perimetre-v1.md         ce qu'on construit maintenant, et ce qu'on ne construit pas
+│   ├── 03-architecture-technique.md  stack, multi-écoles, hors-ligne, sécurité, journal des décisions
+│   ├── 04-modele-de-donnees.md    entités, règles métier, permissions
+│   ├── 05-plan-de-travail.md      tâches ordonnées à cocher
+│   ├── 06-suivi.md                état actuel et journal
+│   └── ecole-pilote/              documents réels de l'ITIG (prive/ = hors Git)
+├── maquettes/
+│   ├── README.md              système de design + inventaire des écrans
+│   ├── index.html             galerie : ouvrir dans un navigateur
+│   ├── gestion/  portail/     maquettes HTML de chaque écran
+│   ├── captures/              captures PNG desktop (1440 px) et mobile (390 px)
+│   └── assets/                styles.css (jetons du design) et police Atkinson Hyperlegible
+└── .claude/skills/            skills Claude Code du projet
+```
+
+À venir avec la tâche 0.1 : `backend/`, `frontend/`, `infra/` (voir `docs/03-architecture-technique.md` § 3).
+
+## Travailler avec Claude Code
+
+| Commande | Rôle |
+|---|---|
+| `/etat` | Où on en est, prochaine tâche, bloquants |
+| `/tache 1.1` | Réaliser une tâche du plan de bout en bout |
+| `/noter …` | Noter une étape, une décision, un document reçu |
+| `/ecran …` | Construire un écran d'après sa maquette |
+| `/design` | Système de design (couleurs, composants, formats) |
+| `/backend` | Modèle, service ou endpoint Django conforme aux règles |
+| `/argent` | Montants, devises, taux, répartition, affichage |
+| `/hors-ligne` | Synchronisation et caisse sans internet |
+| `/verifier` | Contrôle des règles non négociables avant commit |
+| `/document-ecole` | Intégrer un document réel de l'ITIG |
+
+## Commandes
+
+À compléter lors de la tâche 0.1 (démarrage, tests, migrations, client API, build PWA).

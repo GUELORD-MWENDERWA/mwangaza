@@ -1,0 +1,34 @@
+---
+name: etat
+description: Faire le point sur l'avancement du projet Mwangaza — tâche en cours, cases cochées, prochaine tâche, bloquants, questions ouvertes, état Git. À utiliser quand l'utilisateur demande « où on en est », « le point », « l'état du projet », « qu'est-ce qui reste », ou au début d'une session de travail.
+---
+
+# Faire le point
+
+Lecture seule : ne modifie aucun fichier, sauf si l'utilisateur le demande ou si une incohérence doit être corrigée (dans ce cas, le signaler d'abord).
+
+## Étapes
+
+1. Lire `docs/06-suivi.md` en entier.
+2. Compter les cases de `docs/05-plan-de-travail.md` par bloc :
+   `grep -c '^- \[x\]'` et `grep -c '^- \[ \]'` section par section (Avant de coder, Semaine 1 à 4, V1.1, V1.2).
+3. État Git : `git branch --show-current`, `git status --short | head`, `git log --oneline -5` (si le dépôt a des commits).
+4. Vérifier la cohérence entre les trois sources :
+   - le tableau « Avancement » de `06-suivi.md` correspond aux cases de `05` ;
+   - la « Tâche en cours » correspond à la branche courante ;
+   - une tâche cochée a une entrée dans le « Journal ».
+   Signaler tout écart et proposer la correction.
+5. Déterminer la prochaine tâche : première case non cochée de `05` dont les prérequis (tâches précédentes du même bloc) sont faits, en tenant compte des bloquants de `06-suivi.md`.
+
+## Réponse (courte, en français)
+
+```
+📍 Phase : … · Lot : … · Semaine : …
+✅ Fait : X / 32 tâches V1.0 (détail par semaine sur une ligne)
+🔨 En cours : tâche … (branche …) — ou « aucune »
+➡️ Prochaine : tâche … — une phrase sur son contenu
+⛔ Bloquants : … (seulement ceux qui touchent les 2 prochaines tâches)
+❓ Questions à trancher bientôt : …
+```
+
+Terminer par une proposition concrète : « Lancer `/tache X.Y` ? »

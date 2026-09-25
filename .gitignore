@@ -1,0 +1,38 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Données personnelles réelles de l'école pilote
+docs/ecole-pilote/prive/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Django
+backend/media/
+backend/staticfiles/
+
+# Node
+node_modules/
+dist/
+.vite/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+
+# Éditeurs et système
+.DS_Store
+.idea/
+*.swp
+
+# Claude Code (réglages personnels)
+.claude/settings.local.json
