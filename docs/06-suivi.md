@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 1 (Socle) |
 | Lot | V1.0 — semaine 1 (Socle) |
-| Tâche en cours | aucune — 0.1 terminée, PR en relecture |
+| Tâche en cours | aucune — 0.1 terminée ; maquettes manquantes dessinées (hors plan) ; 3 PR à fusionner dans l'ordre : #72, #73, #74 |
 | Prochaine tâche | 0.2 — qualité : ruff, pytest, ESLint, Prettier, Vitest, pre-commit, GitHub Actions |
 | Issue GitHub | #5 (0.1, fermée à la fusion de la PR) · prochaine : #6 (0.2) |
-| Branche | `tache/0.1-monorepo` → PR vers `main` (dépôt GitHub privé `GUELORD-MWENDERWA/mwangaza`) |
+| Branche | `tache/0.1-monorepo` (#72) → `docs/inventaire-manques` (#73) → `docs/maquettes-manquantes` (#74), empilées (dépôt GitHub privé `GUELORD-MWENDERWA/mwangaza`) |
 | Dernière mise à jour | 2026-09-26 |
 
 ## Avancement
@@ -59,10 +59,19 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I17, déci
 | Q7 | L'organigramme ITIG a 2 directeurs des études, 1 directeur de discipline et 2 chefs d'atelier ; « chef d'atelier » n'est pas dans la liste des rôles du cahier des charges, et on ne sait pas qui joue le rôle de promoteur (communauté salésienne ?). | 1.2 | Rôles système V1.0 inchangés ; chef d'atelier = rôle personnalisé créé par l'école (B2) en attendant le module ateliers (V2) ; demander à l'ITIG qui est « promoteur ». |
 | Q8 | Couleur de l'ITIG pour la personnalisation (`School.primary_color`). | 1.5 | `#003C6C` (bleu marine du logo). |
 | Q9 | Nom et domaine : `mwangaza.cd` est déjà enregistré (sans site), `mwangaza.com` est en vente chez un revendeur, `mwangaza.app` est pris ; « Shule Yetu » est déjà une plateforme de gestion scolaire. | maintenant (domaine avant 4.6) | Garder **Mwangaza** (identité visuelle construite autour : lampe = lumière ; aucun logiciel scolaire de ce nom trouvé) et prendre **`mwangaza.africa`** (semble libre, à confirmer chez le registrar). Autres possibilités : `mwangaza.school` ; `mwanga.cd` (même sens, plus court) ; tenter de racheter `mwangaza.cd`. |
+| Q10 | L'identité d'un élève (`Student`) et sa famille (`Family`, `Guardian`) sont partagées entre écoles (modèles globaux). Qui peut les corriger quand l'élève a été inscrit dans deux écoles ? | 2.1, 2.2 | L'école de l'inscription active corrige ; la correction se voit partout, avec auteur et école dans l'historique ; une école où l'élève n'est plus inscrit ne peut que lire. |
+| Q11 | Bulletins : les formulaires officiels trouvés (IGE/P.S/094, /100, /005) numérotent les classes à l'ancienne (« 3e année » = 1re des humanités) et sont peut-être pré-imprimés (achetés). | 6.1, 6.3 | Demander à l'ITIG un bulletin vierge et un rempli par niveau (I15, I18) ; prévoir deux modes d'impression : bulletin complet, ou notes seules sur le formulaire pré-imprimé. |
 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-26 — Maquettes manquantes dessinées ; bulletins officiels de la RDC
+
+- **Fait** : T3 tranchée (Claude dessine). 32 maquettes dessinées dans le système de design, à partir des maquettes existantes et des documents : les 20 manquantes de la V1.0 (M1–M20 = 25 écrans Gestion et 4 Portail), cours et maxima (6.1), bulletin 7e–8e, et le bulletin des humanités techniques qui remplace le « gabarit provisoire ». Total : 61 maquettes, 67 captures refaites (50 bureau, 17 mobile). Menu de la Gestion : 5 entrées ajoutées (Crédits d'élèves, Demandes des parents, Paramètres de l'école, Comptes du personnel, Journal d'audit), identique sur toutes les maquettes ; liens entre écrans complétés. Outils sans dépendance dans `maquettes/outils/` (menu, galerie, captures). Recherche web sur les bulletins : formulaires officiels IGE/P.S/100 (Électricité), /094 (Mécanique générale), /005 (1re–2e secondaire = 7e–8e), barème officiel des maxima de l'option Électronique, heures de l'option Électricité, régime pédagogique du cycle terminal de l'éducation de base — `docs/claude/recherches/2026-09-26-bulletins-rdc.md`.
+- **Décisions** : fusionner la PR des maquettes = les valider ; une remarque sur un écran se fait en commentaire de PR. Maquettes dessinées : état « à valider » dans `maquettes/README.md` et `index.html`. Bulletin : branches groupées par maximum, examen = 2 × période, pas d'examen pour les cours pratiques (règles lues sur les formulaires).
+- **Nouvelles questions** : Q10 (identité et famille partagées entre écoles), Q11 (numérotation et bulletin pré-imprimé). Nouvelle information à demander : I18 (code de l'école, N° ID et N° permanent).
+- **Suite** : l'utilisateur fusionne #72, #73 puis #74 ; ensuite tâche 0.2.
 
 ### 2026-09-26 — Inventaire de ce qui manque ; nom du projet
 
