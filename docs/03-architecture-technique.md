@@ -185,3 +185,6 @@ Consultation des élèves et de leur situation financière, encaissement, impres
 | 2026-09-25 | Suivi d'avancement dans `docs/06-suivi.md` ; skills Claude Code dans `.claude/skills/` | Savoir à tout moment où en est le projet ; même méthode à chaque tâche |
 | 2026-09-25 | Documents réels de l'ITIG avec données personnelles dans `docs/ecole-pilote/prive/`, hors Git | Confidentialité des élèves et du personnel |
 | 2026-09-25 | Dépôt GitHub privé ; un jalon par version, une issue par tâche, PR `Closes #n` | Progression visible par version ; historique relié aux tâches |
+| 2026-09-25 | `uv` pour Python, `pnpm` (corepack) pour le front, `make` comme point d'entrée unique | Installations rapides et verrouillées ; mêmes commandes en local, en Docker et en CI |
+| 2026-09-25 | Dev : sous-domaines `{code}.localhost`, API derrière le proxy Vite (`changeOrigin: false`) | Même origine que la production (cookies, CSRF) et sous-domaine de l'école transmis à Django |
+| 2026-09-25 | API fermée par défaut (`IsAuthenticated`) ; schéma et doc OpenAPI exposés seulement en `DEBUG` | Chaque endpoint ouvre explicitement ce qu'il expose ; pas de carte de l'API publique en production |

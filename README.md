@@ -39,7 +39,7 @@ Dans Claude Code : `/etat`. Sur GitHub : onglet **Milestones** (une barre de pro
 └── .claude/skills/            skills Claude Code du projet
 ```
 
-À venir avec la tâche 0.1 : `backend/`, `frontend/`, `infra/` (voir `docs/03-architecture-technique.md` § 3).
+Code (tâche 0.1, voir `docs/03-architecture-technique.md` § 3) : `backend/` (Django), `frontend/` (workspace pnpm : `apps/gestion`, `apps/portail`, `packages/api|ui|i18n|money`), `infra/` (Docker Compose), `firmware/` (V1.2), `Makefile`.
 
 ## Travailler avec Claude Code
 
@@ -56,6 +56,14 @@ Dans Claude Code : `/etat`. Sur GitHub : onglet **Milestones** (une barre de pro
 | `/verifier` | Contrôle des règles non négociables avant commit |
 | `/document-ecole` | Intégrer un document réel de l'ITIG |
 
-## Commandes
+## Démarrer
 
-À compléter lors de la tâche 0.1 (démarrage, tests, migrations, client API, build PWA).
+Prérequis : Git, Docker, Python 3.12, Node 22, [uv](https://docs.astral.sh/uv/), pnpm (`corepack enable pnpm`), make.
+
+```bash
+make install     # dépendances
+make dev         # tout lancer dans Docker
+```
+
+Puis ouvrir la Gestion sur http://itig.localhost:5173/app/ et le Portail sur http://localhost:5174/.
+Toutes les commandes : `make` (détail dans `CLAUDE.md`, section « Commandes »).

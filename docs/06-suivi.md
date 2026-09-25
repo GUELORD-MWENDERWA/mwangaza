@@ -6,24 +6,24 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | Préparation terminée — démarrage de la tâche 0.1 |
+| Phase | V1.0 — semaine 1 (Socle) |
 | Lot | V1.0 — semaine 1 (Socle) |
-| Tâche en cours | aucune |
-| Prochaine tâche | **0.1** — monorepo, Docker Compose de développement, commandes — plan écrit (`docs/claude/plans/tache-0.1.md`), **en attente de validation** |
-| Issue GitHub | #5 |
-| Branche | `main`, synchronisée avec GitHub (`GUELORD-MWENDERWA/mwangaza`, privé) |
-| Dernière mise à jour | 2026-09-25 |
+| Tâche en cours | aucune — 0.1 terminée, PR en relecture |
+| Prochaine tâche | 0.2 — qualité : ruff, pytest, ESLint, Prettier, Vitest, pre-commit, GitHub Actions |
+| Issue GitHub | #5 (0.1, fermée à la fusion de la PR) · prochaine : #6 (0.2) |
+| Branche | `tache/0.1-monorepo` → PR vers `main` (dépôt GitHub privé `GUELORD-MWENDERWA/mwangaza`) |
+| Dernière mise à jour | 2026-09-25 (fin de la tâche 0.1) |
 
 ## Avancement
 
 | Bloc | Fait | Total |
 |---|:-:|:-:|
 | Avant de coder (toi) | 0 | 4 |
-| Semaine 1 — Socle | 0 | 9 |
+| Semaine 1 — Socle | 1 | 9 |
 | Semaine 2 — Élèves et frais | 0 | 7 |
 | Semaine 3 — Caisse et hors-ligne | 0 | 8 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **0** | **32** |
+| **V1.0** | **1** | **32** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -39,7 +39,7 @@ Sur GitHub : onglet *Milestones* — V1.0 (36 issues, dont les 4 « avant de cod
 | Date de remise des bulletins de la 1re période 2026-2027 (indice : 8 novembre en 2025) | ITIG | ordre V1.1 / V1.2 — voir Q6 |
 | Nom définitif et domaine | toi | 4.6 |
 | Comptes VPS, Cloudflare, stockage objet (GitHub : fait) | toi | 4.6, 4.7 |
-| Docker absent de la machine (Redis aussi) | toi (installation avec sudo) | mode Docker de 0.1 ; en attendant, développement local sur le PostgreSQL 16 installé |
+| Docker à installer (commandes données le 2026-09-25), puis déconnexion / reconnexion | toi | `make dev` jamais lancé ; en attendant : `make dev-local` avec une base PostgreSQL (voir journal 0.1) |
 | Logo haute qualité + version noir et blanc pour le reçu thermique | ITIG | 3.2 |
 
 ## Questions ouvertes
@@ -60,6 +60,14 @@ Sur GitHub : onglet *Milestones* — V1.0 (36 issues, dont les 4 « avant de cod
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-25 — Tâche 0.1 : monorepo, Docker Compose de développement, commandes
+
+- **Fait** : `backend/` (Django 5.2.17 LTS, DRF, drf-spectacular, Celery, psycopg ; réglages `dev` / `test` / `prod` ; `/api/health/` ; schéma et doc de l'API en dev) ; `frontend/` (workspace pnpm : `apps/gestion` sur `/app/` port 5173, `apps/portail` port 5174, proxy `/api` vers Django en gardant le sous-domaine ; `packages/api|ui|i18n|money` vides) ; `infra/docker-compose.dev.yml` (PostgreSQL 16 sur 5433, Redis 7, Django, Celery, Vite) ; `Makefile` (16 commandes) ; `.env.example`, `.editorconfig`, `firmware/README.md` ; section « Commandes » de `CLAUDE.md`. Outils installés : `uv` 0.12 (`~/.local/bin`), `pnpm` 12.6 (corepack).
+- **Tests** : `make test-back` 3 passés (santé, panne de base → 503, schéma OpenAPI valide) ; types et build des deux applications OK ; parcours vérifié à la main sur `itig.localhost:5173/app/` et `localhost:5174` via le proxy ; `check --deploy` : seul W021 (préchargement HSTS, reporté à 4.6). Revue : `docs/claude/revues/tache-0.1.md`.
+- **Décisions** : uv ; `make` pour toutes les commandes ; PostgreSQL de Docker exposé sur 5433 ; sous-domaines `{code}.localhost` en dev ; API fermée par défaut (`IsAuthenticated`) ; schéma et doc de l'API seulement en `DEBUG` ; schéma OpenAPI commité dans `packages/api`.
+- **Reste** : lancer `make dev` quand Docker sera installé ; ta base locale n'a pas de rôle PostgreSQL pour ton utilisateur → utiliser `make services` (Docker) ou créer le rôle (`sudo -u postgres createuser --createdb --pwprompt mwangaza`) ; en 1.2 (modèle `User` personnalisé), la base de dev sera recréée.
+- **Suite** : 0.2 — qualité (ruff, ESLint, Prettier, Vitest, pre-commit, GitHub Actions).
 
 ### 2026-09-25 — GitHub, découpage par versions, dossier ITIG, espace de travail de Claude
 
