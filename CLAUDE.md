@@ -15,7 +15,8 @@ Lire `docs/06-suivi.md` (état actuel, tâche en cours, bloquants) avant toute a
 4. `docs/04-modele-de-donnees.md` — entités et règles métier
 5. `docs/05-plan-de-travail.md` — tâches ordonnées, cocher au fur et à mesure
 6. `docs/06-suivi.md` — état actuel du projet et journal de chaque étape
-7. `maquettes/README.md` — système de design et inventaire des écrans ; captures dans `maquettes/captures/`, structure et libellés dans `maquettes/gestion/*.html` et `maquettes/portail/*.html`
+7. `docs/07-a-fournir.md` — maquettes, informations et décisions encore manquantes (et ce qu'on utilise en attendant)
+8. `maquettes/README.md` — système de design et inventaire des écrans ; captures dans `maquettes/captures/`, structure et libellés dans `maquettes/gestion/*.html` et `maquettes/portail/*.html`
 
 École pilote : `docs/ecole-pilote/fiche-itig.md` (ce qu'on sait), `depot/` (l'utilisateur y dépose ses fichiers, hors Git), `documents/` (rangés, sans données personnelles), `prive/` (données personnelles, hors Git).
 
@@ -102,6 +103,10 @@ Adresses en dev : Gestion `http://itig.localhost:5173/app/` (le sous-domaine = c
 - Avant de coder une fonction, relire la section correspondante du cahier des charges et du modèle de données.
 - Après chaque tâche : cocher la case dans `docs/05-plan-de-travail.md` et noter toute décision nouvelle dans la section « Journal des décisions » de `docs/03-architecture-technique.md`.
 - En cas de doute sur une règle scolaire RDC (bulletins, délibération, frais), demander plutôt que supposer.
+
+## Données de démonstration
+
+Tant que les vraies données de l'ITIG ne sont pas là, on travaille avec des données **fictives** : `make demo` recrée l'école `itig` (démo), une seconde école fictive `volcans` et un compte par rôle (détail : `docs/07-a-fournir.md` § 4). Chaque tâche qui ajoute un modèle enrichit cette commande. Jamais de vraie donnée personnelle dans les données de démonstration ni dans les tests.
 
 ## Suivi du projet (obligatoire)
 

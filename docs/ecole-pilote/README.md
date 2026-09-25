@@ -14,6 +14,8 @@ Tout ce qui concerne l'école pilote : ce qu'on sait déjà (`fiche-itig.md`), l
 
 Nom des fichiers rangés : `AAAA-MM-JJ-sujet.ext`. Les données de démonstration et les tests restent toujours fictifs.
 
+Liste complète de ce qui manque (documents, réponses, décisions) avec les dates limites : `docs/07-a-fournir.md`.
+
 ## Documents attendus (cahier des charges § 11)
 
 | Document | Statut | Fichier | Tâches |

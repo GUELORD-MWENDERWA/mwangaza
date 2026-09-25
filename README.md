@@ -27,6 +27,7 @@ Dans Claude Code : `/etat`. Sur GitHub : onglet **Milestones** (une barre de pro
 │   ├── 04-modele-de-donnees.md    entités, règles métier, permissions
 │   ├── 05-plan-de-travail.md      tâches ordonnées à cocher
 │   ├── 06-suivi.md                état actuel et journal
+│   ├── 07-a-fournir.md            maquettes, informations et décisions encore manquantes
 │   ├── ecole-pilote/              ITIG : fiche-itig.md, depot/ (tes fichiers, hors Git),
 │   │                              documents/ (rangés), prive/ (données personnelles, hors Git)
 │   └── claude/                    espace de travail de Claude : plans/, recherches/, revues/

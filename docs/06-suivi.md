@@ -12,7 +12,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Prochaine tâche | 0.2 — qualité : ruff, pytest, ESLint, Prettier, Vitest, pre-commit, GitHub Actions |
 | Issue GitHub | #5 (0.1, fermée à la fusion de la PR) · prochaine : #6 (0.2) |
 | Branche | `tache/0.1-monorepo` → PR vers `main` (dépôt GitHub privé `GUELORD-MWENDERWA/mwangaza`) |
-| Dernière mise à jour | 2026-09-25 (fin de la tâche 0.1) |
+| Dernière mise à jour | 2026-09-26 |
 
 ## Avancement
 
@@ -31,6 +31,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 Sur GitHub : onglet *Milestones* — V1.0 (36 issues, dont les 4 « avant de coder »), V1.1 (9), V1.2 (11), V2 (15).
 
 ## Bloquants et en attente
+
+Liste complète et détaillée (maquettes M1–M20, informations I1–I17, décisions T1–T6) : `07-a-fournir.md`. Ici, seulement ce qui bloque bientôt.
 
 | Sujet | Attendu de | Bloque |
 |---|---|---|
@@ -56,10 +58,18 @@ Sur GitHub : onglet *Milestones* — V1.0 (36 issues, dont les 4 « avant de cod
 | Q6 | En 2025, l'ITIG a proclamé les résultats de la P1 le 8 novembre. Si 2026 est pareil, la P1 tombe en semaine 7 du projet, avant la V1.2 (semaines 9 à 14). | ordre V1.1 / V1.2 | Garder la caisse (V1.0) en priorité ; P1 2026 encore sur papier ; viser les bulletins de la P2 / 1er semestre avec Mwangaza ; confirmer les dates avec l'ITIG. |
 | Q7 | L'organigramme ITIG a 2 directeurs des études, 1 directeur de discipline et 2 chefs d'atelier ; « chef d'atelier » n'est pas dans la liste des rôles du cahier des charges, et on ne sait pas qui joue le rôle de promoteur (communauté salésienne ?). | 1.2 | Rôles système V1.0 inchangés ; chef d'atelier = rôle personnalisé créé par l'école (B2) en attendant le module ateliers (V2) ; demander à l'ITIG qui est « promoteur ». |
 | Q8 | Couleur de l'ITIG pour la personnalisation (`School.primary_color`). | 1.5 | `#003C6C` (bleu marine du logo). |
+| Q9 | Nom et domaine : `mwangaza.cd` est déjà enregistré (sans site), `mwangaza.com` est en vente chez un revendeur, `mwangaza.app` est pris ; « Shule Yetu » est déjà une plateforme de gestion scolaire. | maintenant (domaine avant 4.6) | Garder **Mwangaza** (identité visuelle construite autour : lampe = lumière ; aucun logiciel scolaire de ce nom trouvé) et prendre **`mwangaza.africa`** (semble libre, à confirmer chez le registrar). Autres possibilités : `mwangaza.school` ; `mwanga.cd` (même sens, plus court) ; tenter de racheter `mwangaza.cd`. |
 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-26 — Inventaire de ce qui manque ; nom du projet
+
+- **Fait** : `docs/07-a-fournir.md` — 20 maquettes V1.0 manquantes (M1–M20) + liste V1.1 / V1.2, 17 informations à obtenir de l'ITIG (I1–I17, avec la tâche et la semaine où elles deviennent nécessaires et ce qu'on utilise en attendant), 6 décisions ou comptes (T1–T6), plan des données de démonstration (`make demo`, écoles `itig` et `volcans`). Vérification des noms : `mwangaza.cd`, `.com`, `.app` pris ; `mwangaza.africa` et `mwangaza.school` semblent libres ; « Shule Yetu » déjà utilisé par une plateforme scolaire.
+- **Décisions** : on continue avec des données fictives ; une maquette non fournie est dessinée par Claude dans le système de design et validée avant de coder l'écran.
+- **Nouvelle question** : Q9 (nom et domaine).
+- **Suite** : réponses de l'utilisateur (voir `07-a-fournir.md` — « à faire maintenant »), puis 0.2.
 
 ### 2026-09-25 — Tâche 0.1 : monorepo, Docker Compose de développement, commandes
 

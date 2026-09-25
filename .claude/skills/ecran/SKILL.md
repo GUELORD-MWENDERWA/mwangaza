@@ -32,6 +32,8 @@ Suivre aussi la skill `design` (jetons, composants, formats).
 | `gestion/presences-pointage-qr` | **V1.1** | 5.5 | 5.5 |
 | `gestion/notes-saisie`, `gestion/bulletin`, `portail/enfant-scolarite` | **V1.2** | 6.x | 6.2, 6.3, 6.8 |
 
+Écran absent de ce tableau : chercher dans `docs/07-a-fournir.md` § 1 (M1–M20…). S'il n'a pas de maquette, **la dessiner d'abord** dans le même système (`maquettes/<app>/<nom>.html` avec `assets/styles.css`, encadrés `.note` pour les règles), l'ajouter à `maquettes/README.md` et `maquettes/index.html`, la montrer à l'utilisateur et attendre son accord avant de coder ; puis cocher la ligne dans `07`.
+
 Écran V1.1 / V1.2 alors que la tâche en cours est V1.0 : **s'arrêter et le signaler**. Les éléments marqués « V1.1 » / « V1.2 » à l'intérieur d'un écran V1.0 ne sont pas codés et leurs entrées de menu sont masquées.
 
 ## 2. Lire la maquette

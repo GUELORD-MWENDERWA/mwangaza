@@ -14,7 +14,7 @@ Suivre les étapes dans l'ordre. Annoncer chaque étape à l'utilisateur en une 
 2. Trouver la tâche dans `docs/05-plan-de-travail.md`. Vérifier que les tâches dont elle dépend sont cochées ; sinon le dire.
 3. Relire les références citées (A1, F5…) dans `docs/02-perimetre-v1.md`, puis les sections liées de `01-cahier-des-charges.md`, `03-architecture-technique.md` et `04-modele-de-donnees.md`.
 4. Vérifier le périmètre : si quelque chose relève de V1.1 / V1.2 / V2 (`02` § 3), le signaler et ne pas le coder.
-5. Lister les bloquants de `06-suivi.md` qui touchent cette tâche (ex. document ITIG manquant) et les questions ouvertes à trancher. Si une règle scolaire RDC est floue : demander, ne pas supposer.
+5. Lister les bloquants de `06-suivi.md` et les lignes de `07-a-fournir.md` qui touchent cette tâche (maquette, information ITIG, décision) et les questions ouvertes à trancher ; pour une information manquante, utiliser la valeur « en attendant » de `07` et le dire. Si une règle scolaire RDC est floue : demander, ne pas supposer.
 6. Choisir les skills à suivre selon le contenu :
    - modèle, service, endpoint Django → `backend`
    - montants, devises, taux, soldes → `argent`
@@ -33,7 +33,8 @@ Suivre les étapes dans l'ordre. Annoncer chaque étape à l'utilisateur en une 
 
 1. **Tests d'abord** pour les règles métier (pytest + factory_boy ; Vitest ; Playwright pour les parcours).
 2. Code minimal pour faire passer les tests, en respectant `CLAUDE.md` (glossaire, logique dans `services.py`, i18n, pas de nouvelle dépendance sans demander).
-3. Tâche qui touche la caisse ou le hors-ligne : test Playwright qui coupe le réseau, encaisse deux paiements, rétablit le réseau et vérifie aucun doublon, numéros de reçus corrects, soldes justes côté serveur.
+3. Nouveaux modèles → enrichir `make demo` (données fictives, voir `docs/07-a-fournir.md` § 4) pour que l'utilisateur voie la fonction dans l'application.
+4. Tâche qui touche la caisse ou le hors-ligne : test Playwright qui coupe le réseau, encaisse deux paiements, rétablit le réseau et vérifie aucun doublon, numéros de reçus corrects, soldes justes côté serveur.
 
 ## 4. Vérifier
 
