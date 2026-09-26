@@ -9,15 +9,19 @@ COMPOSE := docker compose -f infra/docker-compose.dev.yml
 MANAGE := cd backend && uv run python manage.py
 
 .DEFAULT_GOAL := help
-.PHONY: help install dev services stop dev-local migrate makemigrations superuser shell \
-	test test-back test-front lint api build
+.PHONY: help install hooks dev services stop dev-local migrate makemigrations superuser shell \
+	test test-back test-front lint lint-back lint-front format api build
 
 help: ## Afficher les commandes
-	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  make %-15s %s\n", $$1, $$2}'
+	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  make %-15s %s\n", $$1, $$2}'
 
-install: ## Installer les dépendances (Python avec uv, front avec pnpm)
+install: ## Installer les dépendances (Python avec uv, front avec pnpm) et les contrôles avant commit
 	cd backend && uv sync
 	cd frontend && pnpm install
+	$(MAKE) hooks
+
+hooks: ## Installer les contrôles automatiques avant chaque commit (pre-commit)
+	cd backend && uv run pre-commit install
 
 dev: ## Tout lancer dans Docker : base, Redis, Django, Celery, Gestion, Portail
 	cd frontend && pnpm install --frozen-lockfile
@@ -52,11 +56,20 @@ test: test-back test-front ## Lancer tous les tests
 test-back: ## Tests backend (pytest)
 	cd backend && uv run pytest
 
-test-front: ## Tests front (Vitest arrive en 0.2 ; en attendant, vérification des types)
-	cd frontend && pnpm typecheck
+test-front: ## Tests front : vérification des types puis Vitest
+	cd frontend && pnpm typecheck && pnpm test
 
-lint: ## Lint et format (ruff, ESLint, Prettier arrivent en 0.2)
-	@echo "Lint : mis en place par la tâche 0.2."
+lint: lint-back lint-front ## Vérifier le code sans rien modifier (ruff, ESLint, Prettier)
+
+lint-back: ## Vérifier le code Python (ruff)
+	cd backend && uv run ruff check . && uv run ruff format --check .
+
+lint-front: ## Vérifier le code front (ESLint, Prettier)
+	cd frontend && pnpm lint && pnpm format:check
+
+format: ## Corriger automatiquement le format et ce qui peut l'être (ruff, ESLint, Prettier)
+	cd backend && uv run ruff check --fix . && uv run ruff format .
+	cd frontend && pnpm lint --fix && pnpm format
 
 api: ## Écrire le schéma OpenAPI dans frontend/packages/api/openapi.yaml
 	$(MANAGE) spectacular --validate --fail-on-warn --file ../frontend/packages/api/openapi.yaml
