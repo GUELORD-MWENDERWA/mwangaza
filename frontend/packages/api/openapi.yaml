@@ -26,6 +26,238 @@ paths:
               schema:
                 $ref: '#/components/schemas/Health'
           description: ''
+  /api/me/:
+    get:
+      operationId: me_retrieve
+      description: |-
+        Le compte connecté, ses écoles (choix de l'école) et ses droits dans l'école de l'adresse
+        (menu de la Gestion).
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/roles/:
+    get:
+      operationId: roles_list
+      description: |-
+        Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
+        l'école (B1 à B2).
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Un numéro de page de l'ensemble des résultats.
+        schema:
+          type: integer
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRoleList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: roles_create
+      description: |-
+        Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
+        l'école (B1 à B2).
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Role'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Role'
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/roles/{id}/:
+    get:
+      operationId: roles_retrieve
+      description: |-
+        Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
+        l'école (B1 à B2).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) role.
+        required: true
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: roles_partial_update
+      description: |-
+        Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
+        l'école (B1 à B2).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) role.
+        required: true
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRole'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRole'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRole'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: roles_destroy
+      description: |-
+        Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
+        l'école (B1 à B2).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) role.
+        required: true
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/school/:
     get:
       operationId: school_retrieve
@@ -48,8 +280,207 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/staff/:
+    get:
+      operationId: staff_list
+      description: 'Comptes du personnel de l''école (M3). On ne supprime pas un compte
+        : on le désactive.'
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Un numéro de page de l'ensemble des résultats.
+        schema:
+          type: integer
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStaffList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: staff_create
+      description: 'Comptes du personnel de l''école (M3). On ne supprime pas un compte
+        : on le désactive.'
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StaffCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StaffCreate'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffCreated'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/staff/{id}/:
+    get:
+      operationId: staff_retrieve
+      description: 'Comptes du personnel de l''école (M3). On ne supprime pas un compte
+        : on le désactive.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) membership.
+        required: true
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: staff_partial_update
+      description: 'Comptes du personnel de l''école (M3). On ne supprime pas un compte
+        : on le désactive.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) membership.
+        required: true
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStaffUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStaffUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStaffUpdate'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
 components:
   schemas:
+    BlankEnum:
+      enum:
+      - ''
+    CodeEnum:
+      enum:
+      - head
+      - study_director
+      - discipline_master
+      - accountant
+      - cashier
+      - secretary
+      - promoter
+      - teacher
+      - parent
+      type: string
+      description: |-
+        * `head` - Head of school
+        * `study_director` - Director of studies
+        * `discipline_master` - Discipline master
+        * `accountant` - Accountant
+        * `cashier` - Cashier
+        * `secretary` - Secretary
+        * `promoter` - Promoter
+        * `teacher` - Teacher
+        * `parent` - Parent
     CurrentSchool:
       type: object
       description: Informations publiques de l'école (écran de connexion) ; logo et
@@ -67,6 +498,26 @@ components:
       required:
       - code
       - name
+    CurrentSchoolAccess:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleSummary'
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionsEnum'
+      required:
+      - code
+      - name
+      - permissions
+      - roles
     Error:
       type: object
       properties:
@@ -88,3 +539,420 @@ components:
       required:
       - database
       - status
+    LanguageEnum:
+      enum:
+      - fr
+      - en
+      type: string
+      description: |-
+        * `fr` - Français
+        * `en` - English
+    Me:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        phone:
+          type: string
+        last_name:
+          type: string
+        middle_name:
+          type: string
+        first_name:
+          type: string
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+        must_change_password:
+          type: boolean
+        schools:
+          type: array
+          items:
+            $ref: '#/components/schemas/MySchool'
+          description: Écoles où le compte a une appartenance active (choix de l'école).
+        school:
+          allOf:
+          - $ref: '#/components/schemas/CurrentSchoolAccess'
+          nullable: true
+          description: Rôles et permissions dans l'école de l'adresse ; null sans
+            accès à cette école.
+      required:
+      - first_name
+      - id
+      - language
+      - last_name
+      - middle_name
+      - must_change_password
+      - phone
+      - school
+      - schools
+    MySchool:
+      type: object
+      properties:
+        code:
+          type: string
+          description: 'Subdomain of the school: {code}.mwangaza.school'
+          pattern: ^[a-z0-9][a-z0-9-]{0,28}[a-z0-9]$
+          maxLength: 30
+        name:
+          type: string
+          title: Nom
+          maxLength: 200
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+      required:
+      - code
+      - name
+    PaginatedRoleList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+    PaginatedStaffList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Staff'
+    PatchedRole:
+      type: object
+      description: |-
+        Rôle de l'école. `name` vide pour un rôle système : l'interface affiche le nom traduit de
+        son `code`.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          readOnly: true
+          description: |-
+            Code du rôle système ; vide pour un rôle créé par l'école.
+
+            * `head` - Head of school
+            * `study_director` - Director of studies
+            * `discipline_master` - Discipline master
+            * `accountant` - Accountant
+            * `cashier` - Cashier
+            * `secretary` - Secretary
+            * `promoter` - Promoter
+            * `teacher` - Teacher
+            * `parent` - Parent
+          oneOf:
+          - $ref: '#/components/schemas/CodeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        name:
+          type: string
+          title: Nom
+          maxLength: 80
+        is_system:
+          type: boolean
+          readOnly: true
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionsEnum'
+        member_count:
+          type: integer
+          readOnly: true
+          description: Comptes actifs qui ont ce rôle dans l'école.
+    PatchedStaffUpdate:
+      type: object
+      properties:
+        roles:
+          type: array
+          items:
+            type: string
+            format: uuid
+        is_active:
+          type: boolean
+    PermissionsEnum:
+      enum:
+      - school.configure
+      - classes.manage
+      - roles.manage
+      - students.view
+      - students.edit
+      - students.import
+      - finance.configure_fees
+      - finance.set_exchange_rate
+      - finance.grant_discount
+      - finance.collect_payment
+      - finance.request_cancellation
+      - finance.approve_cancellation
+      - finance.close_register
+      - finance.view_reports
+      - announcements.publish
+      - audit.view
+      type: string
+      description: |-
+        * `school.configure` - Configure the school (name, logo, colour, currencies, receipts)
+        * `classes.manage` - Manage years, terms, levels, tracks, classes and student numbers
+        * `roles.manage` - Manage staff accounts and roles
+        * `students.view` - View students
+        * `students.edit` - Edit students
+        * `students.import` - Import students from Excel
+        * `finance.configure_fees` - Configure fees
+        * `finance.set_exchange_rate` - Set the exchange rate
+        * `finance.grant_discount` - Grant discounts
+        * `finance.collect_payment` - Collect payments
+        * `finance.request_cancellation` - Request a payment cancellation
+        * `finance.approve_cancellation` - Approve a payment cancellation
+        * `finance.close_register` - Close a cash register
+        * `finance.view_reports` - View financial reports
+        * `announcements.publish` - Publish announcements
+        * `audit.view` - View the audit log
+    Role:
+      type: object
+      description: |-
+        Rôle de l'école. `name` vide pour un rôle système : l'interface affiche le nom traduit de
+        son `code`.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          readOnly: true
+          description: |-
+            Code du rôle système ; vide pour un rôle créé par l'école.
+
+            * `head` - Head of school
+            * `study_director` - Director of studies
+            * `discipline_master` - Discipline master
+            * `accountant` - Accountant
+            * `cashier` - Cashier
+            * `secretary` - Secretary
+            * `promoter` - Promoter
+            * `teacher` - Teacher
+            * `parent` - Parent
+          oneOf:
+          - $ref: '#/components/schemas/CodeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        name:
+          type: string
+          title: Nom
+          maxLength: 80
+        is_system:
+          type: boolean
+          readOnly: true
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionsEnum'
+        member_count:
+          type: integer
+          readOnly: true
+          description: Comptes actifs qui ont ce rôle dans l'école.
+      required:
+      - code
+      - id
+      - is_system
+      - member_count
+    RoleSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          readOnly: true
+          description: |-
+            Code du rôle système ; vide pour un rôle créé par l'école.
+
+            * `head` - Head of school
+            * `study_director` - Director of studies
+            * `discipline_master` - Discipline master
+            * `accountant` - Accountant
+            * `cashier` - Cashier
+            * `secretary` - Secretary
+            * `promoter` - Promoter
+            * `teacher` - Teacher
+            * `parent` - Parent
+          oneOf:
+          - $ref: '#/components/schemas/CodeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        name:
+          type: string
+          title: Nom
+          maxLength: 80
+      required:
+      - code
+      - id
+    Staff:
+      type: object
+      description: |-
+        Une personne dans l'école (son appartenance) ; `id` est celui de l'appartenance. Rien sur
+        ses autres écoles.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/StaffUser'
+          readOnly: true
+        roles:
+          type: array
+          items:
+            type: string
+            format: uuid
+          readOnly: true
+        is_active:
+          type: boolean
+          title: Actif
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - roles
+      - user
+    StaffCreate:
+      type: object
+      description: 'Nouveau numéro : `last_name` obligatoire. Numéro déjà connu :
+        noms ignorés.'
+      properties:
+        phone:
+          type: string
+          description: Ex. 0971234567 ou +243971234567.
+        last_name:
+          type: string
+          maxLength: 100
+        middle_name:
+          type: string
+          maxLength: 100
+        first_name:
+          type: string
+          maxLength: 100
+        roles:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - phone
+      - roles
+    StaffCreated:
+      type: object
+      description: |-
+        Une personne dans l'école (son appartenance) ; `id` est celui de l'appartenance. Rien sur
+        ses autres écoles.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/StaffUser'
+          readOnly: true
+        roles:
+          type: array
+          items:
+            type: string
+            format: uuid
+          readOnly: true
+        is_active:
+          type: boolean
+          title: Actif
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        existing_account:
+          type: boolean
+          description: 'Le numéro avait déjà un compte : ajouté à l''école sans nouveau
+            mot de passe.'
+        temporary_password:
+          type: string
+          nullable: true
+          description: 'Nouveau compte seulement : affiché une seule fois, à changer
+            à la connexion.'
+      required:
+      - created_at
+      - existing_account
+      - id
+      - roles
+      - temporary_password
+      - user
+    StaffUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        phone:
+          type: string
+          description: Identifies the person on the whole platform, e.g. +243971234567.
+          maxLength: 16
+        last_name:
+          type: string
+          title: Nom
+          maxLength: 100
+        middle_name:
+          type: string
+          maxLength: 100
+        first_name:
+          type: string
+          title: Prénom
+          maxLength: 100
+      required:
+      - id
+      - last_name
+      - phone
+    StatusEnum:
+      enum:
+      - trial
+      - active
+      - suspended
+      type: string
+      description: |-
+        * `trial` - Trial
+        * `active` - Active
+        * `suspended` - Suspended
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

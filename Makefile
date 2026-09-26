@@ -9,7 +9,7 @@ COMPOSE := docker compose -f infra/docker-compose.dev.yml
 MANAGE := cd backend && uv run python manage.py
 
 .DEFAULT_GOAL := help
-.PHONY: help install hooks dev services db-up stop dev-local migrate makemigrations demo superuser shell \
+.PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo superuser shell \
 	test test-back test-front lint lint-back lint-front format api build
 
 help: ## Afficher les commandes
@@ -39,6 +39,12 @@ endif
 
 stop: ## Arrêter les conteneurs
 	$(COMPOSE) down
+
+# Pour une base de développement qu'une migration ne peut plus suivre (ex. nouveau modèle
+# d'utilisateur en 1.2). Seulement la base de Docker : rien que des données fictives.
+reset-db: ## Effacer la base de développement (et celle des tests), puis la recréer : migrations et données fictives
+	$(COMPOSE) down --volumes
+	$(MAKE) migrate demo
 
 # Ctrl+C arrête les trois serveurs proprement : bash laisse chacun recevoir le Ctrl+C (sh le leur
 # ferait ignorer), puis attend qu'ils aient fini. Vite lancé app par app : `pnpm dev` signalerait
