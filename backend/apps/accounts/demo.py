@@ -130,7 +130,11 @@ def create_demo_accounts(schools: dict[str, School]) -> list[DemoAccount]:
     connexions bloquées par des essais ratés sont débloquées."""
     LoginFailure.objects.all().delete()
     roles = {code: _reset_roles(school) for code, school in schools.items()}
-    _account(PLATFORM_ADMIN_PHONE, last_name="Mwangaza", first_name="Admin", is_platform_admin=True)
+    admin = _account(
+        PLATFORM_ADMIN_PHONE, last_name="Mwangaza", first_name="Admin", is_platform_admin=True
+    )
+    # Double authentification obligatoire pour le super-admin (administration Django, 1.5).
+    _set_demo_totp(admin, enabled=True)
     for demo in DEMO_ACCOUNTS:
         user = _account(
             demo.phone,

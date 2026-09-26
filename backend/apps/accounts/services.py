@@ -4,8 +4,9 @@ Les services qui changent les rôles et les comptes d'une école travaillent dan
 (requête sur son sous-domaine, ou `use_school`).
 
 Journal d'audit (1.4) : les changements de rôles et de comptes du personnel vont dans le journal
-de l'école ; ce qui change un compte (mot de passe, double authentification) va dans le journal
-de chaque école où la personne est active, sans dire où l'action a été faite (`_audit_account`).
+de l'école ; ce qui change un compte (mot de passe, double authentification, changements du
+support dans l'administration Django) va dans le journal de chaque école où la personne est
+active, sans dire où l'action a été faite (`_audit_account`).
 """
 
 import logging
@@ -94,16 +95,19 @@ def create_system_roles(school: School) -> list[Role]:
 
 @dataclass(frozen=True)
 class SchoolAccess:
-    membership: Membership
+    # Vide pendant une session support (`support.py`).
+    membership: Membership | None
     roles: tuple[Role, ...]
     permissions: frozenset[str]
 
 
 def get_school_access(user, school: School | None) -> SchoolAccess | None:
     """Rôles et permissions du compte dans l'école ; None s'il n'y a pas d'appartenance active
-    (compte désactivé, retiré de l'école, ou pas d'école). Le super-admin n'a aucun droit dans
-    une école sans y avoir de rôle."""
-    if school is None or not user.is_authenticated or not user.is_active:
+    (compte désactivé, retiré de l'école, école suspendue, ou pas d'école). Le super-admin n'a
+    aucun droit dans une école sans y avoir de rôle, hors session support (`support.py`)."""
+    if school is None or school.status == School.Status.SUSPENDED:
+        return None
+    if not user.is_authenticated or not user.is_active:
         return None
     membership = Membership.objects.filter(user=user, school=school, is_active=True).first()
     if membership is None:
@@ -274,14 +278,14 @@ def _audit_staff(action: str, membership: Membership, *, actor: User | None, **d
     audit.record(action, membership, actor=actor, label=str(membership.user), **data)
 
 
-def _audit_account(user: User, action: str, *, actor: User | None) -> None:
-    """Changement d'un compte (mot de passe, double authentification) : dans le journal de
-    chaque école où la personne est active, sur son appartenance à cette école. Le compte est
+def _audit_account(user: User, action: str, *, actor: User | None, **data) -> None:
+    """Changement d'un compte (mot de passe, double authentification, noms…) : dans le journal
+    de chaque école où la personne est active, sur son appartenance à cette école. Le compte est
     unique et donne accès à chacune ; aucune entrée ne dit où l'action a été faite."""
     memberships = Membership.objects.filter(user=user, is_active=True).select_related("school")
     for membership in memberships:
         with use_school(membership.school):
-            _audit_staff(action, membership, actor=actor)
+            _audit_staff(action, membership, actor=actor, **data)
 
 
 def account_managed_by(user: User, school: School) -> bool:
@@ -408,8 +412,11 @@ def change_password(user: User, new_password: str, *, current_password: str | No
 
 
 def totp_required(user: User) -> bool:
-    """Exigée si, dans une école où il est actif, le compte a un rôle portant un droit sensible
-    (`roles.TOTP_PERMISSIONS`). Le compte étant unique, elle le protège alors partout."""
+    """Exigée pour un super-admin, et si, dans une école où il est actif, le compte a un rôle
+    portant un droit sensible (`roles.TOTP_PERMISSIONS`). Le compte étant unique, elle le protège
+    alors partout."""
+    if user.is_platform_admin:
+        return True
     return Membership.objects.filter(
         user=user, is_active=True, roles__permissions__overlap=sorted(TOTP_PERMISSIONS)
     ).exists()
@@ -514,6 +521,39 @@ def support_reset_totp(user: User, *, actor: User) -> None:
     with transaction.atomic():
         reset_totp(user)
         _audit_account(user, Action.ACCOUNT_TOTP_RESET, actor=actor)
+
+
+# Support de la plateforme (administration Django)
+
+_SUPPORT_ACCOUNT_FIELDS = ("phone", "last_name", "middle_name", "first_name")
+
+
+def audit_support_changes(old: User, user: User, *, actor: User) -> None:
+    """Après un changement du compte par le support (`old` : le compte avant) : noms et
+    téléphone, désactivation ou réactivation du compte, dans le journal de chaque école où la
+    personne est active."""
+    before, after = audit.changes(
+        {field: getattr(old, field) for field in _SUPPORT_ACCOUNT_FIELDS},
+        {field: getattr(user, field) for field in _SUPPORT_ACCOUNT_FIELDS},
+    )
+    if after:
+        _audit_account(user, Action.ACCOUNT_CHANGED, actor=actor, before=before, after=after)
+    if old.is_active != user.is_active:
+        action = Action.ACCOUNT_REACTIVATED if user.is_active else Action.ACCOUNT_DEACTIVATED
+        _audit_account(user, action, actor=actor)
+
+
+def support_set_temporary_password(user: User, *, actor: User) -> str:
+    """Mot de passe provisoire donné par le support (comme « Nouveau mot de passe » de M3),
+    renvoyé une seule fois, à changer à la prochaine connexion ; les sessions ouvertes de la
+    personne sont fermées. Le support ne choisit jamais le mot de passe de quelqu'un."""
+    password = make_temporary_password()
+    with transaction.atomic():
+        user.set_password(password)
+        user.must_change_password = True
+        user.save(update_fields=["password", "must_change_password", "updated_at"])
+        _audit_account(user, Action.ACCOUNT_PASSWORD_RESET, actor=actor)
+    return password
 
 
 def reset_totp(user: User) -> None:

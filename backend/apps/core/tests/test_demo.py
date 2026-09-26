@@ -35,7 +35,42 @@ def roles_of(phone: str, school: School) -> set[str]:
 def test_demo_creates_the_two_demo_schools(demo):
     assert set(demo) == {"itig", "volcans"}
     assert demo["itig"].name == "ITIG Don Bosco Goma (démo)"
-    assert all(school.status == School.Status.ACTIVE for school in demo.values())
+    assert demo["itig"].primary_color == "#003C6C"
+    assert demo["itig"].status == School.Status.TRIAL
+    assert demo["volcans"].status == School.Status.ACTIVE
+
+
+def test_demo_puts_back_the_demo_logos(demo, settings):
+    from pathlib import Path
+
+    from django.core.files.base import ContentFile
+
+    media = Path(settings.MEDIA_ROOT)
+    volcans = demo["volcans"]
+    volcans.logo.save("logo.png", ContentFile(b"\x89PNG\r\n\x1a\n" + b"\x00" * 8))
+    stored = volcans.logo.name
+
+    call_command("demo")
+
+    volcans.refresh_from_db()
+    itig = School.objects.get(code="itig")
+    assert not volcans.logo
+    assert not (media / stored).exists()
+    # Logo public de l'ITIG, un seul fichier gardé même après plusieurs `make demo`.
+    assert itig.logo.name.endswith(".png")
+    assert len(list((media / "schools" / str(itig.pk)).iterdir())) == 1
+
+
+def test_demo_puts_back_a_suspended_school(demo):
+    demo["volcans"].status = School.Status.SUSPENDED
+    demo["volcans"].primary_color = "#000000"
+    demo["volcans"].save()
+
+    call_command("demo")
+
+    volcans = School.objects.get(code="volcans")
+    assert volcans.status == School.Status.ACTIVE
+    assert volcans.primary_color == "#7A3E00"
 
 
 def test_demo_creates_one_account_per_system_role_at_itig(demo):
@@ -110,9 +145,10 @@ def test_demo_accounts_that_require_it_have_two_factor_authentication(demo):
         User.objects.filter(totp_enabled_at__isnull=False).values_list("phone", flat=True)
     )
 
-    # Directeur, comptable, caissière de chaque école ; pas le promoteur de l'ITIG (activation à
-    # essayer), ni l'enseignant, la secrétaire, le super-admin…
+    # Super-admin, directeur, comptable, caissière de chaque école ; pas le promoteur de l'ITIG
+    # (activation à essayer), ni l'enseignant, la secrétaire…
     assert enabled == {
+        "+243000000000",
         "+243000001001",
         "+243000001004",
         "+243000001005",

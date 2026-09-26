@@ -5,6 +5,7 @@ import json
 import pytest
 from django.http import HttpResponse
 from django.test import RequestFactory, override_settings
+from django.utils import timezone
 
 from apps.core.middleware import TenantMiddleware, school_code_from_host
 from apps.core.tenancy import get_current_school, use_school
@@ -58,6 +59,7 @@ def middleware(seen):
     def view(request):
         seen["school"] = get_current_school()
         seen["request_school"] = request.school
+        seen["timezone"] = timezone.get_current_timezone_name()
         seen["notes"] = (
             list(Note.objects.values_list("text", flat=True)) if seen["school"] else None
         )
@@ -152,3 +154,24 @@ def test_middleware_is_installed(client, school):
 
     assert response.status_code == 404
     assert response.json()["code"] == "school_not_found"
+
+
+@pytest.mark.django_db
+def test_each_school_has_its_time_zone(middleware, seen, school, other_school):
+    other_school.timezone = "Africa/Kinshasa"
+    other_school.save()
+
+    middleware(RequestFactory().get("/api/health/", HTTP_HOST="alpha.localhost"))
+    assert seen["timezone"] == "Africa/Lubumbashi"
+
+    middleware(RequestFactory().get("/api/health/", HTTP_HOST="beta.localhost"))
+    assert seen["timezone"] == "Africa/Kinshasa"
+    # Après la requête : le fuseau du serveur.
+    assert timezone.get_current_timezone_name() == "Africa/Lubumbashi"
+
+
+@pytest.mark.django_db
+def test_platform_hosts_keep_the_server_time_zone(middleware, seen):
+    middleware(RequestFactory().get("/api/health/", HTTP_HOST="localhost"))
+
+    assert seen["timezone"] == "Africa/Lubumbashi"

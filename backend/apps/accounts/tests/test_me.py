@@ -131,3 +131,19 @@ def test_names_cannot_be_changed_here(api, school):
 
     user.refresh_from_db()
     assert user.last_name == "Kambale"
+
+
+def test_a_suspended_school_stays_listed_greyed(api, school, other_school):
+    # Choix de l'école (M2) : école suspendue visible mais grisée.
+    user = UserFactory()
+    MembershipFactory(user=user, school=school, roles=["teacher"])
+    MembershipFactory(user=user, school=other_school, roles=["teacher"])
+    other_school.status = "suspended"
+    other_school.save()
+
+    schools = api(user).get(URL).json()["schools"]
+
+    assert {item["code"]: item["status"] for item in schools} == {
+        "alpha": "active",
+        "beta": "suspended",
+    }

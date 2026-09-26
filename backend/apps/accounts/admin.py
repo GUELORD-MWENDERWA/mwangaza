@@ -1,15 +1,23 @@
-"""Administration Django : réservée au super-admin (`User.is_platform_admin`).
+"""Administration Django : réservée au super-admin (`User.is_platform_admin`), avec la double
+authentification (`admin_site.py`).
 
-Comptes : création et modification, réinitialisation de la double authentification (support,
-pour un compte qui sert dans plusieurs écoles ; notée dans le journal de chacune). Rôles et
-appartenances : lecture seule, toutes écoles ; les changements passent par l'API de l'école et
-ses règles (école séparée, dernier gestionnaire des rôles).
+Comptes : création et modification par le support. Noms, téléphone, désactivation, mot de passe
+provisoire et réinitialisation de la double authentification sont notés dans le journal de
+chaque école où la personne est active. Le support ne choisit jamais le mot de passe de
+quelqu'un : il donne un mot de passe provisoire. Rôles et appartenances : lecture seule, toutes
+écoles ; les changements passent par l'API de l'école et ses règles (école séparée, dernier
+gestionnaire des rôles).
 """
 
 from django.contrib import admin, messages
+from django.contrib.admin.utils import unquote
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.forms import AdminUserCreationForm, UserChangeForm
 from django.contrib.auth.models import Group
+from django.core.exceptions import PermissionDenied
+from django.db import transaction
+from django.http import Http404
+from django.template.response import TemplateResponse
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounts import services
@@ -87,6 +95,36 @@ class UserAdmin(DjangoUserAdmin):
     @admin.display(boolean=True, description=_("two-factor authentication"))
     def totp_enabled(self, user: User) -> bool:
         return user.totp_enabled
+
+    def save_model(self, request, obj, form, change):
+        # Dans la transaction de l'administration : le journal suit le changement.
+        if not change:
+            return super().save_model(request, obj, form, change)
+        old = User.objects.get(pk=obj.pk)
+        super().save_model(request, obj, form, change)
+        services.audit_support_changes(old, obj, actor=request.user)
+
+    def user_change_password(self, request, id, form_url=""):
+        """Remplace le formulaire de Django : un mot de passe provisoire, affiché une fois, à
+        changer à la prochaine connexion (comme « Nouveau mot de passe » de M3)."""
+        user = self.get_object(request, unquote(id))
+        if not self.has_change_permission(request, user):
+            raise PermissionDenied
+        if user is None:
+            raise Http404
+        context = {
+            **self.admin_site.each_context(request),
+            "title": _("Temporary password"),
+            "opts": self.opts,
+            "original": user,
+            "has_view_permission": True,
+        }
+        if request.method == "POST":
+            with transaction.atomic():
+                context["temporary_password"] = services.support_set_temporary_password(
+                    user, actor=request.user
+                )
+        return TemplateResponse(request, "admin/accounts/user/temporary_password.html", context)
 
     @admin.action(description=_("Reset two-factor authentication (lost phone)"))
     def reset_totp(self, request, queryset):

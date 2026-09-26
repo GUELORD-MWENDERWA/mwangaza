@@ -12,7 +12,8 @@ faite a toujours la sienne.
             audit.record(Action.ROLES_UPDATED, role, actor=actor, before=old, after=new)
 
 L'entrée va dans le journal de l'école courante. Adresse IP et navigateur : ceux de la requête en
-cours (`AuditMiddleware`).
+cours (`AuditMiddleware`) ; pendant une session support dans cette école (A3), `impersonated_by`
+aussi.
 """
 
 from django.db import models
@@ -20,6 +21,9 @@ from django.db import models
 from apps.audit.actions import Action
 from apps.audit.context import current_request_info
 from apps.audit.models import AuditLog
+from apps.core.tenancy import get_current_school
+
+_FROM_REQUEST = object()
 
 # Jamais dans le journal (note de M6) : une action sur un mot de passe ou une double
 # authentification est notée sans valeur.
@@ -47,10 +51,12 @@ def record(
     before: dict | None = None,
     after: dict | None = None,
     label: str | None = None,
+    impersonated_by=_FROM_REQUEST,
 ) -> AuditLog:
     """Une entrée dans le journal de l'école courante. `label` : nom de l'objet au moment de
     l'action (par défaut `str(entity)`). `before` / `after` : seulement ce qui a changé
-    (`changes`), sans aucun secret."""
+    (`changes`), sans aucun secret. `impersonated_by` : par défaut, le super-admin de la session
+    support ouverte dans cette école (jamais dans le journal d'une autre)."""
     if action not in Action.values:
         raise ValueError(f"Action inconnue du journal d'audit : {action!r} (apps/audit/actions.py)")
     _refuse_secrets(before)
@@ -58,9 +64,14 @@ def record(
     if label is None:
         label = str(entity) if entity is not None else ""
     info = current_request_info()
+    if impersonated_by is _FROM_REQUEST:
+        school = get_current_school()
+        in_support = school is not None and info.support_school_id == school.pk
+        impersonated_by = info.impersonated_by if in_support else None
     return AuditLog.objects.create(
         action=action,
         actor=actor,
+        impersonated_by=impersonated_by,
         created_by=actor,
         entity_type=entity._meta.label_lower if entity is not None else "",
         entity_id=entity.pk if entity is not None else None,

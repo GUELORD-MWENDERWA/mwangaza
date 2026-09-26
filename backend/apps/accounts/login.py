@@ -75,17 +75,20 @@ def _next_step(user: User, *, second_factor_ok: bool) -> Step:
 # Connexion en cours
 
 
-def log_in(request, phone: str, password: str) -> Step:
-    """Étape 1. Numéro inconnu, mauvais mot de passe ou compte désactivé : même réponse."""
+def log_in(request, phone: str, password: str, *, admin_only: bool = False) -> Step:
+    """Étape 1. Numéro inconnu, mauvais mot de passe ou compte désactivé : même réponse.
+
+    `admin_only` (administration Django) : même réponse pour un compte qui n'est pas super-admin,
+    et le code est toujours demandé (pas d'appareil de confiance)."""
     attempts.ensure_allowed(attempts.phone_key(phone), client_ip(request))
     user = authenticate(request, phone=phone, password=password)
-    if user is None:
+    if user is None or (admin_only and not user.is_platform_admin):
         raise BusinessError(INVALID_CREDENTIALS)
     if request.user.is_authenticated:
         logout(request)
     # Nouvelle clé de session : un identifiant de session connu d'avance ne sert à rien.
     request.session.cycle_key()
-    trusted = is_trusted_device(request, user)
+    trusted = not admin_only and is_trusted_device(request, user)
     request.session[PENDING_SESSION_KEY] = {
         "user": str(user.pk),
         "started": time.time(),

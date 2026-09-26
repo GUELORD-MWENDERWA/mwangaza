@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.permissions import BasePermission
 
+from apps.accounts import support
 from apps.accounts.login import MFA_SESSION_KEY
 from apps.accounts.roles import TOTP_PERMISSIONS
 from apps.accounts.services import SchoolAccess, get_school_access
@@ -11,9 +12,12 @@ from apps.core.errors import SCHOOL_NOT_FOUND
 
 
 def school_access(request) -> SchoolAccess | None:
-    """Droits du compte dans l'école de l'adresse, calculés une fois par requête."""
+    """Droits du compte dans l'école de l'adresse, calculés une fois par requête : ceux de la
+    session support si elle est ouverte (`support.py`), sinon ceux de ses rôles."""
     if not hasattr(request, "_school_access"):
-        request._school_access = get_school_access(request.user, request.school)
+        request._school_access = support.access(request) or get_school_access(
+            request.user, request.school
+        )
     return request._school_access
 
 

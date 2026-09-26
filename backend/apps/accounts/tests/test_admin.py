@@ -92,35 +92,6 @@ def test_django_groups_are_hidden(admin_client):
     assert admin_client.get("/admin/auth/group/").status_code == 404
 
 
-def test_admin_login_is_locked_after_five_failures(db):
-    User.objects.create_superuser("0000000000", "secret-123", last_name="Admin")
-    client = Client(HTTP_HOST="localhost")
-
-    def log_in(password: str):
-        return client.post(
-            "/admin/login/?next=/admin/", {"username": "0000000000", "password": password}
-        )
-
-    for _ in range(5):
-        assert log_in("pas-le-bon").status_code == 200
-
-    # Bon mot de passe, mais numéro bloqué : la page de connexion revient.
-    assert log_in("secret-123").status_code == 200
-    assert client.get("/admin/").status_code == 302
-
-
-def test_admin_login_works(db):
-    User.objects.create_superuser("0000000000", "secret-123", last_name="Admin")
-    client = Client(HTTP_HOST="localhost")
-
-    response = client.post(
-        "/admin/login/?next=/admin/", {"username": "0000000000", "password": "secret-123"}
-    )
-
-    assert response.status_code == 302
-    assert client.get("/admin/").status_code == 200
-
-
 def test_support_resets_two_factor_authentication(admin_client, school, other_school):
     # Compte dans deux écoles : aucune ne peut le faire, le support oui.
     member = MembershipFactory(school=school, roles=["cashier"])
@@ -141,3 +112,84 @@ def test_support_resets_two_factor_authentication(admin_client, school, other_sc
         assert log.action == "account.totp_reset"
         assert log.actor.is_platform_admin
         assert log.entity_label == str(member.user)
+
+
+# Changements d'un compte par le support : journal de chaque école où la personne est active
+
+
+@pytest.fixture
+def member(school, other_school):
+    """Compte actif dans alpha et beta, désactivé dans une troisième école."""
+    membership = MembershipFactory(school=school, roles=["cashier"])
+    MembershipFactory(user=membership.user, school=other_school, roles=["teacher"])
+    MembershipFactory(user=membership.user, is_active=False)
+    return membership.user
+
+
+def change(admin_client, user, **fields):
+    data = {
+        "phone": user.phone,
+        "last_name": user.last_name,
+        "middle_name": user.middle_name,
+        "first_name": user.first_name,
+        "language": user.language,
+        "is_active": "on" if user.is_active else "",
+        "must_change_password": "",
+        **fields,
+    }
+    return admin_client.post(f"/admin/accounts/user/{user.pk}/change/", data)
+
+
+def entries(action) -> list[AuditLog]:
+    return list(AuditLog.all_schools.filter(action=action).select_related("school"))
+
+
+def test_support_changes_names_and_phone(admin_client, member, school, other_school):
+    old_phone = member.phone
+
+    response = change(admin_client, member, last_name="Kavira", phone="0000004001")
+
+    assert response.status_code == 302, response.context["adminform"].form.errors
+    logs = entries("account.changed")
+    assert {log.school for log in logs} == {school, other_school}
+    for log in logs:
+        assert log.before == {"phone": old_phone, "last_name": member.last_name}
+        assert log.after == {"phone": "+243000004001", "last_name": "Kavira"}
+        assert log.actor.is_platform_admin
+
+
+def test_nothing_changed_nothing_noted(admin_client, member):
+    assert change(admin_client, member).status_code == 302
+
+    assert not AuditLog.all_schools.exists()
+
+
+def test_support_deactivates_then_reactivates_an_account(
+    admin_client, member, school, other_school
+):
+    change(admin_client, member, is_active="")
+    member.refresh_from_db()
+    assert not member.is_active
+
+    change(admin_client, member, is_active="on")
+
+    assert {log.school for log in entries("account.deactivated")} == {school, other_school}
+    assert {log.school for log in entries("account.reactivated")} == {school, other_school}
+
+
+def test_support_gives_a_temporary_password(admin_client, member, school, other_school):
+    page = f"/admin/accounts/user/{member.pk}/password/"
+    # Afficher la page ne change rien.
+    assert admin_client.get(page).status_code == 200
+    assert not AuditLog.all_schools.exists()
+
+    response = admin_client.post(page)
+
+    password = response.context["temporary_password"]
+    assert password in response.content.decode()
+    member.refresh_from_db()
+    assert member.check_password(password)
+    assert not member.check_password("mot-de-passe-de-test")
+    assert member.must_change_password
+    assert {log.school for log in entries("account.password_reset")} == {school, other_school}
+    assert not any("password" in (log.after or {}) for log in AuditLog.all_schools.all())

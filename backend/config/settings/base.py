@@ -34,7 +34,8 @@ DEBUG = False
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS")
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
+    # Administration Django du super-admin, avec la double authentification.
+    "apps.accounts.apps.PlatformAdminConfig",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -65,6 +66,9 @@ MIDDLEWARE = [
 # Domaines sous lesquels chaque sous-domaine est une école : {code}.mwangaza.school.
 # Le domaine seul et les sous-domaines réservés (parents, admin, www…) n'ont pas d'école.
 SCHOOL_BASE_DOMAINS = env_list("DJANGO_SCHOOL_BASE_DOMAINS", "mwangaza.school")
+# Adresse d'une école, pour les liens de l'administration (« Ouvrir en tant qu'école ») et de
+# `make demo`.
+SCHOOL_URL = env("DJANGO_SCHOOL_URL", "https://{code}.mwangaza.school")
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
@@ -160,6 +164,8 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API de la plateforme de gestion scolaire Mwangaza.",
     "VERSION": "0.1.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    # Une seule liste de devises, sous un seul nom (devises de l'école, devise principale).
+    "ENUM_NAME_OVERRIDES": {"CurrencyEnum": "apps.core.money.Currency"},
 }
 
 CELERY_BROKER_URL = env("REDIS_URL", "redis://localhost:6379/0")

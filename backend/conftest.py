@@ -21,6 +21,12 @@ def other_school(db):
 
 
 @pytest.fixture(autouse=True)
+def _media_root(settings, tmp_path):
+    """Fichiers (logos) de chaque test dans un dossier temporaire, jamais dans `backend/media`."""
+    settings.MEDIA_ROOT = tmp_path / "media"
+
+
+@pytest.fixture(autouse=True)
 def _no_current_school_left_behind():
     yield
     assert get_current_school() is None, "un test a laissé une école courante définie"
@@ -85,9 +91,17 @@ def other_head(other_school):
 
 
 @pytest.fixture
-def admin_client(db):
-    """Super-admin connecté à l'administration Django."""
-    admin = User.objects.create_superuser("0000000000", "secret-123", last_name="Admin")
+def platform_admin(db):
+    """Super-admin de la plateforme (administration Django, session support)."""
+    return User.objects.create_superuser("0000000000", "secret-123", last_name="Admin")
+
+
+@pytest.fixture
+def admin_client(platform_admin):
+    """Super-admin connecté à l'administration Django, double authentification comprise."""
     client = Client(HTTP_HOST="localhost")
-    client.force_login(admin)
+    client.force_login(platform_admin)
+    session = client.session
+    session[MFA_SESSION_KEY] = True
+    session.save()
     return client

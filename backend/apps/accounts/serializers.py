@@ -176,6 +176,22 @@ class CurrentSchoolAccessSerializer(serializers.Serializer):
     permissions = serializers.ListField(child=serializers.ChoiceField(choices=PERMISSION_CHOICES))
 
 
+class SupportSessionSerializer(serializers.Serializer):
+    """Session support en cours (A3) : l'interface affiche un bandeau rouge permanent."""
+
+    school = MySchoolSerializer()
+    reason = serializers.CharField()
+    started_at = serializers.DateTimeField()
+    expires_at = serializers.DateTimeField(help_text="Fermée d'elle-même à cette heure (1 h).")
+
+
+class SupportStartSerializer(serializers.Serializer):
+    reason = serializers.CharField(
+        max_length=200,
+        help_text="Motif, lu par l'école dans son journal (ex. demande du directeur).",
+    )
+
+
 class MeSerializer(serializers.Serializer):
     id = serializers.UUIDField()
     phone = serializers.CharField()
@@ -197,6 +213,10 @@ class MeSerializer(serializers.Serializer):
     school = CurrentSchoolAccessSerializer(
         allow_null=True,
         help_text="Rôles et permissions dans l'école de l'adresse ; null sans accès à cette école.",
+    )
+    support = SupportSessionSerializer(
+        allow_null=True,
+        help_text="Session support du super-admin dans l'école de l'adresse (bandeau rouge).",
     )
 
 
