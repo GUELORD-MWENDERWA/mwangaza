@@ -46,11 +46,6 @@ def phone_key(raw: str) -> str:
         return raw.strip()[:64]
 
 
-def client_ip(request) -> str | None:
-    # Derrière Caddy et Cloudflare, l'adresse réelle viendra d'un en-tête du proxy (tâche 4.6).
-    return request.META.get("REMOTE_ADDR") or None
-
-
 def _wait(failures: QuerySet, limit: int, now) -> int:
     # Bloqué tant que `limit` échecs ont eu lieu dans les 15 dernières minutes : jusqu'à ce que le
     # plus ancien des `limit` derniers sorte de cette fenêtre.

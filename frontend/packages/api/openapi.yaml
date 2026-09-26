@@ -4,6 +4,163 @@ info:
   version: 0.1.0
   description: API de la plateforme de gestion scolaire Mwangaza.
 paths:
+  /api/audit/:
+    get:
+      operationId: audit_list
+      description: Journal d'audit de l'école (M6), le plus récent d'abord ; en lecture
+        seule.
+      parameters:
+      - in: query
+        name: action
+        schema:
+          enum:
+          - auth.login
+          - account.password_changed
+          - account.totp_enabled
+          - account.totp_changed
+          - account.totp_disabled
+          - account.totp_reset
+          - account.recovery_codes_renewed
+          - roles.created
+          - roles.updated
+          - roles.deleted
+          - staff.added
+          - staff.roles_changed
+          - staff.deactivated
+          - staff.reactivated
+          - staff.account_changed
+          - staff.password_reset
+          - staff.totp_reset
+          type: string
+          minLength: 1
+        description: |-
+          * `auth.login` - Logged in
+          * `account.password_changed` - Password changed
+          * `account.totp_enabled` - Two-factor authentication turned on
+          * `account.totp_changed` - Two-factor authentication on a new phone
+          * `account.totp_disabled` - Two-factor authentication turned off
+          * `account.totp_reset` - Two-factor authentication reset by support
+          * `account.recovery_codes_renewed` - New recovery codes
+          * `roles.created` - Role created
+          * `roles.updated` - Role changed
+          * `roles.deleted` - Role deleted
+          * `staff.added` - Staff member added
+          * `staff.roles_changed` - Staff member's roles changed
+          * `staff.deactivated` - Staff member deactivated
+          * `staff.reactivated` - Staff member reactivated
+          * `staff.account_changed` - Staff member's names or phone changed
+          * `staff.password_reset` - Temporary password given
+          * `staff.totp_reset` - Two-factor authentication reset
+      - in: query
+        name: actor
+        schema:
+          type: string
+          format: uuid
+        description: Qui (`id` du compte).
+      - in: query
+        name: domain
+        schema:
+          enum:
+          - account
+          - auth
+          - roles
+          - staff
+          type: string
+          minLength: 1
+        description: |-
+          * `account` - account
+          * `auth` - auth
+          * `roles` - roles
+          * `staff` - staff
+      - in: query
+        name: entity
+        schema:
+          type: string
+          format: uuid
+        description: Historique d'un objet (`entity_id`).
+      - name: page
+        required: false
+        in: query
+        description: Un numéro de page de l'ensemble des résultats.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+          maxLength: 100
+          minLength: 1
+        description: Dans le nom de l'objet.
+      - in: query
+        name: since
+        schema:
+          type: string
+          format: date
+        description: À partir de ce jour.
+      - in: query
+        name: until
+        schema:
+          type: string
+          format: date
+        description: Jusqu'à ce jour.
+      tags:
+      - audit
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAuditLogList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/audit/{id}/:
+    get:
+      operationId: audit_retrieve
+      description: Une entrée du journal d'audit de l'école.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) audit log entry.
+        required: true
+      tags:
+      - audit
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLog'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/auth/csrf/:
     get:
       operationId: auth_csrf_retrieve
@@ -1064,6 +1221,143 @@ paths:
           description: ''
 components:
   schemas:
+    ActionEnum:
+      enum:
+      - auth.login
+      - account.password_changed
+      - account.totp_enabled
+      - account.totp_changed
+      - account.totp_disabled
+      - account.totp_reset
+      - account.recovery_codes_renewed
+      - roles.created
+      - roles.updated
+      - roles.deleted
+      - staff.added
+      - staff.roles_changed
+      - staff.deactivated
+      - staff.reactivated
+      - staff.account_changed
+      - staff.password_reset
+      - staff.totp_reset
+      type: string
+      description: |-
+        * `auth.login` - Logged in
+        * `account.password_changed` - Password changed
+        * `account.totp_enabled` - Two-factor authentication turned on
+        * `account.totp_changed` - Two-factor authentication on a new phone
+        * `account.totp_disabled` - Two-factor authentication turned off
+        * `account.totp_reset` - Two-factor authentication reset by support
+        * `account.recovery_codes_renewed` - New recovery codes
+        * `roles.created` - Role created
+        * `roles.updated` - Role changed
+        * `roles.deleted` - Role deleted
+        * `staff.added` - Staff member added
+        * `staff.roles_changed` - Staff member's roles changed
+        * `staff.deactivated` - Staff member deactivated
+        * `staff.reactivated` - Staff member reactivated
+        * `staff.account_changed` - Staff member's names or phone changed
+        * `staff.password_reset` - Temporary password given
+        * `staff.totp_reset` - Two-factor authentication reset
+    AuditActor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        last_name:
+          type: string
+          title: Nom
+          maxLength: 100
+        middle_name:
+          type: string
+          maxLength: 100
+        first_name:
+          type: string
+          title: Prénom
+          maxLength: 100
+      required:
+      - id
+      - last_name
+    AuditLog:
+      type: object
+      description: 'Une entrée du journal (M6). `before` / `after` : seulement les
+        champs changés.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        action:
+          allOf:
+          - $ref: '#/components/schemas/ActionEnum'
+          readOnly: true
+        domain:
+          allOf:
+          - $ref: '#/components/schemas/DomainEnum'
+          description: Domaine de l'action (filtre de M6).
+          readOnly: true
+        actor:
+          allOf:
+          - $ref: '#/components/schemas/AuditActor'
+          nullable: true
+          readOnly: true
+          description: Qui ; vide pour le support Mwangaza (`by_support`) ou le système.
+        by_support:
+          type: boolean
+          readOnly: true
+          description: 'Action du support Mwangaza : l''interface affiche « Support
+            Mwangaza ».'
+        entity_type:
+          type: string
+          readOnly: true
+          title: Object type
+        entity_id:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+          title: Object
+        entity_label:
+          type: string
+          readOnly: true
+          description: 'Nom de l''objet au moment de l''action. Vide pour un rôle
+            système sans nom propre : l''interface affiche le nom traduit de son code
+            (rôle `entity_id`).'
+        before:
+          readOnly: true
+          nullable: true
+        after:
+          readOnly: true
+          nullable: true
+        ip:
+          type: string
+          readOnly: true
+          nullable: true
+          title: Adresse IP
+        user_agent:
+          type: string
+          readOnly: true
+          title: Browser
+      required:
+      - action
+      - actor
+      - after
+      - before
+      - by_support
+      - created_at
+      - domain
+      - entity_id
+      - entity_label
+      - entity_type
+      - id
+      - ip
+      - user_agent
     BlankEnum:
       enum:
       - ''
@@ -1136,6 +1430,13 @@ components:
       - name
       - permissions
       - roles
+    DomainEnum:
+      enum:
+      - account
+      - auth
+      - roles
+      - staff
+      type: string
     Error:
       type: object
       properties:
@@ -1278,6 +1579,29 @@ components:
       required:
       - code
       - name
+    PaginatedAuditLogList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
     PaginatedRoleList:
       type: object
       required:

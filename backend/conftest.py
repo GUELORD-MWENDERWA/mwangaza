@@ -5,6 +5,7 @@ import pytest
 from django.test import Client
 
 from apps.accounts.login import MFA_SESSION_KEY
+from apps.accounts.models import User
 from apps.core.tenancy import get_current_school
 from tests.factories import MembershipFactory, SchoolFactory
 
@@ -81,3 +82,12 @@ def cashier(school):
 def other_head(other_school):
     """Directeur de l'école beta."""
     return MembershipFactory(school=other_school, roles=["head"]).user
+
+
+@pytest.fixture
+def admin_client(db):
+    """Super-admin connecté à l'administration Django."""
+    admin = User.objects.create_superuser("0000000000", "secret-123", last_name="Admin")
+    client = Client(HTTP_HOST="localhost")
+    client.force_login(admin)
+    return client

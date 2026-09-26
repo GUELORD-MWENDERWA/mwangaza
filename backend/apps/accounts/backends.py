@@ -2,6 +2,7 @@ from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import PermissionDenied
 
 from apps.accounts import attempts
+from apps.core.http import client_ip
 
 
 class PhoneBackend(ModelBackend):
@@ -13,7 +14,7 @@ class PhoneBackend(ModelBackend):
         if raw is None or password is None:
             return None
         phone = attempts.phone_key(raw)
-        ip = attempts.client_ip(request) if request is not None else None
+        ip = client_ip(request) if request is not None else None
         if attempts.retry_after(phone, ip):
             # Django arrête là et répond comme pour un mauvais mot de passe.
             raise PermissionDenied

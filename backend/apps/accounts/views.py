@@ -315,8 +315,8 @@ class LoginCodeView(StepView):
         serializer.is_valid(raise_exception=True)
         user = login.expect(request, Step.TOTP)
         with login.counting_failures(request, user):
-            services.verify_second_factor(user, serializer.validated_data["code"])
-        response = Response({"step": login.second_factor_passed(request, user)})
+            method = services.verify_second_factor(user, serializer.validated_data["code"])
+        response = Response({"step": login.second_factor_passed(request, user, method)})
         if serializer.validated_data["trust_device"]:
             login.trust_device(response, user)
         return response
@@ -393,7 +393,7 @@ class TotpActivateView(StepView):
             request.session[MFA_SESSION_KEY] = True
             step = Step.DONE
         else:
-            step = login.second_factor_passed(request, user)
+            step = login.second_factor_passed(request, user, "totp")
         return Response({"step": step, "recovery_codes": codes})
 
 

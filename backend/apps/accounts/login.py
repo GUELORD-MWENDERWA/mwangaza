@@ -30,8 +30,11 @@ from rest_framework.exceptions import NotAuthenticated
 
 from apps.accounts import attempts, services
 from apps.accounts.models import Membership, User
+from apps.audit import services as audit
+from apps.audit.actions import Action
 from apps.core.crypto import decrypt, encrypt
 from apps.core.errors import ApiError, BusinessError
+from apps.core.http import client_ip
 
 PENDING_SESSION_KEY = "accounts.login"
 # Session connectée passée par la double authentification (vérifié par `HasSchoolPermission`).
@@ -74,7 +77,7 @@ def _next_step(user: User, *, second_factor_ok: bool) -> Step:
 
 def log_in(request, phone: str, password: str) -> Step:
     """Étape 1. Numéro inconnu, mauvais mot de passe ou compte désactivé : même réponse."""
-    attempts.ensure_allowed(attempts.phone_key(phone), attempts.client_ip(request))
+    attempts.ensure_allowed(attempts.phone_key(phone), client_ip(request))
     user = authenticate(request, phone=phone, password=password)
     if user is None:
         raise BusinessError(INVALID_CREDENTIALS)
@@ -82,10 +85,14 @@ def log_in(request, phone: str, password: str) -> Step:
         logout(request)
     # Nouvelle clé de session : un identifiant de session connu d'avance ne sert à rien.
     request.session.cycle_key()
+    trusted = is_trusted_device(request, user)
     request.session[PENDING_SESSION_KEY] = {
         "user": str(user.pk),
         "started": time.time(),
-        "second_factor_ok": is_trusted_device(request, user),
+        "second_factor_ok": trusted,
+        # Comment le second facteur a été donné, pour le journal : `trusted_device`, `totp`,
+        # `recovery_code`, ou rien (double authentification pas activée).
+        "second_factor": "trusted_device" if trusted else None,
     }
     return advance(request, user)
 
@@ -127,9 +134,11 @@ def expect(request, step: Step) -> User:
     return user
 
 
-def second_factor_passed(request, user: User) -> Step:
+def second_factor_passed(request, user: User, method: str) -> Step:
+    """`method` : `totp` ou `recovery_code` (`services.verify_second_factor`)."""
     pending = _pending(request)
     pending["second_factor_ok"] = True
+    pending["second_factor"] = method
     request.session[PENDING_SESSION_KEY] = pending
     return advance(request, user)
 
@@ -139,7 +148,7 @@ def advance(request, user: User) -> Step:
     pending = _pending(request)
     step = _next_step(user, second_factor_ok=pending["second_factor_ok"])
     if step == Step.DONE:
-        _finish(request, user, second_factor_ok=pending["second_factor_ok"])
+        _finish(request, user, pending)
     return step
 
 
@@ -152,14 +161,23 @@ def _pending(request) -> dict:
     return request.session[PENDING_SESSION_KEY]
 
 
-def _finish(request, user: User, *, second_factor_ok: bool) -> None:
+def _finish(request, user: User, pending: dict) -> None:
     cancel(request)
     login(request, user, backend=settings.AUTHENTICATION_BACKENDS[0])
-    request.session[MFA_SESSION_KEY] = second_factor_ok
+    request.session[MFA_SESSION_KEY] = pending["second_factor_ok"]
     attempts.clear_failures(user.phone)
-    if request.school is not None:
-        Membership.objects.filter(user=user, school=request.school).update(
-            last_login_at=timezone.now()
+    if request.school is None:
+        return
+    Membership.objects.filter(user=user, school=request.school).update(last_login_at=timezone.now())
+    # Journal de l'école de l'adresse, si la personne y travaille.
+    membership = Membership.objects.filter(user=user, school=request.school, is_active=True).first()
+    if membership is not None:
+        audit.record(
+            Action.AUTH_LOGIN,
+            membership,
+            actor=user,
+            after={"second_factor": pending.get("second_factor")},
+            label=str(user),
         )
 
 
@@ -170,7 +188,7 @@ def _finish(request, user: User, *, second_factor_ok: bool) -> None:
 def counting_failures(request, user: User) -> Iterator[None]:
     """Limitation des tentatives autour d'un service qui vérifie un code ou le mot de passe
     actuel : refusé si le numéro ou l'adresse est bloqué, échec compté sinon."""
-    phone, ip = user.phone, attempts.client_ip(request)
+    phone, ip = user.phone, client_ip(request)
     attempts.ensure_allowed(phone, ip)
     try:
         yield
