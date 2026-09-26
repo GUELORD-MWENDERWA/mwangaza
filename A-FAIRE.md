@@ -20,7 +20,7 @@ Dernière mise à jour : 2026-09-26 (après tes décisions Q1 à Q11).
 | 5 bis | [Fusionner la PR #76 (correction du `.env`)](#5-bis-fusionner-la-pr-de-correction-du-env) | 2 min | [x] |
 | 5 ter | [Fusionner la PR #77 (correction de `make dev`)](#5-ter-fusionner-la-pr-de-correction-de-make-dev) | 2 min | [x] |
 | 6 | [Donner tes décisions](#6-tes-décisions) : nom et domaine (Q9), questions Q1 à Q11 | 10 min | [x] |
-| 7 | **[Relire et fusionner la PR des décisions](#7-fusionner-la-pr-des-décisions), puis celle de la tâche 0.2 — dans cet ordre** | 15 min | [ ] |
+| 7 | **[Relire et fusionner la PR des décisions (#78)](#7-fusionner-la-pr-des-décisions), puis celle de la tâche 0.2 — dans cet ordre** | 15 min | [ ] |
 
 Rien d'autre ne bloque : Claude enchaîne les tâches. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant), et [les comptes et le domaine](#9-avant-la-semaine-4-tâche-46--comptes-et-achats) avant la semaine 4.
 
@@ -168,7 +168,7 @@ Le premier essai de `make dev` a montré deux défauts : le conteneur du front s
 
 ### 7. Fusionner la PR des décisions
 
-La PR des décisions (branche `docs/decisions-q1-q11`) reporte tes réponses dans les documents. **La fusionner = accepter aussi ce que Claude a proposé** là où tu le lui as demandé (sinon, commentaire sur la PR) :
+La PR des décisions (#78, branche `docs/decisions-q1-q11`) reporte tes réponses dans les documents. **La fusionner = accepter aussi ce que Claude a proposé** là où tu le lui as demandé (sinon, commentaire sur la PR) :
 
 | Proposition | Où la lire |
 |---|---|
@@ -180,7 +180,7 @@ La PR des décisions (branche `docs/decisions-q1-q11`) reporte tes réponses dan
 | Logo noir et blanc de l'ITIG pour le reçu thermique | `docs/ecole-pilote/documents/2026-09-26-logo-itig-noir-et-blanc.png` |
 | 4 maquettes de la Gestion corrigées (la fiche famille ne montre plus les enfants d'une autre école) | `maquettes/captures/desktop/gestion-famille-fiche.png` et `gestion-eleve-fiche-*.png` |
 
-La PR de la tâche 0.2 est partie de celle-ci : **fusionner d'abord la PR des décisions, puis celle de la 0.2**. Pour chacune, vérifier **`base: main`**, puis :
+La PR de la tâche 0.2 est partie de celle-ci : **fusionner d'abord la PR des décisions (#78), puis celle de la 0.2**. Pour chacune, vérifier **`base: main`**, puis :
 
 ```bash
 gh pr merge <numéro> --merge --delete-branch

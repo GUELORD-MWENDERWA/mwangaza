@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 1 (Socle) |
 | Lot | V1.0 — semaine 1 (Socle) |
-| Tâche en cours | aucune — 0.1 terminée ; décisions Q1 à Q11 reportées dans les documents (PR des décisions) |
+| Tâche en cours | aucune — 0.1 terminée ; décisions Q1 à Q11 reportées dans les documents (PR #78) |
 | Prochaine tâche | 0.2 — qualité : ruff, pytest, ESLint, Prettier, Vitest, pre-commit, GitHub Actions |
 | Issue GitHub | #5 (0.1, fermée à la fusion de la PR) · prochaine : #6 (0.2) |
-| Branche | `docs/decisions-q1-q11` → PR vers `main` (#75, #76, #77 fusionnées) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `docs/decisions-q1-q11` → PR #78 vers `main` (#75, #76, #77 fusionnées) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-26 |
 
 ## Avancement
