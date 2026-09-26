@@ -11,6 +11,7 @@ urlpatterns = [
     path("api/health/", health, name="health"),
     path("api/school/", current_school, name="current-school"),
     path("api/", include("apps.accounts.urls")),
+    path("api/", include("apps.audit.urls")),
 ]
 
 if settings.DEBUG:

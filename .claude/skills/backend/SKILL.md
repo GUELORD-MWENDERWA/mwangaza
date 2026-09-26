@@ -13,7 +13,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 - Hériter de `apps.core.models.TenantModel` ([T]) ou `BaseModel` ([G]) : clé primaire UUID v7 (`apps.core.ids.uuid7`), `created_at`, `updated_at`, `created_by` (rempli par le service avec `actor`).
 - Index composés **commençant par `school`** ; unicité portée par école (ex. `matricule`, `receipt_number`, `Device.prefix`) via `UniqueConstraint(fields=["school", …])`.
 - Argent : `*_minor` en `BigIntegerField` + `currency` (`CharField(3)`) ; taux en `DecimalField(…, decimal_places=6)`. Jamais `FloatField`. Voir skill `argent`.
-- **[I]** (`Payment`, `PaymentAllocation`, `PaymentCancellation`, `CashClosing`, `AuditLog`) : `save()` refuse la mise à jour d'une ligne existante, `delete()` lève une erreur ; admin en lecture seule ; aucun endpoint de modification ni de suppression.
+- **[I]** (`Payment`, `PaymentAllocation`, `PaymentCancellation`, `CashClosing`, `AuditLog`) : `save()` refuse la mise à jour d'une ligne existante, `delete()` lève une erreur, `QuerySet.update()` et `.delete()` aussi (modèle : `apps/audit/models.py`) ; déclencheur PostgreSQL qui refuse `UPDATE` et `DELETE` (migration `audit.0001`) ; admin en lecture seule ; aucun endpoint de modification ni de suppression.
 - Noms en anglais, selon le glossaire de `CLAUDE.md`.
 
 ## Requêtes
@@ -32,7 +32,12 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 
 - Toute la logique métier ici, pas dans les vues ni les serializers. Fonctions avec arguments explicites (`school`, `actor`, `device`…).
 - `transaction.atomic` ; `select_for_update` pour les séquences (matricule, numéro de reçu côté serveur, `ChangeLog.seq`).
-- **Audit** : toute création / modification / annulation sur finances, notes, paie, rôles et élèves écrit un `AuditLog` (acteur, appareil, action, entité, avant / après, IP, `impersonated_by`).
+- **Audit** : toute création / modification / annulation sur finances, notes, paie, rôles et élèves écrit un `AuditLog`, **dans la transaction de l'action** :
+  - nouvelle action → `apps/audit/actions.py` (code `<domaine>.<événement>`) ;
+  - `apps.audit.services.record(Action.X, objet, actor=actor, before=…, after=…, label=…)` : journal de l'école courante ; adresse IP et navigateur viennent de la requête (`AuditMiddleware`) ;
+  - `before` / `after` : seulement ce qui a changé (`audit.changes(avant, après)` ; rien de changé → pas d'entrée) ; jamais de mot de passe, de code ni de clé (`record` refuse les clés `password`, `secret`…) ;
+  - `label` : nom de l'objet au moment de l'action (un renommage ne réécrit pas l'histoire) ;
+  - changement du compte d'une personne (mot de passe, double authentification) : `accounts.services._audit_account` (journal de chaque école où elle est active).
 - Entité descendue sur les appareils (élèves, classes, frais, échéances, soldes) : écrire une ligne `ChangeLog` (voir skill `hors-ligne`).
 - Entité créable hors-ligne : accepter l'UUID fourni par le client, opération idempotente par `op_id`.
 
@@ -55,7 +60,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 1. **Isolation** : fixtures `school` (`alpha.localhost`) et `other_school` (`beta.localhost`) de `backend/conftest.py`, fabriques `tests.factories` (`SchoolFactory`, `UserFactory`, `MembershipFactory(school=…, roles=["head"])`) ; comptes `head`, `cashier` (école alpha), `other_head` (beta) ; appels `api(user, host="beta.localhost").get/post/patch/delete(…)` (session passée par la double authentification ; `api(user, mfa=False)` : sans elle) ; `enable_totp(user)` et `totp_code(secret)` de `tests.factories` ; depuis l'école B (`HTTP_HOST="beta.localhost"`), la ressource de A n'apparaît pas dans la liste et renvoie 404 en détail, modification et action. Modèles d'essai du socle : app `tests.sample` (tests seulement).
 2. **Permission** : sans le code → 403 ; avec → succès.
 3. **Règles métier** du service (cas nominal, limites, erreurs).
-4. **Audit** écrit quand l'action est sensible.
+4. **Audit** écrit quand l'action est sensible : action, acteur, objet, avant / après ; aucune entrée si l'action est refusée ou ne change rien (exemples : `apps/accounts/tests/test_audit.py`).
 5. **Immutabilité** pour les modèles [I] ; **idempotence** (même `op_id` deux fois → une seule écriture, même réponse) pour les écritures de synchronisation.
 
 Avant de rendre la main : lancer ruff et pytest, puis la skill `verifier`.

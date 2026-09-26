@@ -35,6 +35,8 @@ PERMISSION_CHOICES = list(PERMISSIONS.items())
 
 # Gérer les rôles et les comptes du personnel : une école garde toujours un compte actif qui l'a.
 ROLES_MANAGE = "roles.manage"
+# Lire le journal d'audit de l'école (M6).
+AUDIT_VIEW = "audit.view"
 
 # Double authentification obligatoire (B4) pour un compte qui a l'un de ces droits dans une école :
 # l'argent, les réglages, les comptes, le journal d'audit. Par défaut : directeur, comptable,

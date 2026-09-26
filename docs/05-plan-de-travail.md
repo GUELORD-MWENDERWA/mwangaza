@@ -24,17 +24,17 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
 - [x] **1.1** App `core` : `TenantModel`, `TenantManager` qui lève une erreur sans école, `TenantMiddleware` par sous-domaine, UUID v7, classe `Money` + tests
 - [x] **1.2** App `accounts` : `User` (téléphone comme identifiant), `Membership`, `Role`, codes de permissions, 9 rôles système copiés à la création d'une école (B1–B3, `04` § 8) ; API des rôles et des comptes du personnel, `GET /api/me/`
 - [x] **1.3** Connexion par session, TOTP pour les rôles sensibles, limitation des tentatives (B4) ; API de « Mon compte » (mot de passe, double authentification, langue) et, pour l'école, nouveau mot de passe, réinitialisation de la double authentification, noms et téléphone d'un compte qui ne sert que chez elle
-- [ ] **1.4** App `audit` : `AuditLog` + utilitaire d'enregistrement (I1)
-- [ ] **1.5** Super-admin : création / suspension d'école, liste des écoles, connexion « en tant qu'école » tracée (A1–A3) ; couleur de l'école choisie dans ses paramètres, contraste vérifié (Q8) ; double authentification du super-admin dans l'administration Django *(ajoutée le 2026-09-26, 1.3)*
+- [x] **1.4** App `audit` : `AuditLog` + utilitaire d'enregistrement (I1) ; API du journal (`/api/audit/`) ; audit des rôles, des comptes du personnel, de Mon compte et de la connexion (1.2, 1.3)
+- [ ] **1.5** Super-admin : création / suspension d'école, liste des écoles, connexion « en tant qu'école » tracée (A1–A3) ; couleur de l'école choisie dans ses paramètres, contraste vérifié (Q8) ; double authentification du super-admin dans l'administration Django *(ajoutée le 2026-09-26, 1.3)* ; « en tant qu'école » dans le journal d'audit (`impersonated_by`), modifications d'un compte par le support dans l'administration Django (téléphone, noms, mot de passe, désactivation) notées dans le journal de chaque école de la personne *(ajouté le 2026-09-26, 1.4)*
 - [ ] **1.6** Front `gestion` : squelette React + Vite + PWA + Tailwind + shadcn/ui + i18next ; écran de connexion ; mise en page avec menu selon permissions ; écrans de la connexion en étapes (code, nouveau mot de passe, activation M1) et « Mon compte » (M4) sur l'API de la 1.3 *(ajoutés le 2026-09-26 : aucune tâche ne prévoyait M4)*
-- [ ] **1.7** App `schools` : année scolaire depuis modèle, périodes, niveaux, options, classes, format de matricule + écrans (C1–C3) ; écrans « Comptes du personnel » (M3) et « Rôles et permissions » sur l'API de la 1.2 *(ajoutés le 2026-09-26 : aucune tâche ne les prévoyait)*
+- [ ] **1.7** App `schools` : année scolaire depuis modèle, périodes, niveaux, options, classes, format de matricule + écrans (C1–C3) ; écrans « Comptes du personnel » (M3) et « Rôles et permissions » sur l'API de la 1.2 *(ajoutés le 2026-09-26 : aucune tâche ne les prévoyait)* ; écran « Journal d'audit » (M6) sur l'API de la 1.4 *(ajouté le 2026-09-26)*
 
 ## Semaine 2 — Élèves et frais
 
 - [ ] **2.1** App `students` : `Student`, `Family`, `Guardian`, `Enrollment`, génération du matricule et du code famille
 - [ ] **2.2** Écrans élèves : liste, recherche rapide, fiche, création, inscription, liaison famille (D2–D4)
 - [ ] **2.3** Import Excel : téléversement, correspondance des colonnes, aperçu, rapport d'erreurs, import en tâche Celery (D1). Tester avec un fichier fictif réaliste (~800 élèves), puis avec le vrai fichier de l'ITIG quand il arrive
-- [ ] **2.4** Impressions : fiche d'inscription avec code famille, liste de classe PDF / Excel (D5)
+- [ ] **2.4** Impressions : fiche d'inscription avec code famille, liste de classe PDF / Excel (D5) ; export Excel du journal d'audit, limité à la période filtrée, l'export lui-même noté dans le journal (M6) *(ajouté le 2026-09-26, 1.4 : même bibliothèque Excel)*
 - [ ] **2.5** App `finance` — configuration : `FeeType`, `FeeRule`, `InstallmentTemplate`, `ExchangeRate`, `Discount` + écrans (E1–E3, E5) ; devise au choix pour chaque barème ; taux de l'année corrigeable avec historique
 - [ ] **2.6** Génération des `StudentCharge` à l'inscription et quand un barème change ; échéancier particulier (E4)
 - [ ] **2.7** Calcul du solde et des retards d'un élève (service + tests couvrant réductions, devises, annulations)
@@ -43,7 +43,7 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
 
 - [ ] **3.1** Caisses et sessions de caisse ; `Payment`, `PaymentAllocation`, répartition automatique + ajustement (F1–F2), en ligne d'abord
 - [ ] **3.2** Reçu dans le navigateur au format choisi par l'école (thermique 58 / 80 mm ; A6, A5 ou petit format sur A4 avec traits de découpe ; 1 ou 2 exemplaires), montant en lettres (français), zone signature / cachet, QR code signé ; page publique de vérification `/v/{id}` (F3–F4, F6) ; design des reçus proposé par Claude
-- [ ] **3.3** App `sync` : `Device`, enregistrement d'appareil avec préfixe et clé de signature des reçus, `SyncOperation`, `ChangeLog`, endpoints `snapshot`, `pull`, `push` idempotents
+- [ ] **3.3** App `sync` : `Device`, enregistrement d'appareil avec préfixe et clé de signature des reçus, `SyncOperation`, `ChangeLog`, endpoints `snapshot`, `pull`, `push` idempotents ; `AuditLog.device` et heure de l'appareil pour les actions faites hors ligne (M6) *(ajouté le 2026-09-26, 1.4)*
 - [ ] **3.4** Front : base Dexie, instantané initial, file d'opérations, synchronisation automatique, indicateur d'état, stockage persistant
 - [ ] **3.5** Caisse hors-ligne complète : recherche élève, solde, encaissement, reçu, numérotation locale (F5). Tests Playwright : couper le réseau, encaisser, reconnecter, vérifier aucun doublon
 - [ ] **3.6** Crédit élève en cas de surpaiement après synchronisation

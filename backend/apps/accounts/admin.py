@@ -1,9 +1,9 @@
 """Administration Django : réservée au super-admin (`User.is_platform_admin`).
 
 Comptes : création et modification, réinitialisation de la double authentification (support,
-pour un compte qui sert dans plusieurs écoles). Rôles et appartenances : lecture seule, toutes
-écoles ; les changements passent par l'API de l'école et ses règles (école séparée, dernier
-gestionnaire des rôles).
+pour un compte qui sert dans plusieurs écoles ; notée dans le journal de chacune). Rôles et
+appartenances : lecture seule, toutes écoles ; les changements passent par l'API de l'école et
+ses règles (école séparée, dernier gestionnaire des rôles).
 """
 
 from django.contrib import admin, messages
@@ -91,7 +91,7 @@ class UserAdmin(DjangoUserAdmin):
     @admin.action(description=_("Reset two-factor authentication (lost phone)"))
     def reset_totp(self, request, queryset):
         for user in queryset:
-            services.reset_totp(user)
+            services.support_reset_totp(user, actor=request.user)
         self.message_user(
             request,
             _("Two-factor authentication reset: to be turned on again at the next login."),

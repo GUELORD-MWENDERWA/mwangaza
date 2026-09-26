@@ -24,7 +24,7 @@ Tout ce qui est propre à une école se règle ici, jamais dans le code (l'ITIG 
 
 **Device [T]** — `user`, `kind` (`browser`, `reader`), `label`, `prefix` (unique dans l'école, ex : `C1`), `cash_register` (FK optionnelle), `public_key` (clé publique ECDSA P-256 de l'appareil, pour vérifier la signature des reçus émis hors ligne), `last_seen_at`, `last_receipt_seq`, `revoked_at`.
 
-**AuditLog [T]** **[I]** — `actor`, `device`, `action`, `entity_type`, `entity_id`, `before` (JSON), `after` (JSON), `ip`, `impersonated_by`.
+**AuditLog [T]** **[I]** — `actor` (vide pour une action du système), `action` (code `<domaine>.<événement>`, liste dans `apps/audit/actions.py`), `entity_type` (`accounts.role`…), `entity_id`, `entity_label` (nom de l'objet au moment de l'action ; vide pour un rôle système sans nom propre), `before`, `after` (JSON : seulement les champs changés, jamais de mot de passe, de code ni de clé), `ip`, `user_agent` (navigateur), `impersonated_by` (super-admin « en tant qu'école », rempli en 1.5), `device` (appareil de caisse, ajouté en 3.3 avec `Device`, avec l'heure de l'appareil pour une action faite hors ligne). Ni modifiable ni effaçable, jusque dans la base (déclencheur PostgreSQL). Une action dans une école va dans son journal (connexion : école de l'adresse) ; un changement du compte d'une personne (mot de passe, double authentification) va dans le journal de chaque école où elle est active, sans dire où il a été fait. Lu avec `audit.view`.
 
 ## 2. Organisation scolaire
 

@@ -5,17 +5,10 @@ import pytest
 from django.test import Client
 
 from apps.accounts.models import Role, User
+from apps.audit.models import AuditLog
 from tests.factories import MembershipFactory, enable_totp
 
 pytestmark = pytest.mark.django_db
-
-
-@pytest.fixture
-def admin_client(db):
-    admin = User.objects.create_superuser("0000000000", "secret-123", last_name="Admin")
-    client = Client(HTTP_HOST="localhost")
-    client.force_login(admin)
-    return client
 
 
 def test_pages_open_for_the_platform_admin(admin_client, school, other_school):
@@ -142,3 +135,9 @@ def test_support_resets_two_factor_authentication(admin_client, school, other_sc
     assert response.status_code == 302
     member.user.refresh_from_db()
     assert not member.user.totp_enabled
+    # Noté dans le journal de chaque école de la personne, au nom du support.
+    for each in (school, other_school):
+        log = AuditLog.all_schools.get(school=each)
+        assert log.action == "account.totp_reset"
+        assert log.actor.is_platform_admin
+        assert log.entity_label == str(member.user)

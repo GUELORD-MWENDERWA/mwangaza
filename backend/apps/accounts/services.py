@@ -1,8 +1,11 @@
 """Comptes, rôles et appartenances : règles métier (`docs/04-modele-de-donnees.md` § 1 et § 8).
 
 Les services qui changent les rôles et les comptes d'une école travaillent dans l'école courante
-(requête sur son sous-domaine, ou `use_school`). L'audit de ces changements arrive avec
-`AuditLog` (tâche 1.4) : rôles, comptes du personnel, mot de passe et double authentification.
+(requête sur son sous-domaine, ou `use_school`).
+
+Journal d'audit (1.4) : les changements de rôles et de comptes du personnel vont dans le journal
+de l'école ; ce qui change un compte (mot de passe, double authentification) va dans le journal
+de chaque école où la personne est active, sans dire où l'action a été faite (`_audit_account`).
 """
 
 import logging
@@ -21,6 +24,8 @@ from apps.accounts import totp
 from apps.accounts.models import Membership, RecoveryCode, Role, User
 from apps.accounts.phone import normalize_phone
 from apps.accounts.roles import ROLES_MANAGE, SYSTEM_ROLES, TOTP_PERMISSIONS, sorted_permissions
+from apps.audit import services as audit
+from apps.audit.actions import Action
 from apps.core.crypto import DecryptionError, decrypt, encrypt
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import CrossSchoolError, require_current_school, use_school
@@ -144,15 +149,32 @@ def _check_role_name(name: str, *, is_system: bool, role_id=None) -> None:
         raise BusinessError(ROLE_NAME_TAKEN)
 
 
+def _role_data(role: Role) -> dict:
+    return {"name": role.name, "permissions": list(role.permissions)}
+
+
+def _role_summary(role: Role) -> dict:
+    # Nom vide pour un rôle système : l'interface traduit son code.
+    return {"id": str(role.pk), "code": role.code, "name": role.name}
+
+
+def _role_summaries(roles: Iterable[Role]) -> list[dict]:
+    return [_role_summary(role) for role in sorted(roles, key=lambda role: role.pk)]
+
+
 def create_role(*, actor: User, name: str, permissions: Iterable[str]) -> Role:
     """Rôle propre à l'école courante (B2), ex. « Chef d'atelier »."""
     require_current_school()
     name = name.strip()
     with transaction.atomic():
         _check_role_name(name, is_system=False)
-        return Role.objects.create(
+        role = Role.objects.create(
             name=name, permissions=sorted_permissions(permissions), created_by=actor
         )
+        audit.record(
+            Action.ROLES_CREATED, role, actor=actor, after=_role_data(role), label=role.name
+        )
+        return role
 
 
 def update_role(
@@ -161,6 +183,7 @@ def update_role(
     """Renommer un rôle (nom vide pour un rôle système = son nom traduit) ou changer ses
     permissions."""
     with transaction.atomic(), _keeping_a_role_manager(role.school):
+        before = _role_data(role)
         fields = ["updated_at"]
         if name is not None:
             role.name = name.strip()
@@ -170,6 +193,11 @@ def update_role(
             role.permissions = sorted_permissions(permissions)
             fields.append("permissions")
         role.save(update_fields=fields)
+        old, new = audit.changes(before, _role_data(role))
+        if new:
+            audit.record(
+                Action.ROLES_UPDATED, role, actor=actor, before=old, after=new, label=role.name
+            )
     return role
 
 
@@ -180,6 +208,9 @@ def delete_role(role: Role, *, actor: User) -> None:
     with transaction.atomic():
         if role.memberships.exists():
             raise BusinessError(ROLE_IN_USE)
+        audit.record(
+            Action.ROLES_DELETED, role, actor=actor, before=_role_data(role), label=role.name
+        )
         role.delete()
 
 
@@ -208,6 +239,7 @@ def add_staff_member(
     nouveau mot de passe ni changement de ses noms, et sans rien dire de ses autres écoles (B3)."""
     school = require_current_school()
     phone = normalize_phone(phone)
+    roles = list(roles)
     with transaction.atomic():
         user = User.objects.filter(phone=phone).first()
         temporary_password = None
@@ -228,7 +260,28 @@ def add_staff_member(
             raise BusinessError(ALREADY_MEMBER)
         membership = Membership.objects.create(user=user, school=school, created_by=actor)
         membership.roles.set(roles)
+        _audit_staff(
+            Action.STAFF_ADDED,
+            membership,
+            actor=actor,
+            after={"roles": _role_summaries(roles), "new_account": temporary_password is not None},
+        )
     return membership, temporary_password
+
+
+def _audit_staff(action: str, membership: Membership, *, actor: User | None, **data) -> None:
+    """Action de l'école sur une personne : dans le journal de l'école courante."""
+    audit.record(action, membership, actor=actor, label=str(membership.user), **data)
+
+
+def _audit_account(user: User, action: str, *, actor: User | None) -> None:
+    """Changement d'un compte (mot de passe, double authentification) : dans le journal de
+    chaque école où la personne est active, sur son appartenance à cette école. Le compte est
+    unique et donne accès à chacune ; aucune entrée ne dit où l'action a été faite."""
+    memberships = Membership.objects.filter(user=user, is_active=True).select_related("school")
+    for membership in memberships:
+        with use_school(membership.school):
+            _audit_staff(action, membership, actor=actor)
 
 
 def account_managed_by(user: User, school: School) -> bool:
@@ -268,12 +321,31 @@ def update_staff_member(
         raise CrossSchoolError("Appartenance d'une autre école que l'école courante.")
     with transaction.atomic(), _keeping_a_role_manager(school):
         if account:
-            _update_account(_account_of(membership), **account)
+            user = _account_of(membership)
+            before = {field: getattr(user, field) for field in account}
+            _update_account(user, **account)
+            old, new = audit.changes(before, {field: getattr(user, field) for field in account})
+            if new:
+                _audit_staff(
+                    Action.STAFF_ACCOUNT_CHANGED, membership, actor=actor, before=old, after=new
+                )
         if roles is not None:
+            roles = list(roles)
+            before = _role_summaries(membership.roles.all())
             membership.roles.set(roles)
+            if _role_summaries(roles) != before:
+                _audit_staff(
+                    Action.STAFF_ROLES_CHANGED,
+                    membership,
+                    actor=actor,
+                    before={"roles": before},
+                    after={"roles": _role_summaries(roles)},
+                )
         if is_active is not None and is_active != membership.is_active:
             membership.is_active = is_active
             membership.save(update_fields=["is_active", "updated_at"])
+            action = Action.STAFF_REACTIVATED if is_active else Action.STAFF_DEACTIVATED
+            _audit_staff(action, membership, actor=actor)
     return membership
 
 
@@ -299,16 +371,21 @@ def set_temporary_password(membership: Membership, *, actor: User) -> str:
     session au mot de passe)."""
     user = _account_of(membership)
     password = make_temporary_password()
-    user.set_password(password)
-    user.must_change_password = True
-    user.save(update_fields=["password", "must_change_password", "updated_at"])
+    with transaction.atomic():
+        user.set_password(password)
+        user.must_change_password = True
+        user.save(update_fields=["password", "must_change_password", "updated_at"])
+        _audit_staff(Action.STAFF_PASSWORD_RESET, membership, actor=actor)
     return password
 
 
 def reset_staff_totp(membership: Membership, *, actor: User) -> None:
     """« Réinitialiser la double auth. » (M3), ex. téléphone perdu : la personne la réactive à sa
     prochaine connexion si l'un de ses rôles l'exige."""
-    reset_totp(_account_of(membership))
+    user = _account_of(membership)
+    with transaction.atomic():
+        reset_totp(user)
+        _audit_staff(Action.STAFF_TOTP_RESET, membership, actor=actor)
 
 
 # Mot de passe
@@ -320,9 +397,11 @@ def change_password(user: User, new_password: str, *, current_password: str | No
     fermées ; la vue garde la session en cours."""
     if current_password is not None and not user.check_password(current_password):
         raise BusinessError(WRONG_PASSWORD)
-    user.set_password(new_password)
-    user.must_change_password = False
-    user.save(update_fields=["password", "must_change_password", "updated_at"])
+    with transaction.atomic():
+        user.set_password(new_password)
+        user.must_change_password = False
+        user.save(update_fields=["password", "must_change_password", "updated_at"])
+        _audit_account(user, Action.ACCOUNT_PASSWORD_CHANGED, actor=user)
 
 
 # Double authentification (B4)
@@ -371,9 +450,10 @@ def _totp_key(user: User) -> str | None:
         return None
 
 
-def verify_second_factor(user: User, code: str) -> None:
+def verify_second_factor(user: User, code: str) -> str:
     """Code TOTP du moment ou code de secours pas encore utilisé ; chacun ne sert qu'une fois
-    (`INVALID_CODE` sinon). Les essais ratés sont comptés par l'appelant (`attempts.py`)."""
+    (`INVALID_CODE` sinon). Renvoie `"totp"` ou `"recovery_code"` (journal de la connexion).
+    Les essais ratés sont comptés par l'appelant (`attempts.py`)."""
     with transaction.atomic():
         # Deux requêtes avec le même code en même temps : une seule passe.
         locked = User.objects.select_for_update().get(pk=user.pk)
@@ -382,14 +462,14 @@ def verify_second_factor(user: User, code: str) -> None:
         if step is not None:
             locked.totp_last_step = user.totp_last_step = step
             locked.save(update_fields=["totp_last_step", "updated_at"])
-            return
+            return "totp"
         digests = _recovery_digests(code)
         if digests and locked.totp_enabled:
             used = RecoveryCode.objects.filter(
                 user=locked, digest__in=digests, used_at__isnull=True
             ).update(used_at=timezone.now())
             if used:
-                return
+                return "recovery_code"
     raise BusinessError(INVALID_CODE)
 
 
@@ -400,18 +480,22 @@ def enable_totp(user: User, secret: str, code: str) -> list[str]:
     step = totp.matching_step(secret, code)
     if step is None:
         raise BusinessError(INVALID_CODE)
+    action = Action.ACCOUNT_TOTP_CHANGED if user.totp_enabled else Action.ACCOUNT_TOTP_ENABLED
     with transaction.atomic():
         user.totp_secret = encrypt(secret)
         user.totp_enabled_at = timezone.now()
         user.totp_last_step = step
         user.save(update_fields=["totp_secret", "totp_enabled_at", "totp_last_step", "updated_at"])
+        _audit_account(user, action, actor=user)
         return _new_recovery_codes(user)
 
 
 def regenerate_recovery_codes(user: User, code: str) -> list[str]:
     """8 nouveaux codes de secours ; les anciens ne servent plus."""
     verify_second_factor(user, code)
-    return _new_recovery_codes(user)
+    with transaction.atomic():
+        _audit_account(user, Action.ACCOUNT_RECOVERY_CODES_RENEWED, actor=user)
+        return _new_recovery_codes(user)
 
 
 def disable_totp(user: User, code: str) -> None:
@@ -419,11 +503,22 @@ def disable_totp(user: User, code: str) -> None:
     if totp_required(user):
         raise BusinessError(TOTP_STILL_REQUIRED)
     verify_second_factor(user, code)
-    reset_totp(user)
+    with transaction.atomic():
+        reset_totp(user)
+        _audit_account(user, Action.ACCOUNT_TOTP_DISABLED, actor=user)
+
+
+def support_reset_totp(user: User, *, actor: User) -> None:
+    """Par le support (administration Django), pour un compte qui sert dans plusieurs écoles
+    (téléphone perdu) ; noté dans le journal de chacune."""
+    with transaction.atomic():
+        reset_totp(user)
+        _audit_account(user, Action.ACCOUNT_TOTP_RESET, actor=actor)
 
 
 def reset_totp(user: User) -> None:
-    """Sans code : par l'école (compte qui ne sert que chez elle) ou par le support."""
+    """Sans code et sans entrée dans le journal : l'appelant écrit la sienne (école, support ;
+    `make demo`, qui n'est l'action de personne)."""
     with transaction.atomic():
         user.totp_secret = ""
         user.totp_enabled_at = None

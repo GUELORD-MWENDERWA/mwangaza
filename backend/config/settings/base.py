@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "apps.core",
     "apps.schools",
     "apps.accounts",
+    "apps.audit",
 ]
 
 MIDDLEWARE = [
@@ -55,6 +56,8 @@ MIDDLEWARE = [
     "apps.core.middleware.TenantMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # Adresse IP et navigateur de la requête pour le journal d'audit.
+    "apps.audit.middleware.AuditMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
