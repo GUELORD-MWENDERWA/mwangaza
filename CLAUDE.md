@@ -94,6 +94,7 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 | `make api` | schéma OpenAPI → `frontend/packages/api/openapi.yaml` (à relancer après tout changement d'API) |
 | `make build` | build des deux PWA |
 | `make superuser` · `make shell` | compte super-admin ; console Django |
+| `python3 maquettes/outils/maquettes.py menu` · `… index` · `node maquettes/outils/captures.mjs` | maquettes : menu latéral commun, galerie `index.html`, captures PNG (sans dépendance, Chrome de la machine) |
 
 Adresses en dev : Gestion `http://itig.localhost:5173/app/` (le sous-domaine = code de l'école), Portail `http://localhost:5174/`, API `/api/…` via le proxy Vite, doc de l'API `/api/docs/` (seulement en `DEBUG`). Réglages Django : `config.settings.dev` (défaut de `manage.py`), `test` (pytest), `prod` (wsgi/asgi, refuse de démarrer sans `DJANGO_SECRET_KEY`).
 

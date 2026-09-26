@@ -1,45 +1,45 @@
 # Ce qui manque encore
 
-Liste de tout ce qui manque pour aller jusqu'au bout : maquettes, informations de l'ITIG, décisions à prendre. Cocher au fur et à mesure (`/noter` ou `/document-ecole` le font). Établie le 2026-09-26.
+Liste de tout ce qui manque pour aller jusqu'au bout : maquettes, informations de l'ITIG, décisions à prendre. Cocher au fur et à mesure (`/noter` ou `/document-ecole` le font). Établie le 2026-09-26 ; mise à jour le même jour : les 20 maquettes V1.0 manquantes sont dessinées (à valider).
 
 **En attendant, le travail continue avec des données de test** (voir la dernière section) : aucun point ci-dessous ne bloque les tâches 0.2 à 1.7.
 
 ## 1. Maquettes manquantes
 
-30 maquettes existent (`maquettes/`). Les écrans ci-dessous n'en ont pas. **Si une maquette n'est pas fournie avant sa tâche, Claude la dessine lui-même dans le système de design (`maquettes/<app>/<nom>.html`, même style) et la montre avant de coder.**
+30 maquettes ont été fournies. Le 2026-09-26, à la demande de l'utilisateur (T3), Claude a dessiné dans le même système de design les écrans qui manquaient pour la V1.0, plus les bulletins officiels et les cours / maxima (V1.2) : **61 maquettes** au total (`maquettes/index.html`). **Valider** = fusionner la PR des maquettes ; une remarque sur un écran = commentaire de PR, Claude corrige avant de coder l'écran. Pour les lots suivants, même règle : si une maquette n'est pas fournie avant sa tâche, Claude la dessine et la montre avant de coder.
 
 ### V1.0 — nécessaires pour le pilote
 
-| # | Écran | App | Réf. | Tâche | Fournie |
-|---|---|---|---|---|:-:|
-| M1 | Activation de la double authentification : QR code à scanner + 8 codes de secours à imprimer | Gestion | B4 | 1.3 | [ ] |
-| M2 | Choix de l'école après connexion (compte dans plusieurs écoles) + changement d'école dans l'en-tête | Gestion | B3 | 1.2, 1.6 | [ ] |
-| M3 | Personnel : liste des comptes, créer un compte, attribuer des rôles, désactiver, réinitialiser le mot de passe | Gestion | B1–B3 | 1.2 | [ ] |
-| M4 | Mon compte : mot de passe, PIN, double authentification, langue | Gestion | B4–B5, I2 | 1.3 | [ ] |
-| M5 | Paramètres de l'école : nom officiel, logo, couleur, en-tête des reçus, devises, seuils d'alerte | Gestion | A1, cahier § 8.1 | 1.5, 1.7 | [ ] |
-| M6 | Journal d'audit : qui a fait quoi, filtres par personne, action, date | Gestion | I1 | 1.4 | [ ] |
-| M7 | Menu de la Gestion sur téléphone et tablette (moins de 900 px) | Gestion | cahier § 9.4 | 1.6 | [ ] |
-| M8 | Pages d'état : accès refusé, page introuvable, école suspendue, session expirée, nouvelle version disponible, stockage local refusé | Gestion, Portail | — | 1.6 | [ ] |
-| M9 | Fiche élève : onglets Identité, Famille, Historique (seul l'onglet Finances est dessiné) + modification | Gestion | D2–D4 | 2.2 | [ ] |
-| M10 | Fiche famille : code famille, tuteurs, enfants de toutes les écoles, état d'activation du portail, réimprimer le code | Gestion | D4, H1 | 2.2 | [ ] |
-| M11 | Fiche d'inscription imprimable (A4, avec code famille) et liste de classe (PDF) | Impression | D5 | 2.4 | [ ] |
-| M12 | Accorder une réduction à un élève ; échéancier particulier | Gestion | E3, E4 | 2.5, 2.6 | [ ] |
-| M13 | Ouvrir une session de caisse (choix de la caisse) ; caisse avant de choisir un élève ; paiements du jour et recherche d'un reçu à réimprimer | Gestion | F1, F6 | 3.1 | [ ] |
-| M14 | Crédits d'élèves (surpaiements après synchronisation) à traiter par le comptable | Gestion | — | 3.6 | [ ] |
-| M15 | Reçu d'annulation (80 mm et A4) | Impression | F7 | 3.8 | [ ] |
-| M16 | Clôtures de caisse vues par le comptable : historique, écarts, détail | Gestion | F8 | 3.8 | [ ] |
-| M17 | Situation financière d'un élève imprimable ; export des impayés (PDF, Excel) | Impression | G1, G2 | 4.1 | [ ] |
-| M18 | Changements de coordonnées faits par les parents, à prendre en compte par le secrétariat | Gestion | H5 | 4.4 | [ ] |
-| M19 | Portail : se connecter, mot de passe oublié, installer l'application | Portail | H1, H6 | 4.4 | [ ] |
-| M20 | Guides de première connexion : caissier, comptable, parent | Gestion, Portail | I3 | 4.5 | [ ] |
+| # | Écran | App | Réf. | Tâche | Maquette (dessinée le 2026-09-26) | Validée |
+|---|---|---|---|---|---|:-:|
+| M1 | Activation de la double authentification : QR code à scanner + 8 codes de secours à imprimer | Gestion | B4 | 1.3 | `gestion/double-authentification-activation` | [ ] |
+| M2 | Choix de l'école après connexion (compte dans plusieurs écoles) + changement d'école dans l'en-tête | Gestion | B3 | 1.2, 1.6 | `gestion/choix-ecole` | [ ] |
+| M3 | Personnel : liste des comptes, créer un compte, attribuer des rôles, désactiver, réinitialiser le mot de passe | Gestion | B1–B3 | 1.2 | `gestion/personnel-comptes` | [ ] |
+| M4 | Mon compte : mot de passe, PIN, double authentification, langue | Gestion | B4–B5, I2 | 1.3 | `gestion/mon-compte` | [ ] |
+| M5 | Paramètres de l'école : nom officiel, logo, couleur, en-tête des reçus, devises, seuils d'alerte | Gestion | A1, cahier § 8.1 | 1.5, 1.7 | `gestion/parametres-ecole` | [ ] |
+| M6 | Journal d'audit : qui a fait quoi, filtres par personne, action, date | Gestion | I1 | 1.4 | `gestion/journal-audit` | [ ] |
+| M7 | Menu de la Gestion sur téléphone et tablette (moins de 900 px) | Gestion | cahier § 9.4 | 1.6 | `gestion/menu-mobile` | [ ] |
+| M8 | Pages d'état : accès refusé, page introuvable, erreur, école suspendue, session expirée, nouvelle version, stockage local refusé, portail hors connexion | Gestion, Portail | — | 1.6 | `gestion/pages-etat` | [ ] |
+| M9 | Fiche élève : onglets Identité, Famille, Historique (+ modification) | Gestion | D2–D4 | 2.2 | `gestion/eleve-fiche-identite`, `-famille`, `-historique` | [ ] |
+| M10 | Fiche famille : code famille, tuteurs, enfants de toutes les écoles, état du portail, réimprimer / nouveau code | Gestion | D4, H1 | 2.2 | `gestion/famille-fiche` | [ ] |
+| M11 | Fiche d'inscription imprimable (A4, avec code famille) et liste de classe (PDF, Excel) | Impression | D5 | 2.4 | `gestion/fiche-inscription`, `gestion/liste-classe` | [ ] |
+| M12 | Accorder une réduction à un élève ; échéancier particulier | Gestion | E3, E4 | 2.5, 2.6 | `gestion/eleve-reduction`, `gestion/eleve-echeancier` | [ ] |
+| M13 | Ouvrir une session de caisse ; caisse avant de choisir un élève ; paiements du jour et recherche d'un reçu à réimprimer | Gestion | F1, F6 | 3.1 | `gestion/caisse-ouverture`, `gestion/caisse-accueil` | [ ] |
+| M14 | Crédits d'élèves (surpaiements après synchronisation) à traiter par le comptable | Gestion | — | 3.6 | `gestion/credits-eleves` | [ ] |
+| M15 | Reçu d'annulation (80 mm et A4) | Impression | F7 | 3.8 | `gestion/recu-annulation` | [ ] |
+| M16 | Clôtures de caisse vues par le comptable : historique, écarts, détail | Gestion | F8 | 3.8 | `gestion/clotures-caisse` | [ ] |
+| M17 | Situation financière d'un élève imprimable ; export des impayés (PDF, Excel) | Impression | G1, G2 | 4.1 | `gestion/situation-financiere`, `gestion/impayes-export` | [ ] |
+| M18 | Changements de coordonnées faits par les parents, à prendre en compte par le secrétariat | Gestion | H5 | 4.4 | `gestion/changements-coordonnees` | [ ] |
+| M19 | Portail : se connecter, mot de passe oublié, installer l'application | Portail | H1, H6 | 4.4 | `portail/connexion`, `portail/mot-de-passe-oublie`, `portail/installer` | [ ] |
+| M20 | Guides de première connexion : caissier, comptable, parent | Gestion, Portail | I3 | 4.5 | `gestion/guide-premiere-connexion`, `portail/guide` | [ ] |
 
 ### V1.1 — à prévoir avant la semaine 5
 
-Dépenses et rapports entrées / sorties (5.1) · dossier employé et contrats (5.2) · fiche de paie PDF (5.3) · réglages des notifications et relances (5.4) · carte d'élève PDF (5.5) · pénalités, validation d'inscription, documents téléversés (5.6) · messages à une classe, calendrier, circulaires, convocations (5.8) · espace enseignant (5.9). Existent déjà : paie, pointage QR.
+Pas encore dessinées (Claude les dessine avant la semaine 5 si elles ne sont pas fournies) : Dépenses et rapports entrées / sorties (5.1) · dossier employé et contrats (5.2) · fiche de paie PDF (5.3) · réglages des notifications et relances (5.4) · carte d'élève PDF (5.5) · pénalités, validation d'inscription, documents téléversés (5.6) · messages à une classe, calendrier, circulaires, convocations (5.8) · espace enseignant (5.9). Existent déjà : paie, pointage QR.
 
 ### V1.2 — à prévoir avant la semaine 9
 
-Cours, maxima, attribution des enseignants (6.1) · délibération et palmarès (6.4) · présences RFID et du personnel (6.5) · absences et justification par le parent (6.6) · discipline, messagerie, rendez-vous (6.7) · portail élève et espace titulaire (6.8) · transfert et attestations (6.9) · portail parents complet (6.10) · congés, sondages (6.11). Existent déjà : saisie des notes, bulletin (gabarit provisoire), scolarité d'un enfant.
+Déjà dessinés le 2026-09-26 d'après les **formulaires officiels** trouvés en ligne : cours et maxima (`gestion/cours-maxima`, 6.1), bulletin des humanités techniques (`gestion/bulletin`, formulaire IGE/P.S/100) et bulletin 7e–8e (`gestion/bulletin-education-de-base`, IGE/P.S/005) — voir `docs/claude/recherches/2026-09-26-bulletins-rdc.md`. Reste à dessiner : attribution des enseignants (6.1) · délibération et palmarès (6.4) · présences RFID et du personnel (6.5) · absences et justification par le parent (6.6) · discipline, messagerie, rendez-vous (6.7) · portail élève et espace titulaire (6.8) · transfert et attestations (6.9) · portail parents complet (6.10) · congés, sondages (6.11). Existent déjà : saisie des notes, scolarité d'un enfant.
 
 ### V2
 
@@ -72,7 +72,8 @@ Déposer les fichiers dans `docs/ecole-pilote/depot/` puis `/document-ecole`. Po
 | # | Information | Tâche | Reçue |
 |---|---|---|:-:|
 | I14 | Grille salariale, primes, règle de répartition de la motivation des enseignants, statut SECOPE, avances, retenues | 5.2, 5.3 | [ ] |
-| I15 | Bulletin officiel vierge et rempli (photo ou scan), branches et maxima par classe et option | 6.1, 6.3 | [ ] |
+| I15 | Bulletin officiel vierge et rempli (photo ou scan), branches et maxima par classe et option — surtout 3e–4e (« 5e, 6e année »), Électronique, Mécanique automobile et 7e–8e. Formulaires IGE/P.S/094, /100 et /005 déjà trouvés en ligne (note de recherche du 2026-09-26) | 6.1, 6.3 | [ ] |
+| I18 | Code de l'école (7 chiffres, imprimé sur les bulletins), N° ID et N° permanent des élèves ; bulletin officiel **pré-imprimé** acheté ou imprimé par l'école (question Q11) | 6.3 | [ ] |
 | I16 | Règles de délibération (réussite, repêchage, passage), palmarès | 6.4 | [ ] |
 | I17 | Cote de conduite et sanctions pratiquées | 6.7 | [ ] |
 
@@ -82,7 +83,7 @@ Déposer les fichiers dans `docs/ecole-pilote/depot/` puis `/document-ecole`. Po
 |---|---|---|:-:|
 | T1 | **Nom et domaine** (question Q9 de `06-suivi.md`) : `mwangaza.cd` est déjà enregistré, `mwangaza.com` est en vente chez un revendeur. Recommandation : garder **Mwangaza** et prendre **`mwangaza.africa`**, qui semble libre (à confirmer chez le registrar) | maintenant ; domaine acheté avant 4.6 | [ ] |
 | T2 | Valider les propositions Q1 à Q8 de `06-suivi.md` (un « OK » suffit, ou corriger) | avant 1.2 | [ ] |
-| T3 | Maquettes : les fournir, ou laisser Claude les dessiner (défaut) | maintenant | [ ] |
+| T3 | Maquettes : les fournir, ou laisser Claude les dessiner (défaut) — **tranché le 2026-09-26 : Claude dessine** ; reste à valider les maquettes dessinées (PR) | maintenant | [x] |
 | T4 | Comptes : VPS, Cloudflare, stockage objet, suivi d'erreurs (Sentry ou GlitchTip) | avant 4.6 | [ ] |
 | T5 | Conditions d'utilisation, politique de confidentialité, contrat de traitement des données avec l'ITIG (Claude peut rédiger un brouillon) | avant 4.8 | [ ] |
 | T6 | Tarif du pilote ITIG (gratuit pendant l'essai ?) | avant 4.8 | [ ] |

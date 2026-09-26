@@ -217,3 +217,61 @@ label.f .req{color:var(--due)}
 }
 .banner svg,.row>svg{flex:none}
 @media (max-width:900px){.grid[style*="grid-template-columns"]{grid-template-columns:1fr!important}.pagehead .row{flex-wrap:wrap}}
+
+/* ---------- Ajouts du 2026-09-26 (maquettes M1–M20, bulletins officiels) ---------- */
+/* Écrans hors application (connexion, activation, choix de l'école) */
+.authgrid{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
+.authside{background:var(--basalt);color:var(--basalt-ink);padding:48px;display:flex;flex-direction:column;justify-content:space-between;gap:24px}
+.authmain{display:grid;place-items:center;padding:32px;background:#fff}
+/* Fenêtre de dialogue au-dessus de l'écran */
+.overlay{position:fixed;inset:0;background:rgba(26,34,51,.45);display:grid;place-items:center;padding:24px;z-index:10}
+.dialog{background:#fff;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.25);width:min(620px,100%)}
+.dialog>.hd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.dialog>.bd{padding:18px 20px}
+.dialog>.ft{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px}
+/* Frise chronologique (historique) */
+.tl{position:relative;padding-left:26px}
+.tl::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tl>div{position:relative;padding:0 0 18px}
+.tl>div:last-child{padding-bottom:0}
+.tl>div::before{content:"";position:absolute;left:-23px;top:3px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid var(--lake)}
+.tl>div.ok::before{border-color:var(--ok);background:var(--ok-50)}
+.tl>div.due::before{border-color:var(--due);background:var(--due-50)}
+.tl>div.warn::before{border-color:#D99A1E;background:var(--warn-50)}
+.tl>div.lamp::before{border-color:var(--lamp);background:var(--lamp)}
+/* Codes de secours, codes à recopier */
+.codes{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 18px;font-family:ui-monospace,Consolas,monospace;font-size:1.02rem;letter-spacing:.06em}
+.code{font-family:ui-monospace,Consolas,monospace;letter-spacing:.12em;font-weight:700}
+/* Cadre de téléphone (présentation des écrans mobiles) */
+.frame{width:360px;height:740px;border:10px solid #1d1d1d;border-radius:34px;overflow:hidden;background:var(--surface);position:relative;box-shadow:0 10px 30px rgba(0,0,0,.18);flex:none}
+.frame .mtop{height:56px;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:0 12px}
+.drawer{position:absolute;top:0;left:0;bottom:0;width:292px;background:var(--basalt);color:var(--basalt-ink);padding:16px 12px;display:flex;flex-direction:column;gap:2px;overflow:hidden;z-index:2}
+.scrim{position:absolute;inset:0;background:rgba(26,34,51,.55);z-index:1}
+/* Mise en avant du guide de première connexion */
+.spot{position:relative;z-index:5;border-radius:10px;box-shadow:0 0 0 4px var(--lamp),0 0 0 9999px rgba(26,34,51,.55)}
+.coach{position:absolute;z-index:6;background:#fff;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.25);padding:16px 18px;width:340px}
+.coach::before{content:"";position:absolute;top:-8px;left:40px;width:16px;height:16px;background:#fff;transform:rotate(45deg)}
+/* Notification passagère */
+.toast{display:flex;gap:12px;align-items:center;background:var(--basalt);color:var(--basalt-ink);border-radius:12px;padding:12px 16px;box-shadow:0 8px 24px rgba(0,0,0,.2);font-size:.9rem}
+/* Couleur choisie */
+.swatch{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);flex:none}
+/* Impression A4 à l'italienne */
+.a4.land{width:1123px;min-height:794px;padding:36px 44px}
+/* Bulletin officiel (formulaire EPST) */
+.bul{border-collapse:collapse;width:100%;font-size:10.5px;color:#111}
+.bul th,.bul td{border:1px solid #333;padding:2px 4px;line-height:1.25}
+.bul th{font-weight:700;text-align:center;background:#F4F4F4}
+.bul td.n{text-align:center;font-variant-numeric:tabular-nums;width:34px}
+.bul tr.mx td{background:#E9E9E9;font-weight:700}
+.bul tr.tot td{font-weight:700}
+.bul td.grey{background:#D8D8D8}
+.idbox{display:inline-flex;gap:0;vertical-align:middle}
+.idbox i{display:inline-block;width:15px;height:17px;border:1px solid #333;margin-left:-1px;font-style:normal;text-align:center;font-size:11px;line-height:16px}
+@media (max-width:900px){
+  .authgrid{grid-template-columns:1fr}
+  .authside{padding:20px 16px;gap:10px}.authside .stack,.authside>p{display:none}
+  .authmain{padding:20px 16px;place-items:start center}
+}
+/* Onglets qui sont des liens */
+.tabs>a{padding:10px 14px;font-weight:700;color:var(--ink-2);border-bottom:3px solid transparent;margin-bottom:-1px;font-size:.92rem;text-decoration:none}
+.tabs>a.on{color:var(--lake);border-color:var(--lake)}

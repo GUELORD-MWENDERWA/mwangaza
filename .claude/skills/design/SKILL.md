@@ -67,7 +67,7 @@ Les composants partagés vont dans `frontend/packages/ui`. Les construire une fo
 | `.pill` `ok` `due` `warn` `info` `gray` | `StatusPill` | point de couleur devant le texte |
 | `.tag` `.tag.v` | `Tag` | `v` = marqueur de lot V1.1 / V1.2 |
 | `.banner` `info` `warn` `due` `ok` `lampb` | `Banner` (Alert) | icône à gauche |
-| `.tabs` | `Tabs` | onglet actif : texte et soulignement 3 px `lake` |
+| `.tabs` (`>span`, `>a`) | `Tabs` | onglet actif : texte et soulignement 3 px `lake` ; onglets de la fiche élève = liens (une URL par onglet) |
 | `.steps` `.done` `.on` | `Steps` | fait = `ok` avec ✓ ; en cours = `lake` |
 | `.bar` `i.ok` `i.warn` `i.due` | `Progress` | |
 | `.avatar` `.who` | `Avatar`, `PersonCell` | initiales sur `lake-50` |
@@ -78,6 +78,15 @@ Les composants partagés vont dans `frontend/packages/ui`. Les construire une fo
 | `.ptop` `.pnav` `.phone` | coquille du Portail | en-tête basalte, navigation basse à 4 entrées, largeur max 430 px |
 | `.thermal` | gabarit reçu 80 mm | `@page { size: 80mm auto; margin: 0 }` |
 | `.a4` | gabarit A4 | |
+| `.authgrid` `.authside` `.authmain` | coquille des écrans hors application | connexion, activation 2FA, choix de l'école ; une colonne sous 900 px |
+| `.overlay` `.dialog` | `Dialog` (shadcn) | ex. réduction ; fermeture Échap, focus piégé |
+| `.tl` (`.ok` `.due` `.warn` `.lamp`) | `Timeline` | historique de l'élève, plus récent en haut |
+| `.codes` `.code` | `CodeBlock` (police à chasse fixe) | codes de secours, code famille, clé TOTP |
+| `.frame` `.drawer` `.scrim` | `Sheet` (shadcn) côté gauche | menu de la Gestion sous 900 px (`frame` = présentation seulement) |
+| `.spot` `.coach` | `Tour` (guide de première connexion) | élément réel mis en avant, reste assombri |
+| `.toast` | `Toast` (sonner) | ex. nouvelle version prête |
+| `.a4.land` | gabarit A4 à l'italienne | export des impayés |
+| `.bul` `.idbox` `tr.mx` `td.grey` | gabarit bulletin officiel (V1.2) | mise en page du formulaire EPST, voir `docs/claude/recherches/2026-09-26-bulletins-rdc.md` |
 | `.note` | **rien** | règle métier / critère d'acceptation, jamais affichée |
 
 ## Formats d'affichage
