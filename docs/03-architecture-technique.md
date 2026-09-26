@@ -51,7 +51,7 @@ mwangaza/
 │   ├── config/                 # settings (base, dev, prod), urls, celery
 │   ├── apps/
 │   │   ├── core/               # TenantModel, middleware école, UUID v7, utilitaires argent
-│   │   ├── accounts/           # User, Membership, Role, Permission, TOTP, PIN, Device
+│   │   ├── accounts/           # User, Membership, Role, codes de permissions, TOTP, PIN, Device
 │   │   ├── schools/            # School, AcademicYear, Term, Level, Track, ClassGroup
 │   │   ├── students/           # Student, Family, Guardian, Enrollment, imports
 │   │   ├── finance/            # FeeType, FeeRule, InstallmentTemplate, StudentCharge, Discount, Payment (+ reçu imprimable), CashRegister, CashClosing, ExchangeRate
@@ -86,7 +86,7 @@ Pourquoi pas un schéma ou une base par école : les parents multi-écoles, les 
 Mise en œuvre :
 
 1. `TenantModel` (abstrait, `apps/core`) : champ `school = ForeignKey(School)`, index composés commençant par `school`. Ses `save()`, `delete()` et `bulk_create()` remplissent l'école depuis l'école courante et refusent (`CrossSchoolError`) d'écrire ou de supprimer une ligne d'une autre école, de changer l'école d'une ligne (un transfert est une copie) et de relier une ligne à une ligne d'une autre école.
-2. `TenantMiddleware` : lit le sous-domaine (`SCHOOL_BASE_DOMAINS` : `mwangaza.school` ; `localhost` en développement), charge l'école dans `request.school` et en fait l'école courante (`contextvars`) le temps de la requête. École inconnue : 404 `school_not_found` ; suspendue : 403 `school_suspended`. Le domaine seul et les sous-domaines réservés (`www`, `parents`, `admin`, `api`…) n'ont pas d'école. Le rôle de l'utilisateur dans l'école est vérifié par les permissions de l'API, après l'authentification (1.2, 1.3). Hors requête (tâche Celery, commande, test) : `with use_school(school):`.
+2. `TenantMiddleware` : lit le sous-domaine (`SCHOOL_BASE_DOMAINS` : `mwangaza.school` ; `localhost` en développement), charge l'école dans `request.school` et en fait l'école courante (`contextvars`) le temps de la requête. École inconnue : 404 `school_not_found` ; suspendue : 403 `school_suspended`. Le domaine seul et les sous-domaines réservés (`www`, `parents`, `admin`, `api`…) n'ont pas d'école. Le rôle de l'utilisateur dans l'école est vérifié par les permissions de l'API, après l'authentification : `HasSchoolPermission` (1.2) exige une appartenance active dans l'école de l'adresse et un rôle portant le code demandé. Hors requête (tâche Celery, commande, test) : `with use_school(school):`.
 3. Manager par défaut `TenantManager` : filtre automatiquement sur l'école courante et **lève une erreur** (`SchoolNotSetError`) si aucune école n'est définie (évite les fuites silencieuses). Un manager `all_schools` explicite existe pour le super-admin et le portail.
 4. Tests obligatoires : pour chaque endpoint, un test crée deux écoles et vérifie qu'aucune donnée de l'une n'est visible depuis l'autre.
 5. Plus tard (sécurité en profondeur) : Row Level Security PostgreSQL.
@@ -155,9 +155,9 @@ Consultation des élèves et de leur situation financière, encaissement, impres
 ## 8. Sécurité
 
 - Sessions Django en cookie `HttpOnly`, `Secure`, `SameSite=Lax`, protection CSRF.
-- Mots de passe : Argon2. Limitation des tentatives (django-axes ou équivalent).
+- Mots de passe : Argon2 (avec la connexion, 1.3 ; d'ici là le hachage par défaut de Django, converti à la connexion suivante). Limitation des tentatives (django-axes ou équivalent).
 - TOTP (django-otp) obligatoire pour les rôles financiers et la direction.
-- Permissions vérifiées côté serveur ; les rôles portent des codes de permission (`finance.collect_payment`, `finance.cancel_payment`, `finance.close_register`, `students.import`…).
+- Permissions vérifiées côté serveur ; les rôles portent des codes de permission (`finance.collect_payment`, `finance.request_cancellation`, `finance.close_register`, `students.import`… : liste dans `04` § 8).
 - `AuditLog` : qui, quoi, quand, école, appareil, adresse IP, avant / après.
 - Alertes : plus de N annulations par jour pour un caissier, écart de caisse au-dessus d'un seuil, connexion « en tant qu'école » par le super-admin.
 - Secrets dans des variables d'environnement, jamais dans le dépôt.
@@ -222,3 +222,10 @@ Consultation des élèves et de leur situation financière, encaissement, impres
 | 2026-09-26 | `make demo` avancé en 1.1 (écoles `itig` et `volcans`) ; `GET /api/school/` public (code et nom) | L'utilisateur peut essayer le middleware tout de suite ; l'écran de connexion (1.6) affiche le nom de l'école |
 | 2026-09-26 | ruff : règle RUF012 désactivée | Faux positifs sur les listes de configuration de Django (`Meta`, admin, serializers) |
 | 2026-09-26 | `make` : les commandes qui ont besoin de la base démarrent PostgreSQL et Redis (cible `db-up`, sauf en CI) ; `make dev-local` en bash, Vite lancé app par app | Essai de l'utilisateur : `make migrate` échouait après `make stop`, Ctrl+C faisait planter `make dev-local` |
+| 2026-09-26 | `User` remplace l'utilisateur de Django : identifiant = téléphone au format E.164 ; la forme nationale (`0971234567`) est acceptée partout (indicatif par défaut 243, réglage de la plateforme), `00` + indicatif = international ; longueur vérifiée pour la RDC et ses voisins (Rwanda, Ouganda, Burundi) ; sans nouvelle dépendance. Bases de développement déjà migrées recréées une fois (`make reset-db`) | Un compte par personne dans toutes les écoles (B3) ; on tape son numéro comme on l'écrit ; un chiffre de trop ou de moins est refusé |
+| 2026-09-26 | Rôle système = `code` + nom vide (l'interface affiche le nom traduit ; l'école peut le renommer, ex. « Préfet des études », et changer ses permissions, pas le supprimer) ; rôle de l'école = nom sans code, supprimable seulement s'il n'est plus donné | Même principe que les erreurs (code traduit par l'interface) ; chaque école garde son vocabulaire |
+| 2026-09-26 | Permission serveur `HasSchoolPermission` (`required_permission` sur chaque vue) : compte actif, appartenance active dans l'école de l'adresse, rôle portant le code ; le super-admin n'a aucun droit dans une école (1.5 : connexion « en tant qu'école » tracée) ; un rôle d'une autre école est refusé à l'appartenance jusque dans la base de code (signal `m2m_changed`) | Règle 6 ; `Membership` est global : la vérification ne dépend pas d'un filtre oublié |
+| 2026-09-26 | Comptes du personnel : une école ne voit jamais les autres écoles d'une personne et ne modifie pas son compte (nom, téléphone, mot de passe) ; un numéro connu est ajouté à l'école sans nouveau mot de passe ; un nouveau reçoit un mot de passe provisoire affiché une fois ; gérés avec `roles.manage` ; aucun changement ne laisse l'école sans compte actif ayant `roles.manage`. Maquette M3 corrigée (plus d'« Autres écoles ») | Isolation (`03` § 4) au-dessus de la maquette ; une école ne peut pas prendre le compte qu'une autre utilise ; une école ne s'enferme pas dehors |
+| 2026-09-26 | Erreurs de l'API : toutes celles qui ne concernent pas un champ au format `{code, detail}` (`not_authenticated`, `permission_denied`, `not_found`…, gestionnaire d'erreurs DRF) ; les services lèvent `BusinessError` sans dépendre de DRF ; les erreurs de saisie gardent le format de DRF (`{champ: [messages]}`), à revoir avec les formulaires (1.6) | Un seul format pour l'interface |
+| 2026-09-26 | « Log in » de l'API navigable (`/api/auth/login/`) en `DEBUG` seulement | Essayer l'API des comptes avant l'écran de connexion (1.3, 1.6) |
+| 2026-09-26 | Comptes de `make demo` : numéros `+243 0…` (aucun vrai numéro ne commence par 0 après l'indicatif), noms inventés, mot de passe de développement commun écrit dans le code (`mwangaza-demo`, comme le mot de passe de la base de développement) | Jamais le numéro d'une vraie personne ; `make demo` est refusé hors développement |

@@ -97,8 +97,9 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 | `make dev-local` | Django et Vite sur la machine (valeurs dans `.env`, copié de `.env.example`) ; recette en bash pour que Ctrl+C arrête proprement les trois serveurs ; Vite lancé app par app (`pnpm dev` afficherait un faux échec à l'arrêt) |
 | `make services` | seulement PostgreSQL et Redis dans Docker, prêts (`--wait`) ; rarement utile : la cible cachée `db-up` les démarre avant `dev-local`, `migrate`, `makemigrations`, `demo`, `superuser`, `shell` et `test-back` (pas en CI, où `CI` est défini) |
 | `make stop` | arrêter les conteneurs |
+| `make reset-db` | efface la base de développement de Docker (et celle des tests : `down --volumes`), puis `make migrate demo` ; pour une base qu'une migration ne peut plus suivre (`InconsistentMigrationHistory`, ex. nouveau modèle de compte en 1.2) |
 | `make migrate` · `make makemigrations app=<app> name=<nom>` | migrations |
-| `make demo` | crée ou remet à jour les données fictives (`apps/core/management/commands/demo.py`) : écoles `itig` et `volcans` ; refusé hors `DEBUG` |
+| `make demo` | crée ou remet à jour les données fictives (`apps/core/management/commands/demo.py`) : écoles `itig` et `volcans`, un compte par rôle (`apps/accounts/demo.py` : téléphones `0000001001`…, super-admin `0000000000`, mot de passe `mwangaza-demo`) ; refusé hors `DEBUG` |
 | `make test` · `make test-back` · `make test-front` | pytest ; vérification des types puis Vitest (`*.test.ts(x)` dans `frontend/apps` et `frontend/packages`) |
 | `make lint` · `make lint-back` · `make lint-front` | vérifie sans rien modifier : ruff (check + format) ; ESLint + Prettier |
 | `make format` | corrige ce qui peut l'être : ruff, ESLint `--fix`, Prettier |
@@ -108,7 +109,7 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 | `make superuser` · `make shell` | compte super-admin ; console Django |
 | `python3 maquettes/outils/maquettes.py menu` · `… index` · `node maquettes/outils/captures.mjs` | maquettes : menu latéral commun, galerie `index.html`, captures PNG (sans dépendance, Chrome de la machine) |
 
-Adresses en dev : Gestion `http://itig.localhost:5173/app/` (le sous-domaine = code de l'école ; `…/api/school/` renvoie l'école), Portail `http://localhost:5174/`, API `/api/…` via le proxy Vite, doc de l'API `/api/docs/` (seulement en `DEBUG`). Réglages Django : `config.settings.dev` (défaut de `manage.py`), `test` (pytest), `prod` (wsgi/asgi, refuse de démarrer sans `DJANGO_SECRET_KEY`).
+Adresses en dev : Gestion `http://itig.localhost:5173/app/` (le sous-domaine = code de l'école ; `…/api/school/` renvoie l'école), Portail `http://localhost:5174/`, API `/api/…` via le proxy Vite (`/api/me/`, `/api/roles/`, `/api/staff/`), doc de l'API `/api/docs/` et « Log in » de l'API navigable `/api/auth/login/` (seulement en `DEBUG`). Réglages Django : `config.settings.dev` (défaut de `manage.py`), `test` (pytest), `prod` (wsgi/asgi, refuse de démarrer sans `DJANGO_SECRET_KEY`).
 
 ## Façon de travailler
 

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "apps.core",
     "apps.schools",
+    "apps.accounts",
 ]
 
 MIDDLEWARE = [
@@ -92,6 +93,11 @@ DATABASES = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Un compte par personne, identifié par son numéro de téléphone (`apps/accounts`).
+AUTH_USER_MODEL = "accounts.User"
+# Indicatif du pays pour un numéro tapé sous sa forme nationale (0971234567) : RDC.
+PHONE_DEFAULT_COUNTRY_CODE = "243"
+
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -123,6 +129,8 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 50,
+    # Erreurs au format `{code, detail}` (`apps/core/errors.py`).
+    "EXCEPTION_HANDLER": "apps.core.errors.api_exception_handler",
 }
 
 SPECTACULAR_SETTINGS = {

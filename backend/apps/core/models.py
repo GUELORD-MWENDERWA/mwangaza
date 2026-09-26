@@ -1,5 +1,7 @@
-"""Modèles de base : identifiant UUID v7, dates, et lien obligatoire à une école (`TenantModel`)."""
+"""Modèles de base : identifiant UUID v7, dates, auteur, et lien obligatoire à une école
+(`TenantModel`)."""
 
+from django.conf import settings
 from django.db import models
 
 from apps.core.ids import uuid7
@@ -13,10 +15,19 @@ from apps.core.tenancy import (
 
 
 class BaseModel(models.Model):
-    # `created_by` arrive avec le modèle `User` (tâche 1.2).
     id = models.UUIDField(primary_key=True, default=uuid7, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # Rempli par les services ; vide pour ce que crée le système (migrations, `make demo`).
+    # Un compte n'est jamais supprimé (on le désactive) : PROTECT garde l'auteur.
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        editable=False,
+        related_name="+",
+    )
 
     class Meta:
         abstract = True
