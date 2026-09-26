@@ -9,7 +9,7 @@ COMPOSE := docker compose -f infra/docker-compose.dev.yml
 MANAGE := cd backend && uv run python manage.py
 
 .DEFAULT_GOAL := help
-.PHONY: help install hooks dev services stop dev-local migrate makemigrations demo superuser shell \
+.PHONY: help install hooks dev services db-up stop dev-local migrate makemigrations demo superuser shell \
 	test test-back test-front lint lint-back lint-front format api build
 
 help: ## Afficher les commandes
@@ -27,36 +27,47 @@ dev: ## Tout lancer dans Docker : base, Redis, Django, Celery, Gestion, Portail
 	cd frontend && pnpm install --frozen-lockfile
 	$(COMPOSE) up --build
 
-services: ## Lancer seulement PostgreSQL (port 5433) et Redis dans Docker, pour dev-local
-	$(COMPOSE) up -d db redis
+services: ## Lancer seulement PostgreSQL (port 5433) et Redis dans Docker (automatique avec dev-local, migrate, demo, test…)
+	$(COMPOSE) up -d --wait db redis
+
+# PostgreSQL et Redis lancés et prêts avant les commandes qui s'en servent, sans bruit (rien à
+# faire s'ils tournent déjà). Pas en CI : GitHub Actions fournit sa propre base.
+db-up:
+ifndef CI
+	@$(COMPOSE) --progress quiet up -d --wait db redis
+endif
 
 stop: ## Arrêter les conteneurs
 	$(COMPOSE) down
 
-dev-local: ## Lancer Django et Vite sur la machine (base décrite dans .env)
-	@trap 'kill 0' INT TERM; \
-	(cd backend && uv run python manage.py runserver) & \
-	(cd frontend && pnpm dev) & \
-	wait
+# Ctrl+C arrête les trois serveurs proprement : bash laisse chacun recevoir le Ctrl+C (sh le leur
+# ferait ignorer), puis attend qu'ils aient fini. Vite lancé app par app : `pnpm dev` signalerait
+# à tort un échec (« Failed », ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL) à chaque arrêt.
+dev-local: SHELL := /bin/bash
+dev-local: db-up ## Lancer Django et Vite sur la machine (base décrite dans .env) ; Ctrl+C pour arrêter
+	@(cd backend && exec uv run python manage.py runserver) & \
+	(cd frontend/apps/gestion && exec pnpm exec vite) & \
+	(cd frontend/apps/portail && exec pnpm exec vite) & \
+	trap 'wait; exit 0' INT; wait
 
-migrate: ## Appliquer les migrations
+migrate: db-up ## Appliquer les migrations
 	$(MANAGE) migrate
 
-makemigrations: ## Créer des migrations : make makemigrations app=finance name=exchange_rate
+makemigrations: db-up ## Créer des migrations : make makemigrations app=finance name=exchange_rate
 	$(MANAGE) makemigrations $(app) $(if $(name),--name $(name))
 
-demo: ## Créer ou remettre à jour les données fictives de démonstration (écoles itig et volcans)
+demo: db-up ## Créer ou remettre à jour les données fictives de démonstration (écoles itig et volcans)
 	$(MANAGE) demo
 
-superuser: ## Créer un compte super-administrateur
+superuser: db-up ## Créer un compte super-administrateur
 	$(MANAGE) createsuperuser
 
-shell: ## Console Django
+shell: db-up ## Console Django
 	$(MANAGE) shell
 
 test: test-back test-front ## Lancer tous les tests
 
-test-back: ## Tests backend (pytest)
+test-back: db-up ## Tests backend (pytest)
 	cd backend && uv run pytest
 
 test-front: ## Tests front : vérification des types puis Vitest

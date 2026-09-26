@@ -94,7 +94,8 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 | `make install` | `uv sync` (backend) + `pnpm install` (frontend) + `make hooks` |
 | `make hooks` | installe les contrôles pre-commit (ruff, ESLint, Prettier, refus d'un `.env` ou d'une clé privée) sur les fichiers de chaque commit |
 | `make dev` | `pnpm install` sur la machine, puis tout dans Docker : PostgreSQL (hôte : 5433), Redis, Django (:8000), Celery, Gestion (:5173), Portail (:5174) ; le conteneur du front réutilise le `node_modules` de la machine |
-| `make services` puis `make dev-local` | seulement PostgreSQL et Redis dans Docker ; Django et Vite sur la machine (valeurs dans `.env`, copié de `.env.example`) |
+| `make dev-local` | Django et Vite sur la machine (valeurs dans `.env`, copié de `.env.example`) ; recette en bash pour que Ctrl+C arrête proprement les trois serveurs ; Vite lancé app par app (`pnpm dev` afficherait un faux échec à l'arrêt) |
+| `make services` | seulement PostgreSQL et Redis dans Docker, prêts (`--wait`) ; rarement utile : la cible cachée `db-up` les démarre avant `dev-local`, `migrate`, `makemigrations`, `demo`, `superuser`, `shell` et `test-back` (pas en CI, où `CI` est défini) |
 | `make stop` | arrêter les conteneurs |
 | `make migrate` · `make makemigrations app=<app> name=<nom>` | migrations |
 | `make demo` | crée ou remet à jour les données fictives (`apps/core/management/commands/demo.py`) : écoles `itig` et `volcans` ; refusé hors `DEBUG` |
