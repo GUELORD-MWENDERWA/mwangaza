@@ -20,7 +20,8 @@ Dernière mise à jour : 2026-09-26 (après tes décisions Q1 à Q11).
 | 5 bis | [Fusionner la PR #76 (correction du `.env`)](#5-bis-fusionner-la-pr-de-correction-du-env) | 2 min | [x] |
 | 5 ter | [Fusionner la PR #77 (correction de `make dev`)](#5-ter-fusionner-la-pr-de-correction-de-make-dev) | 2 min | [x] |
 | 6 | [Donner tes décisions](#6-tes-décisions) : nom et domaine (Q9), questions Q1 à Q11 | 10 min | [x] |
-| 7 | **[Relire et fusionner la PR des décisions (#78)](#7-fusionner-la-pr-des-décisions), puis celle de la tâche 0.2 — dans cet ordre** | 15 min | [ ] |
+| 7 | **[Relire et fusionner la PR des décisions (#78)](#7-fusionner-la-pr-des-décisions), puis celle de la tâche 0.2 (#79) — dans cet ordre** | 15 min | [ ] |
+| 8 | Après la fusion de la 0.2 : **`make install`** une fois (nouveaux outils ESLint, Prettier, Vitest, ruff, et contrôles avant chaque commit) | 3 min | [ ] |
 
 Rien d'autre ne bloque : Claude enchaîne les tâches. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant), et [les comptes et le domaine](#9-avant-la-semaine-4-tâche-46--comptes-et-achats) avant la semaine 4.
 
@@ -180,7 +181,7 @@ La PR des décisions (#78, branche `docs/decisions-q1-q11`) reporte tes réponse
 | Logo noir et blanc de l'ITIG pour le reçu thermique | `docs/ecole-pilote/documents/2026-09-26-logo-itig-noir-et-blanc.png` |
 | 4 maquettes de la Gestion corrigées (la fiche famille ne montre plus les enfants d'une autre école) | `maquettes/captures/desktop/gestion-famille-fiche.png` et `gestion-eleve-fiche-*.png` |
 
-La PR de la tâche 0.2 est partie de celle-ci : **fusionner d'abord la PR des décisions (#78), puis celle de la 0.2**. Pour chacune, vérifier **`base: main`**, puis :
+La PR de la tâche 0.2 (#79) est partie de celle-ci : **fusionner d'abord la PR des décisions (#78), puis celle de la 0.2**. Pour chacune, vérifier **`base: main`**, puis :
 
 ```bash
 gh pr merge <numéro> --merge --delete-branch
@@ -243,7 +244,7 @@ Partout : activer la double authentification et garder les codes de secours. Les
 
 1. Dans Claude Code : `/tache X.Y` (ex. `/tache 0.2`). `/etat` à tout moment pour savoir où on en est.
 2. Claude code, teste, commite, pousse et ouvre la PR. **Il ne fusionne jamais.**
-3. Toi : relire la PR sur GitHub, puis l'essayer :
+3. Toi : vérifier que les contrôles GitHub de la PR sont verts (✔ en bas de la PR, ou `gh pr checks <numéro>`), relire la PR, puis l'essayer :
    ```bash
    gh pr checkout <numéro>
    make test
@@ -265,7 +266,8 @@ Partout : activer la double authentification et garder les codes de secours. Les
 
 | Commande | Effet | Quand |
 |---|---|---|
-| `make install` | installe les dépendances (Python avec uv, front avec pnpm) | après un `git pull` qui change les dépendances |
+| `make install` | installe les dépendances (Python avec uv, front avec pnpm) et les contrôles avant commit | après un `git pull` qui change les dépendances |
+| `make hooks` | installe seulement les contrôles avant commit (pre-commit) : ruff, ESLint, Prettier sur les fichiers du commit, refus d'un `.env` ou d'une clé privée | une fois (déjà fait par `make install`) |
 | `make dev` | installe les dépendances du front, puis tout dans Docker : PostgreSQL, Redis, Django, Celery, Gestion, Portail | travailler sur l'application |
 | `make services` | seulement PostgreSQL (port 5433) et Redis dans Docker | avant `make dev-local` ou `make test` |
 | `make dev-local` | Django et Vite sur ta machine (lit `.env`) | plus rapide que `make dev` |
@@ -274,8 +276,9 @@ Partout : activer la double authentification et garder les codes de secours. Les
 | `make makemigrations app=finance name=exchange_rate` | crée une migration | après un changement de modèle |
 | `make test` | tous les tests | avant de fusionner une PR |
 | `make test-back` | tests backend (pytest) | |
-| `make test-front` | vérification des types du front | |
-| `make lint` | lint et format | fonctionnel à partir de la tâche 0.2 |
+| `make test-front` | vérification des types du front, puis tests Vitest | |
+| `make lint` | vérifie le code sans rien modifier : ruff (Python), ESLint et Prettier (front) ; `make lint-back` ou `make lint-front` pour une seule partie | avant de fusionner une PR |
+| `make format` | corrige automatiquement le format et ce qui peut l'être | quand `make lint` signale un problème de format |
 | `make api` | écrit le schéma OpenAPI dans `frontend/packages/api/openapi.yaml` | après tout changement d'API |
 | `make build` | construit les deux applications | avant la mise en production |
 | `make superuser` | crée un compte super-administrateur | une fois par base |
@@ -290,9 +293,6 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 
 | Commande | Tâche | Effet |
 |---|---|---|
-| `make lint` (ruff, ESLint, Prettier) | 0.2 | vérifie et met en forme le code |
-| `make test-front` (Vitest) | 0.2 | vrais tests du front, en plus des types |
-| `pre-commit install` (une seule fois) | 0.2 | contrôles automatiques avant chaque commit |
 | `make demo` | 1.5 | recrée les données fictives : école `itig` (démo), école `volcans`, un compte par rôle |
 | commande de déploiement | 4.6 | met en production sur le VPS en une commande |
 | sauvegarde et restauration | 4.7 | sauvegarde de la base, test de restauration |
@@ -317,6 +317,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | `gh pr list` | PR ouvertes |
 | `gh pr view <n> --web` | ouvrir une PR dans le navigateur |
 | `gh pr checkout <n>` | récupérer la branche d'une PR pour l'essayer |
+| `gh pr checks <n>` | résultat des contrôles GitHub (CI) d'une PR : tout doit être vert |
 | `gh pr merge <n> --merge --delete-branch` | fusionner une PR (vérifier `base: main`) |
 | `gh issue list --milestone V1.0` | tâches de la V1.0 |
 
@@ -345,3 +346,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | `ERR_PNPM_UNEXPECTED_STORE` | `pnpm` lancé depuis un autre terminal (celui de VS Code et celui d'Ubuntu ne rangent pas le cache au même endroit) | `cd frontend && pnpm install`, répondre `Y` pour réinstaller ; ensuite, toujours le même terminal |
 | `bad interpreter` ou `No such file` dans `backend/.venv` | dossier déplacé ou renommé | `rm -rf backend/.venv && make install` |
 | `itig.localhost` ne s'ouvre pas | navigateur qui ne gère pas `*.localhost` | utiliser Chrome ou Firefox |
+| `git commit` échoue avec `ruff … Failed` ou `Prettier … Failed` et « files were modified by this hook » | le contrôle avant commit a corrigé le format | `git add` les fichiers corrigés, puis refaire le `git commit` |
+| `git commit` échoue avec `ESLint … Failed` ou `ruff (lint Python) … Failed` | une vraie erreur dans le code (variable inutilisée, hook React mal placé…) | corriger l'erreur affichée, puis refaire le commit |
+| `git commit` : `uv: not found` ou `frontend/node_modules/.bin/eslint: not found` | outils pas installés, ou `uv` absent du `PATH` du programme qui commite | `make install` ; commiter depuis le terminal de VS Code |
+| une PR a une croix rouge ✘ (CI) | un contrôle échoue sur GitHub | `gh pr checks <numéro>` puis ouvrir le lien ; ou dire à Claude le numéro de la PR |

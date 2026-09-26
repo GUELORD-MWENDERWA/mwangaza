@@ -15,8 +15,10 @@ dependencies = [
 [dependency-groups]
 dev = [
     "factory-boy>=3.3.3",
+    "pre-commit>=4.6.2",
     "pytest>=9.1.1",
     "pytest-django>=4.14.0",
+    "ruff>=0.16.9",
 ]
 
 [tool.uv]
@@ -27,3 +29,13 @@ DJANGO_SETTINGS_MODULE = "config.settings.test"
 testpaths = ["tests", "apps"]
 python_files = ["test_*.py"]
 addopts = "--reuse-db"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["**/migrations/**"]
+
+[tool.ruff.lint]
+# E/W pycodestyle, F pyflakes, I imports triés, UP syntaxe moderne, B bugs probables,
+# DJ règles Django, SIM simplifications, RUF règles propres à ruff.
+select = ["E", "W", "F", "I", "UP", "B", "DJ", "SIM", "RUF"]

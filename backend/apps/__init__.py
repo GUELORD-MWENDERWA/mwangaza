@@ -1,1 +1,1 @@
-"""Applications métier Mwangaza : une par domaine (core, accounts, schools…), créées avec leur tâche."""
+"""Applications métier Mwangaza : une par domaine (core, accounts, schools…), avec leur tâche."""

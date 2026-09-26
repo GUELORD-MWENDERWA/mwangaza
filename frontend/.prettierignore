@@ -1,0 +1,8 @@
+# Généré : pnpm (lockfile) et drf-spectacular (`make api`).
+pnpm-lock.yaml
+packages/api/openapi.yaml
+# La documentation garde sa mise en forme à la main.
+*.md
+# Construit par Vite.
+dist/
+coverage/

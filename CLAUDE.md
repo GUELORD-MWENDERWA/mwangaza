@@ -91,13 +91,16 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 
 | Commande | Effet |
 |---|---|
-| `make install` | `uv sync` (backend) + `pnpm install` (frontend) |
+| `make install` | `uv sync` (backend) + `pnpm install` (frontend) + `make hooks` |
+| `make hooks` | installe les contrôles pre-commit (ruff, ESLint, Prettier, refus d'un `.env` ou d'une clé privée) sur les fichiers de chaque commit |
 | `make dev` | `pnpm install` sur la machine, puis tout dans Docker : PostgreSQL (hôte : 5433), Redis, Django (:8000), Celery, Gestion (:5173), Portail (:5174) ; le conteneur du front réutilise le `node_modules` de la machine |
 | `make services` puis `make dev-local` | seulement PostgreSQL et Redis dans Docker ; Django et Vite sur la machine (valeurs dans `.env`, copié de `.env.example`) |
 | `make stop` | arrêter les conteneurs |
 | `make migrate` · `make makemigrations app=<app> name=<nom>` | migrations |
-| `make test` · `make test-back` · `make test-front` | pytest ; vérification des types (Vitest arrive en 0.2) |
-| `make lint` | ruff, ESLint, Prettier (0.2) |
+| `make test` · `make test-back` · `make test-front` | pytest ; vérification des types puis Vitest (`*.test.ts(x)` dans `frontend/apps` et `frontend/packages`) |
+| `make lint` · `make lint-back` · `make lint-front` | vérifie sans rien modifier : ruff (check + format) ; ESLint + Prettier |
+| `make format` | corrige ce qui peut l'être : ruff, ESLint `--fix`, Prettier |
+| GitHub Actions (`.github/workflows/ci.yml`) | à chaque PR et sur `main` : `make lint-back test-back` + schéma OpenAPI à jour (PostgreSQL 16) ; `make lint-front test-front build` |
 | `make api` | schéma OpenAPI → `frontend/packages/api/openapi.yaml` (à relancer après tout changement d'API) |
 | `make build` | build des deux PWA |
 | `make superuser` · `make shell` | compte super-admin ; console Django |

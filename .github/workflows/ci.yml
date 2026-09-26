@@ -1,0 +1,76 @@
+# Contrôles de chaque PR et de main, avec les mêmes commandes `make` que sur la machine.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (ruff, pytest, OpenAPI)
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: mwangaza
+          POSTGRES_USER: mwangaza
+          POSTGRES_PASSWORD: mwangaza
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U mwangaza -d mwangaza"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: mwangaza
+      POSTGRES_USER: mwangaza
+      POSTGRES_PASSWORD: mwangaza
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - name: Dépendances (uv.lock à jour exigé)
+        working-directory: backend
+        run: uv sync --locked
+      - name: Lint
+        run: make lint-back
+      - name: Tests
+        run: make test-back
+      - name: Schéma OpenAPI commité à jour
+        run: |
+          make api
+          git diff --exit-code frontend/packages/api/openapi.yaml
+
+  frontend:
+    name: Frontend (ESLint, Prettier, types, Vitest, build)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6.1.0
+        with:
+          package_json_file: frontend/package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - name: Dépendances (pnpm-lock.yaml à jour exigé)
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: make lint-front
+      - name: Tests
+        run: make test-front
+      - name: Build
+        run: make build

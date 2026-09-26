@@ -1,0 +1,37 @@
+# Contrôles automatiques avant chaque commit, installés une fois par `make hooks` (aussi lancé par
+# `make install`). Mêmes outils et mêmes versions que `make lint` : rien n'est téléchargé en plus.
+# Seuls les fichiers du commit sont contrôlés ; `make lint` contrôle tout le dépôt.
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff (lint Python)
+        entry: uv run --project backend ruff check --fix --force-exclude
+        language: system
+        types_or: [python, pyi]
+        files: ^backend/
+      - id: ruff-format
+        name: ruff (format Python)
+        entry: uv run --project backend ruff format --force-exclude
+        language: system
+        types_or: [python, pyi]
+        files: ^backend/
+      - id: eslint
+        name: ESLint
+        entry: frontend/node_modules/.bin/eslint --fix --no-warn-ignored
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|mjs)$
+      - id: prettier
+        name: Prettier
+        entry: frontend/node_modules/.bin/prettier --write --ignore-unknown --ignore-path frontend/.prettierignore
+        language: system
+        files: ^frontend/
+      - id: no-env-file
+        name: pas de fichier .env (secrets)
+        entry: "Un fichier .env est dans le commit : le retirer avec « git restore --staged <fichier> »."
+        language: fail
+        files: (^|/)\.env$
+      - id: no-private-key
+        name: pas de clé privée
+        entry: "-----BEGIN (RSA |EC |DSA |OPENSSH |ENCRYPTED |)PRIVATE KEY-----"
+        language: pygrep
