@@ -11,7 +11,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Tâche en cours | aucune — 0.1 terminée ; correctif `.env` en PR ; en attente des actions de l'utilisateur listées dans `A-FAIRE.md` (se reconnecter pour Docker, fusionner la PR du correctif, décisions) |
 | Prochaine tâche | 0.2 — qualité : ruff, pytest, ESLint, Prettier, Vitest, pre-commit, GitHub Actions |
 | Issue GitHub | #5 (0.1, fermée à la fusion de la PR) · prochaine : #6 (0.2) |
-| Branche | `fix/env-valeurs-vides` → PR vers `main` (#75 fusionnée) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `fix/env-valeurs-vides` → PR #76 vers `main` (#75 fusionnée) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-26 |
 
 ## Avancement
@@ -42,7 +42,7 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I17, déci
 | Nom définitif et domaine | toi | 4.6 |
 | Comptes VPS, Cloudflare, stockage objet (GitHub : fait) | toi | 4.6, 4.7 |
 | Docker installé et base lancée ; l'utilisateur doit se reconnecter pour que `docker` marche sans erreur dans sa session (`A-FAIRE.md` § 3 bis) | toi | rien pour Claude ; les commandes Docker de l'utilisateur |
-| Fusion de la PR du correctif `.env` (`fix/env-valeurs-vides`) | toi | 0.2 (partir d'un `main` à jour) |
+| Fusion de la PR #76 (correctif `.env`) | toi | 0.2 (partir d'un `main` à jour) |
 | Logo haute qualité + version noir et blanc pour le reçu thermique | ITIG | 3.2 |
 
 ## Questions ouvertes

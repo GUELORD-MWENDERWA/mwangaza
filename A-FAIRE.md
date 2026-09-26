@@ -17,7 +17,7 @@ Dernière mise à jour : 2026-09-26 (après installation de Docker).
 | 3 bis | **[Se déconnecter puis se reconnecter](#3-bis-se-déconnecter-puis-se-reconnecter)** (sinon `docker` répond `permission denied`) | 2 min | [ ] |
 | 4 | [Créer le fichier `.env`](#4-créer-le-fichier-env) | 2 min | [x] |
 | 5 | [Vérifier que tout marche](#5-vérifier-que-tout-marche) : Claude l'a vérifié le 2026-09-26 ; à refaire toi-même une fois | 5 min | [ ] |
-| 5 bis | [Fusionner la PR de correction du `.env`](#5-bis-fusionner-la-pr-de-correction-du-env) | 2 min | [ ] |
+| 5 bis | [Fusionner la PR #76 (correction du `.env`)](#5-bis-fusionner-la-pr-de-correction-du-env) | 2 min | [ ] |
 | 6 | [Donner tes décisions](#6-tes-décisions) : nom et domaine (Q9), questions Q1 à Q11 | 10 min | [ ] |
 
 Quand c'est fait, dans Claude Code : **`/tache 0.2`**. La base de données marche déjà : les étapes 3 bis et 5 servent à ce que **toi** puisses lancer les commandes sans erreur.
@@ -145,10 +145,10 @@ Dire le résultat à Claude : « tout marche », ou coller le message d'erreur.
 
 ### 5 bis. Fusionner la PR de correction du `.env`
 
-Branche `fix/env-valeurs-vides` : une variable vide dans `.env` ne fait plus planter Django, `.env.example` explique la clé, ce fichier est à jour. Sur GitHub : vérifier **`base: main`** → *Merge pull request* → *Delete branch*. Ou :
+PR #76, branche `fix/env-valeurs-vides` : une variable vide dans `.env` ne fait plus planter Django, `.env.example` explique la clé, ce fichier est à jour. Sur GitHub : vérifier **`base: main`** → *Merge pull request* → *Delete branch*. Ou :
 
 ```bash
-gh pr merge <numéro> --merge --delete-branch
+gh pr merge 76 --merge --delete-branch
 git switch main && git pull
 ```
 
