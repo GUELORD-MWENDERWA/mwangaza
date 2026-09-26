@@ -5,7 +5,7 @@ Claude ne peut pas : installer avec `sudo`, fusionner une PR, parler à l'ITIG, 
 
 Ce qui manque en détail (maquettes, informations ITIG, décisions) : [`docs/07-a-fournir.md`](docs/07-a-fournir.md). Ici : **quoi faire, dans quel ordre, avec quelles commandes**.
 
-Dernière mise à jour : 2026-09-26 (après tes décisions Q1 à Q11).
+Dernière mise à jour : 2026-09-26 (règles de travail avec GitHub ; tâche 1.1).
 
 ## Maintenant
 
@@ -20,10 +20,11 @@ Dernière mise à jour : 2026-09-26 (après tes décisions Q1 à Q11).
 | 5 bis | [Fusionner la PR #76 (correction du `.env`)](#5-bis-fusionner-la-pr-de-correction-du-env) | 2 min | [x] |
 | 5 ter | [Fusionner la PR #77 (correction de `make dev`)](#5-ter-fusionner-la-pr-de-correction-de-make-dev) | 2 min | [x] |
 | 6 | [Donner tes décisions](#6-tes-décisions) : nom et domaine (Q9), questions Q1 à Q11 | 10 min | [x] |
-| 7 | **[Relire et fusionner la PR des décisions (#78)](#7-fusionner-la-pr-des-décisions), puis celle de la tâche 0.2 (#79) — dans cet ordre** | 15 min | [ ] |
-| 8 | Après la fusion de la 0.2 : **`make install`** une fois (nouveaux outils ESLint, Prettier, Vitest, ruff, et contrôles avant chaque commit) | 3 min | [ ] |
+| 7 | [Relire et fusionner la PR des décisions (#78)](#7-fusionner-la-pr-des-décisions), puis celle de la tâche 0.2 (#79) — dans cet ordre | 15 min | [x] |
+| 8 | Après la fusion de la 0.2 : `make install` une fois (nouveaux outils ESLint, Prettier, Vitest, ruff, et contrôles avant chaque commit) — relancé par Claude sur ta machine le 2026-09-26 | 3 min | [x] |
+| 9 | **[Relire et fusionner la PR de la tâche 1.1](#10-comment-relire-et-fusionner-une-pr)** (lien donné par Claude à la fin de la tâche) | 15 min | [ ] |
 
-Rien d'autre ne bloque : Claude enchaîne les tâches. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant), et [les comptes et le domaine](#9-avant-la-semaine-4-tâche-46--comptes-et-achats) avant la semaine 4.
+À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). Rien d'autre ne bloque : Claude enchaîne les tâches. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant), et [les comptes et le domaine](#9-avant-la-semaine-4-tâche-46--comptes-et-achats) avant la semaine 4.
 
 ---
 
@@ -181,12 +182,7 @@ La PR des décisions (#78, branche `docs/decisions-q1-q11`) reporte tes réponse
 | Logo noir et blanc de l'ITIG pour le reçu thermique | `docs/ecole-pilote/documents/2026-09-26-logo-itig-noir-et-blanc.png` |
 | 4 maquettes de la Gestion corrigées (la fiche famille ne montre plus les enfants d'une autre école) | `maquettes/captures/desktop/gestion-famille-fiche.png` et `gestion-eleve-fiche-*.png` |
 
-La PR de la tâche 0.2 (#79) est partie de celle-ci : **fusionner d'abord la PR des décisions (#78), puis celle de la 0.2**. Pour chacune, vérifier **`base: main`**, puis :
-
-```bash
-gh pr merge <numéro> --merge --delete-branch
-git switch main && git pull
-```
+**Fait** (#78 puis #79 fusionnées le 2026-09-26). Depuis, plus de PR empilées : chaque PR part de `main` (§ 10).
 
 ---
 
@@ -240,21 +236,33 @@ Partout : activer la double authentification et garder les codes de secours. Les
 
 ---
 
-## 10. À chaque tâche (la routine)
+## 10. Comment relire et fusionner une PR
 
-1. Dans Claude Code : `/tache X.Y` (ex. `/tache 0.2`). `/etat` à tout moment pour savoir où on en est.
-2. Claude code, teste, commite, pousse et ouvre la PR. **Il ne fusionne jamais.**
-3. Toi : vérifier que les contrôles GitHub de la PR sont verts (✔ en bas de la PR, ou `gh pr checks <numéro>`), relire la PR, puis l'essayer :
+Tu es le chef de projet et le relecteur ; Claude est le développeur. Il code, teste et ouvre **une seule PR par tâche** (corrections et documents compris), toujours sur `main`. Il ne te la donne que quand les contrôles GitHub sont verts. **Toi seul fusionnes.**
+
+Chaque PR se termine par trois sections en français simple : **« À valider »**, **« À tester toi-même »**, **« Après la fusion »**. Le message de fin de Claude dans le terminal reprend les mêmes.
+
+**En 5 étapes** (10 à 20 minutes) :
+
+1. **Ouvrir la PR** : le lien donné par Claude, ou `gh pr view <numéro> --web`. En haut, vérifier **`base: main`** ; sinon, ne pas fusionner et le dire à Claude.
+2. **Contrôles verts** : en bas de la page, « All checks have passed » ✔ (ou `gh pr checks <numéro>`). Une croix rouge ✘ : ne pas fusionner, donner le numéro à Claude.
+3. **Lire la description** : correspond-elle à la tâche (`docs/05-plan-de-travail.md`) ? Puis **« À valider »** : ce que tu acceptes en fusionnant.
+   - D'accord : étape 4.
+   - Pas d'accord : un commentaire sur la PR (onglet *Conversation*, ou sur une ligne dans *Files changed*), puis dire à Claude « regarde les commentaires de la PR #n ». Il corrige **dans la même PR** et te la redonne quand elle est verte.
+4. **Tester toi-même** : suivre **« À tester toi-même »** (commandes à copier, pages à ouvrir, résultat attendu). La section commence en général par :
    ```bash
-   gh pr checkout <numéro>
-   make test
-   make dev          # ou make dev-local, puis regarder l'écran concerné
+   gh pr checkout <numéro>   # récupère la branche de la PR sur ta machine
    ```
-4. Fusionner (**`base: main`**), puis :
+   Résultat différent de l'attendu : le dire à Claude avec le message affiché. Tests finis : `git switch main`.
+5. **Fusionner** : bouton *Merge pull request* → *Confirm merge* → *Delete branch* (ou `gh pr merge <numéro> --merge --delete-branch`). Puis faire **« Après la fusion »**, en général :
    ```bash
    git switch main && git pull
    ```
-5. Tâche suivante.
+   avec `make install` ou `make migrate` quand c'est indiqué, puis la tâche suivante : `/tache X.Y`. `/etat` à tout moment pour savoir où on en est.
+
+**Le code** (onglet *Files changed*) n'est pas obligatoire : regarde-le quand tu veux apprendre comment une chose est faite, ou vérifier un point précis.
+
+**Une PR séparée** n'arrive que dans deux cas : une décision importante à valider avant que Claude continue, ou une réparation urgente qui bloque le travail. Claude dit alors pourquoi elle est séparée.
 
 ---
 
@@ -326,7 +334,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | Commande | Quand |
 |---|---|
 | `/etat` | où on en est, prochaine tâche, bloquants |
-| `/tache 0.2` | réaliser une tâche du plan de bout en bout |
+| `/tache 1.1` | réaliser une tâche du plan de bout en bout (une PR à relire à la fin) |
 | `/noter …` | noter une décision, une réponse de l'ITIG, un blocage |
 | `/document-ecole` | après avoir déposé un fichier de l'ITIG dans `docs/ecole-pilote/depot/` |
 | `/ecran …` | construire un écran d'après sa maquette |

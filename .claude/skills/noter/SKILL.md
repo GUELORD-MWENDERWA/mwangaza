@@ -31,6 +31,19 @@ Si l'information contredit un document de `docs/`, le signaler et demander avant
 - Mettre à jour « Dernière mise à jour » dans « État actuel ».
 - Français clair, phrases courtes, pas de jargon inutile.
 
-## 3. Répondre
+## 3. Dans quelle PR (règles « Travail avec GitHub » de `CLAUDE.md`)
 
-Une ou deux lignes : ce qui a été noté et où, puis `📍` l'état actuel en une ligne.
+Une note ne crée jamais sa propre PR et ne se commite jamais sur `main`.
+
+| Situation | Où va la note |
+|---|---|
+| Une tâche est en cours (branche `tache/…`) | commit sur cette branche : elle part dans la PR de la tâche |
+| La PR de la dernière tâche est ouverte, pas encore fusionnée | commit sur sa branche, push ; attendre que les contrôles GitHub repassent au vert ; le signaler à l'utilisateur (la PR contient une note de plus) |
+| Aucune PR ouverte, aucune tâche en cours | créer tout de suite la branche de la prochaine tâche depuis `main` à jour (`git switch main && git pull && git switch -c tache/<numéro>-<mot-clé>`), commiter la note dessus, sans ouvrir de PR : `/tache` reprendra cette branche |
+| Décision importante que l'utilisateur doit valider **avant** que Claude continue | exception : PR séparée `docs/<sujet>`, `base: main`, avec les sections « À valider », « À tester toi-même » (souvent « rien de visible »), « Après la fusion » ; dire pourquoi elle est séparée |
+
+Commit en français : `docs: <ce qui est noté>`, terminé par la ligne Co-Authored-By.
+
+## 4. Répondre
+
+Une ou deux lignes : ce qui a été noté, où, et dans quelle PR ou branche ; s'il y a une PR à relire, les sections « À valider » et « Après la fusion ». Puis `📍` l'état actuel en une ligne.

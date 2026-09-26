@@ -24,7 +24,7 @@ Lire `docs/06-suivi.md` (état actuel, tâche en cours, bloquants) avant toute a
 
 Espace de travail de Claude : `docs/claude/` — `plans/` (plan de chaque tâche avant de coder), `recherches/` (notes avec sources), `revues/` (résultat de `/verifier`).
 
-GitHub (dépôt privé `GUELORD-MWENDERWA/mwangaza`) : un jalon par version (V1.0, V1.1, V1.2, V2), une issue par tâche titrée « <numéro> — … » ; la PR de la tâche contient `Closes #<n>`.
+GitHub (dépôt privé `GUELORD-MWENDERWA/mwangaza`) : un jalon par version (V1.0, V1.1, V1.2, V2), une issue par tâche titrée « <numéro> — … » ; la PR de la tâche contient `Closes #<n>`. Règles des PR : section « Travail avec GitHub ».
 
 Si une demande sort du périmètre de `02-perimetre-v1.md`, le signaler avant de coder.
 
@@ -110,10 +110,29 @@ Adresses en dev : Gestion `http://itig.localhost:5173/app/` (le sous-domaine = c
 
 ## Façon de travailler
 
-- Une tâche du plan = une branche = une PR, tests inclus.
+- Une tâche du plan = une branche = une PR, tests inclus (voir « Travail avec GitHub »).
 - Avant de coder une fonction, relire la section correspondante du cahier des charges et du modèle de données.
 - Après chaque tâche : cocher la case dans `docs/05-plan-de-travail.md` et noter toute décision nouvelle dans la section « Journal des décisions » de `docs/03-architecture-technique.md`.
 - En cas de doute sur une règle scolaire RDC (bulletins, délibération, frais), demander plutôt que supposer.
+
+## Travail avec GitHub
+
+Rôles : **Claude est le développeur** (code, teste, ouvre les PR). **L'utilisateur est le chef de projet et le relecteur** : il valide les décisions, teste ce qui est visible et fusionne. En relisant une PR, il regarde : contrôles verts, description conforme à la tâche, section « À valider », puis ses tests ; le code (*Files changed*) seulement pour apprendre ou vérifier un point précis. **La description doit donc suffire pour comprendre ce qui a changé sans lire le code.**
+
+1. **Une seule PR par tâche du plan** (1.1 → une PR). Les corrections, petites réparations et mises à jour de documents faites pendant la tâche vont dans cette PR, jamais dans des PR séparées.
+2. **PR séparée seulement dans deux cas** : une décision importante que l'utilisateur doit valider avant que Claude continue, ou une correction urgente qui bloque le travail. Dire clairement, dans la PR et dans la réponse, pourquoi elle est séparée.
+3. **Toujours `base: main`**, branche partie de `main` à jour. Jamais de PR empilée sur une autre branche : si la tâche a besoin d'une PR pas encore fusionnée, le dire et attendre la fusion.
+4. **Ne jamais fusionner.** C'est toujours l'utilisateur qui fusionne.
+5. **GitHub Actions vert avant de donner la PR** (`gh pr checks <n> --watch`). Rouge : corriger d'abord, dans la même PR.
+6. **Description de la PR**, en français simple : ce qui change et pourquoi (sans jargon inutile), les tests, puis trois sections courtes :
+   - **« À valider »** : les décisions ou propositions que l'utilisateur accepte en fusionnant, avec où les lire ; ou « Rien ».
+   - **« À tester toi-même »** : les commandes exactes et les pages à ouvrir (adresses complètes), avec le résultat attendu pour chacune. Si rien n'est visible, le dire.
+   - **« Après la fusion »** : ce qu'il faut taper (ex. `git switch main && git pull && make install`) et la prochaine tâche.
+
+   Puis `Closes #<n>`. Modèle : skill `tache`, étape 5.
+7. **Message de fin dans le terminal** : il reprend ces trois sections, sans détails techniques inutiles, puis la ligne `📍`.
+
+Côté utilisateur, la marche à suivre est dans `A-FAIRE.md` § 10 « Comment relire et fusionner une PR ».
 
 ## Données de démonstration
 

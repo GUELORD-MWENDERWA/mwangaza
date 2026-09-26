@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 1 (Socle) |
 | Lot | V1.0 — semaine 1 (Socle) |
-| Tâche en cours | aucune — 0.2 terminée, PR #79 (à fusionner après la PR #78 des décisions) |
-| Prochaine tâche | 1.1 — app `core` : `TenantModel`, `TenantManager`, `TenantMiddleware`, UUID v7, `Money` |
-| Issue GitHub | #6 (0.2, fermée à la fusion de la PR) · prochaine : #7 (1.1) |
-| Branche | `tache/0.2-qualite` → PR #79, partie de `docs/decisions-q1-q11` → PR #78 (fusionner #78 d'abord) ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | 1.1 — app `core` : `TenantModel`, `TenantManager`, `TenantMiddleware`, UUID v7, `Money` (démarrée le 2026-09-26) |
+| Prochaine tâche | 1.2 — app `accounts` : `User`, `Membership`, `Role`, 9 rôles système |
+| Issue GitHub | #7 (1.1) |
+| Branche | `tache/1.1-core-tenant` (partie de `main` après la fusion de #78 et #79) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-26 |
 
 ## Avancement
@@ -49,6 +49,12 @@ Aucune : Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-26 — Règles de travail avec GitHub
+
+- **Fait** : l'utilisateur a fusionné #78 (décisions) puis #79 (tâche 0.2) ; `make install` relancé par Claude sur sa machine (les outils de la 0.2 manquaient). À sa demande : section « Travail avec GitHub » dans `CLAUDE.md`, skills `tache` (branche partie de `main`, une seule PR, contrôles verts, modèle de description) et `noter` (dans quelle PR va une note), `A-FAIRE.md` § 10 « Comment relire et fusionner une PR » (remplace la routine).
+- **Décisions** : Claude est le développeur ; l'utilisateur, chef de projet et relecteur, valide, teste et fusionne. Une seule PR par tâche (corrections et documents compris), toujours `base: main`, jamais empilée ; PR séparée seulement pour une décision à valider avant de continuer ou une réparation urgente, en disant pourquoi. GitHub Actions vert avant de donner la PR. Chaque PR et chaque message de fin se terminent par « À valider », « À tester toi-même », « Après la fusion ».
+- **Suite** : ces changements partent dans la PR de la tâche 1.1 (pas de PR séparée, à la demande de l'utilisateur).
 
 ### 2026-09-26 — Tâche 0.2 : qualité (ruff, ESLint, Prettier, Vitest, pre-commit, GitHub Actions)
 
