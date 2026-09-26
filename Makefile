@@ -9,7 +9,7 @@ COMPOSE := docker compose -f infra/docker-compose.dev.yml
 MANAGE := cd backend && uv run python manage.py
 
 .DEFAULT_GOAL := help
-.PHONY: help install hooks dev services stop dev-local migrate makemigrations superuser shell \
+.PHONY: help install hooks dev services stop dev-local migrate makemigrations demo superuser shell \
 	test test-back test-front lint lint-back lint-front format api build
 
 help: ## Afficher les commandes
@@ -44,6 +44,9 @@ migrate: ## Appliquer les migrations
 
 makemigrations: ## Créer des migrations : make makemigrations app=finance name=exchange_rate
 	$(MANAGE) makemigrations $(app) $(if $(name),--name $(name))
+
+demo: ## Créer ou remettre à jour les données fictives de démonstration (écoles itig et volcans)
+	$(MANAGE) demo
 
 superuser: ## Créer un compte super-administrateur
 	$(MANAGE) createsuperuser
