@@ -1,6 +1,6 @@
 # Plan — Tâche 0.1 : monorepo, Docker Compose de développement, commandes
 
-Issue GitHub : #5 · Branche prévue : `tache/0.1-monorepo` · Statut : **en attente de validation**
+Issue GitHub : #5 · Branche prévue : `tache/0.1-monorepo` · Statut : **validé le 2026-09-25** — Docker (installé par l’utilisateur), uv, commit + PR à chaque tâche
 
 ## But
 
@@ -61,8 +61,8 @@ En dev : Gestion sur `http://itig.localhost:5173/app`, Portail sur `http://local
 
 ## Dépendances ajoutées (toutes prévues par la stack, sauf mention)
 
-- Python : `django~=5.2`, `djangorestframework`, `drf-spectacular`, `celery`, `redis`, **`psycopg[binary]`** (pilote PostgreSQL, indispensable), `pytest`, `pytest-django`, `factory-boy`, `ruff`.
-- Front : `pnpm`, `vite`, `react`, `react-dom`, `typescript`, `@vitejs/plugin-react`.
+- Python : `django~=5.2`, `djangorestframework`, `drf-spectacular`, `celery`, `redis`, **`psycopg[binary]`** (pilote PostgreSQL, indispensable), `pytest`, `pytest-django`, `factory-boy`. *(Réalisé : `ruff` reporté à 0.2 avec sa configuration.)*
+- Front : `pnpm`, `vite`, `react`, `react-dom`, `typescript`, `@vitejs/plugin-react`, `@types/react`, `@types/react-dom`. *(Réalisé : React 19.3, Vite 8.3, TypeScript 7.0 ; `@types/node` évité en sortant `vite.config.ts` de la vérification de types.)*
 - Rien d'autre : pas de `django-environ` ni de `python-dotenv` (lecture de l'environnement faite à la main).
 - UUID v7 (tâche 1.1) : Python 3.12 n'a pas `uuid7` → petite fonction maison de ~20 lignes testée, sans dépendance.
 

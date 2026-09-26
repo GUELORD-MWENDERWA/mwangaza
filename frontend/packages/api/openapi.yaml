@@ -1,0 +1,40 @@
+openapi: 3.0.3
+info:
+  title: Mwangaza API
+  version: 0.1.0
+  description: API de la plateforme de gestion scolaire Mwangaza.
+paths:
+  /api/health/:
+    get:
+      operationId: health_retrieve
+      description: 'Sonde de disponibilité : l''API répond et la base de données est
+        joignable.'
+      tags:
+      - system
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+          description: ''
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+          description: ''
+components:
+  schemas:
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+        database:
+          type: string
+      required:
+      - database
+      - status

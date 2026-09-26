@@ -79,7 +79,22 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 
 ## Commandes
 
-À compléter lors de la mise en place (tâche 0 du plan de travail) : démarrage, tests, migrations, génération du client API, build PWA.
+Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Docker. `make` seul affiche la liste.
+
+| Commande | Effet |
+|---|---|
+| `make install` | `uv sync` (backend) + `pnpm install` (frontend) |
+| `make dev` | tout dans Docker : PostgreSQL (hôte : 5433), Redis, Django (:8000), Celery, Gestion (:5173), Portail (:5174) |
+| `make services` puis `make dev-local` | seulement PostgreSQL et Redis dans Docker ; Django et Vite sur la machine (valeurs dans `.env`, copié de `.env.example`) |
+| `make stop` | arrêter les conteneurs |
+| `make migrate` · `make makemigrations app=<app> name=<nom>` | migrations |
+| `make test` · `make test-back` · `make test-front` | pytest ; vérification des types (Vitest arrive en 0.2) |
+| `make lint` | ruff, ESLint, Prettier (0.2) |
+| `make api` | schéma OpenAPI → `frontend/packages/api/openapi.yaml` (à relancer après tout changement d'API) |
+| `make build` | build des deux PWA |
+| `make superuser` · `make shell` | compte super-admin ; console Django |
+
+Adresses en dev : Gestion `http://itig.localhost:5173/app/` (le sous-domaine = code de l'école), Portail `http://localhost:5174/`, API `/api/…` via le proxy Vite, doc de l'API `/api/docs/` (seulement en `DEBUG`). Réglages Django : `config.settings.dev` (défaut de `manage.py`), `test` (pytest), `prod` (wsgi/asgi, refuse de démarrer sans `DJANGO_SECRET_KEY`).
 
 ## Façon de travailler
 
