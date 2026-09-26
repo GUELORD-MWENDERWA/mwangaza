@@ -59,11 +59,19 @@ services:
     image: node:22-slim
     user: "${UID:-1000}:${GID:-1000}"
     working_dir: /app
-    command: sh -c "corepack pnpm install --frozen-lockfile && corepack pnpm dev"
+    # Pas d'installation ici : le conteneur utilise le node_modules installé sur la machine
+    # (`make dev` lance `pnpm install` avant). Installer dans le conteneur réécrirait ce
+    # node_modules avec un store qui n'existe que dans Docker, et tout retéléchargerait.
+    # `corepack enable` met `pnpm` dans le PATH : le script `pnpm dev` rappelle `pnpm`.
+    command: sh -c "mkdir -p /tmp/bin && corepack enable --install-directory /tmp/bin && pnpm dev"
     environment:
       HOME: /tmp
-      COREPACK_HOME: /tmp/corepack
+      PATH: /tmp/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      # Dans node_modules (ignoré par Git) : pnpm n'est téléchargé qu'une fois.
+      COREPACK_HOME: /app/node_modules/.corepack
       COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+      # Sinon `pnpm dev` réinstalle tout avant de démarrer (pnpm 12 lit `pnpm_config_*`).
+      pnpm_config_verify_deps_before_run: "false"
       VITE_HOST: 0.0.0.0
       VITE_API_TARGET: http://backend:8000
     volumes:

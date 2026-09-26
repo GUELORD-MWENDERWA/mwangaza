@@ -14,13 +14,14 @@ Dernière mise à jour : 2026-09-26 (après installation de Docker).
 | 1 | [Fusionner la PR #75](#1-fusionner-la-pr-75) (documents, 61 maquettes, ce fichier) | 5 min | [x] |
 | 2 | [Rouvrir VS Code dans `~/Projets/mwangaza`](#2-le-dossier-sappelle-maintenant-mwangaza) | 1 min | [x] |
 | 3 | [Installer Docker](#3-installer-docker) | 15 min | [x] |
-| 3 bis | **[Se déconnecter puis se reconnecter](#3-bis-se-déconnecter-puis-se-reconnecter)** (sinon `docker` répond `permission denied`) | 2 min | [ ] |
+| 3 bis | **[Se déconnecter puis se reconnecter](#3-bis-se-déconnecter-puis-se-reconnecter)** (sinon `docker` répond `permission denied`) | 2 min | [x] |
 | 4 | [Créer le fichier `.env`](#4-créer-le-fichier-env) | 2 min | [x] |
 | 5 | [Vérifier que tout marche](#5-vérifier-que-tout-marche) : Claude l'a vérifié le 2026-09-26 ; à refaire toi-même une fois | 5 min | [ ] |
-| 5 bis | [Fusionner la PR #76 (correction du `.env`)](#5-bis-fusionner-la-pr-de-correction-du-env) | 2 min | [ ] |
+| 5 bis | [Fusionner la PR #76 (correction du `.env`)](#5-bis-fusionner-la-pr-de-correction-du-env) | 2 min | [x] |
+| 5 ter | [Fusionner la PR de correction de `make dev`](#5-ter-fusionner-la-pr-de-correction-de-make-dev) | 2 min | [ ] |
 | 6 | [Donner tes décisions](#6-tes-décisions) : nom et domaine (Q9), questions Q1 à Q11 | 10 min | [ ] |
 
-Quand c'est fait, dans Claude Code : **`/tache 0.2`**. La base de données marche déjà : les étapes 3 bis et 5 servent à ce que **toi** puisses lancer les commandes sans erreur.
+Quand c'est fait, dans Claude Code : **`/tache 0.2`**. Tout marche déjà (vérifié par Claude) : l'étape 5 sert à ce que **toi** saches lancer les commandes.
 
 Cette semaine aussi : [aller à l'ITIG](#7-litig--quoi-demander-et-quand) avec la liste de la semaine 1 (nécessaire pour la tâche 1.7).
 
@@ -121,12 +122,12 @@ Ton `.env` contient maintenant :
 
 ### 5. Vérifier que tout marche
 
-**Déjà vérifié par Claude le 2026-09-26** sur ta machine : conteneurs PostgreSQL et Redis lancés (`make services`, ils tournent encore), `make test` (7 tests backend passés, types du front OK), `make migrate` (tables créées), `make dev-local` (les trois adresses ci-dessous répondent).
+**Déjà vérifié par Claude le 2026-09-26** sur ta machine : `make services`, `make test` (7 tests backend passés, types du front OK), `make migrate` (tables créées), `make dev-local` et `make dev` (les trois adresses ci-dessous répondent). Les conteneurs sont arrêtés.
 
-À refaire **toi-même une fois, après l'étape 3 bis**, pour être sûr que tes commandes marchent. Depuis `~/Projets/mwangaza`, dans le terminal de VS Code :
+À refaire **toi-même une fois, après les étapes 5 bis et 5 ter**, pour être sûr que tes commandes marchent. Depuis `~/Projets/mwangaza`, dans le terminal de VS Code :
 
 ```bash
-git switch main && git pull   # après la fusion de l'étape 5 bis
+git switch main && git pull   # après les fusions 5 bis et 5 ter
 make services    # PostgreSQL (port 5433) et Redis dans Docker ; déjà lancés = « Running »
 make test        # attendu : « 7 passed », puis « Done » pour gestion et portail
 make migrate     # attendu : « No migrations to apply » (déjà fait)
@@ -139,7 +140,7 @@ Pendant que `make dev-local` tourne, ouvrir dans Chrome ou Firefox :
 - http://itig.localhost:5173/app/ → application Gestion (encore vide)
 - http://localhost:5174/ → Portail (encore vide)
 
-Ensuite, essayer une fois **tout dans Docker** : Ctrl+C, puis `make dev` (le premier lancement télécharge les images : plusieurs minutes), mêmes adresses. Ctrl+C puis `make stop` pour arrêter.
+Ensuite, essayer une fois **tout dans Docker** : Ctrl+C, puis `make dev` (images déjà téléchargées : prêt en 30 s environ ; attendre les lignes `VITE … ready`), mêmes adresses. Ctrl+C puis `make stop` pour arrêter.
 
 Dire le résultat à Claude : « tout marche », ou coller le message d'erreur.
 
@@ -151,6 +152,12 @@ PR #76, branche `fix/env-valeurs-vides` : une variable vide dans `.env` ne fait 
 gh pr merge 76 --merge --delete-branch
 git switch main && git pull
 ```
+
+**Fait.**
+
+### 5 ter. Fusionner la PR de correction de `make dev`
+
+Le premier essai de `make dev` a montré deux défauts : le conteneur du front s'arrêtait aussitôt (`pnpm: not found`), et il réinstallait toutes les dépendances du front à chaque lancement, en écrasant celles de ta machine. Corrigé sur la branche `fix/docker-front` : le conteneur utilise les dépendances installées sur ta machine, et `make dev` lance `pnpm install` avant de démarrer Docker. Même démarche qu'en 5 bis (vérifier **`base: main`**).
 
 ### 6. Tes décisions
 
@@ -239,7 +246,7 @@ Partout : activer la double authentification et garder les codes de secours. Les
 | Commande | Effet | Quand |
 |---|---|---|
 | `make install` | installe les dépendances (Python avec uv, front avec pnpm) | après un `git pull` qui change les dépendances |
-| `make dev` | tout dans Docker : PostgreSQL, Redis, Django, Celery, Gestion, Portail | travailler sur l'application |
+| `make dev` | installe les dépendances du front, puis tout dans Docker : PostgreSQL, Redis, Django, Celery, Gestion, Portail | travailler sur l'application |
 | `make services` | seulement PostgreSQL (port 5433) et Redis dans Docker | avant `make dev-local` ou `make test` |
 | `make dev-local` | Django et Vite sur ta machine (lit `.env`) | plus rapide que `make dev` |
 | `make stop` | arrête les conteneurs Docker | fin de journée |
@@ -315,5 +322,6 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | `The SECRET_KEY setting must not be empty` | ancienne version du code avec `DJANGO_SECRET_KEY=` vide dans `.env` | `git switch main && git pull` après la fusion de la PR de correction (étape 5 bis) |
 | `port is already allocated` (5433, 6379, 8000, 5173) | un autre programme utilise le port | `ss -ltnp \| grep 6379` pour le trouver ; par ex. `sudo systemctl stop redis-server` |
 | `connection refused` ou `role "mwangaza" does not exist` | pas de `.env`, ou base Docker arrêtée | étapes 4 et 5 : `cp .env.example .env`, `make services` |
+| `ERR_PNPM_UNEXPECTED_STORE` | `pnpm` lancé depuis un autre terminal (celui de VS Code et celui d'Ubuntu ne rangent pas le cache au même endroit) | `cd frontend && pnpm install`, répondre `Y` pour réinstaller ; ensuite, toujours le même terminal |
 | `bad interpreter` ou `No such file` dans `backend/.venv` | dossier déplacé ou renommé | `rm -rf backend/.venv && make install` |
 | `itig.localhost` ne s'ouvre pas | navigateur qui ne gère pas `*.localhost` | utiliser Chrome ou Firefox |
