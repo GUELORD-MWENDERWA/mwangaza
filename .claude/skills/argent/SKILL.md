@@ -13,7 +13,7 @@ Références : `docs/03-architecture-technique.md` § 6, `docs/04-modele-de-donn
   - `USD` : 2 décimales → `150,00 $` = `15000`.
   - `CDF` : 0 décimale utile → `30 000 FC` = `30000`. Code `CDF`, affiché « FC ».
 - **Jamais de `float`** : ni `FloatField`, ni `float()`, ni `parseFloat` / `Number()` sur une saisie de montant. `Decimal` uniquement pour les taux.
-- Python : classe `Money` immuable (`apps/core`) ; opérations seulement entre montants de même devise, sinon erreur.
+- Python : `apps.core.money.Money(amount_minor, currency)` immuable, `Currency` (`USD`, `CDF`) ; refuse `float`, `bool` et `Decimal` comme montant ; opérations seulement entre montants de même devise (`CurrencyMismatchError`) ; `Money.from_major("150.25", "USD")` refuse les décimales en trop ; `money.convert("CDF", rate)` applique Q4 (taux `Decimal` USD → CDF).
 - Front : `frontend/packages/money` — parse la saisie (`"150,00"` → `15000`), formate, additionne. Les écrans ne font aucun calcul de montant à la main.
 
 ## Taux et conversion

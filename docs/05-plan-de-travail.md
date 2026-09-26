@@ -21,7 +21,7 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
 
 - [x] **0.1** Créer le monorepo selon `03-architecture-technique.md` § 3 ; Docker Compose de développement (postgres, redis, django, front) ; compléter la section « Commandes » de `CLAUDE.md`
 - [x] **0.2** Qualité : ruff, pytest, ESLint, Prettier, Vitest, pre-commit, GitHub Actions (lint + tests)
-- [ ] **1.1** App `core` : `TenantModel`, `TenantManager` qui lève une erreur sans école, `TenantMiddleware` par sous-domaine, UUID v7, classe `Money` + tests
+- [x] **1.1** App `core` : `TenantModel`, `TenantManager` qui lève une erreur sans école, `TenantMiddleware` par sous-domaine, UUID v7, classe `Money` + tests
 - [ ] **1.2** App `accounts` : `User` (téléphone comme identifiant), `Membership`, `Role`, codes de permissions, 9 rôles système copiés à la création d'une école (B1–B3, `04` § 8)
 - [ ] **1.3** Connexion par session, TOTP pour les rôles sensibles, limitation des tentatives (B4)
 - [ ] **1.4** App `audit` : `AuditLog` + utilitaire d'enregistrement (I1)

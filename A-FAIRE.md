@@ -282,6 +282,7 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make stop` | arrête les conteneurs Docker | fin de journée |
 | `make migrate` | applique les migrations à la base | après un `git pull` qui ajoute des migrations |
 | `make makemigrations app=finance name=exchange_rate` | crée une migration | après un changement de modèle |
+| `make demo` | crée ou remet à jour les données fictives : écoles `itig` et `volcans` (plus de données à chaque tâche) ; refusé en production | après `make migrate`, ou pour remettre la démonstration à zéro |
 | `make test` | tous les tests | avant de fusionner une PR |
 | `make test-back` | tests backend (pytest) | |
 | `make test-front` | vérification des types du front, puis tests Vitest | |
@@ -301,7 +302,6 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 
 | Commande | Tâche | Effet |
 |---|---|---|
-| `make demo` | 1.5 | recrée les données fictives : école `itig` (démo), école `volcans`, un compte par rôle |
 | commande de déploiement | 4.6 | met en production sur le VPS en une commande |
 | sauvegarde et restauration | 4.7 | sauvegarde de la base, test de restauration |
 | tests Playwright (hors-ligne) | 3.5 | parcours dans le navigateur, réseau coupé |
@@ -311,6 +311,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | Adresse | Quoi |
 |---|---|
 | http://itig.localhost:5173/app/ | Gestion (le sous-domaine = code de l'école) |
+| http://itig.localhost:5173/api/school/ | quelle école répond à ce sous-domaine (après `make demo`) |
 | http://localhost:5174/ | Portail parents |
 | http://localhost:8000/api/health/ | l'API répond-elle ? |
 | http://localhost:8000/api/docs/ | documentation de l'API |
