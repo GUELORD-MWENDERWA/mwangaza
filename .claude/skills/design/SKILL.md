@@ -51,7 +51,7 @@ Ajouter `ok`, `due`, `warn`, `info` (et leurs `-50`), `lamp`, `lamp-soft`, `basa
 
 ## Composants (maquette → application)
 
-Les composants partagés vont dans `frontend/packages/ui`. Les construire une fois, les réutiliser partout.
+Les composants partagés vont dans `frontend/packages/ui` (exportés par `@mwangaza/ui`). Les construire une fois, les réutiliser partout. **Déjà construits (1.6)** : `Button`, `Input`, `PasswordInput`, `Textarea`, `Field`, `Checkbox` / `CheckboxField`, `Segmented`, `CodeInput`, `Card…`, `List`, `Banner`, `StatusPill`, `Tag`, `Steps`, `Code` / `CodeList`, `Sheet…`, `DialogRoot` / `DialogContent`, `DropdownMenu…`, `Avatar`, `Brand`, `SchoolBadge`, `SyncIndicator`, `PageHeader`, `StateCard`, `Toast`, `Skeleton`, `Icon` (icônes des maquettes) ; les autres noms du tableau sont à créer avec leur premier écran.
 
 | Maquette | Composant | Notes |
 |---|---|---|
@@ -59,9 +59,9 @@ Les composants partagés vont dans `frontend/packages/ui`. Les construire une fo
 | `.kpi` (`.lbl` `.val` `.sub` `.up` `.down`) | `Kpi` | valeur 1,65 rem gras, tabulaire |
 | `.btn` `.primary` `.danger` `.dangerf` `.ghost` · `.sm` `.lg` `.xl` | `Button` variantes `default`, `outline`, `destructive-outline`, `destructive`, `ghost` ; tailles `sm`, `lg`, `xl` | `xl` = pleine largeur, ≥ 60 px (caisse) ; raccourci clavier affiché en `.k` |
 | `.inp` `.inp.big` `.focus` `.err` | `Input`, `AmountInput` | hauteur ≥ 40 px ; `big` = saisie du montant en caisse (1,9 rem, ≥ 64 px) |
-| `label.f` `.req` `.help` `.errtxt` | `FormField` (react-hook-form + zod) | astérisque rouge pour obligatoire |
+| `label.f` `.req` `.help` `.errtxt` | `Field` (le champ reçoit `id`, `aria-invalid`, `aria-describedby` : `{(control) => <Input {...control} />}`) ; react-hook-form + zod | astérisque rouge pour obligatoire ; erreur du serveur sous le champ : `applyServerErrors` (`src/lib/errors.ts`) |
 | `.box` | `Checkbox` | |
-| `.seg` | `ToggleGroup` (choix unique) | ex. USD / FC |
+| `.seg` | `Segmented` (choix unique, sur le `ToggleGroup` de Radix) | ex. USD / FC, Français / English |
 | `.toggle` | `Switch` | |
 | `.tbl` `tr.sel` `.errrow` `.warnrow` `tfoot` | `Table` | en-tête `#F8FAFA` ; ligne sélectionnée `lake-50` |
 | `.pill` `ok` `due` `warn` `info` `gray` | `StatusPill` | point de couleur devant le texte |
@@ -79,14 +79,16 @@ Les composants partagés vont dans `frontend/packages/ui`. Les construire une fo
 | `.thermal` | gabarit reçu thermique | `@page { size: 80mm auto; margin: 0 }` ou `58mm auto` selon le réglage de l'école ; reçus A6 / A5 / petit format sur A4 avec traits de découpe : à dessiner en 3.2 |
 | `.a4` | gabarit A4 | |
 | `.authgrid` `.authside` `.authmain` | coquille des écrans hors application | connexion, activation 2FA, choix de l'école ; une colonne sous 900 px |
-| `.overlay` `.dialog` | `Dialog` (shadcn) | ex. réduction ; fermeture Échap, focus piégé |
+| `.overlay` `.dialog` | `DialogRoot` + `DialogContent` (titre, description, pied) | ex. réduction ; fermeture Échap, focus piégé |
 | `.tl` (`.ok` `.due` `.warn` `.lamp`) | `Timeline` | historique de l'élève, plus récent en haut |
-| `.codes` `.code` | `CodeBlock` (police à chasse fixe) | codes de secours, code famille, clé TOTP |
+| `.codes` `.code` | `CodeList`, `Code` (police à chasse fixe) | codes de secours, code famille, clé TOTP ; code à 6 cases : `CodeInput` |
 | `.frame` `.drawer` `.scrim` | `Sheet` (shadcn) côté gauche | menu de la Gestion sous 900 px (`frame` = présentation seulement) |
 | `.spot` `.coach` | `Tour` (guide de première connexion) | élément réel mis en avant, reste assombri |
-| `.toast` | `Toast` (sonner) | ex. nouvelle version prête |
+| `.toast` | `Toast` | ex. nouvelle version prête |
 | `.a4.land` | gabarit A4 à l'italienne | export des impayés |
 | `.bul` `.idbox` `tr.mx` `td.grey` | gabarit bulletin officiel (V1.2) | mise en page du formulaire EPST, voir `docs/claude/recherches/2026-09-26-bulletins-rdc.md` |
+| `.pagehead` `.crumbs` | `PageHeader` | titre, sous-titre, fil d'Ariane, actions |
+| pages d'état (M8) | `StateCard` | icône ronde, titre, texte, étiquette, actions |
 | `.note` | **rien** | règle métier / critère d'acceptation, jamais affichée |
 
 ## Formats d'affichage

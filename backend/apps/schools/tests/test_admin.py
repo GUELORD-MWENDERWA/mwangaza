@@ -114,9 +114,9 @@ def test_the_list_shows_status_subscription_and_activity(admin_client, school, o
     content = admin_client.get(LIST).content.decode()
 
     assert "École Alpha (fictive)" in content and "École Beta (fictive)" in content
-    assert "http://alpha.localhost:5173/api/support/" in content
+    assert "http://alpha.localhost:5173/app/support" in content
     # École suspendue : pas de session support.
-    assert "beta.localhost:5173/api/support/" not in content
+    assert "beta.localhost:5173/app/support" not in content
 
 
 def test_support_actions_are_not_school_activity(admin_client, school, platform_admin):

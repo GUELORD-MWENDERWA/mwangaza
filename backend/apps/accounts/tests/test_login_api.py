@@ -306,7 +306,8 @@ def test_temporary_password_must_be_replaced(api, school):
 
     too_short = client.post(PASSWORD, {"new_password": "court"})
     assert too_short.status_code == 400
-    assert "new_password" in too_short.json()
+    [error] = too_short.json()["fields"]["new_password"]
+    assert error["code"] == "password_too_short"
     same = client.post(PASSWORD, {"new_password": TEST_PASSWORD})
     assert same.status_code == 400
 

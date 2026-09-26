@@ -1,0 +1,156 @@
+/* Thème Mwangaza pour Tailwind v4, partagé par la Gestion et le Portail.
+   Source : `maquettes/assets/styles.css` (bloc :root) et skill `design`. Ne pas inventer de
+   couleur, de rayon ni de taille : les reprendre des maquettes. */
+@import "tailwindcss";
+
+/* Classes des composants partagés (le reste : sources de l'application qui importe ce fichier). */
+@source "./";
+
+/* Atkinson Hyperlegible, embarquée : l'application marche sans internet. */
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  src: url("./fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  src: url("./fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-mono: ui-monospace, Consolas, monospace;
+
+  /* Espacements en pixels, comme les maquettes (la base du texte est 15 px). */
+  --spacing: 4px;
+
+  /* Tailles de texte des maquettes : base 15 px, petit .85rem, minuscule .75rem, titres. */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.45;
+  --text-sm: 0.85rem;
+  --text-sm--line-height: 1.45;
+  --text-base: 1rem;
+  --text-base--line-height: 1.45;
+  --text-lg: 1.15rem;
+  --text-lg--line-height: 1.2;
+  --text-xl: 1.3rem;
+  --text-xl--line-height: 1.2;
+  --text-2xl: 1.6rem;
+  --text-2xl--line-height: 1.2;
+  --text-3xl: 2rem;
+  --text-3xl--line-height: 1.2;
+
+  /* Marque */
+  --color-basalt: #2b2724;
+  --color-basalt-2: #3a3531;
+  --color-basalt-3: #4a443f;
+  --color-basalt-ink: #ede8e3;
+  --color-basalt-muted: #a8a09a;
+  --color-basalt-soft: #cfc7bf;
+  --color-lamp: #f2b632;
+  --color-lamp-soft: #fdf3d8;
+  --color-lake: #0e5c6b;
+  --color-lake-700: #0a4652;
+  --color-lake-50: #e6f0f2;
+  /* Neutres */
+  --color-ink: #1a2233;
+  --color-ink-2: #4a5568;
+  --color-ink-3: #77818f;
+  --color-surface: #f3f5f6;
+  --color-card: #ffffff;
+  --color-line: #dde3e6;
+  --color-line-soft: #edf1f2;
+  --color-field: #c9d1d6;
+  --color-gray-50: #eef1f2;
+  /* États : toujours avec un texte, jamais la couleur seule. */
+  --color-ok: #1f7a4d;
+  --color-ok-50: #e5f3eb;
+  --color-due: #b42318;
+  --color-due-50: #fbe9e7;
+  --color-warn: #9a5b00;
+  --color-warn-50: #fff1d6;
+  --color-info: #0e5c6b;
+  --color-info-50: #e6f0f2;
+
+  /* Noms de shadcn/ui (skill `design`, « Correspondance shadcn/ui »). */
+  --color-background: var(--color-surface);
+  --color-foreground: var(--color-ink);
+  --color-border: var(--color-line);
+  --color-input: var(--color-field);
+  --color-primary: var(--color-lake);
+  --color-primary-foreground: #ffffff;
+  --color-ring: var(--color-lake);
+  --color-accent: var(--color-lake-50);
+  --color-accent-foreground: var(--color-lake-700);
+  --color-muted-foreground: var(--color-ink-3);
+  --color-destructive: var(--color-due);
+  --color-sidebar: var(--color-basalt);
+  --color-sidebar-foreground: var(--color-basalt-ink);
+  --color-sidebar-accent: var(--color-basalt-2);
+  --color-sidebar-primary: var(--color-lamp);
+
+  /* Rayons : cartes 12, champs et boutons 8, pastilles arrondies. */
+  --radius-card: 12px;
+  --radius-field: 8px;
+  --radius-box: 10px;
+  --shadow-card: 0 1px 2px rgba(26, 34, 51, 0.06), 0 4px 12px rgba(26, 34, 51, 0.05);
+  --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.2);
+
+  --animate-drawer-in: drawer-in 180ms ease-out;
+  --animate-fade-in: fade-in 180ms ease-out;
+  @keyframes drawer-in {
+    from {
+      transform: translateX(-100%);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+}
+
+@layer base {
+  html {
+    font-size: 15px;
+  }
+  body {
+    background: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  h1 {
+    font-size: var(--text-2xl);
+  }
+  h2 {
+    font-size: var(--text-lg);
+  }
+  h3 {
+    font-size: var(--text-base);
+  }
+  a {
+    color: var(--color-lake);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-lake);
+    outline-offset: 2px;
+  }
+}
+
+/* Chiffres : tabulaires, alignés à droite, sans retour à la ligne. */
+@utility num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}

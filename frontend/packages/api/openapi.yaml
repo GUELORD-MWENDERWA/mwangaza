@@ -114,8 +114,8 @@ paths:
         name: search
         schema:
           type: string
-          maxLength: 100
           minLength: 1
+          maxLength: 100
         description: Dans le nom de l'objet.
       - in: query
         name: since
@@ -225,13 +225,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Login'
+              $ref: '#/components/schemas/LoginRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Login'
+              $ref: '#/components/schemas/LoginRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Login'
+              $ref: '#/components/schemas/LoginRequest'
         required: true
       security:
       - cookieAuth: []
@@ -292,13 +292,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginCode'
+              $ref: '#/components/schemas/LoginCodeRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/LoginCode'
+              $ref: '#/components/schemas/LoginCodeRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/LoginCode'
+              $ref: '#/components/schemas/LoginCodeRequest'
         required: true
       security:
       - cookieAuth: []
@@ -384,13 +384,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Password'
+              $ref: '#/components/schemas/PasswordRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Password'
+              $ref: '#/components/schemas/PasswordRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Password'
+              $ref: '#/components/schemas/PasswordRequest'
         required: true
       security:
       - cookieAuth: []
@@ -455,13 +455,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Code'
+              $ref: '#/components/schemas/CodeRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Code'
+              $ref: '#/components/schemas/CodeRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Code'
+              $ref: '#/components/schemas/CodeRequest'
         required: true
       security:
       - cookieAuth: []
@@ -508,13 +508,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Code'
+              $ref: '#/components/schemas/CodeRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Code'
+              $ref: '#/components/schemas/CodeRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Code'
+              $ref: '#/components/schemas/CodeRequest'
         required: true
       security:
       - cookieAuth: []
@@ -557,13 +557,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Code'
+              $ref: '#/components/schemas/CodeRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Code'
+              $ref: '#/components/schemas/CodeRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Code'
+              $ref: '#/components/schemas/CodeRequest'
         required: true
       security:
       - cookieAuth: []
@@ -629,13 +629,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TotpSetup'
+              $ref: '#/components/schemas/TotpSetupRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/TotpSetup'
+              $ref: '#/components/schemas/TotpSetupRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/TotpSetup'
+              $ref: '#/components/schemas/TotpSetupRequest'
       security:
       - cookieAuth: []
       - {}
@@ -726,13 +726,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedMeUpdate'
+              $ref: '#/components/schemas/PatchedMeUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedMeUpdate'
+              $ref: '#/components/schemas/PatchedMeUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedMeUpdate'
+              $ref: '#/components/schemas/PatchedMeUpdateRequest'
       security:
       - cookieAuth: []
       responses:
@@ -801,13 +801,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Role'
+              $ref: '#/components/schemas/RoleRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Role'
+              $ref: '#/components/schemas/RoleRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Role'
+              $ref: '#/components/schemas/RoleRequest'
       security:
       - cookieAuth: []
       responses:
@@ -891,13 +891,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedRole'
+              $ref: '#/components/schemas/PatchedRoleRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedRole'
+              $ref: '#/components/schemas/PatchedRoleRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedRole'
+              $ref: '#/components/schemas/PatchedRoleRequest'
       security:
       - cookieAuth: []
       responses:
@@ -1026,13 +1026,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedSchoolSettings'
+              $ref: '#/components/schemas/PatchedSchoolSettingsRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedSchoolSettings'
+              $ref: '#/components/schemas/PatchedSchoolSettingsRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedSchoolSettings'
+              $ref: '#/components/schemas/PatchedSchoolSettingsRequest'
       security:
       - cookieAuth: []
       responses:
@@ -1064,7 +1064,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/LogoUpload'
+              $ref: '#/components/schemas/LogoUploadRequest'
         required: true
       security:
       - cookieAuth: []
@@ -1158,13 +1158,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StaffCreate'
+              $ref: '#/components/schemas/StaffCreateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/StaffCreate'
+              $ref: '#/components/schemas/StaffCreateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/StaffCreate'
+              $ref: '#/components/schemas/StaffCreateRequest'
         required: true
       security:
       - cookieAuth: []
@@ -1253,13 +1253,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedStaffUpdate'
+              $ref: '#/components/schemas/PatchedStaffUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedStaffUpdate'
+              $ref: '#/components/schemas/PatchedStaffUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedStaffUpdate'
+              $ref: '#/components/schemas/PatchedStaffUpdateRequest'
       security:
       - cookieAuth: []
       responses:
@@ -1402,13 +1402,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SupportStart'
+              $ref: '#/components/schemas/SupportStartRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SupportStart'
+              $ref: '#/components/schemas/SupportStartRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/SupportStart'
+              $ref: '#/components/schemas/SupportStartRequest'
         required: true
       security:
       - cookieAuth: []
@@ -1530,6 +1530,8 @@ components:
       required:
       - id
       - last_name
+      - middle_name
+      - first_name
     AuditLog:
       type: object
       description: 'Une entrée du journal (M6). `before` / `after` : seulement les
@@ -1595,32 +1597,22 @@ components:
           readOnly: true
           title: Browser
       required:
-      - action
-      - actor
-      - after
-      - before
-      - by_support
+      - id
       - created_at
+      - action
       - domain
+      - actor
+      - by_support
+      - entity_type
       - entity_id
       - entity_label
-      - entity_type
-      - id
+      - before
+      - after
       - ip
       - user_agent
     BlankEnum:
       enum:
       - ''
-    Code:
-      type: object
-      properties:
-        code:
-          type: string
-          description: Code à 6 chiffres de l'application, ou code de secours (ex.
-            7KQ4-M2XP).
-          maxLength: 20
-      required:
-      - code
     CodeEnum:
       enum:
       - head
@@ -1643,6 +1635,17 @@ components:
         * `promoter` - Promoter
         * `teacher` - Teacher
         * `parent` - Parent
+    CodeRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          description: Code à 6 chiffres de l'application, ou code de secours (ex.
+            7KQ4-M2XP).
+          maxLength: 20
+      required:
+      - code
     CurrencyEnum:
       enum:
       - USD
@@ -1681,11 +1684,18 @@ components:
           readOnly: true
           description: Adresse du logo (`GET /api/school/logo/`, public) ; null sans
             logo.
+        timezone:
+          type: string
+          title: Time zone
+          description: Dates and times of the school, e.g. Africa/Lubumbashi (Goma).
+          maxLength: 64
       required:
       - code
-      - logo
       - name
+      - primary_color
       - text_color
+      - logo
+      - timezone
     CurrentSchoolAccess:
       type: object
       properties:
@@ -1704,8 +1714,8 @@ components:
       required:
       - code
       - name
-      - permissions
       - roles
+      - permissions
     DomainEnum:
       enum:
       - account
@@ -1716,6 +1726,25 @@ components:
       - support
       type: string
     Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Code stable, traduit par l'interface.
+        detail:
+          type: string
+        fields:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/FieldError'
+          description: 'Erreurs de saisie (`code` `invalid`) : chaque champ et ses
+            erreurs.'
+      required:
+      - code
+      - detail
+    FieldError:
       type: object
       properties:
         code:
@@ -1734,8 +1763,8 @@ components:
         database:
           type: string
       required:
-      - database
       - status
+      - database
     LanguageEnum:
       enum:
       - fr
@@ -1744,24 +1773,12 @@ components:
       description: |-
         * `fr` - Français
         * `en` - English
-    Login:
-      type: object
-      properties:
-        phone:
-          type: string
-          description: Ex. 0971234567 ou +243971234567.
-          maxLength: 64
-        password:
-          type: string
-          maxLength: 128
-      required:
-      - password
-      - phone
-    LoginCode:
+    LoginCodeRequest:
       type: object
       properties:
         code:
           type: string
+          minLength: 1
           description: Code à 6 chiffres de l'application, ou code de secours (ex.
             7KQ4-M2XP).
           maxLength: 20
@@ -1771,6 +1788,21 @@ components:
           description: Ne plus demander le code sur cet appareil pendant 7 jours.
       required:
       - code
+    LoginRequest:
+      type: object
+      properties:
+        phone:
+          type: string
+          minLength: 1
+          description: Ex. 0971234567 ou +243971234567.
+          maxLength: 64
+        password:
+          type: string
+          minLength: 1
+          maxLength: 128
+      required:
+      - password
+      - phone
     LoginStep:
       type: object
       properties:
@@ -1787,12 +1819,12 @@ components:
             * `done` - Logged in
       required:
       - step
-    LogoUpload:
+    LogoUploadRequest:
       type: object
       properties:
         logo:
           type: string
-          format: uri
+          format: binary
           description: PNG, JPEG ou SVG (sans script), 1 Mo au plus.
       required:
       - logo
@@ -1825,10 +1857,14 @@ components:
           type: integer
           description: Codes de secours pas encore utilisés (alerte à 2 ou moins,
             M4).
+        is_platform_admin:
+          type: boolean
+          description: 'Super-admin : aucun droit dans une école hors session support
+            (A3).'
         schools:
           type: array
           items:
-            $ref: '#/components/schemas/MySchool'
+            $ref: '#/components/schemas/MeSchool'
           description: Écoles où le compte a une appartenance active (choix de l'école).
         school:
           allOf:
@@ -1843,19 +1879,64 @@ components:
           description: Session support du super-admin dans l'école de l'adresse (bandeau
             rouge).
       required:
-      - first_name
       - id
-      - language
+      - phone
       - last_name
       - middle_name
-      - phone
-      - recovery_codes_left
-      - school
-      - schools
-      - support
+      - first_name
+      - language
       - totp_enabled
       - totp_enabled_at
       - totp_required
+      - recovery_codes_left
+      - is_platform_admin
+      - schools
+      - school
+      - support
+    MeSchool:
+      type: object
+      description: |-
+        Une école du compte (appartenance active) : choix et changement d'école (M2). Les rôles
+        sont ceux du compte dans cette école seulement.
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        url:
+          type: string
+          description: 'Adresse de l''école : on s''y connecte pour y travailler.'
+        primary_color:
+          type: string
+        text_color:
+          type: string
+        logo:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Adresse complète du logo, à l'adresse de l'école ; null sans
+            logo.
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleSummary'
+        last_login_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Dernière connexion du compte à cette école.
+      required:
+      - code
+      - name
+      - status
+      - url
+      - primary_color
+      - text_color
+      - logo
+      - roles
+      - last_login_at
     MySchool:
       type: object
       properties:
@@ -1874,10 +1955,13 @@ components:
       required:
       - code
       - name
+      - status
     PaginatedAuditLogList:
       type: object
       required:
       - count
+      - next
+      - previous
       - results
       properties:
         count:
@@ -1901,6 +1985,8 @@ components:
       type: object
       required:
       - count
+      - next
+      - previous
       - results
       properties:
         count:
@@ -1924,6 +2010,8 @@ components:
       type: object
       required:
       - count
+      - next
+      - previous
       - results
       properties:
         count:
@@ -1943,7 +2031,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Staff'
-    Password:
+    PasswordRequest:
       type: object
       description: |-
         Connexion en cours avec un mot de passe provisoire : `new_password` seul. Compte connecté :
@@ -1951,71 +2039,41 @@ components:
       properties:
         current_password:
           type: string
+          minLength: 1
           maxLength: 128
         new_password:
           type: string
+          minLength: 1
           maxLength: 128
       required:
       - new_password
-    PatchedMeUpdate:
+    PatchedMeUpdateRequest:
       type: object
       properties:
         language:
           $ref: '#/components/schemas/LanguageEnum'
-    PatchedRole:
+    PatchedRoleRequest:
       type: object
       description: |-
         Rôle de l'école. `name` vide pour un rôle système : l'interface affiche le nom traduit de
         son `code`.
       properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        code:
-          readOnly: true
-          description: |-
-            Code du rôle système ; vide pour un rôle créé par l'école.
-
-            * `head` - Head of school
-            * `study_director` - Director of studies
-            * `discipline_master` - Discipline master
-            * `accountant` - Accountant
-            * `cashier` - Cashier
-            * `secretary` - Secretary
-            * `promoter` - Promoter
-            * `teacher` - Teacher
-            * `parent` - Parent
-          oneOf:
-          - $ref: '#/components/schemas/CodeEnum'
-          - $ref: '#/components/schemas/BlankEnum'
         name:
           type: string
           title: Nom
           maxLength: 80
-        is_system:
-          type: boolean
-          readOnly: true
         permissions:
           type: array
           items:
             $ref: '#/components/schemas/PermissionsEnum'
-        member_count:
-          type: integer
-          readOnly: true
-          description: Comptes actifs qui ont ce rôle dans l'école.
-    PatchedSchoolSettings:
+    PatchedSchoolSettingsRequest:
       type: object
       description: Paramètres de l'école (M5). Le code (adresse) ne change que par
         le support Mwangaza.
       properties:
-        code:
-          type: string
-          readOnly: true
-          description: 'Subdomain of the school: {code}.mwangaza.school. Changed by
-            the platform only: the old address stops working.'
         name:
           type: string
+          minLength: 1
           title: Nom
           maxLength: 200
         official_name:
@@ -2023,21 +2081,13 @@ components:
           maxLength: 255
         primary_color:
           type: string
+          minLength: 1
           title: Colour
           description: 'Printed documents and the school badge, e.g. #0E5C6B.'
           maxLength: 7
-        text_color:
-          type: string
-          readOnly: true
-          description: 'Couleur du texte posé sur `primary_color` : blanc ou encre.'
-        logo:
-          type: string
-          nullable: true
-          readOnly: true
-          description: Adresse du logo (`GET /api/school/logo/`, public) ; null sans
-            logo.
         timezone:
           type: string
+          minLength: 1
           title: Time zone
           description: Dates and times of the school, e.g. Africa/Lubumbashi (Goma).
           maxLength: 64
@@ -2055,7 +2105,7 @@ components:
 
             * `USD` - US dollar
             * `CDF` - Congolese franc
-    PatchedStaffUpdate:
+    PatchedStaffUpdateRequest:
       type: object
       description: Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`.
       properties:
@@ -2068,8 +2118,10 @@ components:
           type: boolean
         phone:
           type: string
+          minLength: 1
         last_name:
           type: string
+          minLength: 1
           maxLength: 100
         middle_name:
           type: string
@@ -2166,10 +2218,26 @@ components:
           readOnly: true
           description: Comptes actifs qui ont ce rôle dans l'école.
       required:
-      - code
       - id
+      - code
+      - name
       - is_system
+      - permissions
       - member_count
+    RoleRequest:
+      type: object
+      description: |-
+        Rôle de l'école. `name` vide pour un rôle système : l'interface affiche le nom traduit de
+        son `code`.
+      properties:
+        name:
+          type: string
+          title: Nom
+          maxLength: 80
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionsEnum'
     RoleSummary:
       type: object
       properties:
@@ -2199,8 +2267,9 @@ components:
           title: Nom
           maxLength: 80
       required:
-      - code
       - id
+      - code
+      - name
     SchoolSettings:
       type: object
       description: Paramètres de l'école (M5). Le code (adresse) ne change que par
@@ -2254,9 +2323,14 @@ components:
             * `CDF` - Congolese franc
       required:
       - code
-      - logo
       - name
+      - official_name
+      - primary_color
       - text_color
+      - logo
+      - timezone
+      - enabled_currencies
+      - default_currency
     Staff:
       type: object
       description: |-
@@ -2301,20 +2375,22 @@ components:
           format: date-time
           readOnly: true
       required:
+      - id
+      - user
+      - roles
+      - is_active
+      - totp
+      - last_login_at
       - account_managed_here
       - created_at
-      - id
-      - last_login_at
-      - roles
-      - totp
-      - user
-    StaffCreate:
+    StaffCreateRequest:
       type: object
       description: 'Nouveau numéro : `last_name` obligatoire. Numéro déjà connu :
         noms ignorés.'
       properties:
         phone:
           type: string
+          minLength: 1
           description: Ex. 0971234567 ou +243971234567.
         last_name:
           type: string
@@ -2386,15 +2462,16 @@ components:
           description: 'Nouveau compte seulement : affiché une seule fois, à changer
             à la connexion.'
       required:
+      - id
+      - user
+      - roles
+      - is_active
+      - totp
+      - last_login_at
       - account_managed_here
       - created_at
       - existing_account
-      - id
-      - last_login_at
-      - roles
       - temporary_password
-      - totp
-      - user
     StaffUser:
       type: object
       properties:
@@ -2419,8 +2496,10 @@ components:
           maxLength: 100
       required:
       - id
-      - last_name
       - phone
+      - last_name
+      - middle_name
+      - first_name
     StatusEnum:
       enum:
       - trial
@@ -2462,15 +2541,16 @@ components:
           format: date-time
           description: Fermée d'elle-même à cette heure (1 h).
       required:
-      - expires_at
-      - reason
       - school
+      - reason
       - started_at
-    SupportStart:
+      - expires_at
+    SupportStartRequest:
       type: object
       properties:
         reason:
           type: string
+          minLength: 1
           description: Motif, lu par l'école dans son journal (ex. demande du directeur).
           maxLength: 200
       required:
@@ -2503,8 +2583,8 @@ components:
             type: string
           description: 'Affichés une seule fois : à imprimer.'
       required:
-      - recovery_codes
       - step
+      - recovery_codes
     TotpEnum:
       enum:
       - enabled
@@ -2521,13 +2601,14 @@ components:
           type: string
           description: Contenu du QR code à scanner.
       required:
-      - otpauth_uri
       - secret
-    TotpSetup:
+      - otpauth_uri
+    TotpSetupRequest:
       type: object
       properties:
         code:
           type: string
+          minLength: 1
           description: 'Double authentification déjà activée (changer de téléphone)
             : code actuel ou code de secours.'
           maxLength: 20

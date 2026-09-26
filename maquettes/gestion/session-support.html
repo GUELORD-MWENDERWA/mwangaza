@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session support — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css"></head>
+<body><main class="content" style="margin:0 auto">
+<div class="pagehead"><div><div class="crumbs">Application Gestion · super-admin</div><h1>Session support « en tant qu'école »</h1><p>Le super-admin se connecte à l'adresse de l'école (mot de passe puis code), puis ouvre une session support avec un motif.</p></div></div>
+<div class="grid g2" style="align-items:start">
+ <div class="col" style="gap:8px"><b>1. Ouvrir la session</b>
+ <div class="card"><div class="bd col">
+  <div class="row" style="gap:12px"><span style="width:44px;height:44px;border-radius:10px;background:#003C6C;color:#fff;display:grid;place-items:center;font-weight:700;flex:none">ITIG</span><div><b>ITIG Don Bosco Goma</b><br><span class="small muted">itig.mwangaza.school</span></div></div>
+  <h2>Ouvrir une session support</h2>
+  <p class="small muted">Vous êtes connecté comme support Mwangaza. Vous n'avez aucun droit dans cette école tant que la session n'est pas ouverte.</p>
+  <div class="banner info small"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.5v.1"/></svg><span>La session dure <b>1 heure</b> au plus. Vous avez les droits de l'école <b>sauf la caisse</b> (encaisser, annuler, clôturer). L'école lit le motif et chacune de vos actions dans son journal.</span></div>
+  <label class="f"><span>Motif <span class="req">*</span></span><span class="inp" style="min-height:84px;align-items:flex-start"><span class="ph">Ex. : demande du directeur, rôle mal configuré</span></span><span class="help">200 caractères au plus.</span></label>
+  <div class="row between"><a class="small" href="#">Se déconnecter</a><a class="btn primary" href="#"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg>Ouvrir la session support</a></div>
+ </div></div></div>
+ <div class="col" style="gap:8px"><b>2. Pendant la session : en haut de chaque écran</b>
+ <div class="card" style="overflow:hidden">
+  <div class="row" style="background:var(--due);color:#fff;padding:10px 14px;gap:10px"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg><span class="small" style="flex:1"><b>Session support</b> — vous agissez en tant que <b>ITIG Don Bosco Goma</b>, jusqu'à 11:42.<br><span style="opacity:.85">Motif : demande du directeur, rôle mal configuré</span></span><a class="btn sm" href="#" style="background:#fff;border-color:#fff;color:var(--due)"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg>Quitter</a></div>
+  <div class="row" style="height:52px;border-bottom:1px solid var(--line);padding:0 14px;gap:10px"><span class="sync online" style="padding:5px 9px;font-size:.78rem"><span class="dot"></span>En ligne</span><span style="margin-left:auto" class="small"><b>Support Mwangaza</b></span><span class="avatar">SM</span></div>
+  <div class="bd col" style="gap:8px;opacity:.5"><div class="bar" style="width:60%"><i style="width:100%;background:#C9D1D6"></i></div><div class="bar" style="width:85%"><i style="width:100%;background:#C9D1D6"></i></div><div class="bar" style="width:70%"><i style="width:100%;background:#C9D1D6"></i></div></div>
+ </div>
+ <div class="card"><div class="bd col" style="gap:8px">
+  <b class="small">À la fin</b>
+  <p class="small muted">« Quitter », la déconnexion ou la fin de l'heure ferment la session : l'écran revient à « Ouvrir une session support ». Dans le menu, la caisse n'apparaît pas.</p>
+ </div></div>
+ </div>
+</div>
+<div class="note"><b>A3 (tâches 1.5, 1.6) :</b> le lien « Ouvrir en tant qu'école » de l'administration Django mène à <code>{code}.mwangaza.school/app/support</code> ; sans connexion, l'écran de connexion d'abord (mot de passe puis code), puis retour ici. Motif obligatoire, 200 caractères au plus. Bandeau rouge sur tous les écrans tant que la session est ouverte, avec l'heure de fin et « Quitter » ; à l'heure de fin, la session se ferme d'elle-même et l'écran revient à l'ouverture. Refusée dans une école suspendue et sans double authentification (le serveur le vérifie). Menu : droits de l'école sauf la caisse. Ouverture, fermeture et chaque action sont inscrites dans le journal de l'école (« Support Mwangaza »).</div>
+</main></body></html>

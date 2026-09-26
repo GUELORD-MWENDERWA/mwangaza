@@ -1,5 +1,20 @@
 {
   "name": "@mwangaza/api",
   "version": "0.0.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "openapi-fetch": "^0.17.0"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.13.0",
+    "typescript": "~6.0.3"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "generate": "openapi-typescript openapi.yaml -o src/schema.d.ts",
+    "typecheck": "tsc --noEmit"
+  }
 }

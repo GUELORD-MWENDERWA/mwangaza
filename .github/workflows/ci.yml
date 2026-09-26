@@ -49,7 +49,7 @@ jobs:
         run: make test-back
       - name: Schéma OpenAPI commité à jour
         run: |
-          make api
+          make api-schema
           git diff --exit-code frontend/packages/api/openapi.yaml
 
   frontend:
@@ -68,9 +68,67 @@ jobs:
       - name: Dépendances (pnpm-lock.yaml à jour exigé)
         working-directory: frontend
         run: pnpm install --frozen-lockfile
+      - name: Types du client de l'API à jour (make api)
+        working-directory: frontend
+        run: |
+          pnpm --filter @mwangaza/api generate
+          git diff --exit-code packages/api/src/schema.d.ts
       - name: Lint
         run: make lint-front
       - name: Tests
         run: make test-front
       - name: Build
         run: make build
+
+  e2e:
+    name: Parcours dans le navigateur (Playwright)
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: mwangaza
+          POSTGRES_USER: mwangaza
+          POSTGRES_PASSWORD: mwangaza
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U mwangaza -d mwangaza"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: mwangaza
+      POSTGRES_USER: mwangaza
+      POSTGRES_PASSWORD: mwangaza
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - uses: pnpm/action-setup@v6.1.0
+        with:
+          package_json_file: frontend/package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - name: Dépendances
+        run: |
+          (cd backend && uv sync --locked)
+          (cd frontend && pnpm install --frozen-lockfile)
+      - name: Chromium de Playwright
+        working-directory: frontend
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Base de données
+        run: make migrate
+      - name: Parcours
+        run: make test-e2e
+      - name: Traces des parcours ratés
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-traces
+          path: frontend/test-results/
+          retention-days: 7

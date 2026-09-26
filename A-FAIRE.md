@@ -26,7 +26,8 @@ Dernière mise à jour : 2026-09-26 (PR #83 fusionnée ; tâche 1.5 : super-admi
 | 10 | [Relire et fusionner la PR #81 (tâche 1.2)](#10-comment-relire-et-fusionner-une-pr) (comptes, rôles, permissions), puis `make reset-db` une fois — fusionnée le 2026-09-26 | 20 min | [x] |
 | 11 | **[Relire et fusionner la PR #82 (tâche 1.3)](#10-comment-relire-et-fusionner-une-pr)** (connexion, double authentification) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make install && make migrate && make demo` (`make install` : 2 nouvelles dépendances Python, Argon2 et `cryptography`) — fusionnée le 2026-09-26 | 25 min | [x] |
 | 12 | **[Relire et fusionner la PR #83 (tâche 1.4)](#10-comment-relire-et-fusionner-une-pr)** (journal d'audit) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make migrate` (pas de nouvelle dépendance) — fusionnée le 2026-09-26 | 20 min | [x] |
-| 13 | **[Relire et fusionner la PR #84 (tâche 1.5)](#10-comment-relire-et-fusionner-une-pr)** (super-admin : écoles, session support, double authentification de l'administration, paramètres de l'école) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make migrate && make demo` (pas de nouvelle dépendance ; `make demo` active la double authentification du super-admin de démonstration) | 25 min | [ ] |
+| 13 | **[Relire et fusionner la PR #84 (tâche 1.5)](#10-comment-relire-et-fusionner-une-pr)** (super-admin : écoles, session support, double authentification de l'administration, paramètres de l'école) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make migrate && make demo` (pas de nouvelle dépendance ; `make demo` active la double authentification du super-admin de démonstration) — fusionnée le 2026-09-26 | 25 min | [x] |
+| 14 | **[Relire et fusionner la PR #85 (tâche 1.6)](#10-comment-relire-et-fusionner-une-pr)** (premiers écrans : connexion, menu, Mon compte, session support) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make install` (**nouvelles dépendances du front** : React Router, TanStack Query, Tailwind, composants, formulaires, PWA, client de l'API, QR code, outils de test) ; pour `make test-e2e`, une fois : `cd frontend && pnpm exec playwright install chromium` (Chromium de Playwright, ~115 Mo) | 30 min | [ ] |
 
 À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). Rien d'autre ne bloque : Claude enchaîne les tâches. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant), et [les comptes et le domaine](#9-avant-la-semaine-4-tâche-46--comptes-et-achats) avant la semaine 4.
 
@@ -291,11 +292,12 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make totp` | affiche le code de double authentification du moment pour les comptes fictifs qui la demandent (super-admin, directeur, comptable, caissière) ; `make totp key=<clé>` : pour la clé donnée à l'activation ; seulement en développement | se connecter sans téléphone ; ou ajouter une fois la clé affichée par `make demo` dans Google Authenticator ou Aegis |
 | `make test` | tous les tests | avant de fusionner une PR |
 | `make test-back` | tests backend (pytest) | |
-| `make test-front` | vérification des types du front, puis tests Vitest | |
+| `make test-front` | vérification des types du front, puis tests Vitest (logique et écrans) | |
+| `make test-e2e` | parcours dans un vrai navigateur (Playwright) : connexion, menu, activation, session support… ; **remet les données de `make demo` à zéro** ; lance Django et la Gestion, ou réutilise ceux de `make dev-local` | une fois avant : `cd frontend && pnpm exec playwright install chromium` ; ensuite quand tu veux, la CI le fait à chaque PR |
 | `make lint` | vérifie le code sans rien modifier : ruff (Python), ESLint et Prettier (front) ; `make lint-back` ou `make lint-front` pour une seule partie | avant de fusionner une PR |
 | `make format` | corrige automatiquement le format et ce qui peut l'être | quand `make lint` signale un problème de format |
-| `make api` | écrit le schéma OpenAPI dans `frontend/packages/api/openapi.yaml` | après tout changement d'API |
-| `make build` | construit les deux applications | avant la mise en production |
+| `make api` | écrit le schéma OpenAPI dans `frontend/packages/api/openapi.yaml`, puis les types TypeScript du client (`src/schema.d.ts`) ; `make api-schema` : seulement le schéma | après tout changement d'API |
+| `make build` | construit les deux applications ; la Gestion devient installable (service worker) : l'essayer avec `cd frontend/apps/gestion && pnpm preview`, puis http://itig.localhost:4173/app/ | avant la mise en production |
 | `make superuser` | crée un compte super-administrateur (identifiant : ton numéro de téléphone) ; à sa première connexion à l'administration, il active la double authentification (clé à saisir dans Google Authenticator ou Aegis) | rarement : `make demo` en crée un (`0000000000`) |
 | `make shell` | console Django | explorer les données |
 | `python3 maquettes/outils/maquettes.py menu` | réécrit le menu latéral de toutes les maquettes Gestion | après un changement de menu |
@@ -310,18 +312,21 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 |---|---|---|
 | commande de déploiement | 4.6 | met en production sur le VPS en une commande |
 | sauvegarde et restauration | 4.7 | sauvegarde de la base, test de restauration |
-| tests Playwright (hors-ligne) | 3.5 | parcours dans le navigateur, réseau coupé |
+| parcours Playwright hors-ligne (dans `make test-e2e`) | 3.5 | parcours dans le navigateur, réseau coupé |
 
 ### Adresses en développement
 
 | Adresse | Quoi |
 |---|---|
-| http://itig.localhost:5173/app/ | Gestion (le sous-domaine = code de l'école) |
+| http://itig.localhost:5173/app/ | Gestion (le sous-domaine = code de l'école) : connexion avec un compte de `make demo` (mot de passe `mwangaza-demo`, code de `make totp`), menu selon le rôle |
+| http://itig.localhost:5173/app/account | Mon compte : langue, mot de passe, double authentification, écoles, déconnexion |
+| http://itig.localhost:5173/app/support | session support « en tant qu'école » (super-admin `0000000000`) : motif, bandeau rouge, « Quitter » |
+| http://volcans.localhost:5173/app/ | Gestion de la seconde école fictive : on s'y connecte à part (session propre à chaque adresse) |
 | http://itig.localhost:5173/api/school/ | quelle école répond à ce sous-domaine (après `make demo`) |
 | http://localhost:5174/ | Portail parents |
 | http://localhost:8000/api/health/ | l'API répond-elle ? |
 | http://localhost:8000/api/docs/ | documentation de l'API |
-| http://itig.localhost:5173/api/auth/login/ | se connecter (en attendant l'écran de connexion de la 1.6) : téléphone d'un compte de `make demo`, mot de passe `mwangaza-demo` ; la réponse donne l'étape suivante (`step`) |
+| http://itig.localhost:5173/api/auth/login/ | se connecter par l'API (l'écran est à `/app/login`) : téléphone d'un compte de `make demo`, mot de passe `mwangaza-demo` ; la réponse donne l'étape suivante (`step`) |
 | http://itig.localhost:5173/api/auth/login/totp/ | étape `totp` : code de `make totp` (directeur, comptable, caissière) |
 | http://itig.localhost:5173/api/auth/totp/setup/ · …/totp/activate/ | étape `totp_setup` : nouvelle clé, puis premier code (`make totp key=<clé>`) → 8 codes de secours |
 | http://itig.localhost:5173/api/auth/password/ · …/logout/ | nouveau mot de passe (provisoire, ou le sien) ; se déconnecter |
@@ -372,6 +377,10 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | `"code": "too_many_attempts"` à la connexion | 5 essais ratés pour ce numéro en 15 minutes (ou 30 depuis ta machine) | attendre 15 minutes, ou `make demo` (débloque tout en développement) |
 | `"code": "totp_required"` sur une page de l'école | session ouverte sans double authentification, alors qu'un rôle l'exige (ex. rôle donné pendant la session) | se déconnecter (`…/api/auth/logout/`) et se reconnecter |
 | `"code": "invalid_code"` avec le code de `make totp` | code déjà utilisé (un code ne sert qu'une fois) | attendre le code suivant (30 secondes) et refaire `make totp` |
+| `make test-e2e` : `Executable doesn't exist at …/ms-playwright/…` | Chromium de Playwright pas encore téléchargé | une fois : `cd frontend && pnpm exec playwright install chromium` |
+| `make test-e2e` : « Ce code n'est pas valable, ou il a déjà servi » | tu t'es connecté avec le même compte fictif dans les 30 secondes d'avant (un code ne sert qu'une fois) | relancer `make test-e2e` (il remet la démonstration à zéro au début) |
+| La Gestion affiche « Pas de connexion au serveur » | Django ne tourne pas (ou pas encore) | lancer `make dev-local` ou `make dev`, puis « Réessayer » |
+| La Gestion affiche « Aucune école à cette adresse » | adresse sans code d'école (`localhost:5173/app/`) ou code inconnu | http://itig.localhost:5173/app/ ; après `make demo` si la base est neuve |
 | Administration Django : impossible de supprimer une école ou un compte (« objets protégés », `Journal d'audit`) | l'école ou le compte apparaît dans le journal d'audit, qui ne s'efface jamais ; une école ne se supprime jamais (bouton retiré) | suspendre l'école, désactiver le compte ; en développement seulement, `make reset-db` repart d'une base vide |
 | Administration Django : la connexion demande un code, ou revient au numéro et au mot de passe | depuis la tâche 1.5, l'administration exige la double authentification du super-admin | numéro, mot de passe, puis le code de `make totp` (compte `0000000000` de `make demo`) ; compte créé par `make superuser` : activer la double authentification avec la clé affichée |
 | Administration Django : textes en anglais (« Schools », « Open as the school ») mêlés au français | les textes du serveur ne sont pas encore traduits | normal pour l'instant (traduction du serveur prévue en 4.5) |

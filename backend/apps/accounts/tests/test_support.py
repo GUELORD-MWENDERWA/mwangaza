@@ -80,7 +80,7 @@ def test_reason_is_required(api, school, platform_admin):
     response = api(platform_admin).post(SUPPORT, {})
 
     assert response.status_code == 400
-    assert "reason" in response.json()
+    assert "reason" in response.json()["fields"]
     assert journal(school) == []
 
 

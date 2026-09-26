@@ -10,7 +10,7 @@ MANAGE := cd backend && uv run python manage.py
 
 .DEFAULT_GOAL := help
 .PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo totp superuser shell \
-	test test-back test-front lint lint-back lint-front format api build
+	test test-back test-front test-e2e lint lint-back lint-front format api api-schema build
 
 help: ## Afficher les commandes
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  make %-15s %s\n", $$1, $$2}'
@@ -82,6 +82,9 @@ test-back: db-up ## Tests backend (pytest)
 test-front: ## Tests front : vérification des types puis Vitest
 	cd frontend && pnpm typecheck && pnpm test
 
+test-e2e: db-up ## Parcours dans Chromium (Playwright) : Django + Gestion ; remet les données de make demo à zéro
+	cd frontend && pnpm exec playwright test
+
 lint: lint-back lint-front ## Vérifier le code sans rien modifier (ruff, ESLint, Prettier)
 
 lint-back: ## Vérifier le code Python (ruff)
@@ -94,7 +97,10 @@ format: ## Corriger automatiquement le format et ce qui peut l'être (ruff, ESLi
 	cd backend && uv run ruff check --fix . && uv run ruff format .
 	cd frontend && pnpm lint --fix && pnpm format
 
-api: ## Écrire le schéma OpenAPI dans frontend/packages/api/openapi.yaml
+api: api-schema ## Schéma OpenAPI (frontend/packages/api/openapi.yaml) puis types TypeScript du client
+	cd frontend && pnpm --filter @mwangaza/api generate
+
+api-schema: ## Seulement le schéma OpenAPI (CI du backend, sans pnpm)
 	$(MANAGE) spectacular --validate --fail-on-warn --file ../frontend/packages/api/openapi.yaml
 
 build: ## Construire les deux PWA

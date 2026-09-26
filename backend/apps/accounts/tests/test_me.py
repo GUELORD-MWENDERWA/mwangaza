@@ -40,8 +40,19 @@ def test_head_sees_their_roles_and_permissions(api, school):
     assert data["totp_required"] is True
     assert (data["totp_enabled"], data["totp_enabled_at"]) == (False, None)
     assert data["recovery_codes_left"] == 0
+    assert data["is_platform_admin"] is False
     assert data["schools"] == [
-        {"code": "alpha", "name": "École Alpha (fictive)", "status": "active"}
+        {
+            "code": "alpha",
+            "name": "École Alpha (fictive)",
+            "status": "active",
+            "url": "http://alpha.localhost:5173",
+            "primary_color": "#0E5C6B",
+            "text_color": "#FFFFFF",
+            "logo": None,
+            "roles": [{"id": str(head_role.id), "code": "head", "name": ""}],
+            "last_login_at": None,
+        }
     ]
     school_data = data["school"]
     assert (school_data["code"], school_data["name"]) == ("alpha", "École Alpha (fictive)")
@@ -66,6 +77,49 @@ def test_one_account_in_two_schools(api, school, other_school):
     # Adresse générale : choix de l'école (M2), aucun droit.
     assert at_platform["school"] is None
     assert len(at_platform["schools"]) == 2
+
+
+def test_each_school_with_its_own_roles_colour_and_last_visit(api, school, other_school):
+    """Choix de l'école (M2) : pour chaque école du compte, ses rôles dans cette école, sa couleur,
+    son logo (à son adresse) et la dernière connexion à cette école."""
+    from django.core.files.base import ContentFile
+    from django.utils import timezone
+
+    user = UserFactory()
+    MembershipFactory(user=user, school=school, roles=["head"])
+    visited = timezone.now()
+    MembershipFactory(user=user, school=other_school, roles=["teacher", "secretary"])
+    user.memberships.filter(school=other_school).update(last_login_at=visited)
+    other_school.primary_color = "#F2C94C"
+    other_school.logo.save("logo.png", ContentFile(b"\x89PNG\r\n\x1a\n" + b"\0" * 32), save=True)
+
+    schools = {s["code"]: s for s in api(user).get(URL).json()["schools"]}
+
+    beta = schools["beta"]
+    assert sorted(r["code"] for r in beta["roles"]) == ["secretary", "teacher"]
+    assert [r["code"] for r in schools["alpha"]["roles"]] == ["head"]
+    assert beta["url"] == "http://beta.localhost:5173"
+    assert (beta["primary_color"], beta["text_color"]) == ("#F2C94C", "#1A2233")
+    assert beta["logo"].startswith("http://beta.localhost:5173/api/school/logo/?v=")
+    assert beta["last_login_at"] is not None
+    assert schools["alpha"]["logo"] is None
+
+
+def test_platform_admin_is_said(api, school, platform_admin):
+    data = api(platform_admin).get(URL).json()
+
+    assert data["is_platform_admin"] is True
+    assert data["schools"] == []
+    assert data["school"] is None
+
+
+def test_roles_of_another_person_are_never_listed(api, school, other_school, head):
+    MembershipFactory(school=other_school, roles=["head"])
+
+    data = api(head).get(URL).json()
+
+    assert [s["code"] for s in data["schools"]] == ["alpha"]
+    assert [r["code"] for r in data["schools"][0]["roles"]] == ["head"]
 
 
 def test_no_access_to_a_school_where_the_account_has_no_role(api, head, other_school):
@@ -120,7 +174,7 @@ def test_unknown_language_is_refused(api, school):
     response = api(user).patch(URL, {"language": "sw"})
 
     assert response.status_code == 400
-    assert "language" in response.json()
+    assert "language" in response.json()["fields"]
 
 
 def test_names_cannot_be_changed_here(api, school):

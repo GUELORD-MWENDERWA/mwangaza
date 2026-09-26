@@ -1,4 +1,4 @@
-"""Erreurs de l'API au format `{code, detail}` ; erreurs de saisie au format de DRF."""
+"""Erreurs de l'API au format `{code, detail}` ; erreurs de saisie avec un code par champ."""
 
 import pytest
 from rest_framework import serializers
@@ -34,11 +34,47 @@ def test_drf_errors_get_a_code(exc, status, code):
     assert set(response.data) == {"code", "detail"}
 
 
-def test_field_errors_keep_the_drf_format():
-    response = api_exception_handler(serializers.ValidationError({"phone": ["Invalid."]}), {})
+def test_field_errors_have_a_code_for_each_message():
+    error = serializers.ValidationError(
+        {"phone": [serializers.ErrorDetail("Invalid.", code="invalid_phone")]}
+    )
+
+    response = api_exception_handler(error, {})
 
     assert response.status_code == 400
-    assert response.data == {"phone": ["Invalid."]}
+    assert response.data == {
+        "code": "invalid",
+        "detail": "Some fields are invalid.",
+        "fields": {"phone": [{"code": "invalid_phone", "detail": "Invalid."}]},
+    }
+
+
+def test_a_field_named_code_does_not_hide_the_error_code():
+    response = api_exception_handler(serializers.ValidationError({"code": ["Required."]}), {})
+
+    assert response.data["code"] == "invalid"
+    assert response.data["fields"] == {"code": [{"code": "invalid", "detail": "Required."}]}
+
+
+def test_nested_and_list_errors_are_flattened():
+    error = serializers.ValidationError(
+        {"contact": {"phone": ["Invalid."]}, "roles": [{}, {"name": ["Required."]}]}
+    )
+
+    fields = api_exception_handler(error, {}).data["fields"]
+
+    assert fields == {
+        "contact.phone": [{"code": "invalid", "detail": "Invalid."}],
+        "roles.1.name": [{"code": "invalid", "detail": "Required."}],
+    }
+
+
+def test_an_error_without_a_field_goes_to_non_field_errors():
+    response = api_exception_handler(serializers.ValidationError("Not both."), {})
+
+    assert response.data["fields"] == {
+        "non_field_errors": [{"code": "invalid", "detail": "Not both."}]
+    }
 
 
 def test_other_exceptions_are_not_hidden():

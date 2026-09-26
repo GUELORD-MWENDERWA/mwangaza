@@ -164,6 +164,13 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API de la plateforme de gestion scolaire Mwangaza.",
     "VERSION": "0.1.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    # Schémas séparés pour l'envoi (`…Request`) et la réponse ; dans une réponse, tout champ est
+    # obligatoire (`apps/core/schema.py`) : types exacts pour le client du front (`packages/api`).
+    "COMPONENT_SPLIT_REQUEST": True,
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.postprocess_schema_enums",
+        "apps.core.schema.responses_always_have_every_field",
+    ],
     # Une seule liste de devises, sous un seul nom (devises de l'école, devise principale).
     "ENUM_NAME_OVERRIDES": {"CurrencyEnum": "apps.core.money.Currency"},
 }

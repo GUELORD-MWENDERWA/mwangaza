@@ -1,8 +1,11 @@
-# Généré : pnpm (lockfile) et drf-spectacular (`make api`).
+# Généré : pnpm (lockfile), drf-spectacular et openapi-typescript (`make api`).
 pnpm-lock.yaml
 packages/api/openapi.yaml
+packages/api/src/schema.d.ts
 # La documentation garde sa mise en forme à la main.
 *.md
-# Construit par Vite.
+# Construit par Vite ; résultats de Playwright.
 dist/
 coverage/
+test-results/
+playwright-report/

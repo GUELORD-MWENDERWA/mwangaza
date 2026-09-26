@@ -213,9 +213,9 @@ class SchoolAdmin(admin.ModelAdmin):
     def support_link(self, school: School):
         if school.status == School.Status.SUSPENDED:
             return "—"
-        # Session support à l'adresse de l'école (A3) ; l'écran viendra avec le front (1.6).
+        # Écran « Session support » de la Gestion, à l'adresse de l'école (A3) : connexion d'abord.
         return format_html(
-            '<a href="{}/api/support/" target="_blank" rel="noopener">{}</a>',
+            '<a href="{}/app/support" target="_blank" rel="noopener">{}</a>',
             school.url,
             _("Open as the school"),
         )

@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
+from rest_framework.fields import get_error_detail
 
 from apps.accounts import services
 from apps.accounts.login import Step
@@ -10,6 +11,7 @@ from apps.accounts.models import Membership, Role, User
 from apps.accounts.phone import INVALID_PHONE_MESSAGE, InvalidPhoneError, normalize_phone
 from apps.accounts.roles import PERMISSION_CHOICES, SYSTEM_ROLES, TOTP_PERMISSIONS
 from apps.schools.models import School
+from apps.schools.serializers import logo_url
 
 
 class PermissionListField(serializers.ListField):
@@ -169,6 +171,32 @@ class MySchoolSerializer(serializers.ModelSerializer):
         fields = ["code", "name", "status"]
 
 
+class MeSchoolSerializer(serializers.Serializer):
+    """Une école du compte (appartenance active) : choix et changement d'école (M2). Les rôles
+    sont ceux du compte dans cette école seulement."""
+
+    code = serializers.CharField(source="school.code")
+    name = serializers.CharField(source="school.name")
+    status = serializers.ChoiceField(source="school.status", choices=School.Status.choices)
+    url = serializers.CharField(
+        source="school.url", help_text="Adresse de l'école : on s'y connecte pour y travailler."
+    )
+    primary_color = serializers.CharField(source="school.primary_color")
+    text_color = serializers.CharField(source="school.text_color")
+    logo = serializers.SerializerMethodField(
+        help_text="Adresse complète du logo, à l'adresse de l'école ; null sans logo."
+    )
+    roles = RoleSummarySerializer(many=True, source="role_list")
+    last_login_at = serializers.DateTimeField(
+        allow_null=True, help_text="Dernière connexion du compte à cette école."
+    )
+
+    @extend_schema_field(serializers.CharField(allow_null=True))
+    def get_logo(self, membership: Membership) -> str | None:
+        path = logo_url(membership.school)
+        return None if path is None else membership.school.url + path
+
+
 class CurrentSchoolAccessSerializer(serializers.Serializer):
     code = serializers.CharField()
     name = serializers.CharField()
@@ -207,7 +235,10 @@ class MeSerializer(serializers.Serializer):
     recovery_codes_left = serializers.IntegerField(
         help_text="Codes de secours pas encore utilisés (alerte à 2 ou moins, M4)."
     )
-    schools = MySchoolSerializer(
+    is_platform_admin = serializers.BooleanField(
+        help_text="Super-admin : aucun droit dans une école hors session support (A3)."
+    )
+    schools = MeSchoolSerializer(
         many=True, help_text="Écoles où le compte a une appartenance active (choix de l'école)."
     )
     school = CurrentSchoolAccessSerializer(
@@ -293,7 +324,8 @@ class PasswordSerializer(serializers.Serializer):
         try:
             validate_password(value, user)
         except DjangoValidationError as exc:
-            raise serializers.ValidationError(list(exc.messages)) from None
+            # Garde le code de chaque règle (`password_too_short`…) : l'interface le traduit.
+            raise serializers.ValidationError(get_error_detail(exc)) from None
         if user.check_password(value):
             raise serializers.ValidationError(
                 _("Choose a password different from the current one."), code="same_password"

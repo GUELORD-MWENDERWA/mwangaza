@@ -109,7 +109,7 @@ def test_create_refuses_an_unknown_permission(api, head):
     response = api(head).post(URL, {"name": "Pirate", "permissions": ["students.delete"]})
 
     assert response.status_code == 400
-    assert "permissions" in response.json()
+    assert "permissions.0" in response.json()["fields"]
 
 
 # Modification
