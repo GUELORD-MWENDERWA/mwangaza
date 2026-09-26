@@ -18,7 +18,7 @@ Dernière mise à jour : 2026-09-26 (après installation de Docker).
 | 4 | [Créer le fichier `.env`](#4-créer-le-fichier-env) | 2 min | [x] |
 | 5 | [Vérifier que tout marche](#5-vérifier-que-tout-marche) : Claude l'a vérifié le 2026-09-26 ; à refaire toi-même une fois | 5 min | [ ] |
 | 5 bis | [Fusionner la PR #76 (correction du `.env`)](#5-bis-fusionner-la-pr-de-correction-du-env) | 2 min | [x] |
-| 5 ter | [Fusionner la PR de correction de `make dev`](#5-ter-fusionner-la-pr-de-correction-de-make-dev) | 2 min | [ ] |
+| 5 ter | [Fusionner la PR #77 (correction de `make dev`)](#5-ter-fusionner-la-pr-de-correction-de-make-dev) | 2 min | [ ] |
 | 6 | [Donner tes décisions](#6-tes-décisions) : nom et domaine (Q9), questions Q1 à Q11 | 10 min | [ ] |
 
 Quand c'est fait, dans Claude Code : **`/tache 0.2`**. Tout marche déjà (vérifié par Claude) : l'étape 5 sert à ce que **toi** saches lancer les commandes.
@@ -157,7 +157,7 @@ git switch main && git pull
 
 ### 5 ter. Fusionner la PR de correction de `make dev`
 
-Le premier essai de `make dev` a montré deux défauts : le conteneur du front s'arrêtait aussitôt (`pnpm: not found`), et il réinstallait toutes les dépendances du front à chaque lancement, en écrasant celles de ta machine. Corrigé sur la branche `fix/docker-front` : le conteneur utilise les dépendances installées sur ta machine, et `make dev` lance `pnpm install` avant de démarrer Docker. Même démarche qu'en 5 bis (vérifier **`base: main`**).
+Le premier essai de `make dev` a montré deux défauts : le conteneur du front s'arrêtait aussitôt (`pnpm: not found`), et il réinstallait toutes les dépendances du front à chaque lancement, en écrasant celles de ta machine. Corrigé sur la branche `fix/docker-front` : le conteneur utilise les dépendances installées sur ta machine, et `make dev` lance `pnpm install` avant de démarrer Docker. Même démarche qu'en 5 bis (vérifier **`base: main`**) : `gh pr merge 77 --merge --delete-branch` puis `git switch main && git pull`.
 
 ### 6. Tes décisions
 
