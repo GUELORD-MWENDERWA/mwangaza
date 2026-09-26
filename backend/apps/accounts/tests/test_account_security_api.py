@@ -59,7 +59,7 @@ def test_current_password_is_required(api, teacher):
     wrong = client.post(PASSWORD, {"current_password": "pas-le-bon", "new_password": NEW_PASSWORD})
 
     assert missing.status_code == 400
-    assert "current_password" in missing.json()
+    assert "current_password" in missing.json()["fields"]
     assert wrong.status_code == 400
     assert wrong.json()["code"] == "wrong_password"
     teacher.refresh_from_db()
@@ -106,7 +106,7 @@ def test_new_phone_needs_the_current_code(api, head):
 
     missing = client.post(SETUP)
     assert missing.status_code == 400
-    assert "code" in missing.json()
+    assert "code" in missing.json()["fields"]
     assert client.post(SETUP, {"code": wrong_code(old_secret)}).json()["code"] == "invalid_code"
 
     new_secret = client.post(SETUP, {"code": totp_code(old_secret)}).json()["secret"]

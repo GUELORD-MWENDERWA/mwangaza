@@ -8,8 +8,9 @@ from dataclasses import dataclass
 
 from django.utils.functional import Promise
 from django.utils.translation import gettext_lazy as _
-from rest_framework import serializers
+from rest_framework import exceptions, serializers
 from rest_framework.response import Response
+from rest_framework.settings import api_settings
 from rest_framework.views import exception_handler as drf_exception_handler
 
 
@@ -32,26 +33,58 @@ class BusinessError(Exception):
         self.error = error
 
 
+INVALID = ApiError("invalid", _("Some fields are invalid."), 400)
+
+
 def api_exception_handler(exc, context):
-    """Même format pour toutes les erreurs qui ne concernent pas un champ : `{code, detail}`
-    (`not_authenticated`, `permission_denied`, `not_found`, `method_not_allowed`…). Les erreurs
-    de saisie gardent le format de DRF : `{champ: [messages]}`."""
+    """Même format pour toutes les erreurs : `{code, detail}` (`not_authenticated`,
+    `permission_denied`, `not_found`, `method_not_allowed`…). Erreurs de saisie : `code`
+    `invalid` et, dans `fields`, chaque champ avec ses erreurs `{code, detail}` (ex.
+    `password_too_short`) ; l'interface les traduit par leur code."""
     if isinstance(exc, BusinessError):
         return Response(exc.error.body(), status=exc.error.status)
     response = drf_exception_handler(exc, context)
-    if (
-        response is not None
-        and isinstance(response.data, dict)
-        and set(response.data) == {"detail"}
-    ):
+    if response is None:
+        return None
+    if isinstance(exc, exceptions.ValidationError):
+        response.data = {**INVALID.body(), "fields": _field_errors(exc.get_full_details())}
+    elif isinstance(response.data, dict) and set(response.data) == {"detail"}:
         detail = response.data["detail"]
         response.data = {"code": getattr(detail, "code", "error"), "detail": str(detail)}
     return response
 
 
+def _field_errors(details, prefix: str = "") -> dict[str, list[dict[str, str]]]:
+    """`{champ: [{message, code}]}` de DRF, à plat : `contact.phone`, `roles.1.name` ; une
+    erreur sans champ va dans `non_field_errors`."""
+    if isinstance(details, dict) and set(details) == {"message", "code"}:
+        details = [details]
+    if isinstance(details, list) and all(
+        isinstance(item, dict) and set(item) == {"message", "code"} for item in details
+    ):
+        key = prefix or api_settings.NON_FIELD_ERRORS_KEY
+        return {key: [{"code": item["code"], "detail": str(item["message"])} for item in details]}
+    items = details.items() if isinstance(details, dict) else enumerate(details)
+    fields: dict[str, list[dict[str, str]]] = {}
+    for name, value in items:
+        if value:
+            fields.update(_field_errors(value, f"{prefix}.{name}" if prefix else str(name)))
+    return fields
+
+
+class FieldErrorSerializer(serializers.Serializer):
+    code = serializers.CharField(help_text="Code stable, traduit par l'interface.")
+    detail = serializers.CharField()
+
+
 class ErrorSerializer(serializers.Serializer):
     code = serializers.CharField(help_text="Code stable, traduit par l'interface.")
     detail = serializers.CharField()
+    fields = serializers.DictField(
+        child=FieldErrorSerializer(many=True),
+        required=False,
+        help_text="Erreurs de saisie (`code` `invalid`) : chaque champ et ses erreurs.",
+    )
 
 
 SCHOOL_NOT_FOUND = ApiError("school_not_found", _("There is no school at this address."), 404)

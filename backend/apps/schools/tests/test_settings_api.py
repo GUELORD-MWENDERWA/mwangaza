@@ -69,8 +69,9 @@ def test_an_unreadable_colour_is_refused_with_a_proposal(api, school, head):
     response = api(head).patch(SETTINGS, {"primary_color": "#FF0000"})
 
     assert response.status_code == 400
-    [message] = response.json()["primary_color"]
-    assert "#ED0000" in message
+    [error] = response.json()["fields"]["primary_color"]
+    assert error["code"] == "unreadable_color"
+    assert "#ED0000" in error["detail"]
     school.refresh_from_db()
     assert school.primary_color == "#0E5C6B"
     assert journal(school) == []
@@ -112,7 +113,7 @@ def test_invalid_settings_are_refused(api, school, head, data, field):
     response = api(head).patch(SETTINGS, data)
 
     assert response.status_code == 400
-    assert field in response.json()
+    assert any(name.split(".")[0] == field for name in response.json()["fields"])
     assert journal(school) == []
 
 
@@ -229,7 +230,7 @@ def test_other_files_are_refused(api, school, head, content):
     response = upload(api(head), content, "logo.png")
 
     assert response.status_code == 400
-    assert "logo" in response.json()
+    assert "logo" in response.json()["fields"]
     school.refresh_from_db()
     assert not school.logo
 

@@ -1,12 +1,12 @@
 from django.contrib.auth import logout, update_session_auth_hash
-from django.db.models import Count, Exists, OuterRef, Q
+from django.db.models import Count, Exists, OuterRef, Prefetch, Q
 from django.middleware.csrf import get_token
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ErrorDetail, ValidationError
 from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -49,7 +49,7 @@ STEP_ERRORS = {
     429: ErrorSerializer,
 }
 
-_REQUIRED = _("This field is required.")
+_REQUIRED = ErrorDetail(_("This field is required."), code="required")
 
 
 class MeView(APIView):
@@ -77,9 +77,13 @@ class MeView(APIView):
 
     def _me(self, request: Request) -> dict:
         user = request.user
+        # Rôles de chaque école du compte : lus hors de l'école de l'adresse, pour ce compte seul.
         memberships = (
             Membership.objects.filter(user=user, is_active=True)
             .select_related("school")
+            .prefetch_related(
+                Prefetch("roles", queryset=Role.all_schools.order_by("id"), to_attr="role_list")
+            )
             .order_by("school__name")
         )
         access = school_access(request)
@@ -102,7 +106,8 @@ class MeView(APIView):
             "totp_enabled_at": user.totp_enabled_at,
             "totp_required": services.totp_required(user),
             "recovery_codes_left": services.recovery_codes_left(user),
-            "schools": [membership.school for membership in memberships],
+            "is_platform_admin": user.is_platform_admin,
+            "schools": memberships,
             "school": school,
             "support": support.current(request),
         }

@@ -168,14 +168,15 @@ def test_invalid_phone(api, head, school):
     )
 
     assert response.status_code == 400
-    assert response.json()["phone"][0].startswith("Enter a valid phone number")
+    [error] = response.json()["fields"]["phone"]
+    assert error["detail"].startswith("Enter a valid phone number")
 
 
 def test_at_least_one_role(api, head):
     response = api(head).post(URL, {"phone": "0971183062", "last_name": "X", "roles": []})
 
     assert response.status_code == 400
-    assert "roles" in response.json()
+    assert "roles" in response.json()["fields"]
 
 
 def test_role_of_another_school_is_refused(api, head, school, other_school):
@@ -184,7 +185,7 @@ def test_role_of_another_school_is_refused(api, head, school, other_school):
     )
 
     assert response.status_code == 400
-    assert "roles" in response.json()
+    assert "roles" in response.json()["fields"]
     assert not User.objects.filter(phone="+243971183062").exists()
 
 

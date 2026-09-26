@@ -4,6 +4,7 @@ from pathlib import Path
 from django.core.exceptions import ValidationError as DjangoValidationError
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
+from rest_framework.fields import get_error_detail
 
 from apps.core.money import Currency
 from apps.schools.logos import validate_logo
@@ -35,7 +36,7 @@ class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
 
     class Meta:
         model = School
-        fields = ["code", "name", "primary_color", "text_color", "logo"]
+        fields = ["code", "name", "primary_color", "text_color", "logo", "timezone"]
 
 
 class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
@@ -72,7 +73,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
         try:
             school.clean()
         except DjangoValidationError as exc:
-            raise serializers.ValidationError(exc.message_dict) from None
+            raise serializers.ValidationError(get_error_detail(exc)) from None
         for field in ("primary_color", "enabled_currencies"):
             if field in data:
                 data[field] = getattr(school, field)
