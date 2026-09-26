@@ -5,20 +5,22 @@ Claude ne peut pas : installer avec `sudo`, fusionner une PR, parler à l'ITIG, 
 
 Ce qui manque en détail (maquettes, informations ITIG, décisions) : [`docs/07-a-fournir.md`](docs/07-a-fournir.md). Ici : **quoi faire, dans quel ordre, avec quelles commandes**.
 
-Dernière mise à jour : 2026-09-26.
+Dernière mise à jour : 2026-09-26 (après installation de Docker).
 
 ## Maintenant, avant que Claude continue (tâche 0.2)
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
-| 1 | [Fusionner la PR #75](#1-fusionner-la-pr-75) (documents, 61 maquettes, ce fichier) | 5 min | [ ] |
-| 2 | [Rouvrir VS Code dans `~/Projets/mwangaza`](#2-le-dossier-sappelle-maintenant-mwangaza) | 1 min | [ ] |
-| 3 | [Installer Docker](#3-installer-docker) | 15 min | [ ] |
-| 4 | [Créer le fichier `.env`](#4-créer-le-fichier-env) | 2 min | [ ] |
-| 5 | [Vérifier que tout marche](#5-vérifier-que-tout-marche) : `make test` doit passer | 5 min | [ ] |
+| 1 | [Fusionner la PR #75](#1-fusionner-la-pr-75) (documents, 61 maquettes, ce fichier) | 5 min | [x] |
+| 2 | [Rouvrir VS Code dans `~/Projets/mwangaza`](#2-le-dossier-sappelle-maintenant-mwangaza) | 1 min | [x] |
+| 3 | [Installer Docker](#3-installer-docker) | 15 min | [x] |
+| 3 bis | **[Se déconnecter puis se reconnecter](#3-bis-se-déconnecter-puis-se-reconnecter)** (sinon `docker` répond `permission denied`) | 2 min | [ ] |
+| 4 | [Créer le fichier `.env`](#4-créer-le-fichier-env) | 2 min | [x] |
+| 5 | [Vérifier que tout marche](#5-vérifier-que-tout-marche) : Claude l'a vérifié le 2026-09-26 ; à refaire toi-même une fois | 5 min | [ ] |
+| 5 bis | [Fusionner la PR #76 (correction du `.env`)](#5-bis-fusionner-la-pr-de-correction-du-env) | 2 min | [ ] |
 | 6 | [Donner tes décisions](#6-tes-décisions) : nom et domaine (Q9), questions Q1 à Q11 | 10 min | [ ] |
 
-Quand c'est fait, dans Claude Code : **`/tache 0.2`**. Sans les étapes 3 à 5, Claude ne peut pas lancer les tests backend (ils ont besoin de PostgreSQL).
+Quand c'est fait, dans Claude Code : **`/tache 0.2`**. La base de données marche déjà : les étapes 3 bis et 5 servent à ce que **toi** puisses lancer les commandes sans erreur.
 
 Cette semaine aussi : [aller à l'ITIG](#7-litig--quoi-demander-et-quand) avec la liste de la semaine 1 (nécessaire pour la tâche 1.7).
 
@@ -74,12 +76,21 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 sudo usermod -aG docker $USER
 ```
 
-Puis **se déconnecter et se reconnecter** (ou redémarrer) pour que `docker` marche sans `sudo`. Vérifier :
+**Fait** (Docker 29.8, Compose 5.5). Reste l'étape 3 bis.
+
+### 3 bis. Se déconnecter puis se reconnecter
+
+La commande `sudo usermod -aG docker $USER` t'a bien ajouté au groupe `docker`, mais ta session ouverte ne le sait pas encore : `docker ps` répond `permission denied … docker.sock`.
+
+- **Se déconnecter** de la session Ubuntu (menu en haut à droite → *Se déconnecter*) puis se reconnecter, **ou redémarrer** l'ordinateur.
+- Rouvrir VS Code dans `~/Projets/mwangaza`, puis dans un terminal :
 
 ```bash
-docker run --rm hello-world
-docker compose version
+id -nG | grep -w docker      # doit afficher une ligne contenant « docker »
+docker run --rm hello-world  # doit afficher « Hello from Docker! »
 ```
+
+En attendant (sans te déconnecter), dans un seul terminal : `newgrp docker`, puis les commandes Docker dans ce même terminal.
 
 **Sans Docker** (solution de secours) : utiliser le PostgreSQL déjà installé sur ta machine (port 5432).
 
@@ -92,34 +103,54 @@ Puis mettre `POSTGRES_PORT=5432` dans `.env` (étape 4). Redis n'est pas nécess
 
 ### 4. Créer le fichier `.env`
 
-```bash
-cp .env.example .env
-python3 -c "import secrets; print(secrets.token_urlsafe(50))"
-```
+**Fait.** Tu avais lancé `cp .env.example .env` : c'était la bonne commande. La valeur de `DJANGO_SECRET_KEY` restait vide parce que l'ancienne consigne demandait de **copier-coller à la main** la clé affichée par `python3 …` ; rien ne l'écrivait dans le fichier. Et une clé vide faisait planter Django (`The SECRET_KEY setting must not be empty`). Claude a écrit une clé dans ton `.env` (sans l'afficher) et corrigé le code : une ligne laissée vide vaut maintenant « absente », Django prend alors la clé de développement.
 
-Coller la valeur affichée après `DJANGO_SECRET_KEY=` dans `.env`. Les autres valeurs conviennent telles quelles (base Docker sur le port 5433).
+Ton `.env` contient maintenant :
+
+| Variable | Valeur | À changer ? |
+|---|---|---|
+| `DJANGO_SECRET_KEY` | une clé générée (longue suite de caractères) | non ; vide marcherait aussi sur ta machine |
+| `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | `mwangaza` | non (ce sont ceux de la base Docker) |
+| `POSTGRES_HOST`, `POSTGRES_PORT` | `localhost`, `5433` | non ; `5432` seulement si tu utilises le PostgreSQL installé sur la machine (solution sans Docker) |
+| `REDIS_URL` | `redis://localhost:6379/0` | non |
+| `CELERY_TASK_ALWAYS_EAGER` | `true` | non |
+
+**Sur un autre ordinateur** : `cp .env.example .env` suffit, rien à remplir.
 
 `.env` n'est jamais commité (il est dans `.gitignore`). Aucun mot de passe, aucune clé dans le dépôt ni dans une conversation avec Claude.
 
 ### 5. Vérifier que tout marche
 
+**Déjà vérifié par Claude le 2026-09-26** sur ta machine : conteneurs PostgreSQL et Redis lancés (`make services`, ils tournent encore), `make test` (7 tests backend passés, types du front OK), `make migrate` (tables créées), `make dev-local` (les trois adresses ci-dessous répondent).
+
+À refaire **toi-même une fois, après l'étape 3 bis**, pour être sûr que tes commandes marchent. Depuis `~/Projets/mwangaza`, dans le terminal de VS Code :
+
 ```bash
-make install     # dépendances Python et front
-make services    # PostgreSQL (port 5433) et Redis dans Docker
-make test        # attendu : 3 tests backend passés, types du front OK
-make migrate     # crée les tables dans la base de développement
-make dev-local   # Django et Vite sur ta machine (Ctrl+C pour arrêter)
+git switch main && git pull   # après la fusion de l'étape 5 bis
+make services    # PostgreSQL (port 5433) et Redis dans Docker ; déjà lancés = « Running »
+make test        # attendu : « 7 passed », puis « Done » pour gestion et portail
+make migrate     # attendu : « No migrations to apply » (déjà fait)
+make dev-local   # Django et Vite sur ta machine ; laisser tourner, Ctrl+C pour arrêter
 ```
 
-Ouvrir dans Chrome ou Firefox :
+Pendant que `make dev-local` tourne, ouvrir dans Chrome ou Firefox :
 
 - http://localhost:8000/api/health/ → `{"status": "ok", "database": "ok"}`
 - http://itig.localhost:5173/app/ → application Gestion (encore vide)
 - http://localhost:5174/ → Portail (encore vide)
 
-Ensuite, essayer une fois **tout dans Docker** : `make stop`, puis `make dev` (le premier lancement télécharge les images : quelques minutes), mêmes adresses. `make stop` pour arrêter.
+Ensuite, essayer une fois **tout dans Docker** : Ctrl+C, puis `make dev` (le premier lancement télécharge les images : plusieurs minutes), mêmes adresses. Ctrl+C puis `make stop` pour arrêter.
 
 Dire le résultat à Claude : « tout marche », ou coller le message d'erreur.
+
+### 5 bis. Fusionner la PR de correction du `.env`
+
+PR #76, branche `fix/env-valeurs-vides` : une variable vide dans `.env` ne fait plus planter Django, `.env.example` explique la clé, ce fichier est à jour. Sur GitHub : vérifier **`base: main`** → *Merge pull request* → *Delete branch*. Ou :
+
+```bash
+gh pr merge 76 --merge --delete-branch
+git switch main && git pull
+```
 
 ### 6. Tes décisions
 
@@ -281,6 +312,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | Message | Cause | Solution |
 |---|---|---|
 | `permission denied … docker.sock` | pas encore reconnecté après `usermod` | se déconnecter / reconnecter (ou `newgrp docker` dans ce terminal) |
+| `The SECRET_KEY setting must not be empty` | ancienne version du code avec `DJANGO_SECRET_KEY=` vide dans `.env` | `git switch main && git pull` après la fusion de la PR de correction (étape 5 bis) |
 | `port is already allocated` (5433, 6379, 8000, 5173) | un autre programme utilise le port | `ss -ltnp \| grep 6379` pour le trouver ; par ex. `sudo systemctl stop redis-server` |
 | `connection refused` ou `role "mwangaza" does not exist` | pas de `.env`, ou base Docker arrêtée | étapes 4 et 5 : `cp .env.example .env`, `make services` |
 | `bad interpreter` ou `No such file` dans `backend/.venv` | dossier déplacé ou renommé | `rm -rf backend/.venv && make install` |

@@ -10,18 +10,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 def env(name: str, default: str | None = None) -> str | None:
-    return os.environ.get(name, default)
+    # Une ligne `NOM=` laissée vide dans `.env` vaut « absente » : la valeur par défaut s'applique.
+    value = os.environ.get(name, "").strip()
+    return value or default
 
 
 def env_bool(name: str, default: bool = False) -> bool:
-    value = os.environ.get(name)
+    value = env(name)
     if value is None:
         return default
-    return value.strip().lower() in {"1", "true", "yes", "on"}
+    return value.lower() in {"1", "true", "yes", "on"}
 
 
 def env_list(name: str, default: str = "") -> list[str]:
-    return [item.strip() for item in os.environ.get(name, default).split(",") if item.strip()]
+    return [item.strip() for item in (env(name) or default).split(",") if item.strip()]
 
 
 SECRET_KEY = env("DJANGO_SECRET_KEY")
