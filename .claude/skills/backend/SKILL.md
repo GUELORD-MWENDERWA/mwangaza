@@ -10,7 +10,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 ## Modèle
 
 - Vérifier dans `04` si l'entité est **[T]** (hérite de `TenantModel`, champ `school`), **[G]** (globale : `User`, `School`, `Membership`, `PushSubscription`, `SchoolNetwork` — `Student`, `Family`, `Guardian` sont **[T]** : une copie par école, décision Q10) ou **[I]** (immuable).
-- Clé primaire UUID v7 (utilitaire de `apps/core`) ; `created_at`, `updated_at`, `created_by`.
+- Hériter de `apps.core.models.TenantModel` ([T]) ou `BaseModel` ([G]) : clé primaire UUID v7 (`apps.core.ids.uuid7`), `created_at`, `updated_at` ; `created_by` à partir de 1.2.
 - Index composés **commençant par `school`** ; unicité portée par école (ex. `matricule`, `receipt_number`, `Device.prefix`) via `UniqueConstraint(fields=["school", …])`.
 - Argent : `*_minor` en `BigIntegerField` + `currency` (`CharField(3)`) ; taux en `DecimalField(…, decimal_places=6)`. Jamais `FloatField`. Voir skill `argent`.
 - **[I]** (`Payment`, `PaymentAllocation`, `PaymentCancellation`, `CashClosing`, `AuditLog`) : `save()` refuse la mise à jour d'une ligne existante, `delete()` lève une erreur ; admin en lecture seule ; aucun endpoint de modification ni de suppression.
@@ -18,7 +18,11 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 
 ## Requêtes
 
-- Manager par défaut `TenantManager` : filtre sur l'école courante, **lève une erreur** sans école. Ne jamais le contourner.
+- Manager par défaut `TenantManager` : filtre sur l'école courante, **lève `SchoolNotSetError`** sans école. Ne jamais le contourner.
+- École courante : posée par `TenantMiddleware` (sous-domaine) dans `request.school` ; ailleurs (tâche Celery, commande, test), `with use_school(school):` (`apps.core.tenancy`).
+- `TenantModel.save()`, `delete()` et `bulk_create()` remplissent l'école et lèvent `CrossSchoolError` pour une ligne d'une autre école, un changement d'école (transfert = copie) ou une clé étrangère vers une ligne d'une autre école. `QuerySet.update()` ne vérifie pas les clés étrangères : passer par `save()` pour un lien.
+- **Jamais `Model.objects.all()` au niveau d'une classe** (s'exécute au chargement, sans école → erreur) : `get_queryset()` dans les vues, `queryset=Model.objects` (le manager, sans `.all()`) dans les champs DRF.
+- Réponse en flux (`StreamingHttpResponse`, gros export) : l'école courante n'existe plus quand le flux est lu ; construire les lignes avant, ou `use_school` dans le générateur.
 - `all_schools` seulement pour le super-admin et l'API du portail familles, et toujours filtré explicitement (ex. enfants de la famille de l'utilisateur).
 - Portail : un compte parent peut être relié à des familles de plusieurs écoles (`Family.primary_user`) ; ne renvoyer que ces familles et leurs enfants, chacun avec les données de son école.
 - Rien de propre à une école dans le code (l'ITIG n'est que l'école d'exemple) : ce qui varie d'une école à l'autre vient de `School` ou de `School.settings`.
@@ -37,7 +41,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 - Permission serveur **sur chaque endpoint** avec un code de `04` § 8 (ex. `finance.collect_payment`). Nouveau code → l'ajouter aux rôles système et le signaler.
 - Annoter pour drf-spectacular (`extend_schema`, types de réponse), puis régénérer le client `frontend/packages/api`.
 - Pagination sur les listes ; recherche élève < 2 s sur 3 000 élèves (index adaptés, pas de N+1 : `select_related` / `prefetch_related`).
-- Erreurs métier : codes stables et messages traduisibles (i18n), pas de texte en dur destiné à l'interface.
+- Erreurs métier : `{"code": …, "detail": …}` (`apps.core.errors.ApiError`, `ErrorSerializer` pour le schéma) ; `code` stable, traduit par l'interface ; `detail` en `gettext`.
 
 ## Migrations
 
@@ -46,7 +50,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 
 ## Tests (factory_boy, pytest-django) — obligatoires
 
-1. **Isolation** : deux écoles ; depuis l'école B, la ressource de A n'apparaît pas dans la liste et renvoie 404 en détail, modification et action.
+1. **Isolation** : fixtures `school` (`alpha.localhost`) et `other_school` (`beta.localhost`) de `backend/conftest.py`, fabrique `tests.factories.SchoolFactory` ; depuis l'école B (`HTTP_HOST="beta.localhost"`), la ressource de A n'apparaît pas dans la liste et renvoie 404 en détail, modification et action. Modèles d'essai du socle : app `tests.sample` (tests seulement).
 2. **Permission** : sans le code → 403 ; avec → succès.
 3. **Règles métier** du service (cas nominal, limites, erreurs).
 4. **Audit** écrit quand l'action est sensible.
