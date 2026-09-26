@@ -18,7 +18,8 @@ Suivre aussi la skill `design` (jetons, composants, formats).
 | `gestion/deverrouillage-pin` | V1.0 | B5 | 3.7 |
 | `gestion/tableau-de-bord` (sert aussi de référence pour la coquille), `gestion/menu-mobile`, `gestion/pages-etat` | V1.0 | G3, § 9.4 | 1.6 (coquille, menu, états), 4.2 |
 | `gestion/roles-permissions` | V1.0 | B1–B2 | 1.2 |
-| `gestion/superadmin-ecoles`, `gestion/parametres-ecole` | V1.0 | A1–A3 | 1.5 (paramètres complétés en 1.7 et 3.2) |
+| `gestion/parametres-ecole` | V1.0 | A1, M5 | 1.5 (API), 1.7 (écran), 3.2 (reçus), 4.2 (alertes) |
+| `gestion/superadmin-ecoles` | V1.0 dans l'administration Django (1.5) ; écran : V2 | A1–A3 | 7.2 |
 | `gestion/organisation-scolaire` | V1.0 | C1–C3 | 1.7 |
 | `gestion/eleves-liste`, `gestion/eleve-fiche-identite`, `gestion/eleve-fiche-famille`, `gestion/eleve-fiche-historique`, `gestion/eleve-fiche`, `gestion/eleve-nouveau`, `gestion/famille-fiche` | V1.0 | D2–D4 | 2.2 (onglet Finances : 2.7) |
 | `gestion/eleves-import` | V1.0 | D1 | 2.3 |

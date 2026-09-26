@@ -69,7 +69,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Rôles et permissions | `gestion/roles-permissions.html` | V1.0 | B1–B2 | fournie |
 | Appareils et synchronisation | `gestion/appareils-synchro.html` | V1.0 | F5, B5 | fournie |
 | Journal d'audit | `gestion/journal-audit.html` | V1.0 | I1 · M6 | à valider |
-| Super-admin — écoles (`admin.mwangaza.school`) | `gestion/superadmin-ecoles.html` | V1.0 | A1–A3 | fournie |
+| Super-admin — écoles (`admin.mwangaza.school`) | `gestion/superadmin-ecoles.html` | V1.0 (fonctions dans l'administration Django, 1.5) ; écran : 7.2 | A1–A3 | fournie |
 | Paie | `gestion/paie.html` | V1.1 | 5.3 | fournie |
 | Pointage QR | `gestion/presences-pointage-qr.html` | V1.1 | 5.5 | fournie |
 | Saisie des notes | `gestion/notes-saisie.html` | V1.2 | 6.2 | fournie |

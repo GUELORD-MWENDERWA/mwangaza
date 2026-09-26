@@ -10,7 +10,7 @@ from django.test import RequestFactory
 from apps.accounts.models import Role
 from apps.audit import services as audit
 from apps.audit.actions import DOMAINS, Action, domain_of
-from apps.audit.context import current_request_info
+from apps.audit.context import RequestInfo, current_request_info, use_request_info
 from apps.audit.middleware import AuditMiddleware
 from apps.audit.models import AuditLog
 from apps.core.tenancy import SchoolNotSetError, use_school
@@ -162,3 +162,30 @@ def test_outside_a_request_there_is_no_address(school, role):
         log = audit.record(Action.ROLES_CREATED, role, actor=None)
 
     assert (log.ip, log.user_agent) == (None, "")
+
+
+# Session support (A3)
+
+
+def test_support_session_marks_the_entries_of_its_school_only(school, other_school, role):
+    admin = UserFactory(is_platform_admin=True)
+    info = RequestInfo(impersonated_by=admin, support_school_id=school.pk)
+
+    with use_request_info(info):
+        with use_school(school):
+            marked = audit.record(Action.ROLES_CREATED, role, actor=admin)
+        with use_school(other_school):
+            other = audit.record(Action.ROLES_CREATED, None, actor=admin)
+
+    assert marked.impersonated_by == admin
+    assert other.impersonated_by is None
+
+
+def test_impersonated_by_can_be_given(school, role):
+    admin = UserFactory(is_platform_admin=True)
+
+    with use_school(school):
+        log = audit.record(Action.SUPPORT_STARTED, school, actor=admin, impersonated_by=admin)
+
+    assert log.impersonated_by == admin
+    assert log.entity_type == "schools.school"

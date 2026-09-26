@@ -22,5 +22,6 @@ urlpatterns = [
     ),
     path("auth/totp/disable/", views.TotpDisableView.as_view(), name="auth-totp-disable"),
     path("auth/logout/", views.LogoutView.as_view(), name="auth-logout"),
+    path("support/", views.SupportView.as_view(), name="support"),
     *router.urls,
 ]

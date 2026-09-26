@@ -1,0 +1,258 @@
+"""Paramètres de l'école (M5, Q8) : `/api/school/settings/` (`school.configure`), son logo, et le
+logo public `/api/school/logo/`."""
+
+import pytest
+from django.core.files.uploadedfile import SimpleUploadedFile
+
+from apps.audit.actions import Action
+from apps.audit.models import AuditLog
+from apps.core.tenancy import use_school
+from apps.schools.models import School
+from tests.factories import MembershipFactory
+
+pytestmark = pytest.mark.django_db
+
+SETTINGS = "/api/school/settings/"
+LOGO = "/api/school/settings/logo/"
+PUBLIC_LOGO = "/api/school/logo/"
+PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 64
+SVG = b'<?xml version="1.0"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"/>'
+
+
+def journal(school) -> list[AuditLog]:
+    with use_school(school):
+        return list(AuditLog.objects.order_by("created_at", "id"))
+
+
+def upload(client, content: bytes, name: str = "logo.png"):
+    return client.client.post(
+        LOGO, {"logo": SimpleUploadedFile(name, content)}, HTTP_HOST=client.host
+    )
+
+
+# Lire et changer
+
+
+def test_head_reads_the_settings(api, school, head):
+    response = api(head).get(SETTINGS)
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "code": "alpha",
+        "name": "École Alpha (fictive)",
+        "official_name": "",
+        "primary_color": "#0E5C6B",
+        "text_color": "#FFFFFF",
+        "logo": None,
+        "timezone": "Africa/Lubumbashi",
+        "enabled_currencies": ["USD", "CDF"],
+        "default_currency": "USD",
+    }
+
+
+def test_head_changes_the_colour(api, school, head):
+    response = api(head).patch(SETTINGS, {"primary_color": "#f2c94c"})
+
+    assert response.status_code == 200
+    assert response.json()["primary_color"] == "#F2C94C"
+    assert response.json()["text_color"] == "#1A2233"
+    school.refresh_from_db()
+    assert school.primary_color == "#F2C94C"
+    [entry] = journal(school)
+    assert entry.action == Action.SCHOOL_UPDATED
+    assert entry.actor == head
+    assert entry.before == {"primary_color": "#0E5C6B"}
+    assert entry.after == {"primary_color": "#F2C94C"}
+
+
+def test_an_unreadable_colour_is_refused_with_a_proposal(api, school, head):
+    response = api(head).patch(SETTINGS, {"primary_color": "#FF0000"})
+
+    assert response.status_code == 400
+    [message] = response.json()["primary_color"]
+    assert "#ED0000" in message
+    school.refresh_from_db()
+    assert school.primary_color == "#0E5C6B"
+    assert journal(school) == []
+
+
+def test_other_settings(api, school, head):
+    response = api(head).patch(
+        SETTINGS,
+        {
+            "name": "Alpha",
+            "official_name": "Complexe scolaire Alpha",
+            "timezone": "Africa/Kinshasa",
+            "enabled_currencies": ["CDF", "USD", "CDF"],
+            "default_currency": "CDF",
+        },
+    )
+
+    assert response.status_code == 200, response.content
+    school.refresh_from_db()
+    assert school.name == "Alpha"
+    assert school.timezone == "Africa/Kinshasa"
+    assert school.enabled_currencies == ["USD", "CDF"]
+    assert school.default_currency == "CDF"
+
+
+@pytest.mark.parametrize(
+    ("data", "field"),
+    [
+        ({"enabled_currencies": ["USD"], "default_currency": "CDF"}, "default_currency"),
+        ({"enabled_currencies": ["CDF"]}, "default_currency"),
+        ({"enabled_currencies": []}, "enabled_currencies"),
+        ({"enabled_currencies": ["EUR"]}, "enabled_currencies"),
+        ({"timezone": "Goma"}, "timezone"),
+        ({"primary_color": "bleu"}, "primary_color"),
+        ({"name": ""}, "name"),
+    ],
+)
+def test_invalid_settings_are_refused(api, school, head, data, field):
+    response = api(head).patch(SETTINGS, data)
+
+    assert response.status_code == 400
+    assert field in response.json()
+    assert journal(school) == []
+
+
+def test_the_code_is_not_changed_by_the_school(api, school, head):
+    response = api(head).patch(SETTINGS, {"code": "piratee"})
+
+    assert response.status_code == 200
+    school.refresh_from_db()
+    assert school.code == "alpha"
+
+
+# Qui peut
+
+
+@pytest.mark.parametrize(
+    "role", ["cashier", "accountant", "secretary", "study_director", "promoter", "teacher"]
+)
+def test_other_roles_cannot(api, school, role):
+    user = MembershipFactory(school=school, roles=[role]).user
+
+    assert api(user).get(SETTINGS).status_code == 403
+    assert api(user).patch(SETTINGS, {"name": "Piratée"}).status_code == 403
+    assert upload(api(user), PNG).status_code == 403
+
+
+def test_anonymous_is_refused(api, school):
+    assert api().get(SETTINGS).json()["code"] == "not_authenticated"
+
+
+def test_two_factor_authentication_is_required(api, head):
+    assert api(head, mfa=False).get(SETTINGS).json()["code"] == "totp_required"
+
+
+def test_not_at_the_platform_address(api, head):
+    assert api(head, host="localhost").get(SETTINGS).json()["code"] == "school_not_found"
+
+
+# Isolation des écoles
+
+
+def test_a_school_changes_only_its_own_settings(api, school, other_school, head, other_head):
+    # Directeur de beta à l'adresse d'alpha : refusé.
+    assert api(other_head).patch(SETTINGS, {"name": "Piratée"}).status_code == 403
+
+    response = api(other_head, host="beta.localhost").patch(SETTINGS, {"name": "Beta"})
+
+    assert response.status_code == 200
+    school.refresh_from_db()
+    other_school.refresh_from_db()
+    assert (school.name, other_school.name) == ("École Alpha (fictive)", "Beta")
+    assert journal(school) == []
+    assert len(journal(other_school)) == 1
+
+
+def test_each_address_serves_its_own_logo(api, client, school, other_school, head):
+    assert upload(api(head), PNG).status_code == 200
+
+    alpha = client.get(PUBLIC_LOGO, HTTP_HOST="alpha.localhost")
+    beta = client.get(PUBLIC_LOGO, HTTP_HOST="beta.localhost")
+
+    assert alpha.status_code == 200
+    assert b"".join(alpha.streaming_content) == PNG
+    assert beta.status_code == 404
+    assert beta.json()["code"] == "no_logo"
+
+
+# Logo
+
+
+def test_head_uploads_a_logo(api, client, school, head):
+    response = upload(api(head), PNG)
+
+    assert response.status_code == 200, response.content
+    logo = response.json()["logo"]
+    assert logo.startswith("/api/school/logo/?v=")
+    public = client.get(logo, HTTP_HOST="alpha.localhost")
+    assert public.status_code == 200
+    assert public["Content-Type"] == "image/png"
+    assert public["X-Content-Type-Options"] == "nosniff"
+    assert "sandbox" in public["Content-Security-Policy"]
+    assert client.get("/api/school/", HTTP_HOST="alpha.localhost").json()["logo"] == logo
+    assert journal(school)[-1].action == Action.SCHOOL_LOGO_CHANGED
+
+
+def test_svg_logo(api, client, school, head):
+    assert upload(api(head), SVG, "logo.svg").status_code == 200
+
+    public = client.get(PUBLIC_LOGO, HTTP_HOST="alpha.localhost")
+
+    assert public["Content-Type"] == "image/svg+xml"
+
+
+def test_the_content_decides_not_the_name(api, client, school, head):
+    assert upload(api(head), PNG, "logo.svg").status_code == 200
+
+    school.refresh_from_db()
+    assert school.logo.name.endswith(".png")
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        b"GIF89a" + b"\x00" * 20,
+        b"%PDF-1.7",
+        b"<html><body>logo</body></html>",
+        b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+        b'<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"/>',
+        b'<!DOCTYPE svg [<!ENTITY a "aaaa">]><svg xmlns="http://www.w3.org/2000/svg">&a;</svg>',
+        b'<svg xmlns="http://www.w3.org/2000/svg"><a href="javascript:alert(1)"/></svg>',
+        b"\x89PNG\r\n\x1a\n" + b"\x00" * (1024 * 1024),
+    ],
+)
+def test_other_files_are_refused(api, school, head, content):
+    response = upload(api(head), content, "logo.png")
+
+    assert response.status_code == 400
+    assert "logo" in response.json()
+    school.refresh_from_db()
+    assert not school.logo
+
+
+def test_head_removes_the_logo(api, client, school, head):
+    upload(api(head), PNG)
+
+    response = api(head).delete(LOGO)
+
+    assert response.status_code == 200
+    assert response.json()["logo"] is None
+    assert client.get(PUBLIC_LOGO, HTTP_HOST="alpha.localhost").status_code == 404
+
+
+def test_logo_address_without_school(client, school):
+    response = client.get(PUBLIC_LOGO, HTTP_HOST="localhost")
+
+    assert response.status_code == 404
+    assert response.json()["code"] == "school_not_found"
+
+
+def test_suspended_school_serves_nothing(client, school):
+    school.status = School.Status.SUSPENDED
+    school.save()
+
+    assert client.get(PUBLIC_LOGO, HTTP_HOST="alpha.localhost").status_code == 403

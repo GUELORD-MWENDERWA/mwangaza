@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 1 (Socle) |
 | Lot | V1.0 — semaine 1 (Socle) |
-| Tâche en cours | aucune — 1.4 terminée, PR #83 à relire et fusionner (contrôles GitHub verts ; `A-FAIRE.md` ligne 12) |
-| Prochaine tâche | 1.5 — super-admin : écoles, connexion « en tant qu'école » tracée, double authentification du super-admin |
-| Issue GitHub | #10 (1.4, fermée à la fusion de la PR) · prochaine : #11 (1.5) |
-| Branche | `tache/1.4-audit` (partie de `main` après la fusion de la PR #82) → PR #83 ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 1.5 terminée, PR #84 à relire et fusionner (contrôles GitHub verts ; `A-FAIRE.md` ligne 13) |
+| Prochaine tâche | 1.6 — front `gestion` : squelette, connexion, menu selon les permissions |
+| Issue GitHub | #11 (1.5, fermée à la fusion de la PR) · prochaine : #12 (1.6) |
+| Branche | `tache/1.5-super-admin` (partie de `main` après la fusion de la PR #83) → PR #84 ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-26 |
 
 ## Avancement
@@ -19,11 +19,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Bloc | Fait | Total |
 |---|:-:|:-:|
 | Avant de coder (toi) | 2 | 4 |
-| Semaine 1 — Socle | 6 | 9 |
+| Semaine 1 — Socle | 7 | 9 |
 | Semaine 2 — Élèves et frais | 0 | 7 |
 | Semaine 3 — Caisse et hors-ligne | 0 | 8 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **6** | **32** |
+| **V1.0** | **7** | **32** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -49,6 +49,13 @@ Aucune : Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-26 — Tâche 1.5 : super-admin, session support, paramètres de l'école
+
+- **Fait** : PR #83 fusionnée par l'utilisateur. **Double authentification du super-admin** : toujours exigée ; l'administration Django (`PlatformAdminSite`, `apps/accounts/admin_site.py`) a sa connexion en étapes (numéro et mot de passe, code ou code de secours, nouveau mot de passe provisoire, activation avec la clé et 8 codes de secours), même limitation des tentatives, jamais d'appareil de confiance ; un compte qui n'est pas super-admin reçoit la même réponse qu'un mauvais mot de passe. **Écoles** (administration) : créer avec le premier directeur (nouveau numéro → mot de passe provisoire affiché une fois), liste avec statut, abonnement saisi à la main, dernière activité (dernière entrée du journal hors support) et lien « Ouvrir en tant qu'école », suspendre / réactiver, jamais supprimer. `School` : + nom officiel, logo, couleur, fuseau horaire, devises, offre, fin d'essai, payé jusqu'au. **Paramètres de l'école** (API, `school.configure`) : `/api/school/settings/` (noms, couleur, fuseau, devises ; code réservé au super-admin) et `…/logo/` ; `GET /api/school/` donne couleur, couleur du texte et logo ; `GET /api/school/logo/` public. **Couleur** (Q8) : blanc ou encre, contraste 4,5 : 1, sinon refusée avec une teinte voisine. **Logo** : PNG, JPEG, SVG sans script, 1 Mo, reconnu au contenu, servi avec une politique `sandbox`. **Fuseau** de l'école appliqué à chaque requête. **Session support** (`/api/support/`) : connexion normale à l'adresse de l'école, motif, 1 heure au plus, droits de l'école sauf la caisse, `/api/me/` la donne (bandeau), fermée par le bouton ou la déconnexion. **Journal** : `impersonated_by` sur chaque action de la session ; nouvelles actions `school.*`, `support.*`, `account.changed`, `account.deactivated` / `reactivated`, `account.password_reset` ; changements d'un compte par le support (noms, téléphone, désactivation) dans le journal de chaque école de la personne ; le support donne un mot de passe provisoire, ne le choisit plus. `make demo` : double authentification du super-admin, couleurs, abonnements, logo public de l'ITIG. `03`, `04`, `05`, `07`, `CLAUDE.md`, `A-FAIRE.md`, `maquettes/README.md`, skills `backend` et `ecran` à jour.
+- **Tests** : 650 pytest passés (134 nouveaux : 21 couleurs, 14 services des écoles, 37 API des paramètres et du logo, 18 administration des écoles, 19 session support, 14 connexion à l'administration, 11 ailleurs : comptes changés par le support, fuseau, `make demo`, journal, `/api/me/`, droits dans une école suspendue ; 2 anciens tests de connexion à l'administration remplacés) ; types et 8 Vitest OK ; lint OK ; schéma OpenAPI régénéré sans avertissement ; aucune dépendance ajoutée. 28 erreurs volontaires, toutes détectées. Essai réel, conteneurs arrêtés au départ (`make migrate` → `Applying schools.0003_identite_abonnement... OK`, puis `No migrations to apply` ; `make demo`), `make dev-local` : administration (mot de passe puis code de `make totp`, liste des écoles, création de l'école fictive « Institut Bahati » avec logo et directeur → mot de passe provisoire affiché une fois) ; à l'adresse de l'ITIG à travers Vite : super-admin connecté sans droit, session support ouverte (droits sans la caisse), rôle renommé, session fermée → plus de droit ; le directeur lit « Support Mwangaza » avec le motif dans son journal ; couleur `#FF0000` refusée (`#ED0000` proposée), `#F2C94C` acceptée (texte encre), logo envoyé et servi. « À tester toi-même » rejoué ensuite dans l'ordre, conteneurs arrêtés (`make migrate` → `No migrations to apply`, `make demo`, `make test`, administration en français, suspension et réactivation, session support, mot de passe provisoire du support, journal du directeur, paramètres, logo de l'ITIG) ; il a montré une date « il y a » à moitié en anglais et un libellé sans majuscule dans l'administration : corrigés (date et heure de la dernière activité). GitHub Actions sur la PR #84 : les 2 jobs verts au premier passage et après la correction (650 pytest contre PostgreSQL 16, schéma OpenAPI à jour). Revue : `docs/claude/revues/tache-1.5.md`.
+- **Décisions** : voir le journal des décisions de `03` (super-admin dans l'administration, écran dédié en 7.2 ; double authentification du super-admin ; session support ; création d'école et suspension ; ce qui va dans le journal de l'école ; Q8 ; paramètres et fuseau ; logo sans dépendance ; textes du serveur en anglais jusqu'en 4.5). Ajouts au plan : 1.6 (écran de la session support, bandeau, nom, couleur et logo à la connexion), 1.7 (écran M5), 2.1 (nombre d'élèves des écoles), 2.5 (devise utilisée non retirable), 4.2 (seuils d'alerte), 4.4 (portail d'une école suspendue), 4.5 (traduction française du serveur), 7.2 (écran dédié du super-admin).
+- **Reste / suite** : l'école fictive « Institut Bahati » (`bahati`) créée pendant l'essai reste dans la base de développement (une école ne se supprime pas ; `make reset-db` repart de zéro). L'utilisateur relit la PR #84, fusionne, lance `git switch main && git pull && make migrate && make demo` ; puis `/tache 1.6`.
 
 ### 2026-09-26 — Tâche 1.4 : journal d'audit
 

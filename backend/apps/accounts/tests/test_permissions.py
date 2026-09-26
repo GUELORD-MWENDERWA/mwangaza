@@ -146,3 +146,14 @@ def test_role_given_during_the_session_asks_for_it(api, school):
         membership.roles.set([Role.objects.get(code="head")])
 
     assert client.get(URL).json()["code"] == "totp_required"
+
+
+def test_no_right_in_a_suspended_school(head, school):
+    from apps.accounts.services import get_school_access
+    from apps.schools.models import School
+
+    assert get_school_access(head, school) is not None
+    school.status = School.Status.SUSPENDED
+    school.save()
+
+    assert get_school_access(head, school) is None

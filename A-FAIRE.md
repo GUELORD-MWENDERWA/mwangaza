@@ -5,7 +5,7 @@ Claude ne peut pas : installer avec `sudo`, fusionner une PR, parler à l'ITIG, 
 
 Ce qui manque en détail (maquettes, informations ITIG, décisions) : [`docs/07-a-fournir.md`](docs/07-a-fournir.md). Ici : **quoi faire, dans quel ordre, avec quelles commandes**.
 
-Dernière mise à jour : 2026-09-26 (PR #82 fusionnée ; tâche 1.4 : journal d'audit).
+Dernière mise à jour : 2026-09-26 (PR #83 fusionnée ; tâche 1.5 : super-admin, session support, paramètres de l'école).
 
 ## Maintenant
 
@@ -25,7 +25,8 @@ Dernière mise à jour : 2026-09-26 (PR #82 fusionnée ; tâche 1.4 : journal d'
 | 9 | [Relire et fusionner la PR #80 (tâche 1.1)](#10-comment-relire-et-fusionner-une-pr) — fusionnée le 2026-09-26 | 15 min | [x] |
 | 10 | [Relire et fusionner la PR #81 (tâche 1.2)](#10-comment-relire-et-fusionner-une-pr) (comptes, rôles, permissions), puis `make reset-db` une fois — fusionnée le 2026-09-26 | 20 min | [x] |
 | 11 | **[Relire et fusionner la PR #82 (tâche 1.3)](#10-comment-relire-et-fusionner-une-pr)** (connexion, double authentification) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make install && make migrate && make demo` (`make install` : 2 nouvelles dépendances Python, Argon2 et `cryptography`) — fusionnée le 2026-09-26 | 25 min | [x] |
-| 12 | **[Relire et fusionner la PR #83 (tâche 1.4)](#10-comment-relire-et-fusionner-une-pr)** (journal d'audit) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make migrate` (pas de nouvelle dépendance) | 20 min | [ ] |
+| 12 | **[Relire et fusionner la PR #83 (tâche 1.4)](#10-comment-relire-et-fusionner-une-pr)** (journal d'audit) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make migrate` (pas de nouvelle dépendance) — fusionnée le 2026-09-26 | 20 min | [x] |
+| 13 | **[Relire et fusionner la PR #84 (tâche 1.5)](#10-comment-relire-et-fusionner-une-pr)** (super-admin : écoles, session support, double authentification de l'administration, paramètres de l'école) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make migrate && make demo` (pas de nouvelle dépendance ; `make demo` active la double authentification du super-admin de démonstration) | 25 min | [ ] |
 
 À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). Rien d'autre ne bloque : Claude enchaîne les tâches. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant), et [les comptes et le domaine](#9-avant-la-semaine-4-tâche-46--comptes-et-achats) avant la semaine 4.
 
@@ -287,7 +288,7 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make migrate` | applique les migrations à la base | après un `git pull` qui ajoute des migrations |
 | `make makemigrations app=finance name=exchange_rate` | crée une migration | après un changement de modèle |
 | `make demo` | crée ou remet à jour les données fictives : écoles `itig` et `volcans`, un compte par rôle (liste, mot de passe et clé de double authentification affichés à la fin ; plus de données à chaque tâche) ; débloque les connexions bloquées par des essais ratés ; refusé en production | après `make migrate`, ou pour remettre la démonstration à zéro |
-| `make totp` | affiche le code de double authentification du moment pour les comptes fictifs qui la demandent (directeur, comptable, caissière) ; `make totp key=<clé>` : pour la clé donnée à l'activation ; seulement en développement | se connecter sans téléphone ; ou ajouter une fois la clé affichée par `make demo` dans Google Authenticator ou Aegis |
+| `make totp` | affiche le code de double authentification du moment pour les comptes fictifs qui la demandent (super-admin, directeur, comptable, caissière) ; `make totp key=<clé>` : pour la clé donnée à l'activation ; seulement en développement | se connecter sans téléphone ; ou ajouter une fois la clé affichée par `make demo` dans Google Authenticator ou Aegis |
 | `make test` | tous les tests | avant de fusionner une PR |
 | `make test-back` | tests backend (pytest) | |
 | `make test-front` | vérification des types du front, puis tests Vitest | |
@@ -295,7 +296,7 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make format` | corrige automatiquement le format et ce qui peut l'être | quand `make lint` signale un problème de format |
 | `make api` | écrit le schéma OpenAPI dans `frontend/packages/api/openapi.yaml` | après tout changement d'API |
 | `make build` | construit les deux applications | avant la mise en production |
-| `make superuser` | crée un compte super-administrateur (identifiant : ton numéro de téléphone) | rarement : `make demo` en crée un (`0000000000`) |
+| `make superuser` | crée un compte super-administrateur (identifiant : ton numéro de téléphone) ; à sa première connexion à l'administration, il active la double authentification (clé à saisir dans Google Authenticator ou Aegis) | rarement : `make demo` en crée un (`0000000000`) |
 | `make shell` | console Django | explorer les données |
 | `python3 maquettes/outils/maquettes.py menu` | réécrit le menu latéral de toutes les maquettes Gestion | après un changement de menu |
 | `python3 maquettes/outils/maquettes.py index` | régénère la galerie `maquettes/index.html` | après une nouvelle maquette |
@@ -327,7 +328,10 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | http://itig.localhost:5173/api/me/ | le compte connecté, ses écoles, ses rôles et permissions dans l'école de l'adresse |
 | http://itig.localhost:5173/api/roles/ · …/api/staff/ | rôles et comptes du personnel de l'école (directeur seulement) |
 | http://itig.localhost:5173/api/audit/ | journal d'audit de l'école, le plus récent d'abord (directeur et promoteur) ; filtres dans l'adresse : `?domain=roles`, `?action=auth.login`, `?since=2026-09-26`, `?search=nom` |
-| http://localhost:8000/admin/ | administration Django (super-admin `0000000000`) |
+| http://itig.localhost:5173/api/school/settings/ · …/settings/logo/ | paramètres de l'école : nom, nom officiel, couleur, fuseau horaire, devises ; logo (directeur) |
+| http://itig.localhost:5173/api/school/logo/ | logo de l'école (public) |
+| http://itig.localhost:5173/api/support/ | session support « en tant qu'école » : super-admin connecté à l'adresse de l'école (mot de passe et code), motif, 1 heure au plus |
+| http://localhost:8000/admin/ | administration Django : super-admin `0000000000`, mot de passe `mwangaza-demo`, puis le code de `make totp` ; écoles (créer, suspendre, « Ouvrir en tant qu'école »), comptes, journal |
 
 ### Git et GitHub
 
@@ -368,7 +372,10 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | `"code": "too_many_attempts"` à la connexion | 5 essais ratés pour ce numéro en 15 minutes (ou 30 depuis ta machine) | attendre 15 minutes, ou `make demo` (débloque tout en développement) |
 | `"code": "totp_required"` sur une page de l'école | session ouverte sans double authentification, alors qu'un rôle l'exige (ex. rôle donné pendant la session) | se déconnecter (`…/api/auth/logout/`) et se reconnecter |
 | `"code": "invalid_code"` avec le code de `make totp` | code déjà utilisé (un code ne sert qu'une fois) | attendre le code suivant (30 secondes) et refaire `make totp` |
-| Administration Django : impossible de supprimer une école ou un compte (« objets protégés », `Journal d'audit`) | l'école ou le compte apparaît dans le journal d'audit, qui ne s'efface jamais | suspendre l'école, désactiver le compte ; en développement seulement, `make reset-db` repart d'une base vide |
+| Administration Django : impossible de supprimer une école ou un compte (« objets protégés », `Journal d'audit`) | l'école ou le compte apparaît dans le journal d'audit, qui ne s'efface jamais ; une école ne se supprime jamais (bouton retiré) | suspendre l'école, désactiver le compte ; en développement seulement, `make reset-db` repart d'une base vide |
+| Administration Django : la connexion demande un code, ou revient au numéro et au mot de passe | depuis la tâche 1.5, l'administration exige la double authentification du super-admin | numéro, mot de passe, puis le code de `make totp` (compte `0000000000` de `make demo`) ; compte créé par `make superuser` : activer la double authentification avec la clé affichée |
+| Administration Django : textes en anglais (« Schools », « Open as the school ») mêlés au français | les textes du serveur ne sont pas encore traduits | normal pour l'instant (traduction du serveur prévue en 4.5) |
+| `"code": "no_support_session"` sur `/api/support/`, ou `permission_denied` pour le super-admin à l'adresse d'une école | pas de session support ouverte (ou fermée au bout d'une heure) | ouvrir la session : sur la page `/api/support/`, écrire le motif, **POST** |
 | `ModuleNotFoundError: No module named 'argon2'` ou `'cryptography'` | dépendances de la tâche 1.3 pas installées | `make install` |
 | `connection refused` (port 5433) ou `role "mwangaza" does not exist` | pas de `.env`, ou base Docker arrêtée avec une version d'avant la PR #80 | `cp .env.example .env` (étape 4) ; depuis la PR #80, les commandes `make` qui ont besoin de la base la démarrent d'elles-mêmes (sinon : `make services`, et lire son message) |
 | Ctrl+C sur `make dev-local` : `Erreur de segmentation (core dump créé)`, `Traceback`, `SystemExit` | version du Makefile d'avant la PR #80 | après sa fusion : `git switch main && git pull` |

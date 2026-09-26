@@ -23,6 +23,11 @@ class Action(models.TextChoices):
     ACCOUNT_TOTP_DISABLED = "account.totp_disabled", _("Two-factor authentication turned off")
     ACCOUNT_TOTP_RESET = "account.totp_reset", _("Two-factor authentication reset by support")
     ACCOUNT_RECOVERY_CODES_RENEWED = "account.recovery_codes_renewed", _("New recovery codes")
+    # Par le support Mwangaza, dans l'administration Django.
+    ACCOUNT_CHANGED = "account.changed", _("Names or phone changed by support")
+    ACCOUNT_DEACTIVATED = "account.deactivated", _("Account deactivated by support")
+    ACCOUNT_REACTIVATED = "account.reactivated", _("Account reactivated by support")
+    ACCOUNT_PASSWORD_RESET = "account.password_reset", _("Temporary password given by support")
 
     # Rôles de l'école.
     ROLES_CREATED = "roles.created", _("Role created")
@@ -37,6 +42,19 @@ class Action(models.TextChoices):
     STAFF_ACCOUNT_CHANGED = "staff.account_changed", _("Staff member's names or phone changed")
     STAFF_PASSWORD_RESET = "staff.password_reset", _("Temporary password given")
     STAFF_TOTP_RESET = "staff.totp_reset", _("Two-factor authentication reset")
+
+    # L'école : créée et suspendue par le super-admin ; identité changée par lui ou par l'école
+    # (paramètres, M5).
+    SCHOOL_CREATED = "school.created", _("School created")
+    SCHOOL_UPDATED = "school.updated", _("School settings changed")
+    SCHOOL_LOGO_CHANGED = "school.logo_changed", _("School logo changed")
+    SCHOOL_SUSPENDED = "school.suspended", _("School suspended")
+    SCHOOL_REACTIVATED = "school.reactivated", _("School reactivated")
+
+    # Session support « en tant qu'école » (A3) ; chaque action faite pendant la session porte
+    # aussi `impersonated_by`.
+    SUPPORT_STARTED = "support.started", _("Support session opened")
+    SUPPORT_ENDED = "support.ended", _("Support session closed")
 
 
 def domain_of(action: str) -> str:

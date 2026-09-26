@@ -25,17 +25,17 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
 - [x] **1.2** App `accounts` : `User` (téléphone comme identifiant), `Membership`, `Role`, codes de permissions, 9 rôles système copiés à la création d'une école (B1–B3, `04` § 8) ; API des rôles et des comptes du personnel, `GET /api/me/`
 - [x] **1.3** Connexion par session, TOTP pour les rôles sensibles, limitation des tentatives (B4) ; API de « Mon compte » (mot de passe, double authentification, langue) et, pour l'école, nouveau mot de passe, réinitialisation de la double authentification, noms et téléphone d'un compte qui ne sert que chez elle
 - [x] **1.4** App `audit` : `AuditLog` + utilitaire d'enregistrement (I1) ; API du journal (`/api/audit/`) ; audit des rôles, des comptes du personnel, de Mon compte et de la connexion (1.2, 1.3)
-- [ ] **1.5** Super-admin : création / suspension d'école, liste des écoles, connexion « en tant qu'école » tracée (A1–A3) ; couleur de l'école choisie dans ses paramètres, contraste vérifié (Q8) ; double authentification du super-admin dans l'administration Django *(ajoutée le 2026-09-26, 1.3)* ; « en tant qu'école » dans le journal d'audit (`impersonated_by`), modifications d'un compte par le support dans l'administration Django (téléphone, noms, mot de passe, désactivation) notées dans le journal de chaque école de la personne *(ajouté le 2026-09-26, 1.4)*
-- [ ] **1.6** Front `gestion` : squelette React + Vite + PWA + Tailwind + shadcn/ui + i18next ; écran de connexion ; mise en page avec menu selon permissions ; écrans de la connexion en étapes (code, nouveau mot de passe, activation M1) et « Mon compte » (M4) sur l'API de la 1.3 *(ajoutés le 2026-09-26 : aucune tâche ne prévoyait M4)*
-- [ ] **1.7** App `schools` : année scolaire depuis modèle, périodes, niveaux, options, classes, format de matricule + écrans (C1–C3) ; écrans « Comptes du personnel » (M3) et « Rôles et permissions » sur l'API de la 1.2 *(ajoutés le 2026-09-26 : aucune tâche ne les prévoyait)* ; écran « Journal d'audit » (M6) sur l'API de la 1.4 *(ajouté le 2026-09-26)*
+- [x] **1.5** Super-admin : création / suspension d'école, liste des écoles, connexion « en tant qu'école » tracée (A1–A3) ; couleur de l'école choisie dans ses paramètres, contraste vérifié (Q8) ; double authentification du super-admin dans l'administration Django *(ajoutée le 2026-09-26, 1.3)* ; « en tant qu'école » dans le journal d'audit (`impersonated_by`), modifications d'un compte par le support dans l'administration Django (téléphone, noms, mot de passe, désactivation) notées dans le journal de chaque école de la personne *(ajouté le 2026-09-26, 1.4)* ; API des paramètres de l'école (nom, couleur, logo, fuseau, devises)
+- [ ] **1.6** Front `gestion` : squelette React + Vite + PWA + Tailwind + shadcn/ui + i18next ; écran de connexion ; mise en page avec menu selon permissions ; écrans de la connexion en étapes (code, nouveau mot de passe, activation M1) et « Mon compte » (M4) sur l'API de la 1.3 *(ajoutés le 2026-09-26 : aucune tâche ne prévoyait M4)* ; session support « en tant qu'école » : ouverture avec le motif et bandeau rouge permanent (fin, bouton « Quitter »), lien « Ouvrir en tant qu'école » de l'administration vers cet écran ; nom, couleur et logo de l'école sur l'écran de connexion *(ajoutés le 2026-09-26, 1.5)*
+- [ ] **1.7** App `schools` : année scolaire depuis modèle, périodes, niveaux, options, classes, format de matricule + écrans (C1–C3) ; écrans « Comptes du personnel » (M3) et « Rôles et permissions » sur l'API de la 1.2 *(ajoutés le 2026-09-26 : aucune tâche ne les prévoyait)* ; écran « Journal d'audit » (M6) sur l'API de la 1.4 *(ajouté le 2026-09-26)* ; écran « Paramètres de l'école » (M5 : identité, logo, couleur, fuseau, devises) sur l'API de la 1.5 *(ajouté le 2026-09-26)*
 
 ## Semaine 2 — Élèves et frais
 
-- [ ] **2.1** App `students` : `Student`, `Family`, `Guardian`, `Enrollment`, génération du matricule et du code famille
+- [ ] **2.1** App `students` : `Student`, `Family`, `Guardian`, `Enrollment`, génération du matricule et du code famille ; nombre d'élèves dans la liste des écoles de l'administration (A2) *(ajouté le 2026-09-26, 1.5)*
 - [ ] **2.2** Écrans élèves : liste, recherche rapide, fiche, création, inscription, liaison famille (D2–D4)
 - [ ] **2.3** Import Excel : téléversement, correspondance des colonnes, aperçu, rapport d'erreurs, import en tâche Celery (D1). Tester avec un fichier fictif réaliste (~800 élèves), puis avec le vrai fichier de l'ITIG quand il arrive
 - [ ] **2.4** Impressions : fiche d'inscription avec code famille, liste de classe PDF / Excel (D5) ; export Excel du journal d'audit, limité à la période filtrée, l'export lui-même noté dans le journal (M6) *(ajouté le 2026-09-26, 1.4 : même bibliothèque Excel)*
-- [ ] **2.5** App `finance` — configuration : `FeeType`, `FeeRule`, `InstallmentTemplate`, `ExchangeRate`, `Discount` + écrans (E1–E3, E5) ; devise au choix pour chaque barème ; taux de l'année corrigeable avec historique
+- [ ] **2.5** App `finance` — configuration : `FeeType`, `FeeRule`, `InstallmentTemplate`, `ExchangeRate`, `Discount` + écrans (E1–E3, E5) ; devise au choix pour chaque barème ; taux de l'année corrigeable avec historique ; une devise utilisée par un frais ou un paiement ne peut plus être retirée des devises de l'école (M5) *(ajouté le 2026-09-26, 1.5)*
 - [ ] **2.6** Génération des `StudentCharge` à l'inscription et quand un barème change ; échéancier particulier (E4)
 - [ ] **2.7** Calcul du solde et des retards d'un élève (service + tests couvrant réductions, devises, annulations)
 
@@ -53,10 +53,10 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
 ## Semaine 4 — Rapports, portail parents, mise en production
 
 - [ ] **4.1** Impayés : liste filtrable, export ; situation financière imprimable (G1–G2)
-- [ ] **4.2** Tableau de bord directeur (G3)
+- [ ] **4.2** Tableau de bord directeur (G3) ; seuils d'alerte de l'école (M5 : écart de caisse, annulations par caissier et par jour, caisse non clôturée) *(ajouté le 2026-09-26, 1.5)*
 - [ ] **4.3** Annonces côté école (H4)
-- [ ] **4.4** Front `portail` : activation par téléphone + code famille, liste des enfants multi-écoles, paiements, reçus PDF, échéances, annonces, mise à jour des coordonnées, installable (H1–H6)
-- [ ] **4.5** Guides de première connexion : caissier, comptable, parent (I3) ; traduction anglaise (I2)
+- [ ] **4.4** Front `portail` : activation par téléphone + code famille, liste des enfants multi-écoles, paiements, reçus PDF, échéances, annonces, mise à jour des coordonnées, installable (H1–H6) ; école suspendue : « service temporairement indisponible » (A1) *(ajouté le 2026-09-26, 1.5)*
+- [ ] **4.5** Guides de première connexion : caissier, comptable, parent (I3) ; traduction anglaise (I2) ; traduction française des textes du serveur (administration Django, messages) *(ajoutée le 2026-09-26, 1.5)*
 - [ ] **4.6** Infra de production : VPS, Caddy, wildcard Cloudflare, variables d'environnement, déploiement en une commande ; adresse IP réelle du visiteur transmise par Caddy et Cloudflare (limitation des tentatives, 1.3)
 - [ ] **4.7** Sauvegardes continues + dump quotidien + **test de restauration** (I4) ; suivi d'erreurs ; sonde de disponibilité
 - [ ] **4.8** Mise en place à l'ITIG : l'école saisit ou importe ses vraies données (élèves, frais, comptes) avec notre aide, formation des caissiers, test sur la vraie imprimante
@@ -92,7 +92,7 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
 Chaque tâche V2 sera redécoupée en sous-tâches (7.1.1, 7.1.2…) au moment de la commencer.
 
 - [ ] **7.1** Réseau : tableau consolidé promoteur / coordination confessionnelle, comparaison entre années (cahier § 6.1, 8.13)
-- [ ] **7.2** Plateforme : abonnements et facturation des écoles (tarif par élève, offres Découverte / Standard / Réseau, essai), revendeurs, annonces à toutes les écoles, statistiques globales (§ 5, 6.1)
+- [ ] **7.2** Plateforme : abonnements et facturation des écoles (tarif par élève, offres Découverte / Standard / Réseau, essai), revendeurs, annonces à toutes les écoles, statistiques globales (§ 5, 6.1) ; écran dédié du super-admin (maquette `superadmin-ecoles` : cartes, liste, abonnements), en V1.0 l'administration Django *(ajouté le 2026-09-26, 1.5)*
 - [ ] **7.3** Paiement en ligne Mobile Money via agrégateur, argent versé directement sur le compte de l'école (§ 5, 8.14)
 - [ ] **7.4** SMS et WhatsApp avec crédits achetés par l'école ; relances d'impayés par SMS (§ 8.4, 8.9)
 - [ ] **7.5** Applications Android et iPhone (Capacitor) publiées dans les stores (§ 8.10)

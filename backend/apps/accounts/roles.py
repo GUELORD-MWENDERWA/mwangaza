@@ -33,6 +33,8 @@ PERMISSIONS: dict[str, Promise] = {
 }
 PERMISSION_CHOICES = list(PERMISSIONS.items())
 
+# Paramètres de l'école : nom, logo, couleur, devises, fuseau (M5).
+SCHOOL_CONFIGURE = "school.configure"
 # Gérer les rôles et les comptes du personnel : une école garde toujours un compte actif qui l'a.
 ROLES_MANAGE = "roles.manage"
 # Lire le journal d'audit de l'école (M6).
@@ -42,7 +44,7 @@ AUDIT_VIEW = "audit.view"
 # l'argent, les réglages, les comptes, le journal d'audit. Par défaut : directeur, comptable,
 # caissier et promoteur ; un rôle créé par l'école avec l'un de ces droits l'exige aussi.
 TOTP_PERMISSIONS = frozenset(
-    {"school.configure", "roles.manage", "audit.view"}
+    {SCHOOL_CONFIGURE, ROLES_MANAGE, AUDIT_VIEW}
     | {code for code in PERMISSIONS if code.startswith("finance.")}
 )
 

@@ -21,6 +21,10 @@ paths:
           - account.totp_disabled
           - account.totp_reset
           - account.recovery_codes_renewed
+          - account.changed
+          - account.deactivated
+          - account.reactivated
+          - account.password_reset
           - roles.created
           - roles.updated
           - roles.deleted
@@ -31,6 +35,13 @@ paths:
           - staff.account_changed
           - staff.password_reset
           - staff.totp_reset
+          - school.created
+          - school.updated
+          - school.logo_changed
+          - school.suspended
+          - school.reactivated
+          - support.started
+          - support.ended
           type: string
           minLength: 1
         description: |-
@@ -41,6 +52,10 @@ paths:
           * `account.totp_disabled` - Two-factor authentication turned off
           * `account.totp_reset` - Two-factor authentication reset by support
           * `account.recovery_codes_renewed` - New recovery codes
+          * `account.changed` - Names or phone changed by support
+          * `account.deactivated` - Account deactivated by support
+          * `account.reactivated` - Account reactivated by support
+          * `account.password_reset` - Temporary password given by support
           * `roles.created` - Role created
           * `roles.updated` - Role changed
           * `roles.deleted` - Role deleted
@@ -51,6 +66,13 @@ paths:
           * `staff.account_changed` - Staff member's names or phone changed
           * `staff.password_reset` - Temporary password given
           * `staff.totp_reset` - Two-factor authentication reset
+          * `school.created` - School created
+          * `school.updated` - School settings changed
+          * `school.logo_changed` - School logo changed
+          * `school.suspended` - School suspended
+          * `school.reactivated` - School reactivated
+          * `support.started` - Support session opened
+          * `support.ended` - Support session closed
       - in: query
         name: actor
         schema:
@@ -64,14 +86,18 @@ paths:
           - account
           - auth
           - roles
+          - school
           - staff
+          - support
           type: string
           minLength: 1
         description: |-
           * `account` - account
           * `auth` - auth
           * `roles` - roles
+          * `school` - school
           * `staff` - staff
+          * `support` - support
       - in: query
         name: entity
         schema:
@@ -311,9 +337,8 @@ paths:
   /api/auth/logout/:
     post:
       operationId: auth_logout_create
-      description: |-
-        Étapes de la connexion et sécurité du compte. Le jeton CSRF est vérifié même sans compte
-        connecté : DRF ne le vérifie que pour une session connectée.
+      description: Déconnexion ; ferme aussi la session support en cours (notée dans
+        le journal).
       tags:
       - auth
       security:
@@ -941,8 +966,9 @@ paths:
   /api/school/:
     get:
       operationId: school_retrieve
-      description: 'École du sous-domaine (public : l''écran de connexion affiche
-        son nom).'
+      description: |-
+        École du sous-domaine (public : l'écran de connexion affiche son nom, sa couleur, son
+        logo).
       tags:
       - schools
       security:
@@ -953,6 +979,133 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CurrentSchool'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/school/settings/:
+    get:
+      operationId: school_settings_retrieve
+      description: |-
+        Paramètres de l'école de l'adresse (M5) : nom, nom officiel, couleur (texte lisible
+        vérifié, Q8), fuseau horaire, devises. Chaque changement va dans le journal de l'école.
+      tags:
+      - schools
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolSettings'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: school_settings_partial_update
+      description: |-
+        Paramètres de l'école de l'adresse (M5) : nom, nom officiel, couleur (texte lisible
+        vérifié, Q8), fuseau horaire, devises. Chaque changement va dans le journal de l'école.
+      tags:
+      - schools
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSchoolSettings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSchoolSettings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSchoolSettings'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolSettings'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/school/settings/logo/:
+    post:
+      operationId: school_settings_logo_create
+      description: 'Logo de l''école (M5) : PNG, JPEG ou SVG, 1 Mo au plus.'
+      tags:
+      - schools
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LogoUpload'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolSettings'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: school_settings_logo_destroy
+      description: 'Logo de l''école (M5) : PNG, JPEG ou SVG, 1 Mo au plus.'
+      tags:
+      - schools
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolSettings'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
         '404':
           content:
@@ -1219,6 +1372,81 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/support/:
+    get:
+      operationId: support_retrieve
+      description: La session support en cours dans cette école.
+      tags:
+      - support
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportSession'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: support_create
+      description: Ouvrir la session support, avec son motif.
+      tags:
+      - support
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportStart'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SupportStart'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SupportStart'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportSession'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: support_destroy
+      description: Fermer la session support (bouton du bandeau).
+      tags:
+      - support
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
 components:
   schemas:
     ActionEnum:
@@ -1230,6 +1458,10 @@ components:
       - account.totp_disabled
       - account.totp_reset
       - account.recovery_codes_renewed
+      - account.changed
+      - account.deactivated
+      - account.reactivated
+      - account.password_reset
       - roles.created
       - roles.updated
       - roles.deleted
@@ -1240,6 +1472,13 @@ components:
       - staff.account_changed
       - staff.password_reset
       - staff.totp_reset
+      - school.created
+      - school.updated
+      - school.logo_changed
+      - school.suspended
+      - school.reactivated
+      - support.started
+      - support.ended
       type: string
       description: |-
         * `auth.login` - Logged in
@@ -1249,6 +1488,10 @@ components:
         * `account.totp_disabled` - Two-factor authentication turned off
         * `account.totp_reset` - Two-factor authentication reset by support
         * `account.recovery_codes_renewed` - New recovery codes
+        * `account.changed` - Names or phone changed by support
+        * `account.deactivated` - Account deactivated by support
+        * `account.reactivated` - Account reactivated by support
+        * `account.password_reset` - Temporary password given by support
         * `roles.created` - Role created
         * `roles.updated` - Role changed
         * `roles.deleted` - Role deleted
@@ -1259,6 +1502,13 @@ components:
         * `staff.account_changed` - Staff member's names or phone changed
         * `staff.password_reset` - Temporary password given
         * `staff.totp_reset` - Two-factor authentication reset
+        * `school.created` - School created
+        * `school.updated` - School settings changed
+        * `school.logo_changed` - School logo changed
+        * `school.suspended` - School suspended
+        * `school.reactivated` - School reactivated
+        * `support.started` - Support session opened
+        * `support.ended` - Support session closed
     AuditActor:
       type: object
       properties:
@@ -1393,23 +1643,49 @@ components:
         * `promoter` - Promoter
         * `teacher` - Teacher
         * `parent` - Parent
+    CurrencyEnum:
+      enum:
+      - USD
+      - CDF
+      type: string
+      description: |-
+        * `USD` - US dollar
+        * `CDF` - Congolese franc
     CurrentSchool:
       type: object
-      description: Informations publiques de l'école (écran de connexion) ; logo et
-        couleur en 1.5.
+      description: 'Informations publiques de l''école : écran de connexion (nom,
+        couleur, logo).'
       properties:
         code:
           type: string
-          description: 'Subdomain of the school: {code}.mwangaza.school'
+          description: 'Subdomain of the school: {code}.mwangaza.school. Changed by
+            the platform only: the old address stops working.'
           pattern: ^[a-z0-9][a-z0-9-]{0,28}[a-z0-9]$
           maxLength: 30
         name:
           type: string
           title: Nom
           maxLength: 200
+        primary_color:
+          type: string
+          title: Colour
+          description: 'Printed documents and the school badge, e.g. #0E5C6B.'
+          maxLength: 7
+        text_color:
+          type: string
+          readOnly: true
+          description: 'Couleur du texte posé sur `primary_color` : blanc ou encre.'
+        logo:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Adresse du logo (`GET /api/school/logo/`, public) ; null sans
+            logo.
       required:
       - code
+      - logo
       - name
+      - text_color
     CurrentSchoolAccess:
       type: object
       properties:
@@ -1435,7 +1711,9 @@ components:
       - account
       - auth
       - roles
+      - school
       - staff
+      - support
       type: string
     Error:
       type: object
@@ -1509,6 +1787,15 @@ components:
             * `done` - Logged in
       required:
       - step
+    LogoUpload:
+      type: object
+      properties:
+        logo:
+          type: string
+          format: uri
+          description: PNG, JPEG ou SVG (sans script), 1 Mo au plus.
+      required:
+      - logo
     Me:
       type: object
       properties:
@@ -1549,6 +1836,12 @@ components:
           nullable: true
           description: Rôles et permissions dans l'école de l'adresse ; null sans
             accès à cette école.
+        support:
+          allOf:
+          - $ref: '#/components/schemas/SupportSession'
+          nullable: true
+          description: Session support du super-admin dans l'école de l'adresse (bandeau
+            rouge).
       required:
       - first_name
       - id
@@ -1559,6 +1852,7 @@ components:
       - recovery_codes_left
       - school
       - schools
+      - support
       - totp_enabled
       - totp_enabled_at
       - totp_required
@@ -1567,7 +1861,8 @@ components:
       properties:
         code:
           type: string
-          description: 'Subdomain of the school: {code}.mwangaza.school'
+          description: 'Subdomain of the school: {code}.mwangaza.school. Changed by
+            the platform only: the old address stops working.'
           pattern: ^[a-z0-9][a-z0-9-]{0,28}[a-z0-9]$
           maxLength: 30
         name:
@@ -1709,6 +2004,57 @@ components:
           type: integer
           readOnly: true
           description: Comptes actifs qui ont ce rôle dans l'école.
+    PatchedSchoolSettings:
+      type: object
+      description: Paramètres de l'école (M5). Le code (adresse) ne change que par
+        le support Mwangaza.
+      properties:
+        code:
+          type: string
+          readOnly: true
+          description: 'Subdomain of the school: {code}.mwangaza.school. Changed by
+            the platform only: the old address stops working.'
+        name:
+          type: string
+          title: Nom
+          maxLength: 200
+        official_name:
+          type: string
+          maxLength: 255
+        primary_color:
+          type: string
+          title: Colour
+          description: 'Printed documents and the school badge, e.g. #0E5C6B.'
+          maxLength: 7
+        text_color:
+          type: string
+          readOnly: true
+          description: 'Couleur du texte posé sur `primary_color` : blanc ou encre.'
+        logo:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Adresse du logo (`GET /api/school/logo/`, public) ; null sans
+            logo.
+        timezone:
+          type: string
+          title: Time zone
+          description: Dates and times of the school, e.g. Africa/Lubumbashi (Goma).
+          maxLength: 64
+        enabled_currencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrencyEnum'
+          description: Devises de l'école (au moins une).
+        default_currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          title: Main currency
+          description: |-
+            Currency of the reports.
+
+            * `USD` - US dollar
+            * `CDF` - Congolese franc
     PatchedStaffUpdate:
       type: object
       description: Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`.
@@ -1855,6 +2201,62 @@ components:
       required:
       - code
       - id
+    SchoolSettings:
+      type: object
+      description: Paramètres de l'école (M5). Le code (adresse) ne change que par
+        le support Mwangaza.
+      properties:
+        code:
+          type: string
+          readOnly: true
+          description: 'Subdomain of the school: {code}.mwangaza.school. Changed by
+            the platform only: the old address stops working.'
+        name:
+          type: string
+          title: Nom
+          maxLength: 200
+        official_name:
+          type: string
+          maxLength: 255
+        primary_color:
+          type: string
+          title: Colour
+          description: 'Printed documents and the school badge, e.g. #0E5C6B.'
+          maxLength: 7
+        text_color:
+          type: string
+          readOnly: true
+          description: 'Couleur du texte posé sur `primary_color` : blanc ou encre.'
+        logo:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Adresse du logo (`GET /api/school/logo/`, public) ; null sans
+            logo.
+        timezone:
+          type: string
+          title: Time zone
+          description: Dates and times of the school, e.g. Africa/Lubumbashi (Goma).
+          maxLength: 64
+        enabled_currencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrencyEnum'
+          description: Devises de l'école (au moins une).
+        default_currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          title: Main currency
+          description: |-
+            Currency of the reports.
+
+            * `USD` - US dollar
+            * `CDF` - Congolese franc
+      required:
+      - code
+      - logo
+      - name
+      - text_color
     Staff:
       type: object
       description: |-
@@ -2043,6 +2445,36 @@ components:
         * `new_password` - Replace the temporary password
         * `totp_setup` - Turn on two-factor authentication
         * `done` - Logged in
+    SupportSession:
+      type: object
+      description: 'Session support en cours (A3) : l''interface affiche un bandeau
+        rouge permanent.'
+      properties:
+        school:
+          $ref: '#/components/schemas/MySchool'
+        reason:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+          description: Fermée d'elle-même à cette heure (1 h).
+      required:
+      - expires_at
+      - reason
+      - school
+      - started_at
+    SupportStart:
+      type: object
+      properties:
+        reason:
+          type: string
+          description: Motif, lu par l'école dans son journal (ex. demande du directeur).
+          maxLength: 200
+      required:
+      - reason
     TemporaryPassword:
       type: object
       properties:

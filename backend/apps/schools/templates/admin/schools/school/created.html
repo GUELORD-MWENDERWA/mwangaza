@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+  &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+  &rsaquo; {{ school }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <p>{% blocktranslate with name=school url=school.url %}{{ name }} is ready at {{ url }}/app/{% endblocktranslate %}</p>
+  {% if temporary_password %}
+    <p>{% blocktranslate with name=director phone=director.phone %}Temporary password of the head, {{ name }} ({{ phone }}), shown only once:{% endblocktranslate %}</p>
+    <p><code style="font-size: 1.6em;">{{ temporary_password }}</code></p>
+    <p>{% translate "Give it to the head: they choose their own password and turn on two-factor authentication at their first login." %}</p>
+  {% else %}
+    <p>{% blocktranslate with name=director %}{{ name }} already had an account: they log in with their usual password.{% endblocktranslate %}</p>
+  {% endif %}
+  <p><a class="button" href="{% url opts|admin_urlname:'changelist' %}">{% translate "Back to the schools" %}</a></p>
+</div>
+{% endblock %}

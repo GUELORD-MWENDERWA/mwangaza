@@ -32,11 +32,12 @@ class Command(BaseCommand):
             schools = create_demo_schools()
             accounts = create_demo_accounts(schools)
         for school in schools.values():
-            self.stdout.write(
-                f"  {school.code:<8} {school.name} — http://{school.code}.localhost:5173/app/"
-            )
+            self.stdout.write(f"  {school.code:<8} {school.name} — {school.url}/app/")
         self.stdout.write(f"Comptes fictifs (mot de passe : {DEMO_PASSWORD}) :")
-        self.stdout.write(f"  {_local(PLATFORM_ADMIN_PHONE)}  super-admin (administration Django)")
+        self.stdout.write(
+            f"  {_local(PLATFORM_ADMIN_PHONE)}  super-admin (administration Django : "
+            "http://localhost:8000/admin/) — code : make totp"
+        )
         users = {
             user.phone: user for user in User.objects.filter(phone__in=[a.phone for a in accounts])
         }

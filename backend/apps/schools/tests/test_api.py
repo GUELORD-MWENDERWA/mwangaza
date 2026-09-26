@@ -10,8 +10,23 @@ def test_each_school_sees_its_own_name(client, school, other_school):
     beta = client.get("/api/school/", HTTP_HOST="beta.localhost:5173")
 
     assert alpha.status_code == 200
-    assert alpha.json() == {"code": "alpha", "name": "École Alpha (fictive)"}
-    assert beta.json() == {"code": "beta", "name": "École Beta (fictive)"}
+    assert alpha.json() == {
+        "code": "alpha",
+        "name": "École Alpha (fictive)",
+        "primary_color": "#0E5C6B",
+        "text_color": "#FFFFFF",
+        "logo": None,
+    }
+    assert beta.json()["name"] == "École Beta (fictive)"
+
+
+def test_colour_and_readable_text(client, school):
+    school.primary_color = "#F2C94C"
+    school.save()
+
+    body = client.get("/api/school/", HTTP_HOST="alpha.localhost").json()
+
+    assert (body["primary_color"], body["text_color"]) == ("#F2C94C", "#1A2233")
 
 
 def test_is_public(client, school):

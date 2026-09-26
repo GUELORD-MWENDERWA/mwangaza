@@ -12,7 +12,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts import login, services, totp
+from apps.accounts import login, services, support, totp
 from apps.accounts.login import MFA_SESSION_KEY, Step
 from apps.accounts.models import Membership, Role, User
 from apps.accounts.permissions import HasSchoolPermission, school_access
@@ -31,12 +31,14 @@ from apps.accounts.serializers import (
     StaffCreateSerializer,
     StaffSerializer,
     StaffUpdateSerializer,
+    SupportSessionSerializer,
+    SupportStartSerializer,
     TemporaryPasswordSerializer,
     TotpActivatedSerializer,
     TotpKeySerializer,
     TotpSetupSerializer,
 )
-from apps.core.errors import ErrorSerializer
+from apps.core.errors import BusinessError, ErrorSerializer
 
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
 # Étapes de connexion : saisie refusée, trop d'essais, étape expirée ou pas la bonne.
@@ -102,6 +104,7 @@ class MeView(APIView):
             "recovery_codes_left": services.recovery_codes_left(user),
             "schools": [membership.school for membership in memberships],
             "school": school,
+            "support": support.current(request),
         }
         return MeSerializer(me).data
 
@@ -434,7 +437,46 @@ class TotpDisableView(AuthView):
 
 @extend_schema(tags=["auth"])
 class LogoutView(AuthView):
+    """Déconnexion ; ferme aussi la session support en cours (notée dans le journal)."""
+
     @extend_schema(request=None, responses={204: None, 403: ErrorSerializer})
     def post(self, request: Request) -> Response:
+        support.end(request)
         logout(request)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@extend_schema(tags=["support"])
+class SupportView(APIView):
+    """Session support « en tant qu'école » (A3), à l'adresse de l'école : super-admin connecté
+    avec la double authentification. Une heure au plus ; droits de l'école sauf la caisse ;
+    ouverture, fermeture et chaque action notées dans le journal de l'école."""
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = SupportStartSerializer
+
+    @extend_schema(responses={200: SupportSessionSerializer, 404: ErrorSerializer})
+    def get(self, request: Request) -> Response:
+        """La session support en cours dans cette école."""
+        session = support.current(request)
+        if session is None:
+            raise BusinessError(support.NO_SUPPORT_SESSION)
+        return Response(SupportSessionSerializer(session).data)
+
+    @extend_schema(
+        request=SupportStartSerializer,
+        responses={201: SupportSessionSerializer, 403: ErrorSerializer, 404: ErrorSerializer},
+    )
+    def post(self, request: Request) -> Response:
+        """Ouvrir la session support, avec son motif."""
+        serializer = SupportStartSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        session = support.start(request, serializer.validated_data["reason"])
+        return Response(SupportSessionSerializer(session).data, status=status.HTTP_201_CREATED)
+
+    @extend_schema(responses={204: None, 404: ErrorSerializer})
+    def delete(self, request: Request) -> Response:
+        """Fermer la session support (bouton du bandeau)."""
+        if not support.end(request):
+            raise BusinessError(support.NO_SUPPORT_SESSION)
         return Response(status=status.HTTP_204_NO_CONTENT)
