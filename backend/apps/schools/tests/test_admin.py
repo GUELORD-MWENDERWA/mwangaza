@@ -141,6 +141,17 @@ def test_last_activity_is_the_last_entry_of_the_school(admin_client, school, oth
     assert rows[other_school.pk].last_activity_at is None
 
 
+def test_last_activity_is_shown_as_a_date(admin_client, school, head):
+    from django.utils import timezone
+
+    with use_school(school):
+        entry = AuditLog.objects.create(action=Action.AUTH_LOGIN, actor=head)
+
+    content = admin_client.get(LIST, HTTP_ACCEPT_LANGUAGE="fr").content.decode()
+
+    assert f"{timezone.localtime(entry.created_at):%d/%m/%Y %H:%M}" in content
+
+
 def test_suspend_and_reactivate_from_the_list(admin_client, school, platform_admin):
     admin_client.post(LIST, {"action": "suspend", "_selected_action": [str(school.pk)]})
     school.refresh_from_db()

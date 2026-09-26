@@ -11,8 +11,8 @@ from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
 from django.db.models import OuterRef, Subquery
 from django.template.response import TemplateResponse
+from django.utils import formats, timezone
 from django.utils.html import format_html
-from django.utils.timesince import timesince
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.models import User
@@ -25,7 +25,7 @@ from apps.schools.models import School
 
 class SchoolForm(forms.ModelForm):
     enabled_currencies = forms.TypedMultipleChoiceField(
-        label=_("currencies"), choices=Currency.choices, widget=forms.CheckboxSelectMultiple
+        label=_("Currencies"), choices=Currency.choices, widget=forms.CheckboxSelectMultiple
     )
 
     class Meta:
@@ -204,7 +204,10 @@ class SchoolAdmin(admin.ModelAdmin):
     def last_activity(self, school: School) -> str:
         if school.last_activity_at is None:
             return "—"
-        return _("%(time)s ago") % {"time": timesince(school.last_activity_at)}
+        # Date et heure dans la langue de l'administration (pas de texte « il y a » à traduire).
+        return formats.date_format(
+            timezone.localtime(school.last_activity_at), "SHORT_DATETIME_FORMAT"
+        )
 
     @admin.display(description=_("support"))
     def support_link(self, school: School):
