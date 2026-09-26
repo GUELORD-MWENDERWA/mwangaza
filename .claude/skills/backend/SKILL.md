@@ -9,7 +9,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 
 ## Modèle
 
-- Vérifier dans `04` si l'entité est **[T]** (hérite de `TenantModel`, champ `school`), **[G]** (globale : `User`, `Family`, `Guardian`, `Student`, `School`, `Membership`, `PushSubscription`, `SchoolNetwork`) ou **[I]** (immuable).
+- Vérifier dans `04` si l'entité est **[T]** (hérite de `TenantModel`, champ `school`), **[G]** (globale : `User`, `School`, `Membership`, `PushSubscription`, `SchoolNetwork` — `Student`, `Family`, `Guardian` sont **[T]** : une copie par école, décision Q10) ou **[I]** (immuable).
 - Clé primaire UUID v7 (utilitaire de `apps/core`) ; `created_at`, `updated_at`, `created_by`.
 - Index composés **commençant par `school`** ; unicité portée par école (ex. `matricule`, `receipt_number`, `Device.prefix`) via `UniqueConstraint(fields=["school", …])`.
 - Argent : `*_minor` en `BigIntegerField` + `currency` (`CharField(3)`) ; taux en `DecimalField(…, decimal_places=6)`. Jamais `FloatField`. Voir skill `argent`.
@@ -20,7 +20,8 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 
 - Manager par défaut `TenantManager` : filtre sur l'école courante, **lève une erreur** sans école. Ne jamais le contourner.
 - `all_schools` seulement pour le super-admin et l'API du portail familles, et toujours filtré explicitement (ex. enfants de la famille de l'utilisateur).
-- Accès à un `Student` (global) depuis une école : toujours via un `Enrollment` de cette école.
+- Portail : un compte parent peut être relié à des familles de plusieurs écoles (`Family.primary_user`) ; ne renvoyer que ces familles et leurs enfants, chacun avec les données de son école.
+- Rien de propre à une école dans le code (l'ITIG n'est que l'école d'exemple) : ce qui varie d'une école à l'autre vient de `School` ou de `School.settings`.
 
 ## Service (`services.py`)
 

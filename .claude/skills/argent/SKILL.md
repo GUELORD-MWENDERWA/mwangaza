@@ -18,10 +18,10 @@ Références : `docs/03-architecture-technique.md` § 6, `docs/04-modele-de-donn
 
 ## Taux et conversion
 
-- `ExchangeRate(school, date, from_currency, to_currency, rate)` ; taux du jour = dernier saisi pour la date.
-- Chaque paiement enregistre `rate_used` ; l'allocation est exprimée dans la devise de la charge.
+- `ExchangeRate(school, academic_year, USD → CDF, rate)` : taux de l'année, fixe, saisi par le comptable ; une correction ajoute une ligne (historique), le taux en vigueur est la dernière. La devise d'un frais est celle de son barème (`FeeRule.currency`).
+- Chaque paiement enregistre `rate_used` (taux en vigueur à l'encaissement ; une correction ultérieure ne le change pas) ; l'allocation est exprimée dans la devise de la charge.
 - Arrondi : **demi supérieur** à l'unité de la devise cible (centime USD, franc CDF), calculé en `Decimal`, puis converti en entier.
-- Sens et précision du taux (paiement en FC d'un frais en USD) : voir la question Q4 de `docs/06-suivi.md` ; ne pas trancher seul.
+- Sens du taux (décision Q4) : toujours USD → CDF, tel que saisi. USD → CDF : multiplier ; CDF → USD : **diviser** en `Decimal` par le taux (jamais multiplier par `1/rate`).
 
 ## Répartition d'un paiement (F2)
 

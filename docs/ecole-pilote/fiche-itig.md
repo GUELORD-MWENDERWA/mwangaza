@@ -24,7 +24,8 @@ Informations **publiques**, collectées le 2026-09-25 sur internet. À confirmer
 - `documents/2026-09-25-logo-itig-site-web.jpg` (1280 × 892, fond blanc) et `documents/2026-09-25-logo-itig-carre.png` (recadré, 682 × 682).
 - Engrenage bleu marine, rameau de feuilles vertes, portrait de Don Bosco au centre, sigle ITIG.
 - Couleurs relevées sur le logo : bleu marine ≈ `#003C6C`, vert ≈ `#006C24`. Le site web utilise `#1E3A8A` (bleu), `#16A34A` (vert), `#FACC15` (jaune).
-- Proposition pour `School.primary_color` de l'ITIG : `#003C6C` (à valider). Pour le reçu thermique 80 mm, il faudra une version noir et blanc simplifiée : le logo détaillé ne s'imprimera pas bien.
+- Couleur de l'ITIG dans les données de démonstration : `#003C6C` (décision Q8 du 2026-09-26 : en production, l'école choisit elle-même sa couleur dans ses paramètres).
+- `documents/2026-09-26-logo-itig-noir-et-blanc.png` (682 × 682, 1 bit) : version noir et blanc pour les reçus thermiques, préparée par Claude à partir du logo carré (bleu et vert → noir, blanc conservé). Les lettres « ITIG » du centre, claires sur le logo, s'estompent. À remplacer si l'ITIG fournit une meilleure version.
 
 ## Organisation pédagogique
 

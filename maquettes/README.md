@@ -7,6 +7,8 @@ Référence visuelle et fonctionnelle de chaque écran. **Toutes les données so
 - `captures/desktop/*.png` (1440 px) et `captures/mobile/*.png` (390 px) : captures d'écran.
 - `assets/styles.css` : le système de design (couleurs, typographie, composants).
 
+Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore `mwangaza.cd` : lire `mwangaza.school`.
+
 ## Comment Claude Code doit s'en servir
 
 1. Avant de construire un écran, ouvrir **la capture PNG** (pour l'aspect) et **le fichier HTML** (pour la structure exacte, les libellés et les notes).
@@ -20,7 +22,7 @@ Référence visuelle et fonctionnelle de chaque écran. **Toutes les données so
 
 État : **fournie** (maquette d'origine) ou **à valider** (dessinée par Claude le 2026-09-26 dans ce système de design, à partir des maquettes existantes et des documents ; la fusion de la PR vaut validation, les remarques se font en commentaire de PR). Numéros M1–M20 : `docs/07-a-fournir.md`.
 
-### Application Gestion (personnel) — `{code}.mwangaza.cd/app`
+### Application Gestion (personnel) — `{code}.mwangaza.school/app`
 
 | Écran | Fichier | Lot | Réf. | État |
 |---|---|---|---|---|
@@ -67,7 +69,7 @@ Référence visuelle et fonctionnelle de chaque écran. **Toutes les données so
 | Rôles et permissions | `gestion/roles-permissions.html` | V1.0 | B1–B2 | fournie |
 | Appareils et synchronisation | `gestion/appareils-synchro.html` | V1.0 | F5, B5 | fournie |
 | Journal d'audit | `gestion/journal-audit.html` | V1.0 | I1 · M6 | à valider |
-| Super-admin — écoles (`admin.mwangaza.cd`) | `gestion/superadmin-ecoles.html` | V1.0 | A1–A3 | fournie |
+| Super-admin — écoles (`admin.mwangaza.school`) | `gestion/superadmin-ecoles.html` | V1.0 | A1–A3 | fournie |
 | Paie | `gestion/paie.html` | V1.1 | 5.3 | fournie |
 | Pointage QR | `gestion/presences-pointage-qr.html` | V1.1 | 5.5 | fournie |
 | Saisie des notes | `gestion/notes-saisie.html` | V1.2 | 6.2 | fournie |
@@ -79,7 +81,7 @@ Captures mobiles aussi fournies pour : caisse (encaissement, ouverture), pointag
 
 Bulletins : structure et maxima repris des formulaires officiels trouvés en ligne — détail et sources dans `docs/claude/recherches/2026-09-26-bulletins-rdc.md`. À confirmer avec les bulletins réels de l'ITIG (I15).
 
-### Portail familles — `parents.mwangaza.cd` (mobile d'abord)
+### Portail familles — `parents.mwangaza.school` (mobile d'abord)
 
 | Écran | Fichier | Lot | Réf. | État |
 |---|---|---|---|---|

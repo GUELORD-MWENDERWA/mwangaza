@@ -52,7 +52,7 @@ Suivre les étapes dans l'ordre. Annoncer chaque étape à l'utilisateur en une 
    - « Journal » : nouvelle entrée en haut —
      `### AAAA-MM-JJ — Tâche X.Y : titre` puis **Fait**, **Tests** (nombre, résultat), **Décisions**, **Reste / suite**.
 3. Décision technique nouvelle → ligne dans « Journal des décisions » de `docs/03-architecture-technique.md`.
-4. Nouvelle commande (tâches 0.x surtout) → section « Commandes » de `CLAUDE.md` **et** `A-FAIRE.md` § 10 (la retirer de « Prévues »). Action nouvelle pour l'utilisateur (installer, configurer, demander à l'ITIG) → `A-FAIRE.md`, et la citer dans la réponse.
+4. Nouvelle commande (tâches 0.x surtout) → section « Commandes » de `CLAUDE.md` **et** `A-FAIRE.md` § 11 (la retirer de « Prévues »). Action nouvelle pour l'utilisateur (installer, configurer, demander à l'ITIG) → `A-FAIRE.md`, et la citer dans la réponse.
 5. Commit(s) en français, style conventionnel (`feat(finance): encaissement partiel`), terminés par la ligne Co-Authored-By. Commiter, pousser et ouvrir la PR seulement si l'utilisateur l'a demandé (une autorisation générale du type « commit et push à chaque tâche » suffit) ; sinon proposer les commandes.
 6. PR : `gh pr create --base main --title "<numéro> — <titre>" --body "…résumé, tests, revue…\n\nCloses #<n>"`. La fusion dans `main` ferme l'issue.
 

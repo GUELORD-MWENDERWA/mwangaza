@@ -23,23 +23,23 @@ Alternatives écartées : Laravel ou Node (tu devrais réapprendre) ; Flutter po
 ## 2. Vue d'ensemble
 
 ```
-           Cloudflare (DNS, wildcard *.mwangaza.cd, cache)
-                              │
-                     VPS ─ Caddy (HTTPS)
-        ┌─────────────────────┼─────────────────────────┐
-  {ecole}.mwangaza.cd   parents.mwangaza.cd     admin.mwangaza.cd
-   /app  → PWA Gestion   /  → PWA Portail        → super-admin
-   /api  → Django        /api/portal → Django    (Django admin + écrans dédiés)
+             Cloudflare (DNS, wildcard *.mwangaza.school, cache)
+                                  │
+                         VPS ─ Caddy (HTTPS)
+        ┌─────────────────────────┼─────────────────────────────┐
+  {ecole}.mwangaza.school   parents.mwangaza.school     admin.mwangaza.school
+   /app  → PWA Gestion      /  → PWA Portail            → super-admin
+   /api  → Django           /api/portal → Django        (Django admin + écrans dédiés)
    /v/{id} → vérif reçu
-        └─────────────────────┼─────────────────────────┘
-                   Django (gunicorn) ── Celery ── Redis
-                              │
-                         PostgreSQL ──► sauvegardes continues vers stockage objet
+        └─────────────────────────┼─────────────────────────────┘
+                       Django (gunicorn) ── Celery ── Redis
+                                  │
+                             PostgreSQL ──► sauvegardes continues vers stockage objet
 ```
 
 - L'API de l'application Gestion est servie **sur le même sous-domaine que l'école** : l'école est déduite du nom d'hôte, les cookies restent sur la bonne origine.
 - Le portail parents est sur un **domaine unique**, car une famille peut avoir des enfants dans plusieurs écoles.
-- Plus tard, la racine `{ecole}.mwangaza.cd/` accueillera le site vitrine de l'école.
+- Plus tard, la racine `{ecole}.mwangaza.school/` accueillera le site vitrine de l'école.
 
 ## 3. Organisation du dépôt
 
@@ -54,7 +54,7 @@ mwangaza/
 │   │   ├── accounts/           # User, Membership, Role, Permission, TOTP, PIN, Device
 │   │   ├── schools/            # School, AcademicYear, Term, Level, Track, ClassGroup
 │   │   ├── students/           # Student, Family, Guardian, Enrollment, imports
-│   │   ├── finance/            # FeeType, FeeRule, Installment, Discount, Payment, Receipt, CashRegister, CashClosing, ExchangeRate
+│   │   ├── finance/            # FeeType, FeeRule, InstallmentTemplate, StudentCharge, Discount, Payment (+ reçu imprimable), CashRegister, CashClosing, ExchangeRate
 │   │   ├── payroll/            # V1.1
 │   │   ├── portal/             # API du portail familles
 │   │   ├── notifications/      # annonces, web push
@@ -91,7 +91,11 @@ Mise en œuvre :
 4. Tests obligatoires : pour chaque endpoint, un test crée deux écoles et vérifie qu'aucune donnée de l'une n'est visible depuis l'autre.
 5. Plus tard (sécurité en profondeur) : Row Level Security PostgreSQL.
 
-Entités **globales** (sans école) : `User`, `Family`, `Student` (identité), `School`. Entités **liées à une école** : tout le reste, dont `Enrollment` qui relie un élève à une école pour une année.
+Entités **globales** (sans école) : `User`, `School`, `SchoolNetwork`, `Membership` (lien personne ↔ école), `PushSubscription`. Entités **liées à une école** : tout le reste, y compris `Student`, `Family` et `Guardian` — chaque école a sa propre copie de l'élève et de sa famille (décision Q10 du 2026-09-26) — et `Enrollment`.
+
+L'isolation vaut partout : application, API, exports, rapports, recherche, portail parent. Une école ne peut ni lire ni modifier les données d'une autre, et ne voit jamais qu'un élève ou une famille existe aussi ailleurs. Chaque école gère sa propre sécurité : ses comptes, ses rôles, ses permissions.
+
+**Portail parent et plusieurs écoles** (solution retenue pour Q10) : un parent a un seul compte (`User`), relié à une famille dans chaque école (`Family.primary_user`). Il relie chaque école en saisissant le code famille qu'elle lui a remis, jamais automatiquement par numéro de téléphone. L'API du portail passe par le manager `all_schools`, filtré sur les familles de ce compte : elle ne renvoie que ses enfants, chacun avec les données de son école.
 
 ## 5. Hors-ligne et synchronisation
 
@@ -135,14 +139,18 @@ Consultation des élèves et de leur situation financière, encaissement, impres
 
 - Montants en entiers dans la plus petite unité : `amount_minor` + `currency` (ISO : `USD`, `CDF`).
 - Package `money` partagé côté front ; côté Python, une classe `Money` immuable.
-- Conversion : `ExchangeRate(school, date, from, to, rate)` ; le paiement enregistre `rate_used` et le montant dans la devise du frais. Arrondi documenté (demi supérieur à l'unité de la devise).
+- Devise : choisie pour chaque barème (`FeeRule.currency`), USD ou FC.
+- Taux : `ExchangeRate(school, academic_year, USD → CDF, rate)`, fixe pour l'année scolaire, saisi par le comptable ; une correction en cours d'année ajoute une ligne (historique : qui, quand, ancien et nouveau taux) et ne change pas les paiements passés.
+- Conversion : le paiement enregistre `rate_used` (toujours dans le sens USD → CDF) et le montant dans la devise du frais. FC → USD = division en `Decimal` par le taux ; arrondi demi supérieur à l'unité de la devise (centime, franc).
 - Solde d'un élève = somme des montants dus (barèmes − réductions) − somme des paiements non annulés, par devise de frais. Calculé à la demande et mis en cache ; recalculable à tout moment.
 
 ## 7. Impression
 
-- **Reçu thermique 80 mm** : page HTML dédiée avec CSS `@page { size: 80mm auto; margin: 0 }`, imprimée par la boîte de dialogue du navigateur (fonctionne hors-ligne). Configurer une fois l'imprimante par défaut sur le poste. Plus tard éventuellement : impression directe ESC/POS via Web Serial / WebUSB.
+- **Format du reçu choisi par l'école** (paramètres, `04` § 1) : thermique 58 mm ou 80 mm, ou imprimante ordinaire avec des reçus A6, A5 ou petit format (≈ 10 × 7 cm) sur une feuille A4, avec traits de découpe ; 1 ou 2 exemplaires (souche).
+- **Reçu thermique** : page HTML dédiée avec CSS `@page { size: 58mm auto; margin: 0 }` ou `80mm auto`, imprimée par la boîte de dialogue du navigateur (fonctionne hors-ligne). Configurer une fois l'imprimante par défaut sur le poste. Logo : version noir et blanc de l'école, sinon logo en niveaux de gris. Plus tard si besoin : impression directe ESC/POS via Web Serial / WebUSB. Le modèle exact de l'imprimante ne bloque rien : test sur la vraie imprimante à la mise en place (4.8).
 - **A4** : même principe hors-ligne ; PDF serveur (WeasyPrint) pour les documents générés en ligne (listes, situations, fiches).
-- **QR code** généré dans le navigateur ; il pointe vers `https://{ecole}.mwangaza.cd/v/{receipt_uuid}`.
+- **QR code** généré dans le navigateur ; il pointe vers `https://{ecole}.mwangaza.school/v/{payment_id}` suivi du contenu signé du reçu (numéro, date, montant, devise).
+- **Vérification d'un reçu imprimé hors ligne** : à son enregistrement (3.3), l'appareil crée une paire de clés ECDSA P-256 avec WebCrypto ; la clé privée, non exportable, reste dans le navigateur (IndexedDB) ; la clé publique est enregistrée sur `Device.public_key`. Chaque reçu est signé sur l'appareil. La page `/v/…` affiche le minimum (école, numéro, date, montant, élève en initiales, valide / annulé) : pour un paiement déjà synchronisé, elle lit la base et refuse un QR dont le contenu diffère ; pour un paiement pas encore reçu, elle vérifie la signature et affiche « reçu authentique, émis hors ligne par la caisse C1, en attente de synchronisation ». Un appareil révoqué ne produit plus de reçu valide. La signature n'ajoute aucune dépendance (WebCrypto est dans tous les navigateurs récents) ; le dessin du QR code en demandera une, à valider en 3.2.
 
 ## 8. Sécurité
 
@@ -159,7 +167,7 @@ Consultation des élèves et de leur situation financière, encaissement, impres
 
 - **Serveur** : un VPS d'entrée de gamme (2 vCPU, 4 Go de RAM) chez un hébergeur économique (Hetzner, DigitalOcean, OVH…). Vérifier les prix du moment ; l'ensemble doit rester sous 20 $ / mois au départ.
 - **Conteneurs** : `caddy`, `django` (gunicorn), `celery`, `redis`, `postgres`.
-- **DNS et certificats** : Cloudflare (offre gratuite), certificat wildcard `*.mwangaza.cd`.
+- **DNS et certificats** : Cloudflare (offre gratuite), certificat wildcard `*.mwangaza.school`.
 - **Sauvegardes** : WAL-G ou pgBackRest vers un stockage objet externe (Backblaze B2, Cloudflare R2…) → sauvegarde continue et restauration à une date précise ; plus un `pg_dump` quotidien conservé 30 jours. Test de restauration chaque mois.
 - **Fichiers** (photos, documents) : stockage objet externe, pas sur le disque du VPS.
 - **Surveillance** : suivi d'erreurs (Sentry offre gratuite ou GlitchTip), sonde de disponibilité externe.
@@ -192,3 +200,13 @@ Consultation des élèves et de leur situation financière, encaissement, impres
 | 2026-09-26 | Bulletins : format des formulaires officiels IGE/P.S (branches groupées par maximum, examen = 2 × période, pas d'examen pour les cours pratiques) ; maxima stockés par cours et par classe, pas calculés depuis les heures | Conforme aux bulletins réels ; le barème officiel n'est pas proportionnel aux heures |
 | 2026-09-26 | Variable d'environnement vide (`NOM=` dans `.env`) = absente : la valeur par défaut s'applique ; la production refuse toujours de démarrer sans `DJANGO_SECRET_KEY` | `cp .env.example .env` suffit en développement, sans rien coller ; une ligne vide ne fait plus planter Django |
 | 2026-09-26 | `make dev` : le conteneur du front réutilise le `node_modules` installé sur la machine (`pnpm install` lancé par `make dev` avant Docker) ; aucune installation ni vérification des dépendances dans le conteneur | Une installation dans le conteneur réécrivait le `node_modules` partagé avec un store introuvable hors de Docker et retéléchargeait tout à chaque lancement |
+| 2026-09-26 | L'ITIG est l'école d'exemple, pas la seule : rien de propre à une école dans le code (tout dans ses paramètres) ; données de démonstration fictives et réalistes (`itig` ~800 élèves, `volcans` plus petite) ; chaque école saisit ses vraies données | Mwangaza est une plateforme multi-écoles ; on n'attend plus les documents de l'ITIG pour avancer |
+| 2026-09-26 | Isolation vérifiée partout (application, API, exports, rapports, recherche, portail) : pour chaque modèle, écran ou point d'API, un test prouve qu'une école ne peut ni lire ni modifier les données d'une autre | Chaque école a ses données, sa sécurité et une visibilité limitée à elle-même |
+| 2026-09-26 | Q10 : `Student`, `Family`, `Guardian` liés à l'école (une copie par école) ; portail : un compte parent relié à une famille par école, avec le code famille de chaque école (code unique sur la plateforme), jamais par numéro de téléphone | Une correction d'une école ne touche pas les autres ; aucune fuite entre écoles ; un numéro mal saisi ne donne accès à rien |
+| 2026-09-26 | Argent : devise choisie pour chaque barème (`FeeRule.currency`) ; taux USD → CDF fixe pour l'année, saisi par le comptable, corrigeable avec historique (nouvelle ligne) ; Q4 : taux toujours USD → CDF, FC → USD par division en `Decimal`, arrondi demi supérieur | Pratique des écoles (taux annuel) ; les paiements passés gardent leur taux ; pas d'erreur d'arrondi par l'inverse du taux |
+| 2026-09-26 | Q1 : pas de modèle `PaymentSchedule` (échéancier particulier = `StudentCharge` `source=custom`) ; Q2 : pas de modèle `Receipt` (reçu = vue imprimable du paiement) | Suivre `04` ; un reçu n'a pas de vie propre en dehors du paiement |
+| 2026-09-26 | Reçu : format choisi par l'école (thermique 58 / 80 mm, ou A6 / A5 / petit format sur A4 avec traits de découpe), 1 ou 2 exemplaires ; affiche reste à payer, taux utilisé, caissier, zone signature / cachet ; montant en lettres « Cent cinquante dollars américains et vingt-cinq centimes » (Q5, à ajuster sur le reçu actuel de l'ITIG) ; QR code dès la V1.0, signé par l'appareil (ECDSA P-256) pour vérifier un reçu imprimé hors ligne | Écoles équipées différemment ; reçu collé dans le cahier de l'élève ; lutte contre les faux reçus même avant la synchronisation |
+| 2026-09-26 | Q3 : 9 rôles système (`head`, `study_director`, `discipline_master`, `accountant`, `cashier`, `secretary`, `promoter`, `teacher`, `parent`) ; nouvelle permission `classes.manage` ; Q7 : chef d'atelier = rôle personnalisé de l'école | Organigramme de l'ITIG (2 directeurs des études, 1 directeur de discipline) ; le directeur des études gère classes et inscriptions sans toucher à l'argent |
+| 2026-09-26 | Q9 : nom Mwangaza, domaine `mwangaza.school` ; Q8 : couleur choisie par l'école (défaut `#0E5C6B`, contraste du texte vérifié ; `#003C6C` pour l'ITIG de démonstration) | `.cd`, `.com`, `.app` indisponibles ; aucune couleur d'école en dur |
+| 2026-09-26 | Q6 : caisse (V1.0) d'abord, P1 2026 sur papier, bulletins avec Mwangaza à partir de la P2 / 1er semestre, ordre V1.1 puis V1.2 inchangé ; Q11 : deux modes d'impression du bulletin (complet, ou notes seules sur le formulaire pré-imprimé) | La P1 tombe avant la V1.2 ; les écoles utilisent parfois des bulletins officiels achetés |
+| 2026-09-26 | Documents imprimables (reçus, listes, rapports, bulletins) : Claude propose le design dans le système de design, état « à valider », validé par la fusion de la PR | Même règle que les maquettes d'écrans ; pas d'attente des modèles de l'ITIG |

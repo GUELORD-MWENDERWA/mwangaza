@@ -5,8 +5,8 @@ Plateforme de gestion scolaire multi-écoles pour la RDC, lancement à Goma.
 
 Deux applications sur un même serveur :
 
-- **Gestion** (`{ecole}.mwangaza.cd/app`) — le personnel gère élèves, frais, caisse, reçus. Fonctionne **hors-ligne**.
-- **Portail** (`parents.mwangaza.cd`) — les familles consultent paiements, reçus, échéances et annonces.
+- **Gestion** (`{ecole}.mwangaza.school/app`) — le personnel gère élèves, frais, caisse, reçus. Fonctionne **hors-ligne**.
+- **Portail** (`parents.mwangaza.school`) — les familles consultent paiements, reçus, échéances et annonces.
 
 ## Où en est le projet ?
 

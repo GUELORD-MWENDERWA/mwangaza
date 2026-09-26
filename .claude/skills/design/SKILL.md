@@ -76,7 +76,7 @@ Les composants partagés vont dans `frontend/packages/ui`. Les construire une fo
 | `.side` `.brand` `.school` `.navlabel` `.nav a.on` `.soon` `.count` | coquille `AppShell` de la Gestion | 248 px ; groupes Pilotage / Scolarité / Finances / Communication / Paramètres ; entrée active = fond `basalt-2` + barre `lamp` ; entrées V1.1 / V1.2 **masquées** en V1.0 ; entrées filtrées par permission |
 | `.top` `.search` `.kbd` `.user` | barre du haut | recherche globale `Ctrl K` |
 | `.ptop` `.pnav` `.phone` | coquille du Portail | en-tête basalte, navigation basse à 4 entrées, largeur max 430 px |
-| `.thermal` | gabarit reçu 80 mm | `@page { size: 80mm auto; margin: 0 }` |
+| `.thermal` | gabarit reçu thermique | `@page { size: 80mm auto; margin: 0 }` ou `58mm auto` selon le réglage de l'école ; reçus A6 / A5 / petit format sur A4 avec traits de découpe : à dessiner en 3.2 |
 | `.a4` | gabarit A4 | |
 | `.authgrid` `.authside` `.authmain` | coquille des écrans hors application | connexion, activation 2FA, choix de l'école ; une colonne sous 900 px |
 | `.overlay` `.dialog` | `Dialog` (shadcn) | ex. réduction ; fermeture Échap, focus piégé |

@@ -47,7 +47,7 @@ Le nom doit venir de chez nous, être court, facile à dire au téléphone et é
 | Nyota | étoile | Réussite, excellence. Très court. |
 | Kivu Elimu | l'éducation du Kivu | Ancré localement, mais limite l'expansion nationale. |
 
-Avant de choisir : vérifier la disponibilité du domaine (`.cd` et `.com`), des comptes réseaux sociaux et l'absence de marque existante. Le code utilise `mwangaza` ; un renommage reste simple.
+**Choisi le 2026-09-26 : Mwangaza**, domaine `mwangaza.school` (`mwangaza.cd`, `.com` et `.app` n'étaient pas disponibles ; « Shule Yetu » est déjà une plateforme scolaire).
 
 ## 4. Cibles
 
@@ -88,7 +88,7 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
 ### 6.3 Familles
 
 - **Un compte par famille**, identifié par le numéro de téléphone du tuteur principal. Les autres tuteurs figurent comme contacts dans la fiche.
-- Un compte famille voit tous ses enfants, même inscrits dans des écoles différentes de la plateforme.
+- Un compte famille voit tous ses enfants, même inscrits dans des écoles différentes de la plateforme. Chaque école garde sa propre fiche de l'enfant et de la famille ; le parent relie chaque école à son compte avec le code famille qu'elle lui remet.
 - **Élève** : compte optionnel, à partir d'un niveau configuré par l'école.
 
 ## 7. Organisation scolaire
@@ -100,14 +100,14 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
   - secondaire : 2 semestres, chacun avec 2 périodes + 1 examen ;
   - primaire : modèle officiel à confirmer ;
   - LMD : semestres, unités d'enseignement, crédits, sessions (moteur séparé, V2).
-- Clôture d'année : archivage, passage automatique selon la délibération, redoublants, abandons, exclusions, historique complet de l'élève sur toutes ses années et toutes ses écoles.
+- Clôture d'année : archivage, passage automatique selon la délibération, redoublants, abandons, exclusions, historique complet de l'élève sur toutes ses années dans l'école (chaque école a son propre dossier ; un transfert en donne une copie à la nouvelle école).
 
 ## 8. Modules fonctionnels
 
 ### 8.1 Plateforme multi-écoles — V1.0
 
-- Accès du personnel par sous-domaine : `{code-ecole}.mwangaza.cd`.
-- Portail familles sur une adresse unique : `parents.mwangaza.cd` (un parent peut avoir des enfants dans plusieurs écoles).
+- Accès du personnel par sous-domaine : `{code-ecole}.mwangaza.school`.
+- Portail familles sur une adresse unique : `parents.mwangaza.school` (un parent peut avoir des enfants dans plusieurs écoles).
 - Personnalisation par école : logo, nom, couleurs, en-têtes de reçus et bulletins, frais, barèmes et maxima, rôles.
 - Transfert d'un élève d'une école à une autre de la plateforme avec son dossier (V1.2).
 
@@ -122,7 +122,7 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
 ### 8.3 Élèves et inscriptions
 
 - Fiche élève — V1.0 : nom, post-nom, prénom, sexe, date et lieu de naissance, nationalité, province et territoire d'origine, adresse, photo, école de provenance, tuteurs avec contacts, contact d'urgence. V1.1 : groupe sanguin, allergies, besoins particuliers, religion, identifiant officiel EPST / Exetat.
-- Matricule généré automatiquement, format configurable par école, plus un identifiant plateforme unique qui suit l'élève.
+- Matricule généré automatiquement, format configurable par école. Chaque école a sa propre fiche de l'élève : pas d'identité partagée entre écoles.
 - Import Excel / CSV des élèves existants — V1.0. Migration depuis d'autres logiciels — Plus tard.
 - Inscription au secrétariat — V1.0 ; validation de l'inscription liée au paiement — V1.1 ; pré-inscription en ligne par les parents, test d'admission, liste d'attente — V2.
 - Documents téléversés (acte de naissance, bulletins antérieurs, certificats, photos, autres) — V1.1.
@@ -133,7 +133,7 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
 
 **Devises — V1.0**
 - Multi-devises configurables (USD et FC activés par défaut).
-- Chaque frais est défini dans une devise. Un paiement dans une autre devise est converti au taux du jour saisi par l'école ; le taux est enregistré sur le paiement.
+- Chaque frais est défini en USD ou en FC, au choix pour chaque barème. Un paiement dans une autre devise est converti au taux de l'année saisi par le comptable (fixe toute l'année, corrigeable avec historique) ; le taux utilisé est enregistré sur le paiement.
 
 **Frais — V1.0**
 - Types : minerval, inscription / réinscription, fonctionnement, frais connexes (bulletins, cartes, examens d'État), uniformes, transport, cantine, activités parascolaires, frais d'examens officiels, frais personnalisés.
@@ -152,7 +152,7 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
 - Plusieurs caisses et caissiers.
 - Encaissement **hors-ligne**.
 - Paiement partiel accepté ; répartition automatique sur les échéances les plus anciennes, modifiable.
-- Reçu imprimé automatiquement sur imprimante thermique 80 mm, et en A4 ; QR code de vérification.
+- Reçu imprimé automatiquement dans le format choisi par l'école : thermique 58 ou 80 mm, ou petit reçu (A6, A5, ≈ 10 × 7 cm) sur feuille A4 avec traits de découpe ; 1 ou 2 exemplaires (souche) ; QR code de vérification, valable aussi pour un reçu imprimé hors ligne.
 - Annulation seulement avec autorisation d'un responsable et motif.
 - Clôture de caisse journalière par caissier et par devise, avec écart constaté.
 
@@ -180,7 +180,7 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
 - Évaluations : interrogations, devoirs, travaux pratiques, examens, repêchage / seconde session, épreuves spéciales (ENAFEP, TENAFEP, Exetat blanc). Pour les écoles techniques : **évaluations d'atelier** (V2).
 - Saisie des notes par l'enseignant, le titulaire ou le secrétariat, y compris sur téléphone et hors-ligne.
 - Contrôle : date limite de verrouillage, validation par le directeur des études, historique de toute modification, publication aux parents après validation seulement.
-- Bulletins : format officiel EPST, calcul automatique des totaux, pourcentages et places, mentions et appréciations automatiques, conduite, taux de présence, QR code d'authenticité, signature électronique du chef d'établissement, PDF téléchargeable par le parent.
+- Bulletins : format officiel EPST, calcul automatique des totaux, pourcentages et places, mentions et appréciations automatiques, conduite, taux de présence, QR code d'authenticité, signature électronique du chef d'établissement, PDF téléchargeable par le parent. Deux modes d'impression : bulletin complet, ou notes seules sur le formulaire officiel pré-imprimé.
 - Délibération : tableau par classe, règles de réussite configurables, décisions (admis, ajourné, repêchage, réorienté, exclu), palmarès imprimable, statistiques de réussite par classe et par cours.
 - Emploi du temps : génération automatique sans conflit, modifiable à la main (V2).
 - Devoirs publiés pour les élèves (V2).
@@ -261,7 +261,7 @@ Bibliothèque, cantine, transport (itinéraires, suivi GPS), internat, inventair
 - Français et anglais.
 - Guide pas à pas à la première connexion de chaque rôle.
 - Gros boutons, formulaires courts, recherche d'élève rapide (nom ou matricule).
-- Impressions : A4, reçus thermiques 80 mm, cartes PVC.
+- Impressions : A4, reçus thermiques 58 et 80 mm, petits reçus sur A4, cartes PVC.
 
 ### 9.5 Hébergement
 
@@ -284,6 +284,8 @@ Cloud international, un serveur au départ, budget inférieur à 20 $ par mois p
 | Technologies | Voir `03-architecture-technique.md`. |
 
 ## 11. Informations à recueillir auprès de l'ITIG
+
+Utiles mais pas bloquantes (décision du 2026-09-26) : en attendant, Claude crée des données fictives réalistes, et chaque école, l'ITIG comprise, saisit ensuite elle-même ses vraies données.
 
 - Modèles actuels : reçu, fiche d'inscription, bulletin, liste de classe, palmarès.
 - Grille des frais 2026-2027 : montants, devises, tranches, dates limites, réductions pratiquées.

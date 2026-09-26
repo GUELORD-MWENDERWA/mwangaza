@@ -4,7 +4,11 @@ Conventions : toutes les clés primaires sont des UUID v7 (`id`). Tous les modè
 
 ## 1. Plateforme et comptes
 
-**School [G]** — `code` (sous-domaine, unique), `name`, `official_name`, `logo`, `primary_color`, `timezone` (défaut `Africa/Lubumbashi`, Goma est en UTC+2), `enabled_currencies` (ex : `["USD","CDF"]`), `default_currency`, `matricule_format`, `status` (`trial`, `active`, `suspended`), `trial_ends_at`, `plan`, `network` (FK optionnelle vers `SchoolNetwork`), `settings` (JSON : règles configurables).
+**School [G]** — `code` (sous-domaine, unique), `name`, `official_name`, `logo`, `logo_monochrome` (optionnel : logo noir et blanc pour les reçus thermiques ; sans lui, le logo s'imprime en niveaux de gris), `primary_color`, `timezone` (défaut `Africa/Lubumbashi`, Goma est en UTC+2), `enabled_currencies` (ex : `["USD","CDF"]`), `default_currency`, `matricule_format`, `status` (`trial`, `active`, `suspended`), `trial_ends_at`, `plan`, `network` (FK optionnelle vers `SchoolNetwork`), `settings` (JSON : règles configurables, dont les réglages du reçu).
+
+Tout ce qui est propre à une école se règle ici, jamais dans le code (l'ITIG n'est que l'école d'exemple) :
+- **Couleur** (`primary_color`, décision Q8) : choisie par l'école ; défaut = couleur Mwangaza `#0E5C6B` (`lake`). La couleur du texte posé dessus (blanc ou encre `#1A2233`) est choisie automatiquement pour un contraste d'au moins 4,5 : 1 ; une couleur sur laquelle aucun des deux n'est lisible est refusée, avec une teinte voisine proposée.
+- **Reçu** (`settings.receipt`) : imprimante `thermal_58`, `thermal_80` ou `sheet` (imprimante ordinaire, feuille A4) ; sur feuille A4, taille du reçu `a6` (4 par feuille), `a5` (2 par feuille) ou `small` (≈ 10 × 7 cm, 8 par feuille), avec traits de découpe (but : un petit reçu à coller dans le cahier de l'élève) ; exemplaires : 1 (élève) ou 2 (élève + souche pour l'école) ; texte d'en-tête (adresse, téléphone, mentions).
 
 **SchoolNetwork [G]** — promoteur ou coordination : `name`, `kind` (`promoter`, `religious_coordination`).
 
@@ -12,9 +16,9 @@ Conventions : toutes les clés primaires sont des UUID v7 (`id`). Tous les modè
 
 **Membership [G]** — `user`, `school`, `roles` (M2M `Role`), `is_active`. Unique (`user`, `school`).
 
-**Role [T]** — `name`, `code`, `is_system` (rôles prédéfinis non supprimables), `permissions` (liste de codes). Les rôles système sont copiés à la création de l'école.
+**Role [T]** — `name`, `code`, `is_system` (rôles prédéfinis non supprimables), `permissions` (liste de codes). Les 9 rôles système (§ 8) sont copiés à la création de l'école. Plusieurs personnes peuvent avoir le même rôle (l'ITIG a 2 directeurs des études). Un rôle propre à l'école (ex : « chef d'atelier » en attendant le module ateliers de la V2) est un rôle personnalisé créé par l'école (B2).
 
-**Device [T]** — `user`, `kind` (`browser`, `reader`), `label`, `prefix` (unique dans l'école, ex : `C1`), `cash_register` (FK optionnelle), `last_seen_at`, `last_receipt_seq`, `revoked_at`.
+**Device [T]** — `user`, `kind` (`browser`, `reader`), `label`, `prefix` (unique dans l'école, ex : `C1`), `cash_register` (FK optionnelle), `public_key` (clé publique ECDSA P-256 de l'appareil, pour vérifier la signature des reçus émis hors ligne), `last_seen_at`, `last_receipt_seq`, `revoked_at`.
 
 **AuditLog [T]** **[I]** — `actor`, `device`, `action`, `entity_type`, `entity_id`, `before` (JSON), `after` (JSON), `ip`, `impersonated_by`.
 
@@ -32,31 +36,36 @@ Conventions : toutes les clés primaires sont des UUID v7 (`id`). Tous les modè
 
 ## 3. Élèves et familles
 
-**Student [G]** — identité qui suit l'élève entre écoles : `platform_id` (lisible, unique), `last_name`, `middle_name`, `first_name`, `sex`, `birth_date`, `birth_place`, `nationality`, `origin_province`, `origin_territory`, `address` (JSON : commune, quartier, avenue, numéro), `photo`, `photo_consent`, `previous_school`, `family`.
+Décision Q10 (2026-09-26) : **chaque école a sa propre copie** de l'élève et de sa famille. Une correction faite par une école ne touche pas les autres, et une école ne voit jamais qu'un élève ou une famille existe aussi ailleurs.
+
+**Student [T]** — identité de l'élève dans cette école : `last_name`, `middle_name`, `first_name`, `sex`, `birth_date`, `birth_place`, `nationality`, `origin_province`, `origin_territory`, `address` (JSON : commune, quartier, avenue, numéro), `photo`, `photo_consent`, `previous_school` (texte), `family`.
 Champs V1.1 : `blood_group`, `allergies`, `special_needs`, `religion`, `official_id`.
 
-**Family [G]** — `code` (code famille à 8 caractères, sans caractères ambigus), `primary_user` (FK `User`, rempli à l'activation), `activated_at`.
+**Family [T]** — `code` (code famille à 8 caractères, sans caractères ambigus, **unique sur toute la plateforme** : le portail le retrouve sans connaître l'école), `primary_user` (FK `User`, rempli à l'activation), `activated_at`.
 
-**Guardian [G]** — contact d'une famille : `family`, `full_name`, `relationship` (père, mère, tuteur…), `phone`, `email`, `is_primary`, `is_emergency_contact`.
+**Guardian [T]** — contact d'une famille : `family`, `full_name`, `relationship` (père, mère, tuteur…), `phone`, `email`, `is_primary`, `is_emergency_contact`.
 
 **Enrollment [T]** — inscription d'un élève dans une école pour une année : `student`, `academic_year`, `class_group`, `matricule` (unique dans l'école), `status` (`active`, `transferred`, `dropped`, `excluded`, `graduated`), `enrolled_on`, `left_on`.
 
 **StudentImport [T]** — `file`, `mapping` (JSON), `status`, `report` (JSON : erreurs par ligne), `created_count`.
 
 Règles :
-- Doublon potentiel : même `last_name` + `first_name` + `birth_date` → avertissement, pas de blocage.
+- Doublon potentiel (dans l'école) : même `last_name` + `first_name` + `birth_date` → avertissement, pas de blocage.
 - Le matricule est généré à la création de l'`Enrollment` selon `School.matricule_format`, séquence par école et par année.
 - Un parent voit un élève si `student.family.primary_user == user`.
+- **Parent avec des enfants dans plusieurs écoles** : un seul compte (`User`), relié à une famille par école. Il active son compte avec le code famille d'une école, puis ajoute chaque autre école avec le code famille qu'elle lui a remis (« Ajouter un enfant d'une autre école »). Jamais de rattachement automatique par numéro de téléphone : un numéro mal saisi par une école montrerait ses enfants à un inconnu. Le portail lit, pour ce compte seulement, les familles de chaque école et leurs données.
+- Coordonnées changées par le parent dans le portail (H5) : une demande par école où il a une famille ; chaque secrétariat l'applique à sa propre copie.
+- Transfert vers une autre école de la plateforme (6.9, V1.2) : l'école d'arrivée reçoit une copie du dossier ; les deux dossiers restent ensuite indépendants.
 
 ## 4. Finances
 
 **Currency** — constantes (`USD` : 2 décimales, `CDF` : 0 décimale utile).
 
-**ExchangeRate [T]** — `date`, `from_currency`, `to_currency`, `rate` (décimal, 6 chiffres après la virgule), `set_by`. Le taux du jour est le dernier saisi pour la date.
+**ExchangeRate [T]** **[I]** — taux de l'année scolaire, saisi par le comptable et **fixe toute l'année** : `academic_year`, `from_currency` (`USD`), `to_currency` (`CDF`), `rate` (décimal, 6 chiffres après la virgule, tel que saisi : francs pour 1 dollar), `valid_from`, `set_by`, `reason` (obligatoire pour une correction). Le taux en vigueur est la dernière ligne de l'année. Une correction en cours d'année ajoute une ligne : l'historique (qui, quand, ancien et nouveau taux) se lit dans la table et dans l'audit. Les paiements déjà faits gardent leur `rate_used`.
 
-**FeeType [T]** — `name`, `category` (`tuition`, `registration`, `operating`, `ancillary`, `uniform`, `transport`, `canteen`, `extracurricular`, `official_exam`, `custom`), `currency`, `funds_teacher_bonus` (bool), `accounting_code` (compte SYSCOHADA, optionnel), `is_active`.
+**FeeType [T]** — `name`, `category` (`tuition`, `registration`, `operating`, `ancillary`, `uniform`, `transport`, `canteen`, `extracurricular`, `official_exam`, `custom`), `funds_teacher_bonus` (bool), `accounting_code` (compte SYSCOHADA, optionnel), `is_active`. Pas de devise ici : elle est choisie dans chaque barème.
 
-**FeeRule [T]** — barème : `academic_year`, `fee_type`, portée (`school`, `level`, `track`, `class_group` — un seul rempli ou aucun = toute l'école), `total_amount_minor`, `schedule_kind` (`installments`, `monthly`, `single`).
+**FeeRule [T]** — barème : `academic_year`, `fee_type`, portée (`school`, `level`, `track`, `class_group` — un seul rempli ou aucun = toute l'école), `currency` (`USD` ou `CDF`, au choix pour chaque barème), `total_amount_minor`, `schedule_kind` (`installments`, `monthly`, `single`).
 
 **InstallmentTemplate [T]** — tranches d'un barème : `fee_rule`, `label` (« 1re tranche »), `amount_minor`, `due_on`, `order`.
 
@@ -68,7 +77,7 @@ Règles :
 
 **CashSession [T]** — ouverture d'une caisse par un caissier : `cash_register`, `cashier`, `device`, `opened_at`, `closed_at`.
 
-**Payment [T]** **[I]** — `id` (UUID client), `op_id`, `enrollment`, `cash_session`, `device`, `cashier`, `received_amount_minor`, `received_currency`, `rate_used`, `paid_at` (heure de l'appareil), `synced_at`, `receipt_number` (unique dans l'école), `method` (`cash` en V1 ; `mobile_money`, `bank` plus tard), `note`.
+**Payment [T]** **[I]** — `id` (UUID client), `op_id`, `enrollment`, `cash_session`, `device`, `cashier`, `received_amount_minor`, `received_currency`, `rate_used` (taux USD → CDF en vigueur à l'encaissement), `paid_at` (heure de l'appareil), `synced_at`, `receipt_number` (unique dans l'école), `receipt_signature` (signature de l'appareil sur le contenu du QR code, pour vérifier un reçu imprimé hors ligne), `method` (`cash` en V1 ; `mobile_money`, `bank` plus tard), `note`. Le reçu n'est pas un modèle : c'est une vue imprimable du paiement (décision Q2).
 
 **PaymentAllocation [T]** **[I]** — répartition d'un paiement : `payment`, `student_charge`, `amount_minor` (dans la devise de la charge).
 
@@ -81,7 +90,8 @@ Règles :
 Règles :
 - Reste dû d'une charge = `amount_minor` − réductions applicables − allocations de paiements non annulés.
 - Répartition par défaut : charges non soldées triées par `due_on` puis `fee_type`. Le caissier peut modifier avant validation.
-- Un paiement dans une devise différente de la charge : `allocation = received × rate_used`, arrondi à l'unité de la devise de la charge.
+- Un paiement dans une devise différente de la charge (décision Q4) : `rate_used` est toujours dans le sens USD → CDF, tel que saisi. Dollars vers francs : `allocation = received × rate_used` ; francs vers dollars : `allocation = received ÷ rate_used`, division en `Decimal` (jamais `× 1/rate`). Arrondi demi supérieur à l'unité de la devise de la charge (centime pour USD, franc pour CDF).
+- Échéancier particulier d'un élève (E4, décision Q1) : pas de modèle `PaymentSchedule` ; ce sont des `StudentCharge` avec `source=custom`.
 - En retard : `due_on` < aujourd'hui et reste dû > 0.
 - Aucune suppression physique dans ce module.
 
@@ -107,20 +117,26 @@ Règles :
 
 ## 8. Permissions V1.0
 
-| Code | Directeur | Comptable | Caissier | Secrétaire | Promoteur |
-|---|:-:|:-:|:-:|:-:|:-:|
-| `school.configure` | ✔ | | | | |
-| `roles.manage` | ✔ | | | | |
-| `students.view` | ✔ | ✔ | ✔ | ✔ | ✔ |
-| `students.edit` | ✔ | | | ✔ | |
-| `students.import` | ✔ | | | ✔ | |
-| `finance.configure_fees` | ✔ | ✔ | | | |
-| `finance.set_exchange_rate` | ✔ | ✔ | | | |
-| `finance.grant_discount` | ✔ | ✔ | | | |
-| `finance.collect_payment` | | ✔ | ✔ | | |
-| `finance.request_cancellation` | | ✔ | ✔ | | |
-| `finance.approve_cancellation` | ✔ | ✔ | | | |
-| `finance.close_register` | | ✔ | ✔ | | |
-| `finance.view_reports` | ✔ | ✔ | | | ✔ |
-| `announcements.publish` | ✔ | | | ✔ | |
-| `audit.view` | ✔ | | | | ✔ |
+9 rôles système (décision Q3) : `head` (directeur), `study_director` (directeur des études), `discipline_master` (directeur de discipline / surveillant), `accountant` (comptable), `cashier` (caissier), `secretary` (secrétaire), `promoter` (promoteur), `teacher` (enseignant), `parent`. Chaque école peut modifier les permissions de ses rôles et en créer d'autres (B2).
+
+| Code | Directeur | Dir. des études | Dir. de discipline | Comptable | Caissier | Secrétaire | Promoteur |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| `school.configure` (nom, logo, couleur, devises, reçus) | ✔ | | | | | | |
+| `classes.manage` (année, périodes, niveaux, options, classes, matricule) | ✔ | ✔ | | | | | |
+| `roles.manage` | ✔ | | | | | | |
+| `students.view` | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ |
+| `students.edit` | ✔ | ✔ | | | | ✔ | |
+| `students.import` | ✔ | | | | | ✔ | |
+| `finance.configure_fees` | ✔ | | | ✔ | | | |
+| `finance.set_exchange_rate` | ✔ | | | ✔ | | | |
+| `finance.grant_discount` | ✔ | | | ✔ | | | |
+| `finance.collect_payment` | | | | ✔ | ✔ | | |
+| `finance.request_cancellation` | | | | ✔ | ✔ | | |
+| `finance.approve_cancellation` | ✔ | | | ✔ | | | |
+| `finance.close_register` | | | | ✔ | ✔ | | |
+| `finance.view_reports` | ✔ | | | ✔ | | | ✔ |
+| `announcements.publish` | ✔ | ✔ | ✔ | | | ✔ | |
+| `audit.view` | ✔ | | | | | | ✔ |
+
+- **Enseignant** : aucune permission en V1.0 (B1). **Parent** : aucune permission dans la Gestion ; le portail lui montre ses enfants (§ 3).
+- Permissions des deux rôles ajoutés le 2026-09-26 (proposition de Claude, validée par la fusion de la PR) : en V1.0, le directeur des études s'occupe des classes et des inscriptions, le directeur de discipline consulte les élèves ; aucun des deux ne touche à l'argent. Prévu ensuite : `attendance.manage` (pointage, V1.1–V1.2) et `discipline.manage` (V1.2) pour le directeur de discipline ; `courses.configure`, `grades.validate`, `report_cards.publish` et `deliberation.manage` (V1.2) pour le directeur des études, avec double authentification obligatoire dès qu'il valide des notes.

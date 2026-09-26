@@ -1,7 +1,7 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-// Portail familles, servi sur parents.mwangaza.cd — en dev : http://localhost:5174/
+// Portail familles, servi sur parents.mwangaza.school — en dev : http://localhost:5174/
 // L'API est servie sur la même origine grâce au proxy : les cookies de session restent valides
 // et le sous-domaine de l'école ({code}.localhost) est transmis tel quel à Django.
 const apiTarget = process.env.VITE_API_TARGET ?? "http://localhost:8000";
