@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 1 (Socle) |
 | Lot | V1.0 — semaine 1 (Socle) |
-| Tâche en cours | aucune — 0.1 terminée ; maquettes manquantes dessinées (hors plan) ; 3 PR à fusionner dans l'ordre : #72, #73, #74 |
+| Tâche en cours | aucune — 0.1 terminée ; en attente des actions de l'utilisateur listées dans `A-FAIRE.md` (PR #75, Docker, `.env`, décisions) |
 | Prochaine tâche | 0.2 — qualité : ruff, pytest, ESLint, Prettier, Vitest, pre-commit, GitHub Actions |
 | Issue GitHub | #5 (0.1, fermée à la fusion de la PR) · prochaine : #6 (0.2) |
-| Branche | `tache/0.1-monorepo` (#72) → `docs/inventaire-manques` (#73) → `docs/maquettes-manquantes` (#74), empilées (dépôt GitHub privé `GUELORD-MWENDERWA/mwangaza`) |
+| Branche | `docs/a-faire` → PR #75 vers `main` (reprend #73 et #74, restées hors de `main`) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-26 |
 
 ## Avancement
@@ -32,7 +32,7 @@ Sur GitHub : onglet *Milestones* — V1.0 (36 issues, dont les 4 « avant de cod
 
 ## Bloquants et en attente
 
-Liste complète et détaillée (maquettes M1–M20, informations I1–I17, décisions T1–T6) : `07-a-fournir.md`. Ici, seulement ce qui bloque bientôt.
+Liste complète et détaillée (maquettes M1–M20, informations I1–I17, décisions T1–T6) : `07-a-fournir.md`. Ce que l'utilisateur doit faire et comment : `../A-FAIRE.md`. Ici, seulement ce qui bloque bientôt.
 
 | Sujet | Attendu de | Bloque |
 |---|---|---|
@@ -41,7 +41,8 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I17, déci
 | Date de remise des bulletins de la 1re période 2026-2027 (indice : 8 novembre en 2025) | ITIG | ordre V1.1 / V1.2 — voir Q6 |
 | Nom définitif et domaine | toi | 4.6 |
 | Comptes VPS, Cloudflare, stockage objet (GitHub : fait) | toi | 4.6, 4.7 |
-| Docker à installer (commandes données le 2026-09-25), puis déconnexion / reconnexion | toi | `make dev` jamais lancé ; en attendant : `make dev-local` avec une base PostgreSQL (voir journal 0.1) |
+| Base PostgreSQL pour le projet : Docker à installer puis `.env` (`A-FAIRE.md` § 3–5) ; aujourd'hui `make test-back` échoue (2 erreurs : pas de rôle `mwangaza`) | toi | 0.2 et toutes les tâches suivantes (tests) ; `make dev` jamais lancé |
+| Fusion de la PR #75 (inventaire, 61 maquettes, `A-FAIRE.md`) | toi | 0.2 (partir d'un `main` complet) |
 | Logo haute qualité + version noir et blanc pour le reçu thermique | ITIG | 3.2 |
 
 ## Questions ouvertes
@@ -65,6 +66,13 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I17, déci
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-26 — `A-FAIRE.md`, dossier renommé, PR de rattrapage
+
+- **Fait** : `A-FAIRE.md` à la racine, à la demande de l'utilisateur : ce que lui seul peut faire avant que Claude continue (fusionner #75, rouvrir le dossier, installer Docker, créer `.env`, vérifier, trancher Q1–Q11), comment le faire (commandes pas à pas pour Ubuntu 24.04), quoi demander à l'ITIG et quand (avec un message prêt à envoyer), comptes à créer avant 4.6, routine de chaque tâche, toutes les commandes du projet (actuelles et prévues), dépannage. Relié depuis `CLAUDE.md`, `README.md`, `07`, et les skills `tache` et `noter` (tenu à jour à chaque nouvelle commande ou action). Dossier local renommé de `~/Projets/saas` en `~/Projets/mwangaza` (nom du dépôt GitHub) ; mémoire de Claude Code copiée vers le nouveau chemin ; `backend/.venv` recréé.
+- **Constat** : la PR #73 a été fermée sans fusion et la PR #74 fusionnée dans `docs/inventaire-manques` au lieu de `main` : `07-a-fournir.md` et les 61 maquettes n'étaient pas sur `main`. La PR #75 (`docs/a-faire`, partie de `docs/inventaire-manques`) les ramène. `make test-back` échoue sur la machine (2 erreurs) faute de base PostgreSQL accessible : bloquant pour 0.2.
+- **Décisions** : `A-FAIRE.md` = liste d'actions de l'utilisateur et référence commentée des commandes ; `07` reste l'inventaire de ce qui manque. Règle : vérifier `base: main` avant de fusionner une PR ; plus de PR empilées.
+- **Suite** : l'utilisateur fait les étapes 1 à 6 de `A-FAIRE.md`, puis `/tache 0.2`.
 
 ### 2026-09-26 — Maquettes manquantes dessinées ; bulletins officiels de la RDC
 

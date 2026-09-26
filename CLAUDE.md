@@ -80,7 +80,7 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 
 ## Commandes
 
-Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Docker. `make` seul affiche la liste.
+Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Docker. `make` seul affiche la liste. Version commentée pour l'utilisateur, avec les commandes à venir et le dépannage : `A-FAIRE.md` § 10–11 (à tenir à jour avec ce tableau).
 
 | Commande | Effet |
 |---|---|
@@ -117,6 +117,7 @@ Chaque étape doit être notée pour savoir à tout moment où en est le projet.
 - **Fin d'une tâche** : cocher dans `docs/05-plan-de-travail.md`, mettre à jour « État actuel » et « Avancement », ajouter une entrée datée au « Journal » (fait, tests, décisions, reste à faire).
 - **Tout autre événement** (document reçu de l'ITIG, décision, blocage levé, question tranchée) : entrée datée au « Journal ».
 - **Décision technique** : aussi dans le « Journal des décisions » de `docs/03-architecture-technique.md`.
+- **Action qui attend l'utilisateur** (installer, fusionner une PR, demander à l'ITIG, acheter, créer un compte) ou **nouvelle commande** : mettre à jour `A-FAIRE.md` (ce qu'il doit faire, comment, avec quelles commandes ; cocher ce qui est fait). Le signaler dans la réponse.
 - Terminer chaque réponse de travail par une ligne d'état : `📍 Tâche X.Y — étape — prochaine action`.
 
 ## Skills du projet (`.claude/skills/`)

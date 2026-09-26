@@ -18,6 +18,7 @@ Dans Claude Code : `/etat`. Sur GitHub : onglet **Milestones** (une barre de pro
 ```
 .
 ├── CLAUDE.md                  règles du projet, lues automatiquement par Claude Code
+├── A-FAIRE.md                 ce que toi seul peux faire, comment, et toutes les commandes
 ├── PROMPT-DEMARRAGE.md        comment démarrer et quels prompts utiliser
 ├── README.md                  ce fichier
 ├── docs/
@@ -58,6 +59,8 @@ Code (tâche 0.1, voir `docs/03-architecture-technique.md` § 3) : `backend/` (D
 | `/document-ecole` | Intégrer un document réel de l'ITIG |
 
 ## Démarrer
+
+Pas à pas (Docker, `.env`, vérifications, dépannage) : **[`A-FAIRE.md`](A-FAIRE.md)**.
 
 Prérequis : Git, Docker, Python 3.12, Node 22, [uv](https://docs.astral.sh/uv/), pnpm (`corepack enable pnpm`), make.
 

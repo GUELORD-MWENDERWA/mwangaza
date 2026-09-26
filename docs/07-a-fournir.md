@@ -2,6 +2,8 @@
 
 Liste de tout ce qui manque pour aller jusqu'au bout : maquettes, informations de l'ITIG, décisions à prendre. Cocher au fur et à mesure (`/noter` ou `/document-ecole` le font). Établie le 2026-09-26 ; mise à jour le même jour : les 20 maquettes V1.0 manquantes sont dessinées (à valider).
 
+Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, comptes à créer, commandes) : [`A-FAIRE.md`](../A-FAIRE.md).
+
 **En attendant, le travail continue avec des données de test** (voir la dernière section) : aucun point ci-dessous ne bloque les tâches 0.2 à 1.7.
 
 ## 1. Maquettes manquantes
