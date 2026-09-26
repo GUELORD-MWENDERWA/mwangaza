@@ -1,4 +1,5 @@
-"""GET /api/me/ : le compte, ses écoles, ses droits dans l'école de l'adresse."""
+"""/api/me/ : le compte, ses écoles, ses droits dans l'école de l'adresse, l'état de sa double
+authentification ; la personne change sa langue."""
 
 import pytest
 
@@ -35,7 +36,10 @@ def test_head_sees_their_roles_and_permissions(api, school):
         "Patrice",
     )
     assert data["language"] == "fr"
-    assert data["must_change_password"] is False
+    # Directeur : double authentification exigée (B4), pas encore activée par ce compte de test.
+    assert data["totp_required"] is True
+    assert (data["totp_enabled"], data["totp_enabled_at"]) == (False, None)
+    assert data["recovery_codes_left"] == 0
     assert data["schools"] == [
         {"code": "alpha", "name": "École Alpha (fictive)", "status": "active"}
     ]
@@ -82,7 +86,48 @@ def test_deactivated_membership_is_not_listed(api, school, other_school):
     assert [s["code"] for s in data["schools"]] == ["beta"]
 
 
-def test_temporary_password_must_be_changed(api, school):
-    user = MembershipFactory(school=school, user__must_change_password=True).user
+def test_teacher_does_not_need_two_factor_authentication(api, school):
+    user = MembershipFactory(school=school, roles=["teacher"]).user
 
-    assert api(user).get(URL).json()["must_change_password"] is True
+    assert api(user).get(URL).json()["totp_required"] is False
+
+
+def test_role_that_requires_it_in_another_school_counts(api, school, other_school):
+    # Un seul compte : exigée pour lui partout (sans dire à l'école alpha pourquoi).
+    user = MembershipFactory(school=school, roles=["teacher"]).user
+    MembershipFactory(user=user, school=other_school, roles=["cashier"])
+
+    data = api(user).get(URL).json()
+
+    assert data["totp_required"] is True
+    assert [r["code"] for r in data["school"]["roles"]] == ["teacher"]
+
+
+def test_language_can_be_changed(api, school):
+    user = MembershipFactory(school=school, roles=["teacher"]).user
+
+    response = api(user).patch(URL, {"language": "en"})
+
+    assert response.status_code == 200
+    assert response.json()["language"] == "en"
+    user.refresh_from_db()
+    assert user.language == "en"
+
+
+def test_unknown_language_is_refused(api, school):
+    user = MembershipFactory(school=school, roles=["teacher"]).user
+
+    response = api(user).patch(URL, {"language": "sw"})
+
+    assert response.status_code == 400
+    assert "language" in response.json()
+
+
+def test_names_cannot_be_changed_here(api, school):
+    # Noms et téléphone : par l'école (M4, « adressez-vous au directeur ») ou le support.
+    user = MembershipFactory(school=school, roles=["teacher"], user__last_name="Kambale").user
+
+    api(user).patch(URL, {"language": "fr", "last_name": "Autre", "phone": "0000000999"})
+
+    user.refresh_from_db()
+    assert user.last_name == "Kambale"

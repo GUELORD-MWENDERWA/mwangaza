@@ -4,6 +4,7 @@
 - `Role` [T] : rôle d'une école ; les 9 rôles système y sont copiés à sa création (B1), l'école
   crée les siens (B2).
 - `Membership` [G] : la personne dans une école, avec ses rôles de cette école.
+- `RecoveryCode` [G] et `LoginFailure` [G] : codes de secours et essais ratés (B4).
 """
 
 from django.conf import settings
@@ -46,8 +47,9 @@ class UserManager(BaseUserManager):
 class User(BaseModel, AbstractBaseUser):
     """Compte d'une personne [G], identifié par son numéro de téléphone.
 
-    Une école ne modifie jamais le compte lui-même (nom, téléphone, mot de passe) : il peut servir
-    dans une autre école. Elle gère seulement l'appartenance de la personne à l'école."""
+    Une école gère l'appartenance de la personne à l'école. Elle ne modifie le compte lui-même
+    (noms, téléphone, mot de passe, double authentification) que s'il ne sert dans aucune autre
+    école (`services.account_managed_by`) : sinon, le support de la plateforme s'en charge."""
 
     class Language(models.TextChoices):
         FRENCH = "fr", "Français"
@@ -71,8 +73,15 @@ class User(BaseModel, AbstractBaseUser):
         default=False,
         help_text=_("Mwangaza super-administrator: Django administration only, no school rights."),
     )
-    # Mot de passe provisoire donné par l'école : à changer à la connexion (tâche 1.3).
+    # Mot de passe provisoire donné par l'école : à changer à la connexion.
     must_change_password = models.BooleanField(_("must change password"), default=False)
+    # Double authentification (B4) : clé TOTP chiffrée (`apps/core/crypto.py`), date
+    # d'activation, dernière période de 30 s utilisée (un code ne sert qu'une fois).
+    totp_secret = models.CharField(_("TOTP key"), max_length=255, blank=True, editable=False)
+    totp_enabled_at = models.DateTimeField(
+        _("two-factor authentication enabled on"), null=True, blank=True, editable=False
+    )
+    totp_last_step = models.BigIntegerField(default=0, editable=False)
 
     objects = UserManager()
 
@@ -94,6 +103,10 @@ class User(BaseModel, AbstractBaseUser):
 
     def get_short_name(self) -> str:
         return self.first_name or self.last_name
+
+    @property
+    def totp_enabled(self) -> bool:
+        return self.totp_enabled_at is not None
 
     # Administration Django : réservée au super-admin. Les droits dans une école viennent de ses
     # rôles (`HasSchoolPermission`), jamais d'ici.
@@ -192,6 +205,8 @@ class Membership(BaseModel):
     )
     # Désactivé : plus aucun accès à cette école ; le compte reste valable ailleurs.
     is_active = models.BooleanField(_("active"), default=True)
+    # Dernière connexion à l'adresse de cette école : l'école ne voit pas celles des autres.
+    last_login_at = models.DateTimeField(_("last login"), null=True, blank=True, editable=False)
 
     class Meta:
         ordering = ["created_at"]
@@ -204,3 +219,47 @@ class Membership(BaseModel):
 
     def __str__(self) -> str:
         return f"{self.user} — {self.school}"
+
+
+class RecoveryCode(BaseModel):
+    """Code de secours de la double authentification [G] : 8 par compte, à usage unique (M1).
+
+    Seule son empreinte est gardée (HMAC avec la clé du serveur) : une fuite de la base ne les
+    livre pas."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="recovery_codes",
+        verbose_name=_("account"),
+    )
+    digest = models.CharField(max_length=64, unique=True)
+    used_at = models.DateTimeField(_("used on"), null=True, blank=True)
+
+    class Meta:
+        ordering = ["created_at"]
+        verbose_name = _("recovery code")
+        verbose_name_plural = _("recovery codes")
+
+
+class LoginFailure(BaseModel):
+    """Essai de connexion raté [G] : mot de passe, code de double authentification ou mot de
+    passe actuel. Sert à bloquer un numéro ou une adresse IP (`attempts.py`) ; effacé à la
+    connexion réussie, purgé au bout d'un jour."""
+
+    # Numéro tapé, au format E.164 s'il est valable : un numéro sans compte est bloqué pareil.
+    phone = models.CharField(_("phone"), max_length=64)
+    ip = models.GenericIPAddressField(_("IP address"), null=True, blank=True)
+
+    class Meta:
+        ordering = ["created_at"]
+        verbose_name = _("failed login")
+        verbose_name_plural = _("failed logins")
+        indexes = [
+            models.Index(fields=["phone", "created_at"], name="loginfailure_phone"),
+            models.Index(fields=["ip", "created_at"], name="loginfailure_ip"),
+            models.Index(fields=["created_at"], name="loginfailure_created"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.phone} — {self.created_at:%Y-%m-%d %H:%M}"

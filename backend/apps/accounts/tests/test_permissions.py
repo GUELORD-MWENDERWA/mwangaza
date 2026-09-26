@@ -4,9 +4,14 @@ Exemple : la liste des rôles, qui demande `roles.manage` (seul le directeur l'a
 système).
 """
 
-import pytest
+from types import SimpleNamespace
 
+import pytest
+from rest_framework.exceptions import PermissionDenied
+
+from apps.accounts.login import MFA_SESSION_KEY
 from apps.accounts.models import Role, User
+from apps.accounts.permissions import HasSchoolPermission
 from apps.core.tenancy import use_school
 from tests.factories import MembershipFactory, UserFactory
 
@@ -94,6 +99,50 @@ def test_permissions_add_up_across_roles(api, school):
     assert api(user).get(URL).status_code == 200
 
 
-def test_debug_login_page_does_not_exist_outside_development(api, school):
-    # « Log in » de l'API navigable : seulement en DEBUG (réglages de test : DEBUG=False).
-    assert api(host="localhost").get("/api/auth/login/").status_code == 404
+# Double authentification (B4) : vérifiée à chaque requête, pas seulement à la connexion.
+
+
+def test_sensitive_roles_need_a_session_with_two_factor_authentication(api, head):
+    response = api(head, mfa=False).get(URL)
+
+    assert response.status_code == 403
+    assert response.json()["code"] == "totp_required"
+
+
+def _has_permission(user, school, permission: str, *, mfa: bool) -> bool:
+    view = SimpleNamespace(required_permission=permission)
+    request = SimpleNamespace(user=user, school=school, session={MFA_SESSION_KEY: mfa})
+    return HasSchoolPermission().has_permission(request, view)
+
+
+def test_role_without_sensitive_right_does_not_need_it(school):
+    secretary = MembershipFactory(school=school, roles=["secretary"]).user
+
+    assert _has_permission(secretary, school, "students.view", mfa=False) is True
+
+
+def test_any_right_on_money_needs_it_even_for_another_permission(school):
+    # Caissier, ou rôle créé par l'école avec un droit sur l'argent : rien n'est lié au nom.
+    with use_school(school):
+        reports = Role.objects.create(
+            name="Lecteur des rapports", permissions=["finance.view_reports", "students.view"]
+        )
+    cashier = MembershipFactory(school=school, roles=["cashier"]).user
+    reader = MembershipFactory(school=school, roles=[reports]).user
+
+    for user in (cashier, reader):
+        with pytest.raises(PermissionDenied) as refused:
+            _has_permission(user, school, "students.view", mfa=False)
+        assert refused.value.get_codes() == "totp_required"
+        assert _has_permission(user, school, "students.view", mfa=True) is True
+
+
+def test_role_given_during_the_session_asks_for_it(api, school):
+    # Enseignant connecté sans double authentification, puis nommé directeur : refusé jusqu'à
+    # une nouvelle connexion.
+    membership = MembershipFactory(school=school, roles=["teacher"])
+    client = api(membership.user, mfa=False)
+    with use_school(school):
+        membership.roles.set([Role.objects.get(code="head")])
+
+    assert client.get(URL).json()["code"] == "totp_required"

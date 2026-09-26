@@ -4,6 +4,7 @@ avec un rôle, et des appels de l'API sur l'adresse d'une école."""
 import pytest
 from django.test import Client
 
+from apps.accounts.login import MFA_SESSION_KEY
 from apps.core.tenancy import get_current_school
 from tests.factories import MembershipFactory, SchoolFactory
 
@@ -50,10 +51,16 @@ class Api:
 
 @pytest.fixture
 def api():
-    def make(user=None, host="alpha.localhost") -> Api:
+    """`api(user)` : session connectée comme après toutes les étapes de la connexion, double
+    authentification comprise (`mfa=False` : sans elle)."""
+
+    def make(user=None, host="alpha.localhost", *, mfa=True) -> Api:
         client = Client()
         if user is not None:
             client.force_login(user)
+            session = client.session
+            session[MFA_SESSION_KEY] = mfa
+            session.save()
         return Api(client, host)
 
     return make

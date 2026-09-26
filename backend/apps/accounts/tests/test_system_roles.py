@@ -3,7 +3,7 @@
 import pytest
 
 from apps.accounts.models import Role
-from apps.accounts.roles import PERMISSIONS, SYSTEM_ROLES, sorted_permissions
+from apps.accounts.roles import PERMISSIONS, SYSTEM_ROLES, TOTP_PERMISSIONS, sorted_permissions
 from apps.accounts.services import create_system_roles
 from apps.core.tenancy import use_school
 from tests.factories import SchoolFactory
@@ -126,3 +126,19 @@ def test_sorted_permissions():
     ]
     with pytest.raises(ValueError):
         sorted_permissions(["students.delete"])
+
+
+def test_default_roles_that_require_two_factor_authentication():
+    # B4 : directeur, comptable, caissier, promoteur.
+    requiring = {
+        code for code, role in SYSTEM_ROLES.items() if set(role.permissions) & TOTP_PERMISSIONS
+    }
+
+    assert requiring == {"head", "accountant", "cashier", "promoter"}
+
+
+def test_every_right_on_money_requires_it():
+    finance = {code for code in PERMISSIONS if code.startswith("finance.")}
+
+    assert finance <= TOTP_PERMISSIONS
+    assert TOTP_PERMISSIONS.issubset(PERMISSIONS)

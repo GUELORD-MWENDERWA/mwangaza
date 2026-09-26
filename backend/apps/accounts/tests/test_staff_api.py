@@ -4,9 +4,16 @@ import re
 
 import pytest
 
-from apps.accounts.models import Membership, Role, User
+from apps.accounts import services
+from apps.accounts.models import Membership, RecoveryCode, Role, User
 from apps.core.tenancy import use_school
-from tests.factories import TEST_PASSWORD, MembershipFactory, UserFactory
+from tests.factories import (
+    TEST_PASSWORD,
+    MembershipFactory,
+    UserFactory,
+    enable_totp,
+    totp_code,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -330,3 +337,202 @@ def test_person_added_from_one_school_is_only_in_it(api, head, school, other_sch
 
     user = User.objects.get(phone="+243971183062")
     assert [m.school for m in user.memberships.all()] == [school]
+
+
+# Double authentification, dernière connexion, compte géré par l'école (M3)
+
+
+def by_id(api_client) -> dict:
+    return {entry["id"]: entry for entry in api_client.get(URL).json()["results"]}
+
+
+def test_list_shows_two_factor_status_for_this_school(api, head, school, other_school):
+    enabled = MembershipFactory(school=school, roles=["teacher"])
+    enable_totp(enabled.user)
+    to_enable = MembershipFactory(school=school, roles=["cashier"])
+    not_required = MembershipFactory(school=school, roles=["teacher"])
+    # Exigée par un rôle dans une autre école : l'école alpha ne le voit pas.
+    MembershipFactory(user=not_required.user, school=other_school, roles=["cashier"])
+
+    staff = by_id(api(head))
+
+    assert staff[str(enabled.id)]["totp"] == "enabled"
+    assert staff[str(to_enable.id)]["totp"] == "to_enable"
+    assert staff[str(not_required.id)]["totp"] == "not_required"
+
+
+def test_last_login_is_the_one_at_this_school(api, head, school, other_school):
+    member = MembershipFactory(school=school, roles=["teacher"])
+    MembershipFactory(user=member.user, school=other_school, roles=["teacher"])
+
+    response = api(host="beta.localhost").post(
+        "/api/auth/login/", {"phone": member.user.phone, "password": TEST_PASSWORD}
+    )
+
+    assert response.json()["step"] == "done"
+    assert by_id(api(head))[str(member.id)]["last_login_at"] is None
+    assert Membership.objects.get(user=member.user, school=other_school).last_login_at
+
+
+def test_account_managed_here_only_if_used_nowhere_else(api, head, school, other_school):
+    only_here = MembershipFactory(school=school, roles=["teacher"])
+    elsewhere = MembershipFactory(school=school, roles=["teacher"])
+    MembershipFactory(user=elsewhere.user, school=other_school, is_active=False)
+    admin = User.objects.create_superuser("0000090999", "secret-123", last_name="Admin")
+    admin_member = MembershipFactory(user=admin, school=school, roles=["teacher"])
+
+    staff = by_id(api(head))
+
+    assert staff[str(only_here.id)]["account_managed_here"] is True
+    assert staff[str(elsewhere.id)]["account_managed_here"] is False
+    assert staff[str(admin_member.id)]["account_managed_here"] is False
+    detail = api(head).get(f"{URL}{elsewhere.id}/").json()
+    assert detail["account_managed_here"] is False
+
+
+def test_new_password_for_an_account_used_only_here(api, head, school):
+    member = MembershipFactory(school=school, roles=["cashier"])
+    session_of_the_person = api(member.user)
+
+    response = api(head).post(f"{URL}{member.id}/new-password/")
+
+    assert response.status_code == 200
+    password = response.json()["temporary_password"]
+    assert re.fullmatch(r"[a-z2-9]{4}-[a-z2-9]{4}-[a-z2-9]{4}", password)
+    member.user.refresh_from_db()
+    assert member.user.must_change_password is True
+    assert member.user.check_password(password)
+    # Ses sessions ouvertes sont fermées ; à la connexion, nouveau mot de passe d'abord.
+    assert session_of_the_person.get("/api/me/").status_code == 403
+    login = api().post("/api/auth/login/", {"phone": member.user.phone, "password": password})
+    assert login.json()["step"] == "new_password"
+
+
+def test_no_new_password_for_an_account_used_elsewhere(api, head, school, other_school):
+    member = MembershipFactory(school=school, roles=["teacher"])
+    MembershipFactory(user=member.user, school=other_school, roles=["head"])
+
+    response = api(head).post(f"{URL}{member.id}/new-password/")
+
+    assert response.status_code == 409
+    assert response.json()["code"] == "account_used_elsewhere"
+    assert "beta" not in response.content.decode().lower()
+    member.user.refresh_from_db()
+    assert member.user.check_password(TEST_PASSWORD)
+    assert member.user.must_change_password is False
+
+
+def test_platform_admin_account_is_not_managed_by_a_school(api, head, school):
+    admin = User.objects.create_superuser("0000090999", "secret-123", last_name="Admin")
+    member = MembershipFactory(user=admin, school=school, roles=["teacher"])
+
+    response = api(head).post(f"{URL}{member.id}/new-password/")
+
+    assert response.json()["code"] == "account_used_elsewhere"
+
+
+def test_reset_two_factor_authentication(api, head, school):
+    member = MembershipFactory(school=school, roles=["cashier"])
+    secret = enable_totp(member.user)
+    services.enable_totp(member.user, secret, totp_code(secret))
+
+    response = api(head).post(f"{URL}{member.id}/reset-totp/")
+
+    assert response.status_code == 200
+    assert response.json()["totp"] == "to_enable"
+    member.user.refresh_from_db()
+    assert (member.user.totp_enabled, member.user.totp_secret) == (False, "")
+    assert not RecoveryCode.objects.filter(user=member.user).exists()
+    login = api().post("/api/auth/login/", {"phone": member.user.phone, "password": TEST_PASSWORD})
+    assert login.json()["step"] == "totp_setup"
+
+
+def test_no_reset_for_an_account_used_elsewhere(api, head, school, other_school):
+    member = MembershipFactory(school=school, roles=["teacher"])
+    MembershipFactory(user=member.user, school=other_school, roles=["cashier"])
+    enable_totp(member.user)
+
+    response = api(head).post(f"{URL}{member.id}/reset-totp/")
+
+    assert response.json()["code"] == "account_used_elsewhere"
+    member.user.refresh_from_db()
+    assert member.user.totp_enabled
+
+
+def test_change_names_and_phone(api, head, school):
+    member = MembershipFactory(school=school, roles=["cashier"])
+
+    response = api(head).patch(
+        f"{URL}{member.id}/",
+        {"last_name": " Kavira ", "middle_name": "", "first_name": "Jeanne", "phone": "0000090555"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["user"]["phone"] == "+243000090555"
+    member.user.refresh_from_db()
+    assert (member.user.last_name, member.user.first_name) == ("Kavira", "Jeanne")
+
+
+def test_phone_already_used_by_another_account(api, head, school):
+    member = MembershipFactory(school=school, roles=["cashier"])
+    other = UserFactory()
+
+    response = api(head).patch(f"{URL}{member.id}/", {"phone": other.phone})
+
+    assert response.status_code == 409
+    assert response.json()["code"] == "phone_taken"
+
+
+def test_last_name_cannot_be_emptied(api, head, school):
+    member = MembershipFactory(school=school, roles=["cashier"])
+
+    response = api(head).patch(f"{URL}{member.id}/", {"last_name": ""})
+
+    assert response.status_code == 400
+
+
+def test_names_of_an_account_used_elsewhere_are_refused(api, head, school, other_school):
+    member = MembershipFactory(school=school, roles=["teacher"], user__last_name="Kambale")
+    MembershipFactory(user=member.user, school=other_school)
+
+    response = api(head).patch(
+        f"{URL}{member.id}/", {"last_name": "Autre", "roles": [role_id(school, "cashier")]}
+    )
+
+    assert response.json()["code"] == "account_used_elsewhere"
+    member.user.refresh_from_db()
+    assert member.user.last_name == "Kambale"
+    # Tout est refusé : les rôles non plus ne changent pas.
+    assert role_codes(member) == {"teacher"}
+
+
+@pytest.mark.parametrize("action", ["new-password", "reset-totp"])
+def test_account_actions_need_roles_manage(api, cashier, school, action):
+    member = MembershipFactory(school=school, roles=["teacher"])
+
+    response = api(cashier).post(f"{URL}{member.id}/{action}/")
+
+    assert response.status_code == 403
+
+
+@pytest.mark.parametrize("action", ["new-password", "reset-totp"])
+def test_account_actions_on_another_school_are_not_found(
+    api, other_head, school, other_school, action
+):
+    alpha_member = MembershipFactory(school=school, roles=["cashier"])
+    enable_totp(alpha_member.user)
+
+    response = api(other_head, host="beta.localhost").post(f"{URL}{alpha_member.id}/{action}/")
+
+    assert response.status_code == 404
+    alpha_member.user.refresh_from_db()
+    assert alpha_member.user.check_password(TEST_PASSWORD)
+    assert alpha_member.user.totp_enabled
+
+
+def test_head_without_two_factor_session_is_refused(api, head, school):
+    member = MembershipFactory(school=school, roles=["teacher"])
+
+    response = api(head, mfa=False).post(f"{URL}{member.id}/new-password/")
+
+    assert response.json()["code"] == "totp_required"
