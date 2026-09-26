@@ -5,7 +5,7 @@ Claude ne peut pas : installer avec `sudo`, fusionner une PR, parler à l'ITIG, 
 
 Ce qui manque en détail (maquettes, informations ITIG, décisions) : [`docs/07-a-fournir.md`](docs/07-a-fournir.md). Ici : **quoi faire, dans quel ordre, avec quelles commandes**.
 
-Dernière mise à jour : 2026-09-26 (règles de travail avec GitHub ; tâche 1.1 ; corrections après ton essai de la PR #80).
+Dernière mise à jour : 2026-09-26 (PR #80 fusionnée ; tâche 1.2 : comptes et rôles, `make reset-db`, comptes de démonstration).
 
 ## Maintenant
 
@@ -22,7 +22,8 @@ Dernière mise à jour : 2026-09-26 (règles de travail avec GitHub ; tâche 1.1
 | 6 | [Donner tes décisions](#6-tes-décisions) : nom et domaine (Q9), questions Q1 à Q11 | 10 min | [x] |
 | 7 | [Relire et fusionner la PR des décisions (#78)](#7-fusionner-la-pr-des-décisions), puis celle de la tâche 0.2 (#79) — dans cet ordre | 15 min | [x] |
 | 8 | Après la fusion de la 0.2 : `make install` une fois (nouveaux outils ESLint, Prettier, Vitest, ruff, et contrôles avant chaque commit) — relancé par Claude sur ta machine le 2026-09-26 | 3 min | [x] |
-| 9 | **[Relire et fusionner la PR #80 (tâche 1.1)](#10-comment-relire-et-fusionner-une-pr)** : ton premier essai a montré deux problèmes (Ctrl+C sur `make dev-local`, `make migrate` avec la base arrêtée), corrigés dans la même PR ; refaire « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make migrate && make demo` | 15 min | [ ] |
+| 9 | [Relire et fusionner la PR #80 (tâche 1.1)](#10-comment-relire-et-fusionner-une-pr) — fusionnée le 2026-09-26 | 15 min | [x] |
+| 10 | **[Relire et fusionner la PR de la tâche 1.2](#10-comment-relire-et-fusionner-une-pr)** (comptes, rôles, permissions) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make reset-db` (**une seule fois** : nouveau modèle de compte, la base de développement est recréée avec les données fictives) | 20 min | [ ] |
 
 À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). Rien d'autre ne bloque : Claude enchaîne les tâches. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant), et [les comptes et le domaine](#9-avant-la-semaine-4-tâche-46--comptes-et-achats) avant la semaine 4.
 
@@ -280,9 +281,10 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make services` | seulement PostgreSQL (port 5433) et Redis dans Docker, prêts à l'emploi | rarement : `make dev-local`, `migrate`, `demo`, `test`, `shell` et `superuser` les démarrent d'eux-mêmes |
 | `make dev-local` | Django et Vite sur ta machine (lit `.env`) ; **Ctrl+C arrête tout** (seul `^C` s'affiche) | plus rapide que `make dev` |
 | `make stop` | arrête les conteneurs Docker | fin de journée |
+| `make reset-db` | **efface** la base de développement (et celle des tests), puis la recrée : migrations et données fictives (`make demo`) | quand une PR le demande (ex. tâche 1.2), ou si `make migrate` affiche `InconsistentMigrationHistory` ; tu ne perds que des données fictives |
 | `make migrate` | applique les migrations à la base | après un `git pull` qui ajoute des migrations |
 | `make makemigrations app=finance name=exchange_rate` | crée une migration | après un changement de modèle |
-| `make demo` | crée ou remet à jour les données fictives : écoles `itig` et `volcans` (plus de données à chaque tâche) ; refusé en production | après `make migrate`, ou pour remettre la démonstration à zéro |
+| `make demo` | crée ou remet à jour les données fictives : écoles `itig` et `volcans`, un compte par rôle (liste et mot de passe affichés à la fin ; plus de données à chaque tâche) ; refusé en production | après `make migrate`, ou pour remettre la démonstration à zéro |
 | `make test` | tous les tests | avant de fusionner une PR |
 | `make test-back` | tests backend (pytest) | |
 | `make test-front` | vérification des types du front, puis tests Vitest | |
@@ -290,7 +292,7 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make format` | corrige automatiquement le format et ce qui peut l'être | quand `make lint` signale un problème de format |
 | `make api` | écrit le schéma OpenAPI dans `frontend/packages/api/openapi.yaml` | après tout changement d'API |
 | `make build` | construit les deux applications | avant la mise en production |
-| `make superuser` | crée un compte super-administrateur | une fois par base |
+| `make superuser` | crée un compte super-administrateur (identifiant : ton numéro de téléphone) | rarement : `make demo` en crée un (`0000000000`) |
 | `make shell` | console Django | explorer les données |
 | `python3 maquettes/outils/maquettes.py menu` | réécrit le menu latéral de toutes les maquettes Gestion | après un changement de menu |
 | `python3 maquettes/outils/maquettes.py index` | régénère la galerie `maquettes/index.html` | après une nouvelle maquette |
@@ -315,6 +317,10 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | http://localhost:5174/ | Portail parents |
 | http://localhost:8000/api/health/ | l'API répond-elle ? |
 | http://localhost:8000/api/docs/ | documentation de l'API |
+| http://itig.localhost:5173/api/auth/login/ | se connecter à l'API (développement seulement, en attendant l'écran de connexion) : téléphone d'un compte de `make demo`, mot de passe `mwangaza-demo` |
+| http://itig.localhost:5173/api/me/ | le compte connecté, ses écoles, ses rôles et permissions dans l'école de l'adresse |
+| http://itig.localhost:5173/api/roles/ · …/api/staff/ | rôles et comptes du personnel de l'école (directeur seulement) |
+| http://localhost:8000/admin/ | administration Django (super-admin `0000000000`) |
 
 ### Git et GitHub
 
@@ -351,6 +357,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | `permission denied … docker.sock` | pas encore reconnecté après `usermod` | se déconnecter / reconnecter (ou `newgrp docker` dans ce terminal) |
 | `The SECRET_KEY setting must not be empty` | ancienne version du code avec `DJANGO_SECRET_KEY=` vide dans `.env` | `git switch main && git pull` après la fusion de la PR de correction (étape 5 bis) |
 | `port is already allocated` (5433, 6379, 8000, 5173) | un autre programme utilise le port | `ss -ltnp \| grep 6379` pour le trouver ; par ex. `sudo systemctl stop redis-server` |
+| `InconsistentMigrationHistory: Migration admin.0001_initial is applied before its dependency accounts.0001_initial` (`make migrate`, `make test`, `make dev`) | base de développement créée avant la tâche 1.2 (nouveau modèle de compte) | `make reset-db` une fois |
 | `connection refused` (port 5433) ou `role "mwangaza" does not exist` | pas de `.env`, ou base Docker arrêtée avec une version d'avant la PR #80 | `cp .env.example .env` (étape 4) ; depuis la PR #80, les commandes `make` qui ont besoin de la base la démarrent d'elles-mêmes (sinon : `make services`, et lire son message) |
 | Ctrl+C sur `make dev-local` : `Erreur de segmentation (core dump créé)`, `Traceback`, `SystemExit` | version du Makefile d'avant la PR #80 | après sa fusion : `git switch main && git pull` |
 | « Failed », `[ELIFECYCLE] Command failed` ou `ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL` en arrêtant `pnpm dev` ou `make dev` | pnpm compte l'arrêt de Vite comme un échec | rien à faire : c'est normal (`make dev-local` ne l'affiche plus) |

@@ -1,6 +1,6 @@
 # Modèle de données
 
-Conventions : toutes les clés primaires sont des UUID v7 (`id`). Tous les modèles ont `created_at`, `updated_at`, `created_by`. **[T]** = hérite de `TenantModel` (champ `school`). **[G]** = global. **[I]** = immuable après création.
+Conventions : toutes les clés primaires sont des UUID v7 (`id`). Tous les modèles ont `created_at`, `updated_at`, `created_by` (rempli par les services ; vide pour ce que crée le système). **[T]** = hérite de `TenantModel` (champ `school`). **[G]** = global. **[I]** = immuable après création.
 
 ## 1. Plateforme et comptes
 
@@ -12,11 +12,11 @@ Tout ce qui est propre à une école se règle ici, jamais dans le code (l'ITIG 
 
 **SchoolNetwork [G]** — promoteur ou coordination : `name`, `kind` (`promoter`, `religious_coordination`).
 
-**User [G]** — `phone` (unique, format E.164, identifiant principal), `email` (optionnel, unique), `first_name`, `last_name`, `middle_name` (post-nom), `password`, `language`, `is_platform_admin`, `totp_enabled`.
+**User [G]** — `phone` (unique, format E.164, identifiant principal ; saisi aussi sous la forme nationale `0971234567`, indicatif par défaut 243), `email` (optionnel, unique — avec son usage), `last_name` (nom), `middle_name` (post-nom), `first_name` (prénom), `password`, `language`, `is_active`, `is_platform_admin` (super-admin : administration Django seulement, aucun droit dans une école sans y avoir de rôle), `must_change_password` (mot de passe provisoire donné par l'école), `totp_enabled` (1.3). Une école ne modifie jamais le compte lui-même (nom, téléphone, mot de passe) : il peut servir dans une autre école ; elle gère l'appartenance (1.2).
 
-**Membership [G]** — `user`, `school`, `roles` (M2M `Role`), `is_active`. Unique (`user`, `school`).
+**Membership [G]** — `user`, `school`, `roles` (M2M `Role`, seulement des rôles de la même école : refusé aussi par la base de code), `is_active` (désactivé : plus aucun accès à cette école, le compte reste valable ailleurs). Unique (`user`, `school`). On ne supprime pas une appartenance, on la désactive. Une école ne voit jamais les autres écoles d'une personne.
 
-**Role [T]** — `name`, `code`, `is_system` (rôles prédéfinis non supprimables), `permissions` (liste de codes). Les 9 rôles système (§ 8) sont copiés à la création de l'école. Plusieurs personnes peuvent avoir le même rôle (l'ITIG a 2 directeurs des études). Un rôle propre à l'école (ex : « chef d'atelier » en attendant le module ateliers de la V2) est un rôle personnalisé créé par l'école (B2).
+**Role [T]** — `code` (rôle système : `head`, `cashier`… ; vide pour un rôle créé par l'école), `name` (vide pour un rôle système : l'interface affiche son nom traduit ; l'école peut le renommer, ex. « Préfet des études » ; obligatoire pour un rôle de l'école ; unique dans l'école), `is_system` (= a un `code` ; non supprimable), `permissions` (liste de codes du § 8). Les 9 rôles système (§ 8) sont copiés à la création de l'école. Un rôle de l'école ne se supprime que s'il n'est plus donné à personne. Aucun changement (permissions d'un rôle, rôles ou désactivation d'une personne) ne peut laisser l'école sans compte actif ayant `roles.manage`. Plusieurs personnes peuvent avoir le même rôle (l'ITIG a 2 directeurs des études). Un rôle propre à l'école (ex : « chef d'atelier » en attendant le module ateliers de la V2) est un rôle personnalisé créé par l'école (B2).
 
 **Device [T]** — `user`, `kind` (`browser`, `reader`), `label`, `prefix` (unique dans l'école, ex : `C1`), `cash_register` (FK optionnelle), `public_key` (clé publique ECDSA P-256 de l'appareil, pour vérifier la signature des reçus émis hors ligne), `last_seen_at`, `last_receipt_seq`, `revoked_at`.
 
@@ -123,7 +123,7 @@ Règles :
 |---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | `school.configure` (nom, logo, couleur, devises, reçus) | ✔ | | | | | | |
 | `classes.manage` (année, périodes, niveaux, options, classes, matricule) | ✔ | ✔ | | | | | |
-| `roles.manage` | ✔ | | | | | | |
+| `roles.manage` (rôles et comptes du personnel) | ✔ | | | | | | |
 | `students.view` | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ |
 | `students.edit` | ✔ | ✔ | | | | ✔ | |
 | `students.import` | ✔ | | | | | ✔ | |
@@ -138,5 +138,6 @@ Règles :
 | `announcements.publish` | ✔ | ✔ | ✔ | | | ✔ | |
 | `audit.view` | ✔ | | | | | | ✔ |
 
+- Codes et rôles système dans `backend/apps/accounts/roles.py` ; un test compare ce tableau au code. Vérification par le serveur sur chaque point d'API (`HasSchoolPermission`) : compte actif, appartenance active dans l'école de l'adresse, un rôle qui porte le code. Le super-admin n'a aucun droit dans une école sans connexion « en tant qu'école » (1.5).
 - **Enseignant** : aucune permission en V1.0 (B1). **Parent** : aucune permission dans la Gestion ; le portail lui montre ses enfants (§ 3).
 - Permissions des deux rôles ajoutés le 2026-09-26 (proposition de Claude, validée par la fusion de la PR) : en V1.0, le directeur des études s'occupe des classes et des inscriptions, le directeur de discipline consulte les élèves ; aucun des deux ne touche à l'argent. Prévu ensuite : `attendance.manage` (pointage, V1.1–V1.2) et `discipline.manage` (V1.2) pour le directeur de discipline ; `courses.configure`, `grades.validate`, `report_cards.publish` et `deliberation.manage` (V1.2) pour le directeur des études, avec double authentification obligatoire dès qu'il valide des notes.

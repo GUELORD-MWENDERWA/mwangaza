@@ -6,7 +6,7 @@ Pour lancer une tâche dans Claude Code : `/tache 2.3` (ou « Fais la tâche 2.3
 
 État actuel, tâche en cours, bloquants et journal de chaque étape : `06-suivi.md` (`/etat` dans Claude Code). Ce qui manque encore (maquettes, informations, décisions) : `07-a-fournir.md`.
 
-Données de démonstration : `make demo` est créée en 1.5 et chaque tâche qui ajoute des modèles l'enrichit (données fictives et réalistes ; en production, chaque école saisit ses vraies données).
+Données de démonstration : `make demo` est créée en 1.1 (avancée, prévue en 1.5) et chaque tâche qui ajoute des modèles l'enrichit (données fictives et réalistes ; en production, chaque école saisit ses vraies données).
 
 Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **issue** portant son numéro (ex. « 1.1 — App core… »). La PR d'une tâche ferme son issue (`Closes #n`). Ce fichier reste la référence ; GitHub montre la progression de chaque version.
 
@@ -22,12 +22,12 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
 - [x] **0.1** Créer le monorepo selon `03-architecture-technique.md` § 3 ; Docker Compose de développement (postgres, redis, django, front) ; compléter la section « Commandes » de `CLAUDE.md`
 - [x] **0.2** Qualité : ruff, pytest, ESLint, Prettier, Vitest, pre-commit, GitHub Actions (lint + tests)
 - [x] **1.1** App `core` : `TenantModel`, `TenantManager` qui lève une erreur sans école, `TenantMiddleware` par sous-domaine, UUID v7, classe `Money` + tests
-- [ ] **1.2** App `accounts` : `User` (téléphone comme identifiant), `Membership`, `Role`, codes de permissions, 9 rôles système copiés à la création d'une école (B1–B3, `04` § 8)
+- [x] **1.2** App `accounts` : `User` (téléphone comme identifiant), `Membership`, `Role`, codes de permissions, 9 rôles système copiés à la création d'une école (B1–B3, `04` § 8) ; API des rôles et des comptes du personnel, `GET /api/me/`
 - [ ] **1.3** Connexion par session, TOTP pour les rôles sensibles, limitation des tentatives (B4)
 - [ ] **1.4** App `audit` : `AuditLog` + utilitaire d'enregistrement (I1)
 - [ ] **1.5** Super-admin : création / suspension d'école, liste des écoles, connexion « en tant qu'école » tracée (A1–A3) ; couleur de l'école choisie dans ses paramètres, contraste vérifié (Q8)
 - [ ] **1.6** Front `gestion` : squelette React + Vite + PWA + Tailwind + shadcn/ui + i18next ; écran de connexion ; mise en page avec menu selon permissions
-- [ ] **1.7** App `schools` : année scolaire depuis modèle, périodes, niveaux, options, classes, format de matricule + écrans (C1–C3)
+- [ ] **1.7** App `schools` : année scolaire depuis modèle, périodes, niveaux, options, classes, format de matricule + écrans (C1–C3) ; écrans « Comptes du personnel » (M3) et « Rôles et permissions » sur l'API de la 1.2 *(ajoutés le 2026-09-26 : aucune tâche ne les prévoyait)*
 
 ## Semaine 2 — Élèves et frais
 

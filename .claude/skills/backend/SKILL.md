@@ -10,7 +10,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 ## Modèle
 
 - Vérifier dans `04` si l'entité est **[T]** (hérite de `TenantModel`, champ `school`), **[G]** (globale : `User`, `School`, `Membership`, `PushSubscription`, `SchoolNetwork` — `Student`, `Family`, `Guardian` sont **[T]** : une copie par école, décision Q10) ou **[I]** (immuable).
-- Hériter de `apps.core.models.TenantModel` ([T]) ou `BaseModel` ([G]) : clé primaire UUID v7 (`apps.core.ids.uuid7`), `created_at`, `updated_at` ; `created_by` à partir de 1.2.
+- Hériter de `apps.core.models.TenantModel` ([T]) ou `BaseModel` ([G]) : clé primaire UUID v7 (`apps.core.ids.uuid7`), `created_at`, `updated_at`, `created_by` (rempli par le service avec `actor`).
 - Index composés **commençant par `school`** ; unicité portée par école (ex. `matricule`, `receipt_number`, `Device.prefix`) via `UniqueConstraint(fields=["school", …])`.
 - Argent : `*_minor` en `BigIntegerField` + `currency` (`CharField(3)`) ; taux en `DecimalField(…, decimal_places=6)`. Jamais `FloatField`. Voir skill `argent`.
 - **[I]** (`Payment`, `PaymentAllocation`, `PaymentCancellation`, `CashClosing`, `AuditLog`) : `save()` refuse la mise à jour d'une ligne existante, `delete()` lève une erreur ; admin en lecture seule ; aucun endpoint de modification ni de suppression.
@@ -24,6 +24,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 - **Jamais `Model.objects.all()` au niveau d'une classe** (s'exécute au chargement, sans école → erreur) : `get_queryset()` dans les vues, `queryset=Model.objects` (le manager, sans `.all()`) dans les champs DRF.
 - Réponse en flux (`StreamingHttpResponse`, gros export) : l'école courante n'existe plus quand le flux est lu ; construire les lignes avant, ou `use_school` dans le générateur.
 - `all_schools` seulement pour le super-admin et l'API du portail familles, et toujours filtré explicitement (ex. enfants de la famille de l'utilisateur).
+- `Membership` est [G] : toujours filtré avec l'école explicite (`school=request.school`). Un M2M d'un modèle [G] vers un modèle [T] passe par le manager de l'école courante (lecture) ; refuser un lien vers une autre école par un signal `m2m_changed` (exemple : `apps/accounts/signals.py`). Un refus levé dans ce signal annule la transaction en cours.
 - Portail : un compte parent peut être relié à des familles de plusieurs écoles (`Family.primary_user`) ; ne renvoyer que ces familles et leurs enfants, chacun avec les données de son école.
 - Rien de propre à une école dans le code (l'ITIG n'est que l'école d'exemple) : ce qui varie d'une école à l'autre vient de `School` ou de `School.settings`.
 
@@ -37,11 +38,11 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 
 ## Endpoint
 
-- ViewSet DRF fin : queryset issu du manager scopé, serializer, appel du service.
-- Permission serveur **sur chaque endpoint** avec un code de `04` § 8 (ex. `finance.collect_payment`). Nouveau code → l'ajouter aux rôles système et le signaler.
+- ViewSet DRF fin : queryset issu du manager scopé, serializer, appel du service. `get_queryset()` renvoie `Model.all_schools.none()` si `getattr(self, "swagger_fake_view", False)` (génération du schéma, sans école).
+- Permission serveur **sur chaque endpoint** avec un code de `04` § 8 (ex. `finance.collect_payment`) : hériter de `apps.accounts.views.SchoolViewSet` (ou `permission_classes = [HasSchoolPermission]`) et poser `required_permission = "…"`. Droits de l'utilisateur dans l'école : `apps.accounts.permissions.school_access(request)`. Nouveau code → `apps/accounts/roles.py` (+ rôles système qui doivent l'avoir, migration de données pour les écoles existantes, tableau de `04` § 8 et de `test_system_roles.py`) et le signaler.
 - Annoter pour drf-spectacular (`extend_schema`, types de réponse), puis régénérer le client `frontend/packages/api`.
 - Pagination sur les listes ; recherche élève < 2 s sur 3 000 élèves (index adaptés, pas de N+1 : `select_related` / `prefetch_related`).
-- Erreurs métier : `{"code": …, "detail": …}` (`apps.core.errors.ApiError`, `ErrorSerializer` pour le schéma) ; `code` stable, traduit par l'interface ; `detail` en `gettext`.
+- Erreurs métier : le service lève `apps.core.errors.BusinessError(ApiError(code, detail, statut))` ; l'API répond `{"code": …, "detail": …}` (`ErrorSerializer` pour le schéma), comme pour 403 / 404 / 405. `code` stable, traduit par l'interface ; `detail` en `gettext`. Erreurs de saisie : format DRF `{champ: [messages]}`.
 
 ## Migrations
 
@@ -50,7 +51,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 
 ## Tests (factory_boy, pytest-django) — obligatoires
 
-1. **Isolation** : fixtures `school` (`alpha.localhost`) et `other_school` (`beta.localhost`) de `backend/conftest.py`, fabrique `tests.factories.SchoolFactory` ; depuis l'école B (`HTTP_HOST="beta.localhost"`), la ressource de A n'apparaît pas dans la liste et renvoie 404 en détail, modification et action. Modèles d'essai du socle : app `tests.sample` (tests seulement).
+1. **Isolation** : fixtures `school` (`alpha.localhost`) et `other_school` (`beta.localhost`) de `backend/conftest.py`, fabriques `tests.factories` (`SchoolFactory`, `UserFactory`, `MembershipFactory(school=…, roles=["head"])`) ; comptes `head`, `cashier` (école alpha), `other_head` (beta) ; appels `api(user, host="beta.localhost").get/post/patch/delete(…)` ; depuis l'école B (`HTTP_HOST="beta.localhost"`), la ressource de A n'apparaît pas dans la liste et renvoie 404 en détail, modification et action. Modèles d'essai du socle : app `tests.sample` (tests seulement).
 2. **Permission** : sans le code → 403 ; avec → succès.
 3. **Règles métier** du service (cas nominal, limites, erreurs).
 4. **Audit** écrit quand l'action est sensible.
