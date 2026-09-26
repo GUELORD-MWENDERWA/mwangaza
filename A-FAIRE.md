@@ -25,7 +25,7 @@ Dernière mise à jour : 2026-09-26 (PR #82 fusionnée ; tâche 1.4 : journal d'
 | 9 | [Relire et fusionner la PR #80 (tâche 1.1)](#10-comment-relire-et-fusionner-une-pr) — fusionnée le 2026-09-26 | 15 min | [x] |
 | 10 | [Relire et fusionner la PR #81 (tâche 1.2)](#10-comment-relire-et-fusionner-une-pr) (comptes, rôles, permissions), puis `make reset-db` une fois — fusionnée le 2026-09-26 | 20 min | [x] |
 | 11 | **[Relire et fusionner la PR #82 (tâche 1.3)](#10-comment-relire-et-fusionner-une-pr)** (connexion, double authentification) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make install && make migrate && make demo` (`make install` : 2 nouvelles dépendances Python, Argon2 et `cryptography`) — fusionnée le 2026-09-26 | 25 min | [x] |
-| 12 | **[Relire et fusionner la PR #NN (tâche 1.4)](#10-comment-relire-et-fusionner-une-pr)** (journal d'audit) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make migrate` (pas de nouvelle dépendance) | 20 min | [ ] |
+| 12 | **[Relire et fusionner la PR #83 (tâche 1.4)](#10-comment-relire-et-fusionner-une-pr)** (journal d'audit) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make migrate` (pas de nouvelle dépendance) | 20 min | [ ] |
 
 À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). Rien d'autre ne bloque : Claude enchaîne les tâches. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant), et [les comptes et le domaine](#9-avant-la-semaine-4-tâche-46--comptes-et-achats) avant la semaine 4.
 
