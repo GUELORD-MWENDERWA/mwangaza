@@ -142,4 +142,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "handlers": {"console": {"class": "logging.StreamHandler"}},
     "root": {"handlers": ["console"], "level": env("DJANGO_LOG_LEVEL", "INFO")},
+    # Les messages de Django passent par la console ci-dessus : sans ce réglage, sa console à lui
+    # (en DEBUG) les écrirait une seconde fois.
+    "loggers": {"django": {"handlers": []}},
 }
