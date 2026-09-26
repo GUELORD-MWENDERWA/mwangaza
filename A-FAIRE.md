@@ -5,7 +5,7 @@ Claude ne peut pas : installer avec `sudo`, fusionner une PR, parler à l'ITIG, 
 
 Ce qui manque en détail (maquettes, informations ITIG, décisions) : [`docs/07-a-fournir.md`](docs/07-a-fournir.md). Ici : **quoi faire, dans quel ordre, avec quelles commandes**.
 
-Dernière mise à jour : 2026-09-26 (PR #80 fusionnée ; tâche 1.2 : comptes et rôles, `make reset-db`, comptes de démonstration).
+Dernière mise à jour : 2026-09-26 (PR #81 fusionnée ; tâche 1.3 : connexion en étapes, double authentification, blocage après 5 essais, `make totp`).
 
 ## Maintenant
 
@@ -23,7 +23,8 @@ Dernière mise à jour : 2026-09-26 (PR #80 fusionnée ; tâche 1.2 : comptes et
 | 7 | [Relire et fusionner la PR des décisions (#78)](#7-fusionner-la-pr-des-décisions), puis celle de la tâche 0.2 (#79) — dans cet ordre | 15 min | [x] |
 | 8 | Après la fusion de la 0.2 : `make install` une fois (nouveaux outils ESLint, Prettier, Vitest, ruff, et contrôles avant chaque commit) — relancé par Claude sur ta machine le 2026-09-26 | 3 min | [x] |
 | 9 | [Relire et fusionner la PR #80 (tâche 1.1)](#10-comment-relire-et-fusionner-une-pr) — fusionnée le 2026-09-26 | 15 min | [x] |
-| 10 | **[Relire et fusionner la PR #81 (tâche 1.2)](#10-comment-relire-et-fusionner-une-pr)** (comptes, rôles, permissions) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make reset-db` (**une seule fois** : nouveau modèle de compte, la base de développement est recréée avec les données fictives) | 20 min | [ ] |
+| 10 | [Relire et fusionner la PR #81 (tâche 1.2)](#10-comment-relire-et-fusionner-une-pr) (comptes, rôles, permissions), puis `make reset-db` une fois — fusionnée le 2026-09-26 | 20 min | [x] |
+| 11 | **[Relire et fusionner la PR #82 (tâche 1.3)](#10-comment-relire-et-fusionner-une-pr)** (connexion, double authentification) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make install && make migrate && make demo` (`make install` : 2 nouvelles dépendances Python, Argon2 et `cryptography`) | 25 min | [ ] |
 
 À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). Rien d'autre ne bloque : Claude enchaîne les tâches. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant), et [les comptes et le domaine](#9-avant-la-semaine-4-tâche-46--comptes-et-achats) avant la semaine 4.
 
@@ -284,7 +285,8 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make reset-db` | **efface** la base de développement (et celle des tests), puis la recrée : migrations et données fictives (`make demo`) | quand une PR le demande (ex. tâche 1.2), ou si `make migrate` affiche `InconsistentMigrationHistory` ; tu ne perds que des données fictives |
 | `make migrate` | applique les migrations à la base | après un `git pull` qui ajoute des migrations |
 | `make makemigrations app=finance name=exchange_rate` | crée une migration | après un changement de modèle |
-| `make demo` | crée ou remet à jour les données fictives : écoles `itig` et `volcans`, un compte par rôle (liste et mot de passe affichés à la fin ; plus de données à chaque tâche) ; refusé en production | après `make migrate`, ou pour remettre la démonstration à zéro |
+| `make demo` | crée ou remet à jour les données fictives : écoles `itig` et `volcans`, un compte par rôle (liste, mot de passe et clé de double authentification affichés à la fin ; plus de données à chaque tâche) ; débloque les connexions bloquées par des essais ratés ; refusé en production | après `make migrate`, ou pour remettre la démonstration à zéro |
+| `make totp` | affiche le code de double authentification du moment pour les comptes fictifs qui la demandent (directeur, comptable, caissière) ; `make totp key=<clé>` : pour la clé donnée à l'activation ; seulement en développement | se connecter sans téléphone ; ou ajouter une fois la clé affichée par `make demo` dans Google Authenticator ou Aegis |
 | `make test` | tous les tests | avant de fusionner une PR |
 | `make test-back` | tests backend (pytest) | |
 | `make test-front` | vérification des types du front, puis tests Vitest | |
@@ -317,7 +319,10 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | http://localhost:5174/ | Portail parents |
 | http://localhost:8000/api/health/ | l'API répond-elle ? |
 | http://localhost:8000/api/docs/ | documentation de l'API |
-| http://itig.localhost:5173/api/auth/login/ | se connecter à l'API (développement seulement, en attendant l'écran de connexion) : téléphone d'un compte de `make demo`, mot de passe `mwangaza-demo` |
+| http://itig.localhost:5173/api/auth/login/ | se connecter (en attendant l'écran de connexion de la 1.6) : téléphone d'un compte de `make demo`, mot de passe `mwangaza-demo` ; la réponse donne l'étape suivante (`step`) |
+| http://itig.localhost:5173/api/auth/login/totp/ | étape `totp` : code de `make totp` (directeur, comptable, caissière) |
+| http://itig.localhost:5173/api/auth/totp/setup/ · …/totp/activate/ | étape `totp_setup` : nouvelle clé, puis premier code (`make totp key=<clé>`) → 8 codes de secours |
+| http://itig.localhost:5173/api/auth/password/ · …/logout/ | nouveau mot de passe (provisoire, ou le sien) ; se déconnecter |
 | http://itig.localhost:5173/api/me/ | le compte connecté, ses écoles, ses rôles et permissions dans l'école de l'adresse |
 | http://itig.localhost:5173/api/roles/ · …/api/staff/ | rôles et comptes du personnel de l'école (directeur seulement) |
 | http://localhost:8000/admin/ | administration Django (super-admin `0000000000`) |
@@ -358,6 +363,10 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | `The SECRET_KEY setting must not be empty` | ancienne version du code avec `DJANGO_SECRET_KEY=` vide dans `.env` | `git switch main && git pull` après la fusion de la PR de correction (étape 5 bis) |
 | `port is already allocated` (5433, 6379, 8000, 5173) | un autre programme utilise le port | `ss -ltnp \| grep 6379` pour le trouver ; par ex. `sudo systemctl stop redis-server` |
 | `InconsistentMigrationHistory: Migration admin.0001_initial is applied before its dependency accounts.0001_initial` (`make migrate`, `make test`, `make dev`) | base de développement créée avant la tâche 1.2 (nouveau modèle de compte) | `make reset-db` une fois |
+| `"code": "too_many_attempts"` à la connexion | 5 essais ratés pour ce numéro en 15 minutes (ou 30 depuis ta machine) | attendre 15 minutes, ou `make demo` (débloque tout en développement) |
+| `"code": "totp_required"` sur une page de l'école | session ouverte sans double authentification, alors qu'un rôle l'exige (ex. rôle donné pendant la session) | se déconnecter (`…/api/auth/logout/`) et se reconnecter |
+| `"code": "invalid_code"` avec le code de `make totp` | code déjà utilisé (un code ne sert qu'une fois) | attendre le code suivant (30 secondes) et refaire `make totp` |
+| `ModuleNotFoundError: No module named 'argon2'` ou `'cryptography'` | dépendances de la tâche 1.3 pas installées | `make install` |
 | `connection refused` (port 5433) ou `role "mwangaza" does not exist` | pas de `.env`, ou base Docker arrêtée avec une version d'avant la PR #80 | `cp .env.example .env` (étape 4) ; depuis la PR #80, les commandes `make` qui ont besoin de la base la démarrent d'elles-mêmes (sinon : `make services`, et lire son message) |
 | Ctrl+C sur `make dev-local` : `Erreur de segmentation (core dump créé)`, `Traceback`, `SystemExit` | version du Makefile d'avant la PR #80 | après sa fusion : `git switch main && git pull` |
 | « Failed », `[ELIFECYCLE] Command failed` ou `ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL` en arrêtant `pnpm dev` ou `make dev` | pnpm compte l'arrêt de Vite comme un échec | rien à faire : c'est normal (`make dev-local` ne l'affiche plus) |

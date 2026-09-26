@@ -27,6 +27,9 @@ def env_list(name: str, default: str = "") -> list[str]:
 
 
 SECRET_KEY = env("DJANGO_SECRET_KEY")
+# Anciennes clés, séparées par des virgules, après un changement de `DJANGO_SECRET_KEY` : les
+# sessions, les clés TOTP chiffrées et les codes de secours restent lisibles.
+SECRET_KEY_FALLBACKS = env_list("DJANGO_SECRET_KEY_FALLBACKS")
 DEBUG = False
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS")
 
@@ -98,9 +101,25 @@ AUTH_USER_MODEL = "accounts.User"
 # Indicatif du pays pour un numéro tapé sous sa forme nationale (0971234567) : RDC.
 PHONE_DEFAULT_COUNTRY_CODE = "243"
 
+# Connexion par téléphone, avec la limitation des tentatives (API et administration Django).
+AUTHENTICATION_BACKENDS = ["apps.accounts.backends.PhoneBackend"]
+
+# Argon2 ; un ancien mot de passe (PBKDF2, avant la 1.3) est converti à la connexion suivante.
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+]
+
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "OPTIONS": {"user_attributes": ["phone", "last_name", "middle_name", "first_name"]},
+    },
+    # Au moins 10 caractères (Mon compte, M4).
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {"min_length": 10},
+    },
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]

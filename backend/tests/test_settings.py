@@ -27,3 +27,31 @@ def test_missing_variable_uses_default(monkeypatch):
     assert env("MWANGAZA_TEST_VAR", "par-defaut") == "par-defaut"
     assert env_bool("MWANGAZA_TEST_VAR") is False
     assert env_list("MWANGAZA_TEST_VAR") == []
+
+
+def test_passwords_are_hashed_with_argon2():
+    # Les tests hachent vite (MD5) ; les autres réglages hachent avec Argon2 (`03` § 8).
+    from config.settings import base
+
+    assert base.PASSWORD_HASHERS[0] == "django.contrib.auth.hashers.Argon2PasswordHasher"
+    # Anciens mots de passe (avant la 1.3) : lus, puis convertis à la connexion.
+    assert "django.contrib.auth.hashers.PBKDF2PasswordHasher" in base.PASSWORD_HASHERS
+
+
+def test_argon2_is_installed():
+    from django.contrib.auth.hashers import Argon2PasswordHasher
+
+    hasher = Argon2PasswordHasher()
+    encoded = hasher.encode("un-mot-de-passe", hasher.salt())
+
+    assert encoded.startswith("argon2$argon2id$")
+    assert hasher.verify("un-mot-de-passe", encoded)
+
+
+def test_password_needs_ten_characters(db):
+    from django.contrib.auth.password_validation import validate_password
+    from django.core.exceptions import ValidationError
+
+    with pytest.raises(ValidationError):
+        validate_password("court-123")
+    validate_password("assez-long-42")

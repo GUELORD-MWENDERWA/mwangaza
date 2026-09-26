@@ -1,9 +1,14 @@
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from apps.accounts import services
+from apps.accounts.login import Step
 from apps.accounts.models import Membership, Role, User
 from apps.accounts.phone import INVALID_PHONE_MESSAGE, InvalidPhoneError, normalize_phone
-from apps.accounts.roles import PERMISSION_CHOICES, SYSTEM_ROLES
+from apps.accounts.roles import PERMISSION_CHOICES, SYSTEM_ROLES, TOTP_PERMISSIONS
 from apps.schools.models import School
 
 
@@ -58,16 +63,53 @@ class StaffUserSerializer(serializers.ModelSerializer):
         fields = ["id", "phone", "last_name", "middle_name", "first_name"]
 
 
+TOTP_STATUS_CHOICES = [
+    ("enabled", "Turned on"),
+    ("to_enable", "Required by their roles in this school, not turned on yet"),
+    ("not_required", "Not required"),
+]
+
+
 class StaffSerializer(serializers.ModelSerializer):
     """Une personne dans l'école (son appartenance) ; `id` est celui de l'appartenance. Rien sur
     ses autres écoles."""
 
     user = StaffUserSerializer(read_only=True)
     roles = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    totp = serializers.SerializerMethodField(help_text="Double authentification (colonne de M3).")
+    last_login_at = serializers.DateTimeField(
+        read_only=True, allow_null=True, help_text="Dernière connexion à cette école."
+    )
+    account_managed_here = serializers.SerializerMethodField(
+        help_text="L'école peut changer les noms, le téléphone, le mot de passe et la double "
+        "authentification : le compte ne sert dans aucune autre école."
+    )
 
     class Meta:
         model = Membership
-        fields = ["id", "user", "roles", "is_active", "created_at"]
+        fields = [
+            "id",
+            "user",
+            "roles",
+            "is_active",
+            "totp",
+            "last_login_at",
+            "account_managed_here",
+            "created_at",
+        ]
+
+    @extend_schema_field(serializers.ChoiceField(choices=TOTP_STATUS_CHOICES))
+    def get_totp(self, membership: Membership) -> str:
+        if membership.user.totp_enabled:
+            return "enabled"
+        permissions = {code for role in membership.roles.all() for code in role.permissions}
+        return "to_enable" if permissions & TOTP_PERMISSIONS else "not_required"
+
+    @extend_schema_field(serializers.BooleanField())
+    def get_account_managed_here(self, membership: Membership) -> bool:
+        if hasattr(membership, "used_elsewhere"):
+            return not (membership.used_elsewhere or membership.user.is_platform_admin)
+        return services.account_managed_by(membership.user, membership.school)
 
 
 class PhoneField(serializers.CharField):
@@ -103,10 +145,22 @@ class StaffCreatedSerializer(StaffSerializer):
 
 
 class StaffUpdateSerializer(serializers.Serializer):
+    """Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`."""
+
     roles = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Role.objects, allow_empty=False, required=False
     )
     is_active = serializers.BooleanField(required=False)
+    phone = PhoneField(required=False)
+    last_name = serializers.CharField(max_length=100, required=False)
+    middle_name = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    first_name = serializers.CharField(max_length=100, required=False, allow_blank=True)
+
+
+class TemporaryPasswordSerializer(serializers.Serializer):
+    temporary_password = serializers.CharField(
+        help_text="Affiché une seule fois, à changer à la prochaine connexion."
+    )
 
 
 class MySchoolSerializer(serializers.ModelSerializer):
@@ -129,7 +183,14 @@ class MeSerializer(serializers.Serializer):
     middle_name = serializers.CharField()
     first_name = serializers.CharField()
     language = serializers.ChoiceField(choices=User.Language.choices)
-    must_change_password = serializers.BooleanField()
+    totp_enabled = serializers.BooleanField()
+    totp_enabled_at = serializers.DateTimeField(allow_null=True)
+    totp_required = serializers.BooleanField(
+        help_text="Un rôle du compte l'exige : impossible de la désactiver."
+    )
+    recovery_codes_left = serializers.IntegerField(
+        help_text="Codes de secours pas encore utilisés (alerte à 2 ou moins, M4)."
+    )
     schools = MySchoolSerializer(
         many=True, help_text="Écoles où le compte a une appartenance active (choix de l'école)."
     )
@@ -137,3 +198,84 @@ class MeSerializer(serializers.Serializer):
         allow_null=True,
         help_text="Rôles et permissions dans l'école de l'adresse ; null sans accès à cette école.",
     )
+
+
+class MeUpdateSerializer(serializers.Serializer):
+    language = serializers.ChoiceField(choices=User.Language.choices)
+
+
+# Connexion et sécurité du compte
+
+
+class LoginSerializer(serializers.Serializer):
+    phone = serializers.CharField(max_length=64, help_text="Ex. 0971234567 ou +243971234567.")
+    password = serializers.CharField(
+        max_length=128, trim_whitespace=False, style={"input_type": "password"}
+    )
+
+
+class LoginStepSerializer(serializers.Serializer):
+    step = serializers.ChoiceField(
+        choices=Step.choices, help_text="Étape suivante de la connexion ; `done` : connecté."
+    )
+
+
+class CodeSerializer(serializers.Serializer):
+    code = serializers.CharField(
+        max_length=20,
+        help_text="Code à 6 chiffres de l'application, ou code de secours (ex. 7KQ4-M2XP).",
+    )
+
+
+class LoginCodeSerializer(CodeSerializer):
+    trust_device = serializers.BooleanField(
+        default=False, help_text="Ne plus demander le code sur cet appareil pendant 7 jours."
+    )
+
+
+class TotpSetupSerializer(serializers.Serializer):
+    code = serializers.CharField(
+        max_length=20,
+        required=False,
+        help_text="Double authentification déjà activée (changer de téléphone) : code actuel ou "
+        "code de secours.",
+    )
+
+
+class TotpKeySerializer(serializers.Serializer):
+    secret = serializers.CharField(help_text="Clé à taper si on ne peut pas scanner le QR code.")
+    otpauth_uri = serializers.CharField(help_text="Contenu du QR code à scanner.")
+
+
+class RecoveryCodesSerializer(serializers.Serializer):
+    recovery_codes = serializers.ListField(
+        child=serializers.CharField(), help_text="Affichés une seule fois : à imprimer."
+    )
+
+
+class TotpActivatedSerializer(LoginStepSerializer, RecoveryCodesSerializer):
+    pass
+
+
+class PasswordSerializer(serializers.Serializer):
+    """Connexion en cours avec un mot de passe provisoire : `new_password` seul. Compte connecté :
+    `current_password` aussi."""
+
+    current_password = serializers.CharField(
+        max_length=128, required=False, trim_whitespace=False, style={"input_type": "password"}
+    )
+    new_password = serializers.CharField(
+        max_length=128, trim_whitespace=False, style={"input_type": "password"}
+    )
+
+    def validate_new_password(self, value: str) -> str:
+        user = self.context["user"]
+        try:
+            validate_password(value, user)
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError(list(exc.messages)) from None
+        if user.check_password(value):
+            raise serializers.ValidationError(
+                _("Choose a password different from the current one."), code="same_password"
+            )
+        return value

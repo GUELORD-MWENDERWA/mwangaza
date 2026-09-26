@@ -5,7 +5,7 @@ import pytest
 from django.test import Client
 
 from apps.accounts.models import Role, User
-from tests.factories import MembershipFactory
+from tests.factories import MembershipFactory, enable_totp
 
 pytestmark = pytest.mark.django_db
 
@@ -97,3 +97,48 @@ def test_staff_of_a_school_cannot_enter(school):
 
 def test_django_groups_are_hidden(admin_client):
     assert admin_client.get("/admin/auth/group/").status_code == 404
+
+
+def test_admin_login_is_locked_after_five_failures(db):
+    User.objects.create_superuser("0000000000", "secret-123", last_name="Admin")
+    client = Client(HTTP_HOST="localhost")
+
+    def log_in(password: str):
+        return client.post(
+            "/admin/login/?next=/admin/", {"username": "0000000000", "password": password}
+        )
+
+    for _ in range(5):
+        assert log_in("pas-le-bon").status_code == 200
+
+    # Bon mot de passe, mais numéro bloqué : la page de connexion revient.
+    assert log_in("secret-123").status_code == 200
+    assert client.get("/admin/").status_code == 302
+
+
+def test_admin_login_works(db):
+    User.objects.create_superuser("0000000000", "secret-123", last_name="Admin")
+    client = Client(HTTP_HOST="localhost")
+
+    response = client.post(
+        "/admin/login/?next=/admin/", {"username": "0000000000", "password": "secret-123"}
+    )
+
+    assert response.status_code == 302
+    assert client.get("/admin/").status_code == 200
+
+
+def test_support_resets_two_factor_authentication(admin_client, school, other_school):
+    # Compte dans deux écoles : aucune ne peut le faire, le support oui.
+    member = MembershipFactory(school=school, roles=["cashier"])
+    MembershipFactory(user=member.user, school=other_school, roles=["teacher"])
+    enable_totp(member.user)
+
+    response = admin_client.post(
+        "/admin/accounts/user/",
+        {"action": "reset_totp", "_selected_action": [str(member.user.pk)]},
+    )
+
+    assert response.status_code == 302
+    member.user.refresh_from_db()
+    assert not member.user.totp_enabled

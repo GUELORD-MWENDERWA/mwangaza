@@ -5,10 +5,12 @@ from django.contrib.auth import authenticate, get_user_model
 from django.db import IntegrityError, transaction
 from django.utils import translation
 
-from apps.accounts.models import Membership, Role, User
+from apps.accounts import services
+from apps.accounts.models import LoginFailure, Membership, RecoveryCode, Role, User
+from apps.core.crypto import decrypt
 from apps.core.ids import is_uuid7
 from apps.core.tenancy import CrossSchoolError, SchoolNotSetError, use_school
-from tests.factories import TEST_PASSWORD, MembershipFactory, UserFactory
+from tests.factories import TEST_PASSWORD, MembershipFactory, UserFactory, enable_totp, totp_code
 
 pytestmark = pytest.mark.django_db
 
@@ -171,3 +173,36 @@ def test_role_of_another_school_is_refused(school, other_school):
         alpha_head.memberships.add(membership)  # dans l'autre sens
 
     assert not Membership.roles.through.objects.filter(membership=membership).exists()
+
+
+# Double authentification
+
+
+def test_totp_key_is_encrypted_in_the_database():
+    user = UserFactory()
+    secret = enable_totp(user)
+
+    stored = User.objects.values_list("totp_secret", flat=True).get(pk=user.pk)
+
+    assert secret not in stored
+    assert decrypt(stored) == secret
+    assert user.totp_enabled
+
+
+def test_recovery_codes_are_stored_as_fingerprints():
+    user = UserFactory()
+    secret = enable_totp(user)
+
+    codes = services.enable_totp(user, secret, totp_code(secret))
+
+    stored = set(RecoveryCode.objects.filter(user=user).values_list("digest", flat=True))
+    assert len(stored) == 8
+    assert not {code.replace("-", "") for code in codes} & stored
+    assert not set(codes) & stored
+
+
+def test_login_failures_are_platform_wide(db):
+    # [G] : un numéro vaut dans toutes les écoles ; lu sans école courante.
+    LoginFailure.objects.create(phone="+243000090001", ip="10.0.0.1")
+
+    assert LoginFailure.objects.count() == 1

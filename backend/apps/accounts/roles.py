@@ -36,6 +36,14 @@ PERMISSION_CHOICES = list(PERMISSIONS.items())
 # Gérer les rôles et les comptes du personnel : une école garde toujours un compte actif qui l'a.
 ROLES_MANAGE = "roles.manage"
 
+# Double authentification obligatoire (B4) pour un compte qui a l'un de ces droits dans une école :
+# l'argent, les réglages, les comptes, le journal d'audit. Par défaut : directeur, comptable,
+# caissier et promoteur ; un rôle créé par l'école avec l'un de ces droits l'exige aussi.
+TOTP_PERMISSIONS = frozenset(
+    {"school.configure", "roles.manage", "audit.view"}
+    | {code for code in PERMISSIONS if code.startswith("finance.")}
+)
+
 
 @dataclass(frozen=True)
 class SystemRole:

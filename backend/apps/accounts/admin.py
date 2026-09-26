@@ -1,16 +1,18 @@
 """Administration Django : réservée au super-admin (`User.is_platform_admin`).
 
-Comptes : création et modification. Rôles et appartenances : lecture seule, toutes écoles ; les
-changements passent par l'API de l'école et ses règles (école séparée, dernier gestionnaire des
-rôles).
+Comptes : création et modification, réinitialisation de la double authentification (support,
+pour un compte qui sert dans plusieurs écoles). Rôles et appartenances : lecture seule, toutes
+écoles ; les changements passent par l'API de l'école et ses règles (école séparée, dernier
+gestionnaire des rôles).
 """
 
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.forms import AdminUserCreationForm, UserChangeForm
 from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 
+from apps.accounts import services
 from apps.accounts.models import Membership, Role, User
 
 # Les groupes de Django ne servent pas : les droits dans une école viennent de ses rôles.
@@ -39,17 +41,29 @@ class UserAdmin(DjangoUserAdmin):
         "middle_name",
         "first_name",
         "is_active",
+        "totp_enabled",
         "is_platform_admin",
     ]
     list_filter = ["is_active", "is_platform_admin", "language"]
     search_fields = ["phone", "last_name", "middle_name", "first_name"]
     ordering = ["last_name", "middle_name", "first_name"]
     filter_horizontal = []
-    readonly_fields = ["id", "last_login", "created_at", "updated_at"]
+    readonly_fields = ["id", "totp_enabled_at", "last_login", "created_at", "updated_at"]
+    actions = ["reset_totp"]
     fieldsets = [
         (None, {"fields": ["id", "phone", "password"]}),
         (_("Name"), {"fields": ["last_name", "middle_name", "first_name", "language"]}),
-        (_("Access"), {"fields": ["is_active", "is_platform_admin", "must_change_password"]}),
+        (
+            _("Access"),
+            {
+                "fields": [
+                    "is_active",
+                    "is_platform_admin",
+                    "must_change_password",
+                    "totp_enabled_at",
+                ]
+            },
+        ),
         (_("Dates"), {"fields": ["last_login", "created_at", "updated_at"]}),
     ]
     add_fieldsets = [
@@ -69,6 +83,20 @@ class UserAdmin(DjangoUserAdmin):
             },
         )
     ]
+
+    @admin.display(boolean=True, description=_("two-factor authentication"))
+    def totp_enabled(self, user: User) -> bool:
+        return user.totp_enabled
+
+    @admin.action(description=_("Reset two-factor authentication (lost phone)"))
+    def reset_totp(self, request, queryset):
+        for user in queryset:
+            services.reset_totp(user)
+        self.message_user(
+            request,
+            _("Two-factor authentication reset: to be turned on again at the next login."),
+            messages.SUCCESS,
+        )
 
 
 class ReadOnlyAdmin(admin.ModelAdmin):

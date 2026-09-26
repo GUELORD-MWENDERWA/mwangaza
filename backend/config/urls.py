@@ -17,6 +17,4 @@ if settings.DEBUG:
     urlpatterns += [
         path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
         path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
-        # « Log in » de l'API navigable, pour essayer l'API avant l'écran de connexion (1.3, 1.6).
-        path("api/auth/", include("rest_framework.urls")),
     ]

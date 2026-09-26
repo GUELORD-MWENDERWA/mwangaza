@@ -7,7 +7,13 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from apps.accounts.demo import DEMO_PASSWORD, PLATFORM_ADMIN_PHONE, create_demo_accounts
+from apps.accounts.demo import (
+    DEMO_PASSWORD,
+    DEMO_TOTP_SECRET,
+    PLATFORM_ADMIN_PHONE,
+    create_demo_accounts,
+)
+from apps.accounts.models import User
 from apps.schools.demo import create_demo_schools
 
 
@@ -31,9 +37,22 @@ class Command(BaseCommand):
             )
         self.stdout.write(f"Comptes fictifs (mot de passe : {DEMO_PASSWORD}) :")
         self.stdout.write(f"  {_local(PLATFORM_ADMIN_PHONE)}  super-admin (administration Django)")
+        users = {
+            user.phone: user for user in User.objects.filter(phone__in=[a.phone for a in accounts])
+        }
         for account in accounts:
             schools_text = " + ".join(account.roles)
+            totp_text = ""
+            if users[account.phone].totp_enabled:
+                totp_text = " — code : make totp"
+            elif account.totp_to_enable:
+                totp_text = " — double authentification à activer"
             self.stdout.write(
-                f"  {_local(account.phone)}  {schools_text:<14} {account.description}"
+                f"  {_local(account.phone)}  {schools_text:<14} {account.description}{totp_text}"
             )
+        key = " ".join(DEMO_TOTP_SECRET[i : i + 4] for i in range(0, len(DEMO_TOTP_SECRET), 4))
+        self.stdout.write(
+            f"Double authentification (« code ») : clé {key} dans une application "
+            "(Google Authenticator, Aegis…), ou le code du moment avec `make totp`."
+        )
         self.stdout.write(self.style.SUCCESS(f"{len(schools)} écoles de démonstration prêtes."))

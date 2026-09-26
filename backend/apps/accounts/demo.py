@@ -2,19 +2,27 @@
 démonstration, quelques-uns à Volcans, un enseignant dans les deux écoles, un super-admin.
 
 Numéros en +243 0… : aucun numéro réel ne commence par 0 après l'indicatif, ces comptes ne
-peuvent donc pas être ceux de vraies personnes. Noms inventés. Le mot de passe de développement
-n'est pas un secret : `make demo` est refusé hors développement.
+peuvent donc pas être ceux de vraies personnes. Noms inventés. Le mot de passe et la clé de
+double authentification de développement ne sont pas des secrets : `make demo` est refusé hors
+développement.
 """
 
 from dataclasses import dataclass
 
-from apps.accounts.models import Membership, Role, User
+from django.utils import timezone
+
+from apps.accounts import services
+from apps.accounts.models import LoginFailure, Membership, Role, User
 from apps.accounts.roles import SYSTEM_ROLES
 from apps.accounts.services import create_system_roles
+from apps.core.crypto import encrypt
 from apps.core.tenancy import use_school
 from apps.schools.models import School
 
 DEMO_PASSWORD = "mwangaza-demo"
+# Double authentification des comptes qui l'exigent (directeur, comptable, caissier) : une seule
+# clé, à ajouter une fois dans une application d'authentification ; ou `make totp`.
+DEMO_TOTP_SECRET = "MWANGAZADEMOTOTPMWANGAZADEMOTOTP"
 
 PLATFORM_ADMIN_PHONE = "+243000000000"
 
@@ -32,6 +40,8 @@ class DemoAccount:
     # École → rôle : code d'un rôle système, ou nom d'un rôle de l'école.
     roles: dict[str, str]
     description: str
+    # Rôle qui exige la double authentification, pas encore activée : pour essayer l'activation.
+    totp_to_enable: bool = False
 
 
 DEMO_ACCOUNTS = [
@@ -56,7 +66,13 @@ DEMO_ACCOUNTS = [
     DemoAccount("+243000001005", "Kahindo", "Sivira", "Grâce", {"itig": "cashier"}, "caissière"),
     DemoAccount("+243000001006", "Nzigire", "Bora", "Solange", {"itig": "secretary"}, "secrétaire"),
     DemoAccount(
-        "+243000001007", "Musubao", "Kyakimwa", "Albert", {"itig": "promoter"}, "promoteur"
+        "+243000001007",
+        "Musubao",
+        "Kyakimwa",
+        "Albert",
+        {"itig": "promoter"},
+        "promoteur",
+        totp_to_enable=True,
     ),
     DemoAccount(
         "+243000001008",
@@ -110,7 +126,9 @@ def _account(phone: str, **fields) -> User:
 
 def create_demo_accounts(schools: dict[str, School]) -> list[DemoAccount]:
     """Crée ou remet à jour les comptes de démonstration et leurs rôles. Ce que l'utilisateur a
-    ajouté en essayant l'application (autres comptes, autres rôles) n'est pas effacé."""
+    ajouté en essayant l'application (autres comptes, autres rôles) n'est pas effacé ; les
+    connexions bloquées par des essais ratés sont débloquées."""
+    LoginFailure.objects.all().delete()
     roles = {code: _reset_roles(school) for code, school in schools.items()}
     _account(PLATFORM_ADMIN_PHONE, last_name="Mwangaza", first_name="Admin", is_platform_admin=True)
     for demo in DEMO_ACCOUNTS:
@@ -127,4 +145,13 @@ def create_demo_accounts(schools: dict[str, School]) -> list[DemoAccount]:
             )
             with use_school(school):
                 membership.roles.set([roles[school_code][role_key]])
+        _set_demo_totp(user, enabled=services.totp_required(user) and not demo.totp_to_enable)
     return DEMO_ACCOUNTS
+
+
+def _set_demo_totp(user: User, *, enabled: bool) -> None:
+    services.reset_totp(user)
+    if enabled:
+        user.totp_secret = encrypt(DEMO_TOTP_SECRET)
+        user.totp_enabled_at = timezone.now()
+        user.save(update_fields=["totp_secret", "totp_enabled_at", "updated_at"])

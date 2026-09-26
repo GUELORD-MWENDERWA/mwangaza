@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 1 (Socle) |
 | Lot | V1.0 — semaine 1 (Socle) |
-| Tâche en cours | aucune — 1.2 terminée, PR #81 à relire et fusionner (contrôles GitHub verts ; `A-FAIRE.md` ligne 10) |
-| Prochaine tâche | 1.3 — connexion par session, TOTP pour les rôles sensibles, limitation des tentatives |
-| Issue GitHub | #8 (1.2, fermée à la fusion de la PR) · prochaine : #9 (1.3) |
-| Branche | `tache/1.2-accounts` (partie de `main` après la fusion de la PR #80) → PR #81 ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 1.3 terminée, PR #82 à relire et fusionner (contrôles GitHub verts ; `A-FAIRE.md` ligne 11) |
+| Prochaine tâche | 1.4 — app `audit` : `AuditLog` et utilitaire d'enregistrement |
+| Issue GitHub | #9 (1.3, fermée à la fusion de la PR) · prochaine : #10 (1.4) |
+| Branche | `tache/1.3-connexion` (partie de `main` après la fusion de la PR #81) → PR #82 ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-26 |
 
 ## Avancement
@@ -19,11 +19,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Bloc | Fait | Total |
 |---|:-:|:-:|
 | Avant de coder (toi) | 2 | 4 |
-| Semaine 1 — Socle | 4 | 9 |
+| Semaine 1 — Socle | 5 | 9 |
 | Semaine 2 — Élèves et frais | 0 | 7 |
 | Semaine 3 — Caisse et hors-ligne | 0 | 8 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **4** | **32** |
+| **V1.0** | **5** | **32** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -49,6 +49,13 @@ Aucune : Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-26 — Tâche 1.3 : connexion, double authentification, limitation des tentatives
+
+- **Fait** : PR #81 fusionnée par l'utilisateur (`make reset-db` fait). Dépendances demandées et acceptées : `argon2-cffi`, `cryptography` ; TOTP et limitation des tentatives écrits dans le projet. **Connexion en étapes** (`login.py`) : mot de passe → code (TOTP ou code de secours, « ne plus demander pendant 7 jours ») → nouveau mot de passe si provisoire → activation de la double authentification si un rôle l'exige (clé + 8 codes de secours) ; le compte n'est connecté qu'à la fin ; CSRF vérifié à chaque étape. **Double authentification** exigée pour les droits sur l'argent, les réglages, les comptes et l'audit (par défaut : directeur, comptable, caissier, promoteur), vérifiée aussi à chaque requête (`totp_required`) ; clé chiffrée en base, code à usage unique, codes de secours en empreinte. **Blocage** : 5 essais ratés par numéro en 15 minutes, 30 par adresse IP (API et administration Django). **Argon2** (anciens mots de passe convertis), 10 caractères au moins. **Mon compte** (API) : langue, mot de passe (autres sessions fermées), changer de téléphone, nouveaux codes de secours, désactivation si aucun rôle ne l'exige. **Comptes du personnel** : nouveau mot de passe, réinitialisation de la double authentification, noms et téléphone, seulement pour un compte qui ne sert que dans l'école ; liste avec état de la double authentification et dernière connexion à l'école. Administration : réinitialisation par le support. `make demo` : double authentification des comptes qui l'exigent (clé commune), promoteur de l'ITIG à activer, essais ratés effacés ; `make totp`. « Log in » de DRF remplacé par la vraie connexion. Notes des maquettes M1, M3, M4 et captures ; `03`, `04`, `05`, `07`, `CLAUDE.md`, `A-FAIRE.md`, `.env.example`, skill `backend` à jour.
+- **Tests** : 439 pytest passés (134 nouveaux : 33 TOTP dont les vecteurs des RFC 4226 et 6238, 5 chiffrement, 9 blocage, 33 étapes de connexion, 13 Mon compte, 17 comptes du personnel, 4 permission `totp_required`, 3 administration, 5 `/api/me/`, 3 modèles, 2 rôles (B4), 6 `make demo` et `make totp`, 3 réglages ; 2 anciens tests remplacés : `must_change_password` de `/api/me/` et « Log in » de DRF) ; types et 8 Vitest OK ; lint OK ; schéma OpenAPI régénéré. 16 erreurs volontaires toutes détectées. Essai réel avec `make dev-local` à travers Vite (connexion avec code, code réutilisé refusé, activation, blocage 429, nouveau mot de passe provisoire, formulaire de l'API navigable), puis « À tester toi-même » rejoué conteneurs arrêtés, par les formulaires HTML. GitHub Actions sur la PR #82 : les 2 jobs verts au premier passage (439 pytest contre PostgreSQL 16, schéma OpenAPI à jour). Revue : `docs/claude/revues/tache-1.3.md`.
+- **Décisions** : voir le journal des décisions de `03` (connexion en étapes, double authentification d'après les droits, dépendances, limitation des tentatives, compte modifiable par l'école seulement s'il ne sert que chez elle, `make totp`). Écrans de la connexion en étapes et « Mon compte » (M4) ajoutés à la 1.6 ; double authentification du super-admin à la 1.5 ; adresse IP réelle derrière le proxy à la 4.6.
+- **Reste / suite** : audit de ces actions en 1.4 ; PIN et appareils en 3.3 et 3.7. L'utilisateur relit la PR, fusionne, lance `make install && make migrate && make demo` ; puis `/tache 1.4`.
 
 ### 2026-09-26 — Tâche 1.2 : app `accounts` (comptes, rôles, permissions)
 

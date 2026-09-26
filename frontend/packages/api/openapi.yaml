@@ -4,6 +4,490 @@ info:
   version: 0.1.0
   description: API de la plateforme de gestion scolaire Mwangaza.
 paths:
+  /api/auth/csrf/:
+    get:
+      operationId: auth_csrf_retrieve
+      description: Donne le cookie CSRF à l'application avant la connexion (en-tête
+        `X-CSRFToken`).
+      tags:
+      - auth
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/auth/login/:
+    get:
+      operationId: auth_login_retrieve
+      description: 'Étape 1 : numéro et mot de passe.'
+      tags:
+      - auth
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginStep'
+          description: ''
+    post:
+      operationId: auth_login_create
+      description: 'Étape 1 : numéro et mot de passe.'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginStep'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/auth/login/totp/:
+    get:
+      operationId: auth_login_totp_retrieve
+      description: 'Étape `totp` : code de l''application ou code de secours.'
+      tags:
+      - auth
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginStep'
+          description: ''
+    post:
+      operationId: auth_login_totp_create
+      description: 'Étape `totp` : code de l''application ou code de secours.'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginCode'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginCode'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginCode'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginStep'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: |-
+        Étapes de la connexion et sécurité du compte. Le jeton CSRF est vérifié même sans compte
+        connecté : DRF ne le vérifie que pour une session connectée.
+      tags:
+      - auth
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/auth/password/:
+    get:
+      operationId: auth_password_retrieve
+      description: |-
+        Étape `new_password` (mot de passe provisoire : `new_password` seul), ou changement du
+        mot de passe d'un compte connecté (`current_password` aussi ; les autres sessions sont
+        fermées).
+      tags:
+      - auth
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginStep'
+          description: ''
+    post:
+      operationId: auth_password_create
+      description: |-
+        Étape `new_password` (mot de passe provisoire : `new_password` seul), ou changement du
+        mot de passe d'un compte connecté (`current_password` aussi ; les autres sessions sont
+        fermées).
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Password'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Password'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Password'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginStep'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/auth/totp/activate/:
+    get:
+      operationId: auth_totp_activate_retrieve
+      description: |-
+        Premier code de l'application : la double authentification est activée ; les 8 codes de
+        secours sont renvoyés une seule fois.
+      tags:
+      - auth
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginStep'
+          description: ''
+    post:
+      operationId: auth_totp_activate_create
+      description: |-
+        Premier code de l'application : la double authentification est activée ; les 8 codes de
+        secours sont renvoyés une seule fois.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Code'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Code'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Code'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotpActivated'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/auth/totp/disable/:
+    post:
+      operationId: auth_totp_disable_create
+      description: 'Désactiver la double authentification : refusé si un rôle du compte
+        l''exige.'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Code'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Code'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Code'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/auth/totp/recovery-codes/:
+    post:
+      operationId: auth_totp_recovery_codes_create
+      description: |-
+        8 nouveaux codes de secours (code actuel ou de secours exigé) ; les anciens ne servent
+        plus.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Code'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Code'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Code'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecoveryCodes'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/auth/totp/setup/:
+    get:
+      operationId: auth_totp_setup_retrieve
+      description: |-
+        Nouvelle clé TOTP à scanner (M1) : étape `totp_setup`, ou compte connecté (changer de
+        téléphone : code actuel ou de secours exigé si elle est déjà activée). Rien n'est enregistré
+        avant `activate`.
+      tags:
+      - auth
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginStep'
+          description: ''
+    post:
+      operationId: auth_totp_setup_create
+      description: |-
+        Nouvelle clé TOTP à scanner (M1) : étape `totp_setup`, ou compte connecté (changer de
+        téléphone : code actuel ou de secours exigé si elle est déjà activée). Rien n'est enregistré
+        avant `activate`.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TotpSetup'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TotpSetup'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TotpSetup'
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotpKey'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/health/:
     get:
       operationId: health_retrieve
@@ -30,8 +514,8 @@ paths:
     get:
       operationId: me_retrieve
       description: |-
-        Le compte connecté, ses écoles (choix de l'école) et ses droits dans l'école de l'adresse
-        (menu de la Gestion).
+        Le compte connecté, ses écoles (choix de l'école), ses droits dans l'école de l'adresse
+        (menu de la Gestion) et l'état de sa double authentification (Mon compte, M4).
       tags:
       - accounts
       security:
@@ -42,6 +526,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Me'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: me_partial_update
+      description: |-
+        Le compte connecté, ses écoles (choix de l'école), ses droits dans l'école de l'adresse
+        (menu de la Gestion) et l'état de sa double authentification (Mon compte, M4).
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMeUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMeUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMeUpdate'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
         '403':
           content:
@@ -454,11 +977,106 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/staff/{id}/new-password/:
+    post:
+      operationId: staff_new_password_create
+      description: |-
+        « Nouveau mot de passe » (M3) : seulement pour un compte qui ne sert que dans cette
+        école (`account_managed_here`).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) membership.
+        required: true
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemporaryPassword'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/staff/{id}/reset-totp/:
+    post:
+      operationId: staff_reset_totp_create
+      description: '« Réinitialiser la double auth. » (M3) : même règle que le nouveau
+        mot de passe.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) membership.
+        required: true
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Staff'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
 components:
   schemas:
     BlankEnum:
       enum:
       - ''
+    Code:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Code à 6 chiffres de l'application, ou code de secours (ex.
+            7KQ4-M2XP).
+          maxLength: 20
+      required:
+      - code
     CodeEnum:
       enum:
       - head
@@ -547,6 +1165,49 @@ components:
       description: |-
         * `fr` - Français
         * `en` - English
+    Login:
+      type: object
+      properties:
+        phone:
+          type: string
+          description: Ex. 0971234567 ou +243971234567.
+          maxLength: 64
+        password:
+          type: string
+          maxLength: 128
+      required:
+      - password
+      - phone
+    LoginCode:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Code à 6 chiffres de l'application, ou code de secours (ex.
+            7KQ4-M2XP).
+          maxLength: 20
+        trust_device:
+          type: boolean
+          default: false
+          description: Ne plus demander le code sur cet appareil pendant 7 jours.
+      required:
+      - code
+    LoginStep:
+      type: object
+      properties:
+        step:
+          allOf:
+          - $ref: '#/components/schemas/StepEnum'
+          description: |-
+            Étape suivante de la connexion ; `done` : connecté.
+
+            * `password` - Phone number and password
+            * `totp` - Two-factor authentication code
+            * `new_password` - Replace the temporary password
+            * `totp_setup` - Turn on two-factor authentication
+            * `done` - Logged in
+      required:
+      - step
     Me:
       type: object
       properties:
@@ -563,8 +1224,19 @@ components:
           type: string
         language:
           $ref: '#/components/schemas/LanguageEnum'
-        must_change_password:
+        totp_enabled:
           type: boolean
+        totp_enabled_at:
+          type: string
+          format: date-time
+          nullable: true
+        totp_required:
+          type: boolean
+          description: 'Un rôle du compte l''exige : impossible de la désactiver.'
+        recovery_codes_left:
+          type: integer
+          description: Codes de secours pas encore utilisés (alerte à 2 ou moins,
+            M4).
         schools:
           type: array
           items:
@@ -582,10 +1254,13 @@ components:
       - language
       - last_name
       - middle_name
-      - must_change_password
       - phone
+      - recovery_codes_left
       - school
       - schools
+      - totp_enabled
+      - totp_enabled_at
+      - totp_required
     MySchool:
       type: object
       properties:
@@ -649,6 +1324,25 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Staff'
+    Password:
+      type: object
+      description: |-
+        Connexion en cours avec un mot de passe provisoire : `new_password` seul. Compte connecté :
+        `current_password` aussi.
+      properties:
+        current_password:
+          type: string
+          maxLength: 128
+        new_password:
+          type: string
+          maxLength: 128
+      required:
+      - new_password
+    PatchedMeUpdate:
+      type: object
+      properties:
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
     PatchedRole:
       type: object
       description: |-
@@ -693,6 +1387,7 @@ components:
           description: Comptes actifs qui ont ce rôle dans l'école.
     PatchedStaffUpdate:
       type: object
+      description: Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`.
       properties:
         roles:
           type: array
@@ -701,6 +1396,17 @@ components:
             format: uuid
         is_active:
           type: boolean
+        phone:
+          type: string
+        last_name:
+          type: string
+          maxLength: 100
+        middle_name:
+          type: string
+          maxLength: 100
+        first_name:
+          type: string
+          maxLength: 100
     PermissionsEnum:
       enum:
       - school.configure
@@ -737,6 +1443,16 @@ components:
         * `finance.view_reports` - View financial reports
         * `announcements.publish` - Publish announcements
         * `audit.view` - View the audit log
+    RecoveryCodes:
+      type: object
+      properties:
+        recovery_codes:
+          type: array
+          items:
+            type: string
+          description: 'Affichés une seule fois : à imprimer.'
+      required:
+      - recovery_codes
     Role:
       type: object
       description: |-
@@ -838,14 +1554,33 @@ components:
         is_active:
           type: boolean
           title: Actif
+        totp:
+          allOf:
+          - $ref: '#/components/schemas/TotpEnum'
+          description: Double authentification (colonne de M3).
+          readOnly: true
+        last_login_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          description: Dernière connexion à cette école.
+        account_managed_here:
+          type: boolean
+          readOnly: true
+          description: 'L''école peut changer les noms, le téléphone, le mot de passe
+            et la double authentification : le compte ne sert dans aucune autre école.'
         created_at:
           type: string
           format: date-time
           readOnly: true
       required:
+      - account_managed_here
       - created_at
       - id
+      - last_login_at
       - roles
+      - totp
       - user
     StaffCreate:
       type: object
@@ -895,6 +1630,22 @@ components:
         is_active:
           type: boolean
           title: Actif
+        totp:
+          allOf:
+          - $ref: '#/components/schemas/TotpEnum'
+          description: Double authentification (colonne de M3).
+          readOnly: true
+        last_login_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          description: Dernière connexion à cette école.
+        account_managed_here:
+          type: boolean
+          readOnly: true
+          description: 'L''école peut changer les noms, le téléphone, le mot de passe
+            et la double authentification : le compte ne sert dans aucune autre école.'
         created_at:
           type: string
           format: date-time
@@ -909,11 +1660,14 @@ components:
           description: 'Nouveau compte seulement : affiché une seule fois, à changer
             à la connexion.'
       required:
+      - account_managed_here
       - created_at
       - existing_account
       - id
+      - last_login_at
       - roles
       - temporary_password
+      - totp
       - user
     StaffUser:
       type: object
@@ -951,6 +1705,76 @@ components:
         * `trial` - Trial
         * `active` - Active
         * `suspended` - Suspended
+    StepEnum:
+      enum:
+      - password
+      - totp
+      - new_password
+      - totp_setup
+      - done
+      type: string
+      description: |-
+        * `password` - Phone number and password
+        * `totp` - Two-factor authentication code
+        * `new_password` - Replace the temporary password
+        * `totp_setup` - Turn on two-factor authentication
+        * `done` - Logged in
+    TemporaryPassword:
+      type: object
+      properties:
+        temporary_password:
+          type: string
+          description: Affiché une seule fois, à changer à la prochaine connexion.
+      required:
+      - temporary_password
+    TotpActivated:
+      type: object
+      properties:
+        step:
+          allOf:
+          - $ref: '#/components/schemas/StepEnum'
+          description: |-
+            Étape suivante de la connexion ; `done` : connecté.
+
+            * `password` - Phone number and password
+            * `totp` - Two-factor authentication code
+            * `new_password` - Replace the temporary password
+            * `totp_setup` - Turn on two-factor authentication
+            * `done` - Logged in
+        recovery_codes:
+          type: array
+          items:
+            type: string
+          description: 'Affichés une seule fois : à imprimer.'
+      required:
+      - recovery_codes
+      - step
+    TotpEnum:
+      enum:
+      - enabled
+      - to_enable
+      - not_required
+      type: string
+    TotpKey:
+      type: object
+      properties:
+        secret:
+          type: string
+          description: Clé à taper si on ne peut pas scanner le QR code.
+        otpauth_uri:
+          type: string
+          description: Contenu du QR code à scanner.
+      required:
+      - otpauth_uri
+      - secret
+    TotpSetup:
+      type: object
+      properties:
+        code:
+          type: string
+          description: 'Double authentification déjà activée (changer de téléphone)
+            : code actuel ou code de secours.'
+          maxLength: 20
   securitySchemes:
     cookieAuth:
       type: apiKey

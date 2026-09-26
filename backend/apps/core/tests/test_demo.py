@@ -1,14 +1,20 @@
 """make demo : données fictives pour le développement et les démonstrations."""
 
+import re
+from io import StringIO
+
 import pytest
 from django.contrib.auth import authenticate
 from django.core.management import CommandError, call_command
 
-from apps.accounts.demo import DEMO_PASSWORD
+from apps.accounts import attempts, services, totp
+from apps.accounts.demo import DEMO_PASSWORD, DEMO_TOTP_SECRET
 from apps.accounts.models import Membership, Role, User
 from apps.accounts.roles import SYSTEM_ROLES
+from apps.core.crypto import decrypt
 from apps.core.tenancy import use_school
 from apps.schools.models import School
+from tests.factories import enable_totp
 
 pytestmark = pytest.mark.django_db
 
@@ -97,3 +103,75 @@ def test_demo_is_refused_outside_development(settings):
 
     assert not School.objects.exists()
     assert not User.objects.exists()
+
+
+def test_demo_accounts_that_require_it_have_two_factor_authentication(demo):
+    enabled = set(
+        User.objects.filter(totp_enabled_at__isnull=False).values_list("phone", flat=True)
+    )
+
+    # Directeur, comptable, caissière de chaque école ; pas le promoteur de l'ITIG (activation à
+    # essayer), ni l'enseignant, la secrétaire, le super-admin…
+    assert enabled == {
+        "+243000001001",
+        "+243000001004",
+        "+243000001005",
+        "+243000002001",
+        "+243000002004",
+        "+243000002005",
+    }
+    head = User.objects.get(phone="+243000001001")
+    assert decrypt(head.totp_secret) == DEMO_TOTP_SECRET
+
+
+def test_demo_resets_two_factor_authentication(demo):
+    head = User.objects.get(phone="+243000001001")
+    services.reset_totp(head)
+    promoter = User.objects.get(phone="+243000001007")
+    enable_totp(promoter)
+
+    call_command("demo")
+
+    head.refresh_from_db()
+    promoter.refresh_from_db()
+    assert head.totp_enabled
+    assert not promoter.totp_enabled
+
+
+def test_demo_code_is_shown(settings):
+    settings.DEBUG = True
+    out = StringIO()
+
+    call_command("totp", stdout=out)
+
+    shown = out.getvalue()[:7].replace(" ", "")
+    # Le code affiché est celui de la clé de démonstration (période en cours ou qui vient de finir).
+    now = totp.current_step()
+    assert shown in {totp.code_at(DEMO_TOTP_SECRET, step) for step in (now - 1, now)}
+
+
+def test_code_for_another_key(settings):
+    settings.DEBUG = True
+    out = StringIO()
+
+    call_command("totp", "--key", "jbsw y3dp ehpk 3pxp", stdout=out)
+
+    assert re.match(r"\d{3} \d{3}  \(valable encore \d+ s\)", out.getvalue())
+    with pytest.raises(CommandError):
+        call_command("totp", "--key", "pas une clé 0189")
+
+
+def test_demo_code_is_refused_outside_development(settings):
+    settings.DEBUG = False
+
+    with pytest.raises(CommandError):
+        call_command("totp")
+
+
+def test_demo_unblocks_logins(demo):
+    for _ in range(5):
+        attempts.record_failure("+243000001005", "127.0.0.1")
+
+    call_command("demo")
+
+    assert attempts.retry_after("+243000001005", "127.0.0.1") == 0
