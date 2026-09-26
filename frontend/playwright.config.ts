@@ -24,7 +24,7 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
   webServer: [
-    // Adresses en 127.0.0.1 : les serveurs n'écoutent pas en IPv6 (`localhost` = `::1` d'abord).
+    // Adresses en 127.0.0.1 : Django n'écoute pas en IPv6 (`localhost` = `::1` d'abord).
     {
       command: "uv run python manage.py runserver 8000 --noreload",
       cwd: backend,
@@ -35,8 +35,10 @@ export default defineConfig({
     {
       // Sans `pnpm exec` : pnpm lancerait Vite hors du groupe de processus que Playwright arrête
       // à la fin, qui attendrait alors sans fin.
-      command: "./node_modules/.bin/vite --port 5173",
+      // En IPv4, comme Django : sur la CI, `localhost` désigne d'abord `::1`.
+      command: "./node_modules/.bin/vite --port 5173 --host 127.0.0.1",
       cwd: new URL("apps/gestion", import.meta.url).pathname,
+      env: { VITE_API_TARGET: "http://127.0.0.1:8000" },
       url: "http://127.0.0.1:5173/app/",
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
