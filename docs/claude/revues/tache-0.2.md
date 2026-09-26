@@ -24,4 +24,4 @@ Périmètre : branche `tache/0.2-qualite` par rapport à `docs/decisions-q1-q11`
 
 - `pre-commit run --all-files` a d'abord reformaté `maquettes/outils/maquettes.py` avec les réglages par défaut de ruff (hors du `backend`, sans sa configuration) : changement annulé, hooks Python limités à `backend/` comme `make lint-back`.
 - `make help` affichait « make Makefile » sur chaque ligne depuis que le `Makefile` inclut `.env` (`grep` recevait deux fichiers) : corrigé avec `grep -h`.
-- Résultat de GitHub Actions : vérifié sur la PR (voir le journal de `docs/06-suivi.md`).
+- GitHub Actions sur la PR #79 : backend et frontend verts au premier passage (7 pytest, schéma OpenAPI à jour, 8 Vitest, build).

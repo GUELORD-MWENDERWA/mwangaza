@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 1 (Socle) |
 | Lot | V1.0 — semaine 1 (Socle) |
-| Tâche en cours | aucune — 0.2 terminée, en PR (après la PR #78 des décisions) |
+| Tâche en cours | aucune — 0.2 terminée, PR #79 (à fusionner après la PR #78 des décisions) |
 | Prochaine tâche | 1.1 — app `core` : `TenantModel`, `TenantManager`, `TenantMiddleware`, UUID v7, `Money` |
 | Issue GitHub | #6 (0.2, fermée à la fusion de la PR) · prochaine : #7 (1.1) |
-| Branche | `tache/0.2-qualite` (partie de `docs/decisions-q1-q11`, PR #78, à fusionner d'abord) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/0.2-qualite` → PR #79, partie de `docs/decisions-q1-q11` → PR #78 (fusionner #78 d'abord) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-26 |
 
 ## Avancement
@@ -53,10 +53,10 @@ Entrée la plus récente en haut. Format : date — titre, puis fait / tests / d
 ### 2026-09-26 — Tâche 0.2 : qualité (ruff, ESLint, Prettier, Vitest, pre-commit, GitHub Actions)
 
 - **Fait** : ruff configuré dans `backend/pyproject.toml` (100 colonnes, règles E, W, F, I, UP, B, DJ, SIM, RUF ; une ligne raccourcie) ; ESLint 10 (`typescript-eslint`, règles des hooks React, `eslint-config-prettier`), Prettier 3.9 (le code existant était déjà conforme), Vitest 5 avec les premiers tests (proxy de développement des deux applications) ; pre-commit avec des hooks locaux (ruff, ESLint, Prettier, refus d'un `.env` ou d'une clé privée) ; GitHub Actions (`.github/workflows/ci.yml`, 2 jobs : backend avec PostgreSQL 16 et vérification du schéma OpenAPI commité, frontend avec lint, types, Vitest, build). `Makefile` : `lint` (= `lint-back` + `lint-front`, sans rien modifier), `format`, `hooks` (lancé aussi par `install`), `test-front` = types + Vitest ; `make help` réparé (depuis l'`include .env`, `grep` préfixait chaque ligne par le nom du fichier). `CLAUDE.md` et `A-FAIRE.md` : commandes, routine (contrôles GitHub verts), dépannage, étape 8 (`make install` après la fusion).
-- **Tests** : `make lint` OK ; `make test` : 7 pytest passés, types OK, 8 tests Vitest passés ; `make build` OK ; `make api` ne change pas le schéma commité. Fautes volontaires détectées : variable inutilisée et hook React conditionnel (ESLint), import inutilisé (ruff), `changeOrigin: true` (2 tests Vitest échouent) ; pre-commit refuse un `.env` et une clé privée ; hooks sur tout le dépôt : aucun fichier modifié. Revue : `docs/claude/revues/tache-0.2.md`.
+- **Tests** : `make lint` OK ; `make test` : 7 pytest passés, types OK, 8 tests Vitest passés ; `make build` OK ; `make api` ne change pas le schéma commité. Fautes volontaires détectées : variable inutilisée et hook React conditionnel (ESLint), import inutilisé (ruff), `changeOrigin: true` (2 tests Vitest échouent) ; pre-commit refuse un `.env` et une clé privée ; hooks sur tout le dépôt : aucun fichier modifié. GitHub Actions sur la PR #79 : les 2 jobs verts au premier passage (7 pytest contre PostgreSQL 16, schéma OpenAPI à jour, 8 Vitest, build). Revue : `docs/claude/revues/tache-0.2.md`.
 - **Décisions** : ESLint lit le code avec TypeScript 6.0, les applications gardent TypeScript 7 (`typescript-eslint` n'accepte pas encore la 7) ; mêmes commandes `make` en local, en pre-commit et en CI ; Prettier seulement sur le code du front (ni Markdown, ni lockfile, ni `openapi.yaml`), ruff seulement sur `backend/` ; actions GitHub à version fixée.
 - **Dépendances ajoutées** (outils de développement seulement) : `ruff`, `pre-commit` ; `eslint`, `@eslint/js`, `typescript-eslint`, `typescript@~6.0`, `eslint-plugin-react-hooks`, `globals`, `eslint-config-prettier`, `prettier`, `vitest`. Raisons : `docs/claude/plans/tache-0.2.md`.
-- **Suite** : l'utilisateur fusionne #78 puis la PR de la 0.2, lance `make install` ; puis `/tache 1.1`.
+- **Suite** : l'utilisateur fusionne #78 puis #79, lance `make install` ; puis `/tache 1.1`.
 
 ### 2026-09-26 — Décisions de l'utilisateur : Q1 à Q11, l'ITIG école d'exemple
 
