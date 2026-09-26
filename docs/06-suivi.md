@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 1 (Socle) |
 | Lot | V1.0 — semaine 1 (Socle) |
-| Tâche en cours | aucune — 0.1 terminée ; correctif `.env` en PR ; en attente des actions de l'utilisateur listées dans `A-FAIRE.md` (se reconnecter pour Docker, fusionner la PR du correctif, décisions) |
+| Tâche en cours | aucune — 0.1 terminée ; correctif de `make dev` en PR ; en attente des actions de l'utilisateur listées dans `A-FAIRE.md` (fusionner la PR, vérifier lui-même, décisions) |
 | Prochaine tâche | 0.2 — qualité : ruff, pytest, ESLint, Prettier, Vitest, pre-commit, GitHub Actions |
 | Issue GitHub | #5 (0.1, fermée à la fusion de la PR) · prochaine : #6 (0.2) |
-| Branche | `fix/env-valeurs-vides` → PR #76 vers `main` (#75 fusionnée) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `fix/docker-front` → PR #77 vers `main` (#75 et #76 fusionnées) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-26 |
 
 ## Avancement
@@ -41,8 +41,7 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I17, déci
 | Date de remise des bulletins de la 1re période 2026-2027 (indice : 8 novembre en 2025) | ITIG | ordre V1.1 / V1.2 — voir Q6 |
 | Nom définitif et domaine | toi | 4.6 |
 | Comptes VPS, Cloudflare, stockage objet (GitHub : fait) | toi | 4.6, 4.7 |
-| Docker installé et base lancée ; l'utilisateur doit se reconnecter pour que `docker` marche sans erreur dans sa session (`A-FAIRE.md` § 3 bis) | toi | rien pour Claude ; les commandes Docker de l'utilisateur |
-| Fusion de la PR #76 (correctif `.env`) | toi | 0.2 (partir d'un `main` à jour) |
+| Fusion de la PR #77 (correctif de `make dev`) | toi | 0.2 (partir d'un `main` à jour) |
 | Logo haute qualité + version noir et blanc pour le reçu thermique | ITIG | 3.2 |
 
 ## Questions ouvertes
@@ -66,6 +65,14 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I17, déci
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-26 — `make dev` réparé : tout Mwangaza tourne dans Docker
+
+- **Fait** : l'utilisateur a fusionné #76, s'est reconnecté (`docker run hello-world` OK). Premier `make dev` complet : Django, Celery, PostgreSQL, Redis démarrent, mais le conteneur du front s'arrêtait (`pnpm: not found`, code 127 : le script `pnpm dev` rappelle `pnpm`, absent du `PATH` de `node:22-slim`). De plus, `pnpm install` dans le conteneur réécrivait le `node_modules` de la machine (partagé par le volume) avec un store `/app/node_modules/.pnpm-store` inexistant hors de Docker, et pnpm 12 (vérification des dépendances avant `run`) réinstallait tout à chaque lancement (≈ 40 s avec la connexion de Goma). Correctif (branche `fix/docker-front`) : `corepack enable` dans le conteneur (pnpm dans le `PATH`, `COREPACK_HOME` dans `node_modules` pour ne télécharger pnpm qu'une fois) ; plus d'installation dans le conteneur ; `pnpm_config_verify_deps_before_run=false` ; `make dev` lance `pnpm install --frozen-lockfile` sur la machine avant Docker. `A-FAIRE.md` : 3 bis et 5 bis cochées, 5 ter (fusionner ce correctif), dépannage `ERR_PNPM_UNEXPECTED_STORE`. `CLAUDE.md` : ligne `make dev`.
+- **Tests** : `make dev` : prêt en 25 s, `/api/health/` → `ok` (direct et via le proxy de la Gestion), Gestion et Portail → 200, `node_modules` de la machine inchangé ; `make test` : 7 passés, types OK.
+- **Décision** : le conteneur du front utilise le `node_modules` installé sur la machine (même Linux x64) au lieu d'installer lui-même.
+- **Constat** : pnpm 12 ne lit plus les variables `npm_config_*`, seulement `pnpm_config_*`.
+- **Suite** : l'utilisateur fusionne la PR, refait `A-FAIRE.md` § 5 lui-même, tranche Q1–Q11 ; puis `/tache 0.2`.
 
 ### 2026-09-26 — Docker installé, `.env` réparé, base de développement en marche
 

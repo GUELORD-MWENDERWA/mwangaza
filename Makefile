@@ -20,6 +20,7 @@ install: ## Installer les dépendances (Python avec uv, front avec pnpm)
 	cd frontend && pnpm install
 
 dev: ## Tout lancer dans Docker : base, Redis, Django, Celery, Gestion, Portail
+	cd frontend && pnpm install --frozen-lockfile
 	$(COMPOSE) up --build
 
 services: ## Lancer seulement PostgreSQL (port 5433) et Redis dans Docker, pour dev-local
