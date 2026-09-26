@@ -22,7 +22,7 @@ Dernière mise à jour : 2026-09-26 (règles de travail avec GitHub ; tâche 1.1
 | 6 | [Donner tes décisions](#6-tes-décisions) : nom et domaine (Q9), questions Q1 à Q11 | 10 min | [x] |
 | 7 | [Relire et fusionner la PR des décisions (#78)](#7-fusionner-la-pr-des-décisions), puis celle de la tâche 0.2 (#79) — dans cet ordre | 15 min | [x] |
 | 8 | Après la fusion de la 0.2 : `make install` une fois (nouveaux outils ESLint, Prettier, Vitest, ruff, et contrôles avant chaque commit) — relancé par Claude sur ta machine le 2026-09-26 | 3 min | [x] |
-| 9 | **[Relire et fusionner la PR de la tâche 1.1](#10-comment-relire-et-fusionner-une-pr)** (lien donné par Claude à la fin de la tâche) | 15 min | [ ] |
+| 9 | **[Relire et fusionner la PR #80 (tâche 1.1)](#10-comment-relire-et-fusionner-une-pr)**, puis `git switch main && git pull && make migrate && make demo` | 15 min | [ ] |
 
 À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). Rien d'autre ne bloque : Claude enchaîne les tâches. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant), et [les comptes et le domaine](#9-avant-la-semaine-4-tâche-46--comptes-et-achats) avant la semaine 4.
 

@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 1 (Socle) |
 | Lot | V1.0 — semaine 1 (Socle) |
-| Tâche en cours | aucune — 1.1 terminée, PR à relire et fusionner |
+| Tâche en cours | aucune — 1.1 terminée, PR #80 à relire et fusionner (contrôles GitHub verts) |
 | Prochaine tâche | 1.2 — app `accounts` : `User`, `Membership`, `Role`, 9 rôles système |
 | Issue GitHub | #7 (1.1, fermée à la fusion de la PR) · prochaine : #8 (1.2) |
-| Branche | `tache/1.1-core-tenant` (partie de `main`) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/1.1-core-tenant` (partie de `main`) → PR #80 ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-26 |
 
 ## Avancement
@@ -53,7 +53,7 @@ Entrée la plus récente en haut. Format : date — titre, puis fait / tests / d
 ### 2026-09-26 — Tâche 1.1 : app `core` (isolation des écoles, UUID v7, `Money`)
 
 - **Fait** : app `core` : `uuid7()` et `is_uuid7()` ; `BaseModel` (UUID v7, dates) ; `TenantModel` et `TenantManager` (lecture limitée à l'école courante, erreur sans école ; écriture, suppression, déplacement ou lien vers une autre école refusés, `bulk_create` compris) ; école courante (`use_school`) ; `TenantMiddleware` (sous-domaine → école, 404 si inconnue, 403 si suspendue, pas d'école pour `localhost`, `parents.`, `admin.`…) ; `Money` et `Currency` (entiers, conversion Q4) ; format des erreurs de l'API `{code, detail}`. App `schools` : `School` minimal (code = sous-domaine, nom, statut), admin, `GET /api/school/` (public : code et nom, pour l'écran de connexion). `make demo` : écoles `itig` « ITIG Don Bosco Goma (démo) » et `volcans` « Complexe scolaire Les Volcans (fictif) ». Skills `backend` et `argent`, `03` § 4, `07` § 4, `CLAUDE.md`, `A-FAIRE.md` à jour.
-- **Tests** : 160 pytest passés (153 nouveaux : 25 d'isolation des modèles, 10 du middleware, 17 de lecture du sous-domaine, 14 UUID v7, 58 `Money`, `School`, `/api/school/`, `make demo`) ; types et 8 Vitest OK ; lint OK ; build OK. 10 erreurs volontaires toutes détectées. Essai réel avec `make dev-local` : `http://itig.localhost:5173/api/school/` → itig, `volcans…` → volcans, `inconnue…` → 404, école suspendue → 403. Revue : `docs/claude/revues/tache-1.1.md`.
+- **Tests** : 160 pytest passés (153 nouveaux : 25 d'isolation des modèles, 10 du middleware, 17 de lecture du sous-domaine, 14 UUID v7, 58 `Money`, `School`, `/api/school/`, `make demo`) ; types et 8 Vitest OK ; lint OK ; build OK. 10 erreurs volontaires toutes détectées. GitHub Actions sur la PR #80 : les 2 jobs verts au premier passage (160 pytest contre PostgreSQL 16). Essai réel avec `make dev-local` : `http://itig.localhost:5173/api/school/` → itig, `volcans…` → volcans, `inconnue…` → 404, école suspendue → 403. Revue : `docs/claude/revues/tache-1.1.md`.
 - **Décisions** : voir le journal des décisions de `03` (garde-fous de `TenantModel`, sous-domaines réservés, rôle vérifié par les permissions de l'API, UUID v7 écrit sans dépendance, format des erreurs, `make demo` avancé en 1.1, ruff RUF012 désactivé).
 - **Reste / suite** : fichiers de traduction du serveur quand un texte du serveur sera montré tel quel (2.4) ; en 1.2, nouveau modèle d'utilisateur → base de développement à recréer (annoncé dans `A-FAIRE.md` à ce moment-là). Prochaine tâche : 1.2.
 
