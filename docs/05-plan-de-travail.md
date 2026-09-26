@@ -23,10 +23,10 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
 - [x] **0.2** Qualité : ruff, pytest, ESLint, Prettier, Vitest, pre-commit, GitHub Actions (lint + tests)
 - [x] **1.1** App `core` : `TenantModel`, `TenantManager` qui lève une erreur sans école, `TenantMiddleware` par sous-domaine, UUID v7, classe `Money` + tests
 - [x] **1.2** App `accounts` : `User` (téléphone comme identifiant), `Membership`, `Role`, codes de permissions, 9 rôles système copiés à la création d'une école (B1–B3, `04` § 8) ; API des rôles et des comptes du personnel, `GET /api/me/`
-- [ ] **1.3** Connexion par session, TOTP pour les rôles sensibles, limitation des tentatives (B4)
+- [x] **1.3** Connexion par session, TOTP pour les rôles sensibles, limitation des tentatives (B4) ; API de « Mon compte » (mot de passe, double authentification, langue) et, pour l'école, nouveau mot de passe, réinitialisation de la double authentification, noms et téléphone d'un compte qui ne sert que chez elle
 - [ ] **1.4** App `audit` : `AuditLog` + utilitaire d'enregistrement (I1)
-- [ ] **1.5** Super-admin : création / suspension d'école, liste des écoles, connexion « en tant qu'école » tracée (A1–A3) ; couleur de l'école choisie dans ses paramètres, contraste vérifié (Q8)
-- [ ] **1.6** Front `gestion` : squelette React + Vite + PWA + Tailwind + shadcn/ui + i18next ; écran de connexion ; mise en page avec menu selon permissions
+- [ ] **1.5** Super-admin : création / suspension d'école, liste des écoles, connexion « en tant qu'école » tracée (A1–A3) ; couleur de l'école choisie dans ses paramètres, contraste vérifié (Q8) ; double authentification du super-admin dans l'administration Django *(ajoutée le 2026-09-26, 1.3)*
+- [ ] **1.6** Front `gestion` : squelette React + Vite + PWA + Tailwind + shadcn/ui + i18next ; écran de connexion ; mise en page avec menu selon permissions ; écrans de la connexion en étapes (code, nouveau mot de passe, activation M1) et « Mon compte » (M4) sur l'API de la 1.3 *(ajoutés le 2026-09-26 : aucune tâche ne prévoyait M4)*
 - [ ] **1.7** App `schools` : année scolaire depuis modèle, périodes, niveaux, options, classes, format de matricule + écrans (C1–C3) ; écrans « Comptes du personnel » (M3) et « Rôles et permissions » sur l'API de la 1.2 *(ajoutés le 2026-09-26 : aucune tâche ne les prévoyait)*
 
 ## Semaine 2 — Élèves et frais
@@ -57,7 +57,7 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
 - [ ] **4.3** Annonces côté école (H4)
 - [ ] **4.4** Front `portail` : activation par téléphone + code famille, liste des enfants multi-écoles, paiements, reçus PDF, échéances, annonces, mise à jour des coordonnées, installable (H1–H6)
 - [ ] **4.5** Guides de première connexion : caissier, comptable, parent (I3) ; traduction anglaise (I2)
-- [ ] **4.6** Infra de production : VPS, Caddy, wildcard Cloudflare, variables d'environnement, déploiement en une commande
+- [ ] **4.6** Infra de production : VPS, Caddy, wildcard Cloudflare, variables d'environnement, déploiement en une commande ; adresse IP réelle du visiteur transmise par Caddy et Cloudflare (limitation des tentatives, 1.3)
 - [ ] **4.7** Sauvegardes continues + dump quotidien + **test de restauration** (I4) ; suivi d'erreurs ; sonde de disponibilité
 - [ ] **4.8** Mise en place à l'ITIG : l'école saisit ou importe ses vraies données (élèves, frais, comptes) avec notre aide, formation des caissiers, test sur la vraie imprimante
 
