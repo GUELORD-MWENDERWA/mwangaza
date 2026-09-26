@@ -1,0 +1,54 @@
+import { ApiError } from "@mwangaza/api";
+import { useTranslation } from "@mwangaza/i18n";
+import { Skeleton } from "@mwangaza/ui";
+import { useEffect } from "react";
+import { Outlet } from "react-router";
+
+import { hasCode, useSchool } from "../../lib/queries";
+import { SchoolContext } from "../../lib/school";
+import { ErrorState, NoSchool, Offline, StandaloneStatus, Suspended } from "../status/StatusPages";
+
+/** L'école de l'adresse, lue avant tout écran (nom, couleur, logo, fuseau). École suspendue ou
+ *  inconnue : le serveur refuse tout à cette adresse, on le dit sans rien afficher d'autre. */
+export function SchoolGate() {
+  const { t } = useTranslation();
+  const school = useSchool();
+  const name = school.data?.name;
+
+  useEffect(() => {
+    if (name) document.title = `${name} · Mwangaza`;
+  }, [name]);
+
+  if (school.isPending) {
+    return (
+      <StandaloneStatus>
+        <Skeleton label={t("common.loading")} />
+      </StandaloneStatus>
+    );
+  }
+  if (school.isError) {
+    const { error } = school;
+    const retry = () => void school.refetch();
+    return (
+      <StandaloneStatus>
+        {hasCode(error, "school_suspended") ? (
+          <Suspended />
+        ) : hasCode(error, "school_not_found") ? (
+          <NoSchool />
+        ) : hasCode(error, "network") ? (
+          <Offline onRetry={retry} />
+        ) : (
+          <ErrorState
+            status={error instanceof ApiError ? error.status : undefined}
+            onRetry={retry}
+          />
+        )}
+      </StandaloneStatus>
+    );
+  }
+  return (
+    <SchoolContext value={school.data}>
+      <Outlet />
+    </SchoolContext>
+  );
+}

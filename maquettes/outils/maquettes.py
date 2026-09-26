@@ -306,6 +306,7 @@ GESTION = [
     ("appareils-synchro", "Appareils et synchronisation", "V1.0", "Paramètres · F5, B5", False),
     ("journal-audit", "Journal d'audit", "V1.0", "Paramètres · I1 · M6", True),
     ("superadmin-ecoles", "Super-admin — écoles", "V1.0", "Plateforme · A1–A3", False),
+    ("session-support", "Session support « en tant qu'école »", "V1.0", "Plateforme · A3", False),
     ("paie", "Paie mensuelle", "V1.1", "Plus tard · 5.3", False),
     ("presences-pointage-qr", "Pointage QR à l'entrée", "V1.1", "Plus tard · 5.5", False),
     ("notes-saisie", "Saisie des notes", "V1.2", "Plus tard · 6.2", False),

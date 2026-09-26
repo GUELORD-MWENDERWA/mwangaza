@@ -8,7 +8,14 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig([
-  globalIgnores(["**/dist/", "**/coverage/"]),
+  // `schema.d.ts` : généré par `make api` (openapi-typescript).
+  globalIgnores([
+    "**/dist/",
+    "**/coverage/",
+    "test-results/",
+    "playwright-report/",
+    "packages/api/src/schema.d.ts",
+  ]),
   js.configs.recommended,
   tseslint.configs.recommended,
   {
@@ -17,8 +24,8 @@ export default defineConfig([
     languageOptions: { globals: globals.browser },
   },
   {
-    // Fichiers lus par Node : configurations de Vite, Vitest, ESLint.
-    files: ["**/*.config.{ts,mjs,js}", "**/*.config.test.ts"],
+    // Fichiers lus par Node : configurations de Vite, Vitest, ESLint, Playwright ; parcours `e2e/`.
+    files: ["**/*.config.{ts,mjs,js}", "**/*.config.test.ts", "e2e/**", "vitest.setup.ts"],
     languageOptions: { globals: globals.node },
   },
   prettier,

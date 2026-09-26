@@ -1,5 +1,24 @@
 {
   "name": "@mwangaza/i18n",
   "version": "0.0.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "i18next": "^26.4.2",
+    "react-i18next": "^17.0.15"
+  },
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "react": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
 }
