@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 1 (Socle) |
 | Lot | V1.0 — semaine 1 (Socle) |
-| Tâche en cours | aucune — 0.1 terminée ; en attente des actions de l'utilisateur listées dans `A-FAIRE.md` (PR #75, Docker, `.env`, décisions) |
+| Tâche en cours | aucune — 0.1 terminée ; correctif `.env` en PR ; en attente des actions de l'utilisateur listées dans `A-FAIRE.md` (se reconnecter pour Docker, fusionner la PR du correctif, décisions) |
 | Prochaine tâche | 0.2 — qualité : ruff, pytest, ESLint, Prettier, Vitest, pre-commit, GitHub Actions |
 | Issue GitHub | #5 (0.1, fermée à la fusion de la PR) · prochaine : #6 (0.2) |
-| Branche | `docs/a-faire` → PR #75 vers `main` (reprend #73 et #74, restées hors de `main`) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `fix/env-valeurs-vides` → PR vers `main` (#75 fusionnée) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-26 |
 
 ## Avancement
@@ -41,8 +41,8 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I17, déci
 | Date de remise des bulletins de la 1re période 2026-2027 (indice : 8 novembre en 2025) | ITIG | ordre V1.1 / V1.2 — voir Q6 |
 | Nom définitif et domaine | toi | 4.6 |
 | Comptes VPS, Cloudflare, stockage objet (GitHub : fait) | toi | 4.6, 4.7 |
-| Base PostgreSQL pour le projet : Docker à installer puis `.env` (`A-FAIRE.md` § 3–5) ; aujourd'hui `make test-back` échoue (2 erreurs : pas de rôle `mwangaza`) | toi | 0.2 et toutes les tâches suivantes (tests) ; `make dev` jamais lancé |
-| Fusion de la PR #75 (inventaire, 61 maquettes, `A-FAIRE.md`) | toi | 0.2 (partir d'un `main` complet) |
+| Docker installé et base lancée ; l'utilisateur doit se reconnecter pour que `docker` marche sans erreur dans sa session (`A-FAIRE.md` § 3 bis) | toi | rien pour Claude ; les commandes Docker de l'utilisateur |
+| Fusion de la PR du correctif `.env` (`fix/env-valeurs-vides`) | toi | 0.2 (partir d'un `main` à jour) |
 | Logo haute qualité + version noir et blanc pour le reçu thermique | ITIG | 3.2 |
 
 ## Questions ouvertes
@@ -66,6 +66,13 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I17, déci
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-26 — Docker installé, `.env` réparé, base de développement en marche
+
+- **Fait** : l'utilisateur a fusionné #75 et installé Docker (29.8, Compose 5.5). Son `.env` (copie de `.env.example`) avait `DJANGO_SECRET_KEY=` vide : l'ancienne consigne demandait de coller à la main la clé affichée par `python3 …`. Une valeur vide exportée par le `Makefile` passait avant la valeur par défaut de `dev.py`, et Django refusait la clé vide (`The SECRET_KEY setting must not be empty`). Correctif (branche `fix/env-valeurs-vides`) : `env()`, `env_bool()`, `env_list()` traitent une variable vide comme absente ; `.env.example` explique la clé ; `A-FAIRE.md` mis à jour (étapes 1 à 4 cochées, 3 bis « se reconnecter », 5 bis « fusionner le correctif », tableau des valeurs du `.env`, ligne de dépannage). Clé écrite dans le `.env` de l'utilisateur par script, jamais affichée. L'utilisateur est dans le groupe `docker` mais sa session ne le voit pas encore (reconnexion nécessaire) ; Claude a lancé les commandes via `sg docker`.
+- **Tests** : `make services` (PostgreSQL 16 sur 5433, Redis) ; `make test` : 7 passés (3 + 4 nouveaux dans `tests/test_settings.py`), types du front OK ; `make migrate` ; `make dev-local` : `/api/health/` → `ok` (direct et via le proxy de la Gestion), Gestion et Portail → 200. Production : refuse toujours de démarrer sans `DJANGO_SECRET_KEY`.
+- **Décision** : une variable d'environnement vide vaut « absente » (valeur par défaut).
+- **Suite** : l'utilisateur se reconnecte, fusionne le correctif, refait `A-FAIRE.md` § 5 lui-même, tranche Q1–Q11 ; puis `/tache 0.2`.
 
 ### 2026-09-26 — `A-FAIRE.md`, dossier renommé, PR de rattrapage
 
