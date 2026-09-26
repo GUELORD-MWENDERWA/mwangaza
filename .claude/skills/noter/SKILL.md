@@ -18,7 +18,9 @@ argument-hint: "<ce qu'il faut noter>"
 | Nouvelle question | « Questions ouvertes » (Q suivant, question, tâche, proposition) |
 | Case « Avant de coder » faite (domaine acheté, comptes créés…) | cocher dans `docs/05-plan-de-travail.md`, recompter « Avancement », fermer l'issue GitHub `A.x` (`gh issue close <n> --comment "…"`) + « Journal » |
 | Recherche faite (web, bibliothèque, règle EPST) | note avec sources dans `docs/claude/recherches/AAAA-MM-JJ-sujet.md` + une ligne au « Journal » |
+| Information fournie, maquette fournie, décision prise (liste de `docs/07-a-fournir.md`) | cocher la ligne dans `07` + « Journal » ; si c'est Q1–Q9, traiter comme une question tranchée |
 | Document reçu de l'école | utiliser la skill `document-ecole` |
+| Action de l'utilisateur faite ou nouvelle (Docker installé, PR fusionnée, compte créé, visite à l'ITIG prévue) | cocher ou ajouter la ligne dans `A-FAIRE.md` + « Journal » |
 
 Si l'information contredit un document de `docs/`, le signaler et demander avant de modifier le document.
 

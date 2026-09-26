@@ -39,6 +39,6 @@ Lister les **écarts** : champ absent du modèle, règle non prévue, libellé d
 
 1. Présenter à l'utilisateur : résumé du document, écarts, modifications proposées (documents, maquettes, données de démonstration, nouvelles questions). **Ne pas modifier `docs/01` à `04` sans accord.**
 2. Après accord, appliquer les modifications.
-3. `docs/ecole-pilote/README.md` : statut « reçu », nom du fichier.
+3. `docs/ecole-pilote/README.md` : statut « reçu », nom du fichier ; cocher la ligne correspondante (I1–I17) dans `docs/07-a-fournir.md`.
 4. `docs/06-suivi.md` : entrée au « Journal », bloquant levé ou réduit, questions ajoutées ou tranchées ; si c'est un élément de « Avant de coder », cocher dans `docs/05` et recompter.
 5. Terminer par `📍` l'état et les tâches maintenant débloquées.

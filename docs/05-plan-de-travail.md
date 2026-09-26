@@ -4,7 +4,9 @@ Chaque tâche est faite dans une branche, avec tests, puis cochée ici. Les réf
 
 Pour lancer une tâche dans Claude Code : `/tache 2.3` (ou « Fais la tâche 2.3 du plan de travail. »). Claude relit `CLAUDE.md` et les documents liés.
 
-État actuel, tâche en cours, bloquants et journal de chaque étape : `06-suivi.md` (`/etat` dans Claude Code).
+État actuel, tâche en cours, bloquants et journal de chaque étape : `06-suivi.md` (`/etat` dans Claude Code). Ce qui manque encore (maquettes, informations, décisions) : `07-a-fournir.md`.
+
+Données de démonstration : `make demo` est créée en 1.5 et chaque tâche qui ajoute des modèles l'enrichit (données fictives, remplacées par les vraies en 4.8).
 
 Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **issue** portant son numéro (ex. « 1.1 — App core… »). La PR d'une tâche ferme son issue (`Closes #n`). Ce fichier reste la référence ; GitHub montre la progression de chaque version.
 

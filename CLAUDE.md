@@ -15,7 +15,8 @@ Lire `docs/06-suivi.md` (état actuel, tâche en cours, bloquants) avant toute a
 4. `docs/04-modele-de-donnees.md` — entités et règles métier
 5. `docs/05-plan-de-travail.md` — tâches ordonnées, cocher au fur et à mesure
 6. `docs/06-suivi.md` — état actuel du projet et journal de chaque étape
-7. `maquettes/README.md` — système de design et inventaire des écrans ; captures dans `maquettes/captures/`, structure et libellés dans `maquettes/gestion/*.html` et `maquettes/portail/*.html`
+7. `docs/07-a-fournir.md` — maquettes, informations et décisions encore manquantes (et ce qu'on utilise en attendant)
+8. `maquettes/README.md` — système de design et inventaire des écrans ; captures dans `maquettes/captures/`, structure et libellés dans `maquettes/gestion/*.html` et `maquettes/portail/*.html`
 
 École pilote : `docs/ecole-pilote/fiche-itig.md` (ce qu'on sait), `depot/` (l'utilisateur y dépose ses fichiers, hors Git), `documents/` (rangés, sans données personnelles), `prive/` (données personnelles, hors Git).
 
@@ -79,7 +80,7 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 
 ## Commandes
 
-Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Docker. `make` seul affiche la liste.
+Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Docker. `make` seul affiche la liste. Version commentée pour l'utilisateur, avec les commandes à venir et le dépannage : `A-FAIRE.md` § 10–11 (à tenir à jour avec ce tableau).
 
 | Commande | Effet |
 |---|---|
@@ -93,6 +94,7 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 | `make api` | schéma OpenAPI → `frontend/packages/api/openapi.yaml` (à relancer après tout changement d'API) |
 | `make build` | build des deux PWA |
 | `make superuser` · `make shell` | compte super-admin ; console Django |
+| `python3 maquettes/outils/maquettes.py menu` · `… index` · `node maquettes/outils/captures.mjs` | maquettes : menu latéral commun, galerie `index.html`, captures PNG (sans dépendance, Chrome de la machine) |
 
 Adresses en dev : Gestion `http://itig.localhost:5173/app/` (le sous-domaine = code de l'école), Portail `http://localhost:5174/`, API `/api/…` via le proxy Vite, doc de l'API `/api/docs/` (seulement en `DEBUG`). Réglages Django : `config.settings.dev` (défaut de `manage.py`), `test` (pytest), `prod` (wsgi/asgi, refuse de démarrer sans `DJANGO_SECRET_KEY`).
 
@@ -103,6 +105,10 @@ Adresses en dev : Gestion `http://itig.localhost:5173/app/` (le sous-domaine = c
 - Après chaque tâche : cocher la case dans `docs/05-plan-de-travail.md` et noter toute décision nouvelle dans la section « Journal des décisions » de `docs/03-architecture-technique.md`.
 - En cas de doute sur une règle scolaire RDC (bulletins, délibération, frais), demander plutôt que supposer.
 
+## Données de démonstration
+
+Tant que les vraies données de l'ITIG ne sont pas là, on travaille avec des données **fictives** : `make demo` recrée l'école `itig` (démo), une seconde école fictive `volcans` et un compte par rôle (détail : `docs/07-a-fournir.md` § 4). Chaque tâche qui ajoute un modèle enrichit cette commande. Jamais de vraie donnée personnelle dans les données de démonstration ni dans les tests.
+
 ## Suivi du projet (obligatoire)
 
 Chaque étape doit être notée pour savoir à tout moment où en est le projet.
@@ -111,6 +117,7 @@ Chaque étape doit être notée pour savoir à tout moment où en est le projet.
 - **Fin d'une tâche** : cocher dans `docs/05-plan-de-travail.md`, mettre à jour « État actuel » et « Avancement », ajouter une entrée datée au « Journal » (fait, tests, décisions, reste à faire).
 - **Tout autre événement** (document reçu de l'ITIG, décision, blocage levé, question tranchée) : entrée datée au « Journal ».
 - **Décision technique** : aussi dans le « Journal des décisions » de `docs/03-architecture-technique.md`.
+- **Action qui attend l'utilisateur** (installer, fusionner une PR, demander à l'ITIG, acheter, créer un compte) ou **nouvelle commande** : mettre à jour `A-FAIRE.md` (ce qu'il doit faire, comment, avec quelles commandes ; cocher ce qui est fait). Le signaler dans la réponse.
 - Terminer chaque réponse de travail par une ligne d'état : `📍 Tâche X.Y — étape — prochaine action`.
 
 ## Skills du projet (`.claude/skills/`)
