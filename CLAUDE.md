@@ -3,6 +3,8 @@
 Plateforme de gestion scolaire multi-écoles pour la RDC, lancement à Goma.
 École pilote : **ITIG Don Bosco Goma** (institut technique, ~1 200 élèves, ateliers mécanique / auto / électricité / électronique).
 
+**L'ITIG est l'école d'exemple, pas la seule école.** Elle donne un cas concret (niveaux, options, frais, reçus, bulletins, rôles), mais chaque école, l'ITIG comprise, saisit elle-même ses vraies données dans l'application. On n'attend pas les documents de l'ITIG : ce qui manque, Claude l'invente de façon réaliste pour les données de démonstration.
+
 ## Au début de chaque session
 
 Lire `docs/06-suivi.md` (état actuel, tâche en cours, bloquants) avant toute autre action.
@@ -39,7 +41,7 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 
 ## Règles non négociables
 
-1. **Isolation des écoles** : tout modèle métier hérite de `TenantModel` (champ `school`). Toute requête passe par le manager scopé. Chaque nouvelle vue a un test qui prouve qu'une école ne voit pas les données d'une autre.
+1. **Isolation des écoles** : tout modèle métier hérite de `TenantModel` (champ `school`), y compris `Student`, `Family` et `Guardian` (chaque école a sa propre copie). Toute requête passe par le manager scopé. Chaque nouveau modèle, écran ou point d'API a un test qui prouve qu'une école ne peut **ni lire ni modifier** les données d'une autre : application, API, exports, rapports, recherche et portail parent compris.
 2. **Argent** : montants en **entiers** (plus petite unité : centimes USD, francs FC) + code devise. Jamais de `float`. Taux de change enregistré sur chaque paiement.
 3. **Paiements immuables** : on ne modifie ni ne supprime jamais un paiement. Une annulation est un nouvel enregistrement lié, avec motif, permission dédiée et trace d'audit.
 4. **Identifiants** : UUID v7 générés côté client pour toute donnée créable hors-ligne. Toute écriture de synchronisation est idempotente.
@@ -47,6 +49,7 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 6. **Permissions** : vérifier la permission côté serveur sur chaque endpoint ; le front ne fait que masquer.
 7. **i18n** : aucun texte d'interface en dur ; français par défaut, anglais disponible.
 8. **Pas de nouvelle dépendance** sans l'expliquer et demander.
+9. **Rien en dur pour une école** : nom, logo, couleur, options, frais, formats et exemplaires des reçus, rôles personnalisés… viennent des paramètres de l'école, jamais du code.
 
 ## Conventions de code
 
@@ -58,14 +61,18 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 | École / établissement | `School` |
 | Promoteur | `Promoter` / rôle `promoter` |
 | Préfet des études / directeur | rôle `head` |
-| Directeur des études | rôle `academic_director` |
+| Directeur des études | rôle `study_director` |
+| Directeur de discipline / surveillant | rôle `discipline_master` |
+| Comptable, caissier, secrétaire, enseignant, parent | rôles `accountant`, `cashier`, `secretary`, `teacher`, `parent` |
 | Titulaire | `homeroom_teacher` |
 | Minerval / frais scolaires | `FeeType` (catégorie `tuition`) |
-| Tranche | `Installment` |
-| Échéancier | `PaymentSchedule` |
+| Barème (montant et devise d'un frais) | `FeeRule` |
+| Tranche | `InstallmentTemplate` (modèle) ; ce que doit l'élève : `StudentCharge` |
+| Échéancier | `FeeRule.schedule_kind` + `InstallmentTemplate` ; échéancier particulier d'un élève : `StudentCharge` avec `source=custom` (pas de modèle `PaymentSchedule`) |
+| Taux de change (fixe pour l'année, corrigeable) | `ExchangeRate` |
 | Caisse | `CashRegister` |
 | Clôture de caisse | `CashClosing` |
-| Reçu | `Receipt` |
+| Reçu | pas de modèle : vue imprimable d'un `Payment` (`receipt_number`) |
 | Option (humanités) | `Track` |
 | Section de classe (6e A) | `ClassGroup` |
 | Année scolaire | `AcademicYear` |
@@ -80,7 +87,7 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 
 ## Commandes
 
-Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Docker. `make` seul affiche la liste. Version commentée pour l'utilisateur, avec les commandes à venir et le dépannage : `A-FAIRE.md` § 10–11 (à tenir à jour avec ce tableau).
+Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Docker. `make` seul affiche la liste. Version commentée pour l'utilisateur, avec les commandes à venir et le dépannage : `A-FAIRE.md` § 11–12 (à tenir à jour avec ce tableau).
 
 | Commande | Effet |
 |---|---|
@@ -107,7 +114,7 @@ Adresses en dev : Gestion `http://itig.localhost:5173/app/` (le sous-domaine = c
 
 ## Données de démonstration
 
-Tant que les vraies données de l'ITIG ne sont pas là, on travaille avec des données **fictives** : `make demo` recrée l'école `itig` (démo), une seconde école fictive `volcans` et un compte par rôle (détail : `docs/07-a-fournir.md` § 4). Chaque tâche qui ajoute un modèle enrichit cette commande. Jamais de vraie donnée personnelle dans les données de démonstration ni dans les tests.
+On travaille avec des données **fictives et réalistes** : `make demo` recrée l'école `itig` (démo : ~800 élèves avec familles, fratries et paiements sur plusieurs mois), une seconde école fictive `volcans`, plus petite, pour prouver l'isolation, et un compte par rôle (détail : `docs/07-a-fournir.md` § 4). Les vraies données, c'est l'école qui les saisit. Chaque tâche qui ajoute un modèle enrichit cette commande. Jamais de vraie donnée personnelle dans les données de démonstration ni dans les tests.
 
 ## Suivi du projet (obligatoire)
 

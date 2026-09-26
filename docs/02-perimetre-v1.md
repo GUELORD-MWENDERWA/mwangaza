@@ -11,7 +11,7 @@ Objectif demandé : une première version utilisable en **un mois**, développé
 | **V1.2** | semaines 9 à 14 | Notes, bulletins EPST, délibération, présences RFID, discipline, messagerie, portail élèves. |
 | **V2** | ensuite | Voir cahier des charges. |
 
-Pourquoi les finances d'abord : la rentrée a eu lieu le 1er septembre, les écoles encaissent maintenant, et la caisse est l'endroit où l'argent et la confiance se jouent. Pourquoi la paie en V1.1 : la première paie se fait en fin de mois, elle peut arriver quelques semaines après la caisse. Les bulletins doivent être prêts avant la remise des bulletins de la 1re période à l'ITIG (date à confirmer) ; si cette date est proche, V1.2 passe avant certaines parties de V1.1.
+Pourquoi les finances d'abord : la rentrée a eu lieu le 1er septembre, les écoles encaissent maintenant, et la caisse est l'endroit où l'argent et la confiance se jouent. Pourquoi la paie en V1.1 : la première paie se fait en fin de mois, elle peut arriver quelques semaines après la caisse. Bulletins (décision Q6 du 2026-09-26) : la 1re période 2026 reste sur papier à l'ITIG ; les bulletins se font avec Mwangaza à partir de la 2e période / 1er semestre ; l'ordre V1.1 puis V1.2 ne change pas.
 
 Deux modules non cochés sont **indispensables** au portail parents et à la caisse, donc inclus en V1.0 : élèves / inscriptions et classes.
 
@@ -22,15 +22,15 @@ Le **hors-ligne** est conçu dès le premier jour (identifiants, synchronisation
 ### A. Plateforme et super-admin
 
 - **A1** — En tant que super-admin, je crée une école (nom, code sous-domaine, logo, devises, fuseau horaire) et son premier compte directeur.
-  - L'école est accessible à `{code}.mwangaza.cd/app`.
+  - L'école est accessible à `{code}.mwangaza.school/app`.
   - Je peux suspendre une école : ses utilisateurs ne peuvent plus se connecter, les données restent.
 - **A2** — Je vois la liste des écoles avec nombre d'élèves, date de dernière activité, statut d'abonnement (saisi à la main en V1.0).
 - **A3** — Je peux me connecter en tant qu'une école pour le support ; l'action est inscrite dans l'audit et un bandeau l'indique à l'écran.
 
 ### B. Comptes, rôles, connexion
 
-- **B1** — Rôles prédéfinis : directeur, comptable, caissier, secrétaire, promoteur, enseignant (sans fonctions en V1.0), parent.
-- **B2** — L'école crée un rôle personnalisé en cochant des permissions.
+- **B1** — Rôles prédéfinis (9) : directeur, directeur des études, directeur de discipline / surveillant, comptable, caissier, secrétaire, promoteur, enseignant (sans fonctions en V1.0), parent. Plusieurs personnes peuvent avoir le même rôle. Permissions : `04-modele-de-donnees.md` § 8.
+- **B2** — L'école crée un rôle personnalisé en cochant des permissions (ex : « chef d'atelier » à l'ITIG, en attendant le module ateliers de la V2).
 - **B3** — Un utilisateur peut avoir plusieurs rôles et appartenir à plusieurs écoles avec un seul compte.
 - **B4** — Connexion identifiant + mot de passe ; TOTP obligatoire pour directeur, comptable, caissier, promoteur.
 - **B5** — Sur un appareil déjà connecté, un code PIN déverrouille l'application, y compris hors-ligne. Après 5 PIN faux, reconnexion complète exigée.
@@ -51,18 +51,18 @@ Le **hors-ligne** est conçu dès le premier jour (identifiants, synchronisation
 
 ### E. Frais et échéanciers
 
-- **E1** — Le comptable crée des types de frais (minerval, fonctionnement, frais connexes…), chacun avec une devise.
-- **E2** — Il définit un barème : montant par niveau / option / classe, découpé en tranches avec dates limites, ou mensuel.
+- **E1** — Le comptable crée des types de frais (minerval, fonctionnement, frais connexes…).
+- **E2** — Il définit un barème : montant et devise (USD ou FC, au choix pour chaque barème) par niveau / option / classe, découpé en tranches avec dates limites, ou mensuel.
 - **E3** — Il applique une réduction à un élève (montant ou %), avec motif. L'auteur est enregistré.
 - **E4** — Il crée un échéancier particulier pour un élève.
-- **E5** — Il saisit le taux de change du jour (USD → FC).
+- **E5** — Il saisit le taux de change de l'année scolaire (USD → FC), fixe toute l'année. Il peut le corriger en cours d'année : l'historique garde qui, quand, l'ancien et le nouveau taux ; les paiements déjà faits gardent le taux utilisé.
 
 ### F. Caisse et reçus
 
 - **F1** — Le caissier cherche un élève, voit ce qu'il doit par frais et par tranche, dans chaque devise.
 - **F2** — Il encaisse un montant (total ou partiel) dans une devise ; le système répartit sur les échéances les plus anciennes ; il peut ajuster la répartition avant de valider.
-- **F3** — Le reçu s'imprime aussitôt (80 mm thermique ou A4) avec : école, logo, numéro unique, élève, classe, détail, montant en chiffres et en lettres, devise, taux si conversion, reste à payer, caissier, date/heure, QR code.
-- **F4** — Le QR code ouvre une page publique de vérification qui affiche : reçu valide / annulé / pas encore synchronisé, montant, élève (initiales seulement), date.
+- **F3** — Le reçu s'imprime aussitôt, dans le format choisi par l'école dans ses paramètres : thermique 58 mm ou 80 mm, ou imprimante ordinaire avec un reçu A6 (4 par A4), A5 (2 par A4) ou petit format (≈ 10 × 7 cm) et des traits de découpe — un petit reçu à coller dans le cahier de l'élève ; 1 exemplaire, ou 2 avec une souche pour l'école. Contenu : école, logo (noir et blanc sur thermique), numéro unique, élève, classe, détail, montant en chiffres et en lettres (ex : « Cent cinquante dollars américains et vingt-cinq centimes », « Deux cent quatre-vingt-cinq mille francs congolais »), devise, taux utilisé si conversion, reste à payer, nom du caissier, date/heure, zone signature / cachet, QR code.
+- **F4** — Le QR code ouvre une page publique de vérification qui affiche le minimum : école, numéro, date, montant, reçu valide / annulé, élève en initiales seulement (aucune donnée personnelle complète). Un reçu imprimé **hors ligne** reste vérifiable : le QR code est signé par l'appareil, la page affiche « reçu authentique, en attente de synchronisation ».
 - **F5** — **Hors-ligne** : F1 à F3 fonctionnent sans internet. Les paiements sont synchronisés automatiquement au retour du réseau. Aucun doublon même si l'envoi est répété.
 - **F6** — Réimpression d'un reçu (mention « DUPLICATA »).
 - **F7** — Annulation d'un paiement : demandée avec motif, validée par un utilisateur ayant la permission ; un reçu d'annulation est produit ; le paiement d'origine reste visible, marqué annulé.
@@ -76,11 +76,11 @@ Le **hors-ligne** est conçu dès le premier jour (identifiants, synchronisation
 
 ### H. Portail parents
 
-- **H1** — Le parent ouvre `parents.mwangaza.cd`, saisit son numéro de téléphone et le code famille imprimé, choisit un mot de passe.
-- **H2** — Il voit la liste de ses enfants, même dans des écoles différentes.
+- **H1** — Le parent ouvre `parents.mwangaza.school`, saisit son numéro de téléphone et le code famille imprimé, choisit un mot de passe.
+- **H2** — Il voit la liste de ses enfants, même dans des écoles différentes : chaque école garde sa propre fiche de l'enfant et de la famille ; le parent ajoute une autre école à son compte avec le code famille qu'elle lui a remis.
 - **H3** — Pour chaque enfant : classe, école, photo (si consentement), situation des paiements, reçus (PDF), prochaines échéances.
 - **H4** — Il voit les annonces de l'école.
-- **H5** — Il met à jour son adresse et ses contacts ; la modification est signalée au secrétariat.
+- **H5** — Il met à jour son adresse et ses contacts ; la modification est signalée au secrétariat de chaque école de ses enfants, qui l'applique à sa propre fiche.
 - **H6** — Le portail s'installe sur l'écran d'accueil du téléphone et reste léger.
 
 ### I. Transversal

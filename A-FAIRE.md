@@ -5,9 +5,9 @@ Claude ne peut pas : installer avec `sudo`, fusionner une PR, parler à l'ITIG, 
 
 Ce qui manque en détail (maquettes, informations ITIG, décisions) : [`docs/07-a-fournir.md`](docs/07-a-fournir.md). Ici : **quoi faire, dans quel ordre, avec quelles commandes**.
 
-Dernière mise à jour : 2026-09-26 (après installation de Docker).
+Dernière mise à jour : 2026-09-26 (après tes décisions Q1 à Q11).
 
-## Maintenant, avant que Claude continue (tâche 0.2)
+## Maintenant
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
@@ -16,14 +16,13 @@ Dernière mise à jour : 2026-09-26 (après installation de Docker).
 | 3 | [Installer Docker](#3-installer-docker) | 15 min | [x] |
 | 3 bis | **[Se déconnecter puis se reconnecter](#3-bis-se-déconnecter-puis-se-reconnecter)** (sinon `docker` répond `permission denied`) | 2 min | [x] |
 | 4 | [Créer le fichier `.env`](#4-créer-le-fichier-env) | 2 min | [x] |
-| 5 | [Vérifier que tout marche](#5-vérifier-que-tout-marche) : Claude l'a vérifié le 2026-09-26 ; à refaire toi-même une fois | 5 min | [ ] |
+| 5 | [Vérifier que tout marche](#5-vérifier-que-tout-marche) | 5 min | [x] |
 | 5 bis | [Fusionner la PR #76 (correction du `.env`)](#5-bis-fusionner-la-pr-de-correction-du-env) | 2 min | [x] |
-| 5 ter | [Fusionner la PR #77 (correction de `make dev`)](#5-ter-fusionner-la-pr-de-correction-de-make-dev) | 2 min | [ ] |
-| 6 | [Donner tes décisions](#6-tes-décisions) : nom et domaine (Q9), questions Q1 à Q11 | 10 min | [ ] |
+| 5 ter | [Fusionner la PR #77 (correction de `make dev`)](#5-ter-fusionner-la-pr-de-correction-de-make-dev) | 2 min | [x] |
+| 6 | [Donner tes décisions](#6-tes-décisions) : nom et domaine (Q9), questions Q1 à Q11 | 10 min | [x] |
+| 7 | **[Relire et fusionner la PR des décisions](#7-fusionner-la-pr-des-décisions), puis celle de la tâche 0.2 — dans cet ordre** | 15 min | [ ] |
 
-Quand c'est fait, dans Claude Code : **`/tache 0.2`**. Tout marche déjà (vérifié par Claude) : l'étape 5 sert à ce que **toi** saches lancer les commandes.
-
-Cette semaine aussi : [aller à l'ITIG](#7-litig--quoi-demander-et-quand) avec la liste de la semaine 1 (nécessaire pour la tâche 1.7).
+Rien d'autre ne bloque : Claude enchaîne les tâches. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant), et [les comptes et le domaine](#9-avant-la-semaine-4-tâche-46--comptes-et-achats) avant la semaine 4.
 
 ---
 
@@ -144,6 +143,8 @@ Ensuite, essayer une fois **tout dans Docker** : Ctrl+C, puis `make dev` (images
 
 Dire le résultat à Claude : « tout marche », ou coller le message d'erreur.
 
+**Fait** (2026-09-26 : `make dev` marche chez toi).
+
 ### 5 bis. Fusionner la PR de correction du `.env`
 
 PR #76, branche `fix/env-valeurs-vides` : une variable vide dans `.env` ne fait plus planter Django, `.env.example` explique la clé, ce fichier est à jour. Sur GitHub : vérifier **`base: main`** → *Merge pull request* → *Delete branch*. Ou :
@@ -159,40 +160,59 @@ git switch main && git pull
 
 Le premier essai de `make dev` a montré deux défauts : le conteneur du front s'arrêtait aussitôt (`pnpm: not found`), et il réinstallait toutes les dépendances du front à chaque lancement, en écrasant celles de ta machine. Corrigé sur la branche `fix/docker-front` : le conteneur utilise les dépendances installées sur ta machine, et `make dev` lance `pnpm install` avant de démarrer Docker. Même démarche qu'en 5 bis (vérifier **`base: main`**) : `gh pr merge 77 --merge --delete-branch` puis `git switch main && git pull`.
 
+**Fait.**
+
 ### 6. Tes décisions
 
-| Sujet | Où lire | Comment répondre |
-|---|---|---|
-| **Nom et domaine** (Q9, T1) : proposition = garder Mwangaza et acheter `mwangaza.africa` | `docs/06-suivi.md` → Questions ouvertes, Q9 | `/noter Q9 : on garde Mwangaza, domaine mwangaza.africa` (ou ton choix). Acheter le domaine avant la tâche 4.6 |
-| **Questions Q1 à Q11** (T2) : chaque question a une proposition | `docs/06-suivi.md` → Questions ouvertes | `/noter Q1 à Q11 : OK` ou `/noter Q1 à Q11 : OK sauf Q7 → …` |
-| **Maquettes dessinées** (M1 à M20) | ouvrir `maquettes/index.html` dans le navigateur | fusionner la PR #75 = validées ; sinon commentaire sur la PR |
+**Fait** le 2026-09-26. Tes réponses sont notées dans le journal de [`docs/06-suivi.md`](docs/06-suivi.md) et appliquées aux documents : Mwangaza et `mwangaza.school`, 9 rôles, élève et famille propres à chaque école, taux fixe pour l'année, devise au choix pour chaque barème, formats de reçu au choix de l'école, QR code signé, bulletins à partir de la P2. Principe noté dans `CLAUDE.md` : l'ITIG est l'école d'exemple, rien de propre à une école dans le code.
+
+### 7. Fusionner la PR des décisions
+
+La PR des décisions (branche `docs/decisions-q1-q11`) reporte tes réponses dans les documents. **La fusionner = accepter aussi ce que Claude a proposé** là où tu le lui as demandé (sinon, commentaire sur la PR) :
+
+| Proposition | Où la lire |
+|---|---|
+| Permissions du directeur des études et du directeur de discipline ; nouvelle permission `classes.manage` (le directeur des études gère classes et inscriptions, aucun des deux ne touche à l'argent) | `docs/04-modele-de-donnees.md` § 8 |
+| Parent avec des enfants dans deux écoles : **un seul compte**, relié à la famille de chaque école avec le code famille que chaque école lui remet ; jamais de rattachement par numéro de téléphone (un numéro mal saisi montrerait les enfants à un inconnu) | `docs/03-architecture-technique.md` § 4, maquette `portail/accueil` |
+| QR code du reçu signé par l'appareil de la caisse : un reçu imprimé hors ligne est vérifiable tout de suite (« reçu authentique, en attente de synchronisation ») | `docs/03-architecture-technique.md` § 7 |
+| Couleur de l'école refusée si le texte posé dessus n'est pas lisible ; couleur Mwangaza par défaut `#0E5C6B` | `docs/04-modele-de-donnees.md` § 1 |
+| Montant en lettres : « Cent cinquante dollars américains et vingt-cinq centimes », « Deux cent quatre-vingt-cinq mille francs congolais » | `docs/02-perimetre-v1.md` F3 |
+| Logo noir et blanc de l'ITIG pour le reçu thermique | `docs/ecole-pilote/documents/2026-09-26-logo-itig-noir-et-blanc.png` |
+| 4 maquettes de la Gestion corrigées (la fiche famille ne montre plus les enfants d'une autre école) | `maquettes/captures/desktop/gestion-famille-fiche.png` et `gestion-eleve-fiche-*.png` |
+
+La PR de la tâche 0.2 est partie de celle-ci : **fusionner d'abord la PR des décisions, puis celle de la 0.2**. Pour chacune, vérifier **`base: main`**, puis :
+
+```bash
+gh pr merge <numéro> --merge --delete-branch
+git switch main && git pull
+```
 
 ---
 
-## 7. L'ITIG : quoi demander et quand
+## 8. L'ITIG : quoi demander
 
-Le détail et ce qu'on utilise en attendant : [`docs/07-a-fournir.md`](docs/07-a-fournir.md) § 2. Rien ne bloque les tâches 0.2 à 1.6 : Claude travaille avec des données fictives.
+**Rien ne bloque** (décision du 2026-09-26) : l'ITIG est l'école d'exemple ; Claude travaille avec des données fictives réalistes, et l'ITIG saisira ses vraies données elle-même dans l'application. Les documents reçus remplacent les données fictives. Détail : [`docs/07-a-fournir.md`](docs/07-a-fournir.md) § 2.
 
-| Avant | Tâche | À demander (numéros de `07`) |
-|---|---|---|
-| **fin de la semaine 1** | 1.2, 1.7 | I1 classes 2026-2027 (sections par niveau, options) · I2 format du matricule · I3 calendrier (périodes, examens, date de proclamation de la P1) · I4 qui fait quoi (préfet, directeurs, économe, caissiers, secrétaires) et **qui est le « promoteur »** (Q7) · I13 code `itig` dans l'adresse |
-| **semaine 2** | 2.3 à 2.6 | I5 grille des frais 2026-2027 · I6 réductions pratiquées et qui les accorde · I7 **liste des élèves en Excel** (même partielle) · I8 fiche d'inscription et liste de classe actuelles |
-| **semaine 3** | 3.1, 3.2, 3.8 | I9 fonctionnement de la caisse (caissiers, annulations, clôture, taux du jour) · I10 **photo du reçu actuel** · I11 imprimante thermique (marque, modèle, papier 58 ou 80 mm), ordinateurs, connexion internet · I12 logo en haute qualité + noir et blanc, nom officiel exact |
-| plus tard (V1.1, V1.2) | 5.x, 6.x | I14 grille salariale et primes · I15 bulletin vierge et rempli par niveau · I16 règles de délibération · I17 conduite et sanctions · I18 code de l'école à 7 chiffres |
+| À demander | Sert à | Fait |
+|---|---|:-:|
+| Date de la remise des bulletins de la P1 2026 (I3) | calendrier ; confirme que la P1 reste sur papier | [ ] |
+| Qui joue le rôle de promoteur (I4) | comptes à créer en 4.8 | [ ] |
+| Photo du reçu actuel (I10) | ajuster le reçu et le montant en lettres (3.2) | [ ] |
+| Bulletins vierges et remplis, par niveau et option (I15) | bulletins (V1.2) | [ ] |
+| Code de l'école à 7 chiffres, N° ID et N° permanent des élèves ; bulletin pré-imprimé acheté ou non (I18) | bulletins (V1.2) | [ ] |
+| Si l'occasion se présente : classes 2026-2027, matricule, grille des frais, liste des élèves en Excel, fiche d'inscription, fonctionnement de la caisse, marque de l'imprimante, logo en bonne qualité (I1, I2, I5–I9, I11, I12) | rendre la démonstration plus proche de la réalité ; tester l'import et l'imprimante en 4.8 | [ ] |
 
-**Conseil** : une seule visite pour tout demander (avec une clé USB), en visant d'abord la semaine 1 et la semaine 2. Demander les fichiers Excel dans leur format d'origine, pas en PDF. Une photo au téléphone suffit pour un reçu, une fiche ou un bulletin.
+**Conseil** : une seule visite, avec une clé USB. Demander les fichiers Excel dans leur format d'origine, pas en PDF. Une photo au téléphone suffit pour un reçu, une fiche ou un bulletin.
 
 **Message à envoyer** (WhatsApp ou imprimé), à adapter :
 
-> Bonjour, pour préparer le logiciel de gestion de l'ITIG (élèves, frais, caisse, reçus), j'aurais besoin de :
-> 1. la liste des classes 2026-2027 (sections par niveau et par option) et le calendrier scolaire (périodes, examens) ;
-> 2. le format actuel du matricule des élèves ;
-> 3. qui occupe chaque fonction (préfet, directeurs, économe, caissiers, secrétaires) et qui joue le rôle de promoteur ;
-> 4. la grille des frais 2026-2027 (montants, devises, tranches, dates limites) et les réductions accordées ;
-> 5. la liste des élèves au format Excel ;
-> 6. une photo du reçu de paiement actuel, de la fiche d'inscription et d'une liste de classe ;
-> 7. la marque et le modèle de l'imprimante de reçus ;
-> 8. le logo en bonne qualité.
+> Bonjour, pour préparer le logiciel de gestion de l'ITIG (élèves, frais, caisse, reçus, bulletins), j'aurais besoin de :
+> 1. la date prévue pour la remise des bulletins de la 1re période ;
+> 2. qui joue le rôle de promoteur de l'école ;
+> 3. une photo du reçu de paiement actuel ;
+> 4. un bulletin vierge et un bulletin rempli pour chaque niveau et option ;
+> 5. le code de l'école imprimé sur les bulletins (7 chiffres), et si les bulletins sont achetés pré-imprimés ;
+> 6. si possible : la grille des frais 2026-2027, la liste des élèves en Excel et le logo en bonne qualité.
 > Merci !
 
 **Quand tu reçois quelque chose** :
@@ -203,11 +223,11 @@ Le détail et ce qu'on utilise en attendant : [`docs/07-a-fournir.md`](docs/07-a
 
 ---
 
-## 8. Avant la semaine 4 (tâche 4.6) : comptes et achats
+## 9. Avant la semaine 4 (tâche 4.6) : comptes et achats
 
 | Quoi | Comment | Fait |
 |---|---|:-:|
-| Domaine | l'acheter chez un registrar qui vend l'extension choisie ; activer le renouvellement automatique | [ ] |
+| Domaine **`mwangaza.school`** (choisi le 2026-09-26) | vérifier qu'il est libre, l'acheter chez un registrar qui vend le `.school` ; activer le renouvellement automatique | [ ] |
 | Cloudflare (gratuit) | créer le compte, ajouter le domaine, remplacer les serveurs DNS chez le registrar par ceux que Cloudflare indique | [ ] |
 | VPS | 2 vCPU, 4 Go de RAM, Ubuntu 24.04 (Hetzner, DigitalOcean, OVH… ; moins de 20 $ / mois). À la création, ajouter ta clé SSH : `ssh-keygen -t ed25519` puis coller le contenu de `~/.ssh/id_ed25519.pub` | [ ] |
 | Stockage objet (sauvegardes, photos) | Backblaze B2 ou Cloudflare R2 : créer un compte et un « bucket » ; Claude dira quelles clés créer | [ ] |
@@ -219,7 +239,7 @@ Partout : activer la double authentification et garder les codes de secours. Les
 
 ---
 
-## 9. À chaque tâche (la routine)
+## 10. À chaque tâche (la routine)
 
 1. Dans Claude Code : `/tache X.Y` (ex. `/tache 0.2`). `/etat` à tout moment pour savoir où on en est.
 2. Claude code, teste, commite, pousse et ouvre la PR. **Il ne fusionne jamais.**
@@ -237,7 +257,7 @@ Partout : activer la double authentification et garder les codes de secours. Les
 
 ---
 
-## 10. Commandes du projet
+## 11. Commandes du projet
 
 À lancer depuis la racine du dossier (`~/Projets/mwangaza`). `make` seul affiche la liste.
 
@@ -314,7 +334,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 
 ---
 
-## 11. Dépannage
+## 12. Dépannage
 
 | Message | Cause | Solution |
 |---|---|---|

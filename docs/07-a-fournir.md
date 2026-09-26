@@ -1,14 +1,14 @@
 # Ce qui manque encore
 
-Liste de tout ce qui manque pour aller jusqu'au bout : maquettes, informations de l'ITIG, décisions à prendre. Cocher au fur et à mesure (`/noter` ou `/document-ecole` le font). Établie le 2026-09-26 ; mise à jour le même jour : les 20 maquettes V1.0 manquantes sont dessinées (à valider).
+Liste de tout ce qui manque pour aller jusqu'au bout : maquettes, informations de l'ITIG, décisions à prendre. Cocher au fur et à mesure (`/noter` ou `/document-ecole` le font). Établie le 2026-09-26 ; mise à jour le même jour : les 20 maquettes V1.0 manquantes sont dessinées (à valider), puis les réponses de l'utilisateur (Q1 à Q11, principe « l'ITIG est l'école d'exemple »).
 
 Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, comptes à créer, commandes) : [`A-FAIRE.md`](../A-FAIRE.md).
 
-**En attendant, le travail continue avec des données de test** (voir la dernière section) : aucun point ci-dessous ne bloque les tâches 0.2 à 1.7.
+**Rien ci-dessous ne bloque le travail** (décision du 2026-09-26). L'ITIG est l'école d'exemple, pas la seule : ce qui manque, Claude l'invente de façon réaliste (dernière section), et chaque école saisit ensuite ses vraies données elle-même. Les documents de l'ITIG remplacent les données fictives quand ils arrivent.
 
 ## 1. Maquettes manquantes
 
-30 maquettes ont été fournies. Le 2026-09-26, à la demande de l'utilisateur (T3), Claude a dessiné dans le même système de design les écrans qui manquaient pour la V1.0, plus les bulletins officiels et les cours / maxima (V1.2) : **61 maquettes** au total (`maquettes/index.html`). **Valider** = fusionner la PR des maquettes ; une remarque sur un écran = commentaire de PR, Claude corrige avant de coder l'écran. Pour les lots suivants, même règle : si une maquette n'est pas fournie avant sa tâche, Claude la dessine et la montre avant de coder.
+30 maquettes ont été fournies. Le 2026-09-26, à la demande de l'utilisateur (T3), Claude a dessiné dans le même système de design les écrans qui manquaient pour la V1.0, plus les bulletins officiels et les cours / maxima (V1.2) : **61 maquettes** au total (`maquettes/index.html`). **Valider** = fusionner la PR des maquettes ; une remarque sur un écran = commentaire de PR, Claude corrige avant de coder l'écran. Pour les lots suivants, même règle : si une maquette n'est pas fournie avant sa tâche, Claude la dessine et la montre avant de coder. **Documents imprimables** (reçus, listes, rapports, bulletins…) : même règle, Claude propose le design dans le système de design, état « à valider » (décision du 2026-09-26).
 
 ### V1.0 — nécessaires pour le pilote
 
@@ -18,12 +18,12 @@ Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, compt
 | M2 | Choix de l'école après connexion (compte dans plusieurs écoles) + changement d'école dans l'en-tête | Gestion | B3 | 1.2, 1.6 | `gestion/choix-ecole` | [ ] |
 | M3 | Personnel : liste des comptes, créer un compte, attribuer des rôles, désactiver, réinitialiser le mot de passe | Gestion | B1–B3 | 1.2 | `gestion/personnel-comptes` | [ ] |
 | M4 | Mon compte : mot de passe, PIN, double authentification, langue | Gestion | B4–B5, I2 | 1.3 | `gestion/mon-compte` | [ ] |
-| M5 | Paramètres de l'école : nom officiel, logo, couleur, en-tête des reçus, devises, seuils d'alerte | Gestion | A1, cahier § 8.1 | 1.5, 1.7 | `gestion/parametres-ecole` | [ ] |
+| M5 | Paramètres de l'école : nom officiel, logo, couleur, en-tête des reçus, devises, seuils d'alerte ; à compléter pendant la tâche : contraste de la couleur (Q8), format et exemplaires du reçu, logo noir et blanc | Gestion | A1, cahier § 8.1 | 1.5, 1.7, 3.2 | `gestion/parametres-ecole` | [ ] |
 | M6 | Journal d'audit : qui a fait quoi, filtres par personne, action, date | Gestion | I1 | 1.4 | `gestion/journal-audit` | [ ] |
 | M7 | Menu de la Gestion sur téléphone et tablette (moins de 900 px) | Gestion | cahier § 9.4 | 1.6 | `gestion/menu-mobile` | [ ] |
 | M8 | Pages d'état : accès refusé, page introuvable, erreur, école suspendue, session expirée, nouvelle version, stockage local refusé, portail hors connexion | Gestion, Portail | — | 1.6 | `gestion/pages-etat` | [ ] |
-| M9 | Fiche élève : onglets Identité, Famille, Historique (+ modification) | Gestion | D2–D4 | 2.2 | `gestion/eleve-fiche-identite`, `-famille`, `-historique` | [ ] |
-| M10 | Fiche famille : code famille, tuteurs, enfants de toutes les écoles, état du portail, réimprimer / nouveau code | Gestion | D4, H1 | 2.2 | `gestion/famille-fiche` | [ ] |
+| M9 | Fiche élève : onglets Identité, Famille, Historique (+ modification) ; corrigée le 2026-09-26 (Q10 : fiche propre à l'école) | Gestion | D2–D4 | 2.2 | `gestion/eleve-fiche-identite`, `-famille`, `-historique` | [ ] |
+| M10 | Fiche famille : code famille, tuteurs, enfants **de l'école**, état du portail, réimprimer / nouveau code ; corrigée le 2026-09-26 (Q10) | Gestion | D4, H1 | 2.2 | `gestion/famille-fiche` | [ ] |
 | M11 | Fiche d'inscription imprimable (A4, avec code famille) et liste de classe (PDF, Excel) | Impression | D5 | 2.4 | `gestion/fiche-inscription`, `gestion/liste-classe` | [ ] |
 | M12 | Accorder une réduction à un élève ; échéancier particulier | Gestion | E3, E4 | 2.5, 2.6 | `gestion/eleve-reduction`, `gestion/eleve-echeancier` | [ ] |
 | M13 | Ouvrir une session de caisse ; caisse avant de choisir un élève ; paiements du jour et recherche d'un reçu à réimprimer | Gestion | F1, F6 | 3.1 | `gestion/caisse-ouverture`, `gestion/caisse-accueil` | [ ] |
@@ -49,7 +49,7 @@ Déjà dessinés le 2026-09-26 d'après les **formulaires officiels** trouvés e
 
 ## 2. Informations de l'ITIG
 
-Déposer les fichiers dans `docs/ecole-pilote/depot/` puis `/document-ecole`. Pour une réponse sans fichier : `/noter …`.
+Déposer les fichiers dans `docs/ecole-pilote/depot/` puis `/document-ecole`. Pour une réponse sans fichier : `/noter …`. Aucune de ces informations ne bloque : la colonne « En attendant » dit ce qu'on utilise.
 
 ### Pour la V1.0
 
@@ -58,15 +58,15 @@ Déposer les fichiers dans `docs/ecole-pilote/depot/` puis `/document-ecole`. Po
 | I1 | Classes 2026-2027 : sections par niveau (7e A, B, C…), options et sections de la 1re à la 4e | 1.7 | semaine 1 | structure publique + sections inventées | [ ] |
 | I2 | Format actuel du matricule | 1.7 | semaine 1 | `ITIG-{AAAA}-{0000}` (maquettes) | [ ] |
 | I3 | Calendrier 2026-2027 : périodes, examens, dates ; date de proclamation de la P1 | 1.7, Q6 | semaine 1 | modèle secondaire : 2 semestres, 4 périodes, 2 examens | [ ] |
-| I4 | Qui fait quoi : préfet, directeurs des études, directeur de discipline, économe / comptable, caissiers, secrétaires, promoteur ; liste des comptes à créer | 1.2, 4.8 | semaine 1 | un compte fictif par rôle | [ ] |
-| I5 | Grille des frais 2026-2027 : types, devise de chaque frais, montants par niveau / option, tranches et dates limites, frais mensuels | 2.5 | semaine 2 | grille des maquettes (minerval en tranches USD, fonctionnement, atelier, motivation mensuelle en FC) | [ ] |
+| I4 | Qui fait quoi : préfet, directeurs des études, directeur de discipline, économe / comptable, caissiers, secrétaires, promoteur ; liste des comptes à créer | 1.2, 4.8 | semaine 1 | un compte fictif par rôle (9 rôles système) ; « qui est le promoteur » : l'utilisateur le demande à l'ITIG | [ ] |
+| I5 | Grille des frais 2026-2027 : types, devise de chaque frais, montants par niveau / option, tranches et dates limites, frais mensuels | 2.5 | semaine 2 | grille fictive réaliste, à partir de celle des maquettes (minerval en tranches USD, fonctionnement, atelier, motivation mensuelle en FC) | [ ] |
 | I6 | Réductions pratiquées (enfants du personnel, fratrie, bourses) et qui les accorde | 2.5 | semaine 2 | modèles du cahier des charges | [ ] |
-| I7 | Liste des élèves en Excel (même partielle, pour voir les colonnes) | 2.3 | semaine 2 | ~1 200 élèves fictifs | [ ] |
+| I7 | Liste des élèves en Excel (même partielle, pour voir les colonnes) | 2.3 | semaine 2 | ~800 élèves fictifs avec familles, fratries et paiements sur plusieurs mois | [ ] |
 | I8 | Fiche d'inscription et liste de classe actuelles | 2.4 | semaine 2 | maquettes M11 | [ ] |
-| I9 | La caisse aujourd'hui : combien de caisses et de caissiers, qui valide une annulation, comment se fait la clôture, qui fixe le taux du jour et quand | 3.1, 3.8 | semaine 3 | 2 caisses, règles des maquettes, taux 1 $ = 2 850 FC | [ ] |
-| I10 | Modèle de reçu actuel (photo) et formulation du montant en lettres | 3.2, Q5 | semaine 3 | reçu des maquettes | [ ] |
-| I11 | Imprimante thermique (marque, modèle, papier 80 ou 58 mm) ; ordinateurs, tablettes, navigateur ; connexion internet | 3.2, 4.8 | semaine 3 | 80 mm, Chrome | [ ] |
-| I12 | Logo haute qualité (vectoriel si possible) + version noir et blanc ; nom officiel exact ; cachet ; en-tête | 1.5, 3.2 | semaine 3 | logo du site web | [ ] |
+| I9 | La caisse aujourd'hui : combien de caisses et de caissiers, qui valide une annulation, comment se fait la clôture (le taux est tranché : fixe pour l'année, saisi par le comptable) | 3.1, 3.8 | semaine 3 | 2 caisses, règles des maquettes, taux de l'année 1 $ = 2 850 FC | [ ] |
+| I10 | Modèle de reçu actuel (photo) et formulation du montant en lettres | 3.2 | semaine 3 | reçu proposé par Claude ; montant en lettres « Cent cinquante dollars américains et vingt-cinq centimes » (Q5), ajusté quand le reçu arrivera | [ ] |
+| I11 | Imprimante thermique (marque, modèle, papier 80 ou 58 mm) ; ordinateurs, tablettes, navigateur ; connexion internet | 4.8 | à la mise en place | tous les formats gérés au choix de l'école (58 mm, 80 mm, A4) ; test sur la vraie imprimante en 4.8 ; Chrome | [ ] |
+| I12 | Logo haute qualité (vectoriel si possible) + version noir et blanc ; nom officiel exact ; cachet ; en-tête | 1.5, 3.2 | semaine 3 | logo du site web ; version noir et blanc préparée par Claude (`ecole-pilote/documents/2026-09-26-logo-itig-noir-et-blanc.png`) | [ ] |
 | I13 | Code de l'école dans l'adresse : `itig` ? | 1.5 | semaine 1 | `itig` | [ ] |
 
 ### Pour la V1.1 et la V1.2
@@ -83,17 +83,17 @@ Déposer les fichiers dans `docs/ecole-pilote/depot/` puis `/document-ecole`. Po
 
 | # | Sujet | Quand | Fait |
 |---|---|---|:-:|
-| T1 | **Nom et domaine** (question Q9 de `06-suivi.md`) : `mwangaza.cd` est déjà enregistré, `mwangaza.com` est en vente chez un revendeur. Recommandation : garder **Mwangaza** et prendre **`mwangaza.africa`**, qui semble libre (à confirmer chez le registrar) | maintenant ; domaine acheté avant 4.6 | [ ] |
-| T2 | Valider les propositions Q1 à Q8 de `06-suivi.md` (un « OK » suffit, ou corriger) | avant 1.2 | [ ] |
+| T1 | **Nom et domaine** (Q9) — **tranché le 2026-09-26 : Mwangaza, `mwangaza.school`** ; reste à vérifier la disponibilité et acheter le domaine avant 4.6 (`A-FAIRE.md` § 9) | maintenant ; domaine acheté avant 4.6 | [x] |
+| T2 | Valider les propositions Q1 à Q11 de `06-suivi.md` — **tranché le 2026-09-26** (journal de `06-suivi.md`) | avant 1.2 | [x] |
 | T3 | Maquettes : les fournir, ou laisser Claude les dessiner (défaut) — **tranché le 2026-09-26 : Claude dessine** ; reste à valider les maquettes dessinées (PR) | maintenant | [x] |
 | T4 | Comptes : VPS, Cloudflare, stockage objet, suivi d'erreurs (Sentry ou GlitchTip) | avant 4.6 | [ ] |
 | T5 | Conditions d'utilisation, politique de confidentialité, contrat de traitement des données avec l'ITIG (Claude peut rédiger un brouillon) | avant 4.8 | [ ] |
 | T6 | Tarif du pilote ITIG (gratuit pendant l'essai ?) | avant 4.8 | [ ] |
 
-## 4. Données de test utilisées en attendant
+## 4. Données de démonstration
 
-Commande `make demo` (créée avec la tâche 1.5, enrichie à chaque tâche) : elle efface et recrée des données **entièrement fictives**, remplacées par les vraies à la tâche 4.8.
+Commande `make demo` (créée avec la tâche 1.5, enrichie à chaque tâche) : elle efface et recrée des données **entièrement fictives et réalistes**, pour le développement et les démonstrations. En production, chaque école saisit ses vraies données. Rien de propre à l'ITIG n'est écrit dans le code : tout passe par les paramètres de l'école de démonstration.
 
-- **École `itig`** « ITIG Don Bosco Goma (démo) » : structure publique réelle (7e–8e EB, 1re–4e, 4 options), environ 1 200 élèves et leurs familles aux noms inventés, grille de frais des maquettes, taux 1 $ = 2 850 FC, 2 caisses, historique de paiements pour le tableau de bord.
-- **École `volcans`** « Complexe scolaire Les Volcans (fictif) » : petite école pour prouver l'isolation entre écoles et tester une famille qui a des enfants dans les deux écoles.
-- **Un compte par rôle** (directeur, comptable, caissier, secrétaire, promoteur, parent, super-admin) avec un mot de passe de développement connu, jamais utilisé en production.
+- **École `itig`** « ITIG Don Bosco Goma (démo) » : structure publique réelle (7e–8e EB, 1re–4e, 4 options), couleur `#003C6C`, logo du site web et sa version noir et blanc ; environ **800 élèves** aux noms inventés, avec leurs familles (fratries comprises) ; grille de frais fictive réaliste (frais en USD et en FC) ; taux de l'année 1 $ = 2 850 FC ; 2 caisses ; paiements de septembre à aujourd'hui pour le tableau de bord et les impayés ; un rôle personnalisé « chef d'atelier ».
+- **École `volcans`** « Complexe scolaire Les Volcans (fictif) » : petite école (≈ 150 élèves) pour prouver l'isolation entre écoles, avec une famille qui a des enfants dans les deux écoles (deux fiches famille, deux codes, un seul compte parent).
+- **Un compte par rôle** (directeur, directeur des études, directeur de discipline, comptable, caissier, secrétaire, promoteur, enseignant, parent, super-admin) avec un mot de passe de développement connu, jamais utilisé en production.

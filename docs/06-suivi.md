@@ -8,17 +8,17 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 1 (Socle) |
 | Lot | V1.0 — semaine 1 (Socle) |
-| Tâche en cours | aucune — 0.1 terminée ; correctif de `make dev` en PR ; en attente des actions de l'utilisateur listées dans `A-FAIRE.md` (fusionner la PR, vérifier lui-même, décisions) |
+| Tâche en cours | aucune — 0.1 terminée ; décisions Q1 à Q11 reportées dans les documents (PR des décisions) |
 | Prochaine tâche | 0.2 — qualité : ruff, pytest, ESLint, Prettier, Vitest, pre-commit, GitHub Actions |
 | Issue GitHub | #5 (0.1, fermée à la fusion de la PR) · prochaine : #6 (0.2) |
-| Branche | `fix/docker-front` → PR #77 vers `main` (#75 et #76 fusionnées) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `docs/decisions-q1-q11` → PR vers `main` (#75, #76, #77 fusionnées) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-26 |
 
 ## Avancement
 
 | Bloc | Fait | Total |
 |---|:-:|:-:|
-| Avant de coder (toi) | 0 | 4 |
+| Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 1 | 9 |
 | Semaine 2 — Élèves et frais | 0 | 7 |
 | Semaine 3 — Caisse et hors-ligne | 0 | 8 |
@@ -32,39 +32,42 @@ Sur GitHub : onglet *Milestones* — V1.0 (36 issues, dont les 4 « avant de cod
 
 ## Bloquants et en attente
 
-Liste complète et détaillée (maquettes M1–M20, informations I1–I17, décisions T1–T6) : `07-a-fournir.md`. Ce que l'utilisateur doit faire et comment : `../A-FAIRE.md`. Ici, seulement ce qui bloque bientôt.
+Liste complète et détaillée (maquettes M1–M20, informations I1–I18, décisions T1–T6) : `07-a-fournir.md` — plus rien n'y bloque le travail. Ce que l'utilisateur doit faire et comment : `../A-FAIRE.md`. Ici, seulement ce qui bloque bientôt.
 
 | Sujet | Attendu de | Bloque |
 |---|---|---|
-| Documents ITIG (cahier des charges § 11) : grille des frais, liste des élèves Excel, modèle de reçu | ITIG | 2.3, 2.5, 3.2, 4.8 |
-| Modèle de l'imprimante thermique | ITIG | 3.2 |
-| Date de remise des bulletins de la 1re période 2026-2027 (indice : 8 novembre en 2025) | ITIG | ordre V1.1 / V1.2 — voir Q6 |
-| Nom définitif et domaine | toi | 4.6 |
-| Comptes VPS, Cloudflare, stockage objet (GitHub : fait) | toi | 4.6, 4.7 |
-| Fusion de la PR #77 (correctif de `make dev`) | toi | 0.2 (partir d'un `main` à jour) |
-| Logo haute qualité + version noir et blanc pour le reçu thermique | ITIG | 3.2 |
+| Achat du domaine `mwangaza.school` (vérifier d'abord la disponibilité) | toi | 4.6 |
+| Comptes VPS, Cloudflare (GitHub : fait) | toi | 4.6 |
+| Stockage objet (sauvegardes, photos) | toi | 4.7 |
 
 ## Questions ouvertes
 
 À trancher au plus tard pendant la tâche indiquée. Une fois tranchée : déplacer dans le journal.
 
-| # | Question | Tâche | Proposition |
-|---|---|---|---|
-| Q1 | Le glossaire cite `PaymentSchedule` (échéancier) mais `04-modele-de-donnees.md` n'a pas cette entité : l'échéancier est porté par `FeeRule.schedule_kind`, `InstallmentTemplate` et `StudentCharge`. | 2.5 | Suivre `04` ; l'échéancier particulier = `StudentCharge` avec `source=custom`. |
-| Q2 | Le glossaire cite `Receipt`, mais `04` ne définit pas de modèle `Receipt` (le numéro est sur `Payment` et `PaymentCancellation`). | 3.2 | Pas de modèle : le reçu est une vue imprimable du paiement. |
-| Q3 | Codes des rôles système : seul `head` (directeur) et `promoter` sont fixés dans le glossaire. | 1.2 | `head`, `accountant`, `cashier`, `secretary`, `promoter`, `teacher`, `parent`. |
-| Q4 | Paiement en FC d'un frais en USD : `allocation = received × rate_used` avec un taux à 6 décimales donne 1/2 850 ≈ 0,000351, soit jusqu'à ~10 centimes d'erreur par million de FC. | 2.5, 3.1 | Toujours enregistrer le taux dans le sens USD → CDF (tel que saisi) et diviser en `Decimal` pour FC → USD, arrondi demi supérieur au centime. |
-| Q5 | Montant en lettres sur le reçu : formulation des centimes et de la devise. | 3.2 | Reprendre la formulation du reçu actuel de l'ITIG. |
-| Q6 | En 2025, l'ITIG a proclamé les résultats de la P1 le 8 novembre. Si 2026 est pareil, la P1 tombe en semaine 7 du projet, avant la V1.2 (semaines 9 à 14). | ordre V1.1 / V1.2 | Garder la caisse (V1.0) en priorité ; P1 2026 encore sur papier ; viser les bulletins de la P2 / 1er semestre avec Mwangaza ; confirmer les dates avec l'ITIG. |
-| Q7 | L'organigramme ITIG a 2 directeurs des études, 1 directeur de discipline et 2 chefs d'atelier ; « chef d'atelier » n'est pas dans la liste des rôles du cahier des charges, et on ne sait pas qui joue le rôle de promoteur (communauté salésienne ?). | 1.2 | Rôles système V1.0 inchangés ; chef d'atelier = rôle personnalisé créé par l'école (B2) en attendant le module ateliers (V2) ; demander à l'ITIG qui est « promoteur ». |
-| Q8 | Couleur de l'ITIG pour la personnalisation (`School.primary_color`). | 1.5 | `#003C6C` (bleu marine du logo). |
-| Q9 | Nom et domaine : `mwangaza.cd` est déjà enregistré (sans site), `mwangaza.com` est en vente chez un revendeur, `mwangaza.app` est pris ; « Shule Yetu » est déjà une plateforme de gestion scolaire. | maintenant (domaine avant 4.6) | Garder **Mwangaza** (identité visuelle construite autour : lampe = lumière ; aucun logiciel scolaire de ce nom trouvé) et prendre **`mwangaza.africa`** (semble libre, à confirmer chez le registrar). Autres possibilités : `mwangaza.school` ; `mwanga.cd` (même sens, plus court) ; tenter de racheter `mwangaza.cd`. |
-| Q10 | L'identité d'un élève (`Student`) et sa famille (`Family`, `Guardian`) sont partagées entre écoles (modèles globaux). Qui peut les corriger quand l'élève a été inscrit dans deux écoles ? | 2.1, 2.2 | L'école de l'inscription active corrige ; la correction se voit partout, avec auteur et école dans l'historique ; une école où l'élève n'est plus inscrit ne peut que lire. |
-| Q11 | Bulletins : les formulaires officiels trouvés (IGE/P.S/094, /100, /005) numérotent les classes à l'ancienne (« 3e année » = 1re des humanités) et sont peut-être pré-imprimés (achetés). | 6.1, 6.3 | Demander à l'ITIG un bulletin vierge et un rempli par niveau (I15, I18) ; prévoir deux modes d'impression : bulletin complet, ou notes seules sur le formulaire pré-imprimé. |
+Aucune : Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q12.
 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-26 — Décisions de l'utilisateur : Q1 à Q11, l'ITIG école d'exemple
+
+- **Fait** : l'utilisateur a fusionné #77 ; `make dev` marche chez lui. Ses réponses sont reportées dans `01`, `02`, `03` (§ 4, 6, 7 et journal des décisions), `04`, `05`, `07`, `CLAUDE.md` (principe, règles 1 et 9, glossaire), `A-FAIRE.md`, les skills `argent`, `backend`, `verifier`, `design`, `document-ecole`. Maquettes corrigées pour Q10 : fiche famille, fiche élève (Identité, Famille, Historique), accueil du portail (ajouter un enfant d'une autre école), vérification d'un reçu (reçu hors ligne signé). Logo noir et blanc de l'ITIG préparé (`ecole-pilote/documents/2026-09-26-logo-itig-noir-et-blanc.png`). Domaine `mwangaza.school` dans les documents ; les maquettes HTML affichent encore `mwangaza.cd`.
+- **Principe** : l'ITIG est l'école d'exemple, pas la seule. Rien de propre à une école dans le code (nom, logo, couleur, options, frais, formats de reçu, rôles personnalisés : paramètres de l'école). Données manquantes inventées de façon réaliste ; les vraies données, chaque école les saisit. Isolation : chaque modèle, écran ou point d'API a un test qui prouve qu'une école ne peut ni lire ni modifier les données d'une autre (application, API, exports, rapports, recherche, portail).
+- **Décisions** :
+  - Q1 : pas de `PaymentSchedule` ; échéancier particulier = `StudentCharge` `source=custom`. Q2 : pas de modèle `Receipt` ; le reçu est une vue imprimable du paiement. Glossaire corrigé.
+  - Q3 : 9 rôles système, dont `study_director` (directeur des études) et `discipline_master` (directeur de discipline / surveillant) ; plusieurs personnes par rôle. Q7 : chef d'atelier = rôle personnalisé de l'école.
+  - Q4 : taux toujours USD → CDF ; FC → USD par division en `Decimal`, arrondi demi supérieur. Devise au choix pour chaque barème (`FeeRule.currency`). Taux fixe pour l'année, saisi par le comptable, corrigeable avec historique ; les paiements gardent leur taux.
+  - Q5 : montant en lettres proposé par Claude (« Cent cinquante dollars américains et vingt-cinq centimes »), ajusté quand le reçu de l'ITIG arrivera.
+  - Reçu : format au choix de l'école (thermique 58 / 80 mm, ou A6, A5, petit format sur A4 avec traits de découpe), 1 ou 2 exemplaires ; reste à payer, taux utilisé, caissier, zone signature / cachet ; QR code dès la V1.0, page publique minimale, signé par l'appareil pour rester vérifiable hors ligne.
+  - Q6 : caisse d'abord ; P1 2026 sur papier ; bulletins avec Mwangaza à partir de la P2 / 1er semestre ; ordre V1.1 / V1.2 inchangé. Q11 : deux modes d'impression du bulletin ; en attendant, formulaires officiels IGE/P.S et données fictives.
+  - Q8 : couleur choisie par l'école (défaut `#0E5C6B`, contraste vérifié) ; `#003C6C` pour l'ITIG de démonstration. Q9 : Mwangaza, `mwangaza.school`.
+  - Q10 : chaque école a sa propre copie de l'élève et de sa famille (`Student`, `Family`, `Guardian` liés à l'école).
+  - Designs des documents imprimables proposés par Claude, validés par la fusion de la PR. Données de démonstration : `itig` ~800 élèves (familles, fratries, paiements sur plusieurs mois), `volcans` plus petite.
+- **Plus bloquant** : documents de l'ITIG (2.3, 2.5, 3.2, 4.8), modèle de l'imprimante thermique, logo noir et blanc, date de la P1. Cases « avant de coder » A.1 et A.4 sans objet (issues #1 et #4 fermées par la PR).
+- **Propositions de Claude à valider** (fusion de la PR = accord) : permissions des deux nouveaux rôles et nouvelle permission `classes.manage` (`04` § 8) ; portail multi-écoles : un compte parent relié à une famille par école avec le code famille de chaque école, jamais par téléphone (`03` § 4, `04` § 3) ; QR signé ECDSA P-256 par l'appareil (`03` § 7) ; couleur refusée si le texte n'y est pas lisible (`04` § 1).
+- **Reste à l'utilisateur** (non bloquant pour 0.2) : acheter `mwangaza.school` et ouvrir VPS et Cloudflare avant 4.6, stockage objet avant 4.7 ; demander à l'ITIG la date de la P1 2026, qui est le promoteur, le reçu actuel, des bulletins vierges et remplis, le code de l'école (I18) ; transmettre les documents dès qu'il les a.
+- **Suite** : `/tache 0.2`.
 
 ### 2026-09-26 — `make dev` réparé : tout Mwangaza tourne dans Docker
 

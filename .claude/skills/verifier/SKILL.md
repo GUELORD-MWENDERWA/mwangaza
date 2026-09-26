@@ -1,6 +1,6 @@
 ---
 name: verifier
-description: Contrôler les changements en cours de Mwangaza contre les 8 règles non négociables de CLAUDE.md (isolation des écoles, argent en entiers, paiements immuables, UUID v7 et idempotence, audit, permissions serveur, i18n, pas de nouvelle dépendance), les conventions de code et le suivi. À utiliser avant chaque commit ou PR, à la fin de chaque tâche, ou quand l'utilisateur demande une vérification, une relecture ou « est-ce que c'est conforme ».
+description: Contrôler les changements en cours de Mwangaza contre les 9 règles non négociables de CLAUDE.md (isolation des écoles, argent en entiers, paiements immuables, UUID v7 et idempotence, audit, permissions serveur, i18n, pas de nouvelle dépendance, rien en dur pour une école), les conventions de code et le suivi. À utiliser avant chaque commit ou PR, à la fin de chaque tâche, ou quand l'utilisateur demande une vérification, une relecture ou « est-ce que c'est conforme ».
 ---
 
 # Vérifier la conformité
@@ -11,7 +11,7 @@ Périmètre : `git diff main...HEAD` + `git status` (fichiers non suivis compris
 
 | # | Règle | Comment vérifier |
 |---|---|---|
-| 1 | **Isolation des écoles** | Tout nouveau modèle hérite de `TenantModel`, sauf entité [G] de `docs/04`. Aucune requête qui contourne le manager scopé ; `all_schools` seulement super-admin / portail. Chaque nouvelle vue a un test à deux écoles. |
+| 1 | **Isolation des écoles** | Tout nouveau modèle hérite de `TenantModel`, sauf entité [G] de `docs/04`. Aucune requête qui contourne le manager scopé ; `all_schools` seulement super-admin / portail. Chaque nouveau modèle, écran ou point d'API a un test à deux écoles qui prouve qu'une école ne peut **ni lire ni modifier** les données de l'autre (exports, rapports, recherche et portail compris). Rien de propre à une école (nom, logo, couleur, options, frais, formats de reçu, codes `itig`) écrit dans le code hors données de démonstration et tests. |
 | 2 | **Argent en entiers** | `grep -nE 'FloatField|float\(|parseFloat|Number\(' ` sur les fichiers modifiés touchant des montants → aucun. Champs `*_minor` + `currency`. `rate_used` enregistré sur le paiement. |
 | 3 | **Paiements immuables** | Pas d'`UpdateModelMixin` / `DestroyModelMixin`, de `.update(` ni de `.delete(` sur `Payment`, `PaymentAllocation`, `PaymentCancellation`, `CashClosing`, `AuditLog`. Annulation = nouvel enregistrement lié avec motif et permission. |
 | 4 | **UUID v7 et idempotence** | Données créables hors-ligne : UUID généré côté client. Écritures de synchronisation : test « même `op_id` deux fois ». |

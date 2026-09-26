@@ -1,7 +1,7 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-// Application Gestion (personnel), servie sur {code}.mwangaza.cd/app — en dev : http://itig.localhost:5173/app/
+// Application Gestion (personnel), servie sur {code}.mwangaza.school/app — en dev : http://itig.localhost:5173/app/
 // L'API est servie sur la même origine grâce au proxy : les cookies de session restent valides
 // et le sous-domaine de l'école ({code}.localhost) est transmis tel quel à Django.
 const apiTarget = process.env.VITE_API_TARGET ?? "http://localhost:8000";
