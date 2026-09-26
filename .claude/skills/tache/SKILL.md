@@ -64,6 +64,8 @@ Tout ce qui est fait pendant la tâche (corrections, petites réparations, docum
 
 Français simple ; l'utilisateur doit comprendre ce qui a changé **sans lire le code**.
 
+Avant de donner « À tester toi-même » et « Après la fusion » : les **rejouer soi-même dans l'ordre**, conteneurs arrêtés (`make stop`), comme l'utilisateur les tapera. Le résultat attendu doit rester vrai si l'étape est déjà faite (ex. `make migrate` → « Applying … OK », ou « No migrations to apply » si déjà appliquée).
+
 ```markdown
 ## Ce que ça change
 2 à 6 puces : ce qui est nouveau pour l'école ou pour le projet, et pourquoi. Pas de noms de fichiers sauf s'ils aident.
@@ -81,7 +83,7 @@ Commandes exactes, pages à ouvrir (adresse complète), résultat attendu pour c
 Si rien n'est visible dans l'application : le dire, et donner la commande qui montre le résultat (ex. `make test` → « 42 passed »).
 
 ## Après la fusion
-`git switch main && git pull` (+ `make install` si des dépendances ont changé, `make migrate` s'il y a des migrations), puis la prochaine tâche : `/tache X.Z`.
+D'abord fusionner la PR sur GitHub (bouton *Merge pull request*), puis : `git switch main && git pull` (+ `make install` si des dépendances ont changé, `make migrate` s'il y a des migrations), puis la prochaine tâche : `/tache X.Z`.
 
 Closes #<n>
 

@@ -25,3 +25,4 @@ Périmètre : branche `tache/1.1-core-tenant` par rapport à `main` : apps `core
 - ruff RUF012 signalait les listes de configuration de Django (`Meta.ordering`, admin, serializers) : règle désactivée dans `pyproject.toml`, avec la raison.
 - `tests.sample` a besoin d'une migration : Django ne sait pas créer sans migration un modèle qui pointe vers une app migrée (`schools`).
 - À la tâche 1.2 : le modèle d'utilisateur change (`AUTH_USER_MODEL`), la base de développement devra être recréée (aucune vraie donnée) ; à annoncer dans `A-FAIRE.md` à ce moment-là.
+- Après l'essai de l'utilisateur (même jour) : Ctrl+C sur `make dev-local` plantait (`trap 'kill 0'` qui se relance), `make migrate` échouait base arrêtée, « Not Found » en double dans le journal de Django ; corrigés dans la PR #80 (voir `docs/06-suivi.md`, journal).

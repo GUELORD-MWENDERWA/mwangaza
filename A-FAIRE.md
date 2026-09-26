@@ -5,7 +5,7 @@ Claude ne peut pas : installer avec `sudo`, fusionner une PR, parler à l'ITIG, 
 
 Ce qui manque en détail (maquettes, informations ITIG, décisions) : [`docs/07-a-fournir.md`](docs/07-a-fournir.md). Ici : **quoi faire, dans quel ordre, avec quelles commandes**.
 
-Dernière mise à jour : 2026-09-26 (règles de travail avec GitHub ; tâche 1.1).
+Dernière mise à jour : 2026-09-26 (règles de travail avec GitHub ; tâche 1.1 ; corrections après ton essai de la PR #80).
 
 ## Maintenant
 
@@ -22,7 +22,7 @@ Dernière mise à jour : 2026-09-26 (règles de travail avec GitHub ; tâche 1.1
 | 6 | [Donner tes décisions](#6-tes-décisions) : nom et domaine (Q9), questions Q1 à Q11 | 10 min | [x] |
 | 7 | [Relire et fusionner la PR des décisions (#78)](#7-fusionner-la-pr-des-décisions), puis celle de la tâche 0.2 (#79) — dans cet ordre | 15 min | [x] |
 | 8 | Après la fusion de la 0.2 : `make install` une fois (nouveaux outils ESLint, Prettier, Vitest, ruff, et contrôles avant chaque commit) — relancé par Claude sur ta machine le 2026-09-26 | 3 min | [x] |
-| 9 | **[Relire et fusionner la PR #80 (tâche 1.1)](#10-comment-relire-et-fusionner-une-pr)**, puis `git switch main && git pull && make migrate && make demo` | 15 min | [ ] |
+| 9 | **[Relire et fusionner la PR #80 (tâche 1.1)](#10-comment-relire-et-fusionner-une-pr)** : ton premier essai a montré deux problèmes (Ctrl+C sur `make dev-local`, `make migrate` avec la base arrêtée), corrigés dans la même PR ; refaire « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make migrate && make demo` | 15 min | [ ] |
 
 À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). Rien d'autre ne bloque : Claude enchaîne les tâches. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant), et [les comptes et le domaine](#9-avant-la-semaine-4-tâche-46--comptes-et-achats) avant la semaine 4.
 
@@ -253,7 +253,7 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
    ```bash
    gh pr checkout <numéro>   # récupère la branche de la PR sur ta machine
    ```
-   Résultat différent de l'attendu : le dire à Claude avec le message affiché. Tests finis : `git switch main`.
+   Résultat différent de l'attendu : le dire à Claude avec le message affiché. Tests finis : `git switch main`. La PR n'est **pas encore fusionnée** : « Après la fusion » vient après l'étape 5 (avant, `git pull` répond « Déjà à jour » et rien ne change).
 5. **Fusionner** : bouton *Merge pull request* → *Confirm merge* → *Delete branch* (ou `gh pr merge <numéro> --merge --delete-branch`). Puis faire **« Après la fusion »**, en général :
    ```bash
    git switch main && git pull
@@ -277,8 +277,8 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make install` | installe les dépendances (Python avec uv, front avec pnpm) et les contrôles avant commit | après un `git pull` qui change les dépendances |
 | `make hooks` | installe seulement les contrôles avant commit (pre-commit) : ruff, ESLint, Prettier sur les fichiers du commit, refus d'un `.env` ou d'une clé privée | une fois (déjà fait par `make install`) |
 | `make dev` | installe les dépendances du front, puis tout dans Docker : PostgreSQL, Redis, Django, Celery, Gestion, Portail | travailler sur l'application |
-| `make services` | seulement PostgreSQL (port 5433) et Redis dans Docker | avant `make dev-local` ou `make test` |
-| `make dev-local` | Django et Vite sur ta machine (lit `.env`) | plus rapide que `make dev` |
+| `make services` | seulement PostgreSQL (port 5433) et Redis dans Docker, prêts à l'emploi | rarement : `make dev-local`, `migrate`, `demo`, `test`, `shell` et `superuser` les démarrent d'eux-mêmes |
+| `make dev-local` | Django et Vite sur ta machine (lit `.env`) ; **Ctrl+C arrête tout** (seul `^C` s'affiche) | plus rapide que `make dev` |
 | `make stop` | arrête les conteneurs Docker | fin de journée |
 | `make migrate` | applique les migrations à la base | après un `git pull` qui ajoute des migrations |
 | `make makemigrations app=finance name=exchange_rate` | crée une migration | après un changement de modèle |
@@ -351,7 +351,9 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | `permission denied … docker.sock` | pas encore reconnecté après `usermod` | se déconnecter / reconnecter (ou `newgrp docker` dans ce terminal) |
 | `The SECRET_KEY setting must not be empty` | ancienne version du code avec `DJANGO_SECRET_KEY=` vide dans `.env` | `git switch main && git pull` après la fusion de la PR de correction (étape 5 bis) |
 | `port is already allocated` (5433, 6379, 8000, 5173) | un autre programme utilise le port | `ss -ltnp \| grep 6379` pour le trouver ; par ex. `sudo systemctl stop redis-server` |
-| `connection refused` ou `role "mwangaza" does not exist` | pas de `.env`, ou base Docker arrêtée | étapes 4 et 5 : `cp .env.example .env`, `make services` |
+| `connection refused` (port 5433) ou `role "mwangaza" does not exist` | pas de `.env`, ou base Docker arrêtée avec une version d'avant la PR #80 | `cp .env.example .env` (étape 4) ; depuis la PR #80, les commandes `make` qui ont besoin de la base la démarrent d'elles-mêmes (sinon : `make services`, et lire son message) |
+| Ctrl+C sur `make dev-local` : `Erreur de segmentation (core dump créé)`, `Traceback`, `SystemExit` | version du Makefile d'avant la PR #80 | après sa fusion : `git switch main && git pull` |
+| « Failed », `[ELIFECYCLE] Command failed` ou `ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL` en arrêtant `pnpm dev` ou `make dev` | pnpm compte l'arrêt de Vite comme un échec | rien à faire : c'est normal (`make dev-local` ne l'affiche plus) |
 | `ERR_PNPM_UNEXPECTED_STORE` | `pnpm` lancé depuis un autre terminal (celui de VS Code et celui d'Ubuntu ne rangent pas le cache au même endroit) | `cd frontend && pnpm install`, répondre `Y` pour réinstaller ; ensuite, toujours le même terminal |
 | `bad interpreter` ou `No such file` dans `backend/.venv` | dossier déplacé ou renommé | `rm -rf backend/.venv && make install` |
 | `itig.localhost` ne s'ouvre pas | navigateur qui ne gère pas `*.localhost` | utiliser Chrome ou Firefox |
