@@ -26,8 +26,58 @@ paths:
               schema:
                 $ref: '#/components/schemas/Health'
           description: ''
+  /api/school/:
+    get:
+      operationId: school_retrieve
+      description: 'École du sous-domaine (public : l''écran de connexion affiche
+        son nom).'
+      tags:
+      - schools
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentSchool'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
 components:
   schemas:
+    CurrentSchool:
+      type: object
+      description: Informations publiques de l'école (écran de connexion) ; logo et
+        couleur en 1.5.
+      properties:
+        code:
+          type: string
+          description: 'Subdomain of the school: {code}.mwangaza.school'
+          pattern: ^[a-z0-9][a-z0-9-]{0,28}[a-z0-9]$
+          maxLength: 30
+        name:
+          type: string
+          title: Nom
+          maxLength: 200
+      required:
+      - code
+      - name
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Code stable, traduit par l'interface.
+        detail:
+          type: string
+      required:
+      - code
+      - detail
     Health:
       type: object
       properties:

@@ -39,3 +39,6 @@ extend-exclude = ["**/migrations/**"]
 # E/W pycodestyle, F pyflakes, I imports triés, UP syntaxe moderne, B bugs probables,
 # DJ règles Django, SIM simplifications, RUF règles propres à ruff.
 select = ["E", "W", "F", "I", "UP", "B", "DJ", "SIM", "RUF"]
+# RUF012 : les listes de configuration de Django (Meta, admin, serializers) sont des attributs de
+# classe par conception ; la règle les signale à tort.
+ignore = ["RUF012"]

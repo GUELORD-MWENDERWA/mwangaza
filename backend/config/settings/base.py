@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "drf_spectacular",
+    "apps.core",
+    "apps.schools",
 ]
 
 MIDDLEWARE = [
@@ -46,11 +48,16 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "apps.core.middleware.TenantMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# Domaines sous lesquels chaque sous-domaine est une école : {code}.mwangaza.school.
+# Le domaine seul et les sous-domaines réservés (parents, admin, www…) n'ont pas d'école.
+SCHOOL_BASE_DOMAINS = env_list("DJANGO_SCHOOL_BASE_DOMAINS", "mwangaza.school")
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
