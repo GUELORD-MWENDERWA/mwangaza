@@ -110,7 +110,7 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 | `make superuser` · `make shell` | compte super-admin ; console Django |
 | `python3 maquettes/outils/maquettes.py menu` · `… index` · `node maquettes/outils/captures.mjs` | maquettes : menu latéral commun, galerie `index.html`, captures PNG (sans dépendance, Chrome de la machine) |
 
-Adresses en dev : Gestion `http://itig.localhost:5173/app/` (le sous-domaine = code de l'école ; `…/api/school/` renvoie l'école), Portail `http://localhost:5174/`, API `/api/…` via le proxy Vite (`/api/me/`, `/api/roles/`, `/api/staff/`), doc de l'API `/api/docs/` (seulement en `DEBUG`) ; connexion en étapes `/api/auth/login/` (utilisable dans l'API navigable), puis `…/login/totp/`, `…/password/`, `…/totp/setup/` et `…/totp/activate/` selon l'étape renvoyée. Réglages Django : `config.settings.dev` (défaut de `manage.py`), `test` (pytest), `prod` (wsgi/asgi, refuse de démarrer sans `DJANGO_SECRET_KEY`).
+Adresses en dev : Gestion `http://itig.localhost:5173/app/` (le sous-domaine = code de l'école ; `…/api/school/` renvoie l'école), Portail `http://localhost:5174/`, API `/api/…` via le proxy Vite (`/api/me/`, `/api/roles/`, `/api/staff/`, `/api/audit/`), doc de l'API `/api/docs/` (seulement en `DEBUG`) ; connexion en étapes `/api/auth/login/` (utilisable dans l'API navigable), puis `…/login/totp/`, `…/password/`, `…/totp/setup/` et `…/totp/activate/` selon l'étape renvoyée. Réglages Django : `config.settings.dev` (défaut de `manage.py`), `test` (pytest), `prod` (wsgi/asgi, refuse de démarrer sans `DJANGO_SECRET_KEY`).
 
 ## Façon de travailler
 

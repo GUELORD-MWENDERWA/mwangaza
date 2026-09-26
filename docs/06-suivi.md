@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 1 (Socle) |
 | Lot | V1.0 — semaine 1 (Socle) |
-| Tâche en cours | aucune — 1.3 terminée, PR #82 à relire et fusionner (contrôles GitHub verts ; `A-FAIRE.md` ligne 11) |
-| Prochaine tâche | 1.4 — app `audit` : `AuditLog` et utilitaire d'enregistrement |
-| Issue GitHub | #9 (1.3, fermée à la fusion de la PR) · prochaine : #10 (1.4) |
-| Branche | `tache/1.3-connexion` (partie de `main` après la fusion de la PR #81) → PR #82 ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 1.4 terminée, PR #NN à relire et fusionner (`A-FAIRE.md` ligne 12) |
+| Prochaine tâche | 1.5 — super-admin : écoles, connexion « en tant qu'école » tracée, double authentification du super-admin |
+| Issue GitHub | #10 (1.4, fermée à la fusion de la PR) · prochaine : #11 (1.5) |
+| Branche | `tache/1.4-audit` (partie de `main` après la fusion de la PR #82) → PR #NN ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-26 |
 
 ## Avancement
@@ -19,11 +19,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Bloc | Fait | Total |
 |---|:-:|:-:|
 | Avant de coder (toi) | 2 | 4 |
-| Semaine 1 — Socle | 5 | 9 |
+| Semaine 1 — Socle | 6 | 9 |
 | Semaine 2 — Élèves et frais | 0 | 7 |
 | Semaine 3 — Caisse et hors-ligne | 0 | 8 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **5** | **32** |
+| **V1.0** | **6** | **32** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -49,6 +49,13 @@ Aucune : Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-26 — Tâche 1.4 : journal d'audit
+
+- **Fait** : PR #82 fusionnée par l'utilisateur. App `audit` : `AuditLog` [T] [I] (action, acteur, objet et son nom au moment de l'action, avant / après des seuls champs changés, adresse IP, navigateur ; `impersonated_by` pour la 1.5) ; **ni modifiable ni effaçable**, refusé par le modèle et par un déclencheur PostgreSQL ; **jamais de secret** (`record()` refuse les clés de mot de passe, de clé, de codes). Utilitaire `apps.audit.services.record()` (dans la transaction de l'action) et `changes()` ; adresse et navigateur lus par `AuditMiddleware` ; liste des actions `apps/audit/actions.py` ; `client_ip()` partagé (`apps/core/http.py`). **Branché** sur les rôles (créé, changé, supprimé), les comptes du personnel (ajouté, rôles, désactivé / réactivé, noms et téléphone, mot de passe provisoire, double authentification réinitialisée), Mon compte (mot de passe, double authentification activée, nouveau téléphone, désactivée, codes de secours), le support (réinitialisation dans l'administration Django) et la connexion (avec la méthode : code, code de secours, appareil de confiance). Un changement de compte va dans le journal de chaque école où la personne est active ; la connexion, dans celui de l'école de l'adresse. **API** `GET /api/audit/` (`audit.view` : directeur, promoteur ; double authentification) : liste paginée, la plus récente d'abord, filtres personne, action, domaine, objet, dates (heure de Goma), recherche ; détail ; support Mwangaza non nommé. Administration Django : journal de toutes les écoles en lecture seule. `03`, `04`, `05`, `07`, `CLAUDE.md`, `A-FAIRE.md`, skill `backend` à jour.
+- **Tests** : 516 pytest passés (77 nouveaux : 8 modèle, 17 utilitaire, 24 API, 1 administration, 27 audit des comptes et de la connexion) ; types et 8 Vitest OK ; lint OK ; schéma OpenAPI régénéré. 20 erreurs volontaires, toutes détectées (un test ajouté pour la seule qui passait). Essai réel avec `make dev-local` à travers Vite, conteneurs arrêtés au départ (`make migrate` → `Applying audit.0001_journal... OK`, `make demo`, `make test`) : connexion du directeur avec code → entrée `auth.login` (`second_factor: totp`) ; rôle « Chef d'atelier » renommé et permissions changées → avant / après ; mot de passe provisoire de la secrétaire → entrée sans valeur ; filtres `domain`, `search`, `since` ; DELETE → 405 ; caissière → 403 ; l'enseignant des deux écoles change son mot de passe à l'ITIG → le directeur de Volcans le voit, rien d'autre de l'ITIG ; page HTML de l'API navigable et administration Django. Revue : `docs/claude/revues/tache-1.4.md`.
+- **Décisions** : voir le journal des décisions de `03` (journal immuable jusque dans la base, forme des entrées, où va une entrée, lecture et support non nommé). Écran M6 ajouté à la 1.7 ; export Excel du journal à la 2.4 ; appareil et heure hors ligne à la 3.3 ; « en tant qu'école » et modifications d'un compte par le support dans l'administration à la 1.5.
+- **Reste / suite** : chaque tâche qui touche finances, élèves, notes ou paie ajoute ses actions (`apps/audit/actions.py`) et teste son audit. L'utilisateur relit la PR, fusionne, lance `git switch main && git pull && make migrate` ; puis `/tache 1.5`.
 
 ### 2026-09-26 — Tâche 1.3 : connexion, double authentification, limitation des tentatives
 
