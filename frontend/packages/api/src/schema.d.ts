@@ -880,8 +880,10 @@ export interface components {
              * Format: uuid
              */
             readonly entity_id: string | null;
-            /** @description Nom de l'objet au moment de l'action. Vide pour un rôle système sans nom propre : l'interface affiche le nom traduit de son code (rôle `entity_id`). */
+            /** @description Nom de l'objet au moment de l'action. Vide pour un rôle système sans nom propre : l'interface affiche le nom traduit de `role_code`. */
             readonly entity_label: string;
+            /** @description Code du rôle système quand l'objet est un rôle sans nom propre ; sinon null. */
+            readonly role_code: (components["schemas"]["RoleCodeEnum"] | components["schemas"]["NullEnum"]) | null;
             readonly before: unknown;
             readonly after: unknown;
             /** Adresse IP */
@@ -1131,6 +1133,8 @@ export interface components {
             name: string;
             status: components["schemas"]["SchoolStatusEnum"];
         };
+        /** @enum {unknown} */
+        NullEnum: null;
         PaginatedAuditLogList: {
             /** @example 123 */
             count: number;
@@ -1326,6 +1330,8 @@ export interface components {
             /** @description Comptes actifs qui ont ce rôle dans l'école. */
             readonly member_count: number;
         };
+        /** @enum {string} */
+        RoleCodeEnum: "head" | "study_director" | "discipline_master" | "accountant" | "cashier" | "secretary" | "promoter" | "teacher" | "parent";
         /**
          * @description Rôle de l'école. `name` vide pour un rôle système : l'interface affiche le nom traduit de
          *     son `code`.

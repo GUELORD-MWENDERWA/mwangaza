@@ -28,6 +28,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { applyServerErrors, errorMessage } from "../../lib/errors";
+import { fullName } from "../../lib/people";
 import { keys } from "../../lib/queries";
 import { LoadError } from "../status/StatusPages";
 import {
@@ -35,7 +36,6 @@ import {
   type Level,
   type Track,
   type Year,
-  personName,
   useClasses,
   useHomeroomCandidates,
   useLevels,
@@ -140,7 +140,7 @@ function ClassRow({ row, onOpen }: { row: Row; onOpen: (group: ClassGroup) => vo
   const [single] = row.groups;
   let teacher: React.ReactNode;
   if (row.groups.length === 1 && single?.homeroom_teacher) {
-    teacher = personName(single.homeroom_teacher);
+    teacher = fullName(single.homeroom_teacher);
   } else if (missing === 0) {
     teacher = t("organisation.classes.teachersAssigned");
   } else {
@@ -371,7 +371,7 @@ function ClassDialog({ year, group, open, levels, tracks, onClose }: ClassDialog
                 <option value="">{t("organisation.classes.noTeacher")}</option>
                 {(candidates.data ?? []).map((person) => (
                   <option key={person.id} value={person.id}>
-                    {personName(person)}
+                    {fullName(person)}
                   </option>
                 ))}
               </Select>

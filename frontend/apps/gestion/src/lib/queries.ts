@@ -68,3 +68,11 @@ export function useLoginStep() {
     retry: retryOnNetwork,
   });
 }
+
+/** Rôles de l'école (droit `roles.manage`) : quelques dizaines, sur une page. */
+export function useRoles() {
+  return useQuery({
+    queryKey: keys.roles,
+    queryFn: async () => (await call(api.GET("/api/roles/"))).results,
+  });
+}

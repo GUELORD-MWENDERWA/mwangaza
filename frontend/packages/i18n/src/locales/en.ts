@@ -23,6 +23,8 @@ export const en: Messages<typeof fr> = {
     edit: "Edit",
     delete: "Delete",
     add: "Add",
+    previous: "Previous",
+    next: "Next",
     close: "Close",
   },
   auth: {
@@ -648,8 +650,6 @@ export const en: Messages<typeof fr> = {
     support: "Mwangaza support",
     system: "System",
     range: "{{from}} – {{to}} of {{count}} entries",
-    previous: "Previous",
-    next: "Next",
     empty: "No entry for these filters.",
     pick: "Choose an entry to see the details.",
     detail: {

@@ -20,6 +20,8 @@ export const fr = {
     edit: "Modifier",
     delete: "Supprimer",
     add: "Ajouter",
+    previous: "Précédent",
+    next: "Suivant",
     close: "Fermer",
   },
   auth: {
@@ -651,8 +653,6 @@ export const fr = {
     support: "Support Mwangaza",
     system: "Système",
     range: "{{from}} – {{to}} sur {{count}} entrées",
-    previous: "Précédent",
-    next: "Suivant",
     empty: "Aucune entrée pour ces filtres.",
     pick: "Choisissez une entrée pour voir le détail.",
     detail: {

@@ -60,8 +60,3 @@ export function useRefresh() {
   return (...queryKeys: (readonly string[])[]) =>
     Promise.all(queryKeys.map((queryKey) => queryClient.invalidateQueries({ queryKey })));
 }
-
-/** « Prénom Post-nom NOM » d'une personne du personnel. */
-export function personName(person: Pick<Person, "first_name" | "middle_name" | "last_name">) {
-  return [person.first_name, person.middle_name, person.last_name].filter(Boolean).join(" ");
-}

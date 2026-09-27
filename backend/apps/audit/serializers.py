@@ -2,7 +2,8 @@ from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from apps.accounts.models import User
+from apps.accounts.models import Role, User
+from apps.accounts.roles import SYSTEM_ROLES
 from apps.audit.actions import DOMAINS, Action, domain_of
 from apps.audit.models import AuditLog
 
@@ -33,7 +34,10 @@ class AuditLogSerializer(serializers.ModelSerializer):
     entity_label = serializers.CharField(
         read_only=True,
         help_text="Nom de l'objet au moment de l'action. Vide pour un rôle système sans nom "
-        "propre : l'interface affiche le nom traduit de son code (rôle `entity_id`).",
+        "propre : l'interface affiche le nom traduit de `role_code`.",
+    )
+    role_code = serializers.SerializerMethodField(
+        help_text="Code du rôle système quand l'objet est un rôle sans nom propre ; sinon null."
     )
 
     class Meta:
@@ -48,6 +52,7 @@ class AuditLogSerializer(serializers.ModelSerializer):
             "entity_type",
             "entity_id",
             "entity_label",
+            "role_code",
             "before",
             "after",
             "ip",
@@ -69,6 +74,18 @@ class AuditLogSerializer(serializers.ModelSerializer):
     @extend_schema_field(serializers.BooleanField())
     def get_by_support(self, log: AuditLog) -> bool:
         return _by_support(log)
+
+    @extend_schema_field(serializers.ChoiceField(choices=list(SYSTEM_ROLES), allow_null=True))
+    def get_role_code(self, log: AuditLog) -> str | None:
+        if log.entity_type != "accounts.role" or log.entity_label or log.entity_id is None:
+            return None
+        # Un rôle supprimé n'est plus là : seul un rôle de l'école (avec un nom) se supprime.
+        codes = self.context.setdefault("role_codes", {})
+        if log.entity_id not in codes:
+            codes[log.entity_id] = (
+                Role.objects.filter(pk=log.entity_id).values_list("code", flat=True).first()
+            )
+        return codes[log.entity_id] or None
 
 
 class AuditLogFilterSerializer(serializers.Serializer):

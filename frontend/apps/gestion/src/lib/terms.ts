@@ -52,14 +52,22 @@ export function termLabels(nodes: TermShape[], t: TFunction): Map<TermShape, str
   return labels;
 }
 
+export type IndexedTerm = TermShape & { index: number; children: IndexedTerm[] };
+
 /** Découpage noté au journal (liste à plat, `parent` = place du parent) → arbre. */
 export function snapshotTree(
   terms: { kind: TermKind; name: string; parent: number | null }[],
-): (TermShape & { index: number })[] {
-  const nodes = terms.map((term, index) => ({ ...term, index, children: [] as TermShape[] }));
-  const roots: (TermShape & { index: number })[] = [];
-  for (const node of nodes) {
-    const parent = node.parent === null ? undefined : nodes[node.parent];
+): IndexedTerm[] {
+  const nodes: IndexedTerm[] = terms.map((term, index) => ({
+    kind: term.kind,
+    name: term.name,
+    index,
+    children: [],
+  }));
+  const roots: IndexedTerm[] = [];
+  for (const [index, node] of nodes.entries()) {
+    const parentIndex = terms[index]!.parent;
+    const parent = parentIndex === null ? undefined : nodes[parentIndex];
     if (parent) parent.children.push(node);
     else roots.push(node);
   }
