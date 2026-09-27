@@ -18,8 +18,8 @@ from apps.students.serializers import (
     EnrollmentCreateSerializer,
     EnrollmentSerializer,
     EnrollmentUpdateSerializer,
+    FamilyDetailSerializer,
     FamilyFilterSerializer,
-    FamilySerializer,
     FamilyWriteSerializer,
     StudentFilterSerializer,
     StudentListSerializer,
@@ -41,12 +41,12 @@ class StudentsViewSet(SchoolViewSet):
 
 
 def _words(text: str, *fields: str) -> Q:
-    """Chaque mot dans un des champs."""
+    """Chaque mot dans un des champs, sans accents ni casse (« elie » trouve « Élie »)."""
     condition = Q()
     for word in text.split():
         match = Q()
         for field in fields:
-            match |= Q(**{f"{field}__icontains": word})
+            match |= Q(**{f"{field}__unaccent__icontains": word})
         condition &= match
     return condition
 
@@ -71,7 +71,7 @@ class StudentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsV
             return Student.all_schools.none()
         queryset = Student.objects.select_related("family")
         if self.action == "list":
-            return self._filter(queryset)
+            return self._filter(queryset.prefetch_related("family__guardians"))
         return queryset.prefetch_related(
             "family__guardians",
             Prefetch("enrollments", queryset=Enrollment.objects.select_related(*_CLASS)),
@@ -89,11 +89,21 @@ class StudentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsV
                 _words(search, "last_name", "middle_name", "first_name", "matricule")
                 | Q(family__code__iexact=search)
             )
+        year_enrollments = Enrollment.objects.filter(academic_year=year)
+        enrollments = year_enrollments
         if group:
-            queryset = queryset.filter(enrollments__class_group=group)
-        elif data.get("enrolled") is not None:
-            enrolled = Q(pk__in=Enrollment.objects.filter(academic_year=year).values("student"))
-            queryset = queryset.filter(enrolled if data["enrolled"] else ~enrolled)
+            enrollments = enrollments.filter(class_group=group)
+        if data.get("track"):
+            enrollments = enrollments.filter(class_group__track=data["track"])
+        status_filter = data.get("status")
+        if status_filter == "active":
+            enrollments = enrollments.filter(status=Enrollment.Status.ACTIVE)
+        elif status_filter == "left":
+            enrollments = enrollments.exclude(status=Enrollment.Status.ACTIVE)
+        if enrollments is not year_enrollments:
+            queryset = queryset.filter(pk__in=enrollments.values("student"))
+        if status_filter == "not_enrolled":
+            queryset = queryset.exclude(pk__in=year_enrollments.values("student"))
         return queryset.prefetch_related(
             Prefetch(
                 "enrollments",
@@ -138,8 +148,10 @@ class StudentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsV
 
 
 @extend_schema_view(
-    list=extend_schema(parameters=[FamilyFilterSerializer], responses={200: FamilySerializer}),
-    retrieve=extend_schema(responses={200: FamilySerializer, **ERRORS}),
+    list=extend_schema(
+        parameters=[FamilyFilterSerializer], responses={200: FamilyDetailSerializer}
+    ),
+    retrieve=extend_schema(responses={200: FamilyDetailSerializer, **ERRORS}),
 )
 @extend_schema(tags=["students"])
 class FamilyViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsViewSet):
@@ -149,14 +161,25 @@ class FamilyViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsVi
     def get_serializer_class(self):
         if self.request.method in {"POST", "PATCH"}:
             return FamilyWriteSerializer
-        return FamilySerializer
+        return FamilyDetailSerializer
 
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return Family.all_schools.none()
+        year_enrollments = Enrollment.objects.filter(academic_year=current_year()).select_related(
+            *_CLASS
+        )
         queryset = (
             Family.objects.annotate(student_count=Count("students"))
-            .prefetch_related("guardians")
+            .prefetch_related(
+                "guardians",
+                Prefetch(
+                    "students",
+                    queryset=Student.objects.prefetch_related(
+                        Prefetch("enrollments", year_enrollments, to_attr="year_enrollments")
+                    ),
+                ),
+            )
             .order_by("code")
         )
         if self.action == "list":
@@ -176,17 +199,21 @@ class FamilyViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsVi
 
     def _family(self, family: Family, status_code=status.HTTP_200_OK) -> Response:
         return Response(
-            FamilySerializer(self.get_queryset().get(pk=family.pk)).data, status=status_code
+            FamilyDetailSerializer(self.get_queryset().get(pk=family.pk)).data, status=status_code
         )
 
-    @extend_schema(request=FamilyWriteSerializer, responses={201: FamilySerializer, **WRITE_ERRORS})
+    @extend_schema(
+        request=FamilyWriteSerializer, responses={201: FamilyDetailSerializer, **WRITE_ERRORS}
+    )
     def create(self, request: Request) -> Response:
         serializer = FamilyWriteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         family = services.create_family(actor=request.user, **serializer.validated_data)
         return self._family(family, status.HTTP_201_CREATED)
 
-    @extend_schema(request=FamilyWriteSerializer, responses={200: FamilySerializer, **WRITE_ERRORS})
+    @extend_schema(
+        request=FamilyWriteSerializer, responses={200: FamilyDetailSerializer, **WRITE_ERRORS}
+    )
     def partial_update(self, request: Request, pk=None) -> Response:
         family = self.get_object()
         serializer = FamilyWriteSerializer(data=request.data)

@@ -26,9 +26,9 @@ test("directeur : mot de passe puis code, menu complet, Mon compte, menu tiroir"
   await expect(mainMenu(page)).toBeHidden();
   await page.getByRole("button", { name: "Ouvrir le menu" }).click();
   const drawer = page.getByRole("dialog", { name: "Menu principal" });
-  await drawer.getByRole("link", { name: "Élèves", exact: true }).click();
+  await drawer.getByRole("link", { name: "Impayés", exact: true }).click();
   await expect(drawer).toBeHidden();
-  await expect(page.getByText("« Élèves » n'est pas encore disponible")).toBeVisible();
+  await expect(page.getByText("« Impayés » n'est pas encore disponible")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 
   // Isolation : la session de l'ITIG ne vaut pas à l'adresse d'une autre école, qui montre son

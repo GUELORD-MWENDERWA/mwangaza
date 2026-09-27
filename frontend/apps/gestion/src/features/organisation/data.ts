@@ -1,5 +1,5 @@
-// Données de l'organisation scolaire (C1-C3), lues avec le droit `classes.manage`. Listes de
-// configuration : sans pagination (des dizaines de lignes).
+// Données de l'organisation scolaire (C1-C3), lues avec le droit `classes.manage` (années,
+// options et classes : aussi avec `students.view`). Listes de configuration : sans pagination.
 import { api, call, type Schemas } from "@mwangaza/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -44,6 +44,7 @@ export function useClasses(year: string) {
     queryKey: [...keys.classes, year],
     queryFn: () =>
       call(api.GET("/api/class-groups/", { params: { query: { academic_year: year } } })),
+    enabled: Boolean(year),
   });
 }
 

@@ -23,7 +23,9 @@ def school_access(request) -> SchoolAccess | None:
 
 class HasSchoolPermission(BasePermission):
     """Accès seulement depuis l'adresse d'une école, avec un compte actif qui y a une appartenance
-    active et un rôle portant le code `required_permission` de la vue (ex. `roles.manage`).
+    active et un rôle portant le code `required_permission` de la vue (ex. `roles.manage`), ou un
+    des codes quand la vue en donne plusieurs (ex. lire les classes : `classes.manage` ou
+    `students.view`).
     L'interface ne fait que masquer ce qui est refusé ici.
 
     Des droits qui exigent la double authentification (B4) demandent aussi une session passée
@@ -41,4 +43,7 @@ class HasSchoolPermission(BasePermission):
                 _("Your roles in this school require two-factor authentication: log in again."),
                 code="totp_required",
             )
-        return view.required_permission in access.permissions
+        required = view.required_permission
+        if isinstance(required, str):
+            return required in access.permissions
+        return not access.permissions.isdisjoint(required)

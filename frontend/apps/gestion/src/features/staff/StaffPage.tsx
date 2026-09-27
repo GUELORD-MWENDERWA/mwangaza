@@ -33,7 +33,7 @@ import {
 } from "@mwangaza/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Link } from "react-router";
 import { z } from "zod";
@@ -42,6 +42,7 @@ import { applyServerErrors, errorMessage } from "../../lib/errors";
 import { formatPhone, fullName, roleName } from "../../lib/people";
 import { keys, useRoles } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
+import { useSettled } from "../../lib/settled";
 import { Pagination } from "../shell/Pagination";
 import { LoadError } from "../status/StatusPages";
 
@@ -50,14 +51,6 @@ type Role = Schemas["Role"];
 type Filters = { search: string; role: string; state: "" | "active" | "inactive"; page: number };
 
 /** Valeur stable depuis `delay` ms (recherche : une requête par pause dans la frappe). */
-function useSettled<T>(value: T, delay = 300): T {
-  const [settled, setSettled] = useState(value);
-  useEffect(() => {
-    const timer = setTimeout(() => setSettled(value), delay);
-    return () => clearTimeout(timer);
-  }, [value, delay]);
-  return settled;
-}
 
 function useStaff(filters: Filters) {
   return useQuery({

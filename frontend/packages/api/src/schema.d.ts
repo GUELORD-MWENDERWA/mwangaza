@@ -1198,6 +1198,28 @@ export interface components {
             /** Format: date-time */
             activated_at: string | null;
         };
+        /** @description Famille avec ses enfants : pour la reconnaître en inscrivant un élève (D4). */
+        FamilyDetail: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Family code */
+            code: string;
+            readonly guardians: components["schemas"]["Guardian"][];
+            readonly student_count: number;
+            /** Format: date-time */
+            activated_at: string | null;
+            readonly students: components["schemas"]["FamilyStudent"][];
+        };
+        FamilyStudent: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Nom */
+            last_name: string;
+            middle_name: string;
+            /** Prénom */
+            first_name: string;
+            readonly class_group_name: string;
+        };
         FamilyWriteRequest: {
             guardians: components["schemas"]["GuardianRequest"][];
         };
@@ -1379,7 +1401,7 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["AuditLog"][];
         };
-        PaginatedFamilyList: {
+        PaginatedFamilyDetailList: {
             /** @example 123 */
             count: number;
             /**
@@ -1392,7 +1414,7 @@ export interface components {
              * @example http://api.example.org/accounts/?page=2
              */
             previous: string | null;
-            results: components["schemas"]["Family"][];
+            results: components["schemas"]["FamilyDetail"][];
         };
         PaginatedRoleList: {
             /** @example 123 */
@@ -1858,6 +1880,7 @@ export interface components {
             family: string;
             readonly family_code: string;
             readonly enrollment: components["schemas"]["Enrollment"] | null;
+            readonly primary_guardian: components["schemas"]["Guardian"] | null;
         };
         /**
          * @description Création : `family` (famille existante de l'école) ou `guardians` (nouvelle famille).
@@ -3512,7 +3535,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedFamilyList"];
+                    "application/json": components["schemas"]["PaginatedFamilyDetailList"];
                 };
             };
         };
@@ -3537,7 +3560,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Family"];
+                    "application/json": components["schemas"]["FamilyDetail"];
                 };
             };
             400: {
@@ -3591,7 +3614,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Family"];
+                    "application/json": components["schemas"]["FamilyDetail"];
                 };
             };
             403: {
@@ -3635,7 +3658,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Family"];
+                    "application/json": components["schemas"]["FamilyDetail"];
                 };
             };
             400: {
@@ -4856,12 +4879,20 @@ export interface operations {
                 /** @description Année de l'inscription affichée (par défaut l'année en cours). */
                 academic_year?: string;
                 class_group?: string;
-                /** @description Inscrit ou non cette année. */
-                enrolled?: boolean | null;
                 /** @description Un numéro de page de l'ensemble des résultats. */
                 page?: number;
                 /** @description Noms, matricule ou code famille. */
                 search?: string;
+                /**
+                 * @description Cette année : inscrit et présent, inscrit puis parti (transfert, abandon, exclusion, fin d'études) ou pas inscrit. Absent : tous.
+                 *
+                 *     * `active` - active
+                 *     * `left` - left
+                 *     * `not_enrolled` - not_enrolled
+                 */
+                status?: "active" | "left" | "not_enrolled";
+                /** @description Option de la classe de l'année. */
+                track?: string;
             };
             header?: never;
             path?: never;

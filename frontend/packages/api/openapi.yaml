@@ -1454,7 +1454,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedFamilyList'
+                $ref: '#/components/schemas/PaginatedFamilyDetailList'
           description: ''
     post:
       operationId: families_create
@@ -1482,7 +1482,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Family'
+                $ref: '#/components/schemas/FamilyDetail'
           description: ''
         '400':
           content:
@@ -1531,7 +1531,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Family'
+                $ref: '#/components/schemas/FamilyDetail'
           description: ''
         '403':
           content:
@@ -1578,7 +1578,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Family'
+                $ref: '#/components/schemas/FamilyDetail'
           description: ''
         '400':
           content:
@@ -2700,12 +2700,6 @@ paths:
         schema:
           type: string
           format: uuid
-      - in: query
-        name: enrolled
-        schema:
-          type: boolean
-          nullable: true
-        description: Inscrit ou non cette année.
       - name: page
         required: false
         in: query
@@ -2719,6 +2713,27 @@ paths:
           minLength: 1
           maxLength: 100
         description: Noms, matricule ou code famille.
+      - in: query
+        name: status
+        schema:
+          enum:
+          - active
+          - left
+          - not_enrolled
+          type: string
+          minLength: 1
+        description: |-
+          Cette année : inscrit et présent, inscrit puis parti (transfert, abandon, exclusion, fin d'études) ou pas inscrit. Absent : tous.
+
+          * `active` - active
+          * `left` - left
+          * `not_enrolled` - not_enrolled
+      - in: query
+        name: track
+        schema:
+          type: string
+          format: uuid
+        description: Option de la classe de l'année.
       tags:
       - students
       security:
@@ -3813,6 +3828,70 @@ components:
       - guardians
       - student_count
       - activated_at
+    FamilyDetail:
+      type: object
+      description: 'Famille avec ses enfants : pour la reconnaître en inscrivant un
+        élève (D4).'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Family code
+          maxLength: 8
+        guardians:
+          type: array
+          items:
+            $ref: '#/components/schemas/Guardian'
+          readOnly: true
+        student_count:
+          type: integer
+          readOnly: true
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/FamilyStudent'
+          readOnly: true
+      required:
+      - id
+      - code
+      - guardians
+      - student_count
+      - activated_at
+      - students
+    FamilyStudent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        last_name:
+          type: string
+          title: Nom
+          maxLength: 80
+        middle_name:
+          type: string
+          maxLength: 80
+        first_name:
+          type: string
+          title: Prénom
+          maxLength: 80
+        class_group_name:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - last_name
+      - middle_name
+      - first_name
+      - class_group_name
     FamilyWriteRequest:
       type: object
       properties:
@@ -4210,7 +4289,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AuditLog'
-    PaginatedFamilyList:
+    PaginatedFamilyDetailList:
       type: object
       required:
       - count
@@ -4234,7 +4313,7 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/Family'
+            $ref: '#/components/schemas/FamilyDetail'
     PaginatedRoleList:
       type: object
       required:
@@ -5141,6 +5220,11 @@ components:
           - $ref: '#/components/schemas/Enrollment'
           nullable: true
           readOnly: true
+        primary_guardian:
+          allOf:
+          - $ref: '#/components/schemas/Guardian'
+          nullable: true
+          readOnly: true
       required:
       - id
       - matricule
@@ -5152,6 +5236,7 @@ components:
       - family
       - family_code
       - enrollment
+      - primary_guardian
     StudentWriteRequest:
       type: object
       description: |-

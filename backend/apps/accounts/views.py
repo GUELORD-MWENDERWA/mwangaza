@@ -119,7 +119,7 @@ class SchoolViewSet(viewsets.GenericViewSet):
     """Point d'API d'une école : permission `required_permission` vérifiée par le serveur."""
 
     permission_classes = [HasSchoolPermission]
-    required_permission: str
+    required_permission: str | tuple[str, ...]
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
 

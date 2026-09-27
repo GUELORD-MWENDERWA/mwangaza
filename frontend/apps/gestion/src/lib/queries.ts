@@ -20,6 +20,8 @@ export const keys = {
   roles: ["roles"],
   staff: ["staff"],
   audit: ["audit"],
+  students: ["students"],
+  families: ["families"],
   auditActors: ["audit-actors"],
 } as const;
 

@@ -49,22 +49,31 @@ def test_create_enroll_and_read_a_student(api, head, alpha):
     assert detail["enrollments"][0]["class_group_name"] == "3e Électricité A"
 
 
-def test_search_and_filters(api, school, head, alpha):
+def test_search_and_filters(api, school, head, alpha, beta):
     jean = enrolled(school, head, alpha["group"], middle_name="Mumbere")
+    elie = enrolled(school, head, alpha["group"], last_name="Paluku", first_name="Élie")
     esther = new_student(school, head, last_name="Kavira", first_name="Esther", sex="F")
+    with use_school(school):
+        Enrollment.objects.filter(student=elie).update(status="transferred")
     client = api(head)
 
     def names(**params):
         return [row["first_name"] for row in client.get(STUDENTS, **params).json()["results"]]
 
     assert names(search="mumb kase") == ["Jean"]
+    assert names(search="ELIE") == names(search="élie") == ["Élie"]
     assert names(search="2026-0001") == ["Jean"]
     assert names(search=esther.family.code) == ["Esther"]
-    assert names(class_group=str(alpha["group"].pk)) == ["Jean"]
-    assert names(enrolled="false") == ["Esther"]
+    assert names(class_group=str(alpha["group"].pk)) == ["Jean", "Élie"]
+    assert names(track=str(alpha["track"].pk), status="active") == ["Jean"]
+    assert names(status="left") == ["Élie"]
+    assert names(status="not_enrolled") == ["Esther"]
+    # Une option d'une autre école n'est pas un filtre valable.
+    assert client.get(STUDENTS, track=str(beta["track"].pk)).status_code == 400
     [row] = client.get(STUDENTS, search="jean").json()["results"]
     assert row["enrollment"]["class_group_name"] == "3e Électricité A"
     assert row["family_code"] == jean.family.code
+    assert row["primary_guardian"]["full_name"] == "Kahindo Neema"
 
 
 def test_the_list_reads_a_fixed_number_of_queries(
@@ -74,8 +83,10 @@ def test_the_list_reads_a_fixed_number_of_queries(
         enrolled(school, head, alpha["group"], first_name=first_name)
     client = api(head)
 
-    with django_assert_max_num_queries(12):
+    with django_assert_max_num_queries(13):
         assert client.get(STUDENTS).json()["count"] == 5
+    with django_assert_max_num_queries(13):
+        assert client.get(FAMILIES).json()["count"] == 5
 
 
 def test_another_school_neither_reads_nor_changes(
@@ -116,6 +127,8 @@ def test_families_search_by_guardian(api, school, head):
     for search in ["kahindo", "0971234567", family.code.lower()]:
         [row] = client.get(FAMILIES, search=search).json()["results"]
         assert (row["id"], row["student_count"]) == (str(family.pk), 1)
+    [child] = row["students"]
+    assert (child["first_name"], child["class_group_name"]) == ("Jean", "")
 
 
 def test_class_count_and_next_matricule(api, school, head, alpha):
