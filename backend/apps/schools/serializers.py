@@ -170,6 +170,17 @@ class AcademicYearCreateSerializer(serializers.Serializer):
         allow_null=True,
         help_text="Année dont on reprend les classes (sans les titulaires).",
     )
+    copy_fees = serializers.BooleanField(
+        default=False,
+        help_text="Reprendre aussi les barèmes de cette année (droit `finance.configure_fees`).",
+    )
+
+    def validate(self, data):
+        if data["copy_fees"] and not data.get("copy_classes_from"):
+            raise serializers.ValidationError(
+                {"copy_fees": _("Choose the school year to copy from.")}, code="no_source_year"
+            )
+        return data
 
 
 class AcademicYearUpdateSerializer(serializers.Serializer):

@@ -13,14 +13,20 @@ from rest_framework.decorators import (
     authentication_classes,
     permission_classes,
 )
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts.permissions import HasSchoolPermission
-from apps.accounts.roles import CLASSES_MANAGE, SCHOOL_CONFIGURE, STUDENTS_VIEW
+from apps.accounts.permissions import HasSchoolPermission, school_access
+from apps.accounts.roles import (
+    CLASSES_MANAGE,
+    FINANCE_CONFIGURE_FEES,
+    SCHOOL_CONFIGURE,
+    STUDENTS_VIEW,
+)
 from apps.accounts.views import SchoolViewSet
 from apps.core.errors import SCHOOL_NOT_FOUND, ApiError, ErrorSerializer
 from apps.schools import organisation, services
@@ -203,9 +209,12 @@ class AcademicYearViewSet(
     )
     def create(self, request: Request) -> Response:
         """Nouvelle année depuis un modèle de découpage, avec en option les classes d'une autre
-        année."""
+        année, et ses barèmes (`copy_fees`, droit `finance.configure_fees` en plus)."""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        permissions = school_access(request).permissions
+        if serializer.validated_data["copy_fees"] and FINANCE_CONFIGURE_FEES not in permissions:
+            raise PermissionDenied()
         year = organisation.create_year(actor=request.user, **serializer.validated_data)
         response = self._year(year)
         response.status_code = status.HTTP_201_CREATED

@@ -23,6 +23,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import require_current_school
+from apps.finance import services as finance
 from apps.schools import matricule
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Term, Track
 
@@ -113,10 +114,12 @@ def create_year(
     name: str = "",
     template: str = YearTemplate.SECONDARY,
     copy_classes_from: AcademicYear | None = None,
+    copy_fees: bool = False,
 ) -> AcademicYear:
     """Nouvelle année scolaire depuis un modèle de découpage (C1), avec, en option, les classes
     d'une autre année (niveau, option, section, capacité ; pas les titulaires, qui changent d'une
-    année à l'autre). La première année de l'école devient l'année en cours."""
+    année à l'autre) et ses barèmes (`copy_fees`, droit vérifié par l'API). La première année de
+    l'école devient l'année en cours."""
     require_current_school()
     name = name.strip() or f"{starts_on.year}-{ends_on.year}"
     with transaction.atomic():
@@ -134,6 +137,8 @@ def create_year(
             after["copied_from"] = copy_classes_from.name
             after["class_count"] = _copy_classes(copy_classes_from, year, actor=actor)
         audit.record(Action.ORGANISATION_YEAR_CREATED, year, actor=actor, after=after)
+        if copy_fees and copy_classes_from is not None:
+            finance.copy_fee_rules(copy_classes_from, year, actor=actor)
     return year
 
 
