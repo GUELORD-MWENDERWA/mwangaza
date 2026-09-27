@@ -8,9 +8,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 2 (Élèves et frais) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 2.4 terminée : PR à relire et fusionner |
+| Tâche en cours | aucune — 2.4 terminée : PR #92 à relire et fusionner |
 | Prochaine tâche | 2.5 — finance : configuration |
-| Issue GitHub | #17 |
+| Issue GitHub | #17 (2.4, PR #92) |
 | Branche | `tache/2.4-impressions` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-27 |
 
