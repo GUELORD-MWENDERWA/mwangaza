@@ -179,7 +179,7 @@ function IdentityTab({
           <CardHeader>
             <CardTitle>{t("students.new.identity")}</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-4 min-[600px]:grid-cols-3">
+          <CardContent className="grid grid-cols-2 gap-4 min-[600px]:grid-cols-3">
             <Info label={t("students.new.lastName")}>
               <b>{student.last_name}</b>
             </Info>
@@ -230,7 +230,7 @@ function IdentityTab({
               </StatusPill>
             )}
           </CardHeader>
-          <CardContent className="grid gap-4 min-[600px]:grid-cols-3">
+          <CardContent className="grid grid-cols-2 gap-4 min-[600px]:grid-cols-3">
             <Info label={t("students.new.class")}>
               {enrollment ? <b>{enrollment.class_group_name}</b> : t("students.list.notEnrolled")}
             </Info>

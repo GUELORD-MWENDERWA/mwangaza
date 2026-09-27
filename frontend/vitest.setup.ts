@@ -1,10 +1,14 @@
 // Tests d'écrans : textes en français (langue par défaut), rien ne reste d'un test à l'autre.
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 
 import { changeLanguage, setupI18n } from "./packages/i18n/src";
 
 setupI18n("fr");
+
+// Écrans lancés en parallèle (4 cœurs, comme la CI) : un écran met parfois plus d'une seconde à
+// paraître. Une vraie absence échoue toujours, seulement un peu plus tard.
+configure({ asyncUtilTimeout: 3000 });
 
 // Ce que jsdom n'a pas et qu'utilisent les composants Radix (case à cocher, menus).
 globalThis.ResizeObserver ??= class {
