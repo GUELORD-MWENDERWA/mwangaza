@@ -107,3 +107,22 @@ class AuditLogFilterSerializer(serializers.Serializer):
                 {"until": [_("The end date is before the start date.")]}
             )
         return data
+
+
+# Une année scolaire, avec un peu de marge : au-delà, exporter en plusieurs fois.
+EXPORT_MAX_DAYS = 366
+
+
+class AuditLogExportSerializer(AuditLogFilterSerializer):
+    """Export Excel (M6) : mêmes filtres que la liste, période obligatoire et limitée."""
+
+    since = serializers.DateField(help_text="À partir de ce jour.")
+    until = serializers.DateField(help_text="Jusqu'à ce jour.")
+
+    def validate(self, data):
+        data = super().validate(data)
+        if (data["until"] - data["since"]).days >= EXPORT_MAX_DAYS:
+            raise serializers.ValidationError(
+                {"until": [_("Export at most one year at a time.")]}, code="period_too_long"
+            )
+        return data

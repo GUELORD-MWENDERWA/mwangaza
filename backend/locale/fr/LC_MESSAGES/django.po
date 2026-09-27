@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-27 17:48+0200\n"
+"POT-Creation-Date: 2026-09-27 19:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,8 +58,9 @@ msgid ""
 msgstr ""
 
 #: apps/accounts/admin_site.py:36
+#: apps/students/templates/students/registration_form.html:39
 msgid "Phone"
-msgstr ""
+msgstr "Téléphone"
 
 #: apps/accounts/admin_site.py:41
 msgid "Password"
@@ -138,7 +139,7 @@ msgstr ""
 
 #: apps/accounts/login.py:62 apps/audit/actions.py:17
 msgid "Logged in"
-msgstr ""
+msgstr "Connexion"
 
 #: apps/accounts/models.py:59 apps/accounts/models.py:251
 #: apps/students/models.py:64
@@ -243,9 +244,9 @@ msgstr ""
 msgid "recovery codes"
 msgstr ""
 
-#: apps/accounts/models.py:252 apps/audit/models.py:66
+#: apps/accounts/models.py:252 apps/audit/models.py:66 apps/audit/views.py:107
 msgid "IP address"
-msgstr ""
+msgstr "Adresse IP"
 
 #: apps/accounts/models.py:256
 msgid "failed login"
@@ -485,203 +486,211 @@ msgstr ""
 
 #: apps/audit/actions.py:20
 msgid "Password changed"
-msgstr ""
+msgstr "Mot de passe changé"
 
 #: apps/audit/actions.py:21
 msgid "Two-factor authentication turned on"
-msgstr ""
+msgstr "Double authentification activée"
 
 #: apps/audit/actions.py:22
 msgid "Two-factor authentication on a new phone"
-msgstr ""
+msgstr "Double authentification sur un nouveau téléphone"
 
 #: apps/audit/actions.py:23
 msgid "Two-factor authentication turned off"
-msgstr ""
+msgstr "Double authentification désactivée"
 
 #: apps/audit/actions.py:24
 msgid "Two-factor authentication reset by support"
-msgstr ""
+msgstr "Double authentification réinitialisée par le support"
 
 #: apps/audit/actions.py:25
 msgid "New recovery codes"
-msgstr ""
+msgstr "Nouveaux codes de secours"
 
 #: apps/audit/actions.py:27
 msgid "Names or phone changed by support"
-msgstr ""
+msgstr "Noms ou téléphone changés par le support"
 
 #: apps/audit/actions.py:28
 msgid "Account deactivated by support"
-msgstr ""
+msgstr "Compte désactivé par le support"
 
 #: apps/audit/actions.py:29
 msgid "Account reactivated by support"
-msgstr ""
+msgstr "Compte réactivé par le support"
 
 #: apps/audit/actions.py:30
 msgid "Temporary password given by support"
-msgstr ""
+msgstr "Mot de passe provisoire donné par le support"
 
 #: apps/audit/actions.py:33
 msgid "Role created"
-msgstr ""
+msgstr "Rôle créé"
 
 #: apps/audit/actions.py:34
 msgid "Role changed"
-msgstr ""
+msgstr "Rôle modifié"
 
 #: apps/audit/actions.py:35
 msgid "Role deleted"
-msgstr ""
+msgstr "Rôle supprimé"
 
 #: apps/audit/actions.py:38
 msgid "Staff member added"
-msgstr ""
+msgstr "Membre du personnel ajouté"
 
 #: apps/audit/actions.py:39
 msgid "Staff member's roles changed"
-msgstr ""
+msgstr "Rôles d'un membre du personnel changés"
 
 #: apps/audit/actions.py:40
 msgid "Staff member deactivated"
-msgstr ""
+msgstr "Membre du personnel désactivé"
 
 #: apps/audit/actions.py:41
 msgid "Staff member reactivated"
-msgstr ""
+msgstr "Membre du personnel réactivé"
 
 #: apps/audit/actions.py:42
 msgid "Staff member's names or phone changed"
-msgstr ""
+msgstr "Noms ou téléphone d'un membre du personnel changés"
 
 #: apps/audit/actions.py:43
 msgid "Temporary password given"
-msgstr ""
+msgstr "Mot de passe provisoire donné"
 
 #: apps/audit/actions.py:44
 msgid "Two-factor authentication reset"
-msgstr ""
+msgstr "Double authentification réinitialisée"
 
 #: apps/audit/actions.py:48 apps/schools/admin.py:202
 msgid "School created"
-msgstr ""
+msgstr "École créée"
 
 #: apps/audit/actions.py:49
 msgid "School settings changed"
-msgstr ""
+msgstr "Paramètres de l'école modifiés"
 
 #: apps/audit/actions.py:50
 msgid "School logo changed"
-msgstr ""
+msgstr "Logo de l'école changé"
 
 #: apps/audit/actions.py:51
 msgid "School suspended"
-msgstr ""
+msgstr "École suspendue"
 
 #: apps/audit/actions.py:52
 msgid "School reactivated"
-msgstr ""
+msgstr "École réactivée"
 
 #: apps/audit/actions.py:55
 msgid "School year created"
-msgstr ""
+msgstr "Année scolaire créée"
 
 #: apps/audit/actions.py:56
 msgid "School year changed"
-msgstr ""
+msgstr "Année scolaire modifiée"
 
 #: apps/audit/actions.py:57
 msgid "School year deleted"
-msgstr ""
+msgstr "Année scolaire supprimée"
 
 #: apps/audit/actions.py:58
 msgid "Terms and periods changed"
-msgstr ""
+msgstr "Découpage de l'année modifié"
 
 #: apps/audit/actions.py:59
 msgid "Level created"
-msgstr ""
+msgstr "Niveau créé"
 
 #: apps/audit/actions.py:60
 msgid "Level changed"
-msgstr ""
+msgstr "Niveau modifié"
 
 #: apps/audit/actions.py:61
 msgid "Level deleted"
-msgstr ""
+msgstr "Niveau supprimé"
 
 #: apps/audit/actions.py:62
 msgid "Levels reordered"
-msgstr ""
+msgstr "Niveaux réordonnés"
 
 #: apps/audit/actions.py:63
 msgid "Track created"
-msgstr ""
+msgstr "Option créée"
 
 #: apps/audit/actions.py:64
 msgid "Track changed"
-msgstr ""
+msgstr "Option modifiée"
 
 #: apps/audit/actions.py:65
 msgid "Track deleted"
-msgstr ""
+msgstr "Option supprimée"
 
 #: apps/audit/actions.py:66
 msgid "Class created"
-msgstr ""
+msgstr "Classe créée"
 
 #: apps/audit/actions.py:67
 msgid "Class changed"
-msgstr ""
+msgstr "Classe modifiée"
 
 #: apps/audit/actions.py:68
 msgid "Class deleted"
-msgstr ""
+msgstr "Classe supprimée"
 
 #: apps/audit/actions.py:71
 msgid "Student number format changed"
-msgstr ""
+msgstr "Format du matricule modifié"
 
 #: apps/audit/actions.py:75
 msgid "Family created"
-msgstr ""
+msgstr "Famille créée"
 
 #: apps/audit/actions.py:76
 msgid "Family changed"
-msgstr ""
+msgstr "Famille modifiée"
 
 #: apps/audit/actions.py:77
 msgid "Family deleted"
-msgstr ""
+msgstr "Famille supprimée"
 
 #: apps/audit/actions.py:78
 msgid "Student created"
-msgstr ""
+msgstr "Élève créé"
 
 #: apps/audit/actions.py:79
 msgid "Student changed"
-msgstr ""
+msgstr "Élève modifié"
 
 #: apps/audit/actions.py:80
 msgid "Student enrolled"
-msgstr ""
+msgstr "Élève inscrit"
 
 #: apps/audit/actions.py:81
 msgid "Enrollment changed"
-msgstr ""
+msgstr "Inscription modifiée"
 
 #: apps/audit/actions.py:82
 msgid "Student imported from a file"
 msgstr "Élève importé d'un fichier"
 
-#: apps/audit/actions.py:86
-msgid "Support session opened"
-msgstr ""
+#: apps/audit/actions.py:85
+msgid "Family code printed on the registration form"
+msgstr "Code famille imprimé sur la fiche d'inscription"
 
-#: apps/audit/actions.py:87
+#: apps/audit/actions.py:88
+msgid "Audit log exported"
+msgstr "Journal d'audit exporté"
+
+#: apps/audit/actions.py:92
+msgid "Support session opened"
+msgstr "Session support ouverte"
+
+#: apps/audit/actions.py:93
 msgid "Support session closed"
-msgstr ""
+msgstr "Session support fermée"
 
 #: apps/audit/admin.py:12 apps/audit/admin.py:50 apps/audit/models.py:39
 msgid "action"
@@ -733,7 +742,47 @@ msgstr ""
 
 #: apps/audit/serializers.py:107
 msgid "The end date is before the start date."
-msgstr ""
+msgstr "La date de fin est avant la date de début."
+
+#: apps/audit/serializers.py:126
+msgid "Export at most one year at a time."
+msgstr "Exportez au plus une année à la fois."
+
+#: apps/audit/views.py:101
+msgid "Date"
+msgstr "Date"
+
+#: apps/audit/views.py:102
+msgid "Person"
+msgstr "Personne"
+
+#: apps/audit/views.py:103
+msgid "Action"
+msgstr "Action"
+
+#: apps/audit/views.py:104
+msgid "Object"
+msgstr "Objet"
+
+#: apps/audit/views.py:105
+msgid "Before"
+msgstr "Avant"
+
+#: apps/audit/views.py:106
+msgid "After"
+msgstr "Après"
+
+#: apps/audit/views.py:110
+msgid "Audit log"
+msgstr "Journal d'audit"
+
+#: apps/audit/views.py:130
+msgid "Mwangaza support"
+msgstr "Support Mwangaza"
+
+#: apps/audit/views.py:134
+msgid "System"
+msgstr "Système"
 
 #: apps/core/apps.py:10
 msgid "Core"
@@ -758,6 +807,10 @@ msgstr ""
 #: apps/core/money.py:17
 msgid "Congolese franc"
 msgstr ""
+
+#: apps/core/templates/core/print_base.html:10
+msgid "page"
+msgstr "page"
 
 #: apps/schools/admin.py:30
 msgid "Currencies"
@@ -1286,6 +1339,38 @@ msgstr ""
 msgid "Students"
 msgstr ""
 
+#: apps/students/documents.py:144
+#: apps/students/templates/students/class_list.html:21
+msgid "No."
+msgstr "N°"
+
+#: apps/students/documents.py:147 apps/students/imports.py:83
+#: apps/students/templates/students/class_list.html:22
+#: apps/students/templates/students/registration_form.html:34
+msgid "Student number"
+msgstr "Matricule"
+
+#: apps/students/documents.py:149
+#: apps/students/templates/students/class_list.html:23
+#: apps/students/templates/students/registration_form.html:26
+msgid "Last name, middle name, first name"
+msgstr "Nom, post-nom, prénom"
+
+#: apps/students/documents.py:152
+#: apps/students/templates/students/class_list.html:24
+#: apps/students/templates/students/registration_form.html:27
+msgid "Sex"
+msgstr "Sexe"
+
+#: apps/students/documents.py:152
+msgid "Date of birth"
+msgstr "Date de naissance"
+
+#: apps/students/documents.py:155
+#: apps/students/templates/students/class_list.html:25
+msgid "Main contact's phone"
+msgstr "Téléphone du tuteur principal"
+
 #: apps/students/imports.py:76
 msgid "Last name"
 msgstr "Nom"
@@ -1311,12 +1396,9 @@ msgid "Place of birth"
 msgstr "Lieu de naissance"
 
 #: apps/students/imports.py:82
+#: apps/students/templates/students/registration_form.html:34
 msgid "Class"
 msgstr "Classe"
-
-#: apps/students/imports.py:83
-msgid "Student number"
-msgstr "Matricule"
 
 #: apps/students/imports.py:84
 msgid "Guardian name"
@@ -1421,11 +1503,11 @@ msgstr ""
 msgid "Choose a class of this school year."
 msgstr ""
 
-#: apps/students/imports.py:721
+#: apps/students/imports.py:706
 msgid "Line"
 msgstr "Ligne"
 
-#: apps/students/imports.py:721
+#: apps/students/imports.py:706
 msgid "Problems"
 msgstr "Problèmes"
 
@@ -1452,27 +1534,27 @@ msgstr ""
 
 #: apps/students/models.py:52
 msgid "Father"
-msgstr ""
+msgstr "Père"
 
 #: apps/students/models.py:53
 msgid "Mother"
-msgstr ""
+msgstr "Mère"
 
 #: apps/students/models.py:54
 msgid "Guardian"
-msgstr ""
+msgstr "Tuteur"
 
 #: apps/students/models.py:55
 msgid "Grandparent"
-msgstr ""
+msgstr "Grand-parent"
 
 #: apps/students/models.py:56
 msgid "Brother or sister"
-msgstr ""
+msgstr "Frère ou sœur"
 
 #: apps/students/models.py:57
 msgid "Other"
-msgstr ""
+msgstr "Autre"
 
 #: apps/students/models.py:62
 msgid "full name"
@@ -1487,8 +1569,9 @@ msgid "email"
 msgstr ""
 
 #: apps/students/models.py:66
+#: apps/students/templates/students/registration_form.html:41
 msgid "main contact"
-msgstr ""
+msgstr "tuteur principal"
 
 #: apps/students/models.py:67
 msgid "emergency contact"
@@ -1504,11 +1587,11 @@ msgstr ""
 
 #: apps/students/models.py:85
 msgid "Male"
-msgstr ""
+msgstr "Masculin"
 
 #: apps/students/models.py:86
 msgid "Female"
-msgstr ""
+msgstr "Féminin"
 
 #: apps/students/models.py:91
 msgid "student number"
@@ -1708,18 +1791,192 @@ msgstr ""
 msgid "Unknown guardian for this family."
 msgstr ""
 
-#: apps/students/views.py:50
+#: apps/students/templates/students/class_list.html:2
+msgid "Class list"
+msgstr "Liste de classe"
+
+#: apps/students/templates/students/class_list.html:11
+#, python-format
+msgid "School year %(year)s"
+msgstr "Année scolaire %(year)s"
+
+#: apps/students/templates/students/class_list.html:13
+#, python-format
+msgid "Printed on %(date)s"
+msgstr "Imprimé le %(date)s"
+
+#: apps/students/templates/students/class_list.html:16
+#, python-format
+msgid "LIST OF STUDENTS — %(name)s"
+msgstr "LISTE DES ÉLÈVES — %(name)s"
+
+#: apps/students/templates/students/class_list.html:17
+#, python-format
+msgid "Homeroom teacher: %(teacher)s"
+msgstr "Titulaire : %(teacher)s"
+
+#: apps/students/templates/students/class_list.html:17
+#, python-format
+msgid "Enrolment: <b>%(total)s</b>"
+msgstr "Effectif : <b>%(total)s</b>"
+
+#: apps/students/templates/students/class_list.html:17
+#, python-format
+msgid "boys %(boys)s, girls %(girls)s"
+msgstr "garçons %(boys)s, filles %(girls)s"
+
+#: apps/students/templates/students/class_list.html:24
+msgid "Born on"
+msgstr "Né le"
+
+#: apps/students/templates/students/class_list.html:39
+msgid "No active student in this class."
+msgstr "Aucun élève actif dans cette classe."
+
+#: apps/students/templates/students/registration_form.html:2
+msgid "Registration form"
+msgstr "Fiche d'inscription"
+
+#: apps/students/templates/students/registration_form.html:18
+msgid "Photo"
+msgstr "Photo"
+
+#: apps/students/templates/students/registration_form.html:21
+msgid "REGISTRATION FORM"
+msgstr "FICHE D'INSCRIPTION"
+
+#: apps/students/templates/students/registration_form.html:22
+#, python-format
+msgid "School year %(year)s · enrolled on %(date)s"
+msgstr "Année scolaire %(year)s · inscrit le %(date)s"
+
+#: apps/students/templates/students/registration_form.html:25
+msgid "STUDENT"
+msgstr "ÉLÈVE"
+
+#: apps/students/templates/students/registration_form.html:27
+msgid "Born on, in"
+msgstr "Né le, à"
+
+#: apps/students/templates/students/registration_form.html:28
+msgid "Nationality"
+msgstr "Nationalité"
+
+#: apps/students/templates/students/registration_form.html:28
+msgid "Origin"
+msgstr "Origine"
+
+#: apps/students/templates/students/registration_form.html:29
+msgid "Address"
+msgstr "Adresse"
+
+#: apps/students/templates/students/registration_form.html:33
+msgid "SCHOOLING"
+msgstr "SCOLARITÉ"
+
+#: apps/students/templates/students/registration_form.html:35
+msgid "Previous school"
+msgstr "École de provenance"
+
+#: apps/students/templates/students/registration_form.html:39
+msgid "FAMILY"
+msgstr "FAMILLE"
+
+#: apps/students/templates/students/registration_form.html:39
+msgid "Relationship"
+msgstr "Lien"
+
+#: apps/students/templates/students/registration_form.html:41
+msgid "emergency"
+msgstr "urgence"
+
+#: apps/students/templates/students/registration_form.html:43
+msgid "No guardian recorded."
+msgstr "Aucun tuteur enregistré."
+
+#: apps/students/templates/students/registration_form.html:47
+msgid ""
+"The parent declares the above information to be accurate and undertakes to "
+"respect the school rules."
+msgstr ""
+"Le parent déclare exacts les renseignements ci-dessus et s'engage à "
+"respecter le règlement de l'école."
+
+#: apps/students/templates/students/registration_form.html:48
+msgid ""
+"Photo: the parent agrees to its use on the student card and the parents' "
+"portal."
+msgstr ""
+"Photo : le parent accepte son utilisation sur la carte d'élève et le portail "
+"des parents."
+
+#: apps/students/templates/students/registration_form.html:48
+msgid ""
+"Photo: the parent does not agree to its use on the student card and the "
+"parents' portal."
+msgstr ""
+"Photo : le parent n'accepte pas son utilisation sur la carte d'élève et le "
+"portail des parents."
+
+#: apps/students/templates/students/registration_form.html:51
+msgid "Parent's signature"
+msgstr "Signature du parent"
+
+#: apps/students/templates/students/registration_form.html:52
+msgid "The school office"
+msgstr "Le secrétariat"
+
+#: apps/students/templates/students/registration_form.html:53
+msgid "School seal"
+msgstr "Sceau de l'école"
+
+#: apps/students/templates/students/registration_form.html:59
+msgid "Follow your child's schooling on your phone"
+msgstr "Suivez la scolarité de votre enfant sur votre téléphone"
+
+#: apps/students/templates/students/registration_form.html:60
+#, python-format
+msgid "Open <b>%(portal_url)s</b>"
+msgstr "Ouvrez <b>%(portal_url)s</b>"
+
+#: apps/students/templates/students/registration_form.html:61
+#, python-format
+msgid "Enter your number: <b>%(primary_phone)s</b>"
+msgstr "Saisissez votre numéro : <b>%(primary_phone)s</b>"
+
+#: apps/students/templates/students/registration_form.html:61
+msgid "Enter your phone number"
+msgstr "Saisissez votre numéro de téléphone"
+
+#: apps/students/templates/students/registration_form.html:62
+msgid "Enter the family code opposite and choose a password"
+msgstr "Saisissez le code famille ci-contre et choisissez un mot de passe"
+
+#: apps/students/templates/students/registration_form.html:64
+msgid "FAMILY CODE"
+msgstr "CODE FAMILLE"
+
+#: apps/students/templates/students/registration_form.html:66
+#, python-format
+msgid ""
+"Keep this code: it gives access to your children's information. Printed on "
+"%(date)s at %(time)s · Mwangaza"
+msgstr ""
+"Gardez ce code : il donne accès aux informations de vos enfants. Imprimé le "
+"%(date)s à %(time)s · Mwangaza"
+
+#: apps/students/views.py:55
 msgid "This student has no photo."
 msgstr ""
 
-#: apps/students/views.py:358
+#: apps/students/views.py:408
 msgid "No current school year: choose one."
 msgstr ""
 
-#: apps/students/views.py:447
+#: apps/students/views.py:488
 msgid "import-report"
 msgstr "rapport-import"
 
-#: apps/students/views.py:454
+#: apps/students/views.py:495
 msgid "students-template"
 msgstr "modele-eleves"

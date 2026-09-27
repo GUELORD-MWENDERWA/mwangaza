@@ -40,6 +40,8 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: backend/uv.lock
+      - name: Bibliothèques de WeasyPrint (PDF)
+        run: sudo apt-get update -q && sudo apt-get install -y -q libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0
       - name: Dépendances (uv.lock à jour exigé)
         working-directory: backend
         run: uv sync --locked
@@ -114,6 +116,8 @@ jobs:
           node-version: 22
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
+      - name: Bibliothèques de WeasyPrint (PDF)
+        run: sudo apt-get update -q && sudo apt-get install -y -q libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0
       - name: Dépendances
         run: |
           (cd backend && uv sync --locked)

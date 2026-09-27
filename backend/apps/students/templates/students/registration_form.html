@@ -1,0 +1,68 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% translate "Registration form" %} — {{ student.full_name }}{% endblock %}
+{% block style %}
+.photo { width: 30mm; height: 37mm; border: 1px solid #999; object-fit: cover; }
+.photo-empty { width: 30mm; height: 37mm; border: 1px solid #999; display: flex; align-items: center; justify-content: center; text-align: center; color: #777; font-size: .8em; }
+td.label { width: 22%; }
+.signatures { margin-top: 2em; font-size: .9em; }
+.portal { margin-top: 1.6em; border: 2px solid #111; border-radius: 8px; padding: .8em 1em; align-items: center; break-inside: avoid; }
+.code { border: 2px dashed #111; border-radius: 6px; padding: .4em .8em; text-align: center; }
+.code b { display: block; font-size: 1.8em; letter-spacing: .08em; font-family: "DejaVu Sans Mono", monospace; }
+{% endblock %}
+{% block content %}
+<div class="row between">
+  <div class="row">
+    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% else %}<div class="logo-text">{{ school_name|slice:":4"|upper }}</div>{% endif %}
+    <div><b>{{ school_name|upper }}</b></div>
+  </div>
+  {% if photo %}<img class="photo" src="{{ photo }}" alt="">{% else %}<div class="photo-empty">{% translate "Photo" %}<br>4 × 5 cm</div>{% endif %}
+</div>
+
+<h1>{% translate "REGISTRATION FORM" %}</h1>
+<p class="center">{% blocktranslate with year=enrollment.academic_year.name date=enrollment.enrolled_on|date:"d/m/Y" %}School year {{ year }} · enrolled on {{ date }}{% endblocktranslate %}</p>
+
+<table>
+  <tr><th colspan="4">{% translate "STUDENT" %}</th></tr>
+  <tr><td class="label">{% translate "Last name, middle name, first name" %}</td><td colspan="3"><b>{{ student.full_name }}</b></td></tr>
+  <tr><td class="label">{% translate "Sex" %}</td><td>{{ student.get_sex_display }}</td><td class="label">{% translate "Born on, in" %}</td><td>{{ student.birth_date|date:"d/m/Y" }}{% if student.birth_place %}, {{ student.birth_place }}{% endif %}</td></tr>
+  <tr><td class="label">{% translate "Nationality" %}</td><td>{{ student.nationality }}</td><td class="label">{% translate "Origin" %}</td><td>{{ origin }}</td></tr>
+  <tr><td class="label">{% translate "Address" %}</td><td colspan="3">{{ address }}</td></tr>
+</table>
+
+<table>
+  <tr><th colspan="4">{% translate "SCHOOLING" %}</th></tr>
+  <tr><td class="label">{% translate "Class" %}</td><td><b>{{ enrollment.class_group.name }}</b></td><td class="label">{% translate "Student number" %}</td><td><b>{{ student.matricule }}</b></td></tr>
+  <tr><td class="label">{% translate "Previous school" %}</td><td colspan="3">{{ student.previous_school }}</td></tr>
+</table>
+
+<table>
+  <tr><th>{% translate "FAMILY" %}</th><th>{% translate "Relationship" %}</th><th>{% translate "Phone" %}</th><th></th></tr>
+  {% for guardian in guardians %}
+  <tr><td>{{ guardian.name }}</td><td>{{ guardian.relationship }}</td><td>{{ guardian.phone }}</td><td>{% if guardian.primary %}{% translate "main contact" %}{% elif guardian.emergency %}{% translate "emergency" %}{% endif %}</td></tr>
+  {% empty %}
+  <tr><td colspan="4" class="muted">{% translate "No guardian recorded." %}</td></tr>
+  {% endfor %}
+</table>
+
+<p class="small" style="margin-top:1em">{% translate "The parent declares the above information to be accurate and undertakes to respect the school rules." %}
+{% if student.photo_consent %}{% translate "Photo: the parent agrees to its use on the student card and the parents' portal." %}{% else %}{% translate "Photo: the parent does not agree to its use on the student card and the parents' portal." %}{% endif %}</p>
+
+<div class="row between signatures">
+  <div>{% translate "Parent's signature" %}<br><br>……………………</div>
+  <div>{% translate "The school office" %}<br><b>{{ printed_by }}</b></div>
+  <div>{% translate "School seal" %}</div>
+</div>
+
+{% if family_code %}
+<div class="row portal">
+  <div class="grow">
+    <b>{% translate "Follow your child's schooling on your phone" %}</b><br>
+    1. {% blocktranslate %}Open <b>{{ portal_url }}</b>{% endblocktranslate %}<br>
+    2. {% if primary_phone %}{% blocktranslate %}Enter your number: <b>{{ primary_phone }}</b>{% endblocktranslate %}{% else %}{% translate "Enter your phone number" %}{% endif %}<br>
+    3. {% translate "Enter the family code opposite and choose a password" %}
+  </div>
+  <div class="code"><span class="small">{% translate "FAMILY CODE" %}</span><b>{{ family_code }}</b></div>
+</div>
+<p class="small muted">{% blocktranslate with date=printed_at|date:"d/m/Y" time=printed_at|time:"H:i" %}Keep this code: it gives access to your children's information. Printed on {{ date }} at {{ time }} · Mwangaza{% endblocktranslate %}</p>
+{% endif %}
+{% endblock %}

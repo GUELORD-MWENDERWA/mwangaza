@@ -80,6 +80,12 @@ class Action(models.TextChoices):
     STUDENTS_ENROLLED = "students.enrolled", _("Student enrolled")
     STUDENTS_ENROLLMENT_UPDATED = "students.enrollment_updated", _("Enrollment changed")
     STUDENTS_STUDENT_IMPORTED = "students.student_imported", _("Student imported from a file")
+    STUDENTS_FAMILY_CODE_PRINTED = (
+        "students.family_code_printed",
+        _("Family code printed on the registration form"),
+    )
+    # Le journal lui-même (M6) : chaque export est noté.
+    AUDIT_EXPORTED = "audit.exported", _("Audit log exported")
 
     # Session support « en tant qu'école » (A3) ; chaque action faite pendant la session porte
     # aussi `impersonated_by`.

@@ -7,6 +7,7 @@ DEBUG = True
 SECRET_KEY = env("DJANGO_SECRET_KEY", "dev-uniquement-ne-pas-utiliser-en-production")
 ALLOWED_HOSTS = [".localhost", "localhost", "127.0.0.1"]
 SCHOOL_BASE_DOMAINS = ["localhost"]
+PORTAL_URL = "http://localhost:5174"
 SCHOOL_URL = "http://{code}.localhost:5173"
 
 # Sans Redis, les tâches Celery s'exécutent tout de suite dans le processus Django.
