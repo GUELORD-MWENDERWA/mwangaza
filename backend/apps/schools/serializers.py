@@ -321,7 +321,7 @@ class ClassGroupFilterSerializer(serializers.Serializer):
 class MatriculeFormatInputSerializer(serializers.Serializer):
     matricule_format = serializers.CharField(
         max_length=MAX_MATRICULE_LENGTH,
-        help_text="Ex. ITIG-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 "
+        help_text="Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 "
         "chiffres), {OPT} (code de l'option).",
     )
 

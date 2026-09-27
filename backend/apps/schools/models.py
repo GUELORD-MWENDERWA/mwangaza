@@ -117,7 +117,7 @@ class School(BaseModel):
         max_length=matricule.MAX_LENGTH,
         blank=True,
         validators=[matricule.validate_matricule_format],
-        help_text=_("e.g. ITIG-{AAAA}-{0000}: year, number, option code {OPT}."),
+        help_text=_("e.g. ABC-{AAAA}-{0000}: year, number, option code {OPT}."),
     )
     status = models.CharField(
         _("status"), max_length=10, choices=Status.choices, default=Status.TRIAL

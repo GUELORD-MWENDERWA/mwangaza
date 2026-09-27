@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='school',
             name='matricule_format',
-            field=models.CharField(blank=True, help_text='e.g. ITIG-{AAAA}-{0000}: year, number, option code {OPT}.', max_length=60, validators=[apps.schools.matricule.validate_matricule_format], verbose_name='student number format'),
+            field=models.CharField(blank=True, help_text='e.g. ABC-{AAAA}-{0000}: year, number, option code {OPT}.', max_length=60, validators=[apps.schools.matricule.validate_matricule_format], verbose_name='student number format'),
         ),
         migrations.RunPython(fill_matricule_formats, migrations.RunPython.noop),
         migrations.CreateModel(
@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('name', models.CharField(max_length=40, verbose_name='name')),
-                ('cycle', models.CharField(choices=[('primary', 'Primary'), ('basic', 'Basic education (7th–8th)'), ('secondary_general', 'General secondary'), ('secondary_technical', 'Technical and vocational secondary'), ('higher', 'Higher education'), ('vocational', 'Short vocational training')], max_length=20, verbose_name='cycle')),
+                ('cycle', models.CharField(choices=[('primary', 'Primary'), ('basic', 'Basic education (7th-8th)'), ('secondary_general', 'General secondary'), ('secondary_technical', 'Technical and vocational secondary'), ('higher', 'Higher education'), ('vocational', 'Short vocational training')], max_length=20, verbose_name='cycle')),
                 ('order', models.PositiveSmallIntegerField(default=0, verbose_name='order')),
                 ('created_by', models.ForeignKey(blank=True, editable=False, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to=settings.AUTH_USER_MODEL)),
                 ('school', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='schools.school')),

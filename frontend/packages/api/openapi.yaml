@@ -3291,7 +3291,7 @@ components:
       properties:
         matricule_format:
           type: string
-          description: 'Ex. ITIG-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro,
+          description: 'Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro,
             3 à 6 chiffres), {OPT} (code de l''option).'
           maxLength: 60
         example:
@@ -3306,7 +3306,7 @@ components:
         matricule_format:
           type: string
           minLength: 1
-          description: 'Ex. ITIG-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro,
+          description: 'Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro,
             3 à 6 chiffres), {OPT} (code de l''option).'
           maxLength: 60
       required:
@@ -3585,7 +3585,7 @@ components:
         matricule_format:
           type: string
           minLength: 1
-          description: 'Ex. ITIG-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro,
+          description: 'Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro,
             3 à 6 chiffres), {OPT} (code de l''option).'
           maxLength: 60
     PatchedMeUpdateRequest:

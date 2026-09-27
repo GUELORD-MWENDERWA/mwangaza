@@ -1072,13 +1072,13 @@ export interface components {
             logo: string;
         };
         MatriculeFormat: {
-            /** @description Ex. ITIG-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
+            /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
             matricule_format: string;
             /** @description Prochain matricule : année en cours, première option (C3). */
             example: string;
         };
         MatriculeFormatInputRequest: {
-            /** @description Ex. ITIG-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
+            /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
             matricule_format: string;
         };
         Me: {
@@ -1214,7 +1214,7 @@ export interface components {
             cycle?: components["schemas"]["CycleEnum"];
         };
         PatchedMatriculeFormatInputRequest: {
-            /** @description Ex. ITIG-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
+            /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
             matricule_format?: string;
         };
         PatchedMeUpdateRequest: {
