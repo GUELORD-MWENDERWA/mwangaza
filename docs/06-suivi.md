@@ -8,9 +8,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 2 (Élèves et frais) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | 2.3 — import Excel (démarrée le 2026-09-27) |
+| Tâche en cours | aucune — 2.3 terminée : PR #91 à relire et fusionner |
 | Prochaine tâche | 2.4 — impressions |
-| Issue GitHub | #16 |
+| Issue GitHub | #16 (2.3, PR #91) |
 | Branche | `tache/2.3-import-excel` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-27 |
 
@@ -20,10 +20,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|:-:|:-:|
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
-| Semaine 2 — Élèves et frais | 3 | 8 |
+| Semaine 2 — Élèves et frais | 4 | 8 |
 | Semaine 3 — Caisse et hors-ligne | 0 | 8 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **12** | **33** |
+| **V1.0** | **13** | **33** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-27 — Tâche 2.3 : import Excel des élèves
+- **Fait** : import .xlsx / .csv en 4 étapes (fichier, colonnes devinées, vérification ligne par ligne, import Celery groupé) ; classes rapprochées ou associées à la main, fratries par tuteur, matricules, journal par élève ; modèle et rapport Excel ; `make demo-excel`, `make messages` (premières traductions du serveur).
+- **Tests** : 772 backend (+6 : isolation, droit, règles, re-import sans doublon, 800 élèves en < 40 requêtes), 140 front ; essai réel : 796 élèves importés.
+- **Décisions** : openpyxl ; fratries regroupées dans le fichier seulement ; élève déjà dans l'école = erreur ; fichier pas gardé ; gettext installé, `.po` / `.mo` dans Git.
+- **Suite** : 2.4 (impressions) ; revoir l'import avec le vrai fichier de l'ITIG (I7 : feuille par classe ? noms dans une colonne ?).
 
 ### 2026-09-27 — Tâche 2.2.2 : fiche élève, fiche famille, recherche `Ctrl K`
 - **Fait** : fiche élève (Identité avec photo, Famille, Finances vide, Historique lu dans le journal + parcours), « Modifier l'élève », fiche famille (tuteurs modifiables), liaison à une autre famille (famille vidée supprimée), recherche `Ctrl K` ; doublon → lien vers la fiche ; photo réduite dans le navigateur, servie par l'API, un dossier par école.
