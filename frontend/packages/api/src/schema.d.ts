@@ -1059,7 +1059,6 @@ export interface components {
         AcademicYear: {
             /** Format: uuid */
             readonly id: string;
-            /** Nom */
             readonly name: string;
             /**
              * Start
@@ -1169,10 +1168,8 @@ export interface components {
         AuditActor: {
             /** Format: uuid */
             readonly id: string;
-            /** Nom */
             last_name: string;
             middle_name: string;
-            /** Prénom */
             first_name: string;
         };
         /** @description Une entrée du journal (M6). `before` / `after` : seulement les champs changés. */
@@ -1201,7 +1198,7 @@ export interface components {
             readonly role_code: (components["schemas"]["RoleCodeEnum"] | components["schemas"]["NullEnum"]) | null;
             readonly before: unknown;
             readonly after: unknown;
-            /** Adresse IP */
+            /** IP address */
             readonly ip: string | null;
             /** Browser */
             readonly user_agent: string;
@@ -1271,7 +1268,6 @@ export interface components {
         CurrentSchool: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
             code: string;
-            /** Nom */
             name: string;
             /**
              * Colour
@@ -1387,10 +1383,8 @@ export interface components {
             readonly id: string;
             /** Student number */
             matricule: string;
-            /** Nom */
             last_name: string;
             middle_name: string;
-            /** Prénom */
             first_name: string;
             readonly class_group_name: string;
         };
@@ -1528,7 +1522,6 @@ export interface components {
         Level: {
             /** Format: uuid */
             readonly id: string;
-            /** Nom */
             name: string;
             cycle: components["schemas"]["CycleEnum"];
             readonly order: number;
@@ -1538,7 +1531,6 @@ export interface components {
             ids: string[];
         };
         LevelRequest: {
-            /** Nom */
             name: string;
             cycle: components["schemas"]["CycleEnum"];
         };
@@ -1647,7 +1639,6 @@ export interface components {
         MySchool: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
             code: string;
-            /** Nom */
             name: string;
             status: components["schemas"]["SchoolStatusEnum"];
         };
@@ -1813,13 +1804,11 @@ export interface components {
          *     son `code`.
          */
         PatchedRoleRequest: {
-            /** Nom */
             name?: string;
             permissions?: components["schemas"]["PermissionsEnum"][];
         };
         /** @description Paramètres de l'école (M5). Le code (adresse) ne change que par le support Mwangaza. */
         PatchedSchoolSettingsRequest: {
-            /** Nom */
             name?: string;
             official_name?: string;
             /**
@@ -1872,10 +1861,8 @@ export interface components {
             id?: string;
             /** Student number */
             matricule?: string;
-            /** Nom */
             last_name?: string;
             middle_name?: string;
-            /** Prénom */
             first_name?: string;
             sex?: components["schemas"]["SexEnum"];
             /**
@@ -1903,7 +1890,6 @@ export interface components {
             allow_duplicate: boolean;
         };
         PatchedTrackUpdateRequest: {
-            /** Nom */
             name?: string;
             code?: string;
         };
@@ -1930,10 +1916,8 @@ export interface components {
         Person: {
             /** Format: uuid */
             readonly id: string;
-            /** Nom */
             last_name: string;
             middle_name: string;
-            /** Prénom */
             first_name: string;
         };
         PhotoUploadRequest: {
@@ -1978,7 +1962,6 @@ export interface components {
              *     * `parent` - Parent
              */
             readonly code: components["schemas"]["CodeEnum"] | components["schemas"]["BlankEnum"];
-            /** Nom */
             name: string;
             readonly is_system: boolean;
             permissions: components["schemas"]["PermissionsEnum"][];
@@ -1992,7 +1975,6 @@ export interface components {
          *     son `code`.
          */
         RoleRequest: {
-            /** Nom */
             name?: string;
             permissions?: components["schemas"]["PermissionsEnum"][];
         };
@@ -2013,14 +1995,12 @@ export interface components {
              *     * `parent` - Parent
              */
             readonly code: components["schemas"]["CodeEnum"] | components["schemas"]["BlankEnum"];
-            /** Nom */
             name: string;
         };
         /** @description Paramètres de l'école (M5). Le code (adresse) ne change que par le support Mwangaza. */
         SchoolSettings: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
             readonly code: string;
-            /** Nom */
             name: string;
             official_name: string;
             /**
@@ -2070,7 +2050,7 @@ export interface components {
             readonly id: string;
             readonly user: components["schemas"]["StaffUser"];
             readonly roles: string[];
-            /** Actif */
+            /** Active */
             is_active: boolean;
             /** @description Double authentification (colonne de M3). */
             readonly totp: components["schemas"]["TotpEnum"];
@@ -2102,7 +2082,7 @@ export interface components {
             readonly id: string;
             readonly user: components["schemas"]["StaffUser"];
             readonly roles: string[];
-            /** Actif */
+            /** Active */
             is_active: boolean;
             /** @description Double authentification (colonne de M3). */
             readonly totp: components["schemas"]["TotpEnum"];
@@ -2125,10 +2105,8 @@ export interface components {
             readonly id: string;
             /** @description Identifies the person on the whole platform, e.g. +243971234567. */
             phone: string;
-            /** Nom */
             last_name: string;
             middle_name: string;
-            /** Prénom */
             first_name: string;
         };
         /**
@@ -2145,10 +2123,8 @@ export interface components {
             readonly id: string;
             /** Student number */
             matricule: string;
-            /** Nom */
             last_name: string;
             middle_name: string;
-            /** Prénom */
             first_name: string;
             sex: components["schemas"]["SexEnum"];
             /**
@@ -2258,10 +2234,8 @@ export interface components {
             readonly id: string;
             /** Student number */
             matricule: string;
-            /** Nom */
             last_name: string;
             middle_name: string;
-            /** Prénom */
             first_name: string;
             sex: components["schemas"]["SexEnum"];
             /**
@@ -2288,10 +2262,8 @@ export interface components {
             id?: string;
             /** Student number */
             matricule?: string;
-            /** Nom */
             last_name: string;
             middle_name?: string;
-            /** Prénom */
             first_name?: string;
             sex: components["schemas"]["SexEnum"];
             /**
@@ -2431,13 +2403,11 @@ export interface components {
         Track: {
             /** Format: uuid */
             readonly id: string;
-            /** Nom */
             name: string;
             /** @description Majuscules et chiffres (matricule `{OPT}`). */
             code: string;
         };
         TrackRequest: {
-            /** Nom */
             name: string;
             /** @description Majuscules et chiffres (matricule `{OPT}`). */
             code: string;
@@ -2554,7 +2524,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) school year. */
+                /** @description A UUID string identifying this school year. */
                 id: string;
             };
             cookie?: never;
@@ -2592,7 +2562,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) school year. */
+                /** @description A UUID string identifying this school year. */
                 id: string;
             };
             cookie?: never;
@@ -2637,7 +2607,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) school year. */
+                /** @description A UUID string identifying this school year. */
                 id: string;
             };
             cookie?: never;
@@ -2697,7 +2667,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) school year. */
+                /** @description A UUID string identifying this school year. */
                 id: string;
             };
             cookie?: never;
@@ -2735,7 +2705,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) school year. */
+                /** @description A UUID string identifying this school year. */
                 id: string;
             };
             cookie?: never;
@@ -2862,7 +2832,7 @@ export interface operations {
                 domain?: "account" | "auth" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
-                /** @description Un numéro de page de l'ensemble des résultats. */
+                /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Dans le nom de l'objet. */
                 search?: string;
@@ -2908,7 +2878,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) audit log entry. */
+                /** @description A UUID string identifying this audit log entry. */
                 id: string;
             };
             cookie?: never;
@@ -3613,7 +3583,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) class. */
+                /** @description A UUID string identifying this class. */
                 id: string;
             };
             cookie?: never;
@@ -3651,7 +3621,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) class. */
+                /** @description A UUID string identifying this class. */
                 id: string;
             };
             cookie?: never;
@@ -3696,7 +3666,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) class. */
+                /** @description A UUID string identifying this class. */
                 id: string;
             };
             cookie?: never;
@@ -3856,7 +3826,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) enrollment. */
+                /** @description A UUID string identifying this enrollment. */
                 id: string;
             };
             cookie?: never;
@@ -3914,7 +3884,7 @@ export interface operations {
     families_list: {
         parameters: {
             query?: {
-                /** @description Un numéro de page de l'ensemble des résultats. */
+                /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Code famille, nom ou téléphone d'un tuteur. */
                 search?: string;
@@ -3997,7 +3967,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) family. */
+                /** @description A UUID string identifying this family. */
                 id: string;
             };
             cookie?: never;
@@ -4035,7 +4005,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) family. */
+                /** @description A UUID string identifying this family. */
                 id: string;
             };
             cookie?: never;
@@ -4206,7 +4176,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) level. */
+                /** @description A UUID string identifying this level. */
                 id: string;
             };
             cookie?: never;
@@ -4244,7 +4214,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) level. */
+                /** @description A UUID string identifying this level. */
                 id: string;
             };
             cookie?: never;
@@ -4289,7 +4259,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) level. */
+                /** @description A UUID string identifying this level. */
                 id: string;
             };
             cookie?: never;
@@ -4589,7 +4559,7 @@ export interface operations {
     roles_list: {
         parameters: {
             query?: {
-                /** @description Un numéro de page de l'ensemble des résultats. */
+                /** @description A page number within the paginated result set. */
                 page?: number;
             };
             header?: never;
@@ -4678,7 +4648,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) role. */
+                /** @description A UUID string identifying this role. */
                 id: string;
             };
             cookie?: never;
@@ -4716,7 +4686,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) role. */
+                /** @description A UUID string identifying this role. */
                 id: string;
             };
             cookie?: never;
@@ -4761,7 +4731,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) role. */
+                /** @description A UUID string identifying this role. */
                 id: string;
             };
             cookie?: never;
@@ -4990,7 +4960,7 @@ export interface operations {
             query?: {
                 /** @description Actives ou désactivées. */
                 is_active?: boolean | null;
-                /** @description Un numéro de page de l'ensemble des résultats. */
+                /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Personnes qui ont ce rôle. */
                 role?: string;
@@ -5091,7 +5061,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) membership. */
+                /** @description A UUID string identifying this membership. */
                 id: string;
             };
             cookie?: never;
@@ -5129,7 +5099,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) membership. */
+                /** @description A UUID string identifying this membership. */
                 id: string;
             };
             cookie?: never;
@@ -5181,7 +5151,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) membership. */
+                /** @description A UUID string identifying this membership. */
                 id: string;
             };
             cookie?: never;
@@ -5227,7 +5197,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) membership. */
+                /** @description A UUID string identifying this membership. */
                 id: string;
             };
             cookie?: never;
@@ -5328,7 +5298,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) student import. */
+                /** @description A UUID string identifying this student import. */
                 id: string;
             };
             cookie?: never;
@@ -5366,7 +5336,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) student import. */
+                /** @description A UUID string identifying this student import. */
                 id: string;
             };
             cookie?: never;
@@ -5426,7 +5396,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) student import. */
+                /** @description A UUID string identifying this student import. */
                 id: string;
             };
             cookie?: never;
@@ -5478,14 +5448,14 @@ export interface operations {
     student_imports_lines_list: {
         parameters: {
             query?: {
-                /** @description Un numéro de page de l'ensemble des résultats. */
+                /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Seulement les erreurs et les avertissements. */
                 problems?: boolean;
             };
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) student import. */
+                /** @description A UUID string identifying this student import. */
                 id: string;
             };
             cookie?: never;
@@ -5523,7 +5493,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) student import. */
+                /** @description A UUID string identifying this student import. */
                 id: string;
             };
             cookie?: never;
@@ -5599,7 +5569,7 @@ export interface operations {
                 /** @description Année de l'inscription affichée (par défaut l'année en cours). */
                 academic_year?: string;
                 class_group?: string;
-                /** @description Un numéro de page de l'ensemble des résultats. */
+                /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Noms, matricule ou code famille. */
                 search?: string;
@@ -5700,7 +5670,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) student. */
+                /** @description A UUID string identifying this student. */
                 id: string;
             };
             cookie?: never;
@@ -5738,7 +5708,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) student. */
+                /** @description A UUID string identifying this student. */
                 id: string;
             };
             cookie?: never;
@@ -5796,12 +5766,12 @@ export interface operations {
     students_history_list: {
         parameters: {
             query?: {
-                /** @description Un numéro de page de l'ensemble des résultats. */
+                /** @description A page number within the paginated result set. */
                 page?: number;
             };
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) student. */
+                /** @description A UUID string identifying this student. */
                 id: string;
             };
             cookie?: never;
@@ -5839,7 +5809,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) student. */
+                /** @description A UUID string identifying this student. */
                 id: string;
             };
             cookie?: never;
@@ -5878,7 +5848,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) student. */
+                /** @description A UUID string identifying this student. */
                 id: string;
             };
             cookie?: never;
@@ -5936,7 +5906,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) student. */
+                /** @description A UUID string identifying this student. */
                 id: string;
             };
             cookie?: never;
@@ -6152,7 +6122,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) track. */
+                /** @description A UUID string identifying this track. */
                 id: string;
             };
             cookie?: never;
@@ -6190,7 +6160,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) track. */
+                /** @description A UUID string identifying this track. */
                 id: string;
             };
             cookie?: never;
@@ -6235,7 +6205,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description Un(une) Chaîne UUID identifiant ce(cette) track. */
+                /** @description A UUID string identifying this track. */
                 id: string;
             };
             cookie?: never;

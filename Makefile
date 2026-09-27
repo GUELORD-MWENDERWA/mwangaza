@@ -108,7 +108,7 @@ api: api-schema ## Schéma OpenAPI (frontend/packages/api/openapi.yaml) puis typ
 	cd frontend && pnpm --filter @mwangaza/api generate
 
 api-schema: ## Seulement le schéma OpenAPI (CI du backend, sans pnpm)
-	$(MANAGE) spectacular --validate --fail-on-warn --file ../frontend/packages/api/openapi.yaml
+	$(MANAGE) spectacular --lang en --validate --fail-on-warn --file ../frontend/packages/api/openapi.yaml
 
 build: ## Construire les deux PWA
 	cd frontend && pnpm build

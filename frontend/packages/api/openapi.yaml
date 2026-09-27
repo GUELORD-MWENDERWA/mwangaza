@@ -97,7 +97,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) school year.
+        description: A UUID string identifying this school year.
         required: true
       tags:
       - organisation
@@ -132,7 +132,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) school year.
+        description: A UUID string identifying this school year.
         required: true
       tags:
       - organisation
@@ -190,7 +190,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) school year.
+        description: A UUID string identifying this school year.
         required: true
       tags:
       - organisation
@@ -227,7 +227,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) school year.
+        description: A UUID string identifying this school year.
         required: true
       tags:
       - organisation
@@ -263,7 +263,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) school year.
+        description: A UUID string identifying this school year.
         required: true
       tags:
       - organisation
@@ -465,7 +465,7 @@ paths:
       - name: page
         required: false
         in: query
-        description: Un numéro de page de l'ensemble des résultats.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - in: query
@@ -520,7 +520,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) audit log entry.
+        description: A UUID string identifying this audit log entry.
         required: true
       tags:
       - audit
@@ -1161,7 +1161,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) class.
+        description: A UUID string identifying this class.
         required: true
       tags:
       - organisation
@@ -1197,7 +1197,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) class.
+        description: A UUID string identifying this class.
         required: true
       tags:
       - organisation
@@ -1256,7 +1256,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) class.
+        description: A UUID string identifying this class.
         required: true
       tags:
       - organisation
@@ -1381,7 +1381,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) enrollment.
+        description: A UUID string identifying this enrollment.
         required: true
       tags:
       - students
@@ -1439,7 +1439,7 @@ paths:
       - name: page
         required: false
         in: query
-        description: Un numéro de page de l'ensemble des résultats.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - in: query
@@ -1524,7 +1524,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) family.
+        description: A UUID string identifying this family.
         required: true
       tags:
       - students
@@ -1560,7 +1560,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) family.
+        description: A UUID string identifying this family.
         required: true
       tags:
       - students
@@ -1713,7 +1713,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) level.
+        description: A UUID string identifying this level.
         required: true
       tags:
       - organisation
@@ -1747,7 +1747,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) level.
+        description: A UUID string identifying this level.
         required: true
       tags:
       - organisation
@@ -1798,7 +1798,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) level.
+        description: A UUID string identifying this level.
         required: true
       tags:
       - organisation
@@ -2060,7 +2060,7 @@ paths:
       - name: page
         required: false
         in: query
-        description: Un numéro de page de l'ensemble des résultats.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       tags:
@@ -2143,7 +2143,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) role.
+        description: A UUID string identifying this role.
         required: true
       tags:
       - accounts
@@ -2179,7 +2179,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) role.
+        description: A UUID string identifying this role.
         required: true
       tags:
       - accounts
@@ -2232,7 +2232,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) role.
+        description: A UUID string identifying this role.
         required: true
       tags:
       - accounts
@@ -2424,7 +2424,7 @@ paths:
       - name: page
         required: false
         in: query
-        description: Un numéro de page de l'ensemble des résultats.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - in: query
@@ -2525,7 +2525,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) membership.
+        description: A UUID string identifying this membership.
         required: true
       tags:
       - accounts
@@ -2560,7 +2560,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) membership.
+        description: A UUID string identifying this membership.
         required: true
       tags:
       - accounts
@@ -2614,7 +2614,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) membership.
+        description: A UUID string identifying this membership.
         required: true
       tags:
       - accounts
@@ -2656,7 +2656,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) membership.
+        description: A UUID string identifying this membership.
         required: true
       tags:
       - accounts
@@ -2746,7 +2746,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student import.
+        description: A UUID string identifying this student import.
         required: true
       tags:
       - students
@@ -2782,7 +2782,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student import.
+        description: A UUID string identifying this student import.
         required: true
       tags:
       - students
@@ -2841,7 +2841,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student import.
+        description: A UUID string identifying this student import.
         required: true
       tags:
       - students
@@ -2888,12 +2888,12 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student import.
+        description: A UUID string identifying this student import.
         required: true
       - name: page
         required: false
         in: query
-        description: Un numéro de page de l'ensemble des résultats.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - in: query
@@ -2935,7 +2935,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student import.
+        description: A UUID string identifying this student import.
         required: true
       tags:
       - students
@@ -3010,7 +3010,7 @@ paths:
       - name: page
         required: false
         in: query
-        description: Un numéro de page de l'ensemble des résultats.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - in: query
@@ -3124,7 +3124,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        description: A UUID string identifying this student.
         required: true
       tags:
       - students
@@ -3160,7 +3160,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        description: A UUID string identifying this student.
         required: true
       tags:
       - students
@@ -3220,12 +3220,12 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        description: A UUID string identifying this student.
         required: true
       - name: page
         required: false
         in: query
-        description: Un numéro de page de l'ensemble des résultats.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       tags:
@@ -3263,7 +3263,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        description: A UUID string identifying this student.
         required: true
       tags:
       - students
@@ -3300,7 +3300,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        description: A UUID string identifying this student.
         required: true
       tags:
       - students
@@ -3354,7 +3354,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        description: A UUID string identifying this student.
         required: true
       tags:
       - students
@@ -3537,7 +3537,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) track.
+        description: A UUID string identifying this track.
         required: true
       tags:
       - organisation
@@ -3571,7 +3571,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) track.
+        description: A UUID string identifying this track.
         required: true
       tags:
       - organisation
@@ -3622,7 +3622,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) track.
+        description: A UUID string identifying this track.
         required: true
       tags:
       - organisation
@@ -3661,7 +3661,6 @@ components:
         name:
           type: string
           readOnly: true
-          title: Nom
         starts_on:
           type: string
           format: date
@@ -3875,14 +3874,12 @@ components:
           readOnly: true
         last_name:
           type: string
-          title: Nom
           maxLength: 100
         middle_name:
           type: string
           maxLength: 100
         first_name:
           type: string
-          title: Prénom
           maxLength: 100
       required:
       - id
@@ -3955,7 +3952,7 @@ components:
           type: string
           readOnly: true
           nullable: true
-          title: Adresse IP
+          title: IP address
         user_agent:
           type: string
           readOnly: true
@@ -4113,7 +4110,6 @@ components:
           maxLength: 30
         name:
           type: string
-          title: Nom
           maxLength: 200
         primary_color:
           type: string
@@ -4363,14 +4359,12 @@ components:
           maxLength: 60
         last_name:
           type: string
-          title: Nom
           maxLength: 80
         middle_name:
           type: string
           maxLength: 80
         first_name:
           type: string
-          title: Prénom
           maxLength: 80
         class_group_name:
           type: string
@@ -4724,7 +4718,6 @@ components:
           readOnly: true
         name:
           type: string
-          title: Nom
           maxLength: 40
         cycle:
           $ref: '#/components/schemas/CycleEnum'
@@ -4753,7 +4746,6 @@ components:
         name:
           type: string
           minLength: 1
-          title: Nom
           maxLength: 40
         cycle:
           $ref: '#/components/schemas/CycleEnum'
@@ -4984,7 +4976,6 @@ components:
           maxLength: 30
         name:
           type: string
-          title: Nom
           maxLength: 200
         status:
           $ref: '#/components/schemas/SchoolStatusEnum'
@@ -5272,7 +5263,6 @@ components:
       properties:
         name:
           type: string
-          title: Nom
           maxLength: 80
         permissions:
           type: array
@@ -5286,7 +5276,6 @@ components:
         name:
           type: string
           minLength: 1
-          title: Nom
           maxLength: 200
         official_name:
           type: string
@@ -5371,14 +5360,12 @@ components:
         last_name:
           type: string
           minLength: 1
-          title: Nom
           maxLength: 80
         middle_name:
           type: string
           maxLength: 80
         first_name:
           type: string
-          title: Prénom
           maxLength: 80
         sex:
           $ref: '#/components/schemas/SexEnum'
@@ -5429,7 +5416,6 @@ components:
         name:
           type: string
           minLength: 1
-          title: Nom
           maxLength: 80
         code:
           type: string
@@ -5480,14 +5466,12 @@ components:
           readOnly: true
         last_name:
           type: string
-          title: Nom
           maxLength: 100
         middle_name:
           type: string
           maxLength: 100
         first_name:
           type: string
-          title: Prénom
           maxLength: 100
       required:
       - id
@@ -5558,7 +5542,6 @@ components:
           - $ref: '#/components/schemas/BlankEnum'
         name:
           type: string
-          title: Nom
           maxLength: 80
         is_system:
           type: boolean
@@ -5598,7 +5581,6 @@ components:
       properties:
         name:
           type: string
-          title: Nom
           maxLength: 80
         permissions:
           type: array
@@ -5630,7 +5612,6 @@ components:
           - $ref: '#/components/schemas/BlankEnum'
         name:
           type: string
-          title: Nom
           maxLength: 80
       required:
       - id
@@ -5648,7 +5629,6 @@ components:
             the platform only: the old address stops working.'
         name:
           type: string
-          title: Nom
           maxLength: 200
         official_name:
           type: string
@@ -5737,7 +5717,7 @@ components:
           readOnly: true
         is_active:
           type: boolean
-          title: Actif
+          title: Active
         totp:
           allOf:
           - $ref: '#/components/schemas/TotpEnum'
@@ -5815,7 +5795,7 @@ components:
           readOnly: true
         is_active:
           type: boolean
-          title: Actif
+          title: Active
         totp:
           allOf:
           - $ref: '#/components/schemas/TotpEnum'
@@ -5869,14 +5849,12 @@ components:
           maxLength: 16
         last_name:
           type: string
-          title: Nom
           maxLength: 100
         middle_name:
           type: string
           maxLength: 100
         first_name:
           type: string
-          title: Prénom
           maxLength: 100
       required:
       - id
@@ -5911,14 +5889,12 @@ components:
           maxLength: 60
         last_name:
           type: string
-          title: Nom
           maxLength: 80
         middle_name:
           type: string
           maxLength: 80
         first_name:
           type: string
-          title: Prénom
           maxLength: 80
         sex:
           $ref: '#/components/schemas/SexEnum'
@@ -6181,14 +6157,12 @@ components:
           maxLength: 60
         last_name:
           type: string
-          title: Nom
           maxLength: 80
         middle_name:
           type: string
           maxLength: 80
         first_name:
           type: string
-          title: Prénom
           maxLength: 80
         sex:
           $ref: '#/components/schemas/SexEnum'
@@ -6243,14 +6217,12 @@ components:
         last_name:
           type: string
           minLength: 1
-          title: Nom
           maxLength: 80
         middle_name:
           type: string
           maxLength: 80
         first_name:
           type: string
-          title: Prénom
           maxLength: 80
         sex:
           $ref: '#/components/schemas/SexEnum'
@@ -6525,7 +6497,6 @@ components:
           readOnly: true
         name:
           type: string
-          title: Nom
           maxLength: 80
         code:
           type: string
@@ -6541,7 +6512,6 @@ components:
         name:
           type: string
           minLength: 1
-          title: Nom
           maxLength: 80
         code:
           type: string
