@@ -4,24 +4,25 @@
 from pathlib import Path
 
 from django.db.models import Count, Prefetch, Q
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from rest_framework import mixins, status
 from rest_framework.decorators import action
-from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.accounts.roles import STUDENTS_EDIT, STUDENTS_VIEW
+from apps.accounts.roles import STUDENTS_EDIT, STUDENTS_IMPORT, STUDENTS_VIEW
 from apps.accounts.views import SchoolViewSet
 from apps.audit.models import AuditLog
 from apps.core.errors import ApiError, ErrorSerializer
 from apps.schools.organisation import current_year
-from apps.students import services
-from apps.students.models import Enrollment, Family, Guardian, Student
+from apps.students import imports, services
+from apps.students.models import Enrollment, Family, Guardian, Student, StudentImport
 from apps.students.photos import CONTENT_TYPES
 from apps.students.serializers import (
     EnrollmentCreateSerializer,
@@ -30,9 +31,14 @@ from apps.students.serializers import (
     FamilyDetailSerializer,
     FamilyFilterSerializer,
     FamilyWriteSerializer,
+    ImportLineFilterSerializer,
+    ImportLineSerializer,
     PhotoUploadSerializer,
     StudentFilterSerializer,
     StudentHistorySerializer,
+    StudentImportCreateSerializer,
+    StudentImportSerializer,
+    StudentImportUpdateSerializer,
     StudentListSerializer,
     StudentSerializer,
     StudentWriteSerializer,
@@ -346,3 +352,102 @@ class EnrollmentViewSet(StudentsViewSet):
         serializer.is_valid(raise_exception=True)
         services.update_enrollment(enrollment, actor=request.user, **serializer.validated_data)
         return self._enrollment(enrollment)
+
+
+XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+NO_CURRENT_YEAR = _("No current school year: choose one.")
+
+
+def _xlsx(content: bytes, name: str) -> HttpResponse:
+    response = HttpResponse(content, content_type=XLSX)
+    response["Content-Disposition"] = f'attachment; filename="{name}"'
+    return response
+
+
+XLSX_RESPONSE = {(200, XLSX): OpenApiResponse(OpenApiTypes.BINARY, description="Classeur Excel.")}
+
+
+@extend_schema_view(
+    retrieve=extend_schema(responses={200: StudentImportSerializer, **ERRORS}),
+    create=extend_schema(
+        request={"multipart/form-data": StudentImportCreateSerializer},
+        responses={201: StudentImportSerializer, **WRITE_ERRORS},
+    ),
+    partial_update=extend_schema(
+        request=StudentImportUpdateSerializer,
+        responses={200: StudentImportSerializer, **WRITE_ERRORS},
+    ),
+)
+@extend_schema(tags=["students"])
+class StudentImportViewSet(mixins.RetrieveModelMixin, SchoolViewSet):
+    """Import d'une liste d'élèves (D1) : envoi du fichier (vérifié aussitôt, rien n'est créé),
+    colonnes et classes choisies à la main, lignes vérifiées, puis import en tâche de fond."""
+
+    required_permission = STUDENTS_IMPORT
+    http_method_names = ["get", "post", "patch", "head", "options"]
+    serializer_class = StudentImportSerializer
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return StudentImport.all_schools.none()
+        queryset = StudentImport.objects.all()
+        # Les lignes du fichier ne servent qu'à vérifier de nouveau et au rapport.
+        if self.action in {"retrieve", "lines", "confirm"}:
+            queryset = queryset.defer("rows")
+        return queryset
+
+    def create(self, request: Request) -> Response:
+        serializer = StudentImportCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        year = serializer.validated_data.get("academic_year") or current_year()
+        if year is None:
+            raise ValidationError({"academic_year": [NO_CURRENT_YEAR]})
+        imp = imports.create_import(
+            actor=request.user, file=serializer.validated_data["file"], academic_year=year
+        )
+        return Response(StudentImportSerializer(imp).data, status=status.HTTP_201_CREATED)
+
+    def partial_update(self, request: Request, pk=None) -> Response:
+        imp = self.get_object()
+        serializer = StudentImportUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        imp = imports.update_import(imp, **serializer.validated_data)
+        return Response(StudentImportSerializer(imp).data)
+
+    @extend_schema(
+        parameters=[ImportLineFilterSerializer],
+        responses={200: ImportLineSerializer(many=True), **ERRORS},
+    )
+    @action(detail=True)
+    def lines(self, request: Request, pk=None) -> Response:
+        """Lignes vérifiées, dans l'ordre du fichier (aperçu)."""
+        imp = self.get_object()
+        filters = ImportLineFilterSerializer(data=request.query_params)
+        filters.is_valid(raise_exception=True)
+        lines = imp.report.get("lines", [])
+        if filters.validated_data["problems"]:
+            lines = [line for line in lines if line["status"] != "ready"]
+        page = self.paginate_queryset(lines)
+        return self.get_paginated_response(ImportLineSerializer(page, many=True).data)
+
+    @extend_schema(request=None, responses={202: StudentImportSerializer, **WRITE_ERRORS})
+    @action(detail=True, methods=["post"])
+    def confirm(self, request: Request, pk=None) -> Response:
+        """Importe les lignes prêtes et en avertissement, en tâche de fond : suivre `status`."""
+        imp = imports.confirm(self.get_object(), actor=request.user)
+        imp.refresh_from_db()
+        return Response(StudentImportSerializer(imp).data, status=status.HTTP_202_ACCEPTED)
+
+    @extend_schema(responses={**XLSX_RESPONSE, **ERRORS})
+    @action(detail=True)
+    def report(self, request: Request, pk=None) -> HttpResponse:
+        """Lignes à reprendre, avec les colonnes du fichier et leurs problèmes."""
+        imp = self.get_object()
+        return _xlsx(imports.report_workbook(imp), f"{_('import-report')}.xlsx")
+
+    @extend_schema(responses={**XLSX_RESPONSE, **ERRORS})
+    @action(detail=False)
+    def template(self, request: Request) -> HttpResponse:
+        """Modèle à remplir : une colonne par champ, titres reconnus à l'import."""
+        return _xlsx(imports.template_workbook(), f"{_('students-template')}.xlsx")

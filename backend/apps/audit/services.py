@@ -57,6 +57,31 @@ def record(
     l'action (par défaut `str(entity)`). `before` / `after` : seulement ce qui a changé
     (`changes`), sans aucun secret. `impersonated_by` : par défaut, le super-admin de la session
     support ouverte dans cette école (jamais dans le journal d'une autre)."""
+    entry = _entry(
+        action,
+        entity,
+        actor=actor,
+        before=before,
+        after=after,
+        label=label,
+        impersonated_by=impersonated_by,
+    )
+    entry.save()
+    return entry
+
+
+def record_many(action: str, entries: list[tuple[models.Model, dict]], *, actor) -> None:
+    """Une entrée `(objet, après)` par objet, écrites d'un seul envoi (import de centaines
+    d'élèves) ; mêmes règles que `record`."""
+    AuditLog.objects.bulk_create(
+        [_entry(action, entity, actor=actor, after=after) for entity, after in entries],
+        batch_size=500,
+    )
+
+
+def _entry(
+    action, entity, *, actor, before=None, after=None, label=None, impersonated_by=_FROM_REQUEST
+) -> AuditLog:
     if action not in Action.values:
         raise ValueError(f"Action inconnue du journal d'audit : {action!r} (apps/audit/actions.py)")
     _refuse_secrets(before)
@@ -68,7 +93,7 @@ def record(
         school = get_current_school()
         in_support = school is not None and info.support_school_id == school.pk
         impersonated_by = info.impersonated_by if in_support else None
-    return AuditLog.objects.create(
+    return AuditLog(
         action=action,
         actor=actor,
         impersonated_by=impersonated_by,

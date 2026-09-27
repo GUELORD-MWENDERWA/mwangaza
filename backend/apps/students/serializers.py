@@ -5,7 +5,8 @@ from rest_framework import serializers
 from apps.accounts.serializers import PhoneField
 from apps.audit.serializers import AuditLogSerializer
 from apps.schools.models import AcademicYear, ClassGroup, Track
-from apps.students.models import Enrollment, Family, Guardian, Student
+from apps.students import imports
+from apps.students.models import Enrollment, Family, Guardian, Student, StudentImport
 from apps.students.photos import validate_photo
 
 
@@ -268,4 +269,125 @@ class StudentFilterSerializer(serializers.Serializer):
         required=False,
         help_text="Cette année : inscrit et présent, inscrit puis parti (transfert, abandon, "
         "exclusion, fin d'études) ou pas inscrit. Absent : tous.",
+    )
+
+
+# Import d'une liste d'élèves (D1)
+
+
+class ImportMappingSerializer(serializers.Serializer):
+    """Champ de l'élève → numéro de la colonne du fichier (à partir de 0), ou `null`."""
+
+    last_name = serializers.IntegerField(min_value=0, allow_null=True, required=False)
+    middle_name = serializers.IntegerField(min_value=0, allow_null=True, required=False)
+    first_name = serializers.IntegerField(min_value=0, allow_null=True, required=False)
+    sex = serializers.IntegerField(min_value=0, allow_null=True, required=False)
+    birth_date = serializers.IntegerField(min_value=0, allow_null=True, required=False)
+    birth_place = serializers.IntegerField(min_value=0, allow_null=True, required=False)
+    class_name = serializers.IntegerField(min_value=0, allow_null=True, required=False)
+    matricule = serializers.IntegerField(min_value=0, allow_null=True, required=False)
+    guardian_name = serializers.IntegerField(min_value=0, allow_null=True, required=False)
+    guardian_phone = serializers.IntegerField(min_value=0, allow_null=True, required=False)
+
+
+class ImportCountsSerializer(serializers.Serializer):
+    rows = serializers.IntegerField()
+    ready = serializers.IntegerField()
+    warning = serializers.IntegerField(help_text="Importées, à vérifier.")
+    error = serializers.IntegerField(help_text="Pas importées.")
+
+
+class ImportClassSerializer(serializers.Serializer):
+    label = serializers.CharField(help_text="Classe écrite dans le fichier.")
+    class_group = serializers.UUIDField(allow_null=True, help_text="Classe de l'année ou `null`.")
+    chosen = serializers.BooleanField(help_text="Choisie à la main.")
+    rows = serializers.IntegerField()
+
+
+class StudentImportSerializer(serializers.ModelSerializer):
+    mapping = ImportMappingSerializer()
+    class_mapping = serializers.DictField(child=serializers.UUIDField())
+    counts = ImportCountsSerializer(source="report.counts")
+    missing_fields = serializers.ListField(
+        child=serializers.ChoiceField(choices=imports.FIELDS),
+        source="report.missing_fields",
+        help_text="Champs obligatoires sans colonne.",
+    )
+    classes = ImportClassSerializer(many=True, source="report.classes")
+    importable_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StudentImport
+        fields = [
+            "id",
+            "academic_year",
+            "file_name",
+            "sheet_name",
+            "headers",
+            "mapping",
+            "class_mapping",
+            "status",
+            "counts",
+            "missing_fields",
+            "classes",
+            "importable_count",
+            "created_count",
+            "created_at",
+            "finished_at",
+        ]
+        read_only_fields = fields
+
+    @extend_schema_field(serializers.IntegerField())
+    def get_importable_count(self, imp: StudentImport) -> int:
+        return imports.importable_count(imp)
+
+
+class StudentImportCreateSerializer(serializers.Serializer):
+    file = serializers.FileField(help_text="Excel (.xlsx) ou CSV, 5 Mo au plus.")
+    academic_year = serializers.PrimaryKeyRelatedField(
+        queryset=AcademicYear.objects,
+        required=False,
+        help_text="Année des classes du fichier ; l'année en cours si absente.",
+    )
+
+
+class StudentImportUpdateSerializer(serializers.Serializer):
+    mapping = ImportMappingSerializer(required=False)
+    class_mapping = serializers.DictField(
+        child=serializers.CharField(allow_blank=True, allow_null=True),
+        required=False,
+        help_text="Classe du fichier → identifiant d'une classe de l'année (vide : automatique).",
+    )
+
+
+class ImportIssueSerializer(serializers.Serializer):
+    code = serializers.CharField(
+        help_text="Problème (`imports.ISSUES`) : `invalid_date`, `unknown_class`…"
+    )
+    line = serializers.IntegerField(required=False, help_text="Autre ligne concernée.")
+
+
+class ImportValuesSerializer(serializers.Serializer):
+    last_name = serializers.CharField()
+    middle_name = serializers.CharField()
+    first_name = serializers.CharField()
+    sex = serializers.CharField()
+    birth_date = serializers.CharField()
+    birth_place = serializers.CharField()
+    class_name = serializers.CharField()
+    matricule = serializers.CharField()
+    guardian_name = serializers.CharField()
+    guardian_phone = serializers.CharField()
+
+
+class ImportLineSerializer(serializers.Serializer):
+    line = serializers.IntegerField(help_text="Numéro de la ligne dans le fichier.")
+    status = serializers.ChoiceField(choices=["ready", "warning", "error"])
+    issues = ImportIssueSerializer(many=True)
+    values = ImportValuesSerializer(help_text="Valeurs du fichier, telles quelles.")
+
+
+class ImportLineFilterSerializer(serializers.Serializer):
+    problems = serializers.BooleanField(
+        required=False, default=False, help_text="Seulement les erreurs et les avertissements."
     )

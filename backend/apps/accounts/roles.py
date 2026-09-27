@@ -44,6 +44,7 @@ AUDIT_VIEW = "audit.view"
 # Élèves, familles et inscriptions (D2-D4) : lire, puis créer et modifier.
 STUDENTS_VIEW = "students.view"
 STUDENTS_EDIT = "students.edit"
+STUDENTS_IMPORT = "students.import"
 
 # Double authentification obligatoire (B4) pour un compte qui a l'un de ces droits dans une école :
 # l'argent, les réglages, les comptes, le journal d'audit. Par défaut : directeur, comptable,

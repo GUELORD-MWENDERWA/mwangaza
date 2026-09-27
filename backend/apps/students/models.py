@@ -193,3 +193,43 @@ class MatriculeSequence(TenantModel):
 
     def __str__(self) -> str:
         return f"{self.academic_year} : {self.last_number}"
+
+
+class StudentImport(TenantModel):
+    """Import d'une liste d'élèves depuis Excel ou CSV (D1) [T].
+
+    Le fichier n'est pas gardé : ses lignes (`rows`) le sont jusqu'à la fin de l'import, puis
+    seules restent celles qui n'ont pas été importées, dans le rapport (`imports.py`)."""
+
+    class Status(models.TextChoices):
+        ANALYSED = "analysed", _("Checked")
+        IMPORTING = "importing", _("Importing")
+        DONE = "done", _("Imported")
+        FAILED = "failed", _("Failed")
+
+    academic_year = models.ForeignKey(
+        AcademicYear, on_delete=models.CASCADE, related_name="+", verbose_name=_("school year")
+    )
+    file_name = models.CharField(_("file name"), max_length=255)
+    sheet_name = models.CharField(_("sheet"), max_length=100, blank=True)
+    # Titres des colonnes, puis `[numéro de ligne dans le fichier, [cellules en texte]]`.
+    headers = models.JSONField(_("column titles"), default=list, blank=True)
+    rows = models.JSONField(_("rows"), default=list, blank=True)
+    # Champ de l'élève → numéro de la colonne ; classe du fichier → classe choisie à la main.
+    mapping = models.JSONField(_("column mapping"), default=dict, blank=True)
+    class_mapping = models.JSONField(_("class mapping"), default=dict, blank=True)
+    status = models.CharField(
+        _("status"), max_length=10, choices=Status.choices, default=Status.ANALYSED
+    )
+    # Totaux, classes du fichier et état de chaque ligne (erreurs, avertissements).
+    report = models.JSONField(_("report"), default=dict, blank=True)
+    created_count = models.PositiveIntegerField(_("students created"), default=0)
+    finished_at = models.DateTimeField(_("finished at"), null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("student import")
+        verbose_name_plural = _("student imports")
+
+    def __str__(self) -> str:
+        return self.file_name
