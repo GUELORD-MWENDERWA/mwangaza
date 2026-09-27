@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db.models import Count, Q
 from django.http import FileResponse, HttpRequest, HttpResponse, JsonResponse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_GET
@@ -364,7 +365,10 @@ class ClassGroupViewSet(_CrudViewSet):
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return ClassGroup.all_schools.none()
-        queryset = ClassGroup.objects.select_related("level", "track", "homeroom_teacher")
+        active = Q(enrollments__status="active")
+        queryset = ClassGroup.objects.select_related("level", "track", "homeroom_teacher").annotate(
+            student_count=Count("enrollments", filter=active)
+        )
         if self.action == "list":
             params = ClassGroupFilterSerializer(data=self.request.query_params)
             params.is_valid(raise_exception=True)

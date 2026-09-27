@@ -41,6 +41,9 @@ CLASSES_MANAGE = "classes.manage"
 ROLES_MANAGE = "roles.manage"
 # Lire le journal d'audit de l'école (M6).
 AUDIT_VIEW = "audit.view"
+# Élèves, familles et inscriptions (D2-D4) : lire, puis créer et modifier.
+STUDENTS_VIEW = "students.view"
+STUDENTS_EDIT = "students.edit"
 
 # Double authentification obligatoire (B4) pour un compte qui a l'un de ces droits dans une école :
 # l'argent, les réglages, les comptes, le journal d'audit. Par défaut : directeur, comptable,

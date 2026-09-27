@@ -22,7 +22,7 @@ Lire `docs/06-suivi.md` (état actuel, tâche en cours, bloquants) avant toute a
 
 École pilote : `docs/ecole-pilote/fiche-itig.md` (ce qu'on sait), `depot/` (l'utilisateur y dépose ses fichiers, hors Git), `documents/` (rangés, sans données personnelles), `prive/` (données personnelles, hors Git).
 
-Espace de travail de Claude : `docs/claude/` — `plans/` (plan de chaque tâche avant de coder), `recherches/` (notes avec sources), `revues/` (résultat de `/verifier`).
+Espace de travail de Claude : `docs/claude/` — `plans/` (plan de chaque tâche avant de coder), `recherches/` (notes avec sources), `revues/` (anciennes revues, jusqu'à la 1.7 ; le résultat de `/verifier` va maintenant dans la PR).
 
 GitHub (dépôt privé `GUELORD-MWENDERWA/mwangaza`) : un jalon par version (V1.0, V1.1, V1.2, V2), une issue par tâche titrée « <numéro> — … » ; la PR de la tâche contient `Closes #<n>`. Règles des PR : section « Travail avec GitHub ».
 
@@ -99,7 +99,7 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 | `make stop` | arrêter les conteneurs |
 | `make reset-db` | efface la base de développement de Docker (et celle des tests : `down --volumes`), puis `make migrate demo` ; pour une base qu'une migration ne peut plus suivre (`InconsistentMigrationHistory`, ex. nouveau modèle de compte en 1.2) |
 | `make migrate` · `make makemigrations app=<app> name=<nom>` | migrations |
-| `make demo` | crée ou remet à jour les données fictives (`apps/core/management/commands/demo.py`) : écoles `itig` et `volcans`, un compte par rôle (`apps/accounts/demo.py` : téléphones `0000001001`…, super-admin `0000000000`, mot de passe `mwangaza-demo` ; double authentification activée avec une clé commune pour les comptes qui l'exigent, super-admin compris, sauf le promoteur de l'ITIG) ; remet les écoles de démonstration comme au départ (couleur, abonnement, pas suspendues, logo public de l'ITIG) et leur organisation scolaire (année 2026-2027 en cours, découpage, niveaux, options, classes, format du matricule) ; débloque les essais ratés ; refusé hors `DEBUG` |
+| `make demo` | crée ou remet à jour les données fictives (`apps/core/management/commands/demo.py`) : écoles `itig` et `volcans`, un compte par rôle (`apps/accounts/demo.py` : téléphones `0000001001`…, super-admin `0000000000`, mot de passe `mwangaza-demo` ; double authentification activée avec une clé commune pour les comptes qui l'exigent, super-admin compris, sauf le promoteur de l'ITIG) ; remet les écoles de démonstration comme au départ (couleur, abonnement, pas suspendues, logo public de l'ITIG) et leur organisation scolaire (année 2026-2027 en cours, découpage, niveaux, options, classes, format du matricule) ; élèves (800 à l'ITIG, 150 aux Volcans, avec familles et inscriptions ; créés une seule fois par école) ; débloque les essais ratés ; refusé hors `DEBUG` |
 | `make totp` · `make totp key=<clé>` | code de double authentification du moment : comptes de `make demo`, ou clé donnée par `/api/auth/totp/setup/` ; refusé hors `DEBUG` |
 | `make test` · `make test-back` · `make test-front` | pytest ; vérification des types puis Vitest (`*.test.ts` : logique, dans Node ; `*.test.tsx` : écrans, navigateur simulé jsdom avec Testing Library ; appareil en UTC), dans `frontend/apps` et `frontend/packages` |
 | `make test-e2e` | parcours dans Chromium (Playwright, `frontend/e2e/`) : Django + Gestion aux adresses des écoles, données remises à zéro par `make demo` ; réutilise des serveurs déjà lancés (`make dev-local`) ; une fois avant : `cd frontend && pnpm exec playwright install chromium` |
@@ -111,7 +111,7 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 | `make superuser` · `make shell` | compte super-admin ; console Django |
 | `python3 maquettes/outils/maquettes.py menu` · `… index` · `node maquettes/outils/captures.mjs` | maquettes : menu latéral commun, galerie `index.html`, captures PNG (sans dépendance, Chrome de la machine) |
 
-Adresses en dev : Gestion `http://itig.localhost:5173/app/` (le sous-domaine = code de l'école ; `…/api/school/` renvoie l'école ; écrans : `/app/login` et ses étapes `…/code`, `…/new-password`, `…/two-factor`, `/app/account`, `/app/schools`, `/app/support`, une adresse par entrée du menu ; service worker seulement après `make build`, essai avec `cd frontend/apps/gestion && pnpm preview` sur le port 4173), Portail `http://localhost:5174/`, API `/api/…` via le proxy Vite (`/api/me/`, `/api/roles/`, `/api/staff/`, `/api/audit/`, `/api/school/settings/`, `/api/support/`, `/api/academic-years/`, `/api/levels/`, `/api/tracks/`, `/api/class-groups/`, `/api/matricule-format/`), doc de l'API `/api/docs/` (seulement en `DEBUG`) ; administration Django `http://localhost:8000/admin/` (super-admin : mot de passe puis code de `make totp`) ; connexion en étapes `/api/auth/login/` (utilisable dans l'API navigable), puis `…/login/totp/`, `…/password/`, `…/totp/setup/` et `…/totp/activate/` selon l'étape renvoyée. Réglages Django : `config.settings.dev` (défaut de `manage.py`), `test` (pytest), `prod` (wsgi/asgi, refuse de démarrer sans `DJANGO_SECRET_KEY`).
+Adresses en dev : Gestion `http://itig.localhost:5173/app/` (le sous-domaine = code de l'école ; `…/api/school/` renvoie l'école ; écrans : `/app/login` et ses étapes `…/code`, `…/new-password`, `…/two-factor`, `/app/account`, `/app/schools`, `/app/support`, une adresse par entrée du menu ; service worker seulement après `make build`, essai avec `cd frontend/apps/gestion && pnpm preview` sur le port 4173), Portail `http://localhost:5174/`, API `/api/…` via le proxy Vite (`/api/me/`, `/api/roles/`, `/api/staff/`, `/api/audit/`, `/api/school/settings/`, `/api/support/`, `/api/academic-years/`, `/api/levels/`, `/api/tracks/`, `/api/class-groups/`, `/api/matricule-format/`, `/api/students/`, `/api/families/`, `/api/enrollments/`), doc de l'API `/api/docs/` (seulement en `DEBUG`) ; administration Django `http://localhost:8000/admin/` (super-admin : mot de passe puis code de `make totp`) ; connexion en étapes `/api/auth/login/` (utilisable dans l'API navigable), puis `…/login/totp/`, `…/password/`, `…/totp/setup/` et `…/totp/activate/` selon l'étape renvoyée. Réglages Django : `config.settings.dev` (défaut de `manage.py`), `test` (pytest), `prod` (wsgi/asgi, refuse de démarrer sans `DJANGO_SECRET_KEY`).
 
 ## Façon de travailler
 
@@ -119,6 +119,18 @@ Adresses en dev : Gestion `http://itig.localhost:5173/app/` (le sous-domaine = c
 - Avant de coder une fonction, relire la section correspondante du cahier des charges et du modèle de données.
 - Après chaque tâche : cocher la case dans `docs/05-plan-de-travail.md` et noter toute décision nouvelle dans la section « Journal des décisions » de `docs/03-architecture-technique.md`.
 - En cas de doute sur une règle scolaire RDC (bulletins, délibération, frais), demander plutôt que supposer.
+
+## Économie de tokens (obligatoire)
+
+Le quota de tokens est limité et 23 tâches restent avant la V1.0 : une tâche doit tenir dans une conversation. La qualité ne baisse pas : les 9 règles non négociables, pas de requêtes N+1, listes paginées, pas de code bâclé ; une tâche = une branche = une PR (base `main`), Actions vert, l'utilisateur fusionne.
+
+- **Tests peu nombreux, utiles, réalistes.** Écrire : isolation entre écoles, permissions, argent, audit, vraies règles métier ; Playwright seulement pour un chemin critique (connexion, caisse, hors-ligne). Ne pas écrire : ce que Django, DRF ou React garantissent déjà, les variantes presque identiques, les libellés ou la mise en page, les cas irréalistes. Dans un fichier de tests ouvert pour la tâche, supprimer ou fusionner les tests redondants (pas de grand nettoyage à part) ; **ne jamais supprimer** un test d'isolation, de permission, d'argent ou d'audit. Erreurs glissées exprès seulement pour l'argent, l'isolation et le hors-ligne.
+- **Lancer peu.** Pendant le travail : les tests du module touché, depuis la racine — `set -a && . ./.env && set +a && cd backend && uv run pytest apps/<app> -q | tail -3` (variables de `.env`, que `make` charge d'habitude) ; `cd frontend && pnpm exec vitest run apps/gestion/src/features/<dossier> | tail -5` (depuis `frontend/` : sa configuration). Suite complète une seule fois à la fin, puis la CI.
+- **Vérifier peu.** Nouvel écran : une seule capture, à 390 px. Pas de rejeu des étapes « À tester toi-même ».
+- **Documents courts.** Plan (`docs/claude/plans/`) : 20 lignes maximum. Suivi : voir « Suivi du projet ». `03` seulement pour une vraie décision, `A-FAIRE.md` seulement si l'utilisateur a une action à faire, `CLAUDE.md` et les skills seulement si une commande change. Pas de fichier dans `docs/claude/revues/` : le résultat de `/verifier` tient en quelques lignes dans la PR. Description de PR et message de fin courts : ce qui change, « À valider », « À tester toi-même » (3 à 5 étapes), « Après la fusion ».
+- **Lire peu.** Seulement les passages utiles (`grep -n`, `sed -n a,bp`), pas un fichier entier déjà connu ; ne pas relire un fichier qu'on vient de modifier ; filtrer les sorties longues (`tail`, `grep`). Pas de sous-agents sauf demande de l'utilisateur.
+- **Taille.** Une tâche qui dépasse à peu près un module serveur ou deux écrans : proposer de la découper dans `05` avant de coder.
+- **Une conversation par tâche.** Claude ne peut pas taper `/clear` ni `/compact` : à la fin d'une tâche, dire « Fusionne la PR, puis tape /clear et /tache X.Y » ; si la conversation devient longue en cours de tâche, dire « Tape /compact » juste après un commit. Tâche simple (écrans de saisie, documents) : rappeler que `/model` permet de passer à Sonnet.
 
 ## Travail avec GitHub
 
@@ -131,11 +143,11 @@ Rôles : **Claude est le développeur** (code, teste, ouvre les PR). **L'utilisa
 5. **GitHub Actions vert avant de donner la PR** (`gh pr checks <n> --watch`). Rouge : corriger d'abord, dans la même PR.
 6. **Description de la PR**, en français simple : ce qui change et pourquoi (sans jargon inutile), les tests, puis trois sections courtes :
    - **« À valider »** : les décisions ou propositions que l'utilisateur accepte en fusionnant, avec où les lire ; ou « Rien ».
-   - **« À tester toi-même »** : les commandes exactes et les pages à ouvrir (adresses complètes), avec le résultat attendu pour chacune. Si rien n'est visible, le dire.
+   - **« À tester toi-même »** : 3 à 5 étapes, commandes exactes et pages à ouvrir (adresses complètes), avec le résultat attendu pour chacune. Si rien n'est visible, le dire.
    - **« Après la fusion »** : ce qu'il faut taper (ex. `git switch main && git pull && make install`) et la prochaine tâche.
 
    Puis `Closes #<n>`. Modèle : skill `tache`, étape 5.
-7. **Message de fin dans le terminal** : il reprend ces trois sections, sans détails techniques inutiles, puis la ligne `📍`.
+7. **Message de fin dans le terminal** : il reprend ces trois sections, sans détails techniques inutiles, puis « Fusionne la PR, puis tape /clear et /tache X.Y » et la ligne `📍`.
 
 Côté utilisateur, la marche à suivre est dans `A-FAIRE.md` § 10 « Comment relire et fusionner une PR ».
 
@@ -148,10 +160,10 @@ On travaille avec des données **fictives et réalistes** : `make demo` recrée 
 Chaque étape doit être notée pour savoir à tout moment où en est le projet.
 
 - **Début d'une tâche** : dans `docs/06-suivi.md`, mettre à jour « État actuel » (tâche en cours, branche).
-- **Fin d'une tâche** : cocher dans `docs/05-plan-de-travail.md`, mettre à jour « État actuel » et « Avancement », ajouter une entrée datée au « Journal » (fait, tests, décisions, reste à faire).
+- **Fin d'une tâche** : cocher dans `docs/05-plan-de-travail.md` ; dans `06`, « État actuel », le compteur du bloc dans « Avancement » et une entrée datée de 3 à 5 lignes au « Journal » (fait, tests, décisions, suite).
 - **Tout autre événement** (document reçu de l'ITIG, décision, blocage levé, question tranchée) : entrée datée au « Journal ».
 - **Décision technique** : aussi dans le « Journal des décisions » de `docs/03-architecture-technique.md`.
-- **Action qui attend l'utilisateur** (installer, fusionner une PR, demander à l'ITIG, acheter, créer un compte) ou **nouvelle commande** : mettre à jour `A-FAIRE.md` (ce qu'il doit faire, comment, avec quelles commandes ; cocher ce qui est fait). Le signaler dans la réponse.
+- **Action qui attend l'utilisateur** (installer, fusionner une PR, demander à l'ITIG, acheter, créer un compte) ou **commande nouvelle ou changée** : mettre à jour `A-FAIRE.md` (ce qu'il doit faire, comment, avec quelles commandes ; cocher ce qui est fait). Le signaler dans la réponse.
 - Terminer chaque réponse de travail par une ligne d'état : `📍 Tâche X.Y — étape — prochaine action`.
 
 ## Skills du projet (`.claude/skills/`)

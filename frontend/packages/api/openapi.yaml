@@ -363,6 +363,12 @@ paths:
           - organisation.class_updated
           - organisation.class_deleted
           - organisation.matricule_format_changed
+          - students.family_created
+          - students.family_updated
+          - students.student_created
+          - students.student_updated
+          - students.enrolled
+          - students.enrollment_updated
           - support.started
           - support.ended
           type: string
@@ -409,6 +415,12 @@ paths:
           * `organisation.class_updated` - Class changed
           * `organisation.class_deleted` - Class deleted
           * `organisation.matricule_format_changed` - Student number format changed
+          * `students.family_created` - Family created
+          * `students.family_updated` - Family changed
+          * `students.student_created` - Student created
+          * `students.student_updated` - Student changed
+          * `students.enrolled` - Student enrolled
+          * `students.enrollment_updated` - Enrollment changed
           * `support.started` - Support session opened
           * `support.ended` - Support session closed
       - in: query
@@ -427,6 +439,7 @@ paths:
           - roles
           - school
           - staff
+          - students
           - support
           type: string
           minLength: 1
@@ -437,6 +450,7 @@ paths:
           * `roles` - roles
           * `school` - school
           * `staff` - staff
+          * `students` - students
           * `support` - support
       - in: query
         name: entity
@@ -1281,6 +1295,302 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Person'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/enrollments/:
+    post:
+      operationId: enrollments_create
+      description: 'Même `id` renvoyé : 200 avec l''inscription déjà créée.'
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollmentCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EnrollmentCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EnrollmentCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+          description: ''
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/enrollments/{id}/:
+    patch:
+      operationId: enrollments_partial_update
+      description: |-
+        Inscriptions (D3) : inscrire un élève dans une classe (matricule donné à la première),
+        changer de classe dans l'année, noter un départ.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) enrollment.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEnrollmentUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEnrollmentUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEnrollmentUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/families/:
+    get:
+      operationId: families_list
+      description: |-
+        Familles et tuteurs (D4) : recherche pour relier un élève, création, tuteurs remplacés
+        d'un seul envoi.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Un numéro de page de l'ensemble des résultats.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description: Code famille, nom ou téléphone d'un tuteur.
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFamilyList'
+          description: ''
+    post:
+      operationId: families_create
+      description: |-
+        Familles et tuteurs (D4) : recherche pour relier un élève, création, tuteurs remplacés
+        d'un seul envoi.
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FamilyWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FamilyWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FamilyWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Family'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/families/{id}/:
+    get:
+      operationId: families_retrieve
+      description: |-
+        Familles et tuteurs (D4) : recherche pour relier un élève, création, tuteurs remplacés
+        d'un seul envoi.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) family.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Family'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: families_partial_update
+      description: |-
+        Familles et tuteurs (D4) : recherche pour relier un élève, création, tuteurs remplacés
+        d'un seul envoi.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) family.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedFamilyWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedFamilyWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedFamilyWriteRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Family'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
         '403':
           content:
@@ -2373,6 +2683,206 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/students/:
+    get:
+      operationId: students_list
+      description: 'Élèves de l''école (D2) : liste paginée avec recherche, fiche,
+        création, modification.'
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: Année de l'inscription affichée (par défaut l'année en cours).
+      - in: query
+        name: class_group
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: enrolled
+        schema:
+          type: boolean
+          nullable: true
+        description: Inscrit ou non cette année.
+      - name: page
+        required: false
+        in: query
+        description: Un numéro de page de l'ensemble des résultats.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description: Noms, matricule ou code famille.
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStudentListList'
+          description: ''
+    post:
+      operationId: students_create
+      description: |-
+        Élève avec une famille existante (`family`) ou nouvelle (`guardians`). Même nom et
+        même date de naissance qu'un autre élève : 409 `possible_duplicate`, à renvoyer avec
+        `allow_duplicate` après confirmation. Même `id` renvoyé : 200 avec l'élève déjà créé.
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/students/{id}/:
+    get:
+      operationId: students_retrieve
+      description: 'Élèves de l''école (D2) : liste paginée avec recherche, fiche,
+        création, modification.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: students_partial_update
+      description: 'Élèves de l''école (D2) : liste paginée avec recherche, fiche,
+        création, modification.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentWriteRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/support/:
     get:
       operationId: support_retrieve
@@ -2762,6 +3272,12 @@ components:
       - organisation.class_updated
       - organisation.class_deleted
       - organisation.matricule_format_changed
+      - students.family_created
+      - students.family_updated
+      - students.student_created
+      - students.student_updated
+      - students.enrolled
+      - students.enrollment_updated
       - support.started
       - support.ended
       type: string
@@ -2807,8 +3323,49 @@ components:
         * `organisation.class_updated` - Class changed
         * `organisation.class_deleted` - Class deleted
         * `organisation.matricule_format_changed` - Student number format changed
+        * `students.family_created` - Family created
+        * `students.family_updated` - Family changed
+        * `students.student_created` - Student created
+        * `students.student_updated` - Student changed
+        * `students.enrolled` - Student enrolled
+        * `students.enrollment_updated` - Enrollment changed
         * `support.started` - Support session opened
         * `support.ended` - Support session closed
+    Address:
+      type: object
+      properties:
+        commune:
+          type: string
+          maxLength: 80
+        quartier:
+          type: string
+          maxLength: 80
+        avenue:
+          type: string
+          maxLength: 120
+        number:
+          type: string
+          maxLength: 20
+      required:
+      - commune
+      - quartier
+      - avenue
+      - number
+    AddressRequest:
+      type: object
+      properties:
+        commune:
+          type: string
+          maxLength: 80
+        quartier:
+          type: string
+          maxLength: 80
+        avenue:
+          type: string
+          maxLength: 120
+        number:
+          type: string
+          maxLength: 20
     AuditActor:
       type: object
       properties:
@@ -2953,6 +3510,10 @@ components:
           type: integer
           readOnly: true
           nullable: true
+        student_count:
+          type: integer
+          readOnly: true
+          description: Élèves inscrits et actifs (effectif).
         homeroom_teacher:
           allOf:
           - $ref: '#/components/schemas/Person'
@@ -2966,6 +3527,7 @@ components:
       - section
       - name
       - capacity
+      - student_count
       - homeroom_teacher
     ClassGroupCreateRequest:
       type: object
@@ -3124,8 +3686,85 @@ components:
       - roles
       - school
       - staff
+      - students
       - support
       type: string
+    Enrollment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        student:
+          type: string
+          format: uuid
+        academic_year:
+          type: string
+          format: uuid
+          title: School year
+        academic_year_name:
+          type: string
+          readOnly: true
+        class_group:
+          type: string
+          format: uuid
+          title: Class
+        class_group_name:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/EnrollmentStatusEnum'
+        enrolled_on:
+          type: string
+          format: date
+        left_on:
+          type: string
+          format: date
+          nullable: true
+      required:
+      - id
+      - student
+      - academic_year
+      - academic_year_name
+      - class_group
+      - class_group_name
+      - status
+      - enrolled_on
+      - left_on
+    EnrollmentCreateRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID v7 donné par l'appareil.
+        student:
+          type: string
+          format: uuid
+        class_group:
+          type: string
+          format: uuid
+        enrolled_on:
+          type: string
+          format: date
+      required:
+      - class_group
+      - student
+    EnrollmentStatusEnum:
+      enum:
+      - active
+      - transferred
+      - dropped
+      - excluded
+      - graduated
+      type: string
+      description: |-
+        * `active` - Active
+        * `transferred` - Transferred
+        * `dropped` - Dropped out
+        * `excluded` - Excluded
+        * `graduated` - Graduated
     Error:
       type: object
       properties:
@@ -3145,6 +3784,44 @@ components:
       required:
       - code
       - detail
+    Family:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Family code
+          maxLength: 8
+        guardians:
+          type: array
+          items:
+            $ref: '#/components/schemas/Guardian'
+          readOnly: true
+        student_count:
+          type: integer
+          readOnly: true
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - code
+      - guardians
+      - student_count
+      - activated_at
+    FamilyWriteRequest:
+      type: object
+      properties:
+        guardians:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuardianRequest'
+      required:
+      - guardians
     FieldError:
       type: object
       properties:
@@ -3156,6 +3833,72 @@ components:
       required:
       - code
       - detail
+    Guardian:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+          maxLength: 150
+        relationship:
+          $ref: '#/components/schemas/RelationshipEnum'
+        phone:
+          type: string
+          description: Ex. 0971234567.
+        email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        is_primary:
+          type: boolean
+          title: Main contact
+        is_emergency_contact:
+          type: boolean
+          title: Emergency contact
+      required:
+      - id
+      - full_name
+      - relationship
+      - phone
+      - email
+      - is_primary
+      - is_emergency_contact
+    GuardianRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        relationship:
+          $ref: '#/components/schemas/RelationshipEnum'
+        phone:
+          type: string
+          description: Ex. 0971234567.
+        email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        is_primary:
+          type: boolean
+          title: Main contact
+        is_emergency_contact:
+          type: boolean
+          title: Emergency contact
+      required:
+      - full_name
+      - relationship
     Health:
       type: object
       properties:
@@ -3467,6 +4210,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AuditLog'
+    PaginatedFamilyList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Family'
     PaginatedRoleList:
       type: object
       required:
@@ -3517,6 +4285,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Staff'
+    PaginatedStudentListList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentList'
     PasswordRequest:
       type: object
       description: |-
@@ -3570,6 +4363,24 @@ components:
           format: uuid
           nullable: true
           description: Titulaire (`id` du compte).
+    PatchedEnrollmentUpdateRequest:
+      type: object
+      properties:
+        class_group:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/EnrollmentStatusEnum'
+        left_on:
+          type: string
+          format: date
+    PatchedFamilyWriteRequest:
+      type: object
+      properties:
+        guardians:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuardianRequest'
     PatchedLevelUpdateRequest:
       type: object
       properties:
@@ -3670,6 +4481,76 @@ components:
         first_name:
           type: string
           maxLength: 100
+    PatchedStudentWriteRequest:
+      type: object
+      description: |-
+        Création : `family` (famille existante de l'école) ou `guardians` (nouvelle famille).
+        Modification : les mêmes champs, tous facultatifs ; `family` relie l'élève à une autre
+        famille (D4).
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID v7 donné par l'appareil.
+        matricule:
+          type: string
+          title: Student number
+          maxLength: 60
+        last_name:
+          type: string
+          minLength: 1
+          title: Nom
+          maxLength: 80
+        middle_name:
+          type: string
+          maxLength: 80
+        first_name:
+          type: string
+          title: Prénom
+          maxLength: 80
+        sex:
+          $ref: '#/components/schemas/SexEnum'
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+          title: Date of birth
+        birth_place:
+          type: string
+          title: Place of birth
+          maxLength: 120
+        nationality:
+          type: string
+          maxLength: 60
+        origin_province:
+          type: string
+          title: Province of origin
+          maxLength: 60
+        origin_territory:
+          type: string
+          title: Territory of origin
+          maxLength: 80
+        address:
+          $ref: '#/components/schemas/AddressRequest'
+        photo_consent:
+          type: boolean
+        previous_school:
+          type: string
+          maxLength: 200
+        family:
+          type: string
+          format: uuid
+        guardians:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuardianRequest'
+          writeOnly: true
+        allow_duplicate:
+          type: boolean
+          writeOnly: true
+          default: false
+          description: Créer même si un élève a les mêmes noms et la même date de
+            naissance.
     PatchedTrackUpdateRequest:
       type: object
       properties:
@@ -3751,6 +4632,22 @@ components:
           description: 'Affichés une seule fois : à imprimer.'
       required:
       - recovery_codes
+    RelationshipEnum:
+      enum:
+      - father
+      - mother
+      - guardian
+      - grandparent
+      - sibling
+      - other
+      type: string
+      description: |-
+        * `father` - Father
+        * `mother` - Mother
+        * `guardian` - Guardian
+        * `grandparent` - Grandparent
+        * `sibling` - Brother or sister
+        * `other` - Other
     Role:
       type: object
       description: |-
@@ -3929,6 +4826,14 @@ components:
         * `trial` - Trial
         * `active` - Active
         * `suspended` - Suspended
+    SexEnum:
+      enum:
+      - M
+      - F
+      type: string
+      description: |-
+        * `M` - Male
+        * `F` - Female
     Staff:
       type: object
       description: |-
@@ -4112,6 +5017,214 @@ components:
         * `new_password` - Replace the temporary password
         * `totp_setup` - Turn on two-factor authentication
         * `done` - Logged in
+    Student:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        matricule:
+          type: string
+          title: Student number
+          maxLength: 60
+        last_name:
+          type: string
+          title: Nom
+          maxLength: 80
+        middle_name:
+          type: string
+          maxLength: 80
+        first_name:
+          type: string
+          title: Prénom
+          maxLength: 80
+        sex:
+          $ref: '#/components/schemas/SexEnum'
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+          title: Date of birth
+        birth_place:
+          type: string
+          title: Place of birth
+          maxLength: 120
+        nationality:
+          type: string
+          maxLength: 60
+        origin_province:
+          type: string
+          title: Province of origin
+          maxLength: 60
+        origin_territory:
+          type: string
+          title: Territory of origin
+          maxLength: 80
+        address:
+          allOf:
+          - $ref: '#/components/schemas/Address'
+          readOnly: true
+        photo_consent:
+          type: boolean
+        previous_school:
+          type: string
+          maxLength: 200
+        family:
+          allOf:
+          - $ref: '#/components/schemas/Family'
+          readOnly: true
+        enrollments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Enrollment'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - matricule
+      - last_name
+      - middle_name
+      - first_name
+      - sex
+      - birth_date
+      - birth_place
+      - nationality
+      - origin_province
+      - origin_territory
+      - address
+      - photo_consent
+      - previous_school
+      - family
+      - enrollments
+      - created_at
+    StudentList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        matricule:
+          type: string
+          title: Student number
+          maxLength: 60
+        last_name:
+          type: string
+          title: Nom
+          maxLength: 80
+        middle_name:
+          type: string
+          maxLength: 80
+        first_name:
+          type: string
+          title: Prénom
+          maxLength: 80
+        sex:
+          $ref: '#/components/schemas/SexEnum'
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+          title: Date of birth
+        family:
+          type: string
+          format: uuid
+        family_code:
+          type: string
+          readOnly: true
+        enrollment:
+          allOf:
+          - $ref: '#/components/schemas/Enrollment'
+          nullable: true
+          readOnly: true
+      required:
+      - id
+      - matricule
+      - last_name
+      - middle_name
+      - first_name
+      - sex
+      - birth_date
+      - family
+      - family_code
+      - enrollment
+    StudentWriteRequest:
+      type: object
+      description: |-
+        Création : `family` (famille existante de l'école) ou `guardians` (nouvelle famille).
+        Modification : les mêmes champs, tous facultatifs ; `family` relie l'élève à une autre
+        famille (D4).
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID v7 donné par l'appareil.
+        matricule:
+          type: string
+          title: Student number
+          maxLength: 60
+        last_name:
+          type: string
+          minLength: 1
+          title: Nom
+          maxLength: 80
+        middle_name:
+          type: string
+          maxLength: 80
+        first_name:
+          type: string
+          title: Prénom
+          maxLength: 80
+        sex:
+          $ref: '#/components/schemas/SexEnum'
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+          title: Date of birth
+        birth_place:
+          type: string
+          title: Place of birth
+          maxLength: 120
+        nationality:
+          type: string
+          maxLength: 60
+        origin_province:
+          type: string
+          title: Province of origin
+          maxLength: 60
+        origin_territory:
+          type: string
+          title: Territory of origin
+          maxLength: 80
+        address:
+          $ref: '#/components/schemas/AddressRequest'
+        photo_consent:
+          type: boolean
+        previous_school:
+          type: string
+          maxLength: 200
+        family:
+          type: string
+          format: uuid
+        guardians:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuardianRequest'
+          writeOnly: true
+        allow_duplicate:
+          type: boolean
+          writeOnly: true
+          default: false
+          description: Créer même si un élève a les mêmes noms et la même date de
+            naissance.
+      required:
+      - last_name
+      - sex
     SupportSession:
       type: object
       description: 'Session support en cours (A3) : l''interface affiche un bandeau

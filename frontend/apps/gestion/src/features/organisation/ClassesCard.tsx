@@ -110,7 +110,7 @@ export function ClassesCard({ year }: { year: Year }) {
               <th>{t("organisation.classes.track")}</th>
               <th>{t("organisation.classes.level")}</th>
               <th>{t("organisation.classes.sections")}</th>
-              <th className="text-right">{t("organisation.classes.capacity")}</th>
+              <th className="text-right">{t("organisation.classes.headcount")}</th>
               <th>{t("organisation.classes.homeroom")}</th>
             </tr>
           </thead>
@@ -136,6 +136,7 @@ export function ClassesCard({ year }: { year: Year }) {
 function ClassRow({ row, onOpen }: { row: Row; onOpen: (group: ClassGroup) => void }) {
   const { t } = useTranslation();
   const capacities = row.groups.map((group) => group.capacity).filter((c) => c !== null);
+  const students = row.groups.reduce((sum, group) => sum + group.student_count, 0);
   const missing = row.groups.filter((group) => !group.homeroom_teacher).length;
   const [single] = row.groups;
   let teacher: React.ReactNode;
@@ -172,7 +173,8 @@ function ClassRow({ row, onOpen }: { row: Row; onOpen: (group: ClassGroup) => vo
         </div>
       </td>
       <td className="text-right tabular-nums">
-        {capacities.length ? capacities.reduce((sum, value) => sum + value, 0) : t("common.none")}
+        {students}
+        {capacities.length > 0 && ` / ${capacities.reduce((sum, value) => sum + value, 0)}`}
       </td>
       <td className="text-sm">{teacher}</td>
     </tr>

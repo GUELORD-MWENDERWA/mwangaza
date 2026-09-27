@@ -15,6 +15,7 @@ from apps.audit.models import AuditLog
 from apps.core.crypto import decrypt
 from apps.core.tenancy import use_school
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
+from apps.students.models import Enrollment, Guardian, Student
 from tests.factories import enable_totp
 
 pytestmark = pytest.mark.django_db
@@ -129,6 +130,22 @@ def test_demo_can_run_twice_and_resets_the_demo(demo):
         cashier = Role.objects.get(code="cashier")
     assert (cashier.name, cashier.permissions) == ("", list(SYSTEM_ROLES["cashier"].permissions))
     assert authenticate(username="0000001001", password=DEMO_PASSWORD) == head
+
+
+def test_demo_students_with_siblings_and_a_family_in_both_schools(demo):
+    with use_school(demo["itig"]):
+        assert Enrollment.objects.filter(status="active").count() == 800
+        families = Student.objects.values_list("family", flat=True)
+        assert len(set(families)) < 800  # des fratries
+        assert Student.objects.filter(matricule="ITIG-2026-0001").exists()
+        phones = set(Guardian.objects.values_list("phone", flat=True))
+    with use_school(demo["volcans"]):
+        assert Student.objects.count() == 150
+        assert phones & set(Guardian.objects.values_list("phone", flat=True))
+    assert all(phone.startswith("+24300") for phone in phones)
+    call_command("demo")
+    with use_school(demo["itig"]):
+        assert Student.objects.count() == 800
 
 
 def test_demo_is_refused_outside_development(settings):

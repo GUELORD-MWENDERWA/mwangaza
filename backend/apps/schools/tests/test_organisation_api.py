@@ -273,6 +273,7 @@ def test_list_classes_of_the_current_year_by_default(api, head, alpha):
             "section": "A",
             "name": "3e Électricité A",
             "capacity": 45,
+            "student_count": 0,
             "homeroom_teacher": None,
         }
     ]

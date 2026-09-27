@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "apps.schools",
     "apps.accounts",
     "apps.audit",
+    "apps.students",
 ]
 
 MIDDLEWARE = [
@@ -176,6 +177,7 @@ SPECTACULAR_SETTINGS = {
         "CurrencyEnum": "apps.core.money.Currency",
         "SchoolStatusEnum": "apps.schools.models.School.Status",
         "YearStatusEnum": "apps.schools.models.AcademicYear.Status",
+        "EnrollmentStatusEnum": "apps.students.models.Enrollment.Status",
     },
 }
 

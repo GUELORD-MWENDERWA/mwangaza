@@ -266,6 +266,9 @@ class PersonSerializer(serializers.ModelSerializer):
 class ClassGroupSerializer(serializers.ModelSerializer):
     name = serializers.CharField(read_only=True, help_text="« 3e Électricité A ».")
     homeroom_teacher = PersonSerializer(read_only=True, allow_null=True)
+    student_count = serializers.IntegerField(
+        read_only=True, help_text="Élèves inscrits et actifs (effectif)."
+    )
 
     class Meta:
         model = ClassGroup
@@ -277,6 +280,7 @@ class ClassGroupSerializer(serializers.ModelSerializer):
             "section",
             "name",
             "capacity",
+            "student_count",
             "homeroom_teacher",
         ]
         read_only_fields = fields
