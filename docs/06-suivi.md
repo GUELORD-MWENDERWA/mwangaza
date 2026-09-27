@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 2 (Élèves et frais) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 2.5.1 terminée : PR #93 à relire et fusionner |
+| Tâche en cours | aucune — 2.5.1 fusionnée (PR #93) ; correction de `make dev` (clé secrète) : PR #94 à fusionner |
 | Prochaine tâche | 2.6 — dus des élèves, puis 2.5.2 — réductions |
 | Issue GitHub | #18 (2.5, PR #93 pour la 2.5.1) |
-| Branche | `tache/2.5.1-frais-baremes` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `fix/cle-secrete-docker` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-27 |
 
 ## Avancement
