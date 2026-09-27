@@ -8,7 +8,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 2 (Élèves et frais) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | 2.4 — impressions (fiche d'inscription, liste de classe, export du journal) |
+| Tâche en cours | aucune — 2.4 terminée : PR à relire et fusionner |
 | Prochaine tâche | 2.5 — finance : configuration |
 | Issue GitHub | #17 |
 | Branche | `tache/2.4-impressions` ; dossier local : `~/Projets/mwangaza` |
@@ -20,10 +20,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|:-:|:-:|
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
-| Semaine 2 — Élèves et frais | 4 | 8 |
+| Semaine 2 — Élèves et frais | 5 | 8 |
 | Semaine 3 — Caisse et hors-ligne | 0 | 8 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **13** | **33** |
+| **V1.0** | **14** | **33** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,13 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-27 — Tâche 2.4 : impressions
+
+- Fait : fiche d'inscription (A4 / A5, code famille au choix, aperçu + PDF) depuis la fiche élève et le bandeau « inscrit » ; écran « Liste de classe » (élèves actifs, colonnes au choix, colonnes vides, ordre, PDF et Excel) ; bouton « Exporter (Excel) » du journal d'audit (période d'un an au plus).
+- Tests : isolation (inscription, classe et journal d'une autre école), 403, audit du code imprimé et de l'export, élèves partis absents, PDF réel ; 776 tests serveur, 143 front, lint vert.
+- Décisions : WeasyPrint ajouté (stack décidée) avec ses bibliothèques dans Docker et la CI ; frais sur la fiche et « situation des paiements » reportés en 2.7, QR code en 3.2 ; sélection multiple non planifiée.
+- Suite : 2.5 — finance, configuration.
 
 ### 2026-09-27 — Tâche 2.3 : import Excel des élèves
 - **Fait** : import .xlsx / .csv en 4 étapes (fichier, colonnes devinées, vérification ligne par ligne, import Celery groupé) ; classes rapprochées ou associées à la main, fratries par tuteur, matricules, journal par élève ; modèle et rapport Excel ; `make demo-excel`, `make messages` (premières traductions du serveur).

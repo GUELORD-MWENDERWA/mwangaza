@@ -115,7 +115,7 @@ class AuditLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolVi
             Action.AUDIT_EXPORTED,
             actor=request.user,
             label=f"{since:%d/%m/%Y} → {until:%d/%m/%Y}",
-            after={key: str(value) for key, value in request.query_params.items()},
+            after={"since": str(since), "until": str(until)},
         )
         return file_response(content, XLSX, f"journal-{since}-{until}.xlsx")
 

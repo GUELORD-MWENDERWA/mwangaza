@@ -63,7 +63,6 @@ def registration_form(
             family,
             actor=actor,
             label=student.full_name,
-            after={"student": str(student.pk)},
         )
     return {
         **school_header(require_current_school()),

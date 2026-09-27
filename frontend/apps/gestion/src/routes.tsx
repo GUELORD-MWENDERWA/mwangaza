@@ -16,10 +16,12 @@ import { RolesPage } from "./features/roles/RolesPage";
 import { SchoolChoicePage } from "./features/schools/SchoolChoicePage";
 import { SchoolSettingsPage } from "./features/settings/SchoolSettingsPage";
 import { StaffPage } from "./features/staff/StaffPage";
+import { ClassListPage } from "./features/students/ClassListPage";
 import { EditStudentPage } from "./features/students/EditStudentPage";
 import { FamilyPage } from "./features/students/FamilyPage";
 import { ImportStudentsPage } from "./features/students/ImportStudentsPage";
 import { NewStudentPage } from "./features/students/NewStudentPage";
+import { RegistrationFormPage } from "./features/students/RegistrationFormPage";
 import { StudentPage } from "./features/students/StudentPage";
 import { StudentsPage } from "./features/students/StudentsPage";
 import { AppShell } from "./features/shell/AppShell";
@@ -61,6 +63,8 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
     item: { ...menuItem("students"), permissions: ["students.edit"] },
     element: <EditStudentPage />,
   },
+  { path: "students/class-list", item: menuItem("students"), element: <ClassListPage /> },
+  { path: "students/:id/form", item: menuItem("students"), element: <RegistrationFormPage /> },
   { path: "students/:id/:tab?", item: menuItem("students"), element: <StudentPage /> },
   { path: "families/:id", item: menuItem("students"), element: <FamilyPage /> },
 ];

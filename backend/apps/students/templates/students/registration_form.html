@@ -15,7 +15,7 @@ td.label { width: 22%; }
     {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% else %}<div class="logo-text">{{ school_name|slice:":4"|upper }}</div>{% endif %}
     <div><b>{{ school_name|upper }}</b></div>
   </div>
-  {% if photo %}<img class="photo" src="{{ photo }}" alt="">{% else %}<div class="photo-empty">{% translate "Photo" %}<br>4 × 5 cm</div>{% endif %}
+  {% if photo %}<img class="photo" src="{{ photo }}" alt="">{% else %}<div class="photo-empty"><div>{% translate "Photo" %}<br>4 × 5 cm</div></div>{% endif %}
 </div>
 
 <h1>{% translate "REGISTRATION FORM" %}</h1>

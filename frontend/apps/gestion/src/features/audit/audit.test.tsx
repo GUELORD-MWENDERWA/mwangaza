@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { mockApi, type Routes } from "../../test/api";
@@ -169,5 +169,22 @@ describe("Journal d'audit (M6)", () => {
 
     expect(await screen.findByText("Vous n'avez pas accès à cette page")).toBeTruthy();
     expect(requests.some((r) => r.path === "/api/audit/")).toBe(false);
+  });
+
+  it("export Excel : seulement avec une période d'une année au plus, avec les filtres de l'écran", async () => {
+    mockApi(routes());
+    renderApp("/audit");
+
+    const disabled = await screen.findByRole("button", { name: "Exporter (Excel)" });
+    expect(disabled).toHaveProperty("disabled", true);
+    fireEvent.change(screen.getByLabelText("Du"), { target: { value: "2026-09-01" } });
+    fireEvent.change(screen.getByLabelText("Au"), { target: { value: "2026-09-30" } });
+    const link = await screen.findByRole("link", { name: "Exporter (Excel)" });
+    expect(link.getAttribute("href")).toBe("/api/audit/export/?since=2026-09-01&until=2026-09-30");
+    fireEvent.change(screen.getByLabelText("Du"), { target: { value: "2025-09-01" } });
+    expect(screen.getByRole("button", { name: "Exporter (Excel)" })).toHaveProperty(
+      "disabled",
+      true,
+    );
   });
 });

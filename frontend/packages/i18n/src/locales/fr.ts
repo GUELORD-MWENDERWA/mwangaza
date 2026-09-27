@@ -642,6 +642,8 @@ export const fr = {
   audit: {
     title: "Journal d'audit",
     subtitle: "Qui a fait quoi, et quand. Le journal ne peut être ni modifié ni effacé.",
+    export: "Exporter (Excel)",
+    exportHelp: "Choisissez une période (du… au…, une année au plus) pour exporter.",
     filters: {
       person: "Personne",
       allPeople: "Personne : toutes",
@@ -682,6 +684,7 @@ export const fr = {
       school: "École",
       organisation: "Organisation scolaire",
       students: "Élèves",
+      audit: "Journal d'audit",
       support: "Support",
     },
     actions: {
@@ -747,6 +750,10 @@ export const fr = {
         student_imported: "Élève importé d'un fichier",
         enrolled: "Élève inscrit",
         enrollment_updated: "Inscription modifiée",
+        family_code_printed: "Code famille imprimé",
+      },
+      audit: {
+        exported: "Journal exporté",
       },
       support: {
         started: "Connexion support",
@@ -754,6 +761,8 @@ export const fr = {
       },
     },
     fields: {
+      since: "Du",
+      until: "Au",
       name: "Nom",
       official_name: "Nom officiel",
       code: "Code",
@@ -1008,6 +1017,43 @@ export const fr = {
       noPath: "Aucune inscription.",
       later:
         "Les paiements s'ajouteront ici avec la caisse ; les notes, bulletins et décisions de délibération avec la V1.2.",
+    },
+    print: {
+      print: "Imprimer",
+      pdf: "PDF",
+      excel: "Excel",
+      form: {
+        title: "Fiche d'inscription",
+        subtitle: "À imprimer et à remettre au parent.",
+        printIt: "Imprimer la fiche d'inscription",
+        paper: "Format",
+        familyCode: "Inclure le code famille",
+        familyCodeHelp:
+          "Pour le tuteur principal. Décochez pour une fiche remise à quelqu'un d'autre. Chaque impression du code est notée dans le journal d'audit.",
+        openStudent: "Ouvrir la fiche de l'élève",
+        preview: "Aperçu de la fiche d'inscription",
+        notEnrolled: "Cet élève n'est pas inscrit cette année : pas de fiche d'inscription.",
+      },
+      classList: {
+        title: "Liste de classe",
+        subtitle: "Imprimer ou exporter la liste des élèves actifs d'une classe.",
+        class: "Classe",
+        pdf: "Imprimer (PDF)",
+        options: "Options",
+        columns: "Colonnes",
+        column: {
+          matricule: "Matricule",
+          sex_birth: "Sexe et date de naissance",
+          guardian_phone: "Téléphone du tuteur principal",
+        },
+        blankColumns: "Colonnes vides à ajouter",
+        blankHelp: "Pour l'appel, les signatures, les notes à la main…",
+        order: "Ordre",
+        byName: "Alphabétique",
+        byMatricule: "Matricule",
+        preview: "Aperçu de la liste de classe",
+        noClasses: "Aucune classe cette année : créez-les dans Organisation scolaire.",
+      },
     },
     import: {
       crumb: "Importer depuis Excel",

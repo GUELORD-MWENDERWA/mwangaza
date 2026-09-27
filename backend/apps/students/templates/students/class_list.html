@@ -13,7 +13,7 @@ td.sex { text-align: center; }
   <div class="small" style="text-align:right">{% blocktranslate with date=printed_at|date:"d/m/Y" %}Printed on {{ date }}{% endblocktranslate %}</div>
 </div>
 
-<h1>{% blocktranslate with name=class_group.name|upper %}LIST OF STUDENTS — {{ name }}{% endblocktranslate %}</h1>
+<h1>{% blocktranslate with name=class_group.name %}LIST OF STUDENTS — {{ name }}{% endblocktranslate %}</h1>
 <p class="center small">{% if teacher %}{% blocktranslate %}Homeroom teacher: {{ teacher }}{% endblocktranslate %} · {% endif %}{% blocktranslate with total=rows|length %}Enrolment: <b>{{ total }}</b>{% endblocktranslate %} ({% blocktranslate %}boys {{ boys }}, girls {{ girls }}{% endblocktranslate %})</p>
 
 <table>

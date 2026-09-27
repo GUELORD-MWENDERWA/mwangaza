@@ -7,7 +7,7 @@
 @page {
   size: {% if paper == "a5" %}A5{% else %}A4{% endif %};
   margin: {% if paper == "a5" %}10mm 10mm 12mm{% else %}14mm 14mm 16mm{% endif %};
-  @bottom-right { content: "{% translate 'page' %} " counter(page) " / " counter(pages); font-size: 8pt; color: #555; }
+  @bottom-right { content: "{% translate 'page' %} " counter(page) " / " counter(pages); font-size: 8pt; color: #555; font-family: "Atkinson Hyperlegible", "DejaVu Sans", Arial, sans-serif; }
 }
 * { box-sizing: border-box; }
 body { margin: 0; color: #111; font-family: "Atkinson Hyperlegible", "DejaVu Sans", Arial, sans-serif; font-size: {% if paper == "a5" %}8pt{% else %}10pt{% endif %}; line-height: 1.35; }

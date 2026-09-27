@@ -358,4 +358,33 @@ describe("Élèves (D2-D4)", () => {
     expect(await screen.findByRole("heading", { name: "BISIMWA MUGISHO Arsène" })).toBeTruthy();
     expect(screen.queryByRole("searchbox")).toBeNull();
   });
+
+  it("fiche d'inscription depuis la fiche élève : format et code famille dans l'aperçu et le PDF", async () => {
+    mockApi(routes("cashier", card));
+    const { user } = renderApp(`/students/${STUDENT}`);
+
+    await user.click(await screen.findByRole("link", { name: "Fiche d'inscription" }));
+    const pdf = await screen.findByRole("link", { name: "PDF" });
+    expect(pdf.getAttribute("href")).toBe(
+      `/api/enrollments/${id(80)}/form/?output=pdf&paper=a4&family_code=true`,
+    );
+    await user.click(screen.getByRole("radio", { name: "A5" }));
+    await user.click(screen.getByLabelText("Inclure le code famille"));
+    expect(screen.getByTitle("Aperçu de la fiche d'inscription").getAttribute("src")).toBe(
+      `/api/enrollments/${id(80)}/form/?output=html&paper=a5&family_code=false`,
+    );
+  });
+
+  it("liste de classe : classe venue de la liste, colonnes, colonnes vides et ordre dans l'Excel", async () => {
+    mockApi(routes("cashier"));
+    const { user } = renderApp(`/students/class-list?class=${group.id}`);
+
+    const excel = await screen.findByRole("link", { name: "Excel" });
+    await user.click(screen.getByLabelText("Sexe et date de naissance"));
+    await user.click(screen.getByLabelText("Téléphone du tuteur principal"));
+    await user.click(screen.getByRole("radio", { name: "Matricule" }));
+    expect(excel.getAttribute("href")).toBe(
+      `/api/enrollments/class-list/?class_group=${group.id}&output=xlsx&blank_columns=2&order=matricule&columns=matricule&columns=guardian_phone`,
+    );
+  });
 });
