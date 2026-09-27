@@ -154,6 +154,8 @@ describe("Organisation scolaire (C1-C3)", () => {
     await user.clear(dialog.getByLabelText(/Fin/));
     await user.type(dialog.getByLabelText(/Fin/), "2028-07-01");
     await user.selectOptions(dialog.getByLabelText("Modèle de découpage"), "trimesters");
+    // Barèmes repris avec les classes (droit `finance.configure_fees` du directeur) : décoché.
+    await user.click(dialog.getByRole("checkbox", { name: /Reprendre aussi les barèmes/ }));
     all["GET /api/academic-years/"] = [year, created];
     await user.click(dialog.getByRole("button", { name: "Créer l'année" }));
 
@@ -164,6 +166,7 @@ describe("Organisation scolaire (C1-C3)", () => {
       ends_on: "2028-07-01",
       template: "trimesters",
       copy_classes_from: year.id,
+      copy_fees: false,
     });
     expect(await screen.findByRole("heading", { name: "Année 2027-2028" })).toBeTruthy();
   });

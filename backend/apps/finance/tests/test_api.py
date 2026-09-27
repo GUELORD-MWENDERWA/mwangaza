@@ -7,6 +7,7 @@ from decimal import Decimal
 import pytest
 from django.db import DatabaseError, connection, transaction
 
+from apps.accounts.models import Role
 from apps.audit.models import AuditLog
 from apps.core.tenancy import use_school
 from apps.finance import services
@@ -117,6 +118,19 @@ def test_fees_need_a_finance_permission(api, alpha, cashier, school):
         assert client.post(TYPES, {"name": "Cantine", "category": "canteen"}).status_code == 403
         rate = {"academic_year": str(alpha["year"].pk), "rate": "2850"}
         assert client.post(RATES, rate).status_code == 403
+
+
+def test_a_school_role_with_only_the_rate_reads_the_fees_and_sets_the_rate(api, alpha, school):
+    with use_school(school):
+        role = Role.objects.create(name="Trésorier", permissions=["finance.set_exchange_rate"])
+    client = api(MembershipFactory(school=school, roles=[role]).user)
+
+    for url in (TYPES, RULES, YEARS, "/api/levels/", "/api/tracks/", "/api/class-groups/"):
+        assert client.get(url).status_code == 200, url
+    assert client.post(TYPES, {"name": "Cantine", "category": "canteen"}).status_code == 403
+    assert client.delete(f"{RULES}{alpha['rule'].pk}/").status_code == 403
+    rate = {"academic_year": str(alpha["year"].pk), "rate": "2850"}
+    assert client.post(RATES, rate).status_code == 201
 
 
 # Types de frais (E1)

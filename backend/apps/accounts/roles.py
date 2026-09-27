@@ -49,6 +49,8 @@ STUDENTS_IMPORT = "students.import"
 FINANCE_CONFIGURE_FEES = "finance.configure_fees"
 FINANCE_SET_EXCHANGE_RATE = "finance.set_exchange_rate"
 FINANCE_GRANT_DISCOUNT = "finance.grant_discount"
+# Écran « Frais et barèmes » (entrée du menu) : lu avec l'un de ces droits.
+FEES_READ = (FINANCE_CONFIGURE_FEES, FINANCE_SET_EXCHANGE_RATE, FINANCE_GRANT_DISCOUNT)
 
 # Double authentification obligatoire (B4) pour un compte qui a l'un de ces droits dans une école :
 # l'argent, les réglages, les comptes, le journal d'audit. Par défaut : directeur, comptable,

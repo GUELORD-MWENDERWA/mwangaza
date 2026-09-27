@@ -23,6 +23,7 @@ from rest_framework.views import APIView
 from apps.accounts.permissions import HasSchoolPermission, school_access
 from apps.accounts.roles import (
     CLASSES_MANAGE,
+    FEES_READ,
     FINANCE_CONFIGURE_FEES,
     SCHOOL_CONFIGURE,
     STUDENTS_VIEW,
@@ -160,14 +161,15 @@ CONFLICT = {409: ErrorSerializer}
 
 class _OrganisationViewSet(SchoolViewSet):
     pagination_class = None
-    # Années, options et classes : lues aussi avec `students.view` (filtres de la liste des
-    # élèves, inscription) ; tout le reste demande `classes.manage`.
+    # Années, niveaux, options et classes : lus aussi avec `students.view` (filtres de la liste
+    # des élèves, inscription) et les droits des frais (barèmes, E2) ; tout le reste demande
+    # `classes.manage`.
     shared_reads = False
 
     @property
     def required_permission(self) -> str | tuple[str, ...]:
         if self.shared_reads and self.action in {"list", "retrieve"}:
-            return (CLASSES_MANAGE, STUDENTS_VIEW)
+            return (CLASSES_MANAGE, STUDENTS_VIEW, *FEES_READ)
         return CLASSES_MANAGE
 
     http_method_names = ["get", "post", "put", "patch", "delete", "head", "options"]
@@ -278,6 +280,8 @@ class _CrudViewSet(
 @extend_schema(tags=["organisation"])
 class LevelViewSet(_CrudViewSet):
     """Niveaux de l'école (« 7e EB », « 3e »), dans l'ordre choisi (C2)."""
+
+    shared_reads = True
 
     serializer_class = LevelSerializer
 

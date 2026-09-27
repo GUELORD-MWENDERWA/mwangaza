@@ -4,11 +4,7 @@ from rest_framework import mixins, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.accounts.roles import (
-    FINANCE_CONFIGURE_FEES,
-    FINANCE_GRANT_DISCOUNT,
-    FINANCE_SET_EXCHANGE_RATE,
-)
+from apps.accounts.roles import FEES_READ, FINANCE_CONFIGURE_FEES, FINANCE_SET_EXCHANGE_RATE
 from apps.accounts.views import SchoolViewSet
 from apps.core.errors import ErrorSerializer
 from apps.finance import services
@@ -31,8 +27,6 @@ CONFLICT = {409: ErrorSerializer}
 YEAR_PARAM = OpenApiParameter(
     "academic_year", str, description="Identifiant de l'année ; absent : l'année en cours."
 )
-# Écran « Frais et barèmes » : lu avec l'un des droits de son entrée du menu.
-FEES_READ = (FINANCE_CONFIGURE_FEES, FINANCE_SET_EXCHANGE_RATE, FINANCE_GRANT_DISCOUNT)
 
 
 class _FinanceViewSet(SchoolViewSet):

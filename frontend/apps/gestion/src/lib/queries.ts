@@ -24,6 +24,9 @@ export const keys = {
   families: ["families"],
   studentImports: ["student-imports"],
   auditActors: ["audit-actors"],
+  feeTypes: ["fee-types"],
+  feeRules: ["fee-rules"],
+  exchangeRates: ["exchange-rates"],
 } as const;
 
 /** Nouvel essai seulement sans réponse du serveur (réseau), jamais sur un refus de l'API. */

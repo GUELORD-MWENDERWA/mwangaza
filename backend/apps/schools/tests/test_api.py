@@ -18,6 +18,9 @@ def test_each_school_sees_its_own_name(client, school, other_school):
         "logo": None,
         # Les dates de l'application s'affichent à l'heure de l'école.
         "timezone": "Africa/Lubumbashi",
+        # … et les montants dans les devises de l'école.
+        "enabled_currencies": ["USD", "CDF"],
+        "default_currency": "USD",
     }
     assert beta.json()["name"] == "École Beta (fictive)"
 

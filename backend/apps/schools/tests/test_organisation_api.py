@@ -71,7 +71,7 @@ def test_study_director_manages_the_organisation_without_two_factor(api, school,
     ("method", "url"),
     [
         ("post", YEARS),
-        ("get", LEVELS),
+        ("post", LEVELS),
         ("post", f"{LEVELS}reorder/"),
         ("post", CLASSES),
         ("get", f"{CLASSES}homeroom-candidates/"),
@@ -87,20 +87,20 @@ def test_without_classes_manage_everything_is_refused(api, cashier, alpha, metho
     assert response.json()["code"] == "permission_denied"
 
 
-def test_students_view_reads_years_tracks_and_classes_of_its_school_only(
+def test_students_view_reads_years_levels_tracks_and_classes_of_its_school_only(
     api, school, cashier, alpha, beta
 ):
-    """Filtres de la liste des élèves et inscription (2.2.1) : lecture seule avec
-    `students.view` ; sans aucun des deux droits, refusé."""
+    """Filtres de la liste des élèves et inscription (2.2.1), barèmes (2.5.1) : lecture seule
+    avec `students.view` ou un droit des frais ; sans aucun de ces droits, refusé."""
     client = api(cashier)
-    for url in (YEARS, TRACKS, CLASSES, f"{CLASSES}{alpha['group'].id}/"):
+    for url in (YEARS, LEVELS, TRACKS, CLASSES, f"{CLASSES}{alpha['group'].id}/"):
         assert client.get(url).status_code == 200, url
     assert [group["name"] for group in client.get(CLASSES).json()] == ["3e Électricité A"]
     assert client.get(f"{CLASSES}{beta['group'].id}/").status_code == 404
     assert client.get(f"{YEARS}{beta['year'].id}/").status_code == 404
 
     teacher = MembershipFactory(school=school, roles=["teacher"]).user
-    for url in (YEARS, TRACKS, CLASSES):
+    for url in (YEARS, LEVELS, TRACKS, CLASSES):
         assert api(teacher).get(url).status_code == 403, url
 
 

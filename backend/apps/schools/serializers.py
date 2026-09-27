@@ -47,11 +47,25 @@ class _LogoMixin(serializers.Serializer):
 
 
 class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
-    """Informations publiques de l'école : écran de connexion (nom, couleur, logo)."""
+    """Informations publiques de l'école : écran de connexion (nom, couleur, logo) ; fuseau et
+    devises pour les écrans (dates, montants)."""
+
+    enabled_currencies = serializers.ListField(
+        child=serializers.ChoiceField(choices=Currency.choices), read_only=True
+    )
 
     class Meta:
         model = School
-        fields = ["code", "name", "primary_color", "text_color", "logo", "timezone"]
+        fields = [
+            "code",
+            "name",
+            "primary_color",
+            "text_color",
+            "logo",
+            "timezone",
+            "enabled_currencies",
+            "default_currency",
+        ]
 
 
 class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):

@@ -1390,20 +1390,6 @@ export interface components {
         };
         /** @enum {unknown} */
         BlankEnum: "";
-        /**
-         * @description * `tuition` - Tuition
-         *     * `registration` - Registration
-         *     * `operating` - Operating costs
-         *     * `ancillary` - Ancillary fees
-         *     * `uniform` - Uniform
-         *     * `transport` - Transport
-         *     * `canteen` - Canteen
-         *     * `extracurricular` - Extracurricular
-         *     * `official_exam` - Official exam
-         *     * `custom` - Other
-         * @enum {string}
-         */
-        CategoryEnum: "tuition" | "registration" | "operating" | "ancillary" | "uniform" | "transport" | "canteen" | "extracurricular" | "official_exam" | "custom";
         ClassGroup: {
             /** Format: uuid */
             readonly id: string;
@@ -1463,7 +1449,10 @@ export interface components {
          * @enum {string}
          */
         CurrencyEnum: "USD" | "CDF";
-        /** @description Informations publiques de l'école : écran de connexion (nom, couleur, logo). */
+        /**
+         * @description Informations publiques de l'école : écran de connexion (nom, couleur, logo) ; fuseau et
+         *     devises pour les écrans (dates, montants).
+         */
         CurrentSchool: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
             code: string;
@@ -1482,6 +1471,15 @@ export interface components {
              * @description Dates and times of the school, e.g. Africa/Lubumbashi (Goma).
              */
             timezone: string;
+            readonly enabled_currencies: components["schemas"]["CurrencyEnum"][];
+            /**
+             * Main currency
+             * @description Currency of the reports.
+             *
+             *     * `USD` - US dollar
+             *     * `CDF` - Congolese franc
+             */
+            default_currency: components["schemas"]["CurrencyEnum"];
         };
         CurrentSchoolAccess: {
             code: string;
@@ -1619,6 +1617,20 @@ export interface components {
         FamilyWriteRequest: {
             guardians: components["schemas"]["GuardianRequest"][];
         };
+        /**
+         * @description * `tuition` - Tuition
+         *     * `registration` - Registration
+         *     * `operating` - Operating costs
+         *     * `ancillary` - Ancillary fees
+         *     * `uniform` - Uniform
+         *     * `transport` - Transport
+         *     * `canteen` - Canteen
+         *     * `extracurricular` - Extracurricular
+         *     * `official_exam` - Official exam
+         *     * `custom` - Other
+         * @enum {string}
+         */
+        FeeCategoryEnum: "tuition" | "registration" | "operating" | "ancillary" | "uniform" | "transport" | "canteen" | "extracurricular" | "official_exam" | "custom";
         FeeRule: {
             /** Format: uuid */
             readonly id: string;
@@ -1695,7 +1707,7 @@ export interface components {
             /** Format: uuid */
             readonly id: string;
             name: string;
-            category: components["schemas"]["CategoryEnum"];
+            category: components["schemas"]["FeeCategoryEnum"];
             /** Funds the teacher bonus */
             funds_teacher_bonus: boolean;
             accounting_code: string;
@@ -1706,7 +1718,7 @@ export interface components {
         };
         FeeTypeWriteRequest: {
             name: string;
-            category: components["schemas"]["CategoryEnum"];
+            category: components["schemas"]["FeeCategoryEnum"];
             /** Funds the teacher bonus */
             funds_teacher_bonus?: boolean;
             accounting_code?: string;
@@ -2135,7 +2147,7 @@ export interface components {
         };
         PatchedFeeTypeWriteRequest: {
             name?: string;
-            category?: components["schemas"]["CategoryEnum"];
+            category?: components["schemas"]["FeeCategoryEnum"];
             /** Funds the teacher bonus */
             funds_teacher_bonus?: boolean;
             accounting_code?: string;

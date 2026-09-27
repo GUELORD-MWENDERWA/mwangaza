@@ -10,6 +10,8 @@ export const school: Schemas["CurrentSchool"] = {
   text_color: "#FFFFFF",
   logo: null,
   timezone: "Africa/Lubumbashi",
+  enabled_currencies: ["USD", "CDF"],
+  default_currency: "USD",
 };
 
 // Droits des rôles système (copie de `backend/apps/accounts/roles.py`, `04` § 8).
