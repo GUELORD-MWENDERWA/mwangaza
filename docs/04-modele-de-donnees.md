@@ -77,11 +77,11 @@ Règles :
 
 **Currency** — constantes (`USD` : 2 décimales, `CDF` : 0 décimale utile).
 
-**ExchangeRate [T]** **[I]** — taux de l'année scolaire, saisi par le comptable et **fixe toute l'année** : `academic_year`, `from_currency` (`USD`), `to_currency` (`CDF`), `rate` (décimal, 6 chiffres après la virgule, tel que saisi : francs pour 1 dollar), `valid_from`, `set_by`, `reason` (obligatoire pour une correction). Le taux en vigueur est la dernière ligne de l'année. Une correction en cours d'année ajoute une ligne : l'historique (qui, quand, ancien et nouveau taux) se lit dans la table et dans l'audit. Les paiements déjà faits gardent leur `rate_used`.
+**ExchangeRate [T]** **[I]** — taux de l'année scolaire, saisi par le comptable et **fixe toute l'année** : `academic_year`, `from_currency` (`USD`), `to_currency` (`CDF`), `rate` (décimal, 6 chiffres après la virgule, tel que saisi : francs pour 1 dollar), `reason` (obligatoire pour une correction) ; qui et quand : `created_by`, `created_at`. Le taux en vigueur est la dernière ligne de l'année. Une correction en cours d'année ajoute une ligne : l'historique (qui, quand, ancien et nouveau taux) se lit dans la table et dans l'audit. Les paiements déjà faits gardent leur `rate_used`.
 
 **FeeType [T]** — `name`, `category` (`tuition`, `registration`, `operating`, `ancillary`, `uniform`, `transport`, `canteen`, `extracurricular`, `official_exam`, `custom`), `funds_teacher_bonus` (bool), `accounting_code` (compte SYSCOHADA, optionnel), `is_active`. Pas de devise ici : elle est choisie dans chaque barème.
 
-**FeeRule [T]** — barème : `academic_year`, `fee_type`, portée (`school`, `level`, `track`, `class_group` — un seul rempli ou aucun = toute l'école), `currency` (`USD` ou `CDF`, au choix pour chaque barème), `total_amount_minor`, `schedule_kind` (`installments`, `monthly`, `single`).
+**FeeRule [T]** — barème : `academic_year`, `fee_type`, portée (`school`, `level`, `track`, `class_group` — un seul rempli ou aucun = toute l'école), `currency` (`USD` ou `CDF`, au choix pour chaque barème), `total_amount_minor`, `schedule_kind` (`installments`, `monthly`, `single`). Au plus un barème par type de frais et par portée dans l'année ; pour un élève, le barème applicable est le plus précis (classe, puis niveau, puis option, puis toute l'école). Au moins une tranche, somme des tranches = total (unique : une seule ; mensuel : une par mois, proposée par l'écran).
 
 **InstallmentTemplate [T]** — tranches d'un barème : `fee_rule`, `label` (« 1re tranche »), `amount_minor`, `due_on`, `order`.
 
