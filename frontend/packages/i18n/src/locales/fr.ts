@@ -1079,6 +1079,20 @@ export const fr = {
       financesLater:
         "Frais dus, paiements et reçus de l'élève s'afficheront ici quand les frais de l'école seront configurés.",
     },
+    enrollment: {
+      help: "Changer de classe recalcule les frais dus, sauf ceux déjà payés.",
+      changeClass: "Changer de classe",
+      chooseClass: "Choisir une classe",
+      departure: "Enregistrer un départ",
+      departureHelp:
+        "L'élève sort des listes de classe mais garde son dossier et ce qu'il doit encore.",
+      reason: "Motif",
+      leftOn: "Date du départ",
+      cancelDeparture: "Annuler le départ",
+      returnHelp: "L'élève revient dans sa classe ; ses frais dus suivent les barèmes du moment.",
+      enroll: "Inscrire pour {{year}}",
+      enrollSubmit: "Inscrire",
+    },
     edit: {
       crumb: "Modifier",
       title: "Modifier l'élève",
@@ -1301,7 +1315,8 @@ export const fr = {
     nothing_to_import: "Aucune ligne ne peut être importée.",
     invalid: "Certains champs sont à corriger.",
     fee_type_name_taken: "L'école a déjà un type de frais de ce nom.",
-    fee_type_in_use: "Ce type de frais a des barèmes : désactivez-le plutôt.",
+    fee_type_in_use:
+      "Ce type de frais a des barèmes ou des élèves qui le doivent : désactivez-le plutôt.",
     fee_rule_exists: "Ce frais a déjà un barème pour cette portée cette année.",
     invalid_credentials: "Numéro de téléphone ou mot de passe incorrect.",
     login_expired: "La connexion a pris trop de temps : recommencez.",

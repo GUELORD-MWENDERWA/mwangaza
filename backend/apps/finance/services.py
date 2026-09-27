@@ -1,18 +1,22 @@
 """Configuration des frais de l'école courante (E1, E2, E5) : types de frais, barèmes et leurs
-tranches, taux de change de l'année, reprise des barèmes dans une nouvelle année (C1).
+tranches, taux de change de l'année, reprise des barèmes dans une nouvelle année (C1) ; frais
+dus des élèves, tirés des barèmes (2.6).
 
 Droits `finance.configure_fees` et `finance.set_exchange_rate`, vérifiés par l'API. Chaque
 changement va dans le journal de l'école (domaine `finance`), dans la transaction de l'action.
 Montants en entiers dans la devise du barème (skill `argent`).
 """
 
+from collections import defaultdict
+from copy import copy
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, QuerySet
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.models import User
@@ -21,14 +25,23 @@ from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.core.money import Money
 from apps.core.tenancy import require_current_school, use_school
-from apps.finance.models import ExchangeRate, FeeRule, FeeType, InstallmentTemplate
+from apps.finance.models import (
+    ExchangeRate,
+    FeeRule,
+    FeeType,
+    InstallmentTemplate,
+    StudentCharge,
+)
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
+from apps.students.models import Enrollment
 
 FEE_TYPE_NAME_TAKEN = ApiError(
     "fee_type_name_taken", _("The school already has a fee type with this name."), 409
 )
 FEE_TYPE_IN_USE = ApiError(
-    "fee_type_in_use", _("This fee type has fee rules: deactivate it instead."), 409
+    "fee_type_in_use",
+    _("This fee type has fee rules or students who owe it: deactivate it instead."),
+    409,
 )
 FEE_RULE_EXISTS = ApiError(
     "fee_rule_exists", _("This fee already has a fee rule for this scope this school year."), 409
@@ -243,7 +256,7 @@ def create_fee_rule(
             Action.FINANCE_FEE_RULE_CREATED,
             rule,
             actor=actor,
-            after=_rule_data(rule, installments),
+            after={**_rule_data(rule, installments), "students_updated": _sync_rule(rule, actor)},
             label=_rule_label(rule),
         )
     return rule
@@ -281,7 +294,7 @@ def update_fee_rule(
                 rule,
                 actor=actor,
                 before=before,
-                after=after,
+                after={**after, "students_updated": _sync_rule(rule, actor)},
                 label=_rule_label(rule),
             )
     return rule
@@ -289,14 +302,17 @@ def update_fee_rule(
 
 def delete_fee_rule(rule: FeeRule, *, actor: User) -> None:
     with transaction.atomic():
+        before, label = _rule_data(rule, _installments_of(rule)), _rule_label(rule)
+        deleted = copy(rule)  # `delete()` vide l'identifiant ; le journal garde celui du barème
+        rule.delete()
         audit.record(
             Action.FINANCE_FEE_RULE_DELETED,
-            rule,
+            deleted,
             actor=actor,
-            before=_rule_data(rule, _installments_of(rule)),
-            label=_rule_label(rule),
+            before=before,
+            after={"students_updated": _sync_rule(deleted, actor)},
+            label=label,
         )
-        rule.delete()
 
 
 def _shift_years(day: date, years: int) -> date:
@@ -355,6 +371,129 @@ def copy_fee_rules(source: AcademicYear, year: AcademicYear, *, actor: User) -> 
         after={"copied_from": source.name, "fee_rule_count": copied},
     )
     return copied
+
+
+# Frais dus des élèves (2.6)
+
+
+def _rank(rule: FeeRule, group: ClassGroup) -> int | None:
+    """Précision du barème pour la classe : 0 la classe, 1 son niveau, 2 son option, 3 toute
+    l'école ; `None` s'il ne la concerne pas."""
+    if rule.class_group_id:
+        return 0 if rule.class_group_id == group.pk else None
+    if rule.level_id:
+        return 1 if rule.level_id == group.level_id else None
+    if rule.track_id:
+        return 2 if rule.track_id == group.track_id else None
+    return 3
+
+
+def _wanted(rules: list[FeeRule], group: ClassGroup) -> dict:
+    """Tranches dues par un élève de la classe : `{tranche: (barème, tranche)}`, avec pour chaque
+    type de frais le barème le plus précis."""
+    best: dict = {}
+    for rule in rules:
+        rank = _rank(rule, group)
+        if rank is not None and rank < best.get(rule.fee_type_id, (4,))[0]:
+            best[rule.fee_type_id] = (rank, rule)
+    return {
+        template.pk: (rule, template)
+        for _rank_, rule in best.values()
+        for template in rule.installments.all()
+    }
+
+
+def sync_charges(
+    enrollments: QuerySet[Enrollment], *, actor: User | None, fee_type: FeeType | None = None
+) -> int:
+    """Remet les frais dus des inscriptions actives de `enrollments` d'accord avec les barèmes de
+    leur année (tous, ou ceux de `fee_type`) : une ligne par tranche du barème le plus précis,
+    montant et date à jour ; une tranche qui ne s'applique plus passe « retirée », une tranche
+    retirée qui s'applique de nouveau redevient due. Un élève parti garde ses frais tels quels.
+    Les frais déjà payés ne bougeront pas (3.1). En quelques requêtes, quel que soit le nombre
+    d'élèves. Renvoie le nombre d'élèves dont les frais ont changé."""
+    with transaction.atomic():
+        enrollments = list(
+            enrollments.filter(status=Enrollment.Status.ACTIVE)
+            .select_related("class_group")
+            .select_for_update(of=("self",))
+        )
+        if not enrollments:
+            return 0
+        rules = (
+            FeeRule.objects.filter(academic_year_id__in={e.academic_year_id for e in enrollments})
+            .select_related("fee_type")
+            .prefetch_related("installments")
+        )
+        existing = StudentCharge.objects.filter(
+            enrollment__in=enrollments, source=StudentCharge.Source.RULE
+        )
+        if fee_type is not None:
+            rules, existing = rules.filter(fee_type=fee_type), existing.filter(fee_type=fee_type)
+        rules_by_year, charges_by_enrollment = defaultdict(list), defaultdict(list)
+        for rule in rules:
+            rules_by_year[rule.academic_year_id].append(rule)
+        for charge in existing:
+            charges_by_enrollment[charge.enrollment_id].append(charge)
+
+        wanted_by_class: dict = {}
+        to_create, to_update, changed = [], [], set()
+        now = timezone.now()
+        for enrollment in enrollments:
+            group, current = enrollment.class_group, charges_by_enrollment[enrollment.pk]
+            if group.pk not in wanted_by_class:
+                year_rules = rules_by_year[enrollment.academic_year_id]
+                wanted_by_class[group.pk] = _wanted(year_rules, group)
+            wanted = wanted_by_class[group.pk]
+            for charge in current:
+                target = wanted.get(charge.installment_template_id)
+                values = {"status": StudentCharge.Status.REMOVED}
+                if target is not None:
+                    rule, template = target
+                    values = {
+                        "status": StudentCharge.Status.ACTIVE,
+                        "label": template.label,
+                        "amount_minor": template.amount_minor,
+                        "currency": rule.currency,
+                        "due_on": template.due_on,
+                    }
+                if any(getattr(charge, field) != value for field, value in values.items()):
+                    for field, value in values.items():
+                        setattr(charge, field, value)
+                    charge.updated_at = now
+                    to_update.append(charge)
+                    changed.add(enrollment.pk)
+            have = {charge.installment_template_id for charge in current}
+            for template_id, (rule, template) in wanted.items():
+                if template_id not in have:
+                    to_create.append(
+                        StudentCharge(
+                            enrollment=enrollment,
+                            fee_type=rule.fee_type,
+                            label=template.label,
+                            amount_minor=template.amount_minor,
+                            currency=rule.currency,
+                            due_on=template.due_on,
+                            source=StudentCharge.Source.RULE,
+                            installment_template=template,
+                            created_by=actor,
+                        )
+                    )
+                    changed.add(enrollment.pk)
+        StudentCharge.objects.bulk_create(to_create, batch_size=500)
+        StudentCharge.objects.bulk_update(
+            to_update,
+            ["status", "label", "amount_minor", "currency", "due_on", "updated_at"],
+            batch_size=500,
+        )
+    return len(changed)
+
+
+def _sync_rule(rule: FeeRule, actor: User) -> int:
+    """Frais dus des élèves de l'année pour le type de frais d'un barème créé, modifié ou
+    supprimé : sa portée a pu changer, et un barème moins précis peut prendre le relais."""
+    enrollments = Enrollment.objects.filter(academic_year_id=rule.academic_year_id)
+    return sync_charges(enrollments, actor=actor, fee_type=rule.fee_type)
 
 
 # Devises utilisées (M5)

@@ -956,6 +956,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/student-charges/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Frais dus d'une inscription, par date limite (2.6) : ceux des barèmes, et les frais
+         *     retirés (changement de classe, barème modifié), gardés pour l'histoire. Lecture seule.
+         */
+        get: operations["student_charges_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/student-imports/": {
         parameters: {
             query?: never;
@@ -2076,6 +2096,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["Staff"][];
         };
+        PaginatedStudentChargeList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["StudentCharge"][];
+        };
         PaginatedStudentHistoryList: {
             /** @example 123 */
             count: number;
@@ -2415,6 +2450,12 @@ export interface components {
          */
         SexEnum: "M" | "F";
         /**
+         * @description * `rule` - Fee rule
+         *     * `custom` - Custom schedule
+         * @enum {string}
+         */
+        SourceEnum: "rule" | "custom";
+        /**
          * @description Une personne dans l'école (son appartenance) ; `id` est celui de l'appartenance. Rien sur
          *     ses autres écoles.
          */
@@ -2522,6 +2563,35 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
         };
+        StudentCharge: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            enrollment: string;
+            /** Format: uuid */
+            fee_type: string;
+            readonly fee_type_name: string;
+            label: string;
+            /**
+             * Amount
+             * Format: int64
+             */
+            amount_minor: number;
+            currency: components["schemas"]["CurrencyEnum"];
+            /**
+             * Due date
+             * Format: date
+             */
+            due_on: string;
+            source: components["schemas"]["SourceEnum"];
+            status: components["schemas"]["StudentChargeStatusEnum"];
+        };
+        /**
+         * @description * `active` - Due
+         *     * `removed` - Removed
+         * @enum {string}
+         */
+        StudentChargeStatusEnum: "active" | "removed";
         /**
          * @description Une entrée du journal sur l'élève, ses inscriptions ou sa famille (onglet Historique) ;
          *     sans adresse IP ni navigateur, réservés au journal de l'école (`audit.view`).
@@ -6424,6 +6494,54 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    student_charges_list: {
+        parameters: {
+            query: {
+                /** @description Inscription de l'élève pour une année. */
+                enrollment: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedStudentChargeList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

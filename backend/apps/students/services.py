@@ -21,6 +21,7 @@ from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.core.ids import uuid7
 from apps.core.tenancy import require_current_school
+from apps.finance import services as finance
 from apps.schools import matricule
 from apps.schools.models import AcademicYear, ClassGroup, School
 from apps.students.models import (
@@ -359,8 +360,9 @@ def enroll(
     enrolled_on: date | None = None,
     enrollment_id: UUID | None = None,
 ) -> tuple[Enrollment, bool]:
-    """Inscrit l'élève pour l'année de la classe (D3). Sa première inscription dans l'école lui
-    donne son matricule ; il le garde ensuite. Renvoie `(inscription, créée)`."""
+    """Inscrit l'élève pour l'année de la classe (D3), avec les frais dus d'après les barèmes. Sa
+    première inscription dans l'école lui donne son matricule ; il le garde ensuite. Renvoie
+    `(inscription, créée)`."""
     if enrollment_id is not None:
         replayed = Enrollment.objects.filter(pk=enrollment_id).first()
         if replayed is not None:
@@ -389,6 +391,7 @@ def enroll(
             actor=actor,
             after={**_enrollment_data(enrollment), "matricule": student.matricule},
         )
+        finance.sync_charges(Enrollment.objects.filter(pk=enrollment.pk), actor=actor)
     return enrollment, True
 
 
@@ -401,7 +404,9 @@ def update_enrollment(
     left_on: date | None = None,
 ) -> Enrollment:
     """Changement de classe dans la même année, ou départ (transféré, abandon, exclu…) : la
-    date de départ vaut aujourd'hui si elle n'est pas donnée ; retour en « actif » : effacée."""
+    date de départ vaut aujourd'hui si elle n'est pas donnée ; retour en « actif » : effacée.
+    Les frais dus suivent la nouvelle classe, ou les barèmes du moment au retour ; un départ
+    les laisse tels quels (l'élève garde ses dettes)."""
     if class_group is not None and class_group.academic_year_id != enrollment.academic_year_id:
         raise BusinessError(CLASS_OTHER_YEAR)
     with transaction.atomic():
@@ -420,4 +425,5 @@ def update_enrollment(
             audit.record(
                 Action.STUDENTS_ENROLLMENT_UPDATED, enrollment, actor=actor, before=old, after=new
             )
+            finance.sync_charges(Enrollment.objects.filter(pk=enrollment.pk), actor=actor)
     return enrollment

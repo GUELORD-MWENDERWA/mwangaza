@@ -1,7 +1,8 @@
 """Frais de démonstration (I5 en attendant la grille de l'ITIG) : grille fictive réaliste, à
 partir de celle des maquettes — minerval en tranches USD, fonctionnement et frais connexes en une
-fois, atelier par option, motivation des enseignants mensuelle en FC, Exetat en 4e —, et le taux
-de l'année. Écrits directement dans les modèles : `make demo` n'écrit rien dans le journal."""
+fois, atelier par option, motivation des enseignants mensuelle en FC, Exetat en 4e —, le taux
+de l'année, et ce que doit chaque élève inscrit. Écrits directement dans les modèles : `make demo`
+n'écrit rien dans le journal."""
 
 from dataclasses import dataclass
 from datetime import date
@@ -9,8 +10,9 @@ from decimal import Decimal
 
 from apps.core.tenancy import use_school
 from apps.finance.models import ExchangeRate, FeeRule, FeeType
-from apps.finance.services import Installment, _write_installments
+from apps.finance.services import Installment, _write_installments, sync_charges
 from apps.schools.models import AcademicYear, Level, School, Track
+from apps.students.models import Enrollment
 
 TRANCHES = (date(2026, 10, 15), date(2027, 1, 15), date(2027, 4, 15))
 START = date(2026, 9, 30)
@@ -141,3 +143,12 @@ def create_demo_fees(schools: dict[str, School]) -> None:
                 _write_installments(rule, _installments(demo), actor=None)
             if not ExchangeRate.objects.filter(academic_year=year).exists():
                 ExchangeRate.objects.create(academic_year=year, rate=RATES[code])
+
+
+def create_demo_charges(schools: dict[str, School]) -> None:
+    """Frais dus des élèves inscrits cette année, d'après les barèmes de démonstration : ceux qui
+    manquent sont ajoutés, ceux d'un barème remis à zéro reprennent son montant."""
+    for school in schools.values():
+        with use_school(school):
+            year = AcademicYear.objects.get(is_current=True)
+            sync_charges(Enrollment.objects.filter(academic_year=year), actor=None)

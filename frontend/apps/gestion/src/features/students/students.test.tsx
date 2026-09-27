@@ -318,6 +318,28 @@ describe("Élèves (D2-D4)", () => {
     expect(within(screen.getByRole("table")).getByText("2026-2027")).toBeTruthy();
   });
 
+  it("départ depuis la fiche : motif et date envoyés sur l'inscription de l'année", async () => {
+    const requests = mockApi(
+      routes("head", { ...card, [`PATCH /api/enrollments/${id(80)}/`]: enrollment("transferred") }),
+    );
+    const { user } = renderApp(`/students/${STUDENT}`);
+
+    await user.click(await screen.findByRole("button", { name: "Enregistrer un départ" }));
+    const dialog = screen.getByRole("dialog");
+    await user.selectOptions(within(dialog).getByLabelText(/^Motif/), "Transféré");
+    fireEvent.change(within(dialog).getByLabelText(/^Date du départ/), {
+      target: { value: "2026-11-03" },
+    });
+    await user.click(within(dialog).getByRole("button", { name: "Enregistrer un départ" }));
+
+    await waitFor(() =>
+      expect(requests.find((request) => request.method === "PATCH")?.body).toEqual({
+        status: "transferred",
+        left_on: "2026-11-03",
+      }),
+    );
+  });
+
   it("lier l'élève à une autre famille : recherche, choix, puis envoi de la famille seule", async () => {
     const other = { ...family, id: id(201), code: "P4TR8KWE", students: [] };
     const requests = mockApi(

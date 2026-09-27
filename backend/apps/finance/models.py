@@ -142,6 +142,72 @@ class InstallmentTemplate(TenantModel):
         return self.label
 
 
+class StudentCharge(TenantModel):
+    """Ce que doit un élève pour son année [T] : une ligne par tranche du barème qui s'applique
+    à sa classe (`source=rule`), ou par versement d'un échéancier particulier (`source=custom`,
+    2.6.2). Montant dans la devise du barème.
+
+    Jamais effacé (aucune suppression dans les finances) : un frais qui ne s'applique plus
+    (changement de classe, barème modifié ou supprimé) passe « retiré » et ne compte plus dans ce
+    que doit l'élève ; il redevient dû si le barème s'applique de nouveau."""
+
+    class Source(models.TextChoices):
+        RULE = "rule", _("Fee rule")
+        CUSTOM = "custom", _("Custom schedule")
+
+    class Status(models.TextChoices):
+        ACTIVE = "active", _("Due")
+        REMOVED = "removed", _("Removed")
+
+    enrollment = models.ForeignKey(
+        "students.Enrollment",
+        on_delete=models.PROTECT,
+        related_name="charges",
+        verbose_name=_("enrollment"),
+    )
+    fee_type = models.ForeignKey(
+        FeeType, on_delete=models.PROTECT, related_name="charges", verbose_name=_("fee type")
+    )
+    label = models.CharField(_("label"), max_length=40)
+    amount_minor = models.BigIntegerField(_("amount"), validators=[MinValueValidator(1)])
+    currency = models.CharField(_("currency"), max_length=3, choices=Currency.choices)
+    due_on = models.DateField(_("due date"))
+    source = models.CharField(_("source"), max_length=10, choices=Source.choices)
+    # Tranche d'origine : garde le lien quand le barème est modifié ; vide si elle est retirée.
+    installment_template = models.ForeignKey(
+        InstallmentTemplate,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="charges",
+        verbose_name=_("installment"),
+    )
+    status = models.CharField(
+        _("status"), max_length=10, choices=Status.choices, default=Status.ACTIVE
+    )
+
+    class Meta:
+        ordering = ["due_on", "label"]
+        verbose_name = _("student charge")
+        verbose_name_plural = _("student charges")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["enrollment", "installment_template"],
+                condition=models.Q(installment_template__isnull=False),
+                name="student_charge_one_per_installment",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(amount_minor__gt=0), name="student_charge_amount_positive"
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["school", "enrollment", "status"], name="charge_enrollment_status")
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.fee_type} — {self.label}"
+
+
 IMMUTABLE_RATE = "Un taux enregistré ne se modifie pas et ne s'efface pas : ajouter une ligne."
 
 

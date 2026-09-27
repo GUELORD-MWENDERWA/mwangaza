@@ -1075,6 +1075,21 @@ export const en: Messages<typeof fr> = {
       financesLater:
         "The student's fees due, payments and receipts will appear here once the school's fees are set up.",
     },
+    enrollment: {
+      help: "Changing class recalculates the fees due, except those already paid.",
+      changeClass: "Change class",
+      chooseClass: "Choose a class",
+      departure: "Record a departure",
+      departureHelp:
+        "The student leaves the class lists but keeps their record and what they still owe.",
+      reason: "Reason",
+      leftOn: "Departure date",
+      cancelDeparture: "Cancel the departure",
+      returnHelp:
+        "The student returns to their class; their fees due follow the current fee rules.",
+      enroll: "Enrol for {{year}}",
+      enrollSubmit: "Enrol",
+    },
     edit: {
       crumb: "Edit",
       title: "Edit the student",
@@ -1294,7 +1309,7 @@ export const en: Messages<typeof fr> = {
     nothing_to_import: "No row can be imported.",
     invalid: "Some fields need correcting.",
     fee_type_name_taken: "The school already has a fee type with this name.",
-    fee_type_in_use: "This fee type has fee rules: deactivate it instead.",
+    fee_type_in_use: "This fee type has fee rules or students who owe it: deactivate it instead.",
     fee_rule_exists: "This fee already has a fee rule for this scope this year.",
     invalid_credentials: "Wrong phone number or password.",
     login_expired: "The login took too long: start again.",

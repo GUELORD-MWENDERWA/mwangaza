@@ -1,5 +1,6 @@
 // Type de frais (E1) : nom, catégorie, compte SYSCOHADA, prime des enseignants, actif. Un type
-// qui a des barèmes ne se supprime pas : on le désactive (refus du serveur `fee_type_in_use`).
+// qui a des barèmes ou des frais dus ne se supprime pas : on le désactive (refus du serveur
+// `fee_type_in_use`).
 import { api, call } from "@mwangaza/api";
 import { useTranslation } from "@mwangaza/i18n";
 import {
