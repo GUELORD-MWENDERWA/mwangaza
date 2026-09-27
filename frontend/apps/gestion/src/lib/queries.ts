@@ -10,6 +10,17 @@ export const keys = {
   school: ["school"],
   me: ["me"],
   loginStep: ["login-step"],
+  settings: ["school-settings"],
+  years: ["academic-years"],
+  levels: ["levels"],
+  tracks: ["tracks"],
+  classes: ["class-groups"],
+  homeroomCandidates: ["homeroom-candidates"],
+  matricule: ["matricule-format"],
+  roles: ["roles"],
+  staff: ["staff"],
+  audit: ["audit"],
+  auditActors: ["audit-actors"],
 } as const;
 
 /** Nouvel essai seulement sans réponse du serveur (réseau), jamais sur un refus de l'API. */

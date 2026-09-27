@@ -96,6 +96,14 @@ export function Offline({ onRetry }: { onRetry: () => void }) {
   );
 }
 
+/** Données d'un écran qui n'ont pas pu être lues : pas de réseau, droit retiré, erreur. */
+export function LoadError({ error, onRetry }: { error: unknown; onRetry: () => void }) {
+  if (error instanceof ApiError && error.status === 0) return <Offline onRetry={onRetry} />;
+  if (error instanceof ApiError && error.code === "permission_denied") return <Forbidden />;
+  const status = error instanceof ApiError ? error.status : undefined;
+  return <ErrorState status={status} onRetry={onRetry} />;
+}
+
 /** A1 : aucune donnée de l'école ; le serveur refuse tout à son adresse (même la déconnexion). */
 export function Suspended() {
   const { t } = useTranslation();

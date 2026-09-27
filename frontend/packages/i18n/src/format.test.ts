@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDate, formatDateTime, formatTime, formatVisit } from "./format";
+import { formatDate, formatDateTime, formatDay, formatTime, formatVisit } from "./format";
 
 const GOMA = "Africa/Lubumbashi";
 
@@ -10,6 +10,11 @@ describe("dates et heures", () => {
     expect(formatDateTime("2026-10-18T22:30:00Z", "fr", GOMA)).toBe("19/10/2026 00:30");
     expect(formatTime("2026-10-19T08:42:00Z", "en", GOMA)).toBe("10:42");
     expect(formatDate("2026-10-19T08:42:00Z", "en", GOMA)).toBe("19/10/2026");
+  });
+
+  it("jour du calendrier (sans heure) : le même partout", () => {
+    expect(formatDay("2026-09-07", "fr")).toBe("07/09/2026");
+    expect(formatDay("2027-01-01", "en")).toBe("01/01/2027");
   });
 
   it("dernière visite : « aujourd'hui » le jour même à l'école, sinon la date", () => {

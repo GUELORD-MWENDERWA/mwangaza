@@ -36,6 +36,7 @@ export const PERMISSIONS = {
     "finance.close_register",
   ],
   promoter: ["students.view", "finance.view_reports", "audit.view"],
+  study_director: ["classes.manage", "students.view", "students.edit", "announcements.publish"],
   teacher: [],
 } satisfies Record<string, Permission[]>;
 

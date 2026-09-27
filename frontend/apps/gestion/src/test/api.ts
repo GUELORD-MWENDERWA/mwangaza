@@ -26,10 +26,24 @@ export function apiError(
 
 export const noContent = () => new Response(null, { status: 204 });
 
+/** Corps JSON, sinon le texte tel quel (envoi d'un fichier). */
+function parse(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}
+
 /** Remplace `fetch` ; les routes peuvent être changées pendant le test (`routes[…] = …`).
  *  Renvoie les requêtes reçues, avec leur corps JSON. */
 export function mockApi(routes: Routes) {
-  const requests: { method: string; path: string; body: unknown }[] = [];
+  const requests: {
+    method: string;
+    path: string;
+    query: Record<string, string>;
+    body: unknown;
+  }[] = [];
   vi.stubGlobal(
     "fetch",
     vi.fn(async (request: Request) => {
@@ -38,7 +52,8 @@ export function mockApi(routes: Routes) {
       requests.push({
         method: request.method,
         path: url.pathname,
-        body: text ? JSON.parse(text) : null,
+        query: Object.fromEntries(url.searchParams),
+        body: text ? parse(text) : null,
       });
       const reply = routes[`${request.method} ${url.pathname}`];
       if (reply === undefined) return apiError("not_found", 404);

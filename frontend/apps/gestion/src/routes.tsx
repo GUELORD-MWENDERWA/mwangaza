@@ -10,7 +10,9 @@ import { LoginLayout } from "./features/auth/LoginLayout";
 import { LoginPage } from "./features/auth/LoginPage";
 import { LoginTwoFactorPage } from "./features/auth/LoginTwoFactorPage";
 import { NewPasswordPage } from "./features/auth/NewPasswordPage";
+import { OrganisationPage } from "./features/organisation/OrganisationPage";
 import { SchoolChoicePage } from "./features/schools/SchoolChoicePage";
+import { SchoolSettingsPage } from "./features/settings/SchoolSettingsPage";
 import { AppShell } from "./features/shell/AppShell";
 import { HomePage } from "./features/shell/HomePage";
 import { MenuScreen } from "./features/shell/MenuScreen";
@@ -22,7 +24,10 @@ import { MENU_ITEMS, type MenuKey } from "./lib/menu";
 
 /** Écrans construits, par entrée du menu (chaque tâche ajoute le sien) ; les autres :
  *  « bientôt disponible ». Le droit de l'entrée est vérifié avant (`MenuScreen`). */
-const SCREENS: Partial<Record<MenuKey, ReactNode>> = {};
+const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
+  schoolSettings: <SchoolSettingsPage />,
+  organisation: <OrganisationPage />,
+};
 
 export const routes: RouteObject[] = [
   {

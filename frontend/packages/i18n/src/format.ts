@@ -22,6 +22,16 @@ export function formatDate(value: string | Date, language: string, timeZone: str
   return parts(value, language, timeZone, { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
+/** Jour sans heure (`2026-09-07` de l'API → `07/09/2026`) : pas de fuseau, c'est une date du
+ *  calendrier de l'école. */
+export function formatDay(value: string, language: string) {
+  return parts(`${value}T00:00:00Z`, language, "UTC", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
 /** `10:42` */
 export function formatTime(value: string | Date, language: string, timeZone: string) {
   return parts(value, language, timeZone, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
