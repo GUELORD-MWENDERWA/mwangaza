@@ -29,7 +29,7 @@ import {
 } from "@mwangaza/ui";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 
 import { errorMessage, fieldMessage } from "../../lib/errors";
 import { keys, useSchool } from "../../lib/queries";
@@ -230,30 +230,37 @@ export function RuleEditor({ year, type, rule, onClose }: Props) {
           )}
           <Field id="rule-scope" label={t("fees.editor.scope")}>
             {(control) => (
-              <Select {...control} {...form.register("scope")}>
-                <option value="">{t("fees.rules.wholeSchool")}</option>
-                <optgroup label={t("fees.editor.levels")}>
-                  {(levels.data ?? []).map((level) => (
-                    <option key={level.id} value={`level:${level.id}`}>
-                      {level.name}
-                    </option>
-                  ))}
-                </optgroup>
-                <optgroup label={t("fees.editor.tracks")}>
-                  {(tracks.data ?? []).map((track) => (
-                    <option key={track.id} value={`track:${track.id}`}>
-                      {track.name}
-                    </option>
-                  ))}
-                </optgroup>
-                <optgroup label={t("fees.editor.classes")}>
-                  {(classes.data ?? []).map((group) => (
-                    <option key={group.id} value={`class:${group.id}`}>
-                      {group.name}
-                    </option>
-                  ))}
-                </optgroup>
-              </Select>
+              // Contrôlé : la portée reste choisie quand les niveaux et classes arrivent après.
+              <Controller
+                control={form.control}
+                name="scope"
+                render={({ field }) => (
+                  <Select {...control} {...field}>
+                    <option value="">{t("fees.rules.wholeSchool")}</option>
+                    <optgroup label={t("fees.editor.levels")}>
+                      {(levels.data ?? []).map((level) => (
+                        <option key={level.id} value={`level:${level.id}`}>
+                          {level.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label={t("fees.editor.tracks")}>
+                      {(tracks.data ?? []).map((track) => (
+                        <option key={track.id} value={`track:${track.id}`}>
+                          {track.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label={t("fees.editor.classes")}>
+                      {(classes.data ?? []).map((group) => (
+                        <option key={group.id} value={`class:${group.id}`}>
+                          {group.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  </Select>
+                )}
+              />
             )}
           </Field>
           <Field id="rule-currency" label={t("fees.editor.currency")}>

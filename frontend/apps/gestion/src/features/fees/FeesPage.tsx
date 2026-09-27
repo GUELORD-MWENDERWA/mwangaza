@@ -25,7 +25,7 @@ import { useState } from "react";
 import { errorMessage } from "../../lib/errors";
 import { can } from "../../lib/permissions";
 import { keys, useCurrentMe } from "../../lib/queries";
-import { useRefresh, useYears, type Year } from "../organisation/data";
+import { useLevels, useRefresh, useYears, type Year } from "../organisation/data";
 import { LoadError } from "../status/StatusPages";
 import { useFeeRules, useFeeTypes, type FeeRule, type FeeType } from "./data";
 import { FeeTypeDialog } from "./FeeTypeDialog";
@@ -184,6 +184,7 @@ function FeeTypesCard({
   );
 }
 
+// Toute l'école, puis les niveaux dans l'ordre de l'école, les options, les classes.
 const SCOPE_ORDER = (rule: FeeRule) => (rule.class_group ? 3 : rule.track ? 2 : rule.level ? 1 : 0);
 
 function RulesCard({
@@ -201,6 +202,7 @@ function RulesCard({
 }) {
   const { t } = useTranslation();
   const rules = useFeeRules(year.id);
+  const levels = useLevels();
   const refresh = useRefresh();
   const toggle = useMutation({
     mutationFn: (is_active: boolean) =>
@@ -217,11 +219,13 @@ function RulesCard({
     type.accounting_code && t("fees.type.account", { code: type.accounting_code }),
     type.funds_teacher_bonus && t("fees.types.bonus"),
   ].filter(Boolean);
+  const levelOrder = new Map((levels.data ?? []).map((level) => [level.id, level.order]));
   const list = (rules.data ?? [])
     .filter((rule) => rule.fee_type === type.id)
     .sort(
       (a, b) =>
         SCOPE_ORDER(a) - SCOPE_ORDER(b) ||
+        (levelOrder.get(a.level ?? "") ?? 0) - (levelOrder.get(b.level ?? "") ?? 0) ||
         a.scope_name.localeCompare(b.scope_name, undefined, { numeric: true }),
     );
 

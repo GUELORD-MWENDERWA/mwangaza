@@ -88,6 +88,12 @@ describe("Frais et barèmes (E1, E2, E5)", () => {
     expect(row.textContent).toContain("3 × 120,00\u00a0$");
     await user.click(within(row).getByRole("button", { name: "Modifier" }));
     const first = await screen.findByLabelText("Montant de la ligne 1");
+    // Portée du barème affichée, même si les niveaux arrivent après le formulaire.
+    await waitFor(() =>
+      expect((screen.getByLabelText("Portée") as HTMLSelectElement).selectedOptions[0]!.text).toBe(
+        "3e",
+      ),
+    );
     await user.clear(first);
     await user.type(first, "110,00");
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));

@@ -69,7 +69,7 @@ export function RateCard({ year }: { year: Year }) {
           <>
             {current ? (
               <div>
-                <p className="num text-2xl font-bold">
+                <p className="text-2xl font-bold tabular-nums">
                   {t("fees.rate.value", { rate: formatRate(current.rate) })}
                 </p>
                 <p className="text-sm text-ink-3">
