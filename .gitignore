@@ -39,3 +39,6 @@ test-results/
 
 # Claude Code (réglages personnels)
 .claude/settings.local.json
+
+# Liste d’élèves fictive de make demo-excel
+/eleves-fictifs.xlsx

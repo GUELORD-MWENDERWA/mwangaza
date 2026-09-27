@@ -84,14 +84,24 @@ export function StudentsPage() {
             : undefined
         }
         actions={
-          can(me, ["students.edit"]) && (
-            <Button asChild>
-              <Link to="/students/new">
-                <Icon name="plus" size={16} />
-                {t("students.list.newStudent")}
-              </Link>
-            </Button>
-          )
+          <>
+            {can(me, ["students.import"]) && (
+              <Button asChild variant="outline">
+                <Link to="/students/import">
+                  <Icon name="upload" size={16} />
+                  {t("students.list.importExcel")}
+                </Link>
+              </Button>
+            )}
+            {can(me, ["students.edit"]) && (
+              <Button asChild>
+                <Link to="/students/new">
+                  <Icon name="plus" size={16} />
+                  {t("students.list.newStudent")}
+                </Link>
+              </Button>
+            )}
+          </>
         }
       />
       <Card>

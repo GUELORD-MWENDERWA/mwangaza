@@ -1,0 +1,1725 @@
+# Traductions françaises du serveur Mwangaza (texte source en anglais). `make messages`.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-27 17:48+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: apps/accounts/admin.py:63
+msgid "Name"
+msgstr ""
+
+#: apps/accounts/admin.py:65
+msgid "Access"
+msgstr ""
+
+#: apps/accounts/admin.py:75 apps/schools/admin.py:130
+msgid "Dates"
+msgstr ""
+
+#: apps/accounts/admin.py:95
+msgid "two-factor authentication"
+msgstr ""
+
+#: apps/accounts/admin.py:117
+msgid "Temporary password"
+msgstr ""
+
+#: apps/accounts/admin.py:129
+msgid "Reset two-factor authentication (lost phone)"
+msgstr ""
+
+#: apps/accounts/admin.py:135
+msgid ""
+"Two-factor authentication reset: to be turned on again at the next login."
+msgstr ""
+
+#: apps/accounts/admin.py:161 apps/accounts/models.py:144
+msgid "permissions"
+msgstr ""
+
+#: apps/accounts/admin.py:176 apps/accounts/models.py:153
+#: apps/accounts/models.py:204
+msgid "roles"
+msgstr ""
+
+#: apps/accounts/admin_site.py:30
+msgid ""
+"Wrong phone number or password, or not a Mwangaza administration account."
+msgstr ""
+
+#: apps/accounts/admin_site.py:36
+msgid "Phone"
+msgstr ""
+
+#: apps/accounts/admin_site.py:41
+msgid "Password"
+msgstr ""
+
+#: apps/accounts/admin_site.py:49
+msgid "Code"
+msgstr ""
+
+#: apps/accounts/admin_site.py:57
+msgid "Enter the code of your authentication application, or a recovery code."
+msgstr ""
+
+#: apps/accounts/admin_site.py:58
+msgid "Your password is temporary: choose your own (10 characters or more)."
+msgstr ""
+
+#: apps/accounts/admin_site.py:60
+msgid ""
+"Two-factor authentication is required for the administration. In your "
+"authentication application (Google Authenticator, Aegis…), add an account "
+"with the key below, then enter the code it shows."
+msgstr ""
+
+#: apps/accounts/admin_site.py:68 apps/accounts/admin_site.py:69
+msgid "Mwangaza administration"
+msgstr ""
+
+#: apps/accounts/admin_site.py:70
+msgid "Platform"
+msgstr ""
+
+#: apps/accounts/admin_site.py:108
+msgid "Log in"
+msgstr ""
+
+#: apps/accounts/apps.py:11
+msgid "Accounts"
+msgstr ""
+
+#: apps/accounts/attempts.py:32
+msgid "Too many failed attempts. Try again later."
+msgstr ""
+
+#: apps/accounts/login.py:51
+msgid "Wrong phone number or password."
+msgstr ""
+
+#: apps/accounts/login.py:52
+msgid "The login took too long: start again."
+msgstr ""
+
+#: apps/accounts/login.py:53
+msgid "This is not the current login step."
+msgstr ""
+
+#: apps/accounts/login.py:54
+msgid "Ask for a new key first."
+msgstr ""
+
+#: apps/accounts/login.py:58
+msgid "Phone number and password"
+msgstr ""
+
+#: apps/accounts/login.py:59
+msgid "Two-factor authentication code"
+msgstr ""
+
+#: apps/accounts/login.py:60
+msgid "Replace the temporary password"
+msgstr ""
+
+#: apps/accounts/login.py:61
+msgid "Turn on two-factor authentication"
+msgstr ""
+
+#: apps/accounts/login.py:62 apps/audit/actions.py:17
+msgid "Logged in"
+msgstr ""
+
+#: apps/accounts/models.py:59 apps/accounts/models.py:251
+#: apps/students/models.py:64
+msgid "phone"
+msgstr ""
+
+#: apps/accounts/models.py:61
+msgid "Identifies the person on the whole platform, e.g. +243971234567."
+msgstr ""
+
+#: apps/accounts/models.py:63 apps/students/models.py:92
+msgid "last name"
+msgstr ""
+
+#: apps/accounts/models.py:65 apps/students/models.py:93
+msgid "middle name"
+msgstr ""
+
+#: apps/accounts/models.py:66 apps/students/models.py:94
+msgid "first name"
+msgstr ""
+
+#: apps/accounts/models.py:68
+msgid "language"
+msgstr ""
+
+#: apps/accounts/models.py:70 apps/accounts/models.py:207
+msgid "active"
+msgstr ""
+
+#: apps/accounts/models.py:72
+msgid "platform administrator"
+msgstr ""
+
+#: apps/accounts/models.py:74
+msgid ""
+"Mwangaza super-administrator: Django administration only, no school rights."
+msgstr ""
+
+#: apps/accounts/models.py:77
+msgid "must change password"
+msgstr ""
+
+#: apps/accounts/models.py:80
+msgid "TOTP key"
+msgstr ""
+
+#: apps/accounts/models.py:82
+msgid "two-factor authentication enabled on"
+msgstr ""
+
+#: apps/accounts/models.py:93 apps/accounts/models.py:198
+#: apps/accounts/models.py:234
+msgid "account"
+msgstr ""
+
+#: apps/accounts/models.py:94
+msgid "accounts"
+msgstr ""
+
+#: apps/accounts/models.py:135 apps/schools/models.py:61
+#: apps/schools/models.py:313
+msgid "code"
+msgstr ""
+
+#: apps/accounts/models.py:141 apps/schools/models.py:77
+#: apps/schools/models.py:190 apps/schools/models.py:248
+#: apps/schools/models.py:287 apps/schools/models.py:311
+msgid "name"
+msgstr ""
+
+#: apps/accounts/models.py:152
+msgid "role"
+msgstr ""
+
+#: apps/accounts/models.py:201 apps/schools/admin.py:210
+#: apps/schools/models.py:134
+msgid "school"
+msgstr ""
+
+#: apps/accounts/models.py:209
+msgid "last login"
+msgstr ""
+
+#: apps/accounts/models.py:213
+msgid "membership"
+msgstr ""
+
+#: apps/accounts/models.py:214
+msgid "memberships"
+msgstr ""
+
+#: apps/accounts/models.py:237
+msgid "used on"
+msgstr ""
+
+#: apps/accounts/models.py:241
+msgid "recovery code"
+msgstr ""
+
+#: apps/accounts/models.py:242
+msgid "recovery codes"
+msgstr ""
+
+#: apps/accounts/models.py:252 apps/audit/models.py:66
+msgid "IP address"
+msgstr ""
+
+#: apps/accounts/models.py:256
+msgid "failed login"
+msgstr ""
+
+#: apps/accounts/models.py:257
+msgid "failed logins"
+msgstr ""
+
+#: apps/accounts/permissions.py:43
+msgid ""
+"Your roles in this school require two-factor authentication: log in again."
+msgstr ""
+
+#: apps/accounts/phone.py:21
+msgid "Enter a valid phone number, for example 0971234567 or +243971234567."
+msgstr ""
+
+#: apps/accounts/roles.py:17
+msgid "Configure the school (name, logo, colour, currencies, receipts)"
+msgstr ""
+
+#: apps/accounts/roles.py:18
+msgid "Manage years, terms, levels, tracks, classes and student numbers"
+msgstr ""
+
+#: apps/accounts/roles.py:19
+msgid "Manage staff accounts and roles"
+msgstr ""
+
+#: apps/accounts/roles.py:20
+msgid "View students"
+msgstr ""
+
+#: apps/accounts/roles.py:21
+msgid "Edit students"
+msgstr ""
+
+#: apps/accounts/roles.py:22
+msgid "Import students from Excel"
+msgstr ""
+
+#: apps/accounts/roles.py:23
+msgid "Configure fees"
+msgstr ""
+
+#: apps/accounts/roles.py:24
+msgid "Set the exchange rate"
+msgstr ""
+
+#: apps/accounts/roles.py:25
+msgid "Grant discounts"
+msgstr ""
+
+#: apps/accounts/roles.py:26
+msgid "Collect payments"
+msgstr ""
+
+#: apps/accounts/roles.py:27
+msgid "Request a payment cancellation"
+msgstr ""
+
+#: apps/accounts/roles.py:28
+msgid "Approve a payment cancellation"
+msgstr ""
+
+#: apps/accounts/roles.py:29
+msgid "Close a cash register"
+msgstr ""
+
+#: apps/accounts/roles.py:30
+msgid "View financial reports"
+msgstr ""
+
+#: apps/accounts/roles.py:31
+msgid "Publish announcements"
+msgstr ""
+
+#: apps/accounts/roles.py:32
+msgid "View the audit log"
+msgstr ""
+
+#: apps/accounts/roles.py:66
+msgid "Head of school"
+msgstr ""
+
+#: apps/accounts/roles.py:84
+msgid "Director of studies"
+msgstr ""
+
+#: apps/accounts/roles.py:88
+msgid "Discipline master"
+msgstr ""
+
+#: apps/accounts/roles.py:91
+msgid "Accountant"
+msgstr ""
+
+#: apps/accounts/roles.py:105
+msgid "Cashier"
+msgstr ""
+
+#: apps/accounts/roles.py:114
+msgid "Secretary"
+msgstr ""
+
+#: apps/accounts/roles.py:117
+msgid "Promoter"
+msgstr ""
+
+#: apps/accounts/roles.py:120
+msgid "Teacher"
+msgstr ""
+
+#: apps/accounts/roles.py:121
+msgid "Parent"
+msgstr ""
+
+#: apps/accounts/serializers.py:347
+msgid "Choose a password different from the current one."
+msgstr ""
+
+#: apps/accounts/services.py:39
+msgid ""
+"This change would leave the school without an active account that can manage "
+"roles."
+msgstr ""
+
+#: apps/accounts/services.py:42
+msgid "A system role cannot be deleted."
+msgstr ""
+
+#: apps/accounts/services.py:44
+msgid "This role is still given to accounts: remove it from them first."
+msgstr ""
+
+#: apps/accounts/services.py:47
+msgid "The school already has a role with this name."
+msgstr ""
+
+#: apps/accounts/services.py:50
+msgid "A role created by the school needs a name."
+msgstr ""
+
+#: apps/accounts/services.py:53
+msgid "This phone number already has an account in this school."
+msgstr ""
+
+#: apps/accounts/services.py:56
+msgid "This phone number has no account yet: enter the last name."
+msgstr ""
+
+#: apps/accounts/services.py:60
+msgid ""
+"This account is also used outside this school: only Mwangaza support can "
+"change it."
+msgstr ""
+
+#: apps/accounts/services.py:63
+msgid "This phone number already has an account."
+msgstr ""
+
+#: apps/accounts/services.py:65
+msgid "This code is not valid, or it has already been used."
+msgstr ""
+
+#: apps/accounts/services.py:67
+msgid "The current password is not correct."
+msgstr ""
+
+#: apps/accounts/services.py:70
+msgid ""
+"One of your roles requires two-factor authentication: it cannot be turned "
+"off."
+msgstr ""
+
+#: apps/accounts/support.py:41
+msgid "Only Mwangaza support can open a support session."
+msgstr ""
+
+#: apps/accounts/support.py:44
+msgid "Log in again with two-factor authentication."
+msgstr ""
+
+#: apps/accounts/support.py:47
+msgid "No support session is open in this school."
+msgstr ""
+
+#: apps/accounts/templates/admin/accounts/login.html:11
+msgid ""
+"Two-factor authentication is on. Keep these recovery codes somewhere safe: "
+"each one replaces a code once, if you lose your phone. They will not be "
+"shown again."
+msgstr ""
+
+#: apps/accounts/templates/admin/accounts/login.html:13
+#: apps/accounts/templates/admin/accounts/login.html:26
+msgid "Continue"
+msgstr ""
+
+#: apps/accounts/templates/admin/accounts/user/temporary_password.html:6
+#: apps/schools/templates/admin/schools/school/created.html:6
+msgid "Home"
+msgstr ""
+
+#: apps/accounts/templates/admin/accounts/user/temporary_password.html:16
+#, python-format
+msgid "Temporary password of %(name)s, shown only once:"
+msgstr ""
+
+#: apps/accounts/templates/admin/accounts/user/temporary_password.html:18
+msgid ""
+"Give it to the person: they choose their own password at their next login. "
+"Their open sessions are closed. Noted in the audit log of each of their "
+"schools."
+msgstr ""
+
+#: apps/accounts/templates/admin/accounts/user/temporary_password.html:19
+msgid "Back to the account"
+msgstr ""
+
+#: apps/accounts/templates/admin/accounts/user/temporary_password.html:21
+#, python-format
+msgid ""
+"Give a new temporary password to %(name)s? Their current password stops "
+"working, their open sessions are closed and they choose their own password "
+"at their next login."
+msgstr ""
+
+#: apps/accounts/templates/admin/accounts/user/temporary_password.html:23
+msgid "Give a temporary password"
+msgstr ""
+
+#: apps/accounts/views.py:53
+msgid "This field is required."
+msgstr ""
+
+#: apps/audit/actions.py:20
+msgid "Password changed"
+msgstr ""
+
+#: apps/audit/actions.py:21
+msgid "Two-factor authentication turned on"
+msgstr ""
+
+#: apps/audit/actions.py:22
+msgid "Two-factor authentication on a new phone"
+msgstr ""
+
+#: apps/audit/actions.py:23
+msgid "Two-factor authentication turned off"
+msgstr ""
+
+#: apps/audit/actions.py:24
+msgid "Two-factor authentication reset by support"
+msgstr ""
+
+#: apps/audit/actions.py:25
+msgid "New recovery codes"
+msgstr ""
+
+#: apps/audit/actions.py:27
+msgid "Names or phone changed by support"
+msgstr ""
+
+#: apps/audit/actions.py:28
+msgid "Account deactivated by support"
+msgstr ""
+
+#: apps/audit/actions.py:29
+msgid "Account reactivated by support"
+msgstr ""
+
+#: apps/audit/actions.py:30
+msgid "Temporary password given by support"
+msgstr ""
+
+#: apps/audit/actions.py:33
+msgid "Role created"
+msgstr ""
+
+#: apps/audit/actions.py:34
+msgid "Role changed"
+msgstr ""
+
+#: apps/audit/actions.py:35
+msgid "Role deleted"
+msgstr ""
+
+#: apps/audit/actions.py:38
+msgid "Staff member added"
+msgstr ""
+
+#: apps/audit/actions.py:39
+msgid "Staff member's roles changed"
+msgstr ""
+
+#: apps/audit/actions.py:40
+msgid "Staff member deactivated"
+msgstr ""
+
+#: apps/audit/actions.py:41
+msgid "Staff member reactivated"
+msgstr ""
+
+#: apps/audit/actions.py:42
+msgid "Staff member's names or phone changed"
+msgstr ""
+
+#: apps/audit/actions.py:43
+msgid "Temporary password given"
+msgstr ""
+
+#: apps/audit/actions.py:44
+msgid "Two-factor authentication reset"
+msgstr ""
+
+#: apps/audit/actions.py:48 apps/schools/admin.py:202
+msgid "School created"
+msgstr ""
+
+#: apps/audit/actions.py:49
+msgid "School settings changed"
+msgstr ""
+
+#: apps/audit/actions.py:50
+msgid "School logo changed"
+msgstr ""
+
+#: apps/audit/actions.py:51
+msgid "School suspended"
+msgstr ""
+
+#: apps/audit/actions.py:52
+msgid "School reactivated"
+msgstr ""
+
+#: apps/audit/actions.py:55
+msgid "School year created"
+msgstr ""
+
+#: apps/audit/actions.py:56
+msgid "School year changed"
+msgstr ""
+
+#: apps/audit/actions.py:57
+msgid "School year deleted"
+msgstr ""
+
+#: apps/audit/actions.py:58
+msgid "Terms and periods changed"
+msgstr ""
+
+#: apps/audit/actions.py:59
+msgid "Level created"
+msgstr ""
+
+#: apps/audit/actions.py:60
+msgid "Level changed"
+msgstr ""
+
+#: apps/audit/actions.py:61
+msgid "Level deleted"
+msgstr ""
+
+#: apps/audit/actions.py:62
+msgid "Levels reordered"
+msgstr ""
+
+#: apps/audit/actions.py:63
+msgid "Track created"
+msgstr ""
+
+#: apps/audit/actions.py:64
+msgid "Track changed"
+msgstr ""
+
+#: apps/audit/actions.py:65
+msgid "Track deleted"
+msgstr ""
+
+#: apps/audit/actions.py:66
+msgid "Class created"
+msgstr ""
+
+#: apps/audit/actions.py:67
+msgid "Class changed"
+msgstr ""
+
+#: apps/audit/actions.py:68
+msgid "Class deleted"
+msgstr ""
+
+#: apps/audit/actions.py:71
+msgid "Student number format changed"
+msgstr ""
+
+#: apps/audit/actions.py:75
+msgid "Family created"
+msgstr ""
+
+#: apps/audit/actions.py:76
+msgid "Family changed"
+msgstr ""
+
+#: apps/audit/actions.py:77
+msgid "Family deleted"
+msgstr ""
+
+#: apps/audit/actions.py:78
+msgid "Student created"
+msgstr ""
+
+#: apps/audit/actions.py:79
+msgid "Student changed"
+msgstr ""
+
+#: apps/audit/actions.py:80
+msgid "Student enrolled"
+msgstr ""
+
+#: apps/audit/actions.py:81
+msgid "Enrollment changed"
+msgstr ""
+
+#: apps/audit/actions.py:82
+msgid "Student imported from a file"
+msgstr "Élève importé d'un fichier"
+
+#: apps/audit/actions.py:86
+msgid "Support session opened"
+msgstr ""
+
+#: apps/audit/actions.py:87
+msgid "Support session closed"
+msgstr ""
+
+#: apps/audit/admin.py:12 apps/audit/admin.py:50 apps/audit/models.py:39
+msgid "action"
+msgstr ""
+
+#: apps/audit/apps.py:11
+msgid "Audit"
+msgstr ""
+
+#: apps/audit/models.py:47
+msgid "by"
+msgstr ""
+
+#: apps/audit/models.py:56
+msgid "impersonated by"
+msgstr ""
+
+#: apps/audit/models.py:60
+msgid "object type"
+msgstr ""
+
+#: apps/audit/models.py:61
+msgid "object"
+msgstr ""
+
+#: apps/audit/models.py:62
+msgid "object name"
+msgstr ""
+
+#: apps/audit/models.py:64
+msgid "before"
+msgstr ""
+
+#: apps/audit/models.py:65
+msgid "after"
+msgstr ""
+
+#: apps/audit/models.py:67
+msgid "browser"
+msgstr ""
+
+#: apps/audit/models.py:74
+msgid "audit log entry"
+msgstr ""
+
+#: apps/audit/models.py:75
+msgid "audit log"
+msgstr ""
+
+#: apps/audit/serializers.py:107
+msgid "The end date is before the start date."
+msgstr ""
+
+#: apps/core/apps.py:10
+msgid "Core"
+msgstr ""
+
+#: apps/core/errors.py:40
+msgid "Some fields are invalid."
+msgstr ""
+
+#: apps/core/errors.py:98
+msgid "There is no school at this address."
+msgstr ""
+
+#: apps/core/errors.py:100
+msgid "This school is suspended. Please contact Mwangaza."
+msgstr ""
+
+#: apps/core/money.py:16
+msgid "US dollar"
+msgstr ""
+
+#: apps/core/money.py:17
+msgid "Congolese franc"
+msgstr ""
+
+#: apps/schools/admin.py:30
+msgid "Currencies"
+msgstr ""
+
+#: apps/schools/admin.py:56
+msgid "Head: phone"
+msgstr ""
+
+#: apps/schools/admin.py:56
+msgid "e.g. 0971234567."
+msgstr ""
+
+#: apps/schools/admin.py:59
+msgid "Head: last name"
+msgstr ""
+
+#: apps/schools/admin.py:62
+msgid "Required for a phone number without an account."
+msgstr ""
+
+#: apps/schools/admin.py:65
+msgid "Head: middle name"
+msgstr ""
+
+#: apps/schools/admin.py:68
+msgid "Head: first name"
+msgstr ""
+
+#: apps/schools/admin.py:83
+msgid "This phone number has no account yet: enter the name."
+msgstr ""
+
+#: apps/schools/admin.py:98
+msgid "Identity"
+msgstr ""
+
+#: apps/schools/admin.py:112
+msgid "Subscription"
+msgstr ""
+
+#: apps/schools/admin.py:134
+msgid "Head of the school"
+msgstr ""
+
+#: apps/schools/admin.py:214
+msgid "subscription"
+msgstr ""
+
+#: apps/schools/admin.py:218
+#, python-format
+msgid "trial until %(date)s"
+msgstr ""
+
+#: apps/schools/admin.py:220
+#, python-format
+msgid "paid until %(date)s"
+msgstr ""
+
+#: apps/schools/admin.py:223 apps/students/models.py:110
+msgid "students"
+msgstr ""
+
+#: apps/schools/admin.py:227
+msgid "last activity"
+msgstr ""
+
+#: apps/schools/admin.py:236
+msgid "support"
+msgstr ""
+
+#: apps/schools/admin.py:244
+msgid "Open as the school"
+msgstr ""
+
+#: apps/schools/admin.py:247
+msgid "Suspend the selected schools (nothing is deleted)"
+msgstr ""
+
+#: apps/schools/admin.py:251
+msgid "Suspended: nobody can log in any more."
+msgstr ""
+
+#: apps/schools/admin.py:253
+msgid "Reactivate the selected schools"
+msgstr ""
+
+#: apps/schools/admin.py:257
+msgid "Reactivated."
+msgstr ""
+
+#: apps/schools/apps.py:10
+msgid "Schools"
+msgstr ""
+
+#: apps/schools/colors.py:82
+msgid "Enter a colour as #RRGGBB, e.g. #0E5C6B."
+msgstr ""
+
+#: apps/schools/colors.py:87
+#, python-format
+msgid ""
+"Text is not readable on this colour, neither in white nor in dark ink. "
+"Nearby readable colour: %(proposal)s."
+msgstr ""
+
+#: apps/schools/logos.py:48
+msgid "The logo must not exceed 1 MB."
+msgstr ""
+
+#: apps/schools/logos.py:51
+msgid "The logo must be a PNG, JPEG or SVG image (SVG without scripts)."
+msgstr ""
+
+#: apps/schools/matricule.py:39
+msgid "A brace is not closed."
+msgstr ""
+
+#: apps/schools/matricule.py:43
+#, python-format
+msgid "Unknown variable {%(name)s}: use {AAAA}, {AA}, {0000} or {OPT}."
+msgstr ""
+
+#: apps/schools/matricule.py:49
+msgid ""
+"Outside the variables, use only letters without accents, digits and - / . _"
+msgstr ""
+
+#: apps/schools/matricule.py:54
+#, python-brace-format
+msgid "Add the number, e.g. {0000}."
+msgstr ""
+
+#: apps/schools/matricule.py:56
+msgid "The number appears twice."
+msgstr ""
+
+#: apps/schools/matricule.py:59
+#, python-brace-format
+msgid "Add the year, {AAAA} or {AA}: numbers start again at 1 each year."
+msgstr ""
+
+#: apps/schools/models.py:27
+msgid "This code is reserved by the platform."
+msgstr ""
+
+#: apps/schools/models.py:38
+msgid "Unknown time zone, e.g. Africa/Lubumbashi."
+msgstr ""
+
+#: apps/schools/models.py:56
+msgid "Trial"
+msgstr ""
+
+#: apps/schools/models.py:57 apps/students/models.py:138
+msgid "Active"
+msgstr ""
+
+#: apps/schools/models.py:58
+msgid "Suspended"
+msgstr ""
+
+#: apps/schools/models.py:67
+msgid ""
+"2 to 30 characters: lowercase letters, digits and hyphens (not at the ends)."
+msgstr ""
+
+#: apps/schools/models.py:72
+#, python-brace-format
+msgid ""
+"Subdomain of the school: {code}.mwangaza.school. Changed by the platform "
+"only: the old address stops working."
+msgstr ""
+
+#: apps/schools/models.py:79
+msgid "official name"
+msgstr ""
+
+#: apps/schools/models.py:81
+msgid "logo"
+msgstr ""
+
+#: apps/schools/models.py:85
+msgid "PNG, JPEG or SVG, 1 MB at most."
+msgstr ""
+
+#: apps/schools/models.py:89
+msgid "colour"
+msgstr ""
+
+#: apps/schools/models.py:93
+msgid "Printed documents and the school badge, e.g. #0E5C6B."
+msgstr ""
+
+#: apps/schools/models.py:96
+msgid "time zone"
+msgstr ""
+
+#: apps/schools/models.py:100
+msgid "Dates and times of the school, e.g. Africa/Lubumbashi (Goma)."
+msgstr ""
+
+#: apps/schools/models.py:104
+msgid "currencies"
+msgstr ""
+
+#: apps/schools/models.py:108
+msgid "main currency"
+msgstr ""
+
+#: apps/schools/models.py:112
+msgid "Currency of the reports."
+msgstr ""
+
+#: apps/schools/models.py:116
+msgid "student number format"
+msgstr ""
+
+#: apps/schools/models.py:120
+#, python-brace-format
+msgid "e.g. ABC-{AAAA}-{0000}: year, number, option code {OPT}."
+msgstr ""
+
+#: apps/schools/models.py:123 apps/schools/models.py:195
+#: apps/students/models.py:157 apps/students/models.py:222
+msgid "status"
+msgstr ""
+
+#: apps/schools/models.py:127
+msgid "plan"
+msgstr ""
+
+#: apps/schools/models.py:127
+msgid "e.g. Discovery, Standard."
+msgstr ""
+
+#: apps/schools/models.py:129
+msgid "end of the trial"
+msgstr ""
+
+#: apps/schools/models.py:130
+msgid "paid until"
+msgstr ""
+
+#: apps/schools/models.py:135
+msgid "schools"
+msgstr ""
+
+#: apps/schools/models.py:160
+msgid "Choose at least one currency."
+msgstr ""
+
+#: apps/schools/models.py:163
+msgid "The main currency must be one of the school's currencies."
+msgstr ""
+
+#: apps/schools/models.py:186
+msgid "Open"
+msgstr ""
+
+#: apps/schools/models.py:188
+msgid "Closed"
+msgstr ""
+
+#: apps/schools/models.py:191 apps/schools/models.py:249
+msgid "start"
+msgstr ""
+
+#: apps/schools/models.py:192 apps/schools/models.py:250
+msgid "end"
+msgstr ""
+
+#: apps/schools/models.py:193
+msgid "current year"
+msgstr ""
+
+#: apps/schools/models.py:200 apps/schools/models.py:235
+#: apps/schools/models.py:350 apps/students/models.py:151
+#: apps/students/models.py:186 apps/students/models.py:211
+msgid "school year"
+msgstr ""
+
+#: apps/schools/models.py:201
+msgid "school years"
+msgstr ""
+
+#: apps/schools/models.py:226
+msgid "Semester"
+msgstr ""
+
+#: apps/schools/models.py:227
+msgid "Term (trimester)"
+msgstr ""
+
+#: apps/schools/models.py:228
+msgid "Period"
+msgstr ""
+
+#: apps/schools/models.py:229
+msgid "Exams"
+msgstr ""
+
+#: apps/schools/models.py:237
+msgid "kind"
+msgstr ""
+
+#: apps/schools/models.py:244
+msgid "semester or term"
+msgstr ""
+
+#: apps/schools/models.py:247 apps/schools/models.py:289
+msgid "order"
+msgstr ""
+
+#: apps/schools/models.py:254
+msgid "term"
+msgstr ""
+
+#: apps/schools/models.py:255
+msgid "terms"
+msgstr ""
+
+#: apps/schools/models.py:280
+msgid "Primary"
+msgstr ""
+
+#: apps/schools/models.py:281
+msgid "Basic education (7th-8th)"
+msgstr ""
+
+#: apps/schools/models.py:282
+msgid "General secondary"
+msgstr ""
+
+#: apps/schools/models.py:283
+msgid "Technical and vocational secondary"
+msgstr ""
+
+#: apps/schools/models.py:284
+msgid "Higher education"
+msgstr ""
+
+#: apps/schools/models.py:285
+msgid "Short vocational training"
+msgstr ""
+
+#: apps/schools/models.py:288
+msgid "cycle"
+msgstr ""
+
+#: apps/schools/models.py:293 apps/schools/models.py:353
+msgid "level"
+msgstr ""
+
+#: apps/schools/models.py:294
+msgid "levels"
+msgstr ""
+
+#: apps/schools/models.py:317 apps/schools/serializers.py:248
+msgid "1 to 10 capital letters or digits."
+msgstr ""
+
+#: apps/schools/models.py:320
+#, python-brace-format
+msgid "Used in the student number ({OPT}), e.g. ELEC."
+msgstr ""
+
+#: apps/schools/models.py:325 apps/schools/models.py:361
+msgid "track"
+msgstr ""
+
+#: apps/schools/models.py:326
+msgid "tracks"
+msgstr ""
+
+#: apps/schools/models.py:363
+msgid "section"
+msgstr ""
+
+#: apps/schools/models.py:365
+msgid "capacity"
+msgstr ""
+
+#: apps/schools/models.py:374
+msgid "homeroom teacher"
+msgstr ""
+
+#: apps/schools/models.py:379 apps/students/models.py:154
+msgid "class"
+msgstr ""
+
+#: apps/schools/models.py:380
+msgid "classes"
+msgstr ""
+
+#: apps/schools/organisation.py:30
+msgid "The school already has a school year with this name."
+msgstr ""
+
+#: apps/schools/organisation.py:32
+msgid "The current school year cannot be deleted."
+msgstr ""
+
+#: apps/schools/organisation.py:33
+msgid "This school year has classes: delete them first."
+msgstr ""
+
+#: apps/schools/organisation.py:35
+msgid "The school already has a level with this name."
+msgstr ""
+
+#: apps/schools/organisation.py:37
+msgid "This level is used by classes."
+msgstr ""
+
+#: apps/schools/organisation.py:39
+msgid "The school already has a track with this name."
+msgstr ""
+
+#: apps/schools/organisation.py:42
+msgid "The school already has a track with this code."
+msgstr ""
+
+#: apps/schools/organisation.py:44
+msgid "This track is used by classes."
+msgstr ""
+
+#: apps/schools/organisation.py:45
+msgid "This class already exists this school year."
+msgstr ""
+
+#: apps/schools/organisation.py:46
+msgid "This class has students: it cannot be deleted."
+msgstr ""
+
+#: apps/schools/organisation.py:47
+msgid "A removed period is already used."
+msgstr ""
+
+#: apps/schools/organisation.py:64
+msgid "RDC secondary: 2 semesters, 4 periods, 2 exam sessions"
+msgstr ""
+
+#: apps/schools/organisation.py:65
+msgid "3 terms, 6 periods, 3 exam sessions"
+msgstr ""
+
+#: apps/schools/organisation.py:66
+msgid "Empty: enter the terms yourself"
+msgstr ""
+
+#: apps/schools/organisation.py:103 apps/schools/organisation.py:261
+msgid "The end must come after the start."
+msgstr ""
+
+#: apps/schools/organisation.py:173
+msgid "Some terms and periods would fall outside the year: change them first."
+msgstr ""
+
+#: apps/schools/organisation.py:237
+msgid "Too many terms and periods."
+msgstr ""
+
+#: apps/schools/organisation.py:248
+msgid "Unknown term."
+msgstr ""
+
+#: apps/schools/organisation.py:250
+msgid "This term appears twice."
+msgstr ""
+
+#: apps/schools/organisation.py:253
+msgid "Only a semester or a term has periods."
+msgstr ""
+
+#: apps/schools/organisation.py:255
+msgid "Only periods and exams go inside."
+msgstr ""
+
+#: apps/schools/organisation.py:259
+msgid "This date is outside the school year."
+msgstr ""
+
+#: apps/schools/organisation.py:264 apps/schools/organisation.py:266
+msgid "Outside its semester or term."
+msgstr ""
+
+#: apps/schools/organisation.py:381
+msgid "Give every level of the school once."
+msgstr ""
+
+#: apps/schools/organisation.py:487
+msgid "Choose a member of the school's staff."
+msgstr ""
+
+#: apps/schools/templates/admin/schools/school/created.html:14
+#, python-format
+msgid "%(name)s is ready at %(url)s/app/"
+msgstr ""
+
+#: apps/schools/templates/admin/schools/school/created.html:16
+#, python-format
+msgid "Temporary password of the head, %(name)s (%(phone)s), shown only once:"
+msgstr ""
+
+#: apps/schools/templates/admin/schools/school/created.html:18
+msgid ""
+"Give it to the head: they choose their own password and turn on two-factor "
+"authentication at their first login."
+msgstr ""
+
+#: apps/schools/templates/admin/schools/school/created.html:20
+#, python-format
+msgid "%(name)s already had an account: they log in with their usual password."
+msgstr ""
+
+#: apps/schools/templates/admin/schools/school/created.html:22
+msgid "Back to the schools"
+msgstr ""
+
+#: apps/schools/views.py:52
+msgid "This school has no logo."
+msgstr ""
+
+#: apps/students/apps.py:10
+msgid "Students"
+msgstr ""
+
+#: apps/students/imports.py:76
+msgid "Last name"
+msgstr "Nom"
+
+#: apps/students/imports.py:77
+msgid "Middle name"
+msgstr "Post-nom"
+
+#: apps/students/imports.py:78
+msgid "First name"
+msgstr "Prénom"
+
+#: apps/students/imports.py:79
+msgid "Sex (M/F)"
+msgstr "Sexe (M/F)"
+
+#: apps/students/imports.py:80
+msgid "Date of birth (DD/MM/YYYY)"
+msgstr "Date de naissance (JJ/MM/AAAA)"
+
+#: apps/students/imports.py:81
+msgid "Place of birth"
+msgstr "Lieu de naissance"
+
+#: apps/students/imports.py:82
+msgid "Class"
+msgstr "Classe"
+
+#: apps/students/imports.py:83
+msgid "Student number"
+msgstr "Matricule"
+
+#: apps/students/imports.py:84
+msgid "Guardian name"
+msgstr "Nom du tuteur"
+
+#: apps/students/imports.py:85
+msgid "Guardian phone"
+msgstr "Téléphone du tuteur"
+
+#: apps/students/imports.py:152
+msgid "Last name missing"
+msgstr "Nom manquant"
+
+#: apps/students/imports.py:153
+msgid "Sex missing or unknown (M or F)"
+msgstr "Sexe manquant ou inconnu (M ou F)"
+
+#: apps/students/imports.py:154
+msgid "Invalid date of birth"
+msgstr "Date de naissance invalide"
+
+#: apps/students/imports.py:155
+msgid "Class missing"
+msgstr "Classe manquante"
+
+#: apps/students/imports.py:156
+msgid "Unknown class"
+msgstr "Classe inconnue"
+
+#: apps/students/imports.py:157
+msgid "Student number already used in the school"
+msgstr "Matricule déjà utilisé dans l'école"
+
+#: apps/students/imports.py:158
+#, python-format
+msgid "Student number repeated (line %(line)s)"
+msgstr "Matricule répété (ligne %(line)s)"
+
+#: apps/students/imports.py:159
+msgid "Already in the school (same names and date of birth)"
+msgstr "Déjà dans l'école (mêmes noms et date de naissance)"
+
+#: apps/students/imports.py:160
+#, python-format
+msgid "Possible duplicate (line %(line)s)"
+msgstr "Doublon possible (ligne %(line)s)"
+
+#: apps/students/imports.py:161
+msgid "Date of birth missing"
+msgstr "Date de naissance manquante"
+
+#: apps/students/imports.py:162
+msgid "Unreadable phone number: guardian kept without phone"
+msgstr "Téléphone illisible : tuteur gardé sans téléphone"
+
+#: apps/students/imports.py:163
+msgid "Phone without guardian name: not kept"
+msgstr "Téléphone sans nom de tuteur : pas gardé"
+
+#: apps/students/imports.py:164
+#, python-format
+msgid "Same family as line %(line)s"
+msgstr "Même famille que la ligne %(line)s"
+
+#: apps/students/imports.py:167
+msgid "The file is larger than 5 MB."
+msgstr ""
+
+#: apps/students/imports.py:169
+msgid "Old Excel file (.xls): save it as .xlsx in Excel, then try again."
+msgstr ""
+
+#: apps/students/imports.py:172
+msgid "This file cannot be read: send an Excel (.xlsx) or CSV file."
+msgstr ""
+
+#: apps/students/imports.py:174
+msgid "The file has no student rows."
+msgstr ""
+
+#: apps/students/imports.py:175
+msgid "The file has more than 5,000 rows."
+msgstr ""
+
+#: apps/students/imports.py:176
+msgid "This import has already been started."
+msgstr ""
+
+#: apps/students/imports.py:177
+msgid "No row can be imported."
+msgstr ""
+
+#: apps/students/imports.py:517
+msgid "Invalid column mapping."
+msgstr ""
+
+#: apps/students/imports.py:519
+msgid "Unknown column."
+msgstr ""
+
+#: apps/students/imports.py:531
+msgid "Choose a class of this school year."
+msgstr ""
+
+#: apps/students/imports.py:721
+msgid "Line"
+msgstr "Ligne"
+
+#: apps/students/imports.py:721
+msgid "Problems"
+msgstr "Problèmes"
+
+#: apps/students/models.py:27
+msgid "family code"
+msgstr ""
+
+#: apps/students/models.py:35
+msgid "parent account"
+msgstr ""
+
+#: apps/students/models.py:37
+msgid "activated at"
+msgstr ""
+
+#: apps/students/models.py:41 apps/students/models.py:60
+#: apps/students/models.py:89
+msgid "family"
+msgstr ""
+
+#: apps/students/models.py:42
+msgid "families"
+msgstr ""
+
+#: apps/students/models.py:52
+msgid "Father"
+msgstr ""
+
+#: apps/students/models.py:53
+msgid "Mother"
+msgstr ""
+
+#: apps/students/models.py:54
+msgid "Guardian"
+msgstr ""
+
+#: apps/students/models.py:55
+msgid "Grandparent"
+msgstr ""
+
+#: apps/students/models.py:56
+msgid "Brother or sister"
+msgstr ""
+
+#: apps/students/models.py:57
+msgid "Other"
+msgstr ""
+
+#: apps/students/models.py:62
+msgid "full name"
+msgstr ""
+
+#: apps/students/models.py:63
+msgid "relationship"
+msgstr ""
+
+#: apps/students/models.py:65
+msgid "email"
+msgstr ""
+
+#: apps/students/models.py:66
+msgid "main contact"
+msgstr ""
+
+#: apps/students/models.py:67
+msgid "emergency contact"
+msgstr ""
+
+#: apps/students/models.py:71
+msgid "guardian"
+msgstr ""
+
+#: apps/students/models.py:72
+msgid "guardians"
+msgstr ""
+
+#: apps/students/models.py:85
+msgid "Male"
+msgstr ""
+
+#: apps/students/models.py:86
+msgid "Female"
+msgstr ""
+
+#: apps/students/models.py:91
+msgid "student number"
+msgstr ""
+
+#: apps/students/models.py:95
+msgid "sex"
+msgstr ""
+
+#: apps/students/models.py:96
+msgid "date of birth"
+msgstr ""
+
+#: apps/students/models.py:97
+msgid "place of birth"
+msgstr ""
+
+#: apps/students/models.py:98
+msgid "nationality"
+msgstr ""
+
+#: apps/students/models.py:99
+msgid "province of origin"
+msgstr ""
+
+#: apps/students/models.py:100
+msgid "territory of origin"
+msgstr ""
+
+#: apps/students/models.py:102
+msgid "address"
+msgstr ""
+
+#: apps/students/models.py:103
+msgid "photo"
+msgstr ""
+
+#: apps/students/models.py:104
+msgid "photo consent"
+msgstr ""
+
+#: apps/students/models.py:105
+msgid "previous school"
+msgstr ""
+
+#: apps/students/models.py:109 apps/students/models.py:145
+msgid "student"
+msgstr ""
+
+#: apps/students/models.py:139
+msgid "Transferred"
+msgstr ""
+
+#: apps/students/models.py:140
+msgid "Dropped out"
+msgstr ""
+
+#: apps/students/models.py:141
+msgid "Excluded"
+msgstr ""
+
+#: apps/students/models.py:142
+msgid "Graduated"
+msgstr ""
+
+#: apps/students/models.py:159
+msgid "enrolled on"
+msgstr ""
+
+#: apps/students/models.py:160
+msgid "left on"
+msgstr ""
+
+#: apps/students/models.py:164
+msgid "enrollment"
+msgstr ""
+
+#: apps/students/models.py:165
+msgid "enrollments"
+msgstr ""
+
+#: apps/students/models.py:188
+msgid "last number"
+msgstr ""
+
+#: apps/students/models.py:191
+msgid "student number sequence"
+msgstr ""
+
+#: apps/students/models.py:192
+msgid "student number sequences"
+msgstr ""
+
+#: apps/students/models.py:205
+msgid "Checked"
+msgstr ""
+
+#: apps/students/models.py:206
+msgid "Importing"
+msgstr ""
+
+#: apps/students/models.py:207
+msgid "Imported"
+msgstr ""
+
+#: apps/students/models.py:208
+msgid "Failed"
+msgstr ""
+
+#: apps/students/models.py:213
+msgid "file name"
+msgstr ""
+
+#: apps/students/models.py:214
+msgid "sheet"
+msgstr ""
+
+#: apps/students/models.py:216
+msgid "column titles"
+msgstr ""
+
+#: apps/students/models.py:217
+msgid "rows"
+msgstr ""
+
+#: apps/students/models.py:219
+msgid "column mapping"
+msgstr ""
+
+#: apps/students/models.py:220
+msgid "class mapping"
+msgstr ""
+
+#: apps/students/models.py:225
+msgid "report"
+msgstr ""
+
+#: apps/students/models.py:226
+msgid "students created"
+msgstr ""
+
+#: apps/students/models.py:227
+msgid "finished at"
+msgstr ""
+
+#: apps/students/models.py:231
+msgid "student import"
+msgstr ""
+
+#: apps/students/models.py:232
+msgid "student imports"
+msgstr ""
+
+#: apps/students/photos.py:26
+msgid "The photo must not exceed 1 MB."
+msgstr ""
+
+#: apps/students/photos.py:28
+msgid "The photo must be a PNG or JPEG image."
+msgstr ""
+
+#: apps/students/serializers.py:248
+msgid "Either an existing family or new guardians, not both."
+msgstr ""
+
+#: apps/students/services.py:39
+msgid ""
+"A student with the same names and date of birth already exists: confirm to "
+"create it."
+msgstr ""
+
+#: apps/students/services.py:43
+msgid "This student is already enrolled this school year."
+msgstr ""
+
+#: apps/students/services.py:46
+msgid "The new class must be in the same school year."
+msgstr ""
+
+#: apps/students/services.py:49
+msgid "Another student already has this student number."
+msgstr ""
+
+#: apps/students/services.py:52
+msgid "This identifier is already used."
+msgstr ""
+
+#: apps/students/services.py:104
+msgid "At most 10 guardians."
+msgstr ""
+
+#: apps/students/services.py:106
+msgid "Only one main contact."
+msgstr ""
+
+#: apps/students/services.py:116
+msgid "Unknown guardian for this family."
+msgstr ""
+
+#: apps/students/views.py:50
+msgid "This student has no photo."
+msgstr ""
+
+#: apps/students/views.py:358
+msgid "No current school year: choose one."
+msgstr ""
+
+#: apps/students/views.py:447
+msgid "import-report"
+msgstr "rapport-import"
+
+#: apps/students/views.py:454
+msgid "students-template"
+msgstr "modele-eleves"

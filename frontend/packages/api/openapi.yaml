@@ -97,7 +97,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) school year.
+        description: A UUID string identifying this school year.
         required: true
       tags:
       - organisation
@@ -132,7 +132,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) school year.
+        description: A UUID string identifying this school year.
         required: true
       tags:
       - organisation
@@ -190,7 +190,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) school year.
+        description: A UUID string identifying this school year.
         required: true
       tags:
       - organisation
@@ -227,7 +227,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) school year.
+        description: A UUID string identifying this school year.
         required: true
       tags:
       - organisation
@@ -263,7 +263,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) school year.
+        description: A UUID string identifying this school year.
         required: true
       tags:
       - organisation
@@ -370,6 +370,7 @@ paths:
           - students.student_updated
           - students.enrolled
           - students.enrollment_updated
+          - students.student_imported
           - support.started
           - support.ended
           type: string
@@ -423,6 +424,7 @@ paths:
           * `students.student_updated` - Student changed
           * `students.enrolled` - Student enrolled
           * `students.enrollment_updated` - Enrollment changed
+          * `students.student_imported` - Student imported from a file
           * `support.started` - Support session opened
           * `support.ended` - Support session closed
       - in: query
@@ -463,7 +465,7 @@ paths:
       - name: page
         required: false
         in: query
-        description: Un numéro de page de l'ensemble des résultats.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - in: query
@@ -518,7 +520,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) audit log entry.
+        description: A UUID string identifying this audit log entry.
         required: true
       tags:
       - audit
@@ -1159,7 +1161,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) class.
+        description: A UUID string identifying this class.
         required: true
       tags:
       - organisation
@@ -1195,7 +1197,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) class.
+        description: A UUID string identifying this class.
         required: true
       tags:
       - organisation
@@ -1254,7 +1256,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) class.
+        description: A UUID string identifying this class.
         required: true
       tags:
       - organisation
@@ -1379,7 +1381,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) enrollment.
+        description: A UUID string identifying this enrollment.
         required: true
       tags:
       - students
@@ -1437,7 +1439,7 @@ paths:
       - name: page
         required: false
         in: query
-        description: Un numéro de page de l'ensemble des résultats.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - in: query
@@ -1522,7 +1524,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) family.
+        description: A UUID string identifying this family.
         required: true
       tags:
       - students
@@ -1558,7 +1560,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) family.
+        description: A UUID string identifying this family.
         required: true
       tags:
       - students
@@ -1711,7 +1713,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) level.
+        description: A UUID string identifying this level.
         required: true
       tags:
       - organisation
@@ -1745,7 +1747,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) level.
+        description: A UUID string identifying this level.
         required: true
       tags:
       - organisation
@@ -1796,7 +1798,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) level.
+        description: A UUID string identifying this level.
         required: true
       tags:
       - organisation
@@ -2058,7 +2060,7 @@ paths:
       - name: page
         required: false
         in: query
-        description: Un numéro de page de l'ensemble des résultats.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       tags:
@@ -2141,7 +2143,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) role.
+        description: A UUID string identifying this role.
         required: true
       tags:
       - accounts
@@ -2177,7 +2179,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) role.
+        description: A UUID string identifying this role.
         required: true
       tags:
       - accounts
@@ -2230,7 +2232,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) role.
+        description: A UUID string identifying this role.
         required: true
       tags:
       - accounts
@@ -2422,7 +2424,7 @@ paths:
       - name: page
         required: false
         in: query
-        description: Un numéro de page de l'ensemble des résultats.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - in: query
@@ -2523,7 +2525,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) membership.
+        description: A UUID string identifying this membership.
         required: true
       tags:
       - accounts
@@ -2558,7 +2560,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) membership.
+        description: A UUID string identifying this membership.
         required: true
       tags:
       - accounts
@@ -2612,7 +2614,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) membership.
+        description: A UUID string identifying this membership.
         required: true
       tags:
       - accounts
@@ -2654,7 +2656,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) membership.
+        description: A UUID string identifying this membership.
         required: true
       tags:
       - accounts
@@ -2673,6 +2675,308 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/student-imports/:
+    post:
+      operationId: student_imports_create
+      description: |-
+        Import d'une liste d'élèves (D1) : envoi du fichier (vérifié aussitôt, rien n'est créé),
+        colonnes et classes choisies à la main, lignes vérifiées, puis import en tâche de fond.
+      tags:
+      - students
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentImportCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentImport'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/student-imports/{id}/:
+    get:
+      operationId: student_imports_retrieve
+      description: |-
+        Import d'une liste d'élèves (D1) : envoi du fichier (vérifié aussitôt, rien n'est créé),
+        colonnes et classes choisies à la main, lignes vérifiées, puis import en tâche de fond.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this student import.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentImport'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: student_imports_partial_update
+      description: |-
+        Import d'une liste d'élèves (D1) : envoi du fichier (vérifié aussitôt, rien n'est créé),
+        colonnes et classes choisies à la main, lignes vérifiées, puis import en tâche de fond.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this student import.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentImportUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentImportUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentImportUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentImport'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/student-imports/{id}/confirm/:
+    post:
+      operationId: student_imports_confirm_create
+      description: 'Importe les lignes prêtes et en avertissement, en tâche de fond
+        : suivre `status`.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this student import.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentImport'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/student-imports/{id}/lines/:
+    get:
+      operationId: student_imports_lines_list
+      description: Lignes vérifiées, dans l'ordre du fichier (aperçu).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this student import.
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: problems
+        schema:
+          type: boolean
+          default: false
+        description: Seulement les erreurs et les avertissements.
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedImportLineList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/student-imports/{id}/report/:
+    get:
+      operationId: student_imports_report_retrieve
+      description: Lignes à reprendre, avec les colonnes du fichier et leurs problèmes.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this student import.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: Classeur Excel.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/student-imports/template/:
+    get:
+      operationId: student_imports_template_retrieve
+      description: 'Modèle à remplir : une colonne par champ, titres reconnus à l''import.'
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: Classeur Excel.
         '403':
           content:
             application/json:
@@ -2706,7 +3010,7 @@ paths:
       - name: page
         required: false
         in: query
-        description: Un numéro de page de l'ensemble des résultats.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       - in: query
@@ -2820,7 +3124,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        description: A UUID string identifying this student.
         required: true
       tags:
       - students
@@ -2856,7 +3160,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        description: A UUID string identifying this student.
         required: true
       tags:
       - students
@@ -2916,12 +3220,12 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        description: A UUID string identifying this student.
         required: true
       - name: page
         required: false
         in: query
-        description: Un numéro de page de l'ensemble des résultats.
+        description: A page number within the paginated result set.
         schema:
           type: integer
       tags:
@@ -2959,7 +3263,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        description: A UUID string identifying this student.
         required: true
       tags:
       - students
@@ -2996,7 +3300,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        description: A UUID string identifying this student.
         required: true
       tags:
       - students
@@ -3050,7 +3354,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        description: A UUID string identifying this student.
         required: true
       tags:
       - students
@@ -3233,7 +3537,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) track.
+        description: A UUID string identifying this track.
         required: true
       tags:
       - organisation
@@ -3267,7 +3571,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) track.
+        description: A UUID string identifying this track.
         required: true
       tags:
       - organisation
@@ -3318,7 +3622,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: Un(une) Chaîne UUID identifiant ce(cette) track.
+        description: A UUID string identifying this track.
         required: true
       tags:
       - organisation
@@ -3357,7 +3661,6 @@ components:
         name:
           type: string
           readOnly: true
-          title: Nom
         starts_on:
           type: string
           format: date
@@ -3471,6 +3774,7 @@ components:
       - students.student_updated
       - students.enrolled
       - students.enrollment_updated
+      - students.student_imported
       - support.started
       - support.ended
       type: string
@@ -3523,6 +3827,7 @@ components:
         * `students.student_updated` - Student changed
         * `students.enrolled` - Student enrolled
         * `students.enrollment_updated` - Enrollment changed
+        * `students.student_imported` - Student imported from a file
         * `support.started` - Support session opened
         * `support.ended` - Support session closed
     Address:
@@ -3569,14 +3874,12 @@ components:
           readOnly: true
         last_name:
           type: string
-          title: Nom
           maxLength: 100
         middle_name:
           type: string
           maxLength: 100
         first_name:
           type: string
-          title: Prénom
           maxLength: 100
       required:
       - id
@@ -3649,7 +3952,7 @@ components:
           type: string
           readOnly: true
           nullable: true
-          title: Adresse IP
+          title: IP address
         user_agent:
           type: string
           readOnly: true
@@ -3807,7 +4110,6 @@ components:
           maxLength: 30
         name:
           type: string
-          title: Nom
           maxLength: 200
         primary_color:
           type: string
@@ -4057,14 +4359,12 @@ components:
           maxLength: 60
         last_name:
           type: string
-          title: Nom
           maxLength: 80
         middle_name:
           type: string
           maxLength: 80
         first_name:
           type: string
-          title: Prénom
           maxLength: 80
         class_group_name:
           type: string
@@ -4172,6 +4472,223 @@ components:
       required:
       - status
       - database
+    ImportClass:
+      type: object
+      properties:
+        label:
+          type: string
+          description: Classe écrite dans le fichier.
+        class_group:
+          type: string
+          format: uuid
+          nullable: true
+          description: Classe de l'année ou `null`.
+        chosen:
+          type: boolean
+          description: Choisie à la main.
+        rows:
+          type: integer
+      required:
+      - label
+      - class_group
+      - chosen
+      - rows
+    ImportCounts:
+      type: object
+      properties:
+        rows:
+          type: integer
+        ready:
+          type: integer
+        warning:
+          type: integer
+          description: Importées, à vérifier.
+        error:
+          type: integer
+          description: Pas importées.
+      required:
+      - rows
+      - ready
+      - warning
+      - error
+    ImportIssue:
+      type: object
+      properties:
+        code:
+          type: string
+          description: 'Problème (`imports.ISSUES`) : `invalid_date`, `unknown_class`…'
+        line:
+          type: integer
+          description: Autre ligne concernée.
+      required:
+      - code
+      - line
+    ImportLine:
+      type: object
+      properties:
+        line:
+          type: integer
+          description: Numéro de la ligne dans le fichier.
+        status:
+          $ref: '#/components/schemas/ImportLineStatusEnum'
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImportIssue'
+        values:
+          allOf:
+          - $ref: '#/components/schemas/ImportValues'
+          description: Valeurs du fichier, telles quelles.
+      required:
+      - line
+      - status
+      - issues
+      - values
+    ImportLineStatusEnum:
+      enum:
+      - ready
+      - warning
+      - error
+      type: string
+      description: |-
+        * `ready` - ready
+        * `warning` - warning
+        * `error` - error
+    ImportMapping:
+      type: object
+      description: Champ de l'élève → numéro de la colonne du fichier (à partir de
+        0), ou `null`.
+      properties:
+        last_name:
+          type: integer
+          minimum: 0
+          nullable: true
+        middle_name:
+          type: integer
+          minimum: 0
+          nullable: true
+        first_name:
+          type: integer
+          minimum: 0
+          nullable: true
+        sex:
+          type: integer
+          minimum: 0
+          nullable: true
+        birth_date:
+          type: integer
+          minimum: 0
+          nullable: true
+        birth_place:
+          type: integer
+          minimum: 0
+          nullable: true
+        class_name:
+          type: integer
+          minimum: 0
+          nullable: true
+        matricule:
+          type: integer
+          minimum: 0
+          nullable: true
+        guardian_name:
+          type: integer
+          minimum: 0
+          nullable: true
+        guardian_phone:
+          type: integer
+          minimum: 0
+          nullable: true
+      required:
+      - last_name
+      - middle_name
+      - first_name
+      - sex
+      - birth_date
+      - birth_place
+      - class_name
+      - matricule
+      - guardian_name
+      - guardian_phone
+    ImportMappingRequest:
+      type: object
+      description: Champ de l'élève → numéro de la colonne du fichier (à partir de
+        0), ou `null`.
+      properties:
+        last_name:
+          type: integer
+          minimum: 0
+          nullable: true
+        middle_name:
+          type: integer
+          minimum: 0
+          nullable: true
+        first_name:
+          type: integer
+          minimum: 0
+          nullable: true
+        sex:
+          type: integer
+          minimum: 0
+          nullable: true
+        birth_date:
+          type: integer
+          minimum: 0
+          nullable: true
+        birth_place:
+          type: integer
+          minimum: 0
+          nullable: true
+        class_name:
+          type: integer
+          minimum: 0
+          nullable: true
+        matricule:
+          type: integer
+          minimum: 0
+          nullable: true
+        guardian_name:
+          type: integer
+          minimum: 0
+          nullable: true
+        guardian_phone:
+          type: integer
+          minimum: 0
+          nullable: true
+    ImportValues:
+      type: object
+      properties:
+        last_name:
+          type: string
+        middle_name:
+          type: string
+        first_name:
+          type: string
+        sex:
+          type: string
+        birth_date:
+          type: string
+        birth_place:
+          type: string
+        class_name:
+          type: string
+        matricule:
+          type: string
+        guardian_name:
+          type: string
+        guardian_phone:
+          type: string
+      required:
+      - last_name
+      - middle_name
+      - first_name
+      - sex
+      - birth_date
+      - birth_place
+      - class_name
+      - matricule
+      - guardian_name
+      - guardian_phone
     KindEnum:
       enum:
       - semester
@@ -4201,7 +4718,6 @@ components:
           readOnly: true
         name:
           type: string
-          title: Nom
           maxLength: 40
         cycle:
           $ref: '#/components/schemas/CycleEnum'
@@ -4230,7 +4746,6 @@ components:
         name:
           type: string
           minLength: 1
-          title: Nom
           maxLength: 40
         cycle:
           $ref: '#/components/schemas/CycleEnum'
@@ -4426,6 +4941,30 @@ components:
       - logo
       - roles
       - last_login_at
+    MissingFieldsEnum:
+      enum:
+      - last_name
+      - middle_name
+      - first_name
+      - sex
+      - birth_date
+      - birth_place
+      - class_name
+      - matricule
+      - guardian_name
+      - guardian_phone
+      type: string
+      description: |-
+        * `last_name` - last_name
+        * `middle_name` - middle_name
+        * `first_name` - first_name
+        * `sex` - sex
+        * `birth_date` - birth_date
+        * `birth_place` - birth_place
+        * `class_name` - class_name
+        * `matricule` - matricule
+        * `guardian_name` - guardian_name
+        * `guardian_phone` - guardian_phone
     MySchool:
       type: object
       properties:
@@ -4437,7 +4976,6 @@ components:
           maxLength: 30
         name:
           type: string
-          title: Nom
           maxLength: 200
         status:
           $ref: '#/components/schemas/SchoolStatusEnum'
@@ -4498,6 +5036,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FamilyDetail'
+    PaginatedImportLineList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImportLine'
     PaginatedRoleList:
       type: object
       required:
@@ -4700,7 +5263,6 @@ components:
       properties:
         name:
           type: string
-          title: Nom
           maxLength: 80
         permissions:
           type: array
@@ -4714,7 +5276,6 @@ components:
         name:
           type: string
           minLength: 1
-          title: Nom
           maxLength: 200
         official_name:
           type: string
@@ -4769,6 +5330,18 @@ components:
         first_name:
           type: string
           maxLength: 100
+    PatchedStudentImportUpdateRequest:
+      type: object
+      properties:
+        mapping:
+          $ref: '#/components/schemas/ImportMappingRequest'
+        class_mapping:
+          type: object
+          additionalProperties:
+            type: string
+            nullable: true
+          description: 'Classe du fichier → identifiant d''une classe de l''année
+            (vide : automatique).'
     PatchedStudentWriteRequest:
       type: object
       description: |-
@@ -4787,14 +5360,12 @@ components:
         last_name:
           type: string
           minLength: 1
-          title: Nom
           maxLength: 80
         middle_name:
           type: string
           maxLength: 80
         first_name:
           type: string
-          title: Prénom
           maxLength: 80
         sex:
           $ref: '#/components/schemas/SexEnum'
@@ -4845,7 +5416,6 @@ components:
         name:
           type: string
           minLength: 1
-          title: Nom
           maxLength: 80
         code:
           type: string
@@ -4896,14 +5466,12 @@ components:
           readOnly: true
         last_name:
           type: string
-          title: Nom
           maxLength: 100
         middle_name:
           type: string
           maxLength: 100
         first_name:
           type: string
-          title: Prénom
           maxLength: 100
       required:
       - id
@@ -4974,7 +5542,6 @@ components:
           - $ref: '#/components/schemas/BlankEnum'
         name:
           type: string
-          title: Nom
           maxLength: 80
         is_system:
           type: boolean
@@ -5014,7 +5581,6 @@ components:
       properties:
         name:
           type: string
-          title: Nom
           maxLength: 80
         permissions:
           type: array
@@ -5046,7 +5612,6 @@ components:
           - $ref: '#/components/schemas/BlankEnum'
         name:
           type: string
-          title: Nom
           maxLength: 80
       required:
       - id
@@ -5064,7 +5629,6 @@ components:
             the platform only: the old address stops working.'
         name:
           type: string
-          title: Nom
           maxLength: 200
         official_name:
           type: string
@@ -5153,7 +5717,7 @@ components:
           readOnly: true
         is_active:
           type: boolean
-          title: Actif
+          title: Active
         totp:
           allOf:
           - $ref: '#/components/schemas/TotpEnum'
@@ -5231,7 +5795,7 @@ components:
           readOnly: true
         is_active:
           type: boolean
-          title: Actif
+          title: Active
         totp:
           allOf:
           - $ref: '#/components/schemas/TotpEnum'
@@ -5285,14 +5849,12 @@ components:
           maxLength: 16
         last_name:
           type: string
-          title: Nom
           maxLength: 100
         middle_name:
           type: string
           maxLength: 100
         first_name:
           type: string
-          title: Prénom
           maxLength: 100
       required:
       - id
@@ -5327,14 +5889,12 @@ components:
           maxLength: 60
         last_name:
           type: string
-          title: Nom
           maxLength: 80
         middle_name:
           type: string
           maxLength: 80
         first_name:
           type: string
-          title: Prénom
           maxLength: 80
         sex:
           $ref: '#/components/schemas/SexEnum'
@@ -5481,6 +6041,109 @@ components:
       - role_code
       - before
       - after
+    StudentImport:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        academic_year:
+          type: string
+          format: uuid
+          readOnly: true
+          title: School year
+        file_name:
+          type: string
+          readOnly: true
+        sheet_name:
+          type: string
+          readOnly: true
+          title: Sheet
+        headers:
+          type: array
+          items:
+            type: string
+          description: Titres des colonnes du fichier.
+        mapping:
+          $ref: '#/components/schemas/ImportMapping'
+        class_mapping:
+          type: object
+          additionalProperties:
+            type: string
+            format: uuid
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StudentImportStatusEnum'
+          readOnly: true
+        counts:
+          $ref: '#/components/schemas/ImportCounts'
+        missing_fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/MissingFieldsEnum'
+          description: Champs obligatoires sans colonne.
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImportClass'
+        importable_count:
+          type: integer
+          readOnly: true
+        created_count:
+          type: integer
+          readOnly: true
+          title: Students created
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        finished_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - id
+      - academic_year
+      - file_name
+      - sheet_name
+      - headers
+      - mapping
+      - class_mapping
+      - status
+      - counts
+      - missing_fields
+      - classes
+      - importable_count
+      - created_count
+      - created_at
+      - finished_at
+    StudentImportCreateRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Excel (.xlsx) ou CSV, 5 Mo au plus.
+        academic_year:
+          type: string
+          format: uuid
+          description: Année des classes du fichier ; l'année en cours si absente.
+      required:
+      - file
+    StudentImportStatusEnum:
+      enum:
+      - analysed
+      - importing
+      - done
+      - failed
+      type: string
+      description: |-
+        * `analysed` - Checked
+        * `importing` - Importing
+        * `done` - Imported
+        * `failed` - Failed
     StudentList:
       type: object
       properties:
@@ -5494,14 +6157,12 @@ components:
           maxLength: 60
         last_name:
           type: string
-          title: Nom
           maxLength: 80
         middle_name:
           type: string
           maxLength: 80
         first_name:
           type: string
-          title: Prénom
           maxLength: 80
         sex:
           $ref: '#/components/schemas/SexEnum'
@@ -5556,14 +6217,12 @@ components:
         last_name:
           type: string
           minLength: 1
-          title: Nom
           maxLength: 80
         middle_name:
           type: string
           maxLength: 80
         first_name:
           type: string
-          title: Prénom
           maxLength: 80
         sex:
           $ref: '#/components/schemas/SexEnum'
@@ -5838,7 +6497,6 @@ components:
           readOnly: true
         name:
           type: string
-          title: Nom
           maxLength: 80
         code:
           type: string
@@ -5854,7 +6512,6 @@ components:
         name:
           type: string
           minLength: 1
-          title: Nom
           maxLength: 80
         code:
           type: string

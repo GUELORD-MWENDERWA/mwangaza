@@ -39,5 +39,6 @@ export { Table } from "./components/table";
 export { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/tabs";
 export { SyncIndicator } from "./components/sync-indicator";
 export { Toast } from "./components/toast";
+export { Kpi } from "./components/kpi";
 export { Icon, type IconName } from "./icons";
 export { cn } from "./lib/cn";

@@ -18,6 +18,7 @@ import { SchoolSettingsPage } from "./features/settings/SchoolSettingsPage";
 import { StaffPage } from "./features/staff/StaffPage";
 import { EditStudentPage } from "./features/students/EditStudentPage";
 import { FamilyPage } from "./features/students/FamilyPage";
+import { ImportStudentsPage } from "./features/students/ImportStudentsPage";
 import { NewStudentPage } from "./features/students/NewStudentPage";
 import { StudentPage } from "./features/students/StudentPage";
 import { StudentsPage } from "./features/students/StudentsPage";
@@ -49,6 +50,11 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
     path: "students/new",
     item: { ...menuItem("students"), permissions: ["students.edit"] },
     element: <NewStudentPage />,
+  },
+  {
+    path: "students/import/:importId?",
+    item: { ...menuItem("students"), permissions: ["students.import"] },
+    element: <ImportStudentsPage />,
   },
   {
     path: "students/:id/edit",

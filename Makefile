@@ -9,7 +9,7 @@ COMPOSE := docker compose -f infra/docker-compose.dev.yml
 MANAGE := cd backend && uv run python manage.py
 
 .DEFAULT_GOAL := help
-.PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo totp superuser shell \
+.PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp messages superuser shell \
 	test test-back test-front test-e2e lint lint-back lint-front format api api-schema build
 
 help: ## Afficher les commandes
@@ -65,8 +65,15 @@ makemigrations: db-up ## Créer des migrations : make makemigrations app=finance
 demo: db-up ## Créer ou remettre à jour les données fictives de démonstration (écoles itig et volcans)
 	$(MANAGE) demo
 
+demo-excel: ## Liste d'élèves fictive (eleves-fictifs.xlsx, ~800 élèves) pour essayer l'import
+	$(MANAGE) demo_excel ../eleves-fictifs.xlsx
+
 totp: ## Code de double authentification du moment : comptes fictifs, ou make totp key=<clé>
 	@$(MANAGE) totp $(if $(key),--key "$(key)")
+
+messages: ## Traductions du serveur (backend/locale) : extraire les textes, puis compiler (demande gettext)
+	$(MANAGE) makemessages -l fr --no-obsolete
+	$(MANAGE) compilemessages -l fr --ignore=.venv
 
 superuser: db-up ## Créer un compte super-administrateur
 	$(MANAGE) createsuperuser
@@ -101,7 +108,7 @@ api: api-schema ## Schéma OpenAPI (frontend/packages/api/openapi.yaml) puis typ
 	cd frontend && pnpm --filter @mwangaza/api generate
 
 api-schema: ## Seulement le schéma OpenAPI (CI du backend, sans pnpm)
-	$(MANAGE) spectacular --validate --fail-on-warn --file ../frontend/packages/api/openapi.yaml
+	$(MANAGE) spectacular --lang en --validate --fail-on-warn --file ../frontend/packages/api/openapi.yaml
 
 build: ## Construire les deux PWA
 	cd frontend && pnpm build

@@ -2,7 +2,8 @@ import { cn } from "../lib/cn";
 
 type Step = { label: string; state: "done" | "current" | "todo" };
 
-/** `.steps` des maquettes : fait = vert avec ✓, en cours = lac. */
+/** `.steps` des maquettes : fait = vert avec ✓, en cours = lac ; sur téléphone, seul le libellé de
+ * l'étape en cours s'affiche. */
 export function Steps({ steps, className }: { steps: Step[]; className?: string }) {
   return (
     <ol className={cn("flex", className)}>
@@ -28,7 +29,10 @@ export function Steps({ steps, className }: { steps: Step[]; className?: string 
           >
             {step.state === "done" ? "✓" : index + 1}
           </span>
-          {step.label}
+          {/* Téléphone : seulement le libellé de l'étape en cours (les autres restent lus). */}
+          <span className={cn(step.state !== "current" && "max-[560px]:sr-only")}>
+            {step.label}
+          </span>
         </li>
       ))}
     </ol>

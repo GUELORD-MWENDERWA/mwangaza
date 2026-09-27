@@ -110,3 +110,67 @@ export function useStudentSearch(search: string) {
     enabled: search.length >= 2,
   });
 }
+
+// Import d'une liste d'élèves (D1) : `students.import`.
+
+export type StudentImport = Schemas["StudentImport"];
+export type ImportLine = Schemas["ImportLine"];
+export type ImportField = keyof Schemas["ImportMapping"];
+
+export const IMPORT_FIELDS: ImportField[] = [
+  "last_name",
+  "middle_name",
+  "first_name",
+  "sex",
+  "birth_date",
+  "birth_place",
+  "class_name",
+  "matricule",
+  "guardian_name",
+  "guardian_phone",
+];
+
+/** L'import, relu toutes les 1,5 s tant que la tâche de fond tourne. */
+export function useStudentImport(id: string | undefined) {
+  return useQuery({
+    queryKey: [...keys.studentImports, id],
+    queryFn: () => call(api.GET("/api/student-imports/{id}/", { params: { path: { id: id! } } })),
+    enabled: Boolean(id),
+    refetchInterval: (query) => (query.state.data?.status === "importing" ? 1500 : false),
+  });
+}
+
+export function useImportLines(id: string, problems: boolean, page: number) {
+  return useQuery({
+    queryKey: [...keys.studentImports, id, "lines", problems, page],
+    queryFn: () =>
+      call(
+        api.GET("/api/student-imports/{id}/lines/", {
+          params: { path: { id }, query: { problems, ...(page > 1 ? { page } : {}) } },
+        }),
+      ),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function uploadImport(file: File, academicYear: string) {
+  const body = new FormData();
+  body.append("file", file);
+  if (academicYear) body.append("academic_year", academicYear);
+  return call(
+    api.POST("/api/student-imports/", {
+      body: body as unknown as { file: string; academic_year?: string },
+    }),
+  );
+}
+
+export function updateImport(id: string, body: Schemas["PatchedStudentImportUpdateRequest"]) {
+  return call(api.PATCH("/api/student-imports/{id}/", { params: { path: { id } }, body }));
+}
+
+export function confirmImport(id: string) {
+  return call(api.POST("/api/student-imports/{id}/confirm/", { params: { path: { id } } }));
+}
+
+export const importTemplateUrl = "/api/student-imports/template/";
+export const importReportUrl = (id: string) => `/api/student-imports/${id}/report/`;
