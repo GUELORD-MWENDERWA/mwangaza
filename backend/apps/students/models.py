@@ -13,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from apps.accounts.phone import PhoneNumberField
 from apps.core.models import TenantModel
 from apps.schools.models import AcademicYear, ClassGroup
+from apps.students.photos import photo_path
 
 # Code famille : sans 0, O, 1, I ni L, qu'un parent confond en le recopiant.
 FAMILY_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
@@ -99,7 +100,7 @@ class Student(TenantModel):
     origin_territory = models.CharField(_("territory of origin"), max_length=80, blank=True)
     # Commune, quartier, avenue, numéro.
     address = models.JSONField(_("address"), default=dict, blank=True)
-    photo = models.FileField(_("photo"), upload_to="students/photos/", blank=True)
+    photo = models.FileField(_("photo"), upload_to=photo_path, blank=True)
     photo_consent = models.BooleanField(_("photo consent"), default=False)
     previous_school = models.CharField(_("previous school"), max_length=200, blank=True)
 

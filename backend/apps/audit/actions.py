@@ -74,6 +74,7 @@ class Action(models.TextChoices):
     # Élèves et familles (D2-D4).
     STUDENTS_FAMILY_CREATED = "students.family_created", _("Family created")
     STUDENTS_FAMILY_UPDATED = "students.family_updated", _("Family changed")
+    STUDENTS_FAMILY_DELETED = "students.family_deleted", _("Family deleted")
     STUDENTS_STUDENT_CREATED = "students.student_created", _("Student created")
     STUDENTS_STUDENT_UPDATED = "students.student_updated", _("Student changed")
     STUDENTS_ENROLLED = "students.enrolled", _("Student enrolled")

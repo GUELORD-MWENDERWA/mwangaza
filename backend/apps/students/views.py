@@ -1,19 +1,28 @@
 """API des élèves, familles et inscriptions (D2-D4) : `students.view` pour lire,
 `students.edit` pour écrire, vérifiés par le serveur sur chaque requête."""
 
+from pathlib import Path
+
 from django.db.models import Count, Prefetch, Q
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from django.http import FileResponse
+from django.utils.translation import gettext_lazy as _
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from rest_framework import mixins, status
+from rest_framework.decorators import action
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.accounts.roles import STUDENTS_EDIT, STUDENTS_VIEW
 from apps.accounts.views import SchoolViewSet
-from apps.core.errors import ErrorSerializer
+from apps.audit.models import AuditLog
+from apps.core.errors import ApiError, ErrorSerializer
 from apps.schools.organisation import current_year
 from apps.students import services
 from apps.students.models import Enrollment, Family, Guardian, Student
+from apps.students.photos import CONTENT_TYPES
 from apps.students.serializers import (
     EnrollmentCreateSerializer,
     EnrollmentSerializer,
@@ -21,7 +30,9 @@ from apps.students.serializers import (
     FamilyDetailSerializer,
     FamilyFilterSerializer,
     FamilyWriteSerializer,
+    PhotoUploadSerializer,
     StudentFilterSerializer,
+    StudentHistorySerializer,
     StudentListSerializer,
     StudentSerializer,
     StudentWriteSerializer,
@@ -30,6 +41,7 @@ from apps.students.serializers import (
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
 WRITE_ERRORS = {400: ErrorSerializer, 409: ErrorSerializer, **ERRORS}
 _CLASS = ("class_group__level", "class_group__track", "academic_year")
+NO_PHOTO = ApiError("no_photo", _("This student has no photo."), 404)
 
 
 class StudentsViewSet(SchoolViewSet):
@@ -59,7 +71,10 @@ def _words(text: str, *fields: str) -> Q:
 )
 @extend_schema(tags=["students"])
 class StudentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsViewSet):
-    """Élèves de l'école (D2) : liste paginée avec recherche, fiche, création, modification."""
+    """Élèves de l'école (D2) : liste paginée avec recherche, fiche, création, modification,
+    photo, historique."""
+
+    http_method_names = [*StudentsViewSet.http_method_names, "delete"]
 
     def get_serializer_class(self):
         if self.request.method in {"POST", "PATCH"}:
@@ -122,8 +137,9 @@ class StudentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsV
     )
     def create(self, request: Request) -> Response:
         """Élève avec une famille existante (`family`) ou nouvelle (`guardians`). Même nom et
-        même date de naissance qu'un autre élève : 409 `possible_duplicate`, à renvoyer avec
-        `allow_duplicate` après confirmation. Même `id` renvoyé : 200 avec l'élève déjà créé."""
+        même date de naissance qu'un autre élève : 409 `possible_duplicate` avec `duplicates` (id,
+        noms, matricule : lien vers leur fiche), à renvoyer avec `allow_duplicate` après
+        confirmation. Même `id` renvoyé : 200 avec l'élève déjà créé."""
         serializer = StudentWriteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = dict(serializer.validated_data)
@@ -145,6 +161,66 @@ class StudentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsV
             data.pop(ignored, None)
         services.update_student(student, actor=request.user, **data)
         return self._student(student)
+
+    @extend_schema(
+        methods=["GET"],
+        request=None,
+        responses={
+            (200, "image/*"): OpenApiResponse(OpenApiTypes.BINARY, description="PNG ou JPEG."),
+            **ERRORS,
+        },
+    )
+    @extend_schema(
+        methods=["POST"],
+        request={"multipart/form-data": PhotoUploadSerializer},
+        responses={200: StudentSerializer, **WRITE_ERRORS},
+    )
+    @extend_schema(methods=["DELETE"], request=None, responses={200: StudentSerializer, **ERRORS})
+    @action(
+        detail=True,
+        methods=["get", "post", "delete"],
+        parser_classes=[MultiPartParser, FormParser],
+    )
+    def photo(self, request: Request, pk=None):
+        """Photo de l'élève (M9), jamais publique. Envoi : seulement avec le consentement du
+        parent (409 `photo_consent_required`)."""
+        student = self.get_object()
+        if request.method == "POST":
+            serializer = PhotoUploadSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            photo = serializer.validated_data["photo"]
+            services.set_photo(student, photo, actor=request.user)
+            return self._student(student)
+        if request.method == "DELETE":
+            services.set_photo(student, None, actor=request.user)
+            return self._student(student)
+        if not student.photo:
+            return Response(NO_PHOTO.body(), status=NO_PHOTO.status)
+        try:
+            file = student.photo.open("rb")
+        except FileNotFoundError:
+            return Response(NO_PHOTO.body(), status=NO_PHOTO.status)
+        kind = Path(student.photo.name).suffix.removeprefix(".")
+        response = FileResponse(file, content_type=CONTENT_TYPES.get(kind, "image/jpeg"))
+        response["X-Content-Type-Options"] = "nosniff"
+        # L'adresse donnée par l'API change avec chaque photo ; jamais dans un cache partagé.
+        response["Cache-Control"] = "private, max-age=86400"
+        return response
+
+    @extend_schema(request=None, responses={200: StudentHistorySerializer(many=True), **ERRORS})
+    @action(detail=True, methods=["get"])
+    def history(self, request: Request, pk=None) -> Response:
+        """Ce qui s'est passé pour l'élève (M9, Historique) : lui, ses inscriptions et sa
+        famille, le plus récent d'abord. Paiements : avec la caisse (3.x)."""
+        student = self.get_object()
+        entities = [student.pk, student.family_id, *(e.pk for e in student.enrollments.all())]
+        logs = (
+            AuditLog.objects.filter(entity_id__in=entities)
+            .select_related("actor")
+            .order_by("-created_at", "-id")
+        )
+        page = self.paginate_queryset(logs)
+        return self.get_paginated_response(StudentHistorySerializer(page, many=True).data)
 
 
 @extend_schema_view(
@@ -187,11 +263,13 @@ class FamilyViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsVi
             params.is_valid(raise_exception=True)
             search = params.validated_data.get("search", "").strip()
             if search:
-                digits = "".join(char for char in search if char.isdigit())
+                # Téléphone : seulement une saisie faite de chiffres (un code famille en a aussi).
+                digits = search.replace(" ", "").removeprefix("+").removeprefix("0")
+                phone = len(digits) >= 4 and digits.isdigit()
                 condition = Q(code__iexact=search) | Q(
                     pk__in=Guardian.objects.filter(
                         _words(search, "full_name")
-                        | (Q(phone__contains=digits.removeprefix("0")) if digits else Q(pk=None))
+                        | (Q(phone__contains=digits) if phone else Q(pk=None))
                     ).values("family")
                 )
                 queryset = queryset.filter(condition)

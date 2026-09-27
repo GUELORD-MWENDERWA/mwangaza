@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 2 (Élèves et frais) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 2.2.1 terminée : PR #89 à relire et fusionner |
-| Prochaine tâche | 2.2.2 — fiche élève et fiche famille |
-| Issue GitHub | #15 (2.2.1, PR #89) ; #88 (2.2.2) |
-| Branche | `tache/2.2.1-eleves-liste` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | 2.2.2 — fiche élève, fiche famille, recherche `Ctrl K` (démarrée le 2026-09-27) |
+| Prochaine tâche | 2.3 — import Excel |
+| Issue GitHub | #88 (2.2.2) |
+| Branche | `tache/2.2.2-fiche-eleve` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-27 |
 
 ## Avancement
