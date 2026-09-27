@@ -2,7 +2,13 @@
 // ni effaçable. Droit `audit.view` (directeur, promoteur). Le support Mwangaza n'est pas nommé.
 // Export Excel : 2.4 ; appareil et heure hors ligne : 3.3.
 import { api, call, type Schemas } from "@mwangaza/api";
-import { formatDate, formatDateTime, formatTime, useTranslation } from "@mwangaza/i18n";
+import {
+  type TFunction,
+  formatDate,
+  formatDateTime,
+  formatTime,
+  useTranslation,
+} from "@mwangaza/i18n";
 import {
   Avatar,
   Card,
@@ -20,11 +26,12 @@ import {
   initials,
 } from "@mwangaza/ui";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { fullName } from "../../lib/people";
 import { keys } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
+import { useSettled } from "../../lib/settled";
 import { Pagination } from "../shell/Pagination";
 import { LoadError } from "../status/StatusPages";
 import { ACTIONS, DOMAINS, actionTone, fieldLabel, renderValue } from "./values";
@@ -39,15 +46,6 @@ type Filters = {
   search: string;
 };
 const PAGE_SIZE = 50;
-
-function useSettled<T>(value: T, delay = 300): T {
-  const [settled, setSettled] = useState(value);
-  useEffect(() => {
-    const timer = setTimeout(() => setSettled(value), delay);
-    return () => clearTimeout(timer);
-  }, [value, delay]);
-  return settled;
-}
 
 export function AuditPage() {
   const { t } = useTranslation();
@@ -202,7 +200,7 @@ function Who({ log }: { log: Log }) {
   return <>{fullName(log.actor)}</>;
 }
 
-function subject(log: Log, t: ReturnType<typeof useTranslation>["t"]) {
+function subject(log: Log, t: TFunction) {
   if (log.entity_label) return log.entity_label;
   if (log.role_code) return t(`roles.${log.role_code}`);
   return t("common.none");

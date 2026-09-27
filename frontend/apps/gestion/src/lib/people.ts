@@ -30,3 +30,14 @@ export function formatPhone(phone: string): string {
 export function fullName(person: { first_name: string; middle_name: string; last_name: string }) {
   return [person.first_name, person.middle_name, person.last_name].filter(Boolean).join(" ");
 }
+
+/** « NOM POST-NOM Prénom » d'un élève, comme sur les listes de l'école. */
+export function studentName(student: {
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+}) {
+  return [student.last_name.toUpperCase(), student.middle_name.toUpperCase(), student.first_name]
+    .filter(Boolean)
+    .join(" ");
+}

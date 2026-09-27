@@ -15,21 +15,14 @@ import {
   Skeleton,
 } from "@mwangaza/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { errorMessage, fieldMessage } from "../../lib/errors";
 import { keys } from "../../lib/queries";
+import { useSettled } from "../../lib/settled";
 import { LoadError } from "../status/StatusPages";
 
 /** Valeur stable depuis `delay` ms : un aperçu par pause dans la frappe, pas par touche. */
-function useSettled<T>(value: T, delay = 400): T {
-  const [settled, setSettled] = useState(value);
-  useEffect(() => {
-    const timer = setTimeout(() => setSettled(value), delay);
-    return () => clearTimeout(timer);
-  }, [value, delay]);
-  return settled;
-}
 
 export function MatriculeCard() {
   const { t } = useTranslation();
@@ -48,7 +41,7 @@ function MatriculeForm({ saved }: { saved: { matricule_format: string; example: 
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [value, setValue] = useState(saved.matricule_format);
-  const settled = useSettled(value.trim());
+  const settled = useSettled(value.trim(), 400);
   const changed = settled !== saved.matricule_format && settled !== "";
   const preview = useQuery({
     queryKey: [...keys.matricule, "preview", settled],

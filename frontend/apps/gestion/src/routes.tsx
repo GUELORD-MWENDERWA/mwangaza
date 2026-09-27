@@ -16,6 +16,8 @@ import { RolesPage } from "./features/roles/RolesPage";
 import { SchoolChoicePage } from "./features/schools/SchoolChoicePage";
 import { SchoolSettingsPage } from "./features/settings/SchoolSettingsPage";
 import { StaffPage } from "./features/staff/StaffPage";
+import { NewStudentPage } from "./features/students/NewStudentPage";
+import { StudentsPage } from "./features/students/StudentsPage";
 import { AppShell } from "./features/shell/AppShell";
 import { HomePage } from "./features/shell/HomePage";
 import { MenuScreen } from "./features/shell/MenuScreen";
@@ -23,17 +25,29 @@ import { RequireAuth } from "./features/shell/RequireAuth";
 import { SchoolGate } from "./features/shell/SchoolGate";
 import { NotFound, RouteError } from "./features/status/StatusPages";
 import { SupportPage } from "./features/support/SupportPage";
-import { MENU_ITEMS, type MenuKey } from "./lib/menu";
+import { MENU_ITEMS, type MenuItem, type MenuKey } from "./lib/menu";
 
 /** Écrans construits, par entrée du menu (chaque tâche ajoute le sien) ; les autres :
  *  « bientôt disponible ». Le droit de l'entrée est vérifié avant (`MenuScreen`). */
 const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
+  students: <StudentsPage />,
   schoolSettings: <SchoolSettingsPage />,
   organisation: <OrganisationPage />,
   staff: <StaffPage />,
   roles: <RolesPage />,
   audit: <AuditPage />,
 };
+
+const menuItem = (key: MenuKey) => MENU_ITEMS.find((item) => item.key === key)!;
+
+/** Écrans ouverts depuis une entrée du menu, avec leur propre droit (ex. inscrire un élève). */
+const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
+  {
+    path: "students/new",
+    item: { ...menuItem("students"), permissions: ["students.edit"] },
+    element: <NewStudentPage />,
+  },
+];
 
 export const routes: RouteObject[] = [
   {
@@ -68,6 +82,10 @@ export const routes: RouteObject[] = [
                   ...MENU_ITEMS.map((item) => ({
                     path: item.path,
                     element: <MenuScreen item={item}>{SCREENS[item.key]}</MenuScreen>,
+                  })),
+                  ...PAGES.map(({ path, item, element }) => ({
+                    path,
+                    element: <MenuScreen item={item}>{element}</MenuScreen>,
                   })),
                   { path: "*", element: <NotFound /> },
                 ],
