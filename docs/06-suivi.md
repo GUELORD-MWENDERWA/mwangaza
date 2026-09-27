@@ -8,7 +8,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 2 (Élèves et frais) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 2.1 terminée : PR à relire et fusionner |
+| Tâche en cours | aucune — 2.1 terminée : PR #87 à relire et fusionner |
 | Prochaine tâche | 2.2 — écrans élèves |
 | Issue GitHub | #14 (2.1) |
 | Branche | `tache/2.1-students` ; dossier local : `~/Projets/mwangaza` |
