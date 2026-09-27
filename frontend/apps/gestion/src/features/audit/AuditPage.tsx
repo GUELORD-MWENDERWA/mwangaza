@@ -11,6 +11,7 @@ import {
 } from "@mwangaza/i18n";
 import {
   Avatar,
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -63,6 +64,9 @@ export function AuditPage() {
   const query = Object.fromEntries(
     Object.entries({ ...filters, search }).filter(([, value]) => value !== ""),
   );
+  // Export (M6) : une période du… au… d'une année au plus, comme le serveur l'exige.
+  const days = (Date.parse(filters.until) - Date.parse(filters.since)) / 86_400_000;
+  const exportable = days >= 0 && days < 366;
   const logs = useQuery({
     queryKey: [...keys.audit, query, page],
     queryFn: () =>
@@ -90,7 +94,30 @@ export function AuditPage() {
 
   return (
     <>
-      <PageHeader title={t("audit.title")} subtitle={t("audit.subtitle")} />
+      <PageHeader
+        title={t("audit.title")}
+        subtitle={t("audit.subtitle")}
+        actions={
+          <div className="flex flex-col items-end gap-1">
+            {exportable ? (
+              <Button asChild variant="outline">
+                <a href={`/api/audit/export/?${new URLSearchParams(query)}`} download>
+                  <Icon name="excel" size={16} />
+                  {t("audit.export")}
+                </a>
+              </Button>
+            ) : (
+              <Button variant="outline" disabled>
+                <Icon name="excel" size={16} />
+                {t("audit.export")}
+              </Button>
+            )}
+            {!exportable && (
+              <span className="text-[.82rem] text-ink-3">{t("audit.exportHelp")}</span>
+            )}
+          </div>
+        }
+      />
       <Card>
         <CardContent className="grid gap-3 min-[700px]:grid-cols-3 min-[1300px]:grid-cols-[1fr_1fr_1fr_auto_auto_1.4fr]">
           <Select

@@ -1,9 +1,11 @@
 """`/api/audit/` : journal d'audit de l'école (M6), en lecture seule, permission `audit.view`."""
 
+import io
 from datetime import datetime
 from unittest import mock
 from zoneinfo import ZoneInfo
 
+import openpyxl
 import pytest
 
 from apps.accounts.models import Role
@@ -262,3 +264,28 @@ def test_a_system_role_without_its_own_name_comes_with_its_code(api, school, hea
     results = api(head).get(AUDIT).json()["results"]
 
     assert [item["role_code"] for item in results] == [None, None, "cashier"]
+
+
+def test_export_gives_the_filtered_period_of_the_school_and_is_itself_logged(
+    api, school, other_school, head, cashier
+):
+    entry(school, at=datetime(2026, 9, 10, 23, 30, tzinfo=GOMA), entity_label="Dans la période")
+    entry(school, at=datetime(2026, 9, 11, 0, 30, tzinfo=GOMA), entity_label="Le lendemain")
+    entry(other_school, at=datetime(2026, 9, 10, 9, 0, tzinfo=GOMA), entity_label="Autre école")
+    client = api(head)
+    period = {"since": "2026-09-01", "until": "2026-09-10"}
+
+    response = client.get(f"{AUDIT}export/", **period)
+    sheet = openpyxl.load_workbook(io.BytesIO(response.content)).active
+    labels = [row[3] for row in sheet.iter_rows(min_row=2, values_only=True)]
+
+    assert response.status_code == 200, response.content
+    assert labels == ["Dans la période"]
+    with use_school(school):
+        exported = AuditLog.objects.get(action=Action.AUDIT_EXPORTED)
+    assert exported.actor == head and exported.after == period
+    # Période obligatoire, une année au plus ; `audit.view` exigé.
+    assert client.get(f"{AUDIT}export/", since="2026-09-01").status_code == 400
+    too_long = client.get(f"{AUDIT}export/", since="2025-09-01", until="2026-09-10")
+    assert too_long.status_code == 400
+    assert api(cashier).get(f"{AUDIT}export/", **period).status_code == 403

@@ -107,6 +107,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Un compte par personne, identifié par son numéro de téléphone (`apps/accounts`).
 AUTH_USER_MODEL = "accounts.User"
+# Portail des parents (un seul domaine pour toutes les écoles), écrit sur la fiche d'inscription.
+PORTAL_URL = env("DJANGO_PORTAL_URL", "https://parents.mwangaza.school")
 # Indicatif du pays pour un numéro tapé sous sa forme nationale (0971234567) : RDC.
 PHONE_DEFAULT_COUNTRY_CODE = "243"
 

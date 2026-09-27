@@ -174,3 +174,39 @@ export function confirmImport(id: string) {
 
 export const importTemplateUrl = "/api/student-imports/template/";
 export const importReportUrl = (id: string) => `/api/student-imports/${id}/report/`;
+
+// Impressions (D5, M11) : aperçu HTML dans la page, PDF que le navigateur ouvre ou enregistre.
+export type Paper = "a4" | "a5";
+export type ClassListColumn = "matricule" | "sex_birth" | "guardian_phone";
+export type ClassListOrder = "name" | "matricule";
+
+export function registrationFormUrl(
+  enrollmentId: string,
+  options: { output: "html" | "pdf"; paper: Paper; familyCode: boolean },
+) {
+  const query = new URLSearchParams({
+    output: options.output,
+    paper: options.paper,
+    family_code: String(options.familyCode),
+  });
+  return `/api/enrollments/${enrollmentId}/form/?${query}`;
+}
+
+export function classListUrl(
+  classGroup: string,
+  options: {
+    output: "html" | "pdf" | "xlsx";
+    columns: ClassListColumn[];
+    blankColumns: number;
+    order: ClassListOrder;
+  },
+) {
+  const query = new URLSearchParams({
+    class_group: classGroup,
+    output: options.output,
+    blank_columns: String(options.blankColumns),
+    order: options.order,
+  });
+  for (const column of options.columns) query.append("columns", column);
+  return `/api/enrollments/class-list/?${query}`;
+}

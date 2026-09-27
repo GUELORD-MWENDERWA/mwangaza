@@ -1,0 +1,43 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% translate "Class list" %} — {{ class_group.name }}{% endblock %}
+{% block style %}
+td.blank, th.blank { width: 18mm; }
+td.sex { text-align: center; }
+{% endblock %}
+{% block content %}
+<div class="row between">
+  <div class="row">
+    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% endif %}
+    <div><b>{{ school_name|upper }}</b><br><span class="small">{% blocktranslate with year=year.name %}School year {{ year }}{% endblocktranslate %}</span></div>
+  </div>
+  <div class="small" style="text-align:right">{% blocktranslate with date=printed_at|date:"d/m/Y" %}Printed on {{ date }}{% endblocktranslate %}</div>
+</div>
+
+<h1>{% blocktranslate with name=class_group.name %}LIST OF STUDENTS — {{ name }}{% endblocktranslate %}</h1>
+<p class="center small">{% if teacher %}{% blocktranslate %}Homeroom teacher: {{ teacher }}{% endblocktranslate %} · {% endif %}{% blocktranslate with total=rows|length %}Enrolment: <b>{{ total }}</b>{% endblocktranslate %} ({% blocktranslate %}boys {{ boys }}, girls {{ girls }}{% endblocktranslate %})</p>
+
+<table>
+  <thead><tr>
+    <th class="num">{% translate "No." %}</th>
+    {% if "matricule" in columns %}<th>{% translate "Student number" %}</th>{% endif %}
+    <th>{% translate "Last name, middle name, first name" %}</th>
+    {% if "sex_birth" in columns %}<th>{% translate "Sex" %}</th><th>{% translate "Born on" %}</th>{% endif %}
+    {% if "guardian_phone" in columns %}<th>{% translate "Main contact's phone" %}</th>{% endif %}
+    {% for blank in blank_columns %}<th class="blank"></th>{% endfor %}
+  </tr></thead>
+  <tbody>
+  {% for row in rows %}
+  <tr>
+    <td class="num">{{ row.number }}</td>
+    {% if "matricule" in columns %}<td>{{ row.matricule }}</td>{% endif %}
+    <td><b>{{ row.surname|upper }}</b> {{ row.first_name }}</td>
+    {% if "sex_birth" in columns %}<td class="sex">{{ row.sex }}</td><td>{{ row.birth_date|date:"d/m/Y" }}</td>{% endif %}
+    {% if "guardian_phone" in columns %}<td>{{ row.phone }}</td>{% endif %}
+    {% for blank in blank_columns %}<td class="blank"></td>{% endfor %}
+  </tr>
+  {% empty %}
+  <tr><td colspan="9" class="center muted">{% translate "No active student in this class." %}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

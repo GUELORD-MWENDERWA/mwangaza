@@ -132,6 +132,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/audit/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Export Excel du journal filtré (M6), une année au plus ; l'export est lui-même noté
+         *     dans le journal.
+         */
+        get: operations["audit_export_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/csrf/": {
         parameters: {
             query?: never;
@@ -419,6 +439,43 @@ export interface paths {
          *     changer de classe dans l'année, noter un départ.
          */
         patch: operations["enrollments_partial_update"];
+        trace?: never;
+    };
+    "/api/enrollments/{id}/form/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Fiche d'inscription (D5, M11) : aperçu HTML ou PDF, A4 ou A5, avec ou sans code
+         *     famille.
+         */
+        get: operations["enrollments_form_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/enrollments/class-list/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Liste d'une classe (D5, M11) : élèves actifs, en aperçu HTML, PDF ou Excel. */
+        get: operations["enrollments_class_list_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/families/": {
@@ -1148,11 +1205,13 @@ export interface components {
          *     * `students.enrolled` - Student enrolled
          *     * `students.enrollment_updated` - Enrollment changed
          *     * `students.student_imported` - Student imported from a file
+         *     * `students.family_code_printed` - Family code printed on the registration form
+         *     * `audit.exported` - Audit log exported
          *     * `support.started` - Support session opened
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "audit.exported" | "support.started" | "support.ended";
         Address: {
             commune: string;
             quartier: string;
@@ -1301,7 +1360,7 @@ export interface components {
          */
         CycleEnum: "primary" | "basic" | "secondary_general" | "secondary_technical" | "higher" | "vocational";
         /** @enum {string} */
-        DomainEnum: "account" | "auth" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
+        DomainEnum: "account" | "audit" | "auth" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
         Enrollment: {
             /** Format: uuid */
             readonly id: string;
@@ -2813,14 +2872,17 @@ export interface operations {
                  *     * `students.enrolled` - Student enrolled
                  *     * `students.enrollment_updated` - Enrollment changed
                  *     * `students.student_imported` - Student imported from a file
+                 *     * `students.family_code_printed` - Family code printed on the registration form
+                 *     * `audit.exported` - Audit log exported
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
                  * @description * `account` - account
+                 *     * `audit` - audit
                  *     * `auth` - auth
                  *     * `organisation` - organisation
                  *     * `roles` - roles
@@ -2829,7 +2891,7 @@ export interface operations {
                  *     * `students` - students
                  *     * `support` - support
                  */
-                domain?: "account" | "auth" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
+                domain?: "account" | "audit" | "auth" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description A page number within the paginated result set. */
@@ -2926,6 +2988,129 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuditActor"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    audit_export_retrieve: {
+        parameters: {
+            query: {
+                /**
+                 * @description * `auth.login` - Logged in
+                 *     * `account.password_changed` - Password changed
+                 *     * `account.totp_enabled` - Two-factor authentication turned on
+                 *     * `account.totp_changed` - Two-factor authentication on a new phone
+                 *     * `account.totp_disabled` - Two-factor authentication turned off
+                 *     * `account.totp_reset` - Two-factor authentication reset by support
+                 *     * `account.recovery_codes_renewed` - New recovery codes
+                 *     * `account.changed` - Names or phone changed by support
+                 *     * `account.deactivated` - Account deactivated by support
+                 *     * `account.reactivated` - Account reactivated by support
+                 *     * `account.password_reset` - Temporary password given by support
+                 *     * `roles.created` - Role created
+                 *     * `roles.updated` - Role changed
+                 *     * `roles.deleted` - Role deleted
+                 *     * `staff.added` - Staff member added
+                 *     * `staff.roles_changed` - Staff member's roles changed
+                 *     * `staff.deactivated` - Staff member deactivated
+                 *     * `staff.reactivated` - Staff member reactivated
+                 *     * `staff.account_changed` - Staff member's names or phone changed
+                 *     * `staff.password_reset` - Temporary password given
+                 *     * `staff.totp_reset` - Two-factor authentication reset
+                 *     * `school.created` - School created
+                 *     * `school.updated` - School settings changed
+                 *     * `school.logo_changed` - School logo changed
+                 *     * `school.suspended` - School suspended
+                 *     * `school.reactivated` - School reactivated
+                 *     * `organisation.year_created` - School year created
+                 *     * `organisation.year_updated` - School year changed
+                 *     * `organisation.year_deleted` - School year deleted
+                 *     * `organisation.terms_changed` - Terms and periods changed
+                 *     * `organisation.level_created` - Level created
+                 *     * `organisation.level_updated` - Level changed
+                 *     * `organisation.level_deleted` - Level deleted
+                 *     * `organisation.levels_reordered` - Levels reordered
+                 *     * `organisation.track_created` - Track created
+                 *     * `organisation.track_updated` - Track changed
+                 *     * `organisation.track_deleted` - Track deleted
+                 *     * `organisation.class_created` - Class created
+                 *     * `organisation.class_updated` - Class changed
+                 *     * `organisation.class_deleted` - Class deleted
+                 *     * `organisation.matricule_format_changed` - Student number format changed
+                 *     * `students.family_created` - Family created
+                 *     * `students.family_updated` - Family changed
+                 *     * `students.family_deleted` - Family deleted
+                 *     * `students.student_created` - Student created
+                 *     * `students.student_updated` - Student changed
+                 *     * `students.enrolled` - Student enrolled
+                 *     * `students.enrollment_updated` - Enrollment changed
+                 *     * `students.student_imported` - Student imported from a file
+                 *     * `students.family_code_printed` - Family code printed on the registration form
+                 *     * `audit.exported` - Audit log exported
+                 *     * `support.started` - Support session opened
+                 *     * `support.ended` - Support session closed
+                 */
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "audit.exported" | "support.started" | "support.ended";
+                /** @description Qui (`id` du compte). */
+                actor?: string;
+                /**
+                 * @description * `account` - account
+                 *     * `audit` - audit
+                 *     * `auth` - auth
+                 *     * `organisation` - organisation
+                 *     * `roles` - roles
+                 *     * `school` - school
+                 *     * `staff` - staff
+                 *     * `students` - students
+                 *     * `support` - support
+                 */
+                domain?: "account" | "audit" | "auth" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
+                /** @description Historique d'un objet (`entity_id`). */
+                entity?: string;
+                /** @description Dans le nom de l'objet. */
+                search?: string;
+                /** @description À partir de ce jour. */
+                since: string;
+                /** @description Jusqu'à ce jour. */
+                until: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Classeur Excel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             403: {
@@ -3872,6 +4057,132 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    enrollments_form_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Imprimer le code famille (pour le tuteur principal) ; chaque PDF qui l'imprime est noté dans le journal d'audit. Décoché : fiche remise à un tiers. */
+                family_code?: boolean;
+                /**
+                 * @description `html` : aperçu dans la page, code famille masqué ; `pdf` : à imprimer.
+                 *
+                 *     * `pdf` - pdf
+                 *     * `html` - html
+                 */
+                output?: "pdf" | "html";
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
+            };
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this enrollment. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document PDF (`output=pdf`). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                    "text/html": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    enrollments_class_list_retrieve: {
+        parameters: {
+            query: {
+                /** @description Colonnes vides à droite : appel, signatures, notes à la main. */
+                blank_columns?: number;
+                class_group: string;
+                /** @description Colonnes en plus du N° et du nom (paramètre répété). */
+                columns?: ("matricule" | "sex_birth" | "guardian_phone")[];
+                /**
+                 * @description * `name` - name
+                 *     * `matricule` - matricule
+                 */
+                order?: "name" | "matricule";
+                /**
+                 * @description * `pdf` - pdf
+                 *     * `xlsx` - xlsx
+                 *     * `html` - html
+                 */
+                output?: "pdf" | "xlsx" | "html";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document PDF (`output=pdf`). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                    "text/html": string;
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

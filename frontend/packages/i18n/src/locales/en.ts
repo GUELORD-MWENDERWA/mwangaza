@@ -639,6 +639,8 @@ export const en: Messages<typeof fr> = {
   audit: {
     title: "Audit log",
     subtitle: "Who did what, and when. The log can be neither changed nor erased.",
+    export: "Export (Excel)",
+    exportHelp: "Choose a period (from… to…, one year at most) to export.",
     filters: {
       person: "Person",
       allPeople: "Person: all",
@@ -679,6 +681,7 @@ export const en: Messages<typeof fr> = {
       school: "School",
       organisation: "School organisation",
       students: "Students",
+      audit: "Audit log",
       support: "Support",
     },
     actions: {
@@ -744,6 +747,10 @@ export const en: Messages<typeof fr> = {
         student_imported: "Student imported from a file",
         enrolled: "Student enrolled",
         enrollment_updated: "Enrollment changed",
+        family_code_printed: "Family code printed",
+      },
+      audit: {
+        exported: "Log exported",
       },
       support: {
         started: "Support login",
@@ -751,6 +758,8 @@ export const en: Messages<typeof fr> = {
       },
     },
     fields: {
+      since: "From",
+      until: "To",
       name: "Name",
       official_name: "Official name",
       code: "Code",
@@ -1004,6 +1013,43 @@ export const en: Messages<typeof fr> = {
       noPath: "No enrolment.",
       later:
         "Payments will be added here with the cash desk; marks, report cards and deliberation decisions with V1.2.",
+    },
+    print: {
+      print: "Print",
+      pdf: "PDF",
+      excel: "Excel",
+      form: {
+        title: "Registration form",
+        subtitle: "To print and hand to the parent.",
+        printIt: "Print the registration form",
+        paper: "Paper",
+        familyCode: "Include the family code",
+        familyCodeHelp:
+          "For the main contact. Untick for a form given to someone else. Each printing of the code is recorded in the audit log.",
+        openStudent: "Open the student's record",
+        preview: "Preview of the registration form",
+        notEnrolled: "This student is not enrolled this year: no registration form.",
+      },
+      classList: {
+        title: "Class list",
+        subtitle: "Print or export the list of the active students of a class.",
+        class: "Class",
+        pdf: "Print (PDF)",
+        options: "Options",
+        columns: "Columns",
+        column: {
+          matricule: "Student number",
+          sex_birth: "Sex and date of birth",
+          guardian_phone: "Main contact's phone",
+        },
+        blankColumns: "Blank columns to add",
+        blankHelp: "For the roll call, signatures, handwritten notes…",
+        order: "Order",
+        byName: "Alphabetical",
+        byMatricule: "Student number",
+        preview: "Preview of the class list",
+        noClasses: "No class this year: create them in School organisation.",
+      },
     },
     import: {
       crumb: "Import from Excel",

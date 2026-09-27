@@ -5,7 +5,7 @@ from rest_framework import serializers
 from apps.accounts.serializers import PhoneField
 from apps.audit.serializers import AuditLogSerializer
 from apps.schools.models import AcademicYear, ClassGroup, Track
-from apps.students import imports
+from apps.students import documents, imports
 from apps.students.models import Enrollment, Family, Guardian, Student, StudentImport
 from apps.students.photos import validate_photo
 
@@ -393,4 +393,41 @@ class ImportLineSerializer(serializers.Serializer):
 class ImportLineFilterSerializer(serializers.Serializer):
     problems = serializers.BooleanField(
         required=False, default=False, help_text="Seulement les erreurs et les avertissements."
+    )
+
+
+class RegistrationFormQuerySerializer(serializers.Serializer):
+    """Fiche d'inscription (D5, M11)."""
+
+    output = serializers.ChoiceField(
+        choices=["pdf", "html"],
+        default="pdf",
+        help_text="`html` : aperçu dans la page, code famille masqué ; `pdf` : à imprimer.",
+    )
+    paper = serializers.ChoiceField(choices=documents.PAPERS, default="a4")
+    family_code = serializers.BooleanField(
+        default=False,
+        help_text="Imprimer le code famille (pour le tuteur principal) ; chaque PDF qui "
+        "l'imprime est noté dans le journal d'audit. Décoché : fiche remise à un tiers.",
+    )
+
+
+class ClassListQuerySerializer(serializers.Serializer):
+    """Liste de classe (D5, M11) : élèves actifs de la classe."""
+
+    class_group = serializers.PrimaryKeyRelatedField(queryset=ClassGroup.objects)
+    output = serializers.ChoiceField(choices=["pdf", "xlsx", "html"], default="pdf")
+    columns = serializers.MultipleChoiceField(
+        choices=documents.COLUMNS,
+        required=False,
+        help_text="Colonnes en plus du N° et du nom (paramètre répété).",
+    )
+    blank_columns = serializers.IntegerField(
+        min_value=0,
+        max_value=documents.MAX_BLANK_COLUMNS,
+        default=0,
+        help_text="Colonnes vides à droite : appel, signatures, notes à la main.",
+    )
+    order = serializers.ChoiceField(
+        choices=[documents.BY_NAME, documents.BY_MATRICULE], default=documents.BY_NAME
     )

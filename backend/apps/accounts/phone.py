@@ -60,3 +60,9 @@ class PhoneNumberField(models.CharField):
             return normalize_phone(value)
         except InvalidPhoneError:
             raise ValidationError(INVALID_PHONE_MESSAGE, code="invalid_phone") from None
+
+
+def format_phone(phone: str) -> str:
+    """« +243 97 123 45 67 » pour un numéro de la RDC, comme dans la Gestion ; sinon tel quel."""
+    match = re.fullmatch(r"\+243(\d{2})(\d{3})(\d{2})(\d{2})", phone or "")
+    return f"+243 {' '.join(match.groups())}" if match else phone or ""

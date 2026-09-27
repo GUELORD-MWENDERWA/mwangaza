@@ -28,13 +28,13 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
-from openpyxl.styles import Font
 
 from apps.accounts.models import User
 from apps.accounts.phone import InvalidPhoneError, normalize_phone
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.audit.context import current_request_info
+from apps.core.documents import workbook
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import require_current_school
 from apps.schools import matricule
@@ -687,24 +687,9 @@ def fail(imp: StudentImport) -> None:
 # Classeurs à télécharger
 
 
-def _workbook(headers: list[str], rows: list[list]) -> bytes:
-    book = openpyxl.Workbook()
-    sheet = book.active
-    sheet.append(headers)
-    for cell in sheet[1]:
-        cell.font = Font(bold=True)
-    for index in range(len(headers)):
-        sheet.column_dimensions[openpyxl.utils.get_column_letter(index + 1)].width = 22
-    for row in rows:
-        sheet.append(row)
-    output = io.BytesIO()
-    book.save(output)
-    return output.getvalue()
-
-
 def template_workbook() -> bytes:
     """Modèle à remplir : une colonne par champ, titres reconnus à l'import."""
-    return _workbook([str(FIELD_LABELS[name]).upper() for name in FIELDS], [])
+    return workbook([str(FIELD_LABELS[name]).upper() for name in FIELDS], [])
 
 
 def issue_text(issue: dict) -> str:
@@ -728,4 +713,4 @@ def report_workbook(imp: StudentImport) -> bytes:
             line["values"].get(fields.get(index), "") for index in range(len(imp.headers))
         ]
         rows.append([line["line"], problems, *original])
-    return _workbook(headers, rows)
+    return workbook(headers, rows)

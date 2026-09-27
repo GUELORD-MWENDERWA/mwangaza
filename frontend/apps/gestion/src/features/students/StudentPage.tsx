@@ -79,7 +79,10 @@ export function StudentPage() {
             className: created.className,
             matricule: created.matricule,
             code: created.familyCode,
-          })}
+          })}{" "}
+          <Link to={`/students/${data.id}/form`} className="font-bold underline">
+            {t("students.print.form.printIt")}
+          </Link>
         </Banner>
       )}
       <Card>
@@ -110,6 +113,14 @@ export function StudentPage() {
               )}
             </div>
           </div>
+          {enrollment && (
+            <Button asChild variant="outline">
+              <Link to={`/students/${data.id}/form`}>
+                <Icon name="print" size={16} />
+                {t("students.print.form.title")}
+              </Link>
+            </Button>
+          )}
           {canEdit && (
             <Button asChild variant="outline">
               <Link to={`/students/${data.id}/edit`}>

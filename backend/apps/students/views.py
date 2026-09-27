@@ -5,6 +5,7 @@ from pathlib import Path
 
 from django.db.models import Count, Prefetch, Q
 from django.http import FileResponse, HttpResponse
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
@@ -19,12 +20,15 @@ from rest_framework.response import Response
 from apps.accounts.roles import STUDENTS_EDIT, STUDENTS_IMPORT, STUDENTS_VIEW
 from apps.accounts.views import SchoolViewSet
 from apps.audit.models import AuditLog
+from apps.core.documents import PRINT_RESPONSE, XLSX, XLSX_RESPONSE, file_response, render
 from apps.core.errors import ApiError, ErrorSerializer
+from apps.schools.models import ClassGroup
 from apps.schools.organisation import current_year
-from apps.students import imports, services
+from apps.students import documents, imports, services
 from apps.students.models import Enrollment, Family, Guardian, Student, StudentImport
 from apps.students.photos import CONTENT_TYPES
 from apps.students.serializers import (
+    ClassListQuerySerializer,
     EnrollmentCreateSerializer,
     EnrollmentSerializer,
     EnrollmentUpdateSerializer,
@@ -34,6 +38,7 @@ from apps.students.serializers import (
     ImportLineFilterSerializer,
     ImportLineSerializer,
     PhotoUploadSerializer,
+    RegistrationFormQuerySerializer,
     StudentFilterSerializer,
     StudentHistorySerializer,
     StudentImportCreateSerializer,
@@ -321,7 +326,7 @@ class EnrollmentViewSet(StudentsViewSet):
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return Enrollment.all_schools.none()
-        return Enrollment.objects.select_related("student", *_CLASS)
+        return Enrollment.objects.select_related("student__family", *_CLASS)
 
     def _enrollment(self, enrollment: Enrollment, status_code=status.HTTP_200_OK) -> Response:
         enrollment = self.get_queryset().get(pk=enrollment.pk)
@@ -353,18 +358,54 @@ class EnrollmentViewSet(StudentsViewSet):
         services.update_enrollment(enrollment, actor=request.user, **serializer.validated_data)
         return self._enrollment(enrollment)
 
+    @extend_schema(
+        parameters=[RegistrationFormQuerySerializer],
+        responses={**PRINT_RESPONSE, 400: ErrorSerializer, **ERRORS},
+    )
+    @action(detail=True, url_path="form")
+    def form(self, request: Request, pk=None) -> HttpResponse:
+        """Fiche d'inscription (D5, M11) : aperçu HTML ou PDF, A4 ou A5, avec ou sans code
+        famille."""
+        enrollment = self.get_object()
+        params = RegistrationFormQuerySerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        data = params.validated_data
+        context = documents.registration_form(
+            enrollment,
+            actor=request.user,
+            paper=data["paper"],
+            with_code=data["family_code"],
+            preview=data["output"] == "html",
+        )
+        name = f"fiche-{slugify(enrollment.student.full_name)}.pdf"
+        return render("students/registration_form.html", context, data["output"], name)
 
-XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    @extend_schema(
+        parameters=[ClassListQuerySerializer],
+        responses={**PRINT_RESPONSE, **XLSX_RESPONSE, 400: ErrorSerializer, **ERRORS},
+    )
+    @action(detail=False, url_path="class-list")
+    def class_list(self, request: Request) -> HttpResponse:
+        """Liste d'une classe (D5, M11) : élèves actifs, en aperçu HTML, PDF ou Excel."""
+        params = ClassListQuerySerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        data = params.validated_data
+        group = ClassGroup.objects.select_related(
+            "level", "track", "academic_year", "homeroom_teacher"
+        ).get(pk=data["class_group"].pk)
+        context = documents.class_list(
+            group,
+            columns=sorted(data.get("columns", ())),
+            blank_columns=data["blank_columns"],
+            order=data["order"],
+        )
+        name = f"liste-{slugify(group.name)}"
+        if data["output"] == "xlsx":
+            return file_response(documents.class_list_workbook(context), XLSX, f"{name}.xlsx")
+        return render("students/class_list.html", context, data["output"], f"{name}.pdf")
+
+
 NO_CURRENT_YEAR = _("No current school year: choose one.")
-
-
-def _xlsx(content: bytes, name: str) -> HttpResponse:
-    response = HttpResponse(content, content_type=XLSX)
-    response["Content-Disposition"] = f'attachment; filename="{name}"'
-    return response
-
-
-XLSX_RESPONSE = {(200, XLSX): OpenApiResponse(OpenApiTypes.BINARY, description="Classeur Excel.")}
 
 
 @extend_schema_view(
@@ -445,11 +486,11 @@ class StudentImportViewSet(mixins.RetrieveModelMixin, SchoolViewSet):
         """Lignes à reprendre, avec les colonnes du fichier et leurs problèmes."""
         imp = self.get_object()
         name = _("import-report")
-        return _xlsx(imports.report_workbook(imp), f"{name}.xlsx")
+        return file_response(imports.report_workbook(imp), XLSX, f"{name}.xlsx")
 
     @extend_schema(responses={**XLSX_RESPONSE, **ERRORS})
     @action(detail=False)
     def template(self, request: Request) -> HttpResponse:
         """Modèle à remplir : une colonne par champ, titres reconnus à l'import."""
         name = _("students-template")
-        return _xlsx(imports.template_workbook(), f"{name}.xlsx")
+        return file_response(imports.template_workbook(), XLSX, f"{name}.xlsx")
