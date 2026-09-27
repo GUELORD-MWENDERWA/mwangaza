@@ -20,7 +20,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts.permissions import HasSchoolPermission
-from apps.accounts.roles import CLASSES_MANAGE, SCHOOL_CONFIGURE
+from apps.accounts.roles import CLASSES_MANAGE, SCHOOL_CONFIGURE, STUDENTS_VIEW
 from apps.accounts.views import SchoolViewSet
 from apps.core.errors import SCHOOL_NOT_FOUND, ApiError, ErrorSerializer
 from apps.schools import organisation, services
@@ -153,8 +153,17 @@ CONFLICT = {409: ErrorSerializer}
 
 
 class _OrganisationViewSet(SchoolViewSet):
-    required_permission = CLASSES_MANAGE
     pagination_class = None
+    # Années, options et classes : lues aussi avec `students.view` (filtres de la liste des
+    # élèves, inscription) ; tout le reste demande `classes.manage`.
+    shared_reads = False
+
+    @property
+    def required_permission(self) -> str | tuple[str, ...]:
+        if self.shared_reads and self.action in {"list", "retrieve"}:
+            return (CLASSES_MANAGE, STUDENTS_VIEW)
+        return CLASSES_MANAGE
+
     http_method_names = ["get", "post", "put", "patch", "delete", "head", "options"]
 
 
@@ -168,6 +177,8 @@ class AcademicYearViewSet(
     mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, _OrganisationViewSet
 ):
     """Années scolaires de l'école, la plus récente d'abord, avec leur découpage (C1)."""
+
+    shared_reads = True
 
     serializer_class = AcademicYearSerializer
 
@@ -313,6 +324,8 @@ class LevelViewSet(_CrudViewSet):
 class TrackViewSet(_CrudViewSet):
     """Options des humanités (« Électricité », code `ELEC`) (C2)."""
 
+    shared_reads = True
+
     serializer_class = TrackSerializer
 
     def get_queryset(self):
@@ -359,6 +372,8 @@ class TrackViewSet(_CrudViewSet):
 class ClassGroupViewSet(_CrudViewSet):
     """Classes d'une année (« 3e Électricité A ») : niveau, option, section, capacité, titulaire
     (C2). Supprimée seulement sans élève."""
+
+    shared_reads = True
 
     serializer_class = ClassGroupSerializer
 

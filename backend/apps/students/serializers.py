@@ -3,7 +3,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.accounts.serializers import PhoneField
-from apps.schools.models import AcademicYear, ClassGroup
+from apps.schools.models import AcademicYear, ClassGroup, Track
 from apps.students.models import Enrollment, Family, Guardian, Student
 
 
@@ -39,6 +39,28 @@ class FamilySerializer(serializers.ModelSerializer):
     class Meta:
         model = Family
         fields = ["id", "code", "guardians", "student_count", "activated_at"]
+
+
+class FamilyStudentSerializer(serializers.ModelSerializer):
+    # Classe de l'année en cours, ou vide.
+    class_group_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Student
+        fields = ["id", "last_name", "middle_name", "first_name", "class_group_name"]
+
+    def get_class_group_name(self, student: Student) -> str:
+        enrollments = getattr(student, "year_enrollments", [])
+        return enrollments[0].class_group.name if enrollments else ""
+
+
+class FamilyDetailSerializer(FamilySerializer):
+    """Famille avec ses enfants : pour la reconnaître en inscrivant un élève (D4)."""
+
+    students = FamilyStudentSerializer(many=True, read_only=True)
+
+    class Meta(FamilySerializer.Meta):
+        fields = [*FamilySerializer.Meta.fields, "students"]
 
 
 class FamilyWriteSerializer(serializers.Serializer):
@@ -101,14 +123,27 @@ class StudentListSerializer(_StudentFields):
     family_code = serializers.CharField(source="family.code", read_only=True)
     # Inscription de l'année demandée (par défaut l'année en cours), ou `null`.
     enrollment = serializers.SerializerMethodField()
+    # Contact principal de la famille (le premier à défaut), ou `null`.
+    primary_guardian = serializers.SerializerMethodField()
 
     class Meta(_StudentFields.Meta):
-        fields = [*_StudentFields.Meta.fields, "family", "family_code", "enrollment"]
+        fields = [
+            *_StudentFields.Meta.fields,
+            "family",
+            "family_code",
+            "enrollment",
+            "primary_guardian",
+        ]
 
     @extend_schema_field(EnrollmentSerializer(allow_null=True))
     def get_enrollment(self, student: Student) -> dict | None:
         enrollments = getattr(student, "year_enrollments", [])
         return EnrollmentSerializer(enrollments[0]).data if enrollments else None
+
+    @extend_schema_field(GuardianSerializer(allow_null=True))
+    def get_primary_guardian(self, student: Student) -> dict | None:
+        guardians = student.family.guardians.all()
+        return GuardianSerializer(guardians[0]).data if guardians else None
 
 
 class StudentSerializer(_StudentFields):
@@ -191,6 +226,12 @@ class StudentFilterSerializer(serializers.Serializer):
         help_text="Année de l'inscription affichée (par défaut l'année en cours).",
     )
     class_group = serializers.PrimaryKeyRelatedField(queryset=ClassGroup.objects, required=False)
-    enrolled = serializers.BooleanField(
-        required=False, allow_null=True, default=None, help_text="Inscrit ou non cette année."
+    track = serializers.PrimaryKeyRelatedField(
+        queryset=Track.objects, required=False, help_text="Option de la classe de l'année."
+    )
+    status = serializers.ChoiceField(
+        choices=["active", "left", "not_enrolled"],
+        required=False,
+        help_text="Cette année : inscrit et présent, inscrit puis parti (transfert, abandon, "
+        "exclusion, fin d'études) ou pas inscrit. Absent : tous.",
     )

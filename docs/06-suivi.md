@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 2 (Élèves et frais) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 2.1 terminée : PR #87 à relire et fusionner |
-| Prochaine tâche | 2.2 — écrans élèves |
-| Issue GitHub | #14 (2.1) |
-| Branche | `tache/2.1-students` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | 2.2.1 — liste des élèves et inscription |
+| Prochaine tâche | 2.2.2 — fiche élève et fiche famille |
+| Issue GitHub | #15 (2.2.1) ; #88 (2.2.2) |
+| Branche | `tache/2.2.1-eleves-liste` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-27 |
 
 ## Avancement
@@ -20,10 +20,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|:-:|:-:|
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
-| Semaine 2 — Élèves et frais | 1 | 7 |
+| Semaine 2 — Élèves et frais | 1 | 8 |
 | Semaine 3 — Caisse et hors-ligne | 0 | 8 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **10** | **32** |
+| **V1.0** | **10** | **33** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
