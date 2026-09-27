@@ -26,3 +26,11 @@ export async function totp(key?: string): Promise<string> {
 export function shell(code: string) {
   manage("shell", "-c", code);
 }
+
+/** Un code ne sert qu'une fois par compte : pour reconnecter un compte de démonstration déjà
+ *  connecté par un autre parcours dans la même période de 30 s, on oublie le dernier code. */
+export function allowCodeAgain(phone: string) {
+  shell(
+    `from apps.accounts.models import User; User.objects.filter(phone='${phone}').update(totp_last_step=0)`,
+  );
+}
