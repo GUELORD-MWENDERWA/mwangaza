@@ -22,6 +22,7 @@ export const keys = {
   audit: ["audit"],
   students: ["students"],
   families: ["families"],
+  studentImports: ["student-imports"],
   auditActors: ["audit-actors"],
 } as const;
 

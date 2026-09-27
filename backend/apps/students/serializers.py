@@ -305,6 +305,9 @@ class ImportClassSerializer(serializers.Serializer):
 
 
 class StudentImportSerializer(serializers.ModelSerializer):
+    headers = serializers.ListField(
+        child=serializers.CharField(allow_blank=True), help_text="Titres des colonnes du fichier."
+    )
     mapping = ImportMappingSerializer()
     class_mapping = serializers.DictField(child=serializers.UUIDField())
     counts = ImportCountsSerializer(source="report.counts")

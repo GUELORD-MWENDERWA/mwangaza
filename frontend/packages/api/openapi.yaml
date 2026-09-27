@@ -6085,8 +6085,10 @@ components:
           readOnly: true
           title: Sheet
         headers:
-          readOnly: true
-          title: Column titles
+          type: array
+          items:
+            type: string
+          description: Titres des colonnes du fichier.
         mapping:
           $ref: '#/components/schemas/ImportMapping'
         class_mapping:

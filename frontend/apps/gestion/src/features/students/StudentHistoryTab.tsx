@@ -27,7 +27,11 @@ import { LoadError } from "../status/StatusPages";
 import { type HistoryEntry, type Student, useStudentHistory } from "./data";
 
 type Filter = "all" | "schooling" | "changes";
-const SCHOOLING = new Set(["students.enrolled", "students.enrollment_updated"]);
+const SCHOOLING = new Set([
+  "students.enrolled",
+  "students.enrollment_updated",
+  "students.student_imported",
+]);
 const PAGE_SIZE = 50;
 
 function shown(entry: HistoryEntry, filter: Filter): boolean {

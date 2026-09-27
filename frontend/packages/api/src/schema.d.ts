@@ -2214,8 +2214,8 @@ export interface components {
             readonly file_name: string;
             /** Sheet */
             readonly sheet_name: string;
-            /** Column titles */
-            readonly headers: unknown;
+            /** @description Titres des colonnes du fichier. */
+            headers: string[];
             mapping: components["schemas"]["ImportMapping"];
             class_mapping: {
                 [key: string]: string;
