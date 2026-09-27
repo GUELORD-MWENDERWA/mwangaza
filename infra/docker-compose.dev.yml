@@ -10,6 +10,11 @@ x-backend: &backend
     - ../backend:/app
   environment:
     DJANGO_SETTINGS_MODULE: config.settings.dev
+    # Même clé que les commandes lancées sur la machine (`make demo`, `make totp`…, qui lisent
+    # `.env`) : sinon les clés de double authentification chiffrées par l'une sont illisibles
+    # par l'autre (« Clé TOTP illisible »). Vide : la clé de développement de `settings/dev.py`.
+    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-}
+    DJANGO_SECRET_KEY_FALLBACKS: ${DJANGO_SECRET_KEY_FALLBACKS:-}
     POSTGRES_DB: mwangaza
     POSTGRES_USER: mwangaza
     POSTGRES_PASSWORD: mwangaza
