@@ -8,9 +8,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 2 (Élèves et frais) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | 2.2.1 — liste des élèves et inscription |
+| Tâche en cours | aucune — 2.2.1 terminée : PR #89 à relire et fusionner |
 | Prochaine tâche | 2.2.2 — fiche élève et fiche famille |
-| Issue GitHub | #15 (2.2.1) ; #88 (2.2.2) |
+| Issue GitHub | #15 (2.2.1, PR #89) ; #88 (2.2.2) |
 | Branche | `tache/2.2.1-eleves-liste` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-27 |
 
@@ -20,10 +20,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|:-:|:-:|
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
-| Semaine 2 — Élèves et frais | 1 | 8 |
+| Semaine 2 — Élèves et frais | 2 | 8 |
 | Semaine 3 — Caisse et hors-ligne | 0 | 8 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **10** | **33** |
+| **V1.0** | **11** | **33** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-27 — Tâche 2.2.1 : liste des élèves et inscription
+- **Fait** : tâche 2.2 découpée (accord de l'utilisateur) en 2.2.1 et 2.2.2 (#88). Liste des élèves (recherche sans accents, filtres année / classe / option / statut, tuteur principal) ; écran « Inscrire un nouvel élève » (famille existante ou nouvelle, doublon confirmé, UUID v7 donnés par l'appareil) ; années, options et classes lisibles avec `students.view`.
+- **Tests** : 762 backend, 135 front ; tests `enrolled` remplacés par le filtre `status`.
+- **Décisions** : extension PostgreSQL `unaccent` pour la recherche ; « Échu non payé », import, export, frais et photo attendent leurs tâches (2.7, 2.3, 2.4, 2.6, 2.2.2).
+- **Suite** : 2.2.2 (fiche élève, fiche famille, `Ctrl K`).
 
 ### 2026-09-27 — Tâche 2.1 : app `students`
 - **Fait** : élèves, familles (code à 8 caractères), tuteurs, inscriptions ; matricule au format de l'école, séquence par année, **gardé toute la scolarité** (décision de l'utilisateur) ; API `/api/students/`, `/api/families/`, `/api/enrollments/` ; effectif des classes (écran Organisation) ; colonne « Élèves » de l'administration ; « Prochain matricule » réel ; démo : 800 élèves ITIG, 150 Volcans. Règle « Économie de tokens » écrite (CLAUDE.md, skills).
