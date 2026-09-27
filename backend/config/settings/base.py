@@ -172,7 +172,11 @@ SPECTACULAR_SETTINGS = {
         "apps.core.schema.responses_always_have_every_field",
     ],
     # Une seule liste de devises, sous un seul nom (devises de l'école, devise principale).
-    "ENUM_NAME_OVERRIDES": {"CurrencyEnum": "apps.core.money.Currency"},
+    "ENUM_NAME_OVERRIDES": {
+        "CurrencyEnum": "apps.core.money.Currency",
+        "SchoolStatusEnum": "apps.schools.models.School.Status",
+        "YearStatusEnum": "apps.schools.models.AcademicYear.Status",
+    },
 }
 
 CELERY_BROKER_URL = env("REDIS_URL", "redis://localhost:6379/0")

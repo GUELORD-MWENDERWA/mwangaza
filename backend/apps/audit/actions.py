@@ -51,6 +51,26 @@ class Action(models.TextChoices):
     SCHOOL_SUSPENDED = "school.suspended", _("School suspended")
     SCHOOL_REACTIVATED = "school.reactivated", _("School reactivated")
 
+    # Organisation scolaire (C1-C3) : années, découpage, niveaux, options, classes, matricule.
+    ORGANISATION_YEAR_CREATED = "organisation.year_created", _("School year created")
+    ORGANISATION_YEAR_UPDATED = "organisation.year_updated", _("School year changed")
+    ORGANISATION_YEAR_DELETED = "organisation.year_deleted", _("School year deleted")
+    ORGANISATION_TERMS_CHANGED = "organisation.terms_changed", _("Terms and periods changed")
+    ORGANISATION_LEVEL_CREATED = "organisation.level_created", _("Level created")
+    ORGANISATION_LEVEL_UPDATED = "organisation.level_updated", _("Level changed")
+    ORGANISATION_LEVEL_DELETED = "organisation.level_deleted", _("Level deleted")
+    ORGANISATION_LEVELS_REORDERED = "organisation.levels_reordered", _("Levels reordered")
+    ORGANISATION_TRACK_CREATED = "organisation.track_created", _("Track created")
+    ORGANISATION_TRACK_UPDATED = "organisation.track_updated", _("Track changed")
+    ORGANISATION_TRACK_DELETED = "organisation.track_deleted", _("Track deleted")
+    ORGANISATION_CLASS_CREATED = "organisation.class_created", _("Class created")
+    ORGANISATION_CLASS_UPDATED = "organisation.class_updated", _("Class changed")
+    ORGANISATION_CLASS_DELETED = "organisation.class_deleted", _("Class deleted")
+    ORGANISATION_MATRICULE_FORMAT_CHANGED = (
+        "organisation.matricule_format_changed",
+        _("Student number format changed"),
+    )
+
     # Session support « en tant qu'école » (A3) ; chaque action faite pendant la session porte
     # aussi `impersonated_by`.
     SUPPORT_STARTED = "support.started", _("Support session opened")

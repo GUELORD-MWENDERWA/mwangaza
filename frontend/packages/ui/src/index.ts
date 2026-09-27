@@ -6,6 +6,7 @@ export { Button, buttonVariants } from "./components/button";
 export { Card, CardContent, CardFooter, CardHeader, CardTitle, List } from "./components/card";
 export { Checkbox, CheckboxField } from "./components/checkbox";
 export { Code, CodeList } from "./components/code";
+export { ConfirmDialog } from "./components/confirm-dialog";
 export { CodeInput } from "./components/code-input";
 export {
   DropdownMenu,
@@ -20,6 +21,7 @@ export { PageHeader } from "./components/page-header";
 export { StatusPill, Tag } from "./components/pill";
 export { SchoolBadge } from "./components/school-badge";
 export { Segmented } from "./components/segmented";
+export { Select } from "./components/select";
 export {
   DialogClose,
   DialogContent,
@@ -32,6 +34,9 @@ export {
 export { Skeleton } from "./components/skeleton";
 export { StateCard } from "./components/state-card";
 export { Steps } from "./components/steps";
+export { Switch } from "./components/switch";
+export { Table } from "./components/table";
+export { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/tabs";
 export { SyncIndicator } from "./components/sync-indicator";
 export { Toast } from "./components/toast";
 export { Icon, type IconName } from "./icons";

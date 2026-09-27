@@ -1,14 +1,29 @@
+import re
 from copy import copy
 from pathlib import Path
 
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.utils.translation import gettext_lazy as _
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.fields import get_error_detail
 
+from apps.accounts.models import User
 from apps.core.money import Currency
+from apps.schools import organisation
 from apps.schools.logos import validate_logo
-from apps.schools.models import School
+from apps.schools.matricule import MAX_LENGTH as MAX_MATRICULE_LENGTH
+from apps.schools.models import (
+    TRACK_CODE_PATTERN,
+    AcademicYear,
+    ClassGroup,
+    Level,
+    School,
+    Term,
+    Track,
+)
+from apps.schools.organisation import TermNode, YearTemplate
 
 
 def logo_url(school: School) -> str | None:
@@ -83,4 +98,235 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
 class LogoUploadSerializer(serializers.Serializer):
     logo = serializers.FileField(
         validators=[validate_logo], help_text="PNG, JPEG ou SVG (sans script), 1 Mo au plus."
+    )
+
+
+# Organisation scolaire (C1-C3)
+
+
+class TermLeafSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    kind = serializers.ChoiceField(choices=Term.Kind.choices)
+    name = serializers.CharField(
+        help_text="Vide : l'interface affiche le nom traduit d'après le genre et la place "
+        "(« 1re période », « Examens du 1er semestre »)."
+    )
+    starts_on = serializers.DateField(allow_null=True)
+    ends_on = serializers.DateField(allow_null=True)
+
+
+class TermSerializer(TermLeafSerializer):
+    children = TermLeafSerializer(many=True, help_text="Périodes et examens du semestre.")
+
+
+def term_tree(year: AcademicYear) -> list[dict]:
+    """Découpage de l'année en arbre : semestres (ou trimestres) et leurs périodes, dans
+    l'ordre."""
+    nodes: dict = {}
+    roots: list[dict] = []
+    for term in year.terms.all():
+        node = {
+            "id": term.pk,
+            "kind": term.kind,
+            "name": term.name,
+            "starts_on": term.starts_on,
+            "ends_on": term.ends_on,
+            "children": [],
+        }
+        nodes[term.pk] = node
+        parent = nodes.get(term.parent_id)
+        (parent["children"] if parent else roots).append(node)
+    return roots
+
+
+class AcademicYearSerializer(serializers.ModelSerializer):
+    terms = serializers.SerializerMethodField(help_text="Découpage de l'année.")
+
+    class Meta:
+        model = AcademicYear
+        fields = ["id", "name", "starts_on", "ends_on", "is_current", "status", "terms"]
+        read_only_fields = fields
+
+    @extend_schema_field(TermSerializer(many=True))
+    def get_terms(self, year: AcademicYear) -> list[dict]:
+        return TermSerializer(term_tree(year), many=True).data
+
+
+class AcademicYearCreateSerializer(serializers.Serializer):
+    name = serializers.CharField(
+        max_length=20,
+        required=False,
+        allow_blank=True,
+        help_text="Vide : d'après les dates (« 2026-2027 »).",
+    )
+    starts_on = serializers.DateField()
+    ends_on = serializers.DateField()
+    template = serializers.ChoiceField(
+        choices=YearTemplate.choices, default=YearTemplate.SECONDARY, help_text="Découpage (C1)."
+    )
+    copy_classes_from = serializers.PrimaryKeyRelatedField(
+        queryset=AcademicYear.objects,
+        required=False,
+        allow_null=True,
+        help_text="Année dont on reprend les classes (sans les titulaires).",
+    )
+
+
+class AcademicYearUpdateSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=20, required=False)
+    starts_on = serializers.DateField(required=False)
+    ends_on = serializers.DateField(required=False)
+
+
+class TermInputLeafSerializer(serializers.Serializer):
+    id = serializers.UUIDField(
+        required=False, allow_null=True, help_text="Élément existant ; absent : nouveau."
+    )
+    kind = serializers.ChoiceField(choices=Term.Kind.choices)
+    name = serializers.CharField(max_length=60, required=False, allow_blank=True, default="")
+    starts_on = serializers.DateField(required=False, allow_null=True, default=None)
+    ends_on = serializers.DateField(required=False, allow_null=True, default=None)
+
+
+class TermInputSerializer(TermInputLeafSerializer):
+    children = TermInputLeafSerializer(many=True, required=False, default=list)
+
+
+class TermsUpdateSerializer(serializers.Serializer):
+    """Tout le découpage : ce qui n'y est plus est retiré."""
+
+    terms = TermInputSerializer(many=True, allow_empty=True)
+
+    def nodes(self) -> list[TermNode]:
+        def node(data: dict) -> TermNode:
+            return TermNode(
+                kind=data["kind"],
+                name=data["name"],
+                starts_on=data["starts_on"],
+                ends_on=data["ends_on"],
+                id=data.get("id"),
+                children=[node(child) for child in data.get("children", [])],
+            )
+
+        return [node(item) for item in self.validated_data["terms"]]
+
+
+class LevelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Level
+        fields = ["id", "name", "cycle", "order"]
+        read_only_fields = ["id", "order"]
+
+
+class LevelUpdateSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=40, required=False)
+    cycle = serializers.ChoiceField(choices=Level.Cycle.choices, required=False)
+
+
+class LevelReorderSerializer(serializers.Serializer):
+    ids = serializers.ListField(
+        child=serializers.UUIDField(), help_text="Tous les niveaux de l'école, dans l'ordre voulu."
+    )
+
+
+class TrackSerializer(serializers.ModelSerializer):
+    # Sans le validateur du modèle : tapé en minuscules, le code est d'abord mis en majuscules.
+    code = serializers.CharField(
+        max_length=10, help_text="Majuscules et chiffres (matricule `{OPT}`)."
+    )
+
+    class Meta:
+        model = Track
+        fields = ["id", "name", "code"]
+        read_only_fields = ["id"]
+
+    def validate_code(self, value: str) -> str:
+        # Tapé en minuscules : accepté, gardé en majuscules.
+        value = value.strip().upper()
+        if not re.fullmatch(TRACK_CODE_PATTERN, value):
+            raise serializers.ValidationError(
+                _("1 to 10 capital letters or digits."), code="invalid_code"
+            )
+        return value
+
+
+class TrackUpdateSerializer(TrackSerializer):
+    code = serializers.CharField(max_length=10, required=False)
+
+    class Meta(TrackSerializer.Meta):
+        extra_kwargs = {"name": {"required": False}}
+
+
+class PersonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "last_name", "middle_name", "first_name"]
+
+
+class ClassGroupSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(read_only=True, help_text="« 3e Électricité A ».")
+    homeroom_teacher = PersonSerializer(read_only=True, allow_null=True)
+
+    class Meta:
+        model = ClassGroup
+        fields = [
+            "id",
+            "academic_year",
+            "level",
+            "track",
+            "section",
+            "name",
+            "capacity",
+            "homeroom_teacher",
+        ]
+        read_only_fields = fields
+
+
+@extend_schema_field(OpenApiTypes.UUID)
+class HomeroomTeacherField(serializers.PrimaryKeyRelatedField):
+    """Une personne du personnel actif de l'école de l'adresse : une autre est « introuvable »."""
+
+    def get_queryset(self):
+        return organisation.homeroom_candidates()
+
+
+class ClassGroupUpdateSerializer(serializers.Serializer):
+    # Les managers (sans `.all()`) : lus à chaque requête, dans l'école de l'adresse seulement.
+    level = serializers.PrimaryKeyRelatedField(queryset=Level.objects, required=False)
+    track = serializers.PrimaryKeyRelatedField(
+        queryset=Track.objects, required=False, allow_null=True
+    )
+    section = serializers.CharField(
+        max_length=10, required=False, allow_blank=True, help_text="Ex. A ; gardée en majuscules."
+    )
+    capacity = serializers.IntegerField(
+        min_value=1, max_value=1000, required=False, allow_null=True
+    )
+    homeroom_teacher = HomeroomTeacherField(
+        required=False, allow_null=True, help_text="Titulaire (`id` du compte)."
+    )
+
+
+class ClassGroupCreateSerializer(ClassGroupUpdateSerializer):
+    academic_year = serializers.PrimaryKeyRelatedField(queryset=AcademicYear.objects)
+    level = serializers.PrimaryKeyRelatedField(queryset=Level.objects)
+
+
+class ClassGroupFilterSerializer(serializers.Serializer):
+    academic_year = serializers.PrimaryKeyRelatedField(
+        queryset=AcademicYear.objects, required=False, help_text="Absent : l'année en cours."
+    )
+
+
+class MatriculeFormatInputSerializer(serializers.Serializer):
+    matricule_format = serializers.CharField(
+        max_length=MAX_MATRICULE_LENGTH,
+        help_text="Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 "
+        "chiffres), {OPT} (code de l'option).",
+    )
+
+
+class MatriculeFormatSerializer(MatriculeFormatInputSerializer):
+    example = serializers.CharField(
+        help_text="Prochain matricule : année en cours, première option (C3)."
     )

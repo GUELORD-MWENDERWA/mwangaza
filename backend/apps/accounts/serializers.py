@@ -114,6 +114,22 @@ class StaffSerializer(serializers.ModelSerializer):
         return services.account_managed_by(membership.user, membership.school)
 
 
+class StaffFilterSerializer(serializers.Serializer):
+    """Filtres de la liste du personnel (M3)."""
+
+    search = serializers.CharField(
+        required=False,
+        max_length=100,
+        help_text="Dans le nom, le post-nom, le prénom ou le téléphone.",
+    )
+    role = serializers.PrimaryKeyRelatedField(
+        queryset=Role.objects, required=False, help_text="Personnes qui ont ce rôle."
+    )
+    is_active = serializers.BooleanField(
+        required=False, allow_null=True, default=None, help_text="Actives ou désactivées."
+    )
+
+
 class PhoneField(serializers.CharField):
     def to_internal_value(self, data):
         try:

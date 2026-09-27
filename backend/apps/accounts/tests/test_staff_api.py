@@ -67,6 +67,41 @@ def test_list_shows_nothing_of_the_other_schools_of_a_person(api, head, school, 
     assert role_id(other_school, "head") not in content
 
 
+def test_filter_by_name_phone_role_and_state(api, head, school):
+    kahindo = MembershipFactory(
+        school=school,
+        roles=["cashier"],
+        user__last_name="Kahindo",
+        user__middle_name="Masika",
+        user__first_name="Grâce",
+        user__phone="+243000071234",
+    )
+    former = MembershipFactory(
+        school=school, roles=["cashier"], is_active=False, user__last_name="Byamungu"
+    )
+    MembershipFactory(school=school, roles=["secretary"], user__last_name="Furaha")
+    client = api(head)
+
+    def found(**params) -> list[str]:
+        response = client.get(URL, **params)
+        assert response.status_code == 200, response.content
+        return [item["id"] for item in response.json()["results"]]
+
+    assert found(search="grâce kahi") == [str(kahindo.id)]
+    assert found(search="masika") == [str(kahindo.id)]
+    assert found(search="000071234") == [str(kahindo.id)]  # forme nationale : 0 + 9 chiffres
+    assert found(role=role_id(school, "cashier")) == [str(former.id), str(kahindo.id)]
+    assert found(role=role_id(school, "cashier"), is_active="false") == [str(former.id)]
+    assert len(found(is_active="true")) == 3
+
+
+def test_filter_by_a_role_of_another_school_is_refused(api, head, other_school):
+    response = api(head).get(URL, role=role_id(other_school, "cashier"))
+
+    assert response.status_code == 400
+    assert response.json()["fields"]["role"][0]["code"] == "does_not_exist"
+
+
 # Ajout
 
 

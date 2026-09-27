@@ -29,6 +29,7 @@ from apps.accounts.serializers import (
     RoleSerializer,
     StaffCreatedSerializer,
     StaffCreateSerializer,
+    StaffFilterSerializer,
     StaffSerializer,
     StaffUpdateSerializer,
     SupportSessionSerializer,
@@ -174,7 +175,9 @@ class RoleViewSet(
 
 
 @extend_schema_view(
-    list=extend_schema(responses={200: StaffSerializer(many=True), **ERRORS}),
+    list=extend_schema(
+        parameters=[StaffFilterSerializer], responses={200: StaffSerializer(many=True), **ERRORS}
+    ),
     retrieve=extend_schema(responses={200: StaffSerializer, **ERRORS}),
 )
 @extend_schema(tags=["accounts"])
@@ -199,13 +202,28 @@ class StaffViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolViewS
         elsewhere = Membership.objects.filter(user=OuterRef("user")).exclude(
             school=OuterRef("school")
         )
-        return (
+        queryset = (
             Membership.objects.filter(school=self.request.school)
             .annotate(used_elsewhere=Exists(elsewhere))
             .select_related("user")
             .prefetch_related("roles")
             .order_by("user__last_name", "user__middle_name", "user__first_name")
         )
+        if self.action == "list":
+            queryset = self._filter(queryset)
+        return queryset
+
+    def _filter(self, queryset):
+        params = StaffFilterSerializer(data=self.request.query_params)
+        params.is_valid(raise_exception=True)
+        data = params.validated_data
+        if data.get("search"):
+            queryset = queryset.filter(_person_search(data["search"]))
+        if "role" in data:
+            queryset = queryset.filter(roles=data["role"])
+        if data.get("is_active") is not None:
+            queryset = queryset.filter(is_active=data["is_active"])
+        return queryset
 
     @extend_schema(
         request=StaffCreateSerializer,
@@ -257,6 +275,23 @@ class StaffViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolViewS
         """« Réinitialiser la double auth. » (M3) : même règle que le nouveau mot de passe."""
         services.reset_staff_totp(self.get_object(), actor=request.user)
         return Response(StaffSerializer(self.get_object()).data)
+
+
+def _person_search(text: str) -> Q:
+    """Chaque mot dans un des noms, ou chiffres dans le téléphone (« 0971 », « +243 97… »)."""
+    condition = Q()
+    for word in text.split():
+        match = (
+            Q(user__last_name__icontains=word)
+            | Q(user__middle_name__icontains=word)
+            | Q(user__first_name__icontains=word)
+        )
+        digits = "".join(char for char in word if char.isdigit())
+        if digits:
+            # Forme nationale (0971…) : le numéro est gardé en +243971…
+            match |= Q(user__phone__contains=digits.removeprefix("0") or digits)
+        condition &= match
+    return condition
 
 
 # Connexion et sécurité du compte

@@ -5,7 +5,7 @@ import { initReactI18next } from "react-i18next";
 import { en } from "./locales/en";
 import { fr } from "./locales/fr";
 
-export { formatDate, formatDateTime, formatTime, formatVisit } from "./format";
+export { formatDate, formatDateTime, formatDay, formatTime, formatVisit } from "./format";
 // Les applications passent par ce paquet (une seule instance d'i18next).
 export { Trans, useTranslation } from "react-i18next";
 export type { TFunction } from "i18next";

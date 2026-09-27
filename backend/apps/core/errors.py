@@ -6,9 +6,11 @@ Le `code` est stable : l'interface affiche son propre texte traduit à partir du
 
 from dataclasses import dataclass
 
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils.functional import Promise
 from django.utils.translation import gettext_lazy as _
 from rest_framework import exceptions, serializers
+from rest_framework.fields import get_error_detail
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import exception_handler as drf_exception_handler
@@ -40,9 +42,13 @@ def api_exception_handler(exc, context):
     """Même format pour toutes les erreurs : `{code, detail}` (`not_authenticated`,
     `permission_denied`, `not_found`, `method_not_allowed`…). Erreurs de saisie : `code`
     `invalid` et, dans `fields`, chaque champ avec ses erreurs `{code, detail}` (ex.
-    `password_too_short`) ; l'interface les traduit par leur code."""
+    `password_too_short`) ; l'interface les traduit par leur code. Un service peut lever la
+    `ValidationError` de Django (`{"terms.0.ends_on": ValidationError(…, code=…)}`) : même
+    réponse."""
     if isinstance(exc, BusinessError):
         return Response(exc.error.body(), status=exc.error.status)
+    if isinstance(exc, DjangoValidationError):
+        exc = exceptions.ValidationError(get_error_detail(exc))
     response = drf_exception_handler(exc, context)
     if response is None:
         return None

@@ -35,6 +35,8 @@ PERMISSION_CHOICES = list(PERMISSIONS.items())
 
 # Paramètres de l'école : nom, logo, couleur, devises, fuseau (M5).
 SCHOOL_CONFIGURE = "school.configure"
+# Organisation scolaire : années, découpage, niveaux, options, classes, matricule (C1-C3).
+CLASSES_MANAGE = "classes.manage"
 # Gérer les rôles et les comptes du personnel : une école garde toujours un compte actif qui l'a.
 ROLES_MANAGE = "roles.manage"
 # Lire le journal d'audit de l'école (M6).

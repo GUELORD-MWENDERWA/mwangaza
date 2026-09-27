@@ -4,6 +4,80 @@
  */
 
 export interface paths {
+    "/api/academic-years/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Années scolaires de l'école, la plus récente d'abord, avec leur découpage (C1). */
+        get: operations["academic_years_list"];
+        put?: never;
+        /**
+         * @description Nouvelle année depuis un modèle de découpage, avec en option les classes d'une autre
+         *     année.
+         */
+        post: operations["academic_years_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/academic-years/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Années scolaires de l'école, la plus récente d'abord, avec leur découpage (C1). */
+        get: operations["academic_years_retrieve"];
+        put?: never;
+        post?: never;
+        /** @description Années scolaires de l'école, la plus récente d'abord, avec leur découpage (C1). */
+        delete: operations["academic_years_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Années scolaires de l'école, la plus récente d'abord, avec leur découpage (C1). */
+        patch: operations["academic_years_partial_update"];
+        trace?: never;
+    };
+    "/api/academic-years/{id}/make-current/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Année en cours : celle des inscriptions et des écrans par défaut. */
+        post: operations["academic_years_make_current_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/academic-years/{id}/terms/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Tout le découpage de l'année : noms, dates, éléments ajoutés ou retirés. */
+        put: operations["academic_years_terms_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/audit/": {
         parameters: {
             query?: never;
@@ -30,6 +104,26 @@ export interface paths {
         };
         /** @description Une entrée du journal d'audit de l'école. */
         get: operations["audit_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/audit/actors/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Les personnes qui apparaissent dans le journal de l'école (filtre « Personne » de M6),
+         *     sans le support Mwangaza.
+         */
+        get: operations["audit_actors_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -221,6 +315,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/class-groups/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Classes d'une année (« 3e Électricité A ») : niveau, option, section, capacité, titulaire
+         *     (C2). Supprimée seulement sans élève.
+         */
+        get: operations["class_groups_list"];
+        put?: never;
+        /**
+         * @description Classes d'une année (« 3e Électricité A ») : niveau, option, section, capacité, titulaire
+         *     (C2). Supprimée seulement sans élève.
+         */
+        post: operations["class_groups_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/class-groups/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Classes d'une année (« 3e Électricité A ») : niveau, option, section, capacité, titulaire
+         *     (C2). Supprimée seulement sans élève.
+         */
+        get: operations["class_groups_retrieve"];
+        put?: never;
+        post?: never;
+        /**
+         * @description Classes d'une année (« 3e Électricité A ») : niveau, option, section, capacité, titulaire
+         *     (C2). Supprimée seulement sans élève.
+         */
+        delete: operations["class_groups_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Classes d'une année (« 3e Électricité A ») : niveau, option, section, capacité, titulaire
+         *     (C2). Supprimée seulement sans élève.
+         */
+        patch: operations["class_groups_partial_update"];
+        trace?: never;
+    };
+    "/api/class-groups/homeroom-candidates/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Titulaires possibles : le personnel actif de l'école. */
+        get: operations["class_groups_homeroom_candidates_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health/": {
         parameters: {
             query?: never;
@@ -232,6 +395,95 @@ export interface paths {
         get: operations["health_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/levels/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Niveaux de l'école (« 7e EB », « 3e »), dans l'ordre choisi (C2). */
+        get: operations["levels_list"];
+        put?: never;
+        /** @description Niveaux de l'école (« 7e EB », « 3e »), dans l'ordre choisi (C2). */
+        post: operations["levels_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/levels/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Niveaux de l'école (« 7e EB », « 3e »), dans l'ordre choisi (C2). */
+        get: operations["levels_retrieve"];
+        put?: never;
+        post?: never;
+        /** @description Niveaux de l'école (« 7e EB », « 3e »), dans l'ordre choisi (C2). */
+        delete: operations["levels_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Niveaux de l'école (« 7e EB », « 3e »), dans l'ordre choisi (C2). */
+        patch: operations["levels_partial_update"];
+        trace?: never;
+    };
+    "/api/levels/reorder/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Niveaux de l'école (« 7e EB », « 3e »), dans l'ordre choisi (C2). */
+        post: operations["levels_reorder_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/matricule-format/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Format du matricule de l'école (C3) et « Prochain matricule ». */
+        get: operations["matricule_format_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Vaut pour les matricules donnés ensuite ; les anciens ne changent pas. */
+        patch: operations["matricule_format_partial_update"];
+        trace?: never;
+    };
+    "/api/matricule-format/preview/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Aperçu d'un format pendant la saisie, sans l'enregistrer. */
+        post: operations["matricule_format_preview_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -468,10 +720,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tracks/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Options des humanités (« Électricité », code `ELEC`) (C2). */
+        get: operations["tracks_list"];
+        put?: never;
+        /** @description Options des humanités (« Électricité », code `ELEC`) (C2). */
+        post: operations["tracks_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tracks/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Options des humanités (« Électricité », code `ELEC`) (C2). */
+        get: operations["tracks_retrieve"];
+        put?: never;
+        post?: never;
+        /** @description Options des humanités (« Électricité », code `ELEC`) (C2). */
+        delete: operations["tracks_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Options des humanités (« Électricité », code `ELEC`) (C2). */
+        patch: operations["tracks_partial_update"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AcademicYear: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Nom */
+            readonly name: string;
+            /**
+             * Start
+             * Format: date
+             */
+            readonly starts_on: string;
+            /**
+             * End
+             * Format: date
+             */
+            readonly ends_on: string;
+            /** Current year */
+            readonly is_current: boolean;
+            readonly status: components["schemas"]["YearStatusEnum"];
+            /** @description Découpage de l'année. */
+            readonly terms: components["schemas"]["Term"][];
+        };
+        AcademicYearCreateRequest: {
+            /** @description Vide : d'après les dates (« 2026-2027 »). */
+            name?: string;
+            /** Format: date */
+            starts_on: string;
+            /** Format: date */
+            ends_on: string;
+            /**
+             * @description Découpage (C1).
+             *
+             *     * `secondary` - RDC secondary: 2 semesters, 4 periods, 2 exam sessions
+             *     * `trimesters` - 3 terms, 6 periods, 3 exam sessions
+             *     * `empty` - Empty: enter the terms yourself
+             * @default secondary
+             */
+            template: components["schemas"]["TemplateEnum"];
+            /**
+             * Format: uuid
+             * @description Année dont on reprend les classes (sans les titulaires).
+             */
+            copy_classes_from?: string | null;
+        };
         /**
          * @description * `auth.login` - Logged in
          *     * `account.password_changed` - Password changed
@@ -499,11 +831,26 @@ export interface components {
          *     * `school.logo_changed` - School logo changed
          *     * `school.suspended` - School suspended
          *     * `school.reactivated` - School reactivated
+         *     * `organisation.year_created` - School year created
+         *     * `organisation.year_updated` - School year changed
+         *     * `organisation.year_deleted` - School year deleted
+         *     * `organisation.terms_changed` - Terms and periods changed
+         *     * `organisation.level_created` - Level created
+         *     * `organisation.level_updated` - Level changed
+         *     * `organisation.level_deleted` - Level deleted
+         *     * `organisation.levels_reordered` - Levels reordered
+         *     * `organisation.track_created` - Track created
+         *     * `organisation.track_updated` - Track changed
+         *     * `organisation.track_deleted` - Track deleted
+         *     * `organisation.class_created` - Class created
+         *     * `organisation.class_updated` - Class changed
+         *     * `organisation.class_deleted` - Class deleted
+         *     * `organisation.matricule_format_changed` - Student number format changed
          *     * `support.started` - Support session opened
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "support.started" | "support.ended";
         AuditActor: {
             /** Format: uuid */
             readonly id: string;
@@ -533,8 +880,10 @@ export interface components {
              * Format: uuid
              */
             readonly entity_id: string | null;
-            /** @description Nom de l'objet au moment de l'action. Vide pour un rôle système sans nom propre : l'interface affiche le nom traduit de son code (rôle `entity_id`). */
+            /** @description Nom de l'objet au moment de l'action. Vide pour un rôle système sans nom propre : l'interface affiche le nom traduit de `role_code`. */
             readonly entity_label: string;
+            /** @description Code du rôle système quand l'objet est un rôle sans nom propre ; sinon null. */
+            readonly role_code: (components["schemas"]["RoleCodeEnum"] | components["schemas"]["NullEnum"]) | null;
             readonly before: unknown;
             readonly after: unknown;
             /** Adresse IP */
@@ -544,6 +893,40 @@ export interface components {
         };
         /** @enum {unknown} */
         BlankEnum: "";
+        ClassGroup: {
+            /** Format: uuid */
+            readonly id: string;
+            /**
+             * School year
+             * Format: uuid
+             */
+            readonly academic_year: string;
+            /** Format: uuid */
+            readonly level: string;
+            /** Format: uuid */
+            readonly track: string | null;
+            readonly section: string;
+            /** @description « 3e Électricité A ». */
+            readonly name: string;
+            readonly capacity: number | null;
+            readonly homeroom_teacher: components["schemas"]["Person"] | null;
+        };
+        ClassGroupCreateRequest: {
+            /** Format: uuid */
+            level: string;
+            /** Format: uuid */
+            track?: string | null;
+            /** @description Ex. A ; gardée en majuscules. */
+            section?: string;
+            capacity?: number | null;
+            /**
+             * Format: uuid
+             * @description Titulaire (`id` du compte).
+             */
+            homeroom_teacher?: string | null;
+            /** Format: uuid */
+            academic_year: string;
+        };
         /**
          * @description * `head` - Head of school
          *     * `study_director` - Director of studies
@@ -594,8 +977,18 @@ export interface components {
             roles: components["schemas"]["RoleSummary"][];
             permissions: components["schemas"]["PermissionsEnum"][];
         };
+        /**
+         * @description * `primary` - Primary
+         *     * `basic` - Basic education (7th-8th)
+         *     * `secondary_general` - General secondary
+         *     * `secondary_technical` - Technical and vocational secondary
+         *     * `higher` - Higher education
+         *     * `vocational` - Short vocational training
+         * @enum {string}
+         */
+        CycleEnum: "primary" | "basic" | "secondary_general" | "secondary_technical" | "higher" | "vocational";
         /** @enum {string} */
-        DomainEnum: "account" | "auth" | "roles" | "school" | "staff" | "support";
+        DomainEnum: "account" | "auth" | "organisation" | "roles" | "school" | "staff" | "support";
         Error: {
             /** @description Code stable, traduit par l'interface. */
             code: string;
@@ -615,11 +1008,36 @@ export interface components {
             database: string;
         };
         /**
+         * @description * `semester` - Semester
+         *     * `trimester` - Term (trimester)
+         *     * `period` - Period
+         *     * `exam` - Exams
+         * @enum {string}
+         */
+        KindEnum: "semester" | "trimester" | "period" | "exam";
+        /**
          * @description * `fr` - Français
          *     * `en` - English
          * @enum {string}
          */
         LanguageEnum: "fr" | "en";
+        Level: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Nom */
+            name: string;
+            cycle: components["schemas"]["CycleEnum"];
+            readonly order: number;
+        };
+        LevelReorderRequest: {
+            /** @description Tous les niveaux de l'école, dans l'ordre voulu. */
+            ids: string[];
+        };
+        LevelRequest: {
+            /** Nom */
+            name: string;
+            cycle: components["schemas"]["CycleEnum"];
+        };
         LoginCodeRequest: {
             /** @description Code à 6 chiffres de l'application, ou code de secours (ex. 7KQ4-M2XP). */
             code: string;
@@ -653,6 +1071,16 @@ export interface components {
              */
             logo: string;
         };
+        MatriculeFormat: {
+            /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
+            matricule_format: string;
+            /** @description Prochain matricule : année en cours, première option (C3). */
+            example: string;
+        };
+        MatriculeFormatInputRequest: {
+            /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
+            matricule_format: string;
+        };
         Me: {
             /** Format: uuid */
             id: string;
@@ -684,7 +1112,7 @@ export interface components {
         MeSchool: {
             code: string;
             name: string;
-            status: components["schemas"]["StatusEnum"];
+            status: components["schemas"]["SchoolStatusEnum"];
             /** @description Adresse de l'école : on s'y connecte pour y travailler. */
             url: string;
             primary_color: string;
@@ -703,8 +1131,10 @@ export interface components {
             code: string;
             /** Nom */
             name: string;
-            status: components["schemas"]["StatusEnum"];
+            status: components["schemas"]["SchoolStatusEnum"];
         };
+        /** @enum {unknown} */
+        NullEnum: null;
         PaginatedAuditLogList: {
             /** @example 123 */
             count: number;
@@ -758,6 +1188,35 @@ export interface components {
             current_password?: string;
             new_password: string;
         };
+        PatchedAcademicYearUpdateRequest: {
+            name?: string;
+            /** Format: date */
+            starts_on?: string;
+            /** Format: date */
+            ends_on?: string;
+        };
+        PatchedClassGroupUpdateRequest: {
+            /** Format: uuid */
+            level?: string;
+            /** Format: uuid */
+            track?: string | null;
+            /** @description Ex. A ; gardée en majuscules. */
+            section?: string;
+            capacity?: number | null;
+            /**
+             * Format: uuid
+             * @description Titulaire (`id` du compte).
+             */
+            homeroom_teacher?: string | null;
+        };
+        PatchedLevelUpdateRequest: {
+            name?: string;
+            cycle?: components["schemas"]["CycleEnum"];
+        };
+        PatchedMatriculeFormatInputRequest: {
+            /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
+            matricule_format?: string;
+        };
         PatchedMeUpdateRequest: {
             language?: components["schemas"]["LanguageEnum"];
         };
@@ -805,6 +1264,11 @@ export interface components {
             middle_name?: string;
             first_name?: string;
         };
+        PatchedTrackUpdateRequest: {
+            /** Nom */
+            name?: string;
+            code?: string;
+        };
         /**
          * @description * `school.configure` - Configure the school (name, logo, colour, currencies, receipts)
          *     * `classes.manage` - Manage years, terms, levels, tracks, classes and student numbers
@@ -825,6 +1289,15 @@ export interface components {
          * @enum {string}
          */
         PermissionsEnum: "school.configure" | "classes.manage" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "announcements.publish" | "audit.view";
+        Person: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Nom */
+            last_name: string;
+            middle_name: string;
+            /** Prénom */
+            first_name: string;
+        };
         RecoveryCodes: {
             /** @description Affichés une seule fois : à imprimer. */
             recovery_codes: string[];
@@ -857,6 +1330,8 @@ export interface components {
             /** @description Comptes actifs qui ont ce rôle dans l'école. */
             readonly member_count: number;
         };
+        /** @enum {string} */
+        RoleCodeEnum: "head" | "study_director" | "discipline_master" | "accountant" | "cashier" | "secretary" | "promoter" | "teacher" | "parent";
         /**
          * @description Rôle de l'école. `name` vide pour un rôle système : l'interface affiche le nom traduit de
          *     son `code`.
@@ -918,6 +1393,13 @@ export interface components {
              */
             default_currency: components["schemas"]["CurrencyEnum"];
         };
+        /**
+         * @description * `trial` - Trial
+         *     * `active` - Active
+         *     * `suspended` - Suspended
+         * @enum {string}
+         */
+        SchoolStatusEnum: "trial" | "active" | "suspended";
         /**
          * @description Une personne dans l'école (son appartenance) ; `id` est celui de l'appartenance. Rien sur
          *     ses autres écoles.
@@ -989,13 +1471,6 @@ export interface components {
             first_name: string;
         };
         /**
-         * @description * `trial` - Trial
-         *     * `active` - Active
-         *     * `suspended` - Suspended
-         * @enum {string}
-         */
-        StatusEnum: "trial" | "active" | "suspended";
-        /**
          * @description * `password` - Phone number and password
          *     * `totp` - Two-factor authentication code
          *     * `new_password` - Replace the temporary password
@@ -1020,9 +1495,73 @@ export interface components {
             /** @description Motif, lu par l'école dans son journal (ex. demande du directeur). */
             reason: string;
         };
+        /**
+         * @description * `secondary` - RDC secondary: 2 semesters, 4 periods, 2 exam sessions
+         *     * `trimesters` - 3 terms, 6 periods, 3 exam sessions
+         *     * `empty` - Empty: enter the terms yourself
+         * @enum {string}
+         */
+        TemplateEnum: "secondary" | "trimesters" | "empty";
         TemporaryPassword: {
             /** @description Affiché une seule fois, à changer à la prochaine connexion. */
             temporary_password: string;
+        };
+        Term: {
+            /** Format: uuid */
+            id: string;
+            kind: components["schemas"]["KindEnum"];
+            /** @description Vide : l'interface affiche le nom traduit d'après le genre et la place (« 1re période », « Examens du 1er semestre »). */
+            name: string;
+            /** Format: date */
+            starts_on: string | null;
+            /** Format: date */
+            ends_on: string | null;
+            /** @description Périodes et examens du semestre. */
+            children: components["schemas"]["TermLeaf"][];
+        };
+        TermInputLeafRequest: {
+            /**
+             * Format: uuid
+             * @description Élément existant ; absent : nouveau.
+             */
+            id?: string | null;
+            kind: components["schemas"]["KindEnum"];
+            /** @default  */
+            name: string;
+            /** Format: date */
+            starts_on?: string | null;
+            /** Format: date */
+            ends_on?: string | null;
+        };
+        TermInputRequest: {
+            /**
+             * Format: uuid
+             * @description Élément existant ; absent : nouveau.
+             */
+            id?: string | null;
+            kind: components["schemas"]["KindEnum"];
+            /** @default  */
+            name: string;
+            /** Format: date */
+            starts_on?: string | null;
+            /** Format: date */
+            ends_on?: string | null;
+            children?: components["schemas"]["TermInputLeafRequest"][];
+        };
+        TermLeaf: {
+            /** Format: uuid */
+            id: string;
+            kind: components["schemas"]["KindEnum"];
+            /** @description Vide : l'interface affiche le nom traduit d'après le genre et la place (« 1re période », « Examens du 1er semestre »). */
+            name: string;
+            /** Format: date */
+            starts_on: string | null;
+            /** Format: date */
+            ends_on: string | null;
+        };
+        /** @description Tout le découpage : ce qui n'y est plus est retiré. */
+        TermsUpdateRequest: {
+            terms: components["schemas"]["TermInputRequest"][];
         };
         TotpActivated: {
             /**
@@ -1050,6 +1589,26 @@ export interface components {
             /** @description Double authentification déjà activée (changer de téléphone) : code actuel ou code de secours. */
             code?: string;
         };
+        Track: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Nom */
+            name: string;
+            /** @description Majuscules et chiffres (matricule `{OPT}`). */
+            code: string;
+        };
+        TrackRequest: {
+            /** Nom */
+            name: string;
+            /** @description Majuscules et chiffres (matricule `{OPT}`). */
+            code: string;
+        };
+        /**
+         * @description * `open` - Open
+         *     * `closed` - Closed
+         * @enum {string}
+         */
+        YearStatusEnum: "open" | "closed";
     };
     responses: never;
     parameters: never;
@@ -1059,6 +1618,339 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    academic_years_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcademicYear"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    academic_years_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AcademicYearCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AcademicYearCreateRequest"];
+                "multipart/form-data": components["schemas"]["AcademicYearCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcademicYear"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    academic_years_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) school year. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcademicYear"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    academic_years_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) school year. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    academic_years_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) school year. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedAcademicYearUpdateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedAcademicYearUpdateRequest"];
+                "multipart/form-data": components["schemas"]["PatchedAcademicYearUpdateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcademicYear"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    academic_years_make_current_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) school year. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcademicYear"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    academic_years_terms_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) school year. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TermsUpdateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TermsUpdateRequest"];
+                "multipart/form-data": components["schemas"]["TermsUpdateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcademicYear"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     audit_list: {
         parameters: {
             query?: {
@@ -1089,21 +1981,37 @@ export interface operations {
                  *     * `school.logo_changed` - School logo changed
                  *     * `school.suspended` - School suspended
                  *     * `school.reactivated` - School reactivated
+                 *     * `organisation.year_created` - School year created
+                 *     * `organisation.year_updated` - School year changed
+                 *     * `organisation.year_deleted` - School year deleted
+                 *     * `organisation.terms_changed` - Terms and periods changed
+                 *     * `organisation.level_created` - Level created
+                 *     * `organisation.level_updated` - Level changed
+                 *     * `organisation.level_deleted` - Level deleted
+                 *     * `organisation.levels_reordered` - Levels reordered
+                 *     * `organisation.track_created` - Track created
+                 *     * `organisation.track_updated` - Track changed
+                 *     * `organisation.track_deleted` - Track deleted
+                 *     * `organisation.class_created` - Class created
+                 *     * `organisation.class_updated` - Class changed
+                 *     * `organisation.class_deleted` - Class deleted
+                 *     * `organisation.matricule_format_changed` - Student number format changed
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
                  * @description * `account` - account
                  *     * `auth` - auth
+                 *     * `organisation` - organisation
                  *     * `roles` - roles
                  *     * `school` - school
                  *     * `staff` - staff
                  *     * `support` - support
                  */
-                domain?: "account" | "auth" | "roles" | "school" | "staff" | "support";
+                domain?: "account" | "auth" | "organisation" | "roles" | "school" | "staff" | "support";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description Un numéro de page de l'ensemble des résultats. */
@@ -1165,6 +2073,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuditLog"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    audit_actors_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditActor"][];
                 };
             };
             403: {
@@ -1722,6 +2665,279 @@ export interface operations {
             };
         };
     };
+    class_groups_list: {
+        parameters: {
+            query?: {
+                /** @description Absent : l'année en cours. */
+                academic_year?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassGroup"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    class_groups_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClassGroupCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ClassGroupCreateRequest"];
+                "multipart/form-data": components["schemas"]["ClassGroupCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassGroup"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    class_groups_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) class. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassGroup"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    class_groups_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) class. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    class_groups_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) class. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedClassGroupUpdateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedClassGroupUpdateRequest"];
+                "multipart/form-data": components["schemas"]["PatchedClassGroupUpdateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassGroup"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    class_groups_homeroom_candidates_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Person"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     health_retrieve: {
         parameters: {
             query?: never;
@@ -1745,6 +2961,407 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Health"];
+                };
+            };
+        };
+    };
+    levels_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Level"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    levels_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LevelRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LevelRequest"];
+                "multipart/form-data": components["schemas"]["LevelRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Level"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    levels_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) level. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Level"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    levels_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) level. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    levels_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) level. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedLevelUpdateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedLevelUpdateRequest"];
+                "multipart/form-data": components["schemas"]["PatchedLevelUpdateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Level"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    levels_reorder_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LevelReorderRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LevelReorderRequest"];
+                "multipart/form-data": components["schemas"]["LevelReorderRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Level"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    matricule_format_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatriculeFormat"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    matricule_format_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedMatriculeFormatInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedMatriculeFormatInputRequest"];
+                "multipart/form-data": components["schemas"]["PatchedMatriculeFormatInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatriculeFormat"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    matricule_format_preview_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MatriculeFormatInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MatriculeFormatInputRequest"];
+                "multipart/form-data": components["schemas"]["MatriculeFormatInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MatriculeFormat"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
         };
@@ -2219,8 +3836,14 @@ export interface operations {
     staff_list: {
         parameters: {
             query?: {
+                /** @description Actives ou désactivées. */
+                is_active?: boolean | null;
                 /** @description Un numéro de page de l'ensemble des résultats. */
                 page?: number;
+                /** @description Personnes qui ont ce rôle. */
+                role?: string;
+                /** @description Dans le nom, le post-nom, le prénom ou le téléphone. */
+                search?: string;
             };
             header?: never;
             path?: never;
@@ -2578,6 +4201,225 @@ export interface operations {
                 content?: never;
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    tracks_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Track"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    tracks_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TrackRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TrackRequest"];
+                "multipart/form-data": components["schemas"]["TrackRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Track"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    tracks_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) track. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Track"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    tracks_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) track. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    tracks_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) track. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedTrackUpdateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedTrackUpdateRequest"];
+                "multipart/form-data": components["schemas"]["PatchedTrackUpdateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Track"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
+from apps.accounts.models import Role
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.ids import uuid7
@@ -134,6 +135,7 @@ def test_an_entry_says_who_did_what_on_what(api, school, head):
         "entity_type": "accounts.role",
         "entity_id": str(role_id),
         "entity_label": "Chef d'atelier",
+        "role_code": None,
         "before": {"permissions": ["students.view"]},
         "after": {"permissions": ["students.view", "students.edit"]},
         "ip": "41.243.12.7",
@@ -222,3 +224,41 @@ def test_search_by_name_of_the_object(api, school, head):
 )
 def test_invalid_filters_are_refused(api, school, head, params):
     assert api(head).get(AUDIT, **params).status_code == 400
+
+
+# Personnes du journal (filtre « Personne » de M6)
+
+
+def test_actors_are_the_people_of_the_school_journal(api, school, other_school, head, promoter):
+    kavira = UserFactory(last_name="Kavira")
+    elsewhere = UserFactory(last_name="Ailleurs")
+    admin = UserFactory(last_name="Support", is_platform_admin=True)
+    entry(school, actor=kavira)
+    entry(school, actor=kavira)
+    entry(school, actor=head)
+    entry(school, actor=admin)  # le support n'est pas nommé à l'école
+    entry(school, actor=head, impersonated_by=admin)
+    entry(other_school, actor=elsewhere)
+
+    response = api(promoter).get(f"{AUDIT}actors/")
+
+    assert response.status_code == 200
+    assert {person["id"] for person in response.json()} == {str(kavira.id), str(head.id)}
+    assert set(response.json()[0]) == {"id", "last_name", "middle_name", "first_name"}
+
+
+def test_actors_need_audit_view(api, cashier):
+    assert api(cashier).get(f"{AUDIT}actors/").status_code == 403
+
+
+def test_a_system_role_without_its_own_name_comes_with_its_code(api, school, head):
+    with use_school(school):
+        cashier = Role.objects.get(code="cashier")
+        workshop = Role.objects.create(name="Chef d'atelier")
+    entry(school, entity_id=cashier.id, entity_label="")
+    entry(school, entity_id=workshop.id, entity_label="Chef d'atelier")
+    entry(school, action=Action.STAFF_ADDED, entity_type="accounts.membership", entity_label="")
+
+    results = api(head).get(AUDIT).json()["results"]
+
+    assert [item["role_code"] for item in results] == [None, None, "cashier"]

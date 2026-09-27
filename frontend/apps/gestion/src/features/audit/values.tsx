@@ -1,0 +1,124 @@
+// Détail d'une entrée du journal (M6) : champs changés et leurs valeurs, traduits. Le serveur n'y
+// met jamais de mot de passe, de code ni de clé.
+import type { Schemas } from "@mwangaza/api";
+import { formatDateTime, formatDay, fr, type TFunction } from "@mwangaza/i18n";
+import type { ReactNode } from "react";
+
+import { roleName } from "../../lib/people";
+import { snapshotTree, termLabels, type TermKind } from "../../lib/terms";
+
+type Log = Schemas["AuditLog"];
+type Tone = "ok" | "due" | "warn" | "info" | "gray";
+
+/** Toutes les actions du journal, par domaine, d'après leurs traductions. */
+export const ACTIONS = Object.entries(fr.audit.actions).flatMap(([domain, events]) =>
+  Object.keys(events).map((event) => `${domain}.${event}` as Log["action"]),
+);
+export const DOMAINS = Object.keys(fr.audit.domains) as Log["domain"][];
+
+/** Couleur de la pastille (toujours avec son texte). */
+export function actionTone(action: string): Tone {
+  if (action.startsWith("support.")) return "warn";
+  if (/(deleted|deactivated|suspended|totp_disabled|totp_reset)$/.test(action)) return "due";
+  if (/(created|added|reactivated|totp_enabled)$/.test(action)) return "ok";
+  if (action === "auth.login") return "info";
+  return "gray";
+}
+
+export function fieldLabel(field: string, t: TFunction): string {
+  return field in fr.audit.fields
+    ? t(`audit.fields.${field as keyof typeof fr.audit.fields}`)
+    : field;
+}
+
+const currency = (code: unknown) => (code === "CDF" ? "FC" : String(code));
+
+type Snapshot = {
+  kind: TermKind;
+  name: string;
+  parent: number | null;
+  starts_on: string | null;
+  ends_on: string | null;
+};
+
+function Terms({ terms, t, language }: { terms: Snapshot[]; t: TFunction; language: string }) {
+  const tree = snapshotTree(terms);
+  const labels = termLabels(tree, t);
+  const day = (value: string | null) => (value ? formatDay(value, language) : t("common.none"));
+  return (
+    <ul className="flex flex-col gap-0.5">
+      {tree
+        .flatMap((node) => [node, ...(node.children ?? [])])
+        .map((node) => {
+          const term = terms[(node as { index: number }).index]!;
+          return (
+            <li
+              key={(node as { index: number }).index}
+              className={node.kind === "period" || node.kind === "exam" ? "pl-3" : ""}
+            >
+              {labels.get(node)} : {day(term.starts_on)} → {day(term.ends_on)}
+            </li>
+          );
+        })}
+    </ul>
+  );
+}
+
+/** Valeur lisible d'un champ du journal. */
+export function renderValue(
+  field: string,
+  value: unknown,
+  t: TFunction,
+  language: string,
+  timeZone: string,
+): ReactNode {
+  if (value === null || value === undefined || value === "") return t("audit.values.none");
+  if (typeof value === "boolean") return value ? t("audit.values.yes") : t("audit.values.no");
+  switch (field) {
+    case "permissions":
+      return (value as string[])
+        .map((code) =>
+          t(`permissions.codes.${code}` as "permissions.codes.students.view", {
+            defaultValue: code,
+          }),
+        )
+        .join(", ");
+    case "roles":
+      return (value as Schemas["RoleSummary"][]).map((role) => roleName(role, t)).join(", ");
+    case "second_factor":
+      return String(value) in fr.audit.values
+        ? t(`audit.values.${value as "totp"}`)
+        : String(value);
+    case "cycle":
+      return t(`cycles.${value as "basic"}`);
+    case "template":
+      return t(`organisation.templates.${value as "secondary"}`);
+    case "enabled_currencies":
+      return (value as string[]).map(currency).join(", ");
+    case "default_currency":
+      return currency(value);
+    case "starts_on":
+    case "ends_on":
+      return formatDay(String(value), language);
+    case "expires_at":
+      return formatDateTime(String(value), language, timeZone);
+    case "levels":
+      return (value as string[]).join(" · ");
+    case "terms":
+      return <Terms terms={value as Snapshot[]} t={t} language={language} />;
+    case "primary_color":
+      return (
+        <span className="inline-flex items-center gap-1.5">
+          <span
+            aria-hidden="true"
+            className="inline-block size-3.5 rounded-[4px] border border-line"
+            style={{ backgroundColor: String(value) }}
+          />
+          {String(value)}
+        </span>
+      );
+  }
+  if (Array.isArray(value)) return value.map(String).join(", ");
+  if (typeof value === "object") return JSON.stringify(value);
+  return String(value);
+}

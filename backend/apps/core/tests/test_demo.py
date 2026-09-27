@@ -11,9 +11,10 @@ from apps.accounts import attempts, services, totp
 from apps.accounts.demo import DEMO_PASSWORD, DEMO_TOTP_SECRET
 from apps.accounts.models import Membership, Role, User
 from apps.accounts.roles import SYSTEM_ROLES
+from apps.audit.models import AuditLog
 from apps.core.crypto import decrypt
 from apps.core.tenancy import use_school
-from apps.schools.models import School
+from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from tests.factories import enable_totp
 
 pytestmark = pytest.mark.django_db
@@ -211,3 +212,55 @@ def test_demo_unblocks_logins(demo):
     call_command("demo")
 
     assert attempts.retry_after("+243000001005", "127.0.0.1") == 0
+
+
+# Organisation scolaire (1.7)
+
+
+def test_demo_organisation_of_the_itig(demo):
+    with use_school(demo["itig"]):
+        year = AcademicYear.objects.get()
+        levels = list(Level.objects.values_list("name", flat=True))
+        tracks = set(Track.objects.values_list("code", flat=True))
+        groups = list(ClassGroup.objects.select_related("level", "track", "homeroom_teacher"))
+        terms = list(year.terms.all())
+
+    assert (year.name, year.is_current) == ("2026-2027", True)
+    assert levels == ["7e EB", "8e EB", "1re", "2e", "3e", "4e"]
+    assert tracks == {"ELEC", "ELO", "MG", "MA"}
+    assert len(groups) == 23
+    assert [group.name for group in groups[:3]] == ["7e EB A", "7e EB B", "7e EB C"]
+    [titular] = [group for group in groups if group.homeroom_teacher]
+    assert (titular.name, titular.homeroom_teacher.phone) == ("3e Électricité A", "+243000001008")
+    assert [term.kind for term in terms] == ["semester", "period", "period", "exam"] * 2
+    assert all(term.starts_on for term in terms)
+    assert demo["itig"].matricule_format == "ITIG-{AAAA}-{0000}"
+
+
+def test_demo_organisation_of_volcans_is_separate(demo):
+    with use_school(demo["volcans"]):
+        groups = [group.name for group in ClassGroup.objects.all()]
+        terms = list(AcademicYear.objects.get().terms.all())
+
+    assert groups == ["7e EB A", "8e EB A", "1re Scientifique A", "2e Pédagogie générale A"]
+    assert not any(term.starts_on for term in terms)  # dates à saisir par l'école
+    assert demo["volcans"].matricule_format == "LV/{AA}/{0000}"
+
+
+def test_demo_organisation_runs_twice_without_duplicates_nor_journal(demo):
+    itig = demo["itig"]
+    with use_school(itig):
+        extra = AcademicYear.objects.create(
+            name="2027-2028", starts_on="2027-09-01", ends_on="2028-07-01"
+        )
+        AcademicYear.objects.filter(name="2026-2027").update(is_current=False)
+        AcademicYear.objects.filter(pk=extra.pk).update(is_current=True)
+
+    call_command("demo")
+
+    with use_school(itig):
+        assert ClassGroup.objects.count() == 23
+        assert AcademicYear.objects.get(is_current=True).name == "2026-2027"
+        assert AcademicYear.objects.get(name="2026-2027").terms.count() == 8
+        assert AcademicYear.objects.filter(pk=extra.pk).exists()  # ajoutée en essayant : gardée
+    assert not AuditLog.all_schools.filter(action__startswith="organisation.").exists()

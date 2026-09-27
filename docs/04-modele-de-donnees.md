@@ -12,6 +12,7 @@ Tout ce qui est propre à une école se règle ici, jamais dans le code (l'ITIG 
 - **Fuseau horaire** (`timezone`) : appliqué à chaque requête sur l'adresse de l'école.
 - **Suspendue** : plus personne ne se connecte à son adresse (ni le support), rien n'est supprimé ; elle reste visible, grisée, dans le choix de l'école (M2). Une école ne se supprime jamais.
 - Changés par l'école (`school.configure`, M5) : noms, couleur, logo, fuseau, devises ; par le super-admin seulement : code, statut, abonnement. Création, identité, logo, suspension et réactivation vont dans le journal de l'école ; l'abonnement non.
+- **Matricule** (`matricule_format`, C3, 1.7) : texte avec des variables — `{AAAA}` année de début de l'année scolaire, `{AA}` ses deux derniers chiffres, `{0000}` numéro (3 à 6 zéros = nombre de chiffres), `{OPT}` code de l'option de la classe ; hors des variables : lettres sans accent, chiffres, `-` `/` `.` `_` ; 60 caractères au plus. **Une année et un numéro obligatoires** : la séquence repart à 1 chaque année, sans l'année deux élèves auraient le même matricule. Classe sans option : `{OPT}` disparaît avec un séparateur voisin (`ITIG-{OPT}-{AAAA}-{0000}` → `ITIG-2026-0001`). Nouvelle école : `{CODE}-{AAAA}-{0000}` avec son code en majuscules. Changé avec `classes.manage` (écran « Organisation scolaire ») : vaut pour les matricules donnés ensuite, jamais pour les anciens ; noté au journal (`apps/schools/matricule.py`).
 - **Reçu** (`settings.receipt`) : imprimante `thermal_58`, `thermal_80` ou `sheet` (imprimante ordinaire, feuille A4) ; sur feuille A4, taille du reçu `a6` (4 par feuille), `a5` (2 par feuille) ou `small` (≈ 10 × 7 cm, 8 par feuille), avec traits de découpe (but : un petit reçu à coller dans le cahier de l'élève) ; exemplaires : 1 (élève) ou 2 (élève + souche pour l'école) ; texte d'en-tête (adresse, téléphone, mentions).
 
 **SchoolNetwork [G]** — promoteur ou coordination : `name`, `kind` (`promoter`, `religious_coordination`).
@@ -32,15 +33,17 @@ Tout ce qui est propre à une école se règle ici, jamais dans le code (l'ITIG 
 
 ## 2. Organisation scolaire
 
-**AcademicYear [T]** — `name` (« 2026-2027 »), `starts_on`, `ends_on`, `is_current`, `status` (`open`, `closed`).
+Changée avec `classes.manage` (directeur, directeur des études), en ligne seulement ; services dans `apps/schools/organisation.py`, chaque changement noté au journal (domaine `organisation`). On ne supprime que ce qui ne sert plus : la base protège ce qui est utilisé.
 
-**Term [T]** — `academic_year`, `name` (P1, P2, Examen 1…), `kind` (`period`, `exam`, `semester`, `trimester`), `parent` (semestre parent), `order`, `starts_on`, `ends_on`.
+**AcademicYear [T]** — `name` (« 2026-2027 », unique dans l'école, par défaut d'après les dates), `starts_on` < `ends_on`, `is_current` (**une seule** année en cours par école, contrainte en base : celle des inscriptions et des écrans par défaut ; la première créée l'est d'office), `status` (`open`, `closed` : clôture avec la délibération, V1.2). Créée depuis un **modèle de découpage** (C1) : `secondary` (secondaire RDC : 2 semestres, chacun 2 périodes + examens), `trimesters` (3 trimestres, chacun 2 périodes + examens), `empty` ; en option, avec **les classes d'une autre année** (niveau, option, section, capacité ; pas les titulaires) — les barèmes en 2.5. Supprimée seulement si elle n'est pas en cours et n'a aucune classe (son découpage part avec elle). Dates changées : le découpage doit rester dans l'année.
 
-**Level [T]** — `name` (« 3e »), `cycle` (`primary`, `basic`, `secondary_general`, `secondary_technical`, `higher`, `vocational`), `order`.
+**Term [T]** — `academic_year`, `kind` (`semester`, `trimester`, `period`, `exam`), `parent` (semestre ou trimestre, seulement pour une période ou des examens), `order` (place dans l'année, tous niveaux confondus ; unique par année, vérifiée à la fin de la transaction), `name` (**vide = nom traduit par l'interface** d'après le genre et la place : « Semestre 2 », « 3e période », « Examens du 1er semestre » ; l'école peut renommer), `starts_on`, `ends_on` (vides tant que l'école ne les a pas saisis ; dans l'année, début ≤ fin, dans leur semestre ou trimestre). Le découpage se remplace d'un seul envoi (`PUT …/terms/`) : 40 éléments au plus.
 
-**Track [T]** — option : `name` (« Électricité »), `code`.
+**Level [T]** — `name` (« 7e EB », « 3e », unique dans l'école sans tenir compte des majuscules), `cycle` (`primary`, `basic`, `secondary_general`, `secondary_technical`, `higher`, `vocational`), `order` (ordre choisi par l'école ; un nouveau niveau va à la fin).
 
-**ClassGroup [T]** — `academic_year`, `level`, `track` (optionnel), `section` (« A »), `name` calculé (« 3e Électricité A »), `capacity`, `homeroom_teacher` (FK `User`, optionnel).
+**Track [T]** — option : `name` (« Électricité », unique), `code` (`ELEC` : 1 à 10 majuscules ou chiffres, unique ; sert au matricule `{OPT}`).
+
+**ClassGroup [T]** — `academic_year`, `level`, `track` (optionnel), `section` (« A », en majuscules, vide s'il n'y a qu'une classe), `name` calculé (« 3e Électricité A », « 7e EB B »), `capacity` (1 à 1000, optionnelle), `homeroom_teacher` (FK `User`, optionnel : **une personne du personnel actif de l'école**, jamais un compte d'une autre). Unique (année, niveau, option, section), même sans option. Supprimée seulement sans élève (les inscriptions la protègent, 2.1). Un niveau ou une option utilisés par une classe ne se suppriment pas.
 
 ## 3. Élèves et familles
 
