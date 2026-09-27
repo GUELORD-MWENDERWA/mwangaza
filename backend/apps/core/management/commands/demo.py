@@ -14,7 +14,7 @@ from apps.accounts.demo import (
     create_demo_accounts,
 )
 from apps.accounts.models import User
-from apps.schools.demo import create_demo_schools
+from apps.schools.demo import create_demo_organisation, create_demo_schools
 
 
 def _local(phone: str) -> str:
@@ -31,6 +31,7 @@ class Command(BaseCommand):
         with transaction.atomic():
             schools = create_demo_schools()
             accounts = create_demo_accounts(schools)
+            create_demo_organisation(schools)
         for school in schools.values():
             self.stdout.write(f"  {school.code:<8} {school.name} — {school.url}/app/")
         self.stdout.write(f"Comptes fictifs (mot de passe : {DEMO_PASSWORD}) :")

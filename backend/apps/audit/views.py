@@ -1,10 +1,18 @@
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import mixins
+from rest_framework.decorators import action
+from rest_framework.request import Request
+from rest_framework.response import Response
 
+from apps.accounts.models import User
 from apps.accounts.roles import AUDIT_VIEW
 from apps.accounts.views import ERRORS, SchoolViewSet
 from apps.audit.models import AuditLog
-from apps.audit.serializers import AuditLogFilterSerializer, AuditLogSerializer
+from apps.audit.serializers import (
+    AuditActorSerializer,
+    AuditLogFilterSerializer,
+    AuditLogSerializer,
+)
 
 
 @extend_schema_view(
@@ -53,3 +61,16 @@ class AuditLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolVi
         if data.get("search"):
             queryset = queryset.filter(entity_label__icontains=data["search"])
         return queryset
+
+    @extend_schema(responses={200: AuditActorSerializer(many=True), **ERRORS})
+    @action(detail=False, methods=["get"], pagination_class=None)
+    def actors(self, request: Request) -> Response:
+        """Les personnes qui apparaissent dans le journal de l'école (filtre « Personne » de M6),
+        sans le support Mwangaza."""
+        logs = AuditLog.objects.filter(actor__isnull=False, impersonated_by__isnull=True)
+        users = (
+            User.objects.filter(pk__in=logs.values("actor"))
+            .exclude(is_platform_admin=True)
+            .order_by("last_name", "middle_name", "first_name")
+        )
+        return Response(AuditActorSerializer(users, many=True).data)

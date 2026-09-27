@@ -4,6 +4,314 @@ info:
   version: 0.1.0
   description: API de la plateforme de gestion scolaire Mwangaza.
 paths:
+  /api/academic-years/:
+    get:
+      operationId: academic_years_list
+      description: Années scolaires de l'école, la plus récente d'abord, avec leur
+        découpage (C1).
+      tags:
+      - organisation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AcademicYear'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: academic_years_create
+      description: |-
+        Nouvelle année depuis un modèle de découpage, avec en option les classes d'une autre
+        année.
+      tags:
+      - organisation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademicYearCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AcademicYearCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AcademicYearCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademicYear'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/academic-years/{id}/:
+    get:
+      operationId: academic_years_retrieve
+      description: Années scolaires de l'école, la plus récente d'abord, avec leur
+        découpage (C1).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) school year.
+        required: true
+      tags:
+      - organisation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademicYear'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: academic_years_partial_update
+      description: Années scolaires de l'école, la plus récente d'abord, avec leur
+        découpage (C1).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) school year.
+        required: true
+      tags:
+      - organisation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAcademicYearUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAcademicYearUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAcademicYearUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademicYear'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: academic_years_destroy
+      description: Années scolaires de l'école, la plus récente d'abord, avec leur
+        découpage (C1).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) school year.
+        required: true
+      tags:
+      - organisation
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/academic-years/{id}/make-current/:
+    post:
+      operationId: academic_years_make_current_create
+      description: 'Année en cours : celle des inscriptions et des écrans par défaut.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) school year.
+        required: true
+      tags:
+      - organisation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademicYear'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/academic-years/{id}/terms/:
+    put:
+      operationId: academic_years_terms_update
+      description: 'Tout le découpage de l''année : noms, dates, éléments ajoutés
+        ou retirés.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) school year.
+        required: true
+      tags:
+      - organisation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TermsUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TermsUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TermsUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademicYear'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/audit/:
     get:
       operationId: audit_list
@@ -40,6 +348,21 @@ paths:
           - school.logo_changed
           - school.suspended
           - school.reactivated
+          - organisation.year_created
+          - organisation.year_updated
+          - organisation.year_deleted
+          - organisation.terms_changed
+          - organisation.level_created
+          - organisation.level_updated
+          - organisation.level_deleted
+          - organisation.levels_reordered
+          - organisation.track_created
+          - organisation.track_updated
+          - organisation.track_deleted
+          - organisation.class_created
+          - organisation.class_updated
+          - organisation.class_deleted
+          - organisation.matricule_format_changed
           - support.started
           - support.ended
           type: string
@@ -71,6 +394,21 @@ paths:
           * `school.logo_changed` - School logo changed
           * `school.suspended` - School suspended
           * `school.reactivated` - School reactivated
+          * `organisation.year_created` - School year created
+          * `organisation.year_updated` - School year changed
+          * `organisation.year_deleted` - School year deleted
+          * `organisation.terms_changed` - Terms and periods changed
+          * `organisation.level_created` - Level created
+          * `organisation.level_updated` - Level changed
+          * `organisation.level_deleted` - Level deleted
+          * `organisation.levels_reordered` - Levels reordered
+          * `organisation.track_created` - Track created
+          * `organisation.track_updated` - Track changed
+          * `organisation.track_deleted` - Track deleted
+          * `organisation.class_created` - Class created
+          * `organisation.class_updated` - Class changed
+          * `organisation.class_deleted` - Class deleted
+          * `organisation.matricule_format_changed` - Student number format changed
           * `support.started` - Support session opened
           * `support.ended` - Support session closed
       - in: query
@@ -85,6 +423,7 @@ paths:
           enum:
           - account
           - auth
+          - organisation
           - roles
           - school
           - staff
@@ -94,6 +433,7 @@ paths:
         description: |-
           * `account` - account
           * `auth` - auth
+          * `organisation` - organisation
           * `roles` - roles
           * `school` - school
           * `staff` - staff
@@ -174,6 +514,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuditLog'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/audit/actors/:
+    get:
+      operationId: audit_actors_list
+      description: |-
+        Les personnes qui apparaissent dans le journal de l'école (filtre « Personne » de M6),
+        sans le support Mwangaza.
+      tags:
+      - audit
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditActor'
           description: ''
         '403':
           content:
@@ -670,6 +1041,259 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/class-groups/:
+    get:
+      operationId: class_groups_list
+      description: |-
+        Classes d'une année (« 3e Électricité A ») : niveau, option, section, capacité, titulaire
+        (C2). Supprimée seulement sans élève.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: 'Absent : l''année en cours.'
+      tags:
+      - organisation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClassGroup'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: class_groups_create
+      description: |-
+        Classes d'une année (« 3e Électricité A ») : niveau, option, section, capacité, titulaire
+        (C2). Supprimée seulement sans élève.
+      tags:
+      - organisation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassGroupCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClassGroupCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ClassGroupCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassGroup'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/:
+    get:
+      operationId: class_groups_retrieve
+      description: |-
+        Classes d'une année (« 3e Électricité A ») : niveau, option, section, capacité, titulaire
+        (C2). Supprimée seulement sans élève.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) class.
+        required: true
+      tags:
+      - organisation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassGroup'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: class_groups_partial_update
+      description: |-
+        Classes d'une année (« 3e Électricité A ») : niveau, option, section, capacité, titulaire
+        (C2). Supprimée seulement sans élève.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) class.
+        required: true
+      tags:
+      - organisation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedClassGroupUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedClassGroupUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedClassGroupUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassGroup'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: class_groups_destroy
+      description: |-
+        Classes d'une année (« 3e Électricité A ») : niveau, option, section, capacité, titulaire
+        (C2). Supprimée seulement sans élève.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) class.
+        required: true
+      tags:
+      - organisation
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/homeroom-candidates/:
+    get:
+      operationId: class_groups_homeroom_candidates_list
+      description: 'Titulaires possibles : le personnel actif de l''école.'
+      tags:
+      - organisation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/health/:
     get:
       operationId: health_retrieve
@@ -691,6 +1315,364 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Health'
+          description: ''
+  /api/levels/:
+    get:
+      operationId: levels_list
+      description: Niveaux de l'école (« 7e EB », « 3e »), dans l'ordre choisi (C2).
+      tags:
+      - organisation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Level'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: levels_create
+      description: Niveaux de l'école (« 7e EB », « 3e »), dans l'ordre choisi (C2).
+      tags:
+      - organisation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LevelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LevelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LevelRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Level'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/levels/{id}/:
+    get:
+      operationId: levels_retrieve
+      description: Niveaux de l'école (« 7e EB », « 3e »), dans l'ordre choisi (C2).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) level.
+        required: true
+      tags:
+      - organisation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Level'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: levels_partial_update
+      description: Niveaux de l'école (« 7e EB », « 3e »), dans l'ordre choisi (C2).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) level.
+        required: true
+      tags:
+      - organisation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLevelUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLevelUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLevelUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Level'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: levels_destroy
+      description: Niveaux de l'école (« 7e EB », « 3e »), dans l'ordre choisi (C2).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) level.
+        required: true
+      tags:
+      - organisation
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/levels/reorder/:
+    post:
+      operationId: levels_reorder_create
+      description: Niveaux de l'école (« 7e EB », « 3e »), dans l'ordre choisi (C2).
+      tags:
+      - organisation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LevelReorderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LevelReorderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LevelReorderRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Level'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/matricule-format/:
+    get:
+      operationId: matricule_format_retrieve
+      description: Format du matricule de l'école (C3) et « Prochain matricule ».
+      tags:
+      - organisation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatriculeFormat'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: matricule_format_partial_update
+      description: Vaut pour les matricules donnés ensuite ; les anciens ne changent
+        pas.
+      tags:
+      - organisation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMatriculeFormatInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMatriculeFormatInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMatriculeFormatInputRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatriculeFormat'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/matricule-format/preview/:
+    post:
+      operationId: matricule_format_preview_create
+      description: Aperçu d'un format pendant la saisie, sans l'enregistrer.
+      tags:
+      - organisation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MatriculeFormatInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MatriculeFormatInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MatriculeFormatInputRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatriculeFormat'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
   /api/me/:
     get:
@@ -1119,12 +2101,31 @@ paths:
       description: 'Comptes du personnel de l''école (M3). On ne supprime pas un compte
         : on le désactive.'
       parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+          nullable: true
+        description: Actives ou désactivées.
       - name: page
         required: false
         in: query
         description: Un numéro de page de l'ensemble des résultats.
         schema:
           type: integer
+      - in: query
+        name: role
+        schema:
+          type: string
+          format: uuid
+        description: Personnes qui ont ce rôle.
+      - in: query
+        name: search
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description: Dans le nom, le post-nom, le prénom ou le téléphone.
       tags:
       - accounts
       security:
@@ -1447,8 +2448,277 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/tracks/:
+    get:
+      operationId: tracks_list
+      description: Options des humanités (« Électricité », code `ELEC`) (C2).
+      tags:
+      - organisation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Track'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: tracks_create
+      description: Options des humanités (« Électricité », code `ELEC`) (C2).
+      tags:
+      - organisation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TrackRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TrackRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Track'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/tracks/{id}/:
+    get:
+      operationId: tracks_retrieve
+      description: Options des humanités (« Électricité », code `ELEC`) (C2).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) track.
+        required: true
+      tags:
+      - organisation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Track'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: tracks_partial_update
+      description: Options des humanités (« Électricité », code `ELEC`) (C2).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) track.
+        required: true
+      tags:
+      - organisation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTrackUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTrackUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTrackUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Track'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: tracks_destroy
+      description: Options des humanités (« Électricité », code `ELEC`) (C2).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) track.
+        required: true
+      tags:
+      - organisation
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
 components:
   schemas:
+    AcademicYear:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+          title: Nom
+        starts_on:
+          type: string
+          format: date
+          readOnly: true
+          title: Start
+        ends_on:
+          type: string
+          format: date
+          readOnly: true
+          title: End
+        is_current:
+          type: boolean
+          readOnly: true
+          title: Current year
+        status:
+          allOf:
+          - $ref: '#/components/schemas/YearStatusEnum'
+          readOnly: true
+        terms:
+          type: array
+          items:
+            $ref: '#/components/schemas/Term'
+          readOnly: true
+          description: Découpage de l'année.
+      required:
+      - id
+      - name
+      - starts_on
+      - ends_on
+      - is_current
+      - status
+      - terms
+    AcademicYearCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: 'Vide : d''après les dates (« 2026-2027 »).'
+          maxLength: 20
+        starts_on:
+          type: string
+          format: date
+        ends_on:
+          type: string
+          format: date
+        template:
+          allOf:
+          - $ref: '#/components/schemas/TemplateEnum'
+          default: secondary
+          description: |-
+            Découpage (C1).
+
+            * `secondary` - RDC secondary: 2 semesters, 4 periods, 2 exam sessions
+            * `trimesters` - 3 terms, 6 periods, 3 exam sessions
+            * `empty` - Empty: enter the terms yourself
+        copy_classes_from:
+          type: string
+          format: uuid
+          nullable: true
+          description: Année dont on reprend les classes (sans les titulaires).
+      required:
+      - ends_on
+      - starts_on
     ActionEnum:
       enum:
       - auth.login
@@ -1477,6 +2747,21 @@ components:
       - school.logo_changed
       - school.suspended
       - school.reactivated
+      - organisation.year_created
+      - organisation.year_updated
+      - organisation.year_deleted
+      - organisation.terms_changed
+      - organisation.level_created
+      - organisation.level_updated
+      - organisation.level_deleted
+      - organisation.levels_reordered
+      - organisation.track_created
+      - organisation.track_updated
+      - organisation.track_deleted
+      - organisation.class_created
+      - organisation.class_updated
+      - organisation.class_deleted
+      - organisation.matricule_format_changed
       - support.started
       - support.ended
       type: string
@@ -1507,6 +2792,21 @@ components:
         * `school.logo_changed` - School logo changed
         * `school.suspended` - School suspended
         * `school.reactivated` - School reactivated
+        * `organisation.year_created` - School year created
+        * `organisation.year_updated` - School year changed
+        * `organisation.year_deleted` - School year deleted
+        * `organisation.terms_changed` - Terms and periods changed
+        * `organisation.level_created` - Level created
+        * `organisation.level_updated` - Level changed
+        * `organisation.level_deleted` - Level deleted
+        * `organisation.levels_reordered` - Levels reordered
+        * `organisation.track_created` - Track created
+        * `organisation.track_updated` - Track changed
+        * `organisation.track_deleted` - Track deleted
+        * `organisation.class_created` - Class created
+        * `organisation.class_updated` - Class changed
+        * `organisation.class_deleted` - Class deleted
+        * `organisation.matricule_format_changed` - Student number format changed
         * `support.started` - Support session opened
         * `support.ended` - Support session closed
     AuditActor:
@@ -1613,6 +2913,82 @@ components:
     BlankEnum:
       enum:
       - ''
+    ClassGroup:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        academic_year:
+          type: string
+          format: uuid
+          readOnly: true
+          title: School year
+        level:
+          type: string
+          format: uuid
+          readOnly: true
+        track:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        section:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+          description: « 3e Électricité A ».
+        capacity:
+          type: integer
+          readOnly: true
+          nullable: true
+        homeroom_teacher:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+          nullable: true
+      required:
+      - id
+      - academic_year
+      - level
+      - track
+      - section
+      - name
+      - capacity
+      - homeroom_teacher
+    ClassGroupCreateRequest:
+      type: object
+      properties:
+        level:
+          type: string
+          format: uuid
+        track:
+          type: string
+          format: uuid
+          nullable: true
+        section:
+          type: string
+          description: Ex. A ; gardée en majuscules.
+          maxLength: 10
+        capacity:
+          type: integer
+          maximum: 1000
+          minimum: 1
+          nullable: true
+        homeroom_teacher:
+          type: string
+          format: uuid
+          nullable: true
+          description: Titulaire (`id` du compte).
+        academic_year:
+          type: string
+          format: uuid
+      required:
+      - academic_year
+      - level
     CodeEnum:
       enum:
       - head
@@ -1716,10 +3092,27 @@ components:
       - name
       - roles
       - permissions
+    CycleEnum:
+      enum:
+      - primary
+      - basic
+      - secondary_general
+      - secondary_technical
+      - higher
+      - vocational
+      type: string
+      description: |-
+        * `primary` - Primary
+        * `basic` - Basic education (7th-8th)
+        * `secondary_general` - General secondary
+        * `secondary_technical` - Technical and vocational secondary
+        * `higher` - Higher education
+        * `vocational` - Short vocational training
     DomainEnum:
       enum:
       - account
       - auth
+      - organisation
       - roles
       - school
       - staff
@@ -1765,6 +3158,18 @@ components:
       required:
       - status
       - database
+    KindEnum:
+      enum:
+      - semester
+      - trimester
+      - period
+      - exam
+      type: string
+      description: |-
+        * `semester` - Semester
+        * `trimester` - Term (trimester)
+        * `period` - Period
+        * `exam` - Exams
     LanguageEnum:
       enum:
       - fr
@@ -1773,6 +3178,51 @@ components:
       description: |-
         * `fr` - Français
         * `en` - English
+    Level:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Nom
+          maxLength: 40
+        cycle:
+          $ref: '#/components/schemas/CycleEnum'
+        order:
+          type: integer
+          readOnly: true
+      required:
+      - id
+      - name
+      - cycle
+      - order
+    LevelReorderRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Tous les niveaux de l'école, dans l'ordre voulu.
+      required:
+      - ids
+    LevelRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nom
+          maxLength: 40
+        cycle:
+          $ref: '#/components/schemas/CycleEnum'
+      required:
+      - cycle
+      - name
     LoginCodeRequest:
       type: object
       properties:
@@ -1828,6 +3278,31 @@ components:
           description: PNG, JPEG ou SVG (sans script), 1 Mo au plus.
       required:
       - logo
+    MatriculeFormat:
+      type: object
+      properties:
+        matricule_format:
+          type: string
+          description: 'Ex. ITIG-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro,
+            3 à 6 chiffres), {OPT} (code de l''option).'
+          maxLength: 60
+        example:
+          type: string
+          description: 'Prochain matricule : année en cours, première option (C3).'
+      required:
+      - matricule_format
+      - example
+    MatriculeFormatInputRequest:
+      type: object
+      properties:
+        matricule_format:
+          type: string
+          minLength: 1
+          description: 'Ex. ITIG-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro,
+            3 à 6 chiffres), {OPT} (code de l''option).'
+          maxLength: 60
+      required:
+      - matricule_format
     Me:
       type: object
       properties:
@@ -1904,7 +3379,7 @@ components:
         name:
           type: string
         status:
-          $ref: '#/components/schemas/StatusEnum'
+          $ref: '#/components/schemas/SchoolStatusEnum'
         url:
           type: string
           description: 'Adresse de l''école : on s''y connecte pour y travailler.'
@@ -1951,7 +3426,7 @@ components:
           title: Nom
           maxLength: 200
         status:
-          $ref: '#/components/schemas/StatusEnum'
+          $ref: '#/components/schemas/SchoolStatusEnum'
       required:
       - code
       - name
@@ -2047,6 +3522,61 @@ components:
           maxLength: 128
       required:
       - new_password
+    PatchedAcademicYearUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 20
+        starts_on:
+          type: string
+          format: date
+        ends_on:
+          type: string
+          format: date
+    PatchedClassGroupUpdateRequest:
+      type: object
+      properties:
+        level:
+          type: string
+          format: uuid
+        track:
+          type: string
+          format: uuid
+          nullable: true
+        section:
+          type: string
+          description: Ex. A ; gardée en majuscules.
+          maxLength: 10
+        capacity:
+          type: integer
+          maximum: 1000
+          minimum: 1
+          nullable: true
+        homeroom_teacher:
+          type: string
+          format: uuid
+          nullable: true
+          description: Titulaire (`id` du compte).
+    PatchedLevelUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 40
+        cycle:
+          $ref: '#/components/schemas/CycleEnum'
+    PatchedMatriculeFormatInputRequest:
+      type: object
+      properties:
+        matricule_format:
+          type: string
+          minLength: 1
+          description: 'Ex. ITIG-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro,
+            3 à 6 chiffres), {OPT} (code de l''option).'
+          maxLength: 60
     PatchedMeUpdateRequest:
       type: object
       properties:
@@ -2129,6 +3659,18 @@ components:
         first_name:
           type: string
           maxLength: 100
+    PatchedTrackUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nom
+          maxLength: 80
+        code:
+          type: string
+          minLength: 1
+          maxLength: 10
     PermissionsEnum:
       enum:
       - school.configure
@@ -2165,6 +3707,29 @@ components:
         * `finance.view_reports` - View financial reports
         * `announcements.publish` - Publish announcements
         * `audit.view` - View the audit log
+    Person:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        last_name:
+          type: string
+          title: Nom
+          maxLength: 100
+        middle_name:
+          type: string
+          maxLength: 100
+        first_name:
+          type: string
+          title: Prénom
+          maxLength: 100
+      required:
+      - id
+      - last_name
+      - middle_name
+      - first_name
     RecoveryCodes:
       type: object
       properties:
@@ -2331,6 +3896,16 @@ components:
       - timezone
       - enabled_currencies
       - default_currency
+    SchoolStatusEnum:
+      enum:
+      - trial
+      - active
+      - suspended
+      type: string
+      description: |-
+        * `trial` - Trial
+        * `active` - Active
+        * `suspended` - Suspended
     Staff:
       type: object
       description: |-
@@ -2500,16 +4075,6 @@ components:
       - last_name
       - middle_name
       - first_name
-    StatusEnum:
-      enum:
-      - trial
-      - active
-      - suspended
-      type: string
-      description: |-
-        * `trial` - Trial
-        * `active` - Active
-        * `suspended` - Suspended
     StepEnum:
       enum:
       - password
@@ -2555,6 +4120,16 @@ components:
           maxLength: 200
       required:
       - reason
+    TemplateEnum:
+      enum:
+      - secondary
+      - trimesters
+      - empty
+      type: string
+      description: |-
+        * `secondary` - RDC secondary: 2 semesters, 4 periods, 2 exam sessions
+        * `trimesters` - 3 terms, 6 periods, 3 exam sessions
+        * `empty` - Empty: enter the terms yourself
     TemporaryPassword:
       type: object
       properties:
@@ -2563,6 +4138,126 @@ components:
           description: Affiché une seule fois, à changer à la prochaine connexion.
       required:
       - temporary_password
+    Term:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+        name:
+          type: string
+          description: 'Vide : l''interface affiche le nom traduit d''après le genre
+            et la place (« 1re période », « Examens du 1er semestre »).'
+        starts_on:
+          type: string
+          format: date
+          nullable: true
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/TermLeaf'
+          description: Périodes et examens du semestre.
+      required:
+      - id
+      - kind
+      - name
+      - starts_on
+      - ends_on
+      - children
+    TermInputLeafRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Élément existant ; absent : nouveau.'
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+        name:
+          type: string
+          default: ''
+          maxLength: 60
+        starts_on:
+          type: string
+          format: date
+          nullable: true
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+      required:
+      - kind
+    TermInputRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Élément existant ; absent : nouveau.'
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+        name:
+          type: string
+          default: ''
+          maxLength: 60
+        starts_on:
+          type: string
+          format: date
+          nullable: true
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/TermInputLeafRequest'
+      required:
+      - kind
+    TermLeaf:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+        name:
+          type: string
+          description: 'Vide : l''interface affiche le nom traduit d''après le genre
+            et la place (« 1re période », « Examens du 1er semestre »).'
+        starts_on:
+          type: string
+          format: date
+          nullable: true
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+      required:
+      - id
+      - kind
+      - name
+      - starts_on
+      - ends_on
+    TermsUpdateRequest:
+      type: object
+      description: 'Tout le découpage : ce qui n''y est plus est retiré.'
+      properties:
+        terms:
+          type: array
+          items:
+            $ref: '#/components/schemas/TermInputRequest'
+      required:
+      - terms
     TotpActivated:
       type: object
       properties:
@@ -2612,6 +4307,49 @@ components:
           description: 'Double authentification déjà activée (changer de téléphone)
             : code actuel ou code de secours.'
           maxLength: 20
+    Track:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Nom
+          maxLength: 80
+        code:
+          type: string
+          description: Majuscules et chiffres (matricule `{OPT}`).
+          maxLength: 10
+      required:
+      - id
+      - name
+      - code
+    TrackRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nom
+          maxLength: 80
+        code:
+          type: string
+          minLength: 1
+          description: Majuscules et chiffres (matricule `{OPT}`).
+          maxLength: 10
+      required:
+      - code
+      - name
+    YearStatusEnum:
+      enum:
+      - open
+      - closed
+      type: string
+      description: |-
+        * `open` - Open
+        * `closed` - Closed
   securitySchemes:
     cookieAuth:
       type: apiKey

@@ -15,6 +15,7 @@ urlpatterns = [
     path("api/school/settings/logo/", SchoolLogoView.as_view(), name="school-settings-logo"),
     path("api/", include("apps.accounts.urls")),
     path("api/", include("apps.audit.urls")),
+    path("api/", include("apps.schools.urls")),
 ]
 
 if settings.DEBUG:

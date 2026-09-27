@@ -1,6 +1,7 @@
 """Erreurs de l'API au format `{code, detail}` ; erreurs de saisie avec un code par champ."""
 
 import pytest
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound, PermissionDenied
 
@@ -74,6 +75,21 @@ def test_an_error_without_a_field_goes_to_non_field_errors():
 
     assert response.data["fields"] == {
         "non_field_errors": [{"code": "invalid", "detail": "Not both."}]
+    }
+
+
+def test_django_validation_error_of_a_service_gets_the_same_format():
+    error = DjangoValidationError(
+        {"terms.0.ends_on": DjangoValidationError("Outside the year.", code="outside_year")}
+    )
+
+    response = api_exception_handler(error, {})
+
+    assert response.status_code == 400
+    assert response.data == {
+        "code": "invalid",
+        "detail": "Some fields are invalid.",
+        "fields": {"terms.0.ends_on": [{"code": "outside_year", "detail": "Outside the year."}]},
     }
 
 

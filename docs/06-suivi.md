@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 1 (Socle) |
 | Lot | V1.0 — semaine 1 (Socle) |
-| Tâche en cours | aucune — 1.6 terminée (front `gestion`) : PR #85 à relire et fusionner (contrôles GitHub verts : backend, frontend, parcours Playwright) |
-| Prochaine tâche | 1.7 — organisation scolaire et écrans des paramètres (`/tache 1.7`) |
-| Issue GitHub | #12 (1.6), fermée par la fusion de la PR |
-| Branche | `tache/1.6-front-gestion` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-09-26 |
+| Tâche en cours | 1.7 — organisation scolaire (année, découpage, niveaux, options, classes, matricule) et écrans des paramètres, du personnel, des rôles et du journal ; plan : `docs/claude/plans/tache-1.7.md` |
+| Prochaine tâche | 2.1 — app `students` (`/tache 2.1`) |
+| Issue GitHub | #13 (1.7) |
+| Branche | `tache/1.7-organisation-parametres` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-09-27 |
 
 ## Avancement
 

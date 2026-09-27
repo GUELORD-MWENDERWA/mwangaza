@@ -52,6 +52,11 @@ class Api:
             path, data or {}, content_type="application/json", HTTP_HOST=self.host
         )
 
+    def put(self, path, data=None):
+        return self.client.put(
+            path, data or {}, content_type="application/json", HTTP_HOST=self.host
+        )
+
     def delete(self, path):
         return self.client.delete(path, HTTP_HOST=self.host)
 

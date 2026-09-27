@@ -5,14 +5,15 @@ from functools import cache
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
+from django.db.models.functions import Lower
 from django.utils.translation import gettext_lazy as _
 
-from apps.core.models import BaseModel
+from apps.core.models import BaseModel, TenantModel
 from apps.core.money import Currency
 from apps.core.tenancy import RESERVED_SUBDOMAINS
-from apps.schools import colors
+from apps.schools import colors, matricule
 from apps.schools.logos import logo_path, validate_logo
 
 # Le code est le sous-domaine de l'école : 2 à 30 caractères, minuscules, chiffres, tirets.
@@ -110,6 +111,14 @@ class School(BaseModel):
         default=Currency.USD,
         help_text=_("Currency of the reports."),
     )
+    # C3 : `ITIG-{AAAA}-{0000}` ; rempli à la création avec le code de l'école (`matricule.py`).
+    matricule_format = models.CharField(
+        _("student number format"),
+        max_length=matricule.MAX_LENGTH,
+        blank=True,
+        validators=[matricule.validate_matricule_format],
+        help_text=_("e.g. ITIG-{AAAA}-{0000}: year, number, option code {OPT}."),
+    )
     status = models.CharField(
         _("status"), max_length=10, choices=Status.choices, default=Status.TRIAL
     )
@@ -137,6 +146,11 @@ class School(BaseModel):
     def __str__(self) -> str:
         return self.name
 
+    def save(self, *args, **kwargs):
+        if not self.matricule_format:
+            self.matricule_format = matricule.default_format(self.code)
+        super().save(*args, **kwargs)
+
     def clean(self) -> None:
         with suppress(ValueError):  # message du validateur du champ
             self.primary_color = colors.normalize(self.primary_color)
@@ -158,3 +172,226 @@ class School(BaseModel):
     def text_color(self) -> str:
         """Couleur du texte posé sur `primary_color` : blanc ou encre."""
         return colors.text_color(self.primary_color) or colors.WHITE
+
+
+# Organisation scolaire (C1-C3, `docs/04-modele-de-donnees.md` § 2). Changée avec `classes.manage`
+# par `organisation.py`, chaque changement noté dans le journal de l'école.
+
+
+class AcademicYear(TenantModel):
+    """Année scolaire [T] (« 2026-2027 »). Une seule année en cours par école : celle des
+    inscriptions et des écrans par défaut."""
+
+    class Status(models.TextChoices):
+        OPEN = "open", _("Open")
+        # Clôture d'année (archivage, passage de classe) : avec la délibération (V1.2).
+        CLOSED = "closed", _("Closed")
+
+    name = models.CharField(_("name"), max_length=20)
+    starts_on = models.DateField(_("start"))
+    ends_on = models.DateField(_("end"))
+    is_current = models.BooleanField(_("current year"), default=False)
+    status = models.CharField(
+        _("status"), max_length=10, choices=Status.choices, default=Status.OPEN, editable=False
+    )
+
+    class Meta:
+        ordering = ["-starts_on"]
+        verbose_name = _("school year")
+        verbose_name_plural = _("school years")
+        constraints = [
+            models.UniqueConstraint(fields=["school", "name"], name="year_name_unique_per_school"),
+            models.UniqueConstraint(
+                fields=["school"],
+                condition=models.Q(is_current=True),
+                name="one_current_year_per_school",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(starts_on__lt=models.F("ends_on")), name="year_starts_first"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Term(TenantModel):
+    """Découpage de l'année [T] : semestres ou trimestres, et leurs périodes et examens.
+
+    `name` vide : l'interface affiche le nom traduit d'après le genre et la place (« 1re
+    période », « Examens du 1er semestre »), comme pour les rôles système ; l'école peut le
+    renommer. Dates vides tant que l'école ne les a pas saisies."""
+
+    class Kind(models.TextChoices):
+        SEMESTER = "semester", _("Semester")
+        TRIMESTER = "trimester", _("Term (trimester)")
+        PERIOD = "period", _("Period")
+        EXAM = "exam", _("Exams")
+
+    # Genres qui regroupent des périodes et des examens.
+    GROUPS = frozenset({Kind.SEMESTER, Kind.TRIMESTER})
+
+    academic_year = models.ForeignKey(
+        AcademicYear, on_delete=models.CASCADE, related_name="terms", verbose_name=_("school year")
+    )
+    kind = models.CharField(_("kind"), max_length=10, choices=Kind.choices)
+    parent = models.ForeignKey(
+        "self",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="children",
+        verbose_name=_("semester or term"),
+    )
+    # Place dans l'année, tous niveaux confondus (semestre, puis ses périodes, puis le suivant).
+    order = models.PositiveSmallIntegerField(_("order"))
+    name = models.CharField(_("name"), max_length=60, blank=True)
+    starts_on = models.DateField(_("start"), null=True, blank=True)
+    ends_on = models.DateField(_("end"), null=True, blank=True)
+
+    class Meta:
+        ordering = ["order"]
+        verbose_name = _("term")
+        verbose_name_plural = _("terms")
+        constraints = [
+            # Vérifiée à la fin de la transaction : le découpage se réécrit d'un seul envoi.
+            models.UniqueConstraint(
+                fields=["academic_year", "order"],
+                name="term_order_unique_per_year",
+                deferrable=models.Deferrable.DEFERRED,
+            ),
+            models.CheckConstraint(
+                condition=models.Q(starts_on__isnull=True)
+                | models.Q(ends_on__isnull=True)
+                | models.Q(starts_on__lte=models.F("ends_on")),
+                name="term_starts_first",
+            ),
+        ]
+        indexes = [models.Index(fields=["school", "academic_year"], name="term_school_year")]
+
+    def __str__(self) -> str:
+        return self.name or self.get_kind_display()
+
+
+class Level(TenantModel):
+    """Niveau [T] (« 7e EB », « 3e »), dans l'ordre choisi par l'école."""
+
+    class Cycle(models.TextChoices):
+        PRIMARY = "primary", _("Primary")
+        BASIC = "basic", _("Basic education (7th-8th)")
+        SECONDARY_GENERAL = "secondary_general", _("General secondary")
+        SECONDARY_TECHNICAL = "secondary_technical", _("Technical and vocational secondary")
+        HIGHER = "higher", _("Higher education")
+        VOCATIONAL = "vocational", _("Short vocational training")
+
+    name = models.CharField(_("name"), max_length=40)
+    cycle = models.CharField(_("cycle"), max_length=20, choices=Cycle.choices)
+    order = models.PositiveSmallIntegerField(_("order"), default=0)
+
+    class Meta:
+        ordering = ["order", "name"]
+        verbose_name = _("level")
+        verbose_name_plural = _("levels")
+        constraints = [
+            models.UniqueConstraint(
+                models.F("school"), Lower("name"), name="level_name_unique_per_school"
+            )
+        ]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+TRACK_CODE_PATTERN = r"^[A-Z0-9]{1,10}$"
+
+
+class Track(TenantModel):
+    """Option des humanités [T] (« Électricité », code `ELEC` pour le matricule)."""
+
+    name = models.CharField(_("name"), max_length=80)
+    code = models.CharField(
+        _("code"),
+        max_length=10,
+        validators=[
+            RegexValidator(
+                TRACK_CODE_PATTERN, _("1 to 10 capital letters or digits."), code="invalid_code"
+            )
+        ],
+        help_text=_("Used in the student number ({OPT}), e.g. ELEC."),
+    )
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = _("track")
+        verbose_name_plural = _("tracks")
+        constraints = [
+            models.UniqueConstraint(
+                models.F("school"), Lower("name"), name="track_name_unique_per_school"
+            ),
+            models.UniqueConstraint(fields=["school", "code"], name="track_code_unique_per_school"),
+            models.CheckConstraint(
+                condition=models.Q(code__regex=TRACK_CODE_PATTERN), name="track_code_format"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class ClassGroup(TenantModel):
+    """Classe d'une année [T] : niveau, option éventuelle, section (« 3e Électricité A »).
+
+    Supprimée seulement si elle n'a aucun élève (les inscriptions la protègent, 2.1)."""
+
+    academic_year = models.ForeignKey(
+        AcademicYear,
+        on_delete=models.PROTECT,
+        related_name="class_groups",
+        verbose_name=_("school year"),
+    )
+    level = models.ForeignKey(
+        Level, on_delete=models.PROTECT, related_name="class_groups", verbose_name=_("level")
+    )
+    track = models.ForeignKey(
+        Track,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="class_groups",
+        verbose_name=_("track"),
+    )
+    section = models.CharField(_("section"), max_length=10, blank=True)
+    capacity = models.PositiveSmallIntegerField(
+        _("capacity"), null=True, blank=True, validators=[MinValueValidator(1)]
+    )
+    # Une personne du personnel actif de l'école (vérifié par `organisation.py`).
+    homeroom_teacher = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("homeroom teacher"),
+    )
+
+    class Meta:
+        ordering = ["level__order", "level__name", "track__name", "section"]
+        verbose_name = _("class")
+        verbose_name_plural = _("classes")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["school", "academic_year", "level", "track", "section"],
+                nulls_distinct=False,
+                name="class_group_unique_per_year",
+            )
+        ]
+        indexes = [models.Index(fields=["school", "academic_year"], name="class_school_year")]
+
+    def __str__(self) -> str:
+        return self.name
+
+    @property
+    def name(self) -> str:
+        """« 3e Électricité A », « 7e EB B »."""
+        parts = [self.level.name, self.track.name if self.track else "", self.section]
+        return " ".join(part for part in parts if part)
