@@ -47,7 +47,7 @@ Maquettes marquées « à valider » dans `maquettes/README.md` : dessinées par
 
 ## 2. Lire la maquette
 
-1. Regarder la capture : `maquettes/captures/desktop/<app>-<nom>.png` et, si elle existe, `maquettes/captures/mobile/<app>-<nom>.png` (ouvrir l'image avec l'outil Read).
+1. Regarder la capture : `maquettes/captures/desktop/<app>-<nom>.png` (ouvrir l'image avec l'outil Read) ; la mobile seulement si la desktop ne suffit pas.
 2. Lire `maquettes/<app>/<nom>.html` : structure, libellés exacts, colonnes, boutons, raccourcis clavier.
 3. Extraire **chaque encadré `.note`** : ce sont des règles métier et des critères d'acceptation. Les lister ; chacun devient un test ou une vérification explicite. Ne jamais les afficher.
 4. Recouper avec la user story (`docs/02-perimetre-v1.md`) et les champs (`docs/04-modele-de-donnees.md`). **Les documents font foi** : noter tout écart et le signaler à l'utilisateur.
@@ -69,8 +69,8 @@ Maquettes marquées « à valider » dans `maquettes/README.md` : dessinées par
 
 ## 4. Vérifier
 
-1. Tests : Vitest pour la logique d'écran, Playwright pour le parcours ; un test par règle `.note` quand c'est testable. Écrans de la Gestion (`*.test.tsx`) : `renderApp("/adresse")` (`src/test/render.tsx`), faux serveur `mockApi({"GET /api/…": réponse})` (il renvoie les requêtes reçues avec `query` et `body`), `apiError(code, statut)` (`src/test/api.ts`), comptes `me("cashier")`, `platformAdmin()` (`src/test/fixtures.ts`). Parcours réels : `frontend/e2e/*.spec.ts` (`make test-e2e` ; un compte à code une seule fois par parcours : un code ne sert qu'une fois).
-2. Lancer l'application et comparer à la capture à 1440 px (et 390 px si capture mobile). Lister les différences restantes.
+1. Tests (« Économie de tokens » de `CLAUDE.md`) : Vitest pour les règles `.note` qui protègent quelque chose (permissions masquées, argent, règle métier) — pas de test de libellé ou de mise en page ; Playwright seulement pour un chemin critique (connexion, caisse, hors-ligne). Lancer seulement le fichier touché : `pnpm exec vitest run <fichier>`. Écrans de la Gestion (`*.test.tsx`) : `renderApp("/adresse")` (`src/test/render.tsx`), faux serveur `mockApi({"GET /api/…": réponse})` (il renvoie les requêtes reçues avec `query` et `body`), `apiError(code, statut)` (`src/test/api.ts`), comptes `me("cashier")`, `platformAdmin()` (`src/test/fixtures.ts`). Parcours réels : `frontend/e2e/*.spec.ts` (`make test-e2e` ; un compte à code une seule fois par parcours : un code ne sert qu'une fois).
+2. Une seule capture de l'écran construit, à 390 px, comparée à la maquette ; lister les différences restantes. Pas de capture à 1440 px ni de rejeu du parcours à la main.
 3. Aucun texte en dur : `apps/gestion/textes.test.ts` le vérifie (texte entre balises, `label`, `placeholder`, `title`, `aria-label`, `alt`) ; `fr` et `en` aux mêmes clés : TypeScript et `packages/i18n/src/locales.test.ts`.
 
 ## 5. Rendre compte

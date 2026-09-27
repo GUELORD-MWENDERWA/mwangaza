@@ -5,7 +5,7 @@ description: Contrôler les changements en cours de Mwangaza contre les 9 règle
 
 # Vérifier la conformité
 
-Périmètre : `git diff main...HEAD` + `git status` (fichiers non suivis compris). Lire les fichiers modifiés, pas seulement le diff, quand le contexte est nécessaire.
+Périmètre : `git diff main...HEAD --stat` + `git status`, puis les passages utiles (`git diff main...HEAD -- <fichier>`, `grep -n`) ; pas de lecture intégrale des fichiers déjà vus pendant la tâche (« Économie de tokens » de `CLAUDE.md`).
 
 ## Contrôles
 
@@ -23,9 +23,9 @@ Périmètre : `git diff main...HEAD` + `git status` (fichiers non suivis compris
 | 10 | Périmètre | Rien de V1.1 / V1.2 / V2 codé pendant une tâche V1.0. |
 | 11 | Design | Jetons et composants de la skill `design` ; pas de couleur ou taille inventée ; formats de montants via `packages/money`. |
 | 12 | Secrets | Aucun `.env`, mot de passe, clé ou jeton ajouté. Aucune donnée personnelle réelle de l'ITIG hors de `docs/ecole-pilote/prive/`. |
-| 13 | Tests et qualité | Lint et tests lancés, résultat réel montré. |
-| 14 | Suivi | Tâche cochée dans `docs/05`, `docs/06-suivi.md` à jour (état, avancement, journal), décision notée dans `docs/03` § 11 si besoin. |
+| 13 | Tests et qualité | Lint et tests lancés une fois à la fin, résultat réel montré. Tests utiles seulement (isolation, permissions, argent, audit, règles métier) ; aucun test d'isolation, de permission, d'argent ou d'audit supprimé. Pas de N+1 dans les nouvelles listes, listes paginées. |
+| 14 | Suivi | Tâche cochée dans `docs/05`, `docs/06-suivi.md` à jour (état, compteur, journal de 3 à 5 lignes), décision notée dans `docs/03` seulement si c'en est une vraie. |
 
 ## Réponse
 
-Tableau `# · règle · ✔ / ✘ / sans objet · preuve (fichier:ligne)`. Pour chaque ✘ : la correction proposée ; corriger directement si c'est mécanique et sans ambiguïté, sinon demander. Ne jamais déclarer « conforme » sans avoir lancé les tests.
+Quelques lignes, reprises telles quelles dans la section « Tests » de la PR (pas de fichier dans `docs/claude/revues/`) : les règles concernées en une ligne (✔ avec la preuve la plus parlante, ex. le test d'isolation), puis chaque ✘ avec sa correction ; les règles sans objet ne sont pas listées. Corriger directement ce qui est mécanique et sans ambiguïté, sinon demander. Ne jamais déclarer « conforme » sans avoir lancé les tests.
