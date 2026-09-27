@@ -14,6 +14,7 @@ from apps.accounts.demo import (
     create_demo_accounts,
 )
 from apps.accounts.models import User
+from apps.finance.demo import create_demo_fees
 from apps.schools.demo import create_demo_organisation, create_demo_schools
 from apps.students.demo import create_demo_students
 
@@ -33,6 +34,7 @@ class Command(BaseCommand):
             schools = create_demo_schools()
             accounts = create_demo_accounts(schools)
             create_demo_organisation(schools)
+            create_demo_fees(schools)
             create_demo_students(schools)
         for school in schools.values():
             self.stdout.write(f"  {school.code:<8} {school.name} — {school.url}/app/")

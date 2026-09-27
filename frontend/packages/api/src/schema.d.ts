@@ -16,7 +16,7 @@ export interface paths {
         put?: never;
         /**
          * @description Nouvelle année depuis un modèle de découpage, avec en option les classes d'une autre
-         *     année.
+         *     année, et ses barèmes (`copy_fees`, droit `finance.configure_fees` en plus).
          */
         post: operations["academic_years_create"];
         delete?: never;
@@ -478,6 +478,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/exchange-rates/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Taux USD → CDF d'une année (E5), le plus récent d'abord : le premier est le taux en
+         *     vigueur, les suivants l'historique des corrections. Ni modifiable ni effaçable.
+         */
+        get: operations["exchange_rates_list"];
+        put?: never;
+        /**
+         * @description Taux USD → CDF d'une année (E5), le plus récent d'abord : le premier est le taux en
+         *     vigueur, les suivants l'historique des corrections. Ni modifiable ni effaçable.
+         */
+        post: operations["exchange_rates_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/families/": {
         parameters: {
             query?: never;
@@ -524,6 +548,95 @@ export interface paths {
          *     d'un seul envoi.
          */
         patch: operations["families_partial_update"];
+        trace?: never;
+    };
+    "/api/fee-rules/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Barèmes d'une année, avec leurs tranches (E2) : montant et devise d'un type de frais pour
+         *     toute l'école, un niveau, une option ou une classe.
+         */
+        get: operations["fee_rules_list"];
+        put?: never;
+        /**
+         * @description Barèmes d'une année, avec leurs tranches (E2) : montant et devise d'un type de frais pour
+         *     toute l'école, un niveau, une option ou une classe.
+         */
+        post: operations["fee_rules_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/fee-rules/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Barèmes d'une année, avec leurs tranches (E2) : montant et devise d'un type de frais pour
+         *     toute l'école, un niveau, une option ou une classe.
+         */
+        get: operations["fee_rules_retrieve"];
+        /**
+         * @description Barèmes d'une année, avec leurs tranches (E2) : montant et devise d'un type de frais pour
+         *     toute l'école, un niveau, une option ou une classe.
+         */
+        put: operations["fee_rules_update"];
+        post?: never;
+        /**
+         * @description Barèmes d'une année, avec leurs tranches (E2) : montant et devise d'un type de frais pour
+         *     toute l'école, un niveau, une option ou une classe.
+         */
+        delete: operations["fee_rules_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/fee-types/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Types de frais de l'école (« Minerval », « Frais d'atelier ») (E1). */
+        get: operations["fee_types_list"];
+        put?: never;
+        /** @description Types de frais de l'école (« Minerval », « Frais d'atelier ») (E1). */
+        post: operations["fee_types_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/fee-types/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Types de frais de l'école (« Minerval », « Frais d'atelier ») (E1). */
+        get: operations["fee_types_retrieve"];
+        put?: never;
+        post?: never;
+        /** @description Types de frais de l'école (« Minerval », « Frais d'atelier ») (E1). */
+        delete: operations["fee_types_destroy"];
+        options?: never;
+        head?: never;
+        /** @description Types de frais de l'école (« Minerval », « Frais d'atelier ») (E1). */
+        patch: operations["fee_types_partial_update"];
         trace?: never;
     };
     "/api/health/": {
@@ -1154,6 +1267,11 @@ export interface components {
              * @description Année dont on reprend les classes (sans les titulaires).
              */
             copy_classes_from?: string | null;
+            /**
+             * @description Reprendre aussi les barèmes de cette année (droit `finance.configure_fees`).
+             * @default false
+             */
+            copy_fees: boolean;
         };
         /**
          * @description * `auth.login` - Logged in
@@ -1206,12 +1324,20 @@ export interface components {
          *     * `students.enrollment_updated` - Enrollment changed
          *     * `students.student_imported` - Student imported from a file
          *     * `students.family_code_printed` - Family code printed on the registration form
+         *     * `finance.fee_type_created` - Fee type created
+         *     * `finance.fee_type_updated` - Fee type changed
+         *     * `finance.fee_type_deleted` - Fee type deleted
+         *     * `finance.fee_rule_created` - Fee rule created
+         *     * `finance.fee_rule_updated` - Fee rule changed
+         *     * `finance.fee_rule_deleted` - Fee rule deleted
+         *     * `finance.fee_rules_copied` - Fee rules copied from another school year
+         *     * `finance.exchange_rate_set` - Exchange rate set
          *     * `audit.exported` - Audit log exported
          *     * `support.started` - Support session opened
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "audit.exported" | "support.started" | "support.ended";
         Address: {
             commune: string;
             quartier: string;
@@ -1323,7 +1449,10 @@ export interface components {
          * @enum {string}
          */
         CurrencyEnum: "USD" | "CDF";
-        /** @description Informations publiques de l'école : écran de connexion (nom, couleur, logo). */
+        /**
+         * @description Informations publiques de l'école : écran de connexion (nom, couleur, logo) ; fuseau et
+         *     devises pour les écrans (dates, montants).
+         */
         CurrentSchool: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
             code: string;
@@ -1342,6 +1471,15 @@ export interface components {
              * @description Dates and times of the school, e.g. Africa/Lubumbashi (Goma).
              */
             timezone: string;
+            readonly enabled_currencies: components["schemas"]["CurrencyEnum"][];
+            /**
+             * Main currency
+             * @description Currency of the reports.
+             *
+             *     * `USD` - US dollar
+             *     * `CDF` - Congolese franc
+             */
+            default_currency: components["schemas"]["CurrencyEnum"];
         };
         CurrentSchoolAccess: {
             code: string;
@@ -1360,7 +1498,7 @@ export interface components {
          */
         CycleEnum: "primary" | "basic" | "secondary_general" | "secondary_technical" | "higher" | "vocational";
         /** @enum {string} */
-        DomainEnum: "account" | "audit" | "auth" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
+        DomainEnum: "account" | "audit" | "auth" | "finance" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
         Enrollment: {
             /** Format: uuid */
             readonly id: string;
@@ -1415,6 +1553,35 @@ export interface components {
                 [key: string]: components["schemas"]["FieldError"][];
             };
         };
+        ExchangeRate: {
+            /** Format: uuid */
+            readonly id: string;
+            /**
+             * Year
+             * Format: uuid
+             */
+            academic_year: string;
+            /** Format: decimal */
+            rate: string;
+            reason: string;
+            readonly set_by: components["schemas"]["Person"] | null;
+            /** Format: date-time */
+            readonly set_at: string;
+        };
+        ExchangeRateCreateRequest: {
+            /** Format: uuid */
+            academic_year: string;
+            /**
+             * Format: decimal
+             * @description Francs pour 1 dollar, tel que saisi (« 2850 »).
+             */
+            rate: string;
+            /**
+             * @description Obligatoire pour une correction (l'année a déjà un taux).
+             * @default
+             */
+            reason: string;
+        };
         Family: {
             /** Format: uuid */
             readonly id: string;
@@ -1449,6 +1616,114 @@ export interface components {
         };
         FamilyWriteRequest: {
             guardians: components["schemas"]["GuardianRequest"][];
+        };
+        /**
+         * @description * `tuition` - Tuition
+         *     * `registration` - Registration
+         *     * `operating` - Operating costs
+         *     * `ancillary` - Ancillary fees
+         *     * `uniform` - Uniform
+         *     * `transport` - Transport
+         *     * `canteen` - Canteen
+         *     * `extracurricular` - Extracurricular
+         *     * `official_exam` - Official exam
+         *     * `custom` - Other
+         * @enum {string}
+         */
+        FeeCategoryEnum: "tuition" | "registration" | "operating" | "ancillary" | "uniform" | "transport" | "canteen" | "extracurricular" | "official_exam" | "custom";
+        FeeRule: {
+            /** Format: uuid */
+            readonly id: string;
+            /**
+             * Year
+             * Format: uuid
+             */
+            academic_year: string;
+            /** Format: uuid */
+            fee_type: string;
+            /** Format: uuid */
+            level: string | null;
+            /** Format: uuid */
+            track: string | null;
+            /** Format: uuid */
+            class_group: string | null;
+            /** @description Niveau, option ou classe ; vide : toute l'école. */
+            readonly scope_name: string;
+            currency: components["schemas"]["CurrencyEnum"];
+            /**
+             * Total
+             * Format: int64
+             */
+            total_amount_minor: number;
+            /** Schedule */
+            schedule_kind: components["schemas"]["ScheduleKindEnum"];
+            readonly installments: components["schemas"]["Installment"][];
+        };
+        /**
+         * @description Tout le barème : portée (au plus un de `level`, `track`, `class_group` ; aucun = toute
+         *     l'école), devise, total et tranches (somme = total).
+         */
+        FeeRuleCreateRequest: {
+            /** Format: uuid */
+            level?: string | null;
+            /** Format: uuid */
+            track?: string | null;
+            /** Format: uuid */
+            class_group?: string | null;
+            currency: components["schemas"]["CurrencyEnum"];
+            /**
+             * Format: int64
+             * @description Plus petite unité : centimes, francs.
+             */
+            total_amount_minor: number;
+            schedule_kind: components["schemas"]["ScheduleKindEnum"];
+            installments: components["schemas"]["InstallmentRequest"][];
+            /** Format: uuid */
+            academic_year: string;
+            /** Format: uuid */
+            fee_type: string;
+        };
+        /**
+         * @description Tout le barème : portée (au plus un de `level`, `track`, `class_group` ; aucun = toute
+         *     l'école), devise, total et tranches (somme = total).
+         */
+        FeeRuleUpdateRequest: {
+            /** Format: uuid */
+            level?: string | null;
+            /** Format: uuid */
+            track?: string | null;
+            /** Format: uuid */
+            class_group?: string | null;
+            currency: components["schemas"]["CurrencyEnum"];
+            /**
+             * Format: int64
+             * @description Plus petite unité : centimes, francs.
+             */
+            total_amount_minor: number;
+            schedule_kind: components["schemas"]["ScheduleKindEnum"];
+            installments: components["schemas"]["InstallmentRequest"][];
+        };
+        FeeType: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            category: components["schemas"]["FeeCategoryEnum"];
+            /** Funds the teacher bonus */
+            funds_teacher_bonus: boolean;
+            accounting_code: string;
+            /** Active */
+            is_active: boolean;
+            /** @description Barèmes, toutes années : un type qui en a ne se supprime pas. */
+            readonly rule_count: number;
+        };
+        FeeTypeWriteRequest: {
+            name: string;
+            category: components["schemas"]["FeeCategoryEnum"];
+            /** Funds the teacher bonus */
+            funds_teacher_bonus?: boolean;
+            accounting_code?: string;
+            /** Active */
+            is_active?: boolean;
         };
         FieldError: {
             /** @description Code stable, traduit par l'interface. */
@@ -1563,6 +1838,29 @@ export interface components {
             matricule: string;
             guardian_name: string;
             guardian_phone: string;
+        };
+        Installment: {
+            /** Format: uuid */
+            readonly id: string;
+            label: string;
+            /** Format: int64 */
+            amount_minor: number;
+            /**
+             * Due date
+             * Format: date
+             */
+            due_on: string;
+            readonly order: number;
+        };
+        InstallmentRequest: {
+            label: string;
+            /** Format: int64 */
+            amount_minor: number;
+            /**
+             * Due date
+             * Format: date
+             */
+            due_on: string;
         };
         /**
          * @description * `semester` - Semester
@@ -1847,6 +2145,15 @@ export interface components {
         PatchedFamilyWriteRequest: {
             guardians?: components["schemas"]["GuardianRequest"][];
         };
+        PatchedFeeTypeWriteRequest: {
+            name?: string;
+            category?: components["schemas"]["FeeCategoryEnum"];
+            /** Funds the teacher bonus */
+            funds_teacher_bonus?: boolean;
+            accounting_code?: string;
+            /** Active */
+            is_active?: boolean;
+        };
         PatchedLevelUpdateRequest: {
             name?: string;
             cycle?: components["schemas"]["CycleEnum"];
@@ -2056,6 +2363,13 @@ export interface components {
             readonly code: components["schemas"]["CodeEnum"] | components["schemas"]["BlankEnum"];
             name: string;
         };
+        /**
+         * @description * `installments` - Installments
+         *     * `monthly` - Monthly
+         *     * `single` - Single payment
+         * @enum {string}
+         */
+        ScheduleKindEnum: "installments" | "monthly" | "single";
         /** @description Paramètres de l'école (M5). Le code (adresse) ne change que par le support Mwangaza. */
         SchoolSettings: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
@@ -2873,17 +3187,26 @@ export interface operations {
                  *     * `students.enrollment_updated` - Enrollment changed
                  *     * `students.student_imported` - Student imported from a file
                  *     * `students.family_code_printed` - Family code printed on the registration form
+                 *     * `finance.fee_type_created` - Fee type created
+                 *     * `finance.fee_type_updated` - Fee type changed
+                 *     * `finance.fee_type_deleted` - Fee type deleted
+                 *     * `finance.fee_rule_created` - Fee rule created
+                 *     * `finance.fee_rule_updated` - Fee rule changed
+                 *     * `finance.fee_rule_deleted` - Fee rule deleted
+                 *     * `finance.fee_rules_copied` - Fee rules copied from another school year
+                 *     * `finance.exchange_rate_set` - Exchange rate set
                  *     * `audit.exported` - Audit log exported
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
                  * @description * `account` - account
                  *     * `audit` - audit
                  *     * `auth` - auth
+                 *     * `finance` - finance
                  *     * `organisation` - organisation
                  *     * `roles` - roles
                  *     * `school` - school
@@ -2891,7 +3214,7 @@ export interface operations {
                  *     * `students` - students
                  *     * `support` - support
                  */
-                domain?: "account" | "audit" | "auth" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
+                domain?: "account" | "audit" | "auth" | "finance" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description A page number within the paginated result set. */
@@ -3062,17 +3385,26 @@ export interface operations {
                  *     * `students.enrollment_updated` - Enrollment changed
                  *     * `students.student_imported` - Student imported from a file
                  *     * `students.family_code_printed` - Family code printed on the registration form
+                 *     * `finance.fee_type_created` - Fee type created
+                 *     * `finance.fee_type_updated` - Fee type changed
+                 *     * `finance.fee_type_deleted` - Fee type deleted
+                 *     * `finance.fee_rule_created` - Fee rule created
+                 *     * `finance.fee_rule_updated` - Fee rule changed
+                 *     * `finance.fee_rule_deleted` - Fee rule deleted
+                 *     * `finance.fee_rules_copied` - Fee rules copied from another school year
+                 *     * `finance.exchange_rate_set` - Exchange rate set
                  *     * `audit.exported` - Audit log exported
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
                  * @description * `account` - account
                  *     * `audit` - audit
                  *     * `auth` - auth
+                 *     * `finance` - finance
                  *     * `organisation` - organisation
                  *     * `roles` - roles
                  *     * `school` - school
@@ -3080,7 +3412,7 @@ export interface operations {
                  *     * `students` - students
                  *     * `support` - support
                  */
-                domain?: "account" | "audit" | "auth" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
+                domain?: "account" | "audit" | "auth" | "finance" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description Dans le nom de l'objet. */
@@ -4192,6 +4524,93 @@ export interface operations {
             };
         };
     };
+    exchange_rates_list: {
+        parameters: {
+            query?: {
+                /** @description Identifiant de l'année ; absent : l'année en cours. */
+                academic_year?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeRate"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    exchange_rates_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExchangeRateCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExchangeRateCreateRequest"];
+                "multipart/form-data": components["schemas"]["ExchangeRateCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeRate"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     families_list: {
         parameters: {
             query?: {
@@ -4335,6 +4754,471 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FamilyDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    fee_rules_list: {
+        parameters: {
+            query?: {
+                /** @description Identifiant de l'année ; absent : l'année en cours. */
+                academic_year?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeRule"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    fee_rules_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeeRuleCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["FeeRuleCreateRequest"];
+                "multipart/form-data": components["schemas"]["FeeRuleCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeRule"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    fee_rules_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this fee rule. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeRule"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    fee_rules_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this fee rule. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeeRuleUpdateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["FeeRuleUpdateRequest"];
+                "multipart/form-data": components["schemas"]["FeeRuleUpdateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeRule"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    fee_rules_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this fee rule. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    fee_types_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeType"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    fee_types_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeeTypeWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["FeeTypeWriteRequest"];
+                "multipart/form-data": components["schemas"]["FeeTypeWriteRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeType"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    fee_types_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this fee type. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeType"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    fee_types_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this fee type. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    fee_types_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this fee type. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedFeeTypeWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedFeeTypeWriteRequest"];
+                "multipart/form-data": components["schemas"]["PatchedFeeTypeWriteRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeType"];
                 };
             };
             400: {

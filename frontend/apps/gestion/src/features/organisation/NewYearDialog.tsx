@@ -1,10 +1,11 @@
 // Nouvelle année scolaire (C1) : dates, modèle de découpage et, en option, les classes d'une autre
-// année (sans les titulaires).
+// année (sans les titulaires) et ses barèmes (droit `finance.configure_fees`).
 import { api, call } from "@mwangaza/api";
 import { useTranslation } from "@mwangaza/i18n";
 import {
   Banner,
   Button,
+  CheckboxField,
   DialogClose,
   DialogContent,
   DialogRoot,
@@ -15,11 +16,12 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { applyServerErrors } from "../../lib/errors";
-import { keys } from "../../lib/queries";
+import { can } from "../../lib/permissions";
+import { keys, useCurrentMe } from "../../lib/queries";
 import { TEMPLATES, useRefresh, type Template, type Year } from "./data";
 import { useYearSchema } from "./YearCard";
 
@@ -36,24 +38,30 @@ export function NewYearDialog({ open, onOpenChange, years, onCreated }: Props) {
   const yearSchema = useYearSchema();
   const [general, setGeneral] = useState<string | null>(null);
   const current = years.find((year) => year.is_current);
+  const canCopyFees = can(useCurrentMe(), ["finance.configure_fees"]);
   const form = useForm({
-    resolver: zodResolver(yearSchema.and(z.object({ template: z.string(), copy: z.string() }))),
+    resolver: zodResolver(
+      yearSchema.and(z.object({ template: z.string(), copy: z.string(), copyFees: z.boolean() })),
+    ),
     defaultValues: {
       name: "",
       starts_on: "",
       ends_on: "",
       template: "secondary",
       copy: current?.id ?? "",
+      copyFees: canCopyFees,
     },
   });
   const create = useMutation({
     mutationFn: ({
       copy,
+      copyFees,
       template,
       ...values
     }: z.output<typeof yearSchema> & {
       template: string;
       copy: string;
+      copyFees: boolean;
     }) =>
       call(
         api.POST("/api/academic-years/", {
@@ -61,6 +69,7 @@ export function NewYearDialog({ open, onOpenChange, years, onCreated }: Props) {
             ...values,
             template: template as Template,
             copy_classes_from: copy || null,
+            copy_fees: Boolean(copy) && canCopyFees && copyFees,
           },
         }),
       ),
@@ -76,6 +85,7 @@ export function NewYearDialog({ open, onOpenChange, years, onCreated }: Props) {
       ),
   });
   const { errors } = form.formState;
+  const copy = useWatch({ control: form.control, name: "copy" });
 
   return (
     <DialogRoot
@@ -170,6 +180,21 @@ export function NewYearDialog({ open, onOpenChange, years, onCreated }: Props) {
               </Select>
             )}
           </Field>
+          {canCopyFees && copy && (
+            <Controller
+              control={form.control}
+              name="copyFees"
+              render={({ field }) => (
+                <CheckboxField
+                  id="new-year-copy-fees"
+                  label={t("organisation.create.copyFees")}
+                  checked={field.value}
+                  onCheckedChange={(checked) => field.onChange(checked === true)}
+                  className="min-[600px]:col-span-2"
+                />
+              )}
+            />
+          )}
         </form>
       </DialogContent>
     </DialogRoot>

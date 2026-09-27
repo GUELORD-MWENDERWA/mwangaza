@@ -84,6 +84,19 @@ class Action(models.TextChoices):
         "students.family_code_printed",
         _("Family code printed on the registration form"),
     )
+    # Frais, barèmes et taux de l'année (E1, E2, E5).
+    FINANCE_FEE_TYPE_CREATED = "finance.fee_type_created", _("Fee type created")
+    FINANCE_FEE_TYPE_UPDATED = "finance.fee_type_updated", _("Fee type changed")
+    FINANCE_FEE_TYPE_DELETED = "finance.fee_type_deleted", _("Fee type deleted")
+    FINANCE_FEE_RULE_CREATED = "finance.fee_rule_created", _("Fee rule created")
+    FINANCE_FEE_RULE_UPDATED = "finance.fee_rule_updated", _("Fee rule changed")
+    FINANCE_FEE_RULE_DELETED = "finance.fee_rule_deleted", _("Fee rule deleted")
+    FINANCE_FEE_RULES_COPIED = (
+        "finance.fee_rules_copied",
+        _("Fee rules copied from another school year"),
+    )
+    FINANCE_EXCHANGE_RATE_SET = "finance.exchange_rate_set", _("Exchange rate set")
+
     # Le journal lui-même (M6) : chaque export est noté.
     AUDIT_EXPORTED = "audit.exported", _("Audit log exported")
 

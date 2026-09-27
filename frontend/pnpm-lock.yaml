@@ -217,6 +217,9 @@ importers:
       '@mwangaza/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@mwangaza/money':
+        specifier: workspace:*
+        version: link:../../packages/money
       '@mwangaza/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -324,7 +327,11 @@ importers:
         specifier: ^7.0.2
         version: 7.0.2
 
-  packages/money: {}
+  packages/money:
+    devDependencies:
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
 
   packages/ui:
     dependencies:

@@ -47,11 +47,25 @@ class _LogoMixin(serializers.Serializer):
 
 
 class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
-    """Informations publiques de l'école : écran de connexion (nom, couleur, logo)."""
+    """Informations publiques de l'école : écran de connexion (nom, couleur, logo) ; fuseau et
+    devises pour les écrans (dates, montants)."""
+
+    enabled_currencies = serializers.ListField(
+        child=serializers.ChoiceField(choices=Currency.choices), read_only=True
+    )
 
     class Meta:
         model = School
-        fields = ["code", "name", "primary_color", "text_color", "logo", "timezone"]
+        fields = [
+            "code",
+            "name",
+            "primary_color",
+            "text_color",
+            "logo",
+            "timezone",
+            "enabled_currencies",
+            "default_currency",
+        ]
 
 
 class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
@@ -170,6 +184,17 @@ class AcademicYearCreateSerializer(serializers.Serializer):
         allow_null=True,
         help_text="Année dont on reprend les classes (sans les titulaires).",
     )
+    copy_fees = serializers.BooleanField(
+        default=False,
+        help_text="Reprendre aussi les barèmes de cette année (droit `finance.configure_fees`).",
+    )
+
+    def validate(self, data):
+        if data["copy_fees"] and not data.get("copy_classes_from"):
+            raise serializers.ValidationError(
+                {"copy_fees": _("Choose the school year to copy from.")}, code="no_source_year"
+            )
+        return data
 
 
 class AcademicYearUpdateSerializer(serializers.Serializer):

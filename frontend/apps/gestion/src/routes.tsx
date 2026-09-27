@@ -11,6 +11,7 @@ import { LoginLayout } from "./features/auth/LoginLayout";
 import { LoginPage } from "./features/auth/LoginPage";
 import { LoginTwoFactorPage } from "./features/auth/LoginTwoFactorPage";
 import { NewPasswordPage } from "./features/auth/NewPasswordPage";
+import { FeesPage } from "./features/fees/FeesPage";
 import { OrganisationPage } from "./features/organisation/OrganisationPage";
 import { RolesPage } from "./features/roles/RolesPage";
 import { SchoolChoicePage } from "./features/schools/SchoolChoicePage";
@@ -39,6 +40,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   students: <StudentsPage />,
   schoolSettings: <SchoolSettingsPage />,
   organisation: <OrganisationPage />,
+  fees: <FeesPage />,
   staff: <StaffPage />,
   roles: <RolesPage />,
   audit: <AuditPage />,

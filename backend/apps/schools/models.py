@@ -162,6 +162,15 @@ class School(BaseModel):
         if self.default_currency not in self.enabled_currencies:
             message = _("The main currency must be one of the school's currencies.")
             raise ValidationError({"default_currency": message}, code="default_currency_disabled")
+        if not self._state.adding:
+            # Une devise utilisée par un barème (plus tard : un paiement) reste (M5).
+            from apps.finance.services import currencies_in_use
+
+            if currencies_in_use(self) - set(self.enabled_currencies):
+                message = _("A currency used by a fee rule cannot be removed.")
+                raise ValidationError(
+                    {"enabled_currencies": ValidationError(message, code="currency_in_use")}
+                )
 
     @property
     def url(self) -> str:

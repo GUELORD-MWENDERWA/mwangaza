@@ -38,7 +38,7 @@ paths:
       operationId: academic_years_create
       description: |-
         Nouvelle année depuis un modèle de découpage, avec en option les classes d'une autre
-        année.
+        année, et ses barèmes (`copy_fees`, droit `finance.configure_fees` en plus).
       tags:
       - organisation
       requestBody:
@@ -372,6 +372,14 @@ paths:
           - students.enrollment_updated
           - students.student_imported
           - students.family_code_printed
+          - finance.fee_type_created
+          - finance.fee_type_updated
+          - finance.fee_type_deleted
+          - finance.fee_rule_created
+          - finance.fee_rule_updated
+          - finance.fee_rule_deleted
+          - finance.fee_rules_copied
+          - finance.exchange_rate_set
           - audit.exported
           - support.started
           - support.ended
@@ -428,6 +436,14 @@ paths:
           * `students.enrollment_updated` - Enrollment changed
           * `students.student_imported` - Student imported from a file
           * `students.family_code_printed` - Family code printed on the registration form
+          * `finance.fee_type_created` - Fee type created
+          * `finance.fee_type_updated` - Fee type changed
+          * `finance.fee_type_deleted` - Fee type deleted
+          * `finance.fee_rule_created` - Fee rule created
+          * `finance.fee_rule_updated` - Fee rule changed
+          * `finance.fee_rule_deleted` - Fee rule deleted
+          * `finance.fee_rules_copied` - Fee rules copied from another school year
+          * `finance.exchange_rate_set` - Exchange rate set
           * `audit.exported` - Audit log exported
           * `support.started` - Support session opened
           * `support.ended` - Support session closed
@@ -444,6 +460,7 @@ paths:
           - account
           - audit
           - auth
+          - finance
           - organisation
           - roles
           - school
@@ -456,6 +473,7 @@ paths:
           * `account` - account
           * `audit` - audit
           * `auth` - auth
+          * `finance` - finance
           * `organisation` - organisation
           * `roles` - roles
           * `school` - school
@@ -643,6 +661,14 @@ paths:
           - students.enrollment_updated
           - students.student_imported
           - students.family_code_printed
+          - finance.fee_type_created
+          - finance.fee_type_updated
+          - finance.fee_type_deleted
+          - finance.fee_rule_created
+          - finance.fee_rule_updated
+          - finance.fee_rule_deleted
+          - finance.fee_rules_copied
+          - finance.exchange_rate_set
           - audit.exported
           - support.started
           - support.ended
@@ -699,6 +725,14 @@ paths:
           * `students.enrollment_updated` - Enrollment changed
           * `students.student_imported` - Student imported from a file
           * `students.family_code_printed` - Family code printed on the registration form
+          * `finance.fee_type_created` - Fee type created
+          * `finance.fee_type_updated` - Fee type changed
+          * `finance.fee_type_deleted` - Fee type deleted
+          * `finance.fee_rule_created` - Fee rule created
+          * `finance.fee_rule_updated` - Fee rule changed
+          * `finance.fee_rule_deleted` - Fee rule deleted
+          * `finance.fee_rules_copied` - Fee rules copied from another school year
+          * `finance.exchange_rate_set` - Exchange rate set
           * `audit.exported` - Audit log exported
           * `support.started` - Support session opened
           * `support.ended` - Support session closed
@@ -715,6 +749,7 @@ paths:
           - account
           - audit
           - auth
+          - finance
           - organisation
           - roles
           - school
@@ -727,6 +762,7 @@ paths:
           * `account` - account
           * `audit` - audit
           * `auth` - auth
+          * `finance` - finance
           * `organisation` - organisation
           * `roles` - roles
           * `school` - school
@@ -1822,6 +1858,89 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/exchange-rates/:
+    get:
+      operationId: exchange_rates_list
+      description: |-
+        Taux USD → CDF d'une année (E5), le plus récent d'abord : le premier est le taux en
+        vigueur, les suivants l'historique des corrections. Ni modifiable ni effaçable.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+        description: 'Identifiant de l''année ; absent : l''année en cours.'
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExchangeRate'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: exchange_rates_create
+      description: |-
+        Taux USD → CDF d'une année (E5), le plus récent d'abord : le premier est le taux en
+        vigueur, les suivants l'historique des corrections. Ni modifiable ni effaçable.
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExchangeRateCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExchangeRateCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExchangeRateCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRate'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/families/:
     get:
       operationId: families_list
@@ -1983,6 +2102,431 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/fee-rules/:
+    get:
+      operationId: fee_rules_list
+      description: |-
+        Barèmes d'une année, avec leurs tranches (E2) : montant et devise d'un type de frais pour
+        toute l'école, un niveau, une option ou une classe.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+        description: 'Identifiant de l''année ; absent : l''année en cours.'
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeeRule'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: fee_rules_create
+      description: |-
+        Barèmes d'une année, avec leurs tranches (E2) : montant et devise d'un type de frais pour
+        toute l'école, un niveau, une option ou une classe.
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeeRuleCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FeeRuleCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FeeRuleCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeRule'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/fee-rules/{id}/:
+    get:
+      operationId: fee_rules_retrieve
+      description: |-
+        Barèmes d'une année, avec leurs tranches (E2) : montant et devise d'un type de frais pour
+        toute l'école, un niveau, une option ou une classe.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this fee rule.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeRule'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    put:
+      operationId: fee_rules_update
+      description: |-
+        Barèmes d'une année, avec leurs tranches (E2) : montant et devise d'un type de frais pour
+        toute l'école, un niveau, une option ou une classe.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this fee rule.
+        required: true
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeeRuleUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FeeRuleUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FeeRuleUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeRule'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: fee_rules_destroy
+      description: |-
+        Barèmes d'une année, avec leurs tranches (E2) : montant et devise d'un type de frais pour
+        toute l'école, un niveau, une option ou une classe.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this fee rule.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/fee-types/:
+    get:
+      operationId: fee_types_list
+      description: Types de frais de l'école (« Minerval », « Frais d'atelier ») (E1).
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeeType'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: fee_types_create
+      description: Types de frais de l'école (« Minerval », « Frais d'atelier ») (E1).
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeeTypeWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FeeTypeWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FeeTypeWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeType'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/fee-types/{id}/:
+    get:
+      operationId: fee_types_retrieve
+      description: Types de frais de l'école (« Minerval », « Frais d'atelier ») (E1).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this fee type.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeType'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: fee_types_partial_update
+      description: Types de frais de l'école (« Minerval », « Frais d'atelier ») (E1).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this fee type.
+        required: true
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedFeeTypeWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedFeeTypeWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedFeeTypeWriteRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeType'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: fee_types_destroy
+      description: Types de frais de l'école (« Minerval », « Frais d'atelier ») (E1).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this fee type.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
         '409':
           content:
             application/json:
@@ -4114,6 +4658,10 @@ components:
           format: uuid
           nullable: true
           description: Année dont on reprend les classes (sans les titulaires).
+        copy_fees:
+          type: boolean
+          default: false
+          description: Reprendre aussi les barèmes de cette année (droit `finance.configure_fees`).
       required:
       - ends_on
       - starts_on
@@ -4169,6 +4717,14 @@ components:
       - students.enrollment_updated
       - students.student_imported
       - students.family_code_printed
+      - finance.fee_type_created
+      - finance.fee_type_updated
+      - finance.fee_type_deleted
+      - finance.fee_rule_created
+      - finance.fee_rule_updated
+      - finance.fee_rule_deleted
+      - finance.fee_rules_copied
+      - finance.exchange_rate_set
       - audit.exported
       - support.started
       - support.ended
@@ -4224,6 +4780,14 @@ components:
         * `students.enrollment_updated` - Enrollment changed
         * `students.student_imported` - Student imported from a file
         * `students.family_code_printed` - Family code printed on the registration form
+        * `finance.fee_type_created` - Fee type created
+        * `finance.fee_type_updated` - Fee type changed
+        * `finance.fee_type_deleted` - Fee type deleted
+        * `finance.fee_rule_created` - Fee rule created
+        * `finance.fee_rule_updated` - Fee rule changed
+        * `finance.fee_rule_deleted` - Fee rule deleted
+        * `finance.fee_rules_copied` - Fee rules copied from another school year
+        * `finance.exchange_rate_set` - Exchange rate set
         * `audit.exported` - Audit log exported
         * `support.started` - Support session opened
         * `support.ended` - Support session closed
@@ -4496,8 +5060,9 @@ components:
         * `CDF` - Congolese franc
     CurrentSchool:
       type: object
-      description: 'Informations publiques de l''école : écran de connexion (nom,
-        couleur, logo).'
+      description: |-
+        Informations publiques de l'école : écran de connexion (nom, couleur, logo) ; fuseau et
+        devises pour les écrans (dates, montants).
       properties:
         code:
           type: string
@@ -4528,6 +5093,20 @@ components:
           title: Time zone
           description: Dates and times of the school, e.g. Africa/Lubumbashi (Goma).
           maxLength: 64
+        enabled_currencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrencyEnum'
+          readOnly: true
+        default_currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          title: Main currency
+          description: |-
+            Currency of the reports.
+
+            * `USD` - US dollar
+            * `CDF` - Congolese franc
       required:
       - code
       - name
@@ -4535,6 +5114,8 @@ components:
       - text_color
       - logo
       - timezone
+      - enabled_currencies
+      - default_currency
     CurrentSchoolAccess:
       type: object
       properties:
@@ -4576,6 +5157,7 @@ components:
       - account
       - audit
       - auth
+      - finance
       - organisation
       - roles
       - school
@@ -4678,6 +5260,59 @@ components:
       required:
       - code
       - detail
+    ExchangeRate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        academic_year:
+          type: string
+          format: uuid
+          title: Year
+        rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,6})?$
+        reason:
+          type: string
+          maxLength: 200
+        set_by:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+          nullable: true
+        set_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - academic_year
+      - rate
+      - reason
+      - set_by
+      - set_at
+    ExchangeRateCreateRequest:
+      type: object
+      properties:
+        academic_year:
+          type: string
+          format: uuid
+        rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,6})?$
+          description: Francs pour 1 dollar, tel que saisi (« 2850 »).
+        reason:
+          type: string
+          default: ''
+          description: Obligatoire pour une correction (l'année a déjà un taux).
+          maxLength: 200
+      required:
+      - academic_year
+      - rate
     Family:
       type: object
       properties:
@@ -4783,6 +5418,225 @@ components:
             $ref: '#/components/schemas/GuardianRequest'
       required:
       - guardians
+    FeeCategoryEnum:
+      enum:
+      - tuition
+      - registration
+      - operating
+      - ancillary
+      - uniform
+      - transport
+      - canteen
+      - extracurricular
+      - official_exam
+      - custom
+      type: string
+      description: |-
+        * `tuition` - Tuition
+        * `registration` - Registration
+        * `operating` - Operating costs
+        * `ancillary` - Ancillary fees
+        * `uniform` - Uniform
+        * `transport` - Transport
+        * `canteen` - Canteen
+        * `extracurricular` - Extracurricular
+        * `official_exam` - Official exam
+        * `custom` - Other
+    FeeRule:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        academic_year:
+          type: string
+          format: uuid
+          title: Year
+        fee_type:
+          type: string
+          format: uuid
+        level:
+          type: string
+          format: uuid
+          nullable: true
+        track:
+          type: string
+          format: uuid
+          nullable: true
+        class_group:
+          type: string
+          format: uuid
+          nullable: true
+        scope_name:
+          type: string
+          readOnly: true
+          description: 'Niveau, option ou classe ; vide : toute l''école.'
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        total_amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 1
+          format: int64
+          title: Total
+        schedule_kind:
+          allOf:
+          - $ref: '#/components/schemas/ScheduleKindEnum'
+          title: Schedule
+        installments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Installment'
+          readOnly: true
+      required:
+      - id
+      - academic_year
+      - fee_type
+      - level
+      - track
+      - class_group
+      - scope_name
+      - currency
+      - total_amount_minor
+      - schedule_kind
+      - installments
+    FeeRuleCreateRequest:
+      type: object
+      description: |-
+        Tout le barème : portée (au plus un de `level`, `track`, `class_group` ; aucun = toute
+        l'école), devise, total et tranches (somme = total).
+      properties:
+        level:
+          type: string
+          format: uuid
+          nullable: true
+        track:
+          type: string
+          format: uuid
+          nullable: true
+        class_group:
+          type: string
+          format: uuid
+          nullable: true
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        total_amount_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 1
+          format: int64
+          description: 'Plus petite unité : centimes, francs.'
+        schedule_kind:
+          $ref: '#/components/schemas/ScheduleKindEnum'
+        installments:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstallmentRequest'
+        academic_year:
+          type: string
+          format: uuid
+        fee_type:
+          type: string
+          format: uuid
+      required:
+      - academic_year
+      - currency
+      - fee_type
+      - installments
+      - schedule_kind
+      - total_amount_minor
+    FeeRuleUpdateRequest:
+      type: object
+      description: |-
+        Tout le barème : portée (au plus un de `level`, `track`, `class_group` ; aucun = toute
+        l'école), devise, total et tranches (somme = total).
+      properties:
+        level:
+          type: string
+          format: uuid
+          nullable: true
+        track:
+          type: string
+          format: uuid
+          nullable: true
+        class_group:
+          type: string
+          format: uuid
+          nullable: true
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        total_amount_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 1
+          format: int64
+          description: 'Plus petite unité : centimes, francs.'
+        schedule_kind:
+          $ref: '#/components/schemas/ScheduleKindEnum'
+        installments:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstallmentRequest'
+      required:
+      - currency
+      - installments
+      - schedule_kind
+      - total_amount_minor
+    FeeType:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 80
+        category:
+          $ref: '#/components/schemas/FeeCategoryEnum'
+        funds_teacher_bonus:
+          type: boolean
+          title: Funds the teacher bonus
+        accounting_code:
+          type: string
+          maxLength: 20
+        is_active:
+          type: boolean
+          title: Active
+        rule_count:
+          type: integer
+          readOnly: true
+          description: 'Barèmes, toutes années : un type qui en a ne se supprime pas.'
+      required:
+      - id
+      - name
+      - category
+      - funds_teacher_bonus
+      - accounting_code
+      - is_active
+      - rule_count
+    FeeTypeWriteRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        category:
+          $ref: '#/components/schemas/FeeCategoryEnum'
+        funds_teacher_bonus:
+          type: boolean
+          title: Funds the teacher bonus
+        accounting_code:
+          type: string
+          maxLength: 20
+        is_active:
+          type: boolean
+          title: Active
+      required:
+      - category
+      - name
     FieldError:
       type: object
       properties:
@@ -5087,6 +5941,54 @@ components:
       - matricule
       - guardian_name
       - guardian_phone
+    Installment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        label:
+          type: string
+          maxLength: 40
+        amount_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 1
+          format: int64
+        due_on:
+          type: string
+          format: date
+          title: Due date
+        order:
+          type: integer
+          readOnly: true
+      required:
+      - id
+      - label
+      - amount_minor
+      - due_on
+      - order
+    InstallmentRequest:
+      type: object
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 40
+        amount_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 1
+          format: int64
+        due_on:
+          type: string
+          format: date
+          title: Due date
+      required:
+      - amount_minor
+      - due_on
+      - label
     KindEnum:
       enum:
       - semester
@@ -5630,6 +6532,24 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/GuardianRequest'
+    PatchedFeeTypeWriteRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        category:
+          $ref: '#/components/schemas/FeeCategoryEnum'
+        funds_teacher_bonus:
+          type: boolean
+          title: Funds the teacher bonus
+        accounting_code:
+          type: string
+          maxLength: 20
+        is_active:
+          type: boolean
+          title: Active
     PatchedLevelUpdateRequest:
       type: object
       properties:
@@ -6015,6 +6935,16 @@ components:
       - id
       - code
       - name
+    ScheduleKindEnum:
+      enum:
+      - installments
+      - monthly
+      - single
+      type: string
+      description: |-
+        * `installments` - Installments
+        * `monthly` - Monthly
+        * `single` - Single payment
     SchoolSettings:
       type: object
       description: Paramètres de l'école (M5). Le code (adresse) ne change que par
