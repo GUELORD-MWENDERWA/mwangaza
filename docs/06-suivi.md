@@ -56,7 +56,7 @@ Entrée la plus récente en haut. Format : date — titre, puis fait / tests / d
 
 ### 2026-09-27 — Tâche 2.5.1 : frais, barèmes, taux de l'année
 
-- Fait : 2.5 découpée (2.5.1 ; 2.5.2 réductions après la 2.6). App `finance` : types de frais, barèmes (portée, devise, tranches / mensuel / unique, somme = total), taux de l'année immuable avec correction motivée ; écran « Frais et barèmes » ; devise d'un barème non retirable (M5) ; barèmes repris à la création d'une année (C1) ; grille fictive dans `make demo` (I5 en attendant).
+- Fait : 2.5 découpée (2.5.1 ; 2.5.2 réductions après la 2.6). App `finance` : types de frais, barèmes (portée, devise, tranches / mensuel / unique, somme = total), taux de l'année immuable avec correction motivée ; écran « Frais et barèmes » ; devise d'un barème non retirable (M5) ; barèmes repris à la création d'une année (C1) ; grille fictive dans `make demo` (I5 en attendant). Corrigé en passant : `make dev` utilisait une autre clé secrète que `.env`, d'où des codes de double authentification refusés après `make demo`.
 - Tests : isolation, 403 (dont un rôle limité au taux), somme des tranches, montant à virgule refusé, audit, taux immuable (code et base), M5, reprise d'année ; 793 tests serveur, 151 front, lint vert.
 - Décisions : barème le plus précis ; lectures de l'organisation ouvertes aux droits des frais ; devises dans `/api/school/` ; paquet `@mwangaza/money` (`03` § 11).
 - Suite : 2.6 (dus des élèves), puis 2.5.2.
