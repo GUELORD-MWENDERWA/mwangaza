@@ -71,6 +71,14 @@ class Action(models.TextChoices):
         _("Student number format changed"),
     )
 
+    # Élèves et familles (D2-D4).
+    STUDENTS_FAMILY_CREATED = "students.family_created", _("Family created")
+    STUDENTS_FAMILY_UPDATED = "students.family_updated", _("Family changed")
+    STUDENTS_STUDENT_CREATED = "students.student_created", _("Student created")
+    STUDENTS_STUDENT_UPDATED = "students.student_updated", _("Student changed")
+    STUDENTS_ENROLLED = "students.enrolled", _("Student enrolled")
+    STUDENTS_ENROLLMENT_UPDATED = "students.enrollment_updated", _("Enrollment changed")
+
     # Session support « en tant qu'école » (A3) ; chaque action faite pendant la session porte
     # aussi `impersonated_by`.
     SUPPORT_STARTED = "support.started", _("Support session opened")

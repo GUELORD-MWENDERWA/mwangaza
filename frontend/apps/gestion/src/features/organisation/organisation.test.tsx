@@ -49,6 +49,7 @@ const group = (n: number, level: string, track: string | null, section: string, 
   section,
   name: `${level === id(31) ? "7e EB" : "3e Électricité"} ${section}`,
   capacity: 45,
+  student_count: 0,
   homeroom_teacher: null,
   ...extra,
 });
@@ -246,8 +247,8 @@ describe("Organisation scolaire (C1-C3)", () => {
       .slice(1)
       .map((row) => row.textContent);
     expect(rows).toEqual([
-      "Éducation de base7e EBAB901 sans titulaire",
-      "Électricité3eA45Olivier Siku Katembo",
+      "Éducation de base7e EBAB0 / 901 sans titulaire",
+      "Électricité3eA0 / 45Olivier Siku Katembo",
     ]);
   });
 

@@ -479,6 +479,7 @@ export const en: Messages<typeof fr> = {
       section: "Section",
       sectionHelp: "e.g. A; empty if there is only one class.",
       capacity: "Capacity",
+      headcount: "Students / capacity",
       homeroom: "Homeroom teacher",
       noTrack: "No track",
       noTeacher: "No homeroom teacher",
@@ -669,6 +670,7 @@ export const en: Messages<typeof fr> = {
       staff: "Staff",
       school: "School",
       organisation: "School organisation",
+      students: "Students",
       support: "Support",
     },
     actions: {
@@ -724,6 +726,14 @@ export const en: Messages<typeof fr> = {
         class_updated: "Class changed",
         class_deleted: "Class deleted",
         matricule_format_changed: "Student number format changed",
+      },
+      students: {
+        family_created: "Family created",
+        family_updated: "Family guardians changed",
+        student_created: "Student created",
+        student_updated: "Student changed",
+        enrolled: "Student enrolled",
+        enrollment_updated: "Enrollment changed",
       },
       support: {
         started: "Support login",

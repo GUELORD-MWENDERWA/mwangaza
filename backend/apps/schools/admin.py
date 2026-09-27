@@ -9,7 +9,8 @@ suspend.
 from django import forms
 from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
-from django.db.models import OuterRef, Subquery
+from django.db.models import Count, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from django.template.response import TemplateResponse
 from django.utils import formats, timezone
 from django.utils.html import format_html
@@ -21,6 +22,7 @@ from apps.audit.models import AuditLog
 from apps.core.money import Currency
 from apps.schools import services
 from apps.schools.models import School
+from apps.students.models import Enrollment
 
 
 class SchoolForm(forms.ModelForm):
@@ -116,6 +118,7 @@ class SchoolAdmin(admin.ModelAdmin):
     list_display = [
         "name_and_address",
         "status",
+        "student_count",
         "subscription",
         "last_activity",
         "support_link",
@@ -149,7 +152,24 @@ class SchoolAdmin(admin.ModelAdmin):
             .order_by("-created_at")
             .values("created_at")[:1]
         )
-        return super().get_queryset(request).annotate(last_activity_at=Subquery(last))
+        # Élèves : inscriptions actives de l'année en cours de l'école (A2).
+        students = (
+            Enrollment.all_schools.filter(
+                school=OuterRef("pk"), status="active", academic_year__is_current=True
+            )
+            .order_by()
+            .values("school")
+            .annotate(count=Count("pk"))
+            .values("count")
+        )
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(
+                last_activity_at=Subquery(last),
+                student_count=Coalesce(Subquery(students), 0),
+            )
+        )
 
     def get_form(self, request, obj=None, **kwargs):
         if obj is None:
@@ -199,6 +219,10 @@ class SchoolAdmin(admin.ModelAdmin):
         if school.paid_until:
             parts.append(_("paid until %(date)s") % {"date": f"{school.paid_until:%d/%m/%Y}"})
         return " · ".join(str(part) for part in parts) or "—"
+
+    @admin.display(description=_("students"), ordering="student_count")
+    def student_count(self, school: School) -> int:
+        return school.student_count
 
     @admin.display(description=_("last activity"), ordering="last_activity_at")
     def last_activity(self, school: School) -> str:

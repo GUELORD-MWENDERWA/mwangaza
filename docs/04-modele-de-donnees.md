@@ -49,20 +49,24 @@ Changée avec `classes.manage` (directeur, directeur des études), en ligne seul
 
 Décision Q10 (2026-09-26) : **chaque école a sa propre copie** de l'élève et de sa famille. Une correction faite par une école ne touche pas les autres, et une école ne voit jamais qu'un élève ou une famille existe aussi ailleurs.
 
-**Student [T]** — identité de l'élève dans cette école : `last_name`, `middle_name`, `first_name`, `sex`, `birth_date`, `birth_place`, `nationality`, `origin_province`, `origin_territory`, `address` (JSON : commune, quartier, avenue, numéro), `photo`, `photo_consent`, `previous_school` (texte), `family`.
+**Student [T]** — identité de l'élève dans cette école : `last_name`, `middle_name`, `first_name`, `sex`, `birth_date`, `birth_place`, `nationality`, `origin_province`, `origin_territory`, `address` (JSON : commune, quartier, avenue, numéro), `photo`, `photo_consent`, `previous_school` (texte), `family`, `matricule` (unique dans l'école, donné à sa **première** inscription et **gardé toute sa scolarité** — décision du 2026-09-27 ; vide tant qu'il n'est pas inscrit ; corrigeable à la main).
 Champs V1.1 : `blood_group`, `allergies`, `special_needs`, `religion`, `official_id`.
 
 **Family [T]** — `code` (code famille à 8 caractères, sans caractères ambigus, **unique sur toute la plateforme** : le portail le retrouve sans connaître l'école), `primary_user` (FK `User`, rempli à l'activation), `activated_at`.
 
-**Guardian [T]** — contact d'une famille : `family`, `full_name`, `relationship` (père, mère, tuteur…), `phone`, `email`, `is_primary`, `is_emergency_contact`.
+**Guardian [T]** — contact d'une famille : `family`, `full_name`, `relationship` (`father`, `mother`, `guardian`, `grandparent`, `sibling`, `other`), `phone` (E.164), `email`, `is_primary` (**un seul** par famille : le premier si aucun n'est choisi), `is_emergency_contact`. Les tuteurs d'une famille se remplacent d'un seul envoi (10 au plus).
 
-**Enrollment [T]** — inscription d'un élève dans une école pour une année : `student`, `academic_year`, `class_group`, `matricule` (unique dans l'école), `status` (`active`, `transferred`, `dropped`, `excluded`, `graduated`), `enrolled_on`, `left_on`.
+**Enrollment [T]** — inscription d'un élève pour une année : `student`, `academic_year`, `class_group` (de la même année ; `PROTECT` : une classe qui a des élèves ne se supprime pas), `status` (`active`, `transferred`, `dropped`, `excluded`, `graduated`), `enrolled_on`, `left_on` (rempli au départ, effacé au retour en `active`). **Une** par élève et par année. L'effectif d'une classe compte ses inscriptions `active`.
+
+**MatriculeSequence [T]** — `academic_year`, `last_number` : dernier numéro de matricule donné dans l'année ; l'année est verrouillée pendant l'inscription (jamais deux fois le même numéro).
 
 **StudentImport [T]** — `file`, `mapping` (JSON), `status`, `report` (JSON : erreurs par ligne), `created_count`.
 
 Règles :
-- Doublon potentiel (dans l'école) : même `last_name` + `first_name` + `birth_date` → avertissement, pas de blocage.
-- Le matricule est généré à la création de l'`Enrollment` selon `School.matricule_format`, séquence par école et par année.
+- Doublon potentiel (dans l'école) : même `last_name` + `first_name` + `birth_date` (sans tenir compte des majuscules) → avertissement, pas de blocage : 409 `possible_duplicate`, puis nouvel envoi avec `allow_duplicate` après confirmation.
+- Le matricule est généré à la **première** `Enrollment` de l'élève selon `School.matricule_format` : `{AAAA}` / `{AA}` = année de début de l'année scolaire, `{OPT}` = code de l'option de la classe, numéro = séquence par école et par année ; un numéro déjà pris (saisi à la main ou importé) est sauté. Réinscription : l'élève garde son matricule.
+- Élève et inscription acceptent un `id` donné par l'appareil (UUID v7) : le même envoi rejoué renvoie ce qui existe (200) ; un `id` qui sert déjà ailleurs : 409 `id_taken`.
+- Journal : domaine `students` (famille créée / modifiée, élève créé / modifié, inscrit, inscription modifiée).
 - Un parent voit un élève si `student.family.primary_user == user`.
 - **Parent avec des enfants dans plusieurs écoles** : un seul compte (`User`), relié à une famille par école. Il active son compte avec le code famille d'une école, puis ajoute chaque autre école avec le code famille qu'elle lui a remis (« Ajouter un enfant d'une autre école »). Jamais de rattachement automatique par numéro de téléphone : un numéro mal saisi par une école montrerait ses enfants à un inconnu. Le portail lit, pour ce compte seulement, les familles de chaque école et leurs données.
 - Coordonnées changées par le parent dans le portail (H5) : une demande par école où il a une famille ; chaque secrétariat l'applique à sa propre copie.

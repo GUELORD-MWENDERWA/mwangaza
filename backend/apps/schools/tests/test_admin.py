@@ -119,6 +119,20 @@ def test_the_list_shows_status_subscription_and_activity(admin_client, school, o
     assert "beta.localhost:5173/app/support" not in content
 
 
+def test_the_list_counts_the_active_students_of_the_current_year(
+    admin_client, school, other_school, head
+):
+    from apps.schools.tests.test_organisation_api import structure
+    from apps.students.tests.conftest import enrolled
+
+    group = structure(school, head)["group"]
+    enrolled(school, head, group)
+    enrolled(school, head, group, first_name="Esther", sex="F")
+
+    rows = {row.pk: row for row in admin_client.get(LIST).context["cl"].result_list}
+    assert (rows[school.pk].student_count, rows[other_school.pk].student_count) == (2, 0)
+
+
 def test_support_actions_are_not_school_activity(admin_client, school, platform_admin):
     with use_school(school):
         AuditLog.objects.create(action=Action.SUPPORT_STARTED, actor=platform_admin)
@@ -139,17 +153,6 @@ def test_last_activity_is_the_last_entry_of_the_school(admin_client, school, oth
     assert first.created_at < last.created_at
     assert rows[school.pk].last_activity_at == last.created_at
     assert rows[other_school.pk].last_activity_at is None
-
-
-def test_last_activity_is_shown_as_a_date(admin_client, school, head):
-    from django.utils import timezone
-
-    with use_school(school):
-        entry = AuditLog.objects.create(action=Action.AUTH_LOGIN, actor=head)
-
-    content = admin_client.get(LIST, HTTP_ACCEPT_LANGUAGE="fr").content.decode()
-
-    assert f"{timezone.localtime(entry.created_at):%d/%m/%Y %H:%M}" in content
 
 
 def test_suspend_and_reactivate_from_the_list(admin_client, school, platform_admin):

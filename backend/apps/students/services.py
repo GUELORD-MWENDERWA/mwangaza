@@ -1,0 +1,355 @@
+"""Élèves, familles et inscriptions de l'école courante (D2-D4).
+
+Droit `students.edit`, vérifié par l'API. Chaque changement va dans le journal de l'école
+(domaine `students`), dans la transaction de l'action. Élèves et inscriptions acceptent un
+identifiant donné par l'appareil (UUID v7) : le même envoi rejoué ne crée rien de plus.
+"""
+
+import secrets
+from datetime import date
+from uuid import UUID
+
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+
+from apps.accounts.models import User
+from apps.audit import services as audit
+from apps.audit.actions import Action
+from apps.core.errors import ApiError, BusinessError
+from apps.core.tenancy import require_current_school
+from apps.schools import matricule
+from apps.schools.models import AcademicYear, ClassGroup, School
+from apps.students.models import (
+    FAMILY_CODE_ALPHABET,
+    FAMILY_CODE_LENGTH,
+    Enrollment,
+    Family,
+    Guardian,
+    MatriculeSequence,
+    Student,
+)
+
+POSSIBLE_DUPLICATE = ApiError(
+    "possible_duplicate",
+    _("A student with the same names and date of birth already exists: confirm to create it."),
+    409,
+)
+ALREADY_ENROLLED = ApiError(
+    "already_enrolled", _("This student is already enrolled this school year."), 409
+)
+CLASS_OTHER_YEAR = ApiError(
+    "class_other_year", _("The new class must be in the same school year."), 409
+)
+MATRICULE_TAKEN = ApiError(
+    "matricule_taken", _("Another student already has this student number."), 409
+)
+# Un identifiant donné par l'appareil qui sert déjà ailleurs (jamais dit où).
+ID_TAKEN = ApiError("id_taken", _("This identifier is already used."), 409)
+MAX_GUARDIANS = 10
+_STUDENT_FIELDS = (
+    "last_name",
+    "middle_name",
+    "first_name",
+    "sex",
+    "birth_date",
+    "birth_place",
+    "nationality",
+    "origin_province",
+    "origin_territory",
+    "address",
+    "photo_consent",
+    "previous_school",
+)
+
+
+def _json(value):
+    return value.isoformat() if isinstance(value, date) else value
+
+
+# Familles
+
+
+def new_family_code() -> str:
+    """8 caractères au hasard, sans caractère ambigu, unique sur toute la plateforme."""
+    while True:
+        code = "".join(secrets.choice(FAMILY_CODE_ALPHABET) for _ in range(FAMILY_CODE_LENGTH))
+        if not Family.all_schools.filter(code=code).exists():
+            return code
+
+
+def _guardians_data(family: Family) -> list[dict]:
+    return [
+        {"full_name": g.full_name, "relationship": g.relationship, "phone": g.phone}
+        for g in family.guardians.all()
+    ]
+
+
+def _write_guardians(family: Family, guardians: list[dict], *, actor: User) -> None:
+    """Remplace les tuteurs de la famille par la liste envoyée (ceux qui ont un `id` sont
+    modifiés, les autres créés, les absents retirés). Un seul contact principal : le premier
+    de la liste si aucun n'est choisi."""
+    if len(guardians) > MAX_GUARDIANS:
+        raise ValidationError({"guardians": _("At most 10 guardians.")}, code="too_many")
+    if sum(bool(g.get("is_primary")) for g in guardians) > 1:
+        raise ValidationError({"guardians": _("Only one main contact.")}, code="several_primary")
+    chosen = any(g.get("is_primary") for g in guardians)
+    existing = {g.pk: g for g in family.guardians.all()}
+    kept = []
+    for index, data in enumerate(guardians):
+        data = dict(data)
+        guardian_id = data.pop("id", None)
+        guardian = existing.get(guardian_id) if guardian_id else Guardian(family=family)
+        if guardian is None:
+            raise ValidationError(
+                {"guardians": _("Unknown guardian for this family.")}, code="unknown_guardian"
+            )
+        if guardian._state.adding:
+            guardian.created_by = actor
+        for name, value in data.items():
+            setattr(guardian, name, value.strip() if isinstance(value, str) else value)
+        guardian.is_primary = bool(data.get("is_primary")) if chosen else index == 0
+        guardian.save()
+        kept.append(guardian.pk)
+    family.guardians.exclude(pk__in=kept).delete()
+
+
+def create_family(*, actor: User, guardians: list[dict]) -> Family:
+    require_current_school()
+    with transaction.atomic():
+        family = Family.objects.create(code=new_family_code(), created_by=actor)
+        _write_guardians(family, guardians, actor=actor)
+        audit.record(
+            Action.STUDENTS_FAMILY_CREATED,
+            family,
+            actor=actor,
+            after={"guardians": _guardians_data(family)},
+        )
+    return family
+
+
+def update_family(family: Family, *, actor: User, guardians: list[dict]) -> Family:
+    with transaction.atomic():
+        before = _guardians_data(family)
+        _write_guardians(family, guardians, actor=actor)
+        after = _guardians_data(family)
+        if before != after:
+            audit.record(
+                Action.STUDENTS_FAMILY_UPDATED,
+                family,
+                actor=actor,
+                before={"guardians": before},
+                after={"guardians": after},
+            )
+    return family
+
+
+# Élèves
+
+
+def _student_data(student: Student) -> dict:
+    data = {name: _json(getattr(student, name)) for name in _STUDENT_FIELDS}
+    data["family"] = student.family.code
+    data["matricule"] = student.matricule
+    return data
+
+
+def _clean(fields: dict) -> dict:
+    return {
+        name: value.strip() if isinstance(value, str) else value
+        for name, value in fields.items()
+        if name in _STUDENT_FIELDS
+    }
+
+
+def possible_duplicates(fields: dict, *, student_id=None):
+    """Même nom, même prénom et même date de naissance dans l'école : un avertissement, pas un
+    blocage (`docs/04` § 3)."""
+    if not fields.get("birth_date"):
+        return Student.objects.none()
+    return Student.objects.filter(
+        last_name__iexact=fields.get("last_name", ""),
+        first_name__iexact=fields.get("first_name", ""),
+        birth_date=fields["birth_date"],
+    ).exclude(pk=student_id)
+
+
+def create_student(
+    *,
+    actor: User,
+    family: Family | None = None,
+    guardians: list[dict] | None = None,
+    allow_duplicate: bool = False,
+    student_id: UUID | None = None,
+    **fields,
+) -> tuple[Student, bool]:
+    """Élève avec sa famille : une famille existante, ou une nouvelle avec `guardians`.
+    Renvoie `(élève, créé)` ; `créé` est faux quand le même envoi est rejoué."""
+    require_current_school()
+    if student_id is not None:
+        replayed = Student.objects.filter(pk=student_id).first()
+        if replayed is not None:
+            return replayed, False
+        if Student.all_schools.filter(pk=student_id).exists():
+            raise BusinessError(ID_TAKEN)
+    fields = _clean(fields)
+    if not allow_duplicate and possible_duplicates(fields).exists():
+        raise BusinessError(POSSIBLE_DUPLICATE)
+    with transaction.atomic():
+        if family is None:
+            family = create_family(actor=actor, guardians=guardians or [])
+        extra = {"id": student_id} if student_id else {}
+        student = Student.objects.create(family=family, created_by=actor, **extra, **fields)
+        audit.record(
+            Action.STUDENTS_STUDENT_CREATED, student, actor=actor, after=_student_data(student)
+        )
+    return student, True
+
+
+def update_student(
+    student: Student,
+    *,
+    actor: User,
+    family: Family | None = None,
+    matricule: str | None = None,
+    **fields,
+) -> Student:
+    """Identité, famille (liaison D4) ou matricule corrigé à la main."""
+    with transaction.atomic():
+        before = _student_data(student)
+        for name, value in _clean(fields).items():
+            setattr(student, name, value)
+        if family is not None:
+            student.family = family
+        if matricule is not None and matricule.strip() != student.matricule:
+            value = matricule.strip()
+            if value and Student.objects.filter(matricule=value).exclude(pk=student.pk).exists():
+                raise BusinessError(MATRICULE_TAKEN)
+            student.matricule = value
+        student.save()
+        old, new = audit.changes(before, _student_data(student))
+        if new:
+            audit.record(
+                Action.STUDENTS_STUDENT_UPDATED, student, actor=actor, before=old, after=new
+            )
+    return student
+
+
+# Inscriptions et matricule
+
+
+def next_matricule_number(year: AcademicYear | None) -> int:
+    """Numéro du prochain matricule de l'année (« Prochain matricule », C3)."""
+    if year is None:
+        return 1
+    last = (
+        MatriculeSequence.objects.filter(academic_year=year)
+        .values_list("last_number", flat=True)
+        .first()
+    )
+    return (last or 0) + 1
+
+
+def _give_matricule(year: AcademicYear, group: ClassGroup) -> str:
+    """Prochain matricule de l'année au format de l'école. L'année est verrouillée pendant la
+    transaction : deux inscriptions simultanées n'ont jamais le même numéro. Un numéro déjà pris
+    (matricule saisi à la main ou importé) est sauté."""
+    AcademicYear.objects.select_for_update().get(pk=year.pk)
+    template = School.objects.values_list("matricule_format", flat=True).get(
+        pk=require_current_school().pk
+    )
+    sequence, _created = MatriculeSequence.objects.get_or_create(academic_year=year)
+    track_code = group.track.code if group.track_id else ""
+    number = sequence.last_number
+    while True:
+        number += 1
+        value = matricule.render(
+            template, year=year.starts_on.year, number=number, track_code=track_code
+        )
+        if not Student.objects.filter(matricule=value).exists():
+            break
+    sequence.last_number = number
+    sequence.save(update_fields=["last_number", "updated_at"])
+    return value
+
+
+def _enrollment_data(enrollment: Enrollment) -> dict:
+    return {
+        "school_year": enrollment.academic_year.name,
+        "class": enrollment.class_group.name,
+        "status": enrollment.status,
+        "left_on": _json(enrollment.left_on),
+    }
+
+
+def enroll(
+    student: Student,
+    *,
+    actor: User,
+    class_group: ClassGroup,
+    enrolled_on: date | None = None,
+    enrollment_id: UUID | None = None,
+) -> tuple[Enrollment, bool]:
+    """Inscrit l'élève pour l'année de la classe (D3). Sa première inscription dans l'école lui
+    donne son matricule ; il le garde ensuite. Renvoie `(inscription, créée)`."""
+    if enrollment_id is not None:
+        replayed = Enrollment.objects.filter(pk=enrollment_id).first()
+        if replayed is not None:
+            return replayed, False
+        if Enrollment.all_schools.filter(pk=enrollment_id).exists():
+            raise BusinessError(ID_TAKEN)
+    year = class_group.academic_year
+    with transaction.atomic():
+        if Enrollment.objects.filter(student=student, academic_year=year).exists():
+            raise BusinessError(ALREADY_ENROLLED)
+        extra = {"id": enrollment_id} if enrollment_id else {}
+        enrollment = Enrollment.objects.create(
+            student=student,
+            academic_year=year,
+            class_group=class_group,
+            enrolled_on=enrolled_on or timezone.localdate(),
+            created_by=actor,
+            **extra,
+        )
+        if not student.matricule:
+            student.matricule = _give_matricule(year, class_group)
+            student.save(update_fields=["matricule", "updated_at"])
+        audit.record(
+            Action.STUDENTS_ENROLLED,
+            enrollment,
+            actor=actor,
+            after={**_enrollment_data(enrollment), "matricule": student.matricule},
+        )
+    return enrollment, True
+
+
+def update_enrollment(
+    enrollment: Enrollment,
+    *,
+    actor: User,
+    class_group: ClassGroup | None = None,
+    status: str | None = None,
+    left_on: date | None = None,
+) -> Enrollment:
+    """Changement de classe dans la même année, ou départ (transféré, abandon, exclu…) : la
+    date de départ vaut aujourd'hui si elle n'est pas donnée ; retour en « actif » : effacée."""
+    if class_group is not None and class_group.academic_year_id != enrollment.academic_year_id:
+        raise BusinessError(CLASS_OTHER_YEAR)
+    with transaction.atomic():
+        before = _enrollment_data(enrollment)
+        if class_group is not None:
+            enrollment.class_group = class_group
+        if status is not None:
+            enrollment.status = status
+        if enrollment.status == Enrollment.Status.ACTIVE:
+            enrollment.left_on = None
+        elif left_on is not None or enrollment.left_on is None:
+            enrollment.left_on = left_on or timezone.localdate()
+        enrollment.save()
+        old, new = audit.changes(before, _enrollment_data(enrollment))
+        if new:
+            audit.record(
+                Action.STUDENTS_ENROLLMENT_UPDATED, enrollment, actor=actor, before=old, after=new
+            )
+    return enrollment

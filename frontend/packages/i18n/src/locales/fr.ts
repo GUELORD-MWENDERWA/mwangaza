@@ -480,6 +480,7 @@ export const fr = {
       section: "Section",
       sectionHelp: "Ex. A ; vide s'il n'y a qu'une classe.",
       capacity: "Capacité",
+      headcount: "Effectif / capacité",
       homeroom: "Titulaire",
       noTrack: "Aucune option",
       noTeacher: "Pas de titulaire",
@@ -672,6 +673,7 @@ export const fr = {
       staff: "Personnel",
       school: "École",
       organisation: "Organisation scolaire",
+      students: "Élèves",
       support: "Support",
     },
     actions: {
@@ -727,6 +729,14 @@ export const fr = {
         class_updated: "Classe modifiée",
         class_deleted: "Classe supprimée",
         matricule_format_changed: "Format du matricule changé",
+      },
+      students: {
+        family_created: "Famille créée",
+        family_updated: "Tuteurs de la famille modifiés",
+        student_created: "Élève créé",
+        student_updated: "Élève modifié",
+        enrolled: "Élève inscrit",
+        enrollment_updated: "Inscription modifiée",
       },
       support: {
         started: "Connexion support",

@@ -572,13 +572,15 @@ def delete_class_group(group: ClassGroup, *, actor: User) -> None:
 
 def matricule_example(template: str) -> str:
     """« Prochain matricule » (C3) : avec l'année en cours et l'option la première dans l'ordre
-    alphabétique. Numéro 1 tant qu'il n'y a pas d'inscription (la suite vient avec 2.1)."""
+    alphabétique, et le prochain numéro de l'année."""
+    from apps.students.services import next_matricule_number
+
     year = current_year()
     track = Track.objects.order_by("name").first()
     return matricule.render(
         template,
         year=year.starts_on.year if year else timezone.localdate().year,
-        number=1,
+        number=next_matricule_number(year),
         track_code=track.code if track else "",
     )
 

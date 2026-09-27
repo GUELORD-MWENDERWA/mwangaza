@@ -384,6 +384,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/enrollments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Même `id` renvoyé : 200 avec l'inscription déjà créée. */
+        post: operations["enrollments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/enrollments/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Inscriptions (D3) : inscrire un élève dans une classe (matricule donné à la première),
+         *     changer de classe dans l'année, noter un départ.
+         */
+        patch: operations["enrollments_partial_update"];
+        trace?: never;
+    };
+    "/api/families/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Familles et tuteurs (D4) : recherche pour relier un élève, création, tuteurs remplacés
+         *     d'un seul envoi.
+         */
+        get: operations["families_list"];
+        put?: never;
+        /**
+         * @description Familles et tuteurs (D4) : recherche pour relier un élève, création, tuteurs remplacés
+         *     d'un seul envoi.
+         */
+        post: operations["families_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/families/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Familles et tuteurs (D4) : recherche pour relier un élève, création, tuteurs remplacés
+         *     d'un seul envoi.
+         */
+        get: operations["families_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Familles et tuteurs (D4) : recherche pour relier un élève, création, tuteurs remplacés
+         *     d'un seul envoi.
+         */
+        patch: operations["families_partial_update"];
+        trace?: never;
+    };
     "/api/health/": {
         parameters: {
             query?: never;
@@ -701,6 +786,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/students/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Élèves de l'école (D2) : liste paginée avec recherche, fiche, création, modification. */
+        get: operations["students_list"];
+        put?: never;
+        /**
+         * @description Élève avec une famille existante (`family`) ou nouvelle (`guardians`). Même nom et
+         *     même date de naissance qu'un autre élève : 409 `possible_duplicate`, à renvoyer avec
+         *     `allow_duplicate` après confirmation. Même `id` renvoyé : 200 avec l'élève déjà créé.
+         */
+        post: operations["students_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/students/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Élèves de l'école (D2) : liste paginée avec recherche, fiche, création, modification. */
+        get: operations["students_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Élèves de l'école (D2) : liste paginée avec recherche, fiche, création, modification. */
+        patch: operations["students_partial_update"];
+        trace?: never;
+    };
     "/api/support/": {
         parameters: {
             query?: never;
@@ -846,11 +971,29 @@ export interface components {
          *     * `organisation.class_updated` - Class changed
          *     * `organisation.class_deleted` - Class deleted
          *     * `organisation.matricule_format_changed` - Student number format changed
+         *     * `students.family_created` - Family created
+         *     * `students.family_updated` - Family changed
+         *     * `students.student_created` - Student created
+         *     * `students.student_updated` - Student changed
+         *     * `students.enrolled` - Student enrolled
+         *     * `students.enrollment_updated` - Enrollment changed
          *     * `support.started` - Support session opened
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "support.started" | "support.ended";
+        Address: {
+            commune: string;
+            quartier: string;
+            avenue: string;
+            number: string;
+        };
+        AddressRequest: {
+            commune?: string;
+            quartier?: string;
+            avenue?: string;
+            number?: string;
+        };
         AuditActor: {
             /** Format: uuid */
             readonly id: string;
@@ -909,6 +1052,8 @@ export interface components {
             /** @description « 3e Électricité A ». */
             readonly name: string;
             readonly capacity: number | null;
+            /** @description Élèves inscrits et actifs (effectif). */
+            readonly student_count: number;
             readonly homeroom_teacher: components["schemas"]["Person"] | null;
         };
         ClassGroupCreateRequest: {
@@ -988,7 +1133,52 @@ export interface components {
          */
         CycleEnum: "primary" | "basic" | "secondary_general" | "secondary_technical" | "higher" | "vocational";
         /** @enum {string} */
-        DomainEnum: "account" | "auth" | "organisation" | "roles" | "school" | "staff" | "support";
+        DomainEnum: "account" | "auth" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
+        Enrollment: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            student: string;
+            /**
+             * School year
+             * Format: uuid
+             */
+            academic_year: string;
+            readonly academic_year_name: string;
+            /**
+             * Class
+             * Format: uuid
+             */
+            class_group: string;
+            readonly class_group_name: string;
+            status: components["schemas"]["EnrollmentStatusEnum"];
+            /** Format: date */
+            enrolled_on: string;
+            /** Format: date */
+            left_on: string | null;
+        };
+        EnrollmentCreateRequest: {
+            /**
+             * Format: uuid
+             * @description UUID v7 donné par l'appareil.
+             */
+            id?: string;
+            /** Format: uuid */
+            student: string;
+            /** Format: uuid */
+            class_group: string;
+            /** Format: date */
+            enrolled_on?: string;
+        };
+        /**
+         * @description * `active` - Active
+         *     * `transferred` - Transferred
+         *     * `dropped` - Dropped out
+         *     * `excluded` - Excluded
+         *     * `graduated` - Graduated
+         * @enum {string}
+         */
+        EnrollmentStatusEnum: "active" | "transferred" | "dropped" | "excluded" | "graduated";
         Error: {
             /** @description Code stable, traduit par l'interface. */
             code: string;
@@ -998,10 +1188,49 @@ export interface components {
                 [key: string]: components["schemas"]["FieldError"][];
             };
         };
+        Family: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Family code */
+            code: string;
+            readonly guardians: components["schemas"]["Guardian"][];
+            readonly student_count: number;
+            /** Format: date-time */
+            activated_at: string | null;
+        };
+        FamilyWriteRequest: {
+            guardians: components["schemas"]["GuardianRequest"][];
+        };
         FieldError: {
             /** @description Code stable, traduit par l'interface. */
             code: string;
             detail: string;
+        };
+        Guardian: {
+            /** Format: uuid */
+            id: string;
+            full_name: string;
+            relationship: components["schemas"]["RelationshipEnum"];
+            /** @description Ex. 0971234567. */
+            phone: string;
+            email: string;
+            /** Main contact */
+            is_primary: boolean;
+            /** Emergency contact */
+            is_emergency_contact: boolean;
+        };
+        GuardianRequest: {
+            /** Format: uuid */
+            id?: string;
+            full_name: string;
+            relationship: components["schemas"]["RelationshipEnum"];
+            /** @description Ex. 0971234567. */
+            phone?: string;
+            email?: string;
+            /** Main contact */
+            is_primary?: boolean;
+            /** Emergency contact */
+            is_emergency_contact?: boolean;
         };
         Health: {
             status: string;
@@ -1150,6 +1379,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["AuditLog"][];
         };
+        PaginatedFamilyList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Family"][];
+        };
         PaginatedRoleList: {
             /** @example 123 */
             count: number;
@@ -1180,6 +1424,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["Staff"][];
         };
+        PaginatedStudentListList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["StudentList"][];
+        };
         /**
          * @description Connexion en cours avec un mot de passe provisoire : `new_password` seul. Compte connecté :
          *     `current_password` aussi.
@@ -1208,6 +1467,16 @@ export interface components {
              * @description Titulaire (`id` du compte).
              */
             homeroom_teacher?: string | null;
+        };
+        PatchedEnrollmentUpdateRequest: {
+            /** Format: uuid */
+            class_group?: string;
+            status?: components["schemas"]["EnrollmentStatusEnum"];
+            /** Format: date */
+            left_on?: string;
+        };
+        PatchedFamilyWriteRequest: {
+            guardians?: components["schemas"]["GuardianRequest"][];
         };
         PatchedLevelUpdateRequest: {
             name?: string;
@@ -1264,6 +1533,49 @@ export interface components {
             middle_name?: string;
             first_name?: string;
         };
+        /**
+         * @description Création : `family` (famille existante de l'école) ou `guardians` (nouvelle famille).
+         *     Modification : les mêmes champs, tous facultatifs ; `family` relie l'élève à une autre
+         *     famille (D4).
+         */
+        PatchedStudentWriteRequest: {
+            /**
+             * Format: uuid
+             * @description UUID v7 donné par l'appareil.
+             */
+            id?: string;
+            /** Student number */
+            matricule?: string;
+            /** Nom */
+            last_name?: string;
+            middle_name?: string;
+            /** Prénom */
+            first_name?: string;
+            sex?: components["schemas"]["SexEnum"];
+            /**
+             * Date of birth
+             * Format: date
+             */
+            birth_date?: string | null;
+            /** Place of birth */
+            birth_place?: string;
+            nationality?: string;
+            /** Province of origin */
+            origin_province?: string;
+            /** Territory of origin */
+            origin_territory?: string;
+            address?: components["schemas"]["AddressRequest"];
+            photo_consent?: boolean;
+            previous_school?: string;
+            /** Format: uuid */
+            family?: string;
+            guardians?: components["schemas"]["GuardianRequest"][];
+            /**
+             * @description Créer même si un élève a les mêmes noms et la même date de naissance.
+             * @default false
+             */
+            allow_duplicate: boolean;
+        };
         PatchedTrackUpdateRequest: {
             /** Nom */
             name?: string;
@@ -1302,6 +1614,16 @@ export interface components {
             /** @description Affichés une seule fois : à imprimer. */
             recovery_codes: string[];
         };
+        /**
+         * @description * `father` - Father
+         *     * `mother` - Mother
+         *     * `guardian` - Guardian
+         *     * `grandparent` - Grandparent
+         *     * `sibling` - Brother or sister
+         *     * `other` - Other
+         * @enum {string}
+         */
+        RelationshipEnum: "father" | "mother" | "guardian" | "grandparent" | "sibling" | "other";
         /**
          * @description Rôle de l'école. `name` vide pour un rôle système : l'interface affiche le nom traduit de
          *     son `code`.
@@ -1401,6 +1723,12 @@ export interface components {
          */
         SchoolStatusEnum: "trial" | "active" | "suspended";
         /**
+         * @description * `M` - Male
+         *     * `F` - Female
+         * @enum {string}
+         */
+        SexEnum: "M" | "F";
+        /**
          * @description Une personne dans l'école (son appartenance) ; `id` est celui de l'appartenance. Rien sur
          *     ses autres écoles.
          */
@@ -1479,6 +1807,101 @@ export interface components {
          * @enum {string}
          */
         StepEnum: "password" | "totp" | "new_password" | "totp_setup" | "done";
+        Student: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Student number */
+            matricule: string;
+            /** Nom */
+            last_name: string;
+            middle_name: string;
+            /** Prénom */
+            first_name: string;
+            sex: components["schemas"]["SexEnum"];
+            /**
+             * Date of birth
+             * Format: date
+             */
+            birth_date: string | null;
+            /** Place of birth */
+            birth_place: string;
+            nationality: string;
+            /** Province of origin */
+            origin_province: string;
+            /** Territory of origin */
+            origin_territory: string;
+            readonly address: components["schemas"]["Address"];
+            photo_consent: boolean;
+            previous_school: string;
+            readonly family: components["schemas"]["Family"];
+            readonly enrollments: components["schemas"]["Enrollment"][];
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        StudentList: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Student number */
+            matricule: string;
+            /** Nom */
+            last_name: string;
+            middle_name: string;
+            /** Prénom */
+            first_name: string;
+            sex: components["schemas"]["SexEnum"];
+            /**
+             * Date of birth
+             * Format: date
+             */
+            birth_date: string | null;
+            /** Format: uuid */
+            family: string;
+            readonly family_code: string;
+            readonly enrollment: components["schemas"]["Enrollment"] | null;
+        };
+        /**
+         * @description Création : `family` (famille existante de l'école) ou `guardians` (nouvelle famille).
+         *     Modification : les mêmes champs, tous facultatifs ; `family` relie l'élève à une autre
+         *     famille (D4).
+         */
+        StudentWriteRequest: {
+            /**
+             * Format: uuid
+             * @description UUID v7 donné par l'appareil.
+             */
+            id?: string;
+            /** Student number */
+            matricule?: string;
+            /** Nom */
+            last_name: string;
+            middle_name?: string;
+            /** Prénom */
+            first_name?: string;
+            sex: components["schemas"]["SexEnum"];
+            /**
+             * Date of birth
+             * Format: date
+             */
+            birth_date?: string | null;
+            /** Place of birth */
+            birth_place?: string;
+            nationality?: string;
+            /** Province of origin */
+            origin_province?: string;
+            /** Territory of origin */
+            origin_territory?: string;
+            address?: components["schemas"]["AddressRequest"];
+            photo_consent?: boolean;
+            previous_school?: string;
+            /** Format: uuid */
+            family?: string;
+            guardians?: components["schemas"]["GuardianRequest"][];
+            /**
+             * @description Créer même si un élève a les mêmes noms et la même date de naissance.
+             * @default false
+             */
+            allow_duplicate: boolean;
+        };
         /** @description Session support en cours (A3) : l'interface affiche un bandeau rouge permanent. */
         SupportSession: {
             school: components["schemas"]["MySchool"];
@@ -1996,10 +2419,16 @@ export interface operations {
                  *     * `organisation.class_updated` - Class changed
                  *     * `organisation.class_deleted` - Class deleted
                  *     * `organisation.matricule_format_changed` - Student number format changed
+                 *     * `students.family_created` - Family created
+                 *     * `students.family_updated` - Family changed
+                 *     * `students.student_created` - Student created
+                 *     * `students.student_updated` - Student changed
+                 *     * `students.enrolled` - Student enrolled
+                 *     * `students.enrollment_updated` - Enrollment changed
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -2009,9 +2438,10 @@ export interface operations {
                  *     * `roles` - roles
                  *     * `school` - school
                  *     * `staff` - staff
+                 *     * `students` - students
                  *     * `support` - support
                  */
-                domain?: "account" | "auth" | "organisation" | "roles" | "school" | "staff" | "support";
+                domain?: "account" | "auth" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description Un numéro de page de l'ensemble des résultats. */
@@ -2929,6 +3359,310 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    enrollments_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnrollmentCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["EnrollmentCreateRequest"];
+                "multipart/form-data": components["schemas"]["EnrollmentCreateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Enrollment"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Enrollment"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    enrollments_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) enrollment. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedEnrollmentUpdateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedEnrollmentUpdateRequest"];
+                "multipart/form-data": components["schemas"]["PatchedEnrollmentUpdateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Enrollment"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    families_list: {
+        parameters: {
+            query?: {
+                /** @description Un numéro de page de l'ensemble des résultats. */
+                page?: number;
+                /** @description Code famille, nom ou téléphone d'un tuteur. */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedFamilyList"];
+                };
+            };
+        };
+    };
+    families_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FamilyWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["FamilyWriteRequest"];
+                "multipart/form-data": components["schemas"]["FamilyWriteRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Family"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    families_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) family. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Family"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    families_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) family. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedFamilyWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedFamilyWriteRequest"];
+                "multipart/form-data": components["schemas"]["PatchedFamilyWriteRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Family"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -4088,6 +4822,198 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Staff"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    students_list: {
+        parameters: {
+            query?: {
+                /** @description Année de l'inscription affichée (par défaut l'année en cours). */
+                academic_year?: string;
+                class_group?: string;
+                /** @description Inscrit ou non cette année. */
+                enrolled?: boolean | null;
+                /** @description Un numéro de page de l'ensemble des résultats. */
+                page?: number;
+                /** @description Noms, matricule ou code famille. */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedStudentListList"];
+                };
+            };
+        };
+    };
+    students_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudentWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["StudentWriteRequest"];
+                "multipart/form-data": components["schemas"]["StudentWriteRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Student"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Student"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    students_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) student. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Student"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    students_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) student. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedStudentWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedStudentWriteRequest"];
+                "multipart/form-data": components["schemas"]["PatchedStudentWriteRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Student"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             403: {

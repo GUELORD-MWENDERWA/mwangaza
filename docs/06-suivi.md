@@ -6,12 +6,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | V1.0 — semaine 1 (Socle) terminée ; ensuite semaine 2 (Élèves et frais) |
+| Phase | V1.0 — semaine 2 (Élèves et frais) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 1.7 terminée (organisation scolaire, écrans des paramètres, du personnel, des rôles et du journal) : PR #86 à relire et fusionner (contrôles GitHub verts : backend, frontend, parcours Playwright) |
-| Prochaine tâche | 2.1 — app `students` (`/tache 2.1`) |
-| Issue GitHub | #13 (1.7), fermée par la fusion de la PR |
-| Branche | `tache/1.7-organisation-parametres` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 2.1 terminée : PR à relire et fusionner |
+| Prochaine tâche | 2.2 — écrans élèves |
+| Issue GitHub | #14 (2.1) |
+| Branche | `tache/2.1-students` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-27 |
 
 ## Avancement
@@ -20,10 +20,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|:-:|:-:|
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
-| Semaine 2 — Élèves et frais | 0 | 7 |
+| Semaine 2 — Élèves et frais | 1 | 7 |
 | Semaine 3 — Caisse et hors-ligne | 0 | 8 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **9** | **32** |
+| **V1.0** | **10** | **32** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,11 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-27 — Tâche 2.1 : app `students`
+- **Fait** : élèves, familles (code à 8 caractères), tuteurs, inscriptions ; matricule au format de l'école, séquence par année, **gardé toute la scolarité** (décision de l'utilisateur) ; API `/api/students/`, `/api/families/`, `/api/enrollments/` ; effectif des classes (écran Organisation) ; colonne « Élèves » de l'administration ; « Prochain matricule » réel ; démo : 800 élèves ITIG, 150 Volcans. Règle « Économie de tokens » écrite (CLAUDE.md, skills).
+- **Tests** : 764 backend, 130 front ; un test de mise en page de l'administration supprimé.
+- **Suite** : 2.2 (écrans élèves ; traductions des codes d'erreur `possible_duplicate`, `already_enrolled`… avec eux).
 
 ### 2026-09-27 — Tâche 1.7 : organisation scolaire, paramètres, personnel, rôles, journal
 
