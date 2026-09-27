@@ -45,13 +45,14 @@ test("directeur des études : organisation scolaire, classe ajoutée puis retir�
 
   await page.getByRole("tab", { name: "Matricule" }).click();
   const format = page.getByLabel("Modèle");
+  // 800 élèves de démonstration inscrits : le prochain numéro de l'année est 801.
   await format.fill("ITIG/{AA}/{0000}");
-  await expect(page.getByText("ITIG/26/0001")).toBeVisible();
+  await expect(page.getByText("ITIG/26/0801")).toBeVisible();
   await page.getByRole("button", { name: "Enregistrer" }).click();
   await expect(page.getByText("Format enregistré.")).toBeVisible();
   await format.fill("ITIG-{AAAA}-{0000}");
   await page.getByRole("button", { name: "Enregistrer" }).click();
-  await expect(page.getByText("ITIG-2026-0001")).toBeVisible();
+  await expect(page.getByText("ITIG-2026-0801")).toBeVisible();
 
   // Pas de droit sur les comptes ni le journal.
   await expect(mainMenu(page).getByRole("link", { name: "Comptes du personnel" })).toHaveCount(0);
