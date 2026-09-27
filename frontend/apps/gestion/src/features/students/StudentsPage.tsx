@@ -1,11 +1,10 @@
 // Liste des élèves (D2) : recherche (noms, matricule, code famille, sans accents ni casse) et
-// filtres année, classe, option, statut ; liste paginée par le serveur. Ouvrir une fiche : 2.2.2 ;
-// import : 2.3 ; export et sélection : 2.4 ; « Échu non payé » et « Paiements » : 2.7 ;
+// filtres année, classe, option, statut ; liste paginée par le serveur ; le nom ouvre la fiche.
+// Import : 2.3 ; export et sélection : 2.4 ; « Échu non payé » et « Paiements » : 2.7 ;
 // recherche hors-ligne (IndexedDB) : 3.x.
 import { useTranslation } from "@mwangaza/i18n";
 import {
   Avatar,
-  Banner,
   Button,
   Card,
   CardContent,
@@ -19,7 +18,7 @@ import {
   initials,
 } from "@mwangaza/ui";
 import { useState } from "react";
-import { Link, useLocation } from "react-router";
+import { Link } from "react-router";
 
 import { formatPhone, studentName } from "../../lib/people";
 import { can } from "../../lib/permissions";
@@ -36,13 +35,9 @@ const STATUSES: StudentStatus[] = ["active", "left", "not_enrolled"];
 type Filters = { search: string; year: string; classGroup: string; track: string; status: string };
 const NO_FILTERS: Filters = { search: "", year: "", classGroup: "", track: "", status: "active" };
 
-/** Élève que l'écran « Inscrire un élève » vient d'enregistrer (état de la navigation). */
-export type Created = { name: string; className: string; matricule: string; familyCode: string };
-
 export function StudentsPage() {
   const { t } = useTranslation();
   const me = useCurrentMe();
-  const created = (useLocation().state as { created?: Created } | null)?.created;
   const [filters, setFilters] = useState<Filters>(NO_FILTERS);
   const [page, setPage] = useState(1);
   const years = useYears();
@@ -99,16 +94,6 @@ export function StudentsPage() {
           )
         }
       />
-      {created && (
-        <Banner tone="ok" role="status">
-          {t("students.list.created", {
-            name: created.name,
-            className: created.className,
-            matricule: created.matricule,
-            code: created.familyCode,
-          })}
-        </Banner>
-      )}
       <Card>
         <CardContent className="grid gap-2.5 min-[700px]:grid-cols-2 min-[1200px]:grid-cols-[minmax(240px,1.6fr)_repeat(4,minmax(0,1fr))_auto]">
           <div className="relative min-[700px]:col-span-2 min-[1200px]:col-span-1">
@@ -236,7 +221,12 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                     className="size-8 text-[.72rem]"
                   />
                   <span className="flex flex-col">
-                    <b className="text-[.92rem]">{studentName(student)}</b>
+                    <Link
+                      to={`/students/${student.id}`}
+                      className="text-[.92rem] font-bold text-ink hover:text-lake hover:underline"
+                    >
+                      {studentName(student)}
+                    </Link>
                     <small className="text-ink-3 tabular-nums">
                       {student.matricule || t("common.none")}
                     </small>

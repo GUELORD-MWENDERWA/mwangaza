@@ -15,10 +15,14 @@ export function json(body: unknown, status = 200, headers: Record<string, string
 export function apiError(
   code: string,
   status: number,
-  extra: { fields?: Schemas["Error"]["fields"]; retryAfter?: number } = {},
+  extra: {
+    fields?: Schemas["Error"]["fields"];
+    retryAfter?: number;
+    body?: Record<string, unknown>;
+  } = {},
 ) {
   return json(
-    { code, detail: code, ...(extra.fields ? { fields: extra.fields } : {}) },
+    { code, detail: code, ...(extra.fields ? { fields: extra.fields } : {}), ...extra.body },
     status,
     extra.retryAfter ? { "Retry-After": String(extra.retryAfter) } : {},
   );

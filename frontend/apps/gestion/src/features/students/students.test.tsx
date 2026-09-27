@@ -72,9 +72,67 @@ const detail = (studentId: string) => ({
   ...row(100, ["Bisimwa", "Mugisho", "Arsène"]),
   id: studentId,
   matricule: "ITIG-2026-0801",
+  birth_place: "Goma",
+  nationality: "Congolaise",
+  origin_province: "Nord-Kivu",
+  origin_territory: "",
+  address: { commune: "Goma", quartier: "Himbi", avenue: "", number: "" },
+  photo: null,
+  photo_consent: false,
+  previous_school: "",
   family: { ...family, students: undefined },
   enrollments: [enrollment()],
+  created_at: "2026-09-07T08:55:00Z",
 });
+const STUDENT = id(100);
+const history = {
+  count: 2,
+  next: null,
+  previous: null,
+  results: [
+    {
+      id: id(901),
+      created_at: "2026-09-20T09:15:00Z",
+      action: "students.student_updated",
+      domain: "students",
+      actor: { id: id(5), last_name: "Masika", middle_name: "", first_name: "Furaha" },
+      by_support: false,
+      entity_type: "students.student",
+      entity_id: STUDENT,
+      entity_label: "BISIMWA MUGISHO Arsène",
+      role_code: null,
+      before: { first_name: "Arsen" },
+      after: { first_name: "Arsène" },
+    },
+    {
+      id: id(900),
+      created_at: "2026-09-07T08:55:00Z",
+      action: "students.enrolled",
+      domain: "students",
+      actor: { id: id(5), last_name: "Masika", middle_name: "", first_name: "Furaha" },
+      by_support: false,
+      entity_type: "students.enrollment",
+      entity_id: id(80),
+      entity_label: "",
+      role_code: null,
+      before: null,
+      after: { school_year: "2026-2027", class: group.name, status: "active" },
+    },
+  ],
+};
+// Fiche de l'élève `STUDENT` : sa famille (avec un frère) et son historique.
+const card: Routes = {
+  [`GET /api/students/${STUDENT}/`]: detail(STUDENT),
+  [`GET /api/students/${STUDENT}/history/`]: history,
+  [`GET /api/families/${family.id}/`]: {
+    ...family,
+    student_count: 2,
+    students: [
+      { ...family.students[0], matricule: "ITIG-2025-0287" },
+      { ...family.students[0], id: STUDENT, last_name: "Bisimwa", matricule: "ITIG-2026-0801" },
+    ],
+  },
+};
 
 function routes(role: Parameters<typeof me>[0], extra: Routes = {}): Routes {
   const all: Routes = {
@@ -198,7 +256,9 @@ describe("Élèves (D2-D4)", () => {
     all["POST /api/students/"] = async (request) => {
       if (!first) return create(request);
       first = false;
-      return apiError("possible_duplicate", 409);
+      return apiError("possible_duplicate", 409, {
+        body: { duplicates: [{ ...row(412, ["Kambale", "Muhindo", "Josué"]) }] },
+      });
     };
     const requests = mockApi(all);
     const { user } = renderApp("/students/new");
@@ -212,7 +272,11 @@ describe("Élèves (D2-D4)", () => {
     expect(screen.getByText("Sélectionnée")).toBeTruthy();
     await user.click(screen.getByRole("button", { name: "Enregistrer et inscrire" }));
 
-    await user.click(await screen.findByRole("button", { name: "Inscrire quand même" }));
+    const existing = await screen.findByRole("link", {
+      name: "Ouvrir la fiche de KAMBALE MUHINDO Josué (ITIG-2026-0412)",
+    });
+    expect(existing.getAttribute("href")).toBe(`/students/${id(412)}`);
+    await user.click(screen.getByRole("button", { name: "Inscrire quand même" }));
     await screen.findByText(/est inscrit en 3e Électricité A/);
     const [refused, confirmed] = posts(requests, "/api/students/");
     expect(refused!.body).toMatchObject({ family: family.id, allow_duplicate: false });
@@ -221,10 +285,77 @@ describe("Élèves (D2-D4)", () => {
     expect(posts(requests, "/api/enrollments/")).toHaveLength(1);
   });
 
-  it("inscrire demande students.edit : page refusée au caissier", async () => {
-    mockApi(routes("cashier"));
-    renderApp("/students/new");
-
+  it("inscrire et modifier demandent students.edit : pages refusées au caissier", async () => {
+    mockApi(routes("cashier", card));
+    const { router } = renderApp("/students/new");
     expect(await screen.findByText("Vous n'avez pas accès à cette page")).toBeTruthy();
+
+    await router.navigate(`/students/${STUDENT}/edit`);
+    expect(await screen.findByText("Vous n'avez pas accès à cette page")).toBeTruthy();
+    expect(screen.queryByLabelText(/^Nom/)).toBeNull();
+  });
+
+  it("fiche en lecture seule sans students.edit : identité, famille avec frère, historique et parcours", async () => {
+    mockApi(routes("cashier", card));
+    const { user } = renderApp(`/students/${STUDENT}`);
+
+    expect(await screen.findByRole("heading", { name: "BISIMWA MUGISHO Arsène" })).toBeTruthy();
+    expect(screen.getByText("Consentement du parent : non")).toBeTruthy();
+    expect(screen.queryByRole("link", { name: /Modifier/ })).toBeNull();
+    expect(screen.queryByText("Ajouter une photo")).toBeNull();
+
+    await user.click(screen.getByRole("tab", { name: "Famille" }));
+    expect(await screen.findByText("KAMBALE MUHINDO Josué")).toBeTruthy();
+    expect(screen.getByText("Tuteur principal")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Lier à une autre famille" })).toBeNull();
+
+    await user.click(screen.getByRole("tab", { name: "Historique" }));
+    expect(await screen.findByText("Élève modifié")).toBeTruthy();
+    expect(screen.getByText("Arsen")).toBeTruthy();
+    expect(screen.getByText(/Élève inscrit/)).toBeTruthy();
+    await user.click(screen.getByRole("radio", { name: "Scolarité" }));
+    expect(screen.queryByText("Élève modifié")).toBeNull();
+    expect(within(screen.getByRole("table")).getByText("2026-2027")).toBeTruthy();
+  });
+
+  it("lier l'élève à une autre famille : recherche, choix, puis envoi de la famille seule", async () => {
+    const other = { ...family, id: id(201), code: "P4TR8KWE", students: [] };
+    const requests = mockApi(
+      routes("head", {
+        ...card,
+        "GET /api/families/": { count: 2, next: null, previous: null, results: [family, other] },
+        [`PATCH /api/students/${STUDENT}/`]: detail(STUDENT),
+      }),
+    );
+    const { user } = renderApp(`/students/${STUDENT}/family`);
+
+    await user.click(await screen.findByRole("button", { name: "Lier à une autre famille" }));
+    await user.type(screen.getByRole("searchbox"), "Kahindo");
+    await user.click(await screen.findByRole("button", { name: "Choisir" }));
+    await user.click(screen.getByRole("button", { name: "Lier à cette famille" }));
+
+    await waitFor(() =>
+      expect(requests.find((request) => request.method === "PATCH")?.body).toEqual({
+        family: other.id,
+        allow_duplicate: false,
+      }),
+    );
+  });
+
+  it("Ctrl K : cherche un élève dans l'en-tête et ouvre sa fiche avec Entrée", async () => {
+    const requests = mockApi(
+      routes("cashier", { ...card, [`GET /api/students/${id(412)}/`]: detail(id(412)) }),
+    );
+    const { user } = renderApp("/");
+
+    await screen.findByRole("button", { name: "Rechercher un élève" });
+    await user.keyboard("{Control>}k{/Control}");
+    await user.type(await screen.findByRole("searchbox"), "kam");
+    expect(await screen.findByText("3e Électricité A · ITIG-2026-0412")).toBeTruthy();
+    expect(requests.at(-1)!.query).toEqual({ search: "kam" });
+    await user.keyboard("{Enter}");
+
+    expect(await screen.findByRole("heading", { name: "BISIMWA MUGISHO Arsène" })).toBeTruthy();
+    expect(screen.queryByRole("searchbox")).toBeNull();
   });
 });

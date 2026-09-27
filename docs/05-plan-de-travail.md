@@ -38,7 +38,7 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
 - [ ] **2.3** Import Excel : téléversement, correspondance des colonnes, aperçu, rapport d'erreurs, import en tâche Celery (D1). Tester avec un fichier fictif réaliste (~800 élèves), puis avec le vrai fichier de l'ITIG quand il arrive
 - [ ] **2.4** Impressions : fiche d'inscription avec code famille, liste de classe PDF / Excel (D5) ; export Excel du journal d'audit, limité à la période filtrée, l'export lui-même noté dans le journal (M6) *(ajouté le 2026-09-26, 1.4 : même bibliothèque Excel)*
 - [ ] **2.5** App `finance` — configuration : `FeeType`, `FeeRule`, `InstallmentTemplate`, `ExchangeRate`, `Discount` + écrans (E1–E3, E5) ; devise au choix pour chaque barème ; taux de l'année corrigeable avec historique ; une devise utilisée par un frais ou un paiement ne peut plus être retirée des devises de l'école (M5) *(ajouté le 2026-09-26, 1.5)* ; nouvelle année créée en reprenant aussi les barèmes d'une autre (C1 : les classes sont reprises depuis la 1.7) *(ajouté le 2026-09-27)*
-- [ ] **2.6** Génération des `StudentCharge` à l'inscription et quand un barème change ; échéancier particulier (E4)
+- [ ] **2.6** Génération des `StudentCharge` à l'inscription et quand un barème change ; échéancier particulier (E4) ; sur la fiche élève : changer de classe (frais recalculés, sauf ceux déjà payés), enregistrer un départ (abandon, transfert, exclusion, avec date), inscrire pour l'année un élève déjà connu *(ajouté le 2026-09-27, 2.2.2 : service et API faits en 2.1)*
 - [ ] **2.7** Calcul du solde et des retards d'un élève (service + tests couvrant réductions, devises, annulations)
 
 ## Semaine 3 — Caisse et hors-ligne

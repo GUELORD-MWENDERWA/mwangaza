@@ -294,7 +294,7 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make test` | tous les tests | avant de fusionner une PR |
 | `make test-back` | tests backend (pytest) | |
 | `make test-front` | vérification des types du front, puis tests Vitest (logique et écrans) | |
-| `make test-e2e` | parcours dans un vrai navigateur (Playwright) : connexion, menu, activation, session support… ; **remet les données de `make demo` à zéro** ; lance Django et la Gestion, ou réutilise ceux de `make dev-local` | une fois avant : `cd frontend && pnpm exec playwright install chromium` ; ensuite quand tu veux, la CI le fait à chaque PR |
+| `make test-e2e` | parcours dans un vrai navigateur (Playwright) : connexion, menu, activation, session support… ; **remet les données de `make demo` à zéro, avant et après** ; lance Django et la Gestion, ou réutilise ceux de `make dev-local` | une fois avant : `cd frontend && pnpm exec playwright install chromium` ; ensuite quand tu veux, la CI le fait à chaque PR |
 | `make lint` | vérifie le code sans rien modifier : ruff (Python), ESLint et Prettier (front) ; `make lint-back` ou `make lint-front` pour une seule partie | avant de fusionner une PR |
 | `make format` | corrige automatiquement le format et ce qui peut l'être | quand `make lint` signale un problème de format |
 | `make api` | écrit le schéma OpenAPI dans `frontend/packages/api/openapi.yaml`, puis les types TypeScript du client (`src/schema.d.ts`) ; `make api-schema` : seulement le schéma | après tout changement d'API |
