@@ -864,19 +864,19 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Photo de l'élève (M9), jamais publique. Envoi : seulement avec le consentement du
-         *     parent (409 `photo_consent_required`).
+         * @description Photo de l'élève (M9), jamais publique : lue avec `students.view`, changée ou
+         *     retirée avec `students.edit`.
          */
         get: operations["students_photo_retrieve"];
         put?: never;
         /**
-         * @description Photo de l'élève (M9), jamais publique. Envoi : seulement avec le consentement du
-         *     parent (409 `photo_consent_required`).
+         * @description Photo de l'élève (M9), jamais publique : lue avec `students.view`, changée ou
+         *     retirée avec `students.edit`.
          */
         post: operations["students_photo_create"];
         /**
-         * @description Photo de l'élève (M9), jamais publique. Envoi : seulement avec le consentement du
-         *     parent (409 `photo_consent_required`).
+         * @description Photo de l'élève (M9), jamais publique : lue avec `students.view`, changée ou
+         *     retirée avec `students.edit`.
          */
         delete: operations["students_photo_destroy"];
         options?: never;

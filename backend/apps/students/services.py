@@ -48,9 +48,6 @@ CLASS_OTHER_YEAR = ApiError(
 MATRICULE_TAKEN = ApiError(
     "matricule_taken", _("Another student already has this student number."), 409
 )
-PHOTO_CONSENT_REQUIRED = ApiError(
-    "photo_consent_required", _("The parent has not agreed to a photo of this student."), 409
-)
 # Un identifiant donné par l'appareil qui sert déjà ailleurs (jamais dit où).
 ID_TAKEN = ApiError("id_taken", _("This identifier is already used."), 409)
 MAX_GUARDIANS = 10
@@ -242,17 +239,13 @@ def update_student(
     matricule: str | None = None,
     **fields,
 ) -> Student:
-    """Identité, famille (liaison D4) ou matricule corrigé à la main. Consentement retiré : la
-    photo est effacée. Une famille qui n'a plus d'enfant après la liaison est supprimée (saisie
-    en double)."""
+    """Identité, famille (liaison D4) ou matricule corrigé à la main. Une famille qui n'a plus
+    d'enfant après la liaison est supprimée (saisie en double)."""
     with transaction.atomic():
         before = _student_data(student)
-        old_photo = student.photo.name
         left_family = None
         for name, value in _clean(fields).items():
             setattr(student, name, value)
-        if not student.photo_consent:
-            student.photo = ""
         if family is not None and family.pk != student.family_id:
             left_family, student.family = student.family, family
         if matricule is not None and matricule.strip() != student.matricule:
@@ -264,15 +257,13 @@ def update_student(
         _record_student_update(student, before, actor=actor)
         if left_family is not None and not left_family.students.exists():
             _delete_family(left_family, actor=actor)
-        _delete_photo_after_commit(old_photo, student)
     return student
 
 
 def set_photo(student: Student, photo, *, actor: User) -> Student:
-    """Photo de l'élève (PNG ou JPEG déjà vérifié), seulement avec le consentement du parent ;
-    `photo=None` l'efface. L'ancien fichier est supprimé après l'enregistrement."""
-    if photo is not None and not student.photo_consent:
-        raise BusinessError(PHOTO_CONSENT_REQUIRED)
+    """Photo de l'élève (PNG ou JPEG déjà vérifié) ; `photo=None` l'efface. L'ancien fichier est
+    supprimé après l'enregistrement. `photo_consent` dit seulement si elle peut servir sur la
+    carte et le portail (H3)."""
     with transaction.atomic():
         before = _student_data(student)
         old_photo = student.photo.name
@@ -299,8 +290,7 @@ def _record_student_update(student: Student, before: dict, *, actor: User) -> No
 
 def _delete_photo_after_commit(old_name: str, student: Student) -> None:
     if old_name and old_name != student.photo.name:
-        storage = student.photo.storage
-        transaction.on_commit(partial(storage.delete, old_name))
+        transaction.on_commit(partial(student.photo.storage.delete, old_name))
 
 
 def _delete_family(family: Family, *, actor: User) -> None:

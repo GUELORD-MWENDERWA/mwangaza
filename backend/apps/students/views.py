@@ -182,8 +182,8 @@ class StudentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsV
         parser_classes=[MultiPartParser, FormParser],
     )
     def photo(self, request: Request, pk=None):
-        """Photo de l'élève (M9), jamais publique. Envoi : seulement avec le consentement du
-        parent (409 `photo_consent_required`)."""
+        """Photo de l'élève (M9), jamais publique : lue avec `students.view`, changée ou
+        retirée avec `students.edit`."""
         student = self.get_object()
         if request.method == "POST":
             serializer = PhotoUploadSerializer(data=request.data)

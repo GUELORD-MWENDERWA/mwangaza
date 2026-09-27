@@ -33,19 +33,16 @@ def upload(client, student, content: bytes = JPEG):
     )
 
 
-def test_photo_needs_the_consent_and_is_served_only_to_the_school(
-    api, school, head, cashier, other_head
+def test_photo_is_served_only_to_the_school_and_replaced_cleanly(
+    api, school, head, cashier, other_head, django_capture_on_commit_callbacks
 ):
     student = new_student(school, head)
     client = api(head)
 
-    refused = upload(client, student)
-    client.patch(f"{STUDENTS}{student.pk}/", {"photo_consent": True})
     wrong_type = upload(client, student, b"%PDF-1.7")
     uploaded = upload(client, student)
     detail = client.get(f"{STUDENTS}{student.pk}/").json()
 
-    assert (refused.status_code, refused.json()["code"]) == (409, "photo_consent_required")
     assert wrong_type.status_code == 400
     assert uploaded.status_code == 200
     assert detail["photo"].startswith(photo_path(student))
@@ -59,26 +56,15 @@ def test_photo_needs_the_consent_and_is_served_only_to_the_school(
     assert upload(beta, student).status_code == 404
     assert beta.delete(photo_path(student)).status_code == 404
     with use_school(school):
-        logged = AuditLog.objects.get(action=Action.STUDENTS_STUDENT_UPDATED, after__photo=True)
-    assert logged.before == {"photo": False}
-
-
-def test_withdrawing_the_consent_removes_the_photo(
-    api, school, head, django_capture_on_commit_callbacks
-):
-    student = new_student(school, head, photo_consent=True)
-    client = api(head)
-    upload(client, student)
-    with use_school(school):
         stored = Student.objects.get(pk=student.pk).photo
-    assert stored.storage.exists(stored.name)
+        logged = AuditLog.objects.get(action=Action.STUDENTS_STUDENT_UPDATED)
+    assert (logged.before, logged.after) == ({"photo": False}, {"photo": True})
 
+    # Retirée : l'ancien fichier disparaît après l'enregistrement.
     with django_capture_on_commit_callbacks(execute=True):
-        client.patch(f"{STUDENTS}{student.pk}/", {"photo_consent": False})
-
+        assert client.delete(photo_path(student)).json()["photo"] is None
     assert client.get(photo_path(student)).status_code == 404
     assert not stored.storage.exists(stored.name)
-    assert client.get(f"{STUDENTS}{student.pk}/").json()["photo"] is None
 
 
 def test_history_of_the_student_its_enrollments_and_its_family(
