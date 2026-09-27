@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 2 (Élèves et frais) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 2.5.1 fusionnée (PR #93) ; correction de `make dev` (clé secrète) : PR #94 à fusionner |
-| Prochaine tâche | 2.6 — dus des élèves, puis 2.5.2 — réductions |
-| Issue GitHub | #18 (2.5, PR #93 pour la 2.5.1) |
-| Branche | `fix/cle-secrete-docker` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 2.6.1 terminée (PR à fusionner) |
+| Prochaine tâche | 2.6.2 — échéancier particulier, puis 2.5.2 — réductions |
+| Issue GitHub | #19 (2.6) |
+| Branche | `tache/2.6.1-frais-dus` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-27 |
 
 ## Avancement
@@ -20,7 +20,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|:-:|:-:|
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
-| Semaine 2 — Élèves et frais | 5 | 8 |
+| Semaine 2 — Élèves et frais | 6 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 0 | 8 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
 | **V1.0** | **14** | **33** |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-27 — Tâche 2.6.1 : frais dus des élèves
+- Fait : 2.6 découpée (2.6.1, 2.6.2) ; `StudentCharge` (une ligne par tranche du barème le plus précis), générés à l'inscription et à l'import, recalculés au changement de classe, au retour d'un élève et quand un barème change ; jamais effacés (« retiré ») ; `GET /api/student-charges/?enrollment=` ; fiche élève : changer de classe, enregistrer / annuler un départ, inscrire pour l'année ; `make demo` : ~17 frais dus par élève.
+- Tests : barème le plus précis, changement de classe, barème modifié puis supprimé, élève parti intact, import de 800 élèves en moins de 40 requêtes, isolation et 403 ; départ depuis la fiche.
+- Décisions : `03` (frais dus retirés et non effacés, pas d'entrée d'audit par frais).
+- Suite : 2.6.2 — échéancier particulier, puis 2.5.2.
 
 ### 2026-09-27 — Tâche 2.5.1 : frais, barèmes, taux de l'année
 

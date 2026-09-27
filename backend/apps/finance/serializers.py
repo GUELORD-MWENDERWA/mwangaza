@@ -3,7 +3,13 @@ from decimal import Decimal
 from rest_framework import serializers
 
 from apps.core.money import Currency
-from apps.finance.models import ExchangeRate, FeeRule, FeeType, InstallmentTemplate
+from apps.finance.models import (
+    ExchangeRate,
+    FeeRule,
+    FeeType,
+    InstallmentTemplate,
+    StudentCharge,
+)
 from apps.finance.services import Installment, Scope
 from apps.schools.models import AcademicYear, ClassGroup, Level, Track
 from apps.schools.serializers import PersonSerializer
@@ -139,3 +145,26 @@ class YearFilterSerializer(serializers.Serializer):
     academic_year = serializers.PrimaryKeyRelatedField(
         queryset=AcademicYear.objects, required=False, help_text="Absent : l'année en cours."
     )
+
+
+class StudentChargeSerializer(serializers.ModelSerializer):
+    fee_type_name = serializers.CharField(source="fee_type.name", read_only=True)
+
+    class Meta:
+        model = StudentCharge
+        fields = [
+            "id",
+            "enrollment",
+            "fee_type",
+            "fee_type_name",
+            "label",
+            "amount_minor",
+            "currency",
+            "due_on",
+            "source",
+            "status",
+        ]
+
+
+class StudentChargeFilterSerializer(serializers.Serializer):
+    enrollment = serializers.UUIDField(help_text="Inscription de l'élève pour une année.")

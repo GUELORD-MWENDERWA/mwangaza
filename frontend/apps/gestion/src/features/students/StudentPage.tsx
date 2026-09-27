@@ -1,7 +1,7 @@
 // Fiche élève (M9, D2-D4) : en-tête (matricule, classe, sexe et âge, statut de l'année) et onglets
 // Identité, Famille, Finances (avec les frais : 2.7), Historique ; une adresse par onglet. Changer :
-// `students.edit`, sinon lecture seule. Changer de classe, départ : 2.6 ; impressions : 2.4 ;
-// encaisser : 3.x ; documents : V1.1 ; scolarité : V1.2.
+// `students.edit`, sinon lecture seule : changer de classe, départ, inscrire pour l'année (2.6.1,
+// `EnrollmentActions`) ; impressions : 2.4 ; encaisser : 3.x ; documents : V1.1 ; scolarité : V1.2.
 import { ApiError, api, call } from "@mwangaza/api";
 import { formatDay, useTranslation } from "@mwangaza/i18n";
 import {
@@ -34,6 +34,7 @@ import { can } from "../../lib/permissions";
 import { keys, useCurrentMe } from "../../lib/queries";
 import { useYears } from "../organisation/data";
 import { LoadError, NotFound } from "../status/StatusPages";
+import { EnrollmentActions } from "./EnrollmentActions";
 import { StudentFamilyTab } from "./StudentFamilyTab";
 import { StudentHistoryTab } from "./StudentHistoryTab";
 import { type Student, age, uploadPhoto, useStudent } from "./data";
@@ -146,7 +147,7 @@ export function StudentPage() {
         </Tabs>
       </Card>
       {current === "identity" && (
-        <IdentityTab student={data} enrollment={enrollment} yearName={year?.name ?? ""} />
+        <IdentityTab student={data} enrollment={enrollment} year={year} canEdit={canEdit} />
       )}
       {current === "family" && <StudentFamilyTab student={data} canEdit={canEdit} />}
       {current === "finances" && (
@@ -173,11 +174,13 @@ function Info({ label, children }: { label: string; children: ReactNode }) {
 function IdentityTab({
   student,
   enrollment,
-  yearName,
+  year,
+  canEdit,
 }: {
   student: Student;
   enrollment: Enrollment | undefined;
-  yearName: string;
+  year: { id: string; name: string } | undefined;
+  canEdit: boolean;
 }) {
   const { t, i18n } = useTranslation();
   const none = t("common.none");
@@ -234,7 +237,7 @@ function IdentityTab({
         </Card>
         <Card>
           <CardHeader className="flex-row flex-wrap items-center justify-between gap-3">
-            <CardTitle>{t("students.card.enrollment", { year: yearName })}</CardTitle>
+            <CardTitle>{t("students.card.enrollment", { year: year?.name ?? "" })}</CardTitle>
             {enrollment && (
               <StatusPill tone={enrollment.status === "active" ? "ok" : "warn"}>
                 {t(`students.enrollmentStatus.${enrollment.status}`)}
@@ -254,6 +257,9 @@ function IdentityTab({
               <Code>{student.family.code}</Code>
             </Info>
           </CardContent>
+          {canEdit && year && (
+            <EnrollmentActions student={student} enrollment={enrollment} year={year} />
+          )}
         </Card>
       </div>
       <PhotoCard student={student} />

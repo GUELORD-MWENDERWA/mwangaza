@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-27 21:39+0200\n"
+"POT-Creation-Date: 2026-09-27 23:13+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -331,39 +331,39 @@ msgstr ""
 msgid "View the audit log"
 msgstr ""
 
-#: apps/accounts/roles.py:72
+#: apps/accounts/roles.py:81
 msgid "Head of school"
 msgstr ""
 
-#: apps/accounts/roles.py:90
+#: apps/accounts/roles.py:99
 msgid "Director of studies"
 msgstr ""
 
-#: apps/accounts/roles.py:94
+#: apps/accounts/roles.py:103
 msgid "Discipline master"
 msgstr ""
 
-#: apps/accounts/roles.py:97
+#: apps/accounts/roles.py:106
 msgid "Accountant"
 msgstr ""
 
-#: apps/accounts/roles.py:111
+#: apps/accounts/roles.py:120
 msgid "Cashier"
 msgstr ""
 
-#: apps/accounts/roles.py:120
+#: apps/accounts/roles.py:129
 msgid "Secretary"
 msgstr ""
 
-#: apps/accounts/roles.py:123
+#: apps/accounts/roles.py:132
 msgid "Promoter"
 msgstr ""
 
-#: apps/accounts/roles.py:126
+#: apps/accounts/roles.py:135
 msgid "Teacher"
 msgstr ""
 
-#: apps/accounts/roles.py:127
+#: apps/accounts/roles.py:136
 msgid "Parent"
 msgstr ""
 
@@ -903,6 +903,7 @@ msgid "accounting code"
 msgstr ""
 
 #: apps/finance/models.py:42 apps/finance/models.py:70
+#: apps/finance/models.py:169
 msgid "fee type"
 msgstr ""
 
@@ -922,11 +923,11 @@ msgstr ""
 msgid "Single payment"
 msgstr ""
 
-#: apps/finance/models.py:67 apps/finance/models.py:174
+#: apps/finance/models.py:67 apps/finance/models.py:240
 msgid "year"
 msgstr ""
 
-#: apps/finance/models.py:81
+#: apps/finance/models.py:81 apps/finance/models.py:173
 msgid "currency"
 msgstr ""
 
@@ -946,15 +947,15 @@ msgstr ""
 msgid "fee rules"
 msgstr ""
 
-#: apps/finance/models.py:125
+#: apps/finance/models.py:125 apps/finance/models.py:171
 msgid "label"
 msgstr ""
 
-#: apps/finance/models.py:126
+#: apps/finance/models.py:126 apps/finance/models.py:172
 msgid "amount"
 msgstr ""
 
-#: apps/finance/models.py:127
+#: apps/finance/models.py:127 apps/finance/models.py:174
 msgid "due date"
 msgstr ""
 
@@ -963,7 +964,7 @@ msgstr ""
 msgid "order"
 msgstr ""
 
-#: apps/finance/models.py:132
+#: apps/finance/models.py:132 apps/finance/models.py:183
 msgid "installment"
 msgstr ""
 
@@ -971,67 +972,112 @@ msgstr ""
 msgid "installments"
 msgstr ""
 
-#: apps/finance/models.py:182
-msgid "rate"
+#: apps/finance/models.py:155
+#, fuzzy
+#| msgid "Fee rule created"
+msgid "Fee rule"
+msgstr "Barème créé"
+
+#: apps/finance/models.py:156
+msgid "Custom schedule"
 msgstr ""
 
-#: apps/finance/models.py:184
-msgid "reason"
+#: apps/finance/models.py:159
+msgid "Due"
 msgstr ""
 
-#: apps/finance/models.py:190
-msgid "exchange rate"
+#: apps/finance/models.py:160
+msgid "Removed"
+msgstr ""
+
+#: apps/finance/models.py:166 apps/students/models.py:164
+msgid "enrollment"
+msgstr ""
+
+#: apps/finance/models.py:175
+msgid "source"
+msgstr ""
+
+#: apps/finance/models.py:186 apps/schools/models.py:123
+#: apps/schools/models.py:204 apps/students/models.py:157
+#: apps/students/models.py:222
+msgid "status"
 msgstr ""
 
 #: apps/finance/models.py:191
+#, fuzzy
+#| msgid "Student changed"
+msgid "student charge"
+msgstr "Élève modifié"
+
+#: apps/finance/models.py:192
+#, fuzzy
+#| msgid "Student changed"
+msgid "student charges"
+msgstr "Élève modifié"
+
+#: apps/finance/models.py:248
+msgid "rate"
+msgstr ""
+
+#: apps/finance/models.py:250
+msgid "reason"
+msgstr ""
+
+#: apps/finance/models.py:256
+msgid "exchange rate"
+msgstr ""
+
+#: apps/finance/models.py:257
 msgid "exchange rates"
 msgstr ""
 
-#: apps/finance/services.py:28
+#: apps/finance/services.py:39
 msgid "The school already has a fee type with this name."
 msgstr ""
 
-#: apps/finance/services.py:31
-msgid "This fee type has fee rules: deactivate it instead."
+#: apps/finance/services.py:43
+msgid ""
+"This fee type has fee rules or students who owe it: deactivate it instead."
 msgstr ""
 
-#: apps/finance/services.py:34
+#: apps/finance/services.py:47
 msgid "This fee already has a fee rule for this scope this school year."
 msgstr ""
 
-#: apps/finance/services.py:129 apps/finance/services.py:141
+#: apps/finance/services.py:142 apps/finance/services.py:154
 msgid "Whole school"
 msgstr "Toute l'école"
 
-#: apps/finance/services.py:154
+#: apps/finance/services.py:167
 msgid "Choose a level, a track or a class, not several."
 msgstr ""
 
-#: apps/finance/services.py:156
+#: apps/finance/services.py:169
 msgid "This class belongs to another school year."
 msgstr ""
 
-#: apps/finance/services.py:159
+#: apps/finance/services.py:172
 msgid "This currency is not one of the school's currencies."
 msgstr ""
 
-#: apps/finance/services.py:162
+#: apps/finance/services.py:175
 msgid "Add at least one installment."
 msgstr ""
 
-#: apps/finance/services.py:164
+#: apps/finance/services.py:177
 msgid "A single payment has exactly one installment."
 msgstr ""
 
-#: apps/finance/services.py:171
+#: apps/finance/services.py:184
 msgid "The installments must add up to the total."
 msgstr ""
 
-#: apps/finance/services.py:397
+#: apps/finance/services.py:536
 msgid "Give the reason for the correction."
 msgstr ""
 
-#: apps/finance/services.py:400
+#: apps/finance/services.py:539
 msgid "This is already the rate of the year."
 msgstr ""
 
@@ -1255,11 +1301,6 @@ msgstr ""
 #: apps/schools/models.py:120
 #, python-brace-format
 msgid "e.g. ABC-{AAAA}-{0000}: year, number, option code {OPT}."
-msgstr ""
-
-#: apps/schools/models.py:123 apps/schools/models.py:204
-#: apps/students/models.py:157 apps/students/models.py:222
-msgid "status"
 msgstr ""
 
 #: apps/schools/models.py:127
@@ -1571,7 +1612,7 @@ msgstr ""
 msgid "No."
 msgstr "N°"
 
-#: apps/students/documents.py:146 apps/students/imports.py:83
+#: apps/students/documents.py:146 apps/students/imports.py:84
 #: apps/students/templates/students/class_list.html:22
 #: apps/students/templates/students/registration_form.html:34
 msgid "Student number"
@@ -1598,143 +1639,143 @@ msgstr "Date de naissance"
 msgid "Main contact's phone"
 msgstr "Téléphone du tuteur principal"
 
-#: apps/students/imports.py:76
+#: apps/students/imports.py:77
 msgid "Last name"
 msgstr "Nom"
 
-#: apps/students/imports.py:77
+#: apps/students/imports.py:78
 msgid "Middle name"
 msgstr "Post-nom"
 
-#: apps/students/imports.py:78
+#: apps/students/imports.py:79
 msgid "First name"
 msgstr "Prénom"
 
-#: apps/students/imports.py:79
+#: apps/students/imports.py:80
 msgid "Sex (M/F)"
 msgstr "Sexe (M/F)"
 
-#: apps/students/imports.py:80
+#: apps/students/imports.py:81
 msgid "Date of birth (DD/MM/YYYY)"
 msgstr "Date de naissance (JJ/MM/AAAA)"
 
-#: apps/students/imports.py:81
+#: apps/students/imports.py:82
 msgid "Place of birth"
 msgstr "Lieu de naissance"
 
-#: apps/students/imports.py:82
+#: apps/students/imports.py:83
 #: apps/students/templates/students/registration_form.html:34
 msgid "Class"
 msgstr "Classe"
 
-#: apps/students/imports.py:84
+#: apps/students/imports.py:85
 msgid "Guardian name"
 msgstr "Nom du tuteur"
 
-#: apps/students/imports.py:85
+#: apps/students/imports.py:86
 msgid "Guardian phone"
 msgstr "Téléphone du tuteur"
 
-#: apps/students/imports.py:152
+#: apps/students/imports.py:153
 msgid "Last name missing"
 msgstr "Nom manquant"
 
-#: apps/students/imports.py:153
+#: apps/students/imports.py:154
 msgid "Sex missing or unknown (M or F)"
 msgstr "Sexe manquant ou inconnu (M ou F)"
 
-#: apps/students/imports.py:154
+#: apps/students/imports.py:155
 msgid "Invalid date of birth"
 msgstr "Date de naissance invalide"
 
-#: apps/students/imports.py:155
+#: apps/students/imports.py:156
 msgid "Class missing"
 msgstr "Classe manquante"
 
-#: apps/students/imports.py:156
+#: apps/students/imports.py:157
 msgid "Unknown class"
 msgstr "Classe inconnue"
 
-#: apps/students/imports.py:157
+#: apps/students/imports.py:158
 msgid "Student number already used in the school"
 msgstr "Matricule déjà utilisé dans l'école"
 
-#: apps/students/imports.py:158
+#: apps/students/imports.py:159
 #, python-format
 msgid "Student number repeated (line %(line)s)"
 msgstr "Matricule répété (ligne %(line)s)"
 
-#: apps/students/imports.py:159
+#: apps/students/imports.py:160
 msgid "Already in the school (same names and date of birth)"
 msgstr "Déjà dans l'école (mêmes noms et date de naissance)"
 
-#: apps/students/imports.py:160
+#: apps/students/imports.py:161
 #, python-format
 msgid "Possible duplicate (line %(line)s)"
 msgstr "Doublon possible (ligne %(line)s)"
 
-#: apps/students/imports.py:161
+#: apps/students/imports.py:162
 msgid "Date of birth missing"
 msgstr "Date de naissance manquante"
 
-#: apps/students/imports.py:162
+#: apps/students/imports.py:163
 msgid "Unreadable phone number: guardian kept without phone"
 msgstr "Téléphone illisible : tuteur gardé sans téléphone"
 
-#: apps/students/imports.py:163
+#: apps/students/imports.py:164
 msgid "Phone without guardian name: not kept"
 msgstr "Téléphone sans nom de tuteur : pas gardé"
 
-#: apps/students/imports.py:164
+#: apps/students/imports.py:165
 #, python-format
 msgid "Same family as line %(line)s"
 msgstr "Même famille que la ligne %(line)s"
 
-#: apps/students/imports.py:167
+#: apps/students/imports.py:168
 msgid "The file is larger than 5 MB."
 msgstr ""
 
-#: apps/students/imports.py:169
+#: apps/students/imports.py:170
 msgid "Old Excel file (.xls): save it as .xlsx in Excel, then try again."
 msgstr ""
 
-#: apps/students/imports.py:172
+#: apps/students/imports.py:173
 msgid "This file cannot be read: send an Excel (.xlsx) or CSV file."
 msgstr ""
 
-#: apps/students/imports.py:174
+#: apps/students/imports.py:175
 msgid "The file has no student rows."
 msgstr ""
 
-#: apps/students/imports.py:175
+#: apps/students/imports.py:176
 msgid "The file has more than 5,000 rows."
 msgstr ""
 
-#: apps/students/imports.py:176
+#: apps/students/imports.py:177
 msgid "This import has already been started."
 msgstr ""
 
-#: apps/students/imports.py:177
+#: apps/students/imports.py:178
 msgid "No row can be imported."
 msgstr ""
 
-#: apps/students/imports.py:517
+#: apps/students/imports.py:518
 msgid "Invalid column mapping."
 msgstr ""
 
-#: apps/students/imports.py:519
+#: apps/students/imports.py:520
 msgid "Unknown column."
 msgstr ""
 
-#: apps/students/imports.py:531
+#: apps/students/imports.py:532
 msgid "Choose a class of this school year."
 msgstr ""
 
-#: apps/students/imports.py:706
+#: apps/students/imports.py:710
 msgid "Line"
 msgstr "Ligne"
 
-#: apps/students/imports.py:706
+#: apps/students/imports.py:710
 msgid "Problems"
 msgstr "Problèmes"
 
@@ -1888,10 +1929,6 @@ msgstr ""
 msgid "left on"
 msgstr ""
 
-#: apps/students/models.py:164
-msgid "enrollment"
-msgstr ""
-
 #: apps/students/models.py:165
 msgid "enrollments"
 msgstr ""
@@ -1980,37 +2017,37 @@ msgstr ""
 msgid "Either an existing family or new guardians, not both."
 msgstr ""
 
-#: apps/students/services.py:39
+#: apps/students/services.py:40
 msgid ""
 "A student with the same names and date of birth already exists: confirm to "
 "create it."
 msgstr ""
 
-#: apps/students/services.py:43
+#: apps/students/services.py:44
 msgid "This student is already enrolled this school year."
 msgstr ""
 
-#: apps/students/services.py:46
+#: apps/students/services.py:47
 msgid "The new class must be in the same school year."
 msgstr ""
 
-#: apps/students/services.py:49
+#: apps/students/services.py:50
 msgid "Another student already has this student number."
 msgstr ""
 
-#: apps/students/services.py:52
+#: apps/students/services.py:53
 msgid "This identifier is already used."
 msgstr ""
 
-#: apps/students/services.py:104
+#: apps/students/services.py:105
 msgid "At most 10 guardians."
 msgstr ""
 
-#: apps/students/services.py:106
+#: apps/students/services.py:107
 msgid "Only one main contact."
 msgstr ""
 
-#: apps/students/services.py:116
+#: apps/students/services.py:117
 msgid "Unknown guardian for this family."
 msgstr ""
 

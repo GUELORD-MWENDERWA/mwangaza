@@ -11,6 +11,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.tenancy import use_school
+from apps.finance import services as finance
+from apps.finance.models import StudentCharge
 from apps.students import imports
 from apps.students.demo import import_rows, import_workbook
 from apps.students.models import Enrollment, Family, Student, StudentImport
@@ -192,6 +194,19 @@ def test_realistic_file_of_800_students_is_imported_in_a_few_queries(
 ):
     content = import_workbook(import_rows(800, ["3E ELEC A", "3E ELECTRICITE A"]))
     with use_school(school):
+        fee_type = finance.create_fee_type(actor=head, name="Minerval", category="tuition")
+        finance.create_fee_rule(
+            actor=head,
+            academic_year=alpha["year"],
+            fee_type=fee_type,
+            currency="USD",
+            total_amount_minor=24000,
+            schedule_kind="installments",
+            installments=[
+                finance.Installment("1re tranche", 12000, date(2026, 10, 15)),
+                finance.Installment("2e tranche", 12000, date(2027, 1, 15)),
+            ],
+        )
         imp = imports.create_import(
             actor=head, file=SimpleUploadedFile("eleves.xlsx", content), academic_year=alpha["year"]
         )
@@ -204,3 +219,4 @@ def test_realistic_file_of_800_students_is_imported_in_a_few_queries(
         assert imp.created_count == counts["ready"] + counts["warning"] == Student.objects.count()
         assert Family.objects.count() < imp.created_count  # fratries regroupées
         assert Student.objects.values("matricule").distinct().count() == imp.created_count
+        assert StudentCharge.objects.count() == 2 * imp.created_count

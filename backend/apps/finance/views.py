@@ -4,11 +4,16 @@ from rest_framework import mixins, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.accounts.roles import FEES_READ, FINANCE_CONFIGURE_FEES, FINANCE_SET_EXCHANGE_RATE
+from apps.accounts.roles import (
+    CHARGES_READ,
+    FEES_READ,
+    FINANCE_CONFIGURE_FEES,
+    FINANCE_SET_EXCHANGE_RATE,
+)
 from apps.accounts.views import SchoolViewSet
 from apps.core.errors import ErrorSerializer
 from apps.finance import services
-from apps.finance.models import ExchangeRate, FeeRule, FeeType
+from apps.finance.models import ExchangeRate, FeeRule, FeeType, StudentCharge
 from apps.finance.serializers import (
     ExchangeRateCreateSerializer,
     ExchangeRateSerializer,
@@ -17,6 +22,8 @@ from apps.finance.serializers import (
     FeeRuleUpdateSerializer,
     FeeTypeSerializer,
     FeeTypeWriteSerializer,
+    StudentChargeFilterSerializer,
+    StudentChargeSerializer,
     YearFilterSerializer,
 )
 from apps.schools import organisation
@@ -207,3 +214,29 @@ class ExchangeRateViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, _Finan
         rate = services.set_exchange_rate(actor=request.user, **serializer.validated_data)
         rate = ExchangeRate.objects.select_related("created_by").get(pk=rate.pk)
         return Response(ExchangeRateSerializer(rate).data, status=status.HTTP_201_CREATED)
+
+
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[StudentChargeFilterSerializer],
+        responses={200: StudentChargeSerializer(many=True), **INVALID, **ERRORS},
+    )
+)
+@extend_schema(tags=["finance"])
+class StudentChargeViewSet(mixins.ListModelMixin, SchoolViewSet):
+    """Frais dus d'une inscription, par date limite (2.6) : ceux des barèmes, et les frais
+    retirés (changement de classe, barème modifié), gardés pour l'histoire. Lecture seule."""
+
+    required_permission = CHARGES_READ
+    serializer_class = StudentChargeSerializer
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return StudentCharge.all_schools.none()
+        params = StudentChargeFilterSerializer(data=self.request.query_params)
+        params.is_valid(raise_exception=True)
+        return (
+            StudentCharge.objects.filter(enrollment_id=params.validated_data["enrollment"])
+            .select_related("fee_type")
+            .order_by("due_on", "fee_type__name", "label")
+        )

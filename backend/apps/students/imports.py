@@ -37,6 +37,7 @@ from apps.audit.context import current_request_info
 from apps.core.documents import workbook
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import require_current_school
+from apps.finance import services as finance
 from apps.schools import matricule
 from apps.schools.models import AcademicYear, ClassGroup, School
 from apps.students.models import (
@@ -639,7 +640,7 @@ def run(imp: StudentImport, *, actor: User) -> None:
         sequence.save(update_fields=["last_number", "updated_at"])
         Student.objects.bulk_create(students, batch_size=500)
         today = timezone.localdate()
-        Enrollment.objects.bulk_create(
+        enrollments = Enrollment.objects.bulk_create(
             [
                 Enrollment(
                     student=student,
@@ -651,6 +652,9 @@ def run(imp: StudentImport, *, actor: User) -> None:
                 for row, student in zip(rows, students, strict=True)
             ],
             batch_size=500,
+        )
+        finance.sync_charges(
+            Enrollment.objects.filter(pk__in=[e.pk for e in enrollments]), actor=actor
         )
         audit.record_many(
             Action.STUDENTS_STUDENT_IMPORTED,
