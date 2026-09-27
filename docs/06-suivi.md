@@ -8,9 +8,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 2 (Élèves et frais) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | 2.2.2 — fiche élève, fiche famille, recherche `Ctrl K` (démarrée le 2026-09-27) |
+| Tâche en cours | aucune — 2.2.2 terminée : PR #90 à relire et fusionner |
 | Prochaine tâche | 2.3 — import Excel |
-| Issue GitHub | #88 (2.2.2) |
+| Issue GitHub | #88 (2.2.2, PR #90) |
 | Branche | `tache/2.2.2-fiche-eleve` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-27 |
 
@@ -20,10 +20,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|:-:|:-:|
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
-| Semaine 2 — Élèves et frais | 2 | 8 |
+| Semaine 2 — Élèves et frais | 3 | 8 |
 | Semaine 3 — Caisse et hors-ligne | 0 | 8 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **11** | **33** |
+| **V1.0** | **12** | **33** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-27 — Tâche 2.2.2 : fiche élève, fiche famille, recherche `Ctrl K`
+- **Fait** : fiche élève (Identité avec photo, Famille, Finances vide, Historique lu dans le journal + parcours), « Modifier l'élève », fiche famille (tuteurs modifiables), liaison à une autre famille (famille vidée supprimée), recherche `Ctrl K` ; doublon → lien vers la fiche ; photo réduite dans le navigateur, servie par l'API, un dossier par école.
+- **Tests** : 766 backend, 138 front, 11 e2e ; délais des tests d'écrans relevés (lancement en parallèle). Réparé : recherche des familles par téléphone sur un code contenant un chiffre ; `make test-e2e` remet la démo après les parcours.
+- **Décisions** : consentement photo = usage sur la carte et le portail (maquette, H3), pas la prise ; changer de classe, départ, inscrire depuis la fiche → 2.6.
+- **Suite** : 2.3 (import Excel).
 
 ### 2026-09-27 — Tâche 2.2.1 : liste des élèves et inscription
 - **Fait** : tâche 2.2 découpée (accord de l'utilisateur) en 2.2.1 et 2.2.2 (#88). Liste des élèves (recherche sans accents, filtres année / classe / option / statut, tuteur principal) ; écran « Inscrire un nouvel élève » (famille existante ou nouvelle, doublon confirmé, UUID v7 donnés par l'appareil) ; années, options et classes lisibles avec `students.view`.
