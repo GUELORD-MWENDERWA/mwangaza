@@ -233,7 +233,7 @@ function CheckStep({ imp }: { imp: StudentImport }) {
           })}
         </Banner>
       )}
-      <div className="grid items-start gap-4 min-[1100px]:grid-cols-[1fr_2fr]">
+      <div className="grid grid-cols-1 items-start gap-4 min-[1100px]:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
         <ColumnsCard imp={imp} busy={save.isPending} onChange={save.mutate} />
         <Card>
           <Preview imp={imp} />
@@ -323,11 +323,15 @@ function ColumnsCard({
                 </td>
                 <td>
                   {mapped ? (
-                    <StatusPill tone="ok">{t("students.import.columns.found")}</StatusPill>
+                    <StatusPill tone="ok" className="max-[560px]:hidden">
+                      {t("students.import.columns.found")}
+                    </StatusPill>
                   ) : REQUIRED.includes(name) ? (
                     <StatusPill tone="due">{t("students.import.columns.required")}</StatusPill>
                   ) : (
-                    <StatusPill tone="gray">{t("students.import.columns.unused")}</StatusPill>
+                    <StatusPill tone="gray" className="max-[560px]:hidden">
+                      {t("students.import.columns.unused")}
+                    </StatusPill>
                   )}
                 </td>
               </tr>

@@ -444,10 +444,12 @@ class StudentImportViewSet(mixins.RetrieveModelMixin, SchoolViewSet):
     def report(self, request: Request, pk=None) -> HttpResponse:
         """Lignes à reprendre, avec les colonnes du fichier et leurs problèmes."""
         imp = self.get_object()
-        return _xlsx(imports.report_workbook(imp), f"{_('import-report')}.xlsx")
+        name = _("import-report")
+        return _xlsx(imports.report_workbook(imp), f"{name}.xlsx")
 
     @extend_schema(responses={**XLSX_RESPONSE, **ERRORS})
     @action(detail=False)
     def template(self, request: Request) -> HttpResponse:
         """Modèle à remplir : une colonne par champ, titres reconnus à l'import."""
-        return _xlsx(imports.template_workbook(), f"{_('students-template')}.xlsx")
+        name = _("students-template")
+        return _xlsx(imports.template_workbook(), f"{name}.xlsx")

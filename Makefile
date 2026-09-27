@@ -9,7 +9,7 @@ COMPOSE := docker compose -f infra/docker-compose.dev.yml
 MANAGE := cd backend && uv run python manage.py
 
 .DEFAULT_GOAL := help
-.PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp superuser shell \
+.PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp messages superuser shell \
 	test test-back test-front test-e2e lint lint-back lint-front format api api-schema build
 
 help: ## Afficher les commandes
@@ -70,6 +70,10 @@ demo-excel: ## Liste d'élèves fictive (eleves-fictifs.xlsx, ~800 élèves) pou
 
 totp: ## Code de double authentification du moment : comptes fictifs, ou make totp key=<clé>
 	@$(MANAGE) totp $(if $(key),--key "$(key)")
+
+messages: ## Traductions du serveur (backend/locale) : extraire les textes, puis compiler (demande gettext)
+	$(MANAGE) makemessages -l fr --no-obsolete
+	$(MANAGE) compilemessages -l fr --ignore=.venv
 
 superuser: db-up ## Créer un compte super-administrateur
 	$(MANAGE) createsuperuser
