@@ -149,7 +149,7 @@ function SettingsForm({ settings }: { settings: Settings }) {
           {t("settings.saved")}
         </Banner>
       )}
-      <div className="grid items-start gap-4 min-[1100px]:grid-cols-[1.4fr_1fr]">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 min-[1100px]:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-4">
           <IdentityCard form={form} code={settings.code} />
           <LogoColorCard form={form} settings={settings} />
@@ -204,6 +204,7 @@ function IdentityCard({ form, code }: CardProps & { code: string }) {
           id="school-timezone"
           label={t("settings.identity.timezone")}
           error={errors.timezone?.message}
+          className="min-[600px]:col-span-2"
         >
           {(control) => (
             <Select {...control} {...form.register("timezone")}>

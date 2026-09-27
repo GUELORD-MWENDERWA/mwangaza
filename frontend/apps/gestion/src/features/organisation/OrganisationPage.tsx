@@ -82,7 +82,7 @@ export function OrganisationPage() {
             <TabsTrigger value="matricule">{t("organisation.tabs.matricule")}</TabsTrigger>
           </TabsList>
           <TabsContent value="year">
-            <div className="grid items-start gap-4 min-[1100px]:grid-cols-[1fr_1.4fr]">
+            <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 min-[1100px]:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
               <div className="flex flex-col gap-4">
                 <YearCard key={year.id} year={year} onDeleted={() => setChosen(null)} />
                 <MatriculeCard />
@@ -91,7 +91,7 @@ export function OrganisationPage() {
             </div>
           </TabsContent>
           <TabsContent value="levels">
-            <div className="grid items-start gap-4 min-[1100px]:grid-cols-2">
+            <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 min-[1100px]:grid-cols-2">
               <LevelsCard />
               <TracksCard />
             </div>

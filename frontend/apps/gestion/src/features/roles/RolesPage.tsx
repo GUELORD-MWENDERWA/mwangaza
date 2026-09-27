@@ -98,7 +98,7 @@ export function RolesPage() {
           </Button>
         }
       />
-      <div className="grid items-start gap-4 min-[1000px]:grid-cols-[300px_1fr]">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 min-[1000px]:grid-cols-[300px_minmax(0,1fr)]">
         <Card className="p-3">
           <nav aria-label={t("rolesPage.title")} className="flex flex-col gap-1">
             {roles.data.map((role) => (

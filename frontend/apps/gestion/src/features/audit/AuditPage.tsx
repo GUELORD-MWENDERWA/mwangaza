@@ -164,7 +164,7 @@ export function AuditPage() {
           </div>
         </CardContent>
       </Card>
-      <div className="grid items-start gap-4 min-[1200px]:grid-cols-[1.6fr_1fr]">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 min-[1200px]:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <Card>
           {!logs.data ? (
             <CardContent>
@@ -309,7 +309,7 @@ function LogDetail({ log }: { log: Log }) {
           {log.user_agent && (
             <div>
               <span className="text-ink-2">{t("audit.detail.browser")}</span>
-              <span className="max-w-[60%] truncate text-right text-sm" title={log.user_agent}>
+              <span className="min-w-0 truncate text-right text-sm" title={log.user_agent}>
                 {log.user_agent}
               </span>
             </div>

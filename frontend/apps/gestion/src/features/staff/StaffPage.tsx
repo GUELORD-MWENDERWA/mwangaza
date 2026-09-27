@@ -154,7 +154,7 @@ export function StaffPage() {
           </Select>
         </CardContent>
       </Card>
-      <div className="grid items-start gap-4 min-[1200px]:grid-cols-[1.7fr_1fr]">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 min-[1200px]:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
         <Card>
           {!staff.data || !roles.data ? (
             <CardContent>
@@ -265,7 +265,7 @@ function StaffTable({
                 />
                 <span>
                   <b className="block">{fullName(person.user)}</b>
-                  <span className="text-[.8rem] text-ink-3 tabular-nums">
+                  <span className="text-[.8rem] whitespace-nowrap text-ink-3 tabular-nums">
                     {formatPhone(person.user.phone)}
                   </span>
                 </span>
