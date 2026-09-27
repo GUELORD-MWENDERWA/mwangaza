@@ -16,7 +16,10 @@ import { RolesPage } from "./features/roles/RolesPage";
 import { SchoolChoicePage } from "./features/schools/SchoolChoicePage";
 import { SchoolSettingsPage } from "./features/settings/SchoolSettingsPage";
 import { StaffPage } from "./features/staff/StaffPage";
+import { EditStudentPage } from "./features/students/EditStudentPage";
+import { FamilyPage } from "./features/students/FamilyPage";
 import { NewStudentPage } from "./features/students/NewStudentPage";
+import { StudentPage } from "./features/students/StudentPage";
 import { StudentsPage } from "./features/students/StudentsPage";
 import { AppShell } from "./features/shell/AppShell";
 import { HomePage } from "./features/shell/HomePage";
@@ -47,6 +50,13 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
     item: { ...menuItem("students"), permissions: ["students.edit"] },
     element: <NewStudentPage />,
   },
+  {
+    path: "students/:id/edit",
+    item: { ...menuItem("students"), permissions: ["students.edit"] },
+    element: <EditStudentPage />,
+  },
+  { path: "students/:id/:tab?", item: menuItem("students"), element: <StudentPage /> },
+  { path: "families/:id", item: menuItem("students"), element: <FamilyPage /> },
 ];
 
 export const routes: RouteObject[] = [

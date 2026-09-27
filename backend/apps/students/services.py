@@ -7,6 +7,7 @@ identifiant donné par l'appareil (UUID v7) : le même envoi rejoué ne crée ri
 
 import secrets
 from datetime import date
+from functools import partial
 from uuid import UUID
 
 from django.core.exceptions import ValidationError
@@ -18,6 +19,7 @@ from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
+from apps.core.ids import uuid7
 from apps.core.tenancy import require_current_school
 from apps.schools import matricule
 from apps.schools.models import AcademicYear, ClassGroup, School
@@ -30,6 +32,7 @@ from apps.students.models import (
     MatriculeSequence,
     Student,
 )
+from apps.students.photos import photo_kind
 
 POSSIBLE_DUPLICATE = ApiError(
     "possible_duplicate",
@@ -81,7 +84,14 @@ def new_family_code() -> str:
 
 def _guardians_data(family: Family) -> list[dict]:
     return [
-        {"full_name": g.full_name, "relationship": g.relationship, "phone": g.phone}
+        {
+            "full_name": g.full_name,
+            "relationship": g.relationship,
+            "phone": g.phone,
+            "email": g.email,
+            "is_primary": g.is_primary,
+            "is_emergency_contact": g.is_emergency_contact,
+        }
         for g in family.guardians.all()
     ]
 
@@ -152,6 +162,7 @@ def _student_data(student: Student) -> dict:
     data = {name: _json(getattr(student, name)) for name in _STUDENT_FIELDS}
     data["family"] = student.family.code
     data["matricule"] = student.matricule
+    data["photo"] = bool(student.photo)
     return data
 
 
@@ -194,8 +205,21 @@ def create_student(
         if Student.all_schools.filter(pk=student_id).exists():
             raise BusinessError(ID_TAKEN)
     fields = _clean(fields)
-    if not allow_duplicate and possible_duplicates(fields).exists():
-        raise BusinessError(POSSIBLE_DUPLICATE)
+    duplicates = [] if allow_duplicate else list(possible_duplicates(fields)[:5])
+    if duplicates:
+        raise BusinessError(
+            POSSIBLE_DUPLICATE,
+            duplicates=[
+                {
+                    "id": str(other.pk),
+                    "last_name": other.last_name,
+                    "middle_name": other.middle_name,
+                    "first_name": other.first_name,
+                    "matricule": other.matricule,
+                }
+                for other in duplicates
+            ],
+        )
     with transaction.atomic():
         if family is None:
             family = create_family(actor=actor, guardians=guardians or [])
@@ -215,25 +239,69 @@ def update_student(
     matricule: str | None = None,
     **fields,
 ) -> Student:
-    """Identité, famille (liaison D4) ou matricule corrigé à la main."""
+    """Identité, famille (liaison D4) ou matricule corrigé à la main. Une famille qui n'a plus
+    d'enfant après la liaison est supprimée (saisie en double)."""
     with transaction.atomic():
         before = _student_data(student)
+        left_family = None
         for name, value in _clean(fields).items():
             setattr(student, name, value)
-        if family is not None:
-            student.family = family
+        if family is not None and family.pk != student.family_id:
+            left_family, student.family = student.family, family
         if matricule is not None and matricule.strip() != student.matricule:
             value = matricule.strip()
             if value and Student.objects.filter(matricule=value).exclude(pk=student.pk).exists():
                 raise BusinessError(MATRICULE_TAKEN)
             student.matricule = value
         student.save()
-        old, new = audit.changes(before, _student_data(student))
-        if new:
-            audit.record(
-                Action.STUDENTS_STUDENT_UPDATED, student, actor=actor, before=old, after=new
-            )
+        _record_student_update(student, before, actor=actor)
+        if left_family is not None and not left_family.students.exists():
+            _delete_family(left_family, actor=actor)
     return student
+
+
+def set_photo(student: Student, photo, *, actor: User) -> Student:
+    """Photo de l'élève (PNG ou JPEG déjà vérifié) ; `photo=None` l'efface. L'ancien fichier est
+    supprimé après l'enregistrement. `photo_consent` dit seulement si elle peut servir sur la
+    carte et le portail (H3)."""
+    with transaction.atomic():
+        before = _student_data(student)
+        old_photo = student.photo.name
+        if photo is None:
+            student.photo = ""
+        else:
+            student.photo.save(photo_name(photo), photo, save=False)
+        student.save()
+        _record_student_update(student, before, actor=actor)
+        _delete_photo_after_commit(old_photo, student)
+    return student
+
+
+def photo_name(photo) -> str:
+    kind = "png" if photo_kind(photo) == "png" else "jpg"
+    return f"photo-{uuid7().hex[-12:]}.{kind}"
+
+
+def _record_student_update(student: Student, before: dict, *, actor: User) -> None:
+    old, new = audit.changes(before, _student_data(student))
+    if new:
+        audit.record(Action.STUDENTS_STUDENT_UPDATED, student, actor=actor, before=old, after=new)
+
+
+def _delete_photo_after_commit(old_name: str, student: Student) -> None:
+    if old_name and old_name != student.photo.name:
+        transaction.on_commit(partial(student.photo.storage.delete, old_name))
+
+
+def _delete_family(family: Family, *, actor: User) -> None:
+    audit.record(
+        Action.STUDENTS_FAMILY_DELETED,
+        family,
+        actor=actor,
+        before={"code": family.code, "guardians": _guardians_data(family)},
+        label=family.code,
+    )
+    family.delete()
 
 
 # Inscriptions et matricule

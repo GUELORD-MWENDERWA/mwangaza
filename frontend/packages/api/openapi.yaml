@@ -365,6 +365,7 @@ paths:
           - organisation.matricule_format_changed
           - students.family_created
           - students.family_updated
+          - students.family_deleted
           - students.student_created
           - students.student_updated
           - students.enrolled
@@ -417,6 +418,7 @@ paths:
           * `organisation.matricule_format_changed` - Student number format changed
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
+          * `students.family_deleted` - Family deleted
           * `students.student_created` - Student created
           * `students.student_updated` - Student changed
           * `students.enrolled` - Student enrolled
@@ -2686,8 +2688,9 @@ paths:
   /api/students/:
     get:
       operationId: students_list
-      description: 'Élèves de l''école (D2) : liste paginée avec recherche, fiche,
-        création, modification.'
+      description: |-
+        Élèves de l'école (D2) : liste paginée avec recherche, fiche, création, modification,
+        photo, historique.
       parameters:
       - in: query
         name: academic_year
@@ -2749,8 +2752,9 @@ paths:
       operationId: students_create
       description: |-
         Élève avec une famille existante (`family`) ou nouvelle (`guardians`). Même nom et
-        même date de naissance qu'un autre élève : 409 `possible_duplicate`, à renvoyer avec
-        `allow_duplicate` après confirmation. Même `id` renvoyé : 200 avec l'élève déjà créé.
+        même date de naissance qu'un autre élève : 409 `possible_duplicate` avec `duplicates` (id,
+        noms, matricule : lien vers leur fiche), à renvoyer avec `allow_duplicate` après
+        confirmation. Même `id` renvoyé : 200 avec l'élève déjà créé.
       tags:
       - students
       requestBody:
@@ -2807,8 +2811,9 @@ paths:
   /api/students/{id}/:
     get:
       operationId: students_retrieve
-      description: 'Élèves de l''école (D2) : liste paginée avec recherche, fiche,
-        création, modification.'
+      description: |-
+        Élèves de l'école (D2) : liste paginée avec recherche, fiche, création, modification,
+        photo, historique.
       parameters:
       - in: path
         name: id
@@ -2842,8 +2847,9 @@ paths:
           description: ''
     patch:
       operationId: students_partial_update
-      description: 'Élèves de l''école (D2) : liste paginée avec recherche, fiche,
-        création, modification.'
+      description: |-
+        Élèves de l'école (D2) : liste paginée avec recherche, fiche, création, modification,
+        photo, historique.
       parameters:
       - in: path
         name: id
@@ -2885,6 +2891,177 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/students/{id}/history/:
+    get:
+      operationId: students_history_list
+      description: |-
+        Ce qui s'est passé pour l'élève (M9, Historique) : lui, ses inscriptions et sa
+        famille, le plus récent d'abord. Paiements : avec la caisse (3.x).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: Un numéro de page de l'ensemble des résultats.
+        schema:
+          type: integer
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStudentHistoryList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/students/{id}/photo/:
+    get:
+      operationId: students_photo_retrieve
+      description: |-
+        Photo de l'élève (M9), jamais publique : lue avec `students.view`, changée ou
+        retirée avec `students.edit`.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+          description: PNG ou JPEG.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: students_photo_create
+      description: |-
+        Photo de l'élève (M9), jamais publique : lue avec `students.view`, changée ou
+        retirée avec `students.edit`.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PhotoUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: students_photo_destroy
+      description: |-
+        Photo de l'élève (M9), jamais publique : lue avec `students.view`, changée ou
+        retirée avec `students.edit`.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: Un(une) Chaîne UUID identifiant ce(cette) student.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
           description: ''
         '403':
           content:
@@ -3289,6 +3466,7 @@ components:
       - organisation.matricule_format_changed
       - students.family_created
       - students.family_updated
+      - students.family_deleted
       - students.student_created
       - students.student_updated
       - students.enrolled
@@ -3340,6 +3518,7 @@ components:
         * `organisation.matricule_format_changed` - Student number format changed
         * `students.family_created` - Family created
         * `students.family_updated` - Family changed
+        * `students.family_deleted` - Family deleted
         * `students.student_created` - Student created
         * `students.student_updated` - Student changed
         * `students.enrolled` - Student enrolled
@@ -3872,6 +4051,10 @@ components:
           type: string
           format: uuid
           readOnly: true
+        matricule:
+          type: string
+          title: Student number
+          maxLength: 60
         last_name:
           type: string
           title: Nom
@@ -3888,6 +4071,7 @@ components:
           readOnly: true
       required:
       - id
+      - matricule
       - last_name
       - middle_name
       - first_name
@@ -4364,6 +4548,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Staff'
+    PaginatedStudentHistoryList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentHistory'
     PaginatedStudentListList:
       type: object
       required:
@@ -4701,6 +4910,15 @@ components:
       - last_name
       - middle_name
       - first_name
+    PhotoUploadRequest:
+      type: object
+      properties:
+        photo:
+          type: string
+          format: binary
+          description: PNG ou JPEG, 1 Mo au plus.
+      required:
+      - photo
     RecoveryCodes:
       type: object
       properties:
@@ -5144,6 +5362,12 @@ components:
           allOf:
           - $ref: '#/components/schemas/Address'
           readOnly: true
+        photo:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Adresse de la photo (`GET /api/students/{id}/photo/`) ; null
+            sans photo.
         photo_consent:
           type: boolean
         previous_school:
@@ -5175,11 +5399,88 @@ components:
       - origin_province
       - origin_territory
       - address
+      - photo
       - photo_consent
       - previous_school
       - family
       - enrollments
       - created_at
+    StudentHistory:
+      type: object
+      description: |-
+        Une entrée du journal sur l'élève, ses inscriptions ou sa famille (onglet Historique) ;
+        sans adresse IP ni navigateur, réservés au journal de l'école (`audit.view`).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        action:
+          allOf:
+          - $ref: '#/components/schemas/ActionEnum'
+          readOnly: true
+        domain:
+          allOf:
+          - $ref: '#/components/schemas/DomainEnum'
+          description: Domaine de l'action (filtre de M6).
+          readOnly: true
+        actor:
+          allOf:
+          - $ref: '#/components/schemas/AuditActor'
+          nullable: true
+          readOnly: true
+          description: Qui ; vide pour le support Mwangaza (`by_support`) ou le système.
+        by_support:
+          type: boolean
+          readOnly: true
+          description: 'Action du support Mwangaza : l''interface affiche « Support
+            Mwangaza ».'
+        entity_type:
+          type: string
+          readOnly: true
+          title: Object type
+        entity_id:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+          title: Object
+        entity_label:
+          type: string
+          readOnly: true
+          description: 'Nom de l''objet au moment de l''action. Vide pour un rôle
+            système sans nom propre : l''interface affiche le nom traduit de `role_code`.'
+        role_code:
+          description: Code du rôle système quand l'objet est un rôle sans nom propre
+            ; sinon null.
+          nullable: true
+          readOnly: true
+          oneOf:
+          - $ref: '#/components/schemas/RoleCodeEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        before:
+          readOnly: true
+          nullable: true
+        after:
+          readOnly: true
+          nullable: true
+      required:
+      - id
+      - created_at
+      - action
+      - domain
+      - actor
+      - by_support
+      - entity_type
+      - entity_id
+      - entity_label
+      - role_code
+      - before
+      - after
     StudentList:
       type: object
       properties:

@@ -99,7 +99,31 @@ export function renderValue(
       return currency(value);
     case "starts_on":
     case "ends_on":
+    case "birth_date":
+    case "left_on":
       return formatDay(String(value), language);
+    case "sex":
+      return t(value === "F" ? "students.new.female" : "students.new.male");
+    case "status":
+      return t(`students.enrollmentStatus.${value as "active"}`, { defaultValue: String(value) });
+    case "address":
+      return (
+        Object.values(value as Record<string, string>)
+          .filter(Boolean)
+          .join(", ") || t("audit.values.none")
+      );
+    case "guardians":
+      return (value as { full_name: string; relationship: string; phone: string }[])
+        .map((guardian) =>
+          [
+            guardian.full_name,
+            t(`students.relationships.${guardian.relationship as "mother"}`),
+            guardian.phone,
+          ]
+            .filter(Boolean)
+            .join(", "),
+        )
+        .join(" ; ");
     case "expires_at":
       return formatDateTime(String(value), language, timeZone);
     case "levels":

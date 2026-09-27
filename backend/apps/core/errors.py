@@ -30,9 +30,11 @@ class BusinessError(Exception):
     """Règle métier refusée par un service. L'API répond `{code, detail}` avec le statut de
     l'erreur ; les services n'ont pas besoin de connaître DRF."""
 
-    def __init__(self, error: ApiError):
+    def __init__(self, error: ApiError, **extra):
         super().__init__(str(error.detail))
         self.error = error
+        # Précisions ajoutées à la réponse (ex. `duplicates` : les fiches concernées).
+        self.extra = extra
 
 
 INVALID = ApiError("invalid", _("Some fields are invalid."), 400)
@@ -46,7 +48,7 @@ def api_exception_handler(exc, context):
     `ValidationError` de Django (`{"terms.0.ends_on": ValidationError(…, code=…)}`) : même
     réponse."""
     if isinstance(exc, BusinessError):
-        return Response(exc.error.body(), status=exc.error.status)
+        return Response({**exc.error.body(), **exc.extra}, status=exc.error.status)
     if isinstance(exc, DjangoValidationError):
         exc = exceptions.ValidationError(get_error_detail(exc))
     response = drf_exception_handler(exc, context)

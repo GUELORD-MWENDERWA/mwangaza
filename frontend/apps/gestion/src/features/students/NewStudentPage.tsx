@@ -1,35 +1,16 @@
 // Inscrire un nouvel élève (D2-D4) : identité, adresse, classe de l'année en cours, famille
 // existante ou nouvelle (tuteur principal + autres contacts). Élève puis inscription, chacun avec
 // un identifiant donné par l'appareil : un nouvel envoi après une coupure ne crée pas de doublon.
-// Même nom, prénom et date de naissance qu'un autre élève : avertissement, puis « Inscrire quand
-// même ». Photo : 2.2.2 ; frais appliqués : 2.6 ; hors-ligne : 3.x.
+// Même nom, prénom et date de naissance qu'un autre élève : avertissement avec le lien vers sa
+// fiche, puis « Inscrire quand même ». Photo envoyée après l'inscription ; puis la fiche s'ouvre.
+// Frais appliqués : 2.6 ; hors-ligne : 3.x.
 import { zodResolver } from "@hookform/resolvers/zod";
-import { api, call } from "@mwangaza/api";
+import { type ApiError, api, call } from "@mwangaza/api";
 import { type TFunction, useTranslation } from "@mwangaza/i18n";
-import {
-  Banner,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Field,
-  Icon,
-  Input,
-  PageHeader,
-  Segmented,
-  Select,
-} from "@mwangaza/ui";
+import { Banner, Button, Field, Icon, Input, PageHeader, Segmented, Select } from "@mwangaza/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { type ReactNode, useMemo, useRef, useState } from "react";
-import {
-  Controller,
-  type Path,
-  type UseFormReturn,
-  useFieldArray,
-  useForm,
-  useWatch,
-} from "react-hook-form";
+import { useMemo, useRef, useState } from "react";
+import { type Path, type UseFormReturn, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 
@@ -39,8 +20,32 @@ import { formatPhone, studentName } from "../../lib/people";
 import { hasCode, keys } from "../../lib/queries";
 import { useSettled } from "../../lib/settled";
 import { type ClassGroup, useClasses, useYears } from "../organisation/data";
-import type { Created } from "./StudentsPage";
-import { type Family, RELATIONSHIPS, type Relationship, useFamilySearch } from "./data";
+import type { Created } from "./StudentPage";
+import {
+  IDENTITY_EMPTY,
+  IDENTITY_PATHS,
+  IdentitySections,
+  PhotoSection,
+  Section,
+  TextField,
+  identityShape,
+} from "./StudentFields";
+import {
+  type Family,
+  RELATIONSHIPS,
+  type Relationship,
+  uploadPhoto,
+  useFamilySearch,
+} from "./data";
+
+/** Élève qui a déjà les mêmes noms et date de naissance (réponse `possible_duplicate`). */
+type Duplicate = {
+  id: string;
+  last_name: string;
+  middle_name: string;
+  first_name: string;
+  matricule: string;
+};
 
 const MAX_GUARDIANS = 10;
 
@@ -49,22 +54,7 @@ function studentSchema(t: TFunction) {
   const guardian = z.object({ full_name: text(150), relationship: z.string(), phone: text(20) });
   return z
     .object({
-      last_name: text(80).min(1, t("validation.nameRequired")),
-      middle_name: text(80).min(1, t("students.validation.middleNameRequired")),
-      first_name: text(80),
-      sex: z.string().min(1, t("students.validation.sexRequired")),
-      birth_date: z.string().min(1, t("validation.dateRequired")),
-      birth_place: text(120),
-      nationality: text(60),
-      origin_province: text(60),
-      origin_territory: text(80),
-      address: z.object({
-        commune: text(80),
-        quartier: text(80),
-        avenue: text(120),
-        number: text(20),
-      }),
-      previous_school: text(200),
+      ...identityShape(t),
       class_group: z.string().min(1, t("students.validation.classRequired")),
       family_mode: z.enum(["existing", "new"]),
       family: z.string(),
@@ -100,17 +90,7 @@ type Form = UseFormReturn<Values, unknown, z.output<Schema>>;
 
 const EMPTY_GUARDIAN = { full_name: "", relationship: "", phone: "" };
 const EMPTY: Values = {
-  last_name: "",
-  middle_name: "",
-  first_name: "",
-  sex: "",
-  birth_date: "",
-  birth_place: "",
-  nationality: "",
-  origin_province: "",
-  origin_territory: "",
-  address: { commune: "", quartier: "", avenue: "", number: "" },
-  previous_school: "",
+  ...IDENTITY_EMPTY,
   class_group: "",
   family_mode: "existing",
   family: "",
@@ -119,8 +99,8 @@ const EMPTY: Values = {
 
 /** Champs où placer un refus du serveur (tuteurs : chaque ligne possible). */
 const SERVER_FIELDS = [
-  ...(Object.keys(EMPTY) as Path<Values>[]),
-  ...(Object.keys(EMPTY.address).map((name) => `address.${name}`) as Path<Values>[]),
+  ...(IDENTITY_PATHS as Path<Values>[]),
+  ...(["class_group", "family"] as const),
   ...Array.from({ length: MAX_GUARDIANS }, (_, index) =>
     (["full_name", "relationship", "phone"] as const).map(
       (name) => `guardians.${index}.${name}` as Path<Values>,
@@ -138,7 +118,8 @@ export function NewStudentPage() {
   // Un identifiant par écran ouvert : renvoyé tel quel si l'envoi est recommencé.
   const ids = useRef({ student: uuidv7(), enrollment: uuidv7() });
   const [general, setGeneral] = useState<string | null>(null);
-  const [duplicate, setDuplicate] = useState(false);
+  const [duplicates, setDuplicates] = useState<Duplicate[] | null>(null);
+  const [photo, setPhoto] = useState<File | null>(null);
   const schema = useMemo(() => studentSchema(t), [t]);
   const form: Form = useForm({ resolver: zodResolver(schema), defaultValues: EMPTY });
 
@@ -172,6 +153,7 @@ export function NewStudentPage() {
         }),
       );
       await call(api.POST("/api/enrollments/", { body: { id: enrollment, student, class_group } }));
+      if (photo) return uploadPhoto(student, photo);
       return call(api.GET("/api/students/{id}/", { params: { path: { id: student } } }));
     },
     onSuccess: async (student) => {
@@ -187,11 +169,11 @@ export function NewStudentPage() {
         matricule: student.matricule,
         familyCode: student.family.code,
       };
-      void navigate("/students", { state: { created } });
+      void navigate(`/students/${student.id}`, { state: { created } });
     },
     onError: (error) => {
       if (hasCode(error, "possible_duplicate")) {
-        setDuplicate(true);
+        setDuplicates(duplicatesOf(error));
         return;
       }
       setGeneral(applyServerErrors(error, SERVER_FIELDS, form.setError, t));
@@ -200,24 +182,13 @@ export function NewStudentPage() {
   const submit = (allowDuplicate: boolean) =>
     form.handleSubmit((values) => {
       setGeneral(null);
-      setDuplicate(false);
+      setDuplicates(null);
       save.mutate({ values, allowDuplicate });
     });
 
   const groups = classes.data ?? [];
   const noYear = years.data && !year;
   const blocked = noYear || (classes.data && groups.length === 0);
-  const { errors } = form.formState;
-  const input = (name: Path<Values>, label: string, required = false, type = "text") => (
-    <Field
-      id={`student-${name}`}
-      label={label}
-      required={required}
-      error={fieldError(errors, name)}
-    >
-      {(control) => <Input {...control} type={type} {...form.register(name)} />}
-    </Field>
-  );
 
   return (
     <>
@@ -247,10 +218,18 @@ export function NewStudentPage() {
         <Banner tone="warn">{t("students.new.noClasses")}</Banner>
       )}
       {general && <Banner tone="due">{general}</Banner>}
-      {duplicate && (
+      {duplicates && (
         <Banner tone="warn" role="alert">
           <span className="flex flex-col items-start gap-2">
             {t("students.new.duplicate")}
+            {duplicates.map((other) => (
+              <Link key={other.id} to={`/students/${other.id}`} className="text-lake underline">
+                {t("students.new.duplicateOpen", {
+                  name: studentName(other),
+                  matricule: other.matricule || t("common.none"),
+                })}
+              </Link>
+            ))}
             <Button type="button" size="sm" variant="outline" onClick={() => void submit(true)()}>
               {t("students.new.duplicateConfirm")}
             </Button>
@@ -263,60 +242,15 @@ export function NewStudentPage() {
         onSubmit={submit(false)}
         className="flex max-w-[1040px] flex-col gap-5"
       >
-        <Section title={t("students.new.identity")}>
-          <div className="grid gap-3 min-[700px]:grid-cols-3">
-            {input("last_name", t("students.new.lastName"), true)}
-            {input("middle_name", t("students.new.middleName"), true)}
-            {input("first_name", t("students.new.firstName"))}
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[.87rem] font-bold text-ink-2">
-                {t("students.new.sex")}
-                <span className="text-due" aria-hidden="true">
-                  {" "}
-                  *
-                </span>
-              </span>
-              <Controller
-                control={form.control}
-                name="sex"
-                render={({ field }) => (
-                  <Segmented
-                    label={t("students.new.sex")}
-                    value={field.value as "M" | "F"}
-                    onValueChange={field.onChange}
-                    options={[
-                      { value: "M", label: t("students.new.male") },
-                      { value: "F", label: t("students.new.female") },
-                    ]}
-                    className="self-start"
-                  />
-                )}
-              />
-              {errors.sex && (
-                <p role="alert" className="text-[.8rem] text-due">
-                  {errors.sex.message}
-                </p>
-              )}
-            </div>
-            {input("birth_date", t("students.new.birthDate"), true, "date")}
-            {input("birth_place", t("students.new.birthPlace"))}
-            {input("nationality", t("students.new.nationality"))}
-            {input("origin_province", t("students.new.originProvince"))}
-            {input("origin_territory", t("students.new.originTerritory"))}
-          </div>
-        </Section>
-        <Section title={t("students.new.address")}>
-          <div className="grid gap-3 min-[700px]:grid-cols-4">
-            {input("address.commune", t("students.new.commune"))}
-            {input("address.quartier", t("students.new.quartier"))}
-            {input("address.avenue", t("students.new.avenue"))}
-            {input("address.number", t("students.new.number"))}
-          </div>
-        </Section>
+        <IdentitySections form={form} />
         <Section title={t("students.new.schooling", { year: year?.name ?? "" })}>
           <div className="grid gap-3 min-[700px]:grid-cols-3">
             <ClassField form={form} groups={groups} />
-            {input("previous_school", t("students.new.previousSchool"))}
+            <TextField
+              form={form}
+              name="previous_school"
+              label={t("students.new.previousSchool")}
+            />
             <Field
               id="student-matricule"
               label={t("students.new.matricule")}
@@ -333,40 +267,16 @@ export function NewStudentPage() {
             </Field>
           </div>
         </Section>
+        <PhotoSection form={form} photo={photo} onPhoto={setPhoto} />
         <FamilySection form={form} />
       </form>
     </>
   );
 }
 
-function fieldError(errors: Form["formState"]["errors"], name: string): string | undefined {
-  const found = name
-    .split(".")
-    .reduce<unknown>(
-      (node, key) => (node as Record<string, unknown> | undefined)?.[key],
-      errors,
-    ) as { message?: string } | undefined;
-  return found?.message;
-}
-
-function Section({
-  title,
-  action,
-  children,
-}: {
-  title: string;
-  action?: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <Card>
-      <CardHeader className="flex-row flex-wrap items-center justify-between gap-3">
-        <CardTitle>{title}</CardTitle>
-        {action}
-      </CardHeader>
-      <CardContent>{children}</CardContent>
-    </Card>
-  );
+function duplicatesOf(error: ApiError): Duplicate[] {
+  const found = error.body.duplicates;
+  return Array.isArray(found) ? (found as Duplicate[]) : [];
 }
 
 function ClassField({ form, groups }: { form: Form; groups: ClassGroup[] }) {
@@ -461,7 +371,7 @@ function ExistingFamily({ form }: { form: Form }) {
   );
 }
 
-function FamilyCard({
+export function FamilyCard({
   family,
   chosen,
   onChoose,

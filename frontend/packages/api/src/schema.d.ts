@@ -793,13 +793,17 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Élèves de l'école (D2) : liste paginée avec recherche, fiche, création, modification. */
+        /**
+         * @description Élèves de l'école (D2) : liste paginée avec recherche, fiche, création, modification,
+         *     photo, historique.
+         */
         get: operations["students_list"];
         put?: never;
         /**
          * @description Élève avec une famille existante (`family`) ou nouvelle (`guardians`). Même nom et
-         *     même date de naissance qu'un autre élève : 409 `possible_duplicate`, à renvoyer avec
-         *     `allow_duplicate` après confirmation. Même `id` renvoyé : 200 avec l'élève déjà créé.
+         *     même date de naissance qu'un autre élève : 409 `possible_duplicate` avec `duplicates` (id,
+         *     noms, matricule : lien vers leur fiche), à renvoyer avec `allow_duplicate` après
+         *     confirmation. Même `id` renvoyé : 200 avec l'élève déjà créé.
          */
         post: operations["students_create"];
         delete?: never;
@@ -815,15 +819,69 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Élèves de l'école (D2) : liste paginée avec recherche, fiche, création, modification. */
+        /**
+         * @description Élèves de l'école (D2) : liste paginée avec recherche, fiche, création, modification,
+         *     photo, historique.
+         */
         get: operations["students_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** @description Élèves de l'école (D2) : liste paginée avec recherche, fiche, création, modification. */
+        /**
+         * @description Élèves de l'école (D2) : liste paginée avec recherche, fiche, création, modification,
+         *     photo, historique.
+         */
         patch: operations["students_partial_update"];
+        trace?: never;
+    };
+    "/api/students/{id}/history/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Ce qui s'est passé pour l'élève (M9, Historique) : lui, ses inscriptions et sa
+         *     famille, le plus récent d'abord. Paiements : avec la caisse (3.x).
+         */
+        get: operations["students_history_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/students/{id}/photo/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Photo de l'élève (M9), jamais publique : lue avec `students.view`, changée ou
+         *     retirée avec `students.edit`.
+         */
+        get: operations["students_photo_retrieve"];
+        put?: never;
+        /**
+         * @description Photo de l'élève (M9), jamais publique : lue avec `students.view`, changée ou
+         *     retirée avec `students.edit`.
+         */
+        post: operations["students_photo_create"];
+        /**
+         * @description Photo de l'élève (M9), jamais publique : lue avec `students.view`, changée ou
+         *     retirée avec `students.edit`.
+         */
+        delete: operations["students_photo_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/support/": {
@@ -973,6 +1031,7 @@ export interface components {
          *     * `organisation.matricule_format_changed` - Student number format changed
          *     * `students.family_created` - Family created
          *     * `students.family_updated` - Family changed
+         *     * `students.family_deleted` - Family deleted
          *     * `students.student_created` - Student created
          *     * `students.student_updated` - Student changed
          *     * `students.enrolled` - Student enrolled
@@ -981,7 +1040,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "support.started" | "support.ended";
         Address: {
             commune: string;
             quartier: string;
@@ -1213,6 +1272,8 @@ export interface components {
         FamilyStudent: {
             /** Format: uuid */
             readonly id: string;
+            /** Student number */
+            matricule: string;
             /** Nom */
             last_name: string;
             middle_name: string;
@@ -1446,6 +1507,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["Staff"][];
         };
+        PaginatedStudentHistoryList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["StudentHistory"][];
+        };
         PaginatedStudentListList: {
             /** @example 123 */
             count: number;
@@ -1631,6 +1707,13 @@ export interface components {
             middle_name: string;
             /** Prénom */
             first_name: string;
+        };
+        PhotoUploadRequest: {
+            /**
+             * Format: binary
+             * @description PNG ou JPEG, 1 Mo au plus.
+             */
+            photo: string;
         };
         RecoveryCodes: {
             /** @description Affichés une seule fois : à imprimer. */
@@ -1853,12 +1936,44 @@ export interface components {
             /** Territory of origin */
             origin_territory: string;
             readonly address: components["schemas"]["Address"];
+            /** @description Adresse de la photo (`GET /api/students/{id}/photo/`) ; null sans photo. */
+            readonly photo: string | null;
             photo_consent: boolean;
             previous_school: string;
             readonly family: components["schemas"]["Family"];
             readonly enrollments: components["schemas"]["Enrollment"][];
             /** Format: date-time */
             readonly created_at: string;
+        };
+        /**
+         * @description Une entrée du journal sur l'élève, ses inscriptions ou sa famille (onglet Historique) ;
+         *     sans adresse IP ni navigateur, réservés au journal de l'école (`audit.view`).
+         */
+        StudentHistory: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            readonly action: components["schemas"]["ActionEnum"];
+            /** @description Domaine de l'action (filtre de M6). */
+            readonly domain: components["schemas"]["DomainEnum"];
+            /** @description Qui ; vide pour le support Mwangaza (`by_support`) ou le système. */
+            readonly actor: components["schemas"]["AuditActor"] | null;
+            /** @description Action du support Mwangaza : l'interface affiche « Support Mwangaza ». */
+            readonly by_support: boolean;
+            /** Object type */
+            readonly entity_type: string;
+            /**
+             * Object
+             * Format: uuid
+             */
+            readonly entity_id: string | null;
+            /** @description Nom de l'objet au moment de l'action. Vide pour un rôle système sans nom propre : l'interface affiche le nom traduit de `role_code`. */
+            readonly entity_label: string;
+            /** @description Code du rôle système quand l'objet est un rôle sans nom propre ; sinon null. */
+            readonly role_code: (components["schemas"]["RoleCodeEnum"] | components["schemas"]["NullEnum"]) | null;
+            readonly before: unknown;
+            readonly after: unknown;
         };
         StudentList: {
             /** Format: uuid */
@@ -2444,6 +2559,7 @@ export interface operations {
                  *     * `organisation.matricule_format_changed` - Student number format changed
                  *     * `students.family_created` - Family created
                  *     * `students.family_updated` - Family changed
+                 *     * `students.family_deleted` - Family deleted
                  *     * `students.student_created` - Student created
                  *     * `students.student_updated` - Student changed
                  *     * `students.enrolled` - Student enrolled
@@ -2451,7 +2567,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -5064,6 +5180,182 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    students_history_list: {
+        parameters: {
+            query?: {
+                /** @description Un numéro de page de l'ensemble des résultats. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) student. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedStudentHistoryList"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    students_photo_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) student. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description PNG ou JPEG. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/*": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    students_photo_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) student. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["PhotoUploadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Student"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    students_photo_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Un(une) Chaîne UUID identifiant ce(cette) student. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Student"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

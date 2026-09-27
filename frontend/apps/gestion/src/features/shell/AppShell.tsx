@@ -19,8 +19,10 @@ import { Link, Navigate, Outlet } from "react-router";
 import { errorMessage } from "../../lib/errors";
 import { useOnline } from "../../lib/online";
 import { displayName, rolesLabel } from "../../lib/people";
+import { can } from "../../lib/permissions";
 import { useCurrentMe, type Me } from "../../lib/queries";
 import { useLogout } from "../../lib/session";
+import { SearchPalette } from "./SearchPalette";
 import { Nav, SchoolSwitcher, Sidebar } from "./Sidebar";
 import { SupportBanner } from "./SupportBanner";
 
@@ -58,6 +60,7 @@ function TopBar({ me }: { me: Me }) {
   return (
     <header className="flex h-14 items-center gap-2.5 border-b border-line bg-card px-3 min-[900px]:h-[60px] min-[900px]:gap-4 min-[900px]:px-6">
       <MobileMenu me={me} />
+      {can(me, ["students.view"]) && <SearchPalette />}
       <SyncIndicator
         online={online}
         label={online ? t("common.online") : t("common.offline")}

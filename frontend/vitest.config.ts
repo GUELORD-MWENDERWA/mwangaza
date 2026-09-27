@@ -25,6 +25,8 @@ export default defineConfig({
           name: "écrans",
           environment: "jsdom",
           include: ["apps/*/**/*.test.tsx", "packages/*/**/*.test.tsx"],
+          // Un parcours de saisie complet (inscription) dépasse 5 s quand tout tourne en parallèle.
+          testTimeout: 15_000,
           setupFiles: ["./vitest.setup.ts"],
         },
       },

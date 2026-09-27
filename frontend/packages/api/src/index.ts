@@ -15,6 +15,8 @@ export class ApiError extends Error {
   readonly code: string;
   readonly fields: FieldErrors;
   readonly retryAfter: number | null;
+  /** Réponse entière : précisions propres à une erreur (ex. `duplicates`). */
+  readonly body: Record<string, unknown>;
 
   constructor(
     status: number,
@@ -22,6 +24,7 @@ export class ApiError extends Error {
     detail: string,
     fields: FieldErrors = {},
     retryAfter: number | null = null,
+    body: Record<string, unknown> = {},
   ) {
     super(detail);
     this.name = "ApiError";
@@ -29,6 +32,7 @@ export class ApiError extends Error {
     this.code = code;
     this.fields = fields;
     this.retryAfter = retryAfter;
+    this.body = body;
   }
 }
 
@@ -85,6 +89,7 @@ function toApiError(response: Response, body: unknown): ApiError {
     error.detail ?? response.statusText,
     error.fields ?? {},
     Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : null,
+    error as Record<string, unknown>,
   );
 }
 

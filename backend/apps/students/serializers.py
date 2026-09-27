@@ -3,8 +3,10 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.accounts.serializers import PhoneField
+from apps.audit.serializers import AuditLogSerializer
 from apps.schools.models import AcademicYear, ClassGroup, Track
 from apps.students.models import Enrollment, Family, Guardian, Student
+from apps.students.photos import validate_photo
 
 
 class AddressSerializer(serializers.Serializer):
@@ -47,7 +49,7 @@ class FamilyStudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Student
-        fields = ["id", "last_name", "middle_name", "first_name", "class_group_name"]
+        fields = ["id", "matricule", "last_name", "middle_name", "first_name", "class_group_name"]
 
     def get_class_group_name(self, student: Student) -> str:
         enrollments = getattr(student, "year_enrollments", [])
@@ -146,10 +148,21 @@ class StudentListSerializer(_StudentFields):
         return GuardianSerializer(guardians[0]).data if guardians else None
 
 
+def photo_url(student: Student) -> str | None:
+    """Adresse de la photo (servie par l'API) ; elle change avec chaque photo (cache)."""
+    if not student.photo:
+        return None
+    version = student.photo.name.rsplit("/", 1)[-1].split(".")[0].removeprefix("photo-")
+    return f"/api/students/{student.pk}/photo/?v={version}"
+
+
 class StudentSerializer(_StudentFields):
     address = AddressSerializer(read_only=True)
     family = FamilySerializer(read_only=True)
     enrollments = EnrollmentSerializer(many=True, read_only=True)
+    photo = serializers.SerializerMethodField(
+        help_text="Adresse de la photo (`GET /api/students/{id}/photo/`) ; null sans photo."
+    )
 
     class Meta(_StudentFields.Meta):
         fields = [
@@ -159,12 +172,33 @@ class StudentSerializer(_StudentFields):
             "origin_province",
             "origin_territory",
             "address",
+            "photo",
             "photo_consent",
             "previous_school",
             "family",
             "enrollments",
             "created_at",
         ]
+
+    def get_photo(self, student: Student) -> str | None:
+        return photo_url(student)
+
+
+class PhotoUploadSerializer(serializers.Serializer):
+    photo = serializers.FileField(
+        validators=[validate_photo], help_text="PNG ou JPEG, 1 Mo au plus."
+    )
+
+
+class StudentHistorySerializer(AuditLogSerializer):
+    """Une entrée du journal sur l'élève, ses inscriptions ou sa famille (onglet Historique) ;
+    sans adresse IP ni navigateur, réservés au journal de l'école (`audit.view`)."""
+
+    class Meta(AuditLogSerializer.Meta):
+        fields = [
+            name for name in AuditLogSerializer.Meta.fields if name not in {"ip", "user_agent"}
+        ]
+        read_only_fields = fields
 
 
 class StudentWriteSerializer(serializers.ModelSerializer):
