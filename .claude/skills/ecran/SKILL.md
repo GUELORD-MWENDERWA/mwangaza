@@ -56,7 +56,7 @@ Maquettes marquées « à valider » dans `maquettes/README.md` : dessinées par
 ## 3. Construire
 
 - Emplacement : `frontend/apps/<gestion|portail>/src/features/<domaine>/…` ; composants génériques dans `frontend/packages/ui`.
-- **Gestion** : un écran du menu se branche dans `SCREENS` de `src/routes.tsx` (le droit de l'entrée est vérifié avant, sinon page 403) ; compte connecté : `useCurrentMe()`, école de l'adresse (nom, fuseau) : `useCurrentSchool()`, droits : `can(me, [...])` ; erreurs : `errorMessage()` et `applyServerErrors()` de `src/lib/errors.ts` (jamais le `detail` du serveur) ; dates : `formatDate` / `formatTime` de `@mwangaza/i18n` avec `school.timezone`.
+- **Gestion** : un écran du menu se branche dans `SCREENS` de `src/routes.tsx` (le droit de l'entrée est vérifié avant, sinon page 403) ; compte connecté : `useCurrentMe()`, école de l'adresse (nom, fuseau) : `useCurrentSchool()`, droits : `can(me, [...])` ; erreurs : `errorMessage()`, `fieldMessage()` et `applyServerErrors()` de `src/lib/errors.ts` (jamais le `detail` du serveur) ; données pas lues : `LoadError` (`features/status/StatusPages.tsx` : pas de réseau, droit retiré, erreur) ; liste paginée par le serveur : `Pagination` (`features/shell/Pagination.tsx`) ; noms et téléphones : `fullName()`, `formatPhone()`, `roleName()` de `src/lib/people.ts` ; jour du calendrier (`2026-09-07`) : `formatDay` ; dates : `formatDate` / `formatTime` de `@mwangaza/i18n` avec `school.timezone`.
 - Composants shadcn/ui + jetons de la skill `design`. Ne pas copier le HTML ni les classes des maquettes.
 - **Textes** : aucun en dur. Clés i18next par fonctionnalité (ex. `finance.cashier.collectAndPrint`) ; `fr` reprend les libellés de la maquette mot pour mot, puis traduction `en`.
 - **Données** : client typé `frontend/packages/api` (généré depuis l'OpenAPI) + TanStack Query. Écran utilisable hors-ligne (caisse, élèves, reçus) : lire et écrire via Dexie selon la skill `hors-ligne`.
@@ -69,7 +69,7 @@ Maquettes marquées « à valider » dans `maquettes/README.md` : dessinées par
 
 ## 4. Vérifier
 
-1. Tests : Vitest pour la logique d'écran, Playwright pour le parcours ; un test par règle `.note` quand c'est testable. Écrans de la Gestion (`*.test.tsx`) : `renderApp("/adresse")` (`src/test/render.tsx`), faux serveur `mockApi({"GET /api/…": réponse})`, `apiError(code, statut)` (`src/test/api.ts`), comptes `me("cashier")`, `platformAdmin()` (`src/test/fixtures.ts`). Parcours réels : `frontend/e2e/*.spec.ts` (`make test-e2e` ; un compte à code une seule fois par parcours : un code ne sert qu'une fois).
+1. Tests : Vitest pour la logique d'écran, Playwright pour le parcours ; un test par règle `.note` quand c'est testable. Écrans de la Gestion (`*.test.tsx`) : `renderApp("/adresse")` (`src/test/render.tsx`), faux serveur `mockApi({"GET /api/…": réponse})` (il renvoie les requêtes reçues avec `query` et `body`), `apiError(code, statut)` (`src/test/api.ts`), comptes `me("cashier")`, `platformAdmin()` (`src/test/fixtures.ts`). Parcours réels : `frontend/e2e/*.spec.ts` (`make test-e2e` ; un compte à code une seule fois par parcours : un code ne sert qu'une fois).
 2. Lancer l'application et comparer à la capture à 1440 px (et 390 px si capture mobile). Lister les différences restantes.
 3. Aucun texte en dur : `apps/gestion/textes.test.ts` le vérifie (texte entre balises, `label`, `placeholder`, `title`, `aria-label`, `alt`) ; `fr` et `en` aux mêmes clés : TypeScript et `packages/i18n/src/locales.test.ts`.
 

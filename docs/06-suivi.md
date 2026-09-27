@@ -6,9 +6,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | V1.0 — semaine 1 (Socle) |
-| Lot | V1.0 — semaine 1 (Socle) |
-| Tâche en cours | 1.7 — organisation scolaire (année, découpage, niveaux, options, classes, matricule) et écrans des paramètres, du personnel, des rôles et du journal ; plan : `docs/claude/plans/tache-1.7.md` |
+| Phase | V1.0 — semaine 1 (Socle) terminée ; ensuite semaine 2 (Élèves et frais) |
+| Lot | V1.0 — semaines 1 à 4 |
+| Tâche en cours | aucune — 1.7 terminée (organisation scolaire, écrans des paramètres, du personnel, des rôles et du journal) : PR à relire et fusionner |
 | Prochaine tâche | 2.1 — app `students` (`/tache 2.1`) |
 | Issue GitHub | #13 (1.7) |
 | Branche | `tache/1.7-organisation-parametres` ; dossier local : `~/Projets/mwangaza` |
@@ -19,11 +19,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Bloc | Fait | Total |
 |---|:-:|:-:|
 | Avant de coder (toi) | 2 | 4 |
-| Semaine 1 — Socle | 8 | 9 |
+| Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 0 | 7 |
 | Semaine 3 — Caisse et hors-ligne | 0 | 8 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **8** | **32** |
+| **V1.0** | **9** | **32** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -44,11 +44,22 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 
 À trancher au plus tard pendant la tâche indiquée. Une fois tranchée : déplacer dans le journal.
 
-Aucune : Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q12.
+| # | Question | Pour | En attendant |
+|---|---|---|---|
+| Q12 | Découpage officiel de l'année au **primaire** (trimestres ? périodes et examens par trimestre ?) : pour proposer un modèle « primaire » à la création d'une année (C1) | avant la première école primaire (aucune en V1.0 : l'ITIG n'a pas de primaire) | pas de modèle « primaire » : une école du primaire part du modèle « 3 trimestres, 6 périodes, 3 examens » ou d'un découpage vide, et l'ajuste |
+
+Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-27 — Tâche 1.7 : organisation scolaire, paramètres, personnel, rôles, journal
+
+- **Fait** : PR #85 (1.6) fusionnée par l'utilisateur. **Serveur** (app `schools`) : `AcademicYear`, `Term`, `Level`, `Track`, `ClassGroup` [T] et `School.matricule_format` (migration 0004, format rempli pour les écoles existantes) ; services `organisation.py` : année depuis un modèle (secondaire RDC, 3 trimestres, vide) avec en option les classes d'une autre année (sans titulaires), année en cours unique, découpage remplacé d'un seul envoi (dates dans l'année, période dans son semestre), niveaux ordonnés, options avec code, classes (unique par année même sans option, section en majuscules, titulaire = personnel actif de l'école), suppression seulement de ce qui ne sert plus, format du matricule vérifié et aperçu « Prochain matricule » ; 16 actions `organisation.*` au journal. API `classes.manage` : `/api/academic-years/` (+ `make-current`, `terms`), `/api/levels/` (+ `reorder`), `/api/tracks/`, `/api/class-groups/` (+ `homeroom-candidates`), `/api/matricule-format/` (+ `preview`). Aussi : filtres de `/api/staff/` (nom ou téléphone, rôle, état), `/api/audit/actors/`, `role_code` des entrées du journal, erreurs de saisie levées par un service au format de l'API. **Gestion** : écrans « Paramètres de l'école » (M5 : identité, logo aussitôt enregistré, couleur avec aperçu lisible et teinte voisine, fuseau, devises), « Organisation scolaire » (année, découpage aux noms traduits et « Modifier les dates », niveaux et options, classes groupées par option et niveau, matricule avec aperçu), « Comptes du personnel » (M3), « Rôles et permissions », « Journal d'audit » (M6 : filtres, pages, détail avant / après traduit) ; composants `Tabs`, `Switch`, `Select`, `Table`, `ConfirmDialog`. `make demo` : ITIG 2026-2027 (découpage daté comme la maquette, 6 niveaux, 4 options, 23 classes, l'enseignant de démonstration titulaire de la 3e Électricité A, `ITIG-{AAAA}-{0000}`), Volcans (dates à saisir, 4 niveaux, 2 options, 4 classes, `LV/{AA}/{0000}`). Écrans comparés aux captures des maquettes à 1440 et 390 px.
+- **Tests** : 745 pytest passés (86 nouveaux : 25 formats de matricule, 26 services de l'organisation, 28 API avec droits et isolation entre deux écoles, 3 `make demo`, 2 filtres du personnel, 3 journal, 1 erreurs) ; 130 Vitest (45 nouveaux : 5 écrans, couleur, noms des périodes, date sans heure) ; 11 parcours Playwright (3 nouveaux : directeur des études, directeur, isolation Volcans) ; lint et build OK. 7 erreurs volontaires, toutes détectées (une ne l'était pas : assertions ajoutées). Revue : `docs/claude/revues/tache-1.7.md`.
+- **Décisions** (`03` § 11) : modèles d'année et pas de modèle « primaire » (Q12, nouvelle question) ; noms des périodes traduits ; règles du matricule ; erreurs de saisie des services ; titulaire, filtres du personnel et personnes du journal ; aperçu de la couleur dans le navigateur ; écarts aux maquettes ; composants. Informations de l'ITIG utilisées « en attendant » (`07` § 2) : I1 (classes), I2 (matricule), I3 (calendrier).
+- **Reste / suite** : ajouts au plan : 2.1 (matricule généré, effectifs, classe protégée par ses élèves), 2.2 (années et classes lisibles avec `students.view`), 2.5 (reprendre les barèmes d'une autre année), 3.2 (carte « Reçus » de M5), 6.3 (régime et code EPST). L'utilisateur relit la PR, fusionne, lance `git switch main && git pull && make migrate && make demo` ; puis `/tache 2.1`.
 
 ### 2026-09-26 — Tâche 1.6 : front `gestion` (connexion, menu, Mon compte, session support)
 

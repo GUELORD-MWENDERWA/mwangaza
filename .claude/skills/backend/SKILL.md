@@ -51,6 +51,8 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 - Connexion : jamais de `login()` hors de `apps/accounts/login.py` (connexion en étapes ; administration Django : `admin_site.py`, mêmes fonctions) ; un point d'API qui vérifie un code ou un mot de passe passe par `login.counting_failures(request, user)` (limitation des tentatives). Vue sans compte connecté qui écrit : hériter de `AuthView` (CSRF vérifié).
 - Annoter pour drf-spectacular (`extend_schema`, types de réponse), puis régénérer le client `frontend/packages/api`.
 - Pagination sur les listes ; recherche élève < 2 s sur 3 000 élèves (index adaptés, pas de N+1 : `select_related` / `prefetch_related`).
+- Erreur sur un champ (règle métier d'un service) : lever la `ValidationError` de Django avec le chemin du champ (`ValidationError({"terms.0.ends_on": ValidationError(msg, code="outside_year")})`) : l'API répond comme pour une saisie refusée. **Vérifier avant de modifier l'objet** (un refus ne doit pas laisser un objet à moitié changé).
+- Listes de configuration (années, niveaux, options, classes d'une année) : `pagination_class = None` ; les autres listes restent paginées (50) avec des filtres côté serveur.
 - Erreurs métier : le service lève `apps.core.errors.BusinessError(ApiError(code, detail, statut))` ; l'API répond `{"code": …, "detail": …}` (`ErrorSerializer` pour le schéma), comme pour 403 / 404 / 405. `code` stable, traduit par l'interface ; `detail` en `gettext`. Erreurs de saisie : format DRF `{champ: [messages]}`.
 
 ## Migrations

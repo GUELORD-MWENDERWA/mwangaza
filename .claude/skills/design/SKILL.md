@@ -51,7 +51,7 @@ Ajouter `ok`, `due`, `warn`, `info` (et leurs `-50`), `lamp`, `lamp-soft`, `basa
 
 ## Composants (maquette → application)
 
-Les composants partagés vont dans `frontend/packages/ui` (exportés par `@mwangaza/ui`). Les construire une fois, les réutiliser partout. **Déjà construits (1.6)** : `Button`, `Input`, `PasswordInput`, `Textarea`, `Field`, `Checkbox` / `CheckboxField`, `Segmented`, `CodeInput`, `Card…`, `List`, `Banner`, `StatusPill`, `Tag`, `Steps`, `Code` / `CodeList`, `Sheet…`, `DialogRoot` / `DialogContent`, `DropdownMenu…`, `Avatar`, `Brand`, `SchoolBadge`, `SyncIndicator`, `PageHeader`, `StateCard`, `Toast`, `Skeleton`, `Icon` (icônes des maquettes) ; les autres noms du tableau sont à créer avec leur premier écran.
+Les composants partagés vont dans `frontend/packages/ui` (exportés par `@mwangaza/ui`). Les construire une fois, les réutiliser partout. **Déjà construits (1.6)** : `Button`, `Input`, `PasswordInput`, `Textarea`, `Field`, `Checkbox` / `CheckboxField`, `Segmented`, `CodeInput`, `Card…`, `List`, `Banner`, `StatusPill`, `Tag`, `Steps`, `Code` / `CodeList`, `Sheet…`, `DialogRoot` / `DialogContent`, `DropdownMenu…`, `Avatar`, `Brand`, `SchoolBadge`, `SyncIndicator`, `PageHeader`, `StateCard`, `Toast`, `Skeleton`, `Icon` (icônes des maquettes) ; **1.7** : `Tabs` / `TabsList` / `TabsTrigger` / `TabsContent`, `Switch`, `Select` (liste native stylée), `Table`, `ConfirmDialog` ; les autres noms du tableau sont à créer avec leur premier écran.
 
 | Maquette | Composant | Notes |
 |---|---|---|
@@ -106,6 +106,7 @@ Les composants partagés vont dans `frontend/packages/ui` (exportés par `@mwang
 
 - Page : contenu `padding 24px`, largeur max 1360 px, espacement vertical 20 px.
 - En-tête de page : fil d'Ariane (`.crumbs`), titre, sous-titre `ink-2`, actions à droite.
+- Grilles des écrans : colonnes `minmax(0, …)` (ex. `grid-cols-[minmax(0,1fr)] min-[1200px]:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]`) : sinon un tableau large élargit toute la page ; le tableau défile dans sa carte.
 - Sous 900 px : barre latérale cachée (prévoir un menu tiroir), grilles sur une colonne, recherche du haut masquée. La Gestion doit rester utilisable sur tablette et téléphone Android (captures mobiles : caisse, pointage, notes).
 - Focus visible : bordure `lake` + anneau 3 px `lake-50`. Erreur : bordure `due` + anneau `due-50`.
 - Contraste : texte `ink` sur `surface` / `card` ; ne pas écrire en `ink-3` un texte important.
