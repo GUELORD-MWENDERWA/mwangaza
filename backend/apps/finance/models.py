@@ -1,11 +1,13 @@
 """Configuration des frais (`docs/04-modele-de-donnees.md` § 4, E1, E2, E5) : types de frais,
-barèmes d'une année et leurs tranches, taux de change de l'année.
+barèmes d'une année et leurs tranches, taux de change de l'année ; caisses et paiements (F1-F2).
 
 Montants en entiers dans la plus petite unité de la devise du barème (skill `argent`).
 """
 
-from django.core.validators import MinValueValidator
+from django.conf import settings
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import TenantModel
@@ -356,3 +358,229 @@ class ExchangeRate(TenantModel):
 
     def delete(self, *args, **kwargs):
         raise ImmutableRateError(IMMUTABLE_RATE)
+
+
+# Caisses et paiements (F1-F2)
+
+
+class CashRegister(TenantModel):
+    """Caisse de l'école [T] (« Caisse 1 », code `C1`). Le code entre dans le numéro des reçus
+    (`{ÉCOLE}-{CAISSE}-{AA}-{séquence}`) : fixé à la création. Désactivée, jamais effacée (ses
+    sessions la protègent)."""
+
+    name = models.CharField(_("name"), max_length=40)
+    code = models.CharField(
+        _("code"),
+        max_length=4,
+        validators=[RegexValidator(r"^[A-Z0-9]{1,4}$", _("Capital letters and digits only."))],
+    )
+    is_active = models.BooleanField(_("active"), default=True)
+
+    class Meta:
+        ordering = ["code"]
+        verbose_name = _("cash register")
+        verbose_name_plural = _("cash registers")
+        constraints = [
+            models.UniqueConstraint(fields=["school", "code"], name="cash_register_code_unique"),
+            models.UniqueConstraint(fields=["school", "name"], name="cash_register_name_unique"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.code})"
+
+
+class CashSession(TenantModel):
+    """Ouverture d'une caisse par un caissier [T] : une seule session ouverte par caisse et par
+    caissier. Fermée par la clôture de caisse (3.8)."""
+
+    cash_register = models.ForeignKey(
+        CashRegister,
+        on_delete=models.PROTECT,
+        related_name="sessions",
+        verbose_name=_("cash register"),
+    )
+    cashier = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="cash_sessions",
+        verbose_name=_("cashier"),
+    )
+    opened_at = models.DateTimeField(_("opened at"), default=timezone.now)
+    closed_at = models.DateTimeField(_("closed at"), null=True, blank=True)
+
+    class Meta:
+        ordering = ["-opened_at"]
+        verbose_name = _("cash session")
+        verbose_name_plural = _("cash sessions")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["cash_register"],
+                condition=models.Q(closed_at__isnull=True),
+                name="cash_session_one_open_per_register",
+            ),
+            models.UniqueConstraint(
+                fields=["school", "cashier"],
+                condition=models.Q(closed_at__isnull=True),
+                name="cash_session_one_open_per_cashier",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.cash_register} · {self.opened_at:%d/%m/%Y %H:%M}"
+
+
+IMMUTABLE_PAYMENT = "Un paiement ne se modifie pas et ne s'efface pas : l'annuler."
+
+
+class ImmutablePaymentError(Exception):
+    """Erreur de programmation : modification ou suppression d'un paiement, de sa répartition
+    ou de son annulation."""
+
+
+class ImmutableQuerySet(TenantQuerySet):
+    def update(self, **kwargs):
+        raise ImmutablePaymentError(IMMUTABLE_PAYMENT)
+
+    def delete(self):
+        raise ImmutablePaymentError(IMMUTABLE_PAYMENT)
+
+
+class ImmutableManager(TenantManager.from_queryset(ImmutableQuerySet)):
+    pass
+
+
+class ImmutableModel(TenantModel):
+    """Écriture [I] : ni modifiable ni effaçable, ici et par la base (déclencheur de la
+    migration 0005)."""
+
+    objects = ImmutableManager()
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise ImmutablePaymentError(IMMUTABLE_PAYMENT)
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ImmutablePaymentError(IMMUTABLE_PAYMENT)
+
+
+class Payment(ImmutableModel):
+    """Paiement encaissé [T] [I] (F2) : montant reçu dans une devise, réparti sur les frais dus
+    de l'élève (`PaymentAllocation`), avec le taux USD → CDF en vigueur à l'encaissement. Le reçu
+    n'est pas un modèle : c'est la vue imprimable du paiement (décision Q2). Jamais modifié ni
+    effacé : une annulation est une `PaymentCancellation`."""
+
+    class Method(models.TextChoices):
+        CASH = "cash", _("Cash")
+
+    enrollment = models.ForeignKey(
+        "students.Enrollment",
+        on_delete=models.PROTECT,
+        related_name="payments",
+        verbose_name=_("enrollment"),
+    )
+    cash_session = models.ForeignKey(
+        CashSession, on_delete=models.PROTECT, related_name="payments", verbose_name=_("session")
+    )
+    cashier = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="payments",
+        verbose_name=_("cashier"),
+    )
+    received_amount_minor = models.BigIntegerField(_("amount received"))
+    received_currency = models.CharField(_("currency"), max_length=3, choices=Currency.choices)
+    # Taux USD → CDF (décision Q4) ; vide seulement pour une école à une seule devise sans taux.
+    rate_used = models.DecimalField(
+        _("rate used"), max_digits=14, decimal_places=6, null=True, blank=True
+    )
+    paid_at = models.DateTimeField(_("paid at"))
+    receipt_number = models.CharField(_("receipt number"), max_length=40)
+    method = models.CharField(
+        _("method"), max_length=12, choices=Method.choices, default=Method.CASH
+    )
+    note = models.CharField(_("note"), max_length=200, blank=True)
+
+    class Meta:
+        ordering = ["-paid_at"]
+        verbose_name = _("payment")
+        verbose_name_plural = _("payments")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["school", "receipt_number"], name="payment_receipt_number_unique"
+            ),
+            models.CheckConstraint(
+                condition=models.Q(received_amount_minor__gt=0), name="payment_amount_positive"
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["school", "enrollment"], name="payment_enrollment"),
+            models.Index(fields=["school", "cash_session", "-paid_at"], name="payment_session"),
+        ]
+
+    def __str__(self) -> str:
+        return self.receipt_number
+
+
+class PaymentAllocation(ImmutableModel):
+    """Part d'un paiement affectée à un frais dû [T] [I] : `received_minor` dans la devise
+    reçue, `amount_minor` dans la devise du frais (converti au taux du paiement, demi
+    supérieur)."""
+
+    payment = models.ForeignKey(
+        Payment, on_delete=models.PROTECT, related_name="allocations", verbose_name=_("payment")
+    )
+    student_charge = models.ForeignKey(
+        StudentCharge,
+        on_delete=models.PROTECT,
+        related_name="allocations",
+        verbose_name=_("student charge"),
+    )
+    received_minor = models.BigIntegerField(_("part of the amount received"))
+    amount_minor = models.BigIntegerField(_("amount"))
+
+    class Meta:
+        verbose_name = _("payment allocation")
+        verbose_name_plural = _("payment allocations")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["payment", "student_charge"], name="allocation_one_per_charge"
+            ),
+            models.CheckConstraint(
+                condition=models.Q(received_minor__gt=0, amount_minor__gt=0),
+                name="allocation_amounts_positive",
+            ),
+        ]
+
+
+class PaymentCancellation(ImmutableModel):
+    """Annulation validée d'un paiement [T] [I] : ses allocations ne comptent plus dans ce que
+    doit l'élève. La demande, la validation et le reçu d'annulation viennent en 3.8 (F7)."""
+
+    payment = models.OneToOneField(
+        Payment,
+        on_delete=models.PROTECT,
+        related_name="cancellation",
+        verbose_name=_("payment"),
+    )
+    reason = models.CharField(_("reason"), max_length=200)
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("requested by"),
+    )
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("approved by"),
+    )
+    approved_at = models.DateTimeField(_("approved at"), default=timezone.now)
+
+    class Meta:
+        verbose_name = _("payment cancellation")
+        verbose_name_plural = _("payment cancellations")

@@ -8,5 +8,8 @@ router.register("fee-rules", views.FeeRuleViewSet, basename="fee-rule")
 router.register("exchange-rates", views.ExchangeRateViewSet, basename="exchange-rate")
 router.register("discounts", views.DiscountViewSet, basename="discount")
 router.register("student-charges", views.StudentChargeViewSet, basename="student-charge")
+router.register("cash-registers", views.CashRegisterViewSet, basename="cash-register")
+router.register("cash-sessions", views.CashSessionViewSet, basename="cash-session")
+router.register("payments", views.PaymentViewSet, basename="payment")
 
 urlpatterns = router.urls

@@ -383,6 +383,10 @@ paths:
           - finance.charges_rescheduled
           - finance.discount_granted
           - finance.discount_revoked
+          - finance.cash_register_created
+          - finance.cash_register_updated
+          - finance.cash_session_opened
+          - finance.payment_recorded
           - audit.exported
           - support.started
           - support.ended
@@ -450,6 +454,10 @@ paths:
           * `finance.charges_rescheduled` - Custom schedule set
           * `finance.discount_granted` - Discount granted
           * `finance.discount_revoked` - Discount revoked
+          * `finance.cash_register_created` - Cash register created
+          * `finance.cash_register_updated` - Cash register changed
+          * `finance.cash_session_opened` - Cash session opened
+          * `finance.payment_recorded` - Payment recorded
           * `audit.exported` - Audit log exported
           * `support.started` - Support session opened
           * `support.ended` - Support session closed
@@ -678,6 +686,10 @@ paths:
           - finance.charges_rescheduled
           - finance.discount_granted
           - finance.discount_revoked
+          - finance.cash_register_created
+          - finance.cash_register_updated
+          - finance.cash_session_opened
+          - finance.payment_recorded
           - audit.exported
           - support.started
           - support.ended
@@ -745,6 +757,10 @@ paths:
           * `finance.charges_rescheduled` - Custom schedule set
           * `finance.discount_granted` - Discount granted
           * `finance.discount_revoked` - Discount revoked
+          * `finance.cash_register_created` - Cash register created
+          * `finance.cash_register_updated` - Cash register changed
+          * `finance.cash_session_opened` - Cash session opened
+          * `finance.payment_recorded` - Payment recorded
           * `audit.exported` - Audit log exported
           * `support.started` - Support session opened
           * `support.ended` - Support session closed
@@ -1316,6 +1332,227 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: ''
         '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cash-registers/:
+    get:
+      operationId: cash_registers_list
+      description: 'Caisses de l''école (M13) : désactivées, jamais effacées ; le
+        code ne change pas.'
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CashRegister'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: cash_registers_create
+      description: 'Caisses de l''école (M13) : désactivées, jamais effacées ; le
+        code ne change pas.'
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CashRegisterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CashRegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CashRegisterRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashRegister'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cash-registers/{id}/:
+    patch:
+      operationId: cash_registers_partial_update
+      description: 'Caisses de l''école (M13) : désactivées, jamais effacées ; le
+        code ne change pas.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this cash register.
+        required: true
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCashRegisterUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCashRegisterUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCashRegisterUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashRegister'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cash-sessions/:
+    post:
+      operationId: cash_sessions_create
+      description: |-
+        Sessions de caisse du caissier connecté (M13) : ouvrir une caisse, voir celle qui est
+        ouverte. La clôture vient en 3.8.
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CashSessionOpenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CashSessionOpenRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CashSessionOpenRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashSession'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cash-sessions/current/:
+    get:
+      operationId: cash_sessions_current_retrieve
+      description: La caisse ouverte du caissier (ou `null`), ses totaux et le taux
+        des encaissements.
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentCashSession'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
           content:
             application/json:
               schema:
@@ -3155,6 +3392,134 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          description: ''
+  /api/payments/:
+    get:
+      operationId: payments_list
+      description: |-
+        Paiements (F1-F2), les plus récents d'abord ; ni modifiables ni effaçables. Sans
+        `finance.view_reports`, seulement ceux des sessions du caissier. Création : 201, ou 200 si ce
+        paiement (même `id`) était déjà enregistré.
+      parameters:
+      - in: query
+        name: enrollment
+        schema:
+          type: string
+          format: uuid
+        description: Paiements d'une inscription.
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+          minLength: 1
+        description: Numéro de reçu, nom ou matricule de l'élève.
+      - in: query
+        name: session
+        schema:
+          type: string
+          format: uuid
+        description: Paiements d'une session de caisse.
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPaymentList'
+          description: ''
+    post:
+      operationId: payments_create
+      description: |-
+        Paiements (F1-F2), les plus récents d'abord ; ni modifiables ni effaçables. Sans
+        `finance.view_reports`, seulement ceux des sessions du caissier. Création : 201, ou 200 si ce
+        paiement (même `id`) était déjà enregistré.
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaymentCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaymentCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/payments/{id}/:
+    get:
+      operationId: payments_retrieve
+      description: |-
+        Paiements (F1-F2), les plus récents d'abord ; ni modifiables ni effaçables. Sans
+        `finance.view_reports`, seulement ceux des sessions du caissier. Création : 201, ou 200 si ce
+        paiement (même `id`) était déjà enregistré.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this payment.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
           description: ''
   /api/roles/:
     get:
@@ -5035,6 +5400,10 @@ components:
       - finance.charges_rescheduled
       - finance.discount_granted
       - finance.discount_revoked
+      - finance.cash_register_created
+      - finance.cash_register_updated
+      - finance.cash_session_opened
+      - finance.payment_recorded
       - audit.exported
       - support.started
       - support.ended
@@ -5101,6 +5470,10 @@ components:
         * `finance.charges_rescheduled` - Custom schedule set
         * `finance.discount_granted` - Discount granted
         * `finance.discount_revoked` - Discount revoked
+        * `finance.cash_register_created` - Cash register created
+        * `finance.cash_register_updated` - Cash register changed
+        * `finance.cash_session_opened` - Cash session opened
+        * `finance.payment_recorded` - Payment recorded
         * `audit.exported` - Audit log exported
         * `support.started` - Support session opened
         * `support.ended` - Support session closed
@@ -5275,6 +5648,86 @@ components:
     BlankEnum:
       enum:
       - ''
+    CashRegister:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 40
+        code:
+          type: string
+          description: 'C1 : dans le numéro des reçus, fixé à la création.'
+          pattern: ^[A-Z0-9]{1,4}$
+          maxLength: 4
+        is_active:
+          type: boolean
+          readOnly: true
+          title: Active
+      required:
+      - id
+      - name
+      - code
+      - is_active
+    CashRegisterRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 40
+        code:
+          type: string
+          minLength: 1
+          description: 'C1 : dans le numéro des reçus, fixé à la création.'
+          pattern: ^[A-Z0-9]{1,4}$
+          maxLength: 4
+      required:
+      - code
+      - name
+    CashSession:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        cash_register:
+          allOf:
+          - $ref: '#/components/schemas/CashRegister'
+          readOnly: true
+        cashier:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+        opened_at:
+          type: string
+          format: date-time
+        closed_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - cash_register
+      - cashier
+      - opened_at
+      - closed_at
+    CashSessionOpenRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 'UUID v7 de l''appareil : un deuxième envoi rend la même session.'
+        cash_register:
+          type: string
+          format: uuid
+      required:
+      - cash_register
     ClassGroup:
       type: object
       properties:
@@ -5422,6 +5875,34 @@ components:
       description: |-
         * `USD` - US dollar
         * `CDF` - Congolese franc
+    CurrentCashSession:
+      type: object
+      description: Caisse ouverte du caissier (M13) et taux des encaissements.
+      properties:
+        session:
+          allOf:
+          - $ref: '#/components/schemas/CashSession'
+          nullable: true
+        totals:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionTotal'
+          description: Paiements non annulés de la session, par devise, jamais additionnés.
+        rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,6})?$
+          nullable: true
+          description: Francs pour 1 dollar.
+        rate_is_fallback:
+          type: boolean
+          description: 'Pas de taux cette année : dernier taux connu, à signaler au
+            comptable.'
+      required:
+      - session
+      - totals
+      - rate
+      - rate_is_fallback
     CurrentSchool:
       type: object
       description: |-
@@ -6728,6 +7209,11 @@ components:
       - logo
       - roles
       - last_login_at
+    MethodEnum:
+      enum:
+      - cash
+      type: string
+      description: '* `cash` - Cash'
     MissingFieldsEnum:
       enum:
       - last_name
@@ -6848,6 +7334,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ImportLine'
+    PaginatedPaymentList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
     PaginatedRoleList:
       type: object
       required:
@@ -6948,6 +7459,20 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StudentList'
+    PartRequest:
+      type: object
+      properties:
+        student_charge:
+          type: string
+          format: uuid
+        received_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 1
+          format: int64
+      required:
+      - received_minor
+      - student_charge
     PasswordRequest:
       type: object
       description: |-
@@ -6977,6 +7502,16 @@ components:
         ends_on:
           type: string
           format: date
+    PatchedCashRegisterUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 40
+        is_active:
+          type: boolean
+          title: Active
     PatchedClassGroupUpdateRequest:
       type: object
       properties:
@@ -7226,6 +7761,168 @@ components:
           type: string
           minLength: 1
           maxLength: 10
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        receipt_number:
+          type: string
+          maxLength: 40
+        enrollment:
+          type: string
+          format: uuid
+        student:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStudent'
+          readOnly: true
+        class_group:
+          type: string
+          readOnly: true
+        cash_register:
+          type: string
+          readOnly: true
+        cashier:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+        received_amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount received
+        received_currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          title: Currency
+        rate_used:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,6})?$
+          nullable: true
+        paid_at:
+          type: string
+          format: date-time
+        method:
+          $ref: '#/components/schemas/MethodEnum'
+        note:
+          type: string
+          maxLength: 200
+        cancelled:
+          type: boolean
+          readOnly: true
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentAllocation'
+          readOnly: true
+      required:
+      - id
+      - receipt_number
+      - enrollment
+      - student
+      - class_group
+      - cash_register
+      - cashier
+      - received_amount_minor
+      - received_currency
+      - rate_used
+      - paid_at
+      - method
+      - note
+      - cancelled
+      - allocations
+    PaymentAllocation:
+      type: object
+      properties:
+        student_charge:
+          type: string
+          format: uuid
+        fee_type_name:
+          type: string
+          readOnly: true
+        label:
+          type: string
+          readOnly: true
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          readOnly: true
+        received_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Part of the amount received
+          description: Part du montant reçu, dans la devise reçue.
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount
+          description: Montant affecté, dans la devise du frais.
+      required:
+      - student_charge
+      - fee_type_name
+      - label
+      - currency
+      - received_minor
+      - amount_minor
+    PaymentCreateRequest:
+      type: object
+      description: |-
+        Encaissement (F2) : sans `allocations`, répartition par défaut (devise reçue d'abord,
+        échéances les plus anciennes) ; avec, la répartition ajustée par le caissier.
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 'UUID v7 de l''appareil : un deuxième envoi rend le même paiement.'
+        enrollment:
+          type: string
+          format: uuid
+        received_amount_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 1
+          format: int64
+        received_currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        convert:
+          type: boolean
+          default: false
+          description: 'Répartition par défaut : aussi sur les frais de l''autre devise,
+            convertis.'
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartRequest'
+        note:
+          type: string
+          default: ''
+          maxLength: 200
+      required:
+      - enrollment
+      - received_amount_minor
+      - received_currency
+    PaymentStudent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        matricule:
+          type: string
+      required:
+      - id
+      - full_name
+      - matricule
     PermissionsEnum:
       enum:
       - school.configure
@@ -7544,6 +8241,19 @@ components:
         * `trial` - Trial
         * `active` - Active
         * `suspended` - Suspended
+    SessionTotal:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        amount_minor:
+          type: integer
+        count:
+          type: integer
+      required:
+      - currency
+      - amount_minor
+      - count
     SexEnum:
       enum:
       - M
@@ -7896,7 +8606,7 @@ components:
         paid_minor:
           type: integer
           readOnly: true
-          description: Paiements non annulés affectés à ce frais (0 avant la 3.1).
+          description: Paiements non annulés affectés à ce frais.
         remaining_minor:
           type: integer
           readOnly: true

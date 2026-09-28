@@ -49,12 +49,12 @@ type Row = { amount: string; due_on: string };
 type Values = { fee: string; reason: string; signed: boolean; count: string; first: string };
 type Fee = { id: string; name: string; currency: Currency; charges: Charge[]; total: number };
 
-/** Frais qui ont encore des échéances dues, dans l'ordre de la première échéance.
- *  3.1 : seulement celles pas encore payées, même en partie. */
+/** Frais qui ont encore des échéances dues sans aucun paiement (une échéance payée, même en
+ *  partie, ne bouge plus), dans l'ordre de la première échéance. */
 function feesToReschedule(charges: Charge[]): Fee[] {
   const fees = new Map<string, Fee>();
   for (const charge of charges) {
-    if (charge.status !== "active") continue;
+    if (charge.status !== "active" || charge.paid_minor > 0) continue;
     const fee = fees.get(charge.fee_type) ?? {
       id: charge.fee_type,
       name: charge.fee_type_name,

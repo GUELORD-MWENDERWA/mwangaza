@@ -89,15 +89,15 @@ Règles :
 
 **Discount [T]** — `enrollment`, `fee_type` (optionnel = tous les frais, pourcentage seulement), `kind` (`amount`, `percent`), `percent` (entier de 1 à 100) ou `amount_minor` + `currency` (devise du frais, jamais plus que le frais), `reason_code` (`staff_child`, `sibling`, `scholarship`, `waiver`, `other`), `reason` (motif obligatoire) ; qui et quand : `created_by`, `created_at` ; retrait : `revoked_at`, `revoked_by`, `revoke_reason` (jamais effacée). Son effet n'est pas stocké : réparti à la demande sur les frais dus actifs (règles ci-dessous).
 
-**CashRegister [T]** — caisse : `name`, `code`, `is_active`.
+**CashRegister [T]** — caisse : `name`, `code` (`C1` : lettres majuscules et chiffres, unique dans l'école, fixé à la création car il entre dans les numéros de reçus), `is_active` (désactivée, jamais effacée).
 
-**CashSession [T]** — ouverture d'une caisse par un caissier : `cash_register`, `cashier`, `device`, `opened_at`, `closed_at`.
+**CashSession [T]** — ouverture d'une caisse par un caissier : `cash_register`, `cashier`, `device` (3.3), `opened_at`, `closed_at`. Une seule session ouverte par caisse et par caissier.
 
-**Payment [T]** **[I]** — `id` (UUID client), `op_id`, `enrollment`, `cash_session`, `device`, `cashier`, `received_amount_minor`, `received_currency`, `rate_used` (taux USD → CDF en vigueur à l'encaissement), `paid_at` (heure de l'appareil), `synced_at`, `receipt_number` (unique dans l'école), `receipt_signature` (signature de l'appareil sur le contenu du QR code, pour vérifier un reçu imprimé hors ligne), `method` (`cash` en V1 ; `mobile_money`, `bank` plus tard), `note`. Le reçu n'est pas un modèle : c'est une vue imprimable du paiement (décision Q2).
+**Payment [T]** **[I]** — `id` (UUID client), `op_id`, `enrollment`, `cash_session`, `device`, `cashier`, `received_amount_minor`, `received_currency`, `rate_used` (taux USD → CDF en vigueur à l'encaissement), `paid_at` (heure de l'appareil), `synced_at`, `receipt_number` (unique dans l'école ; en ligne, donné par le serveur : `{ÉCOLE}-{CAISSE}-{AA}-{séquence}`, AA = année scolaire de l'inscription ; hors ligne, préfixe de l'appareil, 3.3), `receipt_signature` (signature de l'appareil sur le contenu du QR code, pour vérifier un reçu imprimé hors ligne), `method` (`cash` en V1 ; `mobile_money`, `bank` plus tard), `note`. Le reçu n'est pas un modèle : c'est une vue imprimable du paiement (décision Q2).
 
-**PaymentAllocation [T]** **[I]** — répartition d'un paiement : `payment`, `student_charge`, `amount_minor` (dans la devise de la charge).
+**PaymentAllocation [T]** **[I]** — répartition d'un paiement : `payment`, `student_charge`, `received_minor` (part du montant reçu, dans la devise reçue ; somme des parts = montant reçu), `amount_minor` (dans la devise de la charge, converti depuis `received_minor`).
 
-**PaymentCancellation [T]** **[I]** — `payment` (unique), `reason`, `requested_by`, `approved_by`, `approved_at`, `receipt_number`.
+**PaymentCancellation [T]** **[I]** — `payment` (unique), `reason`, `requested_by`, `approved_by`, `approved_at`, `receipt_number` (3.8). Une ligne = une annulation validée ; la demande en attente et le reçu d'annulation viennent en 3.8.
 
 **StudentCredit [T]** — surplus : `enrollment`, `amount_minor`, `currency`, `source_payment`, `used_by_payment` (optionnel).
 
@@ -106,7 +106,8 @@ Règles :
 Règles :
 - Reste dû d'une charge = `amount_minor` − réductions applicables − allocations de paiements non annulés.
 - Réductions d'un élève (E3) : par type de frais et devise, elles s'additionnent (pourcentage du total arrondi demi supérieur, montant dans la même devise), plafonnées au total, puis se répartissent au prorata des échéances actives (écart d'arrondi sur les dernières) ; elles suivent donc changement de classe, barème modifié et échéancier particulier.
-- Répartition par défaut : charges non soldées triées par `due_on` puis `fee_type`. Le caissier peut modifier avant validation.
+- Répartition par défaut : charges non soldées dans la devise reçue d'abord (l'autre devise seulement si le caissier le demande), triées par `due_on` puis `fee_type`. Le caissier peut modifier avant validation (parts dans la devise reçue, chacune au plus le reste de sa charge). En ligne, un montant supérieur à ce que doit l'élève est refusé (le caissier rend la monnaie) ; le crédit vient en 3.6.
+- Frais déjà payés, même en partie (paiement non annulé) : ils ne bougent plus (barème modifié, changement de classe, échéancier particulier). Au changement de classe, une tranche payée tient la place de la tranche de même rang et de même devise de la nouvelle classe, qui n'est pas ajoutée (décision du 2026-09-28).
 - Un paiement dans une devise différente de la charge (décision Q4) : `rate_used` est toujours dans le sens USD → CDF, tel que saisi. Dollars vers francs : `allocation = received × rate_used` ; francs vers dollars : `allocation = received ÷ rate_used`, division en `Decimal` (jamais `× 1/rate`). Arrondi demi supérieur à l'unité de la devise de la charge (centime pour USD, franc pour CDF).
 - Échéancier particulier d'un élève (E4, décision Q1) : pas de modèle `PaymentSchedule` ; ce sont des `StudentCharge` avec `source=custom`.
 - En retard : `due_on` < aujourd'hui et reste dû > 0.

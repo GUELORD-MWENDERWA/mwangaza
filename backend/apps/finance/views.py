@@ -1,23 +1,41 @@
-from django.db.models import Count
+from django.db.models import Count, Exists, OuterRef, Prefetch, Q
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from apps.accounts.permissions import school_access
 from apps.accounts.roles import (
     CHARGES_READ,
     FEES_READ,
+    FINANCE_COLLECT_PAYMENT,
     FINANCE_CONFIGURE_FEES,
     FINANCE_GRANT_DISCOUNT,
     FINANCE_SET_EXCHANGE_RATE,
+    FINANCE_VIEW_REPORTS,
 )
 from apps.accounts.views import SchoolViewSet
 from apps.core.errors import ErrorSerializer
 from apps.finance import services
-from apps.finance.models import Discount, ExchangeRate, FeeRule, FeeType
+from apps.finance.models import (
+    CashRegister,
+    CashSession,
+    Discount,
+    ExchangeRate,
+    FeeRule,
+    FeeType,
+    Payment,
+    PaymentAllocation,
+    PaymentCancellation,
+)
 from apps.finance.serializers import (
     BalanceSerializer,
+    CashRegisterSerializer,
+    CashRegisterUpdateSerializer,
+    CashSessionOpenSerializer,
+    CashSessionSerializer,
+    CurrentCashSessionSerializer,
     DiscountCreateSerializer,
     DiscountRevokeSerializer,
     DiscountSerializer,
@@ -28,6 +46,9 @@ from apps.finance.serializers import (
     FeeRuleUpdateSerializer,
     FeeTypeSerializer,
     FeeTypeWriteSerializer,
+    PaymentCreateSerializer,
+    PaymentFilterSerializer,
+    PaymentSerializer,
     RescheduleSerializer,
     StudentChargeFilterSerializer,
     StudentChargeSerializer,
@@ -332,3 +353,179 @@ class DiscountViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, SchoolView
             self.get_object(), actor=request.user, **serializer.validated_data
         )
         return Response(DiscountSerializer(self.get_queryset().get(pk=discount.pk)).data)
+
+
+# Caisses et paiements (F1-F2)
+
+
+@extend_schema_view(
+    list=extend_schema(responses={200: CashRegisterSerializer(many=True), **ERRORS}),
+    create=extend_schema(responses={201: CashRegisterSerializer, **INVALID, **CONFLICT, **ERRORS}),
+    partial_update=extend_schema(
+        request=CashRegisterUpdateSerializer,
+        responses={200: CashRegisterSerializer, **INVALID, **CONFLICT, **ERRORS},
+    ),
+)
+@extend_schema(tags=["finance"])
+class CashRegisterViewSet(
+    mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, SchoolViewSet
+):
+    """Caisses de l'école (M13) : désactivées, jamais effacées ; le code ne change pas."""
+
+    serializer_class = CashRegisterSerializer
+    pagination_class = None
+    http_method_names = ["get", "post", "patch", "head", "options"]
+
+    @property
+    def required_permission(self) -> str | tuple[str, ...]:
+        if self.action == "list":
+            return (FINANCE_COLLECT_PAYMENT, FINANCE_CONFIGURE_FEES)
+        return FINANCE_CONFIGURE_FEES
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return CashRegister.all_schools.none()
+        return CashRegister.objects.all()
+
+    def create(self, request: Request) -> Response:
+        serializer = CashRegisterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        register = services.create_cash_register(actor=request.user, **serializer.validated_data)
+        return Response(CashRegisterSerializer(register).data, status=status.HTTP_201_CREATED)
+
+    def partial_update(self, request: Request, pk=None) -> Response:
+        serializer = CashRegisterUpdateSerializer(data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        register = services.update_cash_register(
+            self.get_object(), actor=request.user, **serializer.validated_data
+        )
+        return Response(CashRegisterSerializer(register).data)
+
+
+@extend_schema_view(
+    create=extend_schema(
+        request=CashSessionOpenSerializer,
+        responses={201: CashSessionSerializer, **INVALID, **CONFLICT, **ERRORS},
+    )
+)
+@extend_schema(tags=["finance"])
+class CashSessionViewSet(mixins.CreateModelMixin, SchoolViewSet):
+    """Sessions de caisse du caissier connecté (M13) : ouvrir une caisse, voir celle qui est
+    ouverte. La clôture vient en 3.8."""
+
+    required_permission = FINANCE_COLLECT_PAYMENT
+    serializer_class = CashSessionSerializer
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return CashSession.all_schools.none()
+        return CashSession.objects.filter(cashier=self.request.user)
+
+    def create(self, request: Request) -> Response:
+        serializer = CashSessionOpenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        session = services.open_cash_session(
+            actor=request.user, cash_register=data["cash_register"], session_id=data.get("id")
+        )
+        return Response(CashSessionSerializer(session).data, status=status.HTTP_201_CREATED)
+
+    @extend_schema(responses={200: CurrentCashSessionSerializer, **ERRORS})
+    @action(detail=False)
+    def current(self, request: Request) -> Response:
+        """La caisse ouverte du caissier (ou `null`), ses totaux et le taux des encaissements."""
+        session = services.open_session_of(request.user)
+        rate, fallback = services.payment_rate()
+        data = {
+            "session": session,
+            "totals": services.session_totals(session) if session else [],
+            "rate": rate.rate if rate else None,
+            "rate_is_fallback": fallback,
+        }
+        return Response(CurrentCashSessionSerializer(data).data)
+
+
+@extend_schema_view(
+    list=extend_schema(parameters=[PaymentFilterSerializer]),
+    create=extend_schema(
+        request=PaymentCreateSerializer,
+        responses={
+            200: PaymentSerializer,
+            201: PaymentSerializer,
+            **INVALID,
+            **CONFLICT,
+            **ERRORS,
+        },
+    ),
+)
+@extend_schema(tags=["finance"])
+class PaymentViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, SchoolViewSet
+):
+    """Paiements (F1-F2), les plus récents d'abord ; ni modifiables ni effaçables. Sans
+    `finance.view_reports`, seulement ceux des sessions du caissier. Création : 201, ou 200 si ce
+    paiement (même `id`) était déjà enregistré."""
+
+    serializer_class = PaymentSerializer
+
+    @property
+    def required_permission(self) -> str | tuple[str, ...]:
+        if self.action == "create":
+            return FINANCE_COLLECT_PAYMENT
+        return (FINANCE_COLLECT_PAYMENT, FINANCE_VIEW_REPORTS)
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Payment.all_schools.none()
+        payments = (
+            Payment.objects.select_related(
+                "enrollment__student",
+                "enrollment__class_group__level",
+                "enrollment__class_group__track",
+                "cash_session__cash_register",
+                "cashier",
+            )
+            .prefetch_related(
+                Prefetch(
+                    "allocations",
+                    queryset=PaymentAllocation.objects.select_related("student_charge__fee_type"),
+                )
+            )
+            .annotate(
+                is_cancelled=Exists(PaymentCancellation.objects.filter(payment=OuterRef("pk")))
+            )
+            .order_by("-paid_at", "-id")
+        )
+        if FINANCE_VIEW_REPORTS not in school_access(self.request).permissions:
+            payments = payments.filter(cash_session__cashier=self.request.user)
+        if self.action != "list":
+            return payments
+        params = PaymentFilterSerializer(data=self.request.query_params)
+        params.is_valid(raise_exception=True)
+        filters = params.validated_data
+        if "session" in filters:
+            payments = payments.filter(cash_session_id=filters["session"])
+        if "enrollment" in filters:
+            payments = payments.filter(enrollment_id=filters["enrollment"])
+        if search := filters.get("search", "").strip():
+            payments = payments.filter(
+                Q(receipt_number__icontains=search)
+                | Q(enrollment__student__matricule__icontains=search)
+                | Q(enrollment__student__last_name__icontains=search)
+                | Q(enrollment__student__middle_name__icontains=search)
+                | Q(enrollment__student__first_name__icontains=search)
+            )
+        return payments
+
+    def create(self, request: Request) -> Response:
+        serializer = PaymentCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.to_service()
+        payment, created = services.record_payment(
+            data.pop("enrollment"), actor=request.user, **data
+        )
+        payment = self.get_queryset().get(pk=payment.pk)
+        return Response(
+            PaymentSerializer(payment).data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )

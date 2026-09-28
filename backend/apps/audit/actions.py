@@ -99,6 +99,11 @@ class Action(models.TextChoices):
     FINANCE_CHARGES_RESCHEDULED = "finance.charges_rescheduled", _("Custom schedule set")
     FINANCE_DISCOUNT_GRANTED = "finance.discount_granted", _("Discount granted")
     FINANCE_DISCOUNT_REVOKED = "finance.discount_revoked", _("Discount revoked")
+    # Caisses et paiements (F1-F2).
+    FINANCE_CASH_REGISTER_CREATED = "finance.cash_register_created", _("Cash register created")
+    FINANCE_CASH_REGISTER_UPDATED = "finance.cash_register_updated", _("Cash register changed")
+    FINANCE_CASH_SESSION_OPENED = "finance.cash_session_opened", _("Cash session opened")
+    FINANCE_PAYMENT_RECORDED = "finance.payment_recorded", _("Payment recorded")
 
     # Le journal lui-même (M6) : chaque export est noté.
     AUDIT_EXPORTED = "audit.exported", _("Audit log exported")

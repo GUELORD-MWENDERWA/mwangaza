@@ -1,16 +1,38 @@
 """Frais de démonstration (I5 en attendant la grille de l'ITIG) : grille fictive réaliste, à
 partir de celle des maquettes — minerval en tranches USD, fonctionnement et frais connexes en une
 fois, atelier par option, motivation des enseignants mensuelle en FC, Exetat en 4e —, le taux
-de l'année, ce que doit chaque élève inscrit et quelques réductions. Écrits directement dans les
-modèles : `make demo` n'écrit rien dans le journal."""
+de l'année, ce que doit chaque élève inscrit, quelques réductions, les caisses et des paiements
+depuis la rentrée. Écrits directement dans les modèles : `make demo` n'écrit rien dans le
+journal."""
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime, time, timedelta
 from decimal import Decimal
+from zoneinfo import ZoneInfo
 
+from django.utils import timezone
+
+from apps.accounts.models import User
+from apps.core.money import Money
 from apps.core.tenancy import use_school
-from apps.finance.models import Discount, ExchangeRate, FeeRule, FeeType
-from apps.finance.services import Installment, _write_installments, sync_charges
+from apps.finance.models import (
+    CashRegister,
+    CashSession,
+    Discount,
+    ExchangeRate,
+    FeeRule,
+    FeeType,
+    Payment,
+    PaymentAllocation,
+)
+from apps.finance.services import (
+    Installment,
+    _write_installments,
+    allocate,
+    charges_by_enrollment,
+    current_rate,
+    sync_charges,
+)
 from apps.schools.models import AcademicYear, Level, School, Track
 from apps.students.models import Enrollment
 
@@ -187,3 +209,98 @@ def create_demo_discounts(schools: dict[str, School]) -> None:
                 for every, code, percent, tuition_only, reason in DEMO_DISCOUNTS
                 for enrollment in enrollments[every // 2 :: every]
             )
+
+
+# Caisses : code, nom, téléphone du compte qui la tient (comptes de `apps/accounts/demo.py`).
+REGISTERS = {
+    "itig": [("C1", "Caisse 1", "+243000001005"), ("C2", "Caisse 2", "+243000001004")],
+    "volcans": [("C1", "Caisse principale", "+243000002005")],
+}
+
+
+def create_demo_payments(schools: dict[str, School]) -> None:
+    """Caisses de démonstration, toutes fermées (une session laissée ouverte en essayant est
+    close), puis, une seule fois par école, des paiements depuis deux semaines avant la rentrée
+    jusqu'à hier : sur dix élèves (ordre des matricules), quatre ont payé ce qui est dû avant la
+    1re tranche dans chaque devise, deux ont donné 60,00 $, un le dû du 30/09, trois rien encore.
+    Répartis comme à la caisse (`allocate`), une session par caisse et par jour."""
+    for code, school in schools.items():
+        with use_school(school):
+            registers = []
+            for register_code, name, phone in REGISTERS[code]:
+                register, _created = CashRegister.objects.update_or_create(
+                    code=register_code, defaults={"name": name, "is_active": True}
+                )
+                registers.append((register, User.objects.get(phone=phone)))
+            CashSession.objects.filter(closed_at__isnull=True).update(closed_at=timezone.now())
+            if not Payment.objects.exists():
+                _demo_payments(school, registers)
+
+
+def _demo_amounts(charges: list, kind: int) -> list[Money]:
+    def owed(currency: str, until: date) -> int:
+        return sum(
+            charge.remaining_minor
+            for charge in charges
+            if charge.state and charge.currency == currency and charge.due_on <= until
+        )
+
+    if kind < 4:
+        amounts = [Money(owed("USD", TRANCHES[0]), "USD"), Money(owed("CDF", MONTHS[1]), "CDF")]
+    elif kind < 6:
+        amounts = [Money(min(6000, owed("USD", TRANCHES[0])), "USD")]
+    else:
+        amounts = [Money(owed("USD", START), "USD"), Money(owed("CDF", START), "CDF")]
+    return [amount for amount in amounts if amount.amount_minor > 0]
+
+
+def _demo_payments(school: School, registers: list[tuple[CashRegister, User]]) -> None:
+    year = AcademicYear.objects.get(is_current=True)
+    rate = current_rate(year).rate
+    zone = ZoneInfo(school.timezone)
+    enrollments = list(
+        Enrollment.objects.filter(academic_year=year, status=Enrollment.Status.ACTIVE).order_by(
+            "student__matricule"
+        )
+    )
+    charges = charges_by_enrollment([enrollment.pk for enrollment in enrollments])
+    first_day = year.starts_on - timedelta(days=14)
+    days = max((timezone.localdate() - first_day).days, 1)
+    sessions, payments, allocations, sequences = {}, [], [], {}
+    for index, enrollment in enumerate(enrollments):
+        if index % 10 >= 7:
+            continue
+        register, cashier = registers[index % len(registers)]
+        day = first_day + timedelta(days=(index * 7) % days)
+        if (register.pk, day) not in sessions:
+            sessions[register.pk, day] = CashSession(
+                cash_register=register,
+                cashier=cashier,
+                opened_at=datetime.combine(day, time(7, 30), zone),
+                closed_at=datetime.combine(day, time(16, 30), zone),
+            )
+        for number, received in enumerate(_demo_amounts(charges[enrollment.pk], index % 10)):
+            payment = Payment(
+                enrollment=enrollment,
+                cash_session=sessions[register.pk, day],
+                cashier=cashier,
+                received_amount_minor=received.amount_minor,
+                received_currency=received.currency,
+                rate_used=rate,
+                paid_at=datetime.combine(day, time(8 + index % 8, (index * 13) % 60, number), zone),
+            )
+            payments.append(payment)
+            allocations += [
+                PaymentAllocation(
+                    payment=payment, student_charge=charge, received_minor=part, amount_minor=amount
+                )
+                for charge, part, amount in allocate(charges[enrollment.pk], received, rate)
+            ]
+    for payment in sorted(payments, key=lambda payment: payment.paid_at):
+        register = payment.cash_session.cash_register
+        sequences[register.pk] = sequences.get(register.pk, 0) + 1
+        prefix = f"{school.code.upper()}-{register.code}-{year.starts_on:%y}"
+        payment.receipt_number = f"{prefix}-{sequences[register.pk]:06d}"
+    CashSession.objects.bulk_create(sessions.values())
+    Payment.objects.bulk_create(payments, batch_size=500)
+    PaymentAllocation.objects.bulk_create(allocations, batch_size=1000)
