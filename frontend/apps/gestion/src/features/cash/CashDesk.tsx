@@ -1,8 +1,9 @@
 // Accueil de la caisse ouverte (maquette `caisse-accueil`) : recherche de l'élève, totaux de la
 // session par devise (jamais additionnés), paiements de la session ; un élève choisi → encaissement
 // (`CollectPanel`), dont le reçu s'imprime aussitôt ; « Réimprimer » : duplicata noté au journal.
-// Clavier : Ctrl K rechercher, Échap changer d'élève. Opérations en attente d'envoi : 3.4 ;
-// annulations et clôture : 3.8.
+// Clavier : Ctrl K rechercher, Échap changer d'élève. Appareil mémorisé (`device`) : recherche,
+// totaux et paiements lus sur l'appareil, encaissements de la file compris (3.5.1) ; réimpression
+// hors ligne : 3.5.2 ; annulations et clôture : 3.8.
 import { api, call } from "@mwangaza/api";
 import { formatTime, useTranslation } from "@mwangaza/i18n";
 import { type Currency, formatAmount, formatRate } from "@mwangaza/money";
@@ -26,8 +27,10 @@ import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
 import { firstErrorMessage } from "../../lib/errors";
+import { useOnline } from "../../lib/online";
 import { fullName, studentName } from "../../lib/people";
 import { useCurrentSchool } from "../../lib/school";
+import type { LocalDb } from "../../lib/sync/db";
 import { useSettled } from "../../lib/settled";
 import { Pagination } from "../shell/Pagination";
 import { LoadError } from "../status/StatusPages";
@@ -35,9 +38,16 @@ import { type StudentRow, useStudentSearch } from "../students/data";
 import { RateBanner } from "./CashPage";
 import { type Chosen, CollectPanel } from "./CollectPanel";
 import { type CurrentSession, useSessionPayments } from "./data";
+import type { LocalCash } from "./localData";
+import { type SessionPayment, searchEnrollments, sessionPayments, sessionTotals } from "./offline";
 import { type Receipt, useReceiptPrinter } from "./Receipt";
 
 type Session = NonNullable<CurrentSession["session"]>;
+
+/** Caisse d'un appareil mémorisé : sa base, son préfixe et ce qu'elle contient. */
+export type DeviceCash = { db: LocalDb; prefix: string; local: LocalCash };
+
+type Found = { id: string; name: string; detail: string; chosen: Chosen | null };
 
 const SHOWN = 8;
 const RECENT = 3;
@@ -55,9 +65,25 @@ function chosenFrom(student: StudentRow): Chosen | null {
   };
 }
 
-export function CashDesk({ current, session }: { current: CurrentSession; session: Session }) {
+export function CashDesk({
+  current,
+  session,
+  device,
+}: {
+  current: CurrentSession;
+  session: Session;
+  device?: DeviceCash;
+}) {
   const { t, i18n } = useTranslation();
   const school = useCurrentSchool();
+  const online = useOnline();
+  const rows = device
+    ? sessionPayments(device.local.enrollments, device.local.queued, session.id)
+    : undefined;
+  const totals = rows ? sessionTotals(rows) : current.totals;
+  // Réimpression par le serveur (duplicata noté au journal) : paiement déjà reçu par lui.
+  const reprintable = (id: string) =>
+    !rows || (online && rows.some((row) => row.payment.id === id && row.sync === "recorded"));
   const [chosen, setChosen] = useState<Chosen | null>(null);
   const [recorded, setRecorded] = useState<Receipt | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -84,7 +110,7 @@ export function CashDesk({ current, session }: { current: CurrentSession; sessio
     return () => window.removeEventListener("keydown", onKey, { capture: true });
   }, [chosen]);
 
-  const count = current.totals.reduce((total, item) => total + item.count, 0);
+  const count = totals.reduce((total, item) => total + item.count, 0);
   const choose = (next: Chosen) => {
     setRecorded(null);
     setChosen(next);
@@ -117,7 +143,7 @@ export function CashDesk({ current, session }: { current: CurrentSession; sessio
           <Button
             variant="outline"
             size="sm"
-            disabled={reprint.isPending}
+            disabled={reprint.isPending || !reprintable(recorded.id)}
             onClick={() => reprint.mutate(recorded.id)}
           >
             <Icon name="print" size={16} />
@@ -144,6 +170,8 @@ export function CashDesk({ current, session }: { current: CurrentSession; sessio
             key={chosen.enrollment}
             chosen={chosen}
             rate={current.rate}
+            session={session}
+            device={device}
             onRecorded={(payment) => {
               setRecorded(payment);
               setChosen(null);
@@ -153,10 +181,10 @@ export function CashDesk({ current, session }: { current: CurrentSession; sessio
         </>
       ) : (
         <>
-          <StudentSearch inputRef={searchRef} onChoose={choose} />
+          <StudentSearch inputRef={searchRef} onChoose={choose} device={device} />
           <div className="grid grid-cols-2 gap-4 min-[1000px]:grid-cols-4">
             {school.enabled_currencies.map((currency) => {
-              const total = current.totals.find((item) => item.currency === currency);
+              const total = totals.find((item) => item.currency === currency);
               return (
                 <Kpi
                   key={currency}
@@ -169,9 +197,10 @@ export function CashDesk({ current, session }: { current: CurrentSession; sessio
           </div>
           <SessionPayments
             session={session.id}
+            rows={rows}
             onChoose={choose}
             onReprint={(id) => reprint.mutate(id)}
-            reprinting={reprint.isPending}
+            canReprint={(id) => !reprint.isPending && reprintable(id)}
           />
         </>
       )}
@@ -182,16 +211,42 @@ export function CashDesk({ current, session }: { current: CurrentSession; sessio
 function StudentSearch({
   inputRef,
   onChoose,
+  device,
 }: {
   inputRef: React.RefObject<HTMLInputElement | null>;
   onChoose: (chosen: Chosen) => void;
+  device?: DeviceCash;
 }) {
   const { t } = useTranslation();
   const [text, setText] = useState("");
   const search = useSettled(text.trim());
-  const found = useStudentSearch(search);
-  const results = search.length >= 2 ? (found.data?.results ?? []).slice(0, SHOWN) : [];
-  const first = results.map(chosenFrom).find(Boolean);
+  const found = useStudentSearch(device ? "" : search);
+  let results: Found[] | undefined = [];
+  if (search.length >= 2 && device) {
+    const classes = new Map(device.local.config?.class_groups.map((item) => [item.id, item.name]));
+    results = searchEnrollments(device.local.enrollments, search, SHOWN).map((enrollment) => {
+      const name = studentName(enrollment.student);
+      const classGroup = classes.get(enrollment.class_group) ?? "";
+      const { matricule } = enrollment.student;
+      return {
+        id: enrollment.id,
+        name,
+        detail: [matricule, classGroup].join(" · "),
+        chosen: { enrollment: enrollment.id, name, matricule, classGroup, guardian: null },
+      };
+    });
+  } else if (search.length >= 2) {
+    results = found.data?.results.slice(0, SHOWN).map((student) => ({
+      id: student.id,
+      name: studentName(student),
+      detail: [
+        student.matricule,
+        student.enrollment?.class_group_name ?? t("cash.desk.notEnrolled"),
+      ].join(" · "),
+      chosen: chosenFrom(student),
+    }));
+  }
+  const first = results?.find((result) => result.chosen)?.chosen;
 
   return (
     <Card>
@@ -214,32 +269,24 @@ function StudentSearch({
             {t("shell.search.shortcut")}
           </kbd>
         </label>
-        {search.length >= 2 && found.data && results.length === 0 && (
+        {search.length >= 2 && results?.length === 0 && (
           <p className="text-sm text-ink-3">{t("cash.desk.noResult")}</p>
         )}
-        {results.length > 0 && (
+        {results && results.length > 0 && (
           <ul className="flex flex-col divide-y divide-line-soft">
-            {results.map((student) => {
-              const chosen = chosenFrom(student);
-              return (
-                <li key={student.id}>
-                  <button
-                    type="button"
-                    disabled={!chosen}
-                    onClick={() => chosen && onChoose(chosen)}
-                    className="flex w-full flex-wrap items-baseline gap-x-3 px-1 py-2.5 text-left hover:bg-surface disabled:cursor-not-allowed disabled:opacity-55"
-                  >
-                    <b>{studentName(student)}</b>
-                    <span className="text-sm text-ink-3">
-                      {[
-                        student.matricule,
-                        student.enrollment?.class_group_name ?? t("cash.desk.notEnrolled"),
-                      ].join(" · ")}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
+            {results.map(({ id, name, detail, chosen }) => (
+              <li key={id}>
+                <button
+                  type="button"
+                  disabled={!chosen}
+                  onClick={() => chosen && onChoose(chosen)}
+                  className="flex w-full flex-wrap items-baseline gap-x-3 px-1 py-2.5 text-left hover:bg-surface disabled:cursor-not-allowed disabled:opacity-55"
+                >
+                  <b>{name}</b>
+                  <span className="text-sm text-ink-3">{detail}</span>
+                </button>
+              </li>
+            ))}
           </ul>
         )}
       </CardContent>
@@ -247,35 +294,71 @@ function StudentSearch({
   );
 }
 
+const PAGE = 50;
+
+/** Recherche dans les paiements de l'appareil : reçu, nom ou matricule. */
+function matches(payment: SessionPayment["payment"], search: string): boolean {
+  const text = search.toLowerCase();
+  return [payment.receipt_number, payment.student.full_name, payment.student.matricule].some(
+    (value) => value.toLowerCase().includes(text),
+  );
+}
+
 function SessionPayments({
   session,
+  rows,
   onChoose,
   onReprint,
-  reprinting,
+  canReprint,
 }: {
   session: string;
+  /** Paiements lus sur l'appareil ; sans eux, demandés au serveur. */
+  rows?: SessionPayment[];
   onChoose: (chosen: Chosen) => void;
   onReprint: (id: string) => void;
-  reprinting: boolean;
+  canReprint: (id: string) => boolean;
 }) {
   const { t, i18n } = useTranslation();
   const school = useCurrentSchool();
   const [text, setText] = useState("");
   const [page, setPage] = useState(1);
   const search = useSettled(text.trim());
-  const payments = useSessionPayments(session, search, page);
+  const payments = useSessionPayments(session, search, page, !rows);
 
-  if (payments.error)
+  let data: { results: SessionPayment[]; count: number; previous: boolean; next: boolean } | null =
+    null;
+  if (rows) {
+    const found = search ? rows.filter((row) => matches(row.payment, search)) : rows;
+    data = {
+      results: found.slice((page - 1) * PAGE, page * PAGE),
+      count: found.length,
+      previous: page > 1,
+      next: page * PAGE < found.length,
+    };
+  } else if (payments.error) {
     return <LoadError error={payments.error} onRetry={() => void payments.refetch()} />;
-  const results = payments.data?.results ?? [];
-  const from = results.length ? (page - 1) * 50 + 1 : 0;
+  } else if (payments.data) {
+    data = {
+      results: payments.data.results.map((payment) => ({
+        payment,
+        sync: "recorded",
+        error: null,
+      })),
+      count: payments.data.count,
+      previous: Boolean(payments.data.previous),
+      next: Boolean(payments.data.next),
+    };
+  }
+  const results = data?.results ?? [];
+  const from = results.length ? (page - 1) * PAGE + 1 : 0;
   // Derniers élèves servis (sans tuteur : la fiche complète est dans « Élèves »).
   const recent = search
     ? []
     : results
+        .map((row) => row.payment)
         .filter(
-          (payment, index) =>
-            results.findIndex((other) => other.enrollment === payment.enrollment) === index,
+          (payment, index, all) =>
+            all.findIndex((other) => other.enrollment === payment.enrollment) === index,
         )
         .slice(0, RECENT);
 
@@ -317,7 +400,7 @@ function SessionPayments({
             className="min-[900px]:max-w-[320px]"
           />
         </CardHeader>
-        {!payments.data ? (
+        {!data ? (
           <Skeleton label={t("common.loading")} />
         ) : results.length === 0 ? (
           <CardContent className="text-ink-3">
@@ -339,11 +422,12 @@ function SessionPayments({
                 </tr>
               </thead>
               <tbody>
-                {results.map((payment) => {
+                {results.map(({ payment, sync, error }) => {
                   const amount = formatAmount(
                     payment.received_amount_minor,
                     payment.received_currency as Currency,
                   );
+                  const struck = payment.cancelled || sync === "rejected";
                   return (
                     <tr key={payment.id}>
                       <td className="text-ink-3">
@@ -355,23 +439,18 @@ function SessionPayments({
                         <span className="block text-sm text-ink-3">{payment.class_group}</span>
                       </td>
                       <td className="text-right font-bold tabular-nums whitespace-nowrap">
-                        {payment.cancelled ? <s>{amount}</s> : amount}
+                        {struck ? <s>{amount}</s> : amount}
                       </td>
                       <td>
-                        <StatusPill tone={payment.cancelled ? "gray" : "ok"}>
-                          {t(
-                            payment.cancelled
-                              ? "cash.payments.cancelled"
-                              : "cash.payments.recorded",
-                          )}
-                        </StatusPill>
+                        <PaymentState cancelled={payment.cancelled} sync={sync} />
+                        {error && <span className="block text-sm text-due">{error.detail}</span>}
                       </td>
                       <td className="text-right">
-                        {!payment.cancelled && (
+                        {!struck && (
                           <Button
                             variant="outline"
                             size="sm"
-                            disabled={reprinting}
+                            disabled={!canReprint(payment.id)}
                             aria-label={t("cash.payments.reprintLabel", {
                               number: payment.receipt_number,
                             })}
@@ -388,13 +467,13 @@ function SessionPayments({
             </Table>
             <Pagination
               page={page}
-              hasPrevious={Boolean(payments.data.previous)}
-              hasNext={Boolean(payments.data.next)}
+              hasPrevious={data.previous}
+              hasNext={data.next}
               onPage={setPage}
               summary={t("cash.payments.range", {
                 from,
                 to: from + results.length - 1,
-                count: payments.data.count,
+                count: data.count,
               })}
             />
           </>
@@ -402,4 +481,13 @@ function SessionPayments({
       </Card>
     </>
   );
+}
+
+/** Annulé ; encaissé sur l'appareil et pas encore envoyé ; refusé par le serveur ; enregistré. */
+function PaymentState({ cancelled, sync }: { cancelled: boolean; sync: SessionPayment["sync"] }) {
+  const { t } = useTranslation();
+  if (cancelled) return <StatusPill tone="gray">{t("cash.payments.cancelled")}</StatusPill>;
+  if (sync === "pending") return <StatusPill tone="warn">{t("cash.payments.pending")}</StatusPill>;
+  if (sync === "rejected") return <StatusPill tone="due">{t("cash.payments.rejected")}</StatusPill>;
+  return <StatusPill tone="ok">{t("cash.payments.recorded")}</StatusPill>;
 }

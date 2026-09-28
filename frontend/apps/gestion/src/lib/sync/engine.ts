@@ -53,9 +53,11 @@ export interface LocalStore {
   saveChanges(changes: Change[], meta: Partial<SyncMeta>): Promise<void>;
   /** Opérations pas encore envoyées, les plus anciennes d'abord. */
   pending(limit: number): Promise<Operation[]>;
-  /** Réponse du serveur : appliquées (ou déjà appliquées) retirées de la file, refusées gardées
+  /** Réponse du serveur : appliquées (ou déjà appliquées) marquées envoyées, refusées gardées
    *  avec leur raison pour être montrées. */
   settle(outcomes: Outcome[]): Promise<void>;
+  /** Descente finie : l'état écrit contient les opérations envoyées, elles quittent la file. */
+  dropSent(): Promise<void>;
   /** Appareil déconnecté par l'école : tout effacer. */
   wipe(): Promise<void>;
 }
@@ -82,6 +84,7 @@ export async function synchronize(
     if (meta.snapshot || meta.cursor === null || !(await pullChanges(store, server, meta))) {
       await takeSnapshot(store, server, meta);
     }
+    await store.dropSent();
     await store.setMeta({ lastSyncAt: now().toISOString() });
     return "done";
   } catch (error) {

@@ -254,6 +254,7 @@ export function sampleReceipt(
     class_group: t("cash.receipt.sample.classGroup"),
     cash_register: "",
     cash_register_name: registerName,
+    cash_session: "",
     cashier,
     received_amount_minor: amount,
     received_currency: currency,

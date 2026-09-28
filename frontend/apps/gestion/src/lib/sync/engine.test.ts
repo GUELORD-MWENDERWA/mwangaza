@@ -23,7 +23,7 @@ const operation = (index: number): Operation => ({
   created_at: "2026-09-29T08:00:00Z",
 });
 
-type Queued = Operation & { status: "pending" | "rejected"; error: Outcome["error"] };
+type Queued = Operation & { status: "pending" | "sent" | "rejected"; error: Outcome["error"] };
 
 /** Base de l'appareil en mémoire, avec les règles de `dexieStore`. */
 function memoryStore(meta: Partial<SyncMeta> = {}, queued: Operation[] = []) {
@@ -68,8 +68,11 @@ function memoryStore(meta: Partial<SyncMeta> = {}, queued: Operation[] = []) {
             status: "rejected",
             error: outcome.error,
           };
-        } else state.outbox.splice(index, 1);
+        } else state.outbox[index] = { ...state.outbox[index]!, status: "sent" };
       }
+    },
+    dropSent: async () => {
+      state.outbox = state.outbox.filter((op) => op.status !== "sent");
     },
     wipe: async () => {
       state.wiped = true;
@@ -250,7 +253,7 @@ describe("file d'opérations", () => {
     expect(remote.push).toHaveBeenCalledTimes(2);
   });
 
-  it("réseau coupé pendant l'envoi : rien de perdu, rien descendu", async () => {
+  it("réseau coupé pendant l'envoi : rien de perdu, rien descendu ; pendant la descente : envoyées gardées jusqu'à la suivante", async () => {
     const { store, state } = memoryStore({ cursor: 40, gen: 1 }, [operation(1), operation(2)]);
     const remote = server({
       push: vi.fn<SyncServer["push"]>(async () => {
@@ -266,6 +269,17 @@ describe("file d'opérations", () => {
     ]);
     expect(remote.pull).not.toHaveBeenCalled();
     expect(state.meta.lastSyncAt).toBeNull();
+
+    // Le serveur les a reçues, mais leur état n'est pas encore descendu : les écrans les
+    // comptent toujours (solde, paiements de la session).
+    remote.push.mockImplementation(server().push);
+    remote.pull.mockRejectedValueOnce(new ApiError(0, "network", "No response."));
+    await expect(synchronize(store, remote, NOW)).rejects.toThrow(ApiError);
+    expect(state.outbox.map((op) => op.status)).toEqual(["sent", "sent"]);
+
+    await synchronize(store, remote, NOW);
+    expect(remote.push).toHaveBeenCalledTimes(2);
+    expect(state.outbox).toEqual([]);
   });
 
   it("appareil déconnecté par l'école : données de l'appareil effacées", async () => {

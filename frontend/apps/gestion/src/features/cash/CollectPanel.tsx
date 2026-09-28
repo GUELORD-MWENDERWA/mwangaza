@@ -1,8 +1,10 @@
-// Encaissement (maquette `caisse-encaissement`, F1-F2) : ce que doit l'élève, le montant reçu, la
-// répartition par défaut (`allocate`) ajustable en cochant les frais ; la répartition affichée
+// Encaissement (maquette `caisse-encaissement`, F1-F2, F5) : ce que doit l'élève, le montant reçu,
+// la répartition par défaut (`allocate`) ajustable en cochant les frais ; la répartition affichée
 // est envoyée telle quelle et le serveur la vérifie. Identifiant du paiement donné par l'appareil
 // et gardé jusqu'au succès : un double clic ou un nouvel essai après une coupure ne fait qu'un
 // paiement. Jamais plus que ce que doit l'élève (le crédit vient en 3.6). F9 valide.
+// Appareil mémorisé : frais dus lus sur l'appareil, paiement écrit dans la file avec le numéro de
+// l'appareil, avec ou sans réseau (3.5.1).
 import { api, call, type Schemas } from "@mwangaza/api";
 import { formatDay, useTranslation } from "@mwangaza/i18n";
 import {
@@ -40,13 +42,27 @@ import { useEffect, useRef, useState } from "react";
 import { firstErrorMessage } from "../../lib/errors";
 import { uuidv7 } from "../../lib/ids";
 import { formatPhone } from "../../lib/people";
-import { keys } from "../../lib/queries";
+import { keys, useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { useRefresh } from "../organisation/data";
 import { LoadError } from "../status/StatusPages";
 import { type Balance, type Charge, useBalance, useCharges } from "../students/data";
 import { type Line, allocate, owedCharges, payableTotal } from "./allocation";
+import type { DeviceCash } from "./CashDesk";
+import type { CurrentSession } from "./data";
+import { recordOffline } from "./localData";
+import { financeOf, offlineReceipt, receiptNumber, schoolDay } from "./offline";
 import type { Receipt } from "./Receipt";
+
+type Session = NonNullable<CurrentSession["session"]>;
+
+/** Ce que le caissier valide. */
+type Collect = {
+  id: string;
+  received: { minor: number; currency: Currency };
+  lines: Line[];
+  note: string;
+};
 
 /** Élève choisi à la caisse, avec son inscription de l'année. */
 export type Chosen = {
@@ -80,16 +96,20 @@ function perCurrency(amounts: { currency: string; minor: number }[]): string | n
     : null;
 }
 
-export function CollectPanel({
-  chosen,
-  rate,
-  onRecorded,
-}: {
+type PanelProps = {
   chosen: Chosen;
   rate: string | null;
+  session: Session;
   onRecorded: (payment: Receipt) => void;
-}) {
+};
+
+export function CollectPanel({ device, ...props }: PanelProps & { device?: DeviceCash }) {
+  return device ? <DeviceCollect device={device} {...props} /> : <ServerCollect {...props} />;
+}
+
+function ServerCollect({ chosen, rate, onRecorded }: PanelProps) {
   const { t } = useTranslation();
+  const refresh = useRefresh();
   const charges = useCharges(chosen.enrollment);
   const balance = useBalance(chosen.enrollment);
   const error = charges.error ?? balance.error;
@@ -101,14 +121,92 @@ export function CollectPanel({
       />
     );
   if (!charges.data || !balance.data) return <Skeleton label={t("common.loading")} />;
+  const save = async ({ id, received, lines, note }: Collect) => {
+    const payment = await call(
+      api.POST("/api/payments/", {
+        body: {
+          id,
+          enrollment: chosen.enrollment,
+          received_amount_minor: received.minor,
+          received_currency: received.currency,
+          convert: false,
+          allocations: lines.map((line) => ({
+            student_charge: line.charge.id,
+            received_minor: line.received,
+          })),
+          note,
+        },
+      }),
+    );
+    await refresh(keys.students, keys.payments, keys.cashSession);
+    return payment;
+  };
   return (
     <CollectForm
       chosen={chosen}
       rate={rate}
       charges={charges.data}
       balance={balance.data}
+      save={save}
       onRecorded={onRecorded}
       onRefused={() => void Promise.all([charges.refetch(), balance.refetch()])}
+    />
+  );
+}
+
+/** Frais dus lus sur l'appareil, paiements de la file compris ; reçu fait sur l'appareil. */
+function DeviceCollect({
+  chosen,
+  rate,
+  session,
+  onRecorded,
+  device,
+}: PanelProps & { device: DeviceCash }) {
+  const { t } = useTranslation();
+  const school = useCurrentSchool();
+  const me = useCurrentMe();
+  const enrollment = device.local.byId.get(chosen.enrollment);
+  const year = device.local.config?.academic_year;
+  if (!enrollment || !year)
+    return (
+      <StateCard icon="alert" tone="warn" title={t("cash.offline.missingTitle")}>
+        {t("cash.offline.missingText")}
+      </StateCard>
+    );
+  const day = schoolDay(school.timezone);
+  const { charges, balance } = financeOf(enrollment, device.local.queued, day);
+  const save = ({ id, received, lines, note }: Collect) =>
+    recordOffline(device.db, id, (seq) =>
+      offlineReceipt({
+        id,
+        number: receiptNumber(school.code, device.prefix, year.starts_on, seq),
+        enrollment,
+        classGroup: chosen.classGroup,
+        academicYear: year.name,
+        session,
+        cashier: {
+          id: me.id,
+          last_name: me.last_name,
+          middle_name: me.middle_name,
+          first_name: me.first_name,
+        },
+        received,
+        rate,
+        lines,
+        charges,
+        note,
+        paidAt: new Date().toISOString(),
+        day,
+      }),
+    );
+  return (
+    <CollectForm
+      chosen={chosen}
+      rate={rate}
+      charges={charges}
+      balance={balance}
+      save={save}
+      onRecorded={onRecorded}
     />
   );
 }
@@ -118,6 +216,7 @@ function CollectForm({
   rate,
   charges,
   balance,
+  save,
   onRecorded,
   onRefused,
 }: {
@@ -125,12 +224,12 @@ function CollectForm({
   rate: string | null;
   charges: Charge[];
   balance: Balance;
+  save(collect: Collect): Promise<Receipt>;
   onRecorded: (payment: Receipt) => void;
-  onRefused: () => void;
+  onRefused?: () => void;
 }) {
   const { t, i18n } = useTranslation();
   const school = useCurrentSchool();
-  const refresh = useRefresh();
   const currencies = school.enabled_currencies as Currency[];
   const [currency, setCurrency] = useState<Currency>(
     currencies.includes(school.default_currency as Currency)
@@ -160,24 +259,13 @@ function CollectForm({
 
   const pay = useMutation({
     mutationFn: (payLines: Line[]) =>
-      call(
-        api.POST("/api/payments/", {
-          body: {
-            id: paymentId.current,
-            enrollment: chosen.enrollment,
-            received_amount_minor: received,
-            received_currency: currency,
-            convert: false,
-            allocations: payLines.map((line) => ({
-              student_charge: line.charge.id,
-              received_minor: line.received,
-            })),
-            note: note.trim(),
-          },
-        }),
-      ),
-    onSuccess: async (payment) => {
-      await refresh(keys.students, keys.payments, keys.cashSession);
+      save({
+        id: paymentId.current,
+        received: { minor: received, currency },
+        lines: payLines,
+        note: note.trim(),
+      }),
+    onSuccess: (payment) => {
       paymentId.current = uuidv7();
       onRecorded(payment);
     },

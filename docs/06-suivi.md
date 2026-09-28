@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.4 terminée, PR #106 à fusionner |
-| Prochaine tâche | 3.5 — caisse hors-ligne complète |
-| Issue GitHub | #24 |
-| Branche | `tache/3.4-synchro-front` (PR #106) ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 3.5.1 terminée, PR à fusionner |
+| Prochaine tâche | 3.5.2 — ouverture et réimpression hors ligne, QR signé |
+| Issue GitHub | #25 |
+| Branche | `tache/3.5.1-caisse-hors-ligne` (PR à venir) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-29 |
 
 ## Avancement
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 8 | 12 |
+| Semaine 3 — Caisse et hors-ligne | 9 | 13 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **25** | **37** |
+| **V1.0** | **26** | **38** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-29 — Tâche 3.5.1 : encaisser hors ligne
+- Fait : 3.5 découpée (3.5.1 encaisser ; 3.5.2 ouverture et réimpression hors ligne, QR signé). Sur un appareil mémorisé, la caisse lit la base de l'appareil (recherche, frais dus, solde, paiements de la session) et encaisse **toujours par la file**, avec ou sans réseau : reçu imprimé aussitôt avec le numéro de l'appareil (`ITIG-P1-26-000001`), envoyé dans la seconde s'il y a du réseau ; « en attente » / « refusé » dans la liste ; page « stockage refusé » avec « Continuer en ligne seulement » ; `Payment.cash_session` exposé.
+- Tests : 4 Vitest (reçu et solde après paiement, paiement compté une seule fois, refusé jamais, numéros), moteur (envoyées gardées jusqu'à la descente), Playwright : un encaissement en ligne, deux sans réseau, numéros consécutifs, aucun doublon, 20 $ payés côté serveur.
+- Décisions (`03`) : toujours par la file sur un appareil mémorisé (accord de l'utilisateur) ; opération appliquée gardée (`sent`) jusqu'à la fin de la descente ; séquence des reçus jamais reculée ; tuteur absent de l'encaissement sur l'appareil.
+- Suite : PR à fusionner, puis 3.5.2.
 
 ### 2026-09-29 — Tâche 3.4 : synchronisation dans le navigateur
 - Fait : base Dexie par appareil mémorisé (inscriptions, configuration, file d'opérations) ; synchronisation à l'ouverture, au retour du réseau, toutes les 60 s et « Synchroniser maintenant » (envoi, puis instantané ou changements) ; indicateur complet avec détail ; bandeau « stockage refusé » ; mise à jour installée seulement file vide ; appareil déconnecté → données effacées.

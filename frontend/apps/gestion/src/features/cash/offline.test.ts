@@ -1,0 +1,198 @@
+import type { Schemas } from "@mwangaza/api";
+import { describe, expect, it } from "vitest";
+
+import type { LocalEnrollment, QueuedOperation } from "../../lib/sync/db";
+import {
+  financeOf,
+  offlinePayload,
+  offlineReceipt,
+  receiptNumber,
+  searchEnrollments,
+  sessionPayments,
+  sessionTotals,
+} from "./offline";
+import type { Receipt } from "./Receipt";
+
+type Charge = Schemas["StudentCharge"];
+
+const charge = (id: string, amount: number, currency: "USD" | "CDF", dueOn: string): Charge => ({
+  id,
+  enrollment: "e1",
+  fee_type: "f",
+  fee_type_name: "Minerval",
+  fee_category: "tuition",
+  label: id,
+  amount_minor: amount,
+  currency,
+  due_on: dueOn,
+  source: "rule",
+  status: "active",
+  discount_minor: 0,
+  paid_minor: 0,
+  remaining_minor: amount,
+  state: "upcoming",
+});
+
+const session = {
+  id: "s1",
+  cash_register: { id: "r1", name: "Caisse principale", code: "C1", is_active: true },
+  cashier: { id: "u1", last_name: "Kavira", middle_name: "", first_name: "Esther" },
+  opened_at: "2026-10-05T07:00:00Z",
+  closed_at: null,
+};
+
+function enrollment(payments: Schemas["Payment"][] = []): LocalEnrollment {
+  return {
+    id: "e1",
+    academic_year: "y",
+    class_group: "g",
+    status: "active",
+    enrolled_on: "2026-09-01",
+    left_on: null,
+    student: {
+      id: "st1",
+      matricule: "26-0042",
+      last_name: "Kambale",
+      middle_name: "Muhindo",
+      first_name: "Josué",
+      sex: "M",
+      birth_date: null,
+      family_code: "F1",
+    },
+    // T1 échue au 1er octobre, T2 à venir, frais d'examen en francs.
+    charges: [
+      { ...charge("t1", 5000, "USD", "2026-10-01"), discount_minor: 1000 },
+      charge("t2", 6000, "USD", "2026-12-01"),
+      charge("x", 2_000_000, "CDF", "2026-10-01"),
+    ],
+    payments,
+    gen: 1,
+  };
+}
+
+/** Encaissement de l'appareil : 30 $ sur T1 (échue), numéro donné par l'appareil. */
+function collect(seq: number, id: string, paidAt = "2026-10-05T09:00:00Z"): Receipt {
+  const { charges } = financeOf(enrollment(), [], "2026-10-05");
+  return offlineReceipt({
+    id,
+    number: receiptNumber("itig", "P1", "2026-09-01", seq),
+    enrollment: enrollment(),
+    classGroup: "3e Électricité A",
+    academicYear: "2026-2027",
+    session,
+    cashier: session.cashier,
+    received: { minor: 3000, currency: "USD" },
+    rate: "2850",
+    lines: [{ charge: charges[0]!, received: 3000, amount: 3000 }],
+    charges,
+    note: "",
+    paidAt,
+    day: "2026-10-05",
+  });
+}
+
+const queued = (receipt: Receipt, status: QueuedOperation["status"]): QueuedOperation => ({
+  op_id: receipt.id,
+  type: "payment.create",
+  payload: offlinePayload(receipt),
+  created_at: receipt.paid_at,
+  status,
+  error: status === "rejected" ? { code: "no_open_session", detail: "No open session." } : null,
+  receipt,
+});
+
+describe("caisse sur l'appareil", () => {
+  it("reçu : numéro de l'appareil, solde juste après le paiement, seulement ce que le serveur attend", () => {
+    const receipt = collect(184, "p1");
+
+    expect(receipt.receipt_number).toBe("ITIG-P1-26-000184");
+    expect(receiptNumber("itig", "P1", "2026-09-01", 185)).toBe("ITIG-P1-26-000185");
+    // T1 : 50 $ − 10 $ de réduction − 30 $ = 10 $ encore en retard ; les francs à part.
+    expect(receipt.balance).toEqual({
+      situation: "partial",
+      next_due_on: "2026-12-01",
+      currencies: [
+        {
+          currency: "USD",
+          total_minor: 10000,
+          paid_minor: 3000,
+          remaining_minor: 7000,
+          overdue_minor: 1000,
+          next_due_minor: 6000,
+        },
+        {
+          currency: "CDF",
+          total_minor: 2_000_000,
+          paid_minor: 0,
+          remaining_minor: 2_000_000,
+          overdue_minor: 2_000_000,
+          next_due_minor: 0,
+        },
+      ],
+    });
+    expect(Object.keys(offlinePayload(receipt)).sort()).toEqual(
+      [
+        "allocations",
+        "cash_session",
+        "convert",
+        "enrollment",
+        "id",
+        "note",
+        "paid_at",
+        "receipt_number",
+        "received_amount_minor",
+        "received_currency",
+      ].sort(),
+    );
+    expect(offlinePayload(receipt).allocations).toEqual([
+      { student_charge: "t1", received_minor: 3000 },
+    ]);
+  });
+
+  it("solde : paiement en attente compté, déjà descendu du serveur compté une fois, refusé jamais", () => {
+    const pending = collect(184, "p1");
+    const rejected = collect(185, "p2");
+    const day = "2026-10-05";
+
+    const t1 = (state: LocalEnrollment, items: QueuedOperation[]) =>
+      financeOf(state, items, day).charges[0]!;
+    expect(t1(enrollment(), [queued(pending, "pending")])).toMatchObject({
+      remaining_minor: 1000,
+      state: "overdue",
+    });
+    // Envoyé, puis descendu avec l'état du serveur, qui l'a déjà compté : pas deux fois.
+    const synced = enrollment([pending]);
+    synced.charges![0] = { ...synced.charges![0]!, paid_minor: 3000, remaining_minor: 1000 };
+    expect(t1(synced, [queued(pending, "sent")]).remaining_minor).toBe(1000);
+    expect(t1(enrollment(), [queued(rejected, "rejected")]).remaining_minor).toBe(4000);
+    // Échéance à venir hier devenue échue aujourd'hui.
+    expect(financeOf(enrollment(), [], "2026-12-02").charges[1]!.state).toBe("overdue");
+  });
+
+  it("paiements de la session : les plus récents d'abord, refusés montrés mais hors des totaux", () => {
+    const early = collect(184, "p1", "2026-10-05T08:00:00Z");
+    const late = collect(185, "p2", "2026-10-05T10:00:00Z");
+    const refused = collect(186, "p3", "2026-10-05T11:00:00Z");
+    const other = { ...collect(187, "p4"), cash_session: "s0" };
+
+    const rows = sessionPayments(
+      [enrollment([early, other])],
+      [queued(early, "sent"), queued(late, "pending"), queued(refused, "rejected")],
+      "s1",
+    );
+
+    expect(rows.map((row) => [row.payment.receipt_number, row.sync])).toEqual([
+      ["ITIG-P1-26-000186", "rejected"],
+      ["ITIG-P1-26-000185", "pending"],
+      ["ITIG-P1-26-000184", "recorded"],
+    ]);
+    expect(sessionTotals(rows)).toEqual([{ currency: "USD", amount_minor: 6000, count: 2 }]);
+  });
+
+  it("recherche : chaque mot, sans accents ni majuscules, ou le matricule", () => {
+    const items = [enrollment()];
+    expect(searchEnrollments(items, "josue KAMB", 8)).toHaveLength(1);
+    expect(searchEnrollments(items, "26-0042", 8)).toHaveLength(1);
+    expect(searchEnrollments(items, "josué kavira", 8)).toHaveLength(0);
+  });
+});
