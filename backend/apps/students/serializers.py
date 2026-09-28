@@ -410,6 +410,11 @@ class RegistrationFormQuerySerializer(serializers.Serializer):
         help_text="Imprimer le code famille (pour le tuteur principal) ; chaque PDF qui "
         "l'imprime est noté dans le journal d'audit. Décoché : fiche remise à un tiers.",
     )
+    fees = serializers.BooleanField(
+        default=False,
+        help_text="Frais de l'année de l'élève, après réductions, par devise : avec un droit "
+        "de lecture des frais (comme `/api/student-charges/`), sinon 403.",
+    )
 
 
 class ClassListQuerySerializer(serializers.Serializer):
@@ -420,7 +425,8 @@ class ClassListQuerySerializer(serializers.Serializer):
     columns = serializers.MultipleChoiceField(
         choices=documents.COLUMNS,
         required=False,
-        help_text="Colonnes en plus du N° et du nom (paramètre répété).",
+        help_text="Colonnes en plus du N° et du nom (paramètre répété) ; `payments` "
+        "(situation des paiements) : avec `finance.view_reports`, sinon 403.",
     )
     blank_columns = serializers.IntegerField(
         min_value=0,

@@ -4,7 +4,14 @@ from decimal import Decimal
 
 import pytest
 
-from apps.core.money import Currency, CurrencyMismatchError, Money, percent_of, prorate
+from apps.core.money import (
+    Currency,
+    CurrencyMismatchError,
+    Money,
+    format_amount,
+    percent_of,
+    prorate,
+)
 
 USD = Currency.USD
 CDF = Currency.CDF
@@ -225,3 +232,15 @@ def test_prorate_and_percent_refuse_floats():
         prorate(10.0, [1, 2])
     with pytest.raises(TypeError):
         percent_of(1000, 12.5)
+
+
+def test_format_amount_matches_the_interface_for_printed_documents():
+    """Même texte que `formatAmount` de `@mwangaza/money` (espaces insécables)."""
+    assert [
+        format_amount(123456, "USD"),
+        format_amount(5, "USD"),
+        format_amount(1260000, "CDF"),
+        format_amount(-2500, "USD"),
+    ] == ["1\xa0234,56\xa0$", "0,05\xa0$", "1\xa0260\xa0000\xa0FC", "\u221225,00\xa0$"]
+    with pytest.raises(TypeError):
+        format_amount(12.5, "USD")

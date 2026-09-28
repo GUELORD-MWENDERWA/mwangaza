@@ -11,13 +11,20 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from rest_framework import mixins, status
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.accounts.roles import STUDENTS_EDIT, STUDENTS_IMPORT, STUDENTS_VIEW
+from apps.accounts.permissions import school_access
+from apps.accounts.roles import (
+    CHARGES_READ,
+    FINANCE_VIEW_REPORTS,
+    STUDENTS_EDIT,
+    STUDENTS_IMPORT,
+    STUDENTS_VIEW,
+)
 from apps.accounts.views import SchoolViewSet
 from apps.audit.models import AuditLog
 from apps.core.documents import PRINT_RESPONSE, XLSX, XLSX_RESPONSE, file_response, render
@@ -53,6 +60,13 @@ ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
 WRITE_ERRORS = {400: ErrorSerializer, 409: ErrorSerializer, **ERRORS}
 _CLASS = ("class_group__level", "class_group__track", "academic_year")
 NO_PHOTO = ApiError("no_photo", _("This student has no photo."), 404)
+
+
+def _require(request: Request, codes: tuple[str, ...]) -> None:
+    """Partie d'un document réservée à certains droits (frais, situation des paiements) : 403
+    si le compte n'a aucun de ces droits dans l'école."""
+    if school_access(request).permissions.isdisjoint(codes):
+        raise PermissionDenied()
 
 
 class StudentsViewSet(SchoolViewSet):
@@ -370,11 +384,14 @@ class EnrollmentViewSet(StudentsViewSet):
         params = RegistrationFormQuerySerializer(data=request.query_params)
         params.is_valid(raise_exception=True)
         data = params.validated_data
+        if data["fees"]:
+            _require(request, CHARGES_READ)
         context = documents.registration_form(
             enrollment,
             actor=request.user,
             paper=data["paper"],
             with_code=data["family_code"],
+            with_fees=data["fees"],
             preview=data["output"] == "html",
         )
         name = f"fiche-{slugify(enrollment.student.full_name)}.pdf"
@@ -390,6 +407,8 @@ class EnrollmentViewSet(StudentsViewSet):
         params = ClassListQuerySerializer(data=request.query_params)
         params.is_valid(raise_exception=True)
         data = params.validated_data
+        if documents.PAYMENTS in data.get("columns", ()):
+            _require(request, (FINANCE_VIEW_REPORTS,))
         group = ClassGroup.objects.select_related(
             "level", "track", "academic_year", "homeroom_teacher"
         ).get(pk=data["class_group"].pk)

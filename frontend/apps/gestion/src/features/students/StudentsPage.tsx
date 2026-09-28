@@ -1,6 +1,7 @@
 // Liste des élèves (D2) : recherche (noms, matricule, code famille, sans accents ni casse) et
 // filtres année, classe, option, statut ; liste paginée par le serveur ; le nom ouvre la fiche.
-// Import : 2.3 ; export et sélection : 2.4 ; « Échu non payé » et « Paiements » : 2.7 ;
+// Import : 2.3 ; export et sélection : 2.4 ; « Échu non payé », « Paiements » et leur filtre :
+// 4.1 (impayés) ;
 // recherche hors-ligne (IndexedDB) : 3.x.
 import { useTranslation } from "@mwangaza/i18n";
 import {

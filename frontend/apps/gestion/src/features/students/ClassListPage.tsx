@@ -17,11 +17,13 @@ import {
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 
+import { can } from "../../lib/permissions";
+import { useCurrentMe } from "../../lib/queries";
 import { useClasses, useYears } from "../organisation/data";
 import { type ClassListColumn, type ClassListOrder, classListUrl } from "./data";
 import { DocumentPreview } from "./DocumentPreview";
 
-const COLUMNS = ["matricule", "sex_birth", "guardian_phone"] as const;
+const COLUMNS = ["matricule", "sex_birth", "guardian_phone", "payments"] as const;
 const BLANK_COLUMNS = [0, 1, 2, 3, 4, 5];
 
 /** Liste d'une classe de l'année en cours (D5, M11) : élèves actifs, en PDF ou Excel, avec les
@@ -33,6 +35,10 @@ export function ClassListPage() {
   const year = years.data?.find((candidate) => candidate.is_current);
   const classes = useClasses(year?.id ?? "");
   const [chosen, setChosen] = useState(params.get("class") ?? "");
+  // Situation des paiements (2.7) : seulement avec `finance.view_reports`, vérifié par le serveur.
+  const offered = can(useCurrentMe(), ["finance.view_reports"])
+    ? COLUMNS
+    : COLUMNS.filter((column) => column !== "payments");
   const [columns, setColumns] = useState<ClassListColumn[]>(["matricule", "sex_birth"]);
   const [blankColumns, setBlankColumns] = useState(2);
   const [order, setOrder] = useState<ClassListOrder>("name");
@@ -107,7 +113,7 @@ export function ClassListPage() {
                 <legend className="mb-1.5 text-[.87rem] font-bold text-ink-2">
                   {t("students.print.classList.columns")}
                 </legend>
-                {COLUMNS.map((column) => (
+                {offered.map((column) => (
                   <CheckboxField
                     key={column}
                     id={`column-${column}`}

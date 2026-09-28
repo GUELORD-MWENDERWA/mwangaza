@@ -44,6 +44,18 @@ td.label { width: 22%; }
   {% endfor %}
 </table>
 
+{% if fees %}
+<table>
+  <tr><th>{% translate "FEES FOR THE YEAR" %}</th><th class="num">{% translate "Amount" %}</th><th>{% translate "Due dates" %}</th></tr>
+  {% for group in fees %}
+  {% for fee in group.rows %}
+  <tr><td>{{ fee.name }}</td><td class="num">{{ fee.amount }}</td><td>{{ fee.due_dates }}</td></tr>
+  {% endfor %}
+  <tr><td class="label">{% translate "Total" %}</td><td class="num"><b>{{ group.total }}</b></td><td></td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+
 <p class="small" style="margin-top:1em">{% translate "The parent declares the above information to be accurate and undertakes to respect the school rules." %}
 {% if student.photo_consent %}{% translate "Photo: the parent agrees to its use on the student card and the parents' portal." %}{% else %}{% translate "Photo: the parent does not agree to its use on the student card and the parents' portal." %}{% endif %}</p>
 

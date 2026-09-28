@@ -134,21 +134,26 @@ const card: Routes = {
   },
 };
 
-const charge = (n: number, label: string, due_on: string, extra = {}) => ({
-  id: id(700 + n),
-  enrollment: id(80),
-  fee_type: id(500),
-  fee_type_name: "Minerval",
-  fee_category: "tuition",
-  label,
-  amount_minor: 12000,
-  currency: "USD",
-  due_on,
-  source: "rule",
-  status: "active",
-  discount_minor: 0,
-  ...extra,
-});
+const charge = (n: number, label: string, due_on: string, extra = {}) => {
+  const row = {
+    id: id(700 + n),
+    enrollment: id(80),
+    fee_type: id(500),
+    fee_type_name: "Minerval",
+    fee_category: "tuition",
+    label,
+    amount_minor: 12000,
+    currency: "USD",
+    due_on,
+    source: "rule",
+    status: "active",
+    discount_minor: 0,
+    paid_minor: 0,
+    state: "upcoming",
+    ...extra,
+  };
+  return { ...row, remaining_minor: row.amount_minor - row.discount_minor };
+};
 const charges = [
   charge(1, "1re tranche", "2026-10-15"),
   charge(2, "2e tranche", "2027-01-15"),
@@ -179,6 +184,20 @@ function routes(role: Parameters<typeof me>[0], extra: Routes = {}): Routes {
     },
     "GET /api/families/": { count: 1, next: null, previous: null, results: [family] },
     "GET /api/discounts/": [],
+    "GET /api/student-charges/balance/": {
+      situation: "up_to_date",
+      next_due_on: "2026-10-15",
+      currencies: [
+        {
+          currency: "USD",
+          total_minor: 38500,
+          paid_minor: 0,
+          remaining_minor: 38500,
+          overdue_minor: 0,
+          next_due_minor: 14500,
+        },
+      ],
+    },
     // L'élève est relu après l'inscription, à l'identifiant donné par l'appareil.
     "POST /api/students/": async (request) => {
       const body = (await request.json()) as { id: string };
@@ -517,12 +536,12 @@ describe("Élèves (D2-D4)", () => {
     await user.click(await screen.findByRole("link", { name: "Fiche d'inscription" }));
     const pdf = await screen.findByRole("link", { name: "PDF" });
     expect(pdf.getAttribute("href")).toBe(
-      `/api/enrollments/${id(80)}/form/?output=pdf&paper=a4&family_code=true`,
+      `/api/enrollments/${id(80)}/form/?output=pdf&paper=a4&family_code=true&fees=true`,
     );
     await user.click(screen.getByRole("radio", { name: "A5" }));
     await user.click(screen.getByLabelText("Inclure le code famille"));
     expect(screen.getByTitle("Aperçu de la fiche d'inscription").getAttribute("src")).toBe(
-      `/api/enrollments/${id(80)}/form/?output=html&paper=a5&family_code=false`,
+      `/api/enrollments/${id(80)}/form/?output=html&paper=a5&family_code=false&fees=true`,
     );
   });
 

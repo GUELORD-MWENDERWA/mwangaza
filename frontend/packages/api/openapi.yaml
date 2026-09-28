@@ -1852,6 +1852,14 @@ paths:
         description: 'Imprimer le code famille (pour le tuteur principal) ; chaque
           PDF qui l''imprime est noté dans le journal d''audit. Décoché : fiche remise
           à un tiers.'
+      - in: query
+        name: fees
+        schema:
+          type: boolean
+          default: false
+        description: 'Frais de l''année de l''élève, après réductions, par devise
+          : avec un droit de lecture des frais (comme `/api/student-charges/`), sinon
+          403.'
       - in: path
         name: id
         schema:
@@ -1947,12 +1955,15 @@ paths:
             - matricule
             - sex_birth
             - guardian_phone
+            - payments
             type: string
             description: |-
               * `matricule` - matricule
               * `sex_birth` - sex_birth
               * `guardian_phone` - guardian_phone
-        description: Colonnes en plus du N° et du nom (paramètre répété).
+              * `payments` - payments
+        description: 'Colonnes en plus du N° et du nom (paramètre répété) ; `payments`
+          (situation des paiements) : avec `finance.view_reports`, sinon 403.'
       - in: query
         name: order
         schema:
@@ -3828,6 +3839,49 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/student-charges/balance/:
+    get:
+      operationId: student_charges_balance_retrieve
+      description: |-
+        Solde et retards de l'inscription (2.7), par devise : dû après réductions, payé,
+        reste, en retard, prochaine échéance.
+      parameters:
+      - in: query
+        name: enrollment
+        schema:
+          type: string
+          format: uuid
+        description: Inscription de l'élève pour une année.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Balance'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/student-charges/reschedule/:
     post:
       operationId: student_charges_reschedule_create
@@ -5192,6 +5246,32 @@ components:
       - after
       - ip
       - user_agent
+    Balance:
+      type: object
+      description: Solde d'un élève (2.7), par devise, jamais additionné entre devises.
+      properties:
+        situation:
+          allOf:
+          - $ref: '#/components/schemas/SituationEnum'
+          description: |-
+            À jour (rien en retard), partielle (en retard, mais des paiements), en retard.
+
+            * `up_to_date` - up_to_date
+            * `partial` - partial
+            * `overdue` - overdue
+        next_due_on:
+          type: string
+          format: date
+          nullable: true
+          description: Prochaine échéance pas encore passée avec un reste dû.
+        currencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrencyBalance'
+      required:
+      - situation
+      - next_due_on
+      - currencies
     BlankEnum:
       enum:
       - ''
@@ -5309,6 +5389,31 @@ components:
           maxLength: 20
       required:
       - code
+    CurrencyBalance:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        total_minor:
+          type: integer
+          description: Dû pour l'année, après réductions.
+        paid_minor:
+          type: integer
+        remaining_minor:
+          type: integer
+        overdue_minor:
+          type: integer
+          description: Reste des échéances passées.
+        next_due_minor:
+          type: integer
+          description: Reste dû à `next_due_on`.
+      required:
+      - currency
+      - total_minor
+      - paid_minor
+      - remaining_minor
+      - overdue_minor
+      - next_due_minor
     CurrencyEnum:
       enum:
       - USD
@@ -7447,6 +7552,16 @@ components:
       description: |-
         * `M` - Male
         * `F` - Female
+    SituationEnum:
+      enum:
+      - up_to_date
+      - partial
+      - overdue
+      type: string
+      description: |-
+        * `up_to_date` - up_to_date
+        * `partial` - partial
+        * `overdue` - overdue
     SourceEnum:
       enum:
       - rule
@@ -7622,6 +7737,16 @@ components:
       - last_name
       - middle_name
       - first_name
+    StateEnum:
+      enum:
+      - paid
+      - overdue
+      - upcoming
+      type: string
+      description: |-
+        * `paid` - paid
+        * `overdue` - overdue
+        * `upcoming` - upcoming
     StepEnum:
       enum:
       - password
@@ -7768,6 +7893,27 @@ components:
           type: integer
           readOnly: true
           description: Part des réductions de l'élève (E3) ; 0 si ce n'est plus dû.
+        paid_minor:
+          type: integer
+          readOnly: true
+          description: Paiements non annulés affectés à ce frais (0 avant la 3.1).
+        remaining_minor:
+          type: integer
+          readOnly: true
+          description: 'Reste dû : montant moins réductions et payé ; 0 si ce n''est
+            plus dû.'
+        state:
+          readOnly: true
+          nullable: true
+          description: |-
+            Soldé, en retard (échéance passée, reste > 0) ou à venir ; null si le frais est retiré ou remplacé.
+
+            * `paid` - paid
+            * `overdue` - overdue
+            * `upcoming` - upcoming
+          oneOf:
+          - $ref: '#/components/schemas/StateEnum'
+          - $ref: '#/components/schemas/NullEnum'
       required:
       - id
       - enrollment
@@ -7781,6 +7927,9 @@ components:
       - source
       - status
       - discount_minor
+      - paid_minor
+      - remaining_minor
+      - state
     StudentChargeStatusEnum:
       enum:
       - active
