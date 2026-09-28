@@ -11,13 +11,11 @@ import {
   SheetClose,
   SheetContent,
   SheetTrigger,
-  SyncIndicator,
 } from "@mwangaza/ui";
 import { useState } from "react";
 import { Link, Navigate, Outlet } from "react-router";
 
 import { errorMessage } from "../../lib/errors";
-import { useOnline } from "../../lib/online";
 import { displayName, rolesLabel } from "../../lib/people";
 import { can } from "../../lib/permissions";
 import { useCurrentMe, type Me } from "../../lib/queries";
@@ -25,9 +23,11 @@ import { useLogout } from "../../lib/session";
 import { SearchPalette } from "./SearchPalette";
 import { Nav, SchoolSwitcher, Sidebar } from "./Sidebar";
 import { SupportBanner } from "./SupportBanner";
+import { StorageBanner, SyncMenu, useSyncSession } from "./SyncMenu";
 
 export function AppShell() {
   const me = useCurrentMe();
+  useSyncSession(me);
   // Aucun droit dans cette école : le support ouvre sa session, les autres choisissent une école.
   if (!me.school) return <Navigate to={me.is_platform_admin ? "/support" : "/schools"} replace />;
   return (
@@ -40,6 +40,7 @@ export function AppShell() {
           <TopBar me={me} />
         </div>
         <main className="flex w-full max-w-[1360px] flex-col gap-5 p-4 min-[900px]:p-6">
+          <StorageBanner />
           <Outlet />
         </main>
       </div>
@@ -55,17 +56,12 @@ function useRoleLine(me: Me) {
 
 function TopBar({ me }: { me: Me }) {
   const { t } = useTranslation();
-  const online = useOnline();
   const roleLine = useRoleLine(me);
   return (
     <header className="flex h-14 items-center gap-2.5 border-b border-line bg-card px-3 min-[900px]:h-[60px] min-[900px]:gap-4 min-[900px]:px-6">
       <MobileMenu me={me} />
       {can(me, ["students.view"]) && <SearchPalette />}
-      <SyncIndicator
-        online={online}
-        label={online ? t("common.online") : t("common.offline")}
-        className="max-[899px]:px-[9px] max-[899px]:py-[5px] max-[899px]:text-[.78rem]"
-      />
+      <SyncMenu className="max-[899px]:px-[9px] max-[899px]:py-[5px] max-[899px]:text-[.78rem]" />
       <Link
         to="/account"
         className="ml-auto flex items-center gap-2.5 text-[.88rem] text-ink no-underline"

@@ -1,6 +1,8 @@
 import { useTranslation } from "@mwangaza/i18n";
 import { Button, Toast } from "@mwangaza/ui";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { syncNow, useSyncStatus } from "../../lib/sync/session";
 
 /** Nouvelle version cherchée toutes les heures quand l'application reste ouverte. */
 const CHECK_EVERY = 60 * 60 * 1000;
@@ -41,19 +43,26 @@ function useWaitingVersion() {
     };
   }, []);
 
-  function update() {
+  const install = useCallback(() => {
     accepted.current = true;
     waiting?.postMessage({ type: "SKIP_WAITING" });
-  }
+  }, [waiting]);
 
-  return { waiting: waiting !== null, update };
+  return { waiting: waiting !== null, install };
 }
 
-/** Nouvelle version de l'application (M8) : proposée, jamais imposée ; installée en rechargeant.
- *  Avec la file d'opérations (3.4) : seulement quand elle est vide. */
+/** Nouvelle version de l'application (M8) : proposée, jamais imposée ; installée en rechargeant,
+ *  seulement quand la file d'opérations est vide (sinon après leur synchronisation). */
 export function UpdatePrompt() {
   const { t } = useTranslation();
-  const { waiting, update } = useWaitingVersion();
+  const { waiting, install } = useWaitingVersion();
+  const { pending } = useSyncStatus();
+  const [asked, setAsked] = useState(false);
+
+  useEffect(() => {
+    if (asked && pending === 0) install();
+  }, [asked, pending, install]);
+
   if (!waiting) return null;
   return (
     <Toast
@@ -62,7 +71,11 @@ export function UpdatePrompt() {
         <Button
           size="sm"
           className="border-lamp bg-lamp text-basalt hover:border-lamp hover:bg-lamp hover:brightness-95"
-          onClick={update}
+          disabled={asked}
+          onClick={() => {
+            setAsked(true);
+            void syncNow();
+          }}
         >
           {t("shell.update.action")}
         </Button>
@@ -70,7 +83,9 @@ export function UpdatePrompt() {
     >
       <b>{t("shell.update.ready")}</b>
       <br />
-      <span className="text-basalt-soft">{t("shell.update.text")}</span>
+      <span className="text-basalt-soft">
+        {pending > 0 ? t("shell.update.afterSync", { count: pending }) : t("shell.update.text")}
+      </span>
     </Toast>
   );
 }

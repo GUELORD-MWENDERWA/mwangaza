@@ -9,7 +9,7 @@ function subscribe(callback: () => void) {
   };
 }
 
-/** Le navigateur a-t-il un réseau ? (indicateur du haut ; file d'opérations en 3.4) */
+/** Le navigateur a-t-il un réseau ? (indicateur du haut, synchronisation) */
 export function useOnline(): boolean {
   return useSyncExternalStore(
     subscribe,

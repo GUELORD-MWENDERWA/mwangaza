@@ -1,29 +1,33 @@
 import { cn } from "../lib/cn";
 
-/** `.sync` des maquettes : toujours visible en haut de la Gestion. En 1.6 : en ligne ou non ;
- *  opérations en attente et dernière synchronisation avec la 3.4. */
+const tones = {
+  ok: ["bg-ok-50 text-ok", "bg-ok"],
+  warn: ["bg-warn-50 text-warn", "bg-warn"],
+  due: ["bg-due-50 text-due", "bg-due"],
+} as const;
+
+/** `.sync` des maquettes : toujours visible en haut de la Gestion. `ok` : en ligne ; `warn` :
+ *  hors ligne ; `due` : opérations refusées par le serveur. */
 export function SyncIndicator({
-  online,
+  tone,
   label,
   className,
 }: {
-  online: boolean;
+  tone: keyof typeof tones;
   label: string;
   className?: string;
 }) {
+  const [box, dot] = tones[tone];
   return (
     <div
       role="status"
       className={cn(
         "flex items-center gap-2 rounded-full px-3 py-1.5 text-sm whitespace-nowrap",
-        online ? "bg-ok-50 text-ok" : "bg-warn-50 text-warn",
+        box,
         className,
       )}
     >
-      <span
-        aria-hidden="true"
-        className={cn("size-[9px] rounded-full", online ? "bg-ok" : "bg-warn")}
-      />
+      <span aria-hidden="true" className={cn("size-[9px] shrink-0 rounded-full", dot)} />
       {label}
     </div>
   );

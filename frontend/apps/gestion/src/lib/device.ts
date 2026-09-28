@@ -146,6 +146,12 @@ async function run<T>(mode: IDBTransactionMode, action: (store: IDBObjectStore) 
   }
 }
 
+/** L'appareil mémorisé du compte dans ce navigateur (synchronisation, 3.4). */
+export const localDevice = (user: string) => browserStore.get(user);
+
+/** Appareil déconnecté par l'école : oublié ici (sa base est effacée par la synchronisation). */
+export const forgetDevice = (user: string) => browserStore.delete(user);
+
 const browserStore: DeviceStore = {
   get: (user) => run<LocalDevice | undefined>("readonly", (store) => store.get(user)),
   put: async (device) => {
