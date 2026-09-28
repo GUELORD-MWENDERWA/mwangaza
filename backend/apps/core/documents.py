@@ -8,6 +8,7 @@ import io
 import re
 
 import openpyxl
+import segno
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -41,6 +42,11 @@ def data_uri(field, kind: str | None, content_types: dict[str, str]) -> str:
     except OSError:
         return ""
     return f"data:{content_types[kind]};base64,{base64.b64encode(content).decode()}"
+
+
+def qr_code(text: str) -> str:
+    """QR code d'une adresse en SVG `data:`, net à toute taille dans le PDF (`segno`)."""
+    return segno.make(text, error="m").svg_data_uri(border=0)
 
 
 def school_header(school: School) -> dict:
