@@ -104,6 +104,8 @@ class Action(models.TextChoices):
     FINANCE_CASH_REGISTER_UPDATED = "finance.cash_register_updated", _("Cash register changed")
     FINANCE_CASH_SESSION_OPENED = "finance.cash_session_opened", _("Cash session opened")
     FINANCE_PAYMENT_RECORDED = "finance.payment_recorded", _("Payment recorded")
+    # Reçus (F6) : chaque duplicata est noté.
+    FINANCE_PAYMENT_REPRINTED = "finance.payment_reprinted", _("Receipt reprinted")
 
     # Le journal lui-même (M6) : chaque export est noté.
     AUDIT_EXPORTED = "audit.exported", _("Audit log exported")

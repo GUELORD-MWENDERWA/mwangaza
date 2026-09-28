@@ -144,3 +144,5 @@ export function convert(minor: number, from: Currency, to: Currency, rate: strin
       : roundedRatio(amount * perUnit, scaledRate);
   return Number(converted);
 }
+
+export { amountInWords } from "./words";

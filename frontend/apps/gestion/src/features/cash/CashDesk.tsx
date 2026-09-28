@@ -1,7 +1,9 @@
 // Accueil de la caisse ouverte (maquette `caisse-accueil`) : recherche de l'élève, totaux de la
 // session par devise (jamais additionnés), paiements de la session ; un élève choisi → encaissement
-// (`CollectPanel`). Clavier : Ctrl K rechercher, Échap changer d'élève. Réimpression : 3.2 ;
-// opérations en attente d'envoi : 3.4 ; annulations et clôture : 3.8.
+// (`CollectPanel`), dont le reçu s'imprime aussitôt ; « Réimprimer » : duplicata noté au journal.
+// Clavier : Ctrl K rechercher, Échap changer d'élève. Opérations en attente d'envoi : 3.4 ;
+// annulations et clôture : 3.8.
+import { api, call } from "@mwangaza/api";
 import { formatTime, useTranslation } from "@mwangaza/i18n";
 import { type Currency, formatAmount, formatRate } from "@mwangaza/money";
 import {
@@ -20,8 +22,10 @@ import {
   Table,
   Tag,
 } from "@mwangaza/ui";
+import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
+import { firstErrorMessage } from "../../lib/errors";
 import { fullName, studentName } from "../../lib/people";
 import { useCurrentSchool } from "../../lib/school";
 import { useSettled } from "../../lib/settled";
@@ -30,7 +34,8 @@ import { LoadError } from "../status/StatusPages";
 import { type StudentRow, useStudentSearch } from "../students/data";
 import { RateBanner } from "./CashPage";
 import { type Chosen, CollectPanel } from "./CollectPanel";
-import { type CurrentSession, type Payment, useSessionPayments } from "./data";
+import { type CurrentSession, useSessionPayments } from "./data";
+import { type Receipt, useReceiptPrinter } from "./Receipt";
 
 type Session = NonNullable<CurrentSession["session"]>;
 
@@ -54,8 +59,14 @@ export function CashDesk({ current, session }: { current: CurrentSession; sessio
   const { t, i18n } = useTranslation();
   const school = useCurrentSchool();
   const [chosen, setChosen] = useState<Chosen | null>(null);
-  const [recorded, setRecorded] = useState<Payment | null>(null);
+  const [recorded, setRecorded] = useState<Receipt | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const printer = useReceiptPrinter();
+  const reprint = useMutation({
+    mutationFn: (id: string) =>
+      call(api.POST("/api/payments/{id}/reprint/", { params: { path: { id } } })),
+    onSuccess: (payment) => printer.print({ payment, reprintedAt: new Date().toISOString() }),
+  });
 
   // Ctrl K : la recherche de la caisse, pas la recherche générale (qui laisse faire).
   useEffect(() => {
@@ -97,11 +108,24 @@ export function CashDesk({ current, session }: { current: CurrentSession; sessio
         }
       />
       <RateBanner current={current} />
+      {printer.area}
       {recorded && (
         <Banner tone="ok" role="status">
-          {t("cash.desk.recorded", { number: recorded.receipt_number })}
+          <span className="flex-1">
+            {t("cash.desk.recorded", { number: recorded.receipt_number })}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={reprint.isPending}
+            onClick={() => reprint.mutate(recorded.id)}
+          >
+            <Icon name="print" size={16} />
+            {t("cash.desk.reprint")}
+          </Button>
         </Banner>
       )}
+      {reprint.error && <Banner tone="due">{firstErrorMessage(reprint.error, t)}</Banner>}
       {chosen ? (
         <>
           <Card>
@@ -123,6 +147,7 @@ export function CashDesk({ current, session }: { current: CurrentSession; sessio
             onRecorded={(payment) => {
               setRecorded(payment);
               setChosen(null);
+              printer.print({ payment });
             }}
           />
         </>
@@ -142,7 +167,12 @@ export function CashDesk({ current, session }: { current: CurrentSession; sessio
               );
             })}
           </div>
-          <SessionPayments session={session.id} onChoose={choose} />
+          <SessionPayments
+            session={session.id}
+            onChoose={choose}
+            onReprint={(id) => reprint.mutate(id)}
+            reprinting={reprint.isPending}
+          />
         </>
       )}
     </>
@@ -220,9 +250,13 @@ function StudentSearch({
 function SessionPayments({
   session,
   onChoose,
+  onReprint,
+  reprinting,
 }: {
   session: string;
   onChoose: (chosen: Chosen) => void;
+  onReprint: (id: string) => void;
+  reprinting: boolean;
 }) {
   const { t, i18n } = useTranslation();
   const school = useCurrentSchool();
@@ -299,6 +333,9 @@ function SessionPayments({
                   <th>{t("cash.payments.student")}</th>
                   <th className="text-right">{t("cash.payments.amount")}</th>
                   <th>{t("cash.payments.state")}</th>
+                  <th>
+                    <span className="sr-only">{t("cash.payments.reprint")}</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -328,6 +365,21 @@ function SessionPayments({
                               : "cash.payments.recorded",
                           )}
                         </StatusPill>
+                      </td>
+                      <td className="text-right">
+                        {!payment.cancelled && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={reprinting}
+                            aria-label={t("cash.payments.reprintLabel", {
+                              number: payment.receipt_number,
+                            })}
+                            onClick={() => onReprint(payment.id)}
+                          >
+                            {t("cash.payments.reprint")}
+                          </Button>
+                        )}
                       </td>
                     </tr>
                   );

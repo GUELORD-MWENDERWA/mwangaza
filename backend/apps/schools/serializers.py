@@ -49,28 +49,6 @@ class _LogoMixin(serializers.Serializer):
         return logo_url(school)
 
 
-class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
-    """Informations publiques de l'école : écran de connexion (nom, couleur, logo) ; fuseau et
-    devises pour les écrans (dates, montants)."""
-
-    enabled_currencies = serializers.ListField(
-        child=serializers.ChoiceField(choices=Currency.choices), read_only=True
-    )
-
-    class Meta:
-        model = School
-        fields = [
-            "code",
-            "name",
-            "primary_color",
-            "text_color",
-            "logo",
-            "timezone",
-            "enabled_currencies",
-            "default_currency",
-        ]
-
-
 class ReceiptSettingsSerializer(serializers.Serializer):
     """Réglages du reçu (M5, `receipts.py`). Écriture partielle : les autres restent."""
 
@@ -101,6 +79,42 @@ class ReceiptSettingsSerializer(serializers.Serializer):
             message = _("At most %(count)d header lines.") % {"count": receipts.HEADER_MAX_LINES}
             raise serializers.ValidationError(message, code="too_many_lines")
         return "\n".join(lines)
+
+
+class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
+    """Informations publiques de l'école : écran de connexion (nom, couleur, logo) ; fuseau et
+    devises pour les écrans (dates, montants)."""
+
+    enabled_currencies = serializers.ListField(
+        child=serializers.ChoiceField(choices=Currency.choices), read_only=True
+    )
+    logo_monochrome = serializers.SerializerMethodField(
+        help_text="Adresse du logo noir et blanc des reçus thermiques (public) ; null sans lui."
+    )
+    receipt = serializers.SerializerMethodField()
+
+    class Meta:
+        model = School
+        fields = [
+            "code",
+            "name",
+            "primary_color",
+            "text_color",
+            "logo",
+            "logo_monochrome",
+            "timezone",
+            "enabled_currencies",
+            "default_currency",
+            "receipt",
+        ]
+
+    @extend_schema_field(serializers.CharField(allow_null=True))
+    def get_logo_monochrome(self, school: School) -> str | None:
+        return logo_url(school, "logo_monochrome")
+
+    @extend_schema_field(ReceiptSettingsSerializer)
+    def get_receipt(self, school: School) -> dict:
+        return ReceiptSettingsSerializer(receipts.receipt_settings(school.settings)).data
 
 
 class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):

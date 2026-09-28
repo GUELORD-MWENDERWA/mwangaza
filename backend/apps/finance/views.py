@@ -49,6 +49,7 @@ from apps.finance.serializers import (
     FeeTypeWriteSerializer,
     PaymentCreateSerializer,
     PaymentFilterSerializer,
+    PaymentReceiptSerializer,
     PaymentSerializer,
     RescheduleSerializer,
     StudentChargeFilterSerializer,
@@ -459,11 +460,12 @@ class CashSessionViewSet(mixins.CreateModelMixin, SchoolViewSet):
 
 @extend_schema_view(
     list=extend_schema(parameters=[PaymentFilterSerializer]),
+    retrieve=extend_schema(responses={200: PaymentReceiptSerializer, **ERRORS}),
     create=extend_schema(
         request=PaymentCreateSerializer,
         responses={
-            200: PaymentSerializer,
-            201: PaymentSerializer,
+            200: PaymentReceiptSerializer,
+            201: PaymentReceiptSerializer,
             **INVALID,
             **CONFLICT,
             **ERRORS,
@@ -476,7 +478,8 @@ class PaymentViewSet(
 ):
     """Paiements (F1-F2), les plus récents d'abord ; ni modifiables ni effaçables. Sans
     `finance.view_reports`, seulement ceux des sessions du caissier. Création : 201, ou 200 si ce
-    paiement (même `id`) était déjà enregistré."""
+    paiement (même `id`) était déjà enregistré. Création, lecture et réimpression rendent le
+    reçu (F3)."""
 
     serializer_class = PaymentSerializer
 
@@ -492,6 +495,7 @@ class PaymentViewSet(
         payments = (
             Payment.objects.select_related(
                 "enrollment__student",
+                "enrollment__academic_year",
                 "enrollment__class_group__level",
                 "enrollment__class_group__track",
                 "cash_session__cash_register",
@@ -537,7 +541,20 @@ class PaymentViewSet(
             data.pop("enrollment"), actor=request.user, **data
         )
         payment = self.get_queryset().get(pk=payment.pk)
-        return Response(
-            PaymentSerializer(payment).data,
-            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
-        )
+        return self._receipt(payment, status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+
+    def retrieve(self, request: Request, pk=None) -> Response:
+        return self._receipt(self.get_object())
+
+    @extend_schema(request=None, responses={200: PaymentReceiptSerializer, **CONFLICT, **ERRORS})
+    @action(detail=True, methods=["post"])
+    def reprint(self, request: Request, pk=None) -> Response:
+        """Réimpression du reçu (F6) : le même reçu, marqué DUPLICATA par l'appareil, noté au
+        journal ; 409 `payment_cancelled` pour un paiement annulé."""
+        payment = self.get_object()
+        services.reprint_payment(payment, actor=request.user)
+        return self._receipt(payment)
+
+    def _receipt(self, payment: Payment, status_code=status.HTTP_200_OK) -> Response:
+        payment.balance_after = services.balance_after(payment)
+        return Response(PaymentReceiptSerializer(payment).data, status=status_code)

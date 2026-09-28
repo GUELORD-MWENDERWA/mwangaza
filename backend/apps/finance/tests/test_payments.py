@@ -1,12 +1,14 @@
 """Caisses et paiements (F1-F2) : isolation entre écoles, droits, répartition (devise reçue et
 échéances les plus anciennes d'abord, ajustement, conversion), numéro de reçu, double envoi,
-paiements immuables, solde après annulation, frais payés qui ne bougent plus."""
+paiements immuables, solde après annulation, frais payés qui ne bougent plus ; reçu (F3, F6) :
+solde juste après le paiement, réimpression auditée."""
 
-from datetime import date
+from datetime import UTC, date, datetime
 from decimal import Decimal
 
 import pytest
 from django.db import DatabaseError, connection, transaction
+from django.utils import timezone
 
 from apps.audit.actions import Action
 from apps.core.ids import uuid7
@@ -113,6 +115,7 @@ def test_a_school_neither_reads_nor_uses_the_registers_sessions_and_payments_of_
 
     assert ids(other.get(PAYMENTS)) == set()
     assert other.get(f"{PAYMENTS}{payment.pk}/").status_code == 404
+    assert other.post(f"{PAYMENTS}{payment.pk}/reprint/").status_code == 404
     registers = {item["id"] for item in other.get(REGISTERS).json()}
     assert registers == {str(beta["register"].pk)}
     assert other.patch(f"{REGISTERS}{alpha['register'].pk}/", {"name": "X"}).status_code == 404
@@ -146,6 +149,8 @@ def test_registers_sessions_and_payments_need_their_rights(api, school, head, ca
     theirs = pay(school, other_cashier, alpha["enrollment"], 5000, "CDF", code="C2")
     assert ids(as_cashier.get(PAYMENTS)) == {str(mine.pk)}
     assert as_cashier.get(f"{PAYMENTS}{theirs.pk}/").status_code == 404
+    assert as_cashier.post(f"{PAYMENTS}{theirs.pk}/reprint/").status_code == 404
+    assert as_secretary.post(f"{PAYMENTS}{mine.pk}/reprint/").status_code == 403
     assert ids(as_head.get(PAYMENTS)) == {str(mine.pk), str(theirs.pk)}
 
 
@@ -351,6 +356,58 @@ def test_a_cancelled_payment_no_longer_counts_in_the_balance(
     assert (balance["situation"], usd["paid_minor"], usd["overdue_minor"]) == ("overdue", 0, 12000)
     assert as_cashier.get(f"{PAYMENTS}{payment.pk}/").json()["cancelled"] is True
     assert as_cashier.get(f"{SESSIONS}current/").json()["totals"] == []
+
+
+# Reçus (F3, F6)
+
+
+def moment(monkeypatch, when: str) -> datetime:
+    """Heure de l'encaissement (`paid_at`) et jour de l'école."""
+    instant = datetime.fromisoformat(when).replace(tzinfo=UTC)
+    monkeypatch.setattr(timezone, "now", lambda: instant)
+    return instant
+
+
+def test_a_receipt_shows_the_balance_right_after_its_payment_and_a_reprint_is_audited(
+    api, monkeypatch, school, head, cashier, alpha
+):
+    enrollment = alpha["enrollment"]
+    moment(monkeypatch, "2026-10-20T10:00")
+    first = pay(school, cashier, enrollment, 6000, "USD")
+    moment(monkeypatch, "2026-10-21T10:00")
+    second = pay(school, cashier, enrollment, 3000, "USD")
+    # Le 1er paiement est annulé après le 2e : le reçu du 2e le compte toujours.
+    with use_school(school):
+        PaymentCancellation.objects.create(
+            payment=first,
+            reason="Erreur d'élève",
+            requested_by=cashier,
+            approved_by=head,
+            approved_at=moment(monkeypatch, "2026-10-22T09:00"),
+        )
+    as_cashier = api(cashier)
+
+    def balance(response) -> dict:
+        assert response.status_code == 200, response.content
+        currencies = response.json()["balance"]["currencies"]
+        return {c["currency"]: (c["remaining_minor"], c["overdue_minor"]) for c in currencies}
+
+    # Après le 1er : 1re tranche (15/10) payée à moitié et fonctionnement (30/09) en retard le
+    # 20/10 ; le 2e paiement n'y est pas.
+    assert balance(as_cashier.get(f"{PAYMENTS}{first.pk}/")) == {
+        "USD": (30000, 6000),
+        "CDF": (25000, 25000),
+    }
+    reprinted = as_cashier.post(f"{PAYMENTS}{second.pk}/reprint/")
+    assert balance(reprinted) == {"USD": (27000, 3000), "CDF": (25000, 25000)}
+    assert reprinted.json()["allocations"][0]["due_on"] == "2026-10-15"
+    logs = entries(school, Action.FINANCE_PAYMENT_REPRINTED)
+    assert [(log.entity_id, log.actor) for log in logs] == [(second.pk, cashier)]
+
+    # Un paiement annulé ne se réimprime pas.
+    refused = as_cashier.post(f"{PAYMENTS}{first.pk}/reprint/")
+    assert (refused.status_code, refused.json()["code"]) == (409, "payment_cancelled")
+    assert len(entries(school, Action.FINANCE_PAYMENT_REPRINTED)) == 1
 
 
 # Frais payés : ils ne bougent plus (changement de classe, barème, échéancier)

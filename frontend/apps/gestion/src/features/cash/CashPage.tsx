@@ -31,6 +31,7 @@ import { useCurrentSchool } from "../../lib/school";
 import { LoadError } from "../status/StatusPages";
 import { CashDesk } from "./CashDesk";
 import { type CurrentSession, useCashRegisters, useCurrentSession } from "./data";
+import { sampleReceipt, useReceiptPrinter } from "./Receipt";
 
 export function CashPage() {
   const { t } = useTranslation();
@@ -67,6 +68,7 @@ function OpenSession({ current }: { current: CurrentSession }) {
   const [chosen, setChosen] = useState<string | null>(null);
   // Donné par l'appareil : un deuxième envoi (double clic, réseau) rend la même session.
   const [sessionId] = useState(uuidv7);
+  const printer = useReceiptPrinter();
   const open = useMutation({
     mutationFn: (register: string) =>
       call(api.POST("/api/cash-sessions/", { body: { id: sessionId, cash_register: register } })),
@@ -152,13 +154,13 @@ function OpenSession({ current }: { current: CurrentSession }) {
           </CardContent>
         </Card>
         <div className="flex flex-col gap-4">
-          {school.enabled_currencies.length > 1 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("cash.open.before")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <List>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("cash.open.before")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <List>
+                {school.enabled_currencies.length > 1 && (
                   <div>
                     <span>{t("cash.open.rate")}</span>
                     <b className="tabular-nums">
@@ -167,10 +169,30 @@ function OpenSession({ current }: { current: CurrentSession }) {
                         : "—"}
                     </b>
                   </div>
-                </List>
-              </CardContent>
-            </Card>
-          )}
+                )}
+                <div>
+                  <span>{t("cash.open.printer")}</span>
+                  <span className="flex items-center gap-2">
+                    {t(`settings.receipt.printers.${school.receipt.printer}`)}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      aria-label={t("cash.open.testLabel")}
+                      onClick={() =>
+                        printer.print({
+                          payment: sampleReceipt(school, me, selected?.name ?? "", t),
+                          test: true,
+                        })
+                      }
+                    >
+                      {t("cash.open.test")}
+                    </Button>
+                  </span>
+                </div>
+              </List>
+            </CardContent>
+          </Card>
+          {printer.area}
           <Button
             size="xl"
             disabled={!selected || open.isPending}

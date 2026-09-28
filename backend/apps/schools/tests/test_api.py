@@ -16,11 +16,20 @@ def test_each_school_sees_its_own_name(client, school, other_school):
         "primary_color": "#0E5C6B",
         "text_color": "#FFFFFF",
         "logo": None,
+        "logo_monochrome": None,
         # Les dates de l'application s'affichent à l'heure de l'école.
         "timezone": "Africa/Lubumbashi",
         # … et les montants dans les devises de l'école.
         "enabled_currencies": ["USD", "CDF"],
         "default_currency": "USD",
+        # Le reçu imprimé par la caisse (réglages par défaut).
+        "receipt": {
+            "printer": "thermal_80",
+            "sheet_size": "a6",
+            "copies": 1,
+            "header": "",
+            "footer": "",
+        },
     }
     assert beta.json()["name"] == "École Beta (fictive)"
 

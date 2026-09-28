@@ -21,8 +21,17 @@ with use_school(School.objects.get(code="itig")):
   return { matricule: matricule!, name: name!.replace(/\s+/g, " ") };
 }
 
-test("caissière : ouvre sa caisse, encaisse, voit le paiement du jour", async ({ page }) => {
+test("caissière : ouvre sa caisse, encaisse, imprime le reçu, voit le paiement du jour", async ({
+  page,
+}) => {
   const student = unpaidStudent();
+  // Pas de fenêtre d'impression : on garde ce qui serait imprimé.
+  await page.addInitScript(() => {
+    window.print = () => {
+      document.body.dataset.prints = String(Number(document.body.dataset.prints ?? 0) + 1);
+      document.body.dataset.printed = document.querySelector(".print-area")?.textContent ?? "";
+    };
+  });
   // La caissière se connecte aussi dans d'autres parcours : un code ne sert qu'une fois.
   allowCodeAgain("+243000001005");
   await page.goto(`${ITIG}cash`);
@@ -43,6 +52,10 @@ test("caissière : ouvre sa caisse, encaisse, voit le paiement du jour", async (
   await page.keyboard.press("F9");
 
   await expect(page.getByText(/^Paiement enregistré : reçu ITIG-C\d-26-\d{6}\.$/)).toBeVisible();
+  // Un seul reçu imprimé, avec le montant en lettres.
+  const body = page.locator("body");
+  await expect(body).toHaveAttribute("data-printed", /Reçu n° ITIG-C\d-26-\d{6}.*Dix dollars/);
+  await expect(body).toHaveAttribute("data-prints", "1");
   const today = page.locator("section", {
     has: page.getByRole("heading", { name: "Paiements du jour" }),
   });
