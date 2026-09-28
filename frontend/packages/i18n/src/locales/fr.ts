@@ -159,7 +159,33 @@ export const fr = {
     update: {
       ready: "Nouvelle version prête.",
       text: "Elle s'installe en rechargeant l'application.",
+      afterSync_one: "Elle s'installera après la synchronisation de l'opération en attente.",
+      afterSync_other:
+        "Elle s'installera après la synchronisation des {{count}} opérations en attente.",
       action: "Mettre à jour",
+    },
+    sync: {
+      details: "Synchronisation de cet appareil",
+      running: "Synchronisation…",
+      upToDate: "En ligne · à jour",
+      notSynced: "En ligne · à synchroniser",
+      onlinePending: "En ligne · {{count}} en attente",
+      offlinePending: "Hors ligne · {{count}} en attente",
+      rejected_one: "{{count}} opération refusée",
+      rejected_other: "{{count}} opérations refusées",
+      lastSync: "Dernière synchronisation : {{when}}",
+      never: "Pas encore synchronisé",
+      pending: "Opérations en attente : {{count}}",
+      rejectedHint: "Opérations refusées par le serveur : {{count}}. Elles restent sur l'appareil.",
+      storage: "Stockage persistant : {{state}}",
+      granted: "accordé",
+      refused: "refusé",
+      now: "Synchroniser maintenant",
+    },
+    storage: {
+      title: "Cet appareil ne peut pas garder les données hors-ligne",
+      text: "Sans cette autorisation, la caisse ne peut pas fonctionner sans internet. Installez l'application (icône ⊕ dans la barre d'adresse de Chrome ou Edge), n'utilisez pas la navigation privée, puis réessayez.",
+      onlineOnly: "Continuer en ligne seulement",
     },
   },
   roles: {

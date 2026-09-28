@@ -3,6 +3,7 @@ import { ApiError, api, call, type Schemas } from "@mwangaza/api";
 import { type QueryClient, useQuery } from "@tanstack/react-query";
 
 import { attachDevice, takeRememberDevice } from "./device";
+import { reloadSync } from "./sync/session";
 
 export type Me = Schemas["Me"];
 export type School = Schemas["CurrentSchool"];
@@ -72,6 +73,7 @@ export async function attachDeviceAfterLogin(queryClient: QueryClient) {
     const me = await queryClient.fetchQuery(meQuery);
     if (!me.school) return;
     await attachDevice(me.id, remember);
+    reloadSync();
     await queryClient.invalidateQueries({ queryKey: keys.myDevices });
   } catch {
     // Sans réseau ou sans WebCrypto : l'appareil sera repris à la prochaine connexion.

@@ -150,7 +150,7 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         path: "devices",
         icon: "sync",
         permissions: ["roles.manage"],
-        task: "3.3",
+        task: "3.7",
       },
       {
         key: "audit",
