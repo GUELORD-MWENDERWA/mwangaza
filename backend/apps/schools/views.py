@@ -72,26 +72,37 @@ def current_school(request: Request) -> Response:
     return Response(CurrentSchoolSerializer(request.school).data)
 
 
-@require_GET
-def school_logo(request: HttpRequest) -> HttpResponse:
-    """Logo de l'école de l'adresse (public : écran de connexion). Hors de l'API typée : c'est
-    une image. Un SVG ne peut rien exécuter, même ouvert seul dans le navigateur."""
+def _serve_logo(request: HttpRequest, field: str) -> HttpResponse:
     school = request.school
     if school is None:
         return JsonResponse(SCHOOL_NOT_FOUND.body(), status=SCHOOL_NOT_FOUND.status)
-    if not school.logo:
+    logo = getattr(school, field)
+    if not logo:
         return JsonResponse(NO_LOGO.body(), status=NO_LOGO.status)
     try:
-        file = school.logo.open("rb")
+        file = logo.open("rb")
     except FileNotFoundError:
         return JsonResponse(NO_LOGO.body(), status=NO_LOGO.status)
-    kind = Path(school.logo.name).suffix.removeprefix(".")
+    kind = Path(logo.name).suffix.removeprefix(".")
     response = FileResponse(file, content_type=CONTENT_TYPES.get(kind, "application/octet-stream"))
     response["X-Content-Type-Options"] = "nosniff"
     response["Content-Security-Policy"] = "default-src 'none'; style-src 'unsafe-inline'; sandbox"
     # L'adresse donnée par l'API change avec chaque logo.
     response["Cache-Control"] = "public, max-age=86400"
     return response
+
+
+@require_GET
+def school_logo(request: HttpRequest) -> HttpResponse:
+    """Logo de l'école de l'adresse (public : écran de connexion). Hors de l'API typée : c'est
+    une image. Un SVG ne peut rien exécuter, même ouvert seul dans le navigateur."""
+    return _serve_logo(request, "logo")
+
+
+@require_GET
+def school_logo_monochrome(request: HttpRequest) -> HttpResponse:
+    """Logo noir et blanc de l'école de l'adresse (reçus thermiques), public comme le logo."""
+    return _serve_logo(request, "logo_monochrome")
 
 
 class _SchoolSettingsBase(APIView):
@@ -134,6 +145,7 @@ class SchoolLogoView(_SchoolSettingsBase):
 
     parser_classes = [MultiPartParser, FormParser]
     serializer_class = LogoUploadSerializer
+    field = "logo"
 
     @extend_schema(
         request={"multipart/form-data": LogoUploadSerializer},
@@ -143,14 +155,23 @@ class SchoolLogoView(_SchoolSettingsBase):
         serializer = LogoUploadSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         school = self.school()
-        services.update_school(school, actor=request.user, logo=serializer.validated_data["logo"])
+        logo = serializer.validated_data["logo"]
+        services.update_school(school, actor=request.user, **{self.field: logo})
         return self.settings_response(school)
 
     @extend_schema(request=None, responses={200: SchoolSettingsSerializer, **ERRORS})
     def delete(self, request: Request) -> Response:
         school = self.school()
-        services.update_school(school, actor=request.user, logo=None)
+        services.update_school(school, actor=request.user, **{self.field: None})
         return self.settings_response(school)
+
+
+@extend_schema(tags=["schools"])
+class SchoolMonochromeLogoView(SchoolLogoView):
+    """Logo noir et blanc des reçus thermiques (M5) ; sans lui, le logo s'imprime en niveaux de
+    gris. Mêmes règles que le logo."""
+
+    field = "logo_monochrome"
 
 
 # Organisation scolaire (C1-C3) : droit `classes.manage`. Listes de configuration (des dizaines de

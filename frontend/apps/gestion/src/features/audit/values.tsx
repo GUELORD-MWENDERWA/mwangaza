@@ -97,6 +97,10 @@ export function renderValue(
       return (value as string[]).map(currency).join(", ");
     case "default_currency":
       return currency(value);
+    case "receipt_printer":
+      return t(`settings.receipt.printers.${value as "sheet"}`, { defaultValue: String(value) });
+    case "receipt_sheet_size":
+      return t(`settings.receipt.sheetSizes.${value as "a6"}`, { defaultValue: String(value) });
     case "starts_on":
     case "ends_on":
     case "birth_date":

@@ -32,6 +32,16 @@ def _demo_schools() -> dict[str, dict]:
             "plan": "Essai",
             "trial_ends_on": today + timedelta(days=90),
             "paid_until": None,
+            # Reçus (M5) : en-tête et mention fictifs, thermique 80 mm.
+            "settings": {
+                "receipt": {
+                    "printer": "thermal_80",
+                    "sheet_size": "a6",
+                    "copies": 1,
+                    "header": "Institut Technique Industriel\nGoma · Nord-Kivu\n+243 000 000 000",
+                    "footer": "Conservez ce reçu. Aucun remboursement sans reçu.",
+                }
+            },
         },
         "volcans": {
             "name": "Complexe scolaire Les Volcans (fictif)",
@@ -41,20 +51,31 @@ def _demo_schools() -> dict[str, dict]:
             "plan": "Standard",
             "trial_ends_on": None,
             "paid_until": today + timedelta(days=60),
+            # Imprimante ordinaire : reçus A6, avec une souche pour l'école.
+            "settings": {
+                "receipt": {
+                    "printer": "sheet",
+                    "sheet_size": "a6",
+                    "copies": 2,
+                    "header": "Quartier Himbi, Goma\nvolcans@example.org",
+                    "footer": "Merci de payer à temps.",
+                }
+            },
         },
     }
 
 
 def create_demo_schools() -> dict[str, School]:
     """Crée les écoles, ou les remet comme au départ (nom, couleur, abonnement, pas suspendues,
-    logo de démonstration)."""
+    réglages du reçu, logo de démonstration, pas de logo noir et blanc)."""
     schools = {}
     for code, fields in _demo_schools().items():
         existing = School.objects.filter(code=code).first()
-        if existing is not None and existing.logo:
-            existing.logo.delete(save=False)
+        for logo in (existing.logo, existing.logo_monochrome) if existing else ():
+            if logo:
+                logo.delete(save=False)
         school, _created = School.objects.update_or_create(
-            code=code, defaults={**fields, "logo": ""}
+            code=code, defaults={**fields, "logo": "", "logo_monochrome": ""}
         )
         logo = DEMO_LOGOS.get(code)
         if logo is not None and logo.exists():

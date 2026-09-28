@@ -12,9 +12,11 @@ const settings = {
   primary_color: "#0E5C6B",
   text_color: "#FFFFFF",
   logo: null,
+  logo_monochrome: null,
   timezone: "Africa/Lubumbashi",
   enabled_currencies: ["USD", "CDF"],
   default_currency: "USD",
+  receipt: { printer: "thermal_80", sheet_size: "a6", copies: 1, header: "", footer: "" },
 };
 
 function routes(extra: Routes = {}): Routes {
@@ -30,7 +32,7 @@ const card = async (title: string) =>
   within((await screen.findByRole("heading", { name: title })).closest("section")!);
 
 describe("Paramètres de l'école (M5)", () => {
-  it("enregistre les changements ; le code ne change que par le support", async () => {
+  it("enregistre les changements et les réglages du reçu ; le code ne change que par le support", async () => {
     const all = routes();
     const requests = mockApi(all);
     const { user } = renderApp("/settings");
@@ -43,6 +45,13 @@ describe("Paramètres de l'école (M5)", () => {
     await user.clear(name);
     await user.type(name, "Institut Alpha");
     await user.selectOptions(identity.getByLabelText("Fuseau horaire"), "Africa/Kinshasa");
+    // Reçus : la taille sur la feuille A4 seulement pour une imprimante ordinaire.
+    const receipt = await card("Reçus");
+    expect(receipt.queryByLabelText("Taille du reçu sur la feuille A4")).toBeNull();
+    await user.click(receipt.getByRole("radio", { name: "Feuille A4" }));
+    await user.selectOptions(receipt.getByLabelText("Taille du reçu sur la feuille A4"), "small");
+    await user.click(receipt.getByRole("radio", { name: "2 · élève + souche" }));
+    await user.type(receipt.getByLabelText(/Lignes d'en-tête/), "Av. du Lac 1{Enter}Goma");
     all["PATCH /api/school/settings/"] = { ...settings, name: "Institut Alpha" };
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
 
@@ -54,6 +63,13 @@ describe("Paramètres de l'école (M5)", () => {
       primary_color: "#0E5C6B",
       enabled_currencies: ["USD", "CDF"],
       default_currency: "USD",
+      receipt: {
+        printer: "sheet",
+        sheet_size: "small",
+        copies: 2,
+        header: "Av. du Lac 1\nGoma",
+        footer: "",
+      },
     });
     // Le nom de l'école (menu, connexion) est relu.
     await waitFor(() =>

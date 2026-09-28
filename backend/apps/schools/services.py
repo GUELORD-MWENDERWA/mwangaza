@@ -17,6 +17,7 @@ from apps.accounts.models import Membership, Role
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.tenancy import use_school
+from apps.schools import receipts
 from apps.schools.models import School
 
 # Ce que l'école voit changer dans son journal.
@@ -71,19 +72,24 @@ def save_school(school: School, *, actor) -> School:
         school.save()
         with use_school(school):
             _record_changes(old, school, actor=actor)
-        if old.logo and old.logo.name != school.logo.name:
-            transaction.on_commit(partial(old.logo.storage.delete, old.logo.name))
+        for field in LOGO_FIELDS:
+            file = getattr(old, field)
+            if file and file.name != getattr(school, field).name:
+                transaction.on_commit(partial(file.storage.delete, file.name))
     return school
 
 
 def _record_changes(old: School, school: School, *, actor) -> None:
-    before, after = audit.changes(_identity(old), _identity(school))
+    before, after = audit.changes(
+        {**_identity(old), **receipts.journal_fields(old.settings)},
+        {**_identity(school), **receipts.journal_fields(school.settings)},
+    )
     if after:
         audit.record(Action.SCHOOL_UPDATED, school, actor=actor, before=before, after=after)
-    if old.logo.name != school.logo.name:
-        audit.record(
-            Action.SCHOOL_LOGO_CHANGED, school, actor=actor, after={"logo": bool(school.logo)}
-        )
+    for field in LOGO_FIELDS:
+        if getattr(old, field).name != getattr(school, field).name:
+            after = {field: bool(getattr(school, field))}
+            audit.record(Action.SCHOOL_LOGO_CHANGED, school, actor=actor, after=after)
     suspended = School.Status.SUSPENDED
     if old.status != suspended and school.status == suspended:
         audit.record(Action.SCHOOL_SUSPENDED, school, actor=actor)
@@ -91,11 +97,16 @@ def _record_changes(old: School, school: School, *, actor) -> None:
         audit.record(Action.SCHOOL_REACTIVATED, school, actor=actor)
 
 
+LOGO_FIELDS = ("logo", "logo_monochrome")
+
+
 def update_school(school: School, *, actor, **fields) -> School:
     """Paramètres de l'école (M5) ou administration : champs déjà vérifiés. `logo=None` retire
-    le logo."""
+    le logo ; `receipt` : réglages du reçu à changer, les autres restent."""
+    if (receipt := fields.pop("receipt", None)) is not None:
+        school.settings = {**school.settings, "receipt": {**school.receipt, **receipt}}
     for field, value in fields.items():
-        setattr(school, field, "" if field == "logo" and value is None else value)
+        setattr(school, field, "" if field in LOGO_FIELDS and value is None else value)
     return save_school(school, actor=actor)
 
 

@@ -1,7 +1,7 @@
-// Paramètres de l'école (M5) : identité, logo, couleur (lisibilité vérifiée, Q8), fuseau horaire,
-// devises. Droit `school.configure` ; chaque changement va dans le journal de l'école. Cartes
-// « Reçus » (3.2) et « Alertes » (4.2) : avec leur tâche. Carte « Caisses » : avec
-// `finance.configure_fees`.
+// Paramètres de l'école (M5) : identité, logos (couleur, noir et blanc des reçus thermiques),
+// couleur (lisibilité vérifiée, Q8), fuseau horaire, reçus, devises. Droit `school.configure` ;
+// chaque changement va dans le journal de l'école. Carte « Alertes » : 4.2. Carte « Caisses » :
+// avec `finance.configure_fees`.
 import { ApiError, api, call, type Schemas } from "@mwangaza/api";
 import { useTranslation } from "@mwangaza/i18n";
 import {
@@ -32,6 +32,7 @@ import { can } from "../../lib/permissions";
 import { keys, useCurrentMe } from "../../lib/queries";
 import { LoadError } from "../status/StatusPages";
 import { CashRegistersCard } from "./CashRegistersCard";
+import { HEADER_MAX_LINES, headerLines, ReceiptCard } from "./ReceiptCard";
 
 type Settings = Schemas["SchoolSettings"];
 type Currency = Schemas["CurrencyEnum"];
@@ -46,6 +47,8 @@ const FIELDS = [
   "primary_color",
   "enabled_currencies",
   "default_currency",
+  "receipt.header",
+  "receipt.footer",
 ] as const;
 
 function otherZones(current: string): string[] {
@@ -75,6 +78,20 @@ function useSchema() {
             .array(z.enum(["USD", "CDF"]))
             .min(1, t("settings.currencies.atLeastOne")),
           default_currency: z.enum(["USD", "CDF"]),
+          receipt: z.object({
+            printer: z.enum(["thermal_80", "thermal_58", "sheet"]),
+            sheet_size: z.enum(["a6", "a5", "small"]),
+            copies: z.union([z.literal(1), z.literal(2)]),
+            header: z
+              .string()
+              .trim()
+              .max(300)
+              .refine(
+                (value) => headerLines(value).length <= HEADER_MAX_LINES,
+                t("settings.receipt.tooManyLines"),
+              ),
+            footer: z.string().trim().max(200),
+          }),
         })
         .transform((values) => ({
           ...values,
@@ -119,6 +136,7 @@ function SettingsForm({ settings }: { settings: Settings }) {
       primary_color: settings.primary_color,
       enabled_currencies: settings.enabled_currencies,
       default_currency: settings.default_currency,
+      receipt: settings.receipt,
     },
   });
   const save = useMutation({
@@ -163,13 +181,16 @@ function SettingsForm({ settings }: { settings: Settings }) {
           <IdentityCard form={form} code={settings.code} />
           <LogoColorCard form={form} settings={settings} />
         </div>
-        <CurrenciesCard form={form} />
+        <div className="flex flex-col gap-4">
+          <ReceiptCard form={form} />
+          <CurrenciesCard form={form} />
+        </div>
       </div>
     </form>
   );
 }
 
-type CardProps = { form: UseFormReturn<FormValues, unknown, unknown> };
+export type CardProps = { form: UseFormReturn<FormValues, unknown, unknown> };
 
 function IdentityCard({ form, code }: CardProps & { code: string }) {
   const { t } = useTranslation();
@@ -250,7 +271,10 @@ function LogoColorCard({ form, settings }: CardProps & { settings: Settings }) {
         <CardTitle>{t("settings.logo.title")}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <LogoField settings={settings} />
+        <div className="grid gap-4 min-[600px]:grid-cols-2">
+          <LogoField settings={settings} kind="logo" />
+          <LogoField settings={settings} kind="logo_monochrome" />
+        </div>
         <Field
           id="school-color"
           label={t("settings.color.label")}
@@ -306,9 +330,12 @@ function LogoColorCard({ form, settings }: CardProps & { settings: Settings }) {
   );
 }
 
-/** Logo enregistré aussitôt choisi (envoi à part du formulaire). */
-function LogoField({ settings }: { settings: Settings }) {
+/** Logo enregistré aussitôt choisi (envoi à part du formulaire) : logo couleur, ou noir et blanc
+ *  des reçus thermiques (sans lui, le logo couleur s'imprime en niveaux de gris). */
+function LogoField({ settings, kind }: { settings: Settings; kind: "logo" | "logo_monochrome" }) {
   const { t } = useTranslation();
+  const monochrome = kind === "logo_monochrome";
+  const logo = settings[kind];
   const queryClient = useQueryClient();
   const input = useRef<HTMLInputElement>(null);
   const onSuccess = (data: Settings) => {
@@ -319,30 +346,42 @@ function LogoField({ settings }: { settings: Settings }) {
     mutationFn: (file: File) => {
       const body = new FormData();
       body.append("logo", file);
+      const options = { body: body as unknown as { logo: string } };
       return call(
-        api.POST("/api/school/settings/logo/", {
-          body: body as unknown as { logo: string },
-        }),
+        monochrome
+          ? api.POST("/api/school/settings/logo-monochrome/", options)
+          : api.POST("/api/school/settings/logo/", options),
       );
     },
     onSuccess,
   });
   const remove = useMutation({
-    mutationFn: () => call(api.DELETE("/api/school/settings/logo/")),
+    mutationFn: () =>
+      call(
+        monochrome
+          ? api.DELETE("/api/school/settings/logo-monochrome/")
+          : api.DELETE("/api/school/settings/logo/"),
+      ),
     onSuccess,
   });
   const failed = upload.error ?? remove.error;
   const fieldError = failed instanceof ApiError ? Object.values(failed.fields)[0]?.[0] : undefined;
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-[.87rem] font-bold text-ink-2">{t("settings.logo.label")}</span>
+      <span className="text-[.87rem] font-bold text-ink-2">
+        {t(monochrome ? "settings.logo.monochrome" : "settings.logo.label")}
+      </span>
       <div className="flex flex-wrap items-center gap-3">
-        {settings.logo ? (
+        {logo ? (
           <img
-            src={settings.logo}
-            alt={t("settings.logo.alt")}
+            src={logo}
+            alt={t(monochrome ? "settings.logo.monochromeAlt" : "settings.logo.alt")}
             className="size-[84px] rounded-box border border-line bg-white object-contain p-1"
           />
+        ) : monochrome ? (
+          <span className="grid size-[84px] place-items-center rounded-box border border-dashed border-line text-center text-[.75rem] text-ink-3">
+            {t("settings.logo.none")}
+          </span>
         ) : (
           <SchoolBadge
             code={settings.code}
@@ -364,7 +403,7 @@ function LogoField({ settings }: { settings: Settings }) {
               <Icon name="upload" size={14} />
               {t("settings.logo.change")}
             </Button>
-            {settings.logo && (
+            {logo && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -375,14 +414,16 @@ function LogoField({ settings }: { settings: Settings }) {
               </Button>
             )}
           </div>
-          <span className="text-[.8rem] text-ink-3">{t("settings.logo.help")}</span>
+          <span className="text-[.8rem] text-ink-3">
+            {t(monochrome ? "settings.logo.monochromeHelp" : "settings.logo.help")}
+          </span>
         </div>
         <input
           ref={input}
           type="file"
           accept="image/png,image/jpeg,image/svg+xml"
           className="hidden"
-          aria-label={t("settings.logo.change")}
+          aria-label={t(monochrome ? "settings.logo.changeMonochrome" : "settings.logo.change")}
           onChange={(event) => {
             const file = event.target.files?.[0];
             event.target.value = "";

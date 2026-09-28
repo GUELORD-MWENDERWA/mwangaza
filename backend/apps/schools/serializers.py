@@ -11,7 +11,7 @@ from rest_framework.fields import get_error_detail
 
 from apps.accounts.models import User
 from apps.core.money import Currency
-from apps.schools import organisation
+from apps.schools import organisation, receipts
 from apps.schools.logos import validate_logo
 from apps.schools.matricule import MAX_LENGTH as MAX_MATRICULE_LENGTH
 from apps.schools.models import (
@@ -25,12 +25,15 @@ from apps.schools.models import (
 )
 from apps.schools.organisation import TermNode, YearTemplate
 
+LOGO_ADDRESSES = {"logo": "/api/school/logo/", "logo_monochrome": "/api/school/logo-monochrome/"}
 
-def logo_url(school: School) -> str | None:
-    """Adresse du logo sur l'adresse de l'école ; elle change avec chaque logo (cache)."""
-    if not school.logo:
+
+def logo_url(school: School, field: str = "logo") -> str | None:
+    """Adresse d'un logo sur l'adresse de l'école ; elle change avec chaque logo (cache)."""
+    file = getattr(school, field)
+    if not file:
         return None
-    return f"/api/school/logo/?v={Path(school.logo.name).stem.removeprefix('logo-')}"
+    return f"{LOGO_ADDRESSES[field]}?v={Path(file.name).stem.rsplit('-', 1)[-1]}"
 
 
 class _LogoMixin(serializers.Serializer):
@@ -68,6 +71,38 @@ class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
         ]
 
 
+class ReceiptSettingsSerializer(serializers.Serializer):
+    """Réglages du reçu (M5, `receipts.py`). Écriture partielle : les autres restent."""
+
+    printer = serializers.ChoiceField(
+        choices=receipts.PRINTERS,
+        help_text="Thermique 58 ou 80 mm, ou imprimante ordinaire avec une feuille A4.",
+    )
+    sheet_size = serializers.ChoiceField(
+        choices=receipts.SHEET_SIZES,
+        help_text="Sur une feuille A4 : A6 (4 par feuille), A5 (2), petit format ≈ 10 x 7 cm (8).",
+    )
+    copies = serializers.ChoiceField(
+        choices=receipts.COPIES, help_text="1 (élève) ou 2 (élève et souche pour l'école)."
+    )
+    header = serializers.CharField(
+        max_length=300,
+        allow_blank=True,
+        trim_whitespace=False,
+        help_text="Lignes d'en-tête : adresse, téléphone, e-mail (5 lignes au plus).",
+    )
+    footer = serializers.CharField(
+        max_length=200, allow_blank=True, help_text="Mention en bas du reçu."
+    )
+
+    def validate_header(self, value: str) -> str:
+        lines = [line.strip() for line in value.strip().splitlines()]
+        if len(lines) > receipts.HEADER_MAX_LINES:
+            message = _("At most %(count)d header lines.") % {"count": receipts.HEADER_MAX_LINES}
+            raise serializers.ValidationError(message, code="too_many_lines")
+        return "\n".join(lines)
+
+
 class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
     """Paramètres de l'école (M5). Le code (adresse) ne change que par le support Mwangaza."""
 
@@ -77,6 +112,10 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
         required=False,
         help_text="Devises de l'école (au moins une).",
     )
+    logo_monochrome = serializers.SerializerMethodField(
+        help_text="Adresse du logo noir et blanc des reçus thermiques (public) ; null sans lui."
+    )
+    receipt = ReceiptSettingsSerializer(required=False)
 
     class Meta:
         model = School
@@ -87,18 +126,25 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
             "primary_color",
             "text_color",
             "logo",
+            "logo_monochrome",
             "timezone",
             "enabled_currencies",
             "default_currency",
+            "receipt",
         ]
         read_only_fields = ["code"]
+
+    @extend_schema_field(serializers.CharField(allow_null=True))
+    def get_logo_monochrome(self, school: School) -> str | None:
+        return logo_url(school, "logo_monochrome")
 
     def validate(self, data):
         # Mêmes règles que l'administration (`School.clean`) : devise principale parmi celles de
         # l'école, couleur écrite `#RRGGBB`.
         school = copy(self.instance)
         for field, value in data.items():
-            setattr(school, field, value)
+            if field != "receipt":
+                setattr(school, field, value)
         try:
             school.clean()
         except DjangoValidationError as exc:

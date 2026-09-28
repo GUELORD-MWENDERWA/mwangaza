@@ -1046,6 +1046,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/school/settings/logo-monochrome/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Logo noir et blanc des reçus thermiques (M5) ; sans lui, le logo s'imprime en niveaux de
+         *     gris. Mêmes règles que le logo.
+         */
+        post: operations["school_settings_logo_monochrome_create"];
+        /**
+         * @description Logo noir et blanc des reçus thermiques (M5) ; sans lui, le logo s'imprime en niveaux de
+         *     gris. Mêmes règles que le logo.
+         */
+        delete: operations["school_settings_logo_monochrome_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/staff/": {
         parameters: {
             query?: never;
@@ -1735,6 +1759,12 @@ export interface components {
             /** @description Code à 6 chiffres de l'application, ou code de secours (ex. 7KQ4-M2XP). */
             code: string;
         };
+        /**
+         * @description * `1` - 1
+         *     * `2` - 2
+         * @enum {integer}
+         */
+        CopiesEnum: 1 | 2;
         CurrencyBalance: {
             currency: components["schemas"]["CurrencyEnum"];
             /** @description Dû pour l'année, après réductions. */
@@ -2598,6 +2628,7 @@ export interface components {
              *     * `CDF` - Congolese franc
              */
             default_currency?: components["schemas"]["CurrencyEnum"];
+            receipt?: components["schemas"]["ReceiptSettingsRequest"];
         };
         /** @description Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`. */
         PatchedStaffUpdateRequest: {
@@ -2770,6 +2801,13 @@ export interface components {
             photo: string;
         };
         /**
+         * @description * `thermal_58` - thermal_58
+         *     * `thermal_80` - thermal_80
+         *     * `sheet` - sheet
+         * @enum {string}
+         */
+        PrinterEnum: "thermal_58" | "thermal_80" | "sheet";
+        /**
          * @description * `staff_child` - Staff child
          *     * `sibling` - Sibling
          *     * `scholarship` - Scholarship
@@ -2778,6 +2816,66 @@ export interface components {
          * @enum {string}
          */
         ReasonCodeEnum: "staff_child" | "sibling" | "scholarship" | "waiver" | "other";
+        /** @description Réglages du reçu (M5, `receipts.py`). Écriture partielle : les autres restent. */
+        ReceiptSettings: {
+            /**
+             * @description Thermique 58 ou 80 mm, ou imprimante ordinaire avec une feuille A4.
+             *
+             *     * `thermal_58` - thermal_58
+             *     * `thermal_80` - thermal_80
+             *     * `sheet` - sheet
+             */
+            printer: components["schemas"]["PrinterEnum"];
+            /**
+             * @description Sur une feuille A4 : A6 (4 par feuille), A5 (2), petit format ≈ 10 x 7 cm (8).
+             *
+             *     * `a6` - a6
+             *     * `a5` - a5
+             *     * `small` - small
+             */
+            sheet_size: components["schemas"]["SheetSizeEnum"];
+            /**
+             * @description 1 (élève) ou 2 (élève et souche pour l'école).
+             *
+             *     * `1` - 1
+             *     * `2` - 2
+             */
+            copies: components["schemas"]["CopiesEnum"];
+            /** @description Lignes d'en-tête : adresse, téléphone, e-mail (5 lignes au plus). */
+            header: string;
+            /** @description Mention en bas du reçu. */
+            footer: string;
+        };
+        /** @description Réglages du reçu (M5, `receipts.py`). Écriture partielle : les autres restent. */
+        ReceiptSettingsRequest: {
+            /**
+             * @description Thermique 58 ou 80 mm, ou imprimante ordinaire avec une feuille A4.
+             *
+             *     * `thermal_58` - thermal_58
+             *     * `thermal_80` - thermal_80
+             *     * `sheet` - sheet
+             */
+            printer: components["schemas"]["PrinterEnum"];
+            /**
+             * @description Sur une feuille A4 : A6 (4 par feuille), A5 (2), petit format ≈ 10 x 7 cm (8).
+             *
+             *     * `a6` - a6
+             *     * `a5` - a5
+             *     * `small` - small
+             */
+            sheet_size: components["schemas"]["SheetSizeEnum"];
+            /**
+             * @description 1 (élève) ou 2 (élève et souche pour l'école).
+             *
+             *     * `1` - 1
+             *     * `2` - 2
+             */
+            copies: components["schemas"]["CopiesEnum"];
+            /** @description Lignes d'en-tête : adresse, téléphone, e-mail (5 lignes au plus). */
+            header: string;
+            /** @description Mention en bas du reçu. */
+            footer: string;
+        };
         RecoveryCodes: {
             /** @description Affichés une seule fois : à imprimer. */
             recovery_codes: string[];
@@ -2884,6 +2982,8 @@ export interface components {
             readonly text_color: string;
             /** @description Adresse du logo (`GET /api/school/logo/`, public) ; null sans logo. */
             readonly logo: string | null;
+            /** @description Adresse du logo noir et blanc des reçus thermiques (public) ; null sans lui. */
+            readonly logo_monochrome: string | null;
             /**
              * Time zone
              * @description Dates and times of the school, e.g. Africa/Lubumbashi (Goma).
@@ -2899,6 +2999,7 @@ export interface components {
              *     * `CDF` - Congolese franc
              */
             default_currency: components["schemas"]["CurrencyEnum"];
+            receipt: components["schemas"]["ReceiptSettings"];
         };
         /**
          * @description * `trial` - Trial
@@ -2918,6 +3019,13 @@ export interface components {
          * @enum {string}
          */
         SexEnum: "M" | "F";
+        /**
+         * @description * `a6` - a6
+         *     * `a5` - a5
+         *     * `small` - small
+         * @enum {string}
+         */
+        SheetSizeEnum: "a6" | "a5" | "small";
         /**
          * @description * `up_to_date` - up_to_date
          *     * `partial` - partial
@@ -7223,6 +7331,80 @@ export interface operations {
         };
     };
     school_settings_logo_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchoolSettings"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    school_settings_logo_monochrome_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["LogoUploadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchoolSettings"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    school_settings_logo_monochrome_destroy: {
         parameters: {
             query?: never;
             header?: never;
