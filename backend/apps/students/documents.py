@@ -10,7 +10,7 @@ from django.utils.translation import gettext, ngettext
 from apps.accounts.phone import format_phone
 from apps.audit import services as audit
 from apps.audit.actions import Action
-from apps.core.documents import data_uri, school_header, workbook
+from apps.core.documents import data_uri, qr_code, school_header, workbook
 from apps.core.money import Currency, format_amount
 from apps.core.tenancy import require_current_school
 from apps.finance import services as finance
@@ -142,6 +142,7 @@ def registration_form(
         "fees": _fees(enrollment) if with_fees else [],
         "primary_phone": format_phone(str(primary.phone)) if primary and primary.phone else "",
         "portal_url": settings.PORTAL_URL,
+        "portal_qr": qr_code(settings.PORTAL_URL) if with_code else "",
         "printed_by": actor.get_full_name(),
     }
 

@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from apps.finance.verification import verify_receipt
 from apps.schools.views import (
     SchoolLogoView,
     SchoolMonochromeLogoView,
@@ -31,6 +32,8 @@ urlpatterns = [
     path("api/", include("apps.schools.urls")),
     path("api/", include("apps.students.urls")),
     path("api/", include("apps.finance.urls")),
+    # Vérification publique d'un reçu (QR code du reçu), sur l'adresse de l'école.
+    path("v/<uuid:payment_id>", verify_receipt, name="receipt-verification"),
 ]
 
 if settings.DEBUG:

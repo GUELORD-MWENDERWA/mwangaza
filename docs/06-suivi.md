@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.2.2 terminée, PR #102 à fusionner |
-| Prochaine tâche | 3.2.3 — page publique de vérification `/v/{id}` |
-| Issue GitHub | #22 (3.2, reste ouverte jusqu'à la 3.2.3) |
-| Branche | `tache/3.2.2-recu-imprime` (PR #102) ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 3.2.3 terminée, PR #103 à fusionner |
+| Prochaine tâche | 3.3 — app `sync` : appareils, clé de signature des reçus, synchronisation |
+| Issue GitHub | #22 (3.2, fermée par la PR de la 3.2.3) |
+| Branche | `tache/3.2.3-verification-recu` (PR #103) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-28 |
 
 ## Avancement
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 4 | 11 |
+| Semaine 3 — Caisse et hors-ligne | 5 | 11 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **21** | **36** |
+| **V1.0** | **22** | **36** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-28 — Tâche 3.2.3 : vérification publique d'un reçu
+- Fait : page `/v/{id}` ouverte par le QR code du reçu (sans connexion, sans JavaScript) : reçu authentique, annulé le …, ou inconnu ; école, numéro, date, élève en initiales et classe, montant ; jamais en cache ni indexée ; QR code de l'adresse du portail sur la fiche d'inscription (cadre du code famille).
+- Tests : reçu valide sans nom ni matricule, puis annulé ; reçu d'une autre école ou inconnu = « inconnu » (404) ; QR code de la fiche seulement avec le code famille, dessiné dans le PDF.
+- Décisions (`03`) : page rendue par Django (le Portail React vient en 4.4) ; `segno` ajouté avec l'accord de l'utilisateur ; « falsifié » et « émis hors ligne » en 3.3 (signature) ; Caddy `/v/*` → Django en 4.6.
+- Suite : 3.3 — app `sync`.
 
 ### 2026-09-28 — Tâche 3.2.2 : reçu dans le navigateur
 - Fait : reçu imprimé au format de l'école (thermique 80 / 58 mm ; A6, A5 ou petit format sur A4 avec traits de découpe ; 1 ou 2 exemplaires), montant en lettres, solde juste après le paiement, QR code vers `/v/{id}` ; « Encaisser et imprimer » (F9), « Réimprimer » (DUPLICATA, noté au journal), « Test » de l'imprimante à l'ouverture de caisse ; `POST /api/payments/{id}/reprint/`.

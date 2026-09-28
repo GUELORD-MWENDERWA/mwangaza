@@ -5,6 +5,7 @@
 .photo-empty { width: 30mm; height: 37mm; border: 1px solid #999; display: flex; align-items: center; justify-content: center; text-align: center; color: #777; font-size: .8em; }
 td.label { width: 22%; }
 .signatures { margin-top: 2em; font-size: .9em; }
+.qr { width: 22mm; height: 22mm; }
 .portal { margin-top: 1.6em; border: 2px solid #111; border-radius: 8px; padding: .8em 1em; align-items: center; break-inside: avoid; }
 .code { border: 2px dashed #111; border-radius: 6px; padding: .4em .8em; text-align: center; }
 .code b { display: block; font-size: 1.8em; letter-spacing: .08em; font-family: "DejaVu Sans Mono", monospace; }
@@ -73,6 +74,7 @@ td.label { width: 22%; }
     2. {% if primary_phone %}{% blocktranslate %}Enter your number: <b>{{ primary_phone }}</b>{% endblocktranslate %}{% else %}{% translate "Enter your phone number" %}{% endif %}<br>
     3. {% translate "Enter the family code opposite and choose a password" %}
   </div>
+  <img class="qr" src="{{ portal_qr }}" alt="{{ portal_url }}">
   <div class="code"><span class="small">{% translate "FAMILY CODE" %}</span><b>{{ family_code }}</b></div>
 </div>
 <p class="small muted">{% blocktranslate with date=printed_at|date:"d/m/Y" time=printed_at|time:"H:i" %}Keep this code: it gives access to your children's information. Printed on {{ date }} at {{ time }} · Mwangaza{% endblocktranslate %}</p>

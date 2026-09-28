@@ -44,6 +44,8 @@ def test_registration_form_prints_the_family_code_only_when_asked_and_logs_each_
     assert HIDDEN_CODE in preview and code not in preview
     assert student.full_name in preview and "Goma" in preview
     assert HIDDEN_CODE not in third_party and code not in third_party
+    # QR code de l'adresse du portail, seulement avec le code famille.
+    assert 'class="qr"' in preview and 'class="qr"' not in third_party
     assert pdf["Content-Type"] == "application/pdf" and pdf.content.startswith(b"%PDF")
     with use_school(school):
         printed = AuditLog.objects.get(action=Action.STUDENTS_FAMILY_CODE_PRINTED)

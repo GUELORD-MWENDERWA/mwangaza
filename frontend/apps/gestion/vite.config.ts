@@ -9,6 +9,8 @@ import { VitePWA } from "vite-plugin-pwa";
 // et le sous-domaine de l'école ({code}.localhost) est transmis tel quel à Django.
 const apiTarget = process.env.VITE_API_TARGET ?? "http://localhost:8000";
 const proxy = { target: apiTarget, changeOrigin: false };
+// `^/v/` : vérification publique d'un reçu (QR code du reçu), page servie par Django.
+const proxies = { "/api": proxy, "/admin": proxy, "/static": proxy, "^/v/": proxy };
 
 const { version } = JSON.parse(readFileSync(new URL("package.json", import.meta.url), "utf8"));
 
@@ -57,7 +59,7 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     allowedHosts: [".localhost"],
-    proxy: { "/api": proxy, "/admin": proxy, "/static": proxy },
+    proxy: proxies,
   },
   // `vite preview` (application construite, service worker compris) : même proxy.
   preview: {
@@ -65,6 +67,6 @@ export default defineConfig({
     port: 4173,
     strictPort: true,
     allowedHosts: [".localhost"],
-    proxy: { "/api": proxy, "/admin": proxy, "/static": proxy },
+    proxy: proxies,
   },
 });
