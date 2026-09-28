@@ -1,5 +1,6 @@
-"""Paramètres de l'école (M5, Q8) : `/api/school/settings/` (`school.configure`), son logo, et le
-logo public `/api/school/logo/`."""
+"""Paramètres de l'école (M5, Q8) : `/api/school/settings/` (`school.configure`), réglages du reçu,
+logos (couleur et noir et blanc) et leurs adresses publiques `/api/school/logo/`,
+`/api/school/logo-monochrome/`."""
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -15,6 +16,8 @@ pytestmark = pytest.mark.django_db
 SETTINGS = "/api/school/settings/"
 LOGO = "/api/school/settings/logo/"
 PUBLIC_LOGO = "/api/school/logo/"
+MONOCHROME_LOGO = "/api/school/settings/logo-monochrome/"
+PUBLIC_MONOCHROME_LOGO = "/api/school/logo-monochrome/"
 PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 64
 SVG = b'<?xml version="1.0"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"/>'
 
@@ -24,9 +27,9 @@ def journal(school) -> list[AuditLog]:
         return list(AuditLog.objects.order_by("created_at", "id"))
 
 
-def upload(client, content: bytes, name: str = "logo.png"):
+def upload(client, content: bytes, name: str = "logo.png", url: str = LOGO):
     return client.client.post(
-        LOGO, {"logo": SimpleUploadedFile(name, content)}, HTTP_HOST=client.host
+        url, {"logo": SimpleUploadedFile(name, content)}, HTTP_HOST=client.host
     )
 
 
@@ -44,9 +47,17 @@ def test_head_reads_the_settings(api, school, head):
         "primary_color": "#0E5C6B",
         "text_color": "#FFFFFF",
         "logo": None,
+        "logo_monochrome": None,
         "timezone": "Africa/Lubumbashi",
         "enabled_currencies": ["USD", "CDF"],
         "default_currency": "USD",
+        "receipt": {
+            "printer": "thermal_80",
+            "sheet_size": "a6",
+            "copies": 1,
+            "header": "",
+            "footer": "",
+        },
     }
 
 
@@ -107,6 +118,9 @@ def test_other_settings(api, school, head):
         ({"timezone": "Goma"}, "timezone"),
         ({"primary_color": "bleu"}, "primary_color"),
         ({"name": ""}, "name"),
+        ({"receipt": {"printer": "laser"}}, "receipt"),
+        ({"receipt": {"copies": 3}}, "receipt"),
+        ({"receipt": {"header": "1\n2\n3\n4\n5\n6"}}, "receipt"),
     ],
 )
 def test_invalid_settings_are_refused(api, school, head, data, field):
@@ -115,6 +129,37 @@ def test_invalid_settings_are_refused(api, school, head, data, field):
     assert response.status_code == 400
     assert any(name.split(".")[0] == field for name in response.json()["fields"])
     assert journal(school) == []
+
+
+def test_receipt_settings_are_merged_and_journaled(api, school, head):
+    first = api(head).patch(SETTINGS, {"receipt": {"printer": "sheet", "sheet_size": "small"}})
+    response = api(head).patch(
+        SETTINGS, {"receipt": {"copies": 2, "header": " Av. du Lac 1 \n+243 000 000 000 "}}
+    )
+
+    assert first.status_code == 200, first.content
+    assert response.status_code == 200, response.content
+    receipt = {
+        "printer": "sheet",
+        "sheet_size": "small",
+        "copies": 2,
+        "header": "Av. du Lac 1\n+243 000 000 000",
+        "footer": "",
+    }
+    assert response.json()["receipt"] == receipt
+    school.refresh_from_db()
+    assert school.settings["receipt"] == receipt
+    updates = [log for log in journal(school) if log.action == Action.SCHOOL_UPDATED]
+    assert [(log.before, log.after) for log in updates] == [
+        (
+            {"receipt_printer": "thermal_80", "receipt_sheet_size": "a6"},
+            {"receipt_printer": "sheet", "receipt_sheet_size": "small"},
+        ),
+        (
+            {"receipt_copies": 1, "receipt_header": ""},
+            {"receipt_copies": 2, "receipt_header": "Av. du Lac 1\n+243 000 000 000"},
+        ),
+    ]
 
 
 def test_the_code_is_not_changed_by_the_school(api, school, head):
@@ -137,6 +182,7 @@ def test_other_roles_cannot(api, school, role):
     assert api(user).get(SETTINGS).status_code == 403
     assert api(user).patch(SETTINGS, {"name": "Piratée"}).status_code == 403
     assert upload(api(user), PNG).status_code == 403
+    assert upload(api(user), PNG, url=MONOCHROME_LOGO).status_code == 403
 
 
 def test_anonymous_is_refused(api, school):
@@ -243,6 +289,25 @@ def test_head_removes_the_logo(api, client, school, head):
     assert response.status_code == 200
     assert response.json()["logo"] is None
     assert client.get(PUBLIC_LOGO, HTTP_HOST="alpha.localhost").status_code == 404
+
+
+def test_black_and_white_logo(api, client, school, head):
+    response = upload(api(head), SVG, "logo.svg", url=MONOCHROME_LOGO)
+
+    assert response.status_code == 200, response.content
+    address = response.json()["logo_monochrome"]
+    assert address.startswith(f"{PUBLIC_MONOCHROME_LOGO}?v=")
+    assert response.json()["logo"] is None
+    public = client.get(address, HTTP_HOST="alpha.localhost")
+    assert public["Content-Type"] == "image/svg+xml"
+    assert "sandbox" in public["Content-Security-Policy"]
+    # Seulement à l'adresse de son école.
+    assert client.get(PUBLIC_MONOCHROME_LOGO, HTTP_HOST="beta.localhost").status_code == 404
+    assert journal(school)[-1].after == {"logo_monochrome": True}
+
+    assert api(head).delete(MONOCHROME_LOGO).json()["logo_monochrome"] is None
+    assert client.get(PUBLIC_MONOCHROME_LOGO, HTTP_HOST="alpha.localhost").status_code == 404
+    assert journal(school)[-1].after == {"logo_monochrome": False}
 
 
 def test_logo_address_without_school(client, school):

@@ -3883,6 +3883,69 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/school/settings/logo-monochrome/:
+    post:
+      operationId: school_settings_logo_monochrome_create
+      description: |-
+        Logo noir et blanc des reçus thermiques (M5) ; sans lui, le logo s'imprime en niveaux de
+        gris. Mêmes règles que le logo.
+      tags:
+      - schools
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LogoUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolSettings'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: school_settings_logo_monochrome_destroy
+      description: |-
+        Logo noir et blanc des reçus thermiques (M5) ; sans lui, le logo s'imprime en niveaux de
+        gris. Mêmes règles que le logo.
+      tags:
+      - schools
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolSettings'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/staff/:
     get:
       operationId: staff_list
@@ -5877,6 +5940,14 @@ components:
           maxLength: 20
       required:
       - code
+    CopiesEnum:
+      enum:
+      - 1
+      - 2
+      type: integer
+      description: |-
+        * `1` - 1
+        * `2` - 2
     CurrencyBalance:
       type: object
       properties:
@@ -7699,6 +7770,8 @@ components:
 
             * `USD` - US dollar
             * `CDF` - Congolese franc
+        receipt:
+          $ref: '#/components/schemas/ReceiptSettingsRequest'
     PatchedStaffUpdateRequest:
       type: object
       description: Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`.
@@ -8042,6 +8115,16 @@ components:
           description: PNG ou JPEG, 1 Mo au plus.
       required:
       - photo
+    PrinterEnum:
+      enum:
+      - thermal_58
+      - thermal_80
+      - sheet
+      type: string
+      description: |-
+        * `thermal_58` - thermal_58
+        * `thermal_80` - thermal_80
+        * `sheet` - sheet
     ReasonCodeEnum:
       enum:
       - staff_child
@@ -8056,6 +8139,98 @@ components:
         * `scholarship` - Scholarship
         * `waiver` - Waiver from the head
         * `other` - Other
+    ReceiptSettings:
+      type: object
+      description: 'Réglages du reçu (M5, `receipts.py`). Écriture partielle : les
+        autres restent.'
+      properties:
+        printer:
+          allOf:
+          - $ref: '#/components/schemas/PrinterEnum'
+          description: |-
+            Thermique 58 ou 80 mm, ou imprimante ordinaire avec une feuille A4.
+
+            * `thermal_58` - thermal_58
+            * `thermal_80` - thermal_80
+            * `sheet` - sheet
+        sheet_size:
+          allOf:
+          - $ref: '#/components/schemas/SheetSizeEnum'
+          description: |-
+            Sur une feuille A4 : A6 (4 par feuille), A5 (2), petit format ≈ 10 x 7 cm (8).
+
+            * `a6` - a6
+            * `a5` - a5
+            * `small` - small
+        copies:
+          allOf:
+          - $ref: '#/components/schemas/CopiesEnum'
+          description: |-
+            1 (élève) ou 2 (élève et souche pour l'école).
+
+            * `1` - 1
+            * `2` - 2
+        header:
+          type: string
+          description: 'Lignes d''en-tête : adresse, téléphone, e-mail (5 lignes au
+            plus).'
+          maxLength: 300
+        footer:
+          type: string
+          description: Mention en bas du reçu.
+          maxLength: 200
+      required:
+      - printer
+      - sheet_size
+      - copies
+      - header
+      - footer
+    ReceiptSettingsRequest:
+      type: object
+      description: 'Réglages du reçu (M5, `receipts.py`). Écriture partielle : les
+        autres restent.'
+      properties:
+        printer:
+          allOf:
+          - $ref: '#/components/schemas/PrinterEnum'
+          description: |-
+            Thermique 58 ou 80 mm, ou imprimante ordinaire avec une feuille A4.
+
+            * `thermal_58` - thermal_58
+            * `thermal_80` - thermal_80
+            * `sheet` - sheet
+        sheet_size:
+          allOf:
+          - $ref: '#/components/schemas/SheetSizeEnum'
+          description: |-
+            Sur une feuille A4 : A6 (4 par feuille), A5 (2), petit format ≈ 10 x 7 cm (8).
+
+            * `a6` - a6
+            * `a5` - a5
+            * `small` - small
+        copies:
+          allOf:
+          - $ref: '#/components/schemas/CopiesEnum'
+          description: |-
+            1 (élève) ou 2 (élève et souche pour l'école).
+
+            * `1` - 1
+            * `2` - 2
+        header:
+          type: string
+          description: 'Lignes d''en-tête : adresse, téléphone, e-mail (5 lignes au
+            plus).'
+          maxLength: 300
+        footer:
+          type: string
+          description: Mention en bas du reçu.
+          maxLength: 200
+      required:
+      - copies
+      - footer
+      - header
+      - printer
+      - sheet_size
     RecoveryCodes:
       type: object
       properties:
@@ -8255,6 +8430,12 @@ components:
           readOnly: true
           description: Adresse du logo (`GET /api/school/logo/`, public) ; null sans
             logo.
+        logo_monochrome:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Adresse du logo noir et blanc des reçus thermiques (public)
+            ; null sans lui.
         timezone:
           type: string
           title: Time zone
@@ -8274,6 +8455,8 @@ components:
 
             * `USD` - US dollar
             * `CDF` - Congolese franc
+        receipt:
+          $ref: '#/components/schemas/ReceiptSettings'
       required:
       - code
       - name
@@ -8281,9 +8464,11 @@ components:
       - primary_color
       - text_color
       - logo
+      - logo_monochrome
       - timezone
       - enabled_currencies
       - default_currency
+      - receipt
     SchoolStatusEnum:
       enum:
       - trial
@@ -8315,6 +8500,16 @@ components:
       description: |-
         * `M` - Male
         * `F` - Female
+    SheetSizeEnum:
+      enum:
+      - a6
+      - a5
+      - small
+      type: string
+      description: |-
+        * `a6` - a6
+        * `a5` - a5
+        * `small` - small
     SituationEnum:
       enum:
       - up_to_date

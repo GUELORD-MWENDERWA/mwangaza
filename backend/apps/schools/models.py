@@ -13,8 +13,8 @@ from django.utils.translation import gettext_lazy as _
 from apps.core.models import BaseModel, TenantModel
 from apps.core.money import Currency
 from apps.core.tenancy import RESERVED_SUBDOMAINS
-from apps.schools import colors, matricule
-from apps.schools.logos import logo_path, validate_logo
+from apps.schools import colors, matricule, receipts
+from apps.schools.logos import logo_path, monochrome_logo_path, validate_logo
 
 # Le code est le sous-domaine de l'école : 2 à 30 caractères, minuscules, chiffres, tirets.
 CODE_PATTERN = r"^[a-z0-9][a-z0-9-]{0,28}[a-z0-9]$"
@@ -84,6 +84,14 @@ class School(BaseModel):
         validators=[validate_logo],
         help_text=_("PNG, JPEG or SVG, 1 MB at most."),
     )
+    # Reçus thermiques (M5) ; sans lui, le logo s'imprime en niveaux de gris.
+    logo_monochrome = models.FileField(
+        _("black and white logo"),
+        upload_to=monochrome_logo_path,
+        blank=True,
+        validators=[validate_logo],
+        help_text=_("For thermal receipts. PNG, JPEG or SVG, 1 MB at most."),
+    )
     # Q8 : choisie par l'école ; texte blanc ou encre choisi pour rester lisible (`colors.py`).
     primary_color = models.CharField(
         _("colour"),
@@ -128,6 +136,8 @@ class School(BaseModel):
     )
     trial_ends_on = models.DateField(_("end of the trial"), null=True, blank=True)
     paid_until = models.DateField(_("paid until"), null=True, blank=True)
+    # Règles réglées par l'école : `receipt` (M5, `receipts.py`), plus tard les alertes (4.2).
+    settings = models.JSONField(_("settings"), default=dict, blank=True)
 
     class Meta:
         ordering = ["name"]
@@ -176,6 +186,11 @@ class School(BaseModel):
     def url(self) -> str:
         """Adresse de l'école : https://{code}.mwangaza.school (`SCHOOL_URL`)."""
         return settings.SCHOOL_URL.format(code=self.code)
+
+    @property
+    def receipt(self) -> dict:
+        """Réglages du reçu, valeurs par défaut comprises (`receipts.py`)."""
+        return receipts.receipt_settings(self.settings)
 
     @property
     def text_color(self) -> str:

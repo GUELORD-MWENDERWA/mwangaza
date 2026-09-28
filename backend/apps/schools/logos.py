@@ -53,12 +53,24 @@ def validate_logo(file) -> None:
         )
 
 
-def logo_path(school, filename: str) -> str:
+# Début du nom des fichiers : `logo-…` ou `logo-bw-…` (noir et blanc).
+FILE_PREFIXES = {"logo": "logo-", "logo_monochrome": "logo-bw-"}
+
+
+def _path(school, field: str, filename: str) -> str:
     """Nom choisi par le serveur : un nouveau nom à chaque logo (les navigateurs ne gardent pas
     l'ancien en cache), extension d'après le contenu."""
     try:
-        kind = logo_kind(school.logo)
+        kind = logo_kind(getattr(school, field))
     except ValueError:  # `logo.save(nom, contenu)` dans le code : pas encore de fichier lié
         kind = None
     kind = kind or Path(filename).suffix.removeprefix(".").lower() or "bin"
-    return f"schools/{school.pk}/logo-{uuid7().hex[-12:]}.{kind}"
+    return f"schools/{school.pk}/{FILE_PREFIXES[field]}{uuid7().hex[-12:]}.{kind}"
+
+
+def logo_path(school, filename: str) -> str:
+    return _path(school, "logo", filename)
+
+
+def monochrome_logo_path(school, filename: str) -> str:
+    return _path(school, "logo_monochrome", filename)
