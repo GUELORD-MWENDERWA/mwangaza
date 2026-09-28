@@ -120,3 +120,27 @@ export function parseRate(text: string): string | null {
   if (!/[1-9]/.test(whole + fraction)) return null;
   return fraction ? `${whole}.${fraction}` : whole;
 }
+
+/** Rapport d'entiers arrondi au demi supérieur (loin de zéro, comme `ROUND_HALF_UP`). */
+function roundedRatio(numerator: bigint, denominator: bigint): bigint {
+  const sign = numerator < 0n ? -1n : 1n;
+  const size = numerator * sign;
+  return sign * ((2n * size + denominator) / (2n * denominator));
+}
+
+/** Conversion au taux USD → CDF tel que saisi (décision Q4), comme `Money.convert` du serveur :
+ * USD → CDF multiplie, CDF → USD divise ; arrondi demi supérieur à l'unité de la devise cible.
+ * Calculée sur des entiers exacts (le taux a au plus 6 décimales). */
+export function convert(minor: number, from: Currency, to: Currency, rate: string): number {
+  if (from === to) return minor;
+  const [whole = "0", fraction = ""] = rate.split(".");
+  const scaledRate = BigInt(whole + fraction.padEnd(6, "0").slice(0, 6));
+  if (scaledRate <= 0n) throw new RangeError(`taux invalide : ${rate}`);
+  const perUnit = 1_000_000n * 100n; // 6 décimales du taux, 100 centimes pour 1 dollar
+  const amount = BigInt(minor);
+  const converted =
+    to === "CDF"
+      ? roundedRatio(amount * scaledRate, perUnit)
+      : roundedRatio(amount * perUnit, scaledRate);
+  return Number(converted);
+}

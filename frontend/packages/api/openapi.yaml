@@ -1340,8 +1340,9 @@ paths:
   /api/cash-registers/:
     get:
       operationId: cash_registers_list
-      description: 'Caisses de l''école (M13) : désactivées, jamais effacées ; le
-        code ne change pas.'
+      description: |-
+        Caisses de l'école (M13), avec leur session ouverte : désactivées, jamais effacées ; le
+        code ne change pas.
       tags:
       - finance
       security:
@@ -1353,7 +1354,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CashRegister'
+                  $ref: '#/components/schemas/CashRegisterState'
           description: ''
         '403':
           content:
@@ -1369,8 +1370,9 @@ paths:
           description: ''
     post:
       operationId: cash_registers_create
-      description: 'Caisses de l''école (M13) : désactivées, jamais effacées ; le
-        code ne change pas.'
+      description: |-
+        Caisses de l'école (M13), avec leur session ouverte : désactivées, jamais effacées ; le
+        code ne change pas.
       tags:
       - finance
       requestBody:
@@ -1392,7 +1394,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CashRegister'
+                $ref: '#/components/schemas/CashRegisterState'
           description: ''
         '400':
           content:
@@ -1421,8 +1423,9 @@ paths:
   /api/cash-registers/{id}/:
     patch:
       operationId: cash_registers_partial_update
-      description: 'Caisses de l''école (M13) : désactivées, jamais effacées ; le
-        code ne change pas.'
+      description: |-
+        Caisses de l'école (M13), avec leur session ouverte : désactivées, jamais effacées ; le
+        code ne change pas.
       parameters:
       - in: path
         name: id
@@ -1451,7 +1454,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CashRegister'
+                $ref: '#/components/schemas/CashRegisterState'
           description: ''
         '400':
           content:
@@ -5688,6 +5691,38 @@ components:
       required:
       - code
       - name
+    CashRegisterState:
+      type: object
+      description: Caisse et, si elle est ouverte, sa session (« Occupée » à l'ouverture,
+        M13).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 40
+        code:
+          type: string
+          description: 'C1 : dans le numéro des reçus, fixé à la création.'
+          pattern: ^[A-Z0-9]{1,4}$
+          maxLength: 4
+        is_active:
+          type: boolean
+          readOnly: true
+          title: Active
+        open_session:
+          allOf:
+          - $ref: '#/components/schemas/OpenSession'
+          nullable: true
+          readOnly: true
+      required:
+      - id
+      - name
+      - code
+      - is_active
+      - open_session
     CashSession:
       type: object
       properties:
@@ -7259,6 +7294,24 @@ components:
     NullEnum:
       enum:
       - null
+    OpenSession:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        cashier:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+        opened_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - cashier
+      - opened_at
     PaginatedAuditLogList:
       type: object
       required:

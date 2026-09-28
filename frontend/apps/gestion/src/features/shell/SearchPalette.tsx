@@ -17,6 +17,8 @@ export function SearchPalette() {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      // Déjà pris par l'écran (caisse : sa propre recherche d'élève).
+      if (event.defaultPrevented) return;
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setOpen(true);

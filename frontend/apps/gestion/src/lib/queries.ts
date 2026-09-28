@@ -27,6 +27,9 @@ export const keys = {
   feeTypes: ["fee-types"],
   feeRules: ["fee-rules"],
   exchangeRates: ["exchange-rates"],
+  cashRegisters: ["cash-registers"],
+  cashSession: ["cash-session"],
+  payments: ["payments"],
 } as const;
 
 /** Nouvel essai seulement sans réponse du serveur (réseau), jamais sur un refus de l'API. */
