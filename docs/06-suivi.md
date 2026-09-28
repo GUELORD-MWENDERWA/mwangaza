@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.2.3 terminée, PR #103 à fusionner |
-| Prochaine tâche | 3.3 — app `sync` : appareils, clé de signature des reçus, synchronisation |
-| Issue GitHub | #22 (3.2, fermée par la PR de la 3.2.3) |
-| Branche | `tache/3.2.3-verification-recu` (PR #103) ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 3.3.1 terminée, PR à fusionner |
+| Prochaine tâche | 3.3.2 — synchronisation serveur (SyncOperation, ChangeLog, snapshot / pull / push) |
+| Issue GitHub | #23 (3.3, fermée par la PR de la 3.3.2) |
+| Branche | `tache/3.3.1-appareils` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-28 |
 
 ## Avancement
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 5 | 11 |
+| Semaine 3 — Caisse et hors-ligne | 6 | 12 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **22** | **36** |
+| **V1.0** | **23** | **37** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-28 — Tâche 3.3.1 : appareils
+- Fait : 3.3 découpée (3.3.1 appareils, 3.3.2 synchronisation serveur ; signature vérifiée sur `/v/` en 3.5). App `sync` : `Device` (préfixe `P1`, `P2`…, clé publique ECDSA créée par le navigateur, session fermée à la révocation) ; case « Se souvenir de cet appareil » (cochée) ; carte « Appareils connectés » de Mon compte avec « Déconnecter » ; appareil et heure de l'appareil dans le journal d'audit (écran et export Excel) ; démo : un poste par caissier et secrétaire.
+- Tests : autre école ou autre compte → 404 ; sans appartenance → 403 ; préfixes jamais redonnés ni égaux à un code de caisse ; révocation (session fermée, audit) ; signature WebCrypto réelle vérifiée par le serveur ; Playwright : « cet appareil » après la connexion.
+- Décisions (`03`) : préfixe `P{n}` ; clé privée dans une base IndexedDB à part, un appareil par compte ; tout membre actif gère ses propres appareils (pas de code de permission).
+- Suite : 3.3.2 — synchronisation serveur.
 
 ### 2026-09-28 — Tâche 3.2.3 : vérification publique d'un reçu
 - Fait : page `/v/{id}` ouverte par le QR code du reçu (sans connexion, sans JavaScript) : reçu authentique, annulé le …, ou inconnu ; école, numéro, date, élève en initiales et classe, montant ; jamais en cache ni indexée ; QR code de l'adresse du portail sur la fiche d'inscription (cadre du code famille).

@@ -1,6 +1,8 @@
 // Données lues partout : l'école de l'adresse (publique), le compte connecté, l'étape de connexion.
 import { ApiError, api, call, type Schemas } from "@mwangaza/api";
-import { useQuery } from "@tanstack/react-query";
+import { type QueryClient, useQuery } from "@tanstack/react-query";
+
+import { attachDevice, takeRememberDevice } from "./device";
 
 export type Me = Schemas["Me"];
 export type School = Schemas["CurrentSchool"];
@@ -30,6 +32,7 @@ export const keys = {
   cashRegisters: ["cash-registers"],
   cashSession: ["cash-session"],
   payments: ["payments"],
+  myDevices: ["my-devices"],
 } as const;
 
 /** Nouvel essai seulement sans réponse du serveur (réseau), jamais sur un refus de l'API. */
@@ -50,13 +53,29 @@ export function useSchool() {
   });
 }
 
+const meQuery = {
+  queryKey: keys.me,
+  queryFn: () => call(api.GET("/api/me/")),
+  staleTime: 30_000,
+  retry: retryOnNetwork,
+};
+
 export function useMe() {
-  return useQuery({
-    queryKey: keys.me,
-    queryFn: () => call(api.GET("/api/me/")),
-    staleTime: 30_000,
-    retry: retryOnNetwork,
-  });
+  return useQuery(meQuery);
+}
+
+/** Connexion terminée : l'appareil de ce navigateur reprend la session, ou est enregistré si la
+ *  case « Se souvenir de cet appareil » était cochée. Un échec n'empêche pas de travailler. */
+export async function attachDeviceAfterLogin(queryClient: QueryClient) {
+  const remember = takeRememberDevice();
+  try {
+    const me = await queryClient.fetchQuery(meQuery);
+    if (!me.school) return;
+    await attachDevice(me.id, remember);
+    await queryClient.invalidateQueries({ queryKey: keys.myDevices });
+  } catch {
+    // Sans réseau ou sans WebCrypto : l'appareil sera repris à la prochaine connexion.
+  }
 }
 
 /** Le compte connecté, sous `RequireAuth` (qui n'affiche ses écrans qu'une fois le compte lu). */

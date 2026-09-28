@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-28 20:56+0200\n"
+"POT-Creation-Date: 2026-09-28 23:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -193,7 +193,7 @@ msgid "two-factor authentication enabled on"
 msgstr ""
 
 #: apps/accounts/models.py:93 apps/accounts/models.py:198
-#: apps/accounts/models.py:234
+#: apps/accounts/models.py:234 apps/sync/models.py:22
 msgid "account"
 msgstr ""
 
@@ -209,7 +209,7 @@ msgstr ""
 #: apps/accounts/models.py:141 apps/finance/models.py:35
 #: apps/finance/models.py:371 apps/schools/models.py:77
 #: apps/schools/models.py:214 apps/schools/models.py:272
-#: apps/schools/models.py:311 apps/schools/models.py:335
+#: apps/schools/models.py:311 apps/schools/models.py:335 apps/sync/models.py:27
 msgid "name"
 msgstr ""
 
@@ -747,14 +747,22 @@ msgid "Receipt reprinted"
 msgstr ""
 
 #: apps/audit/actions.py:111
+msgid "Device remembered"
+msgstr "Appareil mémorisé"
+
+#: apps/audit/actions.py:112
+msgid "Device disconnected"
+msgstr "Appareil déconnecté"
+
+#: apps/audit/actions.py:115
 msgid "Audit log exported"
 msgstr "Journal d'audit exporté"
 
-#: apps/audit/actions.py:115
+#: apps/audit/actions.py:119
 msgid "Support session opened"
 msgstr "Session support ouverte"
 
-#: apps/audit/actions.py:116
+#: apps/audit/actions.py:120
 msgid "Support session closed"
 msgstr "Session support fermée"
 
@@ -794,23 +802,31 @@ msgstr ""
 msgid "after"
 msgstr ""
 
-#: apps/audit/models.py:67
+#: apps/audit/models.py:67 apps/sync/models.py:17
 msgid "browser"
 msgstr ""
 
-#: apps/audit/models.py:74
+#: apps/audit/models.py:72 apps/sync/models.py:46
+msgid "device"
+msgstr "appareil"
+
+#: apps/audit/models.py:78
+msgid "device time"
+msgstr "heure de l'appareil"
+
+#: apps/audit/models.py:85
 msgid "audit log entry"
 msgstr ""
 
-#: apps/audit/models.py:75
+#: apps/audit/models.py:86
 msgid "audit log"
 msgstr ""
 
-#: apps/audit/serializers.py:107
+#: apps/audit/serializers.py:126
 msgid "The end date is before the start date."
 msgstr "La date de fin est avant la date de début."
 
-#: apps/audit/serializers.py:126
+#: apps/audit/serializers.py:145
 msgid "Export at most one year at a time."
 msgstr "Exportez au plus une année à la fois."
 
@@ -839,15 +855,23 @@ msgstr "Avant"
 msgid "After"
 msgstr "Après"
 
-#: apps/audit/views.py:110
+#: apps/audit/views.py:108
+msgid "Device"
+msgstr "Appareil"
+
+#: apps/audit/views.py:109
+msgid "Device time"
+msgstr "Heure de l'appareil"
+
+#: apps/audit/views.py:112
 msgid "Audit log"
 msgstr "Journal d'audit"
 
-#: apps/audit/views.py:130
+#: apps/audit/views.py:132
 msgid "Mwangaza support"
 msgstr "Support Mwangaza"
 
-#: apps/audit/views.py:134
+#: apps/audit/views.py:136
 msgid "System"
 msgstr "Système"
 
@@ -1083,7 +1107,7 @@ msgstr ""
 msgid "Waiver from the head"
 msgstr ""
 
-#: apps/finance/models.py:247 apps/schools/models.py:261
+#: apps/finance/models.py:247 apps/schools/models.py:261 apps/sync/models.py:26
 msgid "kind"
 msgstr ""
 
@@ -1136,7 +1160,7 @@ msgstr ""
 msgid "Capital letters and digits only."
 msgstr ""
 
-#: apps/finance/models.py:381 apps/finance/models.py:400
+#: apps/finance/models.py:381 apps/finance/models.py:400 apps/sync/models.py:31
 msgid "cash register"
 msgstr ""
 
@@ -1400,7 +1424,8 @@ msgstr "Reçu annulé le %(date)s"
 msgid ""
 "This receipt was issued by the school, then cancelled: it no longer counts "
 "as a payment."
-msgstr "Ce reçu a été émis par l'école, puis annulé : il ne vaut plus comme paiement."
+msgstr ""
+"Ce reçu a été émis par l'école, puis annulé : il ne vaut plus comme paiement."
 
 #: apps/finance/templates/finance/receipt_verification.html:52
 msgid "Unknown receipt"
@@ -1411,7 +1436,9 @@ msgstr "Reçu inconnu"
 msgid ""
 "No receipt of %(school)s matches this code. This receipt may be false: check "
 "with the school."
-msgstr "Aucun reçu de %(school)s ne correspond à ce code. Ce reçu est peut-être faux : renseignez-vous auprès de l'école."
+msgstr ""
+"Aucun reçu de %(school)s ne correspond à ce code. Ce reçu est peut-être "
+"faux : renseignez-vous auprès de l'école."
 
 #: apps/finance/templates/finance/receipt_verification.html:58
 msgid "School"
@@ -2630,3 +2657,43 @@ msgstr "rapport-import"
 #: apps/students/views.py:514
 msgid "students-template"
 msgstr "modele-eleves"
+
+#: apps/sync/apps.py:10
+msgid "Devices and synchronisation"
+msgstr "Appareils et synchronisation"
+
+#: apps/sync/models.py:18
+msgid "card reader"
+msgstr "lecteur de cartes"
+
+#: apps/sync/models.py:28
+msgid "prefix"
+msgstr "préfixe"
+
+#: apps/sync/models.py:37
+msgid "public key"
+msgstr "clé publique"
+
+#: apps/sync/models.py:40
+msgid "last seen"
+msgstr "dernier contact"
+
+#: apps/sync/models.py:41
+msgid "last receipt number"
+msgstr "dernier numéro de reçu"
+
+#: apps/sync/models.py:42
+msgid "disconnected at"
+msgstr "déconnecté le"
+
+#: apps/sync/models.py:47
+msgid "devices"
+msgstr "appareils"
+
+#: apps/sync/services.py:35
+msgid "This device was disconnected. It is no longer remembered."
+msgstr "Cet appareil a été déconnecté. Il n'est plus mémorisé."
+
+#: apps/sync/services.py:130
+msgid "Invalid device key."
+msgstr "Clé d'appareil non valide."

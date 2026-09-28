@@ -43,7 +43,7 @@ class AuditLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolVi
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return AuditLog.all_schools.none()
-        queryset = AuditLog.objects.select_related("actor")
+        queryset = AuditLog.objects.select_related("actor", "device")
         if self.action == "list":
             queryset = self._filter(queryset)
         return queryset
@@ -93,7 +93,7 @@ class AuditLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolVi
         params = AuditLogExportSerializer(data=request.query_params)
         params.is_valid(raise_exception=True)
         logs = self._filter(
-            AuditLog.objects.select_related("actor"), filters=AuditLogExportSerializer
+            AuditLog.objects.select_related("actor", "device"), filters=AuditLogExportSerializer
         )
         serializer = AuditLogSerializer(context={})
         content = workbook(
@@ -105,10 +105,12 @@ class AuditLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolVi
                 gettext("Before"),
                 gettext("After"),
                 gettext("IP address"),
+                gettext("Device"),
+                gettext("Device time"),
             ],
             (_export_row(log, serializer) for log in logs.iterator(chunk_size=2000)),
             title=gettext("Audit log"),
-            widths=[18, 26, 34, 34, 40, 40, 16],
+            widths=[18, 26, 34, 34, 40, 40, 16, 26, 18],
         )
         since, until = params.validated_data["since"], params.validated_data["until"]
         audit.record(
@@ -143,4 +145,6 @@ def _export_row(log: AuditLog, serializer: AuditLogSerializer) -> list:
         _changes(log.before),
         _changes(log.after),
         log.ip or "",
+        str(log.device) if log.device else "",
+        timezone.localtime(log.device_time).replace(tzinfo=None) if log.device_time else "",
     ]

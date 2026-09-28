@@ -107,6 +107,10 @@ class Action(models.TextChoices):
     # Reçus (F6) : chaque duplicata est noté.
     FINANCE_PAYMENT_REPRINTED = "finance.payment_reprinted", _("Receipt reprinted")
 
+    # Appareils (« Se souvenir de cet appareil », M4).
+    DEVICES_REGISTERED = "devices.registered", _("Device remembered")
+    DEVICES_REVOKED = "devices.revoked", _("Device disconnected")
+
     # Le journal lui-même (M6) : chaque export est noté.
     AUDIT_EXPORTED = "audit.exported", _("Audit log exported")
 

@@ -6,6 +6,7 @@ from apps.accounts.models import Role, User
 from apps.accounts.roles import SYSTEM_ROLES
 from apps.audit.actions import DOMAINS, Action, domain_of
 from apps.audit.models import AuditLog
+from apps.sync.models import Device
 
 
 class AuditActorSerializer(serializers.ModelSerializer):
@@ -18,6 +19,12 @@ def _by_support(log: AuditLog) -> bool:
     return log.impersonated_by_id is not None or (
         log.actor is not None and log.actor.is_platform_admin
     )
+
+
+class AuditDeviceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Device
+        fields = ["id", "prefix", "label"]
 
 
 class AuditLogSerializer(serializers.ModelSerializer):
@@ -40,6 +47,16 @@ class AuditLogSerializer(serializers.ModelSerializer):
         help_text="Code du rôle système quand l'objet est un rôle sans nom propre ; sinon null."
     )
 
+    device = AuditDeviceSerializer(
+        read_only=True, allow_null=True, help_text="Appareil enregistré de la session, s'il y en a."
+    )
+    device_time = serializers.DateTimeField(
+        read_only=True,
+        allow_null=True,
+        help_text="Heure de l'appareil pour une action faite hors ligne ; `created_at` est alors "
+        "l'heure de réception.",
+    )
+
     class Meta:
         model = AuditLog
         fields = [
@@ -57,6 +74,8 @@ class AuditLogSerializer(serializers.ModelSerializer):
             "after",
             "ip",
             "user_agent",
+            "device",
+            "device_time",
         ]
         read_only_fields = fields
 

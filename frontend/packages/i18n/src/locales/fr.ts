@@ -42,6 +42,7 @@ export const fr = {
       forgotHelp:
         "Demandez à la direction de l'école un mot de passe provisoire : vous choisirez le vôtre en vous connectant.",
       submit: "Se connecter",
+      remember: "Se souvenir de cet appareil",
     },
     code: {
       title: "Code de vérification",
@@ -224,6 +225,15 @@ export const fr = {
       title: "Mes écoles",
       current: "actuelle",
       open: "Ouvrir",
+    },
+    devices: {
+      title: "Appareils connectés",
+      current: "cet appareil",
+      empty: "Aucun appareil mémorisé. Cochez « Se souvenir de cet appareil » en vous connectant.",
+      disconnect: "Déconnecter",
+      confirmTitle: "Déconnecter « {{label}} » ?",
+      confirmText:
+        "Sa session est fermée et il oublie ce qu'il gardait de l'école. Pour y travailler de nouveau, il faudra se reconnecter.",
     },
   },
   schools: {
@@ -828,6 +838,8 @@ export const fr = {
       on: "Objet",
       ip: "Adresse IP",
       browser: "Navigateur",
+      device: "Appareil",
+      receivedAt: "Reçue le",
       field: "Champ",
       before: "Avant",
       after: "Après",
@@ -844,6 +856,7 @@ export const fr = {
       finance: "Frais et finances",
       audit: "Journal d'audit",
       support: "Support",
+      devices: "Appareils",
     },
     actions: {
       auth: {
@@ -927,6 +940,10 @@ export const fr = {
         cash_session_opened: "Caisse ouverte",
         payment_recorded: "Paiement encaissé",
         payment_reprinted: "Reçu réimprimé",
+      },
+      devices: {
+        registered: "Appareil mémorisé",
+        revoked: "Appareil déconnecté",
       },
       audit: {
         exported: "Journal exporté",
