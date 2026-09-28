@@ -1,8 +1,9 @@
 """Configuration des frais de l'école courante (E1, E2, E5) : types de frais, barèmes et leurs
 tranches, taux de change de l'année, reprise des barèmes dans une nouvelle année (C1) ; frais
-dus des élèves, tirés des barèmes (2.6).
+dus des élèves, tirés des barèmes (2.6) ou d'un échéancier particulier (E4).
 
-Droits `finance.configure_fees` et `finance.set_exchange_rate`, vérifiés par l'API. Chaque
+Droits `finance.configure_fees`, `finance.set_exchange_rate` et `finance.grant_discount`,
+vérifiés par l'API. Chaque
 changement va dans le journal de l'école (domaine `finance`), dans la transaction de l'action.
 Montants en entiers dans la devise du barème (skill `argent`).
 """
@@ -409,9 +410,10 @@ def sync_charges(
     """Remet les frais dus des inscriptions actives de `enrollments` d'accord avec les barèmes de
     leur année (tous, ou ceux de `fee_type`) : une ligne par tranche du barème le plus précis,
     montant et date à jour ; une tranche qui ne s'applique plus passe « retirée », une tranche
-    retirée qui s'applique de nouveau redevient due. Un élève parti garde ses frais tels quels.
-    Les frais déjà payés ne bougeront pas (3.1). En quelques requêtes, quel que soit le nombre
-    d'élèves. Renvoie le nombre d'élèves dont les frais ont changé."""
+    retirée qui s'applique de nouveau redevient due. Un élève parti garde ses frais tels quels,
+    comme un type de frais sous échéancier particulier (E4). Les frais déjà payés ne bougeront
+    pas (3.1). En quelques requêtes, quel que soit le nombre d'élèves. Renvoie le nombre
+    d'élèves dont les frais ont changé."""
     with transaction.atomic():
         enrollments = list(
             enrollments.filter(status=Enrollment.Status.ACTIVE)
@@ -425,16 +427,21 @@ def sync_charges(
             .select_related("fee_type")
             .prefetch_related("installments")
         )
-        existing = StudentCharge.objects.filter(
-            enrollment__in=enrollments, source=StudentCharge.Source.RULE
-        )
+        existing = StudentCharge.objects.filter(enrollment__in=enrollments)
         if fee_type is not None:
             rules, existing = rules.filter(fee_type=fee_type), existing.filter(fee_type=fee_type)
+        existing = list(existing)
         rules_by_year, charges_by_enrollment = defaultdict(list), defaultdict(list)
         for rule in rules:
             rules_by_year[rule.academic_year_id].append(rule)
+        custom = {
+            (charge.enrollment_id, charge.fee_type_id)
+            for charge in existing
+            if charge.source == StudentCharge.Source.CUSTOM
+        }
         for charge in existing:
-            charges_by_enrollment[charge.enrollment_id].append(charge)
+            if (charge.enrollment_id, charge.fee_type_id) not in custom:
+                charges_by_enrollment[charge.enrollment_id].append(charge)
 
         wanted_by_class: dict = {}
         to_create, to_update, changed = [], [], set()
@@ -465,7 +472,7 @@ def sync_charges(
                     changed.add(enrollment.pk)
             have = {charge.installment_template_id for charge in current}
             for template_id, (rule, template) in wanted.items():
-                if template_id not in have:
+                if template_id not in have and (enrollment.pk, rule.fee_type_id) not in custom:
                     to_create.append(
                         StudentCharge(
                             enrollment=enrollment,
@@ -494,6 +501,99 @@ def _sync_rule(rule: FeeRule, actor: User) -> int:
     supprimé : sa portée a pu changer, et un barème moins précis peut prendre le relais."""
     enrollments = Enrollment.objects.filter(academic_year_id=rule.academic_year_id)
     return sync_charges(enrollments, actor=actor, fee_type=rule.fee_type)
+
+
+# Échéancier particulier (E4)
+
+
+def _charge_data(label: str, amount_minor: int, due_on: date) -> dict:
+    return {"label": label, "amount_minor": amount_minor, "due_on": due_on.isoformat()}
+
+
+def reschedule_charges(
+    enrollment: Enrollment,
+    *,
+    actor: User,
+    fee_type: FeeType,
+    installments: list[Installment],
+    reason: str,
+    parent_signed: bool,
+) -> list[StudentCharge]:
+    """Arrangement avec la famille (E4) : les frais dus de `fee_type` pas encore payés passent
+    « remplacés », et `installments` (même devise, même total au centime près) deviennent ce que
+    doit l'élève (`source=custom`). Rien n'est effacé ; ce type de frais ne suit plus les
+    barèmes pour cet élève (`sync_charges`). Renvoie les nouveaux frais dus."""
+    reason = reason.strip()
+    if not reason:
+        raise _invalid("reason", _("This field may not be blank."), "blank")
+    if not installments:
+        raise _invalid("installments", _("Add at least one installment."), "no_installment")
+    with transaction.atomic():
+        enrollment = (
+            Enrollment.objects.select_related("student")
+            .select_for_update(of=("self",))
+            .get(pk=enrollment.pk)
+        )
+        if enrollment.status != Enrollment.Status.ACTIVE:
+            message = _("Only a student enrolled this year can get a custom schedule.")
+            raise _invalid("enrollment", message, "enrollment_not_active")
+        # 3.1 : sans les frais déjà payés, même en partie (un paiement affecté ne bouge jamais).
+        replaced = list(
+            StudentCharge.objects.filter(
+                enrollment=enrollment, fee_type=fee_type, status=StudentCharge.Status.ACTIVE
+            ).order_by("due_on", "label")
+        )
+        if not replaced:
+            message = _("The student owes nothing unpaid for this fee.")
+            raise _invalid("fee_type", message, "nothing_to_reschedule")
+        currency = replaced[0].currency
+        if any(charge.currency != currency for charge in replaced):
+            message = _("This fee is owed in several currencies: it cannot be rescheduled.")
+            raise _invalid("fee_type", message, "mixed_currencies")
+        remaining = sum(
+            (Money(charge.amount_minor, currency) for charge in replaced), Money.zero(currency)
+        )
+        planned = sum((Money(i.amount_minor, currency) for i in installments), Money.zero(currency))
+        if planned != remaining:
+            message = _("The installments must add up to what is left to reschedule.")
+            raise _invalid("installments", message, "schedule_total_mismatch")
+
+        now = timezone.now()
+        for charge in replaced:
+            charge.status, charge.updated_at = StudentCharge.Status.REPLACED, now
+        StudentCharge.objects.bulk_update(replaced, ["status", "updated_at"])
+        created = StudentCharge.objects.bulk_create(
+            [
+                StudentCharge(
+                    enrollment=enrollment,
+                    fee_type=fee_type,
+                    label=item.label,
+                    amount_minor=item.amount_minor,
+                    currency=currency,
+                    due_on=item.due_on,
+                    source=StudentCharge.Source.CUSTOM,
+                    created_by=actor,
+                )
+                for item in installments
+            ]
+        )
+        audit.record(
+            Action.FINANCE_CHARGES_RESCHEDULED,
+            enrollment,
+            actor=actor,
+            label=f"{enrollment.student} · {fee_type.name}",
+            before={"charges": [_charge_data(c.label, c.amount_minor, c.due_on) for c in replaced]},
+            after={
+                "fee_type": fee_type.name,
+                "currency": currency,
+                "reason": reason,
+                "parent_signed": parent_signed,
+                "installments": [
+                    _charge_data(i.label, i.amount_minor, i.due_on) for i in installments
+                ],
+            },
+        )
+    return created
 
 
 # Devises utilisées (M5)

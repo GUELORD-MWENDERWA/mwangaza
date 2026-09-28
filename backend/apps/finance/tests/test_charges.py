@@ -1,6 +1,6 @@
-"""Frais dus des élèves (2.6.1) : générés à l'inscription d'après le barème le plus précis,
-recalculés au changement de classe et quand un barème change, jamais effacés ; isolation entre
-écoles et droits de l'API."""
+"""Frais dus des élèves (2.6) : générés à l'inscription d'après le barème le plus précis,
+recalculés au changement de classe et quand un barème change, jamais effacés ; échéancier
+particulier ; isolation entre écoles et droits de l'API."""
 
 from datetime import date
 
@@ -11,7 +11,7 @@ from apps.core.tenancy import use_school
 from apps.finance import services
 from apps.finance.models import StudentCharge
 from apps.finance.services import Installment, Scope
-from apps.finance.tests.test_api import THREE_TRANCHES, entries, setup
+from apps.finance.tests.test_api import THREE_TRANCHES, entries, field_code, setup
 from apps.schools import organisation
 from apps.students import services as students
 from apps.students.models import Enrollment
@@ -194,7 +194,7 @@ def test_charges_of_a_student_are_read_with_a_finance_right_in_their_school_only
 
     response = api(head).get(of(enrollment))
     assert response.status_code == 200
-    rows = response.json()["results"]
+    rows = response.json()
     assert [(row["label"], row["amount_minor"], row["fee_type_name"]) for row in rows] == [
         (item["label"], item["amount_minor"], "Minerval") for item in THREE_TRANCHES
     ]
@@ -206,7 +206,112 @@ def test_charges_of_a_student_are_read_with_a_finance_right_in_their_school_only
 
     beta_client = api(other_head, host="beta.localhost")
     response = beta_client.get(of(enrollment))
-    assert response.status_code == 200 and response.json()["results"] == []
+    assert response.status_code == 200 and response.json() == []
     response = beta_client.get(of(other_enrollment))
-    assert len(response.json()["results"]) == 3
+    assert len(response.json()) == 3
     assert api(head).get(CHARGES).status_code == 400
+
+
+# Échéancier particulier (2.6.2, E4)
+
+RESCHEDULE = f"{CHARGES}reschedule/"
+MONTHS = ["2026-11-15", "2026-12-15", "2027-01-15", "2027-02-15", "2027-03-15", "2027-04-15"]
+
+
+def versements(amounts: list[int]) -> list[dict]:
+    return [
+        {"label": f"Versement {n}", "amount_minor": amount, "due_on": day}
+        for n, (amount, day) in enumerate(zip(amounts, MONTHS, strict=False), start=1)
+    ]
+
+
+def reschedule_body(enrollment, fee_type, amounts: list[int], **changes) -> dict:
+    return {
+        "enrollment": str(enrollment.pk),
+        "fee_type": str(fee_type.pk),
+        "reason": "Arrangement avec le père (perte d'emploi en septembre)",
+        "parent_signed": True,
+        "installments": versements(amounts),
+        **changes,
+    }
+
+
+def test_custom_schedule_replaces_the_unpaid_charges_and_no_longer_follows_the_rules(
+    api, school, head, alpha
+):
+    with use_school(school):
+        rule(head, alpha, "Fonctionnement", "USD", once("Fonctionnement", 2500))
+    student = enrolled(school, head, alpha["group"])
+    with use_school(school):
+        enrollment = student.enrollments.get()
+    client, minerval = api(head), alpha["fee_type"]
+
+    # Le total doit égaler le reste à réorganiser, au centime près ; le motif est obligatoire.
+    wrong = client.post(RESCHEDULE, reschedule_body(enrollment, minerval, [6000] * 5 + [5999]))
+    assert field_code(wrong, "installments") == "schedule_total_mismatch"
+    blank = client.post(RESCHEDULE, reschedule_body(enrollment, minerval, [6000] * 6, reason=" "))
+    assert field_code(blank, "reason") == "blank"
+
+    response = client.post(RESCHEDULE, reschedule_body(enrollment, minerval, [6000] * 6))
+    assert response.status_code == 200, response.content
+    assert len(response.json()) == 10
+    with use_school(school):
+        six = {("Minerval", f"Versement {n}", 6000, "USD") for n in range(1, 7)}
+        running = {("Fonctionnement", "Fonctionnement", 2500, "USD")}
+        assert charges(enrollment) == six | running
+        # Les tranches remplacées restent, pour l'histoire ; elles ne sont plus dues.
+        assert charges(enrollment, Status.REPLACED) == MINERVAL_3E
+        custom = StudentCharge.objects.filter(enrollment=enrollment, source="custom")
+        assert custom.count() == 6 and not custom.filter(installment_template__isnull=False)
+        [log] = entries(school, Action.FINANCE_CHARGES_RESCHEDULED)
+        assert log.entity_id == enrollment.pk
+        assert (log.after["reason"], log.after["parent_signed"]) == (
+            "Arrangement avec le père (perte d'emploi en septembre)",
+            True,
+        )
+        assert [i["amount_minor"] for i in log.before["charges"]] == [12000] * 3
+        assert len(log.after["installments"]) == 6
+
+        # Un barème modifié ne touche plus l'arrangement (ni un changement de classe : même calcul).
+        services.update_fee_rule(
+            alpha["rule"],
+            actor=head,
+            currency="USD",
+            total_amount_minor=26000,
+            schedule_kind="single",
+            installments=once("Paiement unique", 26000),
+            scope=Scope(level=alpha["level"]),
+        )
+        assert charges(enrollment) == six | running
+        assert StudentCharge.objects.filter(enrollment=enrollment, fee_type=minerval).count() == 9
+
+    # Un nouvel arrangement remplace les versements pas encore payés du premier.
+    response = client.post(RESCHEDULE, reschedule_body(enrollment, minerval, [18000, 18000]))
+    assert response.status_code == 200, response.content
+    with use_school(school):
+        assert charges(enrollment, Status.REPLACED) == MINERVAL_3E | six
+        students.update_enrollment(enrollment, actor=head, status=Enrollment.Status.DROPPED)
+    gone = client.post(RESCHEDULE, reschedule_body(enrollment, minerval, [36000]))
+    assert field_code(gone, "enrollment") == "enrollment_not_active"
+
+
+def test_custom_schedule_needs_the_discount_right_in_the_students_school(
+    api, school, head, alpha, other_school, other_head, beta
+):
+    student = enrolled(school, head, alpha["group"])
+    other = enrolled(other_school, other_head, beta["group"])
+    with use_school(school):
+        enrollment = student.enrollments.get()
+    with use_school(other_school):
+        other_enrollment = other.enrollments.get()
+    body = reschedule_body(enrollment, alpha["fee_type"], [6000] * 6)
+
+    cashier = MembershipFactory(school=school, roles=["cashier"]).user
+    assert api(cashier).post(RESCHEDULE, body).status_code == 403
+    beta_client = api(other_head, host="beta.localhost")
+    assert field_code(beta_client.post(RESCHEDULE, body), "enrollment") == "does_not_exist"
+    foreign_fee = reschedule_body(other_enrollment, alpha["fee_type"], [6000] * 6)
+    assert field_code(beta_client.post(RESCHEDULE, foreign_fee), "fee_type") == "does_not_exist"
+    with use_school(school):
+        assert charges(enrollment) == MINERVAL_3E
+        assert not entries(school, Action.FINANCE_CHARGES_RESCHEDULED)

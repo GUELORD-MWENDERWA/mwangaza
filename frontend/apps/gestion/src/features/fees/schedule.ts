@@ -50,3 +50,25 @@ export function spread(lines: Line[], total: number): Line[] {
   const amounts = splitEvenly(total, lines.length);
   return lines.map((line, index) => ({ ...line, amount_minor: amounts[index] ?? null }));
 }
+
+/** Échéancier particulier d'un élève (E4) : `count` versements le même jour de chaque mois à
+ *  partir de `first` (un 31 devient le dernier jour d'un mois plus court), total découpé. */
+export function everyMonth(
+  total: number,
+  count: number,
+  first: string,
+  label: (n: number) => string,
+): Line[] {
+  const [year, month, day] = first.split("-").map(Number) as [number, number, number];
+  return splitEvenly(total, count).map((amount_minor, index) => {
+    const months = month - 1 + index;
+    const y = year + Math.floor(months / 12);
+    const m = (months % 12) + 1;
+    const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    return {
+      label: label(index + 1),
+      amount_minor,
+      due_on: `${y}-${pad(m)}-${pad(Math.min(day, last))}`,
+    };
+  });
+}

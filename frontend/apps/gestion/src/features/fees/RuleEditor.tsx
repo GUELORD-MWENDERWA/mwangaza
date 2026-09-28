@@ -2,7 +2,7 @@
 // parmi celles de l'école, total, découpage en tranches, mensuel ou unique. La somme des tranches
 // doit égaler le total : rien n'est envoyé sinon (le serveur le vérifie aussi). Montants saisis
 // lus par `@mwangaza/money`, envoyés en entiers (centimes, francs).
-import { api, ApiError, call } from "@mwangaza/api";
+import { api, call } from "@mwangaza/api";
 import { useTranslation } from "@mwangaza/i18n";
 import {
   formatAmount,
@@ -31,7 +31,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 
-import { errorMessage, fieldMessage } from "../../lib/errors";
+import { errorMessage, firstErrorMessage } from "../../lib/errors";
 import { keys, useSchool } from "../../lib/queries";
 import { useClasses, useLevels, useRefresh, useTracks, type Year } from "../organisation/data";
 import { SCHEDULE_KINDS, type FeeRule, type FeeType, type ScheduleKind } from "./data";
@@ -55,15 +55,6 @@ function scopeOf(rule: FeeRule | null): string {
   if (rule?.level) return `level:${rule.level}`;
   if (rule?.track) return `track:${rule.track}`;
   return "";
-}
-
-/** Premier refus d'une saisie (somme, devise, portée…) ou erreur métier, traduits. */
-function ruleError(error: unknown, t: ReturnType<typeof useTranslation>["t"]): string {
-  if (error instanceof ApiError && error.code === "invalid") {
-    const [first] = Object.values(error.fields)[0] ?? [];
-    if (first) return fieldMessage(first.code, t);
-  }
-  return errorMessage(error, t);
 }
 
 export function RuleEditor({ year, type, rule, onClose }: Props) {
@@ -160,7 +151,7 @@ export function RuleEditor({ year, type, rule, onClose }: Props) {
       await refresh(keys.feeRules);
       onClose();
     },
-    onError: (error) => setGeneral(ruleError(error, t)),
+    onError: (error) => setGeneral(firstErrorMessage(error, t)),
   });
   const remove = useMutation({
     mutationFn: () =>

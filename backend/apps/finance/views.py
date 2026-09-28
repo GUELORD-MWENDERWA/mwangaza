@@ -1,6 +1,7 @@
 from django.db.models import Count
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import mixins, status
+from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -8,6 +9,7 @@ from apps.accounts.roles import (
     CHARGES_READ,
     FEES_READ,
     FINANCE_CONFIGURE_FEES,
+    FINANCE_GRANT_DISCOUNT,
     FINANCE_SET_EXCHANGE_RATE,
 )
 from apps.accounts.views import SchoolViewSet
@@ -22,6 +24,7 @@ from apps.finance.serializers import (
     FeeRuleUpdateSerializer,
     FeeTypeSerializer,
     FeeTypeWriteSerializer,
+    RescheduleSerializer,
     StudentChargeFilterSerializer,
     StudentChargeSerializer,
     YearFilterSerializer,
@@ -224,19 +227,45 @@ class ExchangeRateViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, _Finan
 )
 @extend_schema(tags=["finance"])
 class StudentChargeViewSet(mixins.ListModelMixin, SchoolViewSet):
-    """Frais dus d'une inscription, par date limite (2.6) : ceux des barèmes, et les frais
-    retirés (changement de classe, barème modifié), gardés pour l'histoire. Lecture seule."""
+    """Frais dus d'une inscription, par date limite (2.6) : ceux des barèmes ou d'un échéancier
+    particulier, et les frais retirés (changement de classe, barème modifié) ou remplacés
+    (échéancier), gardés pour l'histoire."""
 
-    required_permission = CHARGES_READ
     serializer_class = StudentChargeSerializer
+    # Bornée par inscription (quelques dizaines de lignes) : l'écran les veut toutes.
+    pagination_class = None
+
+    @property
+    def required_permission(self) -> str | tuple[str, ...]:
+        return FINANCE_GRANT_DISCOUNT if self.action == "reschedule" else CHARGES_READ
+
+    @staticmethod
+    def charges_of(enrollment_id):
+        return (
+            StudentCharge.objects.filter(enrollment_id=enrollment_id)
+            .select_related("fee_type")
+            .order_by("due_on", "fee_type__name", "label")
+        )
 
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return StudentCharge.all_schools.none()
         params = StudentChargeFilterSerializer(data=self.request.query_params)
         params.is_valid(raise_exception=True)
-        return (
-            StudentCharge.objects.filter(enrollment_id=params.validated_data["enrollment"])
-            .select_related("fee_type")
-            .order_by("due_on", "fee_type__name", "label")
-        )
+        return self.charges_of(params.validated_data["enrollment"])
+
+    @extend_schema(
+        request=RescheduleSerializer,
+        responses={200: StudentChargeSerializer(many=True), **INVALID, **ERRORS},
+    )
+    @action(detail=False, methods=["post"])
+    def reschedule(self, request: Request) -> Response:
+        """Échéancier particulier (E4) : ce qui reste dû pour un frais, réorganisé en versements
+        de même total ; renvoie tous les frais dus de l'inscription."""
+        serializer = RescheduleSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.to_service()
+        enrollment = data.pop("enrollment")
+        services.reschedule_charges(enrollment, actor=request.user, **data)
+        charges = self.charges_of(enrollment.pk)
+        return Response(StudentChargeSerializer(charges, many=True).data)

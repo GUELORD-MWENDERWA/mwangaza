@@ -16,7 +16,6 @@ import {
   ConfirmDialog,
   Icon,
   Skeleton,
-  StateCard,
   StatusPill,
   Tabs,
   TabsList,
@@ -35,7 +34,9 @@ import { keys, useCurrentMe } from "../../lib/queries";
 import { useYears } from "../organisation/data";
 import { LoadError, NotFound } from "../status/StatusPages";
 import { EnrollmentActions } from "./EnrollmentActions";
+import { SchedulePanel } from "./SchedulePanel";
 import { StudentFamilyTab } from "./StudentFamilyTab";
+import { StudentFinancesTab } from "./StudentFinancesTab";
 import { StudentHistoryTab } from "./StudentHistoryTab";
 import { type Student, age, uploadPhoto, useStudent } from "./data";
 import { shrinkPhoto } from "./photo";
@@ -46,9 +47,10 @@ export type Created = { name: string; className: string; matricule: string; fami
 const TABS = ["identity", "family", "finances", "history"] as const;
 type Tab = (typeof TABS)[number];
 
-export function StudentPage() {
+/** `schedule` : l'onglet « Finances » ouvert sur l'échéancier particulier (E4). */
+export function StudentPage({ schedule = false }: { schedule?: boolean }) {
   const { t } = useTranslation();
-  const { id = "", tab } = useParams();
+  const { id = "", tab = schedule ? "finances" : undefined } = useParams();
   const navigate = useNavigate();
   const me = useCurrentMe();
   const created = (useLocation().state as { created?: Created } | null)?.created;
@@ -150,11 +152,12 @@ export function StudentPage() {
         <IdentityTab student={data} enrollment={enrollment} year={year} canEdit={canEdit} />
       )}
       {current === "family" && <StudentFamilyTab student={data} canEdit={canEdit} />}
-      {current === "finances" && (
-        <StateCard icon="wallet" tone="lake" title={t("students.card.tabs.finances")}>
-          {t("students.card.financesLater")}
-        </StateCard>
-      )}
+      {current === "finances" &&
+        (schedule ? (
+          <SchedulePanel student={data} enrollment={enrollment} />
+        ) : (
+          <StudentFinancesTab student={data} enrollment={enrollment} />
+        ))}
       {current === "history" && <StudentHistoryTab student={data} />}
     </>
   );

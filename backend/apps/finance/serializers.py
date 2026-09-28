@@ -13,6 +13,7 @@ from apps.finance.models import (
 from apps.finance.services import Installment, Scope
 from apps.schools.models import AcademicYear, ClassGroup, Level, Track
 from apps.schools.serializers import PersonSerializer
+from apps.students.models import Enrollment
 
 # Au-delà, c'est une erreur de saisie (et la limite d'un entier de la base reste loin).
 MAX_AMOUNT_MINOR = 10**12
@@ -168,3 +169,23 @@ class StudentChargeSerializer(serializers.ModelSerializer):
 
 class StudentChargeFilterSerializer(serializers.Serializer):
     enrollment = serializers.UUIDField(help_text="Inscription de l'élève pour une année.")
+
+
+class RescheduleSerializer(serializers.Serializer):
+    """Échéancier particulier (E4) : les versements remplacent ce qui reste dû pour ce frais."""
+
+    enrollment = serializers.PrimaryKeyRelatedField(queryset=Enrollment.objects)
+    fee_type = serializers.PrimaryKeyRelatedField(queryset=FeeType.objects)
+    reason = serializers.CharField(max_length=200)
+    parent_signed = serializers.BooleanField(
+        default=False, help_text="Engagement signé par le parent, à classer au dossier."
+    )
+    installments = InstallmentSerializer(many=True, allow_empty=False, max_length=MAX_INSTALLMENTS)
+
+    def to_service(self) -> dict:
+        data = dict(self.validated_data)
+        data["installments"] = [
+            Installment(item["label"], item["amount_minor"], item["due_on"])
+            for item in data["installments"]
+        ]
+        return data
