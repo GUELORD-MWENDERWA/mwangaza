@@ -15,6 +15,16 @@ export type HistoryEntry = Schemas["StudentHistory"];
 export type Relationship = Schemas["RelationshipEnum"];
 export type StudentStatus = "active" | "left" | "not_enrolled";
 export type Charge = Schemas["StudentCharge"];
+export type Discount = Schemas["Discount"];
+export type DiscountReason = Schemas["ReasonCodeEnum"];
+
+export const DISCOUNT_REASONS: DiscountReason[] = [
+  "staff_child",
+  "sibling",
+  "scholarship",
+  "waiver",
+  "other",
+];
 
 /** Droits qui montrent les frais dus d'un élève (comme `CHARGES_READ` du serveur). */
 export const CHARGES_READ: Permission[] = [
@@ -228,6 +238,16 @@ export function useCharges(enrollment: string | undefined) {
     queryKey: [...keys.students, "charges", enrollment],
     queryFn: () =>
       call(api.GET("/api/student-charges/", { params: { query: { enrollment: enrollment! } } })),
+    enabled: Boolean(enrollment),
+  });
+}
+
+/** Réductions d'une inscription, retirées comprises (E3). */
+export function useDiscounts(enrollment: string | undefined) {
+  return useQuery({
+    queryKey: [...keys.students, "discounts", enrollment],
+    queryFn: () =>
+      call(api.GET("/api/discounts/", { params: { query: { enrollment: enrollment! } } })),
     enabled: Boolean(enrollment),
   });
 }

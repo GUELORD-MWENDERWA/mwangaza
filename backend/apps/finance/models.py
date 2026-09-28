@@ -210,6 +210,88 @@ class StudentCharge(TenantModel):
         return f"{self.fee_type} — {self.label}"
 
 
+class Discount(TenantModel):
+    """Réduction accordée à un élève pour son année [T] (E3) : un pourcentage, ou un montant dans
+    la devise du frais, sur un type de frais ou sur tous (`fee_type` vide, pourcentage seulement).
+    Qui et quand : `created_by`, `created_at`. Son effet n'est pas stocké : il se répartit sur
+    les frais dus actifs (`services.discount_shares`) et suit donc changement de classe, barème
+    modifié et échéancier particulier. Jamais effacée : un retrait se note, avec son motif."""
+
+    class Kind(models.TextChoices):
+        PERCENT = "percent", _("Percentage")
+        AMOUNT = "amount", _("Amount")
+
+    class Reason(models.TextChoices):
+        STAFF_CHILD = "staff_child", _("Staff child")
+        SIBLING = "sibling", _("Sibling")
+        SCHOLARSHIP = "scholarship", _("Scholarship")
+        WAIVER = "waiver", _("Waiver from the head")
+        OTHER = "other", _("Other")
+
+    enrollment = models.ForeignKey(
+        "students.Enrollment",
+        on_delete=models.PROTECT,
+        related_name="discounts",
+        verbose_name=_("enrollment"),
+    )
+    fee_type = models.ForeignKey(
+        FeeType,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="discounts",
+        verbose_name=_("fee type"),
+    )
+    kind = models.CharField(_("kind"), max_length=10, choices=Kind.choices)
+    percent = models.PositiveSmallIntegerField(_("percentage"), null=True, blank=True)
+    amount_minor = models.BigIntegerField(_("amount"), null=True, blank=True)
+    currency = models.CharField(_("currency"), max_length=3, choices=Currency.choices, blank=True)
+    reason_code = models.CharField(_("reason"), max_length=12, choices=Reason.choices)
+    reason = models.CharField(_("note"), max_length=200)
+    revoked_at = models.DateTimeField(_("revoked at"), null=True, blank=True)
+    revoked_by = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("revoked by"),
+    )
+    revoke_reason = models.CharField(_("revocation reason"), max_length=200, blank=True)
+
+    class Meta:
+        ordering = ["created_at"]
+        verbose_name = _("discount")
+        verbose_name_plural = _("discounts")
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(
+                        kind="percent",
+                        percent__gte=1,
+                        percent__lte=100,
+                        amount_minor__isnull=True,
+                        currency="",
+                    )
+                    | models.Q(
+                        kind="amount",
+                        amount_minor__gt=0,
+                        percent__isnull=True,
+                        fee_type__isnull=False,
+                    )
+                    & ~models.Q(currency="")
+                ),
+                name="discount_percent_or_amount",
+            ),
+        ]
+        indexes = [models.Index(fields=["school", "enrollment"], name="discount_enrollment")]
+
+    def __str__(self) -> str:
+        if self.kind == self.Kind.PERCENT:
+            return f"{self.get_reason_code_display()} {self.percent} %"
+        return f"{self.get_reason_code_display()} {self.amount_minor} {self.currency}"
+
+
 IMMUTABLE_RATE = "Un taux enregistré ne se modifie pas et ne s'efface pas : ajouter une ligne."
 
 

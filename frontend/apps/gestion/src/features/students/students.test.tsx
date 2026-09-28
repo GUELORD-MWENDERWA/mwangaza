@@ -139,12 +139,14 @@ const charge = (n: number, label: string, due_on: string, extra = {}) => ({
   enrollment: id(80),
   fee_type: id(500),
   fee_type_name: "Minerval",
+  fee_category: "tuition",
   label,
   amount_minor: 12000,
   currency: "USD",
   due_on,
   source: "rule",
   status: "active",
+  discount_minor: 0,
   ...extra,
 });
 const charges = [
@@ -154,6 +156,7 @@ const charges = [
   charge(4, "Fonctionnement", "2026-10-15", {
     fee_type: id(501),
     fee_type_name: "Fonctionnement",
+    fee_category: "operating",
     amount_minor: 2500,
   }),
 ];
@@ -175,6 +178,7 @@ function routes(role: Parameters<typeof me>[0], extra: Routes = {}): Routes {
       ],
     },
     "GET /api/families/": { count: 1, next: null, previous: null, results: [family] },
+    "GET /api/discounts/": [],
     // L'élève est relu après l'inscription, à l'identifiant donné par l'appareil.
     "POST /api/students/": async (request) => {
       const body = (await request.json()) as { id: string };
@@ -420,6 +424,49 @@ describe("Élèves (D2-D4)", () => {
     renderApp(`/students/${STUDENT}/finances`);
     await screen.findByText("Minerval · 2e tranche");
     expect(screen.queryByRole("link", { name: "Échéancier particulier" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Ajouter une réduction" })).toBeNull();
+  });
+
+  it("réduction : effet calculé comme le serveur, envoi en entiers, rien sans motif", async () => {
+    const requests = mockApi(
+      routes("head", {
+        ...card,
+        "GET /api/student-charges/": charges,
+        "POST /api/discounts/": json({}, 201),
+      }),
+    );
+    const { user } = renderApp(`/students/${STUDENT}/finances`);
+    await user.click(await screen.findByRole("button", { name: "Ajouter une réduction" }));
+    const dialog = screen.getByRole("dialog");
+    await user.click(within(dialog).getByRole("button", { name: "Bourse" }));
+
+    // 25 % du minerval (3 × 120,00 $) : 30,00 $ par tranche.
+    await user.type(within(dialog).getByLabelText("Valeur"), "25");
+    expect(within(dialog).getAllByText("− 30,00 $")).toHaveLength(3);
+    within(dialog).getByText("270,00 $");
+    await user.click(within(dialog).getByRole("button", { name: "Accorder la réduction" }));
+    await within(dialog).findByText("Ce champ est obligatoire.");
+
+    // 50,00 $ au prorata : l'écart d'arrondi sur la dernière tranche.
+    await user.click(within(dialog).getByRole("radio", { name: "Montant" }));
+    await user.clear(within(dialog).getByLabelText("Valeur"));
+    await user.type(within(dialog).getByLabelText("Valeur"), "50");
+    expect(within(dialog).getAllByText("− 16,67 $")).toHaveLength(2);
+    within(dialog).getByText("− 16,66 $");
+    expect(posts(requests, "/api/discounts/")).toHaveLength(0);
+
+    await user.type(within(dialog).getByLabelText(/^Motif/), "Bourse de la paroisse");
+    await user.click(within(dialog).getByRole("button", { name: "Accorder la réduction" }));
+    await waitFor(() => expect(posts(requests, "/api/discounts/")).toHaveLength(1));
+    expect(posts(requests, "/api/discounts/")[0]!.body).toEqual({
+      enrollment: id(80),
+      fee_type: id(500),
+      kind: "amount",
+      amount_minor: 5000,
+      reason_code: "scholarship",
+      reason: "Bourse de la paroisse",
+    });
+    await screen.findByText("Réduction accordée : ce que doit l'élève est à jour.");
   });
 
   it("lier l'élève à une autre famille : recherche, choix, puis envoi de la famille seule", async () => {

@@ -1,6 +1,6 @@
 """Configuration des frais de l'école courante (E1, E2, E5) : types de frais, barèmes et leurs
 tranches, taux de change de l'année, reprise des barèmes dans une nouvelle année (C1) ; frais
-dus des élèves, tirés des barèmes (2.6) ou d'un échéancier particulier (E4).
+dus des élèves, tirés des barèmes (2.6) ou d'un échéancier particulier (E4) ; réductions (E3).
 
 Droits `finance.configure_fees`, `finance.set_exchange_rate` et `finance.grant_discount`,
 vérifiés par l'API. Chaque
@@ -24,9 +24,10 @@ from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
-from apps.core.money import Money
+from apps.core.money import Money, percent_of, prorate
 from apps.core.tenancy import require_current_school, use_school
 from apps.finance.models import (
+    Discount,
     ExchangeRate,
     FeeRule,
     FeeType,
@@ -47,6 +48,7 @@ FEE_TYPE_IN_USE = ApiError(
 FEE_RULE_EXISTS = ApiError(
     "fee_rule_exists", _("This fee already has a fee rule for this scope this school year."), 409
 )
+DISCOUNT_REVOKED = ApiError("discount_revoked", _("This discount was already revoked."), 409)
 
 
 def _invalid(path: str, message, code: str, **params) -> ValidationError:
@@ -594,6 +596,161 @@ def reschedule_charges(
             },
         )
     return created
+
+
+# Réductions (E3)
+
+
+def discount_shares(charges: list[StudentCharge], discounts: list[Discount]) -> dict:
+    """Part de réduction de chaque frais dû actif d'une inscription, en entiers dans sa devise.
+    Par type de frais (et devise), les réductions qui s'y appliquent s'additionnent — un
+    pourcentage du total arrondi demi supérieur, un montant dans la même devise —, plafonnées
+    au total, puis se répartissent au prorata des échéances (`prorate` : l'écart d'arrondi sur
+    les dernières). Réductions retirées, frais retirés ou remplacés : ignorés. Même calcul dans
+    `@mwangaza/money` (tableau « Effet sur ce que doit l'élève »). Renvoie {id du frais: part}."""
+    groups = defaultdict(list)
+    for charge in charges:
+        if charge.status == StudentCharge.Status.ACTIVE:
+            groups[charge.fee_type_id, charge.currency].append(charge)
+    live = [discount for discount in discounts if discount.revoked_at is None]
+    shares = {}
+    for (fee_type_id, currency), group in groups.items():
+        group.sort(key=lambda charge: (charge.due_on, charge.label, str(charge.pk)))
+        total = sum(charge.amount_minor for charge in group)
+        reduction = 0
+        for discount in live:
+            if discount.fee_type_id not in (None, fee_type_id):
+                continue
+            if discount.kind == Discount.Kind.PERCENT:
+                reduction += percent_of(total, discount.percent)
+            elif discount.currency == currency:
+                reduction += discount.amount_minor
+        weights = [charge.amount_minor for charge in group]
+        for charge, share in zip(group, prorate(min(reduction, total), weights), strict=True):
+            shares[charge.pk] = share
+    return shares
+
+
+def charges_of(enrollment_id) -> list[StudentCharge]:
+    """Frais dus d'une inscription par date limite, retirés et remplacés compris, chacun avec
+    sa part des réductions (`discount_minor`). Deux requêtes."""
+    charges = list(
+        StudentCharge.objects.filter(enrollment_id=enrollment_id)
+        .select_related("fee_type")
+        .order_by("due_on", "fee_type__name", "label")
+    )
+    shares = discount_shares(charges, list(Discount.objects.filter(enrollment_id=enrollment_id)))
+    for charge in charges:
+        charge.discount_minor = shares.get(charge.pk, 0)
+    return charges
+
+
+def _discount_data(discount: Discount) -> dict:
+    data = {
+        "fee_type": discount.fee_type.name if discount.fee_type else None,
+        "reason_code": discount.reason_code,
+        "reason": discount.reason,
+    }
+    if discount.kind == Discount.Kind.PERCENT:
+        return {**data, "percent": discount.percent}
+    return {**data, "amount_minor": discount.amount_minor, "currency": discount.currency}
+
+
+def _discount_label(enrollment: Enrollment, fee_type: FeeType | None) -> str:
+    return f"{enrollment.student} · {fee_type.name}" if fee_type else str(enrollment.student)
+
+
+def grant_discount(
+    enrollment: Enrollment,
+    *,
+    actor: User,
+    fee_type: FeeType | None,
+    kind: str,
+    reason_code: str,
+    reason: str,
+    percent: int | None = None,
+    amount_minor: int | None = None,
+) -> Discount:
+    """Réduction pour l'année d'un élève inscrit (E3) : un pourcentage sur un frais ou sur tous,
+    ou un montant dans la devise d'un frais, jamais plus que ce frais. Motif obligatoire ; qui et
+    quand sont gardés, et l'action va dans l'historique de l'élève."""
+    reason = reason.strip()
+    if not reason:
+        raise _invalid("reason", _("This field may not be blank."), "blank")
+    with transaction.atomic():
+        enrollment = (
+            Enrollment.objects.select_related("student")
+            .select_for_update(of=("self",))
+            .get(pk=enrollment.pk)
+        )
+        if enrollment.status != Enrollment.Status.ACTIVE:
+            message = _("Only a student enrolled this year can get a discount.")
+            raise _invalid("enrollment", message, "enrollment_not_active")
+        charges = StudentCharge.objects.filter(
+            enrollment=enrollment, status=StudentCharge.Status.ACTIVE
+        )
+        if fee_type is not None:
+            charges = charges.filter(fee_type=fee_type)
+        charges = list(charges)
+        if not charges:
+            message = _("The student owes nothing for this fee.")
+            raise _invalid("fee_type", message, "nothing_to_discount")
+        currency = ""
+        if kind == Discount.Kind.AMOUNT:
+            currency = charges[0].currency
+            if fee_type is None or any(charge.currency != currency for charge in charges):
+                message = _("An amount applies to one fee, in its currency.")
+                raise _invalid("fee_type", message, "fee_required")
+            if amount_minor > sum(charge.amount_minor for charge in charges):
+                message = _("A discount cannot be more than the fee.")
+                raise _invalid("amount_minor", message, "discount_exceeds_fee")
+        discount = Discount.objects.create(
+            enrollment=enrollment,
+            fee_type=fee_type,
+            kind=kind,
+            percent=percent if kind == Discount.Kind.PERCENT else None,
+            amount_minor=amount_minor if kind == Discount.Kind.AMOUNT else None,
+            currency=currency,
+            reason_code=reason_code,
+            reason=reason,
+            created_by=actor,
+        )
+        audit.record(
+            Action.FINANCE_DISCOUNT_GRANTED,
+            enrollment,
+            actor=actor,
+            label=_discount_label(enrollment, fee_type),
+            after=_discount_data(discount),
+        )
+    return discount
+
+
+def revoke_discount(discount: Discount, *, actor: User, reason: str) -> Discount:
+    """Retire une réduction (E3) : rien n'est effacé, le retrait est noté avec son motif ; ce que
+    doit l'élève redevient ce qu'il était sans elle."""
+    reason = reason.strip()
+    if not reason:
+        raise _invalid("reason", _("This field may not be blank."), "blank")
+    with transaction.atomic():
+        discount = (
+            Discount.objects.select_related("enrollment__student", "fee_type")
+            .select_for_update(of=("self",))
+            .get(pk=discount.pk)
+        )
+        if discount.revoked_at is not None:
+            raise BusinessError(DISCOUNT_REVOKED)
+        discount.revoked_at, discount.revoked_by = timezone.now(), actor
+        discount.revoke_reason = reason
+        discount.save(update_fields=["revoked_at", "revoked_by", "revoke_reason", "updated_at"])
+        audit.record(
+            Action.FINANCE_DISCOUNT_REVOKED,
+            discount.enrollment,
+            actor=actor,
+            label=_discount_label(discount.enrollment, discount.fee_type),
+            before=_discount_data(discount),
+            after={"revoke_reason": reason},
+        )
+    return discount
 
 
 # Devises utilisées (M5)

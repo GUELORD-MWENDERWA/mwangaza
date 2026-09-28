@@ -381,6 +381,8 @@ paths:
           - finance.fee_rules_copied
           - finance.exchange_rate_set
           - finance.charges_rescheduled
+          - finance.discount_granted
+          - finance.discount_revoked
           - audit.exported
           - support.started
           - support.ended
@@ -446,6 +448,8 @@ paths:
           * `finance.fee_rules_copied` - Fee rules copied from another school year
           * `finance.exchange_rate_set` - Exchange rate set
           * `finance.charges_rescheduled` - Custom schedule set
+          * `finance.discount_granted` - Discount granted
+          * `finance.discount_revoked` - Discount revoked
           * `audit.exported` - Audit log exported
           * `support.started` - Support session opened
           * `support.ended` - Support session closed
@@ -672,6 +676,8 @@ paths:
           - finance.fee_rules_copied
           - finance.exchange_rate_set
           - finance.charges_rescheduled
+          - finance.discount_granted
+          - finance.discount_revoked
           - audit.exported
           - support.started
           - support.ended
@@ -737,6 +743,8 @@ paths:
           * `finance.fee_rules_copied` - Fee rules copied from another school year
           * `finance.exchange_rate_set` - Exchange rate set
           * `finance.charges_rescheduled` - Custom schedule set
+          * `finance.discount_granted` - Discount granted
+          * `finance.discount_revoked` - Discount revoked
           * `audit.exported` - Audit log exported
           * `support.started` - Support session opened
           * `support.ended` - Support session closed
@@ -1553,6 +1561,152 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Person'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/discounts/:
+    get:
+      operationId: discounts_list
+      description: Réductions d'une inscription (E3), retirées comprises (jamais effacées).
+      parameters:
+      - in: query
+        name: enrollment
+        schema:
+          type: string
+          format: uuid
+        description: Inscription de l'élève pour une année.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Discount'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: discounts_create
+      description: Réductions d'une inscription (E3), retirées comprises (jamais effacées).
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscountCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DiscountCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DiscountCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/discounts/{id}/revoke/:
+    post:
+      operationId: discounts_revoke_create
+      description: 'Retirer une réduction, avec son motif : rien n''est effacé.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this discount.
+        required: true
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscountRevokeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DiscountRevokeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DiscountRevokeRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discount'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
         '403':
           content:
@@ -4825,6 +4979,8 @@ components:
       - finance.fee_rules_copied
       - finance.exchange_rate_set
       - finance.charges_rescheduled
+      - finance.discount_granted
+      - finance.discount_revoked
       - audit.exported
       - support.started
       - support.ended
@@ -4889,6 +5045,8 @@ components:
         * `finance.fee_rules_copied` - Fee rules copied from another school year
         * `finance.exchange_rate_set` - Exchange rate set
         * `finance.charges_rescheduled` - Custom schedule set
+        * `finance.discount_granted` - Discount granted
+        * `finance.discount_revoked` - Discount revoked
         * `audit.exported` - Audit log exported
         * `support.started` - Support session opened
         * `support.ended` - Support session closed
@@ -5253,6 +5411,141 @@ components:
         * `secondary_technical` - Technical and vocational secondary
         * `higher` - Higher education
         * `vocational` - Short vocational training
+    Discount:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        enrollment:
+          type: string
+          format: uuid
+        fee_type:
+          type: string
+          format: uuid
+          nullable: true
+        fee_type_name:
+          type: string
+          readOnly: true
+          nullable: true
+        kind:
+          $ref: '#/components/schemas/DiscountKindEnum'
+        percent:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          nullable: true
+          title: Percentage
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+          title: Amount
+        currency:
+          oneOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        reason_code:
+          allOf:
+          - $ref: '#/components/schemas/ReasonCodeEnum'
+          title: Reason
+        reason:
+          type: string
+          title: Note
+          maxLength: 200
+        granted_by:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+          nullable: true
+        granted_at:
+          type: string
+          format: date-time
+          readOnly: true
+        revoked_at:
+          type: string
+          format: date-time
+          nullable: true
+        revoked_by:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+          nullable: true
+        revoke_reason:
+          type: string
+          title: Revocation reason
+          maxLength: 200
+      required:
+      - id
+      - enrollment
+      - fee_type
+      - fee_type_name
+      - kind
+      - percent
+      - amount_minor
+      - currency
+      - reason_code
+      - reason
+      - granted_by
+      - granted_at
+      - revoked_at
+      - revoked_by
+      - revoke_reason
+    DiscountCreateRequest:
+      type: object
+      description: |-
+        Réduction (E3) : `percent` (1 à 100) pour un pourcentage, `amount_minor` dans la devise du
+        frais pour un montant ; `fee_type` vide : tous les frais (pourcentage seulement).
+      properties:
+        enrollment:
+          type: string
+          format: uuid
+        fee_type:
+          type: string
+          format: uuid
+          nullable: true
+        kind:
+          $ref: '#/components/schemas/DiscountKindEnum'
+        percent:
+          type: integer
+          maximum: 100
+          minimum: 1
+        amount_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 1
+          format: int64
+        reason_code:
+          $ref: '#/components/schemas/ReasonCodeEnum'
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - enrollment
+      - kind
+      - reason
+      - reason_code
+    DiscountKindEnum:
+      enum:
+      - percent
+      - amount
+      type: string
+      description: |-
+        * `percent` - Percentage
+        * `amount` - Amount
+    DiscountRevokeRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - reason
     DomainEnum:
       enum:
       - account
@@ -6090,18 +6383,6 @@ components:
       - amount_minor
       - due_on
       - label
-    KindEnum:
-      enum:
-      - semester
-      - trimester
-      - period
-      - exam
-      type: string
-      description: |-
-        * `semester` - Semester
-        * `trimester` - Term (trimester)
-        * `period` - Period
-        * `exam` - Exams
     LanguageEnum:
       enum:
       - fr
@@ -6906,6 +7187,20 @@ components:
           description: PNG ou JPEG, 1 Mo au plus.
       required:
       - photo
+    ReasonCodeEnum:
+      enum:
+      - staff_child
+      - sibling
+      - scholarship
+      - waiver
+      - other
+      type: string
+      description: |-
+        * `staff_child` - Staff child
+        * `sibling` - Sibling
+        * `scholarship` - Scholarship
+        * `waiver` - Waiver from the head
+        * `other` - Other
     RecoveryCodes:
       type: object
       properties:
@@ -7446,6 +7741,10 @@ components:
         fee_type_name:
           type: string
           readOnly: true
+        fee_category:
+          allOf:
+          - $ref: '#/components/schemas/FeeCategoryEnum'
+          readOnly: true
         label:
           type: string
           maxLength: 40
@@ -7465,17 +7764,23 @@ components:
           $ref: '#/components/schemas/SourceEnum'
         status:
           $ref: '#/components/schemas/StudentChargeStatusEnum'
+        discount_minor:
+          type: integer
+          readOnly: true
+          description: Part des réductions de l'élève (E3) ; 0 si ce n'est plus dû.
       required:
       - id
       - enrollment
       - fee_type
       - fee_type_name
+      - fee_category
       - label
       - amount_minor
       - currency
       - due_on
       - source
       - status
+      - discount_minor
     StudentChargeStatusEnum:
       enum:
       - active
@@ -7847,7 +8152,7 @@ components:
           type: string
           format: uuid
         kind:
-          $ref: '#/components/schemas/KindEnum'
+          $ref: '#/components/schemas/TermKindEnum'
         name:
           type: string
           description: 'Vide : l''interface affiche le nom traduit d''après le genre
@@ -7881,7 +8186,7 @@ components:
           nullable: true
           description: 'Élément existant ; absent : nouveau.'
         kind:
-          $ref: '#/components/schemas/KindEnum'
+          $ref: '#/components/schemas/TermKindEnum'
         name:
           type: string
           default: ''
@@ -7905,7 +8210,7 @@ components:
           nullable: true
           description: 'Élément existant ; absent : nouveau.'
         kind:
-          $ref: '#/components/schemas/KindEnum'
+          $ref: '#/components/schemas/TermKindEnum'
         name:
           type: string
           default: ''
@@ -7924,6 +8229,18 @@ components:
             $ref: '#/components/schemas/TermInputLeafRequest'
       required:
       - kind
+    TermKindEnum:
+      enum:
+      - semester
+      - trimester
+      - period
+      - exam
+      type: string
+      description: |-
+        * `semester` - Semester
+        * `trimester` - Term (trimester)
+        * `period` - Period
+        * `exam` - Exams
     TermLeaf:
       type: object
       properties:
@@ -7931,7 +8248,7 @@ components:
           type: string
           format: uuid
         kind:
-          $ref: '#/components/schemas/KindEnum'
+          $ref: '#/components/schemas/TermKindEnum'
         name:
           type: string
           description: 'Vide : l''interface affiche le nom traduit d''après le genre

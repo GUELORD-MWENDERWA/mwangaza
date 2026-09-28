@@ -15,8 +15,11 @@ from apps.accounts.roles import (
 from apps.accounts.views import SchoolViewSet
 from apps.core.errors import ErrorSerializer
 from apps.finance import services
-from apps.finance.models import ExchangeRate, FeeRule, FeeType, StudentCharge
+from apps.finance.models import Discount, ExchangeRate, FeeRule, FeeType
 from apps.finance.serializers import (
+    DiscountCreateSerializer,
+    DiscountRevokeSerializer,
+    DiscountSerializer,
     ExchangeRateCreateSerializer,
     ExchangeRateSerializer,
     FeeRuleCreateSerializer,
@@ -239,20 +242,11 @@ class StudentChargeViewSet(mixins.ListModelMixin, SchoolViewSet):
     def required_permission(self) -> str | tuple[str, ...]:
         return FINANCE_GRANT_DISCOUNT if self.action == "reschedule" else CHARGES_READ
 
-    @staticmethod
-    def charges_of(enrollment_id):
-        return (
-            StudentCharge.objects.filter(enrollment_id=enrollment_id)
-            .select_related("fee_type")
-            .order_by("due_on", "fee_type__name", "label")
-        )
-
-    def get_queryset(self):
-        if getattr(self, "swagger_fake_view", False):
-            return StudentCharge.all_schools.none()
-        params = StudentChargeFilterSerializer(data=self.request.query_params)
+    def list(self, request: Request) -> Response:
+        params = StudentChargeFilterSerializer(data=request.query_params)
         params.is_valid(raise_exception=True)
-        return self.charges_of(params.validated_data["enrollment"])
+        charges = services.charges_of(params.validated_data["enrollment"])
+        return Response(StudentChargeSerializer(charges, many=True).data)
 
     @extend_schema(
         request=RescheduleSerializer,
@@ -267,5 +261,60 @@ class StudentChargeViewSet(mixins.ListModelMixin, SchoolViewSet):
         data = serializer.to_service()
         enrollment = data.pop("enrollment")
         services.reschedule_charges(enrollment, actor=request.user, **data)
-        charges = self.charges_of(enrollment.pk)
+        charges = services.charges_of(enrollment.pk)
         return Response(StudentChargeSerializer(charges, many=True).data)
+
+
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[StudentChargeFilterSerializer],
+        responses={200: DiscountSerializer(many=True), **INVALID, **ERRORS},
+    ),
+    create=extend_schema(
+        request=DiscountCreateSerializer,
+        responses={201: DiscountSerializer, **INVALID, **ERRORS},
+    ),
+)
+@extend_schema(tags=["finance"])
+class DiscountViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, SchoolViewSet):
+    """Réductions d'une inscription (E3), retirées comprises (jamais effacées)."""
+
+    serializer_class = DiscountSerializer
+    # Bornée par inscription (quelques lignes).
+    pagination_class = None
+
+    @property
+    def required_permission(self) -> str | tuple[str, ...]:
+        return CHARGES_READ if self.action == "list" else FINANCE_GRANT_DISCOUNT
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Discount.all_schools.none()
+        discounts = Discount.objects.select_related("fee_type", "created_by", "revoked_by")
+        if self.action != "list":
+            return discounts
+        params = StudentChargeFilterSerializer(data=self.request.query_params)
+        params.is_valid(raise_exception=True)
+        return discounts.filter(enrollment_id=params.validated_data["enrollment"])
+
+    def create(self, request: Request) -> Response:
+        serializer = DiscountCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = dict(serializer.validated_data)
+        discount = services.grant_discount(data.pop("enrollment"), actor=request.user, **data)
+        discount = self.get_queryset().get(pk=discount.pk)
+        return Response(DiscountSerializer(discount).data, status=status.HTTP_201_CREATED)
+
+    @extend_schema(
+        request=DiscountRevokeSerializer,
+        responses={200: DiscountSerializer, **INVALID, **CONFLICT, **ERRORS},
+    )
+    @action(detail=True, methods=["post"])
+    def revoke(self, request: Request, pk=None) -> Response:
+        """Retirer une réduction, avec son motif : rien n'est effacé."""
+        serializer = DiscountRevokeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        discount = services.revoke_discount(
+            self.get_object(), actor=request.user, **serializer.validated_data
+        )
+        return Response(DiscountSerializer(self.get_queryset().get(pk=discount.pk)).data)

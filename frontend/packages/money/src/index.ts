@@ -74,6 +74,35 @@ export function splitEvenly(total: number, parts: number): number[] {
   return Array.from({ length: parts }, (_, index) => base + (index < rest ? 1 : 0));
 }
 
+/** `percent` % d'un montant, arrondi demi supérieur à l'unité de la devise (réduction E3) ;
+ * même calcul que `apps.core.money.percent_of` du serveur. */
+export function percentOf(minor: number, percent: number): number {
+  assertInteger(minor);
+  assertInteger(percent);
+  return Number((BigInt(minor) * BigInt(percent) * 2n + 100n) / 200n);
+}
+
+/** `total` réparti au prorata de `weights`, en entiers dont la somme est exactement `total` :
+ * chaque part arrondie à l'inférieur, puis une unité de plus aux restes les plus grands, à
+ * égalité aux premières (l'écart d'arrondi tombe sur les dernières) ; même calcul que
+ * `apps.core.money.prorate` du serveur. `5000` sur `[12000, 12000, 12000]` → `1667, 1667, 1666`. */
+export function prorate(total: number, weights: number[]): number[] {
+  assertInteger(total);
+  const base = BigInt(sumAmounts(weights));
+  if (base <= 0n || total < 0) throw new RangeError("Répartition impossible");
+  const parts = weights.map((weight, index) => {
+    const product = BigInt(total) * BigInt(weight);
+    return { share: Number(product / base), remainder: product % base, index };
+  });
+  const shares = parts.map((part) => part.share);
+  const rest = total - sumAmounts(shares);
+  const largest = [...parts].sort((a, b) =>
+    a.remainder === b.remainder ? a.index - b.index : a.remainder > b.remainder ? -1 : 1,
+  );
+  for (const part of largest.slice(0, rest)) shares[part.index] = shares[part.index]! + 1;
+  return shares;
+}
+
 /** Taux du serveur (`"2850.000000"`) → `2 850` ; `"2875.500000"` → `2 875,5`. */
 export function formatRate(rate: string): string {
   const [whole = "0", fraction = ""] = rate.split(".");

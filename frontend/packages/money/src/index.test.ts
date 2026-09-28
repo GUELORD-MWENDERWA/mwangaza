@@ -6,6 +6,8 @@ import {
   formatRate,
   parseAmount,
   parseRate,
+  percentOf,
+  prorate,
   splitEvenly,
   sumAmounts,
 } from "./index";
@@ -43,6 +45,15 @@ describe("montants", () => {
     expect(splitEvenly(100000, 3)).toEqual([33334, 33333, 33333]);
     expect(sumAmounts(splitEvenly(36001, 10))).toBe(36001);
     expect(splitEvenly(100, 0)).toEqual([]);
+  });
+
+  it("calcule une réduction comme le serveur : % arrondi demi supérieur, prorata exact", () => {
+    expect(percentOf(12345, 10)).toBe(1235);
+    expect(percentOf(36000, 25)).toBe(9000);
+    expect(prorate(5000, [12000, 12000, 12000])).toEqual([1667, 1667, 1666]);
+    expect(prorate(1000, [10000, 5000, 5000])).toEqual([500, 250, 250]);
+    expect(prorate(2, [1, 1, 1])).toEqual([1, 1, 0]);
+    expect(() => percentOf(1000, 12.5)).toThrow(TypeError);
   });
 
   it("lit et affiche le taux tel que saisi (francs pour 1 dollar)", () => {
