@@ -4,6 +4,7 @@
 import { api, call, type Schemas } from "@mwangaza/api";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
+import type { Permission } from "../../lib/permissions";
 import { keys } from "../../lib/queries";
 
 export type StudentRow = Schemas["StudentList"];
@@ -13,6 +14,15 @@ export type Guardian = Schemas["Guardian"];
 export type HistoryEntry = Schemas["StudentHistory"];
 export type Relationship = Schemas["RelationshipEnum"];
 export type StudentStatus = "active" | "left" | "not_enrolled";
+export type Charge = Schemas["StudentCharge"];
+
+/** Droits qui montrent les frais dus d'un élève (comme `CHARGES_READ` du serveur). */
+export const CHARGES_READ: Permission[] = [
+  "finance.collect_payment",
+  "finance.grant_discount",
+  "finance.configure_fees",
+  "finance.view_reports",
+];
 
 export const RELATIONSHIPS: Relationship[] = [
   "father",
@@ -209,4 +219,15 @@ export function classListUrl(
   });
   for (const column of options.columns) query.append("columns", column);
   return `/api/enrollments/class-list/?${query}`;
+}
+
+/** Frais dus d'une inscription, par date limite (sous `keys.students` : un changement de classe
+ *  les rafraîchit). */
+export function useCharges(enrollment: string | undefined) {
+  return useQuery({
+    queryKey: [...keys.students, "charges", enrollment],
+    queryFn: () =>
+      call(api.GET("/api/student-charges/", { params: { query: { enrollment: enrollment! } } })),
+    enabled: Boolean(enrollment),
+  });
 }

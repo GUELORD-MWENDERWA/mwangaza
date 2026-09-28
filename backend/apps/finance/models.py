@@ -149,7 +149,8 @@ class StudentCharge(TenantModel):
 
     Jamais effacé (aucune suppression dans les finances) : un frais qui ne s'applique plus
     (changement de classe, barème modifié ou supprimé) passe « retiré » et ne compte plus dans ce
-    que doit l'élève ; il redevient dû si le barème s'applique de nouveau."""
+    que doit l'élève ; il redevient dû si le barème s'applique de nouveau. Un frais réorganisé
+    par un échéancier particulier passe « remplacé », pour de bon."""
 
     class Source(models.TextChoices):
         RULE = "rule", _("Fee rule")
@@ -158,6 +159,7 @@ class StudentCharge(TenantModel):
     class Status(models.TextChoices):
         ACTIVE = "active", _("Due")
         REMOVED = "removed", _("Removed")
+        REPLACED = "replaced", _("Replaced")
 
     enrollment = models.ForeignKey(
         "students.Enrollment",

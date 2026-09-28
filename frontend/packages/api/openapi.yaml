@@ -380,6 +380,7 @@ paths:
           - finance.fee_rule_deleted
           - finance.fee_rules_copied
           - finance.exchange_rate_set
+          - finance.charges_rescheduled
           - audit.exported
           - support.started
           - support.ended
@@ -444,6 +445,7 @@ paths:
           * `finance.fee_rule_deleted` - Fee rule deleted
           * `finance.fee_rules_copied` - Fee rules copied from another school year
           * `finance.exchange_rate_set` - Exchange rate set
+          * `finance.charges_rescheduled` - Custom schedule set
           * `audit.exported` - Audit log exported
           * `support.started` - Support session opened
           * `support.ended` - Support session closed
@@ -669,6 +671,7 @@ paths:
           - finance.fee_rule_deleted
           - finance.fee_rules_copied
           - finance.exchange_rate_set
+          - finance.charges_rescheduled
           - audit.exported
           - support.started
           - support.ended
@@ -733,6 +736,7 @@ paths:
           * `finance.fee_rule_deleted` - Fee rule deleted
           * `finance.fee_rules_copied` - Fee rules copied from another school year
           * `finance.exchange_rate_set` - Exchange rate set
+          * `finance.charges_rescheduled` - Custom schedule set
           * `audit.exported` - Audit log exported
           * `support.started` - Support session opened
           * `support.ended` - Support session closed
@@ -3628,8 +3632,9 @@ paths:
     get:
       operationId: student_charges_list
       description: |-
-        Frais dus d'une inscription, par date limite (2.6) : ceux des barèmes, et les frais
-        retirés (changement de classe, barème modifié), gardés pour l'histoire. Lecture seule.
+        Frais dus d'une inscription, par date limite (2.6) : ceux des barèmes ou d'un échéancier
+        particulier, et les frais retirés (changement de classe, barème modifié) ou remplacés
+        (échéancier), gardés pour l'histoire.
       parameters:
       - in: query
         name: enrollment
@@ -3638,12 +3643,6 @@ paths:
           format: uuid
         description: Inscription de l'élève pour une année.
         required: true
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
       tags:
       - finance
       security:
@@ -3653,7 +3652,58 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedStudentChargeList'
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentCharge'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/student-charges/reschedule/:
+    post:
+      operationId: student_charges_reschedule_create
+      description: |-
+        Échéancier particulier (E4) : ce qui reste dû pour un frais, réorganisé en versements
+        de même total ; renvoie tous les frais dus de l'inscription.
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RescheduleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RescheduleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RescheduleRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentCharge'
           description: ''
         '400':
           content:
@@ -4774,6 +4824,7 @@ components:
       - finance.fee_rule_deleted
       - finance.fee_rules_copied
       - finance.exchange_rate_set
+      - finance.charges_rescheduled
       - audit.exported
       - support.started
       - support.ended
@@ -4837,6 +4888,7 @@ components:
         * `finance.fee_rule_deleted` - Fee rule deleted
         * `finance.fee_rules_copied` - Fee rules copied from another school year
         * `finance.exchange_rate_set` - Exchange rate set
+        * `finance.charges_rescheduled` - Custom schedule set
         * `audit.exported` - Audit log exported
         * `support.started` - Support session opened
         * `support.ended` - Support session closed
@@ -6460,31 +6512,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Staff'
-    PaginatedStudentChargeList:
-      type: object
-      required:
-      - count
-      - next
-      - previous
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/StudentCharge'
     PaginatedStudentHistoryList:
       type: object
       required:
@@ -6905,6 +6932,34 @@ components:
         * `grandparent` - Grandparent
         * `sibling` - Brother or sister
         * `other` - Other
+    RescheduleRequest:
+      type: object
+      description: 'Échéancier particulier (E4) : les versements remplacent ce qui
+        reste dû pour ce frais.'
+      properties:
+        enrollment:
+          type: string
+          format: uuid
+        fee_type:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+        parent_signed:
+          type: boolean
+          default: false
+          description: Engagement signé par le parent, à classer au dossier.
+        installments:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstallmentRequest'
+      required:
+      - enrollment
+      - fee_type
+      - installments
+      - reason
     Role:
       type: object
       description: |-
@@ -7425,10 +7480,12 @@ components:
       enum:
       - active
       - removed
+      - replaced
       type: string
       description: |-
         * `active` - Due
         * `removed` - Removed
+        * `replaced` - Replaced
     StudentHistory:
       type: object
       description: |-

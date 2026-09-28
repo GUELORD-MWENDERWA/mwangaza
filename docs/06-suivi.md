@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 2 (Élèves et frais) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 2.6.1 terminée, PR #95 à fusionner |
-| Prochaine tâche | 2.6.2 — échéancier particulier, puis 2.5.2 — réductions |
+| Tâche en cours | aucune — 2.6.2 terminée, PR à fusionner |
+| Prochaine tâche | 2.5.2 — réductions |
 | Issue GitHub | #19 (2.6) |
-| Branche | `tache/2.6.1-frais-dus` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-09-27 |
+| Branche | `tache/2.6.2-echeancier` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-09-28 |
 
 ## Avancement
 
@@ -20,10 +20,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|:-:|:-:|
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
-| Semaine 2 — Élèves et frais | 6 | 9 |
+| Semaine 2 — Élèves et frais | 7 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 0 | 8 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **14** | **33** |
+| **V1.0** | **15** | **33** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-28 — Tâche 2.6.2 : échéancier particulier
+- Fait : `StudentCharge` « remplacé » ; `reschedule_charges` + `POST /api/student-charges/reschedule/` (droit `finance.grant_discount`, motif obligatoire, engagement signé, audit `finance.charges_rescheduled` visible dans l'historique de l'élève) ; onglet Finances de la fiche : « Ce qui est dû » ; écran « Échéancier particulier » (mensuel ou dates libres).
+- Tests : total au centime près, motif, remplacés gardés, nouvel arrangement sur un ancien, barème modifié sans effet, élève parti refusé, isolation et 403 ; écran : proposition mensuelle, envoi en entiers, rien d'envoyé si somme ou motif manque.
+- Décisions : `03` (un frais sous échéancier ne suit plus les barèmes ni le changement de classe ; liste des frais dus non paginée).
+- Suite : 2.5.2 — réductions.
 
 ### 2026-09-27 — Tâche 2.6.1 : frais dus des élèves
 - Fait : 2.6 découpée (2.6.1, 2.6.2) ; `StudentCharge` (une ligne par tranche du barème le plus précis), générés à l'inscription et à l'import, recalculés au changement de classe, au retour d'un élève et quand un barème change ; jamais effacés (« retiré ») ; `GET /api/student-charges/?enrollment=` ; fiche élève : changer de classe, enregistrer / annuler un départ, inscrire pour l'année ; `make demo` : ~17 frais dus par élève.

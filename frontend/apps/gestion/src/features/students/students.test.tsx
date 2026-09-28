@@ -134,6 +134,30 @@ const card: Routes = {
   },
 };
 
+const charge = (n: number, label: string, due_on: string, extra = {}) => ({
+  id: id(700 + n),
+  enrollment: id(80),
+  fee_type: id(500),
+  fee_type_name: "Minerval",
+  label,
+  amount_minor: 12000,
+  currency: "USD",
+  due_on,
+  source: "rule",
+  status: "active",
+  ...extra,
+});
+const charges = [
+  charge(1, "1re tranche", "2026-10-15"),
+  charge(2, "2e tranche", "2027-01-15"),
+  charge(3, "3e tranche", "2027-04-15"),
+  charge(4, "Fonctionnement", "2026-10-15", {
+    fee_type: id(501),
+    fee_type_name: "Fonctionnement",
+    amount_minor: 2500,
+  }),
+];
+
 function routes(role: Parameters<typeof me>[0], extra: Routes = {}): Routes {
   const all: Routes = {
     "GET /api/school/": school,
@@ -338,6 +362,64 @@ describe("Élèves (D2-D4)", () => {
         left_on: "2026-11-03",
       }),
     );
+  });
+
+  it("échéancier particulier : proposition mensuelle au total exact, rien d'envoyé si la somme ou le motif manque", async () => {
+    const requests = mockApi(
+      routes("head", {
+        ...card,
+        "GET /api/student-charges/": charges,
+        "POST /api/student-charges/reschedule/": charges,
+      }),
+    );
+    const { user } = renderApp(`/students/${STUDENT}/finances`);
+    await user.click(await screen.findByRole("link", { name: "Échéancier particulier" }));
+
+    fireEvent.change(await screen.findByLabelText("Nombre de versements"), {
+      target: { value: "6" },
+    });
+    fireEvent.change(screen.getByLabelText("Premier versement"), {
+      target: { value: "2026-11-15" },
+    });
+    screen.getByText("✓ égal au reste à réorganiser");
+    const last = screen.getByLabelText<HTMLInputElement>("Montant du versement 6");
+    expect(last.value).toBe("60,00");
+    await user.clear(last);
+    await user.type(last, "59,99");
+    await user.click(screen.getByRole("button", { name: "Enregistrer l'échéancier" }));
+    screen.getByText("La somme des versements doit égaler le reste à réorganiser.");
+    await user.clear(last);
+    await user.type(last, "60");
+    await user.click(screen.getByRole("button", { name: "Enregistrer l'échéancier" }));
+    await screen.findByText("Ce champ est obligatoire.");
+    expect(posts(requests, "/api/student-charges/reschedule/")).toHaveLength(0);
+
+    await user.type(screen.getByLabelText(/^Motif/), "Arrangement avec le père");
+    await user.click(screen.getByLabelText(/Engagement signé/));
+    await user.click(screen.getByRole("button", { name: "Enregistrer l'échéancier" }));
+    await waitFor(() =>
+      expect(posts(requests, "/api/student-charges/reschedule/")).toHaveLength(1),
+    );
+    const [sent] = posts(requests, "/api/student-charges/reschedule/");
+    expect(sent!.body).toEqual({
+      enrollment: id(80),
+      fee_type: id(500),
+      reason: "Arrangement avec le père",
+      parent_signed: true,
+      installments: ["11-15", "12-15", "01-15", "02-15", "03-15", "04-15"].map((day, index) => ({
+        label: `Versement ${index + 1}`,
+        amount_minor: 6000,
+        due_on: `${index < 2 ? 2026 : 2027}-${day}`,
+      })),
+    });
+    await screen.findByText("Échéancier enregistré : Minerval en 6 versements.");
+  });
+
+  it("frais dus visibles au caissier, sans échéancier particulier", async () => {
+    mockApi(routes("cashier", { ...card, "GET /api/student-charges/": charges }));
+    renderApp(`/students/${STUDENT}/finances`);
+    await screen.findByText("Minerval · 2e tranche");
+    expect(screen.queryByRole("link", { name: "Échéancier particulier" })).toBeNull();
   });
 
   it("lier l'élève à une autre famille : recherche, choix, puis envoi de la famille seule", async () => {

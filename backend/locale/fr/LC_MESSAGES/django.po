@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-27 23:13+0200\n"
+"POT-Creation-Date: 2026-09-28 07:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -714,15 +714,19 @@ msgstr "Barèmes repris d'une autre année"
 msgid "Exchange rate set"
 msgstr "Taux de l'année saisi"
 
-#: apps/audit/actions.py:101
+#: apps/audit/actions.py:99
+msgid "Custom schedule set"
+msgstr "Échéancier particulier enregistré"
+
+#: apps/audit/actions.py:102
 msgid "Audit log exported"
 msgstr "Journal d'audit exporté"
 
-#: apps/audit/actions.py:105
+#: apps/audit/actions.py:106
 msgid "Support session opened"
 msgstr "Session support ouverte"
 
-#: apps/audit/actions.py:106
+#: apps/audit/actions.py:107
 msgid "Support session closed"
 msgstr "Session support fermée"
 
@@ -903,7 +907,7 @@ msgid "accounting code"
 msgstr ""
 
 #: apps/finance/models.py:42 apps/finance/models.py:70
-#: apps/finance/models.py:169
+#: apps/finance/models.py:171
 msgid "fee type"
 msgstr ""
 
@@ -923,11 +927,11 @@ msgstr ""
 msgid "Single payment"
 msgstr ""
 
-#: apps/finance/models.py:67 apps/finance/models.py:240
+#: apps/finance/models.py:67 apps/finance/models.py:242
 msgid "year"
 msgstr ""
 
-#: apps/finance/models.py:81 apps/finance/models.py:173
+#: apps/finance/models.py:81 apps/finance/models.py:175
 msgid "currency"
 msgstr ""
 
@@ -947,15 +951,15 @@ msgstr ""
 msgid "fee rules"
 msgstr ""
 
-#: apps/finance/models.py:125 apps/finance/models.py:171
+#: apps/finance/models.py:125 apps/finance/models.py:173
 msgid "label"
 msgstr ""
 
-#: apps/finance/models.py:126 apps/finance/models.py:172
+#: apps/finance/models.py:126 apps/finance/models.py:174
 msgid "amount"
 msgstr ""
 
-#: apps/finance/models.py:127 apps/finance/models.py:174
+#: apps/finance/models.py:127 apps/finance/models.py:176
 msgid "due date"
 msgstr ""
 
@@ -964,7 +968,7 @@ msgstr ""
 msgid "order"
 msgstr ""
 
-#: apps/finance/models.py:132 apps/finance/models.py:183
+#: apps/finance/models.py:132 apps/finance/models.py:185
 msgid "installment"
 msgstr ""
 
@@ -972,112 +976,136 @@ msgstr ""
 msgid "installments"
 msgstr ""
 
-#: apps/finance/models.py:155
+#: apps/finance/models.py:156
 #, fuzzy
 #| msgid "Fee rule created"
 msgid "Fee rule"
 msgstr "Barème créé"
 
-#: apps/finance/models.py:156
+#: apps/finance/models.py:157
 msgid "Custom schedule"
 msgstr ""
 
-#: apps/finance/models.py:159
+#: apps/finance/models.py:160
 msgid "Due"
 msgstr ""
 
-#: apps/finance/models.py:160
+#: apps/finance/models.py:161
 msgid "Removed"
 msgstr ""
 
-#: apps/finance/models.py:166 apps/students/models.py:164
+#: apps/finance/models.py:162
+msgid "Replaced"
+msgstr ""
+
+#: apps/finance/models.py:168 apps/students/models.py:164
 msgid "enrollment"
 msgstr ""
 
-#: apps/finance/models.py:175
+#: apps/finance/models.py:177
 msgid "source"
 msgstr ""
 
-#: apps/finance/models.py:186 apps/schools/models.py:123
+#: apps/finance/models.py:188 apps/schools/models.py:123
 #: apps/schools/models.py:204 apps/students/models.py:157
 #: apps/students/models.py:222
 msgid "status"
 msgstr ""
 
-#: apps/finance/models.py:191
+#: apps/finance/models.py:193
 #, fuzzy
 #| msgid "Student changed"
 msgid "student charge"
 msgstr "Élève modifié"
 
-#: apps/finance/models.py:192
+#: apps/finance/models.py:194
 #, fuzzy
 #| msgid "Student changed"
 msgid "student charges"
 msgstr "Élève modifié"
 
-#: apps/finance/models.py:248
+#: apps/finance/models.py:250
 msgid "rate"
 msgstr ""
 
-#: apps/finance/models.py:250
+#: apps/finance/models.py:252
 msgid "reason"
 msgstr ""
 
-#: apps/finance/models.py:256
+#: apps/finance/models.py:258
 msgid "exchange rate"
 msgstr ""
 
-#: apps/finance/models.py:257
+#: apps/finance/models.py:259
 msgid "exchange rates"
 msgstr ""
 
-#: apps/finance/services.py:39
+#: apps/finance/services.py:40
 msgid "The school already has a fee type with this name."
 msgstr ""
 
-#: apps/finance/services.py:43
+#: apps/finance/services.py:44
 msgid ""
 "This fee type has fee rules or students who owe it: deactivate it instead."
 msgstr ""
 
-#: apps/finance/services.py:47
+#: apps/finance/services.py:48
 msgid "This fee already has a fee rule for this scope this school year."
 msgstr ""
 
-#: apps/finance/services.py:142 apps/finance/services.py:154
+#: apps/finance/services.py:143 apps/finance/services.py:155
 msgid "Whole school"
 msgstr "Toute l'école"
 
-#: apps/finance/services.py:167
+#: apps/finance/services.py:168
 msgid "Choose a level, a track or a class, not several."
 msgstr ""
 
-#: apps/finance/services.py:169
+#: apps/finance/services.py:170
 msgid "This class belongs to another school year."
 msgstr ""
 
-#: apps/finance/services.py:172
+#: apps/finance/services.py:173
 msgid "This currency is not one of the school's currencies."
 msgstr ""
 
-#: apps/finance/services.py:175
+#: apps/finance/services.py:176 apps/finance/services.py:530
 msgid "Add at least one installment."
 msgstr ""
 
-#: apps/finance/services.py:177
+#: apps/finance/services.py:178
 msgid "A single payment has exactly one installment."
 msgstr ""
 
-#: apps/finance/services.py:184
+#: apps/finance/services.py:185
 msgid "The installments must add up to the total."
 msgstr ""
 
-#: apps/finance/services.py:536
+#: apps/finance/services.py:528
+msgid "This field may not be blank."
+msgstr ""
+
+#: apps/finance/services.py:538
+msgid "Only a student enrolled this year can get a custom schedule."
+msgstr ""
+
+#: apps/finance/services.py:547
+msgid "The student owes nothing unpaid for this fee."
+msgstr ""
+
+#: apps/finance/services.py:551
+msgid "This fee is owed in several currencies: it cannot be rescheduled."
+msgstr ""
+
+#: apps/finance/services.py:558
+msgid "The installments must add up to what is left to reschedule."
+msgstr ""
+
+#: apps/finance/services.py:638
 msgid "Give the reason for the correction."
 msgstr ""
 
-#: apps/finance/services.py:539
+#: apps/finance/services.py:641
 msgid "This is already the rate of the year."
 msgstr ""
 

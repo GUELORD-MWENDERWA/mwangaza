@@ -96,6 +96,7 @@ class Action(models.TextChoices):
         _("Fee rules copied from another school year"),
     )
     FINANCE_EXCHANGE_RATE_SET = "finance.exchange_rate_set", _("Exchange rate set")
+    FINANCE_CHARGES_RESCHEDULED = "finance.charges_rescheduled", _("Custom schedule set")
 
     # Le journal lui-même (M6) : chaque export est noté.
     AUDIT_EXPORTED = "audit.exported", _("Audit log exported")

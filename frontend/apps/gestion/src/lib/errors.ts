@@ -27,6 +27,16 @@ export function fieldMessage(code: string, t: TFunction): string {
     : t("fieldErrors.invalid");
 }
 
+/** Premier refus d'une saisie (somme, devise, portée…) ou erreur métier, traduits : pour un
+ *  formulaire dont les erreurs s'affichent en haut. */
+export function firstErrorMessage(error: unknown, t: TFunction): string {
+  if (error instanceof ApiError && error.code === "invalid") {
+    const [first] = Object.values(error.fields)[0] ?? [];
+    if (first) return fieldMessage(first.code, t);
+  }
+  return errorMessage(error, t);
+}
+
 /** Place les erreurs de champ du serveur sous les champs du formulaire ; renvoie le message
  *  général à afficher en haut (ou rien si tout est sous un champ). */
 export function applyServerErrors<T extends FieldValues>(

@@ -67,6 +67,11 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
   },
   { path: "students/class-list", item: menuItem("students"), element: <ClassListPage /> },
   { path: "students/:id/form", item: menuItem("students"), element: <RegistrationFormPage /> },
+  {
+    path: "students/:id/finances/schedule",
+    item: { ...menuItem("students"), permissions: ["finance.grant_discount"] },
+    element: <StudentPage schedule />,
+  },
   { path: "students/:id/:tab?", item: menuItem("students"), element: <StudentPage /> },
   { path: "families/:id", item: menuItem("students"), element: <FamilyPage /> },
 ];
