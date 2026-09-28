@@ -134,3 +134,31 @@ class Money:
             return NotImplemented
         self._same_currency(other)
         return self.amount_minor >= other.amount_minor
+
+
+def percent_of(amount_minor: int, percent: int) -> int:
+    """`percent` % d'un montant positif, arrondi demi supérieur à l'unité de la devise (réduction
+    en %, skill `argent`), en entiers seulement."""
+    amount_minor, percent = _require_int(amount_minor, "montant"), _require_int(percent, "%")
+    if amount_minor < 0 or percent < 0:
+        raise ValueError("montant et pourcentage positifs seulement")
+    return (amount_minor * percent * 2 + 100) // 200
+
+
+def prorate(total_minor: int, weights: list[int]) -> list[int]:
+    """`total_minor` réparti au prorata de `weights` (montants positifs), en entiers dont la
+    somme vaut exactement `total_minor` : chaque part arrondie à l'inférieur, puis une unité de
+    plus aux restes les plus grands, à égalité aux premières ; l'écart d'arrondi tombe ainsi sur
+    les dernières parts. Aucune part ne dépasse son poids si `total_minor` ≤ leur somme."""
+    total_minor = _require_int(total_minor, "montant")
+    base = sum(_require_int(weight, "montant") for weight in weights)
+    if base <= 0 or total_minor < 0 or any(weight < 0 for weight in weights):
+        raise ValueError("répartition impossible")
+    shares, remainders = [], []
+    for index, weight in enumerate(weights):
+        share, remainder = divmod(total_minor * weight, base)
+        shares.append(share)
+        remainders.append((-remainder, index))
+    for _remainder, index in sorted(remainders)[: total_minor - sum(shares)]:
+        shares[index] += 1
+    return shares

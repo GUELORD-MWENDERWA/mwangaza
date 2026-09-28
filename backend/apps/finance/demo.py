@@ -1,15 +1,15 @@
 """Frais de démonstration (I5 en attendant la grille de l'ITIG) : grille fictive réaliste, à
 partir de celle des maquettes — minerval en tranches USD, fonctionnement et frais connexes en une
 fois, atelier par option, motivation des enseignants mensuelle en FC, Exetat en 4e —, le taux
-de l'année, et ce que doit chaque élève inscrit. Écrits directement dans les modèles : `make demo`
-n'écrit rien dans le journal."""
+de l'année, ce que doit chaque élève inscrit et quelques réductions. Écrits directement dans les
+modèles : `make demo` n'écrit rien dans le journal."""
 
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
 
 from apps.core.tenancy import use_school
-from apps.finance.models import ExchangeRate, FeeRule, FeeType
+from apps.finance.models import Discount, ExchangeRate, FeeRule, FeeType
 from apps.finance.services import Installment, _write_installments, sync_charges
 from apps.schools.models import AcademicYear, Level, School, Track
 from apps.students.models import Enrollment
@@ -152,3 +152,38 @@ def create_demo_charges(schools: dict[str, School]) -> None:
         with use_school(school):
             year = AcademicYear.objects.get(is_current=True)
             sync_charges(Enrollment.objects.filter(academic_year=year), actor=None)
+
+
+# Un élève sur `every` (dans l'ordre des matricules) : (motif, pourcentage, sur le minerval seul).
+DEMO_DISCOUNTS = [
+    (20, Discount.Reason.STAFF_CHILD, 50, True, "Enfant d'un enseignant de l'école"),
+    (33, Discount.Reason.SIBLING, 10, False, "Troisième enfant de la famille inscrit"),
+    (45, Discount.Reason.SCHOLARSHIP, 25, True, "Bourse de la paroisse, lettre du 12/10/2026"),
+]
+
+
+def create_demo_discounts(schools: dict[str, School]) -> None:
+    """Quelques réductions (E3), une seule fois par école : enfants du personnel, fratries,
+    bourses."""
+    for school in schools.values():
+        with use_school(school):
+            if Discount.objects.exists():
+                continue
+            minerval = FeeType.objects.filter(name=MINERVAL).first()
+            enrollments = list(
+                Enrollment.objects.filter(
+                    academic_year__is_current=True, status=Enrollment.Status.ACTIVE
+                ).order_by("student__matricule")
+            )
+            Discount.objects.bulk_create(
+                Discount(
+                    enrollment=enrollment,
+                    fee_type=minerval if tuition_only else None,
+                    kind=Discount.Kind.PERCENT,
+                    percent=percent,
+                    reason_code=code,
+                    reason=reason,
+                )
+                for every, code, percent, tuition_only, reason in DEMO_DISCOUNTS
+                for enrollment in enrollments[every // 2 :: every]
+            )

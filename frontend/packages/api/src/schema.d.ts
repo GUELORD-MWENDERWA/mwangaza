@@ -404,6 +404,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/discounts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Réductions d'une inscription (E3), retirées comprises (jamais effacées). */
+        get: operations["discounts_list"];
+        put?: never;
+        /** @description Réductions d'une inscription (E3), retirées comprises (jamais effacées). */
+        post: operations["discounts_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/discounts/{id}/revoke/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Retirer une réduction, avec son motif : rien n'est effacé. */
+        post: operations["discounts_revoke_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/enrollments/": {
         parameters: {
             query?: never;
@@ -1374,12 +1409,14 @@ export interface components {
          *     * `finance.fee_rules_copied` - Fee rules copied from another school year
          *     * `finance.exchange_rate_set` - Exchange rate set
          *     * `finance.charges_rescheduled` - Custom schedule set
+         *     * `finance.discount_granted` - Discount granted
+         *     * `finance.discount_revoked` - Discount revoked
          *     * `audit.exported` - Audit log exported
          *     * `support.started` - Support session opened
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "audit.exported" | "support.started" | "support.ended";
         Address: {
             commune: string;
             quartier: string;
@@ -1539,6 +1576,61 @@ export interface components {
          * @enum {string}
          */
         CycleEnum: "primary" | "basic" | "secondary_general" | "secondary_technical" | "higher" | "vocational";
+        Discount: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            enrollment: string;
+            /** Format: uuid */
+            fee_type: string | null;
+            readonly fee_type_name: string | null;
+            kind: components["schemas"]["DiscountKindEnum"];
+            /** Percentage */
+            percent: number | null;
+            /**
+             * Amount
+             * Format: int64
+             */
+            amount_minor: number | null;
+            currency: components["schemas"]["CurrencyEnum"] | components["schemas"]["BlankEnum"];
+            /** Reason */
+            reason_code: components["schemas"]["ReasonCodeEnum"];
+            /** Note */
+            reason: string;
+            readonly granted_by: components["schemas"]["Person"] | null;
+            /** Format: date-time */
+            readonly granted_at: string;
+            /** Format: date-time */
+            revoked_at: string | null;
+            readonly revoked_by: components["schemas"]["Person"] | null;
+            /** Revocation reason */
+            revoke_reason: string;
+        };
+        /**
+         * @description Réduction (E3) : `percent` (1 à 100) pour un pourcentage, `amount_minor` dans la devise du
+         *     frais pour un montant ; `fee_type` vide : tous les frais (pourcentage seulement).
+         */
+        DiscountCreateRequest: {
+            /** Format: uuid */
+            enrollment: string;
+            /** Format: uuid */
+            fee_type?: string | null;
+            kind: components["schemas"]["DiscountKindEnum"];
+            percent?: number;
+            /** Format: int64 */
+            amount_minor?: number;
+            reason_code: components["schemas"]["ReasonCodeEnum"];
+            reason: string;
+        };
+        /**
+         * @description * `percent` - Percentage
+         *     * `amount` - Amount
+         * @enum {string}
+         */
+        DiscountKindEnum: "percent" | "amount";
+        DiscountRevokeRequest: {
+            reason: string;
+        };
         /** @enum {string} */
         DomainEnum: "account" | "audit" | "auth" | "finance" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
         Enrollment: {
@@ -1904,14 +1996,6 @@ export interface components {
              */
             due_on: string;
         };
-        /**
-         * @description * `semester` - Semester
-         *     * `trimester` - Term (trimester)
-         *     * `period` - Period
-         *     * `exam` - Exams
-         * @enum {string}
-         */
-        KindEnum: "semester" | "trimester" | "period" | "exam";
         /**
          * @description * `fr` - Français
          *     * `en` - English
@@ -2335,6 +2419,15 @@ export interface components {
              */
             photo: string;
         };
+        /**
+         * @description * `staff_child` - Staff child
+         *     * `sibling` - Sibling
+         *     * `scholarship` - Scholarship
+         *     * `waiver` - Waiver from the head
+         *     * `other` - Other
+         * @enum {string}
+         */
+        ReasonCodeEnum: "staff_child" | "sibling" | "scholarship" | "waiver" | "other";
         RecoveryCodes: {
             /** @description Affichés une seule fois : à imprimer. */
             recovery_codes: string[];
@@ -2592,6 +2685,7 @@ export interface components {
             /** Format: uuid */
             fee_type: string;
             readonly fee_type_name: string;
+            readonly fee_category: components["schemas"]["FeeCategoryEnum"];
             label: string;
             /**
              * Amount
@@ -2606,6 +2700,8 @@ export interface components {
             due_on: string;
             source: components["schemas"]["SourceEnum"];
             status: components["schemas"]["StudentChargeStatusEnum"];
+            /** @description Part des réductions de l'élève (E3) ; 0 si ce n'est plus dû. */
+            readonly discount_minor: number;
         };
         /**
          * @description * `active` - Due
@@ -2785,7 +2881,7 @@ export interface components {
         Term: {
             /** Format: uuid */
             id: string;
-            kind: components["schemas"]["KindEnum"];
+            kind: components["schemas"]["TermKindEnum"];
             /** @description Vide : l'interface affiche le nom traduit d'après le genre et la place (« 1re période », « Examens du 1er semestre »). */
             name: string;
             /** Format: date */
@@ -2801,7 +2897,7 @@ export interface components {
              * @description Élément existant ; absent : nouveau.
              */
             id?: string | null;
-            kind: components["schemas"]["KindEnum"];
+            kind: components["schemas"]["TermKindEnum"];
             /** @default  */
             name: string;
             /** Format: date */
@@ -2815,7 +2911,7 @@ export interface components {
              * @description Élément existant ; absent : nouveau.
              */
             id?: string | null;
-            kind: components["schemas"]["KindEnum"];
+            kind: components["schemas"]["TermKindEnum"];
             /** @default  */
             name: string;
             /** Format: date */
@@ -2824,10 +2920,18 @@ export interface components {
             ends_on?: string | null;
             children?: components["schemas"]["TermInputLeafRequest"][];
         };
+        /**
+         * @description * `semester` - Semester
+         *     * `trimester` - Term (trimester)
+         *     * `period` - Period
+         *     * `exam` - Exams
+         * @enum {string}
+         */
+        TermKindEnum: "semester" | "trimester" | "period" | "exam";
         TermLeaf: {
             /** Format: uuid */
             id: string;
-            kind: components["schemas"]["KindEnum"];
+            kind: components["schemas"]["TermKindEnum"];
             /** @description Vide : l'interface affiche le nom traduit d'après le genre et la place (« 1re période », « Examens du 1er semestre »). */
             name: string;
             /** Format: date */
@@ -3288,11 +3392,13 @@ export interface operations {
                  *     * `finance.fee_rules_copied` - Fee rules copied from another school year
                  *     * `finance.exchange_rate_set` - Exchange rate set
                  *     * `finance.charges_rescheduled` - Custom schedule set
+                 *     * `finance.discount_granted` - Discount granted
+                 *     * `finance.discount_revoked` - Discount revoked
                  *     * `audit.exported` - Audit log exported
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -3487,11 +3593,13 @@ export interface operations {
                  *     * `finance.fee_rules_copied` - Fee rules copied from another school year
                  *     * `finance.exchange_rate_set` - Exchange rate set
                  *     * `finance.charges_rescheduled` - Custom schedule set
+                 *     * `finance.discount_granted` - Discount granted
+                 *     * `finance.discount_revoked` - Discount revoked
                  *     * `audit.exported` - Audit log exported
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -4358,6 +4466,161 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    discounts_list: {
+        parameters: {
+            query: {
+                /** @description Inscription de l'élève pour une année. */
+                enrollment: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Discount"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    discounts_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiscountCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["DiscountCreateRequest"];
+                "multipart/form-data": components["schemas"]["DiscountCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Discount"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    discounts_revoke_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this discount. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiscountRevokeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["DiscountRevokeRequest"];
+                "multipart/form-data": components["schemas"]["DiscountRevokeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Discount"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

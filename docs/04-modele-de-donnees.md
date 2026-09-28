@@ -87,7 +87,7 @@ Règles :
 
 **StudentCharge [T]** — ce que doit un élève, créé automatiquement à partir des barèmes applicables quand il est inscrit (et recalculé si le barème change, tant qu'aucun paiement n'est affecté) : `enrollment`, `fee_type`, `label`, `amount_minor`, `currency`, `due_on`, `source` (`rule`, `custom`), `installment_template` (optionnel).
 
-**Discount [T]** — `enrollment`, `fee_type` (optionnel = tous), `kind` (`amount`, `percent`), `value`, `reason_code` (`staff_child`, `sibling`, `scholarship`, `waiver`, `other`), `note`, `approved_by`.
+**Discount [T]** — `enrollment`, `fee_type` (optionnel = tous les frais, pourcentage seulement), `kind` (`amount`, `percent`), `percent` (entier de 1 à 100) ou `amount_minor` + `currency` (devise du frais, jamais plus que le frais), `reason_code` (`staff_child`, `sibling`, `scholarship`, `waiver`, `other`), `reason` (motif obligatoire) ; qui et quand : `created_by`, `created_at` ; retrait : `revoked_at`, `revoked_by`, `revoke_reason` (jamais effacée). Son effet n'est pas stocké : réparti à la demande sur les frais dus actifs (règles ci-dessous).
 
 **CashRegister [T]** — caisse : `name`, `code`, `is_active`.
 
@@ -105,6 +105,7 @@ Règles :
 
 Règles :
 - Reste dû d'une charge = `amount_minor` − réductions applicables − allocations de paiements non annulés.
+- Réductions d'un élève (E3) : par type de frais et devise, elles s'additionnent (pourcentage du total arrondi demi supérieur, montant dans la même devise), plafonnées au total, puis se répartissent au prorata des échéances actives (écart d'arrondi sur les dernières) ; elles suivent donc changement de classe, barème modifié et échéancier particulier.
 - Répartition par défaut : charges non soldées triées par `due_on` puis `fee_type`. Le caissier peut modifier avant validation.
 - Un paiement dans une devise différente de la charge (décision Q4) : `rate_used` est toujours dans le sens USD → CDF, tel que saisi. Dollars vers francs : `allocation = received × rate_used` ; francs vers dollars : `allocation = received ÷ rate_used`, division en `Decimal` (jamais `× 1/rate`). Arrondi demi supérieur à l'unité de la devise de la charge (centime pour USD, franc pour CDF).
 - Échéancier particulier d'un élève (E4, décision Q1) : pas de modèle `PaymentSchedule` ; ce sont des `StudentCharge` avec `source=custom`.

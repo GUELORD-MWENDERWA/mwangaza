@@ -1,9 +1,11 @@
 from decimal import Decimal
 
 from rest_framework import serializers
+from rest_framework.exceptions import ErrorDetail
 
 from apps.core.money import Currency
 from apps.finance.models import (
+    Discount,
     ExchangeRate,
     FeeRule,
     FeeType,
@@ -150,6 +152,12 @@ class YearFilterSerializer(serializers.Serializer):
 
 class StudentChargeSerializer(serializers.ModelSerializer):
     fee_type_name = serializers.CharField(source="fee_type.name", read_only=True)
+    fee_category = serializers.ChoiceField(
+        source="fee_type.category", choices=FeeType.Category.choices, read_only=True
+    )
+    discount_minor = serializers.IntegerField(
+        read_only=True, help_text="Part des réductions de l'élève (E3) ; 0 si ce n'est plus dû."
+    )
 
     class Meta:
         model = StudentCharge
@@ -158,12 +166,14 @@ class StudentChargeSerializer(serializers.ModelSerializer):
             "enrollment",
             "fee_type",
             "fee_type_name",
+            "fee_category",
             "label",
             "amount_minor",
             "currency",
             "due_on",
             "source",
             "status",
+            "discount_minor",
         ]
 
 
@@ -189,3 +199,56 @@ class RescheduleSerializer(serializers.Serializer):
             for item in data["installments"]
         ]
         return data
+
+
+class DiscountSerializer(serializers.ModelSerializer):
+    fee_type_name = serializers.CharField(source="fee_type.name", read_only=True, allow_null=True)
+    granted_by = PersonSerializer(source="created_by", read_only=True, allow_null=True)
+    granted_at = serializers.DateTimeField(source="created_at", read_only=True)
+    revoked_by = PersonSerializer(read_only=True, allow_null=True)
+
+    class Meta:
+        model = Discount
+        fields = [
+            "id",
+            "enrollment",
+            "fee_type",
+            "fee_type_name",
+            "kind",
+            "percent",
+            "amount_minor",
+            "currency",
+            "reason_code",
+            "reason",
+            "granted_by",
+            "granted_at",
+            "revoked_at",
+            "revoked_by",
+            "revoke_reason",
+        ]
+
+
+class DiscountCreateSerializer(serializers.Serializer):
+    """Réduction (E3) : `percent` (1 à 100) pour un pourcentage, `amount_minor` dans la devise du
+    frais pour un montant ; `fee_type` vide : tous les frais (pourcentage seulement)."""
+
+    enrollment = serializers.PrimaryKeyRelatedField(queryset=Enrollment.objects)
+    fee_type = serializers.PrimaryKeyRelatedField(
+        queryset=FeeType.objects, allow_null=True, default=None
+    )
+    kind = serializers.ChoiceField(choices=Discount.Kind.choices)
+    percent = serializers.IntegerField(min_value=1, max_value=100, required=False)
+    amount_minor = serializers.IntegerField(min_value=1, max_value=MAX_AMOUNT_MINOR, required=False)
+    reason_code = serializers.ChoiceField(choices=Discount.Reason.choices)
+    reason = serializers.CharField(max_length=200)
+
+    def validate(self, attrs: dict) -> dict:
+        field = "percent" if attrs["kind"] == Discount.Kind.PERCENT else "amount_minor"
+        if attrs.get(field) is None:
+            message = self.fields[field].error_messages["required"]
+            raise serializers.ValidationError({field: [ErrorDetail(message, code="required")]})
+        return attrs
+
+
+class DiscountRevokeSerializer(serializers.Serializer):
+    reason = serializers.CharField(max_length=200)

@@ -97,6 +97,8 @@ class Action(models.TextChoices):
     )
     FINANCE_EXCHANGE_RATE_SET = "finance.exchange_rate_set", _("Exchange rate set")
     FINANCE_CHARGES_RESCHEDULED = "finance.charges_rescheduled", _("Custom schedule set")
+    FINANCE_DISCOUNT_GRANTED = "finance.discount_granted", _("Discount granted")
+    FINANCE_DISCOUNT_REVOKED = "finance.discount_revoked", _("Discount revoked")
 
     # Le journal lui-même (M6) : chaque export est noté.
     AUDIT_EXPORTED = "audit.exported", _("Audit log exported")

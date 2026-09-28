@@ -4,7 +4,7 @@ from decimal import Decimal
 
 import pytest
 
-from apps.core.money import Currency, CurrencyMismatchError, Money
+from apps.core.money import Currency, CurrencyMismatchError, Money, percent_of, prorate
 
 USD = Currency.USD
 CDF = Currency.CDF
@@ -193,3 +193,35 @@ def test_convert_refuses_rate_that_is_not_decimal(rate):
 def test_convert_refuses_zero_or_negative_rate(rate):
     with pytest.raises(ValueError):
         Money(100, USD).convert(CDF, rate)
+
+
+# Réductions (E3)
+
+
+@pytest.mark.parametrize(
+    ("amount", "percent", "expected"),
+    [(36000, 25, 9000), (12345, 10, 1235), (12344, 10, 1234), (25000, 100, 25000), (999, 0, 0)],
+)
+def test_percent_rounds_half_up_to_the_unit(amount, percent, expected):
+    assert percent_of(amount, percent) == expected
+
+
+@pytest.mark.parametrize(
+    ("total", "weights", "expected"),
+    [
+        (9000, [12000, 12000, 12000], [3000, 3000, 3000]),
+        (5000, [12000, 12000, 12000], [1667, 1667, 1666]),
+        (1000, [10000, 5000, 5000], [500, 250, 250]),
+        (2, [1, 1, 1], [1, 1, 0]),
+        (36000, [12000, 12000, 12000], [12000, 12000, 12000]),
+    ],
+)
+def test_prorate_adds_up_exactly_and_the_last_parts_absorb_the_rounding(total, weights, expected):
+    assert prorate(total, weights) == expected
+
+
+def test_prorate_and_percent_refuse_floats():
+    with pytest.raises(TypeError):
+        prorate(10.0, [1, 2])
+    with pytest.raises(TypeError):
+        percent_of(1000, 12.5)
