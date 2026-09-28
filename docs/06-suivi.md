@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.1.2 terminée, PR à fusionner |
+| Tâche en cours | aucune — 3.1.2 terminée, PR #100 à fusionner |
 | Prochaine tâche | 3.2 — reçu dans le navigateur |
 | Issue GitHub | #21 (3.1, fermée par la PR de la 3.1.2) |
-| Branche | `tache/3.1.2-ecrans-caisse` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/3.1.2-ecrans-caisse` (PR #100) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-28 |
 
 ## Avancement
