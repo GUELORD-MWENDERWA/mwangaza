@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { manage } from "./django";
+import { allowCodeAgain, manage } from "./django";
 import { enterCode, enterPassword, ITIG } from "./helpers";
 
 /** Un élève de la démonstration qui n'a encore rien payé et doit des frais en dollars. */
@@ -23,6 +23,8 @@ with use_school(School.objects.get(code="itig")):
 
 test("caissière : ouvre sa caisse, encaisse, voit le paiement du jour", async ({ page }) => {
   const student = unpaidStudent();
+  // La caissière se connecte aussi dans d'autres parcours : un code ne sert qu'une fois.
+  allowCodeAgain("+243000001005");
   await page.goto(`${ITIG}cash`);
   await enterPassword(page, "0000001005");
   await enterCode(page);

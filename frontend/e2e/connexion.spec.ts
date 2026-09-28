@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { shell, totp } from "./django";
+import { allowCodeAgain, shell, totp } from "./django";
 import { enterCode, enterPassword, ITIG, mainMenu, VOLCANS } from "./helpers";
 
 test("directeur : mot de passe puis code, menu complet, Mon compte, menu tiroir", async ({
@@ -43,6 +43,7 @@ test("directeur : mot de passe puis code, menu complet, Mon compte, menu tiroir"
 test("caissière : seulement la caisse ; un écran interdit ouvert par son adresse → 403", async ({
   page,
 }) => {
+  allowCodeAgain("+243000001005");
   await page.goto(ITIG);
   await enterPassword(page, "0000001005");
   await enterCode(page);
