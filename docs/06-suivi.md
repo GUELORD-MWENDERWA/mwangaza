@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.4 terminée, PR à fusionner |
+| Tâche en cours | aucune — 3.4 terminée, PR #106 à fusionner |
 | Prochaine tâche | 3.5 — caisse hors-ligne complète |
 | Issue GitHub | #24 |
-| Branche | `tache/3.4-synchro-front` (PR à venir) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/3.4-synchro-front` (PR #106) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-29 |
 
 ## Avancement
@@ -58,7 +58,7 @@ Entrée la plus récente en haut. Format : date — titre, puis fait / tests / d
 - Fait : base Dexie par appareil mémorisé (inscriptions, configuration, file d'opérations) ; synchronisation à l'ouverture, au retour du réseau, toutes les 60 s et « Synchroniser maintenant » (envoi, puis instantané ou changements) ; indicateur complet avec détail ; bandeau « stockage refusé » ; mise à jour installée seulement file vide ; appareil déconnecté → données effacées.
 - Tests : 6 du moteur (instantané repris après coupure, changements, envoi par 100, refus gardés, réseau coupé, appareil déconnecté), 1 de la mise à jour, 1 Playwright (800 inscriptions sur l'appareil, hors ligne puis retour).
 - Décisions (`03`) : état du serveur jamais modifié sur l'appareil, opérations superposées (3.5) ; bandeau en 3.4, page bloquante sur la caisse hors ligne en 3.5 ; écran « Appareils et synchro » et démarrage sans réseau → 3.7.
-- Suite : 3.5 — caisse hors-ligne complète.
+- Suite : PR #106 à fusionner, puis 3.5 — caisse hors-ligne complète.
 
 ### 2026-09-29 — Tâche 3.3.2 : synchronisation serveur
 - Fait : `SyncOperation`, `ChangeLog` ; `/api/sync/snapshot/` (pages d'inscriptions + configuration), `/pull/` (changements depuis un numéro), `/push/` (opérations appliquées une fois) ; opération `payment.create` (numéro de reçu de l'appareil, heure de l'appareil) ; `Payment.device` et `synced_at`. Rien de visible : l'écran vient en 3.4.
