@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.1.2 terminée, PR #100 à fusionner |
-| Prochaine tâche | 3.2 — reçu dans le navigateur |
-| Issue GitHub | #21 (3.1, fermée par la PR de la 3.1.2) |
-| Branche | `tache/3.1.2-ecrans-caisse` (PR #100) ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 3.2.1 terminée, PR #101 à fusionner |
+| Prochaine tâche | 3.2.2 — reçu dans le navigateur |
+| Issue GitHub | #22 (3.2, reste ouverte jusqu'à la 3.2.3) |
+| Branche | `tache/3.2.1-parametres-recus` (PR #101) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-28 |
 
 ## Avancement
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 2 | 9 |
+| Semaine 3 — Caisse et hors-ligne | 3 | 11 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **19** | **34** |
+| **V1.0** | **20** | **36** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -59,6 +59,12 @@ Entrée la plus récente en haut. Format : date — titre, puis fait / tests / d
 - Tests : `convert` identique au serveur (7 cas d'arrondi), répartition (3), écrans (ouverture ; répartition envoyée, même `id` après une coupure, surplus bloqué), Playwright caissière (ouvre, encaisse avec double F9, un seul paiement).
 - Décisions : répartition calculée dans le navigateur et envoyée telle quelle (`03`) ; bouton « Encaisser » (impression du reçu : 3.2) ; pas de montants rapides fixes (20 $, 50 $) : en dur pour une école.
 - Suite : 3.2 (reçu).
+
+### 2026-09-28 — Tâche 3.2.1 : paramètres des reçus
+- Fait : 3.2 découpée en trois avec l'accord de l'utilisateur (3.2.1 paramètres, 3.2.2 reçu dans le navigateur, 3.2.3 vérification publique) ; `School.settings.receipt` (imprimante, taille sur A4, exemplaires, en-tête, mention) et `School.logo_monochrome` ; carte « Reçus » et logo noir et blanc dans les paramètres ; `make demo` : réglages fictifs.
+- Tests : réglages fusionnés et journalisés, valeurs refusées, 403, logo noir et blanc isolé par école ; écran : envoi des réglages. `make test` : 835 + 169.
+- Décisions : bibliothèque `uqr` acceptée pour le QR code (installée en 3.2.2) ; adresse, téléphone, e-mail dans les lignes d'en-tête (pas de champs séparés, à valider dans la PR) ; `03`.
+- Suite : 3.2.2 — reçu dans le navigateur.
 
 ### 2026-09-28 — Tâche 3.1.1 : encaissement côté serveur
 - Fait : 3.1 découpée (3.1.1 serveur, 3.1.2 écrans ; réduction sur échéance payée → 3.6) ; caisses, sessions (une par caisse et par caissier), paiements immuables avec répartition par défaut ou ajustée, conversion, taux de l'année ou dernier connu, reçu `ITIG-C1-26-000001` ; `/api/cash-registers/`, `/api/cash-sessions/` (+ `current/`), `/api/payments/` ; le solde compte les paiements non annulés ; `make demo` : caisses et paiements depuis la rentrée.
