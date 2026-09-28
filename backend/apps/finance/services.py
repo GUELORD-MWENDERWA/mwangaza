@@ -1,10 +1,10 @@
 """Configuration des frais de l'école courante (E1, E2, E5) : types de frais, barèmes et leurs
 tranches, taux de change de l'année, reprise des barèmes dans une nouvelle année (C1) ; frais
 dus des élèves, tirés des barèmes (2.6) ou d'un échéancier particulier (E4) ; réductions (E3) ;
-solde et retards d'un élève (2.7).
+solde et retards d'un élève (2.7) ; caisses, sessions de caisse et encaissement (F1-F2).
 
-Droits `finance.configure_fees`, `finance.set_exchange_rate` et `finance.grant_discount`,
-vérifiés par l'API. Chaque
+Droits `finance.configure_fees`, `finance.set_exchange_rate`, `finance.grant_discount` et
+`finance.collect_payment`, vérifiés par l'API. Chaque
 changement va dans le journal de l'école (domaine `finance`), dans la transaction de l'action.
 Montants en entiers dans la devise du barème (skill `argent`).
 """
@@ -14,10 +14,12 @@ from copy import copy
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
+from uuid import UUID
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import ProtectedError, QuerySet
+from django.db.models import BigIntegerField, Count, ProtectedError, Q, QuerySet, Sum
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -28,13 +30,18 @@ from apps.core.errors import ApiError, BusinessError
 from apps.core.money import Currency, Money, percent_of, prorate
 from apps.core.tenancy import require_current_school, use_school
 from apps.finance.models import (
+    CashRegister,
+    CashSession,
     Discount,
     ExchangeRate,
     FeeRule,
     FeeType,
     InstallmentTemplate,
+    Payment,
+    PaymentAllocation,
     StudentCharge,
 )
+from apps.schools import organisation
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment
 
@@ -50,6 +57,29 @@ FEE_RULE_EXISTS = ApiError(
     "fee_rule_exists", _("This fee already has a fee rule for this scope this school year."), 409
 )
 DISCOUNT_REVOKED = ApiError("discount_revoked", _("This discount was already revoked."), 409)
+CASH_REGISTER_TAKEN = ApiError(
+    "cash_register_taken",
+    _("The school already has a cash register with this name or code."),
+    409,
+)
+CASH_REGISTER_INACTIVE = ApiError(
+    "cash_register_inactive", _("This cash register is deactivated."), 409
+)
+CASH_REGISTER_BUSY = ApiError(
+    "cash_register_busy", _("Another cashier already has this cash register open."), 409
+)
+SESSION_ALREADY_OPEN = ApiError(
+    "session_already_open", _("You already have a cash register open: close it first."), 409
+)
+NO_OPEN_SESSION = ApiError(
+    "no_open_session", _("Open a cash register before collecting payments."), 409
+)
+NO_EXCHANGE_RATE = ApiError(
+    "no_exchange_rate", _("The accountant must first set the exchange rate of the year."), 409
+)
+PAYMENT_ID_TAKEN = ApiError(
+    "payment_id_taken", _("Another payment already has this identifier."), 409
+)
 
 
 def _invalid(path: str, message, code: str, **params) -> ValidationError:
@@ -414,9 +444,10 @@ def sync_charges(
     leur année (tous, ou ceux de `fee_type`) : une ligne par tranche du barème le plus précis,
     montant et date à jour ; une tranche qui ne s'applique plus passe « retirée », une tranche
     retirée qui s'applique de nouveau redevient due. Un élève parti garde ses frais tels quels,
-    comme un type de frais sous échéancier particulier (E4). Les frais déjà payés ne bougeront
-    pas (3.1). En quelques requêtes, quel que soit le nombre d'élèves. Renvoie le nombre
-    d'élèves dont les frais ont changé."""
+    comme un type de frais sous échéancier particulier (E4). Un frais déjà payé, même en partie,
+    ne bouge plus ; s'il ne s'applique plus (changement de classe), il tient la place de la
+    tranche de même rang et de même devise, qui n'est pas ajoutée. En quelques requêtes, quel
+    que soit le nombre d'élèves. Renvoie le nombre d'élèves dont les frais ont changé."""
     with transaction.atomic():
         enrollments = list(
             enrollments.filter(status=Enrollment.Status.ACTIVE)
@@ -433,7 +464,8 @@ def sync_charges(
         existing = StudentCharge.objects.filter(enrollment__in=enrollments)
         if fee_type is not None:
             rules, existing = rules.filter(fee_type=fee_type), existing.filter(fee_type=fee_type)
-        existing = list(existing)
+        paid = paid_charge_ids(existing)
+        existing = list(existing.select_related("installment_template"))
         rules_by_year, charges_by_enrollment = defaultdict(list), defaultdict(list)
         for rule in rules:
             rules_by_year[rule.academic_year_id].append(rule)
@@ -455,10 +487,19 @@ def sync_charges(
                 year_rules = rules_by_year[enrollment.academic_year_id]
                 wanted_by_class[group.pk] = _wanted(year_rules, group)
             wanted = wanted_by_class[group.pk]
+            held = {
+                (charge.fee_type_id, charge.currency, charge.installment_template.order)
+                for charge in current
+                if charge.pk in paid
+                and charge.installment_template_id is not None
+                and charge.installment_template_id not in wanted
+            }
             for charge in current:
+                if charge.pk in paid:
+                    continue
                 target = wanted.get(charge.installment_template_id)
                 values = {"status": StudentCharge.Status.REMOVED}
-                if target is not None:
+                if target is not None and _slot(*target) not in held:
                     rule, template = target
                     values = {
                         "status": StudentCharge.Status.ACTIVE,
@@ -475,7 +516,11 @@ def sync_charges(
                     changed.add(enrollment.pk)
             have = {charge.installment_template_id for charge in current}
             for template_id, (rule, template) in wanted.items():
-                if template_id not in have and (enrollment.pk, rule.fee_type_id) not in custom:
+                if (
+                    template_id not in have
+                    and (enrollment.pk, rule.fee_type_id) not in custom
+                    and _slot(rule, template) not in held
+                ):
                     to_create.append(
                         StudentCharge(
                             enrollment=enrollment,
@@ -497,6 +542,20 @@ def sync_charges(
             batch_size=500,
         )
     return len(changed)
+
+
+def paid_charge_ids(charges: QuerySet) -> set:
+    """Frais dus de `charges` qui ont reçu un paiement non annulé, même en partie."""
+    return set(
+        PaymentAllocation.objects.filter(
+            student_charge__in=charges, payment__cancellation__isnull=True
+        ).values_list("student_charge_id", flat=True)
+    )
+
+
+def _slot(rule: FeeRule, template: InstallmentTemplate) -> tuple:
+    """Place d'une tranche parmi les frais dus de l'élève : type de frais, devise, rang."""
+    return (rule.fee_type_id, rule.currency, template.order)
 
 
 def _sync_rule(rule: FeeRule, actor: User) -> int:
@@ -522,7 +581,7 @@ def reschedule_charges(
     reason: str,
     parent_signed: bool,
 ) -> list[StudentCharge]:
-    """Arrangement avec la famille (E4) : les frais dus de `fee_type` pas encore payés passent
+    """Arrangement avec la famille (E4) : les frais dus de `fee_type` sans aucun paiement passent
     « remplacés », et `installments` (même devise, même total au centime près) deviennent ce que
     doit l'élève (`source=custom`). Rien n'est effacé ; ce type de frais ne suit plus les
     barèmes pour cet élève (`sync_charges`). Renvoie les nouveaux frais dus."""
@@ -540,12 +599,11 @@ def reschedule_charges(
         if enrollment.status != Enrollment.Status.ACTIVE:
             message = _("Only a student enrolled this year can get a custom schedule.")
             raise _invalid("enrollment", message, "enrollment_not_active")
-        # 3.1 : sans les frais déjà payés, même en partie (un paiement affecté ne bouge jamais).
-        replaced = list(
-            StudentCharge.objects.filter(
-                enrollment=enrollment, fee_type=fee_type, status=StudentCharge.Status.ACTIVE
-            ).order_by("due_on", "label")
+        # Sans les frais déjà payés, même en partie : un paiement affecté ne bouge jamais.
+        active = StudentCharge.objects.filter(
+            enrollment=enrollment, fee_type=fee_type, status=StudentCharge.Status.ACTIVE
         )
+        replaced = list(active.exclude(pk__in=paid_charge_ids(active)).order_by("due_on", "label"))
         if not replaced:
             message = _("The student owes nothing unpaid for this fee.")
             raise _invalid("fee_type", message, "nothing_to_reschedule")
@@ -759,8 +817,7 @@ def _settle(charges: list[StudentCharge], discounts: list[Discount], day: date) 
     shares = discount_shares(charges, discounts)
     for charge in charges:
         charge.discount_minor = shares.get(charge.pk, 0)
-        # Allocations des paiements non annulés : avec les paiements (3.1).
-        charge.paid_minor = 0
+        charge.paid_minor = getattr(charge, "paid_total", 0)
         if charge.status != StudentCharge.Status.ACTIVE:
             charge.remaining_minor, charge.state = 0, None
             continue
@@ -773,7 +830,15 @@ def _settle(charges: list[StudentCharge], discounts: list[Discount], day: date) 
 
 
 def _ordered(charges: QuerySet) -> QuerySet:
-    return charges.select_related("fee_type").order_by("due_on", "fee_type__name", "label")
+    """Avec `paid_total` : allocations des paiements non annulés."""
+    paid = Sum(
+        "allocations__amount_minor", filter=Q(allocations__payment__cancellation__isnull=True)
+    )
+    return (
+        charges.select_related("fee_type")
+        .annotate(paid_total=Coalesce(paid, 0, output_field=BigIntegerField()))
+        .order_by("due_on", "fee_type__name", "label")
+    )
 
 
 def charges_of(enrollment_id) -> list[StudentCharge]:
@@ -854,9 +919,11 @@ def balance(charges: list[StudentCharge]) -> Balance:
 
 
 def currencies_in_use(school: School) -> set[str]:
-    """Devises des barèmes de l'école, toutes années confondues (plus tard : des paiements)."""
+    """Devises des barèmes et des paiements de l'école, toutes années confondues."""
     with use_school(school):
-        return set(FeeRule.objects.values_list("currency", flat=True).distinct())
+        rules = FeeRule.objects.values_list("currency", flat=True).distinct()
+        payments = Payment.objects.values_list("received_currency", flat=True).distinct()
+        return set(rules) | set(payments)
 
 
 # Taux de l'année (E5)
@@ -903,3 +970,311 @@ def set_exchange_rate(
             label=academic_year.name,
         )
     return new
+
+
+# Caisses et paiements (F1-F2)
+
+
+def _cash_register_data(register: CashRegister) -> dict:
+    return {"name": register.name, "code": register.code, "is_active": register.is_active}
+
+
+def _check_cash_register(*, name: str, code: str = "", register_id=None) -> None:
+    taken = Q(name__iexact=name) | Q(code=code) if code else Q(name__iexact=name)
+    if CashRegister.objects.filter(taken).exclude(pk=register_id).exists():
+        raise BusinessError(CASH_REGISTER_TAKEN)
+
+
+def create_cash_register(*, actor: User, name: str, code: str) -> CashRegister:
+    require_current_school()
+    with transaction.atomic():
+        _check_cash_register(name=name, code=code)
+        register = CashRegister.objects.create(name=name, code=code, created_by=actor)
+        audit.record(
+            Action.FINANCE_CASH_REGISTER_CREATED,
+            register,
+            actor=actor,
+            after=_cash_register_data(register),
+        )
+    return register
+
+
+def update_cash_register(register: CashRegister, *, actor: User, **fields) -> CashRegister:
+    """Nom et activation ; le code, qui est dans les numéros des reçus, ne change pas."""
+    with transaction.atomic():
+        if "name" in fields:
+            _check_cash_register(name=fields["name"], register_id=register.pk)
+        before, label = _cash_register_data(register), str(register)
+        for field, value in fields.items():
+            setattr(register, field, value)
+        before, after = audit.changes(before, _cash_register_data(register))
+        if after:
+            register.save()
+            audit.record(
+                Action.FINANCE_CASH_REGISTER_UPDATED,
+                register,
+                actor=actor,
+                before=before,
+                after=after,
+                label=label,
+            )
+    return register
+
+
+def open_session_of(user: User) -> CashSession | None:
+    """La session de caisse ouverte du caissier, s'il en a une."""
+    return (
+        CashSession.objects.select_related("cash_register", "cashier")
+        .filter(cashier=user, closed_at__isnull=True)
+        .first()
+    )
+
+
+def open_cash_session(*, actor: User, cash_register: CashRegister, session_id=None) -> CashSession:
+    """Ouvre une caisse pour le caissier (M13) : une seule session ouverte par caisse et par
+    caissier, jusqu'à la clôture (3.8). `session_id` : identifiant donné par l'appareil ; la
+    même ouverture envoyée deux fois renvoie la même session."""
+    with transaction.atomic():
+        register = CashRegister.objects.select_for_update().get(pk=cash_register.pk)
+        current = open_session_of(actor)
+        if current is not None and session_id is not None and current.pk == session_id:
+            return current
+        if not register.is_active:
+            raise BusinessError(CASH_REGISTER_INACTIVE)
+        if current is not None:
+            raise BusinessError(SESSION_ALREADY_OPEN)
+        if register.sessions.filter(closed_at__isnull=True).exists():
+            raise BusinessError(CASH_REGISTER_BUSY)
+        session = CashSession.objects.create(
+            **({"id": session_id} if session_id else {}),
+            cash_register=register,
+            cashier=actor,
+            created_by=actor,
+        )
+        audit.record(
+            Action.FINANCE_CASH_SESSION_OPENED,
+            session,
+            actor=actor,
+            after={"cash_register": register.code},
+            label=str(register),
+        )
+    return open_session_of(actor)
+
+
+def payment_rate() -> tuple[ExchangeRate | None, bool]:
+    """Taux des encaissements (M13) : celui de l'année en cours, sinon le dernier connu de
+    l'école (`True` : à signaler au comptable)."""
+    year = organisation.current_year()
+    rate = current_rate(year) if year is not None else None
+    if rate is not None:
+        return rate, False
+    rate = ExchangeRate.objects.order_by("-created_at", "-id").first()
+    return rate, rate is not None
+
+
+def session_totals(session: CashSession) -> list[dict]:
+    """Paiements non annulés de la session, par devise (dollars d'abord), jamais additionnés."""
+    rows = {
+        row["received_currency"]: row
+        for row in Payment.objects.filter(cash_session=session, cancellation__isnull=True)
+        .values("received_currency")
+        .annotate(amount_minor=Sum("received_amount_minor"), count=Count("id"))
+        .order_by()
+    }
+    return [
+        {
+            "currency": currency,
+            "amount_minor": rows[currency]["amount_minor"],
+            "count": rows[currency]["count"],
+        }
+        for currency in Currency.values
+        if currency in rows
+    ]
+
+
+@dataclass(frozen=True)
+class Part:
+    """Part du montant reçu pour un frais dû, dans la devise reçue (ajustement, F2)."""
+
+    student_charge_id: UUID
+    received_minor: int
+
+
+def _convert(amount_minor: int, source: str, target: str, rate: Decimal | None) -> int:
+    if source == target:
+        return amount_minor
+    return Money(amount_minor, source).convert(target, rate).amount_minor
+
+
+def _part_for(charge: StudentCharge, currency: str, rate: Decimal | None) -> int:
+    """Plus grande part de la devise reçue dont la conversion ne dépasse pas le reste dû."""
+    part = _convert(charge.remaining_minor, charge.currency, currency, rate)
+    while part > 0 and _convert(part, currency, charge.currency, rate) > charge.remaining_minor:
+        part -= 1
+    return part
+
+
+def allocate(
+    charges: list[StudentCharge], received: Money, rate: Decimal | None, *, convert: bool = False
+) -> list[tuple[StudentCharge, int, int]]:
+    """Répartition par défaut (F2) des frais dus d'un élève (`charges_of`) : ceux qui restent
+    à payer dans la devise reçue d'abord, puis, avec `convert`, ceux de l'autre devise (au taux
+    du paiement) ; échéances les plus anciennes d'abord. Renvoie (frais, part reçue, montant dans
+    la devise du frais) ; le reste éventuel du montant reçu n'est affecté à rien."""
+    owed = [charge for charge in charges if charge.state and charge.remaining_minor > 0]
+    ordered = [charge for charge in owed if charge.currency == received.currency]
+    if convert:
+        ordered += [charge for charge in owed if charge.currency != received.currency]
+    left, lines = received.amount_minor, []
+    for charge in ordered:
+        part = min(left, _part_for(charge, received.currency, rate))
+        if part > 0:
+            lines.append((charge, part, _convert(part, received.currency, charge.currency, rate)))
+            left -= part
+    return lines
+
+
+def _check_parts(
+    charges: list[StudentCharge], parts: list[Part], received: Money, rate: Decimal | None
+) -> list[tuple[StudentCharge, int, int]]:
+    """Répartition ajustée par le caissier : des frais que l'élève doit encore, chacun une fois,
+    sans dépasser son reste, et dont les parts font le montant reçu."""
+    owed = {charge.pk: charge for charge in charges if charge.state and charge.remaining_minor > 0}
+    lines = []
+    for index, part in enumerate(parts):
+        charge = owed.pop(part.student_charge_id, None)
+        if charge is None:
+            message = _("The student does not owe this fee, or it appears twice.")
+            raise _invalid(f"allocations.{index}.student_charge", message, "not_owed")
+        if charge.currency != received.currency and rate is None:
+            raise BusinessError(NO_EXCHANGE_RATE)
+        amount = _convert(part.received_minor, received.currency, charge.currency, rate)
+        if not 0 < amount <= charge.remaining_minor:
+            message = _("This part is more than what is left to pay on this fee, or too small.")
+            raise _invalid(f"allocations.{index}.received_minor", message, "not_within_due")
+        lines.append((charge, part.received_minor, amount))
+    if sum(part for _charge, part, _amount in lines) != received.amount_minor:
+        message = _("The parts must add up to the amount received.")
+        raise _invalid("allocations", message, "allocations_total_mismatch")
+    return lines
+
+
+def _next_receipt_number(school: School, register: CashRegister, year: AcademicYear) -> str:
+    """`ITIG-C1-26-000184` : école, caisse, année scolaire de l'inscription, séquence. Appelé
+    sous le verrou de la caisse."""
+    prefix = f"{school.code.upper()}-{register.code}-{year.starts_on:%y}-"
+    last = (
+        Payment.objects.filter(receipt_number__startswith=prefix)
+        .order_by("-receipt_number")
+        .values_list("receipt_number", flat=True)
+        .first()
+    )
+    sequence = int(last.removeprefix(prefix)) + 1 if last else 1
+    return f"{prefix}{sequence:06d}"
+
+
+def _same_payment(payment: Payment, enrollment: Enrollment, actor: User, received: Money) -> bool:
+    return (
+        payment.enrollment_id == enrollment.pk
+        and payment.cashier_id == actor.pk
+        and Money(payment.received_amount_minor, payment.received_currency) == received
+    )
+
+
+def record_payment(
+    enrollment: Enrollment,
+    *,
+    actor: User,
+    received_amount_minor: int,
+    received_currency: str,
+    parts: list[Part] | None = None,
+    convert: bool = False,
+    note: str = "",
+    payment_id=None,
+) -> tuple[Payment, bool]:
+    """Encaisse un paiement (F2) dans la session ouverte du caissier, au taux de `payment_rate`,
+    réparti par défaut (`allocate`) ou comme l'a ajusté le caissier (`parts`). Jamais plus que
+    ce que doit l'élève (le crédit vient en 3.6). Le même `payment_id` envoyé deux fois (double
+    clic, nouvel essai) ne donne qu'un paiement : renvoyé avec `False`."""
+    school = require_current_school()
+    received = Money(received_amount_minor, received_currency)
+    with transaction.atomic():
+        session = open_session_of(actor)
+        if session is None:
+            raise BusinessError(NO_OPEN_SESSION)
+        # Un paiement à la fois par caisse : séquence des reçus, double envoi.
+        register = CashRegister.objects.select_for_update().get(pk=session.cash_register_id)
+        existing = Payment.objects.filter(pk=payment_id).first() if payment_id else None
+        if existing is not None:
+            if not _same_payment(existing, enrollment, actor, received):
+                raise BusinessError(PAYMENT_ID_TAKEN)
+            return existing, False
+        if not register.is_active:
+            raise BusinessError(CASH_REGISTER_INACTIVE)
+        if received_currency not in school.enabled_currencies:
+            message = _("The school does not use this currency.")
+            raise _invalid("received_currency", message, "currency_not_used")
+        rate, _fallback = payment_rate()
+        if rate is None and (convert or len(school.enabled_currencies) > 1):
+            raise BusinessError(NO_EXCHANGE_RATE)
+        rate_used = rate.rate if rate is not None else None
+        # Deux caisses pour le même élève : l'une après l'autre, sur des restes à jour.
+        enrollment = (
+            Enrollment.objects.select_related("academic_year", "student")
+            .select_for_update(of=("self",))
+            .get(pk=enrollment.pk)
+        )
+        charges = charges_of(enrollment.pk)
+        if parts is None:
+            lines = allocate(charges, received, rate_used, convert=convert)
+            if sum(part for _charge, part, _amount in lines) != received_amount_minor:
+                message = _("This is more than what the student owes: give back the change.")
+                raise _invalid("received_amount_minor", message, "more_than_due")
+        else:
+            lines = _check_parts(charges, parts, received, rate_used)
+
+        number = _next_receipt_number(school, register, enrollment.academic_year)
+        payment = Payment.objects.create(
+            **({"id": payment_id} if payment_id else {}),
+            enrollment=enrollment,
+            cash_session=session,
+            cashier=actor,
+            received_amount_minor=received_amount_minor,
+            received_currency=received_currency,
+            rate_used=rate_used,
+            paid_at=timezone.now(),
+            receipt_number=number,
+            note=note.strip(),
+            created_by=actor,
+        )
+        PaymentAllocation.objects.bulk_create(
+            PaymentAllocation(
+                payment=payment,
+                student_charge=charge,
+                received_minor=part,
+                amount_minor=amount,
+                created_by=actor,
+            )
+            for charge, part, amount in lines
+        )
+        audit.record(
+            Action.FINANCE_PAYMENT_RECORDED,
+            payment,
+            actor=actor,
+            label=f"{number} · {enrollment.student}",
+            after={
+                "receipt_number": number,
+                "amount_minor": received_amount_minor,
+                "currency": received_currency,
+                **({"rate": _rate_text(rate_used)} if rate_used is not None else {}),
+                "allocations": [
+                    {
+                        "fee": f"{charge.fee_type.name} — {charge.label}",
+                        "amount_minor": amount,
+                        "currency": charge.currency,
+                    }
+                    for charge, _part, amount in lines
+                ],
+            },
+        )
+    return payment, True

@@ -387,11 +387,15 @@ describe("Élèves (D2-D4)", () => {
     );
   });
 
-  it("échéancier particulier : proposition mensuelle au total exact, rien d'envoyé si la somme ou le motif manque", async () => {
+  it("échéancier particulier : sans la tranche déjà payée en partie, proposition mensuelle au total exact, rien d'envoyé si la somme ou le motif manque", async () => {
+    const paid = [
+      charge(1, "1re tranche", "2026-10-15", { paid_minor: 5000 }),
+      ...charges.slice(1),
+    ];
     const requests = mockApi(
       routes("head", {
         ...card,
-        "GET /api/student-charges/": charges,
+        "GET /api/student-charges/": paid,
         "POST /api/student-charges/reschedule/": charges,
       }),
     );
@@ -406,13 +410,13 @@ describe("Élèves (D2-D4)", () => {
     });
     screen.getByText("✓ égal au reste à réorganiser");
     const last = screen.getByLabelText<HTMLInputElement>("Montant du versement 6");
-    expect(last.value).toBe("60,00");
+    expect(last.value).toBe("40,00");
     await user.clear(last);
-    await user.type(last, "59,99");
+    await user.type(last, "39,99");
     await user.click(screen.getByRole("button", { name: "Enregistrer l'échéancier" }));
     screen.getByText("La somme des versements doit égaler le reste à réorganiser.");
     await user.clear(last);
-    await user.type(last, "60");
+    await user.type(last, "40");
     await user.click(screen.getByRole("button", { name: "Enregistrer l'échéancier" }));
     await screen.findByText("Ce champ est obligatoire.");
     expect(posts(requests, "/api/student-charges/reschedule/")).toHaveLength(0);
@@ -431,7 +435,7 @@ describe("Élèves (D2-D4)", () => {
       parent_signed: true,
       installments: ["11-15", "12-15", "01-15", "02-15", "03-15", "04-15"].map((day, index) => ({
         label: `Versement ${index + 1}`,
-        amount_minor: 6000,
+        amount_minor: 4000,
         due_on: `${index < 2 ? 2026 : 2027}-${day}`,
       })),
     });

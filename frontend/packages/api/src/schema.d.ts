@@ -335,6 +335,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cash-registers/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Caisses de l'école (M13) : désactivées, jamais effacées ; le code ne change pas. */
+        get: operations["cash_registers_list"];
+        put?: never;
+        /** @description Caisses de l'école (M13) : désactivées, jamais effacées ; le code ne change pas. */
+        post: operations["cash_registers_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cash-registers/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Caisses de l'école (M13) : désactivées, jamais effacées ; le code ne change pas. */
+        patch: operations["cash_registers_partial_update"];
+        trace?: never;
+    };
+    "/api/cash-sessions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Sessions de caisse du caissier connecté (M13) : ouvrir une caisse, voir celle qui est
+         *     ouverte. La clôture vient en 3.8.
+         */
+        post: operations["cash_sessions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cash-sessions/current/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description La caisse ouverte du caissier (ou `null`), ses totaux et le taux des encaissements. */
+        get: operations["cash_sessions_current_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/class-groups/": {
         parameters: {
             query?: never;
@@ -802,6 +874,53 @@ export interface paths {
          *     (menu de la Gestion) et l'état de sa double authentification (Mon compte, M4).
          */
         patch: operations["me_partial_update"];
+        trace?: never;
+    };
+    "/api/payments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Paiements (F1-F2), les plus récents d'abord ; ni modifiables ni effaçables. Sans
+         *     `finance.view_reports`, seulement ceux des sessions du caissier. Création : 201, ou 200 si ce
+         *     paiement (même `id`) était déjà enregistré.
+         */
+        get: operations["payments_list"];
+        put?: never;
+        /**
+         * @description Paiements (F1-F2), les plus récents d'abord ; ni modifiables ni effaçables. Sans
+         *     `finance.view_reports`, seulement ceux des sessions du caissier. Création : 201, ou 200 si ce
+         *     paiement (même `id`) était déjà enregistré.
+         */
+        post: operations["payments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/payments/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Paiements (F1-F2), les plus récents d'abord ; ni modifiables ni effaçables. Sans
+         *     `finance.view_reports`, seulement ceux des sessions du caissier. Création : 201, ou 200 si ce
+         *     paiement (même `id`) était déjà enregistré.
+         */
+        get: operations["payments_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/roles/": {
@@ -1431,12 +1550,16 @@ export interface components {
          *     * `finance.charges_rescheduled` - Custom schedule set
          *     * `finance.discount_granted` - Discount granted
          *     * `finance.discount_revoked` - Discount revoked
+         *     * `finance.cash_register_created` - Cash register created
+         *     * `finance.cash_register_updated` - Cash register changed
+         *     * `finance.cash_session_opened` - Cash session opened
+         *     * `finance.payment_recorded` - Payment recorded
          *     * `audit.exported` - Audit log exported
          *     * `support.started` - Support session opened
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "audit.exported" | "support.started" | "support.ended";
         Address: {
             commune: string;
             quartier: string;
@@ -1506,6 +1629,39 @@ export interface components {
         };
         /** @enum {unknown} */
         BlankEnum: "";
+        CashRegister: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            /** @description C1 : dans le numéro des reçus, fixé à la création. */
+            code: string;
+            /** Active */
+            readonly is_active: boolean;
+        };
+        CashRegisterRequest: {
+            name: string;
+            /** @description C1 : dans le numéro des reçus, fixé à la création. */
+            code: string;
+        };
+        CashSession: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly cash_register: components["schemas"]["CashRegister"];
+            readonly cashier: components["schemas"]["Person"];
+            /** Format: date-time */
+            opened_at: string;
+            /** Format: date-time */
+            closed_at: string | null;
+        };
+        CashSessionOpenRequest: {
+            /**
+             * Format: uuid
+             * @description UUID v7 de l'appareil : un deuxième envoi rend la même session.
+             */
+            id?: string;
+            /** Format: uuid */
+            cash_register: string;
+        };
         ClassGroup: {
             /** Format: uuid */
             readonly id: string;
@@ -1576,6 +1732,19 @@ export interface components {
          * @enum {string}
          */
         CurrencyEnum: "USD" | "CDF";
+        /** @description Caisse ouverte du caissier (M13) et taux des encaissements. */
+        CurrentCashSession: {
+            session: components["schemas"]["CashSession"] | null;
+            /** @description Paiements non annulés de la session, par devise, jamais additionnés. */
+            totals: components["schemas"]["SessionTotal"][];
+            /**
+             * Format: decimal
+             * @description Francs pour 1 dollar.
+             */
+            rate: string | null;
+            /** @description Pas de taux cette année : dernier taux connu, à signaler au comptable. */
+            rate_is_fallback: boolean;
+        };
         /**
          * @description Informations publiques de l'école : écran de connexion (nom, couleur, logo) ; fuseau et
          *     devises pour les écrans (dates, montants).
@@ -2154,6 +2323,11 @@ export interface components {
             last_login_at: string | null;
         };
         /**
+         * @description * `cash` - Cash
+         * @enum {string}
+         */
+        MethodEnum: "cash";
+        /**
          * @description * `last_name` - last_name
          *     * `middle_name` - middle_name
          *     * `first_name` - first_name
@@ -2220,6 +2394,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["ImportLine"][];
         };
+        PaginatedPaymentList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Payment"][];
+        };
         PaginatedRoleList: {
             /** @example 123 */
             count: number;
@@ -2280,6 +2469,12 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["StudentList"][];
         };
+        PartRequest: {
+            /** Format: uuid */
+            student_charge: string;
+            /** Format: int64 */
+            received_minor: number;
+        };
         /**
          * @description Connexion en cours avec un mot de passe provisoire : `new_password` seul. Compte connecté :
          *     `current_password` aussi.
@@ -2294,6 +2489,11 @@ export interface components {
             starts_on?: string;
             /** Format: date */
             ends_on?: string;
+        };
+        PatchedCashRegisterUpdateRequest: {
+            name?: string;
+            /** Active */
+            is_active?: boolean;
         };
         PatchedClassGroupUpdateRequest: {
             /** Format: uuid */
@@ -2432,6 +2632,81 @@ export interface components {
         PatchedTrackUpdateRequest: {
             name?: string;
             code?: string;
+        };
+        Payment: {
+            /** Format: uuid */
+            readonly id: string;
+            receipt_number: string;
+            /** Format: uuid */
+            enrollment: string;
+            readonly student: components["schemas"]["PaymentStudent"];
+            readonly class_group: string;
+            readonly cash_register: string;
+            readonly cashier: components["schemas"]["Person"];
+            /**
+             * Amount received
+             * Format: int64
+             */
+            received_amount_minor: number;
+            /** Currency */
+            received_currency: components["schemas"]["CurrencyEnum"];
+            /** Format: decimal */
+            rate_used: string | null;
+            /** Format: date-time */
+            paid_at: string;
+            method: components["schemas"]["MethodEnum"];
+            note: string;
+            readonly cancelled: boolean;
+            readonly allocations: components["schemas"]["PaymentAllocation"][];
+        };
+        PaymentAllocation: {
+            /** Format: uuid */
+            student_charge: string;
+            readonly fee_type_name: string;
+            readonly label: string;
+            readonly currency: components["schemas"]["CurrencyEnum"];
+            /**
+             * Part of the amount received
+             * Format: int64
+             * @description Part du montant reçu, dans la devise reçue.
+             */
+            received_minor: number;
+            /**
+             * Amount
+             * Format: int64
+             * @description Montant affecté, dans la devise du frais.
+             */
+            amount_minor: number;
+        };
+        /**
+         * @description Encaissement (F2) : sans `allocations`, répartition par défaut (devise reçue d'abord,
+         *     échéances les plus anciennes) ; avec, la répartition ajustée par le caissier.
+         */
+        PaymentCreateRequest: {
+            /**
+             * Format: uuid
+             * @description UUID v7 de l'appareil : un deuxième envoi rend le même paiement.
+             */
+            id?: string;
+            /** Format: uuid */
+            enrollment: string;
+            /** Format: int64 */
+            received_amount_minor: number;
+            received_currency: components["schemas"]["CurrencyEnum"];
+            /**
+             * @description Répartition par défaut : aussi sur les frais de l'autre devise, convertis.
+             * @default false
+             */
+            convert: boolean;
+            allocations?: components["schemas"]["PartRequest"][];
+            /** @default  */
+            note: string;
+        };
+        PaymentStudent: {
+            /** Format: uuid */
+            id: string;
+            full_name: string;
+            matricule: string;
         };
         /**
          * @description * `school.configure` - Configure the school (name, logo, colour, currencies, receipts)
@@ -2605,6 +2880,11 @@ export interface components {
          * @enum {string}
          */
         SchoolStatusEnum: "trial" | "active" | "suspended";
+        SessionTotal: {
+            currency: components["schemas"]["CurrencyEnum"];
+            amount_minor: number;
+            count: number;
+        };
         /**
          * @description * `M` - Male
          *     * `F` - Female
@@ -2764,7 +3044,7 @@ export interface components {
             status: components["schemas"]["StudentChargeStatusEnum"];
             /** @description Part des réductions de l'élève (E3) ; 0 si ce n'est plus dû. */
             readonly discount_minor: number;
-            /** @description Paiements non annulés affectés à ce frais (0 avant la 3.1). */
+            /** @description Paiements non annulés affectés à ce frais. */
             readonly paid_minor: number;
             /** @description Reste dû : montant moins réductions et payé ; 0 si ce n'est plus dû. */
             readonly remaining_minor: number;
@@ -3468,11 +3748,15 @@ export interface operations {
                  *     * `finance.charges_rescheduled` - Custom schedule set
                  *     * `finance.discount_granted` - Discount granted
                  *     * `finance.discount_revoked` - Discount revoked
+                 *     * `finance.cash_register_created` - Cash register created
+                 *     * `finance.cash_register_updated` - Cash register changed
+                 *     * `finance.cash_session_opened` - Cash session opened
+                 *     * `finance.payment_recorded` - Payment recorded
                  *     * `audit.exported` - Audit log exported
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -3669,11 +3953,15 @@ export interface operations {
                  *     * `finance.charges_rescheduled` - Custom schedule set
                  *     * `finance.discount_granted` - Discount granted
                  *     * `finance.discount_revoked` - Discount revoked
+                 *     * `finance.cash_register_created` - Cash register created
+                 *     * `finance.cash_register_updated` - Cash register changed
+                 *     * `finance.cash_session_opened` - Cash session opened
+                 *     * `finance.payment_recorded` - Payment recorded
                  *     * `audit.exported` - Audit log exported
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -4267,6 +4555,250 @@ export interface operations {
                 };
             };
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cash_registers_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashRegister"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cash_registers_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CashRegisterRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CashRegisterRequest"];
+                "multipart/form-data": components["schemas"]["CashRegisterRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashRegister"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cash_registers_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this cash register. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedCashRegisterUpdateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedCashRegisterUpdateRequest"];
+                "multipart/form-data": components["schemas"]["PatchedCashRegisterUpdateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashRegister"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cash_sessions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CashSessionOpenRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CashSessionOpenRequest"];
+                "multipart/form-data": components["schemas"]["CashSessionOpenRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashSession"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cash_sessions_current_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrentCashSession"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6180,6 +6712,121 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    payments_list: {
+        parameters: {
+            query?: {
+                /** @description Paiements d'une inscription. */
+                enrollment?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Numéro de reçu, nom ou matricule de l'élève. */
+                search?: string;
+                /** @description Paiements d'une session de caisse. */
+                session?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPaymentList"];
+                };
+            };
+        };
+    };
+    payments_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PaymentCreateRequest"];
+                "multipart/form-data": components["schemas"]["PaymentCreateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Payment"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Payment"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    payments_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this payment. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Payment"];
                 };
             };
         };
