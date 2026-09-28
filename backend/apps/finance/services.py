@@ -39,6 +39,7 @@ from apps.finance.models import (
     InstallmentTemplate,
     Payment,
     PaymentAllocation,
+    PaymentCancellation,
     StudentCharge,
 )
 from apps.schools import organisation
@@ -79,6 +80,9 @@ NO_EXCHANGE_RATE = ApiError(
 )
 PAYMENT_ID_TAKEN = ApiError(
     "payment_id_taken", _("Another payment already has this identifier."), 409
+)
+PAYMENT_CANCELLED = ApiError(
+    "payment_cancelled", _("This payment was cancelled: its receipt is no longer valid."), 409
 )
 
 
@@ -829,11 +833,18 @@ def _settle(charges: list[StudentCharge], discounts: list[Discount], day: date) 
             charge.state = OVERDUE if charge.due_on < day else UPCOMING
 
 
-def _ordered(charges: QuerySet) -> QuerySet:
-    """Avec `paid_total` : allocations des paiements non annulés."""
-    paid = Sum(
-        "allocations__amount_minor", filter=Q(allocations__payment__cancellation__isnull=True)
-    )
+def _ordered(charges: QuerySet, until: Payment | None = None) -> QuerySet:
+    """Avec `paid_total` : allocations des paiements non annulés ; avec `until`, celles des
+    paiements encaissés jusqu'à lui (lui compris) et pas encore annulés à ce moment-là."""
+    counted = Q(allocations__payment__cancellation__isnull=True)
+    if until is not None:
+        counted = (
+            counted | Q(allocations__payment__cancellation__approved_at__gt=until.paid_at)
+        ) & (
+            Q(allocations__payment__paid_at__lt=until.paid_at)
+            | Q(allocations__payment__paid_at=until.paid_at, allocations__payment__id__lte=until.id)
+        )
+    paid = Sum("allocations__amount_minor", filter=counted)
     return (
         charges.select_related("fee_type")
         .annotate(paid_total=Coalesce(paid, 0, output_field=BigIntegerField()))
@@ -913,6 +924,17 @@ def balance(charges: list[StudentCharge]) -> Balance:
     else:
         situation = PARTIAL if any(item.paid_minor for item in currencies) else OVERDUE
     return Balance(situation, next_due_on, currencies)
+
+
+def balance_after(payment: Payment) -> Balance:
+    """Solde de l'élève juste après ce paiement, pour son reçu et ses duplicatas : frais dus et
+    réductions d'aujourd'hui, paiements encaissés jusqu'à lui, retard au jour du paiement. Deux
+    requêtes."""
+    charges = _ordered(StudentCharge.objects.filter(enrollment_id=payment.enrollment_id), payment)
+    charges = list(charges)
+    discounts = list(Discount.objects.filter(enrollment_id=payment.enrollment_id))
+    _settle(charges, discounts, timezone.localdate(payment.paid_at))
+    return balance(charges)
 
 
 # Devises utilisées (M5)
@@ -1278,3 +1300,16 @@ def record_payment(
             },
         )
     return payment, True
+
+
+def reprint_payment(payment: Payment, *, actor: User) -> None:
+    """Réimpression d'un reçu (F6) : un duplicata, noté au journal ; refusée pour un paiement
+    annulé (son reçu n'est plus valable)."""
+    if PaymentCancellation.objects.filter(payment=payment).exists():
+        raise BusinessError(PAYMENT_CANCELLED)
+    audit.record(
+        Action.FINANCE_PAYMENT_REPRINTED,
+        payment,
+        actor=actor,
+        label=f"{payment.receipt_number} · {payment.enrollment.student}",
+    )

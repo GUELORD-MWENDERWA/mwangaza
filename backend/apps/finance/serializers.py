@@ -384,6 +384,7 @@ class PaymentAllocationSerializer(serializers.ModelSerializer):
     currency = serializers.ChoiceField(
         source="student_charge.currency", choices=Currency.choices, read_only=True
     )
+    due_on = serializers.DateField(source="student_charge.due_on", read_only=True)
 
     class Meta:
         model = PaymentAllocation
@@ -392,6 +393,7 @@ class PaymentAllocationSerializer(serializers.ModelSerializer):
             "fee_type_name",
             "label",
             "currency",
+            "due_on",
             "received_minor",
             "amount_minor",
         ]
@@ -434,6 +436,20 @@ class PaymentSerializer(serializers.ModelSerializer):
             "cancelled",
             "allocations",
         ]
+
+
+class PaymentReceiptSerializer(PaymentSerializer):
+    """Paiement avec ce qu'imprime son reçu (F3) : nom de la caisse, année scolaire et solde de
+    l'élève juste après ce paiement (`services.balance_after`, mis dans `balance_after`)."""
+
+    cash_register_name = serializers.CharField(
+        source="cash_session.cash_register.name", read_only=True
+    )
+    academic_year = serializers.CharField(source="enrollment.academic_year.name", read_only=True)
+    balance = BalanceSerializer(source="balance_after", read_only=True)
+
+    class Meta(PaymentSerializer.Meta):
+        fields = [*PaymentSerializer.Meta.fields, "cash_register_name", "academic_year", "balance"]
 
 
 class PartSerializer(serializers.Serializer):

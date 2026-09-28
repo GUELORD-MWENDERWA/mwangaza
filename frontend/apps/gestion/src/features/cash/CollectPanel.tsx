@@ -46,7 +46,7 @@ import { useRefresh } from "../organisation/data";
 import { LoadError } from "../status/StatusPages";
 import { type Balance, type Charge, useBalance, useCharges } from "../students/data";
 import { type Line, allocate, owedCharges, payableTotal } from "./allocation";
-import type { Payment } from "./data";
+import type { Receipt } from "./Receipt";
 
 /** Élève choisi à la caisse, avec son inscription de l'année. */
 export type Chosen = {
@@ -87,7 +87,7 @@ export function CollectPanel({
 }: {
   chosen: Chosen;
   rate: string | null;
-  onRecorded: (payment: Payment) => void;
+  onRecorded: (payment: Receipt) => void;
 }) {
   const { t } = useTranslation();
   const charges = useCharges(chosen.enrollment);
@@ -125,7 +125,7 @@ function CollectForm({
   rate: string | null;
   charges: Charge[];
   balance: Balance;
-  onRecorded: (payment: Payment) => void;
+  onRecorded: (payment: Receipt) => void;
   onRefused: () => void;
 }) {
   const { t, i18n } = useTranslation();

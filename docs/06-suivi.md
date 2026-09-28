@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.2.1 terminée, PR #101 à fusionner |
-| Prochaine tâche | 3.2.2 — reçu dans le navigateur |
+| Tâche en cours | aucune — 3.2.2 terminée, PR à fusionner |
+| Prochaine tâche | 3.2.3 — page publique de vérification `/v/{id}` |
 | Issue GitHub | #22 (3.2, reste ouverte jusqu'à la 3.2.3) |
-| Branche | `tache/3.2.1-parametres-recus` (PR #101) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/3.2.2-recu-imprime` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-28 |
 
 ## Avancement
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 3 | 11 |
+| Semaine 3 — Caisse et hors-ligne | 4 | 11 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **20** | **36** |
+| **V1.0** | **21** | **36** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-28 — Tâche 3.2.2 : reçu dans le navigateur
+- Fait : reçu imprimé au format de l'école (thermique 80 / 58 mm ; A6, A5 ou petit format sur A4 avec traits de découpe ; 1 ou 2 exemplaires), montant en lettres, solde juste après le paiement, QR code vers `/v/{id}` ; « Encaisser et imprimer » (F9), « Réimprimer » (DUPLICATA, noté au journal), « Test » de l'imprimante à l'ouverture de caisse ; `POST /api/payments/{id}/reprint/`.
+- Tests : solde du reçu (paiement suivant et annulation plus tardive ignorés), réimpression auditée et refusée pour un paiement annulé, isolation et droits de `reprint` ; montant en lettres (13 cas) ; écran encaisser → reçu → duplicata ; Playwright caisse : un reçu imprimé.
+- Décisions (`03`) : pas de `uqr` (`qrcode-generator` déjà installé) ; montant en lettres toujours en français ; réglages du reçu publics dans `/api/school/`.
+- Suite : 3.2.3 (page publique de vérification `/v/{id}`).
 
 ### 2026-09-28 — Tâche 3.1.2 : écrans de caisse en ligne
 - Fait : page « Caisse » : ouverture (caisse libre ou occupée, par qui, depuis quand), accueil (recherche de l'élève, totaux par devise, paiements de la session, récents), encaissement (frais à payer cochables, montant, « Tout le retard » / « Toute l'année », conversion, répartition, surplus refusé, F9) ; carte « Caisses » des paramètres ; `open_session` sur `/api/cash-registers/`.

@@ -9,9 +9,11 @@ export const school: Schemas["CurrentSchool"] = {
   primary_color: "#0E5C6B",
   text_color: "#FFFFFF",
   logo: null,
+  logo_monochrome: null,
   timezone: "Africa/Lubumbashi",
   enabled_currencies: ["USD", "CDF"],
   default_currency: "USD",
+  receipt: { printer: "thermal_80", sheet_size: "a6", copies: 1, header: "", footer: "" },
 };
 
 // Droits des rôles système (copie de `backend/apps/accounts/roles.py`, `04` § 8).

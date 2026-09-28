@@ -147,6 +147,8 @@ def test_receipt_settings_are_merged_and_journaled(api, school, head):
         "footer": "",
     }
     assert response.json()["receipt"] == receipt
+    # Le caissier les lit avec l'école (publique : ils sont imprimés sur chaque reçu).
+    assert api(head).get("/api/school/").json()["receipt"] == receipt
     school.refresh_from_db()
     assert school.settings["receipt"] == receipt
     updates = [log for log in journal(school) if log.action == Action.SCHOOL_UPDATED]

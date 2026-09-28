@@ -1,5 +1,5 @@
 import { screen, waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { json, mockApi, type Routes } from "../../test/api";
 import { charge, fakeId, me, school } from "../../test/fixtures";
@@ -68,7 +68,7 @@ describe("Caisse (F1-F2)", () => {
     expect(opened?.body).toEqual({ id: expect.any(String), cash_register: register(2).id });
   });
 
-  it("encaisse la répartition affichée, une seule fois même après une coupure", async () => {
+  it("encaisse la répartition affichée une seule fois, imprime le reçu, puis un duplicata", async () => {
     const workshop = charge(1, "1re tranche", "2026-10-01", {
       fee_type_name: "Frais d'atelier",
       amount_minor: 2000,
@@ -135,13 +135,53 @@ describe("Caisse (F1-F2)", () => {
         next_due_on: "2027-01-15",
       },
     });
+    const receipt = {
+      id: fakeId(90),
+      receipt_number: "ALPHA-C2-26-000184",
+      enrollment: enrollment.id,
+      student: { id: student.id, full_name: "KAMBALE MUHINDO Josué", matricule: student.matricule },
+      class_group: "3e Électricité A",
+      cash_register: "C2",
+      cash_register_name: "Caisse 2",
+      cashier,
+      received_amount_minor: 15000,
+      received_currency: "USD",
+      rate_used: "2850.000000",
+      paid_at: "2026-10-19T08:42:00Z",
+      method: "cash",
+      note: "",
+      cancelled: false,
+      academic_year: "2026-2027",
+      allocations: [workshop, tuition, operating].map((item, index) => ({
+        student_charge: item.id,
+        fee_type_name: item.fee_type_name,
+        label: item.label,
+        currency: "USD",
+        due_on: item.due_on,
+        received_minor: [2000, 12000, 1000][index],
+        amount_minor: [2000, 12000, 1000][index],
+      })),
+      balance: {
+        situation: "partial",
+        next_due_on: "2027-01-15",
+        currencies: [
+          { currency: "USD", remaining_minor: 1500, overdue_minor: 0 },
+          { currency: "CDF", remaining_minor: 30000, overdue_minor: 30000 },
+        ],
+      },
+    };
     let attempts = 0;
     all["POST /api/payments/"] = () => {
       attempts += 1;
       // Première fois : le réseau coupe avant la réponse.
       if (attempts === 1) throw new TypeError("Failed to fetch");
-      return json({ id: fakeId(90), receipt_number: "ALPHA-C2-26-000184" }, 201);
+      return json(receipt, 201);
     };
+    all[`POST /api/payments/${receipt.id}/reprint/`] = receipt;
+    const printed: string[] = [];
+    vi.spyOn(window, "print").mockImplementation(() => {
+      printed.push(document.querySelector(".print-area")?.textContent ?? "");
+    });
     const requests = mockApi(all);
     const { user } = renderApp("/cash");
 
@@ -178,5 +218,19 @@ describe("Caisse (F1-F2)", () => {
       note: "",
     });
     expect(sent[1]).toEqual(sent[0]);
+
+    // Reçu (F3) : montant en lettres, solde juste après ce paiement, pas de taux sans conversion.
+    await waitFor(() => expect(printed).toHaveLength(1));
+    expect(printed[0]).toContain("Reçu n° ALPHA-C2-26-000184");
+    expect(printed[0]).toContain("Cent cinquante dollars américains");
+    expect(printed[0]).toMatch(/Reste en retard30\s000\sFC/);
+    expect(printed[0]).toMatch(/Reste de l'année15,00\s\$ \+ 30\s000\sFC/);
+    expect(printed[0]).not.toContain("Taux utilisé");
+    expect(printed[0]).not.toContain("Duplicata");
+    // Réimpression (F6) : notée par le serveur, marquée DUPLICATA.
+    await user.click(screen.getByRole("button", { name: "Réimprimer" }));
+    await waitFor(() => expect(printed).toHaveLength(2));
+    expect(printed[1]).toMatch(/DuplicataRéimprimé le \d{2}\/\d{2}\/\d{4} \d{2}:\d{2}/);
+    expect(requests.at(-1)?.path).toBe(`/api/payments/${receipt.id}/reprint/`);
   });
 });

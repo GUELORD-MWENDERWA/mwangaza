@@ -387,6 +387,7 @@ paths:
           - finance.cash_register_updated
           - finance.cash_session_opened
           - finance.payment_recorded
+          - finance.payment_reprinted
           - audit.exported
           - support.started
           - support.ended
@@ -458,6 +459,7 @@ paths:
           * `finance.cash_register_updated` - Cash register changed
           * `finance.cash_session_opened` - Cash session opened
           * `finance.payment_recorded` - Payment recorded
+          * `finance.payment_reprinted` - Receipt reprinted
           * `audit.exported` - Audit log exported
           * `support.started` - Support session opened
           * `support.ended` - Support session closed
@@ -690,6 +692,7 @@ paths:
           - finance.cash_register_updated
           - finance.cash_session_opened
           - finance.payment_recorded
+          - finance.payment_reprinted
           - audit.exported
           - support.started
           - support.ended
@@ -761,6 +764,7 @@ paths:
           * `finance.cash_register_updated` - Cash register changed
           * `finance.cash_session_opened` - Cash session opened
           * `finance.payment_recorded` - Payment recorded
+          * `finance.payment_reprinted` - Receipt reprinted
           * `audit.exported` - Audit log exported
           * `support.started` - Support session opened
           * `support.ended` - Support session closed
@@ -3402,7 +3406,8 @@ paths:
       description: |-
         Paiements (F1-F2), les plus récents d'abord ; ni modifiables ni effaçables. Sans
         `finance.view_reports`, seulement ceux des sessions du caissier. Création : 201, ou 200 si ce
-        paiement (même `id`) était déjà enregistré.
+        paiement (même `id`) était déjà enregistré. Création, lecture et réimpression rendent le
+        reçu (F3).
       parameters:
       - in: query
         name: enrollment
@@ -3444,7 +3449,8 @@ paths:
       description: |-
         Paiements (F1-F2), les plus récents d'abord ; ni modifiables ni effaçables. Sans
         `finance.view_reports`, seulement ceux des sessions du caissier. Création : 201, ou 200 si ce
-        paiement (même `id`) était déjà enregistré.
+        paiement (même `id`) était déjà enregistré. Création, lecture et réimpression rendent le
+        reçu (F3).
       tags:
       - finance
       requestBody:
@@ -3466,13 +3472,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Payment'
+                $ref: '#/components/schemas/PaymentReceipt'
           description: ''
         '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Payment'
+                $ref: '#/components/schemas/PaymentReceipt'
           description: ''
         '400':
           content:
@@ -3504,7 +3510,8 @@ paths:
       description: |-
         Paiements (F1-F2), les plus récents d'abord ; ni modifiables ni effaçables. Sans
         `finance.view_reports`, seulement ceux des sessions du caissier. Création : 201, ou 200 si ce
-        paiement (même `id`) était déjà enregistré.
+        paiement (même `id`) était déjà enregistré. Création, lecture et réimpression rendent le
+        reçu (F3).
       parameters:
       - in: path
         name: id
@@ -3522,7 +3529,62 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Payment'
+                $ref: '#/components/schemas/PaymentReceipt'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/payments/{id}/reprint/:
+    post:
+      operationId: payments_reprint_create
+      description: |-
+        Réimpression du reçu (F6) : le même reçu, marqué DUPLICATA par l'appareil, noté au
+        journal ; 409 `payment_cancelled` pour un paiement annulé.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this payment.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentReceipt'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
   /api/roles/:
     get:
@@ -5470,6 +5532,7 @@ components:
       - finance.cash_register_updated
       - finance.cash_session_opened
       - finance.payment_recorded
+      - finance.payment_reprinted
       - audit.exported
       - support.started
       - support.ended
@@ -5540,6 +5603,7 @@ components:
         * `finance.cash_register_updated` - Cash register changed
         * `finance.cash_session_opened` - Cash session opened
         * `finance.payment_recorded` - Payment recorded
+        * `finance.payment_reprinted` - Receipt reprinted
         * `audit.exported` - Audit log exported
         * `support.started` - Support session opened
         * `support.ended` - Support session closed
@@ -6039,6 +6103,12 @@ components:
           readOnly: true
           description: Adresse du logo (`GET /api/school/logo/`, public) ; null sans
             logo.
+        logo_monochrome:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Adresse du logo noir et blanc des reçus thermiques (public)
+            ; null sans lui.
         timezone:
           type: string
           title: Time zone
@@ -6058,15 +6128,21 @@ components:
 
             * `USD` - US dollar
             * `CDF` - Congolese franc
+        receipt:
+          allOf:
+          - $ref: '#/components/schemas/ReceiptSettings'
+          readOnly: true
       required:
       - code
       - name
       - primary_color
       - text_color
       - logo
+      - logo_monochrome
       - timezone
       - enabled_currencies
       - default_currency
+      - receipt
     CurrentSchoolAccess:
       type: object
       properties:
@@ -7977,6 +8053,10 @@ components:
           allOf:
           - $ref: '#/components/schemas/CurrencyEnum'
           readOnly: true
+        due_on:
+          type: string
+          format: date
+          readOnly: true
         received_minor:
           type: integer
           maximum: 9223372036854775807
@@ -7996,6 +8076,7 @@ components:
       - fee_type_name
       - label
       - currency
+      - due_on
       - received_minor
       - amount_minor
     PaymentCreateRequest:
@@ -8035,6 +8116,96 @@ components:
       - enrollment
       - received_amount_minor
       - received_currency
+    PaymentReceipt:
+      type: object
+      description: |-
+        Paiement avec ce qu'imprime son reçu (F3) : nom de la caisse, année scolaire et solde de
+        l'élève juste après ce paiement (`services.balance_after`, mis dans `balance_after`).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        receipt_number:
+          type: string
+          maxLength: 40
+        enrollment:
+          type: string
+          format: uuid
+        student:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStudent'
+          readOnly: true
+        class_group:
+          type: string
+          readOnly: true
+        cash_register:
+          type: string
+          readOnly: true
+        cashier:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+        received_amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount received
+        received_currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          title: Currency
+        rate_used:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,6})?$
+          nullable: true
+        paid_at:
+          type: string
+          format: date-time
+        method:
+          $ref: '#/components/schemas/MethodEnum'
+        note:
+          type: string
+          maxLength: 200
+        cancelled:
+          type: boolean
+          readOnly: true
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentAllocation'
+          readOnly: true
+        cash_register_name:
+          type: string
+          readOnly: true
+        academic_year:
+          type: string
+          readOnly: true
+        balance:
+          allOf:
+          - $ref: '#/components/schemas/Balance'
+          readOnly: true
+      required:
+      - id
+      - receipt_number
+      - enrollment
+      - student
+      - class_group
+      - cash_register
+      - cashier
+      - received_amount_minor
+      - received_currency
+      - rate_used
+      - paid_at
+      - method
+      - note
+      - cancelled
+      - allocations
+      - cash_register_name
+      - academic_year
+      - balance
     PaymentStudent:
       type: object
       properties:
