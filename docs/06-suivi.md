@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.2.3 terminée, PR à fusionner |
+| Tâche en cours | aucune — 3.2.3 terminée, PR #103 à fusionner |
 | Prochaine tâche | 3.3 — app `sync` : appareils, clé de signature des reçus, synchronisation |
 | Issue GitHub | #22 (3.2, fermée par la PR de la 3.2.3) |
-| Branche | `tache/3.2.3-verification-recu` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/3.2.3-verification-recu` (PR #103) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-28 |
 
 ## Avancement
