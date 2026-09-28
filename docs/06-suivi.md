@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.1.1 terminée, PR #99 à fusionner |
-| Prochaine tâche | 3.1.2 — écrans de caisse en ligne |
-| Issue GitHub | #21 (3.1, reste ouverte jusqu'à la 3.1.2) |
-| Branche | `tache/3.1.1-paiements` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 3.1.2 terminée, PR à fusionner |
+| Prochaine tâche | 3.2 — reçu dans le navigateur |
+| Issue GitHub | #21 (3.1, fermée par la PR de la 3.1.2) |
+| Branche | `tache/3.1.2-ecrans-caisse` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-28 |
 
 ## Avancement
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 1 | 9 |
+| Semaine 3 — Caisse et hors-ligne | 2 | 9 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **18** | **34** |
+| **V1.0** | **19** | **34** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-28 — Tâche 3.1.2 : écrans de caisse en ligne
+- Fait : page « Caisse » : ouverture (caisse libre ou occupée, par qui, depuis quand), accueil (recherche de l'élève, totaux par devise, paiements de la session, récents), encaissement (frais à payer cochables, montant, « Tout le retard » / « Toute l'année », conversion, répartition, surplus refusé, F9) ; carte « Caisses » des paramètres ; `open_session` sur `/api/cash-registers/`.
+- Tests : `convert` identique au serveur (7 cas d'arrondi), répartition (3), écrans (ouverture ; répartition envoyée, même `id` après une coupure, surplus bloqué), Playwright caissière (ouvre, encaisse avec double F9, un seul paiement).
+- Décisions : répartition calculée dans le navigateur et envoyée telle quelle (`03`) ; bouton « Encaisser » (impression du reçu : 3.2) ; pas de montants rapides fixes (20 $, 50 $) : en dur pour une école.
+- Suite : 3.2 (reçu).
 
 ### 2026-09-28 — Tâche 3.1.1 : encaissement côté serveur
 - Fait : 3.1 découpée (3.1.1 serveur, 3.1.2 écrans ; réduction sur échéance payée → 3.6) ; caisses, sessions (une par caisse et par caissier), paiements immuables avec répartition par défaut ou ajustée, conversion, taux de l'année ou dernier connu, reçu `ITIG-C1-26-000001` ; `/api/cash-registers/`, `/api/cash-sessions/` (+ `current/`), `/api/payments/` ; le solde compte les paiements non annulés ; `make demo` : caisses et paiements depuis la rentrée.

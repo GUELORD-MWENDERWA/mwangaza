@@ -342,10 +342,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Caisses de l'école (M13) : désactivées, jamais effacées ; le code ne change pas. */
+        /**
+         * @description Caisses de l'école (M13), avec leur session ouverte : désactivées, jamais effacées ; le
+         *     code ne change pas.
+         */
         get: operations["cash_registers_list"];
         put?: never;
-        /** @description Caisses de l'école (M13) : désactivées, jamais effacées ; le code ne change pas. */
+        /**
+         * @description Caisses de l'école (M13), avec leur session ouverte : désactivées, jamais effacées ; le
+         *     code ne change pas.
+         */
         post: operations["cash_registers_create"];
         delete?: never;
         options?: never;
@@ -366,7 +372,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** @description Caisses de l'école (M13) : désactivées, jamais effacées ; le code ne change pas. */
+        /**
+         * @description Caisses de l'école (M13), avec leur session ouverte : désactivées, jamais effacées ; le
+         *     code ne change pas.
+         */
         patch: operations["cash_registers_partial_update"];
         trace?: never;
     };
@@ -1643,6 +1652,17 @@ export interface components {
             /** @description C1 : dans le numéro des reçus, fixé à la création. */
             code: string;
         };
+        /** @description Caisse et, si elle est ouverte, sa session (« Occupée » à l'ouverture, M13). */
+        CashRegisterState: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            /** @description C1 : dans le numéro des reçus, fixé à la création. */
+            code: string;
+            /** Active */
+            readonly is_active: boolean;
+            readonly open_session: components["schemas"]["OpenSession"] | null;
+        };
         CashSession: {
             /** Format: uuid */
             readonly id: string;
@@ -2349,6 +2369,13 @@ export interface components {
         };
         /** @enum {unknown} */
         NullEnum: null;
+        OpenSession: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly cashier: components["schemas"]["Person"];
+            /** Format: date-time */
+            opened_at: string;
+        };
         PaginatedAuditLogList: {
             /** @example 123 */
             count: number;
@@ -4578,7 +4605,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CashRegister"][];
+                    "application/json": components["schemas"]["CashRegisterState"][];
                 };
             };
             403: {
@@ -4619,7 +4646,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CashRegister"];
+                    "application/json": components["schemas"]["CashRegisterState"];
                 };
             };
             400: {
@@ -4679,7 +4706,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CashRegister"];
+                    "application/json": components["schemas"]["CashRegisterState"];
                 };
             };
             400: {

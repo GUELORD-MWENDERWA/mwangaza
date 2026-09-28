@@ -108,3 +108,36 @@ export function platformAdmin(overrides: Partial<Schemas["Me"]> = {}): Schemas["
     ...overrides,
   };
 }
+
+/** Identifiant fictif lisible (UUID v7 bien formé). */
+export const fakeId = (n: number) => `00000000-0000-7000-8000-${String(n).padStart(12, "0")}`;
+
+/** Frais dû d'une inscription (2.6), pas encore payé par défaut. */
+export function charge(
+  n: number,
+  label: string,
+  due_on: string,
+  overrides: Partial<Schemas["StudentCharge"]> = {},
+): Schemas["StudentCharge"] {
+  const row = {
+    id: fakeId(700 + n),
+    enrollment: fakeId(80),
+    fee_type: fakeId(500),
+    fee_type_name: "Minerval",
+    fee_category: "tuition",
+    label,
+    amount_minor: 12000,
+    currency: "USD",
+    due_on,
+    source: "rule",
+    status: "active",
+    discount_minor: 0,
+    paid_minor: 0,
+    state: "upcoming",
+    ...overrides,
+  } as const;
+  return {
+    remaining_minor: row.amount_minor - row.discount_minor - row.paid_minor,
+    ...row,
+  } as Schemas["StudentCharge"];
+}

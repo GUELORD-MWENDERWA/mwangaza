@@ -32,6 +32,7 @@ from apps.finance.models import (
 from apps.finance.serializers import (
     BalanceSerializer,
     CashRegisterSerializer,
+    CashRegisterStateSerializer,
     CashRegisterUpdateSerializer,
     CashSessionOpenSerializer,
     CashSessionSerializer,
@@ -359,20 +360,24 @@ class DiscountViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, SchoolView
 
 
 @extend_schema_view(
-    list=extend_schema(responses={200: CashRegisterSerializer(many=True), **ERRORS}),
-    create=extend_schema(responses={201: CashRegisterSerializer, **INVALID, **CONFLICT, **ERRORS}),
+    list=extend_schema(responses={200: CashRegisterStateSerializer(many=True), **ERRORS}),
+    create=extend_schema(
+        request=CashRegisterSerializer,
+        responses={201: CashRegisterStateSerializer, **INVALID, **CONFLICT, **ERRORS},
+    ),
     partial_update=extend_schema(
         request=CashRegisterUpdateSerializer,
-        responses={200: CashRegisterSerializer, **INVALID, **CONFLICT, **ERRORS},
+        responses={200: CashRegisterStateSerializer, **INVALID, **CONFLICT, **ERRORS},
     ),
 )
 @extend_schema(tags=["finance"])
 class CashRegisterViewSet(
     mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, SchoolViewSet
 ):
-    """Caisses de l'école (M13) : désactivées, jamais effacées ; le code ne change pas."""
+    """Caisses de l'école (M13), avec leur session ouverte : désactivées, jamais effacées ; le
+    code ne change pas."""
 
-    serializer_class = CashRegisterSerializer
+    serializer_class = CashRegisterStateSerializer
     pagination_class = None
     http_method_names = ["get", "post", "patch", "head", "options"]
 
@@ -385,13 +390,20 @@ class CashRegisterViewSet(
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return CashRegister.all_schools.none()
-        return CashRegister.objects.all()
+        open_sessions = CashSession.objects.filter(closed_at__isnull=True).select_related("cashier")
+        return CashRegister.objects.prefetch_related(
+            Prefetch("sessions", queryset=open_sessions, to_attr="open_sessions")
+        )
+
+    def _register(self, register: CashRegister, status_code=status.HTTP_200_OK) -> Response:
+        register = self.get_queryset().get(pk=register.pk)
+        return Response(CashRegisterStateSerializer(register).data, status=status_code)
 
     def create(self, request: Request) -> Response:
         serializer = CashRegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         register = services.create_cash_register(actor=request.user, **serializer.validated_data)
-        return Response(CashRegisterSerializer(register).data, status=status.HTTP_201_CREATED)
+        return self._register(register, status.HTTP_201_CREATED)
 
     def partial_update(self, request: Request, pk=None) -> Response:
         serializer = CashRegisterUpdateSerializer(data=request.data, partial=True)
@@ -399,7 +411,7 @@ class CashRegisterViewSet(
         register = services.update_cash_register(
             self.get_object(), actor=request.user, **serializer.validated_data
         )
-        return Response(CashRegisterSerializer(register).data)
+        return self._register(register)
 
 
 @extend_schema_view(

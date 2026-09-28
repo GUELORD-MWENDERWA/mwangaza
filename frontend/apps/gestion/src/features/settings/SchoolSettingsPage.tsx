@@ -1,6 +1,7 @@
 // Paramètres de l'école (M5) : identité, logo, couleur (lisibilité vérifiée, Q8), fuseau horaire,
 // devises. Droit `school.configure` ; chaque changement va dans le journal de l'école. Cartes
-// « Reçus » (3.2) et « Alertes » (4.2) : avec leur tâche.
+// « Reçus » (3.2) et « Alertes » (4.2) : avec leur tâche. Carte « Caisses » : avec
+// `finance.configure_fees`.
 import { ApiError, api, call, type Schemas } from "@mwangaza/api";
 import { useTranslation } from "@mwangaza/i18n";
 import {
@@ -27,8 +28,10 @@ import { z } from "zod";
 
 import { nearbyReadable, normalizeColor, textColor } from "../../lib/colors";
 import { applyServerErrors, errorMessage, fieldMessage } from "../../lib/errors";
-import { keys } from "../../lib/queries";
+import { can } from "../../lib/permissions";
+import { keys, useCurrentMe } from "../../lib/queries";
 import { LoadError } from "../status/StatusPages";
+import { CashRegistersCard } from "./CashRegistersCard";
 
 type Settings = Schemas["SchoolSettings"];
 type Currency = Schemas["CurrencyEnum"];
@@ -85,6 +88,7 @@ type FormValues = z.input<ReturnType<typeof useSchema>>;
 
 export function SchoolSettingsPage() {
   const { t } = useTranslation();
+  const me = useCurrentMe();
   const settings = useQuery({
     queryKey: keys.settings,
     queryFn: () => call(api.GET("/api/school/settings/")),
@@ -93,7 +97,12 @@ export function SchoolSettingsPage() {
   if (settings.isError) {
     return <LoadError error={settings.error} onRetry={() => void settings.refetch()} />;
   }
-  return <SettingsForm settings={settings.data} />;
+  return (
+    <div className="flex flex-col gap-5">
+      <SettingsForm settings={settings.data} />
+      {can(me, ["finance.configure_fees"]) && <CashRegistersCard />}
+    </div>
+  );
 }
 
 function SettingsForm({ settings }: { settings: Settings }) {

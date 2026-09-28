@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  convert,
   formatAmount,
   formatAmountValue,
   formatRate,
@@ -63,5 +64,21 @@ describe("montants", () => {
     expect(parseRate("2850,1234567")).toBeNull();
     expect(formatRate("2850.000000")).toBe(`2${NBSP}850`);
     expect(formatRate("2875.500000")).toBe(`2${NBSP}875,5`);
+  });
+});
+
+describe("conversion", () => {
+  // Résultats de `Money.convert` du serveur (Decimal, demi supérieur) : les deux doivent
+  // tomber juste, sinon le serveur refuse la répartition affichée.
+  it.each([
+    [1053, "USD", "CDF", "2850.000000", 30011],
+    [30000, "CDF", "USD", "2850.000000", 1053],
+    [100, "USD", "CDF", "2875.500000", 2876],
+    [14, "CDF", "USD", "2850", 0],
+    [10, "CDF", "USD", "2000", 1],
+    [12345678, "CDF", "USD", "2843.123456", 434229],
+    [999, "USD", "CDF", "2843.123456", 28403],
+  ] as const)("%i %s → %s au taux %s = %i", (minor, from, to, rate, expected) => {
+    expect(convert(minor, from, to, rate)).toBe(expected);
   });
 });

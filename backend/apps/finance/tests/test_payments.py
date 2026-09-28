@@ -166,6 +166,10 @@ def test_one_open_session_per_register_and_per_cashier(api, school, head, cashie
     assert as_cashier.post(SESSIONS, first).json()["id"] == session_id
     again = as_cashier.post(SESSIONS, {"cash_register": second["id"]})
     assert again.json()["code"] == "session_already_open"
+    # « Libre » ou « Occupée » à l'ouverture : qui l'a ouverte, depuis quand.
+    states = {item["code"]: item["open_session"] for item in as_cashier.get(REGISTERS).json()}
+    assert states["C2"] is None
+    assert (states["C1"]["id"], states["C1"]["cashier"]["id"]) == (session_id, str(cashier.pk))
 
     other = api(MembershipFactory(school=school, roles=["cashier"]).user)
     busy = other.post(SESSIONS, {"cash_register": str(alpha["register"].pk)})

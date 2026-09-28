@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
 
@@ -310,6 +311,28 @@ class CashRegisterSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "code", "is_active"]
         read_only_fields = ["is_active"]
         extra_kwargs = {"code": {"help_text": "C1 : dans le numéro des reçus, fixé à la création."}}
+
+
+class OpenSessionSerializer(serializers.ModelSerializer):
+    cashier = PersonSerializer(read_only=True)
+
+    class Meta:
+        model = CashSession
+        fields = ["id", "cashier", "opened_at"]
+
+
+class CashRegisterStateSerializer(CashRegisterSerializer):
+    """Caisse et, si elle est ouverte, sa session (« Occupée » à l'ouverture, M13)."""
+
+    open_session = serializers.SerializerMethodField()
+
+    class Meta(CashRegisterSerializer.Meta):
+        fields = [*CashRegisterSerializer.Meta.fields, "open_session"]
+
+    @extend_schema_field(OpenSessionSerializer(allow_null=True))
+    def get_open_session(self, register: CashRegister) -> dict | None:
+        sessions = getattr(register, "open_sessions", [])
+        return OpenSessionSerializer(sessions[0]).data if sessions else None
 
 
 class CashRegisterUpdateSerializer(serializers.ModelSerializer):
