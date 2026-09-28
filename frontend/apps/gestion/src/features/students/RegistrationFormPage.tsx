@@ -16,13 +16,16 @@ import { useState } from "react";
 import { Link, useParams } from "react-router";
 
 import { studentName } from "../../lib/people";
+import { can } from "../../lib/permissions";
+import { useCurrentMe } from "../../lib/queries";
 import { useYears } from "../organisation/data";
 import { LoadError } from "../status/StatusPages";
-import { type Paper, registrationFormUrl, useStudent } from "./data";
+import { CHARGES_READ, type Paper, registrationFormUrl, useStudent } from "./data";
 import { DocumentPreview } from "./DocumentPreview";
 
 /** Fiche d'inscription de l'année en cours (D5, M11) : remise au parent avec le code famille,
- * ou à un tiers sans lui. Le code n'apparaît que sur le PDF, noté dans le journal. */
+ * ou à un tiers sans lui. Le code n'apparaît que sur le PDF, noté dans le journal. Frais de
+ * l'année (2.7) : proposés avec un droit de lecture des frais, vérifié par le serveur. */
 export function RegistrationFormPage() {
   const { t } = useTranslation();
   const { id = "" } = useParams();
@@ -30,6 +33,8 @@ export function RegistrationFormPage() {
   const years = useYears();
   const [paper, setPaper] = useState<Paper>("a4");
   const [familyCode, setFamilyCode] = useState(true);
+  const [fees, setFees] = useState(true);
+  const canReadFees = can(useCurrentMe(), CHARGES_READ);
 
   if (student.error)
     return <LoadError error={student.error} onRetry={() => void student.refetch()} />;
@@ -37,7 +42,7 @@ export function RegistrationFormPage() {
   const data = student.data;
   const year = years.data.find((candidate) => candidate.is_current);
   const enrollment = data.enrollments.find((item) => item.academic_year === year?.id);
-  const options = { paper, familyCode };
+  const options = { paper, familyCode, fees: canReadFees && fees };
 
   return (
     <>
@@ -91,6 +96,17 @@ export function RegistrationFormPage() {
                   {t("students.print.form.familyCodeHelp")}
                 </p>
               </div>
+              {canReadFees && (
+                <div className="flex flex-col gap-1">
+                  <CheckboxField
+                    id="fees"
+                    label={t("students.print.form.fees")}
+                    checked={fees}
+                    onCheckedChange={(checked) => setFees(checked === true)}
+                  />
+                  <p className="text-[.82rem] text-ink-3">{t("students.print.form.feesHelp")}</p>
+                </div>
+              )}
               <Button asChild>
                 <a
                   href={registrationFormUrl(enrollment.id, { output: "pdf", ...options })}

@@ -2,7 +2,8 @@
 
 Jamais de float. Règles : `docs/03-architecture-technique.md` § 6, `docs/04-modele-de-donnees.md`
 § 4, skill `argent`.
-L'affichage (`1 234,56 $`, `1 260 000 FC`) se fait dans l'interface, pas ici.
+L'affichage (`1 234,56 $`, `1 260 000 FC`) se fait dans l'interface, sauf dans les documents
+produits par le serveur (PDF, Excel) : `format_amount`.
 """
 
 from dataclasses import dataclass
@@ -134,6 +135,21 @@ class Money:
             return NotImplemented
         self._same_currency(other)
         return self.amount_minor >= other.amount_minor
+
+
+NBSP = "\xa0"
+SYMBOLS = {Currency.USD: "$", Currency.CDF: "FC"}
+
+
+def format_amount(amount_minor: int, currency: str) -> str:
+    """`123456, "USD"` → `1 234,56 $` ; `1260000, "CDF"` → `1 260 000 FC`, espaces
+    insécables : comme `formatAmount` de `@mwangaza/money`."""
+    _require_int(amount_minor, "amount_minor")
+    decimals = DECIMALS[currency]
+    digits = str(abs(amount_minor)).rjust(decimals + 1, "0")
+    whole = f"{int(digits[: len(digits) - decimals]):,}".replace(",", NBSP)
+    text = f"{whole},{digits[-decimals:]}" if decimals else whole
+    return f"{'\u2212' if amount_minor < 0 else ''}{text}{NBSP}{SYMBOLS[currency]}"
 
 
 def percent_of(amount_minor: int, percent: int) -> int:

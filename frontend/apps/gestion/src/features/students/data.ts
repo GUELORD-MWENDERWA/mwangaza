@@ -16,6 +16,7 @@ export type Relationship = Schemas["RelationshipEnum"];
 export type StudentStatus = "active" | "left" | "not_enrolled";
 export type Charge = Schemas["StudentCharge"];
 export type Discount = Schemas["Discount"];
+export type Balance = Schemas["Balance"];
 export type DiscountReason = Schemas["ReasonCodeEnum"];
 
 export const DISCOUNT_REASONS: DiscountReason[] = [
@@ -197,17 +198,18 @@ export const importReportUrl = (id: string) => `/api/student-imports/${id}/repor
 
 // Impressions (D5, M11) : aperçu HTML dans la page, PDF que le navigateur ouvre ou enregistre.
 export type Paper = "a4" | "a5";
-export type ClassListColumn = "matricule" | "sex_birth" | "guardian_phone";
+export type ClassListColumn = "matricule" | "sex_birth" | "guardian_phone" | "payments";
 export type ClassListOrder = "name" | "matricule";
 
 export function registrationFormUrl(
   enrollmentId: string,
-  options: { output: "html" | "pdf"; paper: Paper; familyCode: boolean },
+  options: { output: "html" | "pdf"; paper: Paper; familyCode: boolean; fees: boolean },
 ) {
   const query = new URLSearchParams({
     output: options.output,
     paper: options.paper,
     family_code: String(options.familyCode),
+    fees: String(options.fees),
   });
   return `/api/enrollments/${enrollmentId}/form/?${query}`;
 }
@@ -238,6 +240,20 @@ export function useCharges(enrollment: string | undefined) {
     queryKey: [...keys.students, "charges", enrollment],
     queryFn: () =>
       call(api.GET("/api/student-charges/", { params: { query: { enrollment: enrollment! } } })),
+    enabled: Boolean(enrollment),
+  });
+}
+
+/** Solde et retards d'une inscription (2.7), par devise ; rafraîchi avec les frais dus. */
+export function useBalance(enrollment: string | undefined) {
+  return useQuery({
+    queryKey: [...keys.students, "balance", enrollment],
+    queryFn: () =>
+      call(
+        api.GET("/api/student-charges/balance/", {
+          params: { query: { enrollment: enrollment! } },
+        }),
+      ),
     enabled: Boolean(enrollment),
   });
 }

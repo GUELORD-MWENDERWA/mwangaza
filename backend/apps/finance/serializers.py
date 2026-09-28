@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
 
 from apps.core.money import Currency
+from apps.finance import services
 from apps.finance.models import (
     Discount,
     ExchangeRate,
@@ -150,6 +151,9 @@ class YearFilterSerializer(serializers.Serializer):
     )
 
 
+CHARGE_STATES = [services.PAID, services.OVERDUE, services.UPCOMING]
+
+
 class StudentChargeSerializer(serializers.ModelSerializer):
     fee_type_name = serializers.CharField(source="fee_type.name", read_only=True)
     fee_category = serializers.ChoiceField(
@@ -157,6 +161,20 @@ class StudentChargeSerializer(serializers.ModelSerializer):
     )
     discount_minor = serializers.IntegerField(
         read_only=True, help_text="Part des réductions de l'élève (E3) ; 0 si ce n'est plus dû."
+    )
+    paid_minor = serializers.IntegerField(
+        read_only=True, help_text="Paiements non annulés affectés à ce frais (0 avant la 3.1)."
+    )
+    remaining_minor = serializers.IntegerField(
+        read_only=True,
+        help_text="Reste dû : montant moins réductions et payé ; 0 si ce n'est plus dû.",
+    )
+    state = serializers.ChoiceField(
+        choices=CHARGE_STATES,
+        allow_null=True,
+        read_only=True,
+        help_text="Soldé, en retard (échéance passée, reste > 0) ou à venir ; "
+        "null si le frais est retiré ou remplacé.",
     )
 
     class Meta:
@@ -174,7 +192,32 @@ class StudentChargeSerializer(serializers.ModelSerializer):
             "source",
             "status",
             "discount_minor",
+            "paid_minor",
+            "remaining_minor",
+            "state",
         ]
+
+
+class CurrencyBalanceSerializer(serializers.Serializer):
+    currency = serializers.ChoiceField(choices=Currency.choices)
+    total_minor = serializers.IntegerField(help_text="Dû pour l'année, après réductions.")
+    paid_minor = serializers.IntegerField()
+    remaining_minor = serializers.IntegerField()
+    overdue_minor = serializers.IntegerField(help_text="Reste des échéances passées.")
+    next_due_minor = serializers.IntegerField(help_text="Reste dû à `next_due_on`.")
+
+
+class BalanceSerializer(serializers.Serializer):
+    """Solde d'un élève (2.7), par devise, jamais additionné entre devises."""
+
+    situation = serializers.ChoiceField(
+        choices=[services.UP_TO_DATE, services.PARTIAL, services.OVERDUE],
+        help_text="À jour (rien en retard), partielle (en retard, mais des paiements), en retard.",
+    )
+    next_due_on = serializers.DateField(
+        allow_null=True, help_text="Prochaine échéance pas encore passée avec un reste dû."
+    )
+    currencies = CurrencyBalanceSerializer(many=True)
 
 
 class StudentChargeFilterSerializer(serializers.Serializer):

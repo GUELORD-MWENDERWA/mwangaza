@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 2 (Élèves et frais) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 2.5.2 terminée, PR #97 à fusionner |
-| Prochaine tâche | 2.7 — solde et retards d'un élève |
-| Issue GitHub | #18 (2.5) |
-| Branche | `tache/2.5.2-reductions` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 2.7 terminée, PR à fusionner |
+| Prochaine tâche | 3.1 — caisses et paiements |
+| Issue GitHub | #20 (2.7) |
+| Branche | `tache/2.7-solde` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-28 |
 
 ## Avancement
@@ -20,10 +20,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|:-:|:-:|
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
-| Semaine 2 — Élèves et frais | 8 | 9 |
+| Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 0 | 8 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **16** | **33** |
+| **V1.0** | **17** | **33** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-28 — Tâche 2.7 : solde et retards d'un élève
+- Fait : solde par devise (dû après réductions, payé, reste, en retard, prochaine échéance) et état de chaque échéance (soldée, en retard, à venir) ; `GET /api/student-charges/balance/` ; onglet Finances : 4 chiffres clés, colonnes Payé / Reste / État ; fiche d'inscription : frais de l'année après réductions, par devise ; liste de classe : colonne « Situation des paiements » (PDF, Excel).
+- Tests : réductions (%, montant, retirée, exonération totale), deux devises, retard le lendemain de l'échéance, frais retirés ignorés ; 403 (secrétaire, caissier) et isolation ; `format_amount`.
+- Décisions : `03` (calcul à la demande, droits des documents) ; annulation de paiement testée avec la 3.1 ; colonnes « Échu non payé » de la liste des élèves → 4.1.
+- Suite : 3.1 — caisses et paiements.
 
 ### 2026-09-28 — Tâche 2.5.2 : réductions
 - Fait : `Discount` (% sur un frais ou tous, ou montant dans la devise d'un frais ; motif ; retrait noté, jamais effacé) ; `GET/POST /api/discounts/`, `…/revoke/` (droit `finance.grant_discount`, audit dans l'historique de l'élève) ; part des réductions sur chaque frais dû ; onglet Finances : réductions actives, « Ajouter une réduction » (dialogue avec l'effet sur ce que doit l'élève), « Retirer » ; `make demo` : enfants du personnel, fratries, bourses.

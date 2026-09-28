@@ -1,6 +1,7 @@
-// Onglet « Finances » de la fiche élève : ce que doit l'élève cette année (2.6), avec sa part des
-// réductions (E3), et, avec le droit `finance.grant_discount`, l'échéancier particulier (E4) et
-// les réductions à accorder ou retirer. Payé, reste et paiements : 2.7 et caisse (3.1).
+// Onglet « Finances » de la fiche élève : chiffres clés de l'année et ce que doit l'élève (2.6),
+// avec sa part des réductions (E3), le payé, le reste et l'état de chaque échéance (2.7) ; avec
+// le droit `finance.grant_discount`, l'échéancier particulier (E4) et les réductions à accorder
+// ou retirer. Paiements : caisse (3.1).
 import { formatDate, formatDay, useTranslation } from "@mwangaza/i18n";
 import { formatAmount, type Currency } from "@mwangaza/money";
 import {
@@ -9,6 +10,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Kpi,
   Skeleton,
   StateCard,
   StatusPill,
@@ -23,7 +25,15 @@ import { fullName } from "../../lib/people";
 import { useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { LoadError } from "../status/StatusPages";
-import { CHARGES_READ, type Discount, type Student, useCharges, useDiscounts } from "./data";
+import {
+  type Balance,
+  CHARGES_READ,
+  type Discount,
+  type Student,
+  useBalance,
+  useCharges,
+  useDiscounts,
+} from "./data";
 import { DiscountDialog, RevokeDiscountDialog } from "./DiscountDialog";
 
 type Enrollment = Student["enrollments"][number];
@@ -32,6 +42,48 @@ type Enrollment = Student["enrollments"][number];
 export type Scheduled = { fee: string; count: number };
 
 const TONES = { active: "info", removed: "gray", replaced: "warn" } as const;
+const STATE_TONES = { paid: "ok", overdue: "due", upcoming: "gray" } as const;
+
+type Amounts = (item: Balance["currencies"][number]) => number;
+
+/** Chiffres clés de l'année (maquette `eleve-fiche`), par devise sans jamais les additionner :
+ * la première en grand, l'autre en dessous (« + 30 000 FC »). */
+function BalanceKpis({ balance }: { balance: Balance }) {
+  const { t, i18n } = useTranslation();
+  const amounts = (pick: Amounts) => {
+    const listed = balance.currencies.filter((item) => pick(item) > 0);
+    const [first, ...others] = (listed.length ? listed : balance.currencies.slice(0, 1)).map(
+      (item) => formatAmount(pick(item), item.currency as Currency),
+    );
+    return { value: first, sub: others.map((text) => `+ ${text}`).join(" ") || undefined };
+  };
+  const overdue = balance.currencies.some((item) => item.overdue_minor > 0);
+  const next = amounts((item) => item.next_due_minor);
+  return (
+    <div className="grid grid-cols-2 gap-4 min-[1000px]:grid-cols-4">
+      <Kpi label={t("students.finances.kpi.total")} {...amounts((item) => item.total_minor)} />
+      <Kpi
+        label={t("students.finances.kpi.paid")}
+        tone="ok"
+        {...amounts((item) => item.paid_minor)}
+      />
+      <Kpi
+        label={t("students.finances.kpi.overdue")}
+        tone={overdue ? "due" : undefined}
+        {...amounts((item) => item.overdue_minor)}
+      />
+      <Kpi
+        label={t("students.finances.kpi.next")}
+        value={
+          balance.next_due_on
+            ? formatDay(balance.next_due_on, i18n.language)
+            : t("students.finances.kpi.none")
+        }
+        sub={balance.next_due_on ? [next.value, next.sub].filter(Boolean).join(" ") : undefined}
+      />
+    </div>
+  );
+}
 
 export function StudentFinancesTab({
   student,
@@ -50,6 +102,7 @@ export function StudentFinancesTab({
   const allowed = can(me, CHARGES_READ);
   const charges = useCharges(allowed ? enrollment?.id : undefined);
   const discounts = useDiscounts(allowed ? enrollment?.id : undefined);
+  const balance = useBalance(allowed ? enrollment?.id : undefined);
   const title = t("students.card.tabs.finances");
 
   if (!allowed || !enrollment)
@@ -58,15 +111,18 @@ export function StudentFinancesTab({
         {t(allowed ? "students.finances.notEnrolled" : "students.card.financesRight")}
       </StateCard>
     );
-  const error = charges.error ?? discounts.error;
+  const error = charges.error ?? discounts.error ?? balance.error;
   if (error)
     return (
       <LoadError
         error={error}
-        onRetry={() => void Promise.all([charges.refetch(), discounts.refetch()])}
+        onRetry={() =>
+          void Promise.all([charges.refetch(), discounts.refetch(), balance.refetch()])
+        }
       />
     );
-  if (!charges.data || !discounts.data) return <Skeleton label={t("common.loading")} />;
+  if (!charges.data || !discounts.data || !balance.data)
+    return <Skeleton label={t("common.loading")} />;
   const canGrant = can(me, ["finance.grant_discount"]);
   const canSchedule =
     enrollment.status === "active" &&
@@ -95,6 +151,7 @@ export function StudentFinancesTab({
           {t("students.discount.granted")}
         </Banner>
       )}
+      {balance.data.currencies.length > 0 && <BalanceKpis balance={balance.data} />}
       <Card>
         <CardHeader className="flex-wrap">
           <CardTitle>{t("students.finances.due")}</CardTitle>
@@ -159,11 +216,10 @@ export function StudentFinancesTab({
                 <th>{t("students.finances.columns.dueOn")}</th>
                 <th className="text-right">{t("students.finances.columns.amount")}</th>
                 {discounted && (
-                  <>
-                    <th className="text-right">{t("students.discount.columns.discount")}</th>
-                    <th className="text-right">{t("students.discount.columns.after")}</th>
-                  </>
+                  <th className="text-right">{t("students.discount.columns.discount")}</th>
                 )}
+                <th className="text-right">{t("students.finances.columns.paid")}</th>
+                <th className="text-right">{t("students.finances.columns.left")}</th>
                 <th>{t("students.finances.columns.status")}</th>
               </tr>
             </thead>
@@ -183,24 +239,28 @@ export function StudentFinancesTab({
                     {formatAmount(charge.amount_minor, charge.currency as Currency)}
                   </td>
                   {discounted && (
-                    <>
-                      <td className="num">
-                        {charge.discount_minor > 0 &&
-                          `− ${formatAmount(charge.discount_minor, charge.currency as Currency)}`}
-                      </td>
-                      <td className="num font-bold">
-                        {charge.status === "active" &&
-                          formatAmount(
-                            charge.amount_minor - charge.discount_minor,
-                            charge.currency as Currency,
-                          )}
-                      </td>
-                    </>
+                    <td className="num">
+                      {charge.discount_minor > 0 &&
+                        `− ${formatAmount(charge.discount_minor, charge.currency as Currency)}`}
+                    </td>
                   )}
+                  <td className="num">
+                    {charge.state && formatAmount(charge.paid_minor, charge.currency as Currency)}
+                  </td>
+                  <td className="num font-bold">
+                    {charge.state &&
+                      formatAmount(charge.remaining_minor, charge.currency as Currency)}
+                  </td>
                   <td>
-                    <StatusPill tone={TONES[charge.status]}>
-                      {t(`students.finances.status.${charge.status}`)}
-                    </StatusPill>
+                    {charge.state ? (
+                      <StatusPill tone={STATE_TONES[charge.state]}>
+                        {t(`students.finances.state.${charge.state}`)}
+                      </StatusPill>
+                    ) : (
+                      <StatusPill tone={TONES[charge.status]}>
+                        {t(`students.finances.status.${charge.status}`)}
+                      </StatusPill>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -1,6 +1,7 @@
 """Configuration des frais de l'école courante (E1, E2, E5) : types de frais, barèmes et leurs
 tranches, taux de change de l'année, reprise des barèmes dans une nouvelle année (C1) ; frais
-dus des élèves, tirés des barèmes (2.6) ou d'un échéancier particulier (E4) ; réductions (E3).
+dus des élèves, tirés des barèmes (2.6) ou d'un échéancier particulier (E4) ; réductions (E3) ;
+solde et retards d'un élève (2.7).
 
 Droits `finance.configure_fees`, `finance.set_exchange_rate` et `finance.grant_discount`,
 vérifiés par l'API. Chaque
@@ -24,7 +25,7 @@ from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
-from apps.core.money import Money, percent_of, prorate
+from apps.core.money import Currency, Money, percent_of, prorate
 from apps.core.tenancy import require_current_school, use_school
 from apps.finance.models import (
     Discount,
@@ -631,20 +632,6 @@ def discount_shares(charges: list[StudentCharge], discounts: list[Discount]) -> 
     return shares
 
 
-def charges_of(enrollment_id) -> list[StudentCharge]:
-    """Frais dus d'une inscription par date limite, retirés et remplacés compris, chacun avec
-    sa part des réductions (`discount_minor`). Deux requêtes."""
-    charges = list(
-        StudentCharge.objects.filter(enrollment_id=enrollment_id)
-        .select_related("fee_type")
-        .order_by("due_on", "fee_type__name", "label")
-    )
-    shares = discount_shares(charges, list(Discount.objects.filter(enrollment_id=enrollment_id)))
-    for charge in charges:
-        charge.discount_minor = shares.get(charge.pk, 0)
-    return charges
-
-
 def _discount_data(discount: Discount) -> dict:
     data = {
         "fee_type": discount.fee_type.name if discount.fee_type else None,
@@ -751,6 +738,116 @@ def revoke_discount(discount: Discount, *, actor: User, reason: str) -> Discount
             after={"revoke_reason": reason},
         )
     return discount
+
+
+# Solde et retards (2.7)
+
+PAID, OVERDUE, UPCOMING = "paid", "overdue", "upcoming"
+UP_TO_DATE, PARTIAL = "up_to_date", "partial"
+
+
+def today() -> date:
+    """Aujourd'hui dans le fuseau de l'école de l'adresse (activé par le middleware)."""
+    return timezone.localdate()
+
+
+def _settle(charges: list[StudentCharge], discounts: list[Discount], day: date) -> None:
+    """Ajoute à chaque frais dû sa part des réductions (`discount_minor`), ce qui est payé
+    (`paid_minor`), le reste (`remaining_minor`) et son état (`state`) : soldé, en retard
+    (échéance passée, `due_on` < aujourd'hui, et reste > 0) ou à venir ; `None` pour un frais
+    retiré ou remplacé, qui ne compte plus."""
+    shares = discount_shares(charges, discounts)
+    for charge in charges:
+        charge.discount_minor = shares.get(charge.pk, 0)
+        # Allocations des paiements non annulés : avec les paiements (3.1).
+        charge.paid_minor = 0
+        if charge.status != StudentCharge.Status.ACTIVE:
+            charge.remaining_minor, charge.state = 0, None
+            continue
+        due = charge.amount_minor - charge.discount_minor
+        charge.remaining_minor = max(due - charge.paid_minor, 0)
+        if charge.remaining_minor == 0:
+            charge.state = PAID
+        else:
+            charge.state = OVERDUE if charge.due_on < day else UPCOMING
+
+
+def _ordered(charges: QuerySet) -> QuerySet:
+    return charges.select_related("fee_type").order_by("due_on", "fee_type__name", "label")
+
+
+def charges_of(enrollment_id) -> list[StudentCharge]:
+    """Frais dus d'une inscription par date limite, retirés et remplacés compris, chacun avec
+    sa part des réductions, ce qui est payé, le reste et son état (`_settle`). Deux requêtes."""
+    charges = list(_ordered(StudentCharge.objects.filter(enrollment_id=enrollment_id)))
+    discounts = list(Discount.objects.filter(enrollment_id=enrollment_id))
+    _settle(charges, discounts, today())
+    return charges
+
+
+def charges_by_enrollment(enrollment_ids: list) -> dict:
+    """`charges_of` pour plusieurs inscriptions (une classe), en deux requêtes :
+    {id de l'inscription: frais dus}."""
+    charges, discounts = defaultdict(list), defaultdict(list)
+    for charge in _ordered(StudentCharge.objects.filter(enrollment_id__in=enrollment_ids)):
+        charges[charge.enrollment_id].append(charge)
+    for discount in Discount.objects.filter(enrollment_id__in=enrollment_ids):
+        discounts[discount.enrollment_id].append(discount)
+    day = today()
+    for enrollment_id, items in charges.items():
+        _settle(items, discounts[enrollment_id], day)
+    return charges
+
+
+@dataclass
+class CurrencyBalance:
+    currency: str
+    total_minor: int
+    paid_minor: int
+    remaining_minor: int
+    overdue_minor: int
+    next_due_minor: int
+
+
+@dataclass
+class Balance:
+    situation: str
+    next_due_on: date | None
+    currencies: list[CurrencyBalance]
+
+
+def balance(charges: list[StudentCharge]) -> Balance:
+    """Solde d'un élève à partir de ses frais dus (`charges_of`), par devise et jamais additionné
+    entre devises, dollars d'abord : dû pour l'année après réductions, déjà payé, reste, en
+    retard, et reste de la prochaine échéance pas encore passée (même date pour toutes les
+    devises). Situation : à jour (rien en retard), partielle (en retard, mais des paiements) ou
+    en retard (rien payé)."""
+    active = [charge for charge in charges if charge.state]
+    next_due_on = min((c.due_on for c in active if c.state == UPCOMING), default=None)
+    currencies = []
+    for currency in Currency.values:
+        items = [charge for charge in active if charge.currency == currency]
+        if not items:
+            continue
+        currencies.append(
+            CurrencyBalance(
+                currency=currency,
+                total_minor=sum(c.amount_minor - c.discount_minor for c in items),
+                paid_minor=sum(c.paid_minor for c in items),
+                remaining_minor=sum(c.remaining_minor for c in items),
+                overdue_minor=sum(c.remaining_minor for c in items if c.state == OVERDUE),
+                next_due_minor=sum(
+                    c.remaining_minor
+                    for c in items
+                    if c.state == UPCOMING and c.due_on == next_due_on
+                ),
+            )
+        )
+    if not any(item.overdue_minor for item in currencies):
+        situation = UP_TO_DATE
+    else:
+        situation = PARTIAL if any(item.paid_minor for item in currencies) else OVERDUE
+    return Balance(situation, next_due_on, currencies)
 
 
 # Devises utilisées (M5)

@@ -1,0 +1,8 @@
+# Tâche 2.7 — solde et retards d'un élève
+
+- **Service** (`finance/services.py`) : `charges_of` donne aussi, par frais dû actif, `paid_minor` (0 jusqu'à la 3.1), `remaining_minor`, `state` (`paid`, `overdue`, `upcoming` ; en retard : `due_on` < aujourd'hui de l'école et reste > 0) ; `balance(charges)` par devise (total après réductions, payé, reste, en retard, prochaine échéance) et `situation` (`up_to_date`, `partial`, `overdue`) ; `charges_by_enrollment(ids)` en 2 requêtes pour une classe.
+- **API** : champs ajoutés à `/api/student-charges/` ; `GET /api/student-charges/balance/?enrollment=` (droits `CHARGES_READ`).
+- **Impressions** (`students/documents.py`) : fiche d'inscription `fees=true` → frais de l'année par type, après réductions, groupés par devise avec total (403 sans droit de lecture des frais) ; liste de classe colonne `payments` (« À jour » / « En retard : 20,00 $ + 30 000 FC »), PDF et Excel, 403 sans `finance.view_reports`. `core.money.format_amount` (même format que `@mwangaza/money`).
+- **Écrans** : onglet Finances (4 chiffres clés de la maquette `eleve-fiche`, colonnes Payé / Reste / État) ; cases « Inclure les frais de l'année » et « Situation des paiements » (masquées sans droit).
+- **Tests** : solde (réductions % et montant, réduction retirée, deux devises, échéance du jour pas en retard, frais retirés ignorés) ; isolation + 403 du solde ; fiche (frais après réduction, 403 secrétaire) ; liste (colonne, 403 caissier).
+- **Hors tâche** : annulation de paiement → test avec la 3.1 (pas encore de `Payment`) ; colonnes « Échu non payé » / « Paiements » et filtre « Paiement » de la liste des élèves → 4.1 (impayés : même requête par liste) — à valider.

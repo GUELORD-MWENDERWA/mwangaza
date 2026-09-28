@@ -1012,6 +1012,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/student-charges/balance/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Solde et retards de l'inscription (2.7), par devise : dû après réductions, payé,
+         *     reste, en retard, prochaine échéance.
+         */
+        get: operations["student_charges_balance_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/student-charges/reschedule/": {
         parameters: {
             query?: never;
@@ -1467,6 +1487,23 @@ export interface components {
             /** Browser */
             readonly user_agent: string;
         };
+        /** @description Solde d'un élève (2.7), par devise, jamais additionné entre devises. */
+        Balance: {
+            /**
+             * @description À jour (rien en retard), partielle (en retard, mais des paiements), en retard.
+             *
+             *     * `up_to_date` - up_to_date
+             *     * `partial` - partial
+             *     * `overdue` - overdue
+             */
+            situation: components["schemas"]["SituationEnum"];
+            /**
+             * Format: date
+             * @description Prochaine échéance pas encore passée avec un reste dû.
+             */
+            next_due_on: string | null;
+            currencies: components["schemas"]["CurrencyBalance"][];
+        };
         /** @enum {unknown} */
         BlankEnum: "";
         ClassGroup: {
@@ -1521,6 +1558,17 @@ export interface components {
         CodeRequest: {
             /** @description Code à 6 chiffres de l'application, ou code de secours (ex. 7KQ4-M2XP). */
             code: string;
+        };
+        CurrencyBalance: {
+            currency: components["schemas"]["CurrencyEnum"];
+            /** @description Dû pour l'année, après réductions. */
+            total_minor: number;
+            paid_minor: number;
+            remaining_minor: number;
+            /** @description Reste des échéances passées. */
+            overdue_minor: number;
+            /** @description Reste dû à `next_due_on`. */
+            next_due_minor: number;
         };
         /**
          * @description * `USD` - US dollar
@@ -2564,6 +2612,13 @@ export interface components {
          */
         SexEnum: "M" | "F";
         /**
+         * @description * `up_to_date` - up_to_date
+         *     * `partial` - partial
+         *     * `overdue` - overdue
+         * @enum {string}
+         */
+        SituationEnum: "up_to_date" | "partial" | "overdue";
+        /**
          * @description * `rule` - Fee rule
          *     * `custom` - Custom schedule
          * @enum {string}
@@ -2638,6 +2693,13 @@ export interface components {
             first_name: string;
         };
         /**
+         * @description * `paid` - paid
+         *     * `overdue` - overdue
+         *     * `upcoming` - upcoming
+         * @enum {string}
+         */
+        StateEnum: "paid" | "overdue" | "upcoming";
+        /**
          * @description * `password` - Phone number and password
          *     * `totp` - Two-factor authentication code
          *     * `new_password` - Replace the temporary password
@@ -2702,6 +2764,18 @@ export interface components {
             status: components["schemas"]["StudentChargeStatusEnum"];
             /** @description Part des réductions de l'élève (E3) ; 0 si ce n'est plus dû. */
             readonly discount_minor: number;
+            /** @description Paiements non annulés affectés à ce frais (0 avant la 3.1). */
+            readonly paid_minor: number;
+            /** @description Reste dû : montant moins réductions et payé ; 0 si ce n'est plus dû. */
+            readonly remaining_minor: number;
+            /**
+             * @description Soldé, en retard (échéance passée, reste > 0) ou à venir ; null si le frais est retiré ou remplacé.
+             *
+             *     * `paid` - paid
+             *     * `overdue` - overdue
+             *     * `upcoming` - upcoming
+             */
+            readonly state: (components["schemas"]["StateEnum"] | components["schemas"]["NullEnum"]) | null;
         };
         /**
          * @description * `active` - Due
@@ -4760,6 +4834,8 @@ export interface operations {
             query?: {
                 /** @description Imprimer le code famille (pour le tuteur principal) ; chaque PDF qui l'imprime est noté dans le journal d'audit. Décoché : fiche remise à un tiers. */
                 family_code?: boolean;
+                /** @description Frais de l'année de l'élève, après réductions, par devise : avec un droit de lecture des frais (comme `/api/student-charges/`), sinon 403. */
+                fees?: boolean;
                 /**
                  * @description `html` : aperçu dans la page, code famille masqué ; `pdf` : à imprimer.
                  *
@@ -4824,8 +4900,8 @@ export interface operations {
                 /** @description Colonnes vides à droite : appel, signatures, notes à la main. */
                 blank_columns?: number;
                 class_group: string;
-                /** @description Colonnes en plus du N° et du nom (paramètre répété). */
-                columns?: ("matricule" | "sex_birth" | "guardian_phone")[];
+                /** @description Colonnes en plus du N° et du nom (paramètre répété) ; `payments` (situation des paiements) : avec `finance.view_reports`, sinon 403. */
+                columns?: ("matricule" | "sex_birth" | "guardian_phone" | "payments")[];
                 /**
                  * @description * `name` - name
                  *     * `matricule` - matricule
@@ -6808,6 +6884,52 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StudentCharge"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    student_charges_balance_retrieve: {
+        parameters: {
+            query: {
+                /** @description Inscription de l'élève pour une année. */
+                enrollment: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Balance"];
                 };
             };
             400: {

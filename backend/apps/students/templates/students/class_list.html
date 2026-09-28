@@ -23,6 +23,7 @@ td.sex { text-align: center; }
     <th>{% translate "Last name, middle name, first name" %}</th>
     {% if "sex_birth" in columns %}<th>{% translate "Sex" %}</th><th>{% translate "Born on" %}</th>{% endif %}
     {% if "guardian_phone" in columns %}<th>{% translate "Main contact's phone" %}</th>{% endif %}
+    {% if "payments" in columns %}<th>{% translate "Payment status" %}</th>{% endif %}
     {% for blank in blank_columns %}<th class="blank"></th>{% endfor %}
   </tr></thead>
   <tbody>
@@ -33,6 +34,7 @@ td.sex { text-align: center; }
     <td><b>{{ row.surname|upper }}</b> {{ row.first_name }}</td>
     {% if "sex_birth" in columns %}<td class="sex">{{ row.sex }}</td><td>{{ row.birth_date|date:"d/m/Y" }}</td>{% endif %}
     {% if "guardian_phone" in columns %}<td>{{ row.phone }}</td>{% endif %}
+    {% if "payments" in columns %}<td>{{ row.payments }}</td>{% endif %}
     {% for blank in blank_columns %}<td class="blank"></td>{% endfor %}
   </tr>
   {% empty %}

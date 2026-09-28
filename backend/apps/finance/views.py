@@ -17,6 +17,7 @@ from apps.core.errors import ErrorSerializer
 from apps.finance import services
 from apps.finance.models import Discount, ExchangeRate, FeeRule, FeeType
 from apps.finance.serializers import (
+    BalanceSerializer,
     DiscountCreateSerializer,
     DiscountRevokeSerializer,
     DiscountSerializer,
@@ -247,6 +248,19 @@ class StudentChargeViewSet(mixins.ListModelMixin, SchoolViewSet):
         params.is_valid(raise_exception=True)
         charges = services.charges_of(params.validated_data["enrollment"])
         return Response(StudentChargeSerializer(charges, many=True).data)
+
+    @extend_schema(
+        parameters=[StudentChargeFilterSerializer],
+        responses={200: BalanceSerializer, **INVALID, **ERRORS},
+    )
+    @action(detail=False)
+    def balance(self, request: Request) -> Response:
+        """Solde et retards de l'inscription (2.7), par devise : dû après réductions, payé,
+        reste, en retard, prochaine échéance."""
+        params = StudentChargeFilterSerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        charges = services.charges_of(params.validated_data["enrollment"])
+        return Response(BalanceSerializer(services.balance(charges)).data)
 
     @extend_schema(
         request=RescheduleSerializer,
