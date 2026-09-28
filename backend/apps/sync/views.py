@@ -8,11 +8,21 @@ from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.accounts.permissions import school_access
+from apps.accounts.permissions import HasSchoolPermission, school_access
+from apps.accounts.roles import FINANCE_COLLECT_PAYMENT, STUDENTS_VIEW
 from apps.core.errors import SCHOOL_NOT_FOUND, ErrorSerializer
-from apps.sync import services
+from apps.sync import operations, services
 from apps.sync.models import Device
-from apps.sync.serializers import DeviceRegisterSerializer, DeviceSerializer
+from apps.sync.serializers import (
+    DeviceRegisterSerializer,
+    DeviceSerializer,
+    PullQuerySerializer,
+    PullSerializer,
+    PushResultSerializer,
+    PushSerializer,
+    SnapshotQuerySerializer,
+    SnapshotSerializer,
+)
 
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
 
@@ -87,3 +97,64 @@ class MyDeviceViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def _data(self, device: Device) -> dict:
         return DeviceSerializer(device, context=self.get_serializer_context()).data
+
+
+@extend_schema(tags=["sync"])
+class SyncViewSet(viewsets.ViewSet):
+    """Synchronisation hors ligne (3.3.2), seulement depuis l'appareil enregistré de la session
+    (sinon 403 `device_required` ; déconnecté : 409 `device_revoked`, il efface ses données).
+    Élèves et, selon les droits, leurs finances (`services.Reader`)."""
+
+    permission_classes = [HasSchoolPermission]
+    required_permission = (STUDENTS_VIEW, FINANCE_COLLECT_PAYMENT)
+
+    @extend_schema(
+        parameters=[SnapshotQuerySerializer],
+        responses={200: SnapshotSerializer, 409: ErrorSerializer, **ERRORS},
+    )
+    @action(detail=False, methods=["get"])
+    def snapshot(self, request: Request) -> Response:
+        """Premier chargement, par pages d'inscriptions de l'année en cours."""
+        device = self._device()
+        params = SnapshotQuerySerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        data = services.snapshot(device, self._reader(), request.school, **params.validated_data)
+        return Response(SnapshotSerializer(data).data)
+
+    @extend_schema(
+        parameters=[PullQuerySerializer],
+        responses={200: PullSerializer, 409: ErrorSerializer, **ERRORS},
+    )
+    @action(detail=False, methods=["get"])
+    def pull(self, request: Request) -> Response:
+        """Changements depuis `since` ; 409 `snapshot_required` : reprendre un instantané."""
+        self._device()
+        params = PullQuerySerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        data = services.pull(self._reader(), request.school, **params.validated_data)
+        return Response(PullSerializer(data).data)
+
+    @extend_schema(
+        request=PushSerializer,
+        responses={200: PushResultSerializer, 400: ErrorSerializer, 409: ErrorSerializer, **ERRORS},
+    )
+    @action(detail=False, methods=["post"])
+    def push(self, request: Request) -> Response:
+        """Lot d'opérations de l'appareil, dans l'ordre : résultat de chacune par `op_id`."""
+        device = self._device()
+        body = PushSerializer(data=request.data)
+        body.is_valid(raise_exception=True)
+        outcomes = operations.push(
+            device,
+            request.user,
+            school_access(request).permissions,
+            [operations.Incoming(**item) for item in body.validated_data["operations"]],
+            receipt_seq=body.validated_data.get("receipt_seq"),
+        )
+        return Response(PushResultSerializer({"results": outcomes}).data)
+
+    def _device(self) -> Device:
+        return services.sync_device(self.request.session, self.request.school, self.request.user)
+
+    def _reader(self) -> services.Reader:
+        return services.Reader.of(self.request.user, school_access(self.request).permissions)

@@ -1514,6 +1514,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/sync/pull/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Changements depuis `since` ; 409 `snapshot_required` : reprendre un instantané. */
+        get: operations["sync_pull_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sync/push/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Lot d'opérations de l'appareil, dans l'ordre : résultat de chacune par `op_id`. */
+        post: operations["sync_push_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sync/snapshot/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Premier chargement, par pages d'inscriptions de l'année en cours. */
+        get: operations["sync_snapshot_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tracks/": {
         parameters: {
             query?: never;
@@ -1804,6 +1855,21 @@ export interface components {
             /** Format: uuid */
             cash_register: string;
         };
+        Change: {
+            seq: number;
+            entity_type: components["schemas"]["EntityTypeEnum"];
+            /** Format: uuid */
+            entity_id: string;
+            /**
+             * @description `delete` : l'appareil l'efface (inscription hors de l'année en cours).
+             *
+             *     * `upsert` - created or changed
+             *     * `delete` - deleted
+             */
+            operation: components["schemas"]["OperationEnum"];
+            enrollment: components["schemas"]["SyncEnrollment"] | null;
+            config: components["schemas"]["SyncConfig"] | null;
+        };
         ClassGroup: {
             /** Format: uuid */
             readonly id: string;
@@ -2069,6 +2135,12 @@ export interface components {
          * @enum {string}
          */
         EnrollmentStatusEnum: "active" | "transferred" | "dropped" | "excluded" | "graduated";
+        /**
+         * @description * `enrollment` - enrollment
+         *     * `config` - configuration
+         * @enum {string}
+         */
+        EntityTypeEnum: "enrollment" | "config";
         Error: {
             /** @description Code stable, traduit par l'interface. */
             code: string;
@@ -2364,6 +2436,24 @@ export interface components {
             guardian_name: string;
             guardian_phone: string;
         };
+        IncomingRequest: {
+            /**
+             * Format: uuid
+             * @description UUID v7 de l'opération, donné par l'appareil.
+             */
+            op_id: string;
+            /** @description Ex. `payment.create`. */
+            type: string;
+            /** @description Contenu propre au type d'opération. */
+            payload: {
+                [key: string]: unknown;
+            };
+            /**
+             * Format: date-time
+             * @description Heure de l'appareil.
+             */
+            created_at?: string;
+        };
         Installment: {
             /** Format: uuid */
             readonly id: string;
@@ -2530,6 +2620,37 @@ export interface components {
             /** Format: date-time */
             opened_at: string;
         };
+        /**
+         * @description * `upsert` - created or changed
+         *     * `delete` - deleted
+         * @enum {string}
+         */
+        OperationEnum: "upsert" | "delete";
+        Outcome: {
+            /** Format: uuid */
+            op_id: string;
+            /**
+             * @description `duplicate` : déjà appliquée, même résultat.
+             *
+             *     * `applied` - applied
+             *     * `duplicate` - duplicate
+             *     * `rejected` - rejected
+             */
+            status: components["schemas"]["OutcomeStatusEnum"];
+            /** @description Ex. `{payment, receipt_number}`. */
+            result: {
+                [key: string]: unknown;
+            };
+            /** @description Raison du refus. */
+            error: components["schemas"]["Error"] | null;
+        };
+        /**
+         * @description * `applied` - applied
+         *     * `duplicate` - duplicate
+         *     * `rejected` - rejected
+         * @enum {string}
+         */
+        OutcomeStatusEnum: "applied" | "duplicate" | "rejected";
         PaginatedAuditLogList: {
             /** @example 123 */
             count: number;
@@ -2981,6 +3102,22 @@ export interface components {
          * @enum {string}
          */
         PrinterEnum: "thermal_58" | "thermal_80" | "sheet";
+        Pull: {
+            changes: components["schemas"]["Change"][];
+            /** @description `since` de la prochaine demande. */
+            cursor: number;
+            /** @description Encore des changements : redemander. */
+            has_more: boolean;
+        };
+        PushRequest: {
+            /** @description Dernier numéro de reçu donné par l'appareil. */
+            receipt_seq?: number;
+            /** @description Dans l'ordre. */
+            operations: components["schemas"]["IncomingRequest"][];
+        };
+        PushResult: {
+            results: components["schemas"]["Outcome"][];
+        };
         /**
          * @description * `staff_child` - Staff child
          *     * `sibling` - Sibling
@@ -3207,6 +3344,20 @@ export interface components {
          * @enum {string}
          */
         SituationEnum: "up_to_date" | "partial" | "overdue";
+        Snapshot: {
+            /** @description Première page seulement : numéro à garder pour `pull` (pas celui d'une page suivante). */
+            cursor: number | null;
+            /** @description Première page seulement. */
+            device: components["schemas"]["SyncDevice"] | null;
+            /** @description Première page seulement. */
+            config: components["schemas"]["SyncConfig"] | null;
+            enrollments: components["schemas"]["SyncEnrollment"][];
+            /**
+             * Format: uuid
+             * @description `after` de la page suivante.
+             */
+            next: string | null;
+        };
         /**
          * @description * `rule` - Fee rule
          *     * `custom` - Custom schedule
@@ -3536,6 +3687,105 @@ export interface components {
         SupportStartRequest: {
             /** @description Motif, lu par l'école dans son journal (ex. demande du directeur). */
             reason: string;
+        };
+        SyncClassGroup: {
+            /** Format: uuid */
+            readonly id: string;
+            /** @description « 3e Électricité A ». */
+            readonly name: string;
+            /** Format: uuid */
+            readonly level: string;
+            /** Format: uuid */
+            readonly track: string | null;
+            readonly section: string;
+        };
+        /**
+         * @description Entité `config` : ce qui se modifie en ligne seulement. Frais, caisses et taux : null
+         *     sans droit sur les finances.
+         */
+        SyncConfig: {
+            school: components["schemas"]["CurrentSchool"];
+            /** @description Année en cours. */
+            academic_year: components["schemas"]["SyncYear"] | null;
+            /** @description Classes de l'année en cours. */
+            class_groups: components["schemas"]["SyncClassGroup"][];
+            fee_types: components["schemas"]["SyncFeeType"][] | null;
+            cash_registers: components["schemas"]["CashRegister"][] | null;
+            /** @description Taux des encaissements. */
+            exchange_rate: components["schemas"]["ExchangeRate"] | null;
+        };
+        SyncDevice: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly prefix: string;
+            /** Last receipt number */
+            readonly last_receipt_seq: number;
+        };
+        /**
+         * @description Entité `enrollment` : l'élève, sa classe, ses frais dus et ses paiements de l'année.
+         *     Frais et paiements : null sans droit sur les finances ; `state` des frais est calculé le jour
+         *     de l'envoi (l'appareil le recalcule d'après `due_on`).
+         */
+        SyncEnrollment: {
+            /** Format: uuid */
+            readonly id: string;
+            /**
+             * School year
+             * Format: uuid
+             */
+            readonly academic_year: string;
+            /**
+             * Class
+             * Format: uuid
+             */
+            readonly class_group: string;
+            readonly status: components["schemas"]["EnrollmentStatusEnum"];
+            /** Format: date */
+            readonly enrolled_on: string;
+            /** Format: date */
+            readonly left_on: string | null;
+            readonly student: components["schemas"]["SyncStudent"];
+            readonly charges: components["schemas"]["StudentCharge"][] | null;
+            readonly payments: components["schemas"]["Payment"][] | null;
+        };
+        SyncFeeType: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly name: string;
+            readonly category: components["schemas"]["FeeCategoryEnum"];
+            /** Active */
+            readonly is_active: boolean;
+        };
+        SyncStudent: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Student number */
+            readonly matricule: string;
+            readonly last_name: string;
+            readonly middle_name: string;
+            readonly first_name: string;
+            readonly sex: components["schemas"]["SexEnum"];
+            /**
+             * Date of birth
+             * Format: date
+             */
+            readonly birth_date: string | null;
+            readonly family_code: string;
+        };
+        SyncYear: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly name: string;
+            /**
+             * Start
+             * Format: date
+             */
+            readonly starts_on: string;
+            /**
+             * End
+             * Format: date
+             */
+            readonly ends_on: string;
         };
         /**
          * @description * `secondary` - RDC secondary: 2 semesters, 4 periods, 2 exam sessions
@@ -9070,6 +9320,157 @@ export interface operations {
                 content?: never;
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    sync_pull_retrieve: {
+        parameters: {
+            query: {
+                limit?: number;
+                /** @description Dernier numéro reçu (`cursor`). */
+                since: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Pull"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    sync_push_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PushRequest"];
+                "multipart/form-data": components["schemas"]["PushRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PushResult"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    sync_snapshot_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Dernière inscription de la page précédente (`next`). */
+                after?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Snapshot"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

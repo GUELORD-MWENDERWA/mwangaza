@@ -5358,6 +5358,154 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/sync/pull/:
+    get:
+      operationId: sync_pull_retrieve
+      description: 'Changements depuis `since` ; 409 `snapshot_required` : reprendre
+        un instantané.'
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          maximum: 1000
+          minimum: 1
+          default: 500
+      - in: query
+        name: since
+        schema:
+          type: integer
+          minimum: 0
+        description: Dernier numéro reçu (`cursor`).
+        required: true
+      tags:
+      - sync
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pull'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/sync/push/:
+    post:
+      operationId: sync_push_create
+      description: 'Lot d''opérations de l''appareil, dans l''ordre : résultat de
+        chacune par `op_id`.'
+      tags:
+      - sync
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PushRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PushRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PushResult'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/sync/snapshot/:
+    get:
+      operationId: sync_snapshot_retrieve
+      description: Premier chargement, par pages d'inscriptions de l'année en cours.
+      parameters:
+      - in: query
+        name: after
+        schema:
+          type: string
+          format: uuid
+        description: Dernière inscription de la page précédente (`next`).
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 200
+      tags:
+      - sync
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Snapshot'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/tracks/:
     get:
       operationId: tracks_list
@@ -6094,6 +6242,39 @@ components:
           format: uuid
       required:
       - cash_register
+    Change:
+      type: object
+      properties:
+        seq:
+          type: integer
+        entity_type:
+          $ref: '#/components/schemas/EntityTypeEnum'
+        entity_id:
+          type: string
+          format: uuid
+        operation:
+          allOf:
+          - $ref: '#/components/schemas/OperationEnum'
+          description: |-
+            `delete` : l'appareil l'efface (inscription hors de l'année en cours).
+
+            * `upsert` - created or changed
+            * `delete` - deleted
+        enrollment:
+          allOf:
+          - $ref: '#/components/schemas/SyncEnrollment'
+          nullable: true
+        config:
+          allOf:
+          - $ref: '#/components/schemas/SyncConfig'
+          nullable: true
+      required:
+      - seq
+      - entity_type
+      - entity_id
+      - operation
+      - enrollment
+      - config
     ClassGroup:
       type: object
       properties:
@@ -6661,6 +6842,14 @@ components:
         * `dropped` - Dropped out
         * `excluded` - Excluded
         * `graduated` - Graduated
+    EntityTypeEnum:
+      enum:
+      - enrollment
+      - config
+      type: string
+      description: |-
+        * `enrollment` - enrollment
+        * `config` - configuration
     Error:
       type: object
       properties:
@@ -7361,6 +7550,30 @@ components:
       - matricule
       - guardian_name
       - guardian_phone
+    IncomingRequest:
+      type: object
+      properties:
+        op_id:
+          type: string
+          format: uuid
+          description: UUID v7 de l'opération, donné par l'appareil.
+        type:
+          type: string
+          minLength: 1
+          description: Ex. `payment.create`.
+          maxLength: 40
+        payload:
+          type: object
+          additionalProperties: {}
+          description: Contenu propre au type d'opération.
+        created_at:
+          type: string
+          format: date-time
+          description: Heure de l'appareil.
+      required:
+      - op_id
+      - payload
+      - type
     Installment:
       type: object
       properties:
@@ -7717,6 +7930,53 @@ components:
       - id
       - cashier
       - opened_at
+    OperationEnum:
+      enum:
+      - upsert
+      - delete
+      type: string
+      description: |-
+        * `upsert` - created or changed
+        * `delete` - deleted
+    Outcome:
+      type: object
+      properties:
+        op_id:
+          type: string
+          format: uuid
+        status:
+          allOf:
+          - $ref: '#/components/schemas/OutcomeStatusEnum'
+          description: |-
+            `duplicate` : déjà appliquée, même résultat.
+
+            * `applied` - applied
+            * `duplicate` - duplicate
+            * `rejected` - rejected
+        result:
+          type: object
+          additionalProperties: {}
+          description: Ex. `{payment, receipt_number}`.
+        error:
+          allOf:
+          - $ref: '#/components/schemas/Error'
+          nullable: true
+          description: Raison du refus.
+      required:
+      - op_id
+      - status
+      - result
+      - error
+    OutcomeStatusEnum:
+      enum:
+      - applied
+      - duplicate
+      - rejected
+      type: string
+      description: |-
+        * `applied` - applied
+        * `duplicate` - duplicate
+        * `rejected` - rejected
     PaginatedAuditLogList:
       type: object
       required:
@@ -8579,6 +8839,46 @@ components:
         * `thermal_58` - thermal_58
         * `thermal_80` - thermal_80
         * `sheet` - sheet
+    Pull:
+      type: object
+      properties:
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Change'
+        cursor:
+          type: integer
+          description: '`since` de la prochaine demande.'
+        has_more:
+          type: boolean
+          description: 'Encore des changements : redemander.'
+      required:
+      - changes
+      - cursor
+      - has_more
+    PushRequest:
+      type: object
+      properties:
+        receipt_seq:
+          type: integer
+          minimum: 0
+          description: Dernier numéro de reçu donné par l'appareil.
+        operations:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncomingRequest'
+          description: Dans l'ordre.
+      required:
+      - operations
+    PushResult:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Outcome'
+      required:
+      - results
     ReasonCodeEnum:
       enum:
       - staff_child
@@ -8974,6 +9274,39 @@ components:
         * `up_to_date` - up_to_date
         * `partial` - partial
         * `overdue` - overdue
+    Snapshot:
+      type: object
+      properties:
+        cursor:
+          type: integer
+          nullable: true
+          description: 'Première page seulement : numéro à garder pour `pull` (pas
+            celui d''une page suivante).'
+        device:
+          allOf:
+          - $ref: '#/components/schemas/SyncDevice'
+          nullable: true
+          description: Première page seulement.
+        config:
+          allOf:
+          - $ref: '#/components/schemas/SyncConfig'
+          nullable: true
+          description: Première page seulement.
+        enrollments:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncEnrollment'
+        next:
+          type: string
+          format: uuid
+          nullable: true
+          description: '`after` de la page suivante.'
+      required:
+      - cursor
+      - device
+      - config
+      - enrollments
+      - next
     SourceEnum:
       enum:
       - rule
@@ -9703,6 +10036,243 @@ components:
           maxLength: 200
       required:
       - reason
+    SyncClassGroup:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+          description: « 3e Électricité A ».
+        level:
+          type: string
+          format: uuid
+          readOnly: true
+        track:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        section:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - name
+      - level
+      - track
+      - section
+    SyncConfig:
+      type: object
+      description: |-
+        Entité `config` : ce qui se modifie en ligne seulement. Frais, caisses et taux : null
+        sans droit sur les finances.
+      properties:
+        school:
+          $ref: '#/components/schemas/CurrentSchool'
+        academic_year:
+          allOf:
+          - $ref: '#/components/schemas/SyncYear'
+          nullable: true
+          description: Année en cours.
+        class_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncClassGroup'
+          description: Classes de l'année en cours.
+        fee_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncFeeType'
+          nullable: true
+        cash_registers:
+          type: array
+          items:
+            $ref: '#/components/schemas/CashRegister'
+          nullable: true
+        exchange_rate:
+          allOf:
+          - $ref: '#/components/schemas/ExchangeRate'
+          nullable: true
+          description: Taux des encaissements.
+      required:
+      - school
+      - academic_year
+      - class_groups
+      - fee_types
+      - cash_registers
+      - exchange_rate
+    SyncDevice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        prefix:
+          type: string
+          readOnly: true
+        last_receipt_seq:
+          type: integer
+          readOnly: true
+          title: Last receipt number
+      required:
+      - id
+      - prefix
+      - last_receipt_seq
+    SyncEnrollment:
+      type: object
+      description: |-
+        Entité `enrollment` : l'élève, sa classe, ses frais dus et ses paiements de l'année.
+        Frais et paiements : null sans droit sur les finances ; `state` des frais est calculé le jour
+        de l'envoi (l'appareil le recalcule d'après `due_on`).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        academic_year:
+          type: string
+          format: uuid
+          readOnly: true
+          title: School year
+        class_group:
+          type: string
+          format: uuid
+          readOnly: true
+          title: Class
+        status:
+          allOf:
+          - $ref: '#/components/schemas/EnrollmentStatusEnum'
+          readOnly: true
+        enrolled_on:
+          type: string
+          format: date
+          readOnly: true
+        left_on:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        student:
+          allOf:
+          - $ref: '#/components/schemas/SyncStudent'
+          readOnly: true
+        charges:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentCharge'
+          readOnly: true
+          nullable: true
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+          readOnly: true
+          nullable: true
+      required:
+      - id
+      - academic_year
+      - class_group
+      - status
+      - enrolled_on
+      - left_on
+      - student
+      - charges
+      - payments
+    SyncFeeType:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        category:
+          allOf:
+          - $ref: '#/components/schemas/FeeCategoryEnum'
+          readOnly: true
+        is_active:
+          type: boolean
+          readOnly: true
+          title: Active
+      required:
+      - id
+      - name
+      - category
+      - is_active
+    SyncStudent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        matricule:
+          type: string
+          readOnly: true
+          title: Student number
+        last_name:
+          type: string
+          readOnly: true
+        middle_name:
+          type: string
+          readOnly: true
+        first_name:
+          type: string
+          readOnly: true
+        sex:
+          allOf:
+          - $ref: '#/components/schemas/SexEnum'
+          readOnly: true
+        birth_date:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+          title: Date of birth
+        family_code:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - matricule
+      - last_name
+      - middle_name
+      - first_name
+      - sex
+      - birth_date
+      - family_code
+    SyncYear:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        starts_on:
+          type: string
+          format: date
+          readOnly: true
+          title: Start
+        ends_on:
+          type: string
+          format: date
+          readOnly: true
+          title: End
+      required:
+      - id
+      - name
+      - starts_on
+      - ends_on
     TemplateEnum:
       enum:
       - secondary

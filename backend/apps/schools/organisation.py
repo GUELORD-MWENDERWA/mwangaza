@@ -26,6 +26,7 @@ from apps.core.tenancy import require_current_school
 from apps.finance import services as finance
 from apps.schools import matricule
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Term, Track
+from apps.sync import changes as sync_changes
 
 YEAR_NAME_TAKEN = ApiError(
     "year_name_taken", _("The school already has a school year with this name."), 409
@@ -154,7 +155,9 @@ def _copy_classes(source: AcademicYear, year: AcademicYear, *, actor: User) -> i
         )
         for group in source.class_groups.all()
     ]
-    return len(ClassGroup.objects.bulk_create(groups))
+    created = ClassGroup.objects.bulk_create(groups)
+    sync_changes.touch_config()
+    return len(created)
 
 
 def update_year(
