@@ -1,12 +1,16 @@
 """Appareils (3.3.1) : enregistrement, reprise à chaque connexion, révocation, signature des
-reçus émis hors ligne.
+reçus émis hors ligne. Synchronisation (3.3.2) : instantané et changements descendus sur
+l'appareil ; les opérations qu'il envoie sont dans `operations.py`.
 
 Une session connectée garde l'appareil sous `DEVICE_SESSION_KEY` : le journal d'audit note
 l'appareil de chaque action (`AuditMiddleware`)."""
 
 import base64
 import binascii
+from collections import defaultdict
+from dataclasses import dataclass
 from importlib import import_module
+from uuid import UUID
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
@@ -20,12 +24,17 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.models import User
+from apps.accounts.roles import FINANCE_COLLECT_PAYMENT, FINANCE_VIEW_REPORTS
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
-from apps.finance.models import CashRegister
-from apps.schools.models import School
-from apps.sync.models import Device
+from apps.finance import services as finance
+from apps.finance.models import CashRegister, ExchangeRate, FeeType, Payment
+from apps.schools import organisation
+from apps.schools.models import AcademicYear, ClassGroup, School
+from apps.students.models import Enrollment
+from apps.sync import changes
+from apps.sync.models import ChangeLog, Device
 
 DEVICE_SESSION_KEY = "sync.device"
 # « Poste » : jamais égal au code d'une caisse (`C1`), qui numérote les reçus donnés en ligne.
@@ -33,6 +42,12 @@ PREFIX_LETTER = "P"
 
 DEVICE_REVOKED = ApiError(
     "device_revoked", _("This device was disconnected. It is no longer remembered."), 409
+)
+DEVICE_REQUIRED = ApiError(
+    "device_required", _("Remember this device when you log in to work without internet."), 403
+)
+SNAPSHOT_REQUIRED = ApiError(
+    "snapshot_required", _("The data of this device is out of date: download it again."), 409
 )
 
 
@@ -130,3 +145,162 @@ def _load_public_key(value: str) -> ec.EllipticCurvePublicKey:
             {"public_key": ValidationError(_("Invalid device key."), code="invalid_key")}
         )
     return key
+
+
+def sync_device(session, school: School, user: User) -> Device:
+    """L'appareil de la session, enregistré dans cette école par ce compte : seul un appareil
+    enregistré se synchronise. Déconnecté : 409 `device_revoked` (il efface ses données)."""
+    device_id = session_device(session, school)
+    device = Device.objects.filter(pk=device_id, user=user).first() if device_id else None
+    if device is None:
+        raise BusinessError(DEVICE_REQUIRED)
+    if device.revoked_at is not None:
+        raise BusinessError(DEVICE_REVOKED)
+    return device
+
+
+@dataclass(frozen=True)
+class Reader:
+    """Ce que le compte peut recevoir sur son appareil : les élèves toujours ; frais dus,
+    paiements, caisses et taux avec un droit sur les finances ; les paiements des autres
+    caissiers seulement avec `finance.view_reports` (comme en ligne)."""
+
+    user: User
+    finance: bool
+    all_payments: bool
+
+    @classmethod
+    def of(cls, user: User, permissions: frozenset[str]) -> "Reader":
+        return cls(
+            user=user,
+            finance=bool(permissions & {FINANCE_COLLECT_PAYMENT, FINANCE_VIEW_REPORTS}),
+            all_payments=FINANCE_VIEW_REPORTS in permissions,
+        )
+
+
+@dataclass
+class Config:
+    """Configuration de l'école sur l'appareil (entité `config`) : modifiée en ligne seulement."""
+
+    school: School
+    academic_year: AcademicYear | None
+    class_groups: list[ClassGroup]
+    fee_types: list[FeeType] | None
+    cash_registers: list[CashRegister] | None
+    exchange_rate: ExchangeRate | None
+
+
+@dataclass
+class Snapshot:
+    cursor: int | None
+    device: Device | None
+    config: Config | None
+    enrollments: list[Enrollment]
+    next: UUID | None
+
+
+@dataclass
+class Change:
+    seq: int
+    entity_type: str
+    entity_id: UUID
+    operation: str
+    enrollment: Enrollment | None = None
+    config: Config | None = None
+
+
+@dataclass
+class Pull:
+    changes: list[Change]
+    cursor: int
+    has_more: bool
+
+
+def config(reader: Reader, school: School) -> Config:
+    year = organisation.current_year()
+    groups = ClassGroup.objects.filter(academic_year=year).select_related("level", "track")
+    return Config(
+        school=school,
+        academic_year=year,
+        class_groups=sorted(groups, key=lambda group: (group.level.order, group.name)),
+        fee_types=list(FeeType.objects.order_by("name")) if reader.finance else None,
+        cash_registers=list(CashRegister.objects.order_by("code")) if reader.finance else None,
+        exchange_rate=(finance.payment_rate()[0] if reader.finance and year is not None else None),
+    )
+
+
+def enrollments(reader: Reader, *, ids=None, after=None, limit=None) -> list[Enrollment]:
+    """Inscriptions de l'année en cours avec l'élève et, avec un droit sur les finances, ses
+    frais dus (réductions, payé, reste : `finance.charges_by_enrollment`) et ses paiements.
+    Quelques requêtes, quel que soit le nombre d'inscriptions."""
+    items = Enrollment.objects.filter(academic_year=organisation.current_year()).select_related(
+        "student__family"
+    )
+    if ids is not None:
+        items = items.filter(pk__in=ids)
+    if after is not None:
+        items = items.filter(pk__gt=after)
+    items = list(items.order_by("pk")[:limit])
+    if not reader.finance:
+        for item in items:
+            item.sync_charges = item.sync_payments = None
+        return items
+    keys = [item.pk for item in items]
+    charges = finance.charges_by_enrollment(keys)
+    payments = finance.receipt_payments().filter(enrollment_id__in=keys)
+    if not reader.all_payments:
+        payments = payments.filter(cash_session__cashier=reader.user)
+    by_enrollment: dict[UUID, list[Payment]] = defaultdict(list)
+    for payment in payments:
+        by_enrollment[payment.enrollment_id].append(payment)
+    for item in items:
+        item.sync_charges = charges.get(item.pk, [])
+        item.sync_payments = by_enrollment[item.pk]
+    return items
+
+
+def snapshot(
+    device: Device, reader: Reader, school: School, *, after=None, limit: int = 200
+) -> Snapshot:
+    """Instantané de l'école par pages d'inscriptions (`after` : la dernière de la page
+    précédente). La première page donne aussi l'appareil (séquence de ses reçus, pour la
+    reprendre après une réinstallation), la configuration et `cursor`, pris avant de lire les
+    données : `pull` depuis ce numéro renvoie tout ce qui a changé ensuite."""
+    first = after is None
+    cursor = changes.sequence() if first else None
+    items = enrollments(reader, after=after, limit=limit + 1)
+    return Snapshot(
+        cursor=cursor,
+        device=device if first else None,
+        config=config(reader, school) if first else None,
+        enrollments=items[:limit],
+        next=items[limit - 1].pk if len(items) > limit else None,
+    )
+
+
+def pull(reader: Reader, school: School, *, since: int, limit: int = 500) -> Pull:
+    """Changements depuis le numéro `since`, dans l'ordre, avec l'état actuel de chaque entité.
+    Une inscription qui n'est plus dans l'année en cours part de l'appareil (`delete`) ; une
+    nouvelle année en cours se voit dans la configuration (l'appareil reprend un instantané).
+    `since` plus grand que le dernier numéro (base restaurée) : 409 `snapshot_required`."""
+    last = changes.sequence()
+    if since > last:
+        raise BusinessError(SNAPSHOT_REQUIRED)
+    rows = list(ChangeLog.objects.filter(seq__gt=since).order_by("seq")[: limit + 1])
+    has_more, rows = len(rows) > limit, rows[:limit]
+    wanted = [row.entity_id for row in rows if row.entity_type == ChangeLog.Entity.ENROLLMENT]
+    found = {item.pk: item for item in enrollments(reader, ids=wanted)} if wanted else {}
+    current = None
+    if any(row.entity_type == ChangeLog.Entity.CONFIG for row in rows):
+        current = config(reader, school)
+    items = []
+    for row in rows:
+        if row.entity_type == ChangeLog.Entity.CONFIG:
+            items.append(
+                Change(row.seq, row.entity_type, row.entity_id, row.operation, None, current)
+            )
+            continue
+        enrollment = found.get(row.entity_id)
+        operation = ChangeLog.Operation.UPSERT if enrollment else ChangeLog.Operation.DELETE
+        items.append(Change(row.seq, row.entity_type, row.entity_id, operation, enrollment))
+    return Pull(items, rows[-1].seq if rows else since, has_more)

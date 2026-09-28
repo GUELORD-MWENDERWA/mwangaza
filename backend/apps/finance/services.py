@@ -9,16 +9,27 @@ changement va dans le journal de l'école (domaine `finance`), dans la transacti
 Montants en entiers dans la devise du barème (skill `argent`).
 """
 
+import re
 from collections import defaultdict
 from copy import copy
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 from uuid import UUID
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import BigIntegerField, Count, ProtectedError, Q, QuerySet, Sum
+from django.db.models import (
+    BigIntegerField,
+    Count,
+    Exists,
+    OuterRef,
+    Prefetch,
+    ProtectedError,
+    Q,
+    QuerySet,
+    Sum,
+)
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -45,6 +56,8 @@ from apps.finance.models import (
 from apps.schools import organisation
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment
+from apps.sync import changes as sync_changes
+from apps.sync.models import Device
 
 FEE_TYPE_NAME_TAKEN = ApiError(
     "fee_type_name_taken", _("The school already has a fee type with this name."), 409
@@ -545,6 +558,7 @@ def sync_charges(
             ["status", "label", "amount_minor", "currency", "due_on", "updated_at"],
             batch_size=500,
         )
+        sync_changes.touch_enrollments(changed)
     return len(changed)
 
 
@@ -627,6 +641,7 @@ def reschedule_charges(
         for charge in replaced:
             charge.status, charge.updated_at = StudentCharge.Status.REPLACED, now
         StudentCharge.objects.bulk_update(replaced, ["status", "updated_at"])
+        sync_changes.touch_enrollments([enrollment.pk])
         created = StudentCharge.objects.bulk_create(
             [
                 StudentCharge(
@@ -1195,6 +1210,53 @@ def _next_receipt_number(school: School, register: CashRegister, year: AcademicY
     return f"{prefix}{sequence:06d}"
 
 
+@dataclass(frozen=True)
+class Offline:
+    """Paiement encaissé hors ligne, arrivé par la synchronisation (3.3.2) : la session, le
+    numéro de reçu (`ITIG-P1-26-000184`) et l'heure viennent de l'appareil."""
+
+    device: Device
+    cash_session_id: UUID
+    receipt_number: str
+    paid_at: datetime
+
+
+def _offline_session(actor: User, offline: Offline) -> CashSession | None:
+    return (
+        CashSession.objects.select_related("cash_register")
+        .filter(pk=offline.cash_session_id, cashier=actor, closed_at__isnull=True)
+        .first()
+    )
+
+
+def _rate_at(when: datetime) -> ExchangeRate | None:
+    """Taux en vigueur à l'heure d'un encaissement hors ligne : le dernier fixé avant elle pour
+    l'année en cours, sinon celui des encaissements en ligne."""
+    year = organisation.current_year()
+    rate = (
+        ExchangeRate.objects.filter(academic_year=year, created_at__lte=when)
+        .order_by("-created_at", "-id")
+        .first()
+        if year is not None
+        else None
+    )
+    return rate or payment_rate()[0]
+
+
+def _offline_number(offline: Offline, school: School, year: AcademicYear) -> str:
+    """Numéro donné par l'appareil : école, préfixe de l'appareil, année scolaire de
+    l'inscription, séquence de l'appareil ; jamais celui d'un autre paiement."""
+    prefix = f"{school.code.upper()}-{offline.device.prefix}-{year.starts_on:%y}-"
+    number = offline.receipt_number
+    if not number.startswith(prefix) or not re.fullmatch(r"[0-9]{6,}", number[len(prefix) :]):
+        message = _("This receipt number was not given by this device.")
+        raise _invalid("receipt_number", message, "receipt_number_invalid")
+    if Payment.objects.filter(receipt_number=number).exists():
+        message = _("Another payment already has this receipt number.")
+        raise _invalid("receipt_number", message, "receipt_number_taken")
+    return number
+
+
 def _same_payment(payment: Payment, enrollment: Enrollment, actor: User, received: Money) -> bool:
     return (
         payment.enrollment_id == enrollment.pk
@@ -1213,15 +1275,22 @@ def record_payment(
     convert: bool = False,
     note: str = "",
     payment_id=None,
+    offline: Offline | None = None,
 ) -> tuple[Payment, bool]:
     """Encaisse un paiement (F2) dans la session ouverte du caissier, au taux de `payment_rate`,
     réparti par défaut (`allocate`) ou comme l'a ajusté le caissier (`parts`). Jamais plus que
     ce que doit l'élève (le crédit vient en 3.6). Le même `payment_id` envoyé deux fois (double
-    clic, nouvel essai) ne donne qu'un paiement : renvoyé avec `False`."""
+    clic, nouvel essai) ne donne qu'un paiement : renvoyé avec `False`.
+
+    Hors ligne (`offline`) : session, numéro et heure de l'appareil, taux en vigueur à cette
+    heure. L'argent est déjà dans la caisse : jamais refusé parce que l'élève doit moins
+    qu'avant (une autre caisse a encaissé entre-temps), ni pour une caisse ou une devise retirée
+    depuis ; la répartition ajustée qui ne tient plus devient celle par défaut, et ce qui dépasse
+    le dû n'est affecté à rien (crédit de l'élève en 3.6)."""
     school = require_current_school()
     received = Money(received_amount_minor, received_currency)
     with transaction.atomic():
-        session = open_session_of(actor)
+        session = _offline_session(actor, offline) if offline else open_session_of(actor)
         if session is None:
             raise BusinessError(NO_OPEN_SESSION)
         # Un paiement à la fois par caisse : séquence des reçus, double envoi.
@@ -1231,12 +1300,12 @@ def record_payment(
             if not _same_payment(existing, enrollment, actor, received):
                 raise BusinessError(PAYMENT_ID_TAKEN)
             return existing, False
-        if not register.is_active:
+        if offline is None and not register.is_active:
             raise BusinessError(CASH_REGISTER_INACTIVE)
-        if received_currency not in school.enabled_currencies:
+        if offline is None and received_currency not in school.enabled_currencies:
             message = _("The school does not use this currency.")
             raise _invalid("received_currency", message, "currency_not_used")
-        rate, _fallback = payment_rate()
+        rate = _rate_at(offline.paid_at) if offline else payment_rate()[0]
         if rate is None and (convert or len(school.enabled_currencies) > 1):
             raise BusinessError(NO_EXCHANGE_RATE)
         rate_used = rate.rate if rate is not None else None
@@ -1247,15 +1316,24 @@ def record_payment(
             .get(pk=enrollment.pk)
         )
         charges = charges_of(enrollment.pk)
+        if parts is not None:
+            try:
+                lines = _check_parts(charges, parts, received, rate_used)
+            except ValidationError:
+                if offline is None:
+                    raise
+                parts = None
         if parts is None:
             lines = allocate(charges, received, rate_used, convert=convert)
-            if sum(part for _charge, part, _amount in lines) != received_amount_minor:
+            allocated = sum(part for _charge, part, _amount in lines)
+            if offline is None and allocated != received_amount_minor:
                 message = _("This is more than what the student owes: give back the change.")
                 raise _invalid("received_amount_minor", message, "more_than_due")
-        else:
-            lines = _check_parts(charges, parts, received, rate_used)
 
-        number = _next_receipt_number(school, register, enrollment.academic_year)
+        if offline is None:
+            number = _next_receipt_number(school, register, enrollment.academic_year)
+        else:
+            number = _offline_number(offline, school, enrollment.academic_year)
         payment = Payment.objects.create(
             **({"id": payment_id} if payment_id else {}),
             enrollment=enrollment,
@@ -1264,9 +1342,11 @@ def record_payment(
             received_amount_minor=received_amount_minor,
             received_currency=received_currency,
             rate_used=rate_used,
-            paid_at=timezone.now(),
+            paid_at=offline.paid_at if offline else timezone.now(),
             receipt_number=number,
             note=note.strip(),
+            device=offline.device if offline else None,
+            synced_at=timezone.now() if offline else None,
             created_by=actor,
         )
         PaymentAllocation.objects.bulk_create(
@@ -1283,6 +1363,7 @@ def record_payment(
             Action.FINANCE_PAYMENT_RECORDED,
             payment,
             actor=actor,
+            device_time=offline.paid_at if offline else None,
             label=f"{number} · {enrollment.student}",
             after={
                 "receipt_number": number,
@@ -1300,6 +1381,29 @@ def record_payment(
             },
         )
     return payment, True
+
+
+def receipt_payments() -> QuerySet[Payment]:
+    """Paiements avec ce que montre leur reçu (`PaymentSerializer`) sans requête de plus par
+    paiement : élève, classe, caisse, caissier, répartition, annulé ou non."""
+    return (
+        Payment.objects.select_related(
+            "enrollment__student",
+            "enrollment__academic_year",
+            "enrollment__class_group__level",
+            "enrollment__class_group__track",
+            "cash_session__cash_register",
+            "cashier",
+        )
+        .prefetch_related(
+            Prefetch(
+                "allocations",
+                queryset=PaymentAllocation.objects.select_related("student_charge__fee_type"),
+            )
+        )
+        .annotate(is_cancelled=Exists(PaymentCancellation.objects.filter(payment=OuterRef("pk"))))
+        .order_by("-paid_at", "-id")
+    )
 
 
 def reprint_payment(payment: Payment, *, actor: User) -> None:

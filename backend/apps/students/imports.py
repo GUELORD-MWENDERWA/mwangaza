@@ -51,6 +51,7 @@ from apps.students.models import (
     StudentImport,
 )
 from apps.students.services import _student_data
+from apps.sync import changes as sync_changes
 
 MAX_FILE_SIZE = 5 * 1024 * 1024
 MAX_ROWS = 5000
@@ -653,6 +654,7 @@ def run(imp: StudentImport, *, actor: User) -> None:
             ],
             batch_size=500,
         )
+        sync_changes.touch_enrollments(e.pk for e in enrollments)
         finance.sync_charges(
             Enrollment.objects.filter(pk__in=[e.pk for e in enrollments]), actor=actor
         )

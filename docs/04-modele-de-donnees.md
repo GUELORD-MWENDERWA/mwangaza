@@ -93,9 +93,9 @@ Règles :
 
 **CashSession [T]** — ouverture d'une caisse par un caissier : `cash_register`, `cashier`, `device` (3.3), `opened_at`, `closed_at`. Une seule session ouverte par caisse et par caissier.
 
-**Payment [T]** **[I]** — `id` (UUID client), `op_id`, `enrollment`, `cash_session`, `device`, `cashier`, `received_amount_minor`, `received_currency`, `rate_used` (taux USD → CDF en vigueur à l'encaissement), `paid_at` (heure de l'appareil), `synced_at`, `receipt_number` (unique dans l'école ; en ligne, donné par le serveur : `{ÉCOLE}-{CAISSE}-{AA}-{séquence}`, AA = année scolaire de l'inscription ; hors ligne, préfixe de l'appareil, 3.3), `receipt_signature` (signature de l'appareil sur le contenu du QR code, pour vérifier un reçu imprimé hors ligne), `method` (`cash` en V1 ; `mobile_money`, `bank` plus tard), `note`. Le reçu n'est pas un modèle : c'est une vue imprimable du paiement (décision Q2).
+**Payment [T]** **[I]** — `id` (UUID client), `enrollment`, `cash_session`, `device` (appareil qui l'a encaissé hors ligne ; l'opération d'origine est dans `SyncOperation`), `cashier`, `received_amount_minor`, `received_currency`, `rate_used` (taux USD → CDF en vigueur à l'encaissement), `paid_at` (heure de l'appareil), `synced_at` (arrivée au serveur d'un paiement hors ligne), `receipt_number` (unique dans l'école ; en ligne, donné par le serveur : `{ÉCOLE}-{CAISSE}-{AA}-{séquence}`, AA = année scolaire de l'inscription ; hors ligne, préfixe de l'appareil, 3.3), `receipt_signature` (signature de l'appareil sur le contenu du QR code, pour vérifier un reçu imprimé hors ligne), `method` (`cash` en V1 ; `mobile_money`, `bank` plus tard), `note`. Le reçu n'est pas un modèle : c'est une vue imprimable du paiement (décision Q2).
 
-**PaymentAllocation [T]** **[I]** — répartition d'un paiement : `payment`, `student_charge`, `received_minor` (part du montant reçu, dans la devise reçue ; somme des parts = montant reçu), `amount_minor` (dans la devise de la charge, converti depuis `received_minor`).
+**PaymentAllocation [T]** **[I]** — répartition d'un paiement : `payment`, `student_charge`, `received_minor` (part du montant reçu, dans la devise reçue ; somme des parts = montant reçu, sauf un paiement hors ligne qui dépasse ce que l'élève doit à son arrivée : le surplus n'est affecté à rien, crédit en 3.6), `amount_minor` (dans la devise de la charge, converti depuis `received_minor`).
 
 **PaymentCancellation [T]** **[I]** — `payment` (unique), `reason`, `requested_by`, `approved_by`, `approved_at`, `receipt_number` (3.8). Une ligne = une annulation validée ; la demande en attente et le reçu d'annulation viennent en 3.8.
 
@@ -121,9 +121,9 @@ Règles :
 
 ## 6. Synchronisation
 
-**SyncOperation [T]** — `op_id` (unique), `device`, `type`, `payload`, `status` (`applied`, `rejected`), `result`, `received_at`.
+**SyncOperation [T]** — `op_id` (unique dans l'école), `device`, `type` (`payment.create` ; annulation et clôture en 3.8), `payload`, `status` (`applied`, `rejected`), `result` (résultat ou erreur, rendu tel quel au second envoi), `created_at` (arrivée).
 
-**ChangeLog [T]** — `seq` (croissant par école), `entity_type`, `entity_id`, `operation` (`upsert`, `delete`), `changed_at`.
+**ChangeLog [T]** — une ligne par entité, sa dernière modification : `seq` (croissant par école, donné à la lecture sous verrou, jamais repris), `pending` (changement en attente de son numéro), `entity_type` (`enrollment` : élève, classe, frais dus, paiements de l'année ; `config` : école, reçus, année, classes, types de frais, caisses, taux), `entity_id`, `operation` (`upsert`, `delete`), `updated_at` (heure du changement). Écrit par signaux Django, et explicitement après une écriture en masse (`apps/sync/changes.py`).
 
 ## 7. Paie — V1.1 (aperçu)
 

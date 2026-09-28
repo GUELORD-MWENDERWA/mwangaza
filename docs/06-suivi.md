@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.3.1 terminée, PR #104 à fusionner |
-| Prochaine tâche | 3.3.2 — synchronisation serveur (SyncOperation, ChangeLog, snapshot / pull / push) |
+| Tâche en cours | aucune — 3.3.2 terminée, PR #105 à fusionner |
+| Prochaine tâche | 3.4 — front : base Dexie, file d'opérations, synchronisation |
 | Issue GitHub | #23 (3.3, fermée par la PR de la 3.3.2) |
-| Branche | `tache/3.3.1-appareils` (PR #104) ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-09-28 |
+| Branche | `tache/3.3.2-synchronisation` (PR #105) ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-09-29 |
 
 ## Avancement
 
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 6 | 12 |
+| Semaine 3 — Caisse et hors-ligne | 7 | 12 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **23** | **37** |
+| **V1.0** | **24** | **37** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-29 — Tâche 3.3.2 : synchronisation serveur
+- Fait : `SyncOperation`, `ChangeLog` ; `/api/sync/snapshot/` (pages d'inscriptions + configuration), `/pull/` (changements depuis un numéro), `/push/` (opérations appliquées une fois) ; opération `payment.create` (numéro de reçu de l'appareil, heure de l'appareil) ; `Payment.device` et `synced_at`. Rien de visible : l'écran vient en 3.4.
+- Tests : 8 nouveaux (isolation snapshot / pull / push, droits, même lot deux fois → un paiement, deux caisses hors ligne → deux paiements gardés, refus gardé, changement validé après une lecture jamais perdu).
+- Décisions (`03`) : une ligne de `ChangeLog` par entité, numéro donné à la lecture sous verrou ; entités `enrollment` et `config` ; surplus hors ligne jamais refusé (crédit en 3.6) ; ajouts au plan : 3.6 (crédit du surplus), 3.8 (opérations d'annulation et de clôture).
+- Suite : PR #105 à fusionner, puis 3.4 — front hors ligne (Dexie, file d'opérations).
 
 ### 2026-09-28 — Tâche 3.3.1 : appareils
 - Fait : 3.3 découpée (3.3.1 appareils, 3.3.2 synchronisation serveur ; signature vérifiée sur `/v/` en 3.5). App `sync` : `Device` (préfixe `P1`, `P2`…, clé publique ECDSA créée par le navigateur, session fermée à la révocation) ; case « Se souvenir de cet appareil » (cochée) ; carte « Appareils connectés » de Mon compte avec « Déconnecter » ; appareil et heure de l'appareil dans le journal d'audit (écran et export Excel) ; démo : un poste par caissier et secrétaire.

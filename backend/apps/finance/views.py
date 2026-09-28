@@ -1,4 +1,4 @@
-from django.db.models import Count, Exists, OuterRef, Prefetch, Q
+from django.db.models import Count, Prefetch, Q
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import mixins, status
 from rest_framework.decorators import action
@@ -26,8 +26,6 @@ from apps.finance.models import (
     FeeRule,
     FeeType,
     Payment,
-    PaymentAllocation,
-    PaymentCancellation,
 )
 from apps.finance.serializers import (
     BalanceSerializer,
@@ -492,26 +490,7 @@ class PaymentViewSet(
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return Payment.all_schools.none()
-        payments = (
-            Payment.objects.select_related(
-                "enrollment__student",
-                "enrollment__academic_year",
-                "enrollment__class_group__level",
-                "enrollment__class_group__track",
-                "cash_session__cash_register",
-                "cashier",
-            )
-            .prefetch_related(
-                Prefetch(
-                    "allocations",
-                    queryset=PaymentAllocation.objects.select_related("student_charge__fee_type"),
-                )
-            )
-            .annotate(
-                is_cancelled=Exists(PaymentCancellation.objects.filter(payment=OuterRef("pk")))
-            )
-            .order_by("-paid_at", "-id")
-        )
+        payments = services.receipt_payments()
         if FINANCE_VIEW_REPORTS not in school_access(self.request).permissions:
             payments = payments.filter(cash_session__cashier=self.request.user)
         if self.action != "list":

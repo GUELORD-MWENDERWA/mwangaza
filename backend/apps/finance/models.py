@@ -503,6 +503,17 @@ class Payment(ImmutableModel):
         _("method"), max_length=12, choices=Method.choices, default=Method.CASH
     )
     note = models.CharField(_("note"), max_length=200, blank=True)
+    # Encaissé hors ligne (3.3.2) : l'appareil qui a donné le numéro du reçu et l'arrivée au
+    # serveur ; `paid_at` est alors l'heure de l'appareil.
+    device = models.ForeignKey(
+        "sync.Device",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="payments",
+        verbose_name=_("device"),
+    )
+    synced_at = models.DateTimeField(_("received by the server"), null=True, blank=True)
 
     class Meta:
         ordering = ["-paid_at"]
