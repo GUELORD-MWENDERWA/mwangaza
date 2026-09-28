@@ -45,6 +45,7 @@ export const en: Messages<typeof fr> = {
       forgotHelp:
         "Ask the school management for a temporary password: you will choose your own when you log in.",
       submit: "Log in",
+      remember: "Remember this device",
     },
     code: {
       title: "Verification code",
@@ -224,6 +225,15 @@ export const en: Messages<typeof fr> = {
       title: "My schools",
       current: "current",
       open: "Open",
+    },
+    devices: {
+      title: "Connected devices",
+      current: "this device",
+      empty: "No remembered device. Tick “Remember this device” when you log in.",
+      disconnect: "Disconnect",
+      confirmTitle: "Disconnect “{{label}}”?",
+      confirmText:
+        "Its session is closed and it forgets what it kept from the school. To work there again, you will have to log in again.",
     },
   },
   schools: {
@@ -821,6 +831,8 @@ export const en: Messages<typeof fr> = {
       on: "Item",
       ip: "IP address",
       browser: "Browser",
+      device: "Device",
+      receivedAt: "Received on",
       field: "Field",
       before: "Before",
       after: "After",
@@ -837,6 +849,7 @@ export const en: Messages<typeof fr> = {
       finance: "Fees and finance",
       audit: "Audit log",
       support: "Support",
+      devices: "Devices",
     },
     actions: {
       auth: {
@@ -920,6 +933,10 @@ export const en: Messages<typeof fr> = {
         cash_session_opened: "Cash register opened",
         payment_recorded: "Payment recorded",
         payment_reprinted: "Receipt reprinted",
+      },
+      devices: {
+        registered: "Device remembered",
+        revoked: "Device disconnected",
       },
       audit: {
         exported: "Log exported",

@@ -65,6 +65,17 @@ class AuditLog(TenantModel):
     after = models.JSONField(_("after"), null=True, blank=True, encoder=DjangoJSONEncoder)
     ip = models.GenericIPAddressField(_("IP address"), null=True, blank=True)
     user_agent = models.CharField(_("browser"), max_length=255, blank=True)
+    # Appareil enregistré de la session (3.3.1) ; heure de l'appareil pour une action faite hors
+    # ligne, reçue plus tard par la synchronisation (`created_at` : heure de réception).
+    device = models.ForeignKey(
+        "sync.Device",
+        verbose_name=_("device"),
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
+    device_time = models.DateTimeField(_("device time"), null=True, blank=True)
 
     objects = AuditLogManager()
     all_schools = models.Manager.from_queryset(AuditLogQuerySet)()

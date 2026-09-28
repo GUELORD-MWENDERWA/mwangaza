@@ -1,7 +1,7 @@
 """`/api/audit/` : journal d'audit de l'école (M6), en lecture seule, permission `audit.view`."""
 
 import io
-from datetime import datetime
+from datetime import UTC, datetime
 from unittest import mock
 from zoneinfo import ZoneInfo
 
@@ -13,6 +13,7 @@ from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.ids import uuid7
 from apps.core.tenancy import use_school
+from apps.sync.models import Device
 from tests.factories import MembershipFactory, UserFactory
 
 pytestmark = pytest.mark.django_db
@@ -109,6 +110,8 @@ def test_the_journal_cannot_be_written_through_the_api(api, school, head):
 def test_an_entry_says_who_did_what_on_what(api, school, head):
     actor = MembershipFactory(school=school, roles=["accountant"]).user
     role_id = uuid7()
+    with use_school(school):
+        device = Device.objects.create(user=actor, label="Windows · Edge", prefix="P1")
     log = entry(
         school,
         Action.ROLES_UPDATED,
@@ -118,6 +121,8 @@ def test_an_entry_says_who_did_what_on_what(api, school, head):
         after={"permissions": ["students.view", "students.edit"]},
         ip="41.243.12.7",
         user_agent="Mozilla/5.0 Edg/140.0",
+        device=device,
+        device_time=datetime(2026, 9, 28, 8, 42, tzinfo=UTC),
     )
 
     data = api(head).get(f"{AUDIT}{log.id}/").json()
@@ -142,6 +147,8 @@ def test_an_entry_says_who_did_what_on_what(api, school, head):
         "after": {"permissions": ["students.view", "students.edit"]},
         "ip": "41.243.12.7",
         "user_agent": "Mozilla/5.0 Edg/140.0",
+        "device": {"id": str(device.id), "prefix": "P1", "label": "Windows · Edge"},
+        "device_time": "2026-09-28T10:42:00+02:00",
     }
 
 

@@ -1,12 +1,13 @@
 import { api, call, ensureCsrf } from "@mwangaza/api";
 import { useTranslation } from "@mwangaza/i18n";
-import { Banner, Button, Field, Input, PasswordInput } from "@mwangaza/ui";
+import { Banner, Button, CheckboxField, Field, Input, PasswordInput } from "@mwangaza/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { setRememberDevice } from "../../lib/device";
 import { errorMessage } from "../../lib/errors";
 import { useLoginContext } from "./LoginLayout";
 import { useGoToStep } from "./useGoToStep";
@@ -17,6 +18,7 @@ export function LoginPage() {
   const { next } = useLoginContext();
   const goToStep = useGoToStep(next);
   const [forgot, setForgot] = useState(false);
+  const [remember, setRemember] = useState(true);
   const schema = useMemo(
     () =>
       z.object({
@@ -32,6 +34,7 @@ export function LoginPage() {
   const login = useMutation({
     mutationFn: async (values: z.infer<typeof schema>) => {
       await ensureCsrf();
+      setRememberDevice(remember);
       return call(api.POST("/api/auth/login/", { body: values }));
     },
     onSuccess: ({ step }) => goToStep(step),
@@ -72,7 +75,13 @@ export function LoginPage() {
           />
         )}
       </Field>
-      <div className="flex justify-end text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+        <CheckboxField
+          id="remember-device"
+          label={t("auth.login.remember")}
+          checked={remember}
+          onCheckedChange={(checked) => setRemember(checked === true)}
+        />
         <button
           type="button"
           className="cursor-pointer text-lake underline"

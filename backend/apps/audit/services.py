@@ -52,11 +52,13 @@ def record(
     after: dict | None = None,
     label: str | None = None,
     impersonated_by=_FROM_REQUEST,
+    device_time=None,
 ) -> AuditLog:
     """Une entrée dans le journal de l'école courante. `label` : nom de l'objet au moment de
     l'action (par défaut `str(entity)`). `before` / `after` : seulement ce qui a changé
     (`changes`), sans aucun secret. `impersonated_by` : par défaut, le super-admin de la session
-    support ouverte dans cette école (jamais dans le journal d'une autre)."""
+    support ouverte dans cette école (jamais dans le journal d'une autre). `device_time` : heure
+    de l'appareil pour une action faite hors ligne (synchronisation)."""
     entry = _entry(
         action,
         entity,
@@ -65,6 +67,7 @@ def record(
         after=after,
         label=label,
         impersonated_by=impersonated_by,
+        device_time=device_time,
     )
     entry.save()
     return entry
@@ -80,7 +83,15 @@ def record_many(action: str, entries: list[tuple[models.Model, dict]], *, actor)
 
 
 def _entry(
-    action, entity, *, actor, before=None, after=None, label=None, impersonated_by=_FROM_REQUEST
+    action,
+    entity,
+    *,
+    actor,
+    before=None,
+    after=None,
+    label=None,
+    impersonated_by=_FROM_REQUEST,
+    device_time=None,
 ) -> AuditLog:
     if action not in Action.values:
         raise ValueError(f"Action inconnue du journal d'audit : {action!r} (apps/audit/actions.py)")
@@ -89,8 +100,8 @@ def _entry(
     if label is None:
         label = str(entity) if entity is not None else ""
     info = current_request_info()
+    school = get_current_school()
     if impersonated_by is _FROM_REQUEST:
-        school = get_current_school()
         in_support = school is not None and info.support_school_id == school.pk
         impersonated_by = info.impersonated_by if in_support else None
     return AuditLog(
@@ -105,6 +116,8 @@ def _entry(
         after=after,
         ip=info.ip,
         user_agent=info.user_agent,
+        device_id=info.device_id if school and info.device_school_id == school.pk else None,
+        device_time=device_time,
     )
 
 

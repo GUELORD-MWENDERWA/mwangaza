@@ -310,7 +310,7 @@ function LogDetail({ log }: { log: Log }) {
       <CardHeader>
         <CardTitle>{t(`audit.actions.${log.action}`)}</CardTitle>
         <span className="text-sm text-ink-3 tabular-nums">
-          {formatDateTime(log.created_at, i18n.language, school.timezone)}
+          {formatDateTime(log.device_time ?? log.created_at, i18n.language, school.timezone)}
         </span>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -329,6 +329,22 @@ function LogDetail({ log }: { log: Log }) {
             <div>
               <span className="text-ink-2">{t("audit.detail.ip")}</span>
               <span className="tabular-nums">{log.ip}</span>
+            </div>
+          )}
+          {log.device && (
+            <div>
+              <span className="text-ink-2">{t("audit.detail.device")}</span>
+              <span>
+                {log.device.prefix} · {log.device.label}
+              </span>
+            </div>
+          )}
+          {log.device_time && (
+            <div>
+              <span className="text-ink-2">{t("audit.detail.receivedAt")}</span>
+              <span className="tabular-nums">
+                {formatDateTime(log.created_at, i18n.language, school.timezone)}
+              </span>
             </div>
           )}
           {log.user_agent && (

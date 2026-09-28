@@ -1,8 +1,8 @@
 // Mon compte (M4) : identité (modifiée par l'école), langue, mot de passe, double
-// authentification, écoles du compte, déconnexion. Code PIN (3.7) et appareils connectés (3.3)
-// arrivent avec leur tâche ; pas d'e-mail tant qu'il ne sert à rien (`04`).
-import { api, call } from "@mwangaza/api";
-import { formatDate, LANGUAGES, type Language, useTranslation } from "@mwangaza/i18n";
+// authentification, appareils connectés, écoles du compte, déconnexion. Code PIN (3.7) arrive
+// avec sa tâche ; pas d'e-mail tant qu'il ne sert à rien (`04`).
+import { api, call, type Schemas } from "@mwangaza/api";
+import { formatDate, formatVisit, LANGUAGES, type Language, useTranslation } from "@mwangaza/i18n";
 import {
   Banner,
   Button,
@@ -11,6 +11,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  ConfirmDialog,
   Field,
   Icon,
   Input,
@@ -18,10 +19,12 @@ import {
   PageHeader,
   PasswordInput,
   Segmented,
+  Skeleton,
   StatusPill,
+  Tag,
 } from "@mwangaza/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
@@ -34,6 +37,8 @@ import { useCurrentSchool } from "../../lib/school";
 import { useLogout } from "../../lib/session";
 import { passwordSchema } from "../auth/NewPasswordPage";
 import { DisableTwoFactorDialog, NewRecoveryCodesDialog } from "./TwoFactorDialogs";
+
+type Device = Schemas["Device"];
 
 /** Alerte quand il reste 2 codes de secours ou moins (M4). */
 export const LOW_RECOVERY_CODES = 2;
@@ -49,6 +54,7 @@ export function AccountPage() {
         <div className="flex flex-col gap-4">
           <IdentityCard me={me} />
           <PasswordCard />
+          <DevicesCard />
         </div>
         <div className="flex flex-col gap-4">
           <TwoFactorCard me={me} />
@@ -300,6 +306,87 @@ function TwoFactorCard({ me }: { me: Me }) {
           </Button>
         )}
       </CardFooter>
+    </Card>
+  );
+}
+
+/** Appareils mémorisés du compte dans cette école (M4) ; « Déconnecter » ferme leur session. */
+function DevicesCard() {
+  const { t, i18n } = useTranslation();
+  const school = useCurrentSchool();
+  const queryClient = useQueryClient();
+  const [target, setTarget] = useState<Device | null>(null);
+  const devices = useQuery({
+    queryKey: keys.myDevices,
+    queryFn: () => call(api.GET("/api/me/devices/")),
+  });
+  const revoke = useMutation({
+    mutationFn: (device: Device) =>
+      call(api.POST("/api/me/devices/{id}/revoke/", { params: { path: { id: device.id } } })),
+    onSuccess: () => {
+      setTarget(null);
+      void queryClient.invalidateQueries({ queryKey: keys.myDevices });
+    },
+  });
+  const list = devices.data?.results ?? [];
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("account.devices.title")}</CardTitle>
+      </CardHeader>
+      <CardContent className="py-1">
+        {devices.isPending ? (
+          <div className="py-3">
+            <Skeleton label={t("common.loading")} />
+          </div>
+        ) : devices.isError ? (
+          <Banner tone="due" className="my-3">
+            {errorMessage(devices.error, t)}
+          </Banner>
+        ) : list.length === 0 ? (
+          <p className="py-3 text-sm text-ink-3">{t("account.devices.empty")}</p>
+        ) : (
+          <List>
+            {list.map((device) => (
+              <div key={device.id}>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Tag>{device.prefix}</Tag>
+                    <b>{device.label}</b>
+                    {device.is_current && (
+                      <StatusPill tone="info">{t("account.devices.current")}</StatusPill>
+                    )}
+                  </div>
+                  {device.last_seen_at && (
+                    <span className="text-sm text-ink-3">
+                      {formatVisit(device.last_seen_at, i18n.language, school.timezone, (time) =>
+                        t("common.today", { time }),
+                      )}
+                    </span>
+                  )}
+                </div>
+                {!device.is_current && (
+                  <Button variant="destructive-outline" size="sm" onClick={() => setTarget(device)}>
+                    {t("account.devices.disconnect")}
+                  </Button>
+                )}
+              </div>
+            ))}
+          </List>
+        )}
+      </CardContent>
+      <ConfirmDialog
+        open={target !== null}
+        onOpenChange={(open) => !open && setTarget(null)}
+        title={t("account.devices.confirmTitle", { label: target?.label })}
+        confirmLabel={t("account.devices.disconnect")}
+        cancelLabel={t("common.cancel")}
+        onConfirm={() => target && revoke.mutate(target)}
+        pending={revoke.isPending}
+      >
+        <p className="text-sm text-ink-2">{t("account.devices.confirmText")}</p>
+        {revoke.isError && <Banner tone="due">{errorMessage(revoke.error, t)}</Banner>}
+      </ConfirmDialog>
     </Card>
   );
 }

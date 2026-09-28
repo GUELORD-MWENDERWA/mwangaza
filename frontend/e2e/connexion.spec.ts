@@ -20,6 +20,8 @@ test("directeur : mot de passe puis code, menu complet, Mon compte, menu tiroir"
   }
   await expect(menu.getByRole("link", { name: "Caisse", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Nouveaux codes de secours" })).toBeVisible();
+  // « Se souvenir de cet appareil », cochée : clé créée par le navigateur, appareil enregistré.
+  await expect(page.getByText("cet appareil", { exact: true })).toBeVisible();
 
   // Téléphone : menu tiroir, fermé après un choix.
   await page.setViewportSize({ width: 390, height: 844 });

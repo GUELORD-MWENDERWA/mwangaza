@@ -20,6 +20,9 @@ class RequestInfo:
     # Super-admin en session support (A3) dans l'école `support_school_id`.
     impersonated_by: Any = None
     support_school_id: UUID | None = None
+    # Appareil enregistré de la session, dans l'école `device_school_id`.
+    device_id: str | None = None
+    device_school_id: UUID | None = None
 
 
 _NO_REQUEST = RequestInfo()

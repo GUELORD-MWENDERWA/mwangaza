@@ -885,6 +885,64 @@ export interface paths {
         patch: operations["me_partial_update"];
         trace?: never;
     };
+    "/api/me/devices/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Mes appareils dans cette école (M4) : enregistrer, reprendre à la connexion, déconnecter. */
+        get: operations["me_devices_list"];
+        put?: never;
+        /**
+         * @description « Se souvenir de cet appareil » : la paire de clés est créée dans le navigateur, seule
+         *     la clé publique est envoyée.
+         */
+        post: operations["me_devices_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/devices/{id}/resume/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Appareil déjà enregistré : il reprend la session qui vient de s'ouvrir. Déconnecté
+         *     entre-temps : 409 `device_revoked` (le navigateur efface ce qu'il en garde).
+         */
+        post: operations["me_devices_resume_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/devices/{id}/revoke/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description « Déconnecter » un de ses appareils : sa session est fermée. */
+        post: operations["me_devices_revoke_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/payments/": {
         parameters: {
             query?: never;
@@ -1611,12 +1669,14 @@ export interface components {
          *     * `finance.cash_session_opened` - Cash session opened
          *     * `finance.payment_recorded` - Payment recorded
          *     * `finance.payment_reprinted` - Receipt reprinted
+         *     * `devices.registered` - Device remembered
+         *     * `devices.revoked` - Device disconnected
          *     * `audit.exported` - Audit log exported
          *     * `support.started` - Support session opened
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         Address: {
             commune: string;
             quartier: string;
@@ -1635,6 +1695,13 @@ export interface components {
             last_name: string;
             middle_name: string;
             first_name: string;
+        };
+        AuditDevice: {
+            /** Format: uuid */
+            readonly id: string;
+            prefix: string;
+            /** Name */
+            label: string;
         };
         /** @description Une entrée du journal (M6). `before` / `after` : seulement les champs changés. */
         AuditLog: {
@@ -1666,6 +1733,13 @@ export interface components {
             readonly ip: string | null;
             /** Browser */
             readonly user_agent: string;
+            /** @description Appareil enregistré de la session, s'il y en a. */
+            readonly device: components["schemas"]["AuditDevice"] | null;
+            /**
+             * Format: date-time
+             * @description Heure de l'appareil pour une action faite hors ligne ; `created_at` est alors l'heure de réception.
+             */
+            readonly device_time: string | null;
         };
         /** @description Solde d'un élève (2.7), par devise, jamais additionné entre devises. */
         Balance: {
@@ -1870,6 +1944,29 @@ export interface components {
          * @enum {string}
          */
         CycleEnum: "primary" | "basic" | "secondary_general" | "secondary_technical" | "higher" | "vocational";
+        /** @description Un appareil du compte dans l'école (« Appareils connectés » de Mon compte). */
+        Device: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Name */
+            readonly label: string;
+            readonly prefix: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /**
+             * Last seen
+             * Format: date-time
+             */
+            readonly last_seen_at: string | null;
+            /** @description Appareil de cette session. */
+            readonly is_current: boolean;
+        };
+        DeviceRegisterRequest: {
+            /** @description Ex. « Windows · Edge ». */
+            label: string;
+            /** @description Clé publique ECDSA P-256 (SPKI, base64) créée par WebCrypto. */
+            public_key: string;
+        };
         Discount: {
             /** Format: uuid */
             readonly id: string;
@@ -1926,7 +2023,7 @@ export interface components {
             reason: string;
         };
         /** @enum {string} */
-        DomainEnum: "account" | "audit" | "auth" | "finance" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
+        DomainEnum: "account" | "audit" | "auth" | "devices" | "finance" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
         Enrollment: {
             /** Format: uuid */
             readonly id: string;
@@ -2447,6 +2544,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["AuditLog"][];
+        };
+        PaginatedDeviceList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Device"][];
         };
         PaginatedFamilyDetailList: {
             /** @example 123 */
@@ -3290,6 +3402,13 @@ export interface components {
             readonly role_code: (components["schemas"]["RoleCodeEnum"] | components["schemas"]["NullEnum"]) | null;
             readonly before: unknown;
             readonly after: unknown;
+            /** @description Appareil enregistré de la session, s'il y en a. */
+            readonly device: components["schemas"]["AuditDevice"] | null;
+            /**
+             * Format: date-time
+             * @description Heure de l'appareil pour une action faite hors ligne ; `created_at` est alors l'heure de réception.
+             */
+            readonly device_time: string | null;
         };
         StudentImport: {
             /** Format: uuid */
@@ -3950,17 +4069,20 @@ export interface operations {
                  *     * `finance.cash_session_opened` - Cash session opened
                  *     * `finance.payment_recorded` - Payment recorded
                  *     * `finance.payment_reprinted` - Receipt reprinted
+                 *     * `devices.registered` - Device remembered
+                 *     * `devices.revoked` - Device disconnected
                  *     * `audit.exported` - Audit log exported
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
                  * @description * `account` - account
                  *     * `audit` - audit
                  *     * `auth` - auth
+                 *     * `devices` - devices
                  *     * `finance` - finance
                  *     * `organisation` - organisation
                  *     * `roles` - roles
@@ -3969,7 +4091,7 @@ export interface operations {
                  *     * `students` - students
                  *     * `support` - support
                  */
-                domain?: "account" | "audit" | "auth" | "finance" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
+                domain?: "account" | "audit" | "auth" | "devices" | "finance" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description A page number within the paginated result set. */
@@ -4156,17 +4278,20 @@ export interface operations {
                  *     * `finance.cash_session_opened` - Cash session opened
                  *     * `finance.payment_recorded` - Payment recorded
                  *     * `finance.payment_reprinted` - Receipt reprinted
+                 *     * `devices.registered` - Device remembered
+                 *     * `devices.revoked` - Device disconnected
                  *     * `audit.exported` - Audit log exported
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
                  * @description * `account` - account
                  *     * `audit` - audit
                  *     * `auth` - auth
+                 *     * `devices` - devices
                  *     * `finance` - finance
                  *     * `organisation` - organisation
                  *     * `roles` - roles
@@ -4175,7 +4300,7 @@ export interface operations {
                  *     * `students` - students
                  *     * `support` - support
                  */
-                domain?: "account" | "audit" | "auth" | "finance" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
+                domain?: "account" | "audit" | "auth" | "devices" | "finance" | "organisation" | "roles" | "school" | "staff" | "students" | "support";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description Dans le nom de l'objet. */
@@ -6906,6 +7031,176 @@ export interface operations {
                 };
             };
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    me_devices_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDeviceList"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    me_devices_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceRegisterRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["DeviceRegisterRequest"];
+                "multipart/form-data": components["schemas"]["DeviceRegisterRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Device"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    me_devices_resume_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this device. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Device"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    me_devices_revoke_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this device. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -388,6 +388,8 @@ paths:
           - finance.cash_session_opened
           - finance.payment_recorded
           - finance.payment_reprinted
+          - devices.registered
+          - devices.revoked
           - audit.exported
           - support.started
           - support.ended
@@ -460,6 +462,8 @@ paths:
           * `finance.cash_session_opened` - Cash session opened
           * `finance.payment_recorded` - Payment recorded
           * `finance.payment_reprinted` - Receipt reprinted
+          * `devices.registered` - Device remembered
+          * `devices.revoked` - Device disconnected
           * `audit.exported` - Audit log exported
           * `support.started` - Support session opened
           * `support.ended` - Support session closed
@@ -476,6 +480,7 @@ paths:
           - account
           - audit
           - auth
+          - devices
           - finance
           - organisation
           - roles
@@ -489,6 +494,7 @@ paths:
           * `account` - account
           * `audit` - audit
           * `auth` - auth
+          * `devices` - devices
           * `finance` - finance
           * `organisation` - organisation
           * `roles` - roles
@@ -693,6 +699,8 @@ paths:
           - finance.cash_session_opened
           - finance.payment_recorded
           - finance.payment_reprinted
+          - devices.registered
+          - devices.revoked
           - audit.exported
           - support.started
           - support.ended
@@ -765,6 +773,8 @@ paths:
           * `finance.cash_session_opened` - Cash session opened
           * `finance.payment_recorded` - Payment recorded
           * `finance.payment_reprinted` - Receipt reprinted
+          * `devices.registered` - Device remembered
+          * `devices.revoked` - Device disconnected
           * `audit.exported` - Audit log exported
           * `support.started` - Support session opened
           * `support.ended` - Support session closed
@@ -781,6 +791,7 @@ paths:
           - account
           - audit
           - auth
+          - devices
           - finance
           - organisation
           - roles
@@ -794,6 +805,7 @@ paths:
           * `account` - account
           * `audit` - audit
           * `auth` - auth
+          * `devices` - devices
           * `finance` - finance
           * `organisation` - organisation
           * `roles` - roles
@@ -3400,6 +3412,161 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/me/devices/:
+    get:
+      operationId: me_devices_list
+      description: 'Mes appareils dans cette école (M4) : enregistrer, reprendre à
+        la connexion, déconnecter.'
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - sync
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDeviceList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: me_devices_create
+      description: |-
+        « Se souvenir de cet appareil » : la paire de clés est créée dans le navigateur, seule
+        la clé publique est envoyée.
+      tags:
+      - sync
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceRegisterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeviceRegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeviceRegisterRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/me/devices/{id}/resume/:
+    post:
+      operationId: me_devices_resume_create
+      description: |-
+        Appareil déjà enregistré : il reprend la session qui vient de s'ouvrir. Déconnecté
+        entre-temps : 409 `device_revoked` (le navigateur efface ce qu'il en garde).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this device.
+        required: true
+      tags:
+      - sync
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/me/devices/{id}/revoke/:
+    post:
+      operationId: me_devices_revoke_create
+      description: '« Déconnecter » un de ses appareils : sa session est fermée.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this device.
+        required: true
+      tags:
+      - sync
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/payments/:
     get:
       operationId: payments_list
@@ -5533,6 +5700,8 @@ components:
       - finance.cash_session_opened
       - finance.payment_recorded
       - finance.payment_reprinted
+      - devices.registered
+      - devices.revoked
       - audit.exported
       - support.started
       - support.ended
@@ -5604,6 +5773,8 @@ components:
         * `finance.cash_session_opened` - Cash session opened
         * `finance.payment_recorded` - Payment recorded
         * `finance.payment_reprinted` - Receipt reprinted
+        * `devices.registered` - Device remembered
+        * `devices.revoked` - Device disconnected
         * `audit.exported` - Audit log exported
         * `support.started` - Support session opened
         * `support.ended` - Support session closed
@@ -5663,6 +5834,24 @@ components:
       - last_name
       - middle_name
       - first_name
+    AuditDevice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        prefix:
+          type: string
+          maxLength: 6
+        label:
+          type: string
+          title: Name
+          maxLength: 80
+      required:
+      - id
+      - prefix
+      - label
     AuditLog:
       type: object
       description: 'Une entrée du journal (M6). `before` / `after` : seulement les
@@ -5734,6 +5923,19 @@ components:
           type: string
           readOnly: true
           title: Browser
+        device:
+          allOf:
+          - $ref: '#/components/schemas/AuditDevice'
+          readOnly: true
+          nullable: true
+          description: Appareil enregistré de la session, s'il y en a.
+        device_time:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          description: Heure de l'appareil pour une action faite hors ligne ; `created_at`
+            est alors l'heure de réception.
       required:
       - id
       - created_at
@@ -5749,6 +5951,8 @@ components:
       - after
       - ip
       - user_agent
+      - device
+      - device_time
     Balance:
       type: object
       description: Solde d'un élève (2.7), par devise, jamais additionné entre devises.
@@ -6179,6 +6383,59 @@ components:
         * `secondary_technical` - Technical and vocational secondary
         * `higher` - Higher education
         * `vocational` - Short vocational training
+    Device:
+      type: object
+      description: Un appareil du compte dans l'école (« Appareils connectés » de
+        Mon compte).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        label:
+          type: string
+          readOnly: true
+          title: Name
+        prefix:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        last_seen_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Last seen
+        is_current:
+          type: boolean
+          readOnly: true
+          description: Appareil de cette session.
+      required:
+      - id
+      - label
+      - prefix
+      - created_at
+      - last_seen_at
+      - is_current
+    DeviceRegisterRequest:
+      type: object
+      properties:
+        label:
+          type: string
+          minLength: 1
+          description: Ex. « Windows · Edge ».
+          maxLength: 80
+        public_key:
+          type: string
+          minLength: 1
+          description: Clé publique ECDSA P-256 (SPKI, base64) créée par WebCrypto.
+          maxLength: 400
+      required:
+      - label
+      - public_key
     Discount:
       type: object
       properties:
@@ -6319,6 +6576,7 @@ components:
       - account
       - audit
       - auth
+      - devices
       - finance
       - organisation
       - roles
@@ -7484,6 +7742,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AuditLog'
+    PaginatedDeviceList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Device'
     PaginatedFamilyDetailList:
       type: object
       required:
@@ -9132,6 +9415,19 @@ components:
         after:
           readOnly: true
           nullable: true
+        device:
+          allOf:
+          - $ref: '#/components/schemas/AuditDevice'
+          readOnly: true
+          nullable: true
+          description: Appareil enregistré de la session, s'il y en a.
+        device_time:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          description: Heure de l'appareil pour une action faite hors ligne ; `created_at`
+            est alors l'heure de réception.
       required:
       - id
       - created_at
@@ -9145,6 +9441,8 @@ components:
       - role_code
       - before
       - after
+      - device
+      - device_time
     StudentImport:
       type: object
       properties:
