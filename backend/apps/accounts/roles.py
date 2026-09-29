@@ -52,8 +52,10 @@ FINANCE_GRANT_DISCOUNT = "finance.grant_discount"
 FINANCE_COLLECT_PAYMENT = "finance.collect_payment"
 FINANCE_VIEW_REPORTS = "finance.view_reports"
 FINANCE_APPROVE_CANCELLATION = "finance.approve_cancellation"
-# Crédits d'élèves (M14) : lus avec l'un de ces droits ; utilisés avec le second.
+# Crédits d'élèves (M14) : tous lus avec l'un de ces droits ; utilisés par le comptable, ou à la
+# caisse par le caissier (3.6.2), qui voit ceux de l'élève avec ses frais dus (`CHARGES_READ`).
 CREDITS_READ = (FINANCE_VIEW_REPORTS, FINANCE_APPROVE_CANCELLATION)
+CREDITS_USE = (FINANCE_APPROVE_CANCELLATION, FINANCE_COLLECT_PAYMENT)
 # Écran « Frais et barèmes » (entrée du menu) : lu avec l'un de ces droits.
 FEES_READ = (FINANCE_CONFIGURE_FEES, FINANCE_SET_EXCHANGE_RATE, FINANCE_GRANT_DISCOUNT)
 # Frais dus d'un élève (fiche, caisse, réductions) : lus avec l'un de ces droits.

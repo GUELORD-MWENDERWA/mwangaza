@@ -1691,6 +1691,12 @@ export const en: Messages<typeof fr> = {
     usedOn: "Used on",
     left: "Left to process",
     printProof: "Print the voucher",
+    student: {
+      title: "{{amount}} credit to use",
+      pays: "It will pay: {{list}}. No money received: no receipt.",
+      used: "{{amount}} credit used: the balance is up to date.",
+      process: "Process the credit",
+    },
     proof: {
       title: "Credit use voucher",
       student: "Student",

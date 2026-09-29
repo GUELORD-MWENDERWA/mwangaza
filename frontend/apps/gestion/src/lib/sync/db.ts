@@ -12,6 +12,16 @@ import {
 
 export type LocalEnrollment = Enrollment & { gen: number };
 
+/** Crédit utilisé à la caisse de l'appareil (3.6.2), gardé dans la file avec son opération
+ *  `credit.use`. */
+export type CreditUse = {
+  credit: string;
+  /** Part utilisée d'après le serveur à ce moment : tant qu'elle n'a pas changé, l'état du
+   *  serveur ne montre pas encore cette utilisation. */
+  used_minor: number;
+  allocations: { student_charge: string; amount_minor: number }[];
+};
+
 /** Opération de la file : `pending` jusqu'à la réponse du serveur ; `sent` appliquée, gardée
  *  jusqu'à la descente suivante, qui apporte l'état du serveur où elle figure (les écrans ne la
  *  perdent jamais de vue entre les deux) ; `rejected` gardée, avec sa raison, pour être montrée
@@ -26,6 +36,8 @@ export type QueuedOperation = Operation & {
   /** Ouverture de caisse : la session ouverte ici, montée à la caisse jusqu'à ce que le
    *  serveur l'accepte (elle devient alors la session gardée) ou la refuse (3.5.2). */
   session?: Schemas["CashSession"];
+  /** Crédit utilisé à la caisse : ses parts, comptées comme payées jusqu'à la descente (3.6.2). */
+  creditUse?: CreditUse;
 };
 
 type ConfigRow = { id: "config"; value: Config };

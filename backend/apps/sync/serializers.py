@@ -7,6 +7,7 @@ from apps.finance.serializers import (
     ExchangeRateSerializer,
     PaymentSerializer,
     StudentChargeSerializer,
+    StudentCreditSerializer,
 )
 from apps.schools.models import AcademicYear, ClassGroup
 from apps.schools.serializers import CurrentSchoolSerializer
@@ -96,15 +97,18 @@ class SyncStudentSerializer(serializers.ModelSerializer):
 
 
 class SyncEnrollmentSerializer(serializers.ModelSerializer):
-    """Entité `enrollment` : l'élève, sa classe, ses frais dus et ses paiements de l'année.
-    Frais et paiements : null sans droit sur les finances ; `state` des frais est calculé le jour
-    de l'envoi (l'appareil le recalcule d'après `due_on`)."""
+    """Entité `enrollment` : l'élève, sa classe, ses frais dus, ses paiements et ses crédits à
+    traiter de l'année. Frais, paiements et crédits : null sans droit sur les finances ; `state`
+    des frais est calculé le jour de l'envoi (l'appareil le recalcule d'après `due_on`)."""
 
     student = SyncStudentSerializer(read_only=True)
     charges = StudentChargeSerializer(
         source="sync_charges", many=True, read_only=True, allow_null=True
     )
     payments = PaymentSerializer(source="sync_payments", many=True, read_only=True, allow_null=True)
+    credits = StudentCreditSerializer(
+        source="sync_credits", many=True, read_only=True, allow_null=True
+    )
 
     class Meta:
         model = Enrollment
@@ -118,6 +122,7 @@ class SyncEnrollmentSerializer(serializers.ModelSerializer):
             "student",
             "charges",
             "payments",
+            "credits",
         ]
         read_only_fields = fields
 

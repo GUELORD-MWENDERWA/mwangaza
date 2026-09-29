@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.6.1 terminée, PR #109 à fusionner |
-| Prochaine tâche | 3.6.2 — crédit à la caisse |
+| Tâche en cours | aucune — 3.6.2 terminée, PR à fusionner |
+| Prochaine tâche | 3.7 |
 | Issue GitHub | #26 |
-| Branche | `tache/3.6.1-credits-eleves` (PR #109) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/3.6.2-credit-caisse` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-29 |
 
 ## Avancement
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 11 | 14 |
+| Semaine 3 — Caisse et hors-ligne | 12 | 14 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **28** | **39** |
+| **V1.0** | **29** | **39** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,13 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-29 — Tâche 3.6.2 : crédit à la caisse
+
+- **Fait** : à la caisse, bandeau « Crédit de … à utiliser » (origine, ce qu'il paiera) et « Utiliser le crédit », en ligne et hors ligne (opération `credit.use`, crédits envoyés à l'appareil avec l'inscription) ; carte du crédit sur la fiche élève (Finances), lien « Traiter le crédit » vers Crédits d'élèves.
+- **Tests** : 866 serveur, 192 front, 13 parcours Playwright, lint vert ; isolation, 403, `credit.use` rejoué une fois, audit du caissier, pas de double comptage sur l'appareil.
+- **Décisions** : le caissier peut utiliser un crédit (répartition automatique seulement, `03`) ; duplicata hors ligne sans les crédits utilisés → noté en 3.8.
+- **Suite** : 3.7 (PIN hors ligne, appareils et synchro).
 
 ### 2026-09-29 — Tâche 3.6.1 : crédits d'élèves
 

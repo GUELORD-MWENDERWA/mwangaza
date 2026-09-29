@@ -1,7 +1,7 @@
 // Caisse d'un appareil mémorisé (F5, 3.5) : la base de l'appareil lue en direct (chaque
-// synchronisation et chaque encaissement mettent l'écran à jour) ; ouverture, encaissement et
-// réimpression s'écrivent dans la file d'opérations, avec ou sans réseau, puis partent au
-// serveur tout de suite s'il y en a un.
+// synchronisation et chaque encaissement mettent l'écran à jour) ; ouverture, encaissement,
+// réimpression et crédit utilisé (3.6.2) s'écrivent dans la file d'opérations, avec ou sans
+// réseau, puis partent au serveur tout de suite s'il y en a un.
 import type { Schemas } from "@mwangaza/api";
 import { liveQuery } from "dexie";
 import { useEffect, useState } from "react";
@@ -10,7 +10,8 @@ import { uuidv7 } from "../../lib/ids";
 import type { LocalDb, LocalEnrollment, QueuedOperation } from "../../lib/sync/db";
 import type { Config } from "../../lib/sync/engine";
 import { syncNow } from "../../lib/sync/session";
-import { offlinePayload } from "./offline";
+import type { Line } from "./allocation";
+import { creditUse, offlinePayload } from "./offline";
 import type { Receipt } from "./Receipt";
 
 type Live<T> = { data?: T; error?: unknown };
@@ -111,6 +112,23 @@ export async function queueReprint(db: LocalDb, payment: string, reprintedAt: st
     created_at: reprintedAt,
     status: "pending",
     error: null,
+  });
+  void syncNow();
+}
+
+/** Crédit utilisé à la caisse sur l'appareil (3.6.2) : ses parts comptent aussitôt comme payées
+ *  (`financeOf`) ; le serveur le répartit à nouveau à l'arrivée, sur ce que l'élève doit alors.
+ *  Puis envoi aussitôt. */
+export async function queueCreditUse(db: LocalDb, credit: Schemas["StudentCredit"], lines: Line[]) {
+  const usedAt = new Date().toISOString();
+  await db.outbox.add({
+    op_id: uuidv7(),
+    type: "credit.use",
+    payload: { credit: credit.id },
+    created_at: usedAt,
+    status: "pending",
+    error: null,
+    creditUse: creditUse(credit, lines),
   });
   void syncNow();
 }

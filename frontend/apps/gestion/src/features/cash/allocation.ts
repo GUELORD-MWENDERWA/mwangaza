@@ -9,6 +9,13 @@ import type { Charge } from "../students/data";
 
 export type Line = { charge: Charge; received: number; amount: number };
 
+/** « Minerval · 2e tranche » ; un frais payé en une fois porte souvent son propre nom. */
+export function feeLabel(charge: Charge): string {
+  return charge.label === charge.fee_type_name
+    ? charge.label
+    : `${charge.fee_type_name} · ${charge.label}`;
+}
+
 export type Received = { minor: number; currency: Currency };
 
 /** Frais encore dus (actifs, pas soldés), dans l'ordre du serveur. */

@@ -258,6 +258,20 @@ export function useBalance(enrollment: string | undefined) {
   });
 }
 
+/** Crédits à traiter d'une inscription (M14, 3.6.2) : à la caisse et sur la fiche. */
+export function useStudentCredits(enrollment: string | undefined) {
+  return useQuery({
+    queryKey: [...keys.students, "credits", enrollment],
+    queryFn: () =>
+      call(
+        api.GET("/api/student-charges/credits/", {
+          params: { query: { enrollment: enrollment! } },
+        }),
+      ),
+    enabled: Boolean(enrollment),
+  });
+}
+
 /** Réductions d'une inscription, retirées comprises (E3). */
 export function useDiscounts(enrollment: string | undefined) {
   return useQuery({

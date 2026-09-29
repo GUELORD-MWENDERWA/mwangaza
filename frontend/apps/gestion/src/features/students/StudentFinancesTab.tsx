@@ -1,7 +1,8 @@
 // Onglet « Finances » de la fiche élève : chiffres clés de l'année et ce que doit l'élève (2.6),
 // avec sa part des réductions (E3), le payé, le reste et l'état de chaque échéance (2.7) ; avec
 // le droit `finance.grant_discount`, l'échéancier particulier (E4) et les réductions à accorder
-// ou retirer. Paiements : caisse (3.1).
+// ou retirer ; ses crédits à traiter (M14, 3.6.2), avec un lien pour qui peut les traiter.
+// Paiements : caisse (3.1).
 import { formatDate, formatDay, useTranslation } from "@mwangaza/i18n";
 import { formatAmount, type Currency } from "@mwangaza/money";
 import {
@@ -24,6 +25,7 @@ import { can } from "../../lib/permissions";
 import { fullName } from "../../lib/people";
 import { useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
+import { StudentCredits } from "../credits/StudentCredits";
 import { LoadError } from "../status/StatusPages";
 import {
   type Balance,
@@ -33,6 +35,7 @@ import {
   useBalance,
   useCharges,
   useDiscounts,
+  useStudentCredits,
 } from "./data";
 import { DiscountDialog, RevokeDiscountDialog } from "./DiscountDialog";
 
@@ -103,6 +106,7 @@ export function StudentFinancesTab({
   const charges = useCharges(allowed ? enrollment?.id : undefined);
   const discounts = useDiscounts(allowed ? enrollment?.id : undefined);
   const balance = useBalance(allowed ? enrollment?.id : undefined);
+  const credits = useStudentCredits(allowed ? enrollment?.id : undefined);
   const title = t("students.card.tabs.finances");
 
   if (!allowed || !enrollment)
@@ -111,17 +115,22 @@ export function StudentFinancesTab({
         {t(allowed ? "students.finances.notEnrolled" : "students.card.financesRight")}
       </StateCard>
     );
-  const error = charges.error ?? discounts.error ?? balance.error;
+  const error = charges.error ?? discounts.error ?? balance.error ?? credits.error;
   if (error)
     return (
       <LoadError
         error={error}
         onRetry={() =>
-          void Promise.all([charges.refetch(), discounts.refetch(), balance.refetch()])
+          void Promise.all([
+            charges.refetch(),
+            discounts.refetch(),
+            balance.refetch(),
+            credits.refetch(),
+          ])
         }
       />
     );
-  if (!charges.data || !discounts.data || !balance.data)
+  if (!charges.data || !discounts.data || !balance.data || !credits.data)
     return <Skeleton label={t("common.loading")} />;
   const canGrant = can(me, ["finance.grant_discount"]);
   const canSchedule =
@@ -151,6 +160,10 @@ export function StudentFinancesTab({
           {t("students.discount.granted")}
         </Banner>
       )}
+      <StudentCredits
+        credits={credits.data}
+        canProcess={can(me, ["finance.view_reports", "finance.approve_cancellation"])}
+      />
       {balance.data.currencies.length > 0 && <BalanceKpis balance={balance.data} />}
       <Card>
         <CardHeader className="flex-wrap">

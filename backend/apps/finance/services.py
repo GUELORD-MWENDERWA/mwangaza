@@ -1565,6 +1565,13 @@ def with_state(items: QuerySet[StudentCredit], state: str) -> QuerySet[StudentCr
     return live.filter(used_minor__lt=F("amount_minor"))
 
 
+def open_credits(enrollments: list) -> list[StudentCredit]:
+    """Crédits à traiter de ces inscriptions, les plus anciens d'abord (une requête) : ceux que
+    la caisse propose (3.6.2)."""
+    items = with_state(credits().filter(enrollment_id__in=enrollments), TO_PROCESS)
+    return list(items.order_by("created_at", "id"))
+
+
 def credit_state(credit: StudentCredit) -> str:
     if credit.voided_at is not None:
         return VOIDED

@@ -1265,6 +1265,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/student-charges/credits/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Crédits à traiter de l'inscription (M14), les plus anciens d'abord : proposés à la
+         *     caisse au prochain paiement (3.6.2) et montrés sur la fiche de l'élève.
+         */
+        get: operations["student_charges_credits_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/student-charges/reschedule/": {
         parameters: {
             query?: never;
@@ -1295,7 +1315,7 @@ export interface paths {
         /**
          * @description Crédits d'élèves de l'année (M14), les plus récents d'abord : argent reçu en trop, jamais
          *     perdu. Lire : `finance.view_reports` ou `finance.approve_cancellation` ; utiliser :
-         *     `finance.approve_cancellation`.
+         *     `finance.approve_cancellation`, ou `finance.collect_payment` à la caisse (3.6.2).
          */
         get: operations["student_credits_list"];
         put?: never;
@@ -1316,7 +1336,7 @@ export interface paths {
         /**
          * @description Crédits d'élèves de l'année (M14), les plus récents d'abord : argent reçu en trop, jamais
          *     perdu. Lire : `finance.view_reports` ou `finance.approve_cancellation` ; utiliser :
-         *     `finance.approve_cancellation`.
+         *     `finance.approve_cancellation`, ou `finance.collect_payment` à la caisse (3.6.2).
          */
         get: operations["student_credits_retrieve"];
         put?: never;
@@ -3939,9 +3959,9 @@ export interface components {
             readonly last_receipt_seq: number;
         };
         /**
-         * @description Entité `enrollment` : l'élève, sa classe, ses frais dus et ses paiements de l'année.
-         *     Frais et paiements : null sans droit sur les finances ; `state` des frais est calculé le jour
-         *     de l'envoi (l'appareil le recalcule d'après `due_on`).
+         * @description Entité `enrollment` : l'élève, sa classe, ses frais dus, ses paiements et ses crédits à
+         *     traiter de l'année. Frais, paiements et crédits : null sans droit sur les finances ; `state`
+         *     des frais est calculé le jour de l'envoi (l'appareil le recalcule d'après `due_on`).
          */
         SyncEnrollment: {
             /** Format: uuid */
@@ -3964,6 +3984,7 @@ export interface components {
             readonly student: components["schemas"]["SyncStudent"];
             readonly charges: components["schemas"]["StudentCharge"][] | null;
             readonly payments: components["schemas"]["Payment"][] | null;
+            readonly credits: components["schemas"]["StudentCredit"][] | null;
         };
         SyncFeeType: {
             /** Format: uuid */
@@ -8680,6 +8701,52 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Balance"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    student_charges_credits_list: {
+        parameters: {
+            query: {
+                /** @description Inscription de l'élève pour une année. */
+                enrollment: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentCredit"][];
                 };
             };
             400: {

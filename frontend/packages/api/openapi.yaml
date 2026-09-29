@@ -4554,6 +4554,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/student-charges/credits/:
+    get:
+      operationId: student_charges_credits_list
+      description: |-
+        Crédits à traiter de l'inscription (M14), les plus anciens d'abord : proposés à la
+        caisse au prochain paiement (3.6.2) et montrés sur la fiche de l'élève.
+      parameters:
+      - in: query
+        name: enrollment
+        schema:
+          type: string
+          format: uuid
+        description: Inscription de l'élève pour une année.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentCredit'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/student-charges/reschedule/:
     post:
       operationId: student_charges_reschedule_create
@@ -4609,7 +4654,7 @@ paths:
       description: |-
         Crédits d'élèves de l'année (M14), les plus récents d'abord : argent reçu en trop, jamais
         perdu. Lire : `finance.view_reports` ou `finance.approve_cancellation` ; utiliser :
-        `finance.approve_cancellation`.
+        `finance.approve_cancellation`, ou `finance.collect_payment` à la caisse (3.6.2).
       parameters:
       - in: query
         name: academic_year
@@ -4676,7 +4721,7 @@ paths:
       description: |-
         Crédits d'élèves de l'année (M14), les plus récents d'abord : argent reçu en trop, jamais
         perdu. Lire : `finance.view_reports` ou `finance.approve_cancellation` ; utiliser :
-        `finance.approve_cancellation`.
+        `finance.approve_cancellation`, ou `finance.collect_payment` à la caisse (3.6.2).
       parameters:
       - in: path
         name: id
@@ -10659,9 +10704,9 @@ components:
     SyncEnrollment:
       type: object
       description: |-
-        Entité `enrollment` : l'élève, sa classe, ses frais dus et ses paiements de l'année.
-        Frais et paiements : null sans droit sur les finances ; `state` des frais est calculé le jour
-        de l'envoi (l'appareil le recalcule d'après `due_on`).
+        Entité `enrollment` : l'élève, sa classe, ses frais dus, ses paiements et ses crédits à
+        traiter de l'année. Frais, paiements et crédits : null sans droit sur les finances ; `state`
+        des frais est calculé le jour de l'envoi (l'appareil le recalcule d'après `due_on`).
       properties:
         id:
           type: string
@@ -10706,6 +10751,12 @@ components:
             $ref: '#/components/schemas/Payment'
           readOnly: true
           nullable: true
+        credits:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentCredit'
+          readOnly: true
+          nullable: true
       required:
       - id
       - academic_year
@@ -10716,6 +10767,7 @@ components:
       - student
       - charges
       - payments
+      - credits
     SyncFeeType:
       type: object
       properties:

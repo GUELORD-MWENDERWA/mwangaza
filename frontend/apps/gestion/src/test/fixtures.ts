@@ -143,3 +143,29 @@ export function charge(
     ...row,
   } as Schemas["StudentCharge"];
 }
+
+/** Crédit à traiter (M14) : payé deux fois hors ligne, 30,00 $. */
+export function studentCredit(
+  overrides: Partial<Schemas["StudentCredit"]> = {},
+): Schemas["StudentCredit"] {
+  return {
+    id: fakeId(70),
+    enrollment: fakeId(80),
+    student: { id: fakeId(30), full_name: "KAMBALE MUHINDO Josué", matricule: "ALPHA-2026-0412" },
+    class_group: "3e Électricité A",
+    origin: "offline_surplus",
+    amount_minor: 3000,
+    currency: "USD",
+    used_minor: 0,
+    remaining_minor: 3000,
+    state: "to_process",
+    created_at: "2026-10-19T09:51:00Z",
+    voided_at: null,
+    receipt_number: "ALPHA-C1-26-000101",
+    cash_register_name: "Caisse 1",
+    paid_at: "2026-10-19T09:51:00Z",
+    discount_reason: null,
+    discount_fee_type: null,
+    ...overrides,
+  };
+}
