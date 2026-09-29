@@ -1537,6 +1537,15 @@ export const en: Messages<typeof fr> = {
       recorded: "Payment recorded: receipt {{number}}.",
       reprint: "Reprint",
     },
+    offline: {
+      closedTitle: "Cash register closed, no connection",
+      closedText:
+        "Open the cash register once with internet: after that, it keeps working without a network. Opening without a network is coming soon.",
+      storageTag: "Persistent storage refused",
+      missingTitle: "Student not found on this device",
+      missingText:
+        "This student has not reached this device yet. Synchronize with internet, then try again.",
+    },
     payments: {
       title: "Today's payments",
       search: "Receipt number or student name",
@@ -1547,6 +1556,8 @@ export const en: Messages<typeof fr> = {
       state: "Status",
       recorded: "recorded",
       cancelled: "cancelled",
+      pending: "pending",
+      rejected: "refused",
       empty: "No payments in this session yet.",
       noMatch: "No payment matches.",
       reprint: "Reprint",

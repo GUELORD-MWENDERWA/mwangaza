@@ -10,6 +10,7 @@ import {
   SyncIndicator,
 } from "@mwangaza/ui";
 import { useEffect, useState } from "react";
+import { useMatch } from "react-router";
 
 import { useOnline } from "../../lib/online";
 import { can } from "../../lib/permissions";
@@ -98,7 +99,8 @@ export function SyncMenu({ className }: { className?: string }) {
 
 const ONLINE_ONLY = "mwangaza.onlineOnly";
 
-function onlineOnlyChosen() {
+/** « Continuer en ligne seulement » choisi dans cet onglet (bandeau, caisse). */
+export function onlineOnlyChosen() {
   try {
     return sessionStorage.getItem(ONLINE_ONLY) === "1";
   } catch {
@@ -107,20 +109,18 @@ function onlineOnlyChosen() {
 }
 
 /** Stockage persistant refusé (M8) : sans lui, le navigateur peut effacer la base de l'appareil
- *  et la caisse ne peut pas travailler sans internet (la caisse hors ligne le bloque en 3.5).
+ *  et la caisse ne peut pas travailler sans internet (la caisse le montre en page entière).
  *  « Continuer en ligne seulement » le cache tant que l'onglet reste ouvert. */
 export function StorageBanner() {
   const { t } = useTranslation();
   const { device, persisted } = useSyncStatus();
   const [hidden, setHidden] = useState(onlineOnlyChosen);
-  if (!device || persisted !== false || hidden) return null;
+  // La caisse montre ce message en page entière.
+  const cash = useMatch("/cash");
+  if (!device || persisted !== false || hidden || cash) return null;
 
   function onlineOnly() {
-    try {
-      sessionStorage.setItem(ONLINE_ONLY, "1");
-    } catch {
-      // Stockage refusé : caché pour cet écran seulement.
-    }
+    chooseOnlineOnly();
     setHidden(true);
   }
 
@@ -138,4 +138,12 @@ export function StorageBanner() {
       </div>
     </Banner>
   );
+}
+
+export function chooseOnlineOnly() {
+  try {
+    sessionStorage.setItem(ONLINE_ONLY, "1");
+  } catch {
+    // Stockage refusé : choix gardé pour cet écran seulement.
+  }
 }

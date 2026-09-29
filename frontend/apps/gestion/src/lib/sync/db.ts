@@ -12,16 +12,24 @@ import {
 
 export type LocalEnrollment = Enrollment & { gen: number };
 
-/** Opération de la file : `pending` jusqu'à la réponse du serveur ; `rejected` gardée, avec sa
- *  raison, pour être montrée (jamais effacée en silence). */
+/** Opération de la file : `pending` jusqu'à la réponse du serveur ; `sent` appliquée, gardée
+ *  jusqu'à la descente suivante, qui apporte l'état du serveur où elle figure (les écrans ne la
+ *  perdent jamais de vue entre les deux) ; `rejected` gardée, avec sa raison, pour être montrée
+ *  (jamais effacée en silence). */
 export type QueuedOperation = Operation & {
   seq?: number;
-  status: "pending" | "rejected";
+  status: "pending" | "sent" | "rejected";
   error: Schemas["Error"] | null;
+  /** Encaissement : le reçu imprimé, pour l'afficher et le compter jusqu'à la descente (jamais
+   *  envoyé : le serveur reçoit `payload`). */
+  receipt?: Schemas["PaymentReceipt"];
 };
 
 type ConfigRow = { id: "config"; value: Config };
 type MetaRow = SyncMeta & { id: "sync" };
+/** Session de caisse ouverte du compte, gardée à chaque lecture en ligne : la caisse continue
+ *  sans réseau (3.5). */
+export type CashRow = { id: "session"; value: Schemas["CurrentCashSession"] };
 
 /** Base d'un appareil enregistré (donc d'un compte, dans l'école de l'adresse) : l'état reçu du
  *  serveur, jamais modifié sur place, et la file des opérations faites ici (les écrans les
@@ -32,6 +40,7 @@ export class LocalDb extends Dexie {
   config!: EntityTable<ConfigRow, "id">;
   meta!: EntityTable<MetaRow, "id">;
   outbox!: EntityTable<QueuedOperation, "seq">;
+  cash!: EntityTable<CashRow, "id">;
 
   constructor(deviceId: string) {
     super(`mwangaza-sync-${deviceId}`);
@@ -43,6 +52,7 @@ export class LocalDb extends Dexie {
       // ordonnés).
       outbox: "++seq, &op_id, status",
     });
+    this.version(2).stores({ cash: "id" });
     this.on("populate", (transaction) => {
       void transaction.table("meta").add({ ...EMPTY_META, id: "sync" });
     });
@@ -54,9 +64,19 @@ export function dexieStore(db: LocalDb): LocalStore {
     ...EMPTY_META,
     ...(await db.meta.get("sync")),
   });
-  const writeMeta = async (changes: Partial<SyncMeta>) => {
-    await db.meta.update("sync", changes);
-  };
+  // La séquence des reçus ne recule jamais : un instantané lu avant un encaissement ne remet
+  // pas un numéro déjà donné.
+  const writeMeta = (changes: Partial<SyncMeta>) =>
+    db.transaction("rw", db.meta, async () => {
+      const { receiptSeq } = await readMeta();
+      await db.meta.update("sync", {
+        ...changes,
+        ...(changes.receiptSeq !== undefined && {
+          receiptSeq: Math.max(receiptSeq, changes.receiptSeq),
+        }),
+      });
+    });
+
   return {
     meta: readMeta,
     setMeta: writeMeta,
@@ -86,13 +106,16 @@ export function dexieStore(db: LocalDb): LocalStore {
       db.transaction("rw", db.outbox, async () => {
         for (const outcome of outcomes) {
           const operation = db.outbox.where("op_id").equals(outcome.op_id);
-          if (outcome.status === "rejected") {
-            await operation.modify({ status: "rejected", error: outcome.error });
-          } else {
-            await operation.delete();
-          }
+          await operation.modify(
+            outcome.status === "rejected"
+              ? { status: "rejected", error: outcome.error }
+              : { status: "sent" },
+          );
         }
       }),
+    dropSent: async () => {
+      await db.outbox.where("status").equals("sent").delete();
+    },
     wipe: () => db.delete(),
   };
 }

@@ -1,6 +1,7 @@
-// Caisse (F1-F2, M13) : sans caisse ouverte, l'écran d'ouverture (maquette `caisse-ouverture`) ;
-// sinon l'accueil de la caisse, qui devient l'encaissement quand un élève est choisi. En ligne
-// seulement (hors ligne : 3.5) ; clôture en 3.8.
+// Caisse (F1-F2, F5, M13) : sans caisse ouverte, l'écran d'ouverture (maquette
+// `caisse-ouverture`) ; sinon l'accueil de la caisse, qui devient l'encaissement quand un élève
+// est choisi. Appareil mémorisé : la caisse lit et écrit la base de l'appareil, avec ou sans
+// réseau (3.5.1) ; sinon, en ligne. Ouverture hors ligne : 3.5.2 ; clôture : 3.8.
 import { api, call } from "@mwangaza/api";
 import { formatTime, useTranslation } from "@mwangaza/i18n";
 import { formatRate } from "@mwangaza/money";
@@ -21,19 +22,40 @@ import {
   cn,
 } from "@mwangaza/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { errorMessage } from "../../lib/errors";
 import { uuidv7 } from "../../lib/ids";
 import { fullName } from "../../lib/people";
-import { keys, useCurrentMe } from "../../lib/queries";
+import { hasCode, keys, useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
+import type { LocalDb } from "../../lib/sync/db";
+import { requestPersistence, useSyncStatus } from "../../lib/sync/session";
+import { chooseOnlineOnly, onlineOnlyChosen } from "../shell/SyncMenu";
 import { LoadError } from "../status/StatusPages";
 import { CashDesk } from "./CashDesk";
 import { type CurrentSession, useCashRegisters, useCurrentSession } from "./data";
+import { saveSession, useLocalCash } from "./localData";
 import { sampleReceipt, useReceiptPrinter } from "./Receipt";
 
 export function CashPage() {
+  const { db, prefix, persisted } = useSyncStatus();
+  const [onlineOnly, setOnlineOnly] = useState(onlineOnlyChosen);
+  if (!db || !prefix || onlineOnly) return <ServerCash />;
+  // M8 : sans stockage persistant, le navigateur peut effacer la base, et la caisse avec.
+  if (persisted === false)
+    return (
+      <StorageRefused
+        onOnlineOnly={() => {
+          chooseOnlineOnly();
+          setOnlineOnly(true);
+        }}
+      />
+    );
+  return <DeviceCash db={db} prefix={prefix} />;
+}
+
+function ServerCash() {
   const { t } = useTranslation();
   const current = useCurrentSession();
   if (current.error)
@@ -44,6 +66,78 @@ export function CashPage() {
     <CashDesk current={current.data} session={session} />
   ) : (
     <OpenSession current={current.data} />
+  );
+}
+
+/** Session lue en ligne quand le serveur répond, sinon la dernière gardée sur l'appareil. */
+function DeviceCash({ db, prefix }: { db: LocalDb; prefix: string }) {
+  const { t } = useTranslation();
+  const local = useLocalCash(db);
+  const current = useCurrentSession();
+  useEffect(() => {
+    if (current.data) void saveSession(db, current.data);
+  }, [db, current.data]);
+  const offline = hasCode(current.error, "network");
+  if (current.error && !offline)
+    return <LoadError error={current.error} onRetry={() => void current.refetch()} />;
+  if (local.error) return <LoadError error={local.error} onRetry={() => location.reload()} />;
+  if (!local.data) return <Skeleton label={t("common.loading")} />;
+  const known = current.data ?? local.data.saved;
+  if (!known)
+    return offline ? (
+      <NeedsNetwork onRetry={() => void current.refetch()} />
+    ) : (
+      <Skeleton label={t("common.loading")} />
+    );
+  if (!known.session)
+    return current.data ? (
+      <OpenSession current={known} />
+    ) : (
+      <NeedsNetwork onRetry={() => void current.refetch()} />
+    );
+  return (
+    <CashDesk current={known} session={known.session} device={{ db, prefix, local: local.data }} />
+  );
+}
+
+/** Caisse fermée et pas de réseau : l'ouverture hors ligne vient en 3.5.2. */
+function NeedsNetwork({ onRetry }: { onRetry: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <StateCard
+      icon="wifioff"
+      tone="warn"
+      title={t("cash.offline.closedTitle")}
+      actions={
+        <Button variant="outline" onClick={onRetry}>
+          {t("common.retry")}
+        </Button>
+      }
+    >
+      {t("cash.offline.closedText")}
+    </StateCard>
+  );
+}
+
+function StorageRefused({ onOnlineOnly }: { onOnlineOnly: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <StateCard
+      icon="database"
+      tone="warn"
+      title={t("shell.storage.title")}
+      tag={<Tag>{t("cash.offline.storageTag")}</Tag>}
+      actions={
+        <>
+          <Button onClick={() => void requestPersistence()}>{t("common.retry")}</Button>
+          <Button variant="ghost" onClick={onOnlineOnly}>
+            {t("shell.storage.onlineOnly")}
+          </Button>
+        </>
+      }
+    >
+      {t("shell.storage.text")}
+    </StateCard>
   );
 }
 

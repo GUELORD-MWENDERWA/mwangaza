@@ -25,8 +25,9 @@ export function useCurrentSession() {
 }
 
 /** Paiements d'une session, les plus récents d'abord ; recherche par reçu, nom ou matricule. */
-export function useSessionPayments(session: string, search: string, page: number) {
+export function useSessionPayments(session: string, search: string, page: number, enabled = true) {
   return useQuery({
+    enabled,
     queryKey: [...keys.payments, session, search, page],
     queryFn: () =>
       call(

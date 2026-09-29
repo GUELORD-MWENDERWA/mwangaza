@@ -2960,6 +2960,8 @@ export interface components {
             readonly student: components["schemas"]["PaymentStudent"];
             readonly class_group: string;
             readonly cash_register: string;
+            /** Format: uuid */
+            readonly cash_session: string;
             readonly cashier: components["schemas"]["Person"];
             /**
              * Amount received
@@ -3035,6 +3037,8 @@ export interface components {
             readonly student: components["schemas"]["PaymentStudent"];
             readonly class_group: string;
             readonly cash_register: string;
+            /** Format: uuid */
+            readonly cash_session: string;
             readonly cashier: components["schemas"]["Person"];
             /**
              * Amount received

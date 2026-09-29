@@ -413,6 +413,8 @@ class PaymentSerializer(serializers.ModelSerializer):
     student = PaymentStudentSerializer(source="enrollment.student", read_only=True)
     class_group = serializers.CharField(source="enrollment.class_group.name", read_only=True)
     cash_register = serializers.CharField(source="cash_session.cash_register.code", read_only=True)
+    # Paiements d'une session retrouvés sur l'appareil (caisse hors ligne, 3.5).
+    cash_session = serializers.UUIDField(source="cash_session_id", read_only=True)
     cashier = PersonSerializer(read_only=True)
     cancelled = serializers.BooleanField(source="is_cancelled", read_only=True)
     allocations = PaymentAllocationSerializer(many=True, read_only=True)
@@ -426,6 +428,7 @@ class PaymentSerializer(serializers.ModelSerializer):
             "student",
             "class_group",
             "cash_register",
+            "cash_session",
             "cashier",
             "received_amount_minor",
             "received_currency",

@@ -1547,6 +1547,15 @@ export const fr = {
       recorded: "Paiement enregistré : reçu {{number}}.",
       reprint: "Réimprimer",
     },
+    offline: {
+      closedTitle: "Caisse fermée, pas de connexion",
+      closedText:
+        "Ouvrez la caisse une fois avec internet : ensuite, elle continue sans réseau. L'ouverture sans réseau arrive bientôt.",
+      storageTag: "Stockage persistant refusé",
+      missingTitle: "Élève introuvable sur cet appareil",
+      missingText:
+        "Cet élève n'est pas encore descendu sur cet appareil. Synchronisez avec internet, puis réessayez.",
+    },
     payments: {
       title: "Paiements du jour",
       search: "N° de reçu ou nom de l'élève",
@@ -1557,6 +1566,8 @@ export const fr = {
       state: "État",
       recorded: "enregistré",
       cancelled: "annulé",
+      pending: "en attente",
+      rejected: "refusé",
       empty: "Aucun paiement dans cette session pour l'instant.",
       noMatch: "Aucun paiement ne correspond.",
       reprint: "Réimprimer",

@@ -9,6 +9,10 @@ import { synchronize, type SyncServer } from "./engine";
 export type SyncStatus = {
   /** Appareil mémorisé qui se synchronise ; `null` : travail en ligne seulement (1.6). */
   device: string | null;
+  /** Sa base : les écrans qui marchent hors ligne y lisent et y écrivent (caisse, 3.5). */
+  db: LocalDb | null;
+  /** Son préfixe (`P1`), dans les numéros de reçus qu'il donne. */
+  prefix: string | null;
   running: boolean;
   /** Dernier essai échoué (réseau, serveur) : nouvel essai au prochain déclencheur. */
   failed: boolean;
@@ -21,6 +25,8 @@ export type SyncStatus = {
 
 const IDLE: SyncStatus = {
   device: null,
+  db: null,
+  prefix: null,
   running: false,
   failed: false,
   lastSyncAt: null,
@@ -116,7 +122,7 @@ function openSession(user: string): Session {
       db = new LocalDb(device.id);
       const local = db;
       const { lastSyncAt } = await dexieStore(local).meta();
-      setStatus({ device: device.id, lastSyncAt });
+      setStatus({ device: device.id, db: local, prefix: device.prefix, lastSyncAt });
       counts = liveQuery(() =>
         Promise.all([
           local.outbox.where("status").equals("pending").count(),

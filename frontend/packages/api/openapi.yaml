@@ -8529,6 +8529,10 @@ components:
         cash_register:
           type: string
           readOnly: true
+        cash_session:
+          type: string
+          format: uuid
+          readOnly: true
         cashier:
           allOf:
           - $ref: '#/components/schemas/Person'
@@ -8571,6 +8575,7 @@ components:
       - student
       - class_group
       - cash_register
+      - cash_session
       - cashier
       - received_amount_minor
       - received_currency
@@ -8685,6 +8690,10 @@ components:
         cash_register:
           type: string
           readOnly: true
+        cash_session:
+          type: string
+          format: uuid
+          readOnly: true
         cashier:
           allOf:
           - $ref: '#/components/schemas/Person'
@@ -8737,6 +8746,7 @@ components:
       - student
       - class_group
       - cash_register
+      - cash_session
       - cashier
       - received_amount_minor
       - received_currency

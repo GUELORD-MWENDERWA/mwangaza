@@ -1,0 +1,100 @@
+// Caisse d'un appareil mémorisé (F5, 3.5) : la base de l'appareil lue en direct (chaque
+// synchronisation et chaque encaissement mettent l'écran à jour) ; un encaissement s'écrit dans
+// la file d'opérations, avec ou sans réseau, puis part au serveur tout de suite s'il y en a un.
+import type { Schemas } from "@mwangaza/api";
+import { liveQuery } from "dexie";
+import { useEffect, useState } from "react";
+
+import type { LocalDb, LocalEnrollment, QueuedOperation } from "../../lib/sync/db";
+import type { Config } from "../../lib/sync/engine";
+import { syncNow } from "../../lib/sync/session";
+import { offlinePayload } from "./offline";
+import type { Receipt } from "./Receipt";
+
+type Live<T> = { data?: T; error?: unknown };
+
+/** Résultat d'une lecture de la base, relu à chaque changement des tables lues. */
+function useLive<T>(db: LocalDb, query: (db: LocalDb) => Promise<T>): Live<T> {
+  const [state, setState] = useState<Live<T> & { db?: LocalDb }>({});
+  useEffect(() => {
+    const subscription = liveQuery(() => query(db)).subscribe({
+      next: (data) => setState({ db, data }),
+      error: (error: unknown) => setState({ db, error }),
+    });
+    return () => subscription.unsubscribe();
+    // `query` : une fonction du module, la même à chaque rendu.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [db]);
+  return state.db === db ? state : {};
+}
+
+export type LocalCash = {
+  enrollments: LocalEnrollment[];
+  byId: Map<string, LocalEnrollment>;
+  config: Config | null;
+  /** Dernière session de caisse lue en ligne. */
+  saved: Schemas["CurrentCashSession"] | null;
+  /** Opérations de la file, dans l'ordre. */
+  queued: QueuedOperation[];
+};
+
+const readState = async (db: LocalDb) => {
+  const [enrollments, config, saved] = await Promise.all([
+    db.enrollments.toArray(),
+    db.config.get("config"),
+    db.cash.get("session"),
+  ]);
+  return {
+    enrollments,
+    byId: new Map(enrollments.map((item) => [item.id, item])),
+    config: config?.value ?? null,
+    saved: saved?.value ?? null,
+  };
+};
+
+const readQueue = (db: LocalDb) => db.outbox.orderBy("seq").toArray();
+
+/** L'état reçu du serveur (qui change à la synchronisation) et la file (à chaque encaissement),
+ *  lus à part. */
+export function useLocalCash(db: LocalDb): Live<LocalCash> {
+  const state = useLive(db, readState);
+  const queue = useLive(db, readQueue);
+  const error = state.error ?? queue.error;
+  if (error) return { error };
+  if (!state.data || !queue.data) return {};
+  return { data: { ...state.data, queued: queue.data } };
+}
+
+/** Session lue en ligne : gardée pour continuer sans réseau. */
+export async function saveSession(db: LocalDb, value: Schemas["CurrentCashSession"]) {
+  await db.cash.put({ id: "session", value });
+}
+
+/** Encaissement sur l'appareil : numéro suivant de l'appareil et opération de la file dans une
+ *  seule transaction (jamais l'un sans l'autre). Le même `id` deux fois (double appui) rend le
+ *  premier reçu. Puis envoi aussitôt, sans attendre. */
+export async function recordOffline(
+  db: LocalDb,
+  id: string,
+  build: (seq: number) => Receipt,
+): Promise<Receipt> {
+  const receipt = await db.transaction("rw", [db.meta, db.outbox], async () => {
+    const already = await db.outbox.where("op_id").equals(id).first();
+    if (already?.receipt) return already.receipt;
+    const seq = ((await db.meta.get("sync"))?.receiptSeq ?? 0) + 1;
+    const made = build(seq);
+    await db.meta.update("sync", { receiptSeq: seq });
+    await db.outbox.add({
+      op_id: id,
+      type: "payment.create",
+      payload: offlinePayload(made),
+      created_at: made.paid_at,
+      status: "pending",
+      error: null,
+      receipt: made,
+    });
+    return made;
+  });
+  void syncNow();
+  return receipt;
+}
