@@ -23,13 +23,17 @@ export type QueuedOperation = Operation & {
   /** Encaissement : le reçu imprimé, pour l'afficher et le compter jusqu'à la descente (jamais
    *  envoyé : le serveur reçoit `payload`). */
   receipt?: Schemas["PaymentReceipt"];
+  /** Ouverture de caisse : la session ouverte ici, montée à la caisse jusqu'à ce que le
+   *  serveur l'accepte (elle devient alors la session gardée) ou la refuse (3.5.2). */
+  session?: Schemas["CashSession"];
 };
 
 type ConfigRow = { id: "config"; value: Config };
 type MetaRow = SyncMeta & { id: "sync" };
 /** Session de caisse ouverte du compte, gardée à chaque lecture en ligne : la caisse continue
- *  sans réseau (3.5). */
-export type CashRow = { id: "session"; value: Schemas["CurrentCashSession"] };
+ *  sans réseau (3.5). `readAt` : heure de la lecture ; une lecture plus ancienne (réponse
+ *  arrivée en retard, donnée en cache) ne la remplace jamais. */
+export type CashRow = { id: "session"; value: Schemas["CurrentCashSession"]; readAt?: number };
 
 /** Base d'un appareil enregistré (donc d'un compte, dans l'école de l'adresse) : l'état reçu du
  *  serveur, jamais modifié sur place, et la file des opérations faites ici (les écrans les
@@ -103,9 +107,21 @@ export function dexieStore(db: LocalDb): LocalStore {
       }),
     pending: (limit) => db.outbox.where("status").equals("pending").limit(limit).toArray(),
     settle: (outcomes) =>
-      db.transaction("rw", db.outbox, async () => {
+      db.transaction("rw", [db.outbox, db.cash], async () => {
         for (const outcome of outcomes) {
           const operation = db.outbox.where("op_id").equals(outcome.op_id);
+          const opened =
+            outcome.status === "rejected" ? undefined : (await operation.first())?.session;
+          if (opened) {
+            // Caisse ouverte ici, acceptée : c'est maintenant la session du serveur.
+            await db.cash
+              .where("id")
+              .equals("session")
+              .modify((row) => {
+                row.value = { ...row.value, session: opened };
+                row.readAt = Date.now();
+              });
+          }
           await operation.modify(
             outcome.status === "rejected"
               ? { status: "rejected", error: outcome.error }

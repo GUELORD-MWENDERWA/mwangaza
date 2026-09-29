@@ -2,23 +2,28 @@
 // (`school.receipt`, carte « Reçus et documents ») : ticket thermique 80 ou 58 mm, ou reçus A6,
 // A5 ou petit format sur une feuille A4 avec traits de découpe ; 1 exemplaire, ou 2 avec la
 // souche de l'école. Tout vient du paiement (solde juste après lui compris) et de l'école, pour
-// qu'il s'imprime aussi hors ligne (3.4). Zone cachée à l'écran, puis `window.print()`.
+// qu'il s'imprime aussi hors ligne (3.5). QR code signé par l'appareil mémorisé (3.5.2). Zone
+// cachée à l'écran, puis `window.print()`.
 import type { Schemas } from "@mwangaza/api";
 import { formatDateTime, formatDay, type TFunction, useTranslation } from "@mwangaza/i18n";
 import { amountInWords, type Currency, formatAmount, formatRate } from "@mwangaza/money";
 import { type ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { localDevice } from "../../lib/device";
 import { fullName } from "../../lib/people";
-import type { School } from "../../lib/queries";
+import { type School, useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { QrCode } from "../auth/QrCode";
 import { headerLines } from "../settings/ReceiptCard";
 import "./receipt.css";
+import { receiptQr } from "./receiptQr";
 
 export type Receipt = Schemas["PaymentReceipt"];
 /** `reprintedAt` : duplicata (F6) ; `test` : reçu d'essai de l'imprimante, sans valeur. */
 export type PrintJob = { payment: Receipt; reprintedAt?: string; test?: boolean };
+/** `qr` : adresse du QR code, signée sur un appareil mémorisé. */
+type Printing = PrintJob & { qr: string };
 
 // Au-delà, le logo manquant ne retient plus l'impression.
 const IMAGE_WAIT_MS = 2000;
@@ -29,7 +34,7 @@ function amounts(items: { currency: string; minor: number }[], nothing: string):
   return due.map((item) => formatAmount(item.minor, item.currency as Currency)).join(" + ");
 }
 
-function ReceiptCopy({ job, school, copy }: { job: PrintJob; school: School; copy?: number }) {
+function ReceiptCopy({ job, school, copy }: { job: Printing; school: School; copy?: number }) {
   const { t, i18n } = useTranslation();
   const { payment } = job;
   const { printer, sheet_size } = school.receipt;
@@ -41,11 +46,15 @@ function ReceiptCopy({ job, school, copy }: { job: PrintJob; school: School; cop
     payment.rate_used && payment.allocations.some((line) => line.currency !== received)
       ? payment.rate_used
       : null;
-  const { origin, host } = window.location;
+  const { host } = window.location;
   const id = payment.id;
+  // Signé : plus de modules, dessinés plus grands pour rester lisibles sur un ticket thermique.
   const qr = (
-    <div className="receipt__qr">
-      <QrCode value={`${origin}/v/${id}`} label={t("cash.receipt.qr")} />
+    <div
+      className={job.qr.includes("?") ? "receipt__qr receipt__qr--dense" : "receipt__qr"}
+      data-url={job.qr}
+    >
+      <QrCode value={job.qr} label={t("cash.receipt.qr")} />
     </div>
   );
   const when = (value: string) => formatDateTime(value, i18n.language, school.timezone);
@@ -164,7 +173,7 @@ function ReceiptCopy({ job, school, copy }: { job: PrintJob; school: School; cop
 
 /** Les exemplaires d'un reçu sur la page : ticket (séparés par un trait de découpe) ou feuille
  * A4 découpée en cases A6, A5 ou petit format. */
-export function ReceiptPages({ job, school }: { job: PrintJob; school: School }) {
+function ReceiptPages({ job, school }: { job: Printing; school: School }) {
   const { printer, sheet_size, copies } = school.receipt;
   const items = Array.from({ length: copies }, (_, index) => (
     <ReceiptCopy key={index} job={job} school={school} copy={copies > 1 ? index : undefined} />
@@ -205,10 +214,24 @@ function imagesReady(root: Element | null): Promise<unknown> {
   return Promise.race([loaded, new Promise((done) => setTimeout(done, IMAGE_WAIT_MS))]);
 }
 
+/** Adresse du QR code, signée avec la clé de l'appareil mémorisé du compte s'il y en a un ;
+ *  jamais pour le reçu d'essai, sans valeur. */
+async function withQr(job: PrintJob, user: string): Promise<Printing> {
+  const { origin } = window.location;
+  try {
+    const key = job.test ? undefined : (await localDevice(user))?.privateKey;
+    return { ...job, qr: await receiptQr(origin, job.payment, key) };
+  } catch {
+    // Clé illisible : le reçu s'imprime quand même, vérifiable une fois synchronisé.
+    return { ...job, qr: await receiptQr(origin, job.payment) };
+  }
+}
+
 /** `print(job)` imprime le reçu ; `area` (zone d'impression) se place dans l'écran. */
 export function useReceiptPrinter(): { print: (job: PrintJob) => void; area: ReactNode } {
   const school = useCurrentSchool();
-  const [job, setJob] = useState<PrintJob | null>(null);
+  const me = useCurrentMe();
+  const [job, setJob] = useState<Printing | null>(null);
 
   useEffect(() => {
     if (!job) return;
@@ -231,7 +254,7 @@ export function useReceiptPrinter(): { print: (job: PrintJob) => void; area: Rea
         document.body,
       )
     : null;
-  return { print: setJob, area };
+  return { print: (next) => void withQr(next, me.id).then(setJob), area };
 }
 
 /** Reçu d'essai de l'imprimante (bouton « Test » de l'ouverture de caisse) : montant fictif dans

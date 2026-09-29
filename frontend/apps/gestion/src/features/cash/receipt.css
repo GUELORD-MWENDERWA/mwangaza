@@ -162,6 +162,11 @@
 .receipt-roll .receipt__qr {
   align-self: center;
 }
+/* QR code signé (3.5.2) : environ 57 modules au lieu de 37. */
+.receipt__qr--dense svg {
+  width: 26mm;
+  height: 26mm;
+}
 .receipt-cut {
   margin: 6mm 0;
   border: 0;
@@ -235,4 +240,8 @@
 }
 .receipt-sheet--small .receipt__stamp {
   min-height: 7mm;
+}
+.receipt-sheet--small .receipt__qr--dense svg {
+  width: 20mm;
+  height: 20mm;
 }
