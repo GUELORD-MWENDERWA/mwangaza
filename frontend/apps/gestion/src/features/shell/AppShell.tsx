@@ -12,13 +12,15 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@mwangaza/ui";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate, Outlet } from "react-router";
 
+import { keepForOfflineStart } from "../../lib/device";
 import { errorMessage } from "../../lib/errors";
 import { displayName, rolesLabel } from "../../lib/people";
 import { can } from "../../lib/permissions";
 import { useCurrentMe, type Me } from "../../lib/queries";
+import { useCurrentSchool } from "../../lib/school";
 import { useLogout } from "../../lib/session";
 import { SearchPalette } from "./SearchPalette";
 import { Nav, SchoolSwitcher, Sidebar } from "./Sidebar";
@@ -27,7 +29,10 @@ import { StorageBanner, SyncMenu, useSyncSession } from "./SyncMenu";
 
 export function AppShell() {
   const me = useCurrentMe();
+  const school = useCurrentSchool();
   useSyncSession(me);
+  // Gardés sur l'appareil mémorisé : l'application démarrera sans réseau (B5).
+  useEffect(() => void keepForOfflineStart(me, school).catch(() => undefined), [me, school]);
   // Aucun droit dans cette école : le support ouvre sa session, les autres choisissent une école.
   if (!me.school) return <Navigate to={me.is_platform_admin ? "/support" : "/schools"} replace />;
   return (

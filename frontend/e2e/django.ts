@@ -34,3 +34,31 @@ export function allowCodeAgain(phone: string) {
     `from apps.accounts.models import User; User.objects.filter(phone='${phone}').update(totp_last_step=0)`,
   );
 }
+
+/** Un élève de la démonstration qui n'a encore rien payé et doit des frais en dollars. */
+export function unpaidStudent(): { matricule: string; name: string } {
+  const output = manage(
+    "shell",
+    "-c",
+    `from apps.core.tenancy import use_school
+from apps.schools.models import School
+from apps.students.models import Enrollment
+with use_school(School.objects.get(code="itig")):
+    e = (Enrollment.objects.filter(status="active", payments__isnull=True, charges__currency="USD",
+         charges__status="active").select_related("student").order_by("student__matricule").first())
+    print(e.student.matricule, "|", e.student.last_name.upper(), e.student.middle_name.upper(), e.student.first_name)`,
+  );
+  // Dernière ligne : le shell annonce d'abord ses imports automatiques.
+  const [matricule, name] = output.trim().split("\n").at(-1)!.split(" | ");
+  return { matricule: matricule!, name: name!.replace(/\s+/g, " ") };
+}
+
+/** Sessions de caisse laissées ouvertes par d'autres parcours : clôturées, comme par `make demo`. */
+export function closeCashSessions() {
+  shell(`from django.utils import timezone
+from apps.core.tenancy import use_school
+from apps.finance.models import CashSession
+from apps.schools.models import School
+with use_school(School.objects.get(code="itig")):
+    CashSession.objects.filter(closed_at__isnull=True).update(closed_at=timezone.now())`);
+}

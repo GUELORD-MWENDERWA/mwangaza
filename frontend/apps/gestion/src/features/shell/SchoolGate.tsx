@@ -6,10 +6,12 @@ import { Outlet } from "react-router";
 
 import { hasCode, useSchool } from "../../lib/queries";
 import { SchoolContext } from "../../lib/school";
-import { ErrorState, NoSchool, Offline, StandaloneStatus, Suspended } from "../status/StatusPages";
+import { ErrorState, NoSchool, StandaloneStatus, Suspended } from "../status/StatusPages";
+import { OfflineStart } from "./PinUnlock";
 
 /** L'école de l'adresse, lue avant tout écran (nom, couleur, logo, fuseau). École suspendue ou
- *  inconnue : le serveur refuse tout à cette adresse, on le dit sans rien afficher d'autre. */
+ *  inconnue : le serveur refuse tout à cette adresse, on le dit sans rien afficher d'autre. Sans
+ *  réseau : déverrouillage par PIN d'un compte mémorisé ici (B5). */
 export function SchoolGate() {
   const { t } = useTranslation();
   const school = useSchool();
@@ -29,14 +31,13 @@ export function SchoolGate() {
   if (school.isError) {
     const { error } = school;
     const retry = () => void school.refetch();
+    if (hasCode(error, "network")) return <OfflineStart onRetry={retry} />;
     return (
       <StandaloneStatus>
         {hasCode(error, "school_suspended") ? (
           <Suspended />
         ) : hasCode(error, "school_not_found") ? (
           <NoSchool />
-        ) : hasCode(error, "network") ? (
-          <Offline onRetry={retry} />
         ) : (
           <ErrorState
             status={error instanceof ApiError ? error.status : undefined}

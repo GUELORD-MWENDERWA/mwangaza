@@ -2,7 +2,7 @@
 import { ApiError, api, call, type Schemas } from "@mwangaza/api";
 import { type QueryClient, useQuery } from "@tanstack/react-query";
 
-import { attachDevice, takeRememberDevice } from "./device";
+import { attachDevice, keepForOfflineStart, takeRememberDevice } from "./device";
 import { reloadSync } from "./sync/session";
 
 export type Me = Schemas["Me"];
@@ -35,6 +35,8 @@ export const keys = {
   payments: ["payments"],
   credits: ["student-credits"],
   myDevices: ["my-devices"],
+  /** L'appareil mémorisé dans ce navigateur (code PIN), pas le serveur. */
+  localDevice: ["local-device"],
 } as const;
 
 /** Nouvel essai seulement sans réponse du serveur (réseau), jamais sur un refus de l'API. */
@@ -74,8 +76,11 @@ export async function attachDeviceAfterLogin(queryClient: QueryClient) {
     const me = await queryClient.fetchQuery(meQuery);
     if (!me.school) return;
     await attachDevice(me.id, remember);
+    const school = queryClient.getQueryData<School>(keys.school);
+    if (school) await keepForOfflineStart(me, school);
     reloadSync();
     await queryClient.invalidateQueries({ queryKey: keys.myDevices });
+    await queryClient.invalidateQueries({ queryKey: keys.localDevice });
   } catch {
     // Sans réseau ou sans WebCrypto : l'appareil sera repris à la prochaine connexion.
   }

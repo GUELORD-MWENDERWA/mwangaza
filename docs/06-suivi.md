@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.6.2 terminée, PR #110 à fusionner |
-| Prochaine tâche | 3.7 |
-| Issue GitHub | #26 |
-| Branche | `tache/3.6.2-credit-caisse` (PR #110) ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 3.7.1 terminée, PR #111 à fusionner |
+| Prochaine tâche | 3.7.2 |
+| Issue GitHub | #27 |
+| Branche | `tache/3.7.1-pin-hors-ligne` (PR #111) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-29 |
 
 ## Avancement
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 12 | 14 |
+| Semaine 3 — Caisse et hors-ligne | 13 | 15 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **29** | **39** |
+| **V1.0** | **30** | **40** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,13 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-29 — Tâche 3.7.1 : PIN de déverrouillage et démarrage sans réseau
+
+- **Fait** : 3.7 découpée (3.7.1 PIN, 3.7.2 appareils de l'école). Carte « Code PIN de déverrouillage » dans Mon compte (4 chiffres, propre à l'appareil mémorisé, empreinte PBKDF2 sur l'appareil) ; sans réponse du serveur au démarrage, écran de déverrouillage (maquette `deverrouillage-pin`) au lieu de « Hors ligne », puis l'application rouvre avec le compte et l'école gardés sur l'appareil.
+- **Tests** : 866 serveur, 198 front (dont `lib/pin.test.ts` : 5 codes faux, 7 jours, déconnexion, codes faibles), nouveau parcours Playwright (PIN défini, serveur coupé, code faux puis juste, caisse ouverte et paiement hors ligne, synchronisés au retour), lint vert.
+- **Décisions** (`03`) : PIN jamais envoyé au serveur ni audité ; « Se déconnecter » exige le mot de passe avant le prochain déverrouillage ; 7 jours fixes pour toute la plateforme.
+- **Suite** : 3.7.2 (appareils de l'école, écran « Appareils et synchro »).
 
 ### 2026-09-29 — Tâche 3.6.2 : crédit à la caisse
 

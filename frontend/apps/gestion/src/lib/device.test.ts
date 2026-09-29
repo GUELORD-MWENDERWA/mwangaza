@@ -26,7 +26,12 @@ function setup(local?: LocalDevice, resumed = true) {
   const saved = new Map(local ? [[local.user, local]] : []);
   const store = {
     get: vi.fn(async (user: string) => saved.get(user)),
+    all: vi.fn(async () => [...saved.values()]),
     put: vi.fn(async (device: LocalDevice) => void saved.set(device.user, device)),
+    update: vi.fn(async (user: string, changes: Partial<LocalDevice>) => {
+      const current = saved.get(user);
+      if (current) saved.set(user, { ...current, ...changes });
+    }),
     delete: vi.fn(async (user: string) => void saved.delete(user)),
   };
   const server = {
@@ -39,9 +44,12 @@ function setup(local?: LocalDevice, resumed = true) {
     server,
     createKeys: async () => ({ privateKey, publicKey: "MFkw…" }),
     userAgent: EDGE_WINDOWS,
+    now: () => NOW,
   };
   return { saved, server, deps, privateKey };
 }
+
+const NOW = Date.parse("2026-10-05T08:00:00Z");
 
 const OLD: LocalDevice = {
   user: "u1",
@@ -51,14 +59,14 @@ const OLD: LocalDevice = {
 };
 
 describe("attachDevice", () => {
-  it("resumes the device already remembered, without a new key", async () => {
+  it("resumes the device already remembered, without a new key, and notes the full login", async () => {
     const { saved, server, deps } = setup(OLD);
 
     await attachDevice("u1", true, deps);
 
     expect(server.resume).toHaveBeenCalledWith("old-device");
     expect(server.register).not.toHaveBeenCalled();
-    expect(saved.get("u1")).toBe(OLD);
+    expect(saved.get("u1")).toEqual({ ...OLD, loggedInAt: NOW, pinFailures: 0 });
   });
 
   it("forgets a disconnected device, then remembers a new one only if asked", async () => {
@@ -75,6 +83,8 @@ describe("attachDevice", () => {
       id: "new-device",
       prefix: "P7",
       privateKey: ticked.privateKey,
+      loggedInAt: NOW,
+      pinFailures: 0,
     });
   });
 

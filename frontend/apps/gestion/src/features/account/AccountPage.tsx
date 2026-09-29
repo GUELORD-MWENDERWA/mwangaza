@@ -1,6 +1,6 @@
 // Mon compte (M4) : identité (modifiée par l'école), langue, mot de passe, double
-// authentification, appareils connectés, écoles du compte, déconnexion. Code PIN (3.7) arrive
-// avec sa tâche ; pas d'e-mail tant qu'il ne sert à rien (`04`).
+// authentification, code PIN de cet appareil (B5), appareils connectés, écoles du compte,
+// déconnexion. Pas d'e-mail tant qu'il ne sert à rien (`04`).
 import { api, call, type Schemas } from "@mwangaza/api";
 import { formatDate, formatVisit, LANGUAGES, type Language, useTranslation } from "@mwangaza/i18n";
 import {
@@ -30,8 +30,10 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router";
 import { z } from "zod";
 
+import { localDevice } from "../../lib/device";
 import { applyServerErrors, errorMessage } from "../../lib/errors";
 import { rolesLabel } from "../../lib/people";
+import { PIN_LENGTH, setPin, weakPin } from "../../lib/pin";
 import { hasCode, keys, useCurrentMe, type Me } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { useLogout } from "../../lib/session";
@@ -58,6 +60,7 @@ export function AccountPage() {
         </div>
         <div className="flex flex-col gap-4">
           <TwoFactorCard me={me} />
+          <PinCard me={me} />
           <SchoolsCard me={me} />
           {logout.isError && <Banner tone="due">{errorMessage(logout.error, t)}</Banner>}
           <Button
@@ -240,6 +243,126 @@ function PasswordCard() {
             {t("account.password.submit")}
           </Button>
         </CardFooter>
+      </form>
+    </Card>
+  );
+}
+
+/** Code PIN de déverrouillage (B5) : propre à cet appareil mémorisé, jamais envoyé au serveur. */
+function PinCard({ me }: { me: Me }) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [editing, setEditing] = useState(false);
+  const device = useQuery({
+    queryKey: [...keys.localDevice, me.id],
+    queryFn: async () => (await localDevice(me.id)) ?? null,
+    retry: false,
+  });
+  const schema = useMemo(
+    () =>
+      z
+        .object({
+          pin: z.string().refine((pin) => !weakPin(pin), t("account.pin.weak")),
+          confirm: z.string(),
+        })
+        .refine((values) => values.pin === values.confirm, {
+          message: t("account.pin.mismatch"),
+          path: ["confirm"],
+        }),
+    [t],
+  );
+  const form = useForm({ resolver: zodResolver(schema), defaultValues: { pin: "", confirm: "" } });
+  const save = useMutation({
+    mutationFn: (values: z.infer<typeof schema>) => setPin(me.id, values.pin),
+    onSuccess: () => {
+      form.reset();
+      setEditing(false);
+      void queryClient.invalidateQueries({ queryKey: keys.localDevice });
+    },
+  });
+  const { errors } = form.formState;
+  const defined = !!device.data?.pin;
+  const pinProps = {
+    type: "password",
+    inputMode: "numeric",
+    autoComplete: "off",
+    maxLength: PIN_LENGTH,
+    className: "max-w-[8rem] tracking-[.3em]",
+  } as const;
+
+  return (
+    <Card>
+      <form
+        noValidate
+        onSubmit={form.handleSubmit((values) => {
+          save.reset();
+          save.mutate(values);
+        })}
+      >
+        <CardHeader>
+          <CardTitle>{t("account.pin.title")}</CardTitle>
+          {device.data && (
+            <StatusPill tone={defined ? "ok" : "warn"}>
+              {t(defined ? "account.pin.defined" : "account.pin.undefined")}
+            </StatusPill>
+          )}
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          {device.isPending ? (
+            <Skeleton label={t("common.loading")} />
+          ) : !device.data ? (
+            <p className="text-sm text-ink-3">{t("account.pin.noDevice")}</p>
+          ) : (
+            <>
+              <p className="text-sm">{t("account.pin.text")}</p>
+              {save.isSuccess && <Banner tone="ok">{t("account.pin.done")}</Banner>}
+              {save.isError && <Banner tone="due">{t("account.pin.failed")}</Banner>}
+              {editing && (
+                <div className="grid items-start gap-3 min-[600px]:grid-cols-2">
+                  <Field
+                    id="account-pin"
+                    label={t("account.pin.new")}
+                    help={t("account.pin.help")}
+                    error={errors.pin?.message}
+                  >
+                    {(control) => <Input {...control} {...form.register("pin")} {...pinProps} />}
+                  </Field>
+                  <Field
+                    id="account-pin-confirm"
+                    label={t("account.pin.confirm")}
+                    error={errors.confirm?.message}
+                  >
+                    {(control) => (
+                      <Input {...control} {...form.register("confirm")} {...pinProps} />
+                    )}
+                  </Field>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+        {device.data && (
+          <CardFooter>
+            <span className="text-sm text-ink-3">{t("account.pin.thisDevice")}</span>
+            {editing ? (
+              <Button type="submit" variant="outline" size="sm" disabled={save.isPending}>
+                {t("common.save")}
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  save.reset();
+                  setEditing(true);
+                }}
+              >
+                {t(defined ? "account.pin.change" : "account.pin.set")}
+              </Button>
+            )}
+          </CardFooter>
+        )}
       </form>
     </Card>
   );

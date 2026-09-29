@@ -1,25 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-import { allowCodeAgain, manage } from "./django";
+import { allowCodeAgain, manage, unpaidStudent } from "./django";
 import { enterCode, enterPassword, ITIG } from "./helpers";
-
-/** Un élève de la démonstration qui n'a encore rien payé et doit des frais en dollars. */
-function unpaidStudent(): { matricule: string; name: string } {
-  const output = manage(
-    "shell",
-    "-c",
-    `from apps.core.tenancy import use_school
-from apps.schools.models import School
-from apps.students.models import Enrollment
-with use_school(School.objects.get(code="itig")):
-    e = (Enrollment.objects.filter(status="active", payments__isnull=True, charges__currency="USD",
-         charges__status="active").select_related("student").order_by("student__matricule").first())
-    print(e.student.matricule, "|", e.student.last_name.upper(), e.student.middle_name.upper(), e.student.first_name)`,
-  );
-  // Dernière ligne : le shell annonce d'abord ses imports automatiques.
-  const [matricule, name] = output.trim().split("\n").at(-1)!.split(" | ");
-  return { matricule: matricule!, name: name!.replace(/\s+/g, " ") };
-}
 
 /** Paiements de l'élève enregistrés sur le serveur (numéros de reçus), ce qu'il a payé en
  *  dollars d'après son solde, et les duplicatas notés au journal à l'heure de l'appareil. */
