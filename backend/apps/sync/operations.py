@@ -3,9 +3,8 @@ l'ordre, chacune une seule fois (`SyncOperation`).
 
 Chaque type d'opération donne le droit exigé, le contenu attendu (serializer) et le service
 appelé : encaissement (3.3.2), ouverture de caisse et réimpression (3.5.2), crédit utilisé à la
-caisse (3.6.2). Une opération hors
-ligne de plus (demande d'annulation, clôture de caisse : 3.8) est une entrée de plus dans
-`OPERATIONS`."""
+caisse (3.6.2), demande d'annulation (3.8.1). Une opération hors ligne de plus (clôture de
+caisse : 3.8.2) est une entrée de plus dans `OPERATIONS`."""
 
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -22,7 +21,11 @@ from rest_framework import serializers
 from rest_framework.exceptions import APIException, PermissionDenied
 
 from apps.accounts.models import User
-from apps.accounts.roles import FINANCE_COLLECT_PAYMENT
+from apps.accounts.roles import (
+    FINANCE_COLLECT_PAYMENT,
+    FINANCE_REQUEST_CANCELLATION,
+    FINANCE_VIEW_REPORTS,
+)
 from apps.core.errors import ApiError, BusinessError, api_exception_handler
 from apps.finance import services as finance
 from apps.finance.models import CashRegister, Payment, StudentCredit
@@ -117,6 +120,35 @@ def _use_credit(data: dict, device: Device, actor: User) -> dict:
     return {"credit": str(credit.pk)}
 
 
+class OfflineCancellationSerializer(serializers.Serializer):
+    """Demande d'annulation hors ligne (F7) : la validation, elle, se fait en ligne."""
+
+    id = serializers.UUIDField(help_text="UUID v7 donné par l'appareil.")
+    payment = serializers.PrimaryKeyRelatedField(queryset=Payment.objects)
+    reason = serializers.CharField(max_length=200)
+    requested_at = serializers.DateTimeField(help_text="Heure de l'appareil à la demande.")
+
+    def to_service(self) -> dict:
+        # Sans `finance.view_reports`, l'appareil ne montre que les paiements du caissier.
+        own_only = FINANCE_VIEW_REPORTS not in self.context["permissions"]
+        return {**self.validated_data, "own_only": own_only}
+
+
+def _request_cancellation(data: dict, device: Device, actor: User) -> dict:
+    payment = data["payment"]
+    if data["own_only"] and payment.cash_session.cashier_id != actor.pk:
+        raise PermissionDenied()
+    request, _created = finance.request_cancellation(
+        payment,
+        actor=actor,
+        reason=data["reason"],
+        request_id=data["id"],
+        device=device,
+        requested_at=data["requested_at"],
+    )
+    return {"cancellation": str(request.pk)}
+
+
 @dataclass(frozen=True)
 class OperationType:
     permission: str
@@ -133,6 +165,9 @@ OPERATIONS = {
     ),
     "payment.reprint": OperationType(FINANCE_COLLECT_PAYMENT, OfflineReprintSerializer, _reprint),
     "credit.use": OperationType(FINANCE_COLLECT_PAYMENT, OfflineCreditSerializer, _use_credit),
+    "cancellation.request": OperationType(
+        FINANCE_REQUEST_CANCELLATION, OfflineCancellationSerializer, _request_cancellation
+    ),
 }
 
 
@@ -220,6 +255,6 @@ def _run(device: Device, actor: User, permissions: frozenset[str], incoming: Inc
         raise BusinessError(UNKNOWN_OPERATION)
     if kind.permission not in permissions:
         raise PermissionDenied()
-    serializer = kind.serializer(data=incoming.payload)
+    serializer = kind.serializer(data=incoming.payload, context={"permissions": permissions})
     serializer.is_valid(raise_exception=True)
     return kind.apply(serializer.to_service(), device, actor)

@@ -2,6 +2,7 @@ from django.db.models import Count, Prefetch, Q
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import mixins, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -11,9 +12,11 @@ from apps.accounts.roles import (
     CREDITS_READ,
     CREDITS_USE,
     FEES_READ,
+    FINANCE_APPROVE_CANCELLATION,
     FINANCE_COLLECT_PAYMENT,
     FINANCE_CONFIGURE_FEES,
     FINANCE_GRANT_DISCOUNT,
+    FINANCE_REQUEST_CANCELLATION,
     FINANCE_SET_EXCHANGE_RATE,
     FINANCE_VIEW_REPORTS,
 )
@@ -21,6 +24,7 @@ from apps.accounts.views import SchoolViewSet
 from apps.core.errors import ErrorSerializer
 from apps.finance import services
 from apps.finance.models import (
+    CancellationRequest,
     CashRegister,
     CashSession,
     CreditAllocation,
@@ -33,6 +37,11 @@ from apps.finance.models import (
 )
 from apps.finance.serializers import (
     BalanceSerializer,
+    CancellationCreateSerializer,
+    CancellationDecisionSerializer,
+    CancellationFilterSerializer,
+    CancellationReceiptSerializer,
+    CancellationRequestSerializer,
     CashRegisterSerializer,
     CashRegisterStateSerializer,
     CashRegisterUpdateSerializer,
@@ -639,3 +648,120 @@ class StudentCreditViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Sch
             for charge, _part, amount in services.credit_proposal(credit)
         ]
         return Response(StudentCreditDetailSerializer(credit).data)
+
+
+# Annulations (3.8.1, F7)
+
+CANCELLATIONS_READ = (FINANCE_REQUEST_CANCELLATION, FINANCE_APPROVE_CANCELLATION)
+
+
+@extend_schema_view(
+    list=extend_schema(parameters=[CancellationFilterSerializer]),
+    retrieve=extend_schema(responses={200: CancellationRequestSerializer, **ERRORS}),
+    create=extend_schema(
+        request=CancellationCreateSerializer,
+        responses={
+            200: CancellationRequestSerializer,
+            201: CancellationRequestSerializer,
+            **INVALID,
+            **CONFLICT,
+            **ERRORS,
+        },
+    ),
+)
+@extend_schema(tags=["finance"])
+class CancellationViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, SchoolViewSet
+):
+    """Demandes d'annulation de paiements (F7), les plus récentes d'abord. Demander :
+    `finance.request_cancellation` (sans `finance.view_reports`, seulement pour ses paiements) ;
+    valider ou refuser : `finance.approve_cancellation`, jamais sa propre demande. Sans
+    `finance.approve_cancellation`, on ne voit que ses demandes. Création : 201, ou 200 si cette
+    demande (même `id`) était déjà enregistrée."""
+
+    serializer_class = CancellationRequestSerializer
+
+    @property
+    def required_permission(self) -> str | tuple[str, ...]:
+        if self.action == "create":
+            return FINANCE_REQUEST_CANCELLATION
+        if self.action in {"approve", "reject"}:
+            return FINANCE_APPROVE_CANCELLATION
+        return CANCELLATIONS_READ
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return CancellationRequest.all_schools.none()
+        items = services.cancellation_requests()
+        if FINANCE_APPROVE_CANCELLATION not in school_access(self.request).permissions:
+            items = items.filter(requested_by=self.request.user)
+        if self.action in {"receipt", "reprint"}:
+            items = items.filter(status=CancellationRequest.Status.APPROVED)
+        if self.action != "list":
+            return items
+        params = CancellationFilterSerializer(data=self.request.query_params)
+        params.is_valid(raise_exception=True)
+        return items.filter(status=params.validated_data["status"])
+
+    def create(self, request: Request) -> Response:
+        serializer = CancellationCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        payment = data["payment"]
+        own = FINANCE_VIEW_REPORTS not in school_access(request).permissions
+        if own and payment.cash_session.cashier_id != request.user.pk:
+            raise PermissionDenied()
+        item, created = services.request_cancellation(
+            payment, actor=request.user, reason=data["reason"], request_id=data.get("id")
+        )
+        return Response(
+            CancellationRequestSerializer(self.get_queryset().get(pk=item.pk)).data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
+
+    @extend_schema(
+        request=CancellationDecisionSerializer,
+        responses={200: CancellationReceiptSerializer, **CONFLICT, **ERRORS},
+    )
+    @action(detail=True, methods=["post"])
+    def approve(self, request: Request, pk=None) -> Response:
+        """Valider : le paiement est annulé ; rend le reçu d'annulation à imprimer. 409
+        `cancellation_decided` ; 403 `own_cancellation` pour sa propre demande."""
+        params = CancellationDecisionSerializer(data=request.data)
+        params.is_valid(raise_exception=True)
+        services.approve_cancellation(
+            self.get_object(), actor=request.user, note=params.validated_data["note"]
+        )
+        return self._receipt(self.get_queryset().get(pk=pk))
+
+    @extend_schema(
+        request=CancellationDecisionSerializer,
+        responses={200: CancellationRequestSerializer, **CONFLICT, **ERRORS},
+    )
+    @action(detail=True, methods=["post"])
+    def reject(self, request: Request, pk=None) -> Response:
+        """Refuser : le paiement reste valable. 409 `cancellation_decided`."""
+        params = CancellationDecisionSerializer(data=request.data)
+        params.is_valid(raise_exception=True)
+        services.reject_cancellation(
+            self.get_object(), actor=request.user, note=params.validated_data["note"]
+        )
+        return Response(CancellationRequestSerializer(self.get_queryset().get(pk=pk)).data)
+
+    @extend_schema(responses={200: CancellationReceiptSerializer, **ERRORS})
+    @action(detail=True)
+    def receipt(self, request: Request, pk=None) -> Response:
+        """Reçu d'annulation (M15) d'une demande validée."""
+        return self._receipt(self.get_object())
+
+    @extend_schema(request=None, responses={200: CancellationReceiptSerializer, **ERRORS})
+    @action(detail=True, methods=["post"])
+    def reprint(self, request: Request, pk=None) -> Response:
+        """Réimpression du reçu d'annulation : le même, marqué DUPLICATA, noté au journal."""
+        item = self.get_object()
+        services.reprint_cancellation(item.payment.cancellation, actor=request.user)
+        return self._receipt(item)
+
+    def _receipt(self, item: CancellationRequest) -> Response:
+        item.balance_after = services.balance_after_cancellation(item.payment.cancellation)
+        return Response(CancellationReceiptSerializer(item).data)

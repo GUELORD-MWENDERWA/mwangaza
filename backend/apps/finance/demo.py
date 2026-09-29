@@ -15,7 +15,9 @@ from django.utils import timezone
 from apps.accounts.models import User
 from apps.core.money import Money
 from apps.core.tenancy import use_school
+from apps.finance import services
 from apps.finance.models import (
+    CancellationRequest,
     CashRegister,
     CashSession,
     Discount,
@@ -387,3 +389,43 @@ def _demo_paid_twice(school: School, enrollment: Enrollment) -> None:
         currency=owed.currency,
         source_payment=payment,
     )
+
+
+# Comptable qui décide des annulations de démonstration.
+APPROVERS = {"itig": "+243000001004", "volcans": "+243000002004"}
+CANCELLATION_REASONS = [
+    ("Montant saisi en FC au lieu de USD", "approve"),
+    ("Parent revenu : le même paiement encaissé deux fois", "reject"),
+    ("Mauvais élève sélectionné (homonyme)", None),
+]
+
+
+def create_demo_cancellations(schools: dict[str, School]) -> None:
+    """Une seule fois par école, des demandes d'annulation (F7) sur les derniers paiements du
+    caissier de la première caisse : une validée par le comptable (reçu d'annulation), une
+    refusée, une en attente ; et une du comptable, s'il encaisse aussi, en attente (le directeur
+    la valide)."""
+    for code, school in schools.items():
+        with use_school(school):
+            if CancellationRequest.objects.exists():
+                continue
+            approver = User.objects.get(phone=APPROVERS[code])
+            plain = Payment.objects.filter(
+                credits__isnull=True, enrollment__discounts__isnull=True
+            ).order_by("-paid_at")
+            cashier = User.objects.get(phone=REGISTERS[code][0][2])
+            for payment, (reason, decision) in zip(
+                plain.filter(cashier=cashier), CANCELLATION_REASONS, strict=False
+            ):
+                request, _created = services.request_cancellation(
+                    payment, actor=cashier, reason=reason
+                )
+                if decision == "approve":
+                    services.approve_cancellation(request, actor=approver, note="Argent rendu")
+                elif decision == "reject":
+                    note = "Un seul paiement trouvé dans la caisse"
+                    services.reject_cancellation(request, actor=approver, note=note)
+            if payment := plain.filter(cashier=approver).first():
+                services.request_cancellation(
+                    payment, actor=approver, reason="Frais d'atelier encaissés sur le minerval"
+                )

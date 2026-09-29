@@ -388,6 +388,10 @@ paths:
           - finance.cash_session_opened
           - finance.payment_recorded
           - finance.payment_reprinted
+          - finance.cancellation_requested
+          - finance.payment_cancelled
+          - finance.cancellation_rejected
+          - finance.cancellation_reprinted
           - finance.credit_created
           - finance.credit_used
           - finance.credit_voided
@@ -465,6 +469,10 @@ paths:
           * `finance.cash_session_opened` - Cash session opened
           * `finance.payment_recorded` - Payment recorded
           * `finance.payment_reprinted` - Receipt reprinted
+          * `finance.cancellation_requested` - Payment cancellation requested
+          * `finance.payment_cancelled` - Payment cancelled
+          * `finance.cancellation_rejected` - Payment cancellation refused
+          * `finance.cancellation_reprinted` - Cancellation receipt reprinted
           * `finance.credit_created` - Student credit created
           * `finance.credit_used` - Student credit used
           * `finance.credit_voided` - Student credit voided
@@ -705,6 +713,10 @@ paths:
           - finance.cash_session_opened
           - finance.payment_recorded
           - finance.payment_reprinted
+          - finance.cancellation_requested
+          - finance.payment_cancelled
+          - finance.cancellation_rejected
+          - finance.cancellation_reprinted
           - finance.credit_created
           - finance.credit_used
           - finance.credit_voided
@@ -782,6 +794,10 @@ paths:
           * `finance.cash_session_opened` - Cash session opened
           * `finance.payment_recorded` - Payment recorded
           * `finance.payment_reprinted` - Receipt reprinted
+          * `finance.cancellation_requested` - Payment cancellation requested
+          * `finance.payment_cancelled` - Payment cancelled
+          * `finance.cancellation_rejected` - Payment cancellation refused
+          * `finance.cancellation_reprinted` - Cancellation receipt reprinted
           * `finance.credit_created` - Student credit created
           * `finance.credit_used` - Student credit used
           * `finance.credit_voided` - Student credit voided
@@ -1360,6 +1376,327 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: ''
         '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cancellations/:
+    get:
+      operationId: cancellations_list
+      description: |-
+        Demandes d'annulation de paiements (F7), les plus récentes d'abord. Demander :
+        `finance.request_cancellation` (sans `finance.view_reports`, seulement pour ses paiements) ;
+        valider ou refuser : `finance.approve_cancellation`, jamais sa propre demande. Sans
+        `finance.approve_cancellation`, on ne voit que ses demandes. Création : 201, ou 200 si cette
+        demande (même `id`) était déjà enregistrée.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          enum:
+          - pending
+          - approved
+          - rejected
+          type: string
+          default: pending
+          minLength: 1
+        description: |-
+          En attente (défaut), validées ou refusées.
+
+          * `pending` - Pending
+          * `approved` - Approved
+          * `rejected` - Rejected
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCancellationRequestList'
+          description: ''
+    post:
+      operationId: cancellations_create
+      description: |-
+        Demandes d'annulation de paiements (F7), les plus récentes d'abord. Demander :
+        `finance.request_cancellation` (sans `finance.view_reports`, seulement pour ses paiements) ;
+        valider ou refuser : `finance.approve_cancellation`, jamais sa propre demande. Sans
+        `finance.approve_cancellation`, on ne voit que ses demandes. Création : 201, ou 200 si cette
+        demande (même `id`) était déjà enregistrée.
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancellationCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CancellationCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CancellationCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancellationRequest'
+          description: ''
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancellationRequest'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cancellations/{id}/:
+    get:
+      operationId: cancellations_retrieve
+      description: |-
+        Demandes d'annulation de paiements (F7), les plus récentes d'abord. Demander :
+        `finance.request_cancellation` (sans `finance.view_reports`, seulement pour ses paiements) ;
+        valider ou refuser : `finance.approve_cancellation`, jamais sa propre demande. Sans
+        `finance.approve_cancellation`, on ne voit que ses demandes. Création : 201, ou 200 si cette
+        demande (même `id`) était déjà enregistrée.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this cancellation request.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancellationRequest'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cancellations/{id}/approve/:
+    post:
+      operationId: cancellations_approve_create
+      description: |-
+        Valider : le paiement est annulé ; rend le reçu d'annulation à imprimer. 409
+        `cancellation_decided` ; 403 `own_cancellation` pour sa propre demande.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this cancellation request.
+        required: true
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancellationDecisionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CancellationDecisionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CancellationDecisionRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancellationReceipt'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cancellations/{id}/receipt/:
+    get:
+      operationId: cancellations_receipt_retrieve
+      description: Reçu d'annulation (M15) d'une demande validée.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this cancellation request.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancellationReceipt'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cancellations/{id}/reject/:
+    post:
+      operationId: cancellations_reject_create
+      description: 'Refuser : le paiement reste valable. 409 `cancellation_decided`.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this cancellation request.
+        required: true
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancellationDecisionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CancellationDecisionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CancellationDecisionRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancellationRequest'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cancellations/{id}/reprint/:
+    post:
+      operationId: cancellations_reprint_create
+      description: 'Réimpression du reçu d''annulation : le même, marqué DUPLICATA,
+        noté au journal.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this cancellation request.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancellationReceipt'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
           content:
             application/json:
               schema:
@@ -6161,6 +6498,10 @@ components:
       - finance.cash_session_opened
       - finance.payment_recorded
       - finance.payment_reprinted
+      - finance.cancellation_requested
+      - finance.payment_cancelled
+      - finance.cancellation_rejected
+      - finance.cancellation_reprinted
       - finance.credit_created
       - finance.credit_used
       - finance.credit_voided
@@ -6237,6 +6578,10 @@ components:
         * `finance.cash_session_opened` - Cash session opened
         * `finance.payment_recorded` - Payment recorded
         * `finance.payment_reprinted` - Receipt reprinted
+        * `finance.cancellation_requested` - Payment cancellation requested
+        * `finance.payment_cancelled` - Payment cancelled
+        * `finance.cancellation_rejected` - Payment cancellation refused
+        * `finance.cancellation_reprinted` - Cancellation receipt reprinted
         * `finance.credit_created` - Student credit created
         * `finance.credit_used` - Student credit used
         * `finance.credit_voided` - Student credit voided
@@ -6449,6 +6794,243 @@ components:
     BlankEnum:
       enum:
       - ''
+    CancellationCreateRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 'UUID v7 de l''appareil : un deuxième envoi rend la même demande.'
+        payment:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - payment
+      - reason
+    CancellationDecisionRequest:
+      type: object
+      properties:
+        note:
+          type: string
+          default: ''
+          maxLength: 200
+    CancellationReceipt:
+      type: object
+      description: |-
+        Demande validée avec ce qu'imprime le reçu d'annulation (M15) : le reste dû par l'élève
+        juste après l'annulation (`services.balance_after_cancellation`).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        payment:
+          allOf:
+          - $ref: '#/components/schemas/CancelledPayment'
+          readOnly: true
+        reason:
+          type: string
+          maxLength: 200
+        requested_by:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+        requested_at:
+          type: string
+          format: date-time
+        offline:
+          type: boolean
+          readOnly: true
+          description: Demandée hors ligne.
+        status:
+          $ref: '#/components/schemas/CancellationStatusEnum'
+        decided_by:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+          nullable: true
+        decided_at:
+          type: string
+          format: date-time
+          nullable: true
+        decision_note:
+          type: string
+          title: Comment
+          maxLength: 200
+        cancellation:
+          allOf:
+          - $ref: '#/components/schemas/PaymentCancellation'
+          nullable: true
+          readOnly: true
+        balance:
+          allOf:
+          - $ref: '#/components/schemas/Balance'
+          readOnly: true
+      required:
+      - id
+      - payment
+      - reason
+      - requested_by
+      - requested_at
+      - offline
+      - status
+      - decided_by
+      - decided_at
+      - decision_note
+      - cancellation
+      - balance
+    CancellationRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        payment:
+          allOf:
+          - $ref: '#/components/schemas/CancelledPayment'
+          readOnly: true
+        reason:
+          type: string
+          maxLength: 200
+        requested_by:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+        requested_at:
+          type: string
+          format: date-time
+        offline:
+          type: boolean
+          readOnly: true
+          description: Demandée hors ligne.
+        status:
+          $ref: '#/components/schemas/CancellationStatusEnum'
+        decided_by:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+          nullable: true
+        decided_at:
+          type: string
+          format: date-time
+          nullable: true
+        decision_note:
+          type: string
+          title: Comment
+          maxLength: 200
+        cancellation:
+          allOf:
+          - $ref: '#/components/schemas/PaymentCancellation'
+          nullable: true
+          readOnly: true
+      required:
+      - cancellation
+      - decided_by
+      - id
+      - offline
+      - payment
+      - reason
+      - requested_by
+    CancellationStatusEnum:
+      enum:
+      - pending
+      - approved
+      - rejected
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `approved` - Approved
+        * `rejected` - Rejected
+    CancelledPayment:
+      type: object
+      description: 'Paiement d''une demande d''annulation : son état est celui de
+        la demande.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        receipt_number:
+          type: string
+          maxLength: 40
+        enrollment:
+          type: string
+          format: uuid
+        student:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStudent'
+          readOnly: true
+        class_group:
+          type: string
+          readOnly: true
+        cash_register:
+          type: string
+          readOnly: true
+        cash_session:
+          type: string
+          format: uuid
+          readOnly: true
+        cashier:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+        received_amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount received
+        received_currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          title: Currency
+        rate_used:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,6})?$
+          nullable: true
+        paid_at:
+          type: string
+          format: date-time
+        method:
+          $ref: '#/components/schemas/MethodEnum'
+        note:
+          type: string
+          maxLength: 200
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentAllocation'
+          readOnly: true
+        cash_register_name:
+          type: string
+          readOnly: true
+        academic_year:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - receipt_number
+      - enrollment
+      - student
+      - class_group
+      - cash_register
+      - cash_session
+      - cashier
+      - received_amount_minor
+      - received_currency
+      - rate_used
+      - paid_at
+      - method
+      - note
+      - allocations
+      - cash_register_name
+      - academic_year
     CashRegister:
       type: object
       properties:
@@ -8426,6 +9008,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AuditLog'
+    PaginatedCancellationRequestList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CancellationRequest'
     PaginatedDeviceList:
       type: object
       required:
@@ -9037,6 +9644,15 @@ components:
         cancelled:
           type: boolean
           readOnly: true
+        cancelled_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        cancellation_pending:
+          type: boolean
+          readOnly: true
+          description: 'Annulation demandée, en attente de décision : compte encore.'
         allocations:
           type: array
           items:
@@ -9058,6 +9674,8 @@ components:
       - method
       - note
       - cancelled
+      - cancelled_at
+      - cancellation_pending
       - allocations
     PaymentAllocation:
       type: object
@@ -9101,6 +9719,23 @@ components:
       - due_on
       - received_minor
       - amount_minor
+    PaymentCancellation:
+      type: object
+      properties:
+        receipt_number:
+          type: string
+          maxLength: 40
+        approved_by:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+        approved_at:
+          type: string
+          format: date-time
+      required:
+      - receipt_number
+      - approved_by
+      - approved_at
     PaymentCreateRequest:
       type: object
       description: |-
@@ -9198,6 +9833,15 @@ components:
         cancelled:
           type: boolean
           readOnly: true
+        cancelled_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        cancellation_pending:
+          type: boolean
+          readOnly: true
+          description: 'Annulation demandée, en attente de décision : compte encore.'
         allocations:
           type: array
           items:
@@ -9229,6 +9873,8 @@ components:
       - method
       - note
       - cancelled
+      - cancelled_at
+      - cancellation_pending
       - allocations
       - cash_register_name
       - academic_year

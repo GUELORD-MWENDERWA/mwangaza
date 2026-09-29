@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.7.2 terminée, PR #112 à fusionner |
-| Prochaine tâche | 3.8 |
-| Issue GitHub | #27 |
-| Branche | `tache/3.7.2-appareils-ecole` (PR #112) ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | 3.8.1 — annulation d'un paiement (3.8 découpée en 3.8.1 / 3.8.2) |
+| Prochaine tâche | 3.8.2 |
+| Issue GitHub | #28 |
+| Branche | `tache/3.8.1-annulation` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-29 |
 
 ## Avancement
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 14 | 15 |
+| Semaine 3 — Caisse et hors-ligne | 14 | 16 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **31** | **40** |
+| **V1.0** | **31** | **41** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |

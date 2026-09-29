@@ -43,6 +43,7 @@ from apps.core.errors import ApiError, BusinessError
 from apps.core.money import Currency, Money, percent_of, prorate
 from apps.core.tenancy import require_current_school, use_school
 from apps.finance.models import (
+    CancellationRequest,
     CashRegister,
     CashSession,
     CreditAllocation,
@@ -104,6 +105,20 @@ PAYMENT_CANCELLED = ApiError(
 CREDIT_USED = ApiError("credit_used", _("This credit was already used."), 409)
 CREDIT_VOIDED = ApiError(
     "credit_voided", _("This credit was voided: its discount was revoked."), 409
+)
+CANCELLATION_PENDING = ApiError(
+    "cancellation_pending",
+    _("A cancellation of this payment is already waiting for approval."),
+    409,
+)
+CANCELLATION_DECIDED = ApiError(
+    "cancellation_decided", _("This cancellation request was already decided."), 409
+)
+OWN_CANCELLATION = ApiError(
+    "own_cancellation", _("Someone else must approve your own cancellation request."), 403
+)
+CANCELLATION_ID_TAKEN = ApiError(
+    "cancellation_id_taken", _("This identifier belongs to another request."), 409
 )
 NOTHING_OWED = ApiError(
     "nothing_owed", _("The student owes nothing more in the currency of this credit."), 409
@@ -877,7 +892,20 @@ def _settle(charges: list[StudentCharge], discounts: list[Discount], day: date) 
             charge.state = OVERDUE if charge.due_on < day else UPCOMING
 
 
-def _credit_used(until: Payment | None = None) -> Coalesce:
+# Plus grand que tout identifiant : avec `Moment`, tous les paiements de l'instant.
+LAST_ID = UUID(int=2**128 - 1)
+
+
+@dataclass(frozen=True)
+class Moment:
+    """Un instant pour `_ordered` : tous les paiements encaissés jusqu'à lui (`id` le plus grand
+    possible), avec les annulations et les crédits de ce moment-là."""
+
+    paid_at: datetime
+    id: UUID = LAST_ID
+
+
+def _credit_used(until: Moment | Payment | None = None) -> Coalesce:
     """Crédits utilisés sur le frais dû, s'ils ne sont pas annulés ; avec `until`, ceux utilisés
     avant lui et pas encore annulés à ce moment-là."""
     used = CreditAllocation.objects.filter(student_charge=OuterRef("pk"))
@@ -892,7 +920,7 @@ def _credit_used(until: Payment | None = None) -> Coalesce:
     return Coalesce(Subquery(total), 0, output_field=BigIntegerField())
 
 
-def _ordered(charges: QuerySet, until: Payment | None = None) -> QuerySet:
+def _ordered(charges: QuerySet, until: Moment | Payment | None = None) -> QuerySet:
     """Avec `paid_total` : allocations des paiements non annulés et crédits utilisés ; avec
     `until`, ceux d'avant lui (lui compris) et pas encore annulés à ce moment-là."""
     counted = Q(allocations__payment__cancellation__isnull=True)
@@ -987,15 +1015,24 @@ def balance(charges: list[StudentCharge]) -> Balance:
     return Balance(situation, next_due_on, currencies)
 
 
+def _balance_at(enrollment_id, until: Moment | Payment) -> Balance:
+    charges = list(_ordered(StudentCharge.objects.filter(enrollment_id=enrollment_id), until))
+    discounts = list(Discount.objects.filter(enrollment_id=enrollment_id))
+    _settle(charges, discounts, timezone.localdate(until.paid_at))
+    return balance(charges)
+
+
 def balance_after(payment: Payment) -> Balance:
     """Solde de l'élève juste après ce paiement, pour son reçu et ses duplicatas : frais dus et
     réductions d'aujourd'hui, paiements encaissés jusqu'à lui, retard au jour du paiement. Deux
     requêtes."""
-    charges = _ordered(StudentCharge.objects.filter(enrollment_id=payment.enrollment_id), payment)
-    charges = list(charges)
-    discounts = list(Discount.objects.filter(enrollment_id=payment.enrollment_id))
-    _settle(charges, discounts, timezone.localdate(payment.paid_at))
-    return balance(charges)
+    return _balance_at(payment.enrollment_id, payment)
+
+
+def balance_after_cancellation(cancellation: PaymentCancellation) -> Balance:
+    """Solde de l'élève juste après cette annulation, pour le reçu d'annulation et ses
+    duplicatas : le « reste dû après annulation »."""
+    return _balance_at(cancellation.payment.enrollment_id, Moment(cancellation.approved_at))
 
 
 # Devises utilisées (M5)
@@ -1062,7 +1099,14 @@ def _cash_register_data(register: CashRegister) -> dict:
     return {"name": register.name, "code": register.code, "is_active": register.is_active}
 
 
+# Série des reçus d'annulation (`ITIG-AN-26-000007`) : jamais le code d'une caisse.
+CANCELLATION_SERIES = "AN"
+
+
 def _check_cash_register(*, name: str, code: str = "", register_id=None) -> None:
+    if code == CANCELLATION_SERIES:
+        message = _("This code is kept for cancellation receipts.")
+        raise _invalid("code", message, "code_reserved")
     taken = Q(name__iexact=name) | Q(code=code) if code else Q(name__iexact=name)
     if CashRegister.objects.filter(taken).exclude(pk=register_id).exists():
         raise BusinessError(CASH_REGISTER_TAKEN)
@@ -1441,7 +1485,8 @@ def record_payment(
 
 def receipt_payments() -> QuerySet[Payment]:
     """Paiements avec ce que montre leur reçu (`PaymentSerializer`) sans requête de plus par
-    paiement : élève, classe, caisse, caissier, répartition, annulé ou non."""
+    paiement : élève, classe, caisse, caissier, répartition, annulé (quand) ou en attente
+    d'annulation."""
     return (
         Payment.objects.select_related(
             "enrollment__student",
@@ -1457,7 +1502,16 @@ def receipt_payments() -> QuerySet[Payment]:
                 queryset=PaymentAllocation.objects.select_related("student_charge__fee_type"),
             )
         )
-        .annotate(is_cancelled=Exists(PaymentCancellation.objects.filter(payment=OuterRef("pk"))))
+        .annotate(
+            cancelled_at=Subquery(
+                PaymentCancellation.objects.filter(payment=OuterRef("pk")).values("approved_at")
+            ),
+            cancellation_pending=Exists(
+                CancellationRequest.objects.filter(
+                    payment=OuterRef("pk"), status=CancellationRequest.Status.PENDING
+                )
+            ),
+        )
         .order_by("-paid_at", "-id")
     )
 
@@ -1525,8 +1579,10 @@ def _create_credit(
     return credit
 
 
-def _void_credit(credit: StudentCredit, enrollment: Enrollment, *, actor: User) -> None:
-    credit.voided_at, credit.voided_by = timezone.now(), actor
+def _void_credit(
+    credit: StudentCredit, enrollment: Enrollment, *, actor: User, at: datetime | None = None
+) -> None:
+    credit.voided_at, credit.voided_by = at or timezone.now(), actor
     credit.save(update_fields=["voided_at", "voided_by", "updated_at"])
     audit.record(
         Action.FINANCE_CREDIT_VOIDED,
@@ -1649,3 +1705,236 @@ def use_credit(credit: StudentCredit, *, actor: User) -> StudentCredit:
             },
         )
     return credit
+
+
+# Annulations (3.8.1, F7)
+
+
+def cancellation_requests() -> QuerySet[CancellationRequest]:
+    """Demandes avec ce que montre l'écran (F7) sans requête de plus par demande : paiement
+    (élève, classe, caisse, caissier, répartition), demandeur, décideur, annulation validée."""
+    return CancellationRequest.objects.select_related(
+        "payment__enrollment__student",
+        "payment__enrollment__academic_year",
+        "payment__enrollment__class_group__level",
+        "payment__enrollment__class_group__track",
+        "payment__cash_session__cash_register",
+        "payment__cashier",
+        "payment__cancellation__approved_by",
+        "requested_by",
+        "decided_by",
+    ).prefetch_related(
+        Prefetch(
+            "payment__allocations",
+            queryset=PaymentAllocation.objects.select_related("student_charge__fee_type"),
+        )
+    )
+
+
+def _request_label(payment: Payment) -> str:
+    return f"{payment.receipt_number} · {payment.enrollment.student}"
+
+
+def _payment_data(payment: Payment) -> dict:
+    return {
+        "receipt_number": payment.receipt_number,
+        "amount_minor": payment.received_amount_minor,
+        "currency": payment.received_currency,
+    }
+
+
+def request_cancellation(
+    payment: Payment,
+    *,
+    actor: User,
+    reason: str,
+    request_id=None,
+    device: Device | None = None,
+    requested_at: datetime | None = None,
+) -> tuple[CancellationRequest, bool]:
+    """Demande l'annulation d'un paiement (F7) avec son motif ; le paiement compte jusqu'à la
+    décision. Hors ligne (`device`, `requested_at` : heure de l'appareil). Le même `request_id`
+    envoyé deux fois ne donne qu'une demande : renvoyée avec `False`. 409 pour un paiement déjà
+    annulé ou dont l'annulation attend déjà une décision."""
+    reason = reason.strip()
+    if not reason:
+        raise _invalid("reason", _("This field may not be blank."), "blank")
+    with transaction.atomic():
+        # Une demande à la fois par paiement.
+        payment = (
+            Payment.objects.select_related("enrollment__student")
+            .select_for_update(of=("self",))
+            .get(pk=payment.pk)
+        )
+        existing = CancellationRequest.objects.filter(pk=request_id).first() if request_id else None
+        if existing is not None:
+            if existing.payment_id != payment.pk or existing.requested_by_id != actor.pk:
+                raise BusinessError(CANCELLATION_ID_TAKEN)
+            return existing, False
+        if PaymentCancellation.objects.filter(payment=payment).exists():
+            raise BusinessError(PAYMENT_CANCELLED)
+        pending = CancellationRequest.Status.PENDING
+        if CancellationRequest.objects.filter(payment=payment, status=pending).exists():
+            raise BusinessError(CANCELLATION_PENDING)
+        request = CancellationRequest.objects.create(
+            **({"id": request_id} if request_id else {}),
+            payment=payment,
+            reason=reason,
+            requested_by=actor,
+            requested_at=requested_at or timezone.now(),
+            device=device,
+            created_by=actor,
+        )
+        audit.record(
+            Action.FINANCE_CANCELLATION_REQUESTED,
+            payment,
+            actor=actor,
+            device_time=requested_at if device else None,
+            label=_request_label(payment),
+            after={**_payment_data(payment), "reason": reason},
+        )
+    return request, True
+
+
+def _next_cancellation_number(school: School, year: AcademicYear) -> str:
+    """`ITIG-AN-26-000007` : école, série des annulations, année scolaire de l'inscription,
+    séquence. Appelé sous le verrou de l'école."""
+    prefix = f"{school.code.upper()}-{CANCELLATION_SERIES}-{year.starts_on:%y}-"
+    last = (
+        PaymentCancellation.objects.filter(receipt_number__startswith=prefix)
+        .order_by("-receipt_number")
+        .values_list("receipt_number", flat=True)
+        .first()
+    )
+    sequence = int(last.removeprefix(prefix)) + 1 if last else 1
+    return f"{prefix}{sequence:06d}"
+
+
+def _void_discount_credits(
+    enrollment: Enrollment, currency: str, gone: int, *, actor: User, at: datetime
+) -> None:
+    """Le trop-payé disparu avec un paiement annulé (tranche payée puis réduite, M14) : les
+    crédits de réduction de cette devise sont annulés à hauteur de `gone`, les plus récents
+    d'abord ; ce qu'un crédit a en plus redevient un crédit de la même réduction."""
+    live = StudentCredit.objects.filter(
+        enrollment=enrollment,
+        currency=currency,
+        origin=StudentCredit.Origin.DISCOUNT,
+        voided_at__isnull=True,
+    ).order_by("-created_at", "-id")
+    for credit in live.select_for_update():
+        if gone <= 0:
+            return
+        _void_credit(credit, enrollment, actor=actor, at=at)
+        if credit.amount_minor > gone:
+            _create_credit(
+                enrollment,
+                actor=actor,
+                amount=Money(credit.amount_minor - gone, currency),
+                source_discount=credit.source_discount,
+            )
+        gone -= credit.amount_minor
+
+
+def _decided_request(request: CancellationRequest) -> CancellationRequest:
+    request = (
+        CancellationRequest.objects.select_related("payment__enrollment__student")
+        .select_for_update(of=("self",))
+        .get(pk=request.pk)
+    )
+    if request.status != CancellationRequest.Status.PENDING:
+        raise BusinessError(CANCELLATION_DECIDED)
+    return request
+
+
+def approve_cancellation(
+    request: CancellationRequest, *, actor: User, note: str = ""
+) -> PaymentCancellation:
+    """Valide une demande (F7), jamais la sienne : le paiement est annulé (ses allocations ne
+    comptent plus), avec un reçu d'annulation numéroté. Les crédits qu'il a donnés sont annulés
+    aussi : son surplus hors ligne, et les crédits de réduction à hauteur du trop-payé qui
+    disparaît avec lui. L'argent est rendu au parent (ou encaissé pour le bon élève)."""
+    school = require_current_school()
+    with transaction.atomic():
+        request = _decided_request(request)
+        if request.requested_by_id == actor.pk:
+            raise BusinessError(OWN_CANCELLATION)
+        payment = request.payment
+        # Comme un paiement : l'un après l'autre pour un même élève, sur des restes à jour.
+        enrollment = (
+            Enrollment.objects.select_related("academic_year", "student")
+            .select_for_update(of=("self",))
+            .get(pk=payment.enrollment_id)
+        )
+        before = _excess(charges_of(enrollment.pk))
+        # Séquence des reçus d'annulation de l'école.
+        School.objects.select_for_update().get(pk=school.pk)
+        now = timezone.now()
+        cancellation = PaymentCancellation.objects.create(
+            payment=payment,
+            receipt_number=_next_cancellation_number(school, enrollment.academic_year),
+            reason=request.reason,
+            requested_by_id=request.requested_by_id,
+            approved_by=actor,
+            approved_at=now,
+            created_by=actor,
+        )
+        request.status = CancellationRequest.Status.APPROVED
+        request.decided_by, request.decided_at = actor, now
+        request.decision_note = note.strip()
+        request.save(
+            update_fields=["status", "decided_by", "decided_at", "decision_note", "updated_at"]
+        )
+        audit.record(
+            Action.FINANCE_PAYMENT_CANCELLED,
+            payment,
+            actor=actor,
+            label=_request_label(payment),
+            before=_payment_data(payment),
+            after={
+                "cancellation_receipt_number": cancellation.receipt_number,
+                "reason": request.reason,
+                **({"note": request.decision_note} if request.decision_note else {}),
+            },
+        )
+        surplus = StudentCredit.objects.filter(source_payment=payment, voided_at__isnull=True)
+        for credit in surplus.select_for_update():
+            _void_credit(credit, enrollment, actor=actor, at=now)
+        after = _excess(charges_of(enrollment.pk))
+        for currency, excess in before.items():
+            gone = excess - after.get(currency, 0)
+            if gone > 0:
+                _void_discount_credits(enrollment, currency, gone, actor=actor, at=now)
+    return cancellation
+
+
+def reject_cancellation(
+    request: CancellationRequest, *, actor: User, note: str = ""
+) -> CancellationRequest:
+    """Refuse une demande (F7) : le paiement reste valable ; une autre demande reste possible."""
+    with transaction.atomic():
+        request = _decided_request(request)
+        request.status = CancellationRequest.Status.REJECTED
+        request.decided_by, request.decided_at = actor, timezone.now()
+        request.decision_note = note.strip()
+        request.save(
+            update_fields=["status", "decided_by", "decided_at", "decision_note", "updated_at"]
+        )
+        audit.record(
+            Action.FINANCE_CANCELLATION_REJECTED,
+            request.payment,
+            actor=actor,
+            label=_request_label(request.payment),
+            after={"reason": request.reason, "note": request.decision_note},
+        )
+    return request
+
+
+def reprint_cancellation(cancellation: PaymentCancellation, *, actor: User) -> None:
+    """Réimpression d'un reçu d'annulation : un duplicata, noté au journal."""
+    audit.record(
+        Action.FINANCE_CANCELLATION_REPRINTED,
+        cancellation.payment,
+        actor=actor,
+        label=f"{cancellation.receipt_number} · {cancellation.payment.enrollment.student}",
+    )

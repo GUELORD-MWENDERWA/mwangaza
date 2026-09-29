@@ -6,6 +6,7 @@ caisse et réimpression hors ligne (3.5.2) ; crédit sur l'appareil, utilisé ho
 import threading
 from datetime import UTC, datetime
 from types import SimpleNamespace
+from uuid import UUID
 
 import pytest
 from django.db import connection, transaction
@@ -16,6 +17,7 @@ from apps.core.ids import uuid7
 from apps.core.tenancy import use_school
 from apps.finance import services as finance
 from apps.finance.models import (
+    CancellationRequest,
     CashSession,
     CreditAllocation,
     Payment,
@@ -82,6 +84,15 @@ def reprint_op(payment_id, reprinted_at="2026-10-02T08:20:00Z") -> dict:
 
 def credit_op(credit_id) -> dict:
     return {"op_id": str(uuid7()), "type": "credit.use", "payload": {"credit": str(credit_id)}}
+
+
+def cancel_op(payment_id, requested_at="2026-10-02T08:30:00Z") -> dict:
+    payload = {"id": str(uuid7()), "payment": str(payment_id), "reason": "Mauvais élève"}
+    return {
+        "op_id": str(uuid7()),
+        "type": "cancellation.request",
+        "payload": {**payload, "requested_at": requested_at},
+    }
 
 
 def discount_credit(school, head, cashier, data) -> StudentCredit:
@@ -303,6 +314,44 @@ def test_two_offline_tills_paying_the_same_fee_both_keep_the_money(
     assert {(c.currency, c.remaining_minor) for c in remaining} == {("USD", 0), ("CDF", 25000)}
 
 
+def test_a_cancellation_asked_offline_waits_and_its_approval_voids_the_offline_surplus(
+    api, school, head, cashier, alpha
+):
+    """Demande d'annulation hors ligne (3.8.1) : une seule même envoyée deux fois, à l'heure de
+    l'appareil, jamais pour le paiement d'un autre caissier ; le paiement compte jusqu'à la
+    validation, en ligne. Validée, le crédit de son surplus hors ligne est annulé aussi."""
+    client, device, session = till(api, school, cashier, alpha)
+    paid = payment_op(alpha, device, session, 36000)
+    surplus = payment_op(alpha, device, session, 5000, seq=2)
+    client.post(PUSH, {"operations": [paid, surplus]})
+    other = api(MembershipFactory(school=school, roles=["cashier"]).user)
+    remember(other)
+    ask = cancel_op(surplus["payload"]["id"])
+
+    results = [client.post(PUSH, {"operations": [ask]}).json()["results"][0] for _ in range(2)]
+
+    assert [r["status"] for r in results] == ["applied", "duplicate"]
+    stranger = other.post(PUSH, {"operations": [cancel_op(paid["payload"]["id"])]}).json()
+    assert stranger["results"][0]["error"]["code"] == "permission_denied"
+    with use_school(school):
+        request = CancellationRequest.objects.get()
+        assert StudentCredit.objects.get().voided_at is None
+    assert (request.status, request.device_id, request.requested_at.isoformat()) == (
+        "pending",
+        UUID(device["id"]),
+        "2026-10-02T08:30:00+00:00",
+    )
+    [entry] = entries(school, Action.FINANCE_CANCELLATION_REQUESTED)
+    assert entry.device_time.isoformat() == "2026-10-02T08:30:00+00:00"
+    [change] = client.get(PULL, since=0).json()["changes"][-1:]
+    [shown] = [p for p in change["enrollment"]["payments"] if p["id"] == surplus["payload"]["id"]]
+    assert (shown["cancelled"], shown["cancellation_pending"]) == (False, True)
+
+    assert api(head).post(f"/api/cancellations/{request.pk}/approve/").status_code == 200
+    with use_school(school):
+        assert StudentCredit.objects.get().voided_at is not None
+
+
 def test_a_credit_is_on_the_device_and_used_once_offline(api, school, head, cashier, alpha):
     """Crédit à traiter (3.6.2) : sur l'appareil avec l'inscription ; utilisé à la caisse hors
     ligne, une seule fois même envoyé deux fois ; ensuite il n'y est plus à traiter."""
@@ -381,16 +430,18 @@ def test_a_school_never_reads_nor_writes_another_school_through_sync(
                 open_op(alpha["register"]),
                 reprint_op(applied["payload"]["id"]),
                 credit_op(credit.pk),
+                cancel_op(applied["payload"]["id"]),
             ]
         },
     ).json()["results"]
     assert {r["status"] for r in results} == {"rejected"}
     assert [next(iter(r["error"]["fields"].values()))[0]["code"] for r in results] == [
         "does_not_exist"
-    ] * 4
+    ] * 5
     with use_school(other_school):
         assert not Payment.objects.exists()
         assert list(CashSession.objects.all()) == [other_session]
     with use_school(school):
         assert not AuditLog.objects.filter(action=Action.FINANCE_PAYMENT_REPRINTED).exists()
         assert not CreditAllocation.objects.exists()
+        assert not CancellationRequest.objects.exists()

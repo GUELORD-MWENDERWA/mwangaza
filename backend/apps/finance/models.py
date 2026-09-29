@@ -567,9 +567,77 @@ class PaymentAllocation(ImmutableModel):
         ]
 
 
+class CancellationRequest(TenantModel):
+    """Demande d'annulation d'un paiement [T] (F7) : motif donné par le caissier (ou le
+    comptable), en ligne ou hors ligne (`device`, `requested_at` : heure de l'appareil). Le
+    paiement compte jusqu'à la décision d'un autre compte (`finance.approve_cancellation`) :
+    validée, elle devient une `PaymentCancellation` ; refusée, le paiement reste valable et une
+    nouvelle demande est possible. Une seule demande en attente par paiement."""
+
+    class Status(models.TextChoices):
+        PENDING = "pending", _("Pending")
+        APPROVED = "approved", _("Approved")
+        REJECTED = "rejected", _("Rejected")
+
+    payment = models.ForeignKey(
+        Payment,
+        on_delete=models.PROTECT,
+        related_name="cancellation_requests",
+        verbose_name=_("payment"),
+    )
+    reason = models.CharField(_("reason"), max_length=200)
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("requested by"),
+    )
+    requested_at = models.DateTimeField(_("requested at"), default=timezone.now)
+    device = models.ForeignKey(
+        "sync.Device",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("device"),
+    )
+    status = models.CharField(
+        _("status"), max_length=10, choices=Status.choices, default=Status.PENDING
+    )
+    decided_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("decided by"),
+    )
+    decided_at = models.DateTimeField(_("decided at"), null=True, blank=True)
+    decision_note = models.CharField(_("comment"), max_length=200, blank=True)
+
+    class Meta:
+        ordering = ["-requested_at"]
+        verbose_name = _("cancellation request")
+        verbose_name_plural = _("cancellation requests")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["payment"],
+                condition=models.Q(status="pending"),
+                name="cancellation_request_one_pending",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["school", "status", "-requested_at"], name="cancellation_status"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.payment} · {self.get_status_display()}"
+
+
 class PaymentCancellation(ImmutableModel):
-    """Annulation validée d'un paiement [T] [I] : ses allocations ne comptent plus dans ce que
-    doit l'élève. La demande, la validation et le reçu d'annulation viennent en 3.8 (F7)."""
+    """Annulation validée d'un paiement [T] [I] (F7) : ses allocations ne comptent plus dans ce
+    que doit l'élève. Son reçu d'annulation a un numéro d'une série propre à l'école
+    (`ITIG-AN-26-000007`) ; la demande est la `CancellationRequest` validée du paiement."""
 
     payment = models.OneToOneField(
         Payment,
@@ -577,6 +645,7 @@ class PaymentCancellation(ImmutableModel):
         related_name="cancellation",
         verbose_name=_("payment"),
     )
+    receipt_number = models.CharField(_("receipt number"), max_length=40)
     reason = models.CharField(_("reason"), max_length=200)
     requested_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -595,6 +664,11 @@ class PaymentCancellation(ImmutableModel):
     class Meta:
         verbose_name = _("payment cancellation")
         verbose_name_plural = _("payment cancellations")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["school", "receipt_number"], name="cancellation_receipt_number_unique"
+            ),
+        ]
 
 
 class StudentCredit(TenantModel):
