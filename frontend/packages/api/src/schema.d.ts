@@ -2097,18 +2097,18 @@ export interface components {
             /** Format: uuid */
             readonly id: string;
             readonly payment: components["schemas"]["CancelledPayment"];
-            reason: string;
+            readonly reason: string;
             readonly requested_by: components["schemas"]["Person"];
             /** Format: date-time */
-            requested_at: string;
+            readonly requested_at: string;
             /** @description Demandée hors ligne. */
             readonly offline: boolean;
-            status: components["schemas"]["CancellationStatusEnum"];
+            readonly status: components["schemas"]["CancellationStatusEnum"];
             readonly decided_by: components["schemas"]["Person"] | null;
             /** Format: date-time */
-            decided_at: string | null;
+            readonly decided_at: string | null;
             /** Comment */
-            decision_note: string;
+            readonly decision_note: string;
             readonly cancellation: components["schemas"]["PaymentCancellation"] | null;
             readonly balance: components["schemas"]["Balance"];
         };
@@ -2116,18 +2116,18 @@ export interface components {
             /** Format: uuid */
             readonly id: string;
             readonly payment: components["schemas"]["CancelledPayment"];
-            reason: string;
+            readonly reason: string;
             readonly requested_by: components["schemas"]["Person"];
             /** Format: date-time */
-            requested_at?: string;
+            readonly requested_at: string;
             /** @description Demandée hors ligne. */
             readonly offline: boolean;
-            status?: components["schemas"]["CancellationStatusEnum"];
+            readonly status: components["schemas"]["CancellationStatusEnum"];
             readonly decided_by: components["schemas"]["Person"] | null;
             /** Format: date-time */
-            decided_at?: string | null;
+            readonly decided_at: string | null;
             /** Comment */
-            decision_note?: string;
+            readonly decision_note: string;
             readonly cancellation: components["schemas"]["PaymentCancellation"] | null;
         };
         /**
@@ -4044,6 +4044,11 @@ export interface components {
             readonly created_at: string;
             /** Format: date-time */
             voided_at: string | null;
+            /**
+             * Payment
+             * Format: uuid
+             */
+            source_payment: string | null;
             readonly receipt_number: string | null;
             readonly cash_register_name: string | null;
             /** Format: date-time */
@@ -4076,6 +4081,11 @@ export interface components {
             readonly created_at: string;
             /** Format: date-time */
             voided_at: string | null;
+            /**
+             * Payment
+             * Format: uuid
+             */
+            source_payment: string | null;
             readonly receipt_number: string | null;
             readonly cash_register_name: string | null;
             /** Format: date-time */

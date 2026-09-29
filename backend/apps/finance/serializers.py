@@ -588,6 +588,7 @@ class StudentCreditSerializer(serializers.ModelSerializer):
             "state",
             "created_at",
             "voided_at",
+            "source_payment",
             "receipt_number",
             "cash_register_name",
             "paid_at",
@@ -680,6 +681,7 @@ class CancellationRequestSerializer(serializers.ModelSerializer):
             "decision_note",
             "cancellation",
         ]
+        read_only_fields = fields
 
     def get_offline(self, request: CancellationRequest) -> bool:
         return request.device_id is not None

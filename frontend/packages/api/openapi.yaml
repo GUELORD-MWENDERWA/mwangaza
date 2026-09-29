@@ -6834,7 +6834,7 @@ components:
           readOnly: true
         reason:
           type: string
-          maxLength: 200
+          readOnly: true
         requested_by:
           allOf:
           - $ref: '#/components/schemas/Person'
@@ -6842,12 +6842,15 @@ components:
         requested_at:
           type: string
           format: date-time
+          readOnly: true
         offline:
           type: boolean
           readOnly: true
           description: Demandée hors ligne.
         status:
-          $ref: '#/components/schemas/CancellationStatusEnum'
+          allOf:
+          - $ref: '#/components/schemas/CancellationStatusEnum'
+          readOnly: true
         decided_by:
           allOf:
           - $ref: '#/components/schemas/Person'
@@ -6856,11 +6859,12 @@ components:
         decided_at:
           type: string
           format: date-time
+          readOnly: true
           nullable: true
         decision_note:
           type: string
+          readOnly: true
           title: Comment
-          maxLength: 200
         cancellation:
           allOf:
           - $ref: '#/components/schemas/PaymentCancellation'
@@ -6896,7 +6900,7 @@ components:
           readOnly: true
         reason:
           type: string
-          maxLength: 200
+          readOnly: true
         requested_by:
           allOf:
           - $ref: '#/components/schemas/Person'
@@ -6904,12 +6908,15 @@ components:
         requested_at:
           type: string
           format: date-time
+          readOnly: true
         offline:
           type: boolean
           readOnly: true
           description: Demandée hors ligne.
         status:
-          $ref: '#/components/schemas/CancellationStatusEnum'
+          allOf:
+          - $ref: '#/components/schemas/CancellationStatusEnum'
+          readOnly: true
         decided_by:
           allOf:
           - $ref: '#/components/schemas/Person'
@@ -6918,11 +6925,12 @@ components:
         decided_at:
           type: string
           format: date-time
+          readOnly: true
           nullable: true
         decision_note:
           type: string
+          readOnly: true
           title: Comment
-          maxLength: 200
         cancellation:
           allOf:
           - $ref: '#/components/schemas/PaymentCancellation'
@@ -6930,12 +6938,16 @@ components:
           readOnly: true
       required:
       - cancellation
+      - decided_at
       - decided_by
+      - decision_note
       - id
       - offline
       - payment
       - reason
+      - requested_at
       - requested_by
+      - status
     CancellationStatusEnum:
       enum:
       - pending
@@ -10916,6 +10928,11 @@ components:
           type: string
           format: date-time
           nullable: true
+        source_payment:
+          type: string
+          format: uuid
+          nullable: true
+          title: Payment
         receipt_number:
           type: string
           readOnly: true
@@ -10950,6 +10967,7 @@ components:
       - state
       - created_at
       - voided_at
+      - source_payment
       - receipt_number
       - cash_register_name
       - paid_at
@@ -11003,6 +11021,11 @@ components:
           type: string
           format: date-time
           nullable: true
+        source_payment:
+          type: string
+          format: uuid
+          nullable: true
+          title: Payment
         receipt_number:
           type: string
           readOnly: true
@@ -11047,6 +11070,7 @@ components:
       - state
       - created_at
       - voided_at
+      - source_payment
       - receipt_number
       - cash_register_name
       - paid_at

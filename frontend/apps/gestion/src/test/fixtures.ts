@@ -161,6 +161,7 @@ export function studentCredit(
     state: "to_process",
     created_at: "2026-10-19T09:51:00Z",
     voided_at: null,
+    source_payment: fakeId(101),
     receipt_number: "ALPHA-C1-26-000101",
     cash_register_name: "Caisse 1",
     paid_at: "2026-10-19T09:51:00Z",

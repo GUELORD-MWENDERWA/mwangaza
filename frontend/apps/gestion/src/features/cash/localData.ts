@@ -116,6 +116,21 @@ export async function queueReprint(db: LocalDb, payment: string, reprintedAt: st
   void syncNow();
 }
 
+/** Demande d'annulation faite sur l'appareil (F7), avec ou sans réseau : le paiement est
+ *  « annulation demandée » aussitôt ; la validation, elle, se fait en ligne. */
+export async function queueCancellation(db: LocalDb, payment: string, reason: string) {
+  const requestedAt = new Date().toISOString();
+  await db.outbox.add({
+    op_id: uuidv7(),
+    type: "cancellation.request",
+    payload: { id: uuidv7(), payment, reason, requested_at: requestedAt },
+    created_at: requestedAt,
+    status: "pending",
+    error: null,
+  });
+  void syncNow();
+}
+
 /** Crédit utilisé à la caisse sur l'appareil (3.6.2) : ses parts comptent aussitôt comme payées
  *  (`financeOf`) ; le serveur le répartit à nouveau à l'arrivée, sur ce que l'élève doit alors.
  *  Puis envoi aussitôt. */

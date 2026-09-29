@@ -7,7 +7,7 @@
 import type { Schemas } from "@mwangaza/api";
 import { formatDateTime, formatDay, type TFunction, useTranslation } from "@mwangaza/i18n";
 import { amountInWords, type Currency, formatAmount, formatRate } from "@mwangaza/money";
-import { type ReactNode, useEffect, useState } from "react";
+import { Fragment, type ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { localDevice } from "../../lib/device";
@@ -28,7 +28,7 @@ type Printing = PrintJob & { qr: string };
 // Au-delà, le logo manquant ne retient plus l'impression.
 const IMAGE_WAIT_MS = 2000;
 
-function amounts(items: { currency: string; minor: number }[], nothing: string): string {
+export function amounts(items: { currency: string; minor: number }[], nothing: string): string {
   const due = items.filter((item) => item.minor > 0);
   if (!due.length) return nothing;
   return due.map((item) => formatAmount(item.minor, item.currency as Currency)).join(" + ");
@@ -171,12 +171,19 @@ function ReceiptCopy({ job, school, copy }: { job: Printing; school: School; cop
   );
 }
 
-/** Les exemplaires d'un reçu sur la page : ticket (séparés par un trait de découpe) ou feuille
- * A4 découpée en cases A6, A5 ou petit format. */
-function ReceiptPages({ job, school }: { job: Printing; school: School }) {
+/** Les exemplaires d'un reçu sur la page (`copy(index)` : un exemplaire ; reçu de paiement ou
+ * d'annulation) : ticket (séparés par un trait de découpe) ou feuille A4 découpée en cases A6,
+ * A5 ou petit format. */
+export function ReceiptPages({
+  school,
+  copy,
+}: {
+  school: School;
+  copy: (index: number | undefined) => ReactNode;
+}) {
   const { printer, sheet_size, copies } = school.receipt;
   const items = Array.from({ length: copies }, (_, index) => (
-    <ReceiptCopy key={index} job={job} school={school} copy={copies > 1 ? index : undefined} />
+    <Fragment key={index}>{copy(copies > 1 ? index : undefined)}</Fragment>
   ));
   if (printer !== "sheet") {
     return (
@@ -227,11 +234,13 @@ async function withQr(job: PrintJob, user: string): Promise<Printing> {
   }
 }
 
-/** `print(job)` imprime le reçu ; `area` (zone d'impression) se place dans l'écran. */
-export function useReceiptPrinter(): { print: (job: PrintJob) => void; area: ReactNode } {
-  const school = useCurrentSchool();
-  const me = useCurrentMe();
-  const [job, setJob] = useState<Printing | null>(null);
+/** Impression dans le navigateur : `print(job)` place `render(job)` dans la zone d'impression
+ *  (cachée à l'écran) et, les images chargées, lance `window.print()` ; `area` se place dans
+ *  l'écran. */
+export function usePrintArea<T extends object>(
+  render: (job: T) => ReactNode,
+): { print: (job: T) => void; area: ReactNode } {
+  const [job, setJob] = useState<T | null>(null);
 
   useEffect(() => {
     if (!job) return;
@@ -247,14 +256,22 @@ export function useReceiptPrinter(): { print: (job: PrintJob) => void; area: Rea
   }, [job]);
 
   const area = job
-    ? createPortal(
-        <div className="print-area">
-          <ReceiptPages job={job} school={school} />
-        </div>,
-        document.body,
-      )
+    ? createPortal(<div className="print-area">{render(job)}</div>, document.body)
     : null;
-  return { print: (next) => void withQr(next, me.id).then(setJob), area };
+  return { print: setJob, area };
+}
+
+/** `print(job)` imprime le reçu ; `area` (zone d'impression) se place dans l'écran. */
+export function useReceiptPrinter(): { print: (job: PrintJob) => void; area: ReactNode } {
+  const school = useCurrentSchool();
+  const me = useCurrentMe();
+  const { print, area } = usePrintArea<Printing>((job) => (
+    <ReceiptPages
+      school={school}
+      copy={(index) => <ReceiptCopy job={job} school={school} copy={index} />}
+    />
+  ));
+  return { print: (next) => void withQr(next, me.id).then(print), area };
 }
 
 /** Reçu d'essai de l'imprimante (bouton « Test » de l'ouverture de caisse) : montant fictif dans
@@ -286,6 +303,8 @@ export function sampleReceipt(
     method: "cash",
     note: "",
     cancelled: false,
+    cancelled_at: null,
+    cancellation_pending: false,
     academic_year: "",
     allocations: [
       {

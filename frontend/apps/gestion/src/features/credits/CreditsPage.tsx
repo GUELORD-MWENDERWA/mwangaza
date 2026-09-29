@@ -341,9 +341,11 @@ function CreditDetail({ id }: { id: string }) {
             {use.error && <Banner tone="due">{errorMessage(use.error, t)}</Banner>}
             {canUse && (
               <div className="flex flex-wrap gap-2">
-                {credit.receipt_number && (
+                {credit.source_payment && (
                   <Button asChild variant="outline">
-                    <Link to="/cancellations">{t("credits.requestCancellation")}</Link>
+                    <Link to={`/cancellations?payment=${credit.source_payment}`}>
+                      {t("credits.requestCancellation")}
+                    </Link>
                   </Button>
                 )}
                 <Button

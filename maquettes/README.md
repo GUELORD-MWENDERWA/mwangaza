@@ -53,6 +53,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Caisse : paiements du jour, recherche et réimpression d'un reçu | `gestion/caisse-accueil.html` | V1.0 | F1, F6 · M13 | à valider |
 | **Caisse — encaissement** | `gestion/caisse-encaissement.html` | V1.0 | F1–F5 | fournie |
 | Reçu 80 mm et A4 | `gestion/recu.html` | V1.0 | F3–F6 | fournie |
+| Demander une annulation (dialogue de la caisse) | `gestion/demande-annulation.html` | V1.0 | F7 | à valider — dessinée par Claude en 3.8.1 d'après `caisse-accueil` et `eleve-reduction` |
 | Annulations | `gestion/annulations.html` | V1.0 | F7 | fournie |
 | Reçu d'annulation (80 mm et A4) | `gestion/recu-annulation.html` | V1.0 | F7 · M15 | à valider |
 | Clôture de caisse (caissier) | `gestion/caisse-cloture.html` | V1.0 | F8 | fournie |

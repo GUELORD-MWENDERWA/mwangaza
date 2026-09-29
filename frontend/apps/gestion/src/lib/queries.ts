@@ -32,6 +32,7 @@ export const keys = {
   exchangeRates: ["exchange-rates"],
   cashRegisters: ["cash-registers"],
   cashSession: ["cash-session"],
+  cancellations: ["cancellations"],
   payments: ["payments"],
   credits: ["student-credits"],
   myDevices: ["my-devices"],
