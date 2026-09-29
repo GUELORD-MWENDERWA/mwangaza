@@ -6,11 +6,12 @@ import { Navigate, Outlet, useLocation } from "react-router";
 
 import { stepPath } from "../../lib/login";
 import { hasCode, useMe } from "../../lib/queries";
-import { ErrorState, Offline, SessionExpired, StandaloneStatus } from "../status/StatusPages";
+import { ErrorState, SessionExpired, StandaloneStatus } from "../status/StatusPages";
+import { OfflineStart } from "./PinUnlock";
 
 /** Écrans réservés à un compte connecté. Pas connecté : la connexion, puis retour à la page
- *  demandée. Session fermée pendant le travail : « Votre session a expiré ». L'interface prend la
- *  langue du compte. */
+ *  demandée. Session fermée pendant le travail : « Votre session a expiré ». Sans réseau :
+ *  déverrouillage par PIN (B5). L'interface prend la langue du compte. */
 export function RequireAuth() {
   const { t, i18n } = useTranslation();
   const me = useMe();
@@ -42,16 +43,13 @@ export function RequireAuth() {
     return <Navigate to={stepPath("password", `${pathname}${search}`)} replace />;
   }
   const retry = () => void me.refetch();
+  if (hasCode(me.error, "network")) return <OfflineStart onRetry={retry} />;
   return (
     <StandaloneStatus>
-      {hasCode(me.error, "network") ? (
-        <Offline onRetry={retry} />
-      ) : (
-        <ErrorState
-          status={me.error instanceof ApiError ? me.error.status : undefined}
-          onRetry={retry}
-        />
-      )}
+      <ErrorState
+        status={me.error instanceof ApiError ? me.error.status : undefined}
+        onRetry={retry}
+      />
     </StandaloneStatus>
   );
 }

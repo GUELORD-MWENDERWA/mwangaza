@@ -1,13 +1,34 @@
 import { api, ApiError, call } from "@mwangaza/api";
 
+import type { PinHash } from "./pin";
+import type { Me, School } from "./queries";
+
 /** « Se souvenir de cet appareil » (3.3.1) : l'appareil enregistré d'un compte, gardé dans ce
  *  navigateur. La base IndexedDB appartient à l'adresse, donc à l'école ; un poste partagé garde
  *  un appareil par compte. La clé privée, non exportable, signera les reçus émis hors ligne. */
-export type LocalDevice = { user: string; id: string; prefix: string; privateKey: CryptoKey };
+export type LocalDevice = {
+  user: string;
+  id: string;
+  prefix: string;
+  privateKey: CryptoKey;
+  /** Dernière connexion complète (mot de passe) ici ; effacée par « Se déconnecter » (B5). */
+  loggedInAt?: number | null;
+  /** Code PIN de déverrouillage, propre à cet appareil (3.7.1). */
+  pin?: PinHash;
+  pinFailures?: number;
+  /** Compte et école lus en ligne : l'application démarre sans réseau avec eux. */
+  me?: Me;
+  school?: School;
+  /** Dernière ouverture : le compte proposé en premier au déverrouillage. */
+  seenAt?: number;
+};
 
 export interface DeviceStore {
   get(user: string): Promise<LocalDevice | undefined>;
+  all(): Promise<LocalDevice[]>;
   put(device: LocalDevice): Promise<void>;
+  /** Modifie l'appareil du compte, s'il y en a un, dans une seule transaction. */
+  update(user: string, changes: Partial<LocalDevice>): Promise<void>;
   delete(user: string): Promise<void>;
 }
 
@@ -24,17 +45,25 @@ type Keys = { privateKey: CryptoKey; publicKey: string };
 export async function attachDevice(
   user: string,
   remember: boolean,
-  { store, server, createKeys, userAgent }: Deps = browserDeps(),
+  { store, server, createKeys, userAgent, now }: Deps = browserDeps(),
 ): Promise<void> {
+  // Connexion complète : le PIN remarche (5 codes faux, 7 jours, déconnexion).
+  const loggedIn = { loggedInAt: now(), pinFailures: 0 };
   const local = await store.get(user);
   if (local) {
-    if (await server.resume(local.id)) return;
+    if (await server.resume(local.id)) return store.update(user, loggedIn);
     await store.delete(user);
   }
   if (!remember) return;
   const keys = await createKeys();
   const device = await server.register(deviceLabel(userAgent), keys.publicKey);
-  await store.put({ user, id: device.id, prefix: device.prefix, privateKey: keys.privateKey });
+  await store.put({
+    user,
+    id: device.id,
+    prefix: device.prefix,
+    privateKey: keys.privateKey,
+    ...loggedIn,
+  });
 }
 
 type Deps = {
@@ -42,6 +71,7 @@ type Deps = {
   server: DeviceServer;
   createKeys: () => Promise<Keys>;
   userAgent: string;
+  now: () => number;
 };
 
 /** Nom proposé pour l'appareil : système et navigateur (« Windows · Edge »). */
@@ -117,6 +147,7 @@ function browserDeps(): Deps {
       return { privateKey: pair.privateKey, publicKey: btoa(String.fromCharCode(...spki)) };
     },
     userAgent: navigator.userAgent,
+    now: Date.now,
   };
 }
 
@@ -132,13 +163,16 @@ function openDb(): Promise<IDBDatabase> {
   });
 }
 
-async function run<T>(mode: IDBTransactionMode, action: (store: IDBObjectStore) => IDBRequest<T>) {
+async function run<T>(
+  mode: IDBTransactionMode,
+  action: (store: IDBObjectStore) => IDBRequest<T> | void,
+) {
   const db = await openDb();
   try {
     return await new Promise<T>((resolve, reject) => {
       const transaction = db.transaction(STORE, mode);
       const request = action(transaction.objectStore(STORE));
-      transaction.oncomplete = () => resolve(request.result);
+      transaction.oncomplete = () => resolve(request?.result as T);
       transaction.onerror = () => reject(transaction.error);
     });
   } finally {
@@ -149,13 +183,31 @@ async function run<T>(mode: IDBTransactionMode, action: (store: IDBObjectStore) 
 /** L'appareil mémorisé du compte dans ce navigateur (synchronisation, 3.4). */
 export const localDevice = (user: string) => browserStore.get(user);
 
+/** Les comptes mémorisés dans ce navigateur (déverrouillage sans réseau, 3.7.1). */
+export const allDevices = () => browserStore.all();
+
+/** Compte et école lus en ligne, gardés sur l'appareil du compte pour démarrer sans réseau. */
+export async function keepForOfflineStart(me: Me, school: School) {
+  if (me.support || !me.school) return;
+  await browserStore.update(me.id, { me, school, seenAt: Date.now() });
+}
+
 /** Appareil déconnecté par l'école : oublié ici (sa base est effacée par la synchronisation). */
 export const forgetDevice = (user: string) => browserStore.delete(user);
 
-const browserStore: DeviceStore = {
+export const browserStore: DeviceStore = {
   get: (user) => run<LocalDevice | undefined>("readonly", (store) => store.get(user)),
+  all: () => run<LocalDevice[]>("readonly", (store) => store.getAll()),
   put: async (device) => {
     await run("readwrite", (store) => store.put(device));
+  },
+  update: async (user, changes) => {
+    await run("readwrite", (store) => {
+      const request = store.get(user);
+      request.onsuccess = () => {
+        if (request.result) store.put({ ...request.result, ...changes });
+      };
+    });
   },
   delete: async (user) => {
     await run("readwrite", (store) => store.delete(user));
