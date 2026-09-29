@@ -149,7 +149,8 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         key: "devices",
         path: "devices",
         icon: "sync",
-        permissions: ["roles.manage"],
+        // Appareils de l'école : `roles.manage` ; cet appareil et sa file : qui se synchronise.
+        permissions: ["roles.manage", "students.view", "finance.collect_payment"],
         task: "3.7",
       },
       {

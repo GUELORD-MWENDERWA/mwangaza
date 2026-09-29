@@ -39,14 +39,16 @@ function setup(local?: LocalDevice, resumed = true) {
     register: vi.fn(async () => ({ id: "new-device", prefix: "P7" })),
   };
   const privateKey = {} as CryptoKey;
+  const wipe = vi.fn(async () => {});
   const deps = {
     store,
     server,
+    wipe,
     createKeys: async () => ({ privateKey, publicKey: "MFkw…" }),
     userAgent: EDGE_WINDOWS,
     now: () => NOW,
   };
-  return { saved, server, deps, privateKey };
+  return { saved, server, deps, privateKey, wipe };
 }
 
 const NOW = Date.parse("2026-10-05T08:00:00Z");
@@ -67,12 +69,14 @@ describe("attachDevice", () => {
     expect(server.resume).toHaveBeenCalledWith("old-device");
     expect(server.register).not.toHaveBeenCalled();
     expect(saved.get("u1")).toEqual({ ...OLD, loggedInAt: NOW, pinFailures: 0 });
+    expect(deps.wipe).not.toHaveBeenCalled();
   });
 
-  it("forgets a disconnected device, then remembers a new one only if asked", async () => {
+  it("forgets a disconnected device and wipes its data, then remembers a new one only if asked", async () => {
     const unticked = setup(OLD, false);
     await attachDevice("u1", false, unticked.deps);
     expect(unticked.saved.size).toBe(0);
+    expect(unticked.wipe).toHaveBeenCalledWith("old-device");
     expect(unticked.server.register).not.toHaveBeenCalled();
 
     const ticked = setup(OLD, false);

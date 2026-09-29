@@ -17,7 +17,7 @@ import type { Receipt } from "./Receipt";
 type Live<T> = { data?: T; error?: unknown };
 
 /** Résultat d'une lecture de la base, relu à chaque changement des tables lues. */
-function useLive<T>(db: LocalDb, query: (db: LocalDb) => Promise<T>): Live<T> {
+export function useLive<T>(db: LocalDb, query: (db: LocalDb) => Promise<T>): Live<T> {
   const [state, setState] = useState<Live<T> & { db?: LocalDb }>({});
   useEffect(() => {
     const subscription = liveQuery(() => query(db)).subscribe({

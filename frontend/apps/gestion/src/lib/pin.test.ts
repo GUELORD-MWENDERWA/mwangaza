@@ -60,7 +60,14 @@ describe("déverrouillage (B5)", () => {
     expect(await tryPin("u1", "2580", store, NOW)).toEqual({ outcome: "blocked" });
 
     const server = { resume: vi.fn(async () => true), register: vi.fn() };
-    const deps = { store, server, createKeys: vi.fn(), userAgent: "", now: () => NOW };
+    const deps = {
+      store,
+      server,
+      wipe: vi.fn(),
+      createKeys: vi.fn(),
+      userAgent: "",
+      now: () => NOW,
+    };
     await attachDevice("u1", true, deps);
     expect(await tryPin("u1", "2580", store, NOW)).toEqual({ outcome: "ok" });
     expect(store.saved.get("u1")?.pinFailures).toBe(0);

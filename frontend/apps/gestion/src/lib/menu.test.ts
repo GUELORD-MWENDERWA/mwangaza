@@ -27,8 +27,8 @@ describe("menu selon les permissions (04 § 8)", () => {
     ]);
   });
 
-  it("caissière : élèves, caisse et annulations seulement", () => {
-    expect(keysOf(me("cashier"))).toEqual(["students", "cash", "cancellations"]);
+  it("caissière : élèves, caisse, annulations et son appareil seulement", () => {
+    expect(keysOf(me("cashier"))).toEqual(["students", "cash", "cancellations", "devices"]);
   });
 
   it("promoteur : lecture des finances et du journal", () => {
@@ -38,6 +38,7 @@ describe("menu selon les permissions (04 § 8)", () => {
       "unpaid",
       "closings",
       "credits",
+      "devices",
       "audit",
     ]);
   });

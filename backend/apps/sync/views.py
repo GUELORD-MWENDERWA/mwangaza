@@ -9,7 +9,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.accounts.permissions import HasSchoolPermission, school_access
-from apps.accounts.roles import FINANCE_COLLECT_PAYMENT, STUDENTS_VIEW
+from apps.accounts.roles import FINANCE_COLLECT_PAYMENT, ROLES_MANAGE, STUDENTS_VIEW
+from apps.accounts.views import SchoolViewSet
 from apps.core.errors import SCHOOL_NOT_FOUND, ErrorSerializer
 from apps.sync import operations, services
 from apps.sync.models import Device
@@ -20,6 +21,7 @@ from apps.sync.serializers import (
     PullSerializer,
     PushResultSerializer,
     PushSerializer,
+    SchoolDeviceSerializer,
     SnapshotQuerySerializer,
     SnapshotSerializer,
 )
@@ -84,12 +86,7 @@ class MyDeviceViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     @action(detail=True, methods=["post"])
     def revoke(self, request: Request, pk=None) -> Response:
         """« Déconnecter » un de ses appareils : sa session est fermée."""
-        device = self.get_object()
-        current = services.session_device(request.session, request.school) == str(device.pk)
-        services.revoke_device(device, actor=request.user)
-        if current:
-            logout(request)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return revoke(request, self.get_object())
 
     def _own_device(self, pk) -> Device:
         # Révoqués compris : `resume` doit pouvoir répondre « déconnecté ».
@@ -97,6 +94,47 @@ class MyDeviceViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     def _data(self, device: Device) -> dict:
         return DeviceSerializer(device, context=self.get_serializer_context()).data
+
+
+@extend_schema_view(
+    list=extend_schema(responses={200: SchoolDeviceSerializer(many=True), **ERRORS})
+)
+@extend_schema(tags=["sync"])
+class SchoolDeviceViewSet(mixins.ListModelMixin, SchoolViewSet):
+    """Appareils de l'école (« Appareils et synchro ») : un responsable les voit et en révoque."""
+
+    required_permission = ROLES_MANAGE
+    serializer_class = SchoolDeviceSerializer
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Device.all_schools.none()
+        return (
+            Device.objects.filter(revoked_at__isnull=True)
+            .select_related("user")
+            .order_by("-last_seen_at", "prefix")
+        )
+
+    def get_serializer_context(self):
+        return {
+            **super().get_serializer_context(),
+            "current_device": services.session_device(self.request.session, self.request.school),
+        }
+
+    @extend_schema(request=None, responses={204: None, **ERRORS})
+    @action(detail=True, methods=["post"])
+    def revoke(self, request: Request, pk=None) -> Response:
+        """Révoquer : sa session est fermée, il efface ses données au prochain contact."""
+        return revoke(request, self.get_object())
+
+
+def revoke(request: Request, device: Device) -> Response:
+    """Révoque l'appareil ; celui de la session en cours la ferme aussi ici."""
+    current = services.session_device(request.session, request.school) == str(device.pk)
+    services.revoke_device(device, actor=request.user)
+    if current:
+        logout(request)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @extend_schema(tags=["sync"])

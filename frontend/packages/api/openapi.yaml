@@ -1842,6 +1842,73 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/devices/:
+    get:
+      operationId: devices_list
+      description: 'Appareils de l''école (« Appareils et synchro ») : un responsable
+        les voit et en révoque.'
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - sync
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSchoolDeviceList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/devices/{id}/revoke/:
+    post:
+      operationId: devices_revoke_create
+      description: 'Révoquer : sa session est fermée, il efface ses données au prochain
+        contact.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this device.
+        required: true
+      tags:
+      - sync
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/discounts/:
     get:
       operationId: discounts_list
@@ -8484,6 +8551,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Role'
+    PaginatedSchoolDeviceList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolDevice'
     PaginatedStaffList:
       type: object
       required:
@@ -9545,6 +9637,59 @@ components:
         * `installments` - Installments
         * `monthly` - Monthly
         * `single` - Single payment
+    SchoolDevice:
+      type: object
+      description: Un appareil de l'école (« Appareils et synchro », `roles.manage`).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        label:
+          type: string
+          readOnly: true
+          title: Name
+        prefix:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        last_seen_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Last seen
+        is_current:
+          type: boolean
+          readOnly: true
+          description: Appareil de cette session.
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/SchoolDeviceKindEnum'
+          readOnly: true
+        user_name:
+          type: string
+          description: Compte de l'appareil.
+      required:
+      - id
+      - label
+      - prefix
+      - created_at
+      - last_seen_at
+      - is_current
+      - kind
+      - user_name
+    SchoolDeviceKindEnum:
+      enum:
+      - browser
+      - reader
+      type: string
+      description: |-
+        * `browser` - browser
+        * `reader` - card reader
     SchoolSettings:
       type: object
       description: Paramètres de l'école (M5). Le code (adresse) ne change que par

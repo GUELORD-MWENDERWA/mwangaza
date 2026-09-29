@@ -51,6 +51,11 @@ export type CashRow = { id: "session"; value: Schemas["CurrentCashSession"]; rea
  *  serveur, jamais modifié sur place, et la file des opérations faites ici (les écrans les
  *  ajoutent à l'état reçu, 3.5). Une opération et ce qui l'accompagne (numéro de reçu) s'écrivent
  *  dans une seule transaction. */
+const localDbName = (deviceId: string) => `mwangaza-sync-${deviceId}`;
+
+/** Efface la base d'un appareil déconnecté, même fermée (reconnexion, 3.7.2). */
+export const deleteLocalDb = (deviceId: string) => Dexie.delete(localDbName(deviceId));
+
 export class LocalDb extends Dexie {
   enrollments!: EntityTable<LocalEnrollment, "id">;
   config!: EntityTable<ConfigRow, "id">;
@@ -59,7 +64,7 @@ export class LocalDb extends Dexie {
   cash!: EntityTable<CashRow, "id">;
 
   constructor(deviceId: string) {
-    super(`mwangaza-sync-${deviceId}`);
+    super(localDbName(deviceId));
     this.version(1).stores({
       enrollments: "id, gen",
       config: "id",

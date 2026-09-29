@@ -21,7 +21,9 @@ describe("coquille et menu (M7)", () => {
     const menu = await mainMenu();
     expect(menu.getByRole("link", { name: "Caisse" })).toBeTruthy();
     expect(menu.queryByRole("link", { name: "Frais et barèmes" })).toBeNull();
-    expect(menu.queryByText("Paramètres")).toBeNull();
+    // Paramètres : seulement son appareil et sa file d'attente.
+    expect(menu.getByRole("link", { name: "Appareils et synchro" })).toBeTruthy();
+    expect(menu.queryByRole("link", { name: "Rôles et permissions" })).toBeNull();
   });
 
   it("nom et rôle en haut à droite, lien vers Mon compte", async () => {

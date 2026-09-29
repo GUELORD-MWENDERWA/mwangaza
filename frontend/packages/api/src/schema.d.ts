@@ -485,6 +485,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/devices/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Appareils de l'école (« Appareils et synchro ») : un responsable les voit et en révoque. */
+        get: operations["devices_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/devices/{id}/revoke/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Révoquer : sa session est fermée, il efface ses données au prochain contact. */
+        post: operations["devices_revoke_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/discounts/": {
         parameters: {
             query?: never;
@@ -2893,6 +2927,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["Role"][];
         };
+        PaginatedSchoolDeviceList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["SchoolDevice"][];
+        };
         PaginatedStaffList: {
             /** @example 123 */
             count: number;
@@ -3449,6 +3498,32 @@ export interface components {
          * @enum {string}
          */
         ScheduleKindEnum: "installments" | "monthly" | "single";
+        /** @description Un appareil de l'école (« Appareils et synchro », `roles.manage`). */
+        SchoolDevice: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Name */
+            readonly label: string;
+            readonly prefix: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /**
+             * Last seen
+             * Format: date-time
+             */
+            readonly last_seen_at: string | null;
+            /** @description Appareil de cette session. */
+            readonly is_current: boolean;
+            readonly kind: components["schemas"]["SchoolDeviceKindEnum"];
+            /** @description Compte de l'appareil. */
+            user_name: string;
+        };
+        /**
+         * @description * `browser` - browser
+         *     * `reader` - card reader
+         * @enum {string}
+         */
+        SchoolDeviceKindEnum: "browser" | "reader";
         /** @description Paramètres de l'école (M5). Le code (adresse) ne change que par le support Mwangaza. */
         SchoolSettings: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
@@ -5880,6 +5955,81 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Person"][];
                 };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    devices_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedSchoolDeviceList"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    devices_revoke_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this device. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             403: {
                 headers: {
