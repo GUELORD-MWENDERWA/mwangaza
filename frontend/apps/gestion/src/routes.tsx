@@ -27,6 +27,7 @@ import { RegistrationFormPage } from "./features/students/RegistrationFormPage";
 import { StudentPage } from "./features/students/StudentPage";
 import { StudentsPage } from "./features/students/StudentsPage";
 import { AppShell } from "./features/shell/AppShell";
+import { CreditsPage } from "./features/credits/CreditsPage";
 import { HomePage } from "./features/shell/HomePage";
 import { MenuScreen } from "./features/shell/MenuScreen";
 import { RequireAuth } from "./features/shell/RequireAuth";
@@ -42,6 +43,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   schoolSettings: <SchoolSettingsPage />,
   organisation: <OrganisationPage />,
   cash: <CashPage />,
+  credits: <CreditsPage />,
   fees: <FeesPage />,
   staff: <StaffPage />,
   roles: <RolesPage />,

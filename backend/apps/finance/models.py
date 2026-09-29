@@ -595,3 +595,100 @@ class PaymentCancellation(ImmutableModel):
     class Meta:
         verbose_name = _("payment cancellation")
         verbose_name_plural = _("payment cancellations")
+
+
+class StudentCredit(TenantModel):
+    """Argent reçu en trop pour un élève [T] (M14), dans la devise de cet argent : le surplus
+    d'un paiement hors ligne arrivé quand l'élève devait moins (`source_payment`), ou le
+    trop-payé qu'une réduction fait apparaître sur des échéances déjà payées (`source_discount`).
+    Jamais perdu : le comptable l'utilise sur les prochaines échéances (`CreditAllocation`),
+    sans nouveau paiement ; il est annulé (`voided_at`, jamais effacé) si sa réduction est
+    retirée, et ses affectations ne comptent plus."""
+
+    class Origin(models.TextChoices):
+        OFFLINE_SURPLUS = "offline_surplus", _("Paid twice offline")
+        DISCOUNT = "discount", _("Discount granted")
+
+    enrollment = models.ForeignKey(
+        "students.Enrollment",
+        on_delete=models.PROTECT,
+        related_name="credits",
+        verbose_name=_("enrollment"),
+    )
+    origin = models.CharField(_("origin"), max_length=20, choices=Origin.choices)
+    amount_minor = models.BigIntegerField(_("amount"))
+    currency = models.CharField(_("currency"), max_length=3, choices=Currency.choices)
+    source_payment = models.ForeignKey(
+        Payment,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="credits",
+        verbose_name=_("payment"),
+    )
+    source_discount = models.ForeignKey(
+        Discount,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="credits",
+        verbose_name=_("discount"),
+    )
+    voided_at = models.DateTimeField(_("voided at"), null=True, blank=True)
+    voided_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("voided by"),
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("student credit")
+        verbose_name_plural = _("student credits")
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(amount_minor__gt=0), name="credit_amount_positive"
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["school", "enrollment"], name="credit_enrollment"),
+            models.Index(fields=["school", "-created_at"], name="credit_created"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.enrollment} · {self.amount_minor} {self.currency}"
+
+
+class CreditAllocation(ImmutableModel):
+    """Part d'un crédit utilisée sur un frais dû de la même devise [T] [I] : comptée comme payée
+    tant que le crédit n'est pas annulé. Pas de paiement ni de reçu : les totaux de caisse ne
+    bougent pas."""
+
+    credit = models.ForeignKey(
+        StudentCredit,
+        on_delete=models.PROTECT,
+        related_name="allocations",
+        verbose_name=_("credit"),
+    )
+    student_charge = models.ForeignKey(
+        StudentCharge,
+        on_delete=models.PROTECT,
+        related_name="credit_allocations",
+        verbose_name=_("student charge"),
+    )
+    amount_minor = models.BigIntegerField(_("amount"))
+
+    class Meta:
+        verbose_name = _("credit allocation")
+        verbose_name_plural = _("credit allocations")
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(amount_minor__gt=0), name="credit_allocation_positive"
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["school", "student_charge"], name="credit_allocation_charge"),
+        ]

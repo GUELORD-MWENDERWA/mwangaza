@@ -27,7 +27,7 @@ Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, compt
 | M11 | Fiche d'inscription imprimable (A4, avec code famille) et liste de classe (PDF, Excel) | Impression | D5 | 2.4 | `gestion/fiche-inscription`, `gestion/liste-classe` | [ ] |
 | M12 | Accorder une réduction à un élève ; échéancier particulier | Gestion | E3, E4 | 2.5, 2.6 | `gestion/eleve-reduction`, `gestion/eleve-echeancier` | [ ] |
 | M13 | Ouvrir une session de caisse ; caisse avant de choisir un élève ; paiements du jour et recherche d'un reçu à réimprimer | Gestion | F1, F6 | 3.1 | `gestion/caisse-ouverture`, `gestion/caisse-accueil` | [ ] |
-| M14 | Crédits d'élèves (surpaiements après synchronisation) à traiter par le comptable | Gestion | — | 3.6 | `gestion/credits-eleves` | [ ] |
+| M14 | Crédits d'élèves (surpaiements après synchronisation) à traiter par le comptable | Gestion | — | 3.6 | `gestion/credits-eleves` | [x] |
 | M15 | Reçu d'annulation (80 mm et A4) | Impression | F7 | 3.8 | `gestion/recu-annulation` | [ ] |
 | M16 | Clôtures de caisse vues par le comptable : historique, écarts, détail | Gestion | F8 | 3.8 | `gestion/clotures-caisse` | [ ] |
 | M17 | Situation financière d'un élève imprimable ; export des impayés (PDF, Excel) | Impression | G1, G2 | 4.1 | `gestion/situation-financiere`, `gestion/impayes-export` | [ ] |

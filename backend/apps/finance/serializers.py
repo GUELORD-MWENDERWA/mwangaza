@@ -9,6 +9,7 @@ from apps.finance import services
 from apps.finance.models import (
     CashRegister,
     CashSession,
+    CreditAllocation,
     Discount,
     ExchangeRate,
     FeeRule,
@@ -17,6 +18,7 @@ from apps.finance.models import (
     Payment,
     PaymentAllocation,
     StudentCharge,
+    StudentCredit,
 )
 from apps.finance.services import Installment, Scope
 from apps.schools.models import AcademicYear, ClassGroup, Level, Track
@@ -491,3 +493,122 @@ class PaymentFilterSerializer(serializers.Serializer):
     search = serializers.CharField(
         required=False, help_text="Numéro de reçu, nom ou matricule de l'élève."
     )
+
+
+# Crédits d'élèves (3.6.1, M14)
+
+CREDIT_STATES = [services.TO_PROCESS, services.USED, services.VOIDED]
+
+
+class StudentCreditFilterSerializer(YearFilterSerializer):
+    state = serializers.ChoiceField(
+        choices=[*CREDIT_STATES, "all"],
+        default=services.TO_PROCESS,
+        help_text="À traiter (défaut), utilisés, annulés ou tous.",
+    )
+
+
+class CreditAllocationSerializer(serializers.ModelSerializer):
+    fee_type_name = serializers.CharField(source="student_charge.fee_type.name", read_only=True)
+    label = serializers.CharField(source="student_charge.label", read_only=True)
+    due_on = serializers.DateField(source="student_charge.due_on", read_only=True)
+    created_by = PersonSerializer(read_only=True)
+
+    class Meta:
+        model = CreditAllocation
+        fields = [
+            "student_charge",
+            "fee_type_name",
+            "label",
+            "due_on",
+            "amount_minor",
+            "created_at",
+            "created_by",
+        ]
+
+
+class CreditProposalSerializer(serializers.Serializer):
+    student_charge = serializers.UUIDField()
+    fee_type_name = serializers.CharField()
+    label = serializers.CharField()
+    due_on = serializers.DateField()
+    amount_minor = serializers.IntegerField()
+
+
+class StudentCreditSerializer(serializers.ModelSerializer):
+    """Crédit d'un élève, avec son origine : le reçu du paiement hors ligne en trop, ou la
+    réduction accordée sur des échéances déjà payées."""
+
+    student = PaymentStudentSerializer(source="enrollment.student", read_only=True)
+    class_group = serializers.CharField(source="enrollment.class_group.name", read_only=True)
+    used_minor = serializers.IntegerField(read_only=True)
+    remaining_minor = serializers.SerializerMethodField()
+    state = serializers.SerializerMethodField()
+    receipt_number = serializers.CharField(
+        source="source_payment.receipt_number", read_only=True, allow_null=True
+    )
+    cash_register_name = serializers.CharField(
+        source="source_payment.cash_session.cash_register.name", read_only=True, allow_null=True
+    )
+    paid_at = serializers.DateTimeField(
+        source="source_payment.paid_at", read_only=True, allow_null=True
+    )
+    discount_reason = serializers.CharField(
+        source="source_discount.reason", read_only=True, allow_null=True
+    )
+    discount_fee_type = serializers.CharField(
+        source="source_discount.fee_type.name", read_only=True, allow_null=True
+    )
+
+    class Meta:
+        model = StudentCredit
+        fields = [
+            "id",
+            "enrollment",
+            "student",
+            "class_group",
+            "origin",
+            "amount_minor",
+            "currency",
+            "used_minor",
+            "remaining_minor",
+            "state",
+            "created_at",
+            "voided_at",
+            "receipt_number",
+            "cash_register_name",
+            "paid_at",
+            "discount_reason",
+            "discount_fee_type",
+        ]
+
+    def get_remaining_minor(self, credit: StudentCredit) -> int:
+        if credit.voided_at is not None:
+            return 0
+        return credit.amount_minor - credit.used_minor
+
+    @extend_schema_field(serializers.ChoiceField(choices=CREDIT_STATES))
+    def get_state(self, credit: StudentCredit) -> str:
+        return services.credit_state(credit)
+
+
+class StudentCreditDetailSerializer(StudentCreditSerializer):
+    """Crédit avec ses utilisations (justificatif) et ce que ferait « Utiliser le crédit »
+    (`proposal`, vide s'il n'est plus à traiter)."""
+
+    allocations = CreditAllocationSerializer(many=True, read_only=True)
+    proposal = CreditProposalSerializer(many=True, read_only=True)
+
+    class Meta(StudentCreditSerializer.Meta):
+        fields = [*StudentCreditSerializer.Meta.fields, "allocations", "proposal"]
+
+
+class CreditAmountSerializer(serializers.Serializer):
+    currency = serializers.ChoiceField(choices=Currency.choices)
+    amount_minor = serializers.IntegerField()
+
+
+class CreditSummarySerializer(serializers.Serializer):
+    to_process = serializers.IntegerField(help_text="Crédits à traiter.")
+    amounts = CreditAmountSerializer(many=True, help_text="Reste des crédits à traiter.")
+    used_this_month = serializers.IntegerField(help_text="Crédits utilisés depuis le 1er du mois.")

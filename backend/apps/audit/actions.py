@@ -106,6 +106,10 @@ class Action(models.TextChoices):
     FINANCE_PAYMENT_RECORDED = "finance.payment_recorded", _("Payment recorded")
     # Reçus (F6) : chaque duplicata est noté.
     FINANCE_PAYMENT_REPRINTED = "finance.payment_reprinted", _("Receipt reprinted")
+    # Crédits d'élèves (M14) : argent reçu en trop, puis utilisé ou annulé.
+    FINANCE_CREDIT_CREATED = "finance.credit_created", _("Student credit created")
+    FINANCE_CREDIT_USED = "finance.credit_used", _("Student credit used")
+    FINANCE_CREDIT_VOIDED = "finance.credit_voided", _("Student credit voided")
 
     # Appareils (« Se souvenir de cet appareil », M4).
     DEVICES_REGISTERED = "devices.registered", _("Device remembered")

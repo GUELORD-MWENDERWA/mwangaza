@@ -186,6 +186,7 @@ SPECTACULAR_SETTINGS = {
         "FeeCategoryEnum": "apps.finance.models.FeeType.Category",
         "DiscountKindEnum": "apps.finance.models.Discount.Kind",
         "TermKindEnum": "apps.schools.models.Term.Kind",
+        "CreditStateEnum": "apps.finance.serializers.CREDIT_STATES",
     },
 }
 

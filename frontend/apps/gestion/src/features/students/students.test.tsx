@@ -451,10 +451,12 @@ describe("Élèves (D2-D4)", () => {
   });
 
   it("réduction : effet calculé comme le serveur, envoi en entiers, rien sans motif", async () => {
+    // 1re tranche déjà payée : la réduction y devient un crédit de l'élève (M14).
+    const paid = { ...charges[0]!, paid_minor: 12000, remaining_minor: 0, state: "paid" };
     const requests = mockApi(
       routes("head", {
         ...card,
-        "GET /api/student-charges/": charges,
+        "GET /api/student-charges/": [paid, ...charges.slice(1)],
         "POST /api/discounts/": json({}, 201),
       }),
     );
@@ -467,6 +469,8 @@ describe("Élèves (D2-D4)", () => {
     await user.type(within(dialog).getByLabelText("Valeur"), "25");
     expect(within(dialog).getAllByText("− 30,00 $")).toHaveLength(3);
     within(dialog).getByText("270,00 $");
+    within(dialog).getByText("crédit 30,00 $");
+    expect(within(dialog).getAllByText("reste 90,00 $")).toHaveLength(2);
     await user.click(within(dialog).getByRole("button", { name: "Accorder la réduction" }));
     await within(dialog).findByText("Ce champ est obligatoire.");
 

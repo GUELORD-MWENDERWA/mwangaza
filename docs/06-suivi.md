@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.5.2 terminée, PR #108 à fusionner |
-| Prochaine tâche | 3.6 — crédit élève (surpaiement, réduction sur échéance payée) |
-| Issue GitHub | #25 |
-| Branche | `tache/3.5.2-ouverture-reimpression-qr` (PR #108) ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 3.6.1 terminée, PR à fusionner |
+| Prochaine tâche | 3.6.2 — crédit à la caisse |
+| Issue GitHub | #26 |
+| Branche | `tache/3.6.1-credits-eleves` (PR à fusionner) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-29 |
 
 ## Avancement
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 10 | 13 |
+| Semaine 3 — Caisse et hors-ligne | 11 | 14 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **27** | **38** |
+| **V1.0** | **28** | **39** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,13 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-29 — Tâche 3.6.1 : crédits d'élèves
+
+- **Fait** : 3.6 découpée (3.6.1 / 3.6.2, validé). `StudentCredit` et `CreditAllocation` [I] ; crédit créé par un paiement hors ligne en trop ou par une réduction sur une tranche payée (seulement l'écart), annulé si la réduction est retirée ; « Utiliser le crédit » (comptable) sur les échéances les plus anciennes de sa devise ; API `/api/student-credits/` ; écran « Crédits d'élèves » (M14) avec justificatif imprimable ; colonnes « Déjà payé » / « Effet » du dialogue de réduction ; `make demo` : deux crédits par école.
+- **Tests** : 865 serveur, 190 front, 13 parcours Playwright, lint vert ; isolation, 403, argent (payé + crédit = argent reçu), audit, immuabilité.
+- **Décisions** : utiliser un crédit ne crée pas de paiement (validé) ; payé d'un frais plafonné à ce qu'il doit (`03`).
+- **Suite** : 3.6.2 (crédit à la caisse, en ligne et hors ligne ; crédit sur la fiche élève).
 
 ### 2026-09-29 — Tâche 3.5.2 : ouverture et réimpression hors ligne, QR signé
 - Fait : sur un appareil mémorisé, la caisse s'ouvre aussi sans réseau (opération `cash_session.open`, refus affiché sur l'écran d'ouverture) ; duplicata fait sur l'appareil et noté au journal par la file (`payment.reprint`) ; chaque reçu imprimé sur l'appareil porte un QR code signé ; `/v/…` : « en attente de synchronisation », « falsifié ». 3.5 terminée.

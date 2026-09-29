@@ -388,6 +388,9 @@ paths:
           - finance.cash_session_opened
           - finance.payment_recorded
           - finance.payment_reprinted
+          - finance.credit_created
+          - finance.credit_used
+          - finance.credit_voided
           - devices.registered
           - devices.revoked
           - audit.exported
@@ -462,6 +465,9 @@ paths:
           * `finance.cash_session_opened` - Cash session opened
           * `finance.payment_recorded` - Payment recorded
           * `finance.payment_reprinted` - Receipt reprinted
+          * `finance.credit_created` - Student credit created
+          * `finance.credit_used` - Student credit used
+          * `finance.credit_voided` - Student credit voided
           * `devices.registered` - Device remembered
           * `devices.revoked` - Device disconnected
           * `audit.exported` - Audit log exported
@@ -699,6 +705,9 @@ paths:
           - finance.cash_session_opened
           - finance.payment_recorded
           - finance.payment_reprinted
+          - finance.credit_created
+          - finance.credit_used
+          - finance.credit_voided
           - devices.registered
           - devices.revoked
           - audit.exported
@@ -773,6 +782,9 @@ paths:
           * `finance.cash_session_opened` - Cash session opened
           * `finance.payment_recorded` - Payment recorded
           * `finance.payment_reprinted` - Receipt reprinted
+          * `finance.credit_created` - Student credit created
+          * `finance.credit_used` - Student credit used
+          * `finance.credit_voided` - Student credit voided
           * `devices.registered` - Device remembered
           * `devices.revoked` - Device disconnected
           * `audit.exported` - Audit log exported
@@ -4591,6 +4603,195 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/student-credits/:
+    get:
+      operationId: student_credits_list
+      description: |-
+        Crédits d'élèves de l'année (M14), les plus récents d'abord : argent reçu en trop, jamais
+        perdu. Lire : `finance.view_reports` ou `finance.approve_cancellation` ; utiliser :
+        `finance.approve_cancellation`.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: 'Absent : l''année en cours.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: state
+        schema:
+          enum:
+          - to_process
+          - used
+          - voided
+          - all
+          type: string
+          default: to_process
+          minLength: 1
+        description: |-
+          À traiter (défaut), utilisés, annulés ou tous.
+
+          * `to_process` - to_process
+          * `used` - used
+          * `voided` - voided
+          * `all` - all
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStudentCreditList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/student-credits/{id}/:
+    get:
+      operationId: student_credits_retrieve
+      description: |-
+        Crédits d'élèves de l'année (M14), les plus récents d'abord : argent reçu en trop, jamais
+        perdu. Lire : `finance.view_reports` ou `finance.approve_cancellation` ; utiliser :
+        `finance.approve_cancellation`.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this student credit.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentCreditDetail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/student-credits/{id}/use/:
+    post:
+      operationId: student_credits_use_create
+      description: |-
+        Utiliser le crédit sur les échéances les plus anciennes de sa devise, sans paiement ;
+        409 `credit_used`, `credit_voided` ou `nothing_owed`.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this student credit.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentCreditDetail'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/student-credits/summary/:
+    get:
+      operationId: student_credits_summary_retrieve
+      description: 'Chiffres de l''écran : crédits à traiter, leur reste par devise,
+        utilisés ce mois.'
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: 'Absent : l''année en cours.'
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditSummary'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/student-imports/:
     post:
       operationId: student_imports_create
@@ -5848,6 +6049,9 @@ components:
       - finance.cash_session_opened
       - finance.payment_recorded
       - finance.payment_reprinted
+      - finance.credit_created
+      - finance.credit_used
+      - finance.credit_voided
       - devices.registered
       - devices.revoked
       - audit.exported
@@ -5921,6 +6125,9 @@ components:
         * `finance.cash_session_opened` - Cash session opened
         * `finance.payment_recorded` - Payment recorded
         * `finance.payment_reprinted` - Receipt reprinted
+        * `finance.credit_created` - Student credit created
+        * `finance.credit_used` - Student credit used
+        * `finance.credit_voided` - Student credit voided
         * `devices.registered` - Device remembered
         * `devices.revoked` - Device disconnected
         * `audit.exported` - Audit log exported
@@ -6397,6 +6604,103 @@ components:
       description: |-
         * `1` - 1
         * `2` - 2
+    CreditAllocation:
+      type: object
+      properties:
+        student_charge:
+          type: string
+          format: uuid
+        fee_type_name:
+          type: string
+          readOnly: true
+        label:
+          type: string
+          readOnly: true
+        due_on:
+          type: string
+          format: date
+          readOnly: true
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+      required:
+      - student_charge
+      - fee_type_name
+      - label
+      - due_on
+      - amount_minor
+      - created_at
+      - created_by
+    CreditAmount:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        amount_minor:
+          type: integer
+      required:
+      - currency
+      - amount_minor
+    CreditProposal:
+      type: object
+      properties:
+        student_charge:
+          type: string
+          format: uuid
+        fee_type_name:
+          type: string
+        label:
+          type: string
+        due_on:
+          type: string
+          format: date
+        amount_minor:
+          type: integer
+      required:
+      - student_charge
+      - fee_type_name
+      - label
+      - due_on
+      - amount_minor
+    CreditStateEnum:
+      enum:
+      - to_process
+      - used
+      - voided
+      type: string
+      description: |-
+        * `to_process` - to_process
+        * `used` - used
+        * `voided` - voided
+    CreditSummary:
+      type: object
+      properties:
+        to_process:
+          type: integer
+          description: Crédits à traiter.
+        amounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditAmount'
+          description: Reste des crédits à traiter.
+        used_this_month:
+          type: integer
+          description: Crédits utilisés depuis le 1er du mois.
+      required:
+      - to_process
+      - amounts
+      - used_this_month
     CurrencyBalance:
       type: object
       properties:
@@ -7938,6 +8242,14 @@ components:
       description: |-
         * `upsert` - created or changed
         * `delete` - deleted
+    OriginEnum:
+      enum:
+      - offline_surplus
+      - discount
+      type: string
+      description: |-
+        * `offline_surplus` - Paid twice offline
+        * `discount` - Discount granted
     Outcome:
       type: object
       properties:
@@ -8152,6 +8464,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Staff'
+    PaginatedStudentCreditList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentCredit'
     PaginatedStudentHistoryList:
       type: object
       required:
@@ -9492,16 +9829,6 @@ components:
       - last_name
       - middle_name
       - first_name
-    StateEnum:
-      enum:
-      - paid
-      - overdue
-      - upcoming
-      type: string
-      description: |-
-        * `paid` - paid
-        * `overdue` - overdue
-        * `upcoming` - upcoming
     StepEnum:
       enum:
       - password
@@ -9667,7 +9994,7 @@ components:
             * `overdue` - overdue
             * `upcoming` - upcoming
           oneOf:
-          - $ref: '#/components/schemas/StateEnum'
+          - $ref: '#/components/schemas/StudentChargeStateEnum'
           - $ref: '#/components/schemas/NullEnum'
       required:
       - id
@@ -9685,6 +10012,16 @@ components:
       - paid_minor
       - remaining_minor
       - state
+    StudentChargeStateEnum:
+      enum:
+      - paid
+      - overdue
+      - upcoming
+      type: string
+      description: |-
+        * `paid` - paid
+        * `overdue` - overdue
+        * `upcoming` - upcoming
     StudentChargeStatusEnum:
       enum:
       - active
@@ -9695,6 +10032,192 @@ components:
         * `active` - Due
         * `removed` - Removed
         * `replaced` - Replaced
+    StudentCredit:
+      type: object
+      description: |-
+        Crédit d'un élève, avec son origine : le reçu du paiement hors ligne en trop, ou la
+        réduction accordée sur des échéances déjà payées.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        enrollment:
+          type: string
+          format: uuid
+        student:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStudent'
+          readOnly: true
+        class_group:
+          type: string
+          readOnly: true
+        origin:
+          $ref: '#/components/schemas/OriginEnum'
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        used_minor:
+          type: integer
+          readOnly: true
+        remaining_minor:
+          type: integer
+          readOnly: true
+        state:
+          allOf:
+          - $ref: '#/components/schemas/CreditStateEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        voided_at:
+          type: string
+          format: date-time
+          nullable: true
+        receipt_number:
+          type: string
+          readOnly: true
+          nullable: true
+        cash_register_name:
+          type: string
+          readOnly: true
+          nullable: true
+        paid_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        discount_reason:
+          type: string
+          readOnly: true
+          nullable: true
+        discount_fee_type:
+          type: string
+          readOnly: true
+          nullable: true
+      required:
+      - id
+      - enrollment
+      - student
+      - class_group
+      - origin
+      - amount_minor
+      - currency
+      - used_minor
+      - remaining_minor
+      - state
+      - created_at
+      - voided_at
+      - receipt_number
+      - cash_register_name
+      - paid_at
+      - discount_reason
+      - discount_fee_type
+    StudentCreditDetail:
+      type: object
+      description: |-
+        Crédit avec ses utilisations (justificatif) et ce que ferait « Utiliser le crédit »
+        (`proposal`, vide s'il n'est plus à traiter).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        enrollment:
+          type: string
+          format: uuid
+        student:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStudent'
+          readOnly: true
+        class_group:
+          type: string
+          readOnly: true
+        origin:
+          $ref: '#/components/schemas/OriginEnum'
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        used_minor:
+          type: integer
+          readOnly: true
+        remaining_minor:
+          type: integer
+          readOnly: true
+        state:
+          allOf:
+          - $ref: '#/components/schemas/CreditStateEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        voided_at:
+          type: string
+          format: date-time
+          nullable: true
+        receipt_number:
+          type: string
+          readOnly: true
+          nullable: true
+        cash_register_name:
+          type: string
+          readOnly: true
+          nullable: true
+        paid_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        discount_reason:
+          type: string
+          readOnly: true
+          nullable: true
+        discount_fee_type:
+          type: string
+          readOnly: true
+          nullable: true
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditAllocation'
+          readOnly: true
+        proposal:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditProposal'
+          readOnly: true
+      required:
+      - id
+      - enrollment
+      - student
+      - class_group
+      - origin
+      - amount_minor
+      - currency
+      - used_minor
+      - remaining_minor
+      - state
+      - created_at
+      - voided_at
+      - receipt_number
+      - cash_register_name
+      - paid_at
+      - discount_reason
+      - discount_fee_type
+      - allocations
+      - proposal
     StudentHistory:
       type: object
       description: |-

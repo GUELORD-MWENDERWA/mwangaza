@@ -57,7 +57,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Reçu d'annulation (80 mm et A4) | `gestion/recu-annulation.html` | V1.0 | F7 · M15 | à valider |
 | Clôture de caisse (caissier) | `gestion/caisse-cloture.html` | V1.0 | F8 | fournie |
 | Clôtures de caisse (comptable) | `gestion/clotures-caisse.html` | V1.0 | F8 · M16 | à valider |
-| Crédits d'élèves (surpaiements) | `gestion/credits-eleves.html` | V1.0 | 3.6 · M14 | à valider |
+| Crédits d'élèves (surpaiements) | `gestion/credits-eleves.html` | V1.0 | 3.6 · M14 | à valider — codée en 3.6.1 sans l'origine « Barème modifié » (un frais payé ne change plus, `04`) |
 | Impayés | `gestion/impayes.html` | V1.0 | G1–G2 | fournie |
 | Situation financière imprimable | `gestion/situation-financiere.html` | V1.0 | G2 · M17 | à valider |
 | Export des impayés (PDF par classe, Excel) | `gestion/impayes-export.html` | V1.0 | G1 · M17 | à valider |

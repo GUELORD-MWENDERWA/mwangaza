@@ -11,5 +11,6 @@ router.register("student-charges", views.StudentChargeViewSet, basename="student
 router.register("cash-registers", views.CashRegisterViewSet, basename="cash-register")
 router.register("cash-sessions", views.CashSessionViewSet, basename="cash-session")
 router.register("payments", views.PaymentViewSet, basename="payment")
+router.register("student-credits", views.StudentCreditViewSet, basename="student-credit")
 
 urlpatterns = router.urls

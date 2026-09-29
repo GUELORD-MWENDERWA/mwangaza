@@ -1,9 +1,9 @@
 """Frais de démonstration (I5 en attendant la grille de l'ITIG) : grille fictive réaliste, à
 partir de celle des maquettes — minerval en tranches USD, fonctionnement et frais connexes en une
 fois, atelier par option, motivation des enseignants mensuelle en FC, Exetat en 4e —, le taux
-de l'année, ce que doit chaque élève inscrit, quelques réductions, les caisses et des paiements
-depuis la rentrée. Écrits directement dans les modèles : `make demo` n'écrit rien dans le
-journal."""
+de l'année, ce que doit chaque élève inscrit, quelques réductions, les caisses, des paiements
+depuis la rentrée et deux crédits d'élèves par école. Écrits directement dans les modèles :
+`make demo` n'écrit rien dans le journal."""
 
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
@@ -24,12 +24,15 @@ from apps.finance.models import (
     FeeType,
     Payment,
     PaymentAllocation,
+    StudentCredit,
 )
 from apps.finance.services import (
     Installment,
+    _excess,
     _write_installments,
     allocate,
     charges_by_enrollment,
+    charges_of,
     current_rate,
     sync_charges,
 )
@@ -304,3 +307,83 @@ def _demo_payments(school: School, registers: list[tuple[CashRegister, User]]) -
     CashSession.objects.bulk_create(sessions.values())
     Payment.objects.bulk_create(payments, batch_size=500)
     PaymentAllocation.objects.bulk_create(allocations, batch_size=1000)
+
+
+def create_demo_credits(schools: dict[str, School]) -> None:
+    """Une seule fois par école, deux crédits à traiter (M14) : une bourse de 25 % accordée
+    après le paiement de la 1re tranche (crédit du trop-payé), et le minerval de l'année
+    encaissé deux fois hors ligne, à la première et à la dernière caisse (crédit du second)."""
+    for school in schools.values():
+        with use_school(school):
+            if StudentCredit.objects.exists():
+                continue
+            current = Enrollment.objects.filter(
+                academic_year__is_current=True,
+                status=Enrollment.Status.ACTIVE,
+                discounts__isnull=True,
+            ).order_by("student__matricule")
+            paid = current.filter(
+                payments__received_currency="USD", payments__received_amount_minor__gt=6000
+            ).first()
+            unpaid = current.filter(payments__isnull=True).first()
+            if paid is None or unpaid is None:
+                continue
+            _demo_scholarship(paid)
+            _demo_paid_twice(school, unpaid)
+
+
+def _demo_scholarship(enrollment: Enrollment) -> None:
+    before = _excess(charges_of(enrollment.pk))
+    discount = Discount.objects.create(
+        enrollment=enrollment,
+        fee_type=FeeType.objects.get(name=MINERVAL),
+        kind=Discount.Kind.PERCENT,
+        percent=25,
+        reason_code=Discount.Reason.SCHOLARSHIP,
+        reason="Bourse de la paroisse Saint-Esprit, lettre du 12/10/2026",
+    )
+    for currency, excess in _excess(charges_of(enrollment.pk)).items():
+        if excess > before.get(currency, 0):
+            StudentCredit.objects.create(
+                enrollment=enrollment,
+                origin=StudentCredit.Origin.DISCOUNT,
+                amount_minor=excess - before.get(currency, 0),
+                currency=currency,
+                source_discount=discount,
+            )
+
+
+def _demo_paid_twice(school: School, enrollment: Enrollment) -> None:
+    charges = charges_of(enrollment.pk)
+    owed = Money(sum(c.remaining_minor for c in charges if c.state and c.currency == "USD"), "USD")
+    rate = current_rate(enrollment.academic_year).rate
+    registers = CashRegister.objects.order_by("code")
+    for hours, register in enumerate([registers.first(), registers.last()], start=1):
+        session = CashSession.objects.filter(cash_register=register).order_by("opened_at").last()
+        sequence = Payment.objects.filter(cash_session__cash_register=register).count() + 1
+        prefix = f"{school.code.upper()}-{register.code}-{enrollment.academic_year.starts_on:%y}"
+        payment = Payment.objects.create(
+            enrollment=enrollment,
+            cash_session=session,
+            cashier=session.cashier,
+            received_amount_minor=owed.amount_minor,
+            received_currency=owed.currency,
+            rate_used=rate,
+            paid_at=session.opened_at + timedelta(hours=hours),
+            receipt_number=f"{prefix}-{sequence:06d}",
+            synced_at=session.closed_at,
+        )
+        if hours == 1:
+            PaymentAllocation.objects.bulk_create(
+                PaymentAllocation(
+                    payment=payment, student_charge=charge, received_minor=part, amount_minor=amount
+                )
+                for charge, part, amount in allocate(charges, owed, rate)
+            )
+    StudentCredit.objects.create(
+        enrollment=enrollment,
+        origin=StudentCredit.Origin.OFFLINE_SURPLUS,
+        amount_minor=owed.amount_minor,
+        currency=owed.currency,
+        source_payment=payment,
+    )

@@ -33,6 +33,7 @@ export const keys = {
   cashRegisters: ["cash-registers"],
   cashSession: ["cash-session"],
   payments: ["payments"],
+  credits: ["student-credits"],
   myDevices: ["my-devices"],
 } as const;
 

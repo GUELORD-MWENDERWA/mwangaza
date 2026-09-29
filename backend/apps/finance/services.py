@@ -13,7 +13,7 @@ import re
 from collections import defaultdict
 from copy import copy
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, time
 from decimal import Decimal
 from uuid import UUID
 
@@ -23,11 +23,13 @@ from django.db.models import (
     BigIntegerField,
     Count,
     Exists,
+    F,
     OuterRef,
     Prefetch,
     ProtectedError,
     Q,
     QuerySet,
+    Subquery,
     Sum,
 )
 from django.db.models.functions import Coalesce
@@ -43,6 +45,7 @@ from apps.core.tenancy import require_current_school, use_school
 from apps.finance.models import (
     CashRegister,
     CashSession,
+    CreditAllocation,
     Discount,
     ExchangeRate,
     FeeRule,
@@ -52,6 +55,7 @@ from apps.finance.models import (
     PaymentAllocation,
     PaymentCancellation,
     StudentCharge,
+    StudentCredit,
 )
 from apps.schools import organisation
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
@@ -96,6 +100,13 @@ PAYMENT_ID_TAKEN = ApiError(
 )
 PAYMENT_CANCELLED = ApiError(
     "payment_cancelled", _("This payment was cancelled: its receipt is no longer valid."), 409
+)
+CREDIT_USED = ApiError("credit_used", _("This credit was already used."), 409)
+CREDIT_VOIDED = ApiError(
+    "credit_voided", _("This credit was voided: its discount was revoked."), 409
+)
+NOTHING_OWED = ApiError(
+    "nothing_owed", _("The student owes nothing more in the currency of this credit."), 409
 )
 
 
@@ -737,7 +748,8 @@ def grant_discount(
 ) -> Discount:
     """Réduction pour l'année d'un élève inscrit (E3) : un pourcentage sur un frais ou sur tous,
     ou un montant dans la devise d'un frais, jamais plus que ce frais. Motif obligatoire ; qui et
-    quand sont gardés, et l'action va dans l'historique de l'élève."""
+    quand sont gardés, et l'action va dans l'historique de l'élève. Sur des échéances déjà
+    payées, ce qui devient payé en trop est un crédit de l'élève (M14), par devise."""
     reason = reason.strip()
     if not reason:
         raise _invalid("reason", _("This field may not be blank."), "blank")
@@ -768,6 +780,7 @@ def grant_discount(
             if amount_minor > sum(charge.amount_minor for charge in charges):
                 message = _("A discount cannot be more than the fee.")
                 raise _invalid("amount_minor", message, "discount_exceeds_fee")
+        before = _excess(charges_of(enrollment.pk))
         discount = Discount.objects.create(
             enrollment=enrollment,
             fee_type=fee_type,
@@ -786,12 +799,21 @@ def grant_discount(
             label=_discount_label(enrollment, fee_type),
             after=_discount_data(discount),
         )
+        for currency, excess in _excess(charges_of(enrollment.pk)).items():
+            if excess > before.get(currency, 0):
+                _create_credit(
+                    enrollment,
+                    actor=actor,
+                    amount=Money(excess - before.get(currency, 0), currency),
+                    source_discount=discount,
+                )
     return discount
 
 
 def revoke_discount(discount: Discount, *, actor: User, reason: str) -> Discount:
     """Retire une réduction (E3) : rien n'est effacé, le retrait est noté avec son motif ; ce que
-    doit l'élève redevient ce qu'il était sans elle."""
+    doit l'élève redevient ce qu'il était sans elle. Les crédits qu'elle a donnés sont annulés,
+    et ce qu'ils ont payé redevient dû."""
     reason = reason.strip()
     if not reason:
         raise _invalid("reason", _("This field may not be blank."), "blank")
@@ -814,6 +836,9 @@ def revoke_discount(discount: Discount, *, actor: User, reason: str) -> Discount
             before=_discount_data(discount),
             after={"revoke_reason": reason},
         )
+        credits = StudentCredit.objects.filter(source_discount=discount, voided_at__isnull=True)
+        for credit in credits.select_for_update():
+            _void_credit(credit, discount.enrollment, actor=actor)
     return discount
 
 
@@ -832,25 +857,44 @@ def _settle(charges: list[StudentCharge], discounts: list[Discount], day: date) 
     """Ajoute à chaque frais dû sa part des réductions (`discount_minor`), ce qui est payé
     (`paid_minor`), le reste (`remaining_minor`) et son état (`state`) : soldé, en retard
     (échéance passée, `due_on` < aujourd'hui, et reste > 0) ou à venir ; `None` pour un frais
-    retiré ou remplacé, qui ne compte plus."""
+    retiré ou remplacé, qui ne compte plus. Le payé s'arrête à ce qui est dû : le reste
+    (`excess_minor`, après une réduction sur une échéance payée) est un crédit de l'élève."""
     shares = discount_shares(charges, discounts)
     for charge in charges:
         charge.discount_minor = shares.get(charge.pk, 0)
         charge.paid_minor = getattr(charge, "paid_total", 0)
+        charge.excess_minor = 0
         if charge.status != StudentCharge.Status.ACTIVE:
             charge.remaining_minor, charge.state = 0, None
             continue
         due = charge.amount_minor - charge.discount_minor
-        charge.remaining_minor = max(due - charge.paid_minor, 0)
+        charge.excess_minor = max(charge.paid_minor - due, 0)
+        charge.paid_minor -= charge.excess_minor
+        charge.remaining_minor = due - charge.paid_minor
         if charge.remaining_minor == 0:
             charge.state = PAID
         else:
             charge.state = OVERDUE if charge.due_on < day else UPCOMING
 
 
+def _credit_used(until: Payment | None = None) -> Coalesce:
+    """Crédits utilisés sur le frais dû, s'ils ne sont pas annulés ; avec `until`, ceux utilisés
+    avant lui et pas encore annulés à ce moment-là."""
+    used = CreditAllocation.objects.filter(student_charge=OuterRef("pk"))
+    if until is None:
+        used = used.filter(credit__voided_at__isnull=True)
+    else:
+        used = used.filter(
+            Q(credit__voided_at__isnull=True) | Q(credit__voided_at__gt=until.paid_at),
+            created_at__lte=until.paid_at,
+        )
+    total = used.values("student_charge").annotate(total=Sum("amount_minor")).values("total")
+    return Coalesce(Subquery(total), 0, output_field=BigIntegerField())
+
+
 def _ordered(charges: QuerySet, until: Payment | None = None) -> QuerySet:
-    """Avec `paid_total` : allocations des paiements non annulés ; avec `until`, celles des
-    paiements encaissés jusqu'à lui (lui compris) et pas encore annulés à ce moment-là."""
+    """Avec `paid_total` : allocations des paiements non annulés et crédits utilisés ; avec
+    `until`, ceux d'avant lui (lui compris) et pas encore annulés à ce moment-là."""
     counted = Q(allocations__payment__cancellation__isnull=True)
     if until is not None:
         counted = (
@@ -862,7 +906,9 @@ def _ordered(charges: QuerySet, until: Payment | None = None) -> QuerySet:
     paid = Sum("allocations__amount_minor", filter=counted)
     return (
         charges.select_related("fee_type")
-        .annotate(paid_total=Coalesce(paid, 0, output_field=BigIntegerField()))
+        .annotate(
+            paid_total=Coalesce(paid, 0, output_field=BigIntegerField()) + _credit_used(until)
+        )
         .order_by("due_on", "fee_type__name", "label")
     )
 
@@ -1284,14 +1330,14 @@ def record_payment(
 ) -> tuple[Payment, bool]:
     """Encaisse un paiement (F2) dans la session ouverte du caissier, au taux de `payment_rate`,
     réparti par défaut (`allocate`) ou comme l'a ajusté le caissier (`parts`). Jamais plus que
-    ce que doit l'élève (le crédit vient en 3.6). Le même `payment_id` envoyé deux fois (double
+    ce que doit l'élève. Le même `payment_id` envoyé deux fois (double
     clic, nouvel essai) ne donne qu'un paiement : renvoyé avec `False`.
 
     Hors ligne (`offline`) : session, numéro et heure de l'appareil, taux en vigueur à cette
     heure. L'argent est déjà dans la caisse : jamais refusé parce que l'élève doit moins
     qu'avant (une autre caisse a encaissé entre-temps), ni pour une caisse ou une devise retirée
     depuis ; la répartition ajustée qui ne tient plus devient celle par défaut, et ce qui dépasse
-    le dû n'est affecté à rien (crédit de l'élève en 3.6)."""
+    le dû n'est affecté à rien : c'est un crédit de l'élève (M14)."""
     school = require_current_school()
     received = Money(received_amount_minor, received_currency)
     with transaction.atomic():
@@ -1385,6 +1431,11 @@ def record_payment(
                 ],
             },
         )
+        surplus = received_amount_minor - sum(part for _charge, part, _amount in lines)
+        if surplus > 0:
+            _create_credit(
+                enrollment, actor=actor, amount=Money(surplus, received_currency), source=payment
+            )
     return payment, True
 
 
@@ -1425,3 +1476,169 @@ def reprint_payment(payment: Payment, *, actor: User, device_time: datetime | No
         label=f"{payment.receipt_number} · {payment.enrollment.student}",
         device_time=device_time,
     )
+
+
+# Crédits d'élèves (3.6.1, M14)
+
+TO_PROCESS, USED, VOIDED = "to_process", "used", "voided"
+
+
+def _excess(charges: list[StudentCharge]) -> dict[str, int]:
+    """Payé en trop sur les frais dus (`charges_of`), par devise."""
+    totals = defaultdict(int)
+    for charge in charges:
+        totals[charge.currency] += charge.excess_minor
+    return totals
+
+
+def _credit_data(credit: StudentCredit) -> dict:
+    data = {"origin": credit.origin, "amount_minor": credit.amount_minor}
+    if credit.source_payment_id:
+        data["receipt_number"] = credit.source_payment.receipt_number
+    return {**data, "currency": credit.currency}
+
+
+def _create_credit(
+    enrollment: Enrollment,
+    *,
+    actor: User,
+    amount: Money,
+    source: Payment | None = None,
+    source_discount: Discount | None = None,
+) -> StudentCredit:
+    credit = StudentCredit.objects.create(
+        enrollment=enrollment,
+        origin=StudentCredit.Origin.OFFLINE_SURPLUS if source else StudentCredit.Origin.DISCOUNT,
+        amount_minor=amount.amount_minor,
+        currency=amount.currency,
+        source_payment=source,
+        source_discount=source_discount,
+        created_by=actor,
+    )
+    audit.record(
+        Action.FINANCE_CREDIT_CREATED,
+        enrollment,
+        actor=actor,
+        label=str(enrollment.student),
+        after=_credit_data(credit),
+    )
+    return credit
+
+
+def _void_credit(credit: StudentCredit, enrollment: Enrollment, *, actor: User) -> None:
+    credit.voided_at, credit.voided_by = timezone.now(), actor
+    credit.save(update_fields=["voided_at", "voided_by", "updated_at"])
+    audit.record(
+        Action.FINANCE_CREDIT_VOIDED,
+        enrollment,
+        actor=actor,
+        label=str(enrollment.student),
+        before=_credit_data(credit),
+    )
+
+
+def credits() -> QuerySet[StudentCredit]:
+    """Crédits avec ce que montre l'écran (M14), sans requête de plus par crédit : élève, classe,
+    paiement ou réduction d'origine, et la part déjà utilisée (`used_minor`)."""
+    used = (
+        CreditAllocation.objects.filter(credit=OuterRef("pk"))
+        .values("credit")
+        .annotate(total=Sum("amount_minor"))
+        .values("total")
+    )
+    return StudentCredit.objects.select_related(
+        "enrollment__student",
+        "enrollment__class_group__level",
+        "enrollment__class_group__track",
+        "source_payment__cash_session__cash_register",
+        "source_discount__fee_type",
+    ).annotate(used_minor=Coalesce(Subquery(used), 0, output_field=BigIntegerField()))
+
+
+def with_state(items: QuerySet[StudentCredit], state: str) -> QuerySet[StudentCredit]:
+    """À traiter (reste à utiliser), utilisés (en entier) ou annulés (réduction retirée)."""
+    if state == VOIDED:
+        return items.filter(voided_at__isnull=False)
+    live = items.filter(voided_at__isnull=True)
+    if state == USED:
+        return live.filter(used_minor__gte=F("amount_minor"))
+    return live.filter(used_minor__lt=F("amount_minor"))
+
+
+def credit_state(credit: StudentCredit) -> str:
+    if credit.voided_at is not None:
+        return VOIDED
+    return USED if credit.used_minor >= credit.amount_minor else TO_PROCESS
+
+
+def credit_proposal(credit: StudentCredit) -> list[tuple[StudentCharge, int, int]]:
+    """Ce que ferait « Utiliser le crédit » : son reste sur les échéances de sa devise que
+    l'élève doit encore, les plus anciennes d'abord (comme à la caisse)."""
+    if credit_state(credit) != TO_PROCESS:
+        return []
+    left = Money(credit.amount_minor - credit.used_minor, credit.currency)
+    return allocate(charges_of(credit.enrollment_id), left, None)
+
+
+def credits_summary(year: AcademicYear) -> dict:
+    """Chiffres de l'écran : crédits à traiter, leur reste par devise, crédits utilisés depuis le
+    début du mois (dans le fuseau de l'école)."""
+    items = credits().filter(enrollment__academic_year=year)
+    open_credits = with_state(items, TO_PROCESS)
+    amounts = (
+        open_credits.values("currency")
+        .annotate(amount_minor=Sum(F("amount_minor") - F("used_minor")))
+        .order_by("currency")
+    )
+    month = datetime.combine(today().replace(day=1), time.min, timezone.get_current_timezone())
+    used = CreditAllocation.objects.filter(
+        created_at__gte=month, credit__enrollment__academic_year=year
+    )
+    return {
+        "to_process": open_credits.count(),
+        "amounts": sorted(amounts, key=lambda row: Currency.values.index(row["currency"])),
+        "used_this_month": used.values("credit").distinct().count(),
+    }
+
+
+def use_credit(credit: StudentCredit, *, actor: User) -> StudentCredit:
+    """Utilise un crédit (M14) : son reste va aux échéances de sa devise que l'élève doit
+    encore, les plus anciennes d'abord, sans paiement ni reçu (les totaux de caisse ne bougent
+    pas). Ce qui dépasse ce qu'il doit reste à traiter ; rien n'est converti vers l'autre
+    devise."""
+    with transaction.atomic():
+        # Comme un paiement : l'un après l'autre pour un même élève, sur des restes à jour.
+        enrollment = (
+            Enrollment.objects.select_related("student")
+            .select_for_update(of=("self",))
+            .get(pk=credit.enrollment_id)
+        )
+        credit = credits().select_for_update(of=("self",)).get(pk=credit.pk)
+        state = credit_state(credit)
+        if state != TO_PROCESS:
+            raise BusinessError(CREDIT_VOIDED if state == VOIDED else CREDIT_USED)
+        lines = credit_proposal(credit)
+        if not lines:
+            raise BusinessError(NOTHING_OWED)
+        CreditAllocation.objects.bulk_create(
+            CreditAllocation(
+                credit=credit, student_charge=charge, amount_minor=amount, created_by=actor
+            )
+            for charge, _part, amount in lines
+        )
+        sync_changes.touch_enrollments([enrollment.pk])
+        audit.record(
+            Action.FINANCE_CREDIT_USED,
+            enrollment,
+            actor=actor,
+            label=str(enrollment.student),
+            after={
+                "amount_minor": sum(amount for _charge, _part, amount in lines),
+                "currency": credit.currency,
+                "allocations": [
+                    {"fee": f"{charge.fee_type.name} — {charge.label}", "amount_minor": amount}
+                    for charge, _part, amount in lines
+                ],
+            },
+        )
+    return credit
