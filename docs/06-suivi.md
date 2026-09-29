@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.7.1 terminée, PR #111 à fusionner |
-| Prochaine tâche | 3.7.2 |
+| Tâche en cours | aucune — 3.7.2 terminée, PR #112 à fusionner |
+| Prochaine tâche | 3.8 |
 | Issue GitHub | #27 |
-| Branche | `tache/3.7.1-pin-hors-ligne` (PR #111) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/3.7.2-appareils-ecole` (PR #112) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-29 |
 
 ## Avancement
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 13 | 15 |
+| Semaine 3 — Caisse et hors-ligne | 14 | 15 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **30** | **40** |
+| **V1.0** | **31** | **40** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,13 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-29 — Tâche 3.7.2 : appareils de l'école
+
+- **Fait** : écran « Appareils et synchro » (maquette `appareils-synchro`) : appareils mémorisés de l'école (préfixe, compte, en ligne ou non, dernier contact) et « Révoquer » pour un responsable (`roles.manage`) ; carte « Cet appareil » (dernière synchro, file, données locales, stockage, dernier reçu, version) et file d'attente pour tout compte qui se synchronise. Un appareil révoqué efface aussi sa base locale quand il se reconnecte.
+- **Tests** : 868 serveur (isolation, 403, audit de la révocation, dernier contact), 200 front (effacement à la reconnexion, révocation, caissier sans la liste de l'école), lint vert, capture à 390 px.
+- **Décisions** (`03`) : entrée du menu visible de qui se synchronise ; pas de colonne « En attente » ni de bouton « Autoriser un appareil » ; avertissement de perte de la file à la révocation.
+- **Suite** : 3.8 (annulations et clôture de caisse).
 
 ### 2026-09-29 — Tâche 3.7.1 : PIN de déverrouillage et démarrage sans réseau
 

@@ -1757,6 +1757,61 @@ export const fr = {
       by: "Par {{name}}, le {{date}}",
     },
   },
+  devices: {
+    title: "Appareils et synchronisation",
+    subtitle: "Chaque ordinateur, tablette ou lecteur autorisé à travailler pour {{school}}.",
+    school: {
+      title: "Appareils de l'école",
+      columns: {
+        prefix: "Préfixe",
+        device: "Appareil",
+        state: "État",
+        lastSeen: "Dernier contact",
+      },
+      online: "En ligne",
+      offline: "Hors ligne",
+      current: "Cet appareil",
+      revoke: "Révoquer",
+      empty:
+        "Aucun appareil mémorisé. Un appareil s'ajoute quand quelqu'un coche « Se souvenir de cet appareil » à la connexion.",
+      total_one: "{{count}} appareil",
+      total_other: "{{count}} appareils",
+      confirmTitle: "Révoquer l'appareil {{prefix}} · {{label}} ?",
+      confirmText:
+        "Sa session est fermée tout de suite. À sa prochaine connexion, il efface les données gardées sur l'appareil.",
+      confirmWarning:
+        "Ce qu'il a fait sans internet et pas encore envoyé (encaissements, reçus) sera perdu. Si possible, synchronisez-le d'abord.",
+    },
+    local: {
+      title: "Cet appareil ({{prefix}})",
+      titleNone: "Cet appareil",
+      none: "Cet appareil n'est pas mémorisé : il travaille en ligne seulement. Pour travailler sans internet, cochez « Se souvenir de cet appareil » à la connexion.",
+      lastSync: "Dernière synchronisation réussie",
+      never: "jamais",
+      pending: "Opérations en attente",
+      rejected: "Opérations refusées",
+      data: "Données locales",
+      dataValue: "{{students}} élèves · {{charges}} dus · {{payments}} paiements",
+      storage: "Stockage persistant",
+      lastReceipt: "Dernier numéro de reçu",
+      noReceipt: "aucun",
+      version: "Version de l'application",
+      retry: "Nouvel essai automatique toutes les 60 s",
+    },
+    queue: {
+      title: "File d'attente",
+      empty: "Aucune opération en attente : tout est envoyé.",
+      pending: "en attente",
+      rejected: "refusée",
+      types: {
+        payment: "Paiement",
+        reprint: "Réimpression de reçu",
+        cashOpen: "Ouverture de caisse",
+        creditUse: "Crédit utilisé",
+        other: "Opération",
+      },
+    },
+  },
   errors: {
     file_too_large: "Le fichier dépasse 5 Mo.",
     old_excel:

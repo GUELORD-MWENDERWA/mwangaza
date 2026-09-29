@@ -12,6 +12,7 @@ import { LoginPage } from "./features/auth/LoginPage";
 import { LoginTwoFactorPage } from "./features/auth/LoginTwoFactorPage";
 import { NewPasswordPage } from "./features/auth/NewPasswordPage";
 import { CashPage } from "./features/cash/CashPage";
+import { DevicesPage } from "./features/devices/DevicesPage";
 import { FeesPage } from "./features/fees/FeesPage";
 import { OrganisationPage } from "./features/organisation/OrganisationPage";
 import { RolesPage } from "./features/roles/RolesPage";
@@ -47,6 +48,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   fees: <FeesPage />,
   staff: <StaffPage />,
   roles: <RolesPage />,
+  devices: <DevicesPage />,
   audit: <AuditPage />,
 };
 

@@ -9,6 +9,7 @@ import base64
 import binascii
 from collections import defaultdict
 from dataclasses import dataclass
+from datetime import timedelta
 from importlib import import_module
 from uuid import UUID
 
@@ -46,6 +47,9 @@ DEVICE_REVOKED = ApiError(
 DEVICE_REQUIRED = ApiError(
     "device_required", _("Remember this device when you log in to work without internet."), 403
 )
+# Dernier contact noté au plus une fois par 30 s (la synchronisation tourne toutes les 60 s).
+SEEN_EVERY = timedelta(seconds=30)
+
 SNAPSHOT_REQUIRED = ApiError(
     "snapshot_required", _("The data of this device is out of date: download it again."), 409
 )
@@ -149,13 +153,19 @@ def _load_public_key(value: str) -> ec.EllipticCurvePublicKey:
 
 def sync_device(session, school: School, user: User) -> Device:
     """L'appareil de la session, enregistré dans cette école par ce compte : seul un appareil
-    enregistré se synchronise. Déconnecté : 409 `device_revoked` (il efface ses données)."""
+    enregistré se synchronise. Déconnecté : 409 `device_revoked` (il efface ses données).
+    Chaque synchronisation note son dernier contact."""
     device_id = session_device(session, school)
     device = Device.objects.filter(pk=device_id, user=user).first() if device_id else None
     if device is None:
         raise BusinessError(DEVICE_REQUIRED)
     if device.revoked_at is not None:
         raise BusinessError(DEVICE_REVOKED)
+    now = timezone.now()
+    if device.last_seen_at is None or now - device.last_seen_at >= SEEN_EVERY:
+        # Dernier contact (« Appareils de l'école ») : sans toucher au reste de l'appareil.
+        Device.objects.filter(pk=device.pk).update(last_seen_at=now)
+        device.last_seen_at = now
     return device
 
 

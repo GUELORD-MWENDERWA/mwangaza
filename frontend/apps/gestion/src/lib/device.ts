@@ -1,6 +1,7 @@
 import { api, ApiError, call } from "@mwangaza/api";
 
 import type { PinHash } from "./pin";
+import { deleteLocalDb } from "./sync/db";
 import type { Me, School } from "./queries";
 
 /** « Se souvenir de cet appareil » (3.3.1) : l'appareil enregistré d'un compte, gardé dans ce
@@ -41,17 +42,20 @@ export interface DeviceServer {
 type Keys = { privateKey: CryptoKey; publicKey: string };
 
 /** Après la connexion : l'appareil déjà enregistré reprend la session ; sinon, si la case est
- *  cochée, un nouvel appareil est enregistré. Un appareil déconnecté est oublié ici. */
+ *  cochée, un nouvel appareil est enregistré. Un appareil déconnecté est oublié ici et ses
+ *  données effacées. */
 export async function attachDevice(
   user: string,
   remember: boolean,
-  { store, server, createKeys, userAgent, now }: Deps = browserDeps(),
+  { store, server, wipe, createKeys, userAgent, now }: Deps = browserDeps(),
 ): Promise<void> {
   // Connexion complète : le PIN remarche (5 codes faux, 7 jours, déconnexion).
   const loggedIn = { loggedInAt: now(), pinFailures: 0 };
   const local = await store.get(user);
   if (local) {
     if (await server.resume(local.id)) return store.update(user, loggedIn);
+    // Déconnecté (par soi ou par l'école) : sa base part avec lui, file d'attente comprise.
+    await wipe(local.id);
     await store.delete(user);
   }
   if (!remember) return;
@@ -69,6 +73,8 @@ export async function attachDevice(
 type Deps = {
   store: DeviceStore;
   server: DeviceServer;
+  /** Efface la base de synchronisation d'un appareil. */
+  wipe: (id: string) => Promise<void>;
   createKeys: () => Promise<Keys>;
   userAgent: string;
   now: () => number;
@@ -146,6 +152,7 @@ function browserDeps(): Deps {
       const spki = new Uint8Array(await crypto.subtle.exportKey("spki", pair.publicKey));
       return { privateKey: pair.privateKey, publicKey: btoa(String.fromCharCode(...spki)) };
     },
+    wipe: deleteLocalDb,
     userAgent: navigator.userAgent,
     now: Date.now,
   };

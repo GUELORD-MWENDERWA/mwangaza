@@ -136,3 +136,48 @@ def test_a_receipt_signed_in_the_browser_is_verified_by_the_server(message, sign
     device = Device(public_key=WEBCRYPTO_KEY)
 
     assert services.verify_signature(device, message, signature) is valid
+
+
+SCHOOL_URL = "/api/devices/"
+
+
+def test_a_manager_sees_and_revokes_the_devices_of_the_school_only(
+    api, school, other_school, head, cashier, other_head
+):
+    till = api(cashier)
+    device_id = remember(till).json()["id"]
+    remember(api(other_head, host="beta.localhost"))
+
+    assert till.get(SCHOOL_URL).status_code == 403  # sans roles.manage
+    assert till.post(f"{SCHOOL_URL}{device_id}/revoke/").status_code == 403
+
+    listed = api(head).get(SCHOOL_URL).json()["results"]
+    assert [(d["id"], d["prefix"], d["user_name"]) for d in listed] == [
+        (device_id, "P1", str(cashier))
+    ]
+    from_beta = api(other_head, host="beta.localhost")
+    assert [d["prefix"] for d in from_beta.get(SCHOOL_URL).json()["results"]] == ["P1"]
+    assert from_beta.post(f"{SCHOOL_URL}{device_id}/revoke/").status_code == 404
+    with use_school(school):
+        assert Device.objects.get(pk=device_id).revoked_at is None
+
+    assert api(head).post(f"{SCHOOL_URL}{device_id}/revoke/").status_code == 204
+
+    assert till.get(URL).status_code == 403  # session de la caisse fermée
+    assert api(head).get(SCHOOL_URL).json()["results"] == []
+    with use_school(school):
+        entry = AuditLog.objects.get(action=Action.DEVICES_REVOKED)
+    assert (str(entry.entity_id), entry.actor) == (device_id, head)
+
+
+def test_each_synchronisation_notes_the_last_contact_of_the_device(api, school, cashier):
+    till = api(cashier)
+    device_id = remember(till).json()["id"]
+    long_ago = datetime(2026, 9, 1, tzinfo=UTC)
+    with use_school(school):
+        Device.objects.filter(pk=device_id).update(last_seen_at=long_ago)
+
+    assert till.get("/api/sync/snapshot/").status_code == 200
+
+    with use_school(school):
+        assert Device.objects.get(pk=device_id).last_seen_at > long_ago

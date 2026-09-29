@@ -35,6 +35,7 @@ export const keys = {
   payments: ["payments"],
   credits: ["student-credits"],
   myDevices: ["my-devices"],
+  schoolDevices: ["school-devices"],
   /** L'appareil mémorisé dans ce navigateur (code PIN), pas le serveur. */
   localDevice: ["local-device"],
 } as const;
@@ -80,6 +81,7 @@ export async function attachDeviceAfterLogin(queryClient: QueryClient) {
     if (school) await keepForOfflineStart(me, school);
     reloadSync();
     await queryClient.invalidateQueries({ queryKey: keys.myDevices });
+    await queryClient.invalidateQueries({ queryKey: keys.schoolDevices });
     await queryClient.invalidateQueries({ queryKey: keys.localDevice });
   } catch {
     // Sans réseau ou sans WebCrypto : l'appareil sera repris à la prochaine connexion.

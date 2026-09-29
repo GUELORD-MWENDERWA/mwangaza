@@ -29,6 +29,16 @@ class DeviceSerializer(serializers.ModelSerializer):
         return str(device.pk) == self.context.get("current_device")
 
 
+class SchoolDeviceSerializer(DeviceSerializer):
+    """Un appareil de l'école (« Appareils et synchro », `roles.manage`)."""
+
+    user_name = serializers.CharField(source="user.__str__", help_text="Compte de l'appareil.")
+
+    class Meta(DeviceSerializer.Meta):
+        fields = [*DeviceSerializer.Meta.fields, "kind", "user_name"]
+        read_only_fields = fields
+
+
 class DeviceRegisterSerializer(serializers.Serializer):
     label = serializers.CharField(max_length=80, help_text="Ex. « Windows · Edge ».")
     public_key = serializers.CharField(
