@@ -90,7 +90,7 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         key: "credits",
         path: "credits",
         icon: "credit",
-        permissions: ["finance.view_reports"],
+        permissions: ["finance.view_reports", "finance.approve_cancellation"],
         task: "3.6",
       },
     ],

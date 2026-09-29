@@ -15,7 +15,7 @@ from apps.audit.models import AuditLog
 from apps.core.ids import uuid7
 from apps.core.tenancy import use_school
 from apps.finance import services as finance
-from apps.finance.models import CashSession, Payment, PaymentAllocation
+from apps.finance.models import CashSession, Payment, PaymentAllocation, StudentCredit
 from apps.finance.tests.test_charges import once, rule
 from apps.finance.tests.test_payments import school_with_fees
 from apps.students.tests.conftest import enrolled
@@ -245,7 +245,7 @@ def test_two_offline_tills_paying_the_same_fee_both_keep_the_money(
 ):
     """Deux caisses hors ligne encaissent pour le même élève : aucune n'est refusée. La
     seconde ne trouve plus rien à payer (sa répartition ne tient plus) : son argent n'est
-    affecté à rien (crédit de l'élève en 3.6)."""
+    affecté à rien et devient un crédit de l'élève (3.6.1), à traiter par le comptable."""
     other = MembershipFactory(school=school, roles=["cashier"]).user
     with use_school(school):
         register = finance.create_cash_register(actor=head, name="Caisse 2", code="C2")
@@ -269,8 +269,15 @@ def test_two_offline_tills_paying_the_same_fee_both_keep_the_money(
             for p in payments
         ]
         remaining = finance.balance(finance.charges_of(alpha["enrollment"].pk)).currencies
+        credit = StudentCredit.objects.get()
     assert [p.received_amount_minor for p in payments] == [36000, 12000]
     assert allocated == [36000, 0]
+    assert (credit.origin, credit.amount_minor, credit.currency) == (
+        "offline_surplus",
+        12000,
+        "USD",
+    )
+    assert credit.source_payment == payments[1]
     assert {(c.currency, c.remaining_minor) for c in remaining} == {("USD", 0), ("CDF", 25000)}
 
 

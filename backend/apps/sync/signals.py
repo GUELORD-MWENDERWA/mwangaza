@@ -12,6 +12,7 @@ from apps.finance.models import (
     Payment,
     PaymentCancellation,
     StudentCharge,
+    StudentCredit,
 )
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment, Student
@@ -24,6 +25,7 @@ ENROLLMENTS_OF = {
     Discount: lambda discount: [discount.enrollment_id],
     Payment: lambda payment: [payment.enrollment_id],
     PaymentCancellation: lambda cancellation: [cancellation.payment.enrollment_id],
+    StudentCredit: lambda credit: [credit.enrollment_id],
     Student: lambda student: Enrollment.all_schools.filter(
         school_id=student.school_id, student_id=student.pk
     ).values_list("pk", flat=True),

@@ -1285,6 +1285,85 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/student-credits/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Crédits d'élèves de l'année (M14), les plus récents d'abord : argent reçu en trop, jamais
+         *     perdu. Lire : `finance.view_reports` ou `finance.approve_cancellation` ; utiliser :
+         *     `finance.approve_cancellation`.
+         */
+        get: operations["student_credits_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/student-credits/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Crédits d'élèves de l'année (M14), les plus récents d'abord : argent reçu en trop, jamais
+         *     perdu. Lire : `finance.view_reports` ou `finance.approve_cancellation` ; utiliser :
+         *     `finance.approve_cancellation`.
+         */
+        get: operations["student_credits_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/student-credits/{id}/use/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Utiliser le crédit sur les échéances les plus anciennes de sa devise, sans paiement ;
+         *     409 `credit_used`, `credit_voided` ou `nothing_owed`.
+         */
+        post: operations["student_credits_use_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/student-credits/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Chiffres de l'écran : crédits à traiter, leur reste par devise, utilisés ce mois. */
+        get: operations["student_credits_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/student-imports/": {
         parameters: {
             query?: never;
@@ -1720,6 +1799,9 @@ export interface components {
          *     * `finance.cash_session_opened` - Cash session opened
          *     * `finance.payment_recorded` - Payment recorded
          *     * `finance.payment_reprinted` - Receipt reprinted
+         *     * `finance.credit_created` - Student credit created
+         *     * `finance.credit_used` - Student credit used
+         *     * `finance.credit_voided` - Student credit voided
          *     * `devices.registered` - Device remembered
          *     * `devices.revoked` - Device disconnected
          *     * `audit.exported` - Audit log exported
@@ -1727,7 +1809,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         Address: {
             commune: string;
             quartier: string;
@@ -1929,6 +2011,50 @@ export interface components {
          * @enum {integer}
          */
         CopiesEnum: 1 | 2;
+        CreditAllocation: {
+            /** Format: uuid */
+            student_charge: string;
+            readonly fee_type_name: string;
+            readonly label: string;
+            /** Format: date */
+            readonly due_on: string;
+            /**
+             * Amount
+             * Format: int64
+             */
+            amount_minor: number;
+            /** Format: date-time */
+            readonly created_at: string;
+            readonly created_by: components["schemas"]["Person"];
+        };
+        CreditAmount: {
+            currency: components["schemas"]["CurrencyEnum"];
+            amount_minor: number;
+        };
+        CreditProposal: {
+            /** Format: uuid */
+            student_charge: string;
+            fee_type_name: string;
+            label: string;
+            /** Format: date */
+            due_on: string;
+            amount_minor: number;
+        };
+        /**
+         * @description * `to_process` - to_process
+         *     * `used` - used
+         *     * `voided` - voided
+         * @enum {string}
+         */
+        CreditStateEnum: "to_process" | "used" | "voided";
+        CreditSummary: {
+            /** @description Crédits à traiter. */
+            to_process: number;
+            /** @description Reste des crédits à traiter. */
+            amounts: components["schemas"]["CreditAmount"][];
+            /** @description Crédits utilisés depuis le 1er du mois. */
+            used_this_month: number;
+        };
         CurrencyBalance: {
             currency: components["schemas"]["CurrencyEnum"];
             /** @description Dû pour l'année, après réductions. */
@@ -2626,6 +2752,12 @@ export interface components {
          * @enum {string}
          */
         OperationEnum: "upsert" | "delete";
+        /**
+         * @description * `offline_surplus` - Paid twice offline
+         *     * `discount` - Discount granted
+         * @enum {string}
+         */
+        OriginEnum: "offline_surplus" | "discount";
         Outcome: {
             /** Format: uuid */
             op_id: string;
@@ -2755,6 +2887,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["Staff"][];
+        };
+        PaginatedStudentCreditList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["StudentCredit"][];
         };
         PaginatedStudentHistoryList: {
             /** @example 123 */
@@ -3437,13 +3584,6 @@ export interface components {
             first_name: string;
         };
         /**
-         * @description * `paid` - paid
-         *     * `overdue` - overdue
-         *     * `upcoming` - upcoming
-         * @enum {string}
-         */
-        StateEnum: "paid" | "overdue" | "upcoming";
-        /**
          * @description * `password` - Phone number and password
          *     * `totp` - Two-factor authentication code
          *     * `new_password` - Replace the temporary password
@@ -3519,8 +3659,15 @@ export interface components {
              *     * `overdue` - overdue
              *     * `upcoming` - upcoming
              */
-            readonly state: (components["schemas"]["StateEnum"] | components["schemas"]["NullEnum"]) | null;
+            readonly state: (components["schemas"]["StudentChargeStateEnum"] | components["schemas"]["NullEnum"]) | null;
         };
+        /**
+         * @description * `paid` - paid
+         *     * `overdue` - overdue
+         *     * `upcoming` - upcoming
+         * @enum {string}
+         */
+        StudentChargeStateEnum: "paid" | "overdue" | "upcoming";
         /**
          * @description * `active` - Due
          *     * `removed` - Removed
@@ -3528,6 +3675,72 @@ export interface components {
          * @enum {string}
          */
         StudentChargeStatusEnum: "active" | "removed" | "replaced";
+        /**
+         * @description Crédit d'un élève, avec son origine : le reçu du paiement hors ligne en trop, ou la
+         *     réduction accordée sur des échéances déjà payées.
+         */
+        StudentCredit: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            enrollment: string;
+            readonly student: components["schemas"]["PaymentStudent"];
+            readonly class_group: string;
+            origin: components["schemas"]["OriginEnum"];
+            /**
+             * Amount
+             * Format: int64
+             */
+            amount_minor: number;
+            currency: components["schemas"]["CurrencyEnum"];
+            readonly used_minor: number;
+            readonly remaining_minor: number;
+            readonly state: components["schemas"]["CreditStateEnum"];
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            voided_at: string | null;
+            readonly receipt_number: string | null;
+            readonly cash_register_name: string | null;
+            /** Format: date-time */
+            readonly paid_at: string | null;
+            readonly discount_reason: string | null;
+            readonly discount_fee_type: string | null;
+        };
+        /**
+         * @description Crédit avec ses utilisations (justificatif) et ce que ferait « Utiliser le crédit »
+         *     (`proposal`, vide s'il n'est plus à traiter).
+         */
+        StudentCreditDetail: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            enrollment: string;
+            readonly student: components["schemas"]["PaymentStudent"];
+            readonly class_group: string;
+            origin: components["schemas"]["OriginEnum"];
+            /**
+             * Amount
+             * Format: int64
+             */
+            amount_minor: number;
+            currency: components["schemas"]["CurrencyEnum"];
+            readonly used_minor: number;
+            readonly remaining_minor: number;
+            readonly state: components["schemas"]["CreditStateEnum"];
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            voided_at: string | null;
+            readonly receipt_number: string | null;
+            readonly cash_register_name: string | null;
+            /** Format: date-time */
+            readonly paid_at: string | null;
+            readonly discount_reason: string | null;
+            readonly discount_fee_type: string | null;
+            readonly allocations: components["schemas"]["CreditAllocation"][];
+            readonly proposal: components["schemas"]["CreditProposal"][];
+        };
         /**
          * @description Une entrée du journal sur l'élève, ses inscriptions ou sa famille (onglet Historique) ;
          *     sans adresse IP ni navigateur, réservés au journal de l'école (`audit.view`).
@@ -4323,13 +4536,16 @@ export interface operations {
                  *     * `finance.cash_session_opened` - Cash session opened
                  *     * `finance.payment_recorded` - Payment recorded
                  *     * `finance.payment_reprinted` - Receipt reprinted
+                 *     * `finance.credit_created` - Student credit created
+                 *     * `finance.credit_used` - Student credit used
+                 *     * `finance.credit_voided` - Student credit voided
                  *     * `devices.registered` - Device remembered
                  *     * `devices.revoked` - Device disconnected
                  *     * `audit.exported` - Audit log exported
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -4532,13 +4748,16 @@ export interface operations {
                  *     * `finance.cash_session_opened` - Cash session opened
                  *     * `finance.payment_recorded` - Payment recorded
                  *     * `finance.payment_reprinted` - Receipt reprinted
+                 *     * `finance.credit_created` - Student credit created
+                 *     * `finance.credit_used` - Student credit used
+                 *     * `finance.credit_voided` - Student credit voided
                  *     * `devices.registered` - Device remembered
                  *     * `devices.revoked` - Device disconnected
                  *     * `audit.exported` - Audit log exported
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -8510,6 +8729,193 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StudentCharge"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    student_credits_list: {
+        parameters: {
+            query?: {
+                /** @description Absent : l'année en cours. */
+                academic_year?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /**
+                 * @description À traiter (défaut), utilisés, annulés ou tous.
+                 *
+                 *     * `to_process` - to_process
+                 *     * `used` - used
+                 *     * `voided` - voided
+                 *     * `all` - all
+                 */
+                state?: "to_process" | "used" | "voided" | "all";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedStudentCreditList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    student_credits_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this student credit. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentCreditDetail"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    student_credits_use_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this student credit. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentCreditDetail"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    student_credits_summary_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Absent : l'année en cours. */
+                academic_year?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreditSummary"];
                 };
             };
             400: {

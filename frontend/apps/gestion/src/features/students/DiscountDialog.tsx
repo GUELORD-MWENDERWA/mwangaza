@@ -23,6 +23,7 @@ import {
   Input,
   Segmented,
   Select,
+  StatusPill,
   Table,
 } from "@mwangaza/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -289,6 +290,8 @@ function DiscountForm({
                 <th className="text-right">{t("students.discount.columns.before")}</th>
                 <th className="text-right">{t("students.discount.columns.discount")}</th>
                 <th className="text-right">{t("students.discount.columns.after")}</th>
+                <th className="text-right">{t("students.discount.columns.paid")}</th>
+                <th>{t("students.discount.columns.effect")}</th>
               </tr>
             </thead>
             {concerned.map((group) => {
@@ -298,6 +301,8 @@ function DiscountForm({
               const cut = (charge: Charge) =>
                 (after.get(charge.id) ?? 0) - (before.get(charge.id) ?? 0);
               const sum = (pick: (charge: Charge) => number) => sumAmounts(group.map(pick));
+              // Payé au-delà du nouveau dû : crédit de l'élève (M14), jamais rendu d'office.
+              const left = (charge: Charge) => was(charge) - cut(charge) - charge.paid_minor;
               return (
                 <tbody key={group[0]!.id}>
                   {group.map((charge) => (
@@ -313,6 +318,20 @@ function DiscountForm({
                       <td className="num">{money(was(charge))}</td>
                       <td className="num">{`− ${money(cut(charge))}`}</td>
                       <td className="num font-bold">{money(was(charge) - cut(charge))}</td>
+                      <td className="num">{money(charge.paid_minor)}</td>
+                      <td>
+                        {left(charge) < 0 ? (
+                          <StatusPill tone="info">
+                            {t("students.discount.effects.credit", {
+                              amount: money(-left(charge)),
+                            })}
+                          </StatusPill>
+                        ) : (
+                          <StatusPill tone="gray">
+                            {t("students.discount.effects.rest", { amount: money(left(charge)) })}
+                          </StatusPill>
+                        )}
+                      </td>
                     </tr>
                   ))}
                   <tr className="bg-surface font-bold">
@@ -320,6 +339,8 @@ function DiscountForm({
                     <td className="num">{money(sum(was))}</td>
                     <td className="num">{`− ${money(sum(cut))}`}</td>
                     <td className="num">{money(sum(was) - sum(cut))}</td>
+                    <td className="num">{money(sum((charge) => charge.paid_minor))}</td>
+                    <td />
                   </tr>
                 </tbody>
               );

@@ -51,6 +51,9 @@ FINANCE_SET_EXCHANGE_RATE = "finance.set_exchange_rate"
 FINANCE_GRANT_DISCOUNT = "finance.grant_discount"
 FINANCE_COLLECT_PAYMENT = "finance.collect_payment"
 FINANCE_VIEW_REPORTS = "finance.view_reports"
+FINANCE_APPROVE_CANCELLATION = "finance.approve_cancellation"
+# Crédits d'élèves (M14) : lus avec l'un de ces droits ; utilisés avec le second.
+CREDITS_READ = (FINANCE_VIEW_REPORTS, FINANCE_APPROVE_CANCELLATION)
 # Écran « Frais et barèmes » (entrée du menu) : lu avec l'un de ces droits.
 FEES_READ = (FINANCE_CONFIGURE_FEES, FINANCE_SET_EXCHANGE_RATE, FINANCE_GRANT_DISCOUNT)
 # Frais dus d'un élève (fiche, caisse, réductions) : lus avec l'un de ces droits.

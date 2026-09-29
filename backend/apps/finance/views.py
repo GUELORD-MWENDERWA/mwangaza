@@ -8,7 +8,9 @@ from rest_framework.response import Response
 from apps.accounts.permissions import school_access
 from apps.accounts.roles import (
     CHARGES_READ,
+    CREDITS_READ,
     FEES_READ,
+    FINANCE_APPROVE_CANCELLATION,
     FINANCE_COLLECT_PAYMENT,
     FINANCE_CONFIGURE_FEES,
     FINANCE_GRANT_DISCOUNT,
@@ -21,11 +23,13 @@ from apps.finance import services
 from apps.finance.models import (
     CashRegister,
     CashSession,
+    CreditAllocation,
     Discount,
     ExchangeRate,
     FeeRule,
     FeeType,
     Payment,
+    StudentCredit,
 )
 from apps.finance.serializers import (
     BalanceSerializer,
@@ -34,6 +38,7 @@ from apps.finance.serializers import (
     CashRegisterUpdateSerializer,
     CashSessionOpenSerializer,
     CashSessionSerializer,
+    CreditSummarySerializer,
     CurrentCashSessionSerializer,
     DiscountCreateSerializer,
     DiscountRevokeSerializer,
@@ -52,6 +57,9 @@ from apps.finance.serializers import (
     RescheduleSerializer,
     StudentChargeFilterSerializer,
     StudentChargeSerializer,
+    StudentCreditDetailSerializer,
+    StudentCreditFilterSerializer,
+    StudentCreditSerializer,
     YearFilterSerializer,
 )
 from apps.schools import organisation
@@ -537,3 +545,84 @@ class PaymentViewSet(
     def _receipt(self, payment: Payment, status_code=status.HTTP_200_OK) -> Response:
         payment.balance_after = services.balance_after(payment)
         return Response(PaymentReceiptSerializer(payment).data, status=status_code)
+
+
+# Crédits d'élèves (3.6.1, M14)
+
+
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[StudentCreditFilterSerializer],
+        responses={200: StudentCreditSerializer(many=True), **INVALID, **ERRORS},
+    ),
+    retrieve=extend_schema(responses={200: StudentCreditDetailSerializer, **ERRORS}),
+)
+@extend_schema(tags=["finance"])
+class StudentCreditViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolViewSet):
+    """Crédits d'élèves de l'année (M14), les plus récents d'abord : argent reçu en trop, jamais
+    perdu. Lire : `finance.view_reports` ou `finance.approve_cancellation` ; utiliser :
+    `finance.approve_cancellation`."""
+
+    serializer_class = StudentCreditSerializer
+
+    @property
+    def required_permission(self) -> str | tuple[str, ...]:
+        return FINANCE_APPROVE_CANCELLATION if self.action == "use" else CREDITS_READ
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return StudentCredit.all_schools.none()
+        items = services.credits()
+        if self.action != "list":
+            return items.prefetch_related(
+                Prefetch(
+                    "allocations",
+                    queryset=CreditAllocation.objects.select_related(
+                        "student_charge__fee_type", "created_by"
+                    ).order_by("created_at", "student_charge__due_on"),
+                )
+            )
+        params = StudentCreditFilterSerializer(data=self.request.query_params)
+        params.is_valid(raise_exception=True)
+        year = params.validated_data.get("academic_year") or organisation.current_year()
+        items = items.filter(enrollment__academic_year=year).order_by("-created_at", "-id")
+        state = params.validated_data["state"]
+        return items if state == "all" else services.with_state(items, state)
+
+    def retrieve(self, request: Request, pk=None) -> Response:
+        return self._detail(self.get_object())
+
+    @extend_schema(
+        parameters=[YearFilterSerializer],
+        responses={200: CreditSummarySerializer, **INVALID, **ERRORS},
+    )
+    @action(detail=False)
+    def summary(self, request: Request) -> Response:
+        """Chiffres de l'écran : crédits à traiter, leur reste par devise, utilisés ce mois."""
+        params = YearFilterSerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        year = params.validated_data.get("academic_year") or organisation.current_year()
+        return Response(CreditSummarySerializer(services.credits_summary(year)).data)
+
+    @extend_schema(
+        request=None, responses={200: StudentCreditDetailSerializer, **CONFLICT, **ERRORS}
+    )
+    @action(detail=True, methods=["post"])
+    def use(self, request: Request, pk=None) -> Response:
+        """Utiliser le crédit sur les échéances les plus anciennes de sa devise, sans paiement ;
+        409 `credit_used`, `credit_voided` ou `nothing_owed`."""
+        services.use_credit(self.get_object(), actor=request.user)
+        return self._detail(self.get_queryset().get(pk=pk))
+
+    def _detail(self, credit: StudentCredit) -> Response:
+        credit.proposal = [
+            {
+                "student_charge": charge.pk,
+                "fee_type_name": charge.fee_type.name,
+                "label": charge.label,
+                "due_on": charge.due_on,
+                "amount_minor": amount,
+            }
+            for charge, _part, amount in services.credit_proposal(credit)
+        ]
+        return Response(StudentCreditDetailSerializer(credit).data)
