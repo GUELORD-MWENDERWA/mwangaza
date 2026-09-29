@@ -1,10 +1,12 @@
 // Caisse d'un appareil mémorisé (F5, 3.5) : la base de l'appareil lue en direct (chaque
-// synchronisation et chaque encaissement mettent l'écran à jour) ; un encaissement s'écrit dans
-// la file d'opérations, avec ou sans réseau, puis part au serveur tout de suite s'il y en a un.
+// synchronisation et chaque encaissement mettent l'écran à jour) ; ouverture, encaissement et
+// réimpression s'écrivent dans la file d'opérations, avec ou sans réseau, puis partent au
+// serveur tout de suite s'il y en a un.
 import type { Schemas } from "@mwangaza/api";
 import { liveQuery } from "dexie";
 import { useEffect, useState } from "react";
 
+import { uuidv7 } from "../../lib/ids";
 import type { LocalDb, LocalEnrollment, QueuedOperation } from "../../lib/sync/db";
 import type { Config } from "../../lib/sync/engine";
 import { syncNow } from "../../lib/sync/session";
@@ -65,9 +67,52 @@ export function useLocalCash(db: LocalDb): Live<LocalCash> {
   return { data: { ...state.data, queued: queue.data } };
 }
 
-/** Session lue en ligne : gardée pour continuer sans réseau. */
-export async function saveSession(db: LocalDb, value: Schemas["CurrentCashSession"]) {
-  await db.cash.put({ id: "session", value });
+/** Session lue en ligne à `readAt` : gardée pour continuer sans réseau, sauf si l'appareil en
+ *  sait déjà plus récent (ouverture acceptée entre-temps). */
+export async function saveSession(
+  db: LocalDb,
+  value: Schemas["CurrentCashSession"],
+  readAt: number,
+) {
+  await db.transaction("rw", db.cash, async () => {
+    const saved = await db.cash.get("session");
+    if ((saved?.readAt ?? 0) <= readAt) await db.cash.put({ id: "session", value, readAt });
+  });
+}
+
+/** Ouverture de caisse sur l'appareil (M13), avec ou sans réseau : l'opération porte la session
+ *  (`op_id` = son `id` : un double appui n'ouvre qu'une fois). Puis envoi aussitôt. */
+export async function openOffline(db: LocalDb, session: Schemas["CashSession"]) {
+  await db.transaction("rw", db.outbox, async () => {
+    if (await db.outbox.where("op_id").equals(session.id).count()) return;
+    await db.outbox.add({
+      op_id: session.id,
+      type: "cash_session.open",
+      payload: {
+        id: session.id,
+        cash_register: session.cash_register.id,
+        opened_at: session.opened_at,
+      },
+      created_at: session.opened_at,
+      status: "pending",
+      error: null,
+      session,
+    });
+  });
+  void syncNow();
+}
+
+/** Duplicata imprimé sur l'appareil (F6) : noté au journal du serveur par la file. */
+export async function queueReprint(db: LocalDb, payment: string, reprintedAt: string) {
+  await db.outbox.add({
+    op_id: uuidv7(),
+    type: "payment.reprint",
+    payload: { payment, reprinted_at: reprintedAt },
+    created_at: reprintedAt,
+    status: "pending",
+    error: null,
+  });
+  void syncNow();
 }
 
 /** Encaissement sur l'appareil : numéro suivant de l'appareil et opération de la file dans une

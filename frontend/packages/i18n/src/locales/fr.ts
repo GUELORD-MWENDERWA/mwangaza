@@ -1521,6 +1521,8 @@ export const fr = {
       rate: "Taux de l'année",
       submit: "Ouvrir la caisse {{code}}",
       responsible: "Vous êtes responsable de l'argent de cette caisse jusqu'à sa clôture.",
+      refused:
+        "Votre dernière ouverture de caisse a été refusée par le serveur : {{reason}} Choisissez une caisse libre.",
       printer: "Imprimante",
       test: "Test",
       testLabel: "Imprimer un reçu d'essai",
@@ -1548,9 +1550,9 @@ export const fr = {
       reprint: "Réimprimer",
     },
     offline: {
-      closedTitle: "Caisse fermée, pas de connexion",
+      closedTitle: "Caisse jamais ouverte sur cet appareil",
       closedText:
-        "Ouvrez la caisse une fois avec internet : ensuite, elle continue sans réseau. L'ouverture sans réseau arrive bientôt.",
+        "Ouvrez la caisse une première fois avec internet : l'appareil garde alors les caisses et le taux, et s'ouvre ensuite aussi sans réseau.",
       storageTag: "Stockage persistant refusé",
       missingTitle: "Élève introuvable sur cet appareil",
       missingText:

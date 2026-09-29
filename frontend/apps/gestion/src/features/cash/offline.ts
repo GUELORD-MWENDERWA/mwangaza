@@ -6,6 +6,7 @@ import type { Currency } from "@mwangaza/money";
 
 import { studentName } from "../../lib/people";
 import type { LocalEnrollment, QueuedOperation } from "../../lib/sync/db";
+import type { Config } from "../../lib/sync/engine";
 import type { Line } from "./allocation";
 import type { Receipt } from "./Receipt";
 
@@ -236,6 +237,47 @@ export function offlineReceipt(input: {
     allocations,
     academic_year: input.academicYear,
     balance: balanceOf(settle(input.charges, allocations, input.day)),
+  };
+}
+
+/** Duplicata (F6) d'un paiement de l'inscription, fait sur l'appareil : le reçu du serveur
+ *  (`balance_after`) — solde juste après ce paiement, avec les paiements encaissés jusqu'à lui
+ *  (serveur et file, sauf annulés ou refusés), retard au jour du paiement. Paiement de la file :
+ *  son propre reçu. */
+export function duplicateReceipt(
+  enrollment: LocalEnrollment,
+  paymentId: string,
+  queued: QueuedOperation[],
+  config: Config | null,
+  timeZone: string,
+): Receipt | null {
+  const recorded = enrollment.payments ?? [];
+  const known = new Set(recorded.map((payment) => payment.id));
+  const local = queuedReceipts(queued, known).filter((r) => r.enrollment === enrollment.id);
+  const own = local.find((receipt) => receipt.id === paymentId);
+  if (own) return own;
+  const payment = recorded.find((item) => item.id === paymentId);
+  if (!payment) return null;
+  const at = (item: Payment) => [Date.parse(item.paid_at), item.id] as const;
+  const [time, id] = at(payment);
+  const upTo = [...recorded.filter((item) => !item.cancelled), ...local].filter((item) => {
+    const [itemTime, itemId] = at(item);
+    return itemTime < time || (itemTime === time && itemId <= id);
+  });
+  const charges = (enrollment.charges ?? []).map((charge) => ({ ...charge, paid_minor: 0 }));
+  const day = schoolDay(timeZone, new Date(payment.paid_at));
+  const register = config?.cash_registers?.find((item) => item.code === payment.cash_register);
+  return {
+    ...payment,
+    cash_register_name: register?.name ?? payment.cash_register,
+    academic_year: config?.academic_year?.name ?? "",
+    balance: balanceOf(
+      settle(
+        charges,
+        upTo.flatMap((item) => item.allocations),
+        day,
+      ),
+    ),
   };
 }
 

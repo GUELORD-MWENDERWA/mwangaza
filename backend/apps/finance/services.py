@@ -1067,10 +1067,13 @@ def open_session_of(user: User) -> CashSession | None:
     )
 
 
-def open_cash_session(*, actor: User, cash_register: CashRegister, session_id=None) -> CashSession:
+def open_cash_session(
+    *, actor: User, cash_register: CashRegister, session_id=None, opened_at: datetime | None = None
+) -> CashSession:
     """Ouvre une caisse pour le caissier (M13) : une seule session ouverte par caisse et par
     caissier, jusqu'à la clôture (3.8). `session_id` : identifiant donné par l'appareil ; la
-    même ouverture envoyée deux fois renvoie la même session."""
+    même ouverture envoyée deux fois renvoie la même session. `opened_at` : heure de l'appareil
+    d'une ouverture hors ligne (3.5.2)."""
     with transaction.atomic():
         register = CashRegister.objects.select_for_update().get(pk=cash_register.pk)
         current = open_session_of(actor)
@@ -1084,6 +1087,7 @@ def open_cash_session(*, actor: User, cash_register: CashRegister, session_id=No
             raise BusinessError(CASH_REGISTER_BUSY)
         session = CashSession.objects.create(
             **({"id": session_id} if session_id else {}),
+            **({"opened_at": opened_at} if opened_at else {}),
             cash_register=register,
             cashier=actor,
             created_by=actor,
@@ -1094,6 +1098,7 @@ def open_cash_session(*, actor: User, cash_register: CashRegister, session_id=No
             actor=actor,
             after={"cash_register": register.code},
             label=str(register),
+            device_time=opened_at,
         )
     return open_session_of(actor)
 
@@ -1406,14 +1411,17 @@ def receipt_payments() -> QuerySet[Payment]:
     )
 
 
-def reprint_payment(payment: Payment, *, actor: User) -> None:
+def reprint_payment(payment: Payment, *, actor: User, device_time: datetime | None = None) -> None:
     """Réimpression d'un reçu (F6) : un duplicata, noté au journal ; refusée pour un paiement
-    annulé (son reçu n'est plus valable)."""
-    if PaymentCancellation.objects.filter(payment=payment).exists():
+    annulé (son reçu n'est plus valable). Hors ligne (`device_time`, 3.5.2), le duplicata est
+    déjà imprimé : toujours noté, même si le paiement a été annulé depuis la dernière
+    synchronisation de l'appareil (son QR code le dit annulé)."""
+    if device_time is None and PaymentCancellation.objects.filter(payment=payment).exists():
         raise BusinessError(PAYMENT_CANCELLED)
     audit.record(
         Action.FINANCE_PAYMENT_REPRINTED,
         payment,
         actor=actor,
         label=f"{payment.receipt_number} · {payment.enrollment.student}",
+        device_time=device_time,
     )

@@ -21,30 +21,38 @@ with use_school(School.objects.get(code="itig")):
   return { matricule: matricule!, name: name!.replace(/\s+/g, " ") };
 }
 
-/** Paiements de l'élève enregistrés sur le serveur (numéros de reçus) et ce qu'il a payé en
- *  dollars d'après son solde. */
-function serverPayments(matricule: string): { receipts: string[]; paidUsd: number } {
+/** Paiements de l'élève enregistrés sur le serveur (numéros de reçus), ce qu'il a payé en
+ *  dollars d'après son solde, et les duplicatas notés au journal à l'heure de l'appareil. */
+function serverPayments(matricule: string): {
+  receipts: string[];
+  paidUsd: number;
+  reprints: number;
+} {
   const output = manage(
     "shell",
     "-c",
-    `from apps.core.tenancy import use_school
+    `from apps.audit.models import AuditLog
+from apps.core.tenancy import use_school
 from apps.finance import services
 from apps.finance.models import Payment
 from apps.schools.models import School
 from apps.students.models import Enrollment
 with use_school(School.objects.get(code="itig")):
     e = Enrollment.objects.get(student__matricule="${matricule}", status="active")
-    receipts = Payment.objects.filter(enrollment=e).order_by("receipt_number").values_list("receipt_number", flat=True)
+    payments = Payment.objects.filter(enrollment=e).order_by("receipt_number")
+    receipts = payments.values_list("receipt_number", flat=True)
     usd = next(c for c in services.balance(services.charges_of(e.pk)).currencies if c.currency == "USD")
-    print(" ".join(receipts), "|", usd.paid_minor)`,
+    reprints = AuditLog.objects.filter(action="finance.payment_reprinted", entity_id__in=payments.values("pk"), device_time__isnull=False).count()
+    print(" ".join(receipts), "|", usd.paid_minor, "|", reprints)`,
   );
-  const [receipts, paid] = output.trim().split("\n").at(-1)!.split(" | ");
-  return { receipts: receipts!.split(" "), paidUsd: Number(paid) };
+  const [receipts, paid, reprints] = output.trim().split("\n").at(-1)!.split(" | ");
+  return { receipts: receipts!.split(" "), paidUsd: Number(paid), reprints: Number(reprints) };
 }
 
-test("caissière : ouvre sa caisse, encaisse en ligne puis sans réseau, aucun doublon au retour (3.5.1)", async ({
+test("caissière sans réseau : ouvre sa caisse, encaisse deux fois, réimprime ; reçus vérifiables, aucun doublon au retour (3.5)", async ({
   page,
   context,
+  request,
 }) => {
   const student = unpaidStudent();
   // Pas de fenêtre d'impression : on garde ce qui serait imprimé. Stockage persistant accordé
@@ -53,6 +61,8 @@ test("caissière : ouvre sa caisse, encaisse en ligne puis sans réseau, aucun d
     window.print = () => {
       document.body.dataset.prints = String(Number(document.body.dataset.prints ?? 0) + 1);
       document.body.dataset.printed = document.querySelector(".print-area")?.textContent ?? "";
+      const qr = document.querySelector<HTMLElement>(".print-area .receipt__qr");
+      document.body.dataset.qr = qr?.dataset.url ?? "";
     };
     navigator.storage.persist = async () => true;
     navigator.storage.persisted = async () => true;
@@ -66,8 +76,10 @@ test("caissière : ouvre sa caisse, encaisse en ligne puis sans réseau, aucun d
   const indicator = page.getByRole("status").filter({ hasText: /ligne|Synchronisation/ });
   await expect(indicator).toHaveText("En ligne · à jour", { timeout: 30_000 });
 
-  // `make demo` a clôturé les sessions : la caisse s'ouvre (en ligne).
+  // `make demo` a clôturé les sessions. Réseau coupé : la caisse s'ouvre sur l'appareil.
   await expect(page.getByRole("heading", { name: "Ouvrir la caisse" })).toBeVisible();
+  await context.setOffline(true);
+  await expect(indicator).toHaveText("Hors ligne");
   await page.getByRole("button", { name: /^Ouvrir la caisse C/ }).click();
   await expect(page.getByText(/Session ouverte à .* · 0 paiement$/)).toBeVisible();
 
@@ -84,38 +96,46 @@ test("caissière : ouvre sa caisse, encaisse en ligne puis sans réseau, aucun d
     return (await recorded.textContent())!.match(/ITIG-P\d+-26-\d{6}/)![0];
   }
 
+  // Reçus imprimés aussitôt, numéros consécutifs de l'appareil, montant en lettres.
   const first = await collect("10");
-  // Un seul reçu imprimé, avec le montant en lettres.
   const body = page.locator("body");
   await expect(body).toHaveAttribute("data-printed", new RegExp(`Reçu n° ${first}.*Dix dollars`));
   await expect(body).toHaveAttribute("data-prints", "1");
-  await expect(indicator).toHaveText("En ligne · à jour");
-
-  // Réseau coupé : on encaisse toujours, reçus imprimés avec les numéros suivants de l'appareil.
-  await context.setOffline(true);
-  await expect(indicator).toHaveText("Hors ligne");
+  const firstQr = (await body.getAttribute("data-qr"))!;
   const second = await collect("5");
   await expect(body).toHaveAttribute("data-prints", "2");
-  const third = await collect("5");
-  await expect(body).toHaveAttribute("data-prints", "3");
-  const seq = (number: string) => Number(number.slice(-6));
-  expect([seq(second), seq(third)]).toEqual([seq(first) + 1, seq(first) + 2]);
-  await expect(indicator).toHaveText("Hors ligne · 2 en attente");
+  expect(Number(second.slice(-6))).toBe(Number(first.slice(-6)) + 1);
+
+  // Duplicata sans réseau, imprimé sur l'appareil.
   const today = page.locator("section", {
     has: page.getByRole("heading", { name: "Paiements du jour" }),
   });
+  await today.getByRole("button", { name: `Réimprimer le reçu ${first}` }).click();
+  await expect(body).toHaveAttribute("data-prints", "3");
+  await expect(body).toHaveAttribute("data-printed", new RegExp(`Duplicata.*Reçu n° ${first}`));
+  await expect(indicator).toHaveText("Hors ligne · 4 en attente");
   await expect(today.getByRole("row", { name: /en attente/ })).toHaveCount(2);
-  await expect(page.getByText(/Session ouverte à .* · 3 paiements$/)).toBeVisible();
 
-  // Retour du réseau : envoyés une seule fois, soldes justes sur le serveur.
+  // Le QR code signé par l'appareil suffit à vérifier le reçu avant la synchronisation.
+  expect(firstQr).toContain(`n=${first}`);
+  const verify = async () => (await request.get(firstQr)).text();
+  expect(await verify()).toContain("Reçu authentique, en attente de synchronisation");
+  expect(await (await request.get(firstQr.replace("a=1000", "a=10000"))).text()).toContain(
+    "Reçu falsifié",
+  );
+
+  // Retour du réseau : ouverture, paiements et duplicata envoyés une seule fois.
   await context.setOffline(false);
   await expect(indicator).toHaveText("En ligne · à jour", { timeout: 30_000 });
   await expect(today.getByRole("row", { name: /en attente/ })).toHaveCount(0);
   await expect(
     today.getByRole("row", { name: new RegExp(`${student.name}.*enregistré`, "i") }),
-  ).toHaveCount(3);
+  ).toHaveCount(2);
+  await expect(page.getByText(/Session ouverte à .* · 2 paiements$/)).toBeVisible();
   expect(serverPayments(student.matricule)).toEqual({
-    receipts: [first, second, third],
-    paidUsd: 2000,
+    receipts: [first, second],
+    paidUsd: 1500,
+    reprints: 1,
   });
+  expect(await verify()).toContain("Reçu authentique</h1>");
 });

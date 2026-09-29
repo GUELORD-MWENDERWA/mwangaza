@@ -1,8 +1,8 @@
 // Caisse (F1-F2, F5, M13) : sans caisse ouverte, l'écran d'ouverture (maquette
 // `caisse-ouverture`) ; sinon l'accueil de la caisse, qui devient l'encaissement quand un élève
 // est choisi. Appareil mémorisé : la caisse lit et écrit la base de l'appareil, avec ou sans
-// réseau (3.5.1) ; sinon, en ligne. Ouverture hors ligne : 3.5.2 ; clôture : 3.8.
-import { api, call } from "@mwangaza/api";
+// réseau, ouverture comprise (3.5) ; sinon, en ligne. Clôture : 3.8.
+import { api, call, type Schemas } from "@mwangaza/api";
 import { formatTime, useTranslation } from "@mwangaza/i18n";
 import { formatRate } from "@mwangaza/money";
 import {
@@ -34,8 +34,13 @@ import { requestPersistence, useSyncStatus } from "../../lib/sync/session";
 import { chooseOnlineOnly, onlineOnlyChosen } from "../shell/SyncMenu";
 import { LoadError } from "../status/StatusPages";
 import { CashDesk } from "./CashDesk";
-import { type CurrentSession, useCashRegisters, useCurrentSession } from "./data";
-import { saveSession, useLocalCash } from "./localData";
+import {
+  type CashRegister,
+  type CurrentSession,
+  useCashRegisters,
+  useCurrentSession,
+} from "./data";
+import { openOffline, saveSession, useLocalCash } from "./localData";
 import { sampleReceipt, useReceiptPrinter } from "./Receipt";
 
 export function CashPage() {
@@ -69,38 +74,51 @@ function ServerCash() {
   );
 }
 
-/** Session lue en ligne quand le serveur répond, sinon la dernière gardée sur l'appareil. */
+/** Session gardée sur l'appareil (lue en ligne, ou ouverture acceptée par le serveur), sinon
+ *  celle ouverte ici et pas encore acceptée. */
 function DeviceCash({ db, prefix }: { db: LocalDb; prefix: string }) {
   const { t } = useTranslation();
   const local = useLocalCash(db);
   const current = useCurrentSession();
+  const { data, dataUpdatedAt, refetch } = current;
   useEffect(() => {
-    if (current.data) void saveSession(db, current.data);
-  }, [db, current.data]);
+    if (data) void saveSession(db, data, dataUpdatedAt);
+  }, [db, data, dataUpdatedAt]);
+  const opening = local.data?.queued.filter((op) => op.type === "cash_session.open").at(-1);
+  const accepted = opening?.status === "sent";
+  // Ouverture acceptée : la session du serveur est relue (une lecture partie avant est annulée).
+  useEffect(() => {
+    if (accepted) void refetch();
+  }, [accepted, refetch]);
   const offline = hasCode(current.error, "network");
   if (current.error && !offline)
-    return <LoadError error={current.error} onRetry={() => void current.refetch()} />;
+    return <LoadError error={current.error} onRetry={() => void refetch()} />;
   if (local.error) return <LoadError error={local.error} onRetry={() => location.reload()} />;
   if (!local.data) return <Skeleton label={t("common.loading")} />;
-  const known = current.data ?? local.data.saved;
+  const known = local.data.saved ?? data;
   if (!known)
     return offline ? (
-      <NeedsNetwork onRetry={() => void current.refetch()} />
+      <NeedsNetwork onRetry={() => void refetch()} />
     ) : (
       <Skeleton label={t("common.loading")} />
     );
-  if (!known.session)
-    return current.data ? (
-      <OpenSession current={known} />
-    ) : (
-      <NeedsNetwork onRetry={() => void current.refetch()} />
+  const refused = opening?.status === "rejected";
+  const session = known.session ?? (refused ? undefined : opening?.session);
+  if (!session)
+    return (
+      <OpenSession
+        current={known}
+        device={{
+          db,
+          registers: local.data.config?.cash_registers ?? [],
+          refused: refused ? opening.error : null,
+        }}
+      />
     );
-  return (
-    <CashDesk current={known} session={known.session} device={{ db, prefix, local: local.data }} />
-  );
+  return <CashDesk current={known} session={session} device={{ db, prefix, local: local.data }} />;
 }
 
-/** Caisse fermée et pas de réseau : l'ouverture hors ligne vient en 3.5.2. */
+/** Caisse jamais ouverte sur cet appareil et pas de réseau : ni taux ni caisses connus. */
 function NeedsNetwork({ onRetry }: { onRetry: () => void }) {
   const { t } = useTranslation();
   return (
@@ -153,7 +171,15 @@ export function RateBanner({ current }: { current: CurrentSession }) {
   );
 }
 
-function OpenSession({ current }: { current: CurrentSession }) {
+/** Appareil mémorisé : caisses de la configuration de l'appareil (occupées ou libres si le
+ *  serveur répond), ouverture par la file ; `refused` : dernière ouverture refusée. */
+type DeviceOpening = {
+  db: LocalDb;
+  registers: Schemas["CashRegister"][];
+  refused: Schemas["Error"] | null;
+};
+
+function OpenSession({ current, device }: { current: CurrentSession; device?: DeviceOpening }) {
   const { t, i18n } = useTranslation();
   const me = useCurrentMe();
   const school = useCurrentSchool();
@@ -171,10 +197,25 @@ function OpenSession({ current }: { current: CurrentSession }) {
     onError: () => void registers.refetch(),
   });
 
-  if (registers.error)
+  const submit = (register: CashRegister) => {
+    if (!device) return open.mutate(register.id);
+    const { id, name, code, is_active } = register;
+    const { last_name, middle_name, first_name } = me;
+    void openOffline(device.db, {
+      id: sessionId,
+      cash_register: { id, name, code, is_active },
+      cashier: { id: me.id, last_name, middle_name, first_name },
+      opened_at: new Date().toISOString(),
+      closed_at: null,
+    });
+  };
+
+  const list =
+    registers.data ?? device?.registers.map((register) => ({ ...register, open_session: null }));
+  if (!list && registers.error)
     return <LoadError error={registers.error} onRetry={() => void registers.refetch()} />;
-  if (!registers.data) return <Skeleton label={t("common.loading")} />;
-  const active = registers.data.filter((register) => register.is_active);
+  if (!list) return <Skeleton label={t("common.loading")} />;
+  const active = list.filter((register) => register.is_active);
   const free = active.filter((register) => !register.open_session);
   const selected = free.find((register) => register.id === chosen) ?? free[0];
   const header = (
@@ -198,6 +239,9 @@ function OpenSession({ current }: { current: CurrentSession }) {
       {header}
       <RateBanner current={current} />
       {open.error && <Banner tone="due">{errorMessage(open.error, t)}</Banner>}
+      {device?.refused && (
+        <Banner tone="due">{t("cash.open.refused", { reason: device.refused.detail })}</Banner>
+      )}
       <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 min-[900px]:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
         <Card>
           <CardHeader>
@@ -290,7 +334,7 @@ function OpenSession({ current }: { current: CurrentSession }) {
           <Button
             size="xl"
             disabled={!selected || open.isPending}
-            onClick={() => selected && open.mutate(selected.id)}
+            onClick={() => selected && submit(selected)}
           >
             <Icon name="cash" size={22} />
             {t("cash.open.submit", { code: selected?.code ?? "" })}

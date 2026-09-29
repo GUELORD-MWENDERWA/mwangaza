@@ -1511,6 +1511,8 @@ export const en: Messages<typeof fr> = {
       rate: "Rate of the year",
       submit: "Open cash register {{code}}",
       responsible: "You are responsible for the money in this cash register until it is closed.",
+      refused:
+        "Your last cash register opening was refused by the server: {{reason}} Choose a free cash register.",
       printer: "Printer",
       test: "Test",
       testLabel: "Print a test receipt",
@@ -1538,9 +1540,9 @@ export const en: Messages<typeof fr> = {
       reprint: "Reprint",
     },
     offline: {
-      closedTitle: "Cash register closed, no connection",
+      closedTitle: "Cash register never opened on this device",
       closedText:
-        "Open the cash register once with internet: after that, it keeps working without a network. Opening without a network is coming soon.",
+        "Open the cash register once with internet: the device then keeps the cash registers and the rate, and can open without a network afterwards.",
       storageTag: "Persistent storage refused",
       missingTitle: "Student not found on this device",
       missingText:

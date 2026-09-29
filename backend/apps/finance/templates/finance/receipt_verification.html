@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>{% translate "Receipt verification" %} · Mwangaza</title>
 <style>
-:root { --basalt: #2B2724; --basalt-2: #3A3531; --basalt-ink: #EDE8E3; --lamp: #F2B632; --ink: #1A2233; --ink-3: #77818F; --surface: #F3F5F6; --line: #DDE3E6; --ok: #1F7A4D; --ok-50: #E5F3EB; --due: #B42318; --due-50: #FBE9E7; }
+:root { --basalt: #2B2724; --basalt-2: #3A3531; --basalt-ink: #EDE8E3; --lamp: #F2B632; --ink: #1A2233; --ink-3: #77818F; --surface: #F3F5F6; --line: #DDE3E6; --ok: #1F7A4D; --ok-50: #E5F3EB; --due: #B42318; --due-50: #FBE9E7; --warn: #9A5B00; --warn-50: #FFF1D6; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--surface); color: var(--ink); font: 15px/1.45 "Atkinson Hyperlegible", system-ui, sans-serif; }
 .phone { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
@@ -19,8 +19,10 @@ main { padding: 16px; }
 .state { text-align: center; }
 .icon { width: 72px; height: 72px; border-radius: 50%; margin: 4px auto 0; display: grid; place-items: center; background: var(--due-50); color: var(--due); }
 [data-state="valid"] .icon { background: var(--ok-50); color: var(--ok); }
+[data-state="pending"] .icon { background: var(--warn-50); color: var(--warn); }
 h1 { font-size: 1.4rem; margin: 12px 0 4px; }
-[data-state="cancelled"] h1, [data-state="unknown"] h1 { color: var(--due); }
+[data-state="cancelled"] h1, [data-state="forged"] h1, [data-state="unknown"] h1 { color: var(--due); }
+[data-state="pending"] h1 { color: var(--warn); }
 .state p { margin: 0; color: var(--ink-3); font-size: .85rem; }
 dl { margin: 12px 0 0; }
 dl div { display: flex; justify-content: space-between; gap: 10px; padding: 12px 0; border-bottom: 1px solid #EDF1F2; font-size: .85rem; }
@@ -40,6 +42,7 @@ dd { margin: 0; font-weight: 700; text-align: right; font-variant-numeric: tabul
   <div class="state">
     <div class="icon" aria-hidden="true">
       {% if state == "valid" %}<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      {% elif state == "pending" %}<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
       {% else %}<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>{% endif %}
     </div>
     {% if state == "valid" %}
@@ -48,17 +51,23 @@ dd { margin: 0; font-weight: 700; text-align: right; font-variant-numeric: tabul
     {% elif state == "cancelled" %}
     <h1>{% blocktranslate with date=cancelled_at|date:"d/m/Y" %}Receipt cancelled on {{ date }}{% endblocktranslate %}</h1>
     <p>{% translate "This receipt was issued by the school, then cancelled: it no longer counts as a payment." %}</p>
+    {% elif state == "pending" %}
+    <h1>{% translate "Authentic receipt, awaiting synchronisation" %}</h1>
+    <p>{% blocktranslate with register=register date=paid_at|date:"d/m/Y H:i" %}Issued offline by cash register {{ register }} on {{ date }}, signed by the school's device. It will appear here once the device is back online.{% endblocktranslate %}</p>
+    {% elif state == "forged" %}
+    <h1>{% translate "Forged receipt" %}</h1>
+    <p>{% blocktranslate with school=school_name %}This code does not match any receipt issued by {{ school }}: the receipt was altered. Check with the school.{% endblocktranslate %}</p>
     {% else %}
     <h1>{% translate "Unknown receipt" %}</h1>
     <p>{% blocktranslate with school=school_name %}No receipt of {{ school }} matches this code. This receipt may be false: check with the school.{% endblocktranslate %}</p>
     {% endif %}
   </div>
-  {% if state != "unknown" %}
+  {% if receipt_number %}
   <dl>
     <div><dt>{% translate "School" %}</dt><dd>{{ school_name }}</dd></div>
     <div><dt>{% translate "Number" %}</dt><dd>{{ receipt_number }}</dd></div>
     <div><dt>{% translate "Date" %}</dt><dd>{{ paid_at|date:"d/m/Y H:i" }}</dd></div>
-    <div><dt>{% translate "Student" %}</dt><dd>{{ student }} · {{ class_group }}</dd></div>
+    {% if student %}<div><dt>{% translate "Student" %}</dt><dd>{{ student }} · {{ class_group }}</dd></div>{% endif %}
     <div><dt>{% translate "Amount" %}</dt><dd>{{ amount }}</dd></div>
   </dl>
   {% endif %}

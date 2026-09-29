@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.5.1 terminée, PR #107 à fusionner |
-| Prochaine tâche | 3.5.2 — ouverture et réimpression hors ligne, QR signé |
+| Tâche en cours | aucune — 3.5.2 terminée, PR #108 à fusionner |
+| Prochaine tâche | 3.6 — crédit élève (surpaiement, réduction sur échéance payée) |
 | Issue GitHub | #25 |
-| Branche | `tache/3.5.1-caisse-hors-ligne` (PR #107) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/3.5.2-ouverture-reimpression-qr` (PR #108) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-29 |
 
 ## Avancement
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 9 | 13 |
+| Semaine 3 — Caisse et hors-ligne | 10 | 13 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **26** | **38** |
+| **V1.0** | **27** | **38** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-29 — Tâche 3.5.2 : ouverture et réimpression hors ligne, QR signé
+- Fait : sur un appareil mémorisé, la caisse s'ouvre aussi sans réseau (opération `cash_session.open`, refus affiché sur l'écran d'ouverture) ; duplicata fait sur l'appareil et noté au journal par la file (`payment.reprint`) ; chaque reçu imprimé sur l'appareil porte un QR code signé ; `/v/…` : « en attente de synchronisation », « falsifié ». 3.5 terminée.
+- Tests : 4 pytest (ouverture + encaissement + duplicata envoyés deux fois, caisse prise, isolation, page signée / falsifiée / appareil déconnecté / refusé), 2 Vitest (solde du duplicata, signature), Playwright caisse refait : ouverture sans réseau, deux encaissements, duplicata, page `/v/` vérifiée avant la synchro, aucun doublon.
+- Décisions (`03`) : ouverture par la file ; duplicata sur l'appareil ; signature à l'impression, sans `Payment.receipt_signature` (`04` corrigé) ; ajout à la 3.8 : ouverture hors ligne refusée et ses encaissements.
+- Suite : PR #108 à fusionner, puis 3.6.
 
 ### 2026-09-29 — Tâche 3.5.1 : encaisser hors ligne
 - Fait : 3.5 découpée (3.5.1 encaisser ; 3.5.2 ouverture et réimpression hors ligne, QR signé). Sur un appareil mémorisé, la caisse lit la base de l'appareil (recherche, frais dus, solde, paiements de la session) et encaisse **toujours par la file**, avec ou sans réseau : reçu imprimé aussitôt avec le numéro de l'appareil (`ITIG-P1-26-000001`), envoyé dans la seconde s'il y a du réseau ; « en attente » / « refusé » dans la liste ; page « stockage refusé » avec « Continuer en ligne seulement » ; `Payment.cash_session` exposé.

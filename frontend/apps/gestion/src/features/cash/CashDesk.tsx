@@ -2,8 +2,8 @@
 // session par devise (jamais additionnés), paiements de la session ; un élève choisi → encaissement
 // (`CollectPanel`), dont le reçu s'imprime aussitôt ; « Réimprimer » : duplicata noté au journal.
 // Clavier : Ctrl K rechercher, Échap changer d'élève. Appareil mémorisé (`device`) : recherche,
-// totaux et paiements lus sur l'appareil, encaissements de la file compris (3.5.1) ; réimpression
-// hors ligne : 3.5.2 ; annulations et clôture : 3.8.
+// totaux et paiements lus sur l'appareil, encaissements de la file compris (3.5.1), duplicata
+// fait sur l'appareil (3.5.2) ; annulations et clôture : 3.8.
 import { api, call } from "@mwangaza/api";
 import { formatTime, useTranslation } from "@mwangaza/i18n";
 import { type Currency, formatAmount, formatRate } from "@mwangaza/money";
@@ -27,7 +27,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
 import { firstErrorMessage } from "../../lib/errors";
-import { useOnline } from "../../lib/online";
 import { fullName, studentName } from "../../lib/people";
 import { useCurrentSchool } from "../../lib/school";
 import type { LocalDb } from "../../lib/sync/db";
@@ -38,8 +37,14 @@ import { type StudentRow, useStudentSearch } from "../students/data";
 import { RateBanner } from "./CashPage";
 import { type Chosen, CollectPanel } from "./CollectPanel";
 import { type CurrentSession, useSessionPayments } from "./data";
-import type { LocalCash } from "./localData";
-import { type SessionPayment, searchEnrollments, sessionPayments, sessionTotals } from "./offline";
+import { type LocalCash, queueReprint } from "./localData";
+import {
+  duplicateReceipt,
+  type SessionPayment,
+  searchEnrollments,
+  sessionPayments,
+  sessionTotals,
+} from "./offline";
 import { type Receipt, useReceiptPrinter } from "./Receipt";
 
 type Session = NonNullable<CurrentSession["session"]>;
@@ -76,22 +81,38 @@ export function CashDesk({
 }) {
   const { t, i18n } = useTranslation();
   const school = useCurrentSchool();
-  const online = useOnline();
   const rows = device
     ? sessionPayments(device.local.enrollments, device.local.queued, session.id)
     : undefined;
   const totals = rows ? sessionTotals(rows) : current.totals;
-  // Réimpression par le serveur (duplicata noté au journal) : paiement déjà reçu par lui.
+  // Appareil mémorisé : duplicata fait ici, avec ou sans réseau, noté au journal par la file
+  // (3.5.2) ; sinon par le serveur. Jamais pour un paiement annulé ou refusé.
   const reprintable = (id: string) =>
-    !rows || (online && rows.some((row) => row.payment.id === id && row.sync === "recorded"));
+    !rows ||
+    rows.some((row) => row.payment.id === id && row.sync !== "rejected" && !row.payment.cancelled);
   const [chosen, setChosen] = useState<Chosen | null>(null);
   const [recorded, setRecorded] = useState<Receipt | null>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const printer = useReceiptPrinter();
   const reprint = useMutation({
-    mutationFn: (id: string) =>
-      call(api.POST("/api/payments/{id}/reprint/", { params: { path: { id } } })),
-    onSuccess: (payment) => printer.print({ payment, reprintedAt: new Date().toISOString() }),
+    mutationFn: async (id: string) => {
+      const reprintedAt = new Date().toISOString();
+      if (!device) {
+        const payment = await call(
+          api.POST("/api/payments/{id}/reprint/", { params: { path: { id } } }),
+        );
+        return { payment, reprintedAt };
+      }
+      const { byId, queued, config } = device.local;
+      const row = rows?.find((item) => item.payment.id === id);
+      const enrollment = row && byId.get(row.payment.enrollment);
+      const payment =
+        enrollment && duplicateReceipt(enrollment, id, queued, config, school.timezone);
+      if (!payment) throw new Error(`Payment ${id} is not on this device`);
+      await queueReprint(device.db, id, reprintedAt);
+      return { payment, reprintedAt };
+    },
+    onSuccess: ({ payment, reprintedAt }) => printer.print({ payment, reprintedAt }),
   });
 
   // Ctrl K : la recherche de la caisse, pas la recherche générale (qui laisse faire).

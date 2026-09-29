@@ -2,7 +2,9 @@ import type { Schemas } from "@mwangaza/api";
 import { describe, expect, it } from "vitest";
 
 import type { LocalEnrollment, QueuedOperation } from "../../lib/sync/db";
+import type { Config } from "../../lib/sync/engine";
 import {
+  duplicateReceipt,
   financeOf,
   offlinePayload,
   offlineReceipt,
@@ -167,6 +169,34 @@ describe("caisse sur l'appareil", () => {
     expect(t1(enrollment(), [queued(rejected, "rejected")]).remaining_minor).toBe(4000);
     // Échéance à venir hier devenue échue aujourd'hui.
     expect(financeOf(enrollment(), [], "2026-12-02").charges[1]!.state).toBe("overdue");
+  });
+
+  it("duplicata : solde juste après ce paiement, ni les suivants ni les annulés, file comprise", () => {
+    const cancelled = { ...collect(183, "p0", "2026-10-05T08:00:00Z"), cancelled: true };
+    const first = collect(184, "p1");
+    const later = collect(185, "p2", "2026-10-05T10:00:00Z");
+    const synced = enrollment([cancelled, first, later]);
+    // Le serveur a compté p1 et p2 (T1 soldée) ; le duplicata de p1 revient à juste après lui.
+    synced.charges![0] = { ...synced.charges![0]!, paid_minor: 6000, remaining_minor: 0 };
+    const config = {
+      academic_year: { name: "2026-2027" },
+      cash_registers: [session.cash_register],
+    } as Config;
+
+    const duplicate = duplicateReceipt(synced, "p1", [], config, "UTC")!;
+    expect(duplicate.balance).toEqual(first.balance);
+    expect([duplicate.cash_register_name, duplicate.academic_year]).toEqual([
+      "Caisse principale",
+      "2026-2027",
+    ]);
+    // Encaissé plus tôt sur cet appareil, pas encore envoyé : compté avant p1, comme le fera le
+    // serveur ; son propre duplicata est son reçu.
+    const earlier = collect(186, "p3", "2026-10-05T08:30:00Z");
+    const withQueue = duplicateReceipt(synced, "p1", [queued(earlier, "pending")], config, "UTC");
+    expect(withQueue!.balance.currencies[0]).toMatchObject({ paid_minor: 6000, overdue_minor: 0 });
+    expect(duplicateReceipt(synced, "p3", [queued(earlier, "pending")], config, "UTC")).toBe(
+      earlier,
+    );
   });
 
   it("paiements de la session : les plus récents d'abord, refusés montrés mais hors des totaux", () => {
