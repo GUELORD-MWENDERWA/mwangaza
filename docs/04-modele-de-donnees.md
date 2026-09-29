@@ -97,7 +97,9 @@ Règles :
 
 **PaymentAllocation [T]** **[I]** — répartition d'un paiement : `payment`, `student_charge`, `received_minor` (part du montant reçu, dans la devise reçue ; somme des parts = montant reçu, sauf un paiement hors ligne qui dépasse ce que l'élève doit à son arrivée : le surplus n'est affecté à rien : il devient un `StudentCredit`), `amount_minor` (dans la devise de la charge, converti depuis `received_minor`).
 
-**PaymentCancellation [T]** **[I]** — `payment` (unique), `reason`, `requested_by`, `approved_by`, `approved_at`, `receipt_number` (3.8). Une ligne = une annulation validée ; la demande en attente et le reçu d'annulation viennent en 3.8.
+**CancellationRequest [T]** — `payment`, `reason`, `requested_by`, `requested_at` (heure de l'appareil hors ligne), `device`, `status` (`pending`, `approved`, `rejected`), `decided_by`, `decided_at`, `decision_note`. Une seule demande en attente par paiement ; le paiement compte jusqu'à la décision (3.8.1).
+
+**PaymentCancellation [T]** **[I]** — `payment` (unique), `receipt_number` (`ITIG-AN-26-000007`, série de l'école par année scolaire), `reason`, `requested_by`, `approved_by`, `approved_at`. Une ligne = une annulation validée (demande validée par un autre compte) ; le reçu d'annulation est sa vue imprimable.
 
 **StudentCredit [T]** — argent reçu en trop (M14, 3.6.1) : `enrollment`, `origin` (`offline_surplus` : surplus d'un paiement hors ligne, `source_payment` ; `discount` : trop-payé qu'une réduction fait apparaître sur des échéances payées, `source_discount`), `amount_minor`, `currency` (celle de l'argent reçu ou du frais), `voided_at` / `voided_by` (réduction retirée : jamais effacé). Pas de `used_by_payment` : utiliser un crédit ne crée pas de paiement (décision du 2026-09-29).
 
@@ -124,7 +126,7 @@ Règles :
 
 ## 6. Synchronisation
 
-**SyncOperation [T]** — `op_id` (unique dans l'école), `device`, `type` (`payment.create` ; annulation et clôture en 3.8), `payload`, `status` (`applied`, `rejected`), `result` (résultat ou erreur, rendu tel quel au second envoi), `created_at` (arrivée).
+**SyncOperation [T]** — `op_id` (unique dans l'école), `device`, `type` (`payment.create`, `cash_session.open`, `payment.reprint`, `credit.use`, `cancellation.request` ; clôture en 3.8.2), `payload`, `status` (`applied`, `rejected`), `result` (résultat ou erreur, rendu tel quel au second envoi), `created_at` (arrivée).
 
 **ChangeLog [T]** — une ligne par entité, sa dernière modification : `seq` (croissant par école, donné à la lecture sous verrou, jamais repris), `pending` (changement en attente de son numéro), `entity_type` (`enrollment` : élève, classe, frais dus, paiements de l'année ; `config` : école, reçus, année, classes, types de frais, caisses, taux), `entity_id`, `operation` (`upsert`, `delete`), `updated_at` (heure du changement). Écrit par signaux Django, et explicitement après une écriture en masse (`apps/sync/changes.py`).
 

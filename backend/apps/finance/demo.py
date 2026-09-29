@@ -427,5 +427,5 @@ def create_demo_cancellations(schools: dict[str, School]) -> None:
                     services.reject_cancellation(request, actor=approver, note=note)
             if payment := plain.filter(cashier=approver).first():
                 services.request_cancellation(
-                    payment, actor=approver, reason="Frais d'atelier encaissés sur le minerval"
+                    payment, actor=approver, reason="Mauvais élève (même nom, autre classe)"
                 )

@@ -8,7 +8,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | 3.8.1 — annulation d'un paiement (3.8 découpée en 3.8.1 / 3.8.2) |
+| Tâche en cours | aucune — 3.8.1 terminée, PR à fusionner |
 | Prochaine tâche | 3.8.2 |
 | Issue GitHub | #28 |
 | Branche | `tache/3.8.1-annulation` ; dossier local : `~/Projets/mwangaza` |
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 14 | 16 |
+| Semaine 3 — Caisse et hors-ligne | 15 | 16 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **31** | **41** |
+| **V1.0** | **32** | **41** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,13 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-29 — Tâche 3.8.1 : annulation d'un paiement
+
+- **Fait** : la 3.8 est découpée (3.8.1 annulation, 3.8.2 clôture). Demande d'annulation avec motif depuis la caisse (« Annuler… », par la file sur un appareil mémorisé, avec ou sans réseau) ou depuis « Crédits d'élèves » ; écran « Annulations » (en attente / validées / refusées) ; validation par un autre compte → reçu d'annulation `ITIG-AN-26-…` imprimé, crédits nés du paiement annulés ; refus. Maquette `demande-annulation` dessinée par Claude. Démo : demandes en attente, validée, refusée.
+- **Tests** : 874 serveur (isolation, 403, sa propre demande, numéro de série, crédits de réduction et surplus hors ligne annulés, opération hors ligne une seule fois, audit), 203 front (dialogue, validation et impression, duplicata exact), lint vert, capture à 390 px.
+- **Décisions** : journal des décisions de `03` (2026-09-29, « Annulation d'un paiement »).
+- **Suite** : 3.8.2 (clôture de caisse).
 
 ### 2026-09-29 — Tâche 3.7.2 : appareils de l'école
 
