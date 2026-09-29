@@ -1,7 +1,7 @@
 """Synchronisation (3.3.2) : appareil enregistré exigé, isolation entre écoles, droits,
 instantané et changements (écritures en masse et transaction en cours comprises), opérations
 appliquées une seule fois, encaissement hors ligne jamais refusé pour un surplus ; ouverture de
-caisse et réimpression hors ligne (3.5.2)."""
+caisse et réimpression hors ligne (3.5.2) ; crédit sur l'appareil, utilisé hors ligne (3.6.2)."""
 
 import threading
 from datetime import UTC, datetime
@@ -15,9 +15,17 @@ from apps.audit.models import AuditLog
 from apps.core.ids import uuid7
 from apps.core.tenancy import use_school
 from apps.finance import services as finance
-from apps.finance.models import CashSession, Payment, PaymentAllocation, StudentCredit
+from apps.finance.models import (
+    CashSession,
+    CreditAllocation,
+    Payment,
+    PaymentAllocation,
+    StudentCredit,
+)
+from apps.finance.tests.test_api import entries
 from apps.finance.tests.test_charges import once, rule
-from apps.finance.tests.test_payments import school_with_fees
+from apps.finance.tests.test_credits import scholarship
+from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.students.tests.conftest import enrolled
 from apps.sync import changes
 from apps.sync.models import ChangeLog, Device, SyncOperation
@@ -31,11 +39,13 @@ PAID_AT = "2026-10-02T08:15:00Z"
 
 
 def till(api, school, cashier, data, host="alpha.localhost"):
-    """Le caissier sur son appareil enregistré, sa caisse ouverte."""
+    """Le caissier sur son appareil enregistré, sa caisse ouverte (ou celle déjà ouverte)."""
     client = api(cashier, host)
     device = remember(client).json()
     with use_school(school):
-        session = finance.open_cash_session(actor=cashier, cash_register=data["register"])
+        session = finance.open_session_of(cashier) or finance.open_cash_session(
+            actor=cashier, cash_register=data["register"]
+        )
     return client, device, session
 
 
@@ -68,6 +78,18 @@ def open_op(register, session_id=None, opened_at="2026-10-02T07:30:00Z") -> dict
 def reprint_op(payment_id, reprinted_at="2026-10-02T08:20:00Z") -> dict:
     payload = {"payment": str(payment_id), "reprinted_at": reprinted_at}
     return {"op_id": str(uuid7()), "type": "payment.reprint", "payload": payload}
+
+
+def credit_op(credit_id) -> dict:
+    return {"op_id": str(uuid7()), "type": "credit.use", "payload": {"credit": str(credit_id)}}
+
+
+def discount_credit(school, head, cashier, data) -> StudentCredit:
+    """1re tranche du minerval payée (120,00 $), puis une bourse de 25 % : 30,00 $ de crédit."""
+    pay(school, cashier, data["enrollment"], 12000, "USD")
+    scholarship(school, head, data, 25)
+    with use_school(school):
+        return StudentCredit.objects.get()
 
 
 @pytest.fixture
@@ -125,7 +147,7 @@ def test_the_snapshot_gives_each_account_what_its_rights_allow(api, school, head
     remember(secretary)
     data = secretary.get(SNAPSHOT).json()
     assert data["config"]["fee_types"] is None and data["config"]["exchange_rate"] is None
-    assert {e["charges"] for e in data["enrollments"]} == {None}
+    assert {(e["charges"], e["credits"]) for e in data["enrollments"]} == {(None, None)}
 
 
 def test_pull_returns_what_changed_since_the_cursor_bulk_writes_included(
@@ -281,6 +303,31 @@ def test_two_offline_tills_paying_the_same_fee_both_keep_the_money(
     assert {(c.currency, c.remaining_minor) for c in remaining} == {("USD", 0), ("CDF", 25000)}
 
 
+def test_a_credit_is_on_the_device_and_used_once_offline(api, school, head, cashier, alpha):
+    """Crédit à traiter (3.6.2) : sur l'appareil avec l'inscription ; utilisé à la caisse hors
+    ligne, une seule fois même envoyé deux fois ; ensuite il n'y est plus à traiter."""
+    credit = discount_credit(school, head, cashier, alpha)
+    client, _device, _session = till(api, school, cashier, alpha)
+    snapshot = client.get(SNAPSHOT).json()
+    [shown] = snapshot["enrollments"][0]["credits"]
+    assert (shown["id"], shown["origin"]) == (str(credit.pk), "discount")
+    assert (shown["remaining_minor"], shown["currency"]) == (3000, "USD")
+
+    use = credit_op(credit.pk)
+    results = [client.post(PUSH, {"operations": [use]}).json()["results"][0] for _ in range(2)]
+
+    assert [r["status"] for r in results] == ["applied", "duplicate"]
+    with use_school(school):
+        assert list(CreditAllocation.objects.values_list("amount_minor", flat=True)) == [3000]
+        assert Payment.objects.count() == 1
+    [entry] = entries(school, Action.FINANCE_CREDIT_USED)
+    assert entry.actor == cashier
+    [change] = client.get(PULL, since=snapshot["cursor"]).json()["changes"]
+    assert change["enrollment"]["credits"] == []
+    again = client.post(PUSH, {"operations": [credit_op(credit.pk)]}).json()["results"][0]
+    assert again["error"]["code"] == "credit_used"
+
+
 def test_a_rejected_operation_stays_rejected_and_the_next_ones_go_on(
     api, school, head, cashier, alpha
 ):
@@ -307,6 +354,7 @@ def test_a_school_never_reads_nor_writes_another_school_through_sync(
 ):
     beta = school_with_fees(other_school, other_head)
     beta_cashier = MembershipFactory(school=other_school, roles=["cashier"]).user
+    credit = discount_credit(school, head, cashier, alpha)
     client, device, session = till(api, school, cashier, alpha)
     applied = payment_op(alpha, device, session, 1000)
     client.post(PUSH, {"operations": [applied]})
@@ -332,15 +380,17 @@ def test_a_school_never_reads_nor_writes_another_school_through_sync(
                 intruder,
                 open_op(alpha["register"]),
                 reprint_op(applied["payload"]["id"]),
+                credit_op(credit.pk),
             ]
         },
     ).json()["results"]
     assert {r["status"] for r in results} == {"rejected"}
     assert [next(iter(r["error"]["fields"].values()))[0]["code"] for r in results] == [
         "does_not_exist"
-    ] * 3
+    ] * 4
     with use_school(other_school):
         assert not Payment.objects.exists()
         assert list(CashSession.objects.all()) == [other_session]
     with use_school(school):
         assert not AuditLog.objects.filter(action=Action.FINANCE_PAYMENT_REPRINTED).exists()
+        assert not CreditAllocation.objects.exists()

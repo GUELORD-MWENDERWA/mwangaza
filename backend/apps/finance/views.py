@@ -9,8 +9,8 @@ from apps.accounts.permissions import school_access
 from apps.accounts.roles import (
     CHARGES_READ,
     CREDITS_READ,
+    CREDITS_USE,
     FEES_READ,
-    FINANCE_APPROVE_CANCELLATION,
     FINANCE_COLLECT_PAYMENT,
     FINANCE_CONFIGURE_FEES,
     FINANCE_GRANT_DISCOUNT,
@@ -292,6 +292,19 @@ class StudentChargeViewSet(mixins.ListModelMixin, SchoolViewSet):
         return Response(BalanceSerializer(services.balance(charges)).data)
 
     @extend_schema(
+        parameters=[StudentChargeFilterSerializer],
+        responses={200: StudentCreditSerializer(many=True), **INVALID, **ERRORS},
+    )
+    @action(detail=False)
+    def credits(self, request: Request) -> Response:
+        """Crédits à traiter de l'inscription (M14), les plus anciens d'abord : proposés à la
+        caisse au prochain paiement (3.6.2) et montrés sur la fiche de l'élève."""
+        params = StudentChargeFilterSerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        items = services.open_credits([params.validated_data["enrollment"]])
+        return Response(StudentCreditSerializer(items, many=True).data)
+
+    @extend_schema(
         request=RescheduleSerializer,
         responses={200: StudentChargeSerializer(many=True), **INVALID, **ERRORS},
     )
@@ -561,13 +574,13 @@ class PaymentViewSet(
 class StudentCreditViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolViewSet):
     """Crédits d'élèves de l'année (M14), les plus récents d'abord : argent reçu en trop, jamais
     perdu. Lire : `finance.view_reports` ou `finance.approve_cancellation` ; utiliser :
-    `finance.approve_cancellation`."""
+    `finance.approve_cancellation`, ou `finance.collect_payment` à la caisse (3.6.2)."""
 
     serializer_class = StudentCreditSerializer
 
     @property
     def required_permission(self) -> str | tuple[str, ...]:
-        return FINANCE_APPROVE_CANCELLATION if self.action == "use" else CREDITS_READ
+        return CREDITS_USE if self.action == "use" else CREDITS_READ
 
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):

@@ -1703,6 +1703,12 @@ export const fr = {
     usedOn: "Utilisé sur",
     left: "Reste à traiter",
     printProof: "Imprimer le justificatif",
+    student: {
+      title: "Crédit de {{amount}} à utiliser",
+      pays: "Il paiera : {{list}}. Aucun argent reçu : pas de reçu.",
+      used: "Crédit de {{amount}} utilisé : le reste dû est à jour.",
+      process: "Traiter le crédit",
+    },
     proof: {
       title: "Justificatif d'utilisation d'un crédit",
       student: "Élève",

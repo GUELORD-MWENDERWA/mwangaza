@@ -2,9 +2,10 @@
 // la répartition par défaut (`allocate`) ajustable en cochant les frais ; la répartition affichée
 // est envoyée telle quelle et le serveur la vérifie. Identifiant du paiement donné par l'appareil
 // et gardé jusqu'au succès : un double clic ou un nouvel essai après une coupure ne fait qu'un
-// paiement. Jamais plus que ce que doit l'élève (le crédit vient en 3.6). F9 valide.
-// Appareil mémorisé : frais dus lus sur l'appareil, paiement écrit dans la file avec le numéro de
-// l'appareil, avec ou sans réseau (3.5.1).
+// paiement. Jamais plus que ce que doit l'élève. F9 valide. Crédit de l'élève (M14, 3.6.2) :
+// proposé avant l'encaissement, utilisé d'un clic sur ses échéances les plus anciennes.
+// Appareil mémorisé : frais dus et crédits lus sur l'appareil, paiement et crédit utilisé écrits
+// dans la file (numéro de reçu de l'appareil), avec ou sans réseau (3.5.1).
 import { api, call, type Schemas } from "@mwangaza/api";
 import { formatDay, useTranslation } from "@mwangaza/i18n";
 import {
@@ -45,16 +46,24 @@ import { formatPhone } from "../../lib/people";
 import { keys, useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { useRefresh } from "../organisation/data";
+import { StudentCredits } from "../credits/StudentCredits";
 import { LoadError } from "../status/StatusPages";
-import { type Balance, type Charge, useBalance, useCharges } from "../students/data";
-import { type Line, allocate, owedCharges, payableTotal } from "./allocation";
+import {
+  type Balance,
+  type Charge,
+  useBalance,
+  useCharges,
+  useStudentCredits,
+} from "../students/data";
+import { type Line, allocate, feeLabel, owedCharges, payableTotal } from "./allocation";
 import type { DeviceCash } from "./CashDesk";
 import type { CurrentSession } from "./data";
-import { recordOffline } from "./localData";
+import { queueCreditUse, recordOffline } from "./localData";
 import { financeOf, offlineReceipt, receiptNumber, schoolDay } from "./offline";
 import type { Receipt } from "./Receipt";
 
 type Session = NonNullable<CurrentSession["session"]>;
+type Credit = Schemas["StudentCredit"];
 
 /** Ce que le caissier valide. */
 type Collect = {
@@ -81,13 +90,6 @@ function daysLate(dueOn: string, timeZone: string): number {
   return Math.round((Date.parse(today) - Date.parse(dueOn)) / DAY);
 }
 
-/** « Minerval · 2e tranche » ; un frais payé en une fois porte souvent son propre nom. */
-function feeLabel(charge: Charge): string {
-  return charge.label === charge.fee_type_name
-    ? charge.label
-    : `${charge.fee_type_name} · ${charge.label}`;
-}
-
 /** « 20,00 $ + 30 000 FC » : chaque devise à part, jamais additionnées ; `null` si rien. */
 function perCurrency(amounts: { currency: string; minor: number }[]): string | null {
   const listed = amounts.filter((item) => item.minor > 0);
@@ -112,15 +114,12 @@ function ServerCollect({ chosen, rate, onRecorded }: PanelProps) {
   const refresh = useRefresh();
   const charges = useCharges(chosen.enrollment);
   const balance = useBalance(chosen.enrollment);
-  const error = charges.error ?? balance.error;
-  if (error)
-    return (
-      <LoadError
-        error={error}
-        onRetry={() => void Promise.all([charges.refetch(), balance.refetch()])}
-      />
-    );
-  if (!charges.data || !balance.data) return <Skeleton label={t("common.loading")} />;
+  const credits = useStudentCredits(chosen.enrollment);
+  const refetch = () => void Promise.all([charges.refetch(), balance.refetch(), credits.refetch()]);
+  const error = charges.error ?? balance.error ?? credits.error;
+  if (error) return <LoadError error={error} onRetry={refetch} />;
+  if (!charges.data || !balance.data || !credits.data)
+    return <Skeleton label={t("common.loading")} />;
   const save = async ({ id, received, lines, note }: Collect) => {
     const payment = await call(
       api.POST("/api/payments/", {
@@ -141,15 +140,22 @@ function ServerCollect({ chosen, rate, onRecorded }: PanelProps) {
     await refresh(keys.students, keys.payments, keys.cashSession);
     return payment;
   };
+  // Le serveur répartit le crédit lui-même, sur ce que l'élève doit à ce moment.
+  const spendCredit = async (credit: Credit) => {
+    await call(api.POST("/api/student-credits/{id}/use/", { params: { path: { id: credit.id } } }));
+    await refresh(keys.students, keys.credits);
+  };
   return (
     <CollectForm
       chosen={chosen}
       rate={rate}
       charges={charges.data}
       balance={balance.data}
+      credits={credits.data}
       save={save}
+      spendCredit={spendCredit}
       onRecorded={onRecorded}
-      onRefused={() => void Promise.all([charges.refetch(), balance.refetch()])}
+      onRefused={refetch}
     />
   );
 }
@@ -174,7 +180,7 @@ function DeviceCollect({
       </StateCard>
     );
   const day = schoolDay(school.timezone);
-  const { charges, balance } = financeOf(enrollment, device.local.queued, day);
+  const { charges, balance, credits } = financeOf(enrollment, device.local.queued, day);
   const save = ({ id, received, lines, note }: Collect) =>
     recordOffline(device.db, id, (seq) =>
       offlineReceipt({
@@ -205,7 +211,9 @@ function DeviceCollect({
       rate={rate}
       charges={charges}
       balance={balance}
+      credits={credits}
       save={save}
+      spendCredit={(credit, lines) => queueCreditUse(device.db, credit, lines)}
       onRecorded={onRecorded}
     />
   );
@@ -216,7 +224,9 @@ function CollectForm({
   rate,
   charges,
   balance,
+  credits,
   save,
+  spendCredit,
   onRecorded,
   onRefused,
 }: {
@@ -224,7 +234,9 @@ function CollectForm({
   rate: string | null;
   charges: Charge[];
   balance: Balance;
+  credits: Credit[];
   save(collect: Collect): Promise<Receipt>;
+  spendCredit(credit: Credit, lines: Line[]): Promise<void>;
   onRecorded: (payment: Receipt) => void;
   onRefused?: () => void;
 }) {
@@ -268,6 +280,14 @@ function CollectForm({
     onSuccess: (payment) => {
       paymentId.current = uuidv7();
       onRecorded(payment);
+    },
+    onError: onRefused,
+  });
+  const spend = useMutation({
+    mutationFn: async ({ credit, lines }: { credit: Credit; lines: Line[] }) => {
+      await spendCredit(credit, lines);
+      const used = lines.reduce((total, line) => total + line.amount, 0);
+      return formatAmount(used, credit.currency as Currency);
     },
     onError: onRefused,
   });
@@ -351,6 +371,18 @@ function CollectForm({
             </div>
           </CardContent>
         </Card>
+        {spend.data && (
+          <Banner tone="ok" role="status">
+            {t("credits.student.used", { amount: spend.data })}
+          </Banner>
+        )}
+        {spend.error && <Banner tone="due">{firstErrorMessage(spend.error, t)}</Banner>}
+        <StudentCredits
+          credits={credits}
+          charges={charges}
+          using={spend.isPending}
+          onUse={(credit, lines) => spend.mutate({ credit, lines })}
+        />
         {owed.length === 0 ? (
           <StateCard icon="check" tone="lake" title={t("cash.collect.toPay")}>
             {t("cash.collect.allPaid")}

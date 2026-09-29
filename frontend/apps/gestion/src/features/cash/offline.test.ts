@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 import type { LocalEnrollment, QueuedOperation } from "../../lib/sync/db";
 import type { Config } from "../../lib/sync/engine";
 import {
+  creditLines,
+  creditUse,
   duplicateReceipt,
   financeOf,
   offlinePayload,
@@ -68,9 +70,31 @@ function enrollment(payments: Schemas["Payment"][] = []): LocalEnrollment {
       charge("x", 2_000_000, "CDF", "2026-10-01"),
     ],
     payments,
+    credits: [],
     gen: 1,
   };
 }
+
+/** Payé deux fois hors ligne : 50 $ à traiter. */
+const credit: Schemas["StudentCredit"] = {
+  id: "c1",
+  enrollment: "e1",
+  student: { id: "st1", full_name: "KAMBALE Muhindo Josué", matricule: "26-0042" },
+  class_group: "3e Électricité A",
+  origin: "offline_surplus",
+  amount_minor: 5000,
+  currency: "USD",
+  used_minor: 0,
+  remaining_minor: 5000,
+  state: "to_process",
+  created_at: "2026-10-04T10:00:00Z",
+  voided_at: null,
+  receipt_number: "ITIG-P2-26-000012",
+  cash_register_name: "Caisse 2",
+  paid_at: "2026-10-04T09:30:00Z",
+  discount_reason: null,
+  discount_fee_type: null,
+};
 
 /** Encaissement de l'appareil : 30 $ sur T1 (échue), numéro donné par l'appareil. */
 function collect(seq: number, id: string, paidAt = "2026-10-05T09:00:00Z"): Receipt {
@@ -169,6 +193,40 @@ describe("caisse sur l'appareil", () => {
     expect(t1(enrollment(), [queued(rejected, "rejected")]).remaining_minor).toBe(4000);
     // Échéance à venir hier devenue échue aujourd'hui.
     expect(financeOf(enrollment(), [], "2026-12-02").charges[1]!.state).toBe("overdue");
+  });
+
+  it("crédit utilisé : compté comme payé jusqu'à ce que le serveur le montre, jamais s'il est refusé", () => {
+    const day = "2026-10-05";
+    const state = { ...enrollment(), credits: [credit] };
+    const lines = creditLines(financeOf(state, [], day).charges, credit);
+    // T1 (40 $ après la réduction), puis 10 $ sur T2 ; jamais les francs.
+    expect(lines.map((line) => [line.charge.id, line.amount])).toEqual([
+      ["t1", 4000],
+      ["t2", 1000],
+    ]);
+    const use = (status: QueuedOperation["status"]): QueuedOperation => ({
+      op_id: "o1",
+      type: "credit.use",
+      payload: { credit: "c1" },
+      created_at: "2026-10-05T09:00:00Z",
+      status,
+      error: status === "rejected" ? { code: "credit_used", detail: "Used." } : null,
+      creditUse: creditUse(credit, lines),
+    });
+    const remaining = (result: ReturnType<typeof financeOf>) =>
+      result.charges.map((item) => item.remaining_minor);
+
+    const pending = financeOf(state, [use("pending")], day);
+    expect(remaining(pending)).toEqual([0, 5000, 2_000_000]);
+    expect(pending.credits).toEqual([]);
+    // Descendu : le serveur l'a utilisé, il n'est plus à traiter ; pas compté deux fois.
+    const synced = enrollment();
+    synced.charges![0] = { ...synced.charges![0]!, paid_minor: 4000, remaining_minor: 0 };
+    synced.charges![1] = { ...synced.charges![1]!, paid_minor: 1000, remaining_minor: 5000 };
+    expect(remaining(financeOf(synced, [use("sent")], day))).toEqual([0, 5000, 2_000_000]);
+    const refused = financeOf(state, [use("rejected")], day);
+    expect(remaining(refused)).toEqual([4000, 6000, 2_000_000]);
+    expect(refused.credits.map((item) => item.remaining_minor)).toEqual([5000]);
   });
 
   it("duplicata : solde juste après ce paiement, ni les suivants ni les annulés, file comprise", () => {

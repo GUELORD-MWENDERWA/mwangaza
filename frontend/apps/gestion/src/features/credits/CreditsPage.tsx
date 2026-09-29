@@ -2,7 +2,7 @@
 // l'élève ne devait plus rien, réduction sur une échéance déjà payée. Lire : `view_reports` ou
 // `approve_cancellation` ; utiliser : `approve_cancellation` (le serveur vérifie). Utiliser un
 // crédit le répartit sur les échéances les plus anciennes de sa devise, sans paiement ni reçu
-// d'argent ; un justificatif s'imprime. Crédit à la caisse : 3.6.2.
+// d'argent ; un justificatif s'imprime. À la caisse et sur la fiche élève : `StudentCredits`.
 import { api, call, type Schemas } from "@mwangaza/api";
 import { formatDate, formatDateTime, formatTime, useTranslation } from "@mwangaza/i18n";
 import { formatAmount, sumAmounts, type Currency } from "@mwangaza/money";
@@ -24,7 +24,7 @@ import {
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 
 import { errorMessage } from "../../lib/errors";
 import { fullName } from "../../lib/people";
@@ -49,7 +49,10 @@ export function CreditsPage() {
   const school = useCurrentSchool();
   const [filter, setFilter] = useState<Filter>("to_process");
   const [page, setPage] = useState(1);
-  const [selected, setSelected] = useState<string | null>(null);
+  // Venu de la fiche d'un élève (« Traiter le crédit ») : ce crédit, choisi d'avance.
+  const [selected, setSelected] = useState<string | null>(
+    (useLocation().state as { credit?: string } | null)?.credit ?? null,
+  );
   const summary = useQuery({
     queryKey: [...keys.credits, "summary"],
     queryFn: () => call(api.GET("/api/student-credits/summary/")),

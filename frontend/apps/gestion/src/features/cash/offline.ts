@@ -1,18 +1,20 @@
-// Caisse sur l'appareil (F5, 3.5) : l'état reçu du serveur (inscriptions avec frais dus et
-// paiements) plus les encaissements de la file pas encore descendus. Calculs sans base ni écran,
-// mêmes règles que le serveur (`finance.services._settle` et `balance`) ; montants en entiers.
+// Caisse sur l'appareil (F5, 3.5) : l'état reçu du serveur (inscriptions avec frais dus,
+// paiements et crédits à traiter) plus les encaissements et crédits utilisés de la file pas encore
+// descendus. Calculs sans base ni écran, mêmes règles que le serveur (`finance.services._settle`
+// et `balance`) ; montants en entiers.
 import type { Schemas } from "@mwangaza/api";
 import type { Currency } from "@mwangaza/money";
 
 import { studentName } from "../../lib/people";
-import type { LocalEnrollment, QueuedOperation } from "../../lib/sync/db";
+import type { CreditUse, LocalEnrollment, QueuedOperation } from "../../lib/sync/db";
 import type { Config } from "../../lib/sync/engine";
-import type { Line } from "./allocation";
+import { allocate, type Line } from "./allocation";
 import type { Receipt } from "./Receipt";
 
 type Charge = Schemas["StudentCharge"];
 type Balance = Schemas["Balance"];
 type Payment = Schemas["Payment"];
+type Credit = Schemas["StudentCredit"];
 
 /** Contenu de l'opération `payment.create` (serveur : `OfflinePaymentSerializer`). */
 export type OfflinePayment = {
@@ -109,18 +111,63 @@ export function balanceOf(charges: Charge[]): Balance {
   return { situation, next_due_on: nextDueOn, currencies };
 }
 
-/** Frais dus et solde d'une inscription, encaissements de la file compris. */
+/** Ce que paiera le crédit : son reste sur les frais de sa devise que l'élève doit encore, les
+ *  plus anciens d'abord (serveur : `credit_proposal`). */
+export function creditLines(charges: Charge[], credit: Credit): Line[] {
+  return allocate(charges, { minor: credit.remaining_minor, currency: credit.currency }, null);
+}
+
+export function creditUse(credit: Credit, lines: Line[]): CreditUse {
+  return {
+    credit: credit.id,
+    used_minor: credit.used_minor,
+    allocations: lines.map((line) => ({
+      student_charge: line.charge.id,
+      amount_minor: line.amount,
+    })),
+  };
+}
+
+/** Crédits utilisés de la file que l'état du serveur ne montre pas encore : pas refusés, et le
+ *  crédit toujours à traiter avec la même part utilisée (déjà utilisé ou annulé au serveur : le
+ *  serveur a le dernier mot). */
+function queuedCreditUses(enrollment: LocalEnrollment, queued: QueuedOperation[]): CreditUse[] {
+  const used = new Map((enrollment.credits ?? []).map((credit) => [credit.id, credit.used_minor]));
+  return queued.flatMap((op) =>
+    op.type === "credit.use" &&
+    op.status !== "rejected" &&
+    op.creditUse &&
+    used.get(op.creditUse.credit) === op.creditUse.used_minor
+      ? [op.creditUse]
+      : [],
+  );
+}
+
+/** Frais dus, solde et crédits à traiter d'une inscription, encaissements et crédits utilisés de
+ *  la file compris. */
 export function financeOf(
   enrollment: LocalEnrollment,
   queued: QueuedOperation[],
   day: string,
-): { charges: Charge[]; balance: Balance } {
+): { charges: Charge[]; balance: Balance; credits: Credit[] } {
   const known = new Set((enrollment.payments ?? []).map((payment) => payment.id));
-  const paid = queuedReceipts(queued, known)
-    .filter((receipt) => receipt.enrollment === enrollment.id)
-    .flatMap((receipt) => receipt.allocations);
+  const uses = queuedCreditUses(enrollment, queued);
+  const paid = [
+    ...queuedReceipts(queued, known)
+      .filter((receipt) => receipt.enrollment === enrollment.id)
+      .flatMap((receipt) => receipt.allocations),
+    ...uses.flatMap((use) => use.allocations),
+  ];
   const charges = settle(enrollment.charges ?? [], paid, day);
-  return { charges, balance: balanceOf(charges) };
+  const credits = (enrollment.credits ?? []).flatMap((credit) => {
+    const spent = uses
+      .filter((use) => use.credit === credit.id)
+      .flatMap((use) => use.allocations)
+      .reduce((total, line) => total + line.amount_minor, 0);
+    const remaining = credit.remaining_minor - spent;
+    return remaining > 0 ? [{ ...credit, remaining_minor: remaining }] : [];
+  });
+  return { charges, balance: balanceOf(charges), credits };
 }
 
 /** Paiements d'une session, les plus récents d'abord : ceux du serveur et ceux de la file. */

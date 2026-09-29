@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { apiError, json, mockApi, type Routes } from "../../test/api";
-import { me, school } from "../../test/fixtures";
+import { me, school, studentCredit } from "../../test/fixtures";
 import { renderApp } from "../../test/render";
 
 const id = (n: number) => `00000000-0000-7000-8000-${String(n).padStart(12, "0")}`;
@@ -184,6 +184,7 @@ function routes(role: Parameters<typeof me>[0], extra: Routes = {}): Routes {
     },
     "GET /api/families/": { count: 1, next: null, previous: null, results: [family] },
     "GET /api/discounts/": [],
+    "GET /api/student-charges/credits/": [],
     "GET /api/student-charges/balance/": {
       situation: "up_to_date",
       next_due_on: "2026-10-15",
@@ -442,10 +443,18 @@ describe("Élèves (D2-D4)", () => {
     await screen.findByText("Échéancier enregistré : Minerval en 6 versements.");
   });
 
-  it("frais dus visibles au caissier, sans échéancier particulier", async () => {
-    mockApi(routes("cashier", { ...card, "GET /api/student-charges/": charges }));
+  it("frais dus et crédit à traiter visibles au caissier, sans échéancier ni lien pour traiter le crédit", async () => {
+    mockApi(
+      routes("cashier", {
+        ...card,
+        "GET /api/student-charges/": charges,
+        "GET /api/student-charges/credits/": [studentCredit()],
+      }),
+    );
     renderApp(`/students/${STUDENT}/finances`);
     await screen.findByText("Minerval · 2e tranche");
+    expect(screen.getByText("Crédit de 30,00 $ à utiliser")).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "Traiter le crédit" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Échéancier particulier" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Ajouter une réduction" })).toBeNull();
   });

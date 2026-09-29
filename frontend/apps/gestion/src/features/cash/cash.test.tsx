@@ -2,7 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { json, mockApi, type Routes } from "../../test/api";
-import { charge, fakeId, me, school } from "../../test/fixtures";
+import { charge, fakeId, me, school, studentCredit } from "../../test/fixtures";
 import { renderApp } from "../../test/render";
 
 const cashier = { id: fakeId(1), last_name: "Kavira", middle_name: "", first_name: "Jeanne" };
@@ -28,11 +28,38 @@ const current = (open: unknown) => ({
 });
 const noPayments = { count: 0, next: null, previous: null, results: [] };
 
+const enrollment = {
+  id: fakeId(80),
+  student: fakeId(30),
+  academic_year: fakeId(40),
+  academic_year_name: "2026-2027",
+  class_group: fakeId(50),
+  class_group_name: "3e Électricité A",
+  status: "active",
+  enrolled_on: "2026-09-01",
+  left_on: null,
+};
+const student = {
+  id: fakeId(30),
+  matricule: "ALPHA-2026-0412",
+  last_name: "Kambale",
+  middle_name: "Muhindo",
+  first_name: "Josué",
+  sex: "M",
+  birth_date: "2011-03-02",
+  family: fakeId(60),
+  family_code: "FAM-0412",
+  enrollment,
+  primary_guardian: null,
+};
+const found = { count: 1, next: null, previous: null, results: [student] };
+
 function routes(extra: Routes = {}): Routes {
   return {
     "GET /api/school/": school,
     "GET /api/me/": me("cashier"),
     "GET /api/payments/": noPayments,
+    "GET /api/student-charges/credits/": [],
     ...extra,
   };
 }
@@ -85,33 +112,9 @@ describe("Caisse (F1-F2)", () => {
       fee_type_name: "Fonctionnement",
       amount_minor: 2500,
     });
-    const enrollment = {
-      id: fakeId(80),
-      student: fakeId(30),
-      academic_year: fakeId(40),
-      academic_year_name: "2026-2027",
-      class_group: fakeId(50),
-      class_group_name: "3e Électricité A",
-      status: "active",
-      enrolled_on: "2026-09-01",
-      left_on: null,
-    };
-    const student = {
-      id: fakeId(30),
-      matricule: "ALPHA-2026-0412",
-      last_name: "Kambale",
-      middle_name: "Muhindo",
-      first_name: "Josué",
-      sex: "M",
-      birth_date: "2011-03-02",
-      family: fakeId(60),
-      family_code: "FAM-0412",
-      enrollment,
-      primary_guardian: null,
-    };
     const all = routes({
       "GET /api/cash-sessions/current/": current(session),
-      "GET /api/students/": { count: 1, next: null, previous: null, results: [student] },
+      "GET /api/students/": found,
       "GET /api/student-charges/": [workshop, motivation, tuition, operating],
       "GET /api/student-charges/balance/": {
         currencies: [
@@ -190,7 +193,7 @@ describe("Caisse (F1-F2)", () => {
     const amount = await screen.findByLabelText("Montant reçu en USD");
     const collect = screen.getByRole("button", { name: /Encaisser/ });
 
-    // Plus que ce que doit l'élève en dollars : refusé (le crédit vient en 3.6).
+    // Plus que ce que doit l'élève en dollars : refusé (le caissier rend la monnaie).
     await user.type(amount, "500");
     expect(await screen.findByText(/335,00 \$ de trop pour les frais cochés/)).toBeTruthy();
     expect((collect as HTMLButtonElement).disabled).toBe(true);
@@ -232,5 +235,49 @@ describe("Caisse (F1-F2)", () => {
     await waitFor(() => expect(printed).toHaveLength(2));
     expect(printed[1]).toMatch(/DuplicataRéimprimé le \d{2}\/\d{2}\/\d{4} \d{2}:\d{2}/);
     expect(requests.at(-1)?.path).toBe(`/api/payments/${receipt.id}/reprint/`);
+  });
+
+  it("propose le crédit de l'élève avant l'encaissement et l'utilise d'un clic, sans paiement", async () => {
+    const workshop = charge(1, "1re tranche", "2026-10-01", {
+      fee_type_name: "Frais d'atelier",
+      amount_minor: 2000,
+      state: "overdue",
+    });
+    const tuition = charge(3, "2e tranche", "2027-01-15");
+    const credit = studentCredit();
+    const all = routes({
+      "GET /api/cash-sessions/current/": current(session),
+      "GET /api/students/": found,
+      "GET /api/student-charges/": [workshop, tuition],
+      "GET /api/student-charges/balance/": { currencies: [], next_due_on: null },
+      "GET /api/student-charges/credits/": [credit],
+    });
+    all[`POST /api/student-credits/${credit.id}/use/`] = () => {
+      all["GET /api/student-charges/credits/"] = [];
+      return { ...credit, used_minor: 3000, remaining_minor: 0, state: "used" };
+    };
+    const requests = mockApi(all);
+    const { user } = renderApp("/cash");
+
+    await user.type(await screen.findByLabelText("Élève qui paie"), "Kambale");
+    await user.click(await screen.findByRole("button", { name: /KAMBALE MUHINDO Josué/ }));
+    // Échéances les plus anciennes de sa devise d'abord.
+    expect(
+      await screen.findByText(
+        /Il paiera : Frais d'atelier · 1re tranche 20,00 \$ ; Minerval · 2e tranche 10,00 \$/,
+      ),
+    ).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "Utiliser le crédit" }));
+
+    expect(
+      await screen.findByText("Crédit de 30,00 $ utilisé : le reste dû est à jour."),
+    ).toBeTruthy();
+    await waitFor(() =>
+      expect(screen.queryByRole("button", { name: "Utiliser le crédit" })).toBeNull(),
+    );
+    const posts = requests.filter((request) => request.method === "POST");
+    expect(posts.map((request) => request.path)).toEqual([
+      `/api/student-credits/${credit.id}/use/`,
+    ]);
   });
 });

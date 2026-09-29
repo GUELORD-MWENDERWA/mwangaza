@@ -1,7 +1,8 @@
 """Crédits d'élèves (3.6.1, M14) : isolation entre écoles, droits, crédit d'une réduction sur une
 échéance payée (seulement le nouveau trop-payé), annulé avec sa réduction, utilisé sur les
-échéances les plus anciennes de sa devise sans paiement ; payé + crédit = argent reçu ; audit.
-Surplus d'un paiement hors ligne : `apps/sync/tests/test_sync.py`."""
+échéances les plus anciennes de sa devise sans paiement ; payé + crédit = argent reçu ; audit ;
+utilisé à la caisse par le caissier (3.6.2). Surplus d'un paiement hors ligne et crédit utilisé
+hors ligne : `apps/sync/tests/test_sync.py`."""
 
 import pytest
 from django.db import DatabaseError, connection, transaction
@@ -75,21 +76,35 @@ def minerval(school, data) -> list[tuple[int, int]]:
 # Isolation et droits
 
 
-def test_a_school_neither_reads_nor_uses_the_credits_of_another(api, credit, other_head):
+def of_student(data) -> str:
+    """Crédits à traiter d'un élève, à la caisse et sur sa fiche (3.6.2)."""
+    return f"/api/student-charges/credits/?enrollment={data['enrollment'].pk}"
+
+
+def test_a_school_neither_reads_nor_uses_the_credits_of_another(api, credit, alpha, other_head):
     client = api(other_head, "beta.localhost")
     assert client.get(CREDITS).json()["results"] == []
+    assert client.get(of_student(alpha)).json() == []
     assert client.get(f"{CREDITS}{credit.pk}/").status_code == 404
     assert client.post(f"{CREDITS}{credit.pk}/use/").status_code == 404
     assert client.get(f"{CREDITS}summary/").json()["to_process"] == 0
 
 
-def test_reading_and_using_credits_need_their_rights(api, school, cashier, credit):
+def test_reading_and_using_credits_need_their_rights(api, school, cashier, credit, alpha):
+    """Liste des crédits : rapports ou validation. À la caisse (3.6.2), le caissier voit les
+    crédits de l'élève et les utilise ; la secrétaire, rien."""
     promoter = MembershipFactory(school=school, roles=["promoter"]).user
-    accountant = MembershipFactory(school=school, roles=["accountant"]).user
+    secretary = MembershipFactory(school=school, roles=["secretary"]).user
     assert api(cashier).get(CREDITS).status_code == 403
+    assert api(secretary).get(of_student(alpha)).status_code == 403
     assert api(promoter).get(f"{CREDITS}{credit.pk}/").status_code == 200
     assert api(promoter).post(f"{CREDITS}{credit.pk}/use/").status_code == 403
-    assert api(accountant).post(f"{CREDITS}{credit.pk}/use/").status_code == 200
+    [shown] = api(cashier).get(of_student(alpha)).json()
+    assert (shown["id"], shown["remaining_minor"]) == (str(credit.pk), 3000)
+    assert api(cashier).post(f"{CREDITS}{credit.pk}/use/").status_code == 200
+    assert api(cashier).get(of_student(alpha)).json() == []
+    [entry] = entries(school, Action.FINANCE_CREDIT_USED)
+    assert entry.actor == cashier
 
 
 # Règles

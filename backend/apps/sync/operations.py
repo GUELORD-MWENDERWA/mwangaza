@@ -2,7 +2,8 @@
 l'ordre, chacune une seule fois (`SyncOperation`).
 
 Chaque type d'opération donne le droit exigé, le contenu attendu (serializer) et le service
-appelé : encaissement (3.3.2), ouverture de caisse et réimpression (3.5.2). Une opération hors
+appelé : encaissement (3.3.2), ouverture de caisse et réimpression (3.5.2), crédit utilisé à la
+caisse (3.6.2). Une opération hors
 ligne de plus (demande d'annulation, clôture de caisse : 3.8) est une entrée de plus dans
 `OPERATIONS`."""
 
@@ -24,7 +25,7 @@ from apps.accounts.models import User
 from apps.accounts.roles import FINANCE_COLLECT_PAYMENT
 from apps.core.errors import ApiError, BusinessError, api_exception_handler
 from apps.finance import services as finance
-from apps.finance.models import CashRegister, Payment
+from apps.finance.models import CashRegister, Payment, StudentCredit
 from apps.finance.serializers import PaymentCreateSerializer
 from apps.sync.models import Device, SyncOperation
 
@@ -101,6 +102,21 @@ def _reprint(data: dict, device: Device, actor: User) -> dict:
     return {"payment": str(payment.pk)}
 
 
+class OfflineCreditSerializer(serializers.Serializer):
+    """Crédit utilisé à la caisse hors ligne (3.6.2) : le serveur le répartit à l'arrivée, sur ce
+    que l'élève doit alors ; déjà utilisé ou annulé entre-temps : refusé, sans argent en jeu."""
+
+    credit = serializers.PrimaryKeyRelatedField(queryset=StudentCredit.objects)
+
+    def to_service(self) -> dict:
+        return dict(self.validated_data)
+
+
+def _use_credit(data: dict, device: Device, actor: User) -> dict:
+    credit = finance.use_credit(data["credit"], actor=actor)
+    return {"credit": str(credit.pk)}
+
+
 @dataclass(frozen=True)
 class OperationType:
     permission: str
@@ -116,6 +132,7 @@ OPERATIONS = {
         FINANCE_COLLECT_PAYMENT, OfflineSessionSerializer, _open_session
     ),
     "payment.reprint": OperationType(FINANCE_COLLECT_PAYMENT, OfflineReprintSerializer, _reprint),
+    "credit.use": OperationType(FINANCE_COLLECT_PAYMENT, OfflineCreditSerializer, _use_credit),
 }
 
 
