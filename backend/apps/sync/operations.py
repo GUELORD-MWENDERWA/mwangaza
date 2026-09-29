@@ -2,8 +2,9 @@
 l'ordre, chacune une seule fois (`SyncOperation`).
 
 Chaque type d'opération donne le droit exigé, le contenu attendu (serializer) et le service
-appelé. Une opération hors ligne de plus (demande d'annulation, clôture de caisse : 3.8) est
-une entrée de plus dans `OPERATIONS`."""
+appelé : encaissement (3.3.2), ouverture de caisse et réimpression (3.5.2). Une opération hors
+ligne de plus (demande d'annulation, clôture de caisse : 3.8) est une entrée de plus dans
+`OPERATIONS`."""
 
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -23,6 +24,7 @@ from apps.accounts.models import User
 from apps.accounts.roles import FINANCE_COLLECT_PAYMENT
 from apps.core.errors import ApiError, BusinessError, api_exception_handler
 from apps.finance import services as finance
+from apps.finance.models import CashRegister, Payment
 from apps.finance.serializers import PaymentCreateSerializer
 from apps.sync.models import Device, SyncOperation
 
@@ -57,6 +59,48 @@ def _create_payment(data: dict, device: Device, actor: User) -> dict:
     return {"payment": str(payment.pk), "receipt_number": payment.receipt_number}
 
 
+class OfflineSessionSerializer(serializers.Serializer):
+    """Ouverture de caisse hors ligne (M13) : la session créée sur l'appareil."""
+
+    id = serializers.UUIDField(help_text="UUID v7 donné par l'appareil.")
+    cash_register = serializers.PrimaryKeyRelatedField(queryset=CashRegister.objects)
+    opened_at = serializers.DateTimeField(help_text="Heure de l'appareil à l'ouverture.")
+
+    def to_service(self) -> dict:
+        return dict(self.validated_data)
+
+
+def _open_session(data: dict, device: Device, actor: User) -> dict:
+    """Caisse prise entre-temps, ou caissier qui a déjà une autre caisse ouverte : refusée (les
+    encaissements de cette session le seront aussi : 3.8)."""
+    session = finance.open_cash_session(
+        actor=actor,
+        cash_register=data["cash_register"],
+        session_id=data["id"],
+        opened_at=data["opened_at"],
+    )
+    return {"cash_session": str(session.pk)}
+
+
+class OfflineReprintSerializer(serializers.Serializer):
+    """Réimpression hors ligne (F6) : le duplicata est déjà imprimé par l'appareil."""
+
+    payment = serializers.PrimaryKeyRelatedField(queryset=Payment.objects)
+    reprinted_at = serializers.DateTimeField(help_text="Heure de l'appareil à la réimpression.")
+
+    def to_service(self) -> dict:
+        return dict(self.validated_data)
+
+
+def _reprint(data: dict, device: Device, actor: User) -> dict:
+    payment = data["payment"]
+    # La caisse de l'appareil ne montre que les paiements de la session du caissier.
+    if payment.cash_session.cashier_id != actor.pk:
+        raise PermissionDenied()
+    finance.reprint_payment(payment, actor=actor, device_time=data["reprinted_at"])
+    return {"payment": str(payment.pk)}
+
+
 @dataclass(frozen=True)
 class OperationType:
     permission: str
@@ -68,6 +112,10 @@ OPERATIONS = {
     "payment.create": OperationType(
         FINANCE_COLLECT_PAYMENT, OfflinePaymentSerializer, _create_payment
     ),
+    "cash_session.open": OperationType(
+        FINANCE_COLLECT_PAYMENT, OfflineSessionSerializer, _open_session
+    ),
+    "payment.reprint": OperationType(FINANCE_COLLECT_PAYMENT, OfflineReprintSerializer, _reprint),
 }
 
 

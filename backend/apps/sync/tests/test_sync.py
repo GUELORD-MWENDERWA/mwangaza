@@ -1,9 +1,11 @@
 """Synchronisation (3.3.2) : appareil enregistré exigé, isolation entre écoles, droits,
 instantané et changements (écritures en masse et transaction en cours comprises), opérations
-appliquées une seule fois, encaissement hors ligne jamais refusé pour un surplus."""
+appliquées une seule fois, encaissement hors ligne jamais refusé pour un surplus ; ouverture de
+caisse et réimpression hors ligne (3.5.2)."""
 
 import threading
 from datetime import UTC, datetime
+from types import SimpleNamespace
 
 import pytest
 from django.db import connection, transaction
@@ -13,7 +15,7 @@ from apps.audit.models import AuditLog
 from apps.core.ids import uuid7
 from apps.core.tenancy import use_school
 from apps.finance import services as finance
-from apps.finance.models import Payment, PaymentAllocation
+from apps.finance.models import CashSession, Payment, PaymentAllocation
 from apps.finance.tests.test_charges import once, rule
 from apps.finance.tests.test_payments import school_with_fees
 from apps.students.tests.conftest import enrolled
@@ -52,6 +54,20 @@ def payment_op(data, device, session, amount, *, seq=1, code="ALPHA", **payload)
             **payload,
         },
     }
+
+
+def open_op(register, session_id=None, opened_at="2026-10-02T07:30:00Z") -> dict:
+    payload = {"id": str(session_id or uuid7()), "cash_register": str(register.pk)}
+    return {
+        "op_id": str(uuid7()),
+        "type": "cash_session.open",
+        "payload": {**payload, "opened_at": opened_at},
+    }
+
+
+def reprint_op(payment_id, reprinted_at="2026-10-02T08:20:00Z") -> dict:
+    payload = {"payment": str(payment_id), "reprinted_at": reprinted_at}
+    return {"op_id": str(uuid7()), "type": "payment.reprint", "payload": payload}
 
 
 @pytest.fixture
@@ -182,6 +198,48 @@ def test_the_same_batch_sent_twice_is_applied_once(api, school, head, cashier, a
     assert registered.last_receipt_seq == 1
 
 
+def test_a_till_opened_offline_collects_and_reprints_once_at_the_device_times(
+    api, school, cashier, alpha
+):
+    """Caisse ouverte, paiement encaissé et duplicata imprimé sans réseau, le lot envoyé deux
+    fois : une session, un paiement, un duplicata au journal, aux heures de l'appareil. Une
+    autre caissière qui a ouvert la même caisse hors ligne est refusée, et ne réimprime pas le
+    reçu d'une autre."""
+    client = api(cashier)
+    device = remember(client).json()
+    session_id = uuid7()
+    payment = payment_op(alpha, device, SimpleNamespace(pk=session_id), 12000)
+    batch = {
+        "operations": [
+            open_op(alpha["register"], session_id),
+            payment,
+            reprint_op(payment["payload"]["id"]),
+        ]
+    }
+
+    first = client.post(PUSH, batch).json()["results"]
+    again = client.post(PUSH, batch).json()["results"]
+    assert [r["status"] for r in first + again] == ["applied"] * 3 + ["duplicate"] * 3
+    with use_school(school):
+        session = CashSession.objects.get()
+        opened = AuditLog.objects.get(action=Action.FINANCE_CASH_SESSION_OPENED)
+        reprinted = AuditLog.objects.get(action=Action.FINANCE_PAYMENT_REPRINTED)
+        assert Payment.objects.get().cash_session_id == session_id
+    assert session.pk == session_id and session.cashier == cashier
+    assert opened.device_time == session.opened_at == datetime(2026, 10, 2, 7, 30, tzinfo=UTC)
+    assert reprinted.device_time == datetime(2026, 10, 2, 8, 20, tzinfo=UTC)
+    assert str(reprinted.device_id) == str(opened.device_id) == device["id"]
+
+    other = api(MembershipFactory(school=school, roles=["cashier"]).user)
+    remember(other)
+    late = [open_op(alpha["register"]), reprint_op(payment["payload"]["id"])]
+    results = other.post(PUSH, {"operations": late}).json()["results"]
+    assert [r["error"]["code"] for r in results] == ["cash_register_busy", "permission_denied"]
+    with use_school(school):
+        assert CashSession.objects.count() == 1
+        assert AuditLog.objects.filter(action=Action.FINANCE_PAYMENT_REPRINTED).count() == 1
+
+
 def test_two_offline_tills_paying_the_same_fee_both_keep_the_money(
     api, school, head, cashier, alpha
 ):
@@ -259,8 +317,23 @@ def test_a_school_never_reads_nor_writes_another_school_through_sync(
     # Une inscription de l'autre école est introuvable ; un `op_id` déjà vu ailleurs est neuf.
     intruder = payment_op(alpha, other_device, other_session, 1000, code="BETA")
     intruder["op_id"] = applied["op_id"]
-    result = other.post(PUSH, {"operations": [intruder]}).json()["results"][0]
-    assert result["status"] == "rejected"
-    assert result["error"]["fields"]["enrollment"][0]["code"] == "does_not_exist"
+    # Ni la caisse, ni le paiement d'une autre école : introuvables.
+    results = other.post(
+        PUSH,
+        {
+            "operations": [
+                intruder,
+                open_op(alpha["register"]),
+                reprint_op(applied["payload"]["id"]),
+            ]
+        },
+    ).json()["results"]
+    assert {r["status"] for r in results} == {"rejected"}
+    assert [next(iter(r["error"]["fields"].values()))[0]["code"] for r in results] == [
+        "does_not_exist"
+    ] * 3
     with use_school(other_school):
         assert not Payment.objects.exists()
+        assert list(CashSession.objects.all()) == [other_session]
+    with use_school(school):
+        assert not AuditLog.objects.filter(action=Action.FINANCE_PAYMENT_REPRINTED).exists()

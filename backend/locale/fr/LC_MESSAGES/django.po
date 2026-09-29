@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-28 23:19+0200\n"
+"POT-Creation-Date: 2026-09-29 14:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -806,7 +806,8 @@ msgstr ""
 msgid "browser"
 msgstr ""
 
-#: apps/audit/models.py:72 apps/sync/models.py:46
+#: apps/audit/models.py:72 apps/finance/models.py:514 apps/sync/models.py:46
+#: apps/sync/models.py:69
 msgid "device"
 msgstr "appareil"
 
@@ -831,7 +832,7 @@ msgid "Export at most one year at a time."
 msgstr "Exportez au plus une année à la fois."
 
 #: apps/audit/views.py:101
-#: apps/finance/templates/finance/receipt_verification.html:60
+#: apps/finance/templates/finance/receipt_verification.html:69
 msgid "Date"
 msgstr "Date"
 
@@ -1011,7 +1012,7 @@ msgid "label"
 msgstr ""
 
 #: apps/finance/models.py:128 apps/finance/models.py:176
-#: apps/finance/models.py:249 apps/finance/models.py:543
+#: apps/finance/models.py:249 apps/finance/models.py:554
 msgid "amount"
 msgstr ""
 
@@ -1056,6 +1057,7 @@ msgstr ""
 
 #: apps/finance/models.py:170 apps/finance/models.py:237
 #: apps/finance/models.py:483 apps/students/models.py:164
+#: apps/sync/models.py:97
 msgid "enrollment"
 msgstr ""
 
@@ -1065,11 +1067,11 @@ msgstr ""
 
 #: apps/finance/models.py:190 apps/schools/models.py:131
 #: apps/schools/models.py:219 apps/students/models.py:157
-#: apps/students/models.py:222
+#: apps/students/models.py:222 apps/sync/models.py:73
 msgid "status"
 msgstr ""
 
-#: apps/finance/models.py:195 apps/finance/models.py:540
+#: apps/finance/models.py:195 apps/finance/models.py:551
 #, fuzzy
 #| msgid "Student changed"
 msgid "student charge"
@@ -1086,7 +1088,7 @@ msgid "Percentage"
 msgstr ""
 
 #: apps/finance/models.py:224
-#: apps/finance/templates/finance/receipt_verification.html:62
+#: apps/finance/templates/finance/receipt_verification.html:71
 #: apps/students/templates/students/registration_form.html:50
 msgid "Amount"
 msgstr "Montant"
@@ -1116,7 +1118,7 @@ msgid "percentage"
 msgstr ""
 
 #: apps/finance/models.py:251 apps/finance/models.py:336
-#: apps/finance/models.py:569
+#: apps/finance/models.py:580
 msgid "reason"
 msgstr ""
 
@@ -1216,186 +1218,198 @@ msgstr ""
 msgid "method"
 msgstr ""
 
-#: apps/finance/models.py:509 apps/finance/models.py:534
-#: apps/finance/models.py:567
+#: apps/finance/models.py:516
+msgid "received by the server"
+msgstr ""
+
+#: apps/finance/models.py:520 apps/finance/models.py:545
+#: apps/finance/models.py:578
 msgid "payment"
 msgstr ""
 
-#: apps/finance/models.py:510
+#: apps/finance/models.py:521
 msgid "payments"
 msgstr ""
 
-#: apps/finance/models.py:542
+#: apps/finance/models.py:553
 msgid "part of the amount received"
 msgstr ""
 
-#: apps/finance/models.py:546
+#: apps/finance/models.py:557
 msgid "payment allocation"
 msgstr ""
 
-#: apps/finance/models.py:547
+#: apps/finance/models.py:558
 msgid "payment allocations"
 msgstr ""
 
-#: apps/finance/models.py:574
+#: apps/finance/models.py:585
 msgid "requested by"
 msgstr ""
 
-#: apps/finance/models.py:580
+#: apps/finance/models.py:591
 msgid "approved by"
 msgstr ""
 
-#: apps/finance/models.py:582
+#: apps/finance/models.py:593
 msgid "approved at"
 msgstr ""
 
-#: apps/finance/models.py:585
+#: apps/finance/models.py:596
 msgid "payment cancellation"
 msgstr ""
 
-#: apps/finance/models.py:586
+#: apps/finance/models.py:597
 msgid "payment cancellations"
 msgstr ""
 
-#: apps/finance/services.py:50
+#: apps/finance/services.py:63
 msgid "The school already has a fee type with this name."
 msgstr ""
 
-#: apps/finance/services.py:54
+#: apps/finance/services.py:67
 msgid ""
 "This fee type has fee rules or students who owe it: deactivate it instead."
 msgstr ""
 
-#: apps/finance/services.py:58
+#: apps/finance/services.py:71
 msgid "This fee already has a fee rule for this scope this school year."
 msgstr ""
 
-#: apps/finance/services.py:60
+#: apps/finance/services.py:73
 msgid "This discount was already revoked."
 msgstr ""
 
-#: apps/finance/services.py:63
+#: apps/finance/services.py:76
 msgid "The school already has a cash register with this name or code."
 msgstr ""
 
-#: apps/finance/services.py:67
+#: apps/finance/services.py:80
 msgid "This cash register is deactivated."
 msgstr ""
 
-#: apps/finance/services.py:70
+#: apps/finance/services.py:83
 msgid "Another cashier already has this cash register open."
 msgstr ""
 
-#: apps/finance/services.py:73
+#: apps/finance/services.py:86
 msgid "You already have a cash register open: close it first."
 msgstr ""
 
-#: apps/finance/services.py:76
+#: apps/finance/services.py:89
 msgid "Open a cash register before collecting payments."
 msgstr ""
 
-#: apps/finance/services.py:79
+#: apps/finance/services.py:92
 msgid "The accountant must first set the exchange rate of the year."
 msgstr ""
 
-#: apps/finance/services.py:82
+#: apps/finance/services.py:95
 msgid "Another payment already has this identifier."
 msgstr ""
 
-#: apps/finance/services.py:85
+#: apps/finance/services.py:98
 msgid "This payment was cancelled: its receipt is no longer valid."
 msgstr ""
 
-#: apps/finance/services.py:180 apps/finance/services.py:192
+#: apps/finance/services.py:193 apps/finance/services.py:205
 msgid "Whole school"
 msgstr "Toute l'école"
 
-#: apps/finance/services.py:205
+#: apps/finance/services.py:218
 msgid "Choose a level, a track or a class, not several."
 msgstr ""
 
-#: apps/finance/services.py:207
+#: apps/finance/services.py:220
 msgid "This class belongs to another school year."
 msgstr ""
 
-#: apps/finance/services.py:210
+#: apps/finance/services.py:223
 msgid "This currency is not one of the school's currencies."
 msgstr ""
 
-#: apps/finance/services.py:213 apps/finance/services.py:596
+#: apps/finance/services.py:226 apps/finance/services.py:610
 msgid "Add at least one installment."
 msgstr ""
 
-#: apps/finance/services.py:215
+#: apps/finance/services.py:228
 msgid "A single payment has exactly one installment."
 msgstr ""
 
-#: apps/finance/services.py:222
+#: apps/finance/services.py:235
 msgid "The installments must add up to the total."
 msgstr ""
 
-#: apps/finance/services.py:594 apps/finance/services.py:728
-#: apps/finance/services.py:782
+#: apps/finance/services.py:608 apps/finance/services.py:743
+#: apps/finance/services.py:797
 msgid "This field may not be blank."
 msgstr ""
 
-#: apps/finance/services.py:604
+#: apps/finance/services.py:618
 msgid "Only a student enrolled this year can get a custom schedule."
 msgstr ""
 
-#: apps/finance/services.py:612
+#: apps/finance/services.py:626
 msgid "The student owes nothing unpaid for this fee."
 msgstr ""
 
-#: apps/finance/services.py:616
+#: apps/finance/services.py:630
 msgid "This fee is owed in several currencies: it cannot be rescheduled."
 msgstr ""
 
-#: apps/finance/services.py:623
+#: apps/finance/services.py:637
 msgid "The installments must add up to what is left to reschedule."
 msgstr ""
 
-#: apps/finance/services.py:736
+#: apps/finance/services.py:751
 msgid "Only a student enrolled this year can get a discount."
 msgstr ""
 
-#: apps/finance/services.py:745
+#: apps/finance/services.py:760
 msgid "The student owes nothing for this fee."
 msgstr ""
 
-#: apps/finance/services.py:751
+#: apps/finance/services.py:766
 msgid "An amount applies to one fee, in its currency."
 msgstr ""
 
-#: apps/finance/services.py:754
+#: apps/finance/services.py:769
 msgid "A discount cannot be more than the fee."
 msgstr ""
 
-#: apps/finance/services.py:979
+#: apps/finance/services.py:994
 msgid "Give the reason for the correction."
 msgstr ""
 
-#: apps/finance/services.py:982
+#: apps/finance/services.py:997
 msgid "This is already the rate of the year."
 msgstr ""
 
-#: apps/finance/services.py:1169
+#: apps/finance/services.py:1189
 msgid "The student does not owe this fee, or it appears twice."
 msgstr ""
 
-#: apps/finance/services.py:1175
+#: apps/finance/services.py:1195
 msgid "This part is more than what is left to pay on this fee, or too small."
 msgstr ""
 
-#: apps/finance/services.py:1179
+#: apps/finance/services.py:1199
 msgid "The parts must add up to the amount received."
 msgstr ""
 
-#: apps/finance/services.py:1237
+#: apps/finance/services.py:1257
+msgid "This receipt number was not given by this device."
+msgstr ""
+
+#: apps/finance/services.py:1260
+msgid "Another payment already has this receipt number."
+msgstr ""
+
+#: apps/finance/services.py:1311
 msgid "The school does not use this currency."
 msgstr ""
 
-#: apps/finance/services.py:1253
+#: apps/finance/services.py:1335
 msgid "This is more than what the student owes: give back the change."
 msgstr ""
 
@@ -1403,35 +1417,61 @@ msgstr ""
 msgid "Receipt verification"
 msgstr "Vérification d'un reçu"
 
-#: apps/finance/templates/finance/receipt_verification.html:36
+#: apps/finance/templates/finance/receipt_verification.html:38
 msgid "Document verification"
 msgstr "Vérification de document"
 
-#: apps/finance/templates/finance/receipt_verification.html:46
+#: apps/finance/templates/finance/receipt_verification.html:49
 msgid "Authentic receipt"
 msgstr "Reçu authentique"
 
-#: apps/finance/templates/finance/receipt_verification.html:47
+#: apps/finance/templates/finance/receipt_verification.html:50
 msgid "This receipt was issued by the school and has not been cancelled."
 msgstr "Ce reçu a bien été émis par l'école et n'a pas été annulé."
 
-#: apps/finance/templates/finance/receipt_verification.html:49
+#: apps/finance/templates/finance/receipt_verification.html:52
 #, python-format
 msgid "Receipt cancelled on %(date)s"
 msgstr "Reçu annulé le %(date)s"
 
-#: apps/finance/templates/finance/receipt_verification.html:50
+#: apps/finance/templates/finance/receipt_verification.html:53
 msgid ""
 "This receipt was issued by the school, then cancelled: it no longer counts "
 "as a payment."
 msgstr ""
 "Ce reçu a été émis par l'école, puis annulé : il ne vaut plus comme paiement."
 
-#: apps/finance/templates/finance/receipt_verification.html:52
+#: apps/finance/templates/finance/receipt_verification.html:55
+msgid "Authentic receipt, awaiting synchronisation"
+msgstr "Reçu authentique, en attente de synchronisation"
+
+#: apps/finance/templates/finance/receipt_verification.html:56
+#, python-format
+msgid ""
+"Issued offline by cash register %(register)s on %(date)s, signed by the "
+"school's device. It will appear here once the device is back online."
+msgstr ""
+"Émis hors ligne par la caisse %(register)s le %(date)s, signé par l'appareil "
+"de l'école. Il apparaîtra ici dès que l'appareil sera de nouveau en ligne."
+
+#: apps/finance/templates/finance/receipt_verification.html:58
+msgid "Forged receipt"
+msgstr "Reçu falsifié"
+
+#: apps/finance/templates/finance/receipt_verification.html:59
+#, python-format
+msgid ""
+"This code does not match any receipt issued by %(school)s: the receipt was "
+"altered. Check with the school."
+msgstr ""
+"Ce code ne correspond à aucun reçu émis par %(school)s : le reçu a été "
+"modifié. Renseignez-vous auprès de l'école."
+
+#: apps/finance/templates/finance/receipt_verification.html:61
 msgid "Unknown receipt"
 msgstr "Reçu inconnu"
 
-#: apps/finance/templates/finance/receipt_verification.html:53
+#: apps/finance/templates/finance/receipt_verification.html:62
 #, python-format
 msgid ""
 "No receipt of %(school)s matches this code. This receipt may be false: check "
@@ -1440,15 +1480,15 @@ msgstr ""
 "Aucun reçu de %(school)s ne correspond à ce code. Ce reçu est peut-être "
 "faux : renseignez-vous auprès de l'école."
 
-#: apps/finance/templates/finance/receipt_verification.html:58
+#: apps/finance/templates/finance/receipt_verification.html:67
 msgid "School"
 msgstr "École"
 
-#: apps/finance/templates/finance/receipt_verification.html:59
+#: apps/finance/templates/finance/receipt_verification.html:68
 msgid "Number"
 msgstr "Numéro"
 
-#: apps/finance/templates/finance/receipt_verification.html:61
+#: apps/finance/templates/finance/receipt_verification.html:70
 msgid "Student"
 msgstr "Élève"
 
@@ -1849,103 +1889,103 @@ msgstr ""
 msgid "classes"
 msgstr ""
 
-#: apps/schools/organisation.py:31
+#: apps/schools/organisation.py:32
 msgid "The school already has a school year with this name."
 msgstr ""
 
-#: apps/schools/organisation.py:33
+#: apps/schools/organisation.py:34
 msgid "The current school year cannot be deleted."
 msgstr ""
 
-#: apps/schools/organisation.py:34
+#: apps/schools/organisation.py:35
 msgid "This school year has classes: delete them first."
 msgstr ""
 
-#: apps/schools/organisation.py:36
+#: apps/schools/organisation.py:37
 msgid "The school already has a level with this name."
 msgstr ""
 
-#: apps/schools/organisation.py:38
+#: apps/schools/organisation.py:39
 msgid "This level is used by classes."
 msgstr ""
 
-#: apps/schools/organisation.py:40
+#: apps/schools/organisation.py:41
 msgid "The school already has a track with this name."
 msgstr ""
 
-#: apps/schools/organisation.py:43
+#: apps/schools/organisation.py:44
 msgid "The school already has a track with this code."
 msgstr ""
 
-#: apps/schools/organisation.py:45
+#: apps/schools/organisation.py:46
 msgid "This track is used by classes."
 msgstr ""
 
-#: apps/schools/organisation.py:46
+#: apps/schools/organisation.py:47
 msgid "This class already exists this school year."
 msgstr ""
 
-#: apps/schools/organisation.py:47
+#: apps/schools/organisation.py:48
 msgid "This class has students: it cannot be deleted."
 msgstr ""
 
-#: apps/schools/organisation.py:48
+#: apps/schools/organisation.py:49
 msgid "A removed period is already used."
 msgstr ""
 
-#: apps/schools/organisation.py:65
+#: apps/schools/organisation.py:66
 msgid "RDC secondary: 2 semesters, 4 periods, 2 exam sessions"
 msgstr ""
 
-#: apps/schools/organisation.py:66
+#: apps/schools/organisation.py:67
 msgid "3 terms, 6 periods, 3 exam sessions"
 msgstr ""
 
-#: apps/schools/organisation.py:67
+#: apps/schools/organisation.py:68
 msgid "Empty: enter the terms yourself"
 msgstr ""
 
-#: apps/schools/organisation.py:104 apps/schools/organisation.py:266
+#: apps/schools/organisation.py:105 apps/schools/organisation.py:269
 msgid "The end must come after the start."
 msgstr ""
 
-#: apps/schools/organisation.py:178
+#: apps/schools/organisation.py:181
 msgid "Some terms and periods would fall outside the year: change them first."
 msgstr ""
 
-#: apps/schools/organisation.py:242
+#: apps/schools/organisation.py:245
 msgid "Too many terms and periods."
 msgstr ""
 
-#: apps/schools/organisation.py:253
+#: apps/schools/organisation.py:256
 msgid "Unknown term."
 msgstr ""
 
-#: apps/schools/organisation.py:255
+#: apps/schools/organisation.py:258
 msgid "This term appears twice."
 msgstr ""
 
-#: apps/schools/organisation.py:258
+#: apps/schools/organisation.py:261
 msgid "Only a semester or a term has periods."
 msgstr ""
 
-#: apps/schools/organisation.py:260
+#: apps/schools/organisation.py:263
 msgid "Only periods and exams go inside."
 msgstr ""
 
-#: apps/schools/organisation.py:264
+#: apps/schools/organisation.py:267
 msgid "This date is outside the school year."
 msgstr ""
 
-#: apps/schools/organisation.py:269 apps/schools/organisation.py:271
+#: apps/schools/organisation.py:272 apps/schools/organisation.py:274
 msgid "Outside its semester or term."
 msgstr ""
 
-#: apps/schools/organisation.py:386
+#: apps/schools/organisation.py:389
 msgid "Give every level of the school once."
 msgstr ""
 
-#: apps/schools/organisation.py:492
+#: apps/schools/organisation.py:495
 msgid "Choose a member of the school's staff."
 msgstr ""
 
@@ -2012,7 +2052,7 @@ msgstr "En retard : %(amounts)s"
 msgid "No."
 msgstr "N°"
 
-#: apps/students/documents.py:224 apps/students/imports.py:84
+#: apps/students/documents.py:224 apps/students/imports.py:85
 #: apps/students/templates/students/class_list.html:22
 #: apps/students/templates/students/registration_form.html:35
 msgid "Student number"
@@ -2044,143 +2084,143 @@ msgstr "Téléphone du tuteur principal"
 msgid "Payment status"
 msgstr "Situation des paiements"
 
-#: apps/students/imports.py:77
+#: apps/students/imports.py:78
 msgid "Last name"
 msgstr "Nom"
 
-#: apps/students/imports.py:78
+#: apps/students/imports.py:79
 msgid "Middle name"
 msgstr "Post-nom"
 
-#: apps/students/imports.py:79
+#: apps/students/imports.py:80
 msgid "First name"
 msgstr "Prénom"
 
-#: apps/students/imports.py:80
+#: apps/students/imports.py:81
 msgid "Sex (M/F)"
 msgstr "Sexe (M/F)"
 
-#: apps/students/imports.py:81
+#: apps/students/imports.py:82
 msgid "Date of birth (DD/MM/YYYY)"
 msgstr "Date de naissance (JJ/MM/AAAA)"
 
-#: apps/students/imports.py:82
+#: apps/students/imports.py:83
 msgid "Place of birth"
 msgstr "Lieu de naissance"
 
-#: apps/students/imports.py:83
+#: apps/students/imports.py:84
 #: apps/students/templates/students/registration_form.html:35
 msgid "Class"
 msgstr "Classe"
 
-#: apps/students/imports.py:85
+#: apps/students/imports.py:86
 msgid "Guardian name"
 msgstr "Nom du tuteur"
 
-#: apps/students/imports.py:86
+#: apps/students/imports.py:87
 msgid "Guardian phone"
 msgstr "Téléphone du tuteur"
 
-#: apps/students/imports.py:153
+#: apps/students/imports.py:154
 msgid "Last name missing"
 msgstr "Nom manquant"
 
-#: apps/students/imports.py:154
+#: apps/students/imports.py:155
 msgid "Sex missing or unknown (M or F)"
 msgstr "Sexe manquant ou inconnu (M ou F)"
 
-#: apps/students/imports.py:155
+#: apps/students/imports.py:156
 msgid "Invalid date of birth"
 msgstr "Date de naissance invalide"
 
-#: apps/students/imports.py:156
+#: apps/students/imports.py:157
 msgid "Class missing"
 msgstr "Classe manquante"
 
-#: apps/students/imports.py:157
+#: apps/students/imports.py:158
 msgid "Unknown class"
 msgstr "Classe inconnue"
 
-#: apps/students/imports.py:158
+#: apps/students/imports.py:159
 msgid "Student number already used in the school"
 msgstr "Matricule déjà utilisé dans l'école"
 
-#: apps/students/imports.py:159
+#: apps/students/imports.py:160
 #, python-format
 msgid "Student number repeated (line %(line)s)"
 msgstr "Matricule répété (ligne %(line)s)"
 
-#: apps/students/imports.py:160
+#: apps/students/imports.py:161
 msgid "Already in the school (same names and date of birth)"
 msgstr "Déjà dans l'école (mêmes noms et date de naissance)"
 
-#: apps/students/imports.py:161
+#: apps/students/imports.py:162
 #, python-format
 msgid "Possible duplicate (line %(line)s)"
 msgstr "Doublon possible (ligne %(line)s)"
 
-#: apps/students/imports.py:162
+#: apps/students/imports.py:163
 msgid "Date of birth missing"
 msgstr "Date de naissance manquante"
 
-#: apps/students/imports.py:163
+#: apps/students/imports.py:164
 msgid "Unreadable phone number: guardian kept without phone"
 msgstr "Téléphone illisible : tuteur gardé sans téléphone"
 
-#: apps/students/imports.py:164
+#: apps/students/imports.py:165
 msgid "Phone without guardian name: not kept"
 msgstr "Téléphone sans nom de tuteur : pas gardé"
 
-#: apps/students/imports.py:165
+#: apps/students/imports.py:166
 #, python-format
 msgid "Same family as line %(line)s"
 msgstr "Même famille que la ligne %(line)s"
 
-#: apps/students/imports.py:168
+#: apps/students/imports.py:169
 msgid "The file is larger than 5 MB."
 msgstr ""
 
-#: apps/students/imports.py:170
+#: apps/students/imports.py:171
 msgid "Old Excel file (.xls): save it as .xlsx in Excel, then try again."
 msgstr ""
 
-#: apps/students/imports.py:173
+#: apps/students/imports.py:174
 msgid "This file cannot be read: send an Excel (.xlsx) or CSV file."
 msgstr ""
 
-#: apps/students/imports.py:175
+#: apps/students/imports.py:176
 msgid "The file has no student rows."
 msgstr ""
 
-#: apps/students/imports.py:176
+#: apps/students/imports.py:177
 msgid "The file has more than 5,000 rows."
 msgstr ""
 
-#: apps/students/imports.py:177
+#: apps/students/imports.py:178
 msgid "This import has already been started."
 msgstr ""
 
-#: apps/students/imports.py:178
+#: apps/students/imports.py:179
 msgid "No row can be imported."
 msgstr ""
 
-#: apps/students/imports.py:518
+#: apps/students/imports.py:519
 msgid "Invalid column mapping."
 msgstr ""
 
-#: apps/students/imports.py:520
+#: apps/students/imports.py:521
 msgid "Unknown column."
 msgstr ""
 
-#: apps/students/imports.py:532
+#: apps/students/imports.py:533
 msgid "Choose a class of this school year."
 msgstr ""
 
-#: apps/students/imports.py:710
+#: apps/students/imports.py:712
 msgid "Line"
 msgstr "Ligne"
 
-#: apps/students/imports.py:710
+#: apps/students/imports.py:712
 msgid "Problems"
 msgstr "Problèmes"
 
@@ -2690,10 +2730,90 @@ msgstr "déconnecté le"
 msgid "devices"
 msgstr "appareils"
 
-#: apps/sync/services.py:35
+#: apps/sync/models.py:64
+msgid "applied"
+msgstr ""
+
+#: apps/sync/models.py:65
+msgid "rejected"
+msgstr ""
+
+#: apps/sync/models.py:67 apps/sync/models.py:110
+msgid "operation"
+msgstr "opération"
+
+#: apps/sync/models.py:71
+msgid "type"
+msgstr ""
+
+#: apps/sync/models.py:72
+msgid "content"
+msgstr ""
+
+#: apps/sync/models.py:76
+msgid "result"
+msgstr ""
+
+#: apps/sync/models.py:79
+msgid "sync operation"
+msgstr ""
+
+#: apps/sync/models.py:80
+msgid "sync operations"
+msgstr ""
+
+#: apps/sync/models.py:98
+msgid "configuration"
+msgstr ""
+
+#: apps/sync/models.py:101
+msgid "created or changed"
+msgstr "créée ou modifiée"
+
+#: apps/sync/models.py:102
+msgid "deleted"
+msgstr "supprimée"
+
+#: apps/sync/models.py:106
+msgid "number"
+msgstr "numéro"
+
+#: apps/sync/models.py:107
+msgid "waiting for a number"
+msgstr ""
+
+#: apps/sync/models.py:108
+msgid "entity"
+msgstr ""
+
+#: apps/sync/models.py:109
+msgid "entity id"
+msgstr ""
+
+#: apps/sync/models.py:113
+msgid "change"
+msgstr "changement"
+
+#: apps/sync/models.py:114
+msgid "changes"
+msgstr "changements"
+
+#: apps/sync/operations.py:32
+msgid "This application is out of date: update it."
+msgstr ""
+
+#: apps/sync/services.py:44
 msgid "This device was disconnected. It is no longer remembered."
 msgstr "Cet appareil a été déconnecté. Il n'est plus mémorisé."
 
-#: apps/sync/services.py:130
+#: apps/sync/services.py:47
+msgid "Remember this device when you log in to work without internet."
+msgstr ""
+
+#: apps/sync/services.py:50
+msgid "The data of this device is out of date: download it again."
+msgstr ""
+
+#: apps/sync/services.py:145
 msgid "Invalid device key."
 msgstr "Clé d'appareil non valide."

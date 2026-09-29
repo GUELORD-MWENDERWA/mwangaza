@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.5.1 terminée, PR #107 à fusionner |
-| Prochaine tâche | 3.5.2 — ouverture et réimpression hors ligne, QR signé |
+| Tâche en cours | 3.5.2 — ouverture et réimpression hors ligne, QR signé (en cours) |
+| Prochaine tâche | 3.6 — crédit élève (surpaiement) |
 | Issue GitHub | #25 |
-| Branche | `tache/3.5.1-caisse-hors-ligne` (PR #107) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/3.5.2-ouverture-reimpression-qr` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-29 |
 
 ## Avancement
