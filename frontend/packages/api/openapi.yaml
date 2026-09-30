@@ -1706,6 +1706,190 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/cash-closings/:
+    get:
+      operationId: cash_closings_list
+      description: |-
+        Clôtures de caisse vues par le comptable (M16), en lecture seule : les sessions de tous
+        les caissiers, par mois, avec l'attendu, le compté et l'écart par devise, l'état, les
+        paiements arrivés après la clôture ; le détail et le bordereau ; l'export Excel.
+      parameters:
+      - in: query
+        name: cash_register
+        schema:
+          type: string
+          format: uuid
+        description: Une seule caisse.
+      - in: query
+        name: month
+        schema:
+          type: string
+          format: date
+        description: 'Mois d''ouverture des sessions (AAAA-MM) ; absent : le mois
+          en cours.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cash-closings/{id}/:
+    get:
+      operationId: cash_closings_retrieve
+      description: |-
+        Clôtures de caisse vues par le comptable (M16), en lecture seule : les sessions de tous
+        les caissiers, par mois, avec l'attendu, le compté et l'écart par devise, l'état, les
+        paiements arrivés après la clôture ; le détail et le bordereau ; l'export Excel.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this cash session.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashClosingDetail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cash-closings/export/:
+    get:
+      operationId: cash_closings_export_retrieve
+      description: Export Excel du mois (une ligne par session, montants en nombres).
+      parameters:
+      - in: query
+        name: cash_register
+        schema:
+          type: string
+          format: uuid
+        description: Une seule caisse.
+      - in: query
+        name: month
+        schema:
+          type: string
+          format: date
+        description: 'Mois d''ouverture des sessions (AAAA-MM) ; absent : le mois
+          en cours.'
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: Classeur Excel.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cash-closings/summary/:
+    get:
+      operationId: cash_closings_summary_retrieve
+      description: Chiffres de l'écran pour le mois, et les sessions pas clôturées
+        (bandeau).
+      parameters:
+      - in: query
+        name: cash_register
+        schema:
+          type: string
+          format: uuid
+        description: Une seule caisse.
+      - in: query
+        name: month
+        schema:
+          type: string
+          format: date
+        description: 'Mois d''ouverture des sessions (AAAA-MM) ; absent : le mois
+          en cours.'
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClosingsSummary'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/cash-registers/:
     get:
       operationId: cash_registers_list
@@ -7189,6 +7373,80 @@ components:
       - closed_by
       - offline
       - received_at
+    CashClosingDetail:
+      type: object
+      description: |-
+        Clôture d'une session vue par le comptable : le bordereau, l'état, et les paiements
+        encaissés hors ligne arrivés après la clôture (hors de l'attendu figé).
+      properties:
+        session:
+          $ref: '#/components/schemas/CashSession'
+        currencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClosingCurrency'
+        fee_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClosingFeeType'
+        payments_count:
+          type: integer
+          description: Reçus donnés, annulés compris.
+        first_receipt:
+          type: string
+          nullable: true
+        last_receipt:
+          type: string
+          nullable: true
+        cancelled:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionTotal'
+          description: Annulations validées.
+        cancellations_pending:
+          type: integer
+        closing:
+          allOf:
+          - $ref: '#/components/schemas/CashClosing'
+          nullable: true
+        state:
+          allOf:
+          - $ref: '#/components/schemas/CashClosingDetailStateEnum'
+          description: |-
+            Ouverte aujourd'hui, pas clôturée (ouverte avant aujourd'hui), conforme, ou écart.
+
+            * `open` - open
+            * `unclosed` - unclosed
+            * `ok` - ok
+            * `difference` - difference
+        late_payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/LatePayment'
+      required:
+      - session
+      - currencies
+      - fee_types
+      - payments_count
+      - first_receipt
+      - last_receipt
+      - cancelled
+      - cancellations_pending
+      - closing
+      - state
+      - late_payments
+    CashClosingDetailStateEnum:
+      enum:
+      - open
+      - unclosed
+      - ok
+      - difference
+      type: string
+      description: |-
+        * `open` - open
+        * `unclosed` - unclosed
+        * `ok` - ok
+        * `difference` - difference
     CashClosingLine:
       type: object
       properties:
@@ -7501,6 +7759,21 @@ components:
       - currency
       - expected_minor
       - count
+    ClosingDifference:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        difference_minor:
+          type: integer
+          description: Somme des écarts du mois.
+        sessions:
+          type: integer
+          description: Sessions avec un écart dans cette devise.
+      required:
+      - currency
+      - difference_minor
+      - sessions
     ClosingFeeType:
       type: object
       properties:
@@ -7522,6 +7795,28 @@ components:
       - fee_type
       - currency
       - amount_minor
+    ClosingsSummary:
+      type: object
+      properties:
+        sessions:
+          type: integer
+        cash_registers:
+          type: integer
+        differences:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClosingDifference'
+        unclosed:
+          type: array
+          items:
+            $ref: '#/components/schemas/CashSession'
+          description: Pas clôturées, ouvertes avant aujourd'hui, quel que soit le
+            mois.
+      required:
+      - sessions
+      - cash_registers
+      - differences
+      - unclosed
     CodeEnum:
       enum:
       - head
@@ -8906,6 +9201,47 @@ components:
       description: |-
         * `fr` - Français
         * `en` - English
+    LatePayment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        receipt_number:
+          type: string
+          maxLength: 40
+        student:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStudent'
+          readOnly: true
+        amount_minor:
+          type: integer
+          readOnly: true
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          readOnly: true
+        paid_at:
+          type: string
+          format: date-time
+        received_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Arrivée au serveur.
+        cancelled:
+          type: boolean
+          readOnly: true
+      required:
+      - id
+      - receipt_number
+      - student
+      - amount_minor
+      - currency
+      - paid_at
+      - received_at
+      - cancelled
     Level:
       type: object
       properties:
@@ -11764,6 +12100,33 @@ components:
       - fee_types
       - cash_registers
       - exchange_rate
+    SyncCreditUse:
+      type: object
+      description: |-
+        Part d'un crédit utilisée sur un frais dû : payée depuis `created_at`, jusqu'à
+        l'annulation du crédit (`voided_at`).
+      properties:
+        student_charge:
+          type: string
+          format: uuid
+          readOnly: true
+        amount_minor:
+          type: integer
+          readOnly: true
+          title: Amount
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        voided_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - student_charge
+      - amount_minor
+      - created_at
+      - voided_at
     SyncDevice:
       type: object
       properties:
@@ -11838,6 +12201,12 @@ components:
             $ref: '#/components/schemas/StudentCredit'
           readOnly: true
           nullable: true
+        credit_uses:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncCreditUse'
+          readOnly: true
+          nullable: true
       required:
       - id
       - academic_year
@@ -11849,6 +12218,7 @@ components:
       - charges
       - payments
       - credits
+      - credit_uses
     SyncFeeType:
       type: object
       properties:

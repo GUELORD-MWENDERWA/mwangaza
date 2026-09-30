@@ -159,7 +159,8 @@ def test_the_snapshot_gives_each_account_what_its_rights_allow(api, school, head
     remember(secretary)
     data = secretary.get(SNAPSHOT).json()
     assert data["config"]["fee_types"] is None and data["config"]["exchange_rate"] is None
-    assert {(e["charges"], e["credits"]) for e in data["enrollments"]} == {(None, None)}
+    finance_fields = ("charges", "credits", "credit_uses")
+    assert {tuple(e[f] for f in finance_fields) for e in data["enrollments"]} == {(None,) * 3}
 
 
 def test_pull_returns_what_changed_since_the_cursor_bulk_writes_included(
@@ -296,11 +297,12 @@ def close_op(session, usd: int, closed_at="2026-10-02T16:50:00Z", note="") -> di
 
 
 def test_a_till_closed_offline_once_and_a_late_payment_still_reaches_the_student(
-    api, school, cashier, alpha
+    api, school, head, cashier, alpha
 ):
     """Clôture faite sans réseau, envoyée deux fois : une clôture à l'heure de l'appareil, la
     devise pas comptée l'est à zéro, rien n'est refusé. Un paiement hors ligne de la même
-    session arrivé après (autre appareil) est gardé, mais hors de l'attendu déjà figé."""
+    session arrivé après (autre appareil) est gardé, mais hors de l'attendu déjà figé : le
+    comptable le voit « arrivé après la clôture » (3.8.3)."""
     client, device, session = till(api, school, cashier, alpha)
     closing = close_op(session, 11500)
     batch = {"operations": [payment_op(alpha, device, session, 12000), closing]}
@@ -323,6 +325,15 @@ def test_a_till_closed_offline_once_and_a_late_payment_still_reaches_the_student
     assert lines == {"USD": (12000, 11500, -500), "CDF": (0, 0, 0)}
     [closed] = entries(school, Action.FINANCE_CASH_SESSION_CLOSED)
     assert str(closed.device_id) == device["id"]
+    accountant = api(head)
+    detail = accountant.get(f"/api/cash-closings/{session.pk}/").json()
+    # Le bordereau reste celui de la clôture ; le paiement arrivé après est à part.
+    assert (detail["payments_count"], detail["currencies"][0]["expected_minor"]) == (1, 12000)
+    assert [(p["receipt_number"], p["amount_minor"]) for p in detail["late_payments"]] == [
+        (late["payload"]["receipt_number"], 6000)
+    ]
+    [row] = accountant.get("/api/cash-closings/").json()["results"]
+    assert row["late"] == [{"currency": "USD", "amount_minor": 6000, "count": 1}]
 
 
 def test_two_offline_tills_paying_the_same_fee_both_keep_the_money(
@@ -425,6 +436,9 @@ def test_a_credit_is_on_the_device_and_used_once_offline(api, school, head, cash
     assert entry.actor == cashier
     [change] = client.get(PULL, since=snapshot["cursor"]).json()["changes"]
     assert change["enrollment"]["credits"] == []
+    # Plus à traiter, mais sa part reste sur l'appareil : un duplicata la compte (3.8.3).
+    [part] = change["enrollment"]["credit_uses"]
+    assert (part["amount_minor"], part["voided_at"]) == (3000, None)
     again = client.post(PUSH, {"operations": [credit_op(credit.pk)]}).json()["results"][0]
     assert again["error"]["code"] == "credit_used"
 

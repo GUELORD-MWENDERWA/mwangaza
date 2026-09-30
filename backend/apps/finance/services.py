@@ -1651,6 +1651,16 @@ def open_credits(enrollments: list) -> list[StudentCredit]:
     return list(items.order_by("created_at", "id"))
 
 
+def credit_uses(enrollments: list) -> list[CreditAllocation]:
+    """Parts de crédit utilisées de ces inscriptions, avec l'annulation du crédit (une
+    requête) : un duplicata fait sur l'appareil les compte comme `balance_after` (3.8.3)."""
+    return list(
+        CreditAllocation.objects.filter(credit__enrollment_id__in=enrollments)
+        .select_related("credit")
+        .order_by("created_at", "id")
+    )
+
+
 def credit_state(credit: StudentCredit) -> str:
     if credit.voided_at is not None:
         return VOIDED
@@ -1980,7 +1990,14 @@ def closing_summary(session: CashSession, *, until: datetime | None = None) -> d
     fois faite."""
     until = until or session.closed_at or timezone.now()
     school = require_current_school()
+    closings = list(
+        CashClosing.objects.filter(cash_session=session).select_related("closed_by", "device")
+    )
     payments = Payment.objects.filter(cash_session=session)
+    if closings:
+        # Ce que la clôture a compté : les paiements reçus avant elle ; ceux arrivés après
+        # (encaissés hors ligne sur un autre appareil) sont à part (`late_payments`).
+        payments = payments.filter(created_at__lte=_received(closings))
     kept = _in_till_at(payments, until)
     expected = {
         row["received_currency"]: row
@@ -2025,9 +2042,6 @@ def closing_summary(session: CashSession, *, until: datetime | None = None) -> d
         .order_by()
     }
     receipts = list(payments.order_by("paid_at", "receipt_number").values_list("receipt_number"))
-    closings = list(
-        CashClosing.objects.filter(cash_session=session).select_related("closed_by", "device")
-    )
     return {
         "session": session,
         "currencies": [
@@ -2048,22 +2062,31 @@ def closing_summary(session: CashSession, *, until: datetime | None = None) -> d
             if currency in cancelled
         ],
         "cancellations_pending": CancellationRequest.objects.filter(
-            payment__cash_session=session, status=CancellationRequest.Status.PENDING
+            payment__in=payments, status=CancellationRequest.Status.PENDING
         ).count(),
         "closing": _closing_data(closings) if closings else None,
     }
 
 
+def _received(closings: list[CashClosing]) -> datetime:
+    """Arrivée de la clôture au serveur (ses lignes sont écrites ensemble)."""
+    return min(line.created_at for line in closings)
+
+
+def _by_currency(lines: list[CashClosing]) -> list[CashClosing]:
+    """Dollars d'abord, comme partout."""
+    return sorted(lines, key=lambda line: Currency.values.index(line.currency))
+
+
 def _closing_data(closings: list[CashClosing]) -> dict:
-    order = {currency: index for index, currency in enumerate(Currency.values)}
     first = closings[0]
     return {
-        "lines": sorted(closings, key=lambda line: order[line.currency]),
+        "lines": _by_currency(closings),
         "note": first.note,
         "closed_at": first.closed_at,
         "closed_by": first.closed_by,
         "offline": first.device_id is not None,
-        "received_at": first.created_at,
+        "received_at": _received(closings),
     }
 
 
@@ -2141,3 +2164,154 @@ def close_cash_session(
             },
         )
     return closings
+
+
+# Clôtures vues par le comptable (M16, 3.8.3)
+
+OPEN, UNCLOSED, BALANCED, DIFFERENCE = "open", "unclosed", "ok", "difference"
+
+
+def month_range(month: date) -> tuple[datetime, datetime]:
+    """Début et fin (exclue) du mois de `month`, dans le fuseau de l'école."""
+    start = timezone.make_aware(datetime(month.year, month.month, 1))
+    following = date(month.year + month.month // 12, month.month % 12 + 1, 1)
+    return start, timezone.make_aware(datetime.combine(following, time()))
+
+
+def cash_sessions(month: date, cash_register: CashRegister | None = None) -> QuerySet:
+    """Sessions de caisse ouvertes dans le mois (tous les caissiers), les plus récentes
+    d'abord, avec leur nombre de paiements (reçus donnés, annulés compris)."""
+    start, end = month_range(month)
+    sessions = CashSession.objects.filter(opened_at__gte=start, opened_at__lt=end)
+    if cash_register is not None:
+        sessions = sessions.filter(cash_register=cash_register)
+    return (
+        sessions.select_related("cash_register", "cashier")
+        .annotate(payments_count=Count("payments"))
+        .order_by("-opened_at", "cash_register__code")
+    )
+
+
+def _session_state(session: CashSession, closings: list[CashClosing]) -> str:
+    if closings:
+        return DIFFERENCE if any(line.difference_minor for line in closings) else BALANCED
+    return OPEN if timezone.localdate(session.opened_at) >= today() else UNCLOSED
+
+
+def _late(sessions: list[CashSession]) -> QuerySet[Payment]:
+    """Paiements pas annulés de ces sessions arrivés au serveur après leur clôture."""
+    received = (
+        CashClosing.objects.filter(cash_session=OuterRef("cash_session"))
+        .order_by("created_at")
+        .values("created_at")[:1]
+    )
+    return (
+        Payment.objects.filter(cash_session__in=sessions, cancellation__isnull=True)
+        .annotate(closing_received=Subquery(received))
+        .filter(created_at__gt=F("closing_received"))
+    )
+
+
+def with_closings(sessions: list[CashSession]) -> list[CashSession]:
+    """Ajoute à chaque session son état, ses lignes par devise (`lines` : attendu, compté et
+    écart figés à la clôture ; session ouverte : attendu à cette heure, rien de compté) et ses
+    paiements arrivés après la clôture par devise (`late`). Trois requêtes pour la page."""
+    closings: dict[UUID, list[CashClosing]] = defaultdict(list)
+    for line in CashClosing.objects.filter(cash_session__in=sessions):
+        closings[line.cash_session_id].append(line)
+    live: dict[UUID, dict[str, int]] = defaultdict(dict)
+    for row in (
+        Payment.objects.filter(
+            cash_session__in=[s for s in sessions if s.pk not in closings],
+            cancellation__isnull=True,
+        )
+        .values("cash_session", "received_currency")
+        .annotate(amount_minor=Sum("received_amount_minor"))
+        .order_by()
+    ):
+        live[row["cash_session"]][row["received_currency"]] = row["amount_minor"]
+    late: dict[UUID, list[dict]] = defaultdict(list)
+    for row in (
+        _late([s for s in sessions if s.pk in closings])
+        .values("cash_session", "received_currency")
+        .annotate(amount_minor=Sum("received_amount_minor"), count=Count("id"))
+        .order_by()
+    ):
+        late[row["cash_session"]].append(
+            {"currency": row["received_currency"], **{k: row[k] for k in ("amount_minor", "count")}}
+        )
+    enabled = require_current_school().enabled_currencies
+    for session in sessions:
+        lines = closings[session.pk]
+        session.state = _session_state(session, lines)
+        session.late = sorted(late[session.pk], key=lambda r: Currency.values.index(r["currency"]))
+        if lines:
+            session.lines = _by_currency(lines)
+            continue
+        amounts = live[session.pk]
+        session.lines = [
+            {
+                "currency": currency,
+                "expected_minor": amounts.get(currency, 0),
+                "counted_minor": None,
+                "difference_minor": None,
+            }
+            for currency in Currency.values
+            if currency in amounts or currency in enabled
+        ]
+    return sessions
+
+
+def closings_summary(month: date, cash_register: CashRegister | None = None) -> dict:
+    """Chiffres de l'écran pour le mois : sessions et caisses, écart net par devise de l'école
+    (et nombre de sessions avec un écart), et toutes les sessions pas clôturées ouvertes avant
+    aujourd'hui, quel que soit le mois (bandeau)."""
+    sessions = cash_sessions(month, cash_register)
+    differences = {
+        row["currency"]: row
+        for row in CashClosing.objects.filter(cash_session__in=sessions.values("pk"))
+        .values("currency")
+        .annotate(
+            total_minor=Sum("difference_minor"),
+            sessions=Count("cash_session", filter=~Q(difference_minor=0)),
+        )
+        .order_by()
+    }
+    enabled = require_current_school().enabled_currencies
+    start_of_today = timezone.make_aware(datetime.combine(today(), time()))
+    return {
+        "sessions": sessions.count(),
+        "cash_registers": sessions.values("cash_register").distinct().count(),
+        "differences": [
+            {
+                "currency": currency,
+                "difference_minor": differences.get(currency, {}).get("total_minor", 0),
+                "sessions": differences.get(currency, {}).get("sessions", 0),
+            }
+            for currency in Currency.values
+            if currency in differences or currency in enabled
+        ],
+        "unclosed": list(
+            CashSession.objects.filter(closed_at__isnull=True, opened_at__lt=start_of_today)
+            .select_related("cash_register", "cashier")
+            .order_by("opened_at")
+        ),
+    }
+
+
+def closing_detail(session: CashSession) -> dict:
+    """La clôture de la session vue par le comptable : `closing_summary` (ce qu'imprime le
+    bordereau), son état et les paiements arrivés après la clôture, annulés compris."""
+    [session] = with_closings([session])
+    summary = closing_summary(session)
+    late = []
+    if summary["closing"]:
+        late = list(
+            Payment.objects.filter(
+                cash_session=session, created_at__gt=summary["closing"]["received_at"]
+            )
+            .select_related("enrollment__student")
+            .annotate(cancelled=Exists(PaymentCancellation.objects.filter(payment=OuterRef("pk"))))
+            .order_by("paid_at", "receipt_number")
+        )
+    return {**summary, "state": session.state, "late_payments": late}

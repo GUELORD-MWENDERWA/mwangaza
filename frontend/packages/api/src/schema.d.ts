@@ -459,6 +459,82 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cash-closings/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Clôtures de caisse vues par le comptable (M16), en lecture seule : les sessions de tous
+         *     les caissiers, par mois, avec l'attendu, le compté et l'écart par devise, l'état, les
+         *     paiements arrivés après la clôture ; le détail et le bordereau ; l'export Excel.
+         */
+        get: operations["cash_closings_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cash-closings/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Clôtures de caisse vues par le comptable (M16), en lecture seule : les sessions de tous
+         *     les caissiers, par mois, avec l'attendu, le compté et l'écart par devise, l'état, les
+         *     paiements arrivés après la clôture ; le détail et le bordereau ; l'export Excel.
+         */
+        get: operations["cash_closings_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cash-closings/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Export Excel du mois (une ligne par session, montants en nombres). */
+        get: operations["cash_closings_export_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cash-closings/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Chiffres de l'écran pour le mois, et les sessions pas clôturées (bandeau). */
+        get: operations["cash_closings_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/cash-registers/": {
         parameters: {
             query?: never;
@@ -2228,6 +2304,41 @@ export interface components {
              */
             received_at: string;
         };
+        /**
+         * @description Clôture d'une session vue par le comptable : le bordereau, l'état, et les paiements
+         *     encaissés hors ligne arrivés après la clôture (hors de l'attendu figé).
+         */
+        CashClosingDetail: {
+            session: components["schemas"]["CashSession"];
+            currencies: components["schemas"]["ClosingCurrency"][];
+            fee_types: components["schemas"]["ClosingFeeType"][];
+            /** @description Reçus donnés, annulés compris. */
+            payments_count: number;
+            first_receipt: string | null;
+            last_receipt: string | null;
+            /** @description Annulations validées. */
+            cancelled: components["schemas"]["SessionTotal"][];
+            cancellations_pending: number;
+            closing: components["schemas"]["CashClosing"] | null;
+            /**
+             * @description Ouverte aujourd'hui, pas clôturée (ouverte avant aujourd'hui), conforme, ou écart.
+             *
+             *     * `open` - open
+             *     * `unclosed` - unclosed
+             *     * `ok` - ok
+             *     * `difference` - difference
+             */
+            state: components["schemas"]["CashClosingDetailStateEnum"];
+            late_payments: components["schemas"]["LatePayment"][];
+        };
+        /**
+         * @description * `open` - open
+         *     * `unclosed` - unclosed
+         *     * `ok` - ok
+         *     * `difference` - difference
+         * @enum {string}
+         */
+        CashClosingDetailStateEnum: "open" | "unclosed" | "ok" | "difference";
         CashClosingLine: {
             currency: components["schemas"]["CurrencyEnum"];
             /**
@@ -2361,6 +2472,13 @@ export interface components {
             expected_minor: number;
             count: number;
         };
+        ClosingDifference: {
+            currency: components["schemas"]["CurrencyEnum"];
+            /** @description Somme des écarts du mois. */
+            difference_minor: number;
+            /** @description Sessions avec un écart dans cette devise. */
+            sessions: number;
+        };
         ClosingFeeType: {
             /** @description Vide : trop-perçu, devenu crédit de l'élève. */
             fee_type: string | null;
@@ -2372,6 +2490,13 @@ export interface components {
              */
             currency: components["schemas"]["CurrencyEnum"];
             amount_minor: number;
+        };
+        ClosingsSummary: {
+            sessions: number;
+            cash_registers: number;
+            differences: components["schemas"]["ClosingDifference"][];
+            /** @description Pas clôturées, ouvertes avant aujourd'hui, quel que soit le mois. */
+            unclosed: components["schemas"]["CashSession"][];
         };
         /**
          * @description * `head` - Head of school
@@ -2999,6 +3124,22 @@ export interface components {
          * @enum {string}
          */
         LanguageEnum: "fr" | "en";
+        LatePayment: {
+            /** Format: uuid */
+            readonly id: string;
+            receipt_number: string;
+            readonly student: components["schemas"]["PaymentStudent"];
+            readonly amount_minor: number;
+            readonly currency: components["schemas"]["CurrencyEnum"];
+            /** Format: date-time */
+            paid_at: string;
+            /**
+             * Format: date-time
+             * @description Arrivée au serveur.
+             */
+            readonly received_at: string;
+            readonly cancelled: boolean;
+        };
         Level: {
             /** Format: uuid */
             readonly id: string;
@@ -4401,6 +4542,20 @@ export interface components {
             /** @description Taux des encaissements. */
             exchange_rate: components["schemas"]["ExchangeRate"] | null;
         };
+        /**
+         * @description Part d'un crédit utilisée sur un frais dû : payée depuis `created_at`, jusqu'à
+         *     l'annulation du crédit (`voided_at`).
+         */
+        SyncCreditUse: {
+            /** Format: uuid */
+            readonly student_charge: string;
+            /** Amount */
+            readonly amount_minor: number;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly voided_at: string;
+        };
         SyncDevice: {
             /** Format: uuid */
             readonly id: string;
@@ -4435,6 +4590,7 @@ export interface components {
             readonly charges: components["schemas"]["StudentCharge"][] | null;
             readonly payments: components["schemas"]["Payment"][] | null;
             readonly credits: components["schemas"]["StudentCredit"][] | null;
+            readonly credit_uses: components["schemas"]["SyncCreditUse"][] | null;
         };
         SyncFeeType: {
             /** Format: uuid */
@@ -6135,6 +6291,183 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CancellationReceipt"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cash_closings_list: {
+        parameters: {
+            query?: {
+                /** @description Une seule caisse. */
+                cash_register?: string;
+                /** @description Mois d'ouverture des sessions (AAAA-MM) ; absent : le mois en cours. */
+                month?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cash_closings_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this cash session. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashClosingDetail"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cash_closings_export_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Une seule caisse. */
+                cash_register?: string;
+                /** @description Mois d'ouverture des sessions (AAAA-MM) ; absent : le mois en cours. */
+                month?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Classeur Excel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cash_closings_summary_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Une seule caisse. */
+                cash_register?: string;
+                /** @description Mois d'ouverture des sessions (AAAA-MM) ; absent : le mois en cours. */
+                month?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClosingsSummary"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             403: {

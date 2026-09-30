@@ -429,6 +429,101 @@ class CashClosingSummarySerializer(serializers.Serializer):
     closing = CashClosingSerializer(allow_null=True)
 
 
+class PaymentStudentSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    full_name = serializers.CharField()
+    matricule = serializers.CharField()
+
+
+# Clôtures vues par le comptable (3.8.3, M16)
+
+
+class ClosingFilterSerializer(serializers.Serializer):
+    month = serializers.DateField(
+        input_formats=["%Y-%m"],
+        required=False,
+        help_text="Mois d'ouverture des sessions (AAAA-MM) ; absent : le mois en cours.",
+    )
+    cash_register = serializers.PrimaryKeyRelatedField(
+        queryset=CashRegister.objects, required=False, help_text="Une seule caisse."
+    )
+
+
+class SessionLineSerializer(serializers.Serializer):
+    currency = serializers.ChoiceField(choices=Currency.choices)
+    expected_minor = serializers.IntegerField(
+        help_text="Figé à la clôture ; session ouverte : paiements pas annulés à cette heure."
+    )
+    counted_minor = serializers.IntegerField(allow_null=True, help_text="Vide : pas clôturée.")
+    difference_minor = serializers.IntegerField(allow_null=True, help_text="Compté - attendu.")
+
+
+CLOSING_STATES = [services.OPEN, services.UNCLOSED, services.BALANCED, services.DIFFERENCE]
+STATE_HELP = "Ouverte aujourd'hui, pas clôturée (ouverte avant aujourd'hui), conforme, ou écart."
+
+
+class CashSessionClosingSerializer(CashSessionSerializer):
+    """Une session dans la liste des clôtures (M16)."""
+
+    payments_count = serializers.IntegerField(help_text="Reçus donnés, annulés compris.")
+    state = serializers.ChoiceField(choices=CLOSING_STATES, help_text=STATE_HELP)
+    lines = SessionLineSerializer(many=True)
+    late = SessionTotalSerializer(
+        many=True, help_text="Paiements pas annulés arrivés au serveur après la clôture."
+    )
+
+    class Meta(CashSessionSerializer.Meta):
+        fields = [*CashSessionSerializer.Meta.fields, "payments_count", "state", "lines", "late"]
+
+
+class ClosingDifferenceSerializer(serializers.Serializer):
+    currency = serializers.ChoiceField(choices=Currency.choices)
+    difference_minor = serializers.IntegerField(help_text="Somme des écarts du mois.")
+    sessions = serializers.IntegerField(help_text="Sessions avec un écart dans cette devise.")
+
+
+class ClosingsSummarySerializer(serializers.Serializer):
+    sessions = serializers.IntegerField()
+    cash_registers = serializers.IntegerField()
+    differences = ClosingDifferenceSerializer(many=True)
+    unclosed = CashSessionSerializer(
+        many=True, help_text="Pas clôturées, ouvertes avant aujourd'hui, quel que soit le mois."
+    )
+
+
+class LatePaymentSerializer(serializers.ModelSerializer):
+    student = PaymentStudentSerializer(source="enrollment.student", read_only=True)
+    amount_minor = serializers.IntegerField(source="received_amount_minor", read_only=True)
+    currency = serializers.ChoiceField(
+        source="received_currency", choices=Currency.choices, read_only=True
+    )
+    received_at = serializers.DateTimeField(
+        source="created_at", read_only=True, help_text="Arrivée au serveur."
+    )
+    cancelled = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = Payment
+        fields = [
+            "id",
+            "receipt_number",
+            "student",
+            "amount_minor",
+            "currency",
+            "paid_at",
+            "received_at",
+            "cancelled",
+        ]
+
+
+class CashClosingDetailSerializer(CashClosingSummarySerializer):
+    """Clôture d'une session vue par le comptable : le bordereau, l'état, et les paiements
+    encaissés hors ligne arrivés après la clôture (hors de l'attendu figé)."""
+
+    state = serializers.ChoiceField(choices=CLOSING_STATES, help_text=STATE_HELP)
+    late_payments = LatePaymentSerializer(many=True)
+
+
 class CountedSerializer(serializers.Serializer):
     currency = serializers.ChoiceField(choices=Currency.choices)
     amount_minor = serializers.IntegerField(min_value=0, max_value=10**13)
@@ -474,12 +569,6 @@ class PaymentAllocationSerializer(serializers.ModelSerializer):
             "received_minor": {"help_text": "Part du montant reçu, dans la devise reçue."},
             "amount_minor": {"help_text": "Montant affecté, dans la devise du frais."},
         }
-
-
-class PaymentStudentSerializer(serializers.Serializer):
-    id = serializers.UUIDField()
-    full_name = serializers.CharField()
-    matricule = serializers.CharField()
 
 
 class PaymentSerializer(serializers.ModelSerializer):

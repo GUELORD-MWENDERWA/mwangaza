@@ -1,8 +1,13 @@
 """Clôture de caisse (3.8.2, F8) : isolation entre écoles, seul le caissier de la session la
 clôture, attendu par devise (annulés exclus à l'heure de clôture), écart expliqué, plus
-d'encaissement ensuite, clôture immuable et au journal. Clôture et encaissements hors ligne :
+d'encaissement ensuite, clôture immuable et au journal ; clôtures vues par le comptable (3.8.3,
+M16). Clôture et encaissements hors ligne, paiement arrivé après la clôture :
 `apps/sync/tests/test_sync.py`."""
 
+import io
+from datetime import UTC, datetime
+
+import openpyxl
 import pytest
 from django.db import DatabaseError, connection, transaction
 
@@ -17,6 +22,7 @@ from tests.factories import MembershipFactory
 pytestmark = pytest.mark.django_db
 
 SESSIONS = "/api/cash-sessions/"
+CLOSINGS = "/api/cash-closings/"
 
 
 @pytest.fixture
@@ -27,6 +33,10 @@ def alpha(school, head):
 def counted(usd: int, cdf: int, note: str = "") -> dict:
     amounts = [{"currency": "USD", "amount_minor": usd}, {"currency": "CDF", "amount_minor": cdf}]
     return {"counted": amounts, **({"note": note} if note else {})}
+
+
+def sheet(content: bytes) -> list[tuple]:
+    return list(openpyxl.load_workbook(io.BytesIO(content)).active.iter_rows(values_only=True))
 
 
 def test_a_school_neither_reads_nor_closes_the_sessions_of_another(
@@ -41,6 +51,13 @@ def test_a_school_neither_reads_nor_closes_the_sessions_of_another(
     assert other.post(f"{SESSIONS}{session.pk}/close/", counted(12000, 0)).status_code == 404
     with use_school(school):
         assert CashSession.objects.get().closed_at is None
+    # Le comptable de l'autre école : ni dans la liste, ni les chiffres, ni l'export.
+    accountant = api(other_head, "beta.localhost")
+    assert accountant.get(f"{CLOSINGS}{session.pk}/").status_code == 404
+    assert accountant.get(CLOSINGS).json()["results"] == []
+    summary = accountant.get(f"{CLOSINGS}summary/").json()
+    assert (summary["sessions"], summary["unclosed"]) == (0, [])
+    assert len(sheet(accountant.get(f"{CLOSINGS}export/").content)) == 1
 
 
 def test_only_the_cashier_of_the_session_closes_it(api, school, head, cashier, alpha):
@@ -124,3 +141,67 @@ def test_a_closing_is_never_changed_or_deleted(api, school, cashier, alpha):
         with pytest.raises(DatabaseError), transaction.atomic(), connection.cursor() as cursor:
             cursor.execute(sql)
     assert CashClosing.all_schools.get(pk=closing.pk).counted_minor == 12000
+
+
+def test_the_accountant_sees_each_session_its_difference_and_those_left_open(
+    api, school, head, cashier, alpha, django_assert_max_num_queries
+):
+    """Caisse 1 : 120,00 $ et 25 000 FC attendus, 115,00 $ comptés (écart), puis rouverte
+    aujourd'hui. Caisse 2 : ouverte en janvier 2025 par une autre caissière, jamais clôturée.
+    Le comptable (`finance.view_reports`) lit tout, le caissier rien."""
+    enrollment = alpha["enrollment"]
+    pay(school, cashier, enrollment, 12000, "USD")
+    first = pay(school, cashier, enrollment, 25000, "CDF").cash_session
+    close = api(cashier).post(f"{SESSIONS}{first.pk}/close/", counted(11500, 25000, "Billet"))
+    assert close.status_code == 200
+    today = pay(school, cashier, enrollment, 1000, "USD").cash_session
+    other = MembershipFactory(school=school, roles=["cashier"]).user
+    with use_school(school):
+        c2 = services.create_cash_register(actor=head, name="Caisse 2", code="C2")
+    forgotten = pay(school, other, enrollment, 6000, "USD", code="C2").cash_session
+    with use_school(school):
+        january = datetime(2025, 1, 15, 7, 30, tzinfo=UTC)
+        CashSession.objects.filter(pk=forgotten.pk).update(opened_at=january)
+    accountant = api(head)
+
+    for url in (CLOSINGS, f"{CLOSINGS}summary/", f"{CLOSINGS}{first.pk}/", f"{CLOSINGS}export/"):
+        assert api(cashier).get(url).status_code == 403
+    with django_assert_max_num_queries(12):
+        rows = {row["id"]: row for row in accountant.get(CLOSINGS).json()["results"]}
+    assert set(rows) == {str(first.pk), str(today.pk)}
+    closed = rows[str(first.pk)]
+    assert (closed["state"], closed["payments_count"], closed["late"]) == ("difference", 2, [])
+    assert [tuple(line.values()) for line in closed["lines"]] == [
+        ("USD", 12000, 11500, -500),
+        ("CDF", 25000, 25000, 0),
+    ]
+    assert rows[str(today.pk)]["state"] == "open"
+    assert rows[str(today.pk)]["lines"][0] == {
+        "currency": "USD",
+        "expected_minor": 1000,
+        "counted_minor": None,
+        "difference_minor": None,
+    }
+    old = accountant.get(f"{CLOSINGS}?month=2025-01").json()["results"]
+    assert [(row["id"], row["state"]) for row in old] == [(str(forgotten.pk), "unclosed")]
+    assert accountant.get(f"{CLOSINGS}?cash_register={c2.pk}").json()["results"] == []
+
+    summary = accountant.get(f"{CLOSINGS}summary/").json()
+    assert (summary["sessions"], summary["cash_registers"]) == (2, 1)
+    assert summary["differences"] == [
+        {"currency": "USD", "difference_minor": -500, "sessions": 1},
+        {"currency": "CDF", "difference_minor": 0, "sessions": 0},
+    ]
+    assert [(item["id"], item["cash_register"]["code"]) for item in summary["unclosed"]] == [
+        (str(forgotten.pk), "C2")
+    ]
+    detail = accountant.get(f"{CLOSINGS}{first.pk}/").json()
+    assert (detail["state"], detail["closing"]["note"], detail["late_payments"]) == (
+        "difference",
+        "Billet",
+        [],
+    )
+    _header, *lines = sheet(accountant.get(f"{CLOSINGS}export/").content)
+    assert len(lines) == 2
+    # Montants en nombres (5,00 $ d'écart), dans l'ordre de l'écran : le plus récent d'abord.
+    assert -5 in lines[1] and 115 in lines[1] and 25000 in lines[1] and "Billet" in lines[1]

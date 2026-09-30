@@ -21,8 +21,9 @@ from apps.accounts.roles import (
     FINANCE_VIEW_REPORTS,
 )
 from apps.accounts.views import SchoolViewSet
+from apps.core.documents import XLSX, XLSX_RESPONSE, file_response
 from apps.core.errors import ErrorSerializer
-from apps.finance import services
+from apps.finance import documents, services
 from apps.finance.models import (
     CancellationRequest,
     CashRegister,
@@ -43,12 +44,16 @@ from apps.finance.serializers import (
     CancellationReceiptSerializer,
     CancellationRequestSerializer,
     CashCloseSerializer,
+    CashClosingDetailSerializer,
     CashClosingSummarySerializer,
     CashRegisterSerializer,
     CashRegisterStateSerializer,
     CashRegisterUpdateSerializer,
+    CashSessionClosingSerializer,
     CashSessionOpenSerializer,
     CashSessionSerializer,
+    ClosingFilterSerializer,
+    ClosingsSummarySerializer,
     CreditSummarySerializer,
     CurrentCashSessionSerializer,
     DiscountCreateSerializer,
@@ -508,6 +513,67 @@ class CashSessionViewSet(mixins.CreateModelMixin, SchoolViewSet):
         services.close_cash_session(session, actor=request.user, **serializer.to_service())
         session.refresh_from_db()
         return Response(CashClosingSummarySerializer(services.closing_summary(session)).data)
+
+
+# Clôtures vues par le comptable (3.8.3, M16)
+
+
+@extend_schema_view(
+    list=extend_schema(parameters=[ClosingFilterSerializer], responses={**INVALID, **ERRORS}),
+    retrieve=extend_schema(responses={200: CashClosingDetailSerializer, **ERRORS}),
+)
+@extend_schema(tags=["finance"])
+class CashClosingViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolViewSet):
+    """Clôtures de caisse vues par le comptable (M16), en lecture seule : les sessions de tous
+    les caissiers, par mois, avec l'attendu, le compté et l'écart par devise, l'état, les
+    paiements arrivés après la clôture ; le détail et le bordereau ; l'export Excel."""
+
+    required_permission = FINANCE_VIEW_REPORTS
+    serializer_class = CashSessionClosingSerializer
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return CashSession.all_schools.none()
+        if self.action != "list":
+            return CashSession.objects.select_related("cash_register", "cashier")
+        return services.cash_sessions(**self._filters())
+
+    def _filters(self) -> dict:
+        params = ClosingFilterSerializer(data=self.request.query_params)
+        params.is_valid(raise_exception=True)
+        return {
+            "month": params.validated_data.get("month") or services.today(),
+            "cash_register": params.validated_data.get("cash_register"),
+        }
+
+    def list(self, request: Request) -> Response:
+        page = self.paginate_queryset(self.get_queryset())
+        sessions = services.with_closings(page)
+        return self.get_paginated_response(self.get_serializer(sessions, many=True).data)
+
+    def retrieve(self, request: Request, pk=None) -> Response:
+        detail = services.closing_detail(self.get_object())
+        return Response(CashClosingDetailSerializer(detail).data)
+
+    @extend_schema(
+        parameters=[ClosingFilterSerializer],
+        responses={200: ClosingsSummarySerializer, **INVALID, **ERRORS},
+    )
+    @action(detail=False)
+    def summary(self, request: Request) -> Response:
+        """Chiffres de l'écran pour le mois, et les sessions pas clôturées (bandeau)."""
+        summary = services.closings_summary(**self._filters())
+        return Response(ClosingsSummarySerializer(summary).data)
+
+    @extend_schema(
+        parameters=[ClosingFilterSerializer], responses={**XLSX_RESPONSE, **INVALID, **ERRORS}
+    )
+    @action(detail=False, pagination_class=None)
+    def export(self, request: Request):
+        """Export Excel du mois (une ligne par session, montants en nombres)."""
+        filters = self._filters()
+        content = documents.closings_workbook(**filters)
+        return file_response(content, XLSX, f"clotures-{filters['month']:%Y-%m}.xlsx")
 
 
 @extend_schema_view(
