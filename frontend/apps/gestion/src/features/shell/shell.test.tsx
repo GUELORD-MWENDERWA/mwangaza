@@ -44,11 +44,11 @@ describe("coquille et menu (M7)", () => {
 
   it("écran permis pas encore construit : « bientôt disponible »", async () => {
     mockApi(loggedIn(me("promoter")));
-    renderApp("/cash-closings");
+    renderApp("/unpaid");
 
     expect(await screen.findByText("Cet écran arrive bientôt")).toBeTruthy();
     expect(
-      screen.getByText("« Clôtures de caisse » n'est pas encore disponible dans cette version."),
+      screen.getByText("« Impayés » n'est pas encore disponible dans cette version."),
     ).toBeTruthy();
   });
 

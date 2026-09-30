@@ -33,6 +33,7 @@ export const keys = {
   cashRegisters: ["cash-registers"],
   cashSession: ["cash-session"],
   cancellations: ["cancellations"],
+  closings: ["cash-closings"],
   payments: ["payments"],
   credits: ["student-credits"],
   myDevices: ["my-devices"],

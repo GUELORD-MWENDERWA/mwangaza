@@ -30,7 +30,14 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.finance import services as finance
-from apps.finance.models import CashRegister, ExchangeRate, FeeType, Payment, StudentCredit
+from apps.finance.models import (
+    CashRegister,
+    CreditAllocation,
+    ExchangeRate,
+    FeeType,
+    Payment,
+    StudentCredit,
+)
 from apps.schools import organisation
 from apps.schools.models import AcademicYear, ClassGroup, School
 from apps.students.models import Enrollment
@@ -241,8 +248,9 @@ def config(reader: Reader, school: School) -> Config:
 
 def enrollments(reader: Reader, *, ids=None, after=None, limit=None) -> list[Enrollment]:
     """Inscriptions de l'année en cours avec l'élève et, avec un droit sur les finances, ses
-    frais dus (réductions, payé, reste : `finance.charges_by_enrollment`), ses paiements et ses
-    crédits à traiter (3.6.2). Quelques requêtes, quel que soit le nombre d'inscriptions."""
+    frais dus (réductions, payé, reste : `finance.charges_by_enrollment`), ses paiements, ses
+    crédits à traiter (3.6.2) et les parts de crédit déjà utilisées (3.8.3). Quelques
+    requêtes, quel que soit le nombre d'inscriptions."""
     items = Enrollment.objects.filter(academic_year=organisation.current_year()).select_related(
         "student__family"
     )
@@ -254,6 +262,7 @@ def enrollments(reader: Reader, *, ids=None, after=None, limit=None) -> list[Enr
     if not reader.finance:
         for item in items:
             item.sync_charges = item.sync_payments = item.sync_credits = None
+            item.sync_credit_uses = None
         return items
     keys = [item.pk for item in items]
     charges = finance.charges_by_enrollment(keys)
@@ -266,10 +275,14 @@ def enrollments(reader: Reader, *, ids=None, after=None, limit=None) -> list[Enr
     credits: dict[UUID, list[StudentCredit]] = defaultdict(list)
     for credit in finance.open_credits(keys):
         credits[credit.enrollment_id].append(credit)
+    uses: dict[UUID, list[CreditAllocation]] = defaultdict(list)
+    for part in finance.credit_uses(keys):
+        uses[part.credit.enrollment_id].append(part)
     for item in items:
         item.sync_charges = charges.get(item.pk, [])
         item.sync_payments = by_enrollment[item.pk]
         item.sync_credits = credits[item.pk]
+        item.sync_credit_uses = uses[item.pk]
     return items
 
 

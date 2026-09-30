@@ -71,6 +71,7 @@ function enrollment(payments: Schemas["Payment"][] = []): LocalEnrollment {
     ],
     payments,
     credits: [],
+    credit_uses: [],
     gen: 1,
   };
 }
@@ -274,6 +275,27 @@ describe("caisse sur l'appareil", () => {
       "UTC",
     );
     expect(exact!.balance.currencies[0]).toMatchObject({ paid_minor: 6000 });
+    // Crédit utilisé avant p1 (3.6.2), plus à traiter, annulé après p1 : il comptait à son heure,
+    // comme pour le serveur (3.8.3). Celui utilisé après p1, pas encore.
+    const credited: LocalEnrollment = {
+      ...enrollment([first]),
+      credit_uses: [
+        {
+          student_charge: "t1",
+          amount_minor: 1000,
+          created_at: "2026-10-05T07:00:00Z",
+          voided_at: "2026-10-05T12:00:00Z",
+        },
+        {
+          student_charge: "t2",
+          amount_minor: 500,
+          created_at: "2026-10-05T11:00:00Z",
+          voided_at: null,
+        },
+      ],
+    };
+    const withCredit = duplicateReceipt(credited, "p1", [], config, "UTC")!;
+    expect(withCredit.balance.currencies[0]).toMatchObject({ paid_minor: 4000 });
   });
 
   it("paiements de la session : les plus récents d'abord, refusés montrés mais hors des totaux", () => {

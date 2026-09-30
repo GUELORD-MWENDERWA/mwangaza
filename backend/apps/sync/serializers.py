@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from apps.core.errors import ErrorSerializer
-from apps.finance.models import FeeType
+from apps.finance.models import CreditAllocation, FeeType
 from apps.finance.serializers import (
     CashRegisterSerializer,
     ExchangeRateSerializer,
@@ -106,6 +106,20 @@ class SyncStudentSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class SyncCreditUseSerializer(serializers.ModelSerializer):
+    """Part d'un crédit utilisée sur un frais dû : payée depuis `created_at`, jusqu'à
+    l'annulation du crédit (`voided_at`)."""
+
+    voided_at = serializers.DateTimeField(
+        source="credit.voided_at", read_only=True, allow_null=True
+    )
+
+    class Meta:
+        model = CreditAllocation
+        fields = ["student_charge", "amount_minor", "created_at", "voided_at"]
+        read_only_fields = fields
+
+
 class SyncEnrollmentSerializer(serializers.ModelSerializer):
     """Entité `enrollment` : l'élève, sa classe, ses frais dus, ses paiements et ses crédits à
     traiter de l'année. Frais, paiements et crédits : null sans droit sur les finances ; `state`
@@ -118,6 +132,9 @@ class SyncEnrollmentSerializer(serializers.ModelSerializer):
     payments = PaymentSerializer(source="sync_payments", many=True, read_only=True, allow_null=True)
     credits = StudentCreditSerializer(
         source="sync_credits", many=True, read_only=True, allow_null=True
+    )
+    credit_uses = SyncCreditUseSerializer(
+        source="sync_credit_uses", many=True, read_only=True, allow_null=True
     )
 
     class Meta:
@@ -133,6 +150,7 @@ class SyncEnrollmentSerializer(serializers.ModelSerializer):
             "charges",
             "payments",
             "credits",
+            "credit_uses",
         ]
         read_only_fields = fields
 

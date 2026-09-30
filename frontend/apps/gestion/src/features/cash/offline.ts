@@ -304,7 +304,8 @@ export function offlineReceipt(input: {
 
 /** Duplicata (F6) d'un paiement de l'inscription, fait sur l'appareil : le reçu du serveur
  *  (`balance_after`) — solde juste après ce paiement, avec les paiements encaissés jusqu'à lui
- *  (serveur et file, sauf refusés et annulés avant lui), retard au jour du paiement. Paiement de la file :
+ *  (serveur et file, sauf refusés et annulés avant lui) et les crédits utilisés avant lui,
+ *  retard au jour du paiement. Paiement de la file :
  *  son propre reçu. */
 export function duplicateReceipt(
   enrollment: LocalEnrollment,
@@ -330,6 +331,11 @@ export function duplicateReceipt(
     const [itemTime, itemId] = at(item);
     return itemTime < time || (itemTime === time && itemId <= id);
   });
+  // Crédits utilisés avant lui et pas encore annulés à son heure (`balance_after` du serveur).
+  const credited = (enrollment.credit_uses ?? []).filter(
+    (use) =>
+      Date.parse(use.created_at) <= time && (!use.voided_at || Date.parse(use.voided_at) > time),
+  );
   const charges = (enrollment.charges ?? []).map((charge) => ({ ...charge, paid_minor: 0 }));
   const day = schoolDay(timeZone, new Date(payment.paid_at));
   const register = config?.cash_registers?.find((item) => item.code === payment.cash_register);
@@ -338,11 +344,7 @@ export function duplicateReceipt(
     cash_register_name: register?.name ?? payment.cash_register,
     academic_year: config?.academic_year?.name ?? "",
     balance: balanceOf(
-      settle(
-        charges,
-        upTo.flatMap((item) => item.allocations),
-        day,
-      ),
+      settle(charges, [...upTo.flatMap((item) => item.allocations), ...credited], day),
     ),
   };
 }

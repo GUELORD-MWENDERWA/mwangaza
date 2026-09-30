@@ -29,7 +29,7 @@ Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, compt
 | M13 | Ouvrir une session de caisse ; caisse avant de choisir un élève ; paiements du jour et recherche d'un reçu à réimprimer | Gestion | F1, F6 | 3.1 | `gestion/caisse-ouverture`, `gestion/caisse-accueil` | [ ] |
 | M14 | Crédits d'élèves (surpaiements après synchronisation) à traiter par le comptable | Gestion | — | 3.6 | `gestion/credits-eleves` | [x] |
 | M15 | Reçu d'annulation (80 mm et A4) | Impression | F7 | 3.8 | `gestion/recu-annulation` | [ ] |
-| M16 | Clôtures de caisse vues par le comptable : historique, écarts, détail | Gestion | F8 | 3.8 | `gestion/clotures-caisse` | [ ] |
+| M16 | Clôtures de caisse vues par le comptable : historique, écarts, détail | Gestion | F8 | 3.8 | `gestion/clotures-caisse` | | [x] |
 | M17 | Situation financière d'un élève imprimable ; export des impayés (PDF, Excel) | Impression | G1, G2 | 4.1 | `gestion/situation-financiere`, `gestion/impayes-export` | [ ] |
 | M18 | Changements de coordonnées faits par les parents, à prendre en compte par le secrétariat | Gestion | H5 | 4.4 | `gestion/changements-coordonnees` | [ ] |
 | M19 | Portail : se connecter, mot de passe oublié, installer l'application | Portail | H1, H6 | 4.4 | `portail/connexion`, `portail/mot-de-passe-oublie`, `portail/installer` | [ ] |

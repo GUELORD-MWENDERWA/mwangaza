@@ -499,14 +499,21 @@ function SlipCopy({ slip }: { slip: Slip }) {
   );
 }
 
+/** Impression du bordereau : un exemplaire, au format de reçu de l'école (aussi pour le
+ *  comptable, écran « Clôtures de caisse »). */
+export function useSlipPrint() {
+  const school = useCurrentSchool();
+  const single = { ...school, receipt: { ...school.receipt, copies: 1 as const } };
+  return usePrintArea<Slip>((job) => (
+    <ReceiptPages school={single} copy={() => <SlipCopy slip={job} />} />
+  ));
+}
+
 /** Caisse clôturée : le bordereau s'imprime aussitôt, se réimprime, puis retour à l'ouverture. */
 export function ClosedView({ slip, onDone }: { slip: Slip; onDone: () => void }) {
   const { t, i18n } = useTranslation();
   const school = useCurrentSchool();
-  const single = { ...school, receipt: { ...school.receipt, copies: 1 as const } };
-  const { print, area } = usePrintArea<Slip>((job) => (
-    <ReceiptPages school={single} copy={() => <SlipCopy slip={job} />} />
-  ));
+  const { print, area } = useSlipPrint();
   useEffect(() => print(slip), [print, slip]);
 
   return (

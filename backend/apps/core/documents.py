@@ -80,8 +80,16 @@ def render(template: str, context: dict, output: str, name: str) -> HttpResponse
     return file_response(content, PDF, name, inline=True)
 
 
-def workbook(headers: list[str], rows, *, title: str = "", widths: list[int] | None = None):
-    """Classeur d'une feuille, titres en gras, écrit ligne à ligne (milliers de lignes)."""
+def workbook(
+    headers: list[str],
+    rows,
+    *,
+    title: str = "",
+    widths: list[int] | None = None,
+    formats: list[str | None] | None = None,
+):
+    """Classeur d'une feuille, titres en gras, écrit ligne à ligne (milliers de lignes) ;
+    `formats` : format Excel de chaque colonne (`#,##0.00`, `dd/mm/yyyy`…), vide : aucun."""
     book = openpyxl.Workbook(write_only=True)
     # Excel refuse []:*?/\ dans le nom d'une feuille, et plus de 31 caractères.
     sheet = book.create_sheet(re.sub(r"[\[\]:*?/\\]", " ", title)[:31] or None)
@@ -94,10 +102,23 @@ def workbook(headers: list[str], rows, *, title: str = "", widths: list[int] | N
         header_cells.append(cell)
     sheet.append(header_cells)
     for row in rows:
+        if formats:
+            row = [
+                _formatted(sheet, value, formats[index] if index < len(formats) else None)
+                for index, value in enumerate(row)
+            ]
         sheet.append(row)
     output = io.BytesIO()
     book.save(output)
     return output.getvalue()
+
+
+def _formatted(sheet, value, number_format: str | None):
+    if number_format is None or value is None:
+        return value
+    cell = WriteOnlyCell(sheet, value=value)
+    cell.number_format = number_format
+    return cell
 
 
 def file_response(content: bytes, content_type: str, name: str, *, inline=False) -> HttpResponse:

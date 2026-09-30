@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-29 14:44+0200\n"
+"POT-Creation-Date: 2026-09-30 19:17+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -331,39 +331,39 @@ msgstr ""
 msgid "View the audit log"
 msgstr ""
 
-#: apps/accounts/roles.py:81
+#: apps/accounts/roles.py:87
 msgid "Head of school"
 msgstr ""
 
-#: apps/accounts/roles.py:99
+#: apps/accounts/roles.py:105
 msgid "Director of studies"
 msgstr ""
 
-#: apps/accounts/roles.py:103
+#: apps/accounts/roles.py:109
 msgid "Discipline master"
 msgstr ""
 
-#: apps/accounts/roles.py:106
+#: apps/accounts/roles.py:112
 msgid "Accountant"
 msgstr ""
 
-#: apps/accounts/roles.py:120
+#: apps/accounts/roles.py:126 apps/finance/documents.py:65
 msgid "Cashier"
-msgstr ""
+msgstr "Caissier"
 
-#: apps/accounts/roles.py:129
+#: apps/accounts/roles.py:135
 msgid "Secretary"
 msgstr ""
 
-#: apps/accounts/roles.py:132
+#: apps/accounts/roles.py:138
 msgid "Promoter"
 msgstr ""
 
-#: apps/accounts/roles.py:135
+#: apps/accounts/roles.py:141
 msgid "Teacher"
 msgstr ""
 
-#: apps/accounts/roles.py:136
+#: apps/accounts/roles.py:142
 msgid "Parent"
 msgstr ""
 
@@ -718,7 +718,7 @@ msgstr "Taux de l'année saisi"
 msgid "Custom schedule set"
 msgstr "Échéancier particulier enregistré"
 
-#: apps/audit/actions.py:100
+#: apps/audit/actions.py:100 apps/finance/models.py:694
 msgid "Discount granted"
 msgstr ""
 
@@ -739,30 +739,70 @@ msgid "Cash session opened"
 msgstr ""
 
 #: apps/audit/actions.py:106
+#, fuzzy
+#| msgid "Support session closed"
+msgid "Cash session closed"
+msgstr "Session support fermée"
+
+#: apps/audit/actions.py:107
 msgid "Payment recorded"
 msgstr ""
 
-#: apps/audit/actions.py:108
+#: apps/audit/actions.py:109
 msgid "Receipt reprinted"
 msgstr ""
 
-#: apps/audit/actions.py:111
+#: apps/audit/actions.py:113
+msgid "Payment cancellation requested"
+msgstr ""
+
+#: apps/audit/actions.py:115
+msgid "Payment cancelled"
+msgstr ""
+
+#: apps/audit/actions.py:118
+msgid "Payment cancellation refused"
+msgstr ""
+
+#: apps/audit/actions.py:122
+msgid "Cancellation receipt reprinted"
+msgstr ""
+
+#: apps/audit/actions.py:125
+#, fuzzy
+#| msgid "Student created"
+msgid "Student credit created"
+msgstr "Élève créé"
+
+#: apps/audit/actions.py:126
+#, fuzzy
+#| msgid "Student created"
+msgid "Student credit used"
+msgstr "Élève créé"
+
+#: apps/audit/actions.py:127
+#, fuzzy
+#| msgid "Student created"
+msgid "Student credit voided"
+msgstr "Élève créé"
+
+#: apps/audit/actions.py:130
 msgid "Device remembered"
 msgstr "Appareil mémorisé"
 
-#: apps/audit/actions.py:112
+#: apps/audit/actions.py:131
 msgid "Device disconnected"
 msgstr "Appareil déconnecté"
 
-#: apps/audit/actions.py:115
+#: apps/audit/actions.py:134
 msgid "Audit log exported"
 msgstr "Journal d'audit exporté"
 
-#: apps/audit/actions.py:119
+#: apps/audit/actions.py:138
 msgid "Support session opened"
 msgstr "Session support ouverte"
 
-#: apps/audit/actions.py:120
+#: apps/audit/actions.py:139
 msgid "Support session closed"
 msgstr "Session support fermée"
 
@@ -806,8 +846,9 @@ msgstr ""
 msgid "browser"
 msgstr ""
 
-#: apps/audit/models.py:72 apps/finance/models.py:514 apps/sync/models.py:46
-#: apps/sync/models.py:69
+#: apps/audit/models.py:72 apps/finance/models.py:418
+#: apps/finance/models.py:524 apps/finance/models.py:612
+#: apps/finance/models.py:812 apps/sync/models.py:46 apps/sync/models.py:69
 msgid "device"
 msgstr "appareil"
 
@@ -831,7 +872,7 @@ msgstr "La date de fin est avant la date de début."
 msgid "Export at most one year at a time."
 msgstr "Exportez au plus une année à la fois."
 
-#: apps/audit/views.py:101
+#: apps/audit/views.py:101 apps/finance/documents.py:63
 #: apps/finance/templates/finance/receipt_verification.html:69
 msgid "Date"
 msgstr "Date"
@@ -907,6 +948,69 @@ msgstr "page"
 #: apps/finance/apps.py:10
 msgid "Finance"
 msgstr ""
+
+#: apps/finance/documents.py:32 apps/schools/models.py:210
+msgid "Open"
+msgstr "Ouverte"
+
+#: apps/finance/documents.py:33
+msgid "Not closed"
+msgstr "Non clôturée"
+
+#: apps/finance/documents.py:34
+msgid "Balanced"
+msgstr "Conforme"
+
+#: apps/finance/documents.py:35
+msgid "Difference"
+msgstr "Écart"
+
+#: apps/finance/documents.py:64
+msgid "Cash register"
+msgstr "Caisse"
+
+#: apps/finance/documents.py:66
+msgid "Opened at"
+msgstr "Ouverture"
+
+#: apps/finance/documents.py:67
+msgid "Closed at"
+msgstr "Clôture"
+
+#: apps/finance/documents.py:68
+msgid "Payments"
+msgstr "Paiements"
+
+#: apps/finance/documents.py:74
+#, python-format
+msgid "Expected (%(currency)s)"
+msgstr "Attendu (%(currency)s)"
+
+#: apps/finance/documents.py:75
+#, python-format
+msgid "Counted (%(currency)s)"
+msgstr "Compté (%(currency)s)"
+
+#: apps/finance/documents.py:76
+#, python-format
+msgid "Difference (%(currency)s)"
+msgstr "Écart (%(currency)s)"
+
+#: apps/finance/documents.py:79
+msgid "State"
+msgstr "État"
+
+#: apps/finance/documents.py:79
+msgid "Arrived after closing"
+msgstr "Arrivés après la clôture"
+
+#: apps/finance/documents.py:79
+msgid "Explanation"
+msgstr "Explication"
+
+#: apps/finance/documents.py:83
+msgid "Cash closings"
+msgstr "Clôtures de caisse"
 
 #: apps/finance/models.py:24
 msgid "Tuition"
@@ -987,7 +1091,8 @@ msgid "year"
 msgstr ""
 
 #: apps/finance/models.py:83 apps/finance/models.py:177
-#: apps/finance/models.py:250 apps/finance/models.py:495
+#: apps/finance/models.py:250 apps/finance/models.py:505
+#: apps/finance/models.py:704 apps/finance/models.py:794
 msgid "currency"
 msgstr ""
 
@@ -1012,7 +1117,8 @@ msgid "label"
 msgstr ""
 
 #: apps/finance/models.py:128 apps/finance/models.py:176
-#: apps/finance/models.py:249 apps/finance/models.py:554
+#: apps/finance/models.py:249 apps/finance/models.py:564
+#: apps/finance/models.py:703 apps/finance/models.py:766
 msgid "amount"
 msgstr ""
 
@@ -1056,8 +1162,8 @@ msgid "Replaced"
 msgstr ""
 
 #: apps/finance/models.py:170 apps/finance/models.py:237
-#: apps/finance/models.py:483 apps/students/models.py:164
-#: apps/sync/models.py:97
+#: apps/finance/models.py:493 apps/finance/models.py:700
+#: apps/students/models.py:164 apps/sync/models.py:97
 msgid "enrollment"
 msgstr ""
 
@@ -1065,13 +1171,15 @@ msgstr ""
 msgid "source"
 msgstr ""
 
-#: apps/finance/models.py:190 apps/schools/models.py:131
-#: apps/schools/models.py:219 apps/students/models.py:157
-#: apps/students/models.py:222 apps/sync/models.py:73
+#: apps/finance/models.py:190 apps/finance/models.py:615
+#: apps/schools/models.py:131 apps/schools/models.py:219
+#: apps/students/models.py:157 apps/students/models.py:222
+#: apps/sync/models.py:73
 msgid "status"
 msgstr ""
 
-#: apps/finance/models.py:195 apps/finance/models.py:551
+#: apps/finance/models.py:195 apps/finance/models.py:561
+#: apps/finance/models.py:764
 #, fuzzy
 #| msgid "Student changed"
 msgid "student charge"
@@ -1118,11 +1226,11 @@ msgid "percentage"
 msgstr ""
 
 #: apps/finance/models.py:251 apps/finance/models.py:336
-#: apps/finance/models.py:580
+#: apps/finance/models.py:598 apps/finance/models.py:659
 msgid "reason"
 msgstr ""
 
-#: apps/finance/models.py:252 apps/finance/models.py:505
+#: apps/finance/models.py:252 apps/finance/models.py:515
 msgid "note"
 msgstr ""
 
@@ -1138,7 +1246,7 @@ msgstr ""
 msgid "revocation reason"
 msgstr ""
 
-#: apps/finance/models.py:266
+#: apps/finance/models.py:266 apps/finance/models.py:719
 msgid "discount"
 msgstr ""
 
@@ -1162,7 +1270,7 @@ msgstr ""
 msgid "Capital letters and digits only."
 msgstr ""
 
-#: apps/finance/models.py:381 apps/finance/models.py:400 apps/sync/models.py:31
+#: apps/finance/models.py:381 apps/finance/models.py:401 apps/sync/models.py:31
 msgid "cash register"
 msgstr ""
 
@@ -1170,247 +1278,412 @@ msgstr ""
 msgid "cash registers"
 msgstr ""
 
-#: apps/finance/models.py:406 apps/finance/models.py:492
+#: apps/finance/models.py:407 apps/finance/models.py:502
 msgid "cashier"
 msgstr ""
 
-#: apps/finance/models.py:408
+#: apps/finance/models.py:409
 msgid "opened at"
 msgstr ""
 
-#: apps/finance/models.py:409
+#: apps/finance/models.py:410 apps/finance/models.py:805
 msgid "closed at"
 msgstr ""
 
-#: apps/finance/models.py:413
+#: apps/finance/models.py:423
 msgid "cash session"
 msgstr ""
 
-#: apps/finance/models.py:414
+#: apps/finance/models.py:424
 msgid "cash sessions"
 msgstr ""
 
-#: apps/finance/models.py:477
+#: apps/finance/models.py:487
 msgid "Cash"
 msgstr ""
 
-#: apps/finance/models.py:486
+#: apps/finance/models.py:496 apps/finance/models.py:792
 msgid "session"
 msgstr ""
 
-#: apps/finance/models.py:494
+#: apps/finance/models.py:504
 msgid "amount received"
 msgstr ""
 
-#: apps/finance/models.py:498
+#: apps/finance/models.py:508
 msgid "rate used"
 msgstr ""
 
-#: apps/finance/models.py:500
+#: apps/finance/models.py:510
 msgid "paid at"
 msgstr ""
 
-#: apps/finance/models.py:501
+#: apps/finance/models.py:511 apps/finance/models.py:658
 msgid "receipt number"
 msgstr ""
 
-#: apps/finance/models.py:503
+#: apps/finance/models.py:513
 msgid "method"
 msgstr ""
 
-#: apps/finance/models.py:516
+#: apps/finance/models.py:526
 msgid "received by the server"
 msgstr ""
 
-#: apps/finance/models.py:520 apps/finance/models.py:545
-#: apps/finance/models.py:578
+#: apps/finance/models.py:530 apps/finance/models.py:555
+#: apps/finance/models.py:596 apps/finance/models.py:656
+#: apps/finance/models.py:711
 msgid "payment"
 msgstr ""
 
-#: apps/finance/models.py:521
+#: apps/finance/models.py:531
 msgid "payments"
 msgstr ""
 
-#: apps/finance/models.py:553
+#: apps/finance/models.py:563
 msgid "part of the amount received"
 msgstr ""
 
-#: apps/finance/models.py:557
+#: apps/finance/models.py:567
 msgid "payment allocation"
 msgstr ""
 
-#: apps/finance/models.py:558
+#: apps/finance/models.py:568
 msgid "payment allocations"
 msgstr ""
 
-#: apps/finance/models.py:585
+#: apps/finance/models.py:588
+msgid "Pending"
+msgstr ""
+
+#: apps/finance/models.py:589
+msgid "Approved"
+msgstr ""
+
+#: apps/finance/models.py:590
+msgid "Rejected"
+msgstr ""
+
+#: apps/finance/models.py:603 apps/finance/models.py:664
 msgid "requested by"
 msgstr ""
 
-#: apps/finance/models.py:591
+#: apps/finance/models.py:605
+msgid "requested at"
+msgstr ""
+
+#: apps/finance/models.py:623
+msgid "decided by"
+msgstr ""
+
+#: apps/finance/models.py:625
+#, fuzzy
+#| msgid "disconnected at"
+msgid "decided at"
+msgstr "déconnecté le"
+
+#: apps/finance/models.py:626
+msgid "comment"
+msgstr ""
+
+#: apps/finance/models.py:630
+msgid "cancellation request"
+msgstr ""
+
+#: apps/finance/models.py:631
+msgid "cancellation requests"
+msgstr ""
+
+#: apps/finance/models.py:670
 msgid "approved by"
 msgstr ""
 
-#: apps/finance/models.py:593
+#: apps/finance/models.py:672
 msgid "approved at"
 msgstr ""
 
-#: apps/finance/models.py:596
+#: apps/finance/models.py:675
 msgid "payment cancellation"
 msgstr ""
 
-#: apps/finance/models.py:597
+#: apps/finance/models.py:676
 msgid "payment cancellations"
 msgstr ""
 
-#: apps/finance/services.py:63
+#: apps/finance/models.py:693
+msgid "Paid twice offline"
+msgstr ""
+
+#: apps/finance/models.py:702
+#, fuzzy
+#| msgid "Origin"
+msgid "origin"
+msgstr "Origine"
+
+#: apps/finance/models.py:721
+msgid "voided at"
+msgstr ""
+
+#: apps/finance/models.py:728
+msgid "voided by"
+msgstr ""
+
+#: apps/finance/models.py:733
+#, fuzzy
+#| msgid "Student changed"
+msgid "student credit"
+msgstr "Élève modifié"
+
+#: apps/finance/models.py:734
+#, fuzzy
+#| msgid "Student changed"
+msgid "student credits"
+msgstr "Élève modifié"
+
+#: apps/finance/models.py:758
+msgid "credit"
+msgstr ""
+
+#: apps/finance/models.py:769
+msgid "credit allocation"
+msgstr ""
+
+#: apps/finance/models.py:770
+msgid "credit allocations"
+msgstr ""
+
+#: apps/finance/models.py:795
+msgid "expected"
+msgstr ""
+
+#: apps/finance/models.py:796
+#, fuzzy
+#| msgid "Amount"
+msgid "counted"
+msgstr "Montant"
+
+#: apps/finance/models.py:797
+msgid "difference"
+msgstr ""
+
+#: apps/finance/models.py:798
+#, fuzzy
+#| msgid "Relationship"
+msgid "explanation"
+msgstr "Lien"
+
+#: apps/finance/models.py:803
+msgid "closed by"
+msgstr ""
+
+#: apps/finance/models.py:816
+msgid "cash closing"
+msgstr ""
+
+#: apps/finance/models.py:817
+msgid "cash closings"
+msgstr ""
+
+#: apps/finance/serializers.py:540
+msgid "Each currency once."
+msgstr ""
+
+#: apps/finance/services.py:69
 msgid "The school already has a fee type with this name."
 msgstr ""
 
-#: apps/finance/services.py:67
+#: apps/finance/services.py:73
 msgid ""
 "This fee type has fee rules or students who owe it: deactivate it instead."
 msgstr ""
 
-#: apps/finance/services.py:71
+#: apps/finance/services.py:77
 msgid "This fee already has a fee rule for this scope this school year."
 msgstr ""
 
-#: apps/finance/services.py:73
+#: apps/finance/services.py:79
 msgid "This discount was already revoked."
 msgstr ""
 
-#: apps/finance/services.py:76
+#: apps/finance/services.py:82
 msgid "The school already has a cash register with this name or code."
 msgstr ""
 
-#: apps/finance/services.py:80
+#: apps/finance/services.py:86
 msgid "This cash register is deactivated."
 msgstr ""
 
-#: apps/finance/services.py:83
+#: apps/finance/services.py:89
 msgid "Another cashier already has this cash register open."
 msgstr ""
 
-#: apps/finance/services.py:86
+#: apps/finance/services.py:92
 msgid "You already have a cash register open: close it first."
 msgstr ""
 
-#: apps/finance/services.py:89
+#: apps/finance/services.py:95
 msgid "Open a cash register before collecting payments."
 msgstr ""
 
-#: apps/finance/services.py:92
+#: apps/finance/services.py:97
+msgid "This cash session is already closed."
+msgstr ""
+
+#: apps/finance/services.py:99
+msgid "Only the cashier of this session can close it."
+msgstr ""
+
+#: apps/finance/services.py:102
 msgid "The accountant must first set the exchange rate of the year."
 msgstr ""
 
-#: apps/finance/services.py:95
+#: apps/finance/services.py:105
 msgid "Another payment already has this identifier."
 msgstr ""
 
-#: apps/finance/services.py:98
+#: apps/finance/services.py:108
 msgid "This payment was cancelled: its receipt is no longer valid."
 msgstr ""
 
-#: apps/finance/services.py:193 apps/finance/services.py:205
+#: apps/finance/services.py:110
+msgid "This credit was already used."
+msgstr ""
+
+#: apps/finance/services.py:112
+msgid "This credit was voided: its discount was revoked."
+msgstr ""
+
+#: apps/finance/services.py:116
+msgid "A cancellation of this payment is already waiting for approval."
+msgstr ""
+
+#: apps/finance/services.py:120
+msgid "This cancellation request was already decided."
+msgstr ""
+
+#: apps/finance/services.py:123
+msgid "Someone else must approve your own cancellation request."
+msgstr ""
+
+#: apps/finance/services.py:126
+msgid "This identifier belongs to another request."
+msgstr ""
+
+#: apps/finance/services.py:129
+msgid "The student owes nothing more in the currency of this credit."
+msgstr ""
+
+#: apps/finance/services.py:224 apps/finance/services.py:236
 msgid "Whole school"
 msgstr "Toute l'école"
 
-#: apps/finance/services.py:218
+#: apps/finance/services.py:249
 msgid "Choose a level, a track or a class, not several."
 msgstr ""
 
-#: apps/finance/services.py:220
+#: apps/finance/services.py:251
 msgid "This class belongs to another school year."
 msgstr ""
 
-#: apps/finance/services.py:223
+#: apps/finance/services.py:254
 msgid "This currency is not one of the school's currencies."
 msgstr ""
 
-#: apps/finance/services.py:226 apps/finance/services.py:610
+#: apps/finance/services.py:257 apps/finance/services.py:641
 msgid "Add at least one installment."
 msgstr ""
 
-#: apps/finance/services.py:228
+#: apps/finance/services.py:259
 msgid "A single payment has exactly one installment."
 msgstr ""
 
-#: apps/finance/services.py:235
+#: apps/finance/services.py:266
 msgid "The installments must add up to the total."
 msgstr ""
 
-#: apps/finance/services.py:608 apps/finance/services.py:743
-#: apps/finance/services.py:797
+#: apps/finance/services.py:639 apps/finance/services.py:775
+#: apps/finance/services.py:839 apps/finance/services.py:1794
 msgid "This field may not be blank."
 msgstr ""
 
-#: apps/finance/services.py:618
+#: apps/finance/services.py:649
 msgid "Only a student enrolled this year can get a custom schedule."
 msgstr ""
 
-#: apps/finance/services.py:626
+#: apps/finance/services.py:657
 msgid "The student owes nothing unpaid for this fee."
 msgstr ""
 
-#: apps/finance/services.py:630
+#: apps/finance/services.py:661
 msgid "This fee is owed in several currencies: it cannot be rescheduled."
 msgstr ""
 
-#: apps/finance/services.py:637
+#: apps/finance/services.py:668
 msgid "The installments must add up to what is left to reschedule."
 msgstr ""
 
-#: apps/finance/services.py:751
+#: apps/finance/services.py:783
 msgid "Only a student enrolled this year can get a discount."
 msgstr ""
 
-#: apps/finance/services.py:760
+#: apps/finance/services.py:792
 msgid "The student owes nothing for this fee."
 msgstr ""
 
-#: apps/finance/services.py:766
+#: apps/finance/services.py:798
 msgid "An amount applies to one fee, in its currency."
 msgstr ""
 
-#: apps/finance/services.py:769
+#: apps/finance/services.py:801
 msgid "A discount cannot be more than the fee."
 msgstr ""
 
-#: apps/finance/services.py:994
+#: apps/finance/services.py:1082
 msgid "Give the reason for the correction."
 msgstr ""
 
-#: apps/finance/services.py:997
+#: apps/finance/services.py:1085
 msgid "This is already the rate of the year."
 msgstr ""
 
-#: apps/finance/services.py:1189
+#: apps/finance/services.py:1113
+msgid "This code is kept for cancellation receipts."
+msgstr ""
+
+#: apps/finance/services.py:1297
 msgid "The student does not owe this fee, or it appears twice."
 msgstr ""
 
-#: apps/finance/services.py:1195
+#: apps/finance/services.py:1303
 msgid "This part is more than what is left to pay on this fee, or too small."
 msgstr ""
 
-#: apps/finance/services.py:1199
+#: apps/finance/services.py:1307
 msgid "The parts must add up to the amount received."
 msgstr ""
 
-#: apps/finance/services.py:1257
+#: apps/finance/services.py:1367
 msgid "This receipt number was not given by this device."
 msgstr ""
 
-#: apps/finance/services.py:1260
+#: apps/finance/services.py:1370
 msgid "Another payment already has this receipt number."
 msgstr ""
 
-#: apps/finance/services.py:1311
+#: apps/finance/services.py:1421
 msgid "The school does not use this currency."
 msgstr ""
 
-#: apps/finance/services.py:1335
+#: apps/finance/services.py:1445
 msgid "This is more than what the student owes: give back the change."
+msgstr ""
+
+#: apps/finance/services.py:2120
+msgid "Count the money of each currency."
+msgstr ""
+
+#: apps/finance/services.py:2128
+msgid "Explain the difference: the accountant will see it."
 msgstr ""
 
 #: apps/finance/templates/finance/receipt_verification.html:7
@@ -1756,10 +2029,6 @@ msgstr ""
 
 #: apps/schools/models.py:180
 msgid "A currency used by a fee rule cannot be removed."
-msgstr ""
-
-#: apps/schools/models.py:210
-msgid "Open"
 msgstr ""
 
 #: apps/schools/models.py:212
@@ -2798,22 +3067,22 @@ msgstr "changement"
 msgid "changes"
 msgstr "changements"
 
-#: apps/sync/operations.py:32
+#: apps/sync/operations.py:36
 msgid "This application is out of date: update it."
 msgstr ""
 
-#: apps/sync/services.py:44
+#: apps/sync/services.py:52
 msgid "This device was disconnected. It is no longer remembered."
 msgstr "Cet appareil a été déconnecté. Il n'est plus mémorisé."
 
-#: apps/sync/services.py:47
+#: apps/sync/services.py:55
 msgid "Remember this device when you log in to work without internet."
 msgstr ""
 
-#: apps/sync/services.py:50
+#: apps/sync/services.py:61
 msgid "The data of this device is out of date: download it again."
 msgstr ""
 
-#: apps/sync/services.py:145
+#: apps/sync/services.py:156
 msgid "Invalid device key."
 msgstr "Clé d'appareil non valide."
