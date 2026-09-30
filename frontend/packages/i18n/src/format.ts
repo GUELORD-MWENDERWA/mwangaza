@@ -33,6 +33,11 @@ export function formatDay(value: string, language: string) {
 }
 
 /** `10:42` */
+/** `octobre 2026` : un mois du calendrier (`2026-10`), sans fuseau. */
+export function formatMonth(month: string, language: string) {
+  return parts(`${month}-01T00:00:00Z`, language, "UTC", { month: "long", year: "numeric" });
+}
+
 export function formatTime(value: string | Date, language: string, timeZone: string) {
   return parts(value, language, timeZone, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 }

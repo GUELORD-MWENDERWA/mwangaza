@@ -2328,17 +2328,9 @@ export interface components {
              *     * `ok` - ok
              *     * `difference` - difference
              */
-            state: components["schemas"]["CashClosingDetailStateEnum"];
+            state: components["schemas"]["ClosingStateEnum"];
             late_payments: components["schemas"]["LatePayment"][];
         };
-        /**
-         * @description * `open` - open
-         *     * `unclosed` - unclosed
-         *     * `ok` - ok
-         *     * `difference` - difference
-         * @enum {string}
-         */
-        CashClosingDetailStateEnum: "open" | "unclosed" | "ok" | "difference";
         CashClosingLine: {
             currency: components["schemas"]["CurrencyEnum"];
             /**
@@ -2405,6 +2397,31 @@ export interface components {
             opened_at: string;
             /** Format: date-time */
             closed_at: string | null;
+        };
+        /** @description Une session dans la liste des clôtures (M16). */
+        CashSessionClosing: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly cash_register: components["schemas"]["CashRegister"];
+            readonly cashier: components["schemas"]["Person"];
+            /** Format: date-time */
+            opened_at: string;
+            /** Format: date-time */
+            closed_at: string | null;
+            /** @description Reçus donnés, annulés compris. */
+            payments_count: number;
+            /**
+             * @description Ouverte aujourd'hui, pas clôturée (ouverte avant aujourd'hui), conforme, ou écart.
+             *
+             *     * `open` - open
+             *     * `unclosed` - unclosed
+             *     * `ok` - ok
+             *     * `difference` - difference
+             */
+            state: components["schemas"]["ClosingStateEnum"];
+            lines: components["schemas"]["SessionLine"][];
+            /** @description Paiements pas annulés arrivés au serveur après la clôture. */
+            late: components["schemas"]["SessionTotal"][];
         };
         CashSessionOpenRequest: {
             /**
@@ -2491,10 +2508,20 @@ export interface components {
             currency: components["schemas"]["CurrencyEnum"];
             amount_minor: number;
         };
+        /**
+         * @description * `open` - open
+         *     * `unclosed` - unclosed
+         *     * `ok` - ok
+         *     * `difference` - difference
+         * @enum {string}
+         */
+        ClosingStateEnum: "open" | "unclosed" | "ok" | "difference";
         ClosingsSummary: {
             sessions: number;
             cash_registers: number;
             differences: components["schemas"]["ClosingDifference"][];
+            /** @description Caisses de l'école (filtre). */
+            registers: components["schemas"]["CashRegister"][];
             /** @description Pas clôturées, ouvertes avant aujourd'hui, quel que soit le mois. */
             unclosed: components["schemas"]["CashSession"][];
         };
@@ -3344,6 +3371,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["CancellationRequest"][];
         };
+        PaginatedCashSessionClosingList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["CashSessionClosing"][];
+        };
         PaginatedDeviceList: {
             /** @example 123 */
             count: number;
@@ -4071,6 +4113,15 @@ export interface components {
          * @enum {string}
          */
         SchoolStatusEnum: "trial" | "active" | "suspended";
+        SessionLine: {
+            currency: components["schemas"]["CurrencyEnum"];
+            /** @description Figé à la clôture ; session ouverte : paiements pas annulés à cette heure. */
+            expected_minor: number;
+            /** @description Vide : pas clôturée. */
+            counted_minor: number | null;
+            /** @description Compté - attendu. */
+            difference_minor: number | null;
+        };
         SessionTotal: {
             currency: components["schemas"]["CurrencyEnum"];
             amount_minor: number;
@@ -4554,7 +4605,7 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
             /** Format: date-time */
-            readonly voided_at: string;
+            readonly voided_at: string | null;
         };
         SyncDevice: {
             /** Format: uuid */
@@ -6327,6 +6378,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedCashSessionClosingList"];
+                };
+            };
             400: {
                 headers: {
                     [name: string]: unknown;

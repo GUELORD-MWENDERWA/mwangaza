@@ -519,7 +519,10 @@ class CashSessionViewSet(mixins.CreateModelMixin, SchoolViewSet):
 
 
 @extend_schema_view(
-    list=extend_schema(parameters=[ClosingFilterSerializer], responses={**INVALID, **ERRORS}),
+    list=extend_schema(
+        parameters=[ClosingFilterSerializer],
+        responses={200: CashSessionClosingSerializer(many=True), **INVALID, **ERRORS},
+    ),
     retrieve=extend_schema(responses={200: CashClosingDetailSerializer, **ERRORS}),
 )
 @extend_schema(tags=["finance"])

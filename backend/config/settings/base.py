@@ -188,6 +188,7 @@ SPECTACULAR_SETTINGS = {
         "TermKindEnum": "apps.schools.models.Term.Kind",
         "CreditStateEnum": "apps.finance.serializers.CREDIT_STATES",
         "CancellationStatusEnum": "apps.finance.models.CancellationRequest.Status",
+        "ClosingStateEnum": "apps.finance.serializers.CLOSING_STATES",
     },
 }
 

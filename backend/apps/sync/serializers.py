@@ -110,7 +110,9 @@ class SyncCreditUseSerializer(serializers.ModelSerializer):
     """Part d'un crédit utilisée sur un frais dû : payée depuis `created_at`, jusqu'à
     l'annulation du crédit (`voided_at`)."""
 
-    voided_at = serializers.DateTimeField(source="credit.voided_at", read_only=True)
+    voided_at = serializers.DateTimeField(
+        source="credit.voided_at", read_only=True, allow_null=True
+    )
 
     class Meta:
         model = CreditAllocation

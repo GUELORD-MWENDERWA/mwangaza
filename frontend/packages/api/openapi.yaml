@@ -1738,6 +1738,12 @@ paths:
       security:
       - cookieAuth: []
       responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCashSessionClosingList'
+          description: ''
         '400':
           content:
             application/json:
@@ -7411,7 +7417,7 @@ components:
           nullable: true
         state:
           allOf:
-          - $ref: '#/components/schemas/CashClosingDetailStateEnum'
+          - $ref: '#/components/schemas/ClosingStateEnum'
           description: |-
             Ouverte aujourd'hui, pas clôturée (ouverte avant aujourd'hui), conforme, ou écart.
 
@@ -7435,18 +7441,6 @@ components:
       - closing
       - state
       - late_payments
-    CashClosingDetailStateEnum:
-      enum:
-      - open
-      - unclosed
-      - ok
-      - difference
-      type: string
-      description: |-
-        * `open` - open
-        * `unclosed` - unclosed
-        * `ok` - ok
-        * `difference` - difference
     CashClosingLine:
       type: object
       properties:
@@ -7619,6 +7613,61 @@ components:
       - cashier
       - opened_at
       - closed_at
+    CashSessionClosing:
+      type: object
+      description: Une session dans la liste des clôtures (M16).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        cash_register:
+          allOf:
+          - $ref: '#/components/schemas/CashRegister'
+          readOnly: true
+        cashier:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+        opened_at:
+          type: string
+          format: date-time
+        closed_at:
+          type: string
+          format: date-time
+          nullable: true
+        payments_count:
+          type: integer
+          description: Reçus donnés, annulés compris.
+        state:
+          allOf:
+          - $ref: '#/components/schemas/ClosingStateEnum'
+          description: |-
+            Ouverte aujourd'hui, pas clôturée (ouverte avant aujourd'hui), conforme, ou écart.
+
+            * `open` - open
+            * `unclosed` - unclosed
+            * `ok` - ok
+            * `difference` - difference
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionLine'
+        late:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionTotal'
+          description: Paiements pas annulés arrivés au serveur après la clôture.
+      required:
+      - id
+      - cash_register
+      - cashier
+      - opened_at
+      - closed_at
+      - payments_count
+      - state
+      - lines
+      - late
     CashSessionOpenRequest:
       type: object
       properties:
@@ -7795,6 +7844,18 @@ components:
       - fee_type
       - currency
       - amount_minor
+    ClosingStateEnum:
+      enum:
+      - open
+      - unclosed
+      - ok
+      - difference
+      type: string
+      description: |-
+        * `open` - open
+        * `unclosed` - unclosed
+        * `ok` - ok
+        * `difference` - difference
     ClosingsSummary:
       type: object
       properties:
@@ -7806,6 +7867,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ClosingDifference'
+        registers:
+          type: array
+          items:
+            $ref: '#/components/schemas/CashRegister'
+          description: Caisses de l'école (filtre).
         unclosed:
           type: array
           items:
@@ -7816,6 +7882,7 @@ components:
       - sessions
       - cash_registers
       - differences
+      - registers
       - unclosed
     CodeEnum:
       enum:
@@ -9647,6 +9714,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CancellationRequest'
+    PaginatedCashSessionClosingList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CashSessionClosing'
     PaginatedDeviceList:
       type: object
       required:
@@ -11030,6 +11122,28 @@ components:
         * `trial` - Trial
         * `active` - Active
         * `suspended` - Suspended
+    SessionLine:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        expected_minor:
+          type: integer
+          description: 'Figé à la clôture ; session ouverte : paiements pas annulés
+            à cette heure.'
+        counted_minor:
+          type: integer
+          nullable: true
+          description: 'Vide : pas clôturée.'
+        difference_minor:
+          type: integer
+          nullable: true
+          description: Compté - attendu.
+      required:
+      - currency
+      - expected_minor
+      - counted_minor
+      - difference_minor
     SessionTotal:
       type: object
       properties:
@@ -12122,6 +12236,7 @@ components:
           type: string
           format: date-time
           readOnly: true
+          nullable: true
       required:
       - student_charge
       - amount_minor

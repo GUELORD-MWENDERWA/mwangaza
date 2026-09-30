@@ -324,7 +324,8 @@ def _demo_payments(school: School, registers: list[tuple[CashRegister, User]]) -
 
 def _demo_closings(school: School) -> None:
     """Sessions fermées sans clôture (paiements de la démo, bases d'avant 3.8.2) : clôturées le
-    soir, l'argent compté juste, sauf la première où il manque 5,00 $ (billet refusé), expliqué."""
+    soir, l'argent compté juste, sauf la plus récente où il manque 5,00 $ (billet refusé),
+    expliqué : l'écart se voit dans le mois en cours (Clôtures de caisse, 3.8.3)."""
     sessions = list(
         CashSession.objects.filter(closed_at__isnull=False, closings__isnull=True).order_by(
             "opened_at"
@@ -340,7 +341,8 @@ def _demo_closings(school: School) -> None:
     first = not CashClosing.objects.exclude(difference_minor=0).exists()
     closings = []
     for index, session in enumerate(sessions):
-        short = first and index == 0 and expected.get((session.pk, "USD"), 0) >= 500
+        last = index == len(sessions) - 1
+        short = first and last and expected.get((session.pk, "USD"), 0) >= 500
         for currency in school.enabled_currencies:
             want = expected.get((session.pk, currency), 0)
             missing = 500 if short and currency == "USD" else 0

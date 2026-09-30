@@ -486,6 +486,7 @@ class ClosingsSummarySerializer(serializers.Serializer):
     sessions = serializers.IntegerField()
     cash_registers = serializers.IntegerField()
     differences = ClosingDifferenceSerializer(many=True)
+    registers = CashRegisterSerializer(many=True, help_text="Caisses de l'école (filtre).")
     unclosed = CashSessionSerializer(
         many=True, help_text="Pas clôturées, ouvertes avant aujourd'hui, quel que soit le mois."
     )

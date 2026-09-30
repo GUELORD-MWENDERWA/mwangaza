@@ -2264,8 +2264,8 @@ def with_closings(sessions: list[CashSession]) -> list[CashSession]:
 
 def closings_summary(month: date, cash_register: CashRegister | None = None) -> dict:
     """Chiffres de l'écran pour le mois : sessions et caisses, écart net par devise de l'école
-    (et nombre de sessions avec un écart), et toutes les sessions pas clôturées ouvertes avant
-    aujourd'hui, quel que soit le mois (bandeau)."""
+    (et nombre de sessions avec un écart), les caisses de l'école (filtre) et toutes les
+    sessions pas clôturées ouvertes avant aujourd'hui, quel que soit le mois (bandeau)."""
     sessions = cash_sessions(month, cash_register)
     differences = {
         row["currency"]: row
@@ -2291,6 +2291,7 @@ def closings_summary(month: date, cash_register: CashRegister | None = None) -> 
             for currency in Currency.values
             if currency in differences or currency in enabled
         ],
+        "registers": list(CashRegister.objects.order_by("code")),
         "unclosed": list(
             CashSession.objects.filter(closed_at__isnull=True, opened_at__lt=start_of_today)
             .select_related("cash_register", "cashier")

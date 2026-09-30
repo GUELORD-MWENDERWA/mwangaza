@@ -188,6 +188,7 @@ def test_the_accountant_sees_each_session_its_difference_and_those_left_open(
 
     summary = accountant.get(f"{CLOSINGS}summary/").json()
     assert (summary["sessions"], summary["cash_registers"]) == (2, 1)
+    assert [register["code"] for register in summary["registers"]] == ["C1", "C2"]
     assert summary["differences"] == [
         {"currency": "USD", "difference_minor": -500, "sessions": 1},
         {"currency": "CDF", "difference_minor": 0, "sessions": 0},
