@@ -1519,7 +1519,10 @@ def receipt_payments() -> QuerySet[Payment]:
         .prefetch_related(
             Prefetch(
                 "allocations",
-                queryset=PaymentAllocation.objects.select_related("student_charge__fee_type"),
+                # Lignes du reçu dans un ordre fixe : échéance la plus ancienne d'abord.
+                queryset=PaymentAllocation.objects.select_related(
+                    "student_charge__fee_type"
+                ).order_by("student_charge__due_on", "id"),
             )
         )
         .annotate(
