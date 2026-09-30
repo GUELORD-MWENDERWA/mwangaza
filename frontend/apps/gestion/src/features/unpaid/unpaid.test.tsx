@@ -115,4 +115,27 @@ describe("Impayés (G1)", () => {
     expect(preview).toContain(`class_group=${CLASS.id}`);
     expect(preview).toContain("output=html");
   });
+
+  it("imprime ensemble les situations financières des élèves cochés, une page chacun", async () => {
+    mockApi(routes());
+    const { user } = renderApp("/unpaid");
+
+    const print = await screen.findByRole("button", {
+      name: "Imprimer les situations sélectionnées",
+    });
+    expect(print).toHaveProperty("disabled", true);
+    await user.click(
+      screen.getByRole("checkbox", { name: "Sélectionner SAFARI BIRINGANINE Patrick" }),
+    );
+    screen.getByText("1 sélectionné");
+    await user.click(screen.getByRole("link", { name: "Imprimer les situations sélectionnées" }));
+
+    await screen.findByText("1 élève sélectionné dans les Impayés.");
+    const preview = screen.getByTitle("Aperçu de la situation financière").getAttribute("src")!;
+    expect(preview).toContain(`enrollment=${safari.enrollment}`);
+    expect(preview).toContain("output=html");
+    const pdf = screen.getByRole("link", { name: "PDF" }).getAttribute("href")!;
+    expect(pdf).toContain(`enrollment=${safari.enrollment}`);
+    expect(pdf).toContain("output=pdf");
+  });
 });

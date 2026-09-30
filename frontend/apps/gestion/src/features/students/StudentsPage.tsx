@@ -1,9 +1,9 @@
 // Liste des élèves (D2) : recherche (noms, matricule, code famille, sans accents ni casse) et
 // filtres année, classe, option, statut ; liste paginée par le serveur ; le nom ouvre la fiche.
-// Import : 2.3 ; export et sélection : 2.4 ; « Échu non payé », « Paiements » et leur filtre :
-// 4.1 (impayés) ;
-// recherche hors-ligne (IndexedDB) : 3.x.
+// Import : 2.3 ; export et sélection : 2.4 ; « Échu non payé », « Paiements » et leur filtre
+// (4.1.2), avec un droit de lecture des frais ; recherche hors-ligne (IndexedDB) : 3.x.
 import { useTranslation } from "@mwangaza/i18n";
+import { type Currency, formatAmount } from "@mwangaza/money";
 import {
   Avatar,
   Button,
@@ -28,17 +28,41 @@ import { useSettled } from "../../lib/settled";
 import { useClasses, useTracks, useYears } from "../organisation/data";
 import { Pagination } from "../shell/Pagination";
 import { LoadError } from "../status/StatusPages";
-import { type StudentQuery, type StudentRow, type StudentStatus, useStudents } from "./data";
+import {
+  CHARGES_READ,
+  type Situation,
+  type StudentQuery,
+  type StudentRow,
+  type StudentStatus,
+  useStudents,
+} from "./data";
 
 const PAGE_SIZE = 50;
 const STATUSES: StudentStatus[] = ["active", "left", "not_enrolled"];
+const SITUATIONS: Situation[] = ["up_to_date", "partial", "overdue"];
+const SITUATION_TONES = { up_to_date: "ok", partial: "warn", overdue: "due" } as const;
 
-type Filters = { search: string; year: string; classGroup: string; track: string; status: string };
-const NO_FILTERS: Filters = { search: "", year: "", classGroup: "", track: "", status: "active" };
+type Filters = {
+  search: string;
+  year: string;
+  classGroup: string;
+  track: string;
+  status: string;
+  payment: string;
+};
+const NO_FILTERS: Filters = {
+  search: "",
+  year: "",
+  classGroup: "",
+  track: "",
+  status: "active",
+  payment: "",
+};
 
 export function StudentsPage() {
   const { t } = useTranslation();
   const me = useCurrentMe();
+  const finance = can(me, CHARGES_READ);
   const [filters, setFilters] = useState<Filters>(NO_FILTERS);
   const [page, setPage] = useState(1);
   const years = useYears();
@@ -54,6 +78,7 @@ export function StudentsPage() {
     ...(filters.classGroup ? { class_group: filters.classGroup } : {}),
     ...(filters.track ? { track: filters.track } : {}),
     ...(filters.status ? { status: filters.status as StudentStatus } : {}),
+    ...(finance && filters.payment ? { payment: filters.payment as Situation } : {}),
   };
   const students = useStudents(query, page);
   const change = (field: keyof Filters) => (value: string) => {
@@ -114,8 +139,14 @@ export function StudentsPage() {
         }
       />
       <Card>
-        <CardContent className="grid gap-2.5 min-[700px]:grid-cols-2 min-[1200px]:grid-cols-[minmax(240px,1.6fr)_repeat(4,minmax(0,1fr))_auto]">
-          <div className="relative min-[700px]:col-span-2 min-[1200px]:col-span-1">
+        <CardContent
+          // Avec le filtre « Paiement », la recherche prend sa propre ligne : six filtres sur une
+          // seule couperaient leurs libellés.
+          className={`grid gap-2.5 min-[700px]:grid-cols-2 ${finance ? "min-[1200px]:grid-cols-[repeat(5,minmax(0,1fr))_auto]" : "min-[1200px]:grid-cols-[minmax(240px,1.6fr)_repeat(4,minmax(0,1fr))_auto]"}`}
+        >
+          <div
+            className={`relative min-[700px]:col-span-2 ${finance ? "min-[1200px]:col-span-full" : "min-[1200px]:col-span-1"}`}
+          >
             <Icon
               name="search"
               size={16}
@@ -179,6 +210,20 @@ export function StudentsPage() {
             ))}
             <option value="">{t("students.filters.statuses.all")}</option>
           </Select>
+          {finance && (
+            <Select
+              aria-label={t("students.filters.payment")}
+              value={filters.payment}
+              onChange={(e) => change("payment")(e.target.value)}
+            >
+              <option value="">{t("students.filters.payments.all")}</option>
+              {SITUATIONS.map((situation) => (
+                <option key={situation} value={situation}>
+                  {t(`students.filters.payments.${situation}`)}
+                </option>
+              ))}
+            </Select>
+          )}
           <Button
             variant="ghost"
             disabled={!filtered}
@@ -199,7 +244,7 @@ export function StudentsPage() {
         ) : results.length === 0 ? (
           <CardContent className="text-ink-3">{t("students.list.empty")}</CardContent>
         ) : (
-          <StudentTable students={results} />
+          <StudentTable students={results} finance={finance} />
         )}
         <Pagination
           page={page}
@@ -217,7 +262,7 @@ export function StudentsPage() {
   );
 }
 
-function StudentTable({ students }: { students: StudentRow[] }) {
+function StudentTable({ students, finance }: { students: StudentRow[]; finance: boolean }) {
   const { t } = useTranslation();
   return (
     <Table>
@@ -226,6 +271,8 @@ function StudentTable({ students }: { students: StudentRow[] }) {
           <th>{t("students.list.columns.student")}</th>
           <th>{t("students.list.columns.class")}</th>
           <th>{t("students.list.columns.guardian")}</th>
+          {finance && <th className="text-right">{t("students.list.columns.overdue")}</th>}
+          {finance && <th>{t("students.list.columns.payments")}</th>}
         </tr>
       </thead>
       <tbody>
@@ -273,10 +320,35 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                       .join(" · ")
                   : t("common.none")}
               </td>
+              {finance && <FinanceCells balance={student.finance} />}
             </tr>
           );
         })}
       </tbody>
     </Table>
+  );
+}
+
+/** « Échu non payé » par devise, jamais additionné (« 20,00 $ + 30 000 FC »), et la situation. */
+function FinanceCells({ balance }: { balance: StudentRow["finance"] }) {
+  const { t } = useTranslation();
+  if (!balance) return <td colSpan={2} />;
+  const overdue = balance.currencies
+    .filter((item) => item.overdue_minor > 0)
+    .map((item) => formatAmount(item.overdue_minor, item.currency as Currency))
+    .join(" + ");
+  return (
+    <>
+      <td
+        className={`text-right whitespace-nowrap tabular-nums ${overdue ? "font-bold text-due" : "text-ink-3"}`}
+      >
+        {overdue || "—"}
+      </td>
+      <td>
+        <StatusPill tone={SITUATION_TONES[balance.situation]}>
+          {t(`students.list.situations.${balance.situation}`)}
+        </StatusPill>
+      </td>
+    </>
   );
 }

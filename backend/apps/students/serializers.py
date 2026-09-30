@@ -4,6 +4,8 @@ from rest_framework import serializers
 
 from apps.accounts.serializers import PhoneField
 from apps.audit.serializers import AuditLogSerializer
+from apps.finance import services as finance
+from apps.finance.serializers import BalanceSerializer
 from apps.schools.models import AcademicYear, ClassGroup, Track
 from apps.students import documents, imports
 from apps.students.models import Enrollment, Family, Guardian, Student, StudentImport
@@ -128,6 +130,7 @@ class StudentListSerializer(_StudentFields):
     enrollment = serializers.SerializerMethodField()
     # Contact principal de la famille (le premier à défaut), ou `null`.
     primary_guardian = serializers.SerializerMethodField()
+    finance = serializers.SerializerMethodField()
 
     class Meta(_StudentFields.Meta):
         fields = [
@@ -136,6 +139,7 @@ class StudentListSerializer(_StudentFields):
             "family_code",
             "enrollment",
             "primary_guardian",
+            "finance",
         ]
 
     @extend_schema_field(EnrollmentSerializer(allow_null=True))
@@ -147,6 +151,16 @@ class StudentListSerializer(_StudentFields):
     def get_primary_guardian(self, student: Student) -> dict | None:
         guardians = student.family.guardians.all()
         return GuardianSerializer(guardians[0]).data if guardians else None
+
+    @extend_schema_field(BalanceSerializer(allow_null=True))
+    def get_finance(self, student: Student) -> dict | None:
+        """Solde de l'inscription affichée (« Échu non payé » par devise, situation des
+        paiements), avec un droit de lecture des frais ; sinon, ou sans inscription, `null`."""
+        balances = self.context.get("balances")
+        enrollments = getattr(student, "year_enrollments", [])
+        if balances is None or not enrollments:
+            return None
+        return BalanceSerializer(balances.get(enrollments[0].pk) or finance.balance([])).data
 
 
 def photo_url(student: Student) -> str | None:
@@ -263,6 +277,12 @@ class StudentFilterSerializer(serializers.Serializer):
     class_group = serializers.PrimaryKeyRelatedField(queryset=ClassGroup.objects, required=False)
     track = serializers.PrimaryKeyRelatedField(
         queryset=Track.objects, required=False, help_text="Option de la classe de l'année."
+    )
+    payment = serializers.ChoiceField(
+        choices=[finance.UP_TO_DATE, finance.PARTIAL, finance.OVERDUE],
+        required=False,
+        help_text="Situation des paiements de l'année (droit de lecture des frais) : à jour, "
+        "partielle (en retard, mais des paiements) ou en retard (rien payé).",
     )
     status = serializers.ChoiceField(
         choices=["active", "left", "not_enrolled"],

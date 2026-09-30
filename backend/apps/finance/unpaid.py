@@ -104,31 +104,31 @@ def enrolled(filters: Filters) -> int:
     return _enrollments(filters).count()
 
 
-def _surname(enrollment: Enrollment) -> tuple:
+def surname(enrollment: Enrollment) -> tuple:
     student = enrollment.student
     return tuple(
         name.casefold() for name in (student.last_name, student.middle_name, student.first_name)
     )
 
 
-def _class_key(enrollment: Enrollment) -> tuple:
+def class_key(enrollment: Enrollment) -> tuple:
     group = enrollment.class_group
     return (group.level.order, group.level.name, group.track.name if group.track else "")
 
 
 def _sort(rows: list[UnpaidStudent], filters: Filters) -> None:
     if filters.order == NAME:
-        rows.sort(key=lambda row: _surname(row.enrollment))
+        rows.sort(key=lambda row: surname(row.enrollment))
     elif filters.order == CLASS:
         rows.sort(
             key=lambda row: (
-                _class_key(row.enrollment),
+                class_key(row.enrollment),
                 row.enrollment.class_group.section,
-                _surname(row.enrollment),
+                surname(row.enrollment),
             )
         )
     elif filters.order == DAYS:
-        rows.sort(key=lambda row: (-row.days_late, _surname(row.enrollment)))
+        rows.sort(key=lambda row: (-row.days_late, surname(row.enrollment)))
     else:
         # Jamais deux devises additionnées : la devise choisie, sinon les dollars puis les francs.
         currencies = [filters.currency] if filters.currency else Currency.values
@@ -137,7 +137,7 @@ def _sort(rows: list[UnpaidStudent], filters: Filters) -> None:
             owed = {amount.currency: amount.overdue_minor for amount in row.amounts}
             return tuple(-owed.get(currency, 0) for currency in currencies)
 
-        rows.sort(key=lambda row: (amounts(row), _surname(row.enrollment)))
+        rows.sort(key=lambda row: (amounts(row), surname(row.enrollment)))
 
 
 def unpaid_students(filters: Filters) -> list[UnpaidStudent]:

@@ -1,0 +1,64 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% translate "Financial statement" %}{% endblock %}
+{% block style %}
+.page + .page { break-before: page; }
+.qr { width: 22mm; height: 22mm; flex: none; }
+.identity td { border-left: 0; border-right: 0; }
+.identity td.label { width: 18%; color: #333; }
+.lines { font-size: .92em; }
+tr.overdue td { font-weight: 700; }
+.totals th:first-child { width: 40%; }
+.foot { margin-top: 2.2em; font-size: .9em; align-items: flex-end; }
+.sign { text-align: center; min-width: 45mm; }
+.sign span { display: block; margin-top: 12mm; border-top: 1px solid #111; }
+{% endblock %}
+{% block content %}{% for page in pages %}
+<section class="page">
+<div class="row between">
+  <div class="row">
+    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% else %}<div class="logo-text">{{ school_name|slice:":4"|upper }}</div>{% endif %}
+    <div><b>{{ school_name|upper }}</b>{% for line in header_lines %}<br><span class="small">{{ line }}</span>{% endfor %}</div>
+  </div>
+  <img class="qr" src="{{ page.qr }}" alt="">
+</div>
+
+<h1>{% blocktranslate with date=day|date:"d/m/Y" %}FINANCIAL STATEMENT ON {{ date }}{% endblocktranslate %}</h1>
+<p class="center">{% blocktranslate with year=page.year %}School year {{ year }}{% endblocktranslate %}</p>
+
+<table class="identity">
+  <tr><td class="label">{% translate "Student" %}</td><td><b>{{ page.student }}</b></td><td class="label">{% translate "Student number" %}</td><td>{{ page.matricule }}</td></tr>
+  <tr><td class="label">{% translate "Class" %}</td><td>{{ page.class_group }}</td><td class="label">{% translate "Guardian" %}</td><td>{{ page.guardian|default:"—" }}</td></tr>
+</table>
+
+{% if page.lines %}
+<table class="lines">
+  <thead><tr><th>{% translate "Fee" %}</th><th>{% translate "Due date" %}</th><th class="num">{% translate "Amount" %}</th><th class="num">{% translate "Paid" %}</th><th class="num">{% translate "Remaining" %}</th><th>{% translate "Status" %}</th></tr></thead>
+  {% for line in page.lines %}
+  <tr class="{{ line.state }}"><td>{{ line.fee }}</td><td>{{ line.due_on|date:"d/m/Y" }}</td><td class="num">{{ line.amount }}</td><td class="num">{{ line.paid }}</td><td class="num">{{ line.remaining }}</td><td>{% if line.state == "overdue" %}{% translate "OVERDUE" %}{% elif line.state == "paid" %}{% translate "paid" context "fee" %}{% else %}{% translate "upcoming" %}{% endif %}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+{% if page.currencies %}
+<table class="totals">
+  <thead><tr><th></th>{% for currency in page.currencies %}<th class="num">{{ currency }}</th>{% endfor %}</tr></thead>
+  <tr><td>{% translate "Total for the year" %}</td>{% for amount in page.totals.total %}<td class="num">{{ amount }}</td>{% endfor %}</tr>
+  <tr><td>{% translate "Already paid" %}</td>{% for amount in page.totals.paid %}<td class="num">{{ amount }}</td>{% endfor %}</tr>
+  <tr class="overdue"><td>{% blocktranslate with date=day|date:"d/m/Y" %}Overdue on {{ date }}{% endblocktranslate %}</td>{% for amount in page.totals.overdue %}<td class="num">{{ amount }}</td>{% endfor %}</tr>
+  <tr><td>{% translate "Remaining for the year" %}</td>{% for amount in page.totals.remaining %}<td class="num">{{ amount }}</td>{% endfor %}</tr>
+</table>
+{% else %}
+<p class="center">{% translate "No fees due this year." %}</p>
+{% endif %}
+
+{% if page.payments %}
+<p class="small"><b>{% translate "Payments received:" %}</b>
+{% for payment in page.payments %}{% if payment.cancelled %}{% blocktranslate with number=payment.number date=payment.paid_at|date:"d/m/Y" %}receipt {{ number }} of {{ date }} cancelled{% endblocktranslate %}{% else %}{% blocktranslate with number=payment.number date=payment.paid_at|date:"d/m/Y" amount=payment.amount %}{{ number }} of {{ date }} ({{ amount }}){% endblocktranslate %}{% endif %}{% if not forloop.last %} · {% endif %}{% endfor %}</p>
+{% endif %}
+
+<div class="row between foot">
+  <div>{% translate "Information document: this is not a receipt." %}<br>{% blocktranslate with date=printed_at|date:"d/m/Y" time=printed_at|time:"H:i" name=printed_by %}Printed on {{ date }} at {{ time }} by {{ name }}{% endblocktranslate %}</div>
+  <div class="sign">{% translate "Signature and school stamp" %}<span></span></div>
+</div>
+</section>
+{% endfor %}{% endblock %}

@@ -26,6 +26,7 @@ import { ImportStudentsPage } from "./features/students/ImportStudentsPage";
 import { NewStudentPage } from "./features/students/NewStudentPage";
 import { RegistrationFormPage } from "./features/students/RegistrationFormPage";
 import { StudentPage } from "./features/students/StudentPage";
+import { StudentStatementPage, UnpaidStatementsPage } from "./features/students/StatementPage";
 import { StudentsPage } from "./features/students/StudentsPage";
 import { AppShell } from "./features/shell/AppShell";
 import { CreditsPage } from "./features/credits/CreditsPage";
@@ -81,6 +82,11 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
   { path: "students/class-list", item: menuItem("students"), element: <ClassListPage /> },
   { path: "students/:id/form", item: menuItem("students"), element: <RegistrationFormPage /> },
   {
+    path: "students/:id/statement",
+    item: menuItem("students"),
+    element: <StudentStatementPage />,
+  },
+  {
     path: "students/:id/finances/schedule",
     item: { ...menuItem("students"), permissions: ["finance.grant_discount"] },
     element: <StudentPage schedule />,
@@ -88,6 +94,7 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
   { path: "students/:id/:tab?", item: menuItem("students"), element: <StudentPage /> },
   { path: "families/:id", item: menuItem("students"), element: <FamilyPage /> },
   { path: "unpaid/export", item: menuItem("unpaid"), element: <UnpaidExportPage /> },
+  { path: "unpaid/statements", item: menuItem("unpaid"), element: <UnpaidStatementsPage /> },
 ];
 
 export const routes: RouteObject[] = [

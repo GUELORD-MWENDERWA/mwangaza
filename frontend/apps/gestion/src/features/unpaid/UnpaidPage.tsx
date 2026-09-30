@@ -1,7 +1,8 @@
 // Impayés (G1, maquette `impayes`) : élèves ayant au moins une échéance dépassée non soldée,
 // calculés par le serveur (`finance.view_reports`, il vérifie) avec le même solde que la fiche
 // élève : réductions déduites, paiements annulés exclus, devises jamais additionnées. Filtres dans
-// l'adresse, repris par l'export. Situation financière et sélection : 4.1.2 ; relances : V1.1.
+// l'adresse, repris par l'export. Élèves cochés sur la page : leurs situations financières
+// imprimées ensemble (4.1.2, une page par élève) ; relances : V1.1.
 import { api, call } from "@mwangaza/api";
 import { formatDate, formatDay, useTranslation } from "@mwangaza/i18n";
 import { type Currency, formatAmount } from "@mwangaza/money";
@@ -9,6 +10,7 @@ import {
   Button,
   Card,
   CardContent,
+  Checkbox,
   Icon,
   Kpi,
   PageHeader,
@@ -43,6 +45,15 @@ export function UnpaidPage() {
   const school = useCurrentSchool();
   const [params, setParams] = useSearchParams();
   const [page, setPage] = useState(1);
+  // Cochés sur la page affichée : oubliés quand la page ou les filtres changent.
+  const shown = `${params}#${page}`;
+  const [selection, setSelection] = useState({ shown: "", ids: [] as string[] });
+  const selected = selection.shown === shown ? selection.ids : [];
+  const select = (ids: string[], on: boolean) =>
+    setSelection({
+      shown,
+      ids: on ? [...new Set([...selected, ...ids])] : selected.filter((id) => !ids.includes(id)),
+    });
   const filters = filtersOf(params);
   const summary = useQuery({
     queryKey: [...keys.unpaid, "summary", filters],
@@ -231,7 +242,27 @@ export function UnpaidPage() {
             {filtered ? t("unpaid.emptyFiltered") : t("unpaid.empty")}
           </CardContent>
         ) : (
-          <UnpaidTable rows={rows} />
+          <>
+            <UnpaidTable rows={rows} selected={selected} onSelect={select} />
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-[18px] py-3 text-sm text-ink-3">
+              <span>{t("unpaid.selected", { count: selected.length })}</span>
+              {selected.length > 0 ? (
+                <Button asChild size="sm" variant="outline">
+                  <Link
+                    to={`/unpaid/statements?${new URLSearchParams(selected.map((id) => ["enrollment", id]))}`}
+                  >
+                    <Icon name="print" size={16} />
+                    {t("unpaid.printSelected")}
+                  </Link>
+                </Button>
+              ) : (
+                <Button size="sm" variant="outline" disabled>
+                  <Icon name="print" size={16} />
+                  {t("unpaid.printSelected")}
+                </Button>
+              )}
+            </div>
+          </>
         )}
         <Pagination
           page={page}
@@ -249,13 +280,35 @@ export function UnpaidPage() {
   );
 }
 
-function UnpaidTable({ rows }: { rows: UnpaidRow[] }) {
+function UnpaidTable({
+  rows,
+  selected,
+  onSelect,
+}: {
+  rows: UnpaidRow[];
+  selected: string[];
+  onSelect: (ids: string[], on: boolean) => void;
+}) {
   const { t, i18n } = useTranslation();
   const school = useCurrentSchool();
   return (
     <Table>
       <thead>
         <tr>
+          <th className="w-10">
+            <Checkbox
+              aria-label={t("unpaid.selectPage")}
+              checked={
+                selected.length === 0 ? false : selected.length === rows.length || "indeterminate"
+              }
+              onCheckedChange={(checked) =>
+                onSelect(
+                  rows.map((row) => row.enrollment),
+                  checked === true,
+                )
+              }
+            />
+          </th>
           <th>{t("unpaid.columns.student")}</th>
           <th>{t("unpaid.columns.detail")}</th>
           <th className="text-right">{t("unpaid.columns.overdue")}</th>
@@ -269,6 +322,13 @@ function UnpaidTable({ rows }: { rows: UnpaidRow[] }) {
           const payment = row.last_payment;
           return (
             <tr key={row.enrollment}>
+              <td>
+                <Checkbox
+                  aria-label={t("unpaid.select", { name: studentName(row.student) })}
+                  checked={selected.includes(row.enrollment)}
+                  onCheckedChange={(checked) => onSelect([row.enrollment], checked === true)}
+                />
+              </td>
               <td className="min-w-44">
                 <Link
                   to={`/students/${row.student.id}/finances`}

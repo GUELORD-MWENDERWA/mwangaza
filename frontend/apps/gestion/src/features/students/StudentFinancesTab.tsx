@@ -170,6 +170,9 @@ export function StudentFinancesTab({
           <CardTitle>{t("students.finances.due")}</CardTitle>
           <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-3">
             {live.length === 0 && t("students.discount.none")}
+            <Link to={`/students/${student.id}/statement`} className="text-lake underline">
+              {t("students.print.statement.title")}
+            </Link>
             {canSchedule && (
               <button
                 type="button"
