@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.8.2 terminée, PR #114 à fusionner |
-| Prochaine tâche | 3.8.3 |
+| Tâche en cours | aucune — 3.8.3 terminée, PR à fusionner |
+| Prochaine tâche | 4.1 |
 | Issue GitHub | #28 |
-| Branche | `tache/3.8.2-cloture` (PR #114) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/3.8.3-clotures` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-30 |
 
 ## Avancement
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 16 | 17 |
+| Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **33** | **42** |
+| **V1.0** | **34** | **42** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-30 — Tâche 3.8.3 : clôtures de caisse vues par le comptable
+- Fait : écran « Clôtures de caisse » (M16) en lecture seule (`finance.view_reports`) : par mois et par caisse, attendu / compté / écart par devise, sessions pas clôturées (bandeau), paiements arrivés après la clôture, détail, bordereau du caissier, paiements de la session, export Excel ; `/api/cash-closings/` (liste, `summary/`, détail, `export/`). Duplicata sur l'appareil : crédits utilisés avant le paiement comptés (`credit_uses`). Démo : l'écart de 5,00 $ passe sur la session la plus récente (après `make reset-db`).
+- Décisions (`03`) : le bordereau et l'attendu d'une session close ne comptent que les paiements reçus avant la clôture ; « non clôturée » = ouverte avant aujourd'hui.
+- Tests : 880 serveur, 208 front, Playwright ; lint vert. Semaine 3 terminée.
+- Suite : 4.1 (impayés).
 
 ### 2026-09-30 — Tâche 3.8.2 : clôture de caisse par le caissier
 - Fait : 3.8 découpée à nouveau (écran du comptable → 3.8.3). `CashClosing` immuable par devise (attendu, compté, écart, explication), `GET/POST /api/cash-sessions/{id}/closing|close/`, opération hors ligne `cash_session.close` ; écran « Clôturer » (maquette `caisse-cloture`) en ligne et sur l'appareil, bordereau imprimé ; démo : clôtures des sessions passées (une avec − 5,00 $ expliqué).
