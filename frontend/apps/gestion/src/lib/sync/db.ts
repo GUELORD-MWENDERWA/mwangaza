@@ -127,8 +127,8 @@ export function dexieStore(db: LocalDb): LocalStore {
       db.transaction("rw", [db.outbox, db.cash], async () => {
         for (const outcome of outcomes) {
           const operation = db.outbox.where("op_id").equals(outcome.op_id);
-          const opened =
-            outcome.status === "rejected" ? undefined : (await operation.first())?.session;
+          const queued = outcome.status === "rejected" ? undefined : await operation.first();
+          const opened = queued?.session;
           if (opened) {
             // Caisse ouverte ici, acceptée : c'est maintenant la session du serveur.
             await db.cash
@@ -136,6 +136,18 @@ export function dexieStore(db: LocalDb): LocalStore {
               .equals("session")
               .modify((row) => {
                 row.value = { ...row.value, session: opened };
+                row.readAt = Date.now();
+              });
+          }
+          if (queued?.type === "cash_session.close") {
+            // Clôture acceptée : la session gardée n'est plus ouverte.
+            const closed = (queued.payload as { cash_session: string }).cash_session;
+            await db.cash
+              .where("id")
+              .equals("session")
+              .modify((row) => {
+                if (row.value.session?.id !== closed) return;
+                row.value = { ...row.value, session: null, totals: [] };
                 row.readAt = Date.now();
               });
           }

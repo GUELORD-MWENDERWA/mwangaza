@@ -31,7 +31,23 @@ with use_school(School.objects.get(code="itig")):
   return { receipts: receipts!.split(" "), paidUsd: Number(paid), reprints: Number(reprints) };
 }
 
-test("caissière sans réseau : ouvre sa caisse, encaisse deux fois, réimprime ; reçus vérifiables, aucun doublon au retour (3.5)", async ({
+/** Dernière clôture faite sur un appareil : par devise, attendu et compté d'après le serveur. */
+function serverClosing(): string {
+  const output = manage(
+    "shell",
+    "-c",
+    `from apps.core.tenancy import use_school
+from apps.finance.models import CashClosing
+from apps.schools.models import School
+with use_school(School.objects.get(code="itig")):
+    last = CashClosing.objects.filter(device__isnull=False).latest("created_at")
+    lines = last.cash_session.closings.order_by("currency")
+    print(" ".join(f"{c.currency}:{c.expected_minor}:{c.counted_minor}" for c in lines))`,
+  );
+  return output.trim().split("\n").at(-1)!;
+}
+
+test("caissière sans réseau : ouvre sa caisse, encaisse deux fois, réimprime ; reçus vérifiables, aucun doublon au retour ; clôture sans réseau (3.5, 3.8.2)", async ({
   page,
   context,
   request,
@@ -120,4 +136,27 @@ test("caissière sans réseau : ouvre sa caisse, encaisse deux fois, réimprime 
     reprints: 1,
   });
   expect(await verify()).toContain("Reçu authentique</h1>");
+
+  // Clôture sans réseau : attendu calculé sur l'appareil, bordereau imprimé, retour à l'ouverture.
+  await context.setOffline(true);
+  await expect(indicator).toHaveText("Hors ligne");
+  await page.getByRole("button", { name: "Clôturer la caisse" }).click();
+  await expect(page.getByRole("cell", { name: "15,00 $" }).first()).toBeVisible();
+  await page.getByLabel("Argent compté en USD").fill("15");
+  await page.getByLabel("Argent compté en FC").fill("0");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Clôturer et imprimer le bordereau" }).click();
+  await expect(page.getByText(/gardée sur cet appareil/)).toBeVisible();
+  await expect(body).toHaveAttribute("data-prints", "4");
+  await expect(body).toHaveAttribute("data-printed", /Bordereau de clôture/);
+  await page.getByRole("button", { name: "Terminer" }).click();
+  await expect(page.getByRole("heading", { name: "Ouvrir la caisse" })).toBeVisible();
+  await expect(indicator).toHaveText("Hors ligne · 1 en attente");
+
+  // Retour du réseau : le serveur a la clôture, recalculée, et la caisse reste fermée.
+  await context.setOffline(false);
+  await expect(indicator).toHaveText("En ligne · à jour", { timeout: 30_000 });
+  expect(serverClosing()).toBe("CDF:0:0 USD:1500:1500");
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Ouvrir la caisse" })).toBeVisible();
 });

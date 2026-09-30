@@ -18,6 +18,7 @@ from apps.core.tenancy import use_school
 from apps.finance import services as finance
 from apps.finance.models import (
     CancellationRequest,
+    CashClosing,
     CashSession,
     CreditAllocation,
     Payment,
@@ -236,8 +237,8 @@ def test_a_till_opened_offline_collects_and_reprints_once_at_the_device_times(
 ):
     """Caisse ouverte, paiement encaissé et duplicata imprimé sans réseau, le lot envoyé deux
     fois : une session, un paiement, un duplicata au journal, aux heures de l'appareil. Une
-    autre caissière qui a ouvert la même caisse hors ligne est refusée, et ne réimprime pas le
-    reçu d'une autre."""
+    autre caissière qui a ouvert la même caisse hors ligne n'est pas refusée : elle a déjà
+    encaissé (3.8.2) ; elle ne réimprime pas le reçu d'une autre."""
     client = api(cashier)
     device = remember(client).json()
     session_id = uuid7()
@@ -264,13 +265,64 @@ def test_a_till_opened_offline_collects_and_reprints_once_at_the_device_times(
     assert str(reprinted.device_id) == str(opened.device_id) == device["id"]
 
     other = api(MembershipFactory(school=school, roles=["cashier"]).user)
-    remember(other)
-    late = [open_op(alpha["register"]), reprint_op(payment["payload"]["id"])]
+    other_device = remember(other).json()
+    busy_id = uuid7()
+    late = [
+        open_op(alpha["register"], busy_id),
+        payment_op(alpha, other_device, SimpleNamespace(pk=busy_id), 6000),
+        reprint_op(payment["payload"]["id"]),
+    ]
     results = other.post(PUSH, {"operations": late}).json()["results"]
-    assert [r["error"]["code"] for r in results] == ["cash_register_busy", "permission_denied"]
+    assert [r["status"] for r in results] == ["applied", "applied", "rejected"]
+    assert results[2]["error"]["code"] == "permission_denied"
     with use_school(school):
-        assert CashSession.objects.count() == 1
+        assert CashSession.objects.filter(closed_at__isnull=True).count() == 2
+        assert Payment.objects.get(cash_session_id=busy_id).received_amount_minor == 6000
         assert AuditLog.objects.filter(action=Action.FINANCE_PAYMENT_REPRINTED).count() == 1
+    # En ligne, la caisse reste refusée tant qu'une session y est ouverte.
+    third = api(MembershipFactory(school=school, roles=["cashier"]).user)
+    busy = third.post("/api/cash-sessions/", {"cash_register": str(alpha["register"].pk)})
+    assert busy.json()["code"] == "cash_register_busy"
+
+
+def close_op(session, usd: int, closed_at="2026-10-02T16:50:00Z", note="") -> dict:
+    payload = {
+        "cash_session": str(session.pk),
+        "counted": [{"currency": "USD", "amount_minor": usd}],
+        "note": note,
+        "closed_at": closed_at,
+    }
+    return {"op_id": str(uuid7()), "type": "cash_session.close", "payload": payload}
+
+
+def test_a_till_closed_offline_once_and_a_late_payment_still_reaches_the_student(
+    api, school, cashier, alpha
+):
+    """Clôture faite sans réseau, envoyée deux fois : une clôture à l'heure de l'appareil, la
+    devise pas comptée l'est à zéro, rien n'est refusé. Un paiement hors ligne de la même
+    session arrivé après (autre appareil) est gardé, mais hors de l'attendu déjà figé."""
+    client, device, session = till(api, school, cashier, alpha)
+    closing = close_op(session, 11500)
+    batch = {"operations": [payment_op(alpha, device, session, 12000), closing]}
+
+    first = client.post(PUSH, batch).json()["results"]
+    again = client.post(PUSH, {"operations": [closing]}).json()["results"]
+    assert [r["status"] for r in first + again] == ["applied", "applied", "duplicate"]
+
+    tablet = api(cashier)
+    late = payment_op(alpha, remember(tablet).json(), session, 6000)
+    assert tablet.post(PUSH, {"operations": [late]}).json()["results"][0]["status"] == "applied"
+    with use_school(school):
+        session.refresh_from_db()
+        lines = {
+            c.currency: (c.expected_minor, c.counted_minor, c.difference_minor)
+            for c in session.closings.all()
+        }
+        assert Payment.objects.filter(cash_session=session).count() == 2
+    assert session.closed_at == datetime(2026, 10, 2, 16, 50, tzinfo=UTC)
+    assert lines == {"USD": (12000, 11500, -500), "CDF": (0, 0, 0)}
+    [closed] = entries(school, Action.FINANCE_CASH_SESSION_CLOSED)
+    assert str(closed.device_id) == device["id"]
 
 
 def test_two_offline_tills_paying_the_same_fee_both_keep_the_money(
@@ -431,13 +483,14 @@ def test_a_school_never_reads_nor_writes_another_school_through_sync(
                 reprint_op(applied["payload"]["id"]),
                 credit_op(credit.pk),
                 cancel_op(applied["payload"]["id"]),
+                close_op(session, 1000),
             ]
         },
     ).json()["results"]
     assert {r["status"] for r in results} == {"rejected"}
     assert [next(iter(r["error"]["fields"].values()))[0]["code"] for r in results] == [
         "does_not_exist"
-    ] * 5
+    ] * 6
     with use_school(other_school):
         assert not Payment.objects.exists()
         assert list(CashSession.objects.all()) == [other_session]
@@ -445,3 +498,4 @@ def test_a_school_never_reads_nor_writes_another_school_through_sync(
         assert not AuditLog.objects.filter(action=Action.FINANCE_PAYMENT_REPRINTED).exists()
         assert not CreditAllocation.objects.exists()
         assert not CancellationRequest.objects.exists()
+        assert not CashClosing.objects.exists()

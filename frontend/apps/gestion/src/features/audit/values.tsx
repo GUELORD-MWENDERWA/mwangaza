@@ -2,6 +2,7 @@
 // met jamais de mot de passe, de code ni de clé.
 import type { Schemas } from "@mwangaza/api";
 import { formatDateTime, formatDay, fr, type TFunction } from "@mwangaza/i18n";
+import { type Currency, formatAmount } from "@mwangaza/money";
 import type { ReactNode } from "react";
 
 import { roleName } from "../../lib/people";
@@ -32,6 +33,13 @@ export function fieldLabel(field: string, t: TFunction): string {
 }
 
 const currency = (code: unknown) => (code === "CDF" ? "FC" : String(code));
+
+type ClosingLine = {
+  currency: Currency;
+  expected_minor: number;
+  counted_minor: number;
+  difference_minor: number;
+};
 
 type Snapshot = {
   kind: TermKind;
@@ -134,6 +142,25 @@ export function renderValue(
       return (value as string[]).join(" · ");
     case "terms":
       return <Terms terms={value as Snapshot[]} t={t} language={language} />;
+    case "amounts":
+      // Clôture de caisse (3.8.2) : une ligne par devise, jamais additionnées.
+      return (
+        <ul className="flex flex-col gap-0.5">
+          {(value as ClosingLine[]).map((line) => {
+            const money = (minor: number) => formatAmount(minor, line.currency);
+            return (
+              <li key={line.currency}>
+                {t("audit.values.closingLine", {
+                  currency: currency(line.currency),
+                  expected: money(line.expected_minor),
+                  counted: money(line.counted_minor),
+                  difference: money(line.difference_minor),
+                })}
+              </li>
+            );
+          })}
+        </ul>
+      );
     case "primary_color":
       return (
         <span className="inline-flex items-center gap-1.5">

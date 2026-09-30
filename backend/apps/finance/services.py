@@ -44,6 +44,7 @@ from apps.core.money import Currency, Money, percent_of, prorate
 from apps.core.tenancy import require_current_school, use_school
 from apps.finance.models import (
     CancellationRequest,
+    CashClosing,
     CashRegister,
     CashSession,
     CreditAllocation,
@@ -92,6 +93,10 @@ SESSION_ALREADY_OPEN = ApiError(
 )
 NO_OPEN_SESSION = ApiError(
     "no_open_session", _("Open a cash register before collecting payments."), 409
+)
+SESSION_CLOSED = ApiError("session_closed", _("This cash session is already closed."), 409)
+NOT_YOUR_SESSION = ApiError(
+    "not_your_session", _("Only the cashier of this session can close it."), 403
 )
 NO_EXCHANGE_RATE = ApiError(
     "no_exchange_rate", _("The accountant must first set the exchange rate of the year."), 409
@@ -1149,37 +1154,50 @@ def update_cash_register(register: CashRegister, *, actor: User, **fields) -> Ca
 
 
 def open_session_of(user: User) -> CashSession | None:
-    """La session de caisse ouverte du caissier, s'il en a une."""
+    """La session de caisse ouverte du caissier, s'il en a une ; s'il en a deux (une ouverte hors
+    ligne pendant qu'une autre l'était), la plus ancienne, à clôturer d'abord."""
     return (
         CashSession.objects.select_related("cash_register", "cashier")
         .filter(cashier=user, closed_at__isnull=True)
+        .order_by("opened_at")
         .first()
     )
 
 
 def open_cash_session(
-    *, actor: User, cash_register: CashRegister, session_id=None, opened_at: datetime | None = None
+    *,
+    actor: User,
+    cash_register: CashRegister,
+    session_id=None,
+    opened_at: datetime | None = None,
+    device: Device | None = None,
 ) -> CashSession:
     """Ouvre une caisse pour le caissier (M13) : une seule session ouverte par caisse et par
-    caissier, jusqu'à la clôture (3.8). `session_id` : identifiant donné par l'appareil ; la
-    même ouverture envoyée deux fois renvoie la même session. `opened_at` : heure de l'appareil
-    d'une ouverture hors ligne (3.5.2)."""
+    caissier, jusqu'à la clôture. `session_id` : identifiant donné par l'appareil ; la même
+    ouverture envoyée deux fois renvoie la même session.
+
+    Hors ligne (`device`, heure de l'appareil `opened_at`, 3.5.2) : l'argent est déjà encaissé
+    sur cette session, elle n'est jamais refusée (caisse prise ou désactivée entre-temps, autre
+    caisse ouverte ailleurs par le caissier, 3.8.2) ; chacun clôture ensuite la sienne."""
     with transaction.atomic():
         register = CashRegister.objects.select_for_update().get(pk=cash_register.pk)
-        current = open_session_of(actor)
-        if current is not None and session_id is not None and current.pk == session_id:
-            return current
-        if not register.is_active:
-            raise BusinessError(CASH_REGISTER_INACTIVE)
-        if current is not None:
-            raise BusinessError(SESSION_ALREADY_OPEN)
-        if register.sessions.filter(closed_at__isnull=True).exists():
-            raise BusinessError(CASH_REGISTER_BUSY)
+        if session_id is not None:
+            same = CashSession.objects.filter(pk=session_id, cashier=actor).first()
+            if same is not None:
+                return same
+        if device is None:
+            if not register.is_active:
+                raise BusinessError(CASH_REGISTER_INACTIVE)
+            if open_session_of(actor) is not None:
+                raise BusinessError(SESSION_ALREADY_OPEN)
+            if register.sessions.filter(closed_at__isnull=True).exists():
+                raise BusinessError(CASH_REGISTER_BUSY)
         session = CashSession.objects.create(
             **({"id": session_id} if session_id else {}),
             **({"opened_at": opened_at} if opened_at else {}),
             cash_register=register,
             cashier=actor,
+            device=device,
             created_by=actor,
         )
         audit.record(
@@ -1190,7 +1208,7 @@ def open_cash_session(
             label=str(register),
             device_time=opened_at,
         )
-    return open_session_of(actor)
+    return CashSession.objects.select_related("cash_register", "cashier").get(pk=session.pk)
 
 
 def payment_rate() -> tuple[ExchangeRate | None, bool]:
@@ -1317,9 +1335,11 @@ class Offline:
 
 
 def _offline_session(actor: User, offline: Offline) -> CashSession | None:
+    """La session du paiement, même clôturée depuis (ailleurs, ou par une clôture arrivée
+    avant) : l'argent est reçu, le reçu donné ; il n'entre pas dans l'attendu déjà figé."""
     return (
         CashSession.objects.select_related("cash_register")
-        .filter(pk=offline.cash_session_id, cashier=actor, closed_at__isnull=True)
+        .filter(pk=offline.cash_session_id, cashier=actor)
         .first()
     )
 
@@ -1499,7 +1519,10 @@ def receipt_payments() -> QuerySet[Payment]:
         .prefetch_related(
             Prefetch(
                 "allocations",
-                queryset=PaymentAllocation.objects.select_related("student_charge__fee_type"),
+                # Lignes du reçu dans un ordre fixe : échéance la plus ancienne d'abord.
+                queryset=PaymentAllocation.objects.select_related(
+                    "student_charge__fee_type"
+                ).order_by("student_charge__due_on", "id"),
             )
         )
         .annotate(
@@ -1938,3 +1961,183 @@ def reprint_cancellation(cancellation: PaymentCancellation, *, actor: User) -> N
         actor=actor,
         label=f"{cancellation.receipt_number} · {cancellation.payment.enrollment.student}",
     )
+
+
+# Clôture de caisse (F8, 3.8.2)
+
+
+def _in_till_at(payments: QuerySet[Payment], until: datetime) -> QuerySet[Payment]:
+    """Paiements encore dans la caisse à `until` : pas annulés, ou annulés après."""
+    return payments.filter(Q(cancellation__isnull=True) | Q(cancellation__approved_at__gt=until))
+
+
+def closing_summary(session: CashSession, *, until: datetime | None = None) -> dict:
+    """Ce que montre la clôture (maquette `caisse-cloture`). Par devise (celles de l'école et
+    celles des paiements, dollars d'abord, jamais additionnées), l'attendu : paiements de la
+    session pas annulés à `until` (l'heure de clôture, sinon maintenant). Le détail par type de
+    frais, dans la devise reçue, avec à part le trop-perçu devenu crédit de l'élève (`fee_type`
+    vide). Reçus donnés (annulés compris), annulations validées et en attente ; la clôture une
+    fois faite."""
+    until = until or session.closed_at or timezone.now()
+    school = require_current_school()
+    payments = Payment.objects.filter(cash_session=session)
+    kept = _in_till_at(payments, until)
+    expected = {
+        row["received_currency"]: row
+        for row in kept.values("received_currency")
+        .annotate(amount_minor=Sum("received_amount_minor"), count=Count("id"))
+        .order_by()
+    }
+    currencies = [
+        currency
+        for currency in Currency.values
+        if currency in expected or currency in school.enabled_currencies
+    ]
+    fee_rows = (
+        PaymentAllocation.objects.filter(payment__in=kept)
+        .values("student_charge__fee_type__name", "payment__received_currency")
+        .annotate(amount_minor=Sum("received_minor"))
+        .order_by("student_charge__fee_type__name")
+    )
+    fee_types = [
+        {
+            "fee_type": row["student_charge__fee_type__name"],
+            "currency": row["payment__received_currency"],
+            "amount_minor": row["amount_minor"],
+        }
+        for row in fee_rows
+    ]
+    for currency, row in expected.items():
+        allocated = sum(item["amount_minor"] for item in fee_types if item["currency"] == currency)
+        if row["amount_minor"] > allocated:
+            fee_types.append(
+                {
+                    "fee_type": None,
+                    "currency": currency,
+                    "amount_minor": row["amount_minor"] - allocated,
+                }
+            )
+    cancelled = {
+        row["received_currency"]: row
+        for row in payments.filter(cancellation__approved_at__lte=until)
+        .values("received_currency")
+        .annotate(amount_minor=Sum("received_amount_minor"), count=Count("id"))
+        .order_by()
+    }
+    receipts = list(payments.order_by("paid_at", "receipt_number").values_list("receipt_number"))
+    closings = list(
+        CashClosing.objects.filter(cash_session=session).select_related("closed_by", "device")
+    )
+    return {
+        "session": session,
+        "currencies": [
+            {
+                "currency": currency,
+                "expected_minor": expected[currency]["amount_minor"] if currency in expected else 0,
+                "count": expected[currency]["count"] if currency in expected else 0,
+            }
+            for currency in currencies
+        ],
+        "fee_types": fee_types,
+        "payments_count": len(receipts),
+        "first_receipt": receipts[0][0] if receipts else None,
+        "last_receipt": receipts[-1][0] if receipts else None,
+        "cancelled": [
+            {"currency": currency, **{k: cancelled[currency][k] for k in ("amount_minor", "count")}}
+            for currency in Currency.values
+            if currency in cancelled
+        ],
+        "cancellations_pending": CancellationRequest.objects.filter(
+            payment__cash_session=session, status=CancellationRequest.Status.PENDING
+        ).count(),
+        "closing": _closing_data(closings) if closings else None,
+    }
+
+
+def _closing_data(closings: list[CashClosing]) -> dict:
+    order = {currency: index for index, currency in enumerate(Currency.values)}
+    first = closings[0]
+    return {
+        "lines": sorted(closings, key=lambda line: order[line.currency]),
+        "note": first.note,
+        "closed_at": first.closed_at,
+        "closed_by": first.closed_by,
+        "offline": first.device_id is not None,
+        "received_at": first.created_at,
+    }
+
+
+def close_cash_session(
+    session: CashSession,
+    *,
+    actor: User,
+    counted: dict[str, int],
+    note: str = "",
+    closed_at: datetime | None = None,
+    device: Device | None = None,
+) -> list[CashClosing]:
+    """Clôture la session (F8) : par devise, l'attendu (`closing_summary` à l'heure de
+    clôture), le compté et l'écart, figés ; plus d'encaissement en ligne dans cette session.
+    Seul son caissier la clôture. En ligne, l'argent de chaque devise est compté et un écart est
+    expliqué. Hors ligne (`device`, heure de l'appareil `closed_at`) : l'argent est déjà compté,
+    rien n'est refusé (une devise pas comptée l'est à zéro, l'écart se voit)."""
+    note = note.strip()
+    with transaction.atomic():
+        session = CashSession.objects.select_for_update().get(pk=session.pk)
+        if session.cashier_id != actor.pk:
+            raise BusinessError(NOT_YOUR_SESSION)
+        if session.closed_at is not None:
+            raise BusinessError(SESSION_CLOSED)
+        when = closed_at or timezone.now()
+        expected = {
+            row["currency"]: row["expected_minor"]
+            for row in closing_summary(session, until=when)["currencies"]
+        }
+        if device is None and set(counted) != set(expected):
+            message = _("Count the money of each currency.")
+            raise _invalid("counted", message, "counted_currencies")
+        lines = [
+            (currency, expected.get(currency, 0), counted.get(currency, 0))
+            for currency in Currency.values
+            if currency in expected or currency in counted
+        ]
+        if device is None and not note and any(want != got for _c, want, got in lines):
+            message = _("Explain the difference: the accountant will see it.")
+            raise _invalid("note", message, "note_required")
+        closings = CashClosing.objects.bulk_create(
+            CashClosing(
+                cash_session=session,
+                currency=currency,
+                expected_minor=want,
+                counted_minor=got,
+                difference_minor=got - want,
+                note=note,
+                closed_by=actor,
+                closed_at=when,
+                device=device,
+                created_by=actor,
+            )
+            for currency, want, got in lines
+        )
+        session.closed_at = when
+        session.save(update_fields=["closed_at", "updated_at"])
+        audit.record(
+            Action.FINANCE_CASH_SESSION_CLOSED,
+            session,
+            actor=actor,
+            device_time=closed_at if device else None,
+            label=str(session.cash_register),
+            after={
+                "amounts": [
+                    {
+                        "currency": currency,
+                        "expected_minor": want,
+                        "counted_minor": got,
+                        "difference_minor": got - want,
+                    }
+                    for currency, want, got in lines
+                ],
+                **({"note": note} if note else {}),
+            },
+        )
+    return closings

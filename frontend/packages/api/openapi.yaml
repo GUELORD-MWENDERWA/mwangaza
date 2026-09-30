@@ -386,6 +386,7 @@ paths:
           - finance.cash_register_created
           - finance.cash_register_updated
           - finance.cash_session_opened
+          - finance.cash_session_closed
           - finance.payment_recorded
           - finance.payment_reprinted
           - finance.cancellation_requested
@@ -467,6 +468,7 @@ paths:
           * `finance.cash_register_created` - Cash register created
           * `finance.cash_register_updated` - Cash register changed
           * `finance.cash_session_opened` - Cash session opened
+          * `finance.cash_session_closed` - Cash session closed
           * `finance.payment_recorded` - Payment recorded
           * `finance.payment_reprinted` - Receipt reprinted
           * `finance.cancellation_requested` - Payment cancellation requested
@@ -711,6 +713,7 @@ paths:
           - finance.cash_register_created
           - finance.cash_register_updated
           - finance.cash_session_opened
+          - finance.cash_session_closed
           - finance.payment_recorded
           - finance.payment_reprinted
           - finance.cancellation_requested
@@ -792,6 +795,7 @@ paths:
           * `finance.cash_register_created` - Cash register created
           * `finance.cash_register_updated` - Cash register changed
           * `finance.cash_session_opened` - Cash session opened
+          * `finance.cash_session_closed` - Cash session closed
           * `finance.payment_recorded` - Payment recorded
           * `finance.payment_reprinted` - Receipt reprinted
           * `finance.cancellation_requested` - Payment cancellation requested
@@ -1850,7 +1854,7 @@ paths:
       operationId: cash_sessions_create
       description: |-
         Sessions de caisse du caissier connecté (M13) : ouvrir une caisse, voir celle qui est
-        ouverte. La clôture vient en 3.8.
+        ouverte, la clôturer (F8) ; celles d'un autre caissier sont introuvables.
       tags:
       - finance
       requestBody:
@@ -1885,6 +1889,103 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cash-sessions/{id}/close/:
+    post:
+      operationId: cash_sessions_close_create
+      description: 'Clôture la session (F8) : l''argent compté par devise, l''explication
+        d''un écart.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this cash session.
+        required: true
+      tags:
+      - finance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CashCloseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CashCloseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CashCloseRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashClosingSummary'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cash-sessions/{id}/closing/:
+    get:
+      operationId: cash_sessions_closing_retrieve
+      description: |-
+        Ce que montre la clôture de la session : attendu par devise, détail, reçus,
+        annulations ; la clôture elle-même une fois faite.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this cash session.
+        required: true
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashClosingSummary'
           description: ''
         '403':
           content:
@@ -6496,6 +6597,7 @@ components:
       - finance.cash_register_created
       - finance.cash_register_updated
       - finance.cash_session_opened
+      - finance.cash_session_closed
       - finance.payment_recorded
       - finance.payment_reprinted
       - finance.cancellation_requested
@@ -6576,6 +6678,7 @@ components:
         * `finance.cash_register_created` - Cash register created
         * `finance.cash_register_updated` - Cash register changed
         * `finance.cash_session_opened` - Cash session opened
+        * `finance.cash_session_closed` - Cash session closed
         * `finance.payment_recorded` - Payment recorded
         * `finance.payment_reprinted` - Receipt reprinted
         * `finance.cancellation_requested` - Payment cancellation requested
@@ -7043,6 +7146,121 @@ components:
       - allocations
       - cash_register_name
       - academic_year
+    CashCloseRequest:
+      type: object
+      properties:
+        counted:
+          type: array
+          items:
+            $ref: '#/components/schemas/CountedRequest'
+          description: Argent compté, par devise.
+        note:
+          type: string
+          description: Obligatoire s'il y a un écart.
+          maxLength: 500
+      required:
+      - counted
+    CashClosing:
+      type: object
+      properties:
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/CashClosingLine'
+        note:
+          type: string
+          description: Explication de l'écart.
+        closed_at:
+          type: string
+          format: date-time
+          description: Heure de l'appareil si faite hors ligne.
+        closed_by:
+          $ref: '#/components/schemas/Person'
+        offline:
+          type: boolean
+        received_at:
+          type: string
+          format: date-time
+          description: Arrivée au serveur.
+      required:
+      - lines
+      - note
+      - closed_at
+      - closed_by
+      - offline
+      - received_at
+    CashClosingLine:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        expected_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Expected
+        counted_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Counted
+        difference_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Difference
+      required:
+      - currency
+      - expected_minor
+      - counted_minor
+      - difference_minor
+    CashClosingSummary:
+      type: object
+      description: 'Clôture d''une session de caisse (F8) : à faire, ou faite (`closing`).'
+      properties:
+        session:
+          $ref: '#/components/schemas/CashSession'
+        currencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClosingCurrency'
+        fee_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClosingFeeType'
+        payments_count:
+          type: integer
+          description: Reçus donnés, annulés compris.
+        first_receipt:
+          type: string
+          nullable: true
+        last_receipt:
+          type: string
+          nullable: true
+        cancelled:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionTotal'
+          description: Annulations validées.
+        cancellations_pending:
+          type: integer
+        closing:
+          allOf:
+          - $ref: '#/components/schemas/CashClosing'
+          nullable: true
+      required:
+      - session
+      - currencies
+      - fee_types
+      - payments_count
+      - first_receipt
+      - last_receipt
+      - cancelled
+      - cancellations_pending
+      - closing
     CashRegister:
       type: object
       properties:
@@ -7269,6 +7487,41 @@ components:
       required:
       - academic_year
       - level
+    ClosingCurrency:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        expected_minor:
+          type: integer
+          description: Paiements de la session pas annulés à l'heure de clôture.
+        count:
+          type: integer
+      required:
+      - currency
+      - expected_minor
+      - count
+    ClosingFeeType:
+      type: object
+      properties:
+        fee_type:
+          type: string
+          nullable: true
+          description: 'Vide : trop-perçu, devenu crédit de l''élève.'
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          description: |-
+            Devise reçue.
+
+            * `USD` - US dollar
+            * `CDF` - Congolese franc
+        amount_minor:
+          type: integer
+      required:
+      - fee_type
+      - currency
+      - amount_minor
     CodeEnum:
       enum:
       - head
@@ -7310,6 +7563,19 @@ components:
       description: |-
         * `1` - 1
         * `2` - 2
+    CountedRequest:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        amount_minor:
+          type: integer
+          maximum: 10000000000000
+          minimum: 0
+          format: int64
+      required:
+      - amount_minor
+      - currency
     CreditAllocation:
       type: object
       properties:
