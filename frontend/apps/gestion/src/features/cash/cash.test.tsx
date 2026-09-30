@@ -280,4 +280,82 @@ describe("Caisse (F1-F2)", () => {
       `/api/student-credits/${credit.id}/use/`,
     ]);
   });
+
+  it("clôture : l'écart s'explique avant d'envoyer, puis le bordereau s'imprime", async () => {
+    const summary = {
+      session,
+      currencies: [
+        { currency: "USD", expected_minor: 265000, count: 40 },
+        { currency: "CDF", expected_minor: 480000, count: 1 },
+      ],
+      fee_types: [
+        { fee_type: "Minerval", currency: "USD", amount_minor: 265000 },
+        { fee_type: "Motivation", currency: "CDF", amount_minor: 480000 },
+      ],
+      payments_count: 42,
+      first_receipt: "ALPHA-C2-26-000144",
+      last_receipt: "ALPHA-C2-26-000185",
+      cancelled: [{ currency: "USD", amount_minor: 5000, count: 1 }],
+      cancellations_pending: 1,
+      closing: null,
+    };
+    const lines = [
+      { currency: "USD", expected_minor: 265000, counted_minor: 264500, difference_minor: -500 },
+      { currency: "CDF", expected_minor: 480000, counted_minor: 480000, difference_minor: 0 },
+    ];
+    const all = routes({
+      "GET /api/cash-sessions/current/": current(session),
+      [`GET /api/cash-sessions/${session.id}/closing/`]: summary,
+    });
+    all[`POST /api/cash-sessions/${session.id}/close/`] = () => {
+      all["GET /api/cash-sessions/current/"] = current(null);
+      all["GET /api/cash-registers/"] = [register(2)];
+      const closing = {
+        lines,
+        note: "Billet déchiré rendu au parent",
+        closed_at: "2026-10-19T14:51:00Z",
+        closed_by: cashier,
+        offline: false,
+        received_at: "2026-10-19T14:51:00Z",
+      };
+      return json({ ...summary, closing });
+    };
+    const printed: string[] = [];
+    vi.spyOn(window, "print").mockImplementation(() => {
+      printed.push(document.querySelector(".print-area")?.textContent ?? "");
+    });
+    const requests = mockApi(all);
+    const { user } = renderApp("/cash");
+
+    await user.click(await screen.findByRole("button", { name: "Clôturer la caisse" }));
+    await user.type(await screen.findByLabelText("Argent compté en USD"), "2645");
+    await user.type(screen.getByLabelText("Argent compté en FC"), "480000");
+    expect(screen.getByText(/Écart constaté : − 5,00\s\$/)).toBeTruthy();
+    await user.click(screen.getByRole("checkbox"));
+    const submit = screen.getByRole("button", { name: /Clôturer et imprimer/ });
+    await user.click(submit);
+    expect(screen.getByText("Obligatoire quand il y a un écart.")).toBeTruthy();
+    expect(requests.some((request) => request.method === "POST")).toBe(false);
+
+    await user.type(
+      screen.getByLabelText(/Explication de l'écart/),
+      "Billet déchiré rendu au parent",
+    );
+    await user.click(submit);
+
+    expect(await screen.findByText("Caisse 2 clôturée")).toBeTruthy();
+    const [sent] = requests.filter((request) => request.method === "POST");
+    expect(sent?.body).toEqual({
+      counted: [
+        { currency: "USD", amount_minor: 264500 },
+        { currency: "CDF", amount_minor: 480000 },
+      ],
+      note: "Billet déchiré rendu au parent",
+    });
+    await waitFor(() => expect(printed).toHaveLength(1));
+    expect(printed[0]).toContain("Bordereau de clôture · Caisse 2");
+    expect(printed[0]).toMatch(/Écart USD− 5,00\s\$/);
+    await user.click(screen.getByRole("button", { name: "Terminer" }));
+    expect(await screen.findByRole("button", { name: /Ouvrir la caisse C2/ })).toBeTruthy();
+  });
 });

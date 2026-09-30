@@ -1,7 +1,7 @@
 // Caisse (F1-F2, F5, M13) : sans caisse ouverte, l'écran d'ouverture (maquette
 // `caisse-ouverture`) ; sinon l'accueil de la caisse, qui devient l'encaissement quand un élève
 // est choisi. Appareil mémorisé : la caisse lit et écrit la base de l'appareil, avec ou sans
-// réseau, ouverture comprise (3.5) ; sinon, en ligne. Clôture : 3.8.
+// réseau, ouverture et clôture comprises (3.5, 3.8.2) ; sinon, en ligne.
 import { api, call, type Schemas } from "@mwangaza/api";
 import { formatTime, useTranslation } from "@mwangaza/i18n";
 import { formatRate } from "@mwangaza/money";
@@ -34,19 +34,23 @@ import { requestPersistence, useSyncStatus } from "../../lib/sync/session";
 import { chooseOnlineOnly, onlineOnlyChosen } from "../shell/SyncMenu";
 import { LoadError } from "../status/StatusPages";
 import { CashDesk } from "./CashDesk";
+import { ClosedView, type Slip } from "./Closing";
 import {
   type CashRegister,
   type CurrentSession,
   useCashRegisters,
   useCurrentSession,
 } from "./data";
-import { openOffline, saveSession, useLocalCash } from "./localData";
+import { closedHere, openOffline, saveSession, useLocalCash } from "./localData";
 import { sampleReceipt, useReceiptPrinter } from "./Receipt";
 
 export function CashPage() {
   const { db, prefix, persisted } = useSyncStatus();
   const [onlineOnly, setOnlineOnly] = useState(onlineOnlyChosen);
-  if (!db || !prefix || onlineOnly) return <ServerCash />;
+  // Caisse clôturée : la session n'est plus là, le bordereau s'imprime ici (3.8.2).
+  const [slip, setSlip] = useState<Slip | null>(null);
+  if (slip) return <ClosedView slip={slip} onDone={() => setSlip(null)} />;
+  if (!db || !prefix || onlineOnly) return <ServerCash onClosed={setSlip} />;
   // M8 : sans stockage persistant, le navigateur peut effacer la base, et la caisse avec.
   if (persisted === false)
     return (
@@ -57,10 +61,10 @@ export function CashPage() {
         }}
       />
     );
-  return <DeviceCash db={db} prefix={prefix} />;
+  return <DeviceCash db={db} prefix={prefix} onClosed={setSlip} />;
 }
 
-function ServerCash() {
+function ServerCash({ onClosed }: { onClosed: (slip: Slip) => void }) {
   const { t } = useTranslation();
   const current = useCurrentSession();
   if (current.error)
@@ -68,7 +72,7 @@ function ServerCash() {
   if (!current.data) return <Skeleton label={t("common.loading")} />;
   const { session } = current.data;
   return session ? (
-    <CashDesk current={current.data} session={session} />
+    <CashDesk current={current.data} session={session} onClosed={onClosed} />
   ) : (
     <OpenSession current={current.data} />
   );
@@ -76,7 +80,15 @@ function ServerCash() {
 
 /** Session gardée sur l'appareil (lue en ligne, ou ouverture acceptée par le serveur), sinon
  *  celle ouverte ici et pas encore acceptée. */
-function DeviceCash({ db, prefix }: { db: LocalDb; prefix: string }) {
+function DeviceCash({
+  db,
+  prefix,
+  onClosed,
+}: {
+  db: LocalDb;
+  prefix: string;
+  onClosed: (slip: Slip) => void;
+}) {
   const { t } = useTranslation();
   const local = useLocalCash(db);
   const current = useCurrentSession();
@@ -103,7 +115,11 @@ function DeviceCash({ db, prefix }: { db: LocalDb; prefix: string }) {
       <Skeleton label={t("common.loading")} />
     );
   const refused = opening?.status === "rejected";
-  const session = known.session ?? (refused ? undefined : opening?.session);
+  // Clôturée ici (3.8.2) : la caisse revient à l'ouverture, même sans réseau.
+  const closed = closedHere(local.data.queued);
+  const session = [known.session, refused ? undefined : opening?.session].find(
+    (item) => item && !closed.has(item.id),
+  );
   if (!session)
     return (
       <OpenSession
@@ -115,7 +131,14 @@ function DeviceCash({ db, prefix }: { db: LocalDb; prefix: string }) {
         }}
       />
     );
-  return <CashDesk current={known} session={session} device={{ db, prefix, local: local.data }} />;
+  return (
+    <CashDesk
+      current={known}
+      session={session}
+      device={{ db, prefix, local: local.data }}
+      onClosed={onClosed}
+    />
+  );
 }
 
 /** Caisse jamais ouverte sur cet appareil et pas de réseau : ni taux ni caisses connus. */

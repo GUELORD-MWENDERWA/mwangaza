@@ -40,3 +40,14 @@ export function useSessionPayments(session: string, search: string, page: number
     placeholderData: keepPreviousData,
   });
 }
+
+/** Clôture d'une session (F8) : attendu par devise, détail par type de frais, reçus, annulations
+ *  (caisse en ligne ; sur un appareil mémorisé, calculée sur place). */
+export function useSessionClosing(session: string, enabled = true) {
+  return useQuery({
+    enabled,
+    queryKey: [...keys.cashSession, session, "closing"],
+    queryFn: () =>
+      call(api.GET("/api/cash-sessions/{id}/closing/", { params: { path: { id: session } } })),
+  });
+}

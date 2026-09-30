@@ -1,7 +1,8 @@
 // Caisse d'un appareil mémorisé (F5, 3.5) : la base de l'appareil lue en direct (chaque
 // synchronisation et chaque encaissement mettent l'écran à jour) ; ouverture, encaissement,
-// réimpression et crédit utilisé (3.6.2) s'écrivent dans la file d'opérations, avec ou sans
-// réseau, puis partent au serveur tout de suite s'il y en a un.
+// réimpression, crédit utilisé (3.6.2), demande d'annulation (3.8.1) et clôture (3.8.2)
+// s'écrivent dans la file d'opérations, avec ou sans réseau, puis partent au serveur tout de
+// suite s'il y en a un.
 import type { Schemas } from "@mwangaza/api";
 import { liveQuery } from "dexie";
 import { useEffect, useState } from "react";
@@ -98,6 +99,41 @@ export async function openOffline(db: LocalDb, session: Schemas["CashSession"]) 
       status: "pending",
       error: null,
       session,
+    });
+  });
+  void syncNow();
+}
+
+/** Contenu de l'opération `cash_session.close` (serveur : `OfflineClosingSerializer`). */
+export type OfflineClosing = {
+  cash_session: string;
+  counted: { currency: string; amount_minor: number }[];
+  note: string;
+  closed_at: string;
+};
+
+/** Sessions clôturées sur l'appareil (clôture dans la file, pas refusée) : plus montrées à la
+ *  caisse, avant même la réponse du serveur. */
+export function closedHere(queued: QueuedOperation[]): Set<string> {
+  return new Set(
+    queued
+      .filter((op) => op.type === "cash_session.close" && op.status !== "rejected")
+      .map((op) => (op.payload as OfflineClosing).cash_session),
+  );
+}
+
+/** Clôture de caisse sur l'appareil (F8), avec ou sans réseau ; une seule par session (double
+ *  appui). Le serveur recalcule l'attendu à l'arrivée. Puis envoi aussitôt. */
+export async function queueClosing(db: LocalDb, closing: OfflineClosing) {
+  await db.transaction("rw", db.outbox, async () => {
+    if (closedHere(await db.outbox.toArray()).has(closing.cash_session)) return;
+    await db.outbox.add({
+      op_id: uuidv7(),
+      type: "cash_session.close",
+      payload: closing,
+      created_at: closing.closed_at,
+      status: "pending",
+      error: null,
     });
   });
   void syncNow();

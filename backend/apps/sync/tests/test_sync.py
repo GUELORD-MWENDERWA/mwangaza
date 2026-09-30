@@ -18,6 +18,7 @@ from apps.core.tenancy import use_school
 from apps.finance import services as finance
 from apps.finance.models import (
     CancellationRequest,
+    CashClosing,
     CashSession,
     CreditAllocation,
     Payment,
@@ -482,13 +483,14 @@ def test_a_school_never_reads_nor_writes_another_school_through_sync(
                 reprint_op(applied["payload"]["id"]),
                 credit_op(credit.pk),
                 cancel_op(applied["payload"]["id"]),
+                close_op(session, 1000),
             ]
         },
     ).json()["results"]
     assert {r["status"] for r in results} == {"rejected"}
     assert [next(iter(r["error"]["fields"].values()))[0]["code"] for r in results] == [
         "does_not_exist"
-    ] * 5
+    ] * 6
     with use_school(other_school):
         assert not Payment.objects.exists()
         assert list(CashSession.objects.all()) == [other_session]
@@ -496,3 +498,4 @@ def test_a_school_never_reads_nor_writes_another_school_through_sync(
         assert not AuditLog.objects.filter(action=Action.FINANCE_PAYMENT_REPRINTED).exists()
         assert not CreditAllocation.objects.exists()
         assert not CancellationRequest.objects.exists()
+        assert not CashClosing.objects.exists()

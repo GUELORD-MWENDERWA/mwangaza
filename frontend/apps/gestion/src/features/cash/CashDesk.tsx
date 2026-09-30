@@ -39,6 +39,7 @@ import { RequestDialog } from "../cancellations/RequestDialog";
 import { LoadError } from "../status/StatusPages";
 import { type StudentRow, useStudentSearch } from "../students/data";
 import { RateBanner } from "./CashPage";
+import { ClosingPanel, type Slip } from "./Closing";
 import { type Chosen, CollectPanel } from "./CollectPanel";
 import { type CurrentSession, useSessionPayments } from "./data";
 import { type LocalCash, queueReprint } from "./localData";
@@ -78,10 +79,13 @@ export function CashDesk({
   current,
   session,
   device,
+  onClosed,
 }: {
   current: CurrentSession;
   session: Session;
   device?: DeviceCash;
+  /** Caisse clôturée (3.8.2) : le bordereau s'imprime à l'écran suivant. */
+  onClosed: (slip: Slip) => void;
 }) {
   const { t, i18n } = useTranslation();
   const school = useCurrentSchool();
@@ -97,6 +101,7 @@ export function CashDesk({
   const [chosen, setChosen] = useState<Chosen | null>(null);
   const [recorded, setRecorded] = useState<Receipt | null>(null);
   const [cancelling, setCancelling] = useState<SessionPayment["payment"] | null>(null);
+  const [closing, setClosing] = useState(false);
   const canCancel = can(useCurrentMe(), ["finance.request_cancellation"]);
   const searchRef = useRef<HTMLInputElement>(null);
   const printer = useReceiptPrinter();
@@ -138,6 +143,15 @@ export function CashDesk({
   }, [chosen]);
 
   const count = totals.reduce((total, item) => total + item.count, 0);
+  if (closing)
+    return (
+      <ClosingPanel
+        session={session}
+        device={device}
+        onBack={() => setClosing(false)}
+        onClosed={onClosed}
+      />
+    );
   const choose = (next: Chosen) => {
     setRecorded(null);
     setChosen(next);
@@ -153,11 +167,17 @@ export function CashDesk({
           count,
         })}
         actions={
-          school.enabled_currencies.length > 1 && current.rate ? (
-            <span className="rounded-field border border-line bg-card px-3 py-2 text-sm tabular-nums">
-              {t("cash.rate", { rate: formatRate(current.rate) })}
-            </span>
-          ) : undefined
+          <>
+            {school.enabled_currencies.length > 1 && current.rate && (
+              <span className="rounded-field border border-line bg-card px-3 py-2 text-sm tabular-nums">
+                {t("cash.rate", { rate: formatRate(current.rate) })}
+              </span>
+            )}
+            <Button variant="outline" onClick={() => setClosing(true)}>
+              <Icon name="lock" size={18} />
+              {t("cash.closing.open")}
+            </Button>
+          </>
         }
       />
       <RateBanner current={current} />
