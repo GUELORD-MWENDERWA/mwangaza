@@ -1004,6 +1004,7 @@ export const en: Messages<typeof fr> = {
         payment_cancelled: "This payment was cancelled: its receipt is no longer valid.",
         cancellation_rejected: "Payment cancellation refused",
         cancellation_reprinted: "Cancellation receipt reprinted",
+        unpaid_exported: "Unpaid fees exported",
       },
       devices: {
         registered: "Device remembered",

@@ -6,12 +6,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | V1.0 — semaine 3 (Caisse) |
+| Phase | V1.0 — semaine 4 (Rapports, portail, production) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.8.3 terminée, PR #115 à fusionner |
-| Prochaine tâche | 4.1 |
-| Issue GitHub | #28 |
-| Branche | `tache/3.8.3-clotures` (PR #115) ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | 4.1.1 — Impayés (liste, export Excel et PDF par classe) |
+| Prochaine tâche | 4.1.2 |
+| Issue GitHub | #29 |
+| Branche | `tache/4.1.1-impayes` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-30 |
 
 ## Avancement

@@ -396,6 +396,7 @@ paths:
           - finance.credit_created
           - finance.credit_used
           - finance.credit_voided
+          - finance.unpaid_exported
           - devices.registered
           - devices.revoked
           - audit.exported
@@ -478,6 +479,7 @@ paths:
           * `finance.credit_created` - Student credit created
           * `finance.credit_used` - Student credit used
           * `finance.credit_voided` - Student credit voided
+          * `finance.unpaid_exported` - Unpaid fees exported
           * `devices.registered` - Device remembered
           * `devices.revoked` - Device disconnected
           * `audit.exported` - Audit log exported
@@ -723,6 +725,7 @@ paths:
           - finance.credit_created
           - finance.credit_used
           - finance.credit_voided
+          - finance.unpaid_exported
           - devices.registered
           - devices.revoked
           - audit.exported
@@ -805,6 +808,7 @@ paths:
           * `finance.credit_created` - Student credit created
           * `finance.credit_used` - Student credit used
           * `finance.credit_voided` - Student credit voided
+          * `finance.unpaid_exported` - Unpaid fees exported
           * `devices.registered` - Device remembered
           * `devices.revoked` - Device disconnected
           * `audit.exported` - Audit log exported
@@ -6642,6 +6646,374 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/unpaid/:
+    get:
+      operationId: unpaid_list
+      description: |-
+        Impayés (G1) : élèves de l'année dont un frais dû est en retard (échéance passée et reste
+        > 0), filtrés par classe, frais, tranche, retard et devise ; chiffres clés ; export Excel ou
+        PDF (tracé dans le journal d'audit : données personnelles).
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: 'Absent : l''année en cours.'
+      - in: query
+        name: class_group
+        schema:
+          type: string
+          format: uuid
+        description: Une seule classe.
+      - in: query
+        name: currency
+        schema:
+          enum:
+          - USD
+          - CDF
+          type: string
+          minLength: 1
+        description: |-
+          Seulement les frais dans cette devise.
+
+          * `USD` - US dollar
+          * `CDF` - Congolese franc
+      - in: query
+        name: fee_type
+        schema:
+          type: string
+          format: uuid
+        description: Un seul type de frais.
+      - in: query
+        name: installment
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 40
+        description: 'Libellé de la tranche (« 1re tranche », « Octobre ») ; absent
+          : toutes.'
+      - in: query
+        name: order
+        schema:
+          enum:
+          - amount
+          - days
+          - name
+          - class
+          type: string
+          default: amount
+          minLength: 1
+        description: |-
+          Montant décroissant (la devise choisie, sinon les dollars puis les francs, jamais additionnés), retard décroissant, nom ou classe.
+
+          * `amount` - amount
+          * `days` - days
+          * `name` - name
+          * `class` - class
+      - in: query
+        name: over_days
+        schema:
+          type: integer
+          maximum: 366
+          minimum: 0
+          default: 0
+        description: 'Seulement les frais en retard de plus de ce nombre de jours
+          ; 0 : tous.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUnpaidStudentList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/unpaid/export/:
+    get:
+      operationId: unpaid_export_retrieve
+      description: |-
+        Mêmes filtres que la liste : Excel (une ligne par frais en retard), PDF A4 à
+        l'italienne par classe ou en liste unique, ou son aperçu HTML (pas tracé).
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: 'Absent : l''année en cours.'
+      - in: query
+        name: class_group
+        schema:
+          type: string
+          format: uuid
+        description: Une seule classe.
+      - in: query
+        name: currency
+        schema:
+          enum:
+          - USD
+          - CDF
+          type: string
+          minLength: 1
+        description: |-
+          Seulement les frais dans cette devise.
+
+          * `USD` - US dollar
+          * `CDF` - Congolese franc
+      - in: query
+        name: detail
+        schema:
+          type: boolean
+          default: false
+        description: 'PDF : une ligne par tranche.'
+      - in: query
+        name: fee_type
+        schema:
+          type: string
+          format: uuid
+        description: Un seul type de frais.
+      - in: query
+        name: group
+        schema:
+          enum:
+          - class
+          - list
+          type: string
+          default: class
+          minLength: 1
+        description: |-
+          PDF : par classe ou liste unique.
+
+          * `class` - class
+          * `list` - list
+      - in: query
+        name: installment
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 40
+        description: 'Libellé de la tranche (« 1re tranche », « Octobre ») ; absent
+          : toutes.'
+      - in: query
+        name: order
+        schema:
+          enum:
+          - amount
+          - days
+          - name
+          - class
+          type: string
+          default: amount
+          minLength: 1
+        description: |-
+          Montant décroissant (la devise choisie, sinon les dollars puis les francs, jamais additionnés), retard décroissant, nom ou classe.
+
+          * `amount` - amount
+          * `days` - days
+          * `name` - name
+          * `class` - class
+      - in: query
+        name: output
+        schema:
+          enum:
+          - xlsx
+          - pdf
+          - html
+          type: string
+          minLength: 1
+        description: |-
+          Excel (une ligne par frais en retard), PDF, ou aperçu HTML du PDF.
+
+          * `xlsx` - xlsx
+          * `pdf` - pdf
+          * `html` - html
+        required: true
+      - in: query
+        name: over_days
+        schema:
+          type: integer
+          maximum: 366
+          minimum: 0
+          default: 0
+        description: 'Seulement les frais en retard de plus de ce nombre de jours
+          ; 0 : tous.'
+      - in: query
+        name: page_per_class
+        schema:
+          type: boolean
+          default: true
+        description: 'PDF : une page par classe.'
+      - in: query
+        name: phone
+        schema:
+          type: boolean
+          default: true
+        description: 'PDF : téléphone du tuteur.'
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Classeur Excel.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/unpaid/summary/:
+    get:
+      operationId: unpaid_summary_retrieve
+      description: Chiffres clés selon les filtres, et les classes, frais et tranches
+        à proposer.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: 'Absent : l''année en cours.'
+      - in: query
+        name: class_group
+        schema:
+          type: string
+          format: uuid
+        description: Une seule classe.
+      - in: query
+        name: currency
+        schema:
+          enum:
+          - USD
+          - CDF
+          type: string
+          minLength: 1
+        description: |-
+          Seulement les frais dans cette devise.
+
+          * `USD` - US dollar
+          * `CDF` - Congolese franc
+      - in: query
+        name: fee_type
+        schema:
+          type: string
+          format: uuid
+        description: Un seul type de frais.
+      - in: query
+        name: installment
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 40
+        description: 'Libellé de la tranche (« 1re tranche », « Octobre ») ; absent
+          : toutes.'
+      - in: query
+        name: order
+        schema:
+          enum:
+          - amount
+          - days
+          - name
+          - class
+          type: string
+          default: amount
+          minLength: 1
+        description: |-
+          Montant décroissant (la devise choisie, sinon les dollars puis les francs, jamais additionnés), retard décroissant, nom ou classe.
+
+          * `amount` - amount
+          * `days` - days
+          * `name` - name
+          * `class` - class
+      - in: query
+        name: over_days
+        schema:
+          type: integer
+          maximum: 366
+          minimum: 0
+          default: 0
+        description: 'Seulement les frais en retard de plus de ce nombre de jours
+          ; 0 : tous.'
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnpaidSummary'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
 components:
   schemas:
     AcademicYear:
@@ -6797,6 +7169,7 @@ components:
       - finance.credit_created
       - finance.credit_used
       - finance.credit_voided
+      - finance.unpaid_exported
       - devices.registered
       - devices.revoked
       - audit.exported
@@ -6878,6 +7251,7 @@ components:
         * `finance.credit_created` - Student credit created
         * `finance.credit_used` - Student credit used
         * `finance.credit_voided` - Student credit voided
+        * `finance.unpaid_exported` - Unpaid fees exported
         * `devices.registered` - Device remembered
         * `devices.revoked` - Device disconnected
         * `audit.exported` - Audit log exported
@@ -8930,6 +9304,16 @@ components:
       - email
       - is_primary
       - is_emergency_contact
+    GuardianContact:
+      type: object
+      properties:
+        full_name:
+          type: string
+        phone:
+          type: string
+      required:
+      - full_name
+      - phone
     GuardianRequest:
       type: object
       properties:
@@ -9268,6 +9652,20 @@ components:
       description: |-
         * `fr` - Français
         * `en` - English
+    LastPayment:
+      type: object
+      properties:
+        paid_at:
+          type: string
+          format: date-time
+        received_amount_minor:
+          type: integer
+        received_currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+      required:
+      - paid_at
+      - received_amount_minor
+      - received_currency
     LatePayment:
       type: object
       properties:
@@ -9617,6 +10015,17 @@ components:
       description: |-
         * `upsert` - created or changed
         * `delete` - deleted
+    Option:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+      - id
+      - name
     OriginEnum:
       enum:
       - offline_surplus
@@ -9989,6 +10398,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StudentList'
+    PaginatedUnpaidStudentList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnpaidStudent'
     PartRequest:
       type: object
       properties:
@@ -12656,6 +13090,121 @@ components:
       required:
       - code
       - name
+    UnpaidAmount:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        overdue_minor:
+          type: integer
+      required:
+      - currency
+      - overdue_minor
+    UnpaidCharge:
+      type: object
+      properties:
+        fee_type_name:
+          type: string
+        label:
+          type: string
+        due_on:
+          type: string
+          format: date
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        remaining_minor:
+          type: integer
+          description: Reste après réductions et paiements.
+        days_late:
+          type: integer
+      required:
+      - fee_type_name
+      - label
+      - due_on
+      - currency
+      - remaining_minor
+      - days_late
+    UnpaidStudent:
+      type: object
+      properties:
+        enrollment:
+          type: string
+          format: uuid
+        student:
+          $ref: '#/components/schemas/PaymentStudent'
+        class_group:
+          type: string
+        charges:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnpaidCharge'
+          description: Frais en retard, les plus anciens d'abord.
+        amounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnpaidAmount'
+          description: En retard, par devise (dollars d'abord).
+        days_late:
+          type: integer
+          description: Retard du frais le plus ancien, en jours.
+        guardian:
+          allOf:
+          - $ref: '#/components/schemas/GuardianContact'
+          nullable: true
+          description: Tuteur principal.
+        last_payment:
+          allOf:
+          - $ref: '#/components/schemas/LastPayment'
+          nullable: true
+          description: Dernier paiement non annulé.
+      required:
+      - enrollment
+      - student
+      - class_group
+      - charges
+      - amounts
+      - days_late
+      - guardian
+      - last_payment
+    UnpaidSummary:
+      type: object
+      properties:
+        students:
+          type: integer
+          description: Élèves en retard selon les filtres.
+        enrolled:
+          type: integer
+          description: Élèves inscrits (de la classe choisie).
+        amounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnpaidAmount'
+        long_overdue:
+          type: integer
+          description: Élèves en retard de plus de 30 jours.
+        class_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Option'
+          description: Classes de l'année (filtre).
+        fee_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/Option'
+          description: Types des frais dus de l'année (filtre).
+        installments:
+          type: array
+          items:
+            type: string
+          description: Tranches des frais dus, par échéance (filtre).
+      required:
+      - students
+      - enrolled
+      - amounts
+      - long_overdue
+      - class_groups
+      - fee_types
+      - installments
     YearStatusEnum:
       enum:
       - open

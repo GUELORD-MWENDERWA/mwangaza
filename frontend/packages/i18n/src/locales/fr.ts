@@ -1012,6 +1012,7 @@ export const fr = {
         payment_cancelled: "Ce paiement est annulé : son reçu n'a plus de valeur.",
         cancellation_rejected: "Annulation de paiement refusée",
         cancellation_reprinted: "Reçu d'annulation réimprimé",
+        unpaid_exported: "Impayés exportés",
       },
       devices: {
         registered: "Appareil mémorisé",
