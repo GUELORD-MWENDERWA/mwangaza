@@ -106,6 +106,20 @@ class Action(models.TextChoices):
     FINANCE_PAYMENT_RECORDED = "finance.payment_recorded", _("Payment recorded")
     # Reçus (F6) : chaque duplicata est noté.
     FINANCE_PAYMENT_REPRINTED = "finance.payment_reprinted", _("Receipt reprinted")
+    # Annulations (F7) : demande, décision, duplicata du reçu d'annulation.
+    FINANCE_CANCELLATION_REQUESTED = (
+        "finance.cancellation_requested",
+        _("Payment cancellation requested"),
+    )
+    FINANCE_PAYMENT_CANCELLED = "finance.payment_cancelled", _("Payment cancelled")
+    FINANCE_CANCELLATION_REJECTED = (
+        "finance.cancellation_rejected",
+        _("Payment cancellation refused"),
+    )
+    FINANCE_CANCELLATION_REPRINTED = (
+        "finance.cancellation_reprinted",
+        _("Cancellation receipt reprinted"),
+    )
     # Crédits d'élèves (M14) : argent reçu en trop, puis utilisé ou annulé.
     FINANCE_CREDIT_CREATED = "finance.credit_created", _("Student credit created")
     FINANCE_CREDIT_USED = "finance.credit_used", _("Student credit used")

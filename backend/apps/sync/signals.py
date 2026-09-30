@@ -5,6 +5,7 @@ from django.db.models.signals import post_delete, post_save
 
 from apps.core.tenancy import use_school
 from apps.finance.models import (
+    CancellationRequest,
     CashRegister,
     Discount,
     ExchangeRate,
@@ -25,6 +26,7 @@ ENROLLMENTS_OF = {
     Discount: lambda discount: [discount.enrollment_id],
     Payment: lambda payment: [payment.enrollment_id],
     PaymentCancellation: lambda cancellation: [cancellation.payment.enrollment_id],
+    CancellationRequest: lambda request: [request.payment.enrollment_id],
     StudentCredit: lambda credit: [credit.enrollment_id],
     Student: lambda student: Enrollment.all_schools.filter(
         school_id=student.school_id, student_id=student.pk

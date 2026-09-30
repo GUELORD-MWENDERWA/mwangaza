@@ -15,6 +15,7 @@ from apps.accounts.demo import (
 )
 from apps.accounts.models import User
 from apps.finance.demo import (
+    create_demo_cancellations,
     create_demo_charges,
     create_demo_credits,
     create_demo_discounts,
@@ -47,6 +48,7 @@ class Command(BaseCommand):
             create_demo_discounts(schools)
             create_demo_payments(schools)
             create_demo_credits(schools)
+            create_demo_cancellations(schools)
             create_demo_devices(schools)
         for school in schools.values():
             self.stdout.write(f"  {school.code:<8} {school.name} — {school.url}/app/")

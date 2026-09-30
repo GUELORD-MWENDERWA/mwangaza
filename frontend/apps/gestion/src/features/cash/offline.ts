@@ -170,18 +170,31 @@ export function financeOf(
   return { charges, balance: balanceOf(charges), credits };
 }
 
-/** Paiements d'une session, les plus récents d'abord : ceux du serveur et ceux de la file. */
+/** Paiements dont l'annulation est demandée dans la file (3.8.1), pas encore refusée. */
+function cancellationsAsked(queued: QueuedOperation[]): Set<string> {
+  return new Set(
+    queued
+      .filter((op) => op.type === "cancellation.request" && op.status !== "rejected")
+      .map((op) => (op.payload as { payment: string }).payment),
+  );
+}
+
+/** Paiements d'une session, les plus récents d'abord : ceux du serveur et ceux de la file ;
+ *  « annulation demandée » dès que la demande est dans la file. */
 export function sessionPayments(
   enrollments: LocalEnrollment[],
   queued: QueuedOperation[],
   session: string,
 ): SessionPayment[] {
   const known = new Set<string>();
+  const asked = cancellationsAsked(queued);
   const rows: SessionPayment[] = [];
   for (const enrollment of enrollments) {
-    for (const payment of enrollment.payments ?? []) {
-      known.add(payment.id);
-      if (payment.cash_session === session) rows.push({ payment, sync: "recorded", error: null });
+    for (const item of enrollment.payments ?? []) {
+      known.add(item.id);
+      if (item.cash_session !== session) continue;
+      const payment = asked.has(item.id) ? { ...item, cancellation_pending: true } : item;
+      rows.push({ payment, sync: "recorded", error: null });
     }
   }
   for (const op of queued) {
@@ -281,6 +294,8 @@ export function offlineReceipt(input: {
     method: "cash",
     note: input.note,
     cancelled: false,
+    cancelled_at: null,
+    cancellation_pending: false,
     allocations,
     academic_year: input.academicYear,
     balance: balanceOf(settle(input.charges, allocations, input.day)),
@@ -289,7 +304,7 @@ export function offlineReceipt(input: {
 
 /** Duplicata (F6) d'un paiement de l'inscription, fait sur l'appareil : le reçu du serveur
  *  (`balance_after`) — solde juste après ce paiement, avec les paiements encaissés jusqu'à lui
- *  (serveur et file, sauf annulés ou refusés), retard au jour du paiement. Paiement de la file :
+ *  (serveur et file, sauf refusés et annulés avant lui), retard au jour du paiement. Paiement de la file :
  *  son propre reçu. */
 export function duplicateReceipt(
   enrollment: LocalEnrollment,
@@ -307,7 +322,11 @@ export function duplicateReceipt(
   if (!payment) return null;
   const at = (item: Payment) => [Date.parse(item.paid_at), item.id] as const;
   const [time, id] = at(payment);
-  const upTo = [...recorded.filter((item) => !item.cancelled), ...local].filter((item) => {
+  // Annulé après lui : il comptait encore à son heure (comme `balance_after` du serveur).
+  const counted = recorded.filter(
+    (item) => !item.cancelled_at || Date.parse(item.cancelled_at) > time,
+  );
+  const upTo = [...counted, ...local].filter((item) => {
     const [itemTime, itemId] = at(item);
     return itemTime < time || (itemTime === time && itemId <= id);
   });

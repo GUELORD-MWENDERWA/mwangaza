@@ -3,7 +3,8 @@
 // (`CollectPanel`), dont le reçu s'imprime aussitôt ; « Réimprimer » : duplicata noté au journal.
 // Clavier : Ctrl K rechercher, Échap changer d'élève. Appareil mémorisé (`device`) : recherche,
 // totaux et paiements lus sur l'appareil, encaissements de la file compris (3.5.1), duplicata
-// fait sur l'appareil (3.5.2) ; annulations et clôture : 3.8.
+// fait sur l'appareil (3.5.2) ; « Annuler… » : demande d'annulation (3.8.1, par la file sur un
+// appareil mémorisé) ; clôture : 3.8.2.
 import { api, call } from "@mwangaza/api";
 import { formatTime, useTranslation } from "@mwangaza/i18n";
 import { type Currency, formatAmount, formatRate } from "@mwangaza/money";
@@ -28,10 +29,13 @@ import { useEffect, useRef, useState } from "react";
 
 import { firstErrorMessage } from "../../lib/errors";
 import { fullName, studentName } from "../../lib/people";
+import { can } from "../../lib/permissions";
+import { useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import type { LocalDb } from "../../lib/sync/db";
 import { useSettled } from "../../lib/settled";
 import { Pagination } from "../shell/Pagination";
+import { RequestDialog } from "../cancellations/RequestDialog";
 import { LoadError } from "../status/StatusPages";
 import { type StudentRow, useStudentSearch } from "../students/data";
 import { RateBanner } from "./CashPage";
@@ -92,6 +96,8 @@ export function CashDesk({
     rows.some((row) => row.payment.id === id && row.sync !== "rejected" && !row.payment.cancelled);
   const [chosen, setChosen] = useState<Chosen | null>(null);
   const [recorded, setRecorded] = useState<Receipt | null>(null);
+  const [cancelling, setCancelling] = useState<SessionPayment["payment"] | null>(null);
+  const canCancel = can(useCurrentMe(), ["finance.request_cancellation"]);
   const searchRef = useRef<HTMLInputElement>(null);
   const printer = useReceiptPrinter();
   const reprint = useMutation({
@@ -156,6 +162,7 @@ export function CashDesk({
       />
       <RateBanner current={current} />
       {printer.area}
+      <RequestDialog payment={cancelling} db={device?.db} onClose={() => setCancelling(null)} />
       {recorded && (
         <Banner tone="ok" role="status">
           <span className="flex-1">
@@ -222,6 +229,7 @@ export function CashDesk({
             onChoose={choose}
             onReprint={(id) => reprint.mutate(id)}
             canReprint={(id) => !reprint.isPending && reprintable(id)}
+            onCancel={canCancel ? setCancelling : undefined}
           />
         </>
       )}
@@ -331,6 +339,7 @@ function SessionPayments({
   onChoose,
   onReprint,
   canReprint,
+  onCancel,
 }: {
   session: string;
   /** Paiements lus sur l'appareil ; sans eux, demandés au serveur. */
@@ -338,6 +347,9 @@ function SessionPayments({
   onChoose: (chosen: Chosen) => void;
   onReprint: (id: string) => void;
   canReprint: (id: string) => boolean;
+  /** Demander l'annulation (`finance.request_cancellation`) : paiement enregistré par le serveur,
+   *  ni annulé, ni déjà en attente d'annulation. */
+  onCancel?: (payment: SessionPayment["payment"]) => void;
 }) {
   const { t, i18n } = useTranslation();
   const school = useCurrentSchool();
@@ -463,10 +475,10 @@ function SessionPayments({
                         {struck ? <s>{amount}</s> : amount}
                       </td>
                       <td>
-                        <PaymentState cancelled={payment.cancelled} sync={sync} />
+                        <PaymentState payment={payment} sync={sync} />
                         {error && <span className="block text-sm text-due">{error.detail}</span>}
                       </td>
-                      <td className="text-right">
+                      <td className="text-right whitespace-nowrap">
                         {!struck && (
                           <Button
                             variant="outline"
@@ -480,6 +492,22 @@ function SessionPayments({
                             {t("cash.payments.reprint")}
                           </Button>
                         )}
+                        {onCancel &&
+                          !struck &&
+                          sync === "recorded" &&
+                          !payment.cancellation_pending && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="ml-2"
+                              aria-label={t("cash.payments.cancelLabel", {
+                                number: payment.receipt_number,
+                              })}
+                              onClick={() => onCancel(payment)}
+                            >
+                              {t("cash.payments.cancel")}
+                            </Button>
+                          )}
                       </td>
                     </tr>
                   );
@@ -504,10 +532,20 @@ function SessionPayments({
   );
 }
 
-/** Annulé ; encaissé sur l'appareil et pas encore envoyé ; refusé par le serveur ; enregistré. */
-function PaymentState({ cancelled, sync }: { cancelled: boolean; sync: SessionPayment["sync"] }) {
+/** Annulé ; annulation demandée (compte encore) ; encaissé sur l'appareil et pas encore envoyé ;
+ *  refusé par le serveur ; enregistré. */
+function PaymentState({
+  payment,
+  sync,
+}: {
+  payment: SessionPayment["payment"];
+  sync: SessionPayment["sync"];
+}) {
   const { t } = useTranslation();
-  if (cancelled) return <StatusPill tone="gray">{t("cash.payments.cancelled")}</StatusPill>;
+  if (payment.cancelled) return <StatusPill tone="gray">{t("cash.payments.cancelled")}</StatusPill>;
+  if (payment.cancellation_pending) {
+    return <StatusPill tone="due">{t("cash.payments.cancellationPending")}</StatusPill>;
+  }
   if (sync === "pending") return <StatusPill tone="warn">{t("cash.payments.pending")}</StatusPill>;
   if (sync === "rejected") return <StatusPill tone="due">{t("cash.payments.rejected")}</StatusPill>;
   return <StatusPill tone="ok">{t("cash.payments.recorded")}</StatusPill>;

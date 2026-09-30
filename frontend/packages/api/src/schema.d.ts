@@ -335,6 +335,130 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cancellations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Demandes d'annulation de paiements (F7), les plus récentes d'abord. Demander :
+         *     `finance.request_cancellation` (sans `finance.view_reports`, seulement pour ses paiements) ;
+         *     valider ou refuser : `finance.approve_cancellation`, jamais sa propre demande. Sans
+         *     `finance.approve_cancellation`, on ne voit que ses demandes. Création : 201, ou 200 si cette
+         *     demande (même `id`) était déjà enregistrée.
+         */
+        get: operations["cancellations_list"];
+        put?: never;
+        /**
+         * @description Demandes d'annulation de paiements (F7), les plus récentes d'abord. Demander :
+         *     `finance.request_cancellation` (sans `finance.view_reports`, seulement pour ses paiements) ;
+         *     valider ou refuser : `finance.approve_cancellation`, jamais sa propre demande. Sans
+         *     `finance.approve_cancellation`, on ne voit que ses demandes. Création : 201, ou 200 si cette
+         *     demande (même `id`) était déjà enregistrée.
+         */
+        post: operations["cancellations_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cancellations/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Demandes d'annulation de paiements (F7), les plus récentes d'abord. Demander :
+         *     `finance.request_cancellation` (sans `finance.view_reports`, seulement pour ses paiements) ;
+         *     valider ou refuser : `finance.approve_cancellation`, jamais sa propre demande. Sans
+         *     `finance.approve_cancellation`, on ne voit que ses demandes. Création : 201, ou 200 si cette
+         *     demande (même `id`) était déjà enregistrée.
+         */
+        get: operations["cancellations_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cancellations/{id}/approve/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Valider : le paiement est annulé ; rend le reçu d'annulation à imprimer. 409
+         *     `cancellation_decided` ; 403 `own_cancellation` pour sa propre demande.
+         */
+        post: operations["cancellations_approve_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cancellations/{id}/receipt/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Reçu d'annulation (M15) d'une demande validée. */
+        get: operations["cancellations_receipt_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cancellations/{id}/reject/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Refuser : le paiement reste valable. 409 `cancellation_decided`. */
+        post: operations["cancellations_reject_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cancellations/{id}/reprint/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Réimpression du reçu d'annulation : le même, marqué DUPLICATA, noté au journal. */
+        post: operations["cancellations_reprint_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/cash-registers/": {
         parameters: {
             query?: never;
@@ -1853,6 +1977,10 @@ export interface components {
          *     * `finance.cash_session_opened` - Cash session opened
          *     * `finance.payment_recorded` - Payment recorded
          *     * `finance.payment_reprinted` - Receipt reprinted
+         *     * `finance.cancellation_requested` - Payment cancellation requested
+         *     * `finance.payment_cancelled` - Payment cancelled
+         *     * `finance.cancellation_rejected` - Payment cancellation refused
+         *     * `finance.cancellation_reprinted` - Cancellation receipt reprinted
          *     * `finance.credit_created` - Student credit created
          *     * `finance.credit_used` - Student credit used
          *     * `finance.credit_voided` - Student credit voided
@@ -1863,7 +1991,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         Address: {
             commune: string;
             quartier: string;
@@ -1947,6 +2075,98 @@ export interface components {
         };
         /** @enum {unknown} */
         BlankEnum: "";
+        CancellationCreateRequest: {
+            /**
+             * Format: uuid
+             * @description UUID v7 de l'appareil : un deuxième envoi rend la même demande.
+             */
+            id?: string;
+            /** Format: uuid */
+            payment: string;
+            reason: string;
+        };
+        CancellationDecisionRequest: {
+            /** @default  */
+            note: string;
+        };
+        /**
+         * @description Demande validée avec ce qu'imprime le reçu d'annulation (M15) : le reste dû par l'élève
+         *     juste après l'annulation (`services.balance_after_cancellation`).
+         */
+        CancellationReceipt: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly payment: components["schemas"]["CancelledPayment"];
+            readonly reason: string;
+            readonly requested_by: components["schemas"]["Person"];
+            /** Format: date-time */
+            readonly requested_at: string;
+            /** @description Demandée hors ligne. */
+            readonly offline: boolean;
+            readonly status: components["schemas"]["CancellationStatusEnum"];
+            readonly decided_by: components["schemas"]["Person"] | null;
+            /** Format: date-time */
+            readonly decided_at: string | null;
+            /** Comment */
+            readonly decision_note: string;
+            readonly cancellation: components["schemas"]["PaymentCancellation"] | null;
+            readonly balance: components["schemas"]["Balance"];
+        };
+        CancellationRequest: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly payment: components["schemas"]["CancelledPayment"];
+            readonly reason: string;
+            readonly requested_by: components["schemas"]["Person"];
+            /** Format: date-time */
+            readonly requested_at: string;
+            /** @description Demandée hors ligne. */
+            readonly offline: boolean;
+            readonly status: components["schemas"]["CancellationStatusEnum"];
+            readonly decided_by: components["schemas"]["Person"] | null;
+            /** Format: date-time */
+            readonly decided_at: string | null;
+            /** Comment */
+            readonly decision_note: string;
+            readonly cancellation: components["schemas"]["PaymentCancellation"] | null;
+        };
+        /**
+         * @description * `pending` - Pending
+         *     * `approved` - Approved
+         *     * `rejected` - Rejected
+         * @enum {string}
+         */
+        CancellationStatusEnum: "pending" | "approved" | "rejected";
+        /** @description Paiement d'une demande d'annulation : son état est celui de la demande. */
+        CancelledPayment: {
+            /** Format: uuid */
+            readonly id: string;
+            receipt_number: string;
+            /** Format: uuid */
+            enrollment: string;
+            readonly student: components["schemas"]["PaymentStudent"];
+            readonly class_group: string;
+            readonly cash_register: string;
+            /** Format: uuid */
+            readonly cash_session: string;
+            readonly cashier: components["schemas"]["Person"];
+            /**
+             * Amount received
+             * Format: int64
+             */
+            received_amount_minor: number;
+            /** Currency */
+            received_currency: components["schemas"]["CurrencyEnum"];
+            /** Format: decimal */
+            rate_used: string | null;
+            /** Format: date-time */
+            paid_at: string;
+            method: components["schemas"]["MethodEnum"];
+            note: string;
+            readonly allocations: components["schemas"]["PaymentAllocation"][];
+            readonly cash_register_name: string;
+            readonly academic_year: string;
+        };
         CashRegister: {
             /** Format: uuid */
             readonly id: string;
@@ -2852,6 +3072,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["AuditLog"][];
         };
+        PaginatedCancellationRequestList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["CancellationRequest"][];
+        };
         PaginatedDeviceList: {
             /** @example 123 */
             count: number;
@@ -3193,6 +3428,10 @@ export interface components {
             method: components["schemas"]["MethodEnum"];
             note: string;
             readonly cancelled: boolean;
+            /** Format: date-time */
+            readonly cancelled_at: string | null;
+            /** @description Annulation demandée, en attente de décision : compte encore. */
+            readonly cancellation_pending: boolean;
             readonly allocations: components["schemas"]["PaymentAllocation"][];
         };
         PaymentAllocation: {
@@ -3215,6 +3454,12 @@ export interface components {
              * @description Montant affecté, dans la devise du frais.
              */
             amount_minor: number;
+        };
+        PaymentCancellation: {
+            receipt_number: string;
+            readonly approved_by: components["schemas"]["Person"];
+            /** Format: date-time */
+            approved_at: string;
         };
         /**
          * @description Encaissement (F2) : sans `allocations`, répartition par défaut (devise reçue d'abord,
@@ -3270,6 +3515,10 @@ export interface components {
             method: components["schemas"]["MethodEnum"];
             note: string;
             readonly cancelled: boolean;
+            /** Format: date-time */
+            readonly cancelled_at: string | null;
+            /** @description Annulation demandée, en attente de décision : compte encore. */
+            readonly cancellation_pending: boolean;
             readonly allocations: components["schemas"]["PaymentAllocation"][];
             readonly cash_register_name: string;
             readonly academic_year: string;
@@ -3795,6 +4044,11 @@ export interface components {
             readonly created_at: string;
             /** Format: date-time */
             voided_at: string | null;
+            /**
+             * Payment
+             * Format: uuid
+             */
+            source_payment: string | null;
             readonly receipt_number: string | null;
             readonly cash_register_name: string | null;
             /** Format: date-time */
@@ -3827,6 +4081,11 @@ export interface components {
             readonly created_at: string;
             /** Format: date-time */
             voided_at: string | null;
+            /**
+             * Payment
+             * Format: uuid
+             */
+            source_payment: string | null;
             readonly receipt_number: string | null;
             readonly cash_register_name: string | null;
             /** Format: date-time */
@@ -4632,6 +4891,10 @@ export interface operations {
                  *     * `finance.cash_session_opened` - Cash session opened
                  *     * `finance.payment_recorded` - Payment recorded
                  *     * `finance.payment_reprinted` - Receipt reprinted
+                 *     * `finance.cancellation_requested` - Payment cancellation requested
+                 *     * `finance.payment_cancelled` - Payment cancelled
+                 *     * `finance.cancellation_rejected` - Payment cancellation refused
+                 *     * `finance.cancellation_reprinted` - Cancellation receipt reprinted
                  *     * `finance.credit_created` - Student credit created
                  *     * `finance.credit_used` - Student credit used
                  *     * `finance.credit_voided` - Student credit voided
@@ -4641,7 +4904,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -4844,6 +5107,10 @@ export interface operations {
                  *     * `finance.cash_session_opened` - Cash session opened
                  *     * `finance.payment_recorded` - Payment recorded
                  *     * `finance.payment_reprinted` - Receipt reprinted
+                 *     * `finance.cancellation_requested` - Payment cancellation requested
+                 *     * `finance.payment_cancelled` - Payment cancelled
+                 *     * `finance.cancellation_rejected` - Payment cancellation refused
+                 *     * `finance.cancellation_reprinted` - Cancellation receipt reprinted
                  *     * `finance.credit_created` - Student credit created
                  *     * `finance.credit_used` - Student credit used
                  *     * `finance.credit_voided` - Student credit voided
@@ -4853,7 +5120,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -5448,6 +5715,319 @@ export interface operations {
                 };
             };
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cancellations_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /**
+                 * @description En attente (défaut), validées ou refusées.
+                 *
+                 *     * `pending` - Pending
+                 *     * `approved` - Approved
+                 *     * `rejected` - Rejected
+                 */
+                status?: "pending" | "approved" | "rejected";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedCancellationRequestList"];
+                };
+            };
+        };
+    };
+    cancellations_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancellationCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CancellationCreateRequest"];
+                "multipart/form-data": components["schemas"]["CancellationCreateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CancellationRequest"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CancellationRequest"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cancellations_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this cancellation request. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CancellationRequest"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cancellations_approve_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this cancellation request. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["CancellationDecisionRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CancellationDecisionRequest"];
+                "multipart/form-data": components["schemas"]["CancellationDecisionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CancellationReceipt"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cancellations_receipt_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this cancellation request. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CancellationReceipt"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cancellations_reject_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this cancellation request. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["CancellationDecisionRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CancellationDecisionRequest"];
+                "multipart/form-data": components["schemas"]["CancellationDecisionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CancellationRequest"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cancellations_reprint_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this cancellation request. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CancellationReceipt"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

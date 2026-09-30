@@ -89,6 +89,7 @@ const credit: Schemas["StudentCredit"] = {
   state: "to_process",
   created_at: "2026-10-04T10:00:00Z",
   voided_at: null,
+  source_payment: "p12",
   receipt_number: "ITIG-P2-26-000012",
   cash_register_name: "Caisse 2",
   paid_at: "2026-10-04T09:30:00Z",
@@ -229,8 +230,12 @@ describe("caisse sur l'appareil", () => {
     expect(refused.credits.map((item) => item.remaining_minor)).toEqual([5000]);
   });
 
-  it("duplicata : solde juste après ce paiement, ni les suivants ni les annulés, file comprise", () => {
-    const cancelled = { ...collect(183, "p0", "2026-10-05T08:00:00Z"), cancelled: true };
+  it("duplicata : solde juste après ce paiement, ni les suivants ni les annulés avant lui, file comprise", () => {
+    const cancelled = {
+      ...collect(183, "p0", "2026-10-05T08:00:00Z"),
+      cancelled: true,
+      cancelled_at: "2026-10-05T08:30:00Z",
+    };
     const first = collect(184, "p1");
     const later = collect(185, "p2", "2026-10-05T10:00:00Z");
     const synced = enrollment([cancelled, first, later]);
@@ -255,6 +260,20 @@ describe("caisse sur l'appareil", () => {
     expect(duplicateReceipt(synced, "p3", [queued(earlier, "pending")], config, "UTC")).toBe(
       earlier,
     );
+    // Annulé après p1 (3.8.1) : il comptait encore quand p1 a été encaissé.
+    const cancelledLater = {
+      ...collect(187, "p4", "2026-10-05T08:10:00Z"),
+      cancelled: true,
+      cancelled_at: "2026-10-05T11:00:00Z",
+    };
+    const exact = duplicateReceipt(
+      enrollment([cancelled, cancelledLater, first, later]),
+      "p1",
+      [],
+      config,
+      "UTC",
+    );
+    expect(exact!.balance.currencies[0]).toMatchObject({ paid_minor: 6000 });
   });
 
   it("paiements de la session : les plus récents d'abord, refusés montrés mais hors des totaux", () => {
@@ -275,6 +294,19 @@ describe("caisse sur l'appareil", () => {
       ["ITIG-P1-26-000184", "recorded"],
     ]);
     expect(sessionTotals(rows)).toEqual([{ currency: "USD", amount_minor: 6000, count: 2 }]);
+
+    // Annulation demandée sur l'appareil (3.8.1) : montrée aussitôt, toujours comptée.
+    const asked: QueuedOperation = {
+      op_id: "o9",
+      type: "cancellation.request",
+      payload: { id: "r1", payment: "p1", reason: "Mauvais élève", requested_at: "x" },
+      created_at: "2026-10-05T12:00:00Z",
+      status: "pending",
+      error: null,
+    };
+    const withAsk = sessionPayments([enrollment([early])], [asked], "s1");
+    expect(withAsk[0]!.payment.cancellation_pending).toBe(true);
+    expect(sessionTotals(withAsk)).toEqual([{ currency: "USD", amount_minor: 3000, count: 1 }]);
   });
 
   it("recherche : chaque mot, sans accents ni majuscules, ou le matricule", () => {

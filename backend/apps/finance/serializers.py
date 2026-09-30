@@ -7,6 +7,7 @@ from rest_framework.exceptions import ErrorDetail
 from apps.core.money import Currency
 from apps.finance import services
 from apps.finance.models import (
+    CancellationRequest,
     CashRegister,
     CashSession,
     CreditAllocation,
@@ -17,6 +18,7 @@ from apps.finance.models import (
     InstallmentTemplate,
     Payment,
     PaymentAllocation,
+    PaymentCancellation,
     StudentCharge,
     StudentCredit,
 )
@@ -418,8 +420,17 @@ class PaymentSerializer(serializers.ModelSerializer):
     # Paiements d'une session retrouvés sur l'appareil (caisse hors ligne, 3.5).
     cash_session = serializers.UUIDField(source="cash_session_id", read_only=True)
     cashier = PersonSerializer(read_only=True)
-    cancelled = serializers.BooleanField(source="is_cancelled", read_only=True)
+    cancelled = serializers.SerializerMethodField()
+    # Pour un duplicata exact sur l'appareil : un paiement annulé après un autre comptait encore
+    # quand celui-ci a été encaissé.
+    cancelled_at = serializers.DateTimeField(read_only=True, allow_null=True)
+    cancellation_pending = serializers.BooleanField(
+        read_only=True, help_text="Annulation demandée, en attente de décision : compte encore."
+    )
     allocations = PaymentAllocationSerializer(many=True, read_only=True)
+
+    def get_cancelled(self, payment: Payment) -> bool:
+        return payment.cancelled_at is not None
 
     class Meta:
         model = Payment
@@ -439,6 +450,8 @@ class PaymentSerializer(serializers.ModelSerializer):
             "method",
             "note",
             "cancelled",
+            "cancelled_at",
+            "cancellation_pending",
             "allocations",
         ]
 
@@ -575,6 +588,7 @@ class StudentCreditSerializer(serializers.ModelSerializer):
             "state",
             "created_at",
             "voided_at",
+            "source_payment",
             "receipt_number",
             "cash_register_name",
             "paid_at",
@@ -612,3 +626,99 @@ class CreditSummarySerializer(serializers.Serializer):
     to_process = serializers.IntegerField(help_text="Crédits à traiter.")
     amounts = CreditAmountSerializer(many=True, help_text="Reste des crédits à traiter.")
     used_this_month = serializers.IntegerField(help_text="Crédits utilisés depuis le 1er du mois.")
+
+
+# Annulations (3.8.1, F7)
+
+
+class CancelledPaymentSerializer(PaymentSerializer):
+    """Paiement d'une demande d'annulation : son état est celui de la demande."""
+
+    cash_register_name = serializers.CharField(
+        source="cash_session.cash_register.name", read_only=True
+    )
+    academic_year = serializers.CharField(source="enrollment.academic_year.name", read_only=True)
+
+    class Meta(PaymentSerializer.Meta):
+        fields = [
+            *(
+                name
+                for name in PaymentSerializer.Meta.fields
+                if name not in {"cancelled", "cancelled_at", "cancellation_pending"}
+            ),
+            "cash_register_name",
+            "academic_year",
+        ]
+
+
+class PaymentCancellationSerializer(serializers.ModelSerializer):
+    approved_by = PersonSerializer(read_only=True)
+
+    class Meta:
+        model = PaymentCancellation
+        fields = ["receipt_number", "approved_by", "approved_at"]
+
+
+class CancellationRequestSerializer(serializers.ModelSerializer):
+    payment = CancelledPaymentSerializer(read_only=True)
+    requested_by = PersonSerializer(read_only=True)
+    decided_by = PersonSerializer(read_only=True, allow_null=True)
+    offline = serializers.SerializerMethodField(help_text="Demandée hors ligne.")
+    cancellation = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CancellationRequest
+        fields = [
+            "id",
+            "payment",
+            "reason",
+            "requested_by",
+            "requested_at",
+            "offline",
+            "status",
+            "decided_by",
+            "decided_at",
+            "decision_note",
+            "cancellation",
+        ]
+        read_only_fields = fields
+
+    def get_offline(self, request: CancellationRequest) -> bool:
+        return request.device_id is not None
+
+    @extend_schema_field(PaymentCancellationSerializer(allow_null=True))
+    def get_cancellation(self, request: CancellationRequest) -> dict | None:
+        """L'annulation validée et son reçu (demande validée seulement)."""
+        if request.status != CancellationRequest.Status.APPROVED:
+            return None
+        return PaymentCancellationSerializer(request.payment.cancellation).data
+
+
+class CancellationReceiptSerializer(CancellationRequestSerializer):
+    """Demande validée avec ce qu'imprime le reçu d'annulation (M15) : le reste dû par l'élève
+    juste après l'annulation (`services.balance_after_cancellation`)."""
+
+    balance = BalanceSerializer(source="balance_after", read_only=True)
+
+    class Meta(CancellationRequestSerializer.Meta):
+        fields = [*CancellationRequestSerializer.Meta.fields, "balance"]
+
+
+class CancellationCreateSerializer(serializers.Serializer):
+    id = serializers.UUIDField(
+        required=False, help_text="UUID v7 de l'appareil : un deuxième envoi rend la même demande."
+    )
+    payment = serializers.PrimaryKeyRelatedField(queryset=Payment.objects)
+    reason = serializers.CharField(max_length=200)
+
+
+class CancellationDecisionSerializer(serializers.Serializer):
+    note = serializers.CharField(max_length=200, required=False, allow_blank=True, default="")
+
+
+class CancellationFilterSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(
+        choices=CancellationRequest.Status.choices,
+        default=CancellationRequest.Status.PENDING,
+        help_text="En attente (défaut), validées ou refusées.",
+    )
