@@ -91,7 +91,7 @@ Règles :
 
 **CashRegister [T]** — caisse : `name`, `code` (`C1` : lettres majuscules et chiffres, unique dans l'école, fixé à la création car il entre dans les numéros de reçus), `is_active` (désactivée, jamais effacée).
 
-**CashSession [T]** — ouverture d'une caisse par un caissier : `cash_register`, `cashier`, `device` (3.3), `opened_at`, `closed_at`. Une seule session ouverte par caisse et par caissier.
+**CashSession [T]** — ouverture d'une caisse par un caissier : `cash_register`, `cashier`, `device` (ouverte hors ligne), `opened_at`, `closed_at`. Une seule session ouverte par caisse et par caissier, sauf ouverture hors ligne, jamais refusée (3.8.2).
 
 **Payment [T]** **[I]** — `id` (UUID client), `enrollment`, `cash_session`, `device` (appareil qui l'a encaissé hors ligne ; l'opération d'origine est dans `SyncOperation`), `cashier`, `received_amount_minor`, `received_currency`, `rate_used` (taux USD → CDF en vigueur à l'encaissement), `paid_at` (heure de l'appareil), `synced_at` (arrivée au serveur d'un paiement hors ligne), `receipt_number` (unique dans l'école ; en ligne, donné par le serveur : `{ÉCOLE}-{CAISSE}-{AA}-{séquence}`, AA = année scolaire de l'inscription ; hors ligne, préfixe de l'appareil, 3.3), `method` (`cash` en V1 ; `mobile_money`, `bank` plus tard), `note`. Le reçu n'est pas un modèle : c'est une vue imprimable du paiement (décision Q2).
 
@@ -105,7 +105,7 @@ Règles :
 
 **CreditAllocation [T]** **[I]** — part d'un crédit utilisée : `credit`, `student_charge` (même devise que le crédit), `amount_minor` ; qui et quand : `created_by`, `created_at`.
 
-**CashClosing [T]** **[I]** — `cash_session`, par devise : `expected_minor`, `counted_minor`, `difference_minor`, `note`, `closed_by`.
+**CashClosing [T]** **[I]** — `cash_session`, une ligne par devise : `currency`, `expected_minor` (paiements de la session pas annulés à l'heure de clôture, calculé par le serveur), `counted_minor`, `difference_minor` (compté − attendu), `note` (explication, obligatoire en ligne s'il y a un écart), `closed_by`, `closed_at` (heure de l'appareil si hors ligne), `device`.
 
 Règles :
 - Reste dû d'une charge = `amount_minor` − réductions applicables − allocations de paiements non annulés − parts de crédits non annulés. Le payé d'une charge s'arrête à ce qu'elle doit : le reste (réduction accordée après paiement) est le crédit de l'élève ; payé + crédits = argent reçu.
