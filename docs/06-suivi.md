@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.8.2 terminée, PR à fusionner |
+| Tâche en cours | aucune — 3.8.2 terminée, PR #114 à fusionner |
 | Prochaine tâche | 3.8.3 |
 | Issue GitHub | #28 |
-| Branche | `tache/3.8.2-cloture` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/3.8.2-cloture` (PR #114) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-30 |
 
 ## Avancement
