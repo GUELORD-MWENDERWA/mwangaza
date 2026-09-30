@@ -129,6 +129,7 @@ export function UnpaidPage() {
           </div>
         }
       />
+      {/* Sur téléphone, les montants (longs) sur toute la largeur, sous les deux compteurs. */}
       <div className="grid grid-cols-2 gap-4 min-[1000px]:grid-cols-4">
         <Kpi
           label={t("unpaid.kpi.students")}
@@ -141,6 +142,7 @@ export function UnpaidPage() {
             label={t("unpaid.kpi.amount", { currency: currencyName(amount.currency) })}
             value={money(amount.overdue_minor, amount.currency)}
             tone={amount.overdue_minor ? "due" : undefined}
+            className="col-span-2 max-[999px]:order-2 min-[1000px]:col-span-1"
           />
         ))}
         <Kpi
@@ -148,6 +150,7 @@ export function UnpaidPage() {
           value={data?.long_overdue ?? 0}
           tone={data?.long_overdue ? "due" : undefined}
           sub={t("unpaid.kpi.longSub")}
+          className="max-[999px]:order-1"
         />
       </div>
       <Card>
@@ -266,7 +269,7 @@ function UnpaidTable({ rows }: { rows: UnpaidRow[] }) {
           const payment = row.last_payment;
           return (
             <tr key={row.enrollment}>
-              <td>
+              <td className="min-w-44">
                 <Link
                   to={`/students/${row.student.id}/finances`}
                   className="font-bold hover:underline focus-visible:ring-3 focus-visible:ring-lake-50 focus-visible:outline-none"
@@ -275,7 +278,7 @@ function UnpaidTable({ rows }: { rows: UnpaidRow[] }) {
                 </Link>
                 <span className="block text-sm text-ink-3">{row.class_group}</span>
               </td>
-              <td className="min-w-48 text-sm">
+              <td className="min-w-40 text-sm">
                 {row.charges
                   .map((charge) =>
                     charge.label === charge.fee_type_name

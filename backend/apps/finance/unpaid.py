@@ -150,7 +150,7 @@ def unpaid_students(filters: Filters) -> list[UnpaidStudent]:
             "student", "class_group__level", "class_group__track"
         )
     }
-    by_enrollment = services.charges_by_enrollment(_enrollments(filters).values("pk"))
+    by_enrollment = services.charges_by_enrollment(_enrollments(filters).values("pk"), light=True)
     rows = []
     for enrollment_id, charges in by_enrollment.items():
         for charge in charges:

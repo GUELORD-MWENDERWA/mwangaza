@@ -102,6 +102,9 @@ DATABASES = {
         "PORT": env("POSTGRES_PORT", "5432"),
         "ATOMIC_REQUESTS": False,
         "CONN_MAX_AGE": 60,
+        # Sans la compilation JIT de PostgreSQL : sur les rapports (impayés, des milliers de
+        # frais dus), elle coûtait plus que la requête elle-même (0,75 s sur 0,85 s).
+        "OPTIONS": {"options": "-c jit=off"},
     }
 }
 

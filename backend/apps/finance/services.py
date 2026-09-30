@@ -955,11 +955,26 @@ def charges_of(enrollment_id) -> list[StudentCharge]:
     return charges
 
 
-def charges_by_enrollment(enrollment_ids: list) -> dict:
+# Colonnes du solde et des listes : lire des milliers de frais dus (impayés) sans le reste.
+BALANCE_FIELDS = (
+    "enrollment",
+    "fee_type__name",
+    "label",
+    "amount_minor",
+    "currency",
+    "due_on",
+    "status",
+)
+
+
+def charges_by_enrollment(enrollment_ids, *, light: bool = False) -> dict:
     """`charges_of` pour plusieurs inscriptions (une classe), en deux requêtes :
-    {id de l'inscription: frais dus}."""
+    {id de l'inscription: frais dus} ; `light` : seulement `BALANCE_FIELDS`."""
     charges, discounts = defaultdict(list), defaultdict(list)
-    for charge in _ordered(StudentCharge.objects.filter(enrollment_id__in=enrollment_ids)):
+    queryset = StudentCharge.objects.filter(enrollment_id__in=enrollment_ids)
+    if light:
+        queryset = queryset.only(*BALANCE_FIELDS)
+    for charge in _ordered(queryset):
         charges[charge.enrollment_id].append(charge)
     for discount in Discount.objects.filter(enrollment_id__in=enrollment_ids):
         discounts[discount.enrollment_id].append(discount)
