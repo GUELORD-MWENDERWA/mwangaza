@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 4 (Rapports, portail, production) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 4.1.1 terminée, PR à fusionner |
+| Tâche en cours | aucune — 4.1.1 terminée, PR #116 à fusionner |
 | Prochaine tâche | 4.1.2 |
 | Issue GitHub | #29 |
-| Branche | `tache/4.1.1-impayes` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/4.1.1-impayes` (PR #116) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-30 |
 
 ## Avancement
