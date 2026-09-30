@@ -75,7 +75,7 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
 ## Semaine 4 — Rapports, portail parents, mise en production
 
 - [ ] **4.1** Impayés et situation financière, découpée le 2026-09-30 :
-   - [ ] **4.1.1** Impayés (G1, maquettes `impayes` et `impayes-export`) : liste filtrable (classe, frais, tranche, retard, devise), chiffres clés, export Excel (une ligne par frais en retard) et PDF par classe, exports tracés
+   - [x] **4.1.1** Impayés (G1, maquettes `impayes` et `impayes-export`) : liste filtrable (classe, frais, tranche, retard, devise), chiffres clés, export Excel (une ligne par frais en retard) et PDF par classe, exports tracés
    - [ ] **4.1.2** Situation financière imprimable (G2, maquette `situation-financiere`) depuis la fiche élève et groupée depuis les Impayés (sélection) ; colonnes « Échu non payé » et « Paiements » et filtre « Paiement » de la liste des élèves (maquette `eleves-liste`) *(ajouté le 2026-09-28, 2.7)*
 - [ ] **4.2** Tableau de bord directeur (G3) ; seuils d'alerte de l'école (M5 : écart de caisse, annulations par caissier et par jour, caisse non clôturée) *(ajouté le 2026-09-26, 1.5)*
 - [ ] **4.3** Annonces côté école (H4)

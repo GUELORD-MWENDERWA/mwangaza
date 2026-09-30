@@ -8,7 +8,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 4 (Rapports, portail, production) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | 4.1.1 — Impayés (liste, export Excel et PDF par classe) |
+| Tâche en cours | aucune — 4.1.1 terminée, PR à fusionner |
 | Prochaine tâche | 4.1.2 |
 | Issue GitHub | #29 |
 | Branche | `tache/4.1.1-impayes` ; dossier local : `~/Projets/mwangaza` |
@@ -22,8 +22,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **34** | **42** |
+| Semaine 4 — Rapports, portail, production | 1 | 9 |
+| **V1.0** | **35** | **43** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-30 — Tâche 4.1.1 : impayés
+- Fait : 4.1 découpée (situation financière et colonnes de la liste des élèves → 4.1.2). Écran « Impayés » (maquette `impayes`) : chiffres clés, filtres classe / frais / tranche / retard / devise / tri dans l'adresse, ligne → fiche élève (Finances) ; écran « Exporter » (maquette `impayes-export`) : aperçu, PDF A4 à l'italienne par classe ou liste unique, Excel une ligne par frais en retard ; `/api/unpaid/` (liste paginée, `summary/`, `export/`), exports Excel et PDF notés au journal d'audit.
+- Décisions (`03`) : même calcul que le solde de la fiche ; élèves actifs seulement ; filtre « retard de plus de N jours » appliqué à chaque frais ; JIT de PostgreSQL coupé (0,75 s perdues sur les rapports).
+- Tests : 884 serveur, 210 front ; lint vert. ~0,7 s par appel sur les 800 élèves de la démo.
+- Suite : 4.1.2 (situation financière imprimable, colonnes de la liste des élèves).
 
 ### 2026-09-30 — Tâche 3.8.3 : clôtures de caisse vues par le comptable
 - Fait : écran « Clôtures de caisse » (M16) en lecture seule (`finance.view_reports`) : par mois et par caisse, attendu / compté / écart par devise, sessions pas clôturées (bandeau), paiements arrivés après la clôture, détail, bordereau du caissier, paiements de la session, export Excel ; `/api/cash-closings/` (liste, `summary/`, détail, `export/`). Duplicata sur l'appareil : crédits utilisés avant le paiement comptés (`credit_uses`). Démo : l'écart de 5,00 $ passe sur la session la plus récente (après `make reset-db`).

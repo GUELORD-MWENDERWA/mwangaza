@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-30 19:17+0200\n"
+"POT-Creation-Date: 2026-09-30 20:37+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -57,7 +57,7 @@ msgid ""
 "Wrong phone number or password, or not a Mwangaza administration account."
 msgstr ""
 
-#: apps/accounts/admin_site.py:36
+#: apps/accounts/admin_site.py:36 apps/finance/documents.py:146
 #: apps/students/templates/students/registration_form.html:40
 msgid "Phone"
 msgstr "Téléphone"
@@ -347,7 +347,7 @@ msgstr ""
 msgid "Accountant"
 msgstr ""
 
-#: apps/accounts/roles.py:126 apps/finance/documents.py:65
+#: apps/accounts/roles.py:126 apps/finance/documents.py:67
 msgid "Cashier"
 msgstr "Caissier"
 
@@ -786,23 +786,27 @@ msgstr "Élève créé"
 msgid "Student credit voided"
 msgstr "Élève créé"
 
-#: apps/audit/actions.py:130
+#: apps/audit/actions.py:129
+msgid "Unpaid fees exported"
+msgstr "Impayés exportés"
+
+#: apps/audit/actions.py:132
 msgid "Device remembered"
 msgstr "Appareil mémorisé"
 
-#: apps/audit/actions.py:131
+#: apps/audit/actions.py:133
 msgid "Device disconnected"
 msgstr "Appareil déconnecté"
 
-#: apps/audit/actions.py:134
+#: apps/audit/actions.py:136
 msgid "Audit log exported"
 msgstr "Journal d'audit exporté"
 
-#: apps/audit/actions.py:138
+#: apps/audit/actions.py:140
 msgid "Support session opened"
 msgstr "Session support ouverte"
 
-#: apps/audit/actions.py:139
+#: apps/audit/actions.py:141
 msgid "Support session closed"
 msgstr "Session support fermée"
 
@@ -872,7 +876,7 @@ msgstr "La date de fin est avant la date de début."
 msgid "Export at most one year at a time."
 msgstr "Exportez au plus une année à la fois."
 
-#: apps/audit/views.py:101 apps/finance/documents.py:63
+#: apps/audit/views.py:101 apps/finance/documents.py:65
 #: apps/finance/templates/finance/receipt_verification.html:69
 msgid "Date"
 msgstr "Date"
@@ -949,68 +953,135 @@ msgstr "page"
 msgid "Finance"
 msgstr ""
 
-#: apps/finance/documents.py:32 apps/schools/models.py:210
+#: apps/finance/documents.py:34 apps/schools/models.py:210
 msgid "Open"
 msgstr "Ouverte"
 
-#: apps/finance/documents.py:33
+#: apps/finance/documents.py:35
 msgid "Not closed"
 msgstr "Non clôturée"
 
-#: apps/finance/documents.py:34
+#: apps/finance/documents.py:36
 msgid "Balanced"
 msgstr "Conforme"
 
-#: apps/finance/documents.py:35
+#: apps/finance/documents.py:37
 msgid "Difference"
 msgstr "Écart"
 
-#: apps/finance/documents.py:64
+#: apps/finance/documents.py:66
 msgid "Cash register"
 msgstr "Caisse"
 
-#: apps/finance/documents.py:66
+#: apps/finance/documents.py:68
 msgid "Opened at"
 msgstr "Ouverture"
 
-#: apps/finance/documents.py:67
+#: apps/finance/documents.py:69
 msgid "Closed at"
 msgstr "Clôture"
 
-#: apps/finance/documents.py:68
+#: apps/finance/documents.py:70
 msgid "Payments"
 msgstr "Paiements"
 
-#: apps/finance/documents.py:74
+#: apps/finance/documents.py:76
 #, python-format
 msgid "Expected (%(currency)s)"
 msgstr "Attendu (%(currency)s)"
 
-#: apps/finance/documents.py:75
+#: apps/finance/documents.py:77
 #, python-format
 msgid "Counted (%(currency)s)"
 msgstr "Compté (%(currency)s)"
 
-#: apps/finance/documents.py:76
+#: apps/finance/documents.py:78
 #, python-format
 msgid "Difference (%(currency)s)"
 msgstr "Écart (%(currency)s)"
 
-#: apps/finance/documents.py:79
+#: apps/finance/documents.py:81
 msgid "State"
 msgstr "État"
 
-#: apps/finance/documents.py:79
+#: apps/finance/documents.py:81
 msgid "Arrived after closing"
 msgstr "Arrivés après la clôture"
 
-#: apps/finance/documents.py:79
+#: apps/finance/documents.py:81
 msgid "Explanation"
 msgstr "Explication"
 
-#: apps/finance/documents.py:83
+#: apps/finance/documents.py:85
 msgid "Cash closings"
 msgstr "Clôtures de caisse"
+
+#: apps/finance/documents.py:142 apps/finance/templates/finance/unpaid.html:33
+#: apps/students/imports.py:84
+#: apps/students/templates/students/registration_form.html:35
+msgid "Class"
+msgstr "Classe"
+
+#: apps/finance/documents.py:143 apps/students/documents.py:224
+#: apps/students/imports.py:85
+#: apps/students/templates/students/class_list.html:22
+#: apps/students/templates/students/registration_form.html:35
+msgid "Student number"
+msgstr "Matricule"
+
+#: apps/finance/documents.py:144
+#: apps/finance/templates/finance/receipt_verification.html:70
+#: apps/finance/templates/finance/unpaid.html:32
+msgid "Student"
+msgstr "Élève"
+
+#: apps/finance/documents.py:145 apps/finance/templates/finance/unpaid.html:34
+#: apps/students/models.py:54
+msgid "Guardian"
+msgstr "Tuteur"
+
+#: apps/finance/documents.py:147
+msgid "Fee"
+msgstr "Frais"
+
+#: apps/finance/documents.py:148
+msgid "Installment"
+msgstr "Tranche"
+
+#: apps/finance/documents.py:149
+msgid "Due date"
+msgstr "Échéance"
+
+#: apps/finance/documents.py:150 apps/finance/models.py:224
+#: apps/finance/templates/finance/receipt_verification.html:71
+#: apps/students/templates/students/registration_form.html:50
+msgid "Amount"
+msgstr "Montant"
+
+#: apps/finance/documents.py:151
+msgid "Paid"
+msgstr "Payé"
+
+#: apps/finance/documents.py:152
+msgid "Remaining"
+msgstr "Reste"
+
+#: apps/finance/documents.py:153
+msgid "Currency"
+msgstr "Devise"
+
+#: apps/finance/documents.py:154
+msgid "Days late"
+msgstr "Jours de retard"
+
+#: apps/finance/documents.py:157
+msgid "Unpaid fees"
+msgstr "Impayés"
+
+#: apps/finance/documents.py:171
+#, python-format
+msgid "more than %(days)s days late"
+msgstr "retard de plus de %(days)s jours"
 
 #: apps/finance/models.py:24
 msgid "Tuition"
@@ -1194,12 +1265,6 @@ msgstr "Élève modifié"
 #: apps/finance/models.py:223
 msgid "Percentage"
 msgstr ""
-
-#: apps/finance/models.py:224
-#: apps/finance/templates/finance/receipt_verification.html:71
-#: apps/students/templates/students/registration_form.html:50
-msgid "Amount"
-msgstr "Montant"
 
 #: apps/finance/models.py:227
 msgid "Staff child"
@@ -1484,7 +1549,7 @@ msgstr ""
 msgid "cash closings"
 msgstr ""
 
-#: apps/finance/serializers.py:540
+#: apps/finance/serializers.py:542
 msgid "Each currency once."
 msgstr ""
 
@@ -1602,7 +1667,7 @@ msgid "The installments must add up to the total."
 msgstr ""
 
 #: apps/finance/services.py:639 apps/finance/services.py:775
-#: apps/finance/services.py:839 apps/finance/services.py:1794
+#: apps/finance/services.py:839 apps/finance/services.py:1809
 msgid "This field may not be blank."
 msgstr ""
 
@@ -1638,51 +1703,51 @@ msgstr ""
 msgid "A discount cannot be more than the fee."
 msgstr ""
 
-#: apps/finance/services.py:1082
+#: apps/finance/services.py:1097
 msgid "Give the reason for the correction."
 msgstr ""
 
-#: apps/finance/services.py:1085
+#: apps/finance/services.py:1100
 msgid "This is already the rate of the year."
 msgstr ""
 
-#: apps/finance/services.py:1113
+#: apps/finance/services.py:1128
 msgid "This code is kept for cancellation receipts."
 msgstr ""
 
-#: apps/finance/services.py:1297
+#: apps/finance/services.py:1312
 msgid "The student does not owe this fee, or it appears twice."
 msgstr ""
 
-#: apps/finance/services.py:1303
+#: apps/finance/services.py:1318
 msgid "This part is more than what is left to pay on this fee, or too small."
 msgstr ""
 
-#: apps/finance/services.py:1307
+#: apps/finance/services.py:1322
 msgid "The parts must add up to the amount received."
 msgstr ""
 
-#: apps/finance/services.py:1367
+#: apps/finance/services.py:1382
 msgid "This receipt number was not given by this device."
 msgstr ""
 
-#: apps/finance/services.py:1370
+#: apps/finance/services.py:1385
 msgid "Another payment already has this receipt number."
 msgstr ""
 
-#: apps/finance/services.py:1421
+#: apps/finance/services.py:1436
 msgid "The school does not use this currency."
 msgstr ""
 
-#: apps/finance/services.py:1445
+#: apps/finance/services.py:1460
 msgid "This is more than what the student owes: give back the change."
 msgstr ""
 
-#: apps/finance/services.py:2120
+#: apps/finance/services.py:2135
 msgid "Count the money of each currency."
 msgstr ""
 
-#: apps/finance/services.py:2128
+#: apps/finance/services.py:2143
 msgid "Explain the difference: the accountant will see it."
 msgstr ""
 
@@ -1761,9 +1826,103 @@ msgstr "École"
 msgid "Number"
 msgstr "Numéro"
 
-#: apps/finance/templates/finance/receipt_verification.html:70
-msgid "Student"
-msgstr "Élève"
+#: apps/finance/templates/finance/unpaid.html:2
+msgid "Students late with payments"
+msgstr "Élèves en retard de paiement"
+
+#: apps/finance/templates/finance/unpaid.html:21
+#: apps/students/templates/students/class_list.html:11
+#, python-format
+msgid "School year %(year)s"
+msgstr "Année scolaire %(year)s"
+
+#: apps/finance/templates/finance/unpaid.html:23
+#, python-format
+msgid "Situation on %(date)s at %(time)s"
+msgstr "Situation au %(date)s à %(time)s"
+
+#: apps/finance/templates/finance/unpaid.html:26
+#, python-format
+msgid "STUDENTS LATE WITH PAYMENTS — %(name)s"
+msgstr "ÉLÈVES EN RETARD DE PAIEMENT — %(name)s"
+
+#: apps/finance/templates/finance/unpaid.html:26
+msgid "STUDENTS LATE WITH PAYMENTS"
+msgstr "ÉLÈVES EN RETARD DE PAIEMENT"
+
+#: apps/finance/templates/finance/unpaid.html:27
+#, python-format
+msgid "%(late)s student out of %(total)s"
+msgid_plural "%(late)s students out of %(total)s"
+msgstr[0] "%(late)s élève sur %(total)s"
+msgstr[1] "%(late)s élèves sur %(total)s"
+
+#: apps/finance/templates/finance/unpaid.html:27
+#, python-format
+msgid "homeroom teacher: %(teacher)s"
+msgstr "titulaire : %(teacher)s"
+
+#: apps/finance/templates/finance/unpaid.html:31 apps/students/documents.py:221
+#: apps/students/templates/students/class_list.html:21
+msgid "No."
+msgstr "N°"
+
+#: apps/finance/templates/finance/unpaid.html:34
+msgid "Guardian · phone"
+msgstr "Tuteur · téléphone"
+
+#: apps/finance/templates/finance/unpaid.html:35
+msgid "Late fees"
+msgstr "Frais en retard"
+
+#: apps/finance/templates/finance/unpaid.html:37
+msgid "Late by"
+msgstr "Retard"
+
+#: apps/finance/templates/finance/unpaid.html:38
+msgid "Last payment"
+msgstr "Dernier paiement"
+
+#: apps/finance/templates/finance/unpaid.html:47
+#, python-format
+msgid "%(count)s fee"
+msgid_plural "%(count)s fees"
+msgstr[0] "%(count)s frais"
+msgstr[1] "%(count)s frais"
+
+#: apps/finance/templates/finance/unpaid.html:49
+#: apps/finance/templates/finance/unpaid.html:58
+#, python-format
+msgid "%(days)s d"
+msgstr "%(days)s j"
+
+#: apps/finance/templates/finance/unpaid.html:55
+#, python-format
+msgid "due on %(date)s"
+msgstr "échéance du %(date)s"
+
+#: apps/finance/templates/finance/unpaid.html:63
+#: apps/finance/templates/finance/unpaid.html:76
+msgid "No student is late with payments."
+msgstr "Aucun élève en retard de paiement."
+
+#: apps/finance/templates/finance/unpaid.html:68
+msgid "Total for the class"
+msgstr "Total de la classe"
+
+#: apps/finance/templates/finance/unpaid.html:68
+#: apps/students/templates/students/registration_form.html:55
+msgid "Total"
+msgstr "Total"
+
+#: apps/finance/templates/finance/unpaid.html:73
+msgid ""
+"Late = due date passed and something left to pay. Amounts in each currency "
+"are shown separately, never converted or added up. Internal document."
+msgstr ""
+"Retard = date limite dépassée et reste à payer. Les montants de chaque "
+"devise sont présentés séparément, jamais convertis ni additionnés. Document "
+"interne."
 
 #: apps/schools/admin.py:30
 msgid "Currencies"
@@ -2316,17 +2475,6 @@ msgstr "À jour"
 msgid "Overdue: %(amounts)s"
 msgstr "En retard : %(amounts)s"
 
-#: apps/students/documents.py:221
-#: apps/students/templates/students/class_list.html:21
-msgid "No."
-msgstr "N°"
-
-#: apps/students/documents.py:224 apps/students/imports.py:85
-#: apps/students/templates/students/class_list.html:22
-#: apps/students/templates/students/registration_form.html:35
-msgid "Student number"
-msgstr "Matricule"
-
 #: apps/students/documents.py:226
 #: apps/students/templates/students/class_list.html:23
 #: apps/students/templates/students/registration_form.html:27
@@ -2376,11 +2524,6 @@ msgstr "Date de naissance (JJ/MM/AAAA)"
 #: apps/students/imports.py:83
 msgid "Place of birth"
 msgstr "Lieu de naissance"
-
-#: apps/students/imports.py:84
-#: apps/students/templates/students/registration_form.html:35
-msgid "Class"
-msgstr "Classe"
 
 #: apps/students/imports.py:86
 msgid "Guardian name"
@@ -2521,10 +2664,6 @@ msgstr "Père"
 #: apps/students/models.py:53
 msgid "Mother"
 msgstr "Mère"
-
-#: apps/students/models.py:54
-msgid "Guardian"
-msgstr "Tuteur"
 
 #: apps/students/models.py:55
 msgid "Grandparent"
@@ -2769,11 +2908,6 @@ msgstr ""
 msgid "Class list"
 msgstr "Liste de classe"
 
-#: apps/students/templates/students/class_list.html:11
-#, python-format
-msgid "School year %(year)s"
-msgstr "Année scolaire %(year)s"
-
 #: apps/students/templates/students/class_list.html:13
 #, python-format
 msgid "Printed on %(date)s"
@@ -2875,10 +3009,6 @@ msgstr "FRAIS DE L'ANNÉE"
 #: apps/students/templates/students/registration_form.html:50
 msgid "Due dates"
 msgstr "Échéances"
-
-#: apps/students/templates/students/registration_form.html:55
-msgid "Total"
-msgstr "Total"
 
 #: apps/students/templates/students/registration_form.html:60
 msgid ""
