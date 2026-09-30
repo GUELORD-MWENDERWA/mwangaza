@@ -6,6 +6,7 @@ appeler une adresse par le serveur)."""
 import base64
 import io
 import re
+from dataclasses import dataclass
 
 import openpyxl
 import segno
@@ -89,7 +90,8 @@ def workbook(
     formats: list[str | None] | None = None,
 ):
     """Classeur d'une feuille, titres en gras, écrit ligne à ligne (milliers de lignes) ;
-    `formats` : format Excel de chaque colonne (`#,##0.00`, `dd/mm/yyyy`…), vide : aucun."""
+    `formats` : format Excel de chaque colonne (`#,##0.00`, `dd/mm/yyyy`…), vide : aucun ; une
+    valeur `Formatted` garde le sien."""
     book = openpyxl.Workbook(write_only=True)
     # Excel refuse []:*?/\ dans le nom d'une feuille, et plus de 31 caractères.
     sheet = book.create_sheet(re.sub(r"[\[\]:*?/\\]", " ", title)[:31] or None)
@@ -101,19 +103,30 @@ def workbook(
         cell.font = Font(bold=True)
         header_cells.append(cell)
     sheet.append(header_cells)
+    formats = formats or []
     for row in rows:
-        if formats:
-            row = [
-                _formatted(sheet, value, formats[index] if index < len(formats) else None)
-                for index, value in enumerate(row)
-            ]
+        row = [
+            _formatted(sheet, value, formats[index] if index < len(formats) else None)
+            for index, value in enumerate(row)
+        ]
         sheet.append(row)
     output = io.BytesIO()
     book.save(output)
     return output.getvalue()
 
 
+@dataclass(frozen=True)
+class Formatted:
+    """Valeur avec son propre format Excel, quand une colonne en mélange (montants en dollars et
+    en francs, chacun dans son format)."""
+
+    value: object
+    number_format: str
+
+
 def _formatted(sheet, value, number_format: str | None):
+    if isinstance(value, Formatted):
+        value, number_format = value.value, value.number_format
     if number_format is None or value is None:
         return value
     cell = WriteOnlyCell(sheet, value=value)

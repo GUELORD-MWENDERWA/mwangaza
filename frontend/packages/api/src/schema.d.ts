@@ -1972,6 +1972,64 @@ export interface paths {
         patch: operations["tracks_partial_update"];
         trace?: never;
     };
+    "/api/unpaid/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Impayés (G1) : élèves de l'année dont un frais dû est en retard (échéance passée et reste
+         *     > 0), filtrés par classe, frais, tranche, retard et devise ; chiffres clés ; export Excel ou
+         *     PDF (tracé dans le journal d'audit : données personnelles).
+         */
+        get: operations["unpaid_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/unpaid/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Mêmes filtres que la liste : Excel (une ligne par frais en retard), PDF A4 à
+         *     l'italienne par classe ou en liste unique, ou son aperçu HTML (pas tracé).
+         */
+        get: operations["unpaid_export_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/unpaid/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Chiffres clés selon les filtres, et les classes, frais et tranches à proposer. */
+        get: operations["unpaid_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2098,6 +2156,7 @@ export interface components {
          *     * `finance.credit_created` - Student credit created
          *     * `finance.credit_used` - Student credit used
          *     * `finance.credit_voided` - Student credit voided
+         *     * `finance.unpaid_exported` - Unpaid fees exported
          *     * `devices.registered` - Device remembered
          *     * `devices.revoked` - Device disconnected
          *     * `audit.exported` - Audit log exported
@@ -2105,7 +2164,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         Address: {
             commune: string;
             quartier: string;
@@ -3008,6 +3067,10 @@ export interface components {
             /** Emergency contact */
             is_emergency_contact: boolean;
         };
+        GuardianContact: {
+            full_name: string;
+            phone: string;
+        };
         GuardianRequest: {
             /** Format: uuid */
             id?: string;
@@ -3151,6 +3214,12 @@ export interface components {
          * @enum {string}
          */
         LanguageEnum: "fr" | "en";
+        LastPayment: {
+            /** Format: date-time */
+            paid_at: string;
+            received_amount_minor: number;
+            received_currency: components["schemas"]["CurrencyEnum"];
+        };
         LatePayment: {
             /** Format: uuid */
             readonly id: string;
@@ -3310,6 +3379,11 @@ export interface components {
          * @enum {string}
          */
         OperationEnum: "upsert" | "delete";
+        Option: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
         /**
          * @description * `offline_surplus` - Paid twice offline
          *     * `discount` - Discount granted
@@ -3535,6 +3609,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["StudentList"][];
+        };
+        PaginatedUnpaidStudentList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["UnpaidStudent"][];
         };
         PartRequest: {
             /** Format: uuid */
@@ -4796,6 +4885,60 @@ export interface components {
             /** @description Majuscules et chiffres (matricule `{OPT}`). */
             code: string;
         };
+        UnpaidAmount: {
+            currency: components["schemas"]["CurrencyEnum"];
+            overdue_minor: number;
+        };
+        UnpaidCharge: {
+            fee_type_name: string;
+            label: string;
+            /** Format: date */
+            due_on: string;
+            currency: components["schemas"]["CurrencyEnum"];
+            /** @description Reste après réductions et paiements. */
+            remaining_minor: number;
+            days_late: number;
+        };
+        UnpaidStudent: {
+            /** Format: uuid */
+            enrollment: string;
+            student: components["schemas"]["UnpaidStudentName"];
+            class_group: string;
+            /** @description Frais en retard, les plus anciens d'abord. */
+            charges: components["schemas"]["UnpaidCharge"][];
+            /** @description En retard, par devise (dollars d'abord). */
+            amounts: components["schemas"]["UnpaidAmount"][];
+            /** @description Retard du frais le plus ancien, en jours. */
+            days_late: number;
+            /** @description Tuteur principal. */
+            guardian: components["schemas"]["GuardianContact"] | null;
+            /** @description Dernier paiement non annulé. */
+            last_payment: components["schemas"]["LastPayment"] | null;
+        };
+        UnpaidStudentName: {
+            /** Format: uuid */
+            id: string;
+            full_name: string;
+            matricule: string;
+            last_name: string;
+            middle_name: string;
+            first_name: string;
+        };
+        UnpaidSummary: {
+            /** @description Élèves en retard selon les filtres. */
+            students: number;
+            /** @description Élèves inscrits (de la classe choisie). */
+            enrolled: number;
+            amounts: components["schemas"]["UnpaidAmount"][];
+            /** @description Élèves en retard de plus de 30 jours. */
+            long_overdue: number;
+            /** @description Classes de l'année (filtre). */
+            class_groups: components["schemas"]["Option"][];
+            /** @description Types des frais dus de l'année (filtre). */
+            fee_types: components["schemas"]["Option"][];
+            /** @description Tranches des frais dus, par échéance (filtre). */
+            installments: string[];
+        };
         /**
          * @description * `open` - Open
          *     * `closed` - Closed
@@ -5222,13 +5365,14 @@ export interface operations {
                  *     * `finance.credit_created` - Student credit created
                  *     * `finance.credit_used` - Student credit used
                  *     * `finance.credit_voided` - Student credit voided
+                 *     * `finance.unpaid_exported` - Unpaid fees exported
                  *     * `devices.registered` - Device remembered
                  *     * `devices.revoked` - Device disconnected
                  *     * `audit.exported` - Audit log exported
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -5439,13 +5583,14 @@ export interface operations {
                  *     * `finance.credit_created` - Student credit created
                  *     * `finance.credit_used` - Student credit used
                  *     * `finance.credit_voided` - Student credit voided
+                 *     * `finance.unpaid_exported` - Unpaid fees exported
                  *     * `devices.registered` - Device remembered
                  *     * `devices.revoked` - Device disconnected
                  *     * `audit.exported` - Audit log exported
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -11505,6 +11650,242 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    unpaid_list: {
+        parameters: {
+            query?: {
+                /** @description Absent : l'année en cours. */
+                academic_year?: string;
+                /** @description Une seule classe. */
+                class_group?: string;
+                /**
+                 * @description Seulement les frais dans cette devise.
+                 *
+                 *     * `USD` - US dollar
+                 *     * `CDF` - Congolese franc
+                 */
+                currency?: "USD" | "CDF";
+                /** @description Un seul type de frais. */
+                fee_type?: string;
+                /** @description Libellé de la tranche (« 1re tranche », « Octobre ») ; absent : toutes. */
+                installment?: string;
+                /**
+                 * @description Montant décroissant (la devise choisie, sinon les dollars puis les francs, jamais additionnés), retard décroissant, nom ou classe.
+                 *
+                 *     * `amount` - amount
+                 *     * `days` - days
+                 *     * `name` - name
+                 *     * `class` - class
+                 */
+                order?: "amount" | "days" | "name" | "class";
+                /** @description Seulement les frais en retard de plus de ce nombre de jours ; 0 : tous. */
+                over_days?: number;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedUnpaidStudentList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    unpaid_export_retrieve: {
+        parameters: {
+            query: {
+                /** @description Absent : l'année en cours. */
+                academic_year?: string;
+                /** @description Une seule classe. */
+                class_group?: string;
+                /**
+                 * @description Seulement les frais dans cette devise.
+                 *
+                 *     * `USD` - US dollar
+                 *     * `CDF` - Congolese franc
+                 */
+                currency?: "USD" | "CDF";
+                /** @description PDF : une ligne par tranche. */
+                detail?: boolean;
+                /** @description Un seul type de frais. */
+                fee_type?: string;
+                /**
+                 * @description PDF : par classe ou liste unique.
+                 *
+                 *     * `class` - class
+                 *     * `list` - list
+                 */
+                group?: "class" | "list";
+                /** @description Libellé de la tranche (« 1re tranche », « Octobre ») ; absent : toutes. */
+                installment?: string;
+                /**
+                 * @description Montant décroissant (la devise choisie, sinon les dollars puis les francs, jamais additionnés), retard décroissant, nom ou classe.
+                 *
+                 *     * `amount` - amount
+                 *     * `days` - days
+                 *     * `name` - name
+                 *     * `class` - class
+                 */
+                order?: "amount" | "days" | "name" | "class";
+                /**
+                 * @description Excel (une ligne par frais en retard), PDF, ou aperçu HTML du PDF.
+                 *
+                 *     * `xlsx` - xlsx
+                 *     * `pdf` - pdf
+                 *     * `html` - html
+                 */
+                output: "xlsx" | "pdf" | "html";
+                /** @description Seulement les frais en retard de plus de ce nombre de jours ; 0 : tous. */
+                over_days?: number;
+                /** @description PDF : une page par classe. */
+                page_per_class?: boolean;
+                /** @description PDF : téléphone du tuteur. */
+                phone?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Classeur Excel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                    "application/pdf": string;
+                    "text/html": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    unpaid_summary_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Absent : l'année en cours. */
+                academic_year?: string;
+                /** @description Une seule classe. */
+                class_group?: string;
+                /**
+                 * @description Seulement les frais dans cette devise.
+                 *
+                 *     * `USD` - US dollar
+                 *     * `CDF` - Congolese franc
+                 */
+                currency?: "USD" | "CDF";
+                /** @description Un seul type de frais. */
+                fee_type?: string;
+                /** @description Libellé de la tranche (« 1re tranche », « Octobre ») ; absent : toutes. */
+                installment?: string;
+                /**
+                 * @description Montant décroissant (la devise choisie, sinon les dollars puis les francs, jamais additionnés), retard décroissant, nom ou classe.
+                 *
+                 *     * `amount` - amount
+                 *     * `days` - days
+                 *     * `name` - name
+                 *     * `class` - class
+                 */
+                order?: "amount" | "days" | "name" | "class";
+                /** @description Seulement les frais en retard de plus de ce nombre de jours ; 0 : tous. */
+                over_days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnpaidSummary"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

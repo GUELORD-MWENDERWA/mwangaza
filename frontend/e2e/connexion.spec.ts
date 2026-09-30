@@ -30,7 +30,8 @@ test("directeur : mot de passe puis code, menu complet, Mon compte, menu tiroir"
   const drawer = page.getByRole("dialog", { name: "Menu principal" });
   await drawer.getByRole("link", { name: "Impayés", exact: true }).click();
   await expect(drawer).toBeHidden();
-  await expect(page.getByText("« Impayés » n'est pas encore disponible")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Impayés" })).toBeVisible();
+  await expect(page.getByText("Montant échu FC")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 
   // Isolation : la session de l'ITIG ne vaut pas à l'adresse d'une autre école, qui montre son

@@ -125,6 +125,8 @@ class Action(models.TextChoices):
     FINANCE_CREDIT_CREATED = "finance.credit_created", _("Student credit created")
     FINANCE_CREDIT_USED = "finance.credit_used", _("Student credit used")
     FINANCE_CREDIT_VOIDED = "finance.credit_voided", _("Student credit voided")
+    # Impayés (G1) : chaque export (Excel, PDF) est noté, il contient des données personnelles.
+    FINANCE_UNPAID_EXPORTED = "finance.unpaid_exported", _("Unpaid fees exported")
 
     # Appareils (« Se souvenir de cet appareil », M4).
     DEVICES_REGISTERED = "devices.registered", _("Device remembered")

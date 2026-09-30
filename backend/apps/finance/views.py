@@ -1,4 +1,6 @@
 from django.db.models import Count, Prefetch, Q
+from django.http import HttpResponse
+from django.utils.text import slugify
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import mixins, status
 from rest_framework.decorators import action
@@ -21,9 +23,11 @@ from apps.accounts.roles import (
     FINANCE_VIEW_REPORTS,
 )
 from apps.accounts.views import SchoolViewSet
-from apps.core.documents import XLSX, XLSX_RESPONSE, file_response
+from apps.audit import services as audit
+from apps.audit.actions import Action
+from apps.core.documents import PRINT_RESPONSE, XLSX, XLSX_RESPONSE, file_response, render
 from apps.core.errors import ErrorSerializer
-from apps.finance import documents, services
+from apps.finance import documents, services, unpaid
 from apps.finance.models import (
     CancellationRequest,
     CashRegister,
@@ -76,9 +80,14 @@ from apps.finance.serializers import (
     StudentCreditDetailSerializer,
     StudentCreditFilterSerializer,
     StudentCreditSerializer,
+    UnpaidExportSerializer,
+    UnpaidFilterSerializer,
+    UnpaidStudentSerializer,
+    UnpaidSummarySerializer,
     YearFilterSerializer,
 )
 from apps.schools import organisation
+from apps.students.models import Enrollment
 
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
 INVALID = {400: ErrorSerializer}
@@ -858,3 +867,77 @@ class CancellationViewSet(
     def _receipt(self, item: CancellationRequest) -> Response:
         item.balance_after = services.balance_after_cancellation(item.payment.cancellation)
         return Response(CancellationReceiptSerializer(item).data)
+
+
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[UnpaidFilterSerializer],
+        responses={200: UnpaidStudentSerializer(many=True), **INVALID, **ERRORS},
+    ),
+)
+@extend_schema(tags=["finance"])
+class UnpaidViewSet(mixins.ListModelMixin, SchoolViewSet):
+    """Impayés (G1) : élèves de l'année dont un frais dû est en retard (échéance passée et reste
+    > 0), filtrés par classe, frais, tranche, retard et devise ; chiffres clés ; export Excel ou
+    PDF (tracé dans le journal d'audit : données personnelles)."""
+
+    required_permission = FINANCE_VIEW_REPORTS
+    serializer_class = UnpaidStudentSerializer
+
+    def get_queryset(self):
+        return Enrollment.objects.none()
+
+    def _filters(self, serializer=UnpaidFilterSerializer):
+        params = serializer(data=self.request.query_params)
+        params.is_valid(raise_exception=True)
+        return params
+
+    def list(self, request: Request) -> Response:
+        rows = unpaid.unpaid_students(self._filters().filters())
+        page = unpaid.with_contacts(self.paginate_queryset(rows))
+        return self.get_paginated_response(self.get_serializer(page, many=True).data)
+
+    @extend_schema(
+        parameters=[UnpaidFilterSerializer],
+        responses={200: UnpaidSummarySerializer, **INVALID, **ERRORS},
+    )
+    @action(detail=False, pagination_class=None)
+    def summary(self, request: Request) -> Response:
+        """Chiffres clés selon les filtres, et les classes, frais et tranches à proposer."""
+        return Response(UnpaidSummarySerializer(unpaid.summary(self._filters().filters())).data)
+
+    @extend_schema(
+        parameters=[UnpaidExportSerializer],
+        responses={**XLSX_RESPONSE, **PRINT_RESPONSE, **INVALID, **ERRORS},
+    )
+    @action(detail=False, pagination_class=None)
+    def export(self, request: Request) -> HttpResponse:
+        """Mêmes filtres que la liste : Excel (une ligne par frais en retard), PDF A4 à
+        l'italienne par classe ou en liste unique, ou son aperçu HTML (pas tracé)."""
+        params = self._filters(UnpaidExportSerializer)
+        data, filters = params.validated_data, params.filters()
+        rows = unpaid.with_contacts(unpaid.unpaid_students(filters))
+        output = data["output"]
+        if output != "html":
+            audit.record(
+                Action.FINANCE_UNPAID_EXPORTED,
+                actor=request.user,
+                label=f"{output.upper()} · {filters.class_group or filters.academic_year}",
+                after={
+                    "output": output,
+                    "students": len(rows),
+                    **{key: str(value) for key, value in request.query_params.items()},
+                },
+            )
+        name = f"impayes-{slugify(str(filters.class_group or filters.academic_year))}"
+        if output == "xlsx":
+            return file_response(documents.unpaid_workbook(rows), XLSX, f"{name}.xlsx")
+        context = documents.unpaid_document(
+            rows,
+            filters,
+            by_class=data["group"] == "class",
+            page_per_class=data["page_per_class"],
+            phone=data["phone"],
+            detail=data["detail"],
+        )
+        return render("finance/unpaid.html", context, output, f"{name}.pdf")

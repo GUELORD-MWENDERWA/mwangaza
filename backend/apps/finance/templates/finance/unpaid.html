@@ -1,0 +1,78 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% translate "Students late with payments" %}{% endblock %}
+{% block style %}
+@page { size: A4 landscape; }
+body { font-size: 9pt; }
+section + section { margin-top: 2em; }
+section.break + section.break { break-before: page; margin-top: 0; }
+h1 { font-size: 1.5em; margin-top: .8em; }
+td.days { text-align: right; white-space: nowrap; }
+tr.charge td { border-top: 0; color: #333; }
+tr.charge td:first-child { border-bottom: 0; }
+tfoot td { font-weight: 700; background: #f4f4f4; }
+.foot { margin-top: .8em; font-size: .9em; color: #555; }
+{% endblock %}
+{% block content %}
+{% for page in pages %}
+<section class="{% if page_per_class %}break{% endif %}">
+<div class="row between">
+  <div class="row">
+    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% endif %}
+    <div><b>{{ school_name|upper }}</b><br><span class="small">{% blocktranslate with year=year.name %}School year {{ year }}{% endblocktranslate %}</span></div>
+  </div>
+  <div class="small" style="text-align:right">{% blocktranslate with date=printed_at|date:"d/m/Y" time=printed_at|time:"H:i" %}Situation on {{ date }} at {{ time }}{% endblocktranslate %}</div>
+</div>
+
+<h1>{% if page.class_group %}{% blocktranslate with name=page.class_group.name|upper %}STUDENTS LATE WITH PAYMENTS — {{ name }}{% endblocktranslate %}{% else %}{% translate "STUDENTS LATE WITH PAYMENTS" %}{% endif %}</h1>
+<p class="center small">{% blocktranslate with total=page.enrolled count late=page.rows|length %}{{ late }} student out of {{ total }}{% plural %}{{ late }} students out of {{ total }}{% endblocktranslate %}{% if page.teacher %} · {% blocktranslate with teacher=page.teacher %}homeroom teacher: {{ teacher }}{% endblocktranslate %}{% endif %}{% if filters %} · {{ filters }}{% endif %}</p>
+
+<table>
+  <thead><tr>
+    <th class="num">{% translate "No." %}</th>
+    <th>{% translate "Student" %}</th>
+    {% if not by_class %}<th>{% translate "Class" %}</th>{% endif %}
+    <th>{% if phone %}{% translate "Guardian · phone" %}{% else %}{% translate "Guardian" %}{% endif %}</th>
+    <th>{% translate "Late fees" %}</th>
+    {% for currency in currencies %}<th class="num">{{ currency }}</th>{% endfor %}
+    <th class="num">{% translate "Late by" %}</th>
+    <th>{% translate "Last payment" %}</th>
+  </tr></thead>
+  <tbody>
+  {% for row in page.rows %}
+  <tr>
+    <td class="num">{{ row.number }}</td>
+    <td><b>{{ row.name }}</b></td>
+    {% if not by_class %}<td>{{ row.class_group }}</td>{% endif %}
+    <td>{% if phone %}{{ row.contact }}{% else %}{{ row.guardian }}{% endif %}</td>
+    <td>{% if detail %}{% blocktranslate count count=row.charges|length %}{{ count }} fee{% plural %}{{ count }} fees{% endblocktranslate %}{% else %}{{ row.fees }}{% endif %}</td>
+    {% for amount in row.amounts %}<td class="num">{{ amount }}</td>{% endfor %}
+    <td class="days">{% blocktranslate with days=row.days %}{{ days }} d{% endblocktranslate %}</td>
+    <td>{{ row.last_payment }}</td>
+  </tr>
+  {% if detail %}{% for charge in row.charges %}
+  <tr class="charge">
+    <td></td>
+    <td colspan="{% if by_class %}2{% else %}3{% endif %}" class="small" style="text-align:right">{% blocktranslate with date=charge.due_on|date:"d/m/Y" %}due on {{ date }}{% endblocktranslate %}</td>
+    <td class="small">{{ charge.fee }}</td>
+    {% for amount in charge.amounts %}<td class="num small">{{ amount }}</td>{% endfor %}
+    <td class="days small">{% blocktranslate with days=charge.days %}{{ days }} d{% endblocktranslate %}</td>
+    <td></td>
+  </tr>
+  {% endfor %}{% endif %}
+  {% empty %}
+  <tr><td colspan="12" class="center muted">{% translate "No student is late with payments." %}</td></tr>
+  {% endfor %}
+  </tbody>
+  {% if page.rows %}<tfoot><tr>
+    <td></td>
+    <td colspan="{% if by_class %}3{% else %}4{% endif %}">{% if page.class_group and by_class %}{% translate "Total for the class" %}{% else %}{% translate "Total" %}{% endif %}</td>
+    {% for total in page.totals %}<td class="num">{{ total }}</td>{% endfor %}
+    <td></td><td></td>
+  </tr></tfoot>{% endif %}
+</table>
+<p class="foot">{% translate "Late = due date passed and something left to pay. Amounts in each currency are shown separately, never converted or added up. Internal document." %}</p>
+</section>
+{% empty %}
+<p class="center muted">{% translate "No student is late with payments." %}</p>
+{% endfor %}
+{% endblock %}

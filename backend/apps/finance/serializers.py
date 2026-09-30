@@ -6,7 +6,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
 
 from apps.core.money import Currency
-from apps.finance import services
+from apps.finance import services, unpaid
 from apps.finance.models import (
     CancellationRequest,
     CashClosing,
@@ -25,6 +25,7 @@ from apps.finance.models import (
     StudentCredit,
 )
 from apps.finance.services import Installment, Scope
+from apps.schools import organisation
 from apps.schools.models import AcademicYear, ClassGroup, Level, Track
 from apps.schools.serializers import PersonSerializer
 from apps.students.models import Enrollment
@@ -880,4 +881,124 @@ class CancellationFilterSerializer(serializers.Serializer):
         choices=CancellationRequest.Status.choices,
         default=CancellationRequest.Status.PENDING,
         help_text="En attente (défaut), validées ou refusées.",
+    )
+
+
+# Impayés (4.1.1, G1)
+
+
+class UnpaidFilterSerializer(YearFilterSerializer):
+    class_group = serializers.PrimaryKeyRelatedField(
+        queryset=ClassGroup.objects, required=False, help_text="Une seule classe."
+    )
+    fee_type = serializers.PrimaryKeyRelatedField(
+        queryset=FeeType.objects, required=False, help_text="Un seul type de frais."
+    )
+    installment = serializers.CharField(
+        required=False,
+        max_length=40,
+        help_text="Libellé de la tranche (« 1re tranche », « Octobre ») ; absent : toutes.",
+    )
+    over_days = serializers.IntegerField(
+        default=0,
+        min_value=0,
+        max_value=366,
+        help_text="Seulement les frais en retard de plus de ce nombre de jours ; 0 : tous.",
+    )
+    currency = serializers.ChoiceField(
+        choices=Currency.choices, required=False, help_text="Seulement les frais dans cette devise."
+    )
+    order = serializers.ChoiceField(
+        choices=unpaid.ORDERS,
+        default=unpaid.AMOUNT,
+        help_text="Montant décroissant (la devise choisie, sinon les dollars puis les francs, "
+        "jamais additionnés), retard décroissant, nom ou classe.",
+    )
+
+    def filters(self) -> unpaid.Filters:
+        data = self.validated_data
+        return unpaid.Filters(
+            academic_year=data.get("academic_year") or organisation.current_year(),
+            class_group=data.get("class_group"),
+            fee_type=data.get("fee_type"),
+            installment=data.get("installment", ""),
+            over_days=data["over_days"],
+            currency=data.get("currency", ""),
+            order=data["order"],
+        )
+
+
+class UnpaidExportSerializer(UnpaidFilterSerializer):
+    output = serializers.ChoiceField(
+        choices=["xlsx", "pdf", "html"],
+        help_text="Excel (une ligne par frais en retard), PDF, ou aperçu HTML du PDF.",
+    )
+    group = serializers.ChoiceField(
+        choices=["class", "list"], default="class", help_text="PDF : par classe ou liste unique."
+    )
+    page_per_class = serializers.BooleanField(default=True, help_text="PDF : une page par classe.")
+    phone = serializers.BooleanField(default=True, help_text="PDF : téléphone du tuteur.")
+    detail = serializers.BooleanField(default=False, help_text="PDF : une ligne par tranche.")
+
+
+class UnpaidAmountSerializer(serializers.Serializer):
+    currency = serializers.ChoiceField(choices=Currency.choices)
+    overdue_minor = serializers.IntegerField()
+
+
+class UnpaidChargeSerializer(serializers.Serializer):
+    fee_type_name = serializers.CharField(source="fee_type.name")
+    label = serializers.CharField()
+    due_on = serializers.DateField()
+    currency = serializers.ChoiceField(choices=Currency.choices)
+    remaining_minor = serializers.IntegerField(help_text="Reste après réductions et paiements.")
+    days_late = serializers.IntegerField()
+
+
+class GuardianContactSerializer(serializers.Serializer):
+    full_name = serializers.CharField()
+    phone = serializers.CharField()
+
+
+class LastPaymentSerializer(serializers.Serializer):
+    paid_at = serializers.DateTimeField()
+    received_amount_minor = serializers.IntegerField()
+    received_currency = serializers.ChoiceField(choices=Currency.choices)
+
+
+class UnpaidStudentNameSerializer(PaymentStudentSerializer):
+    last_name = serializers.CharField()
+    middle_name = serializers.CharField()
+    first_name = serializers.CharField()
+
+
+class UnpaidStudentSerializer(serializers.Serializer):
+    enrollment = serializers.UUIDField(source="enrollment.pk")
+    student = UnpaidStudentNameSerializer(source="enrollment.student")
+    class_group = serializers.CharField(source="enrollment.class_group.name")
+    charges = UnpaidChargeSerializer(
+        many=True, help_text="Frais en retard, les plus anciens d'abord."
+    )
+    amounts = UnpaidAmountSerializer(
+        many=True, help_text="En retard, par devise (dollars d'abord)."
+    )
+    days_late = serializers.IntegerField(help_text="Retard du frais le plus ancien, en jours.")
+    guardian = GuardianContactSerializer(allow_null=True, help_text="Tuteur principal.")
+    last_payment = LastPaymentSerializer(allow_null=True, help_text="Dernier paiement non annulé.")
+
+
+class OptionSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+
+
+class UnpaidSummarySerializer(serializers.Serializer):
+    students = serializers.IntegerField(help_text="Élèves en retard selon les filtres.")
+    enrolled = serializers.IntegerField(help_text="Élèves inscrits (de la classe choisie).")
+    amounts = UnpaidAmountSerializer(many=True)
+    long_overdue = serializers.IntegerField(help_text="Élèves en retard de plus de 30 jours.")
+    class_groups = OptionSerializer(many=True, help_text="Classes de l'année (filtre).")
+    fee_types = OptionSerializer(many=True, help_text="Types des frais dus de l'année (filtre).")
+    installments = serializers.ListField(
+        child=serializers.CharField(), help_text="Tranches des frais dus, par échéance (filtre)."
     )
