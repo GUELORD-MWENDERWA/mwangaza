@@ -966,9 +966,15 @@ class LastPaymentSerializer(serializers.Serializer):
     received_currency = serializers.ChoiceField(choices=Currency.choices)
 
 
+class UnpaidStudentNameSerializer(PaymentStudentSerializer):
+    last_name = serializers.CharField()
+    middle_name = serializers.CharField()
+    first_name = serializers.CharField()
+
+
 class UnpaidStudentSerializer(serializers.Serializer):
     enrollment = serializers.UUIDField(source="enrollment.pk")
-    student = PaymentStudentSerializer(source="enrollment.student")
+    student = UnpaidStudentNameSerializer(source="enrollment.student")
     class_group = serializers.CharField(source="enrollment.class_group.name")
     charges = UnpaidChargeSerializer(
         many=True, help_text="Frais en retard, les plus anciens d'abord."

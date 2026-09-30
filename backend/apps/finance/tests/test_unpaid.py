@@ -85,7 +85,7 @@ def test_late_is_after_discounts_without_cancelled_payments_and_per_currency(
     first = client.get(UNPAID, installment="1re tranche").json()["results"]
     assert [amounts(row) for row in first] == [[("USD", 12000)], [("USD", 9000)]]
     week = client.get(f"{UNPAID}summary/", over_days=7).json()
-    assert amounts(week) == [("CDF", 40000)]
+    assert amounts(week) == [("USD", 0), ("CDF", 40000)]
 
     at(monkeypatch, "2026-11-01")
     assert client.get(f"{UNPAID}summary/").json()["long_overdue"] == 2

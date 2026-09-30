@@ -36,6 +36,7 @@ export const keys = {
   closings: ["cash-closings"],
   payments: ["payments"],
   credits: ["student-credits"],
+  unpaid: ["unpaid"],
   myDevices: ["my-devices"],
   schoolDevices: ["school-devices"],
   /** L'appareil mémorisé dans ce navigateur (code PIN), pas le serveur. */

@@ -4902,7 +4902,7 @@ export interface components {
         UnpaidStudent: {
             /** Format: uuid */
             enrollment: string;
-            student: components["schemas"]["PaymentStudent"];
+            student: components["schemas"]["UnpaidStudentName"];
             class_group: string;
             /** @description Frais en retard, les plus anciens d'abord. */
             charges: components["schemas"]["UnpaidCharge"][];
@@ -4914,6 +4914,15 @@ export interface components {
             guardian: components["schemas"]["GuardianContact"] | null;
             /** @description Dernier paiement non annulé. */
             last_payment: components["schemas"]["LastPayment"] | null;
+        };
+        UnpaidStudentName: {
+            /** Format: uuid */
+            id: string;
+            full_name: string;
+            matricule: string;
+            last_name: string;
+            middle_name: string;
+            first_name: string;
         };
         UnpaidSummary: {
             /** @description Élèves en retard selon les filtres. */

@@ -37,6 +37,8 @@ import { RequireAuth } from "./features/shell/RequireAuth";
 import { SchoolGate } from "./features/shell/SchoolGate";
 import { NotFound, RouteError } from "./features/status/StatusPages";
 import { SupportPage } from "./features/support/SupportPage";
+import { UnpaidExportPage } from "./features/unpaid/UnpaidExportPage";
+import { UnpaidPage } from "./features/unpaid/UnpaidPage";
 import { MENU_ITEMS, type MenuItem, type MenuKey } from "./lib/menu";
 
 /** Écrans construits, par entrée du menu (chaque tâche ajoute le sien) ; les autres :
@@ -49,6 +51,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   credits: <CreditsPage />,
   cancellations: <CancellationsPage />,
   closings: <ClosingsPage />,
+  unpaid: <UnpaidPage />,
   fees: <FeesPage />,
   staff: <StaffPage />,
   roles: <RolesPage />,
@@ -84,6 +87,7 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
   },
   { path: "students/:id/:tab?", item: menuItem("students"), element: <StudentPage /> },
   { path: "families/:id", item: menuItem("students"), element: <FamilyPage /> },
+  { path: "unpaid/export", item: menuItem("unpaid"), element: <UnpaidExportPage /> },
 ];
 
 export const routes: RouteObject[] = [

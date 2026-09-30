@@ -13131,7 +13131,7 @@ components:
           type: string
           format: uuid
         student:
-          $ref: '#/components/schemas/PaymentStudent'
+          $ref: '#/components/schemas/UnpaidStudentName'
         class_group:
           type: string
         charges:
@@ -13166,6 +13166,29 @@ components:
       - days_late
       - guardian
       - last_payment
+    UnpaidStudentName:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        matricule:
+          type: string
+        last_name:
+          type: string
+        middle_name:
+          type: string
+        first_name:
+          type: string
+      required:
+      - id
+      - full_name
+      - matricule
+      - last_name
+      - middle_name
+      - first_name
     UnpaidSummary:
       type: object
       properties:

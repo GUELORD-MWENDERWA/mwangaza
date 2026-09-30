@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from django.db.models import Count, Min, QuerySet
 
 from apps.core.money import Currency
+from apps.core.tenancy import require_current_school
 from apps.finance import services
 from apps.finance.models import FeeType, Payment, StudentCharge
 from apps.schools.models import AcademicYear, ClassGroup
@@ -191,18 +192,25 @@ def with_contacts(rows: list[UnpaidStudent]) -> list[UnpaidStudent]:
 
 
 def summary(filters: Filters) -> Summary:
-    """Chiffres clés selon les filtres, et ce que proposent les filtres pour l'année : classes,
-    types de frais et tranches (libellés) des frais dus, dans l'ordre des échéances."""
+    """Chiffres clés selon les filtres (un montant par devise de l'école, même nul), et ce que
+    proposent les filtres pour l'année : classes, types de frais et tranches (libellés) des frais
+    dus, dans l'ordre des échéances."""
     rows = unpaid_students(filters)
     year = filters.academic_year
     charges = StudentCharge.objects.filter(
         enrollment__academic_year=year, status=StudentCharge.Status.ACTIVE
     )
     installments = charges.values("label").annotate(first=Min("due_on")).order_by("first", "label")
+    owed = {amount.currency: amount.overdue_minor for amount in totals(rows)}
+    currencies = require_current_school().enabled_currencies
     return Summary(
         students=len(rows),
         enrolled=enrolled(filters),
-        amounts=totals(rows),
+        amounts=[
+            Amount(currency, owed.get(currency, 0))
+            for currency in Currency.values
+            if currency in currencies or currency in owed
+        ],
         long_overdue=sum(1 for row in rows if row.days_late > LONG_DELAY),
         class_groups=list(
             ClassGroup.objects.filter(academic_year=year).select_related("level", "track")
