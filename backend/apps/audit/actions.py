@@ -103,6 +103,7 @@ class Action(models.TextChoices):
     FINANCE_CASH_REGISTER_CREATED = "finance.cash_register_created", _("Cash register created")
     FINANCE_CASH_REGISTER_UPDATED = "finance.cash_register_updated", _("Cash register changed")
     FINANCE_CASH_SESSION_OPENED = "finance.cash_session_opened", _("Cash session opened")
+    FINANCE_CASH_SESSION_CLOSED = "finance.cash_session_closed", _("Cash session closed")
     FINANCE_PAYMENT_RECORDED = "finance.payment_recorded", _("Payment recorded")
     # Reçus (F6) : chaque duplicata est noté.
     FINANCE_PAYMENT_REPRINTED = "finance.payment_reprinted", _("Receipt reprinted")

@@ -3,8 +3,8 @@ l'ordre, chacune une seule fois (`SyncOperation`).
 
 Chaque type d'opération donne le droit exigé, le contenu attendu (serializer) et le service
 appelé : encaissement (3.3.2), ouverture de caisse et réimpression (3.5.2), crédit utilisé à la
-caisse (3.6.2), demande d'annulation (3.8.1). Une opération hors ligne de plus (clôture de
-caisse : 3.8.2) est une entrée de plus dans `OPERATIONS`."""
+caisse (3.6.2), demande d'annulation (3.8.1), clôture de caisse (3.8.2). Une opération hors
+ligne de plus est une entrée de plus dans `OPERATIONS`."""
 
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -28,8 +28,8 @@ from apps.accounts.roles import (
 )
 from apps.core.errors import ApiError, BusinessError, api_exception_handler
 from apps.finance import services as finance
-from apps.finance.models import CashRegister, Payment, StudentCredit
-from apps.finance.serializers import PaymentCreateSerializer
+from apps.finance.models import CashRegister, CashSession, Payment, StudentCredit
+from apps.finance.serializers import CashCloseSerializer, PaymentCreateSerializer
 from apps.sync.models import Device, SyncOperation
 
 UNKNOWN_OPERATION = ApiError(
@@ -75,14 +75,36 @@ class OfflineSessionSerializer(serializers.Serializer):
 
 
 def _open_session(data: dict, device: Device, actor: User) -> dict:
-    """Caisse prise entre-temps, ou caissier qui a déjà une autre caisse ouverte : refusée (les
-    encaissements de cette session le seront aussi : 3.8)."""
+    """Jamais refusée pour une caisse prise entre-temps ou une autre caisse ouverte ailleurs :
+    ses encaissements sont déjà faits (3.8.2)."""
     session = finance.open_cash_session(
         actor=actor,
         cash_register=data["cash_register"],
         session_id=data["id"],
         opened_at=data["opened_at"],
+        device=device,
     )
+    return {"cash_session": str(session.pk)}
+
+
+class OfflineClosingSerializer(CashCloseSerializer):
+    """Clôture de caisse hors ligne (F8) : l'argent compté sur l'appareil, à son heure."""
+
+    cash_session = serializers.PrimaryKeyRelatedField(queryset=CashSession.objects)
+    closed_at = serializers.DateTimeField(help_text="Heure de l'appareil à la clôture.")
+
+    def to_service(self) -> dict:
+        data = self.validated_data
+        return {
+            **super().to_service(),
+            "session": data["cash_session"],
+            "closed_at": data["closed_at"],
+        }
+
+
+def _close_session(data: dict, device: Device, actor: User) -> dict:
+    session = data.pop("session")
+    finance.close_cash_session(session, actor=actor, device=device, **data)
     return {"cash_session": str(session.pk)}
 
 
@@ -162,6 +184,9 @@ OPERATIONS = {
     ),
     "cash_session.open": OperationType(
         FINANCE_COLLECT_PAYMENT, OfflineSessionSerializer, _open_session
+    ),
+    "cash_session.close": OperationType(
+        FINANCE_COLLECT_PAYMENT, OfflineClosingSerializer, _close_session
     ),
     "payment.reprint": OperationType(FINANCE_COLLECT_PAYMENT, OfflineReprintSerializer, _reprint),
     "credit.use": OperationType(FINANCE_COLLECT_PAYMENT, OfflineCreditSerializer, _use_credit),

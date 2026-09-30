@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
@@ -8,6 +9,7 @@ from apps.core.money import Currency
 from apps.finance import services
 from apps.finance.models import (
     CancellationRequest,
+    CashClosing,
     CashRegister,
     CashSession,
     CreditAllocation,
@@ -380,6 +382,73 @@ class CurrentCashSessionSerializer(serializers.Serializer):
     rate_is_fallback = serializers.BooleanField(
         help_text="Pas de taux cette année : dernier taux connu, à signaler au comptable."
     )
+
+
+class ClosingCurrencySerializer(serializers.Serializer):
+    currency = serializers.ChoiceField(choices=Currency.choices)
+    expected_minor = serializers.IntegerField(
+        help_text="Paiements de la session pas annulés à l'heure de clôture."
+    )
+    count = serializers.IntegerField()
+
+
+class ClosingFeeTypeSerializer(serializers.Serializer):
+    fee_type = serializers.CharField(
+        allow_null=True, help_text="Vide : trop-perçu, devenu crédit de l'élève."
+    )
+    currency = serializers.ChoiceField(choices=Currency.choices, help_text="Devise reçue.")
+    amount_minor = serializers.IntegerField()
+
+
+class CashClosingLineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CashClosing
+        fields = ["currency", "expected_minor", "counted_minor", "difference_minor"]
+
+
+class CashClosingSerializer(serializers.Serializer):
+    lines = CashClosingLineSerializer(many=True)
+    note = serializers.CharField(help_text="Explication de l'écart.")
+    closed_at = serializers.DateTimeField(help_text="Heure de l'appareil si faite hors ligne.")
+    closed_by = PersonSerializer()
+    offline = serializers.BooleanField()
+    received_at = serializers.DateTimeField(help_text="Arrivée au serveur.")
+
+
+class CashClosingSummarySerializer(serializers.Serializer):
+    """Clôture d'une session de caisse (F8) : à faire, ou faite (`closing`)."""
+
+    session = CashSessionSerializer()
+    currencies = ClosingCurrencySerializer(many=True)
+    fee_types = ClosingFeeTypeSerializer(many=True)
+    payments_count = serializers.IntegerField(help_text="Reçus donnés, annulés compris.")
+    first_receipt = serializers.CharField(allow_null=True)
+    last_receipt = serializers.CharField(allow_null=True)
+    cancelled = SessionTotalSerializer(many=True, help_text="Annulations validées.")
+    cancellations_pending = serializers.IntegerField()
+    closing = CashClosingSerializer(allow_null=True)
+
+
+class CountedSerializer(serializers.Serializer):
+    currency = serializers.ChoiceField(choices=Currency.choices)
+    amount_minor = serializers.IntegerField(min_value=0, max_value=10**13)
+
+
+class CashCloseSerializer(serializers.Serializer):
+    counted = CountedSerializer(many=True, help_text="Argent compté, par devise.")
+    note = serializers.CharField(
+        max_length=500, required=False, allow_blank=True, help_text="Obligatoire s'il y a un écart."
+    )
+
+    def validate_counted(self, value: list[dict]) -> list[dict]:
+        if len({item["currency"] for item in value}) != len(value):
+            raise serializers.ValidationError(_("Each currency once."), code="counted_currencies")
+        return value
+
+    def to_service(self) -> dict:
+        data = self.validated_data
+        counted = {item["currency"]: item["amount_minor"] for item in data["counted"]}
+        return {"counted": counted, "note": data.get("note", "")}
 
 
 class PaymentAllocationSerializer(serializers.ModelSerializer):

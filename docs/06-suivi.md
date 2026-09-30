@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 3 (Caisse) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 3.8.1 terminée, PR #113 à fusionner |
-| Prochaine tâche | 3.8.2 |
+| Tâche en cours | 3.8.2 — Clôture de caisse par le caissier (découpée le 2026-09-30 : 3.8.2 et 3.8.3) |
+| Prochaine tâche | 3.8.3 |
 | Issue GitHub | #28 |
-| Branche | `tache/3.8.1-annulation` (PR #113) ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-09-29 |
+| Branche | `tache/3.8.2-cloture` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-09-30 |
 
 ## Avancement
 
@@ -21,9 +21,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Avant de coder (toi) | 2 | 4 |
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
-| Semaine 3 — Caisse et hors-ligne | 15 | 16 |
+| Semaine 3 — Caisse et hors-ligne | 15 | 17 |
 | Semaine 4 — Rapports, portail, production | 0 | 8 |
-| **V1.0** | **32** | **41** |
+| **V1.0** | **32** | **42** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |

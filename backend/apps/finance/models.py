@@ -391,7 +391,8 @@ class CashRegister(TenantModel):
 
 class CashSession(TenantModel):
     """Ouverture d'une caisse par un caissier [T] : une seule session ouverte par caisse et par
-    caissier. Fermée par la clôture de caisse (3.8)."""
+    caissier, sauf ouverture hors ligne (`device`) : arrivée après coup, l'argent déjà reçu, elle
+    n'est jamais refusée (3.8.2). Fermée par la clôture de caisse (`CashClosing`)."""
 
     cash_register = models.ForeignKey(
         CashRegister,
@@ -407,6 +408,15 @@ class CashSession(TenantModel):
     )
     opened_at = models.DateTimeField(_("opened at"), default=timezone.now)
     closed_at = models.DateTimeField(_("closed at"), null=True, blank=True)
+    # Ouverte hors ligne (3.5.2) : l'appareil ; `opened_at` est alors l'heure de l'appareil.
+    device = models.ForeignKey(
+        "sync.Device",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="cash_sessions",
+        verbose_name=_("device"),
+    )
 
     class Meta:
         ordering = ["-opened_at"]
@@ -415,12 +425,12 @@ class CashSession(TenantModel):
         constraints = [
             models.UniqueConstraint(
                 fields=["cash_register"],
-                condition=models.Q(closed_at__isnull=True),
+                condition=models.Q(closed_at__isnull=True, device__isnull=True),
                 name="cash_session_one_open_per_register",
             ),
             models.UniqueConstraint(
                 fields=["school", "cashier"],
-                condition=models.Q(closed_at__isnull=True),
+                condition=models.Q(closed_at__isnull=True, device__isnull=True),
                 name="cash_session_one_open_per_cashier",
             ),
         ]
@@ -766,3 +776,60 @@ class CreditAllocation(ImmutableModel):
         indexes = [
             models.Index(fields=["school", "student_charge"], name="credit_allocation_charge"),
         ]
+
+
+# Clôture de caisse (F8)
+
+
+class CashClosing(ImmutableModel):
+    """Clôture d'une session de caisse [T] [I], une ligne par devise (jamais additionnées) :
+    l'attendu (paiements de la session pas annulés à l'heure de clôture), le compté par le
+    caissier, l'écart (compté - attendu) et son explication. Faite hors ligne : `device` et
+    `closed_at` de l'appareil ; `created_at` est l'arrivée au serveur. Un paiement hors ligne
+    arrivé après la clôture n'entre pas dans l'attendu déjà figé."""
+
+    cash_session = models.ForeignKey(
+        CashSession, on_delete=models.PROTECT, related_name="closings", verbose_name=_("session")
+    )
+    currency = models.CharField(_("currency"), max_length=3, choices=Currency.choices)
+    expected_minor = models.BigIntegerField(_("expected"))
+    counted_minor = models.BigIntegerField(_("counted"))
+    difference_minor = models.BigIntegerField(_("difference"))
+    note = models.CharField(_("explanation"), max_length=500, blank=True)
+    closed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("closed by"),
+    )
+    closed_at = models.DateTimeField(_("closed at"), default=timezone.now)
+    device = models.ForeignKey(
+        "sync.Device",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("device"),
+    )
+
+    class Meta:
+        verbose_name = _("cash closing")
+        verbose_name_plural = _("cash closings")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["cash_session", "currency"], name="cash_closing_one_per_currency"
+            ),
+            models.CheckConstraint(
+                condition=models.Q(counted_minor__gte=0, expected_minor__gte=0),
+                name="cash_closing_amounts_positive",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(
+                    difference_minor=models.F("counted_minor") - models.F("expected_minor")
+                ),
+                name="cash_closing_difference",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.cash_session} · {self.currency}"

@@ -42,6 +42,8 @@ from apps.finance.serializers import (
     CancellationFilterSerializer,
     CancellationReceiptSerializer,
     CancellationRequestSerializer,
+    CashCloseSerializer,
+    CashClosingSummarySerializer,
     CashRegisterSerializer,
     CashRegisterStateSerializer,
     CashRegisterUpdateSerializer,
@@ -452,7 +454,7 @@ class CashRegisterViewSet(
 @extend_schema(tags=["finance"])
 class CashSessionViewSet(mixins.CreateModelMixin, SchoolViewSet):
     """Sessions de caisse du caissier connecté (M13) : ouvrir une caisse, voir celle qui est
-    ouverte. La clôture vient en 3.8."""
+    ouverte, la clôturer (F8) ; celles d'un autre caissier sont introuvables."""
 
     required_permission = FINANCE_COLLECT_PAYMENT
     serializer_class = CashSessionSerializer
@@ -484,6 +486,28 @@ class CashSessionViewSet(mixins.CreateModelMixin, SchoolViewSet):
             "rate_is_fallback": fallback,
         }
         return Response(CurrentCashSessionSerializer(data).data)
+
+    @extend_schema(responses={200: CashClosingSummarySerializer, **ERRORS})
+    @action(detail=True)
+    def closing(self, request: Request, pk=None) -> Response:
+        """Ce que montre la clôture de la session : attendu par devise, détail, reçus,
+        annulations ; la clôture elle-même une fois faite."""
+        summary = services.closing_summary(self.get_object())
+        return Response(CashClosingSummarySerializer(summary).data)
+
+    @extend_schema(
+        request=CashCloseSerializer,
+        responses={200: CashClosingSummarySerializer, **INVALID, **CONFLICT, **ERRORS},
+    )
+    @action(detail=True, methods=["post"])
+    def close(self, request: Request, pk=None) -> Response:
+        """Clôture la session (F8) : l'argent compté par devise, l'explication d'un écart."""
+        session = self.get_object()
+        serializer = CashCloseSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        services.close_cash_session(session, actor=request.user, **serializer.to_service())
+        session.refresh_from_db()
+        return Response(CashClosingSummarySerializer(services.closing_summary(session)).data)
 
 
 @extend_schema_view(

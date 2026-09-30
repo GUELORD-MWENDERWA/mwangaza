@@ -10,6 +10,7 @@ from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 from zoneinfo import ZoneInfo
 
+from django.db.models import Sum
 from django.utils import timezone
 
 from apps.accounts.models import User
@@ -18,6 +19,7 @@ from apps.core.tenancy import use_school
 from apps.finance import services
 from apps.finance.models import (
     CancellationRequest,
+    CashClosing,
     CashRegister,
     CashSession,
     Discount,
@@ -35,6 +37,8 @@ from apps.finance.services import (
     allocate,
     charges_by_enrollment,
     charges_of,
+    close_cash_session,
+    closing_summary,
     current_rate,
     sync_charges,
 )
@@ -237,9 +241,16 @@ def create_demo_payments(schools: dict[str, School]) -> None:
                     code=register_code, defaults={"name": name, "is_active": True}
                 )
                 registers.append((register, User.objects.get(phone=phone)))
-            CashSession.objects.filter(closed_at__isnull=True).update(closed_at=timezone.now())
+            # Caisses laissées ouvertes : clôturées, l'argent compté juste.
+            for session in CashSession.objects.filter(closed_at__isnull=True).select_related(
+                "cashier"
+            ):
+                summary = closing_summary(session)
+                expected = {c["currency"]: c["expected_minor"] for c in summary["currencies"]}
+                close_cash_session(session, actor=session.cashier, counted=expected)
             if not Payment.objects.exists():
                 _demo_payments(school, registers)
+            _demo_closings(school)
 
 
 def _demo_amounts(charges: list, kind: int) -> list[Money]:
@@ -309,6 +320,43 @@ def _demo_payments(school: School, registers: list[tuple[CashRegister, User]]) -
     CashSession.objects.bulk_create(sessions.values())
     Payment.objects.bulk_create(payments, batch_size=500)
     PaymentAllocation.objects.bulk_create(allocations, batch_size=1000)
+
+
+def _demo_closings(school: School) -> None:
+    """Sessions fermées sans clôture (paiements de la démo, bases d'avant 3.8.2) : clôturées le
+    soir, l'argent compté juste, sauf la première où il manque 5,00 $ (billet refusé), expliqué."""
+    sessions = list(
+        CashSession.objects.filter(closed_at__isnull=False, closings__isnull=True).order_by(
+            "opened_at"
+        )
+    )
+    expected = {
+        (row["cash_session"], row["received_currency"]): row["amount_minor"]
+        for row in Payment.objects.filter(cash_session__in=sessions, cancellation__isnull=True)
+        .values("cash_session", "received_currency")
+        .annotate(amount_minor=Sum("received_amount_minor"))
+        .order_by()
+    }
+    first = not CashClosing.objects.exclude(difference_minor=0).exists()
+    closings = []
+    for index, session in enumerate(sessions):
+        short = first and index == 0 and expected.get((session.pk, "USD"), 0) >= 500
+        for currency in school.enabled_currencies:
+            want = expected.get((session.pk, currency), 0)
+            missing = 500 if short and currency == "USD" else 0
+            closings.append(
+                CashClosing(
+                    cash_session=session,
+                    currency=currency,
+                    expected_minor=want,
+                    counted_minor=want - missing,
+                    difference_minor=-missing,
+                    note="Billet de 5 $ déchiré refusé, rendu au parent" if short else "",
+                    closed_by_id=session.cashier_id,
+                    closed_at=session.closed_at,
+                )
+            )
+    CashClosing.objects.bulk_create(closings, batch_size=500)
 
 
 def create_demo_credits(schools: dict[str, School]) -> None:
