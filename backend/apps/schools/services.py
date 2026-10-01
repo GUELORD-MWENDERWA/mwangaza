@@ -17,7 +17,7 @@ from apps.accounts.models import Membership, Role
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.tenancy import use_school
-from apps.schools import receipts
+from apps.schools import alerts, receipts
 from apps.schools.models import School
 
 # Ce que l'école voit changer dans son journal.
@@ -81,8 +81,8 @@ def save_school(school: School, *, actor) -> School:
 
 def _record_changes(old: School, school: School, *, actor) -> None:
     before, after = audit.changes(
-        {**_identity(old), **receipts.journal_fields(old.settings)},
-        {**_identity(school), **receipts.journal_fields(school.settings)},
+        {**_identity(old), **_settings_fields(old.settings)},
+        {**_identity(school), **_settings_fields(school.settings)},
     )
     if after:
         audit.record(Action.SCHOOL_UPDATED, school, actor=actor, before=before, after=after)
@@ -97,14 +97,28 @@ def _record_changes(old: School, school: School, *, actor) -> None:
         audit.record(Action.SCHOOL_REACTIVATED, school, actor=actor)
 
 
+def _settings_fields(settings: dict) -> dict:
+    return {**receipts.journal_fields(settings), **alerts.journal_fields(settings)}
+
+
 LOGO_FIELDS = ("logo", "logo_monochrome")
 
 
 def update_school(school: School, *, actor, **fields) -> School:
     """Paramètres de l'école (M5) ou administration : champs déjà vérifiés. `logo=None` retire
-    le logo ; `receipt` : réglages du reçu à changer, les autres restent."""
+    le logo ; `receipt`, `alerts` : réglages du reçu ou seuils d'alerte à changer, les autres
+    restent."""
     if (receipt := fields.pop("receipt", None)) is not None:
         school.settings = {**school.settings, "receipt": {**school.receipt, **receipt}}
+    if (changed := fields.pop("alerts", None)) is not None:
+        current = school.alerts
+        if "closing_time" in changed:
+            changed["closing_time"] = changed["closing_time"].strftime("%H:%M")
+        differences = {**current["difference_minor"], **changed.pop("difference_minor", {})}
+        school.settings = {
+            **school.settings,
+            "alerts": {**current, **changed, "difference_minor": differences},
+        }
     for field, value in fields.items():
         setattr(school, field, "" if field in LOGO_FIELDS and value is None else value)
     return save_school(school, actor=actor)

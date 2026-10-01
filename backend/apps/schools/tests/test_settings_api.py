@@ -58,6 +58,11 @@ def test_head_reads_the_settings(api, school, head):
             "header": "",
             "footer": "",
         },
+        "alerts": {
+            "difference_minor": {"USD": 1000, "CDF": 20000},
+            "cancellations_per_day": 3,
+            "closing_time": "18:00",
+        },
     }
 
 
@@ -121,6 +126,9 @@ def test_other_settings(api, school, head):
         ({"receipt": {"printer": "laser"}}, "receipt"),
         ({"receipt": {"copies": 3}}, "receipt"),
         ({"receipt": {"header": "1\n2\n3\n4\n5\n6"}}, "receipt"),
+        ({"alerts": {"difference_minor": {"EUR": 500}}}, "alerts"),
+        ({"alerts": {"difference_minor": {"USD": -1}}}, "alerts"),
+        ({"alerts": {"closing_time": "25:00"}}, "alerts"),
     ],
 )
 def test_invalid_settings_are_refused(api, school, head, data, field):
@@ -160,6 +168,32 @@ def test_receipt_settings_are_merged_and_journaled(api, school, head):
         (
             {"receipt_copies": 1, "receipt_header": ""},
             {"receipt_copies": 2, "receipt_header": "Av. du Lac 1\n+243 000 000 000"},
+        ),
+    ]
+
+
+def test_alert_thresholds_are_merged_and_journaled(api, school, head):
+    first = api(head).patch(SETTINGS, {"alerts": {"difference_minor": {"CDF": 50000}}})
+    response = api(head).patch(
+        SETTINGS, {"alerts": {"cancellations_per_day": 5, "closing_time": "17:30"}}
+    )
+
+    assert first.status_code == 200, first.content
+    assert response.status_code == 200, response.content
+    alerts = {
+        "difference_minor": {"USD": 1000, "CDF": 50000},
+        "cancellations_per_day": 5,
+        "closing_time": "17:30",
+    }
+    assert response.json()["alerts"] == alerts
+    school.refresh_from_db()
+    assert school.settings["alerts"] == alerts
+    updates = [log for log in journal(school) if log.action == Action.SCHOOL_UPDATED]
+    assert [(log.before, log.after) for log in updates] == [
+        ({"alert_difference_cdf": 20000}, {"alert_difference_cdf": 50000}),
+        (
+            {"alert_cancellations_per_day": 3, "alert_closing_time": "18:00"},
+            {"alert_cancellations_per_day": 5, "alert_closing_time": "17:30"},
         ),
     ]
 

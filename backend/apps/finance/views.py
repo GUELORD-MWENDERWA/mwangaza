@@ -7,8 +7,9 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from apps.accounts.permissions import school_access
+from apps.accounts.permissions import HasSchoolPermission, school_access
 from apps.accounts.roles import (
     CHARGES_READ,
     CREDITS_READ,
@@ -27,7 +28,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.documents import PRINT_RESPONSE, XLSX, XLSX_RESPONSE, file_response, render
 from apps.core.errors import ErrorSerializer
-from apps.finance import documents, services, statements, unpaid
+from apps.finance import dashboard, documents, services, statements, unpaid
 from apps.finance.models import (
     CancellationRequest,
     CashRegister,
@@ -60,6 +61,7 @@ from apps.finance.serializers import (
     ClosingsSummarySerializer,
     CreditSummarySerializer,
     CurrentCashSessionSerializer,
+    DashboardSerializer,
     DiscountCreateSerializer,
     DiscountRevokeSerializer,
     DiscountSerializer,
@@ -976,3 +978,17 @@ class UnpaidViewSet(mixins.ListModelMixin, SchoolViewSet):
             detail=data["detail"],
         )
         return render("finance/unpaid.html", context, output, f"{name}.pdf")
+
+
+@extend_schema(tags=["finance"])
+class DashboardView(APIView):
+    """Tableau de bord du directeur (G3) : encaissé aujourd'hui, ce mois et jour par jour,
+    impayés échus, recouvrement et effectifs par classe, derniers paiements, alertes selon les
+    seuils de l'école (M5). Lecture seule, aussi pour le promoteur."""
+
+    permission_classes = [HasSchoolPermission]
+    required_permission = FINANCE_VIEW_REPORTS
+
+    @extend_schema(responses={200: DashboardSerializer, **ERRORS})
+    def get(self, request: Request) -> Response:
+        return Response(DashboardSerializer(dashboard.overview()).data)

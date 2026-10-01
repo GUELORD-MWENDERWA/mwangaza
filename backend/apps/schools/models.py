@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from apps.core.models import BaseModel, TenantModel
 from apps.core.money import Currency
 from apps.core.tenancy import RESERVED_SUBDOMAINS
-from apps.schools import colors, matricule, receipts
+from apps.schools import alerts, colors, matricule, receipts
 from apps.schools.logos import logo_path, monochrome_logo_path, validate_logo
 
 # Le code est le sous-domaine de l'école : 2 à 30 caractères, minuscules, chiffres, tirets.
@@ -191,6 +191,11 @@ class School(BaseModel):
     def receipt(self) -> dict:
         """Réglages du reçu, valeurs par défaut comprises (`receipts.py`)."""
         return receipts.receipt_settings(self.settings)
+
+    @property
+    def alerts(self) -> dict:
+        """Seuils d'alerte au directeur, valeurs par défaut comprises (`alerts.py`)."""
+        return alerts.alert_settings(self.settings)
 
     @property
     def text_color(self) -> str:

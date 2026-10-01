@@ -722,6 +722,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/dashboard/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Tableau de bord du directeur (G3) : encaissé aujourd'hui, ce mois et jour par jour,
+         *     impayés échus, recouvrement et effectifs par classe, derniers paiements, alertes selon les
+         *     seuils de l'école (M5). Lecture seule, aussi pour le promoteur.
+         */
+        get: operations["dashboard_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/devices/": {
         parameters: {
             query?: never;
@@ -2198,6 +2219,34 @@ export interface components {
             avenue?: string;
             number?: string;
         };
+        /** @description Seuils d'alerte au directeur (M5, `alerts.py`). Écriture partielle : les autres restent. */
+        AlertSettings: {
+            /** @description Écart de caisse au-delà duquel une clôture est signalée, par devise (plus petite unité : centimes, francs). */
+            difference_minor: {
+                [key: string]: number;
+            };
+            /** @description Annulations demandées par un caissier dans une journée au-delà desquelles il est signalé. */
+            cancellations_per_day: number;
+            /**
+             * Format: time
+             * @description Heure (HH:MM) à laquelle une caisse encore ouverte est signalée.
+             */
+            closing_time: string;
+        };
+        /** @description Seuils d'alerte au directeur (M5, `alerts.py`). Écriture partielle : les autres restent. */
+        AlertSettingsRequest: {
+            /** @description Écart de caisse au-delà duquel une clôture est signalée, par devise (plus petite unité : centimes, francs). */
+            difference_minor: {
+                [key: string]: number;
+            };
+            /** @description Annulations demandées par un caissier dans une journée au-delà desquelles il est signalé. */
+            cancellations_per_day: number;
+            /**
+             * Format: time
+             * @description Heure (HH:MM) à laquelle une caisse encore ouverte est signalée.
+             */
+            closing_time: string;
+        };
         AuditActor: {
             /** Format: uuid */
             readonly id: string;
@@ -2269,6 +2318,12 @@ export interface components {
         };
         /** @enum {unknown} */
         BlankEnum: "";
+        CancellationAlert: {
+            cashier: components["schemas"]["Person"];
+            /** Format: date */
+            date: string;
+            count: number;
+        };
         CancellationCreateRequest: {
             /**
              * Format: uuid
@@ -2758,6 +2813,83 @@ export interface components {
          * @enum {string}
          */
         CycleEnum: "primary" | "basic" | "secondary_general" | "secondary_technical" | "higher" | "vocational";
+        /** @description Tableau de bord (G3) : montants par devise, jamais additionnés entre devises. */
+        Dashboard: {
+            /**
+             * Format: date
+             * @description Aujourd'hui dans le fuseau de l'école.
+             */
+            date: string;
+            academic_year: string | null;
+            /** @description Encaissé aujourd'hui. */
+            today: components["schemas"]["SessionTotal"][];
+            /** @description Encaissé ce mois jusqu'à aujourd'hui. */
+            month: components["schemas"]["SessionTotal"][];
+            /** @description Encaissé le mois d'avant, jusqu'au même jour. */
+            previous_month: components["schemas"]["SessionTotal"][];
+            /** @description Encaissé des 21 derniers jours. */
+            daily: components["schemas"]["DashboardDay"][];
+            /** @description Impayés échus de l'année. */
+            overdue: components["schemas"]["DashboardAmount"][];
+            overdue_students: number;
+            /** @description Payé sur dû des frais échus ; l'autre devise compte au taux de l'année. */
+            recovery_percent: number | null;
+            enrolled: number;
+            male: number;
+            female: number;
+            classes: components["schemas"]["DashboardClass"][];
+            recent_payments: components["schemas"]["DashboardPayment"][];
+            alerts: components["schemas"]["DashboardAlerts"];
+        };
+        DashboardAlerts: {
+            /** @description Demandes à valider. */
+            pending_cancellations: number;
+            /** @description Sessions pas clôturées : ouvertes avant aujourd'hui, ou aujourd'hui passé l'heure de clôture de l'école. */
+            unclosed: components["schemas"]["CashSession"][];
+            /** @description Clôtures des 7 derniers jours dont l'écart dépasse le seuil. */
+            differences: components["schemas"]["DifferenceAlert"][];
+            /** @description Caissiers au-delà du seuil d'annulations demandées dans une journée (7 jours). */
+            cancellations: components["schemas"]["CancellationAlert"][];
+        };
+        DashboardAmount: {
+            currency: components["schemas"]["CurrencyEnum"];
+            amount_minor: number;
+        };
+        DashboardClass: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** @description Option ; vide sans option (éducation de base). */
+            track: string;
+            cycle: components["schemas"]["CycleEnum"];
+            enrolled: number;
+            male: number;
+            female: number;
+            /** @description Payé sur dû des frais échus ; null : rien d'échu. */
+            recovery_percent: number | null;
+        };
+        DashboardDay: {
+            /** Format: date */
+            date: string;
+            amounts: components["schemas"]["DashboardAmount"][];
+        };
+        DashboardPayment: {
+            /** Format: uuid */
+            readonly id: string;
+            receipt_number: string;
+            /** Format: date-time */
+            paid_at: string;
+            /**
+             * Amount received
+             * Format: int64
+             */
+            received_amount_minor: number;
+            /** Currency */
+            received_currency: components["schemas"]["CurrencyEnum"];
+            student: components["schemas"]["PaymentStudent"];
+            class_group: string;
+            cash_register: string;
+        };
         /** @description Un appareil du compte dans l'école (« Appareils connectés » de Mon compte). */
         Device: {
             /** Format: uuid */
@@ -2780,6 +2912,19 @@ export interface components {
             label: string;
             /** @description Clé publique ECDSA P-256 (SPKI, base64) créée par WebCrypto. */
             public_key: string;
+        };
+        DifferenceAlert: {
+            /** Format: uuid */
+            readonly id: string;
+            cash_session: components["schemas"]["CashSession"];
+            currency: components["schemas"]["CurrencyEnum"];
+            /**
+             * Difference
+             * Format: int64
+             */
+            difference_minor: number;
+            /** Format: date-time */
+            closed_at: string;
         };
         Discount: {
             /** Format: uuid */
@@ -3749,6 +3894,7 @@ export interface components {
              */
             default_currency?: components["schemas"]["CurrencyEnum"];
             receipt?: components["schemas"]["ReceiptSettingsRequest"];
+            alerts?: components["schemas"]["AlertSettingsRequest"];
         };
         /** @description Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`. */
         PatchedStaffUpdateRequest: {
@@ -4215,6 +4361,7 @@ export interface components {
              */
             default_currency: components["schemas"]["CurrencyEnum"];
             receipt: components["schemas"]["ReceiptSettings"];
+            alerts: components["schemas"]["AlertSettings"];
         };
         /**
          * @description * `trial` - Trial
@@ -7311,6 +7458,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Person"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    dashboard_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Dashboard"];
                 };
             };
             403: {

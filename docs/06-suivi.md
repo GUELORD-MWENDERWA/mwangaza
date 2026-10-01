@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 4 (Rapports, portail, production) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 4.1.2 terminée, PR #117 à fusionner |
-| Prochaine tâche | 4.2 |
-| Issue GitHub | #29 |
-| Branche | `tache/4.1.2-situation-financiere` (PR #117) ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-09-30 |
+| Tâche en cours | aucune — 4.2 terminée, PR #118 à fusionner |
+| Prochaine tâche | 4.3 |
+| Issue GitHub | #30 |
+| Branche | `tache/4.2-tableau-de-bord` (PR #118) ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-01 |
 
 ## Avancement
 
@@ -22,8 +22,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 2 | 9 |
-| **V1.0** | **36** | **43** |
+| Semaine 4 — Rapports, portail, production | 3 | 9 |
+| **V1.0** | **37** | **43** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-01 — Tâche 4.2 : tableau de bord directeur et seuils d'alerte
+- Fait : `GET /api/dashboard/` (`finance.view_reports` : directeur, comptable, promoteur) et écran « Tableau de bord » : encaissé aujourd'hui et ce mois (comparé à la même période du mois d'avant), 21 derniers jours, impayés échus, taux de recouvrement, effectifs par classe, option et sexe, recouvrement par classe (→ impayés filtrés), 5 derniers paiements ; alertes : annulations à valider, caisses pas clôturées, écarts et annulations au-delà des seuils. Seuils de l'école dans les paramètres (carte « Alertes au directeur », M5).
+- Tests : isolation (école beta), 403 caissier, montants par devise sans paiement annulé, recouvrement à 37 % avec deux devises, alertes au seuil, seuils fusionnés et notés au journal ; écran : alertes, liens selon les droits (promoteur). 15 requêtes fixes, 0,8 s sur 800 élèves.
+- Décisions : recouvrement avec l'autre devise au taux de l'année (pourcentage seulement) ; alertes sur 7 jours (`03`). Écarts à la maquette : ni sélecteur de période ni export (hors G3).
+- Suite : 4.3 (annonces côté école).
 
 ### 2026-09-30 — Tâche 4.1.2 : situation financière imprimable
 - Fait : situation financière A4 (PDF + aperçu) depuis l'onglet Finances et groupée depuis les Impayés (cases à cocher, une page par élève) ; QR de vérification publique `/v/s/<jeton>` ; colonnes « Échu non payé », « Paiements » et filtre « Paiement » de la liste des élèves (droit de lecture des frais).

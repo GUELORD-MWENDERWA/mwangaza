@@ -1,0 +1,10 @@
+# Tâche 4.2 — Tableau de bord directeur (G3) et seuils d'alerte (M5)
+
+- **Seuils** : `School.settings["alerts"]` (`apps/schools/alerts.py`, comme `receipts.py`) : écart de caisse par devise (10 $ / 20 000 FC), annulations par caissier et par jour (3), heure de clôture (18:00). Lus et changés par `/api/school/settings/` (`school.configure`), notés au journal de l'école.
+- **Tableau de bord** : `apps/finance/dashboard.py` + `GET /api/dashboard/` (`finance.view_reports` : directeur, comptable, promoteur). Encaissé aujourd'hui / ce mois (et même période du mois d'avant) par devise, 21 derniers jours, impayés échus (calcul de `unpaid.py`), taux de recouvrement (école et par classe), effectifs par classe, option et sexe, 5 derniers paiements, alertes.
+- **Alertes** (7 derniers jours) : annulations en attente, sessions pas clôturées (veille ou après l'heure de clôture), écarts au-delà du seuil, caissier au-delà du nombre d'annulations demandées dans une journée.
+- **Taux de recouvrement** : payé / dû sur les frais arrivés à échéance ; les francs comptent au taux de l'année (seulement pour le pourcentage, aucun montant converti affiché) ; sans taux, seulement la devise principale. À valider.
+- **Front** : `features/dashboard/DashboardPage.tsx` (bandeaux, 4 chiffres clés, barres SVG USD/FC, effectifs, recouvrement par classe → impayés filtrés, derniers paiements) ; `features/settings/AlertsCard.tsx`.
+- Écarts à la maquette : pas de sélecteur Aujourd'hui/Semaine/Mois/Année ni d'export (hors G3), pas de lien « Journal de caisse » (écran inexistant).
+- **Tests** : isolation (une école ne voit pas les chiffres de l'autre), 403 sans `finance.view_reports` et sur les seuils sans `school.configure`, montants par devise jamais additionnés, paiement annulé exclu, taux juste avec deux devises, alertes déclenchées au seuil, audit des seuils ; Vitest : écran avec alertes, carte des seuils.
+- Pas de nouveau modèle, pas de migration ; `make demo` : une session non clôturée et un écart déjà présents (à vérifier).

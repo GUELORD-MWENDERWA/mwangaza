@@ -1,3 +1,4 @@
+from django.urls import path
 from rest_framework.routers import SimpleRouter
 
 from apps.finance import views
@@ -16,4 +17,7 @@ router.register("cancellations", views.CancellationViewSet, basename="cancellati
 router.register("student-credits", views.StudentCreditViewSet, basename="student-credit")
 router.register("unpaid", views.UnpaidViewSet, basename="unpaid")
 
-urlpatterns = router.urls
+urlpatterns = [
+    path("dashboard/", views.DashboardView.as_view(), name="dashboard"),
+    *router.urls,
+]

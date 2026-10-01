@@ -12,6 +12,7 @@ import { LoginPage } from "./features/auth/LoginPage";
 import { LoginTwoFactorPage } from "./features/auth/LoginTwoFactorPage";
 import { NewPasswordPage } from "./features/auth/NewPasswordPage";
 import { CashPage } from "./features/cash/CashPage";
+import { DashboardPage } from "./features/dashboard/DashboardPage";
 import { DevicesPage } from "./features/devices/DevicesPage";
 import { FeesPage } from "./features/fees/FeesPage";
 import { OrganisationPage } from "./features/organisation/OrganisationPage";
@@ -45,6 +46,7 @@ import { MENU_ITEMS, type MenuItem, type MenuKey } from "./lib/menu";
 /** Écrans construits, par entrée du menu (chaque tâche ajoute le sien) ; les autres :
  *  « bientôt disponible ». Le droit de l'entrée est vérifié avant (`MenuScreen`). */
 const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
+  dashboard: <DashboardPage />,
   students: <StudentsPage />,
   schoolSettings: <SchoolSettingsPage />,
   organisation: <OrganisationPage />,

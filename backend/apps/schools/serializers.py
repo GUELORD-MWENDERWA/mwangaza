@@ -81,6 +81,35 @@ class ReceiptSettingsSerializer(serializers.Serializer):
         return "\n".join(lines)
 
 
+class AlertSettingsSerializer(serializers.Serializer):
+    """Seuils d'alerte au directeur (M5, `alerts.py`). Écriture partielle : les autres restent."""
+
+    difference_minor = serializers.DictField(
+        child=serializers.IntegerField(min_value=0),
+        help_text="Écart de caisse au-delà duquel une clôture est signalée, par devise "
+        "(plus petite unité : centimes, francs).",
+    )
+    cancellations_per_day = serializers.IntegerField(
+        min_value=0,
+        max_value=100,
+        help_text="Annulations demandées par un caissier dans une journée au-delà desquelles "
+        "il est signalé.",
+    )
+    closing_time = serializers.TimeField(
+        format="%H:%M",
+        input_formats=["%H:%M"],
+        help_text="Heure (HH:MM) à laquelle une caisse encore ouverte est signalée.",
+    )
+
+    def validate_difference_minor(self, value: dict) -> dict:
+        if unknown := set(value) - set(Currency.values):
+            raise serializers.ValidationError(
+                _("Unknown currency: %(codes)s.") % {"codes": ", ".join(sorted(unknown))},
+                code="unknown_currency",
+            )
+        return value
+
+
 class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
     """Informations publiques de l'école : écran de connexion (nom, couleur, logo) ; fuseau et
     devises pour les écrans (dates, montants)."""
@@ -130,6 +159,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
         help_text="Adresse du logo noir et blanc des reçus thermiques (public) ; null sans lui."
     )
     receipt = ReceiptSettingsSerializer(required=False)
+    alerts = AlertSettingsSerializer(required=False)
 
     class Meta:
         model = School
@@ -145,6 +175,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
             "enabled_currencies",
             "default_currency",
             "receipt",
+            "alerts",
         ]
         read_only_fields = ["code"]
 
@@ -157,7 +188,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
         # l'école, couleur écrite `#RRGGBB`.
         school = copy(self.instance)
         for field, value in data.items():
-            if field != "receipt":
+            if field not in ("receipt", "alerts"):
                 setattr(school, field, value)
         try:
             school.clean()
