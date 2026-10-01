@@ -4,6 +4,7 @@
 // avec `finance.configure_fees`.
 import { ApiError, api, call, type Schemas } from "@mwangaza/api";
 import { useTranslation } from "@mwangaza/i18n";
+import { formatAmountValue, parseAmount } from "@mwangaza/money";
 import {
   Banner,
   Button,
@@ -31,6 +32,7 @@ import { applyServerErrors, errorMessage, fieldMessage } from "../../lib/errors"
 import { can } from "../../lib/permissions";
 import { keys, useCurrentMe } from "../../lib/queries";
 import { LoadError } from "../status/StatusPages";
+import { AlertsCard } from "./AlertsCard";
 import { CashRegistersCard } from "./CashRegistersCard";
 import { HEADER_MAX_LINES, headerLines, ReceiptCard } from "./ReceiptCard";
 
@@ -49,6 +51,8 @@ const FIELDS = [
   "default_currency",
   "receipt.header",
   "receipt.footer",
+  "alerts.cancellations_per_day",
+  "alerts.closing_time",
 ] as const;
 
 function otherZones(current: string): string[] {
@@ -64,41 +68,62 @@ function otherZones(current: string): string[] {
 
 function useSchema() {
   const { t } = useTranslation();
-  return useMemo(
-    () =>
+  return useMemo(() => {
+    // Seuil d'écart saisi comme à la caisse (« 10,00 »), envoyé en plus petite unité.
+    const amount = (currency: Currency) =>
       z
-        .object({
-          name: z.string().trim().min(1, t("validation.nameRequired")).max(200),
-          official_name: z.string().trim().max(255),
-          timezone: z.string().min(1),
-          primary_color: z
+        .string()
+        .refine(
+          (value) => parseAmount(value, currency) !== null,
+          t("settings.alerts.invalidAmount"),
+        )
+        .transform((value) => parseAmount(value, currency) ?? 0);
+    return z
+      .object({
+        name: z.string().trim().min(1, t("validation.nameRequired")).max(200),
+        official_name: z.string().trim().max(255),
+        timezone: z.string().min(1),
+        primary_color: z
+          .string()
+          .refine((value) => normalizeColor(value) !== null, t("validation.colorFormat")),
+        enabled_currencies: z
+          .array(z.enum(["USD", "CDF"]))
+          .min(1, t("settings.currencies.atLeastOne")),
+        default_currency: z.enum(["USD", "CDF"]),
+        receipt: z.object({
+          printer: z.enum(["thermal_80", "thermal_58", "sheet"]),
+          sheet_size: z.enum(["a6", "a5", "small"]),
+          copies: z.union([z.literal(1), z.literal(2)]),
+          header: z
             .string()
-            .refine((value) => normalizeColor(value) !== null, t("validation.colorFormat")),
-          enabled_currencies: z
-            .array(z.enum(["USD", "CDF"]))
-            .min(1, t("settings.currencies.atLeastOne")),
-          default_currency: z.enum(["USD", "CDF"]),
-          receipt: z.object({
-            printer: z.enum(["thermal_80", "thermal_58", "sheet"]),
-            sheet_size: z.enum(["a6", "a5", "small"]),
-            copies: z.union([z.literal(1), z.literal(2)]),
-            header: z
-              .string()
-              .trim()
-              .max(300)
-              .refine(
-                (value) => headerLines(value).length <= HEADER_MAX_LINES,
-                t("settings.receipt.tooManyLines"),
-              ),
-            footer: z.string().trim().max(200),
-          }),
-        })
-        .transform((values) => ({
-          ...values,
-          primary_color: normalizeColor(values.primary_color) ?? values.primary_color,
-        })),
-    [t],
-  );
+            .trim()
+            .max(300)
+            .refine(
+              (value) => headerLines(value).length <= HEADER_MAX_LINES,
+              t("settings.receipt.tooManyLines"),
+            ),
+          footer: z.string().trim().max(200),
+        }),
+        alerts: z.object({
+          difference: z.object({ USD: amount("USD"), CDF: amount("CDF") }),
+          cancellations_per_day: z
+            .string()
+            .trim()
+            .regex(/^\d{1,3}$/, t("settings.alerts.invalidCount"))
+            .refine((value) => Number(value) <= 100, t("settings.alerts.invalidCount")),
+          closing_time: z.string().regex(/^\d{2}:\d{2}$/, t("settings.alerts.invalidTime")),
+        }),
+      })
+      .transform(({ alerts, ...values }) => ({
+        ...values,
+        primary_color: normalizeColor(values.primary_color) ?? values.primary_color,
+        alerts: {
+          difference_minor: alerts.difference,
+          cancellations_per_day: Number(alerts.cancellations_per_day),
+          closing_time: alerts.closing_time,
+        },
+      }));
+  }, [t]);
 }
 
 type FormValues = z.input<ReturnType<typeof useSchema>>;
@@ -137,6 +162,14 @@ function SettingsForm({ settings }: { settings: Settings }) {
       enabled_currencies: settings.enabled_currencies,
       default_currency: settings.default_currency,
       receipt: settings.receipt,
+      alerts: {
+        difference: {
+          USD: formatAmountValue(settings.alerts.difference_minor.USD ?? 0, "USD"),
+          CDF: formatAmountValue(settings.alerts.difference_minor.CDF ?? 0, "CDF"),
+        },
+        cancellations_per_day: String(settings.alerts.cancellations_per_day),
+        closing_time: settings.alerts.closing_time,
+      },
     },
   });
   const save = useMutation({
@@ -184,6 +217,7 @@ function SettingsForm({ settings }: { settings: Settings }) {
         <div className="flex flex-col gap-4">
           <ReceiptCard form={form} />
           <CurrenciesCard form={form} />
+          <AlertsCard form={form} />
         </div>
       </div>
     </form>

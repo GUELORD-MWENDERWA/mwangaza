@@ -1023,3 +1023,103 @@ class UnpaidSummarySerializer(serializers.Serializer):
     installments = serializers.ListField(
         child=serializers.CharField(), help_text="Tranches des frais dus, par échéance (filtre)."
     )
+
+
+# Tableau de bord du directeur (G3, 4.2)
+
+
+class DashboardAmountSerializer(serializers.Serializer):
+    currency = serializers.ChoiceField(choices=Currency.choices)
+    amount_minor = serializers.IntegerField()
+
+
+class DashboardDaySerializer(serializers.Serializer):
+    date = serializers.DateField()
+    amounts = DashboardAmountSerializer(many=True)
+
+
+class DashboardClassSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    track = serializers.CharField(help_text="Option ; vide sans option (éducation de base).")
+    cycle = serializers.ChoiceField(choices=Level.Cycle.choices)
+    enrolled = serializers.IntegerField()
+    male = serializers.IntegerField()
+    female = serializers.IntegerField()
+    recovery_percent = serializers.IntegerField(
+        allow_null=True, help_text="Payé sur dû des frais échus ; null : rien d'échu."
+    )
+
+
+class DashboardPaymentSerializer(serializers.ModelSerializer):
+    student = PaymentStudentSerializer(source="enrollment.student")
+    class_group = serializers.CharField(source="enrollment.class_group.name")
+    cash_register = serializers.CharField(source="cash_session.cash_register.code")
+
+    class Meta:
+        model = Payment
+        fields = [
+            "id",
+            "receipt_number",
+            "paid_at",
+            "received_amount_minor",
+            "received_currency",
+            "student",
+            "class_group",
+            "cash_register",
+        ]
+
+
+class DifferenceAlertSerializer(serializers.ModelSerializer):
+    cash_session = CashSessionSerializer()
+
+    class Meta:
+        model = CashClosing
+        fields = ["id", "cash_session", "currency", "difference_minor", "closed_at"]
+
+
+class CancellationAlertSerializer(serializers.Serializer):
+    cashier = PersonSerializer()
+    date = serializers.DateField()
+    count = serializers.IntegerField()
+
+
+class DashboardAlertsSerializer(serializers.Serializer):
+    pending_cancellations = serializers.IntegerField(help_text="Demandes à valider.")
+    unclosed = CashSessionSerializer(
+        many=True,
+        help_text="Sessions pas clôturées : ouvertes avant aujourd'hui, ou aujourd'hui passé "
+        "l'heure de clôture de l'école.",
+    )
+    differences = DifferenceAlertSerializer(
+        many=True, help_text="Clôtures des 7 derniers jours dont l'écart dépasse le seuil."
+    )
+    cancellations = CancellationAlertSerializer(
+        many=True,
+        help_text="Caissiers au-delà du seuil d'annulations demandées dans une journée (7 jours).",
+    )
+
+
+class DashboardSerializer(serializers.Serializer):
+    """Tableau de bord (G3) : montants par devise, jamais additionnés entre devises."""
+
+    date = serializers.DateField(help_text="Aujourd'hui dans le fuseau de l'école.")
+    academic_year = serializers.CharField(source="academic_year.name", allow_null=True)
+    today = SessionTotalSerializer(many=True, help_text="Encaissé aujourd'hui.")
+    month = SessionTotalSerializer(many=True, help_text="Encaissé ce mois jusqu'à aujourd'hui.")
+    previous_month = SessionTotalSerializer(
+        many=True, help_text="Encaissé le mois d'avant, jusqu'au même jour."
+    )
+    daily = DashboardDaySerializer(many=True, help_text="Encaissé des 21 derniers jours.")
+    overdue = DashboardAmountSerializer(many=True, help_text="Impayés échus de l'année.")
+    overdue_students = serializers.IntegerField()
+    recovery_percent = serializers.IntegerField(
+        allow_null=True,
+        help_text="Payé sur dû des frais échus ; l'autre devise compte au taux de l'année.",
+    )
+    enrolled = serializers.IntegerField()
+    male = serializers.IntegerField()
+    female = serializers.IntegerField()
+    classes = DashboardClassSerializer(many=True)
+    recent_payments = DashboardPaymentSerializer(many=True)
+    alerts = DashboardAlertsSerializer()

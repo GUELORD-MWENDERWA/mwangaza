@@ -2478,6 +2478,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/dashboard/:
+    get:
+      operationId: dashboard_retrieve
+      description: |-
+        Tableau de bord du directeur (G3) : encaissé aujourd'hui, ce mois et jour par jour,
+        impayés échus, recouvrement et effectifs par classe, derniers paiements, alertes selon les
+        seuils de l'école (M5). Lecture seule, aussi pour le promoteur.
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/devices/:
     get:
       operationId: devices_list
@@ -7396,6 +7426,58 @@ components:
         number:
           type: string
           maxLength: 20
+    AlertSettings:
+      type: object
+      description: 'Seuils d''alerte au directeur (M5, `alerts.py`). Écriture partielle
+        : les autres restent.'
+      properties:
+        difference_minor:
+          type: object
+          additionalProperties:
+            type: integer
+            minimum: 0
+          description: 'Écart de caisse au-delà duquel une clôture est signalée, par
+            devise (plus petite unité : centimes, francs).'
+        cancellations_per_day:
+          type: integer
+          maximum: 100
+          minimum: 0
+          description: Annulations demandées par un caissier dans une journée au-delà
+            desquelles il est signalé.
+        closing_time:
+          type: string
+          format: time
+          description: Heure (HH:MM) à laquelle une caisse encore ouverte est signalée.
+      required:
+      - difference_minor
+      - cancellations_per_day
+      - closing_time
+    AlertSettingsRequest:
+      type: object
+      description: 'Seuils d''alerte au directeur (M5, `alerts.py`). Écriture partielle
+        : les autres restent.'
+      properties:
+        difference_minor:
+          type: object
+          additionalProperties:
+            type: integer
+            minimum: 0
+          description: 'Écart de caisse au-delà duquel une clôture est signalée, par
+            devise (plus petite unité : centimes, francs).'
+        cancellations_per_day:
+          type: integer
+          maximum: 100
+          minimum: 0
+          description: Annulations demandées par un caissier dans une journée au-delà
+            desquelles il est signalé.
+        closing_time:
+          type: string
+          format: time
+          description: Heure (HH:MM) à laquelle une caisse encore ouverte est signalée.
+      required:
+      - cancellations_per_day
+      - closing_time
+      - difference_minor
     AuditActor:
       type: object
       properties:
@@ -7565,6 +7647,20 @@ components:
     BlankEnum:
       enum:
       - ''
+    CancellationAlert:
+      type: object
+      properties:
+        cashier:
+          $ref: '#/components/schemas/Person'
+        date:
+          type: string
+          format: date
+        count:
+          type: integer
+      required:
+      - cashier
+      - date
+      - count
     CancellationCreateRequest:
       type: object
       properties:
@@ -8680,6 +8776,203 @@ components:
         * `secondary_technical` - Technical and vocational secondary
         * `higher` - Higher education
         * `vocational` - Short vocational training
+    Dashboard:
+      type: object
+      description: 'Tableau de bord (G3) : montants par devise, jamais additionnés
+        entre devises.'
+      properties:
+        date:
+          type: string
+          format: date
+          description: Aujourd'hui dans le fuseau de l'école.
+        academic_year:
+          type: string
+          nullable: true
+        today:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionTotal'
+          description: Encaissé aujourd'hui.
+        month:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionTotal'
+          description: Encaissé ce mois jusqu'à aujourd'hui.
+        previous_month:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionTotal'
+          description: Encaissé le mois d'avant, jusqu'au même jour.
+        daily:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardDay'
+          description: Encaissé des 21 derniers jours.
+        overdue:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardAmount'
+          description: Impayés échus de l'année.
+        overdue_students:
+          type: integer
+        recovery_percent:
+          type: integer
+          nullable: true
+          description: Payé sur dû des frais échus ; l'autre devise compte au taux
+            de l'année.
+        enrolled:
+          type: integer
+        male:
+          type: integer
+        female:
+          type: integer
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardClass'
+        recent_payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardPayment'
+        alerts:
+          $ref: '#/components/schemas/DashboardAlerts'
+      required:
+      - date
+      - academic_year
+      - today
+      - month
+      - previous_month
+      - daily
+      - overdue
+      - overdue_students
+      - recovery_percent
+      - enrolled
+      - male
+      - female
+      - classes
+      - recent_payments
+      - alerts
+    DashboardAlerts:
+      type: object
+      properties:
+        pending_cancellations:
+          type: integer
+          description: Demandes à valider.
+        unclosed:
+          type: array
+          items:
+            $ref: '#/components/schemas/CashSession'
+          description: 'Sessions pas clôturées : ouvertes avant aujourd''hui, ou aujourd''hui
+            passé l''heure de clôture de l''école.'
+        differences:
+          type: array
+          items:
+            $ref: '#/components/schemas/DifferenceAlert'
+          description: Clôtures des 7 derniers jours dont l'écart dépasse le seuil.
+        cancellations:
+          type: array
+          items:
+            $ref: '#/components/schemas/CancellationAlert'
+          description: Caissiers au-delà du seuil d'annulations demandées dans une
+            journée (7 jours).
+      required:
+      - pending_cancellations
+      - unclosed
+      - differences
+      - cancellations
+    DashboardAmount:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        amount_minor:
+          type: integer
+      required:
+      - currency
+      - amount_minor
+    DashboardClass:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        track:
+          type: string
+          description: Option ; vide sans option (éducation de base).
+        cycle:
+          $ref: '#/components/schemas/CycleEnum'
+        enrolled:
+          type: integer
+        male:
+          type: integer
+        female:
+          type: integer
+        recovery_percent:
+          type: integer
+          nullable: true
+          description: 'Payé sur dû des frais échus ; null : rien d''échu.'
+      required:
+      - id
+      - name
+      - track
+      - cycle
+      - enrolled
+      - male
+      - female
+      - recovery_percent
+    DashboardDay:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        amounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardAmount'
+      required:
+      - date
+      - amounts
+    DashboardPayment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        receipt_number:
+          type: string
+          maxLength: 40
+        paid_at:
+          type: string
+          format: date-time
+        received_amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount received
+        received_currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          title: Currency
+        student:
+          $ref: '#/components/schemas/PaymentStudent'
+        class_group:
+          type: string
+        cash_register:
+          type: string
+      required:
+      - id
+      - receipt_number
+      - paid_at
+      - received_amount_minor
+      - received_currency
+      - student
+      - class_group
+      - cash_register
     Device:
       type: object
       description: Un appareil du compte dans l'école (« Appareils connectés » de
@@ -8733,6 +9026,32 @@ components:
       required:
       - label
       - public_key
+    DifferenceAlert:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        cash_session:
+          $ref: '#/components/schemas/CashSession'
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        difference_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Difference
+        closed_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - cash_session
+      - currency
+      - difference_minor
+      - closed_at
     Discount:
       type: object
       properties:
@@ -10716,6 +11035,8 @@ components:
             * `CDF` - Congolese franc
         receipt:
           $ref: '#/components/schemas/ReceiptSettingsRequest'
+        alerts:
+          $ref: '#/components/schemas/AlertSettingsRequest'
     PatchedStaffUpdateRequest:
       type: object
       description: Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`.
@@ -11638,6 +11959,8 @@ components:
             * `CDF` - Congolese franc
         receipt:
           $ref: '#/components/schemas/ReceiptSettings'
+        alerts:
+          $ref: '#/components/schemas/AlertSettings'
       required:
       - code
       - name
@@ -11650,6 +11973,7 @@ components:
       - enabled_currencies
       - default_currency
       - receipt
+      - alerts
     SchoolStatusEnum:
       enum:
       - trial

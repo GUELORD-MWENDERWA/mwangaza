@@ -17,6 +17,11 @@ const settings = {
   enabled_currencies: ["USD", "CDF"],
   default_currency: "USD",
   receipt: { printer: "thermal_80", sheet_size: "a6", copies: 1, header: "", footer: "" },
+  alerts: {
+    difference_minor: { USD: 1000, CDF: 20000 },
+    cancellations_per_day: 3,
+    closing_time: "18:00",
+  },
 };
 
 function routes(extra: Routes = {}): Routes {
@@ -52,6 +57,12 @@ describe("Paramètres de l'école (M5)", () => {
     await user.selectOptions(receipt.getByLabelText("Taille du reçu sur la feuille A4"), "small");
     await user.click(receipt.getByRole("radio", { name: "2 · élève + souche" }));
     await user.type(receipt.getByLabelText(/Lignes d'en-tête/), "Av. du Lac 1{Enter}Goma");
+    // Seuil d'écart saisi comme à la caisse, envoyé en centimes.
+    const alerts = await card("Alertes au directeur");
+    expect((alerts.getByLabelText(/FC/) as HTMLInputElement).value).toMatch(/^20\s000$/);
+    const usd = alerts.getByLabelText(/\$/);
+    await user.clear(usd);
+    await user.type(usd, "12,50");
     all["PATCH /api/school/settings/"] = { ...settings, name: "Institut Alpha" };
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
 
@@ -69,6 +80,11 @@ describe("Paramètres de l'école (M5)", () => {
         copies: 2,
         header: "Av. du Lac 1\nGoma",
         footer: "",
+      },
+      alerts: {
+        difference_minor: { USD: 1250, CDF: 20000 },
+        cancellations_per_day: 3,
+        closing_time: "18:00",
       },
     });
     // Le nom de l'école (menu, connexion) est relu.
