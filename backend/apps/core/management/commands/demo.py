@@ -22,6 +22,7 @@ from apps.finance.demo import (
     create_demo_fees,
     create_demo_payments,
 )
+from apps.notifications.demo import create_demo_announcements
 from apps.schools.demo import create_demo_organisation, create_demo_schools
 from apps.students.demo import create_demo_students
 from apps.sync.demo import create_demo_devices
@@ -50,6 +51,7 @@ class Command(BaseCommand):
             create_demo_credits(schools)
             create_demo_cancellations(schools)
             create_demo_devices(schools)
+            create_demo_announcements(schools)
         for school in schools.values():
             self.stdout.write(f"  {school.code:<8} {school.name} — {school.url}/app/")
         self.stdout.write(f"Comptes fictifs (mot de passe : {DEMO_PASSWORD}) :")

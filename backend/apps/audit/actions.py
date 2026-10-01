@@ -130,6 +130,10 @@ class Action(models.TextChoices):
     # Situation financière (G2) : chaque PDF est noté, comme les exports des impayés.
     FINANCE_STATEMENT_PRINTED = "finance.statement_printed", _("Financial statement printed")
 
+    # Annonces aux familles (H4) : publiées puis jamais modifiées, seulement archivées.
+    ANNOUNCEMENTS_PUBLISHED = "announcements.published", _("Announcement published")
+    ANNOUNCEMENTS_ARCHIVED = "announcements.archived", _("Announcement archived")
+
     # Appareils (« Se souvenir de cet appareil », M4).
     DEVICES_REGISTERED = "devices.registered", _("Device remembered")
     DEVICES_REVOKED = "devices.revoked", _("Device disconnected")

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "apps.students",
     "apps.finance",
     "apps.sync",
+    "apps.notifications",
 ]
 
 MIDDLEWARE = [

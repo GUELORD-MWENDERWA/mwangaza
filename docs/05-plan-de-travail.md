@@ -78,8 +78,8 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
    - [x] **4.1.1** Impayés (G1, maquettes `impayes` et `impayes-export`) : liste filtrable (classe, frais, tranche, retard, devise), chiffres clés, export Excel (une ligne par frais en retard) et PDF par classe, exports tracés
    - [x] **4.1.2** Situation financière imprimable (G2, maquette `situation-financiere`) depuis la fiche élève et groupée depuis les Impayés (sélection) ; colonnes « Échu non payé » et « Paiements » et filtre « Paiement » de la liste des élèves (maquette `eleves-liste`) *(ajouté le 2026-09-28, 2.7)*
 - [x] **4.2** Tableau de bord directeur (G3) ; seuils d'alerte de l'école (M5 : écart de caisse, annulations par caissier et par jour, caisse non clôturée) *(ajouté le 2026-09-26, 1.5)*
-- [ ] **4.3** Annonces côté école (H4)
-- [ ] **4.4** Front `portail` : activation par téléphone + code famille, liste des enfants multi-écoles, paiements, reçus PDF, échéances, annonces, mise à jour des coordonnées, installable (H1–H6) ; école suspendue : « service temporairement indisponible » (A1) *(ajouté le 2026-09-26, 1.5)*
+- [x] **4.3** Annonces côté école (H4)
+- [ ] **4.4** Front `portail` : activation par téléphone + code famille, liste des enfants multi-écoles, paiements, reçus PDF, échéances, annonces, mise à jour des coordonnées, installable (H1–H6) ; école suspendue : « service temporairement indisponible » (A1) *(ajouté le 2026-09-26, 1.5)* ; annonce marquée lue par la famille et « lue par N familles » dans la liste des annonces de la Gestion *(ajouté le 2026-10-01, 4.3)*
 - [ ] **4.5** Guides de première connexion : caissier, comptable, parent (I3) ; traduction anglaise (I2) ; traduction française des textes du serveur (administration Django, messages) *(ajoutée le 2026-09-26, 1.5)*
 - [ ] **4.6** Infra de production : VPS, Caddy, wildcard Cloudflare, variables d'environnement, déploiement en une commande ; adresse IP réelle du visiteur transmise par Caddy et Cloudflare (limitation des tentatives, 1.3) ; Caddy envoie `/v/*` de l'adresse de l'école à Django (vérification d'un reçu) *(ajouté le 2026-09-28, 3.2.3)*
 - [ ] **4.7** Sauvegardes continues + dump quotidien + **test de restauration** (I4) ; suivi d'erreurs ; sonde de disponibilité
@@ -94,7 +94,7 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
 - [ ] **5.5** Cartes d'élève PDF avec photo et QR ; pointage d'entrée par scan QR sur tablette, hors-ligne
 - [ ] **5.6** Pénalités de retard, validation d'inscription liée au paiement, documents téléversés
 - [ ] **5.7** Connexion Google, champs complémentaires de la fiche élève
-- [ ] **5.8** Communication : messages à une classe, calendrier des événements, circulaires PDF, convocations ; portail : calendrier, titulaire et enseignants avec contacts *(ajoutée le 2026-09-25 — cahier § 8.9, 8.10)*
+- [ ] **5.8** Communication : annonces au personnel (destinataire « Personnel » de 4.3, avec un écran où le personnel les lit), messages à une classe, calendrier des événements, circulaires PDF, convocations ; portail : calendrier, titulaire et enseignants avec contacts *(ajoutée le 2026-09-25 — cahier § 8.9, 8.10)*
 - [ ] **5.9** Espace enseignant : fiche de paie et horaire ; jeton de carte RFID / NFC de l'élève, révocable *(ajoutée le 2026-09-25 — cahier § 8.3, 8.5, 8.12)*
 
 ## Semaines 9 à 14 — V1.2 (bulletins avec Mwangaza à partir de la P2 / 1er semestre — décision Q6)
