@@ -6,7 +6,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
 
 from apps.core.money import Currency
-from apps.finance import services, unpaid
+from apps.finance import services, statements, unpaid
 from apps.finance.models import (
     CancellationRequest,
     CashClosing,
@@ -939,6 +939,27 @@ class UnpaidExportSerializer(UnpaidFilterSerializer):
     page_per_class = serializers.BooleanField(default=True, help_text="PDF : une page par classe.")
     phone = serializers.BooleanField(default=True, help_text="PDF : téléphone du tuteur.")
     detail = serializers.BooleanField(default=False, help_text="PDF : une ligne par tranche.")
+
+
+class StatementSerializer(serializers.Serializer):
+    """Situation financière (G2) d'un ou de plusieurs élèves : une page chacun."""
+
+    enrollment = serializers.ListField(
+        child=serializers.UUIDField(),
+        min_length=1,
+        max_length=statements.MAX_STUDENTS,
+        help_text="Inscriptions de l'école (paramètre répété).",
+    )
+    output = serializers.ChoiceField(choices=["pdf", "html"], help_text="PDF, ou son aperçu HTML.")
+    upcoming = serializers.BooleanField(default=True, help_text="Échéances à venir.")
+    payments = serializers.BooleanField(default=True, help_text="Paiements reçus et annulés.")
+    hide_paid = serializers.BooleanField(default=False, help_text="Sans les frais soldés.")
+
+    def validate_enrollment(self, value: list) -> list:
+        ids = set(value)
+        if Enrollment.objects.filter(pk__in=ids).count() != len(ids):
+            raise serializers.ValidationError(_("Unknown enrollment."), code="does_not_exist")
+        return list(ids)
 
 
 class UnpaidAmountSerializer(serializers.Serializer):

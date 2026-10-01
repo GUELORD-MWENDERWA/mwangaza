@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>{% translate "Receipt verification" %} · Mwangaza</title>
+<title>{% block title %}{% translate "Receipt verification" %}{% endblock %} · Mwangaza</title>
 <style>
 :root { --basalt: #2B2724; --basalt-2: #3A3531; --basalt-ink: #EDE8E3; --lamp: #F2B632; --ink: #1A2233; --ink-3: #77818F; --surface: #F3F5F6; --line: #DDE3E6; --ok: #1F7A4D; --ok-50: #E5F3EB; --due: #B42318; --due-50: #FBE9E7; --warn: #9A5B00; --warn-50: #FFF1D6; }
 * { box-sizing: border-box; }
@@ -38,7 +38,7 @@ dd { margin: 0; font-weight: 700; text-align: right; font-variant-numeric: tabul
   <p>{% translate "Document verification" %}</p>
 </header>
 <main>
-<div class="card" data-state="{{ state }}">
+{% block card %}<div class="card" data-state="{{ state }}">
   <div class="state">
     <div class="icon" aria-hidden="true">
       {% if state == "valid" %}<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
@@ -71,7 +71,7 @@ dd { margin: 0; font-weight: 700; text-align: right; font-variant-numeric: tabul
     <div><dt>{% translate "Amount" %}</dt><dd>{{ amount }}</dd></div>
   </dl>
   {% endif %}
-</div>
+</div>{% endblock %}
 </main>
 </div>
 </body>

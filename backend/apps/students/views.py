@@ -29,6 +29,7 @@ from apps.accounts.views import SchoolViewSet
 from apps.audit.models import AuditLog
 from apps.core.documents import PRINT_RESPONSE, XLSX, XLSX_RESPONSE, file_response, render
 from apps.core.errors import ApiError, ErrorSerializer
+from apps.finance import services as finance
 from apps.schools.models import ClassGroup
 from apps.schools.organisation import current_year
 from apps.students import documents, imports, services
@@ -67,6 +68,19 @@ def _require(request: Request, codes: tuple[str, ...]) -> None:
     si le compte n'a aucun de ces droits dans l'école."""
     if school_access(request).permissions.isdisjoint(codes):
         raise PermissionDenied()
+
+
+def _with_situation(request: Request, enrollments, situation: str):
+    """Inscriptions dont la situation des paiements est `situation` (filtre « Paiement » de la
+    liste) : même calcul que la fiche ; sans frais dus, un élève est à jour."""
+    _require(request, CHARGES_READ)
+    by_enrollment = finance.charges_by_enrollment(enrollments.values("pk"), light=True)
+    situations = {pk: finance.balance(charges).situation for pk, charges in by_enrollment.items()}
+    if situation == finance.UP_TO_DATE:
+        return enrollments.exclude(
+            pk__in=[pk for pk, value in situations.items() if value != finance.UP_TO_DATE]
+        )
+    return enrollments.filter(pk__in=[pk for pk, value in situations.items() if value == situation])
 
 
 class StudentsViewSet(SchoolViewSet):
@@ -140,6 +154,8 @@ class StudentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsV
             enrollments = enrollments.filter(status=Enrollment.Status.ACTIVE)
         elif status_filter == "left":
             enrollments = enrollments.exclude(status=Enrollment.Status.ACTIVE)
+        if data.get("payment"):
+            enrollments = _with_situation(self.request, enrollments, data["payment"])
         if enrollments is not year_enrollments:
             queryset = queryset.filter(pk__in=enrollments.values("student"))
         if status_filter == "not_enrolled":
@@ -150,6 +166,22 @@ class StudentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsV
                 queryset=Enrollment.objects.filter(academic_year=year).select_related(*_CLASS),
                 to_attr="year_enrollments",
             )
+        )
+
+    def list(self, request: Request) -> Response:
+        """Avec un droit de lecture des frais, le solde de l'inscription de chaque élève de la
+        page (`finance`) : deux requêtes de plus, quelle que soit la taille de la page."""
+        page = self.paginate_queryset(self.filter_queryset(self.get_queryset()))
+        balances = None
+        if not school_access(request).permissions.isdisjoint(CHARGES_READ):
+            ids = [s.year_enrollments[0].pk for s in page if s.year_enrollments]
+            balances = {
+                enrollment_id: finance.balance(charges)
+                for enrollment_id, charges in finance.charges_by_enrollment(ids, light=True).items()
+            }
+        context = {**self.get_serializer_context(), "balances": balances}
+        return self.get_paginated_response(
+            StudentListSerializer(page, many=True, context=context).data
         )
 
     def _student(self, student: Student, status_code=status.HTTP_200_OK) -> Response:

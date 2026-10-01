@@ -6,11 +6,13 @@ initiales seulement.
 Un reçu imprimé sur un appareil mémorisé (3.5.2) porte dans son QR code ce qu'il affiche (`n`
 numéro, `t` heure en secondes, `a` montant, `c` devise, `r` caisse), signé par l'appareil (`s`,
 ECDSA P-256) : un reçu pas encore synchronisé reste vérifiable ; un reçu enregistré dont le QR
-code dit autre chose que la base est falsifié."""
+code dit autre chose que la base est falsifié.
+
+La situation financière imprimée (G2) se vérifie de même sur `/v/s/<jeton>` (`statements.py`)."""
 
 import base64
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from uuid import UUID
 
 from django.http import Http404, HttpRequest, HttpResponse, QueryDict
@@ -19,9 +21,10 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
 
 from apps.core.money import Currency, format_amount
+from apps.finance import statements
 from apps.finance.models import Payment
 from apps.schools.models import School
-from apps.students.models import Student
+from apps.students.models import Enrollment, Student
 from apps.sync.models import Device, SyncOperation
 from apps.sync.services import verify_signature
 
@@ -152,6 +155,40 @@ def verify_receipt(request: HttpRequest, payment_id: UUID) -> HttpResponse:
         "finance/receipt_verification.html",
         context,
         status=404 if state == UNKNOWN else 200,
+    )
+    response["X-Robots-Tag"] = "noindex, nofollow"
+    return response
+
+
+@require_GET
+@never_cache
+def verify_statement(request: HttpRequest, token: str) -> HttpResponse:
+    """Situation financière imprimée : ce que disait le document (date, retard et reste par
+    devise), l'élève en initiales. Jeton modifié, signé pour une autre école ou inscription
+    inconnue : « inconnu » (404)."""
+    if request.school is None:
+        raise Http404
+    data = statements.read_token(token)
+    enrollment = None
+    if data is not None:
+        enrollment = (
+            Enrollment.objects.select_related("student", "class_group").filter(pk=data["e"]).first()
+        )
+    context = {"school_name": request.school.name, "state": VALID if enrollment else UNKNOWN}
+    if enrollment is not None:
+        amounts = [(currency, overdue, rest) for currency, overdue, rest in data["a"]]
+        context.update(
+            day=date.fromisoformat(data["d"]),
+            student=initials(enrollment.student),
+            class_group=enrollment.class_group.name,
+            overdue=" + ".join(format_amount(o, c) for c, o, _rest in amounts if o) or None,
+            remaining=" + ".join(format_amount(r, c) for c, _o, r in amounts if r) or None,
+        )
+    response = render(
+        request,
+        "finance/statement_verification.html",
+        context,
+        status=200 if enrollment else 404,
     )
     response["X-Robots-Tag"] = "noindex, nofollow"
     return response

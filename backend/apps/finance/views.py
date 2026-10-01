@@ -27,7 +27,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.documents import PRINT_RESPONSE, XLSX, XLSX_RESPONSE, file_response, render
 from apps.core.errors import ErrorSerializer
-from apps.finance import documents, services, unpaid
+from apps.finance import documents, services, statements, unpaid
 from apps.finance.models import (
     CancellationRequest,
     CashRegister,
@@ -75,6 +75,7 @@ from apps.finance.serializers import (
     PaymentReceiptSerializer,
     PaymentSerializer,
     RescheduleSerializer,
+    StatementSerializer,
     StudentChargeFilterSerializer,
     StudentChargeSerializer,
     StudentCreditDetailSerializer,
@@ -328,6 +329,40 @@ class StudentChargeViewSet(mixins.ListModelMixin, SchoolViewSet):
         params.is_valid(raise_exception=True)
         items = services.open_credits([params.validated_data["enrollment"]])
         return Response(StudentCreditSerializer(items, many=True).data)
+
+    @extend_schema(
+        parameters=[StatementSerializer],
+        responses={**PRINT_RESPONSE, **INVALID, **ERRORS},
+    )
+    @action(detail=False)
+    def statement(self, request: Request) -> HttpResponse:
+        """Situation financière imprimable (G2), une page par élève (groupée depuis les Impayés) :
+        PDF A4 ou son aperçu HTML ; chaque PDF est noté dans le journal d'audit."""
+        query = request.query_params
+        params = StatementSerializer(
+            data={**query.dict(), "enrollment": query.getlist("enrollment")}
+        )
+        params.is_valid(raise_exception=True)
+        data = params.validated_data
+        items = statements.statements(data["enrollment"])
+        names = [item.enrollment.student.full_name for item in items]
+        if data["output"] == "pdf":
+            audit.record(
+                Action.FINANCE_STATEMENT_PRINTED,
+                actor=request.user,
+                label=" · ".join(names[:3]) + (f" +{len(names) - 3}" if len(names) > 3 else ""),
+                after={"students": len(items), "enrollments": [str(i) for i in data["enrollment"]]},
+            )
+        context = documents.statement_document(
+            items,
+            actor=request.user,
+            absolute=request.build_absolute_uri,
+            upcoming=data["upcoming"],
+            payments=data["payments"],
+            hide_paid=data["hide_paid"],
+        )
+        name = slugify(names[0] if len(names) == 1 else f"situations-{len(names)}")
+        return render("finance/statement.html", context, data["output"], f"situation-{name}.pdf")
 
     @extend_schema(
         request=RescheduleSerializer,

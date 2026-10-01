@@ -1,6 +1,6 @@
 """Documents produits par le serveur pour les finances : export Excel des clôtures de caisse
-(M16), impayés en Excel et en PDF (G1). Montants en nombres (Decimal exact, jamais de float), au
-format de leur devise."""
+(M16), impayés en Excel et en PDF (G1), situation financière d'un élève (G2). Montants en nombres
+(Decimal exact, jamais de float), au format de leur devise."""
 
 from datetime import date
 
@@ -8,11 +8,12 @@ from django.utils import timezone
 from django.utils.translation import gettext
 
 from apps.accounts.phone import format_phone
-from apps.core.documents import Formatted, school_header, workbook
+from apps.core.documents import Formatted, qr_code, school_header, workbook
 from apps.core.money import DECIMALS, SYMBOLS, Currency, Money, format_amount
 from apps.core.tenancy import require_current_school
-from apps.finance import services, unpaid
+from apps.finance import services, statements, unpaid
 from apps.finance.models import CashClosing, CashRegister
+from apps.schools.receipts import receipt_settings
 
 
 def _amount_format(currency: str) -> str:
@@ -258,4 +259,81 @@ def unpaid_document(
             }
             for page in pages
         ],
+    }
+
+
+# Situation financière (4.1.2, G2)
+
+
+def _statement_page(item: statements.Statement, absolute, *, upcoming, payments, hide_paid) -> dict:
+    enrollment, student, balance = item.enrollment, item.enrollment.student, item.balance
+    guardian = item.guardian
+    hidden = {services.UPCOMING} if not upcoming else set()
+    if hide_paid:
+        hidden.add(services.PAID)
+
+    def column(field: str) -> list[str]:
+        return [format_amount(getattr(c, field), c.currency) for c in balance.currencies]
+
+    return {
+        "student": _student_name(student),
+        "matricule": student.matricule,
+        "class_group": enrollment.class_group.name,
+        "year": enrollment.academic_year.name,
+        "guardian": " · ".join(
+            part
+            for part in (
+                guardian.full_name if guardian else "",
+                format_phone(str(guardian.phone)) if guardian and guardian.phone else "",
+            )
+            if part
+        ),
+        "balance": balance,
+        "lines": [
+            {
+                "fee": _fee(charge),
+                "due_on": charge.due_on,
+                "amount": format_amount(
+                    charge.amount_minor - charge.discount_minor, charge.currency
+                ),
+                "paid": format_amount(charge.paid_minor, charge.currency),
+                "remaining": format_amount(charge.remaining_minor, charge.currency),
+                "state": charge.state,
+            }
+            for charge in item.charges
+            if charge.state not in hidden
+        ],
+        "currencies": [SYMBOLS[c.currency] for c in balance.currencies],
+        "totals": {
+            "total": column("total_minor"),
+            "paid": column("paid_minor"),
+            "overdue": column("overdue_minor"),
+            "remaining": column("remaining_minor"),
+        },
+        "payments": [
+            {
+                "number": payment.receipt_number,
+                "paid_at": timezone.localtime(payment.paid_at),
+                "amount": format_amount(payment.received_amount_minor, payment.received_currency),
+                "cancelled": hasattr(payment, "cancellation"),
+            }
+            for payment in item.payments
+        ]
+        if payments
+        else [],
+        "qr": qr_code(absolute(statements.verification_path(item))),
+    }
+
+
+def statement_document(items: list[statements.Statement], *, actor, absolute, **options) -> dict:
+    """Contenu du PDF A4 : une page par élève ; `absolute` fait l'adresse complète du QR code ;
+    `options` : `upcoming` (échéances à venir), `payments` (paiements reçus), `hide_paid`."""
+    school = require_current_school()
+    header = receipt_settings(school.settings)["header"]
+    return {
+        **school_header(school),
+        "header_lines": [line for line in header.splitlines() if line.strip()],
+        "day": services.today(),
+        "printed_by": actor.get_full_name(),
+        "pages": [_statement_page(item, absolute, **options) for item in items],
     }

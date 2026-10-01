@@ -397,6 +397,7 @@ paths:
           - finance.credit_used
           - finance.credit_voided
           - finance.unpaid_exported
+          - finance.statement_printed
           - devices.registered
           - devices.revoked
           - audit.exported
@@ -480,6 +481,7 @@ paths:
           * `finance.credit_used` - Student credit used
           * `finance.credit_voided` - Student credit voided
           * `finance.unpaid_exported` - Unpaid fees exported
+          * `finance.statement_printed` - Financial statement printed
           * `devices.registered` - Device remembered
           * `devices.revoked` - Device disconnected
           * `audit.exported` - Audit log exported
@@ -726,6 +728,7 @@ paths:
           - finance.credit_used
           - finance.credit_voided
           - finance.unpaid_exported
+          - finance.statement_printed
           - devices.registered
           - devices.revoked
           - audit.exported
@@ -809,6 +812,7 @@ paths:
           * `finance.credit_used` - Student credit used
           * `finance.credit_voided` - Student credit voided
           * `finance.unpaid_exported` - Unpaid fees exported
+          * `finance.statement_printed` - Financial statement printed
           * `devices.registered` - Device remembered
           * `devices.revoked` - Device disconnected
           * `audit.exported` - Audit log exported
@@ -5347,6 +5351,89 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/student-charges/statement/:
+    get:
+      operationId: student_charges_statement_retrieve
+      description: |-
+        Situation financière imprimable (G2), une page par élève (groupée depuis les Impayés) :
+        PDF A4 ou son aperçu HTML ; chaque PDF est noté dans le journal d'audit.
+      parameters:
+      - in: query
+        name: enrollment
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 100
+          minItems: 1
+        description: Inscriptions de l'école (paramètre répété).
+        required: true
+      - in: query
+        name: hide_paid
+        schema:
+          type: boolean
+          default: false
+        description: Sans les frais soldés.
+      - in: query
+        name: output
+        schema:
+          enum:
+          - pdf
+          - html
+          type: string
+          minLength: 1
+        description: |-
+          PDF, ou son aperçu HTML.
+
+          * `pdf` - pdf
+          * `html` - html
+        required: true
+      - in: query
+        name: payments
+        schema:
+          type: boolean
+          default: true
+        description: Paiements reçus et annulés.
+      - in: query
+        name: upcoming
+        schema:
+          type: boolean
+          default: true
+        description: Échéances à venir.
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Document PDF (`output=pdf`).
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/student-credits/:
     get:
       operationId: student_credits_list
@@ -5842,8 +5929,8 @@ paths:
     get:
       operationId: students_list
       description: |-
-        Élèves de l'école (D2) : liste paginée avec recherche, fiche, création, modification,
-        photo, historique.
+        Avec un droit de lecture des frais, le solde de l'inscription de chaque élève de la
+        page (`finance`) : deux requêtes de plus, quelle que soit la taille de la page.
       parameters:
       - in: query
         name: academic_year
@@ -5862,6 +5949,21 @@ paths:
         description: A page number within the paginated result set.
         schema:
           type: integer
+      - in: query
+        name: payment
+        schema:
+          enum:
+          - up_to_date
+          - partial
+          - overdue
+          type: string
+          minLength: 1
+        description: |-
+          Situation des paiements de l'année (droit de lecture des frais) : à jour, partielle (en retard, mais des paiements) ou en retard (rien payé).
+
+          * `up_to_date` - up_to_date
+          * `partial` - partial
+          * `overdue` - overdue
       - in: query
         name: search
         schema:
@@ -7170,6 +7272,7 @@ components:
       - finance.credit_used
       - finance.credit_voided
       - finance.unpaid_exported
+      - finance.statement_printed
       - devices.registered
       - devices.revoked
       - audit.exported
@@ -7252,6 +7355,7 @@ components:
         * `finance.credit_used` - Student credit used
         * `finance.credit_voided` - Student credit voided
         * `finance.unpaid_exported` - Unpaid fees exported
+        * `finance.statement_printed` - Financial statement printed
         * `devices.registered` - Device remembered
         * `devices.revoked` - Device disconnected
         * `audit.exported` - Audit log exported
@@ -12465,6 +12569,11 @@ components:
           - $ref: '#/components/schemas/Guardian'
           nullable: true
           readOnly: true
+        finance:
+          allOf:
+          - $ref: '#/components/schemas/Balance'
+          nullable: true
+          readOnly: true
       required:
       - id
       - matricule
@@ -12477,6 +12586,7 @@ components:
       - family_code
       - enrollment
       - primary_guardian
+      - finance
     StudentWriteRequest:
       type: object
       description: |-

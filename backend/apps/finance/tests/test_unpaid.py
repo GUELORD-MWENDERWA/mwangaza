@@ -1,5 +1,7 @@
-"""Impayés (G1) : isolation entre écoles, droit `finance.view_reports`, retard après réductions et
-sans les paiements annulés, par devise jamais additionnée, filtres, exports tracés."""
+"""Impayés (G1) et situation financière (G2) : isolation entre écoles, droits, retard après
+réductions et sans les paiements annulés, par devise jamais additionnée, filtres, exports et
+situations imprimées tracés, vérification publique de la situation ; colonnes de paiement de la
+liste des élèves."""
 
 import io
 from decimal import Decimal
@@ -9,15 +11,19 @@ import pytest
 
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
+from apps.core.money import format_amount
 from apps.core.tenancy import use_school
-from apps.finance import services
+from apps.finance import services, statements
 from apps.finance.tests.test_balance import at
 from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.students.tests.conftest import enrolled
+from tests.factories import MembershipFactory
 
 pytestmark = pytest.mark.django_db
 
 UNPAID = "/api/unpaid/"
+STATEMENT = "/api/student-charges/statement/"
+STUDENTS = "/api/students/"
 
 
 @pytest.fixture
@@ -146,3 +152,83 @@ def test_unpaid_need_the_reports_right(api, cashier, alpha):
     client = api(cashier)
     for path in (UNPAID, f"{UNPAID}summary/", f"{UNPAID}export/?output=xlsx"):
         assert client.get(path).status_code == 403
+
+
+def test_statement_is_the_finances_tab_one_page_per_student_and_the_pdf_is_audited(
+    api, school, head, late
+):
+    client = api(head)
+    ids = [str(late["amani"].pk), str(late["paluku"].pk)]
+    response = client.get(STATEMENT, enrollment=ids, output="html")
+    amani, paluku = response.context["pages"]
+
+    assert (amani["student"], paluku["student"]) == ("AMANI Jean", "PALUKU Jean")
+    # Bourse de 25 % déduite (3 x 90,00 $), 90,00 $ annulés : rien payé en dollars.
+    assert [
+        (c.currency, c.total_minor, c.paid_minor, c.overdue_minor, c.remaining_minor)
+        for c in amani["balance"].currencies
+    ] == [("USD", 27000, 0, 9000, 27000), ("CDF", 25000, 10000, 15000, 15000)]
+    assert [(line["fee"], line["state"]) for line in amani["lines"]][:2] == [
+        ("Fonctionnement", "overdue"),
+        ("Minerval · 1re tranche", "overdue"),
+    ]
+    # Le reçu annulé reste cité, marqué annulé.
+    assert [payment["cancelled"] for payment in amani["payments"]] == [False, True]
+
+    # Options : sans les frais soldés ni les échéances à venir, sans la liste des paiements.
+    options = {"hide_paid": "true", "upcoming": "false", "payments": "false"}
+    [page] = client.get(STATEMENT, enrollment=ids[1], output="html", **options).context["pages"]
+    assert (page["lines"], page["payments"]) == ([], [])
+
+    pdf = client.get(STATEMENT, enrollment=ids, output="pdf")
+    assert pdf["Content-Type"] == "application/pdf"
+    with use_school(school):
+        logs = AuditLog.objects.filter(action=Action.FINANCE_STATEMENT_PRINTED)
+        # L'aperçu à l'écran n'est pas noté ; le PDF l'est.
+        assert [(log.actor, log.after["students"]) for log in logs] == [(head, 2)]
+
+
+def test_a_school_neither_prints_nor_verifies_the_statement_of_another(
+    monkeypatch, api, school, other_school, head, other_head, alpha
+):
+    beta = school_with_fees(other_school, other_head)
+    at(monkeypatch, "2026-10-16")
+    mixed = [str(alpha["enrollment"].pk), str(beta["enrollment"].pk)]
+    assert api(head).get(STATEMENT, enrollment=mixed).status_code == 400
+
+    with use_school(school):
+        [statement] = statements.statements([alpha["enrollment"].pk])
+        path = statements.verification_path(statement)
+    page = api().get(path)
+    assert page.status_code == 200
+    # Initiales seulement, et le retard tel qu'il était imprimé.
+    assert "K. J." in page.content.decode()
+    assert "KASEREKA" not in page.content.decode()
+    assert format_amount(12000, "USD") in page.content.decode()
+    assert api(host="beta.localhost").get(path).status_code == 404
+    assert api().get(f"{path[:-3]}abc").status_code == 404
+
+
+def test_students_list_shows_overdue_and_payment_state_and_filters_on_it(api, head, late):
+    client = api(head)
+    rows = client.get(STUDENTS).json()["results"]
+    finance = {row["last_name"]: row["finance"] for row in rows}
+    assert {name: item["situation"] for name, item in finance.items()} == {
+        "Amani": "partial",
+        "Kasereka": "overdue",
+        "Paluku": "up_to_date",
+    }
+    overdue = [(c["currency"], c["overdue_minor"]) for c in finance["Amani"]["currencies"]]
+    assert overdue == [("USD", 9000), ("CDF", 15000)]
+
+    for payment, names in (("overdue", ["Kasereka"]), ("partial", ["Amani"])):
+        results = client.get(STUDENTS, payment=payment).json()["results"]
+        assert [row["last_name"] for row in results] == names
+
+
+def test_statement_and_payment_columns_need_a_right_to_read_charges(api, school, late):
+    secretary = MembershipFactory(school=school, roles=["secretary"]).user
+    client = api(secretary)
+    assert client.get(STATEMENT, enrollment=str(late["amani"].pk)).status_code == 403
+    assert client.get(STUDENTS, payment="overdue").status_code == 403
+    assert {row["finance"] for row in client.get(STUDENTS).json()["results"]} == {None}

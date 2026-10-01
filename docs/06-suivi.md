@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 4 (Rapports, portail, production) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 4.1.1 terminée, PR #116 à fusionner |
-| Prochaine tâche | 4.1.2 |
+| Tâche en cours | aucune — 4.1.2 terminée, PR #117 à fusionner |
+| Prochaine tâche | 4.2 |
 | Issue GitHub | #29 |
-| Branche | `tache/4.1.1-impayes` (PR #116) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/4.1.2-situation-financiere` (PR #117) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-09-30 |
 
 ## Avancement
@@ -22,8 +22,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 1 | 9 |
-| **V1.0** | **35** | **43** |
+| Semaine 4 — Rapports, portail, production | 2 | 9 |
+| **V1.0** | **36** | **43** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-09-30 — Tâche 4.1.2 : situation financière imprimable
+- Fait : situation financière A4 (PDF + aperçu) depuis l'onglet Finances et groupée depuis les Impayés (cases à cocher, une page par élève) ; QR de vérification publique `/v/s/<jeton>` ; colonnes « Échu non payé », « Paiements » et filtre « Paiement » de la liste des élèves (droit de lecture des frais).
+- Tests : 888 serveur, 211 front ; lint vert. Isolation (400 / 404), 403 secrétaire, montants par devise, audit du PDF.
+- Décisions (`03`) : jeton signé par le serveur, sel propre à l'école, sans table ; PDF noté au journal ; pied « Signature et cachet de l'école ».
+- Suite : 4.2 (tableau de bord directeur, seuils d'alerte).
 
 ### 2026-09-30 — Tâche 4.1.1 : impayés
 - Fait : 4.1 découpée (situation financière et colonnes de la liste des élèves → 4.1.2). Écran « Impayés » (maquette `impayes`) : chiffres clés, filtres classe / frais / tranche / retard / devise / tri dans l'adresse, ligne → fiche élève (Finances) ; écran « Exporter » (maquette `impayes-export`) : aperçu, PDF A4 à l'italienne par classe ou liste unique, Excel une ligne par frais en retard ; `/api/unpaid/` (liste paginée, `summary/`, `export/`), exports Excel et PDF notés au journal d'audit.

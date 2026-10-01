@@ -14,6 +14,7 @@ export type Guardian = Schemas["Guardian"];
 export type HistoryEntry = Schemas["StudentHistory"];
 export type Relationship = Schemas["RelationshipEnum"];
 export type StudentStatus = "active" | "left" | "not_enrolled";
+export type Situation = Balance["situation"];
 export type Charge = Schemas["StudentCharge"];
 export type Discount = Schemas["Discount"];
 export type Balance = Schemas["Balance"];
@@ -50,6 +51,7 @@ export type StudentQuery = {
   class_group?: string;
   track?: string;
   status?: StudentStatus;
+  payment?: Situation;
 };
 
 export function useStudents(query: StudentQuery, page: number) {
@@ -200,6 +202,23 @@ export const importReportUrl = (id: string) => `/api/student-imports/${id}/repor
 export type Paper = "a4" | "a5";
 export type ClassListColumn = "matricule" | "sex_birth" | "guardian_phone" | "payments";
 export type ClassListOrder = "name" | "matricule";
+
+export type StatementOptions = { upcoming: boolean; payments: boolean; hidePaid: boolean };
+
+/** Situation financière (G2) d'un ou de plusieurs élèves, une page chacun : PDF ou aperçu. */
+export function statementUrl(
+  enrollments: string[],
+  options: StatementOptions & { output: "html" | "pdf" },
+) {
+  const query = new URLSearchParams({
+    output: options.output,
+    upcoming: String(options.upcoming),
+    payments: String(options.payments),
+    hide_paid: String(options.hidePaid),
+  });
+  for (const id of enrollments) query.append("enrollment", id);
+  return `/api/student-charges/statement/?${query}`;
+}
 
 export function registrationFormUrl(
   enrollmentId: string,
