@@ -86,7 +86,7 @@ Le **hors-ligne** est conçu dès le premier jour (identifiants, synchronisation
 ### I. Transversal
 
 - **I1** — Audit de toute action sur finances, rôles et élèves.
-- **I2** — Interface en français, traduction anglaise disponible.
+- **I2** — Interface en français, traduction anglaise disponible. Textes du serveur (administration, messages, PDF, Excel) traduits aussi ; ils suivent la langue choisie dans l'application, pas celle du navigateur.
 - **I3** — Guide de première connexion pour caissier, comptable et parent.
 - **I4** — Sauvegarde quotidienne automatique vers un stockage externe, restauration testée une fois.
 

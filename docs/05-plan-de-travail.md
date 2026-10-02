@@ -85,9 +85,9 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
    - [x] **4.4.3** Paiements et reçus (H3) : paiements d'un enfant (payé, reste, en retard, échéances, détail des frais), photo (si consentement), reçus PDF ; barre de navigation du Portail
    - [x] **4.4.4** Annonces (H4) : annonces des écoles reliées, pièce jointe, marquée lue ; « lue par N familles » dans la Gestion
    - [x] **4.4.5** Coordonnées (H5, M18) : profil du portail ; écran « Demandes des parents » de la Gestion
-- [ ] **4.5** Guides de première connexion : caissier, comptable, parent (I3) ; traduction anglaise (I2) ; traduction française des textes du serveur (administration Django, messages) *(ajoutée le 2026-09-26, 1.5)*, découpée le 2026-10-02 :
+- [x] **4.5** Guides de première connexion : caissier, comptable, parent (I3) ; traduction anglaise (I2) ; traduction française des textes du serveur (administration Django, messages) *(ajoutée le 2026-09-26, 1.5)*, découpée le 2026-10-02 :
    - [x] **4.5.1** Guides de première connexion (I3, M20) : caissier et comptable dans la Gestion (étapes sur les vrais écrans, reprise, « Passer le guide », « Aide et guide ») ; parent dans le Portail (après l'activation, « Revoir le guide » du profil)
-   - [ ] **4.5.2** Traductions (I2) : textes du serveur en français (administration Django, messages, PDF, Excel) ; relecture de la traduction anglaise des deux applications
+   - [x] **4.5.2** Traductions (I2) : textes du serveur en français (administration Django, messages, PDF, Excel) ; relecture de la traduction anglaise des deux applications
 - [ ] **4.6** Infra de production : VPS, Caddy, wildcard Cloudflare, variables d'environnement, déploiement en une commande ; adresse IP réelle du visiteur transmise par Caddy et Cloudflare (limitation des tentatives, 1.3) ; Caddy envoie `/v/*` de l'adresse de l'école à Django (vérification d'un reçu) *(ajouté le 2026-09-28, 3.2.3)*
 - [ ] **4.7** Sauvegardes continues + dump quotidien + **test de restauration** (I4) ; suivi d'erreurs ; sonde de disponibilité
 - [ ] **4.8** Mise en place à l'ITIG : l'école saisit ou importe ses vraies données (élèves, frais, comptes) avec notre aide, formation des caissiers, test sur la vraie imprimante

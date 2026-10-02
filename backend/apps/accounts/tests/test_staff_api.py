@@ -204,7 +204,7 @@ def test_invalid_phone(api, head, school):
 
     assert response.status_code == 400
     [error] = response.json()["fields"]["phone"]
-    assert error["detail"].startswith("Enter a valid phone number")
+    assert error["detail"].startswith("Saisissez un numéro de téléphone valide")
 
 
 def test_at_least_one_role(api, head):

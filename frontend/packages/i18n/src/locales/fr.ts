@@ -1094,7 +1094,7 @@ export const fr = {
         credit_used: "Crédit d'élève utilisé",
         credit_voided: "Crédit d'élève annulé",
         cancellation_requested: "Annulation de paiement demandée",
-        payment_cancelled: "Ce paiement est annulé : son reçu n'a plus de valeur.",
+        payment_cancelled: "Paiement annulé",
         cancellation_rejected: "Annulation de paiement refusée",
         cancellation_reprinted: "Reçu d'annulation réimprimé",
         unpaid_exported: "Impayés exportés",

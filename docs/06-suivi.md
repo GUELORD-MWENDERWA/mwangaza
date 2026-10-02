@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 4 (Rapports, portail, production) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 4.5.1 terminée (PR à fusionner) ; 4.5 découpée en 4.5.1 et 4.5.2 |
-| Prochaine tâche | 4.5.2 |
-| Issue GitHub | #33 (4.5, fermée par la 4.5.2) |
-| Branche | `tache/4.5.1-guides` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.5.2 terminée (PR à fusionner) ; la 4.5 est finie |
+| Prochaine tâche | 4.6 |
+| Issue GitHub | #34 (4.6) |
+| Branche | `tache/4.5.2-traductions` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-02 |
 
 ## Avancement
@@ -22,8 +22,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 10 | 14 |
-| **V1.0** | **44** | **48** |
+| Semaine 4 — Rapports, portail, production | 11 | 14 |
+| **V1.0** | **45** | **48** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-02 — Tâche 4.5.2 : traductions
+- Serveur en français : 550 textes traduits (administration, messages d'erreur, journal, PDF, Excel), 19 traductions devinées par gettext corrigées ; champs communs (créé le, modifié le, créé par, école) traduisibles (migrations sans SQL). La langue du serveur suit celle choisie dans l'application (cookie `django_language` posé par la Gestion et le Portail) et non plus celle du navigateur.
+- Anglais des deux applications relu : vocabulaire harmonisé (log in, installment, student number, track) ; corrigé au passage : l'action « Paiement annulé » du journal affichait un message d'erreur (fr et en).
+- Tests : catalogue français complet et compilé, serveur dans la langue de l'interface (2 cas), cookie posé par le front ; 6 tests du serveur attendaient un texte anglais : texte attendu en français. Tests du serveur lancés en local (le changement touche tous les modules) : verts.
+- Suite : 4.6 (production : VPS, Caddy, Cloudflare ; attend le domaine et les comptes, `A-FAIRE.md` n° 17).
 
 ### 2026-10-02 — Tâche 4.5.1 : guides de première connexion
 - 4.5 découpée : 4.5.1 guides, 4.5.2 traductions (≈ 520 textes du serveur à traduire en français, relecture de l'anglais).

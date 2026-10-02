@@ -45,7 +45,7 @@ def test_field_errors_have_a_code_for_each_message():
     assert response.status_code == 400
     assert response.data == {
         "code": "invalid",
-        "detail": "Some fields are invalid.",
+        "detail": "Certains champs ne sont pas valides.",
         "fields": {"phone": [{"code": "invalid_phone", "detail": "Invalid."}]},
     }
 
@@ -88,7 +88,7 @@ def test_django_validation_error_of_a_service_gets_the_same_format():
     assert response.status_code == 400
     assert response.data == {
         "code": "invalid",
-        "detail": "Some fields are invalid.",
+        "detail": "Certains champs ne sont pas valides.",
         "fields": {"terms.0.ends_on": [{"code": "outside_year", "detail": "Outside the year."}]},
     }
 

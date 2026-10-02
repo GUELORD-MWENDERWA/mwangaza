@@ -3,6 +3,7 @@
 
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.core.ids import uuid7
 from apps.core.tenancy import (
@@ -16,8 +17,8 @@ from apps.core.tenancy import (
 
 class BaseModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid7, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
     # Rempli par les services ; vide pour ce que crée le système (migrations, `make demo`).
     # Un compte n'est jamais supprimé (on le désactive) : PROTECT garde l'auteur.
     created_by = models.ForeignKey(
@@ -27,6 +28,7 @@ class BaseModel(models.Model):
         blank=True,
         editable=False,
         related_name="+",
+        verbose_name=_("created by"),
     )
 
     class Meta:
@@ -40,7 +42,11 @@ class TenantModel(BaseModel):
 
     # Pas d'accès inverse depuis l'école (`school.note_set`) : on lit toujours depuis le modèle.
     school = models.ForeignKey(
-        "schools.School", on_delete=models.PROTECT, related_name="+", editable=False
+        "schools.School",
+        on_delete=models.PROTECT,
+        related_name="+",
+        editable=False,
+        verbose_name=_("school"),
     )
 
     objects = TenantManager()

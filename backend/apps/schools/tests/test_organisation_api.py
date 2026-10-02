@@ -218,7 +218,7 @@ def test_put_terms_errors_are_on_their_field(api, head, alpha):
     assert response.status_code == 400
     assert response.json()["fields"] == {
         "terms.1.children.2.ends_on": [
-            {"code": "outside_year", "detail": "This date is outside the school year."}
+            {"code": "outside_year", "detail": "Cette date est en dehors de l'année scolaire."}
         ]
     }
 

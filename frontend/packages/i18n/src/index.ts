@@ -32,6 +32,9 @@ declare module "i18next" {
 
 // Langue choisie sur cet appareil avant la connexion ; ensuite, celle du compte.
 const STORAGE_KEY = "mwangaza.language";
+// Le serveur répond dans la langue de l'interface (messages, PDF, Excel), pas dans celle du
+// navigateur : Django lit ce cookie avant `Accept-Language` (`LANGUAGE_COOKIE_NAME`).
+const SERVER_COOKIE = "django_language";
 
 function storedLanguage(): Language | null {
   try {
@@ -52,7 +55,7 @@ export function setupI18n(language?: Language) {
     resources: { fr: { translation: fr }, en: { translation: en } },
     interpolation: { escapeValue: false },
   });
-  setDocumentLanguage(lng);
+  applyLanguage(lng);
   return i18next;
 }
 
@@ -63,10 +66,12 @@ export function changeLanguage(language: Language) {
   } catch {
     // Stockage refusé (navigation privée) : la langue vaut pour cette visite seulement.
   }
-  setDocumentLanguage(language);
+  applyLanguage(language);
   return i18next.changeLanguage(language);
 }
 
-function setDocumentLanguage(language: string) {
-  if (typeof document !== "undefined") document.documentElement.lang = language;
+function applyLanguage(language: string) {
+  if (typeof document === "undefined") return;
+  document.documentElement.lang = language;
+  document.cookie = `${SERVER_COOKIE}=${language}; path=/; max-age=31536000; samesite=lax`;
 }
