@@ -20,7 +20,7 @@ Périmètre : `git diff main...HEAD --stat` + `git status`, puis les passages ut
 | 7 | **i18n** | Aucun texte d'interface en dur dans les `.tsx` / `.ts` d'interface (chercher les chaînes françaises entre balises et dans les props `label`, `placeholder`, `title`). Clés présentes en `fr` **et** `en`. Messages d'erreur serveur destinés à l'interface traduisibles. Textes du serveur : `django.po` complet et compilé (`make messages`, test `core/tests/test_translations.py`). |
 | 8 | **Pas de nouvelle dépendance** | Diff de `pyproject.toml` / `requirements*` / `package.json` / `pnpm-lock.yaml` : toute nouvelle dépendance a été expliquée et acceptée par l'utilisateur. |
 | 9 | Conventions | Code en anglais, noms du glossaire ; logique dans `services.py` ; front par fonctionnalité (`features/…`) ; client API régénéré si l'OpenAPI a changé. |
-| 10 | Périmètre | Rien de V1.1 / V1.2 / V2 codé pendant une tâche V1.0. |
+| 10 | Périmètre | Rien d'une version suivante (`05`) codé pendant la tâche. |
 | 11 | Design | Jetons et composants de la skill `design` ; pas de couleur ou taille inventée ; formats de montants via `packages/money`. |
 | 12 | Secrets | Aucun `.env`, mot de passe, clé ou jeton ajouté. Aucune donnée personnelle réelle de l'ITIG hors de `docs/ecole-pilote/prive/`. |
 | 13 | Tests et qualité | Lint et tests lancés une fois à la fin, résultat réel montré. Tests utiles seulement (isolation, permissions, argent, audit, règles métier) ; aucun test d'isolation, de permission, d'argent ou d'audit supprimé. Pas de N+1 dans les nouvelles listes, listes paginées. |

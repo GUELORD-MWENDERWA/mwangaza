@@ -19,7 +19,7 @@ Suivre aussi la skill `design` (jetons, composants, formats).
 | `gestion/tableau-de-bord` (sert aussi de référence pour la coquille), `gestion/menu-mobile`, `gestion/pages-etat` | V1.0 | G3, § 9.4 | 1.6 (coquille, menu, états), 4.2 |
 | `gestion/roles-permissions` | V1.0 | B1–B2 | 1.2 |
 | `gestion/parametres-ecole` | V1.0 | A1, M5 | 1.5 (API), 1.7 (écran), 3.2 (reçus), 4.2 (alertes) |
-| `gestion/superadmin-ecoles` | V1.0 dans l'administration Django (1.5) ; écran : V2 | A1–A3 | 7.2 |
+| `gestion/superadmin-ecoles` | V1.0 dans l'administration Django (1.5) ; écran dans la console : V1.1 | A1–A3 | 5.3 |
 | `gestion/organisation-scolaire` | V1.0 | C1–C3 | 1.7 |
 | `gestion/eleves-liste`, `gestion/eleve-fiche-identite`, `gestion/eleve-fiche-famille`, `gestion/eleve-fiche-historique`, `gestion/eleve-fiche`, `gestion/eleve-nouveau`, `gestion/famille-fiche` | V1.0 | D2–D4 | 2.2 (onglet Finances : 2.7) |
 | `gestion/eleves-import` | V1.0 | D1 | 2.3 |
@@ -35,15 +35,15 @@ Suivre aussi la skill `design` (jetons, composants, formats).
 | `gestion/annonces` | V1.0 | H4 | 4.3 |
 | `portail/activation`, `connexion`, `mot-de-passe-oublie`, `installer`, `accueil`, `enfant-paiements`, `annonces`, `profil` ; `gestion/changements-coordonnees` | V1.0 | H1–H6 | 4.4 |
 | `gestion/guide-premiere-connexion`, `portail/guide` | V1.0 | I3 | 4.5 |
-| `gestion/paie` | **V1.1** | 5.3 | 5.3 |
-| `gestion/presences-pointage-qr` | **V1.1** | 5.5 | 5.5 |
-| `gestion/cours-maxima`, `gestion/notes-saisie`, `gestion/bulletin`, `gestion/bulletin-education-de-base`, `portail/enfant-scolarite` | **V1.2** | 6.x | 6.1, 6.2, 6.3, 6.8 |
+| `gestion/paie` | **V1.3** | 7.3 | 7.3 |
+| `gestion/presences-pointage-qr` | **V1.2** | 6.3 | 6.3 |
+| `gestion/cours-maxima`, `gestion/notes-saisie`, `gestion/bulletin`, `gestion/bulletin-education-de-base`, `portail/enfant-scolarite` | **V1.4** | 8.x | 8.1, 8.2, 8.3, 8.8 |
 
 Maquettes marquées « à valider » dans `maquettes/README.md` : dessinées par Claude ; si l'utilisateur a laissé une remarque (PR ou `docs/06-suivi.md`), l'appliquer à la maquette avant de coder.
 
 Écran absent de ce tableau : chercher dans `docs/07-a-fournir.md` § 1 (M1–M20…). S'il n'a pas de maquette, **la dessiner d'abord** dans le même système (`maquettes/<app>/<nom>.html` avec `assets/styles.css` et la coquille de `maquettes/outils/maquettes.py`, encadrés `.note` pour les règles), l'ajouter à `maquettes/README.md` et au catalogue de `maquettes.py` (puis `python3 maquettes/outils/maquettes.py index` et `node maquettes/outils/captures.mjs <fichier>`), puis **coder avec elle sans attendre l'accord** (décision du 2026-09-29) : la signaler dans « À valider » de la PR, la noter dans `07` § 1.
 
-Écran V1.1 / V1.2 alors que la tâche en cours est V1.0 : **s'arrêter et le signaler**. Les éléments marqués « V1.1 » / « V1.2 » à l'intérieur d'un écran V1.0 ne sont pas codés et leurs entrées de menu sont masquées.
+Écran d'une version suivante que celle de la tâche en cours (version de chaque tâche : `05`) : **s'arrêter et le signaler**. Les éléments d'une version suivante à l'intérieur d'un écran ne sont pas codés et leurs entrées de menu sont masquées. Les bandeaux de version des maquettes datent de l'ancien découpage (avant le 2026-10-02) : la version qui compte est celle de `05`.
 
 ## 2. Lire la maquette
 

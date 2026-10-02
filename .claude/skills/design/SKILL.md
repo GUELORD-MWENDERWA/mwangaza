@@ -65,7 +65,7 @@ Les composants partagés vont dans `frontend/packages/ui` (exportés par `@mwang
 | `.toggle` | `Switch` | |
 | `.tbl` `tr.sel` `.errrow` `.warnrow` `tfoot` | `Table` | en-tête `#F8FAFA` ; ligne sélectionnée `lake-50` |
 | `.pill` `ok` `due` `warn` `info` `gray` | `StatusPill` | point de couleur devant le texte |
-| `.tag` `.tag.v` | `Tag` | `v` = marqueur de lot V1.1 / V1.2 |
+| `.tag` `.tag.v` | `Tag` | `v` = marqueur de version (V1.1…) |
 | `.banner` `info` `warn` `due` `ok` `lampb` | `Banner` (Alert) | icône à gauche |
 | `.tabs` (`>span`, `>a`) | `Tabs` | onglet actif : texte et soulignement 3 px `lake` ; onglets de la fiche élève = liens (une URL par onglet) |
 | `.steps` `.done` `.on` | `Steps` | fait = `ok` avec ✓ ; en cours = `lake` |
@@ -86,7 +86,7 @@ Les composants partagés vont dans `frontend/packages/ui` (exportés par `@mwang
 | `.spot` `.coach` | `Tour` (guide de première connexion) | élément réel mis en avant, reste assombri |
 | `.toast` | `Toast` | ex. nouvelle version prête |
 | `.a4.land` | gabarit A4 à l'italienne | export des impayés |
-| `.bul` `.idbox` `tr.mx` `td.grey` | gabarit bulletin officiel (V1.2) | mise en page du formulaire EPST, voir `docs/claude/recherches/2026-09-26-bulletins-rdc.md` |
+| `.bul` `.idbox` `tr.mx` `td.grey` | gabarit bulletin officiel (V1.4) | mise en page du formulaire EPST, voir `docs/claude/recherches/2026-09-26-bulletins-rdc.md` |
 | `.pagehead` `.crumbs` | `PageHeader` | titre, sous-titre, fil d'Ariane, actions |
 | pages d'état (M8) | `StateCard` | icône ronde, titre, texte, étiquette, actions |
 | `.note` | **rien** | règle métier / critère d'acceptation, jamais affichée |

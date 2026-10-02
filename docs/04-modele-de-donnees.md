@@ -50,7 +50,7 @@ Changée avec `classes.manage` (directeur, directeur des études), en ligne seul
 Décision Q10 (2026-09-26) : **chaque école a sa propre copie** de l'élève et de sa famille. Une correction faite par une école ne touche pas les autres, et une école ne voit jamais qu'un élève ou une famille existe aussi ailleurs.
 
 **Student [T]** — identité de l'élève dans cette école : `last_name`, `middle_name`, `first_name`, `sex`, `birth_date`, `birth_place`, `nationality`, `origin_province`, `origin_territory`, `address` (JSON : commune, quartier, avenue, numéro), `photo`, `photo_consent`, `previous_school` (texte), `family`, `matricule` (unique dans l'école, donné à sa **première** inscription et **gardé toute sa scolarité** — décision du 2026-09-27 ; vide tant qu'il n'est pas inscrit ; corrigeable à la main).
-Champs V1.1 : `blood_group`, `allergies`, `special_needs`, `religion`, `official_id`.
+Champs V1.3 (7.6) : `blood_group`, `allergies`, `special_needs`, `religion`, `official_id`.
 
 **Family [T]** — `code` (code famille à 8 caractères, sans caractères ambigus, **unique sur toute la plateforme** : le portail le retrouve sans connaître l'école), `primary_user` (FK `User`, rempli à l'activation), `activated_at`.
 
@@ -71,7 +71,7 @@ Règles :
 - Un parent voit un élève si `student.family.primary_user == user`.
 - **Parent avec des enfants dans plusieurs écoles** : un seul compte (`User`), relié à une famille par école. Il active son compte avec le code famille d'une école, puis ajoute chaque autre école avec le code famille qu'elle lui a remis (« Ajouter un enfant d'une autre école »). Jamais de rattachement automatique par numéro de téléphone : un numéro mal saisi par une école montrerait ses enfants à un inconnu. Le portail lit, pour ce compte seulement, les familles de chaque école et leurs données.
 - Coordonnées changées par le parent dans le portail (H5) : une demande par école où il a une famille ; chaque secrétariat l'applique à sa propre copie.
-- Transfert vers une autre école de la plateforme (6.9, V1.2) : l'école d'arrivée reçoit une copie du dossier ; les deux dossiers restent ensuite indépendants.
+- Transfert vers une autre école de la plateforme (8.7, V1.4) : l'école d'arrivée reçoit une copie du dossier ; les deux dossiers restent ensuite indépendants.
 
 ## 4. Finances
 
@@ -132,7 +132,7 @@ Règles :
 
 **ChangeLog [T]** — une ligne par entité, sa dernière modification : `seq` (croissant par école, donné à la lecture sous verrou, jamais repris), `pending` (changement en attente de son numéro), `entity_type` (`enrollment` : élève, classe, frais dus, paiements de l'année ; `config` : école, reçus, année, classes, types de frais, caisses, taux), `entity_id`, `operation` (`upsert`, `delete`), `updated_at` (heure du changement). Écrit par signaux Django, et explicitement après une écriture en masse (`apps/sync/changes.py`).
 
-## 7. Paie — V1.1 (aperçu)
+## 7. Paie — V1.3 (aperçu)
 
 **Employee [T]** — `user` (optionnel), identité, `function`, `hired_on`, `secope_number`, `secope_status` (`mechanized`, `new_unit`, `unpaid`), `qualifications`.
 **Contract [T]** — `employee`, `kind`, `starts_on`, `ends_on`, `base_salary_minor`, `currency`.

@@ -64,7 +64,7 @@ Le nom doit venir de chez nous, être court, facile à dire au téléphone et é
   - *Réseau* : promoteurs et coordinations, tableau consolidé multi-écoles, tarif dégressif.
 - **Essai** : un trimestre scolaire complet gratuit.
 - **Options payantes** : crédits SMS/WhatsApp, lecteurs RFID et cartes PVC, nom de domaine propre, formation sur site.
-- Le montant se calibre avec l'ITIG et les tarifs des concurrents. Repère : le coût annuel par élève doit rester une très petite fraction du minerval.
+- Le montant se calibre avec les tarifs des concurrents et les premières écoles. Repère : le coût annuel par élève doit rester une très petite fraction du minerval.
 - **Paiements en ligne (plus tard)** : l'argent doit aller **directement sur le compte marchand de l'école**, jamais transiter par la plateforme (confiance des écoles, et détenir des fonds pour autrui pose des questions réglementaires). Passer par un agrégateur (type FlexPay, MaxiCash, CinetPay) pour couvrir M-Pesa, Orange Money et Airtel Money d'un coup ; comparer frais et agréments au moment de l'intégration.
 - **SMS** : l'école achète des crédits SMS. Dans l'immédiat, on utilise les notifications de l'application et les notifications push, qui sont gratuites.
 
@@ -109,24 +109,26 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
 - Accès du personnel par sous-domaine : `{code-ecole}.mwangaza.school`.
 - Portail familles sur une adresse unique : `parents.mwangaza.school` (un parent peut avoir des enfants dans plusieurs écoles).
 - Personnalisation par école : logo, nom, couleurs, en-têtes de reçus et bulletins, frais, barèmes et maxima, rôles.
-- Transfert d'un élève d'une école à une autre de la plateforme avec son dossier (V1.2).
+- Transfert d'un élève d'une école à une autre de la plateforme avec son dossier (V1.4).
+- Identité de la plateforme (nom, logo, couleurs, contact) dans ses paramètres, jamais écrite en dur : on peut la changer sans code (V1.1).
+- Console de la plateforme pour le super-admin, avec son propre design : écoles, abonnements, comptes, appareils, journal, santé (V1.1) ; l'administration Django ne sert qu'au dépannage.
 
 ### 8.2 Connexion et sécurité des comptes — V1.0
 
 - Identifiant + mot de passe.
 - Double authentification (application TOTP) obligatoire pour les rôles financiers et la direction.
 - Code PIN pour déverrouiller rapidement l'application sur un appareil déjà connecté (et hors-ligne).
-- Connexion Google (V1.1).
+- Connexion Google (V1.3).
 - Création du compte famille : l'école génère un **code famille** imprimé sur le reçu ou la fiche d'inscription ; le parent l'active avec son numéro de téléphone et choisit un mot de passe. Pas de SMS nécessaire. Vérification par SMS en option plus tard.
 
 ### 8.3 Élèves et inscriptions
 
-- Fiche élève — V1.0 : nom, post-nom, prénom, sexe, date et lieu de naissance, nationalité, province et territoire d'origine, adresse, photo, école de provenance, tuteurs avec contacts, contact d'urgence. V1.1 : groupe sanguin, allergies, besoins particuliers, religion, identifiant officiel EPST / Exetat.
+- Fiche élève — V1.0 : nom, post-nom, prénom, sexe, date et lieu de naissance, nationalité, province et territoire d'origine, adresse, photo, école de provenance, tuteurs avec contacts, contact d'urgence. V1.3 : groupe sanguin, allergies, besoins particuliers, religion, identifiant officiel EPST / Exetat.
 - Matricule généré automatiquement, format configurable par école. Chaque école a sa propre fiche de l'élève : pas d'identité partagée entre écoles.
 - Import Excel / CSV des élèves existants — V1.0. Migration depuis d'autres logiciels — Plus tard.
-- Inscription au secrétariat — V1.0 ; validation de l'inscription liée au paiement — V1.1 ; pré-inscription en ligne par les parents, test d'admission, liste d'attente — V2.
-- Documents téléversés (acte de naissance, bulletins antérieurs, certificats, photos, autres) — V1.1.
-- Documents générés : fiche d'inscription et listes de classe (V1.0) ; carte d'élève avec photo et QR code (V1.1) ; carte RFID / NFC (V1.1) ; attestation de fréquentation, certificat de scolarité, lettre de transfert (V1.2).
+- Inscription au secrétariat — V1.0 ; validation de l'inscription liée au paiement — V1.3 ; pré-inscription en ligne par les parents, test d'admission, liste d'attente — V2.
+- Documents téléversés (acte de naissance, bulletins antérieurs, certificats, photos, autres) — V1.3.
+- Documents générés : fiche d'inscription et listes de classe (V1.0) ; carte unique de l'élève : puce NFC + QR code + photo (V1.2) ; attestation de fréquentation, certificat de scolarité, lettre de transfert (V1.4).
 - Consentement des parents pour la photo — V1.0.
 
 ### 8.4 Finances
@@ -143,7 +145,7 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
 **Échéanciers — V1.0**
 - Par tranches (1re, 2e, 3e…) ou mensuel, avec dates limites.
 - Échéancier propre à un élève (arrangement particulier).
-- Pénalités de retard configurables — V1.1.
+- Pénalités de retard configurables — V1.3.
 
 **Réductions — V1.0**
 - Réduction générique en montant ou en pourcentage, avec motif et auteur. Modèles prédéfinis : enfants du personnel, fratrie, bourse, exonération de la direction.
@@ -160,21 +162,21 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
 - Liste des élèves en retard, filtrable par classe, frais et tranche.
 - Situation financière d'un élève imprimable.
 - Relances automatiques par notification (V1.1) ; par SMS / WhatsApp avec crédits (V2).
-- Blocage de l'accès aux bulletins ou aux examens en cas de dette : option configurable par l'école, désactivée par défaut (V1.2).
+- Blocage de l'accès aux bulletins ou aux examens en cas de dette : option configurable par l'école, désactivée par défaut (V1.4).
 
 **Dépenses et comptabilité**
-- V1.1 : dépenses par catégorie, entrées / sorties, rapports journaliers, mensuels et annuels.
+- V1.3 : dépenses par catégorie, entrées / sorties, rapports journaliers, mensuels et annuels.
 - Les catégories sont reliées dès le départ au plan de comptes **SYSCOHADA**, pour pouvoir activer plus tard la vraie comptabilité (journal, grand livre, budget prévisionnel, rapprochement bancaire — V2) sans reprendre les données.
 
-### 8.5 Paie et ressources humaines — V1.1
+### 8.5 Paie et ressources humaines — V1.3
 
 - Dossier de l'employé : identité, fonction, diplômes et qualifications, contrats, matricule SECOPE / statut (mécanisé, non payé).
 - Paie mensuelle : salaire de base, primes, prime / motivation enseignants (liée aux frais correspondants), avances sur salaire, retenues (absences, avances).
 - Fiche de paie PDF, consultable par l'employé dans son espace.
-- Congés et permissions — V1.2. Évaluation des enseignants — V2.
+- Congés et permissions — V1.3. Évaluation des enseignants — V2.
 - Présence du personnel reliée au module présences (V1.2).
 
-### 8.6 Enseignement, notes et bulletins — V1.2
+### 8.6 Enseignement, notes et bulletins — V1.4
 
 - Cours par classe avec maxima (sur 10, 20, 40, 80…), pondération ou heures, domaines / branches, attribution enseignant–cours–classe, programme officiel pré-rempli quand disponible.
 - Évaluations : interrogations, devoirs, travaux pratiques, examens, repêchage / seconde session, épreuves spéciales (ENAFEP, TENAFEP, Exetat blanc). Pour les écoles techniques : **évaluations d'atelier** (V2).
@@ -187,12 +189,12 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
 
 ### 8.7 Présences
 
-- V1.1 : pointage des élèves à l'entrée par **scan du QR code** de la carte avec une tablette ou un téléphone (application Gestion, fonctionne hors-ligne).
-- V1.2 : lecteurs **RFID / NFC ESP32** au portail (fabrication maison) qui envoient les pointages au serveur, avec mémoire tampon en cas de coupure. Pointage des enseignants et du personnel.
+- V1.2 : **une seule carte** par élève et par membre du personnel : puce sans contact (NFC) + QR code + photo et informations. Liaison carte ↔ personne en une seconde sur un appareil enregistré (scanner le QR imprimé, poser la carte).
+- V1.2 : pointage de deux façons, hors ligne compris : par la **puce**, avec un téléphone Android enregistré (NFC) ou un lecteur **ESP32** au portail (fabrication maison, mémoire tampon en cas de coupure) ; par le **QR code**, avec la caméra de n'importe quel téléphone ou tablette enregistrés (iPhone compris). Pointage des élèves, des enseignants et du personnel.
 - Notifications au parent : absence, retard ; alerte après X absences ; justification d'absence envoyée par le parent ; taux de présence sur le bulletin.
 - La carte contient un jeton aléatoire, pas le matricule.
 
-### 8.8 Discipline — V1.2
+### 8.8 Discipline — V1.4
 
 Cote de conduite, sanctions (avertissement, renvoi temporaire, exclusion), convocation des parents, mérites et récompenses, visibles par les parents.
 
@@ -200,31 +202,32 @@ Cote de conduite, sanctions (avertissement, renvoi temporaire, exclusion), convo
 
 - V1.0 : annonces de l'école visibles dans le portail.
 - V1.1 : notifications push (reçu de paiement, échéance proche, annonce), messages à une classe, calendrier des événements, circulaires PDF, convocations.
-- V1.2 : messagerie parent ↔ titulaire et administration (les parents ne peuvent écrire qu'au titulaire et à l'administration), demande de rendez-vous, sondages.
+- V1.4 : messagerie parent ↔ titulaire et administration (les parents ne peuvent écrire qu'au titulaire et à l'administration), demande de rendez-vous, sondages.
 - V2 : SMS et WhatsApp avec crédits achetés par l'école.
 
 ### 8.10 Portail parents
 
 - Forme : application web installable (PWA) dès V1.0 ; applications Android et iPhone publiées dans les stores en V2 (même code, empaqueté).
 - V1.0 : enfants (toutes écoles), profil de l'enfant, situation des paiements, reçus, échéances à venir, annonces, mise à jour des coordonnées.
-- V1.1 : notifications push, calendrier, titulaire et enseignants avec contacts.
-- V1.2 : présences en direct, notes, bulletins (téléchargement PDF), discipline, emploi du temps, documents (attestations), demande de rendez-vous, messages.
+- V1.1 : notifications sur l'écran du téléphone, même application fermée ; calendrier, titulaire et enseignants avec contacts.
+- V1.2 : présences en direct.
+- V1.4 : notes, bulletins (téléchargement PDF), discipline, emploi du temps, documents (attestations), demande de rendez-vous, messages.
 - V2 : devoirs, menu de cantine et transport.
 
-### 8.11 Portail élèves — V1.2
+### 8.11 Portail élèves — V1.4
 
 Compte à partir d'un niveau configuré par l'école. L'élève voit : notes et bulletins, présences, emploi du temps, devoirs et cours, place dans la classe, enseignants, situation financière, annonces, livres empruntés.
 
 ### 8.12 Espace enseignant et titulaire
 
-- V1.1 : voir son horaire, sa fiche de paie.
-- V1.2 : ses classes et élèves, prise des présences, saisie des notes, écrire aux parents, demander un congé ; pour le titulaire : vue complète de sa classe (notes, présences, paiements), préparation et vérification des bulletins, cote de conduite, rapport de classe, convocation des parents.
+- V1.3 : voir son horaire, sa fiche de paie, demander un congé.
+- V1.4 : ses classes et élèves, prise des présences, saisie des notes, écrire aux parents, demander un congé ; pour le titulaire : vue complète de sa classe (notes, présences, paiements), préparation et vérification des bulletins, cote de conduite, rapport de classe, convocation des parents.
 - V2 : publier devoirs et cours.
 
 ### 8.13 Tableaux de bord et rapports
 
 - V1.0 : encaissements du jour et du mois par devise, impayés, effectifs par classe, sexe et âge.
-- V1.2 : taux de présence, résultats scolaires.
+- V1.2 : taux de présence. V1.4 : résultats scolaires.
 - V2 : comparaison entre années ; tableau consolidé promoteur / coordination.
 - Exports PDF, Excel, CSV et impression directe (V1.0 pour les listes financières).
 - Rapports officiels EPST : statistiques de fin d'année, listes des candidats ENAFEP / Exetat, palmarès (V2).
@@ -283,9 +286,9 @@ Cloud international, un serveur au départ, budget inférieur à 20 $ par mois p
 | Ordre de développement | Gestion d'abord (c'est elle qui crée les données), portail parents juste après sur le même serveur, dans la même V1. |
 | Technologies | Voir `03-architecture-technique.md`. |
 
-## 11. Informations à recueillir auprès de l'ITIG
+## 11. Exemple : ce qu'une école saisit (l'ITIG)
 
-Utiles mais pas bloquantes (décision du 2026-09-26) : en attendant, Claude crée des données fictives réalistes, et chaque école, l'ITIG comprise, saisit ensuite elle-même ses vraies données.
+**Rien n'est attendu de l'ITIG** (2026-09-26, redit le 2026-10-02) : Claude crée des données fictives réalistes, et chaque école, l'ITIG comprise, saisit elle-même ses vraies données dans l'application. La liste ci-dessous sert seulement d'exemple de ce qu'une école renseigne.
 
 - Modèles actuels : reçu, fiche d'inscription, bulletin, liste de classe, palmarès.
 - Grille des frais 2026-2027 : montants, devises, tranches, dates limites, réductions pratiquées.

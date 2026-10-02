@@ -16,13 +16,15 @@ Nom des fichiers rangés : `AAAA-MM-JJ-sujet.ext`. Les données de démonstratio
 
 Liste complète de ce qui manque (documents, réponses, décisions) avec les dates limites : `docs/07-a-fournir.md`.
 
-## Documents attendus (cahier des charges § 11)
+## Documents d'exemple (cahier des charges § 11)
+
+**Plus rien n'est attendu de l'ITIG** (2026-10-02) : elle saisit ses données elle-même dans l'application, comme toute école. « attendu » ci-dessous veut seulement dire « pas reçu » ; les numéros de tâches datent de l'ancien découpage (version de chaque tâche : `docs/05-plan-de-travail.md`).
 
 | Document | Statut | Fichier | Tâches |
 |---|---|---|---|
 | Logo, nom officiel, cachet, en-tête | **partiel** : logo récupéré sur le site web (JPEG 1280 px, fond blanc). Manquent : logo haute qualité ou vectoriel, version noir et blanc pour le reçu thermique, cachet, en-tête | `documents/2026-09-25-logo-itig-*` | 1.5, 3.2 |
-| Grille des frais 2026-2027 (montants, devises, tranches, dates, réductions) | attendu | | 2.5, 2.6, 4.8 |
-| Liste des élèves (Excel), classes, sections, options | attendu | | 1.7, 2.3, 4.8 |
+| Grille des frais 2026-2027 (montants, devises, tranches, dates, réductions) | attendu | | 2.5, 2.6 |
+| Liste des élèves (Excel), classes, sections, options | attendu | | 1.7, 2.3 |
 | Modèle de reçu actuel | attendu | | 3.2 |
 | Modèle de fiche d'inscription | attendu | | 2.4 |
 | Modèles de bulletin, liste de classe, palmarès | attendu | | 2.4, 6.3, 6.4 |
@@ -30,4 +32,4 @@ Liste complète de ce qui manque (documents, réponses, décisions) avec les dat
 | Grille salariale, primes, motivation des enseignants, avances | attendu | | 5.3 |
 | Découpage de l'année, date de remise des bulletins P1 | **indice** : P1 2025-2026 proclamée le 8 novembre 2025 (site web) ; date 2026-2027 à confirmer | | 1.7, ordre V1.1 / V1.2 |
 | Organigramme et rôles | **reçu** (site web, octobre 2024, peut-être dépassé) | `prive/2024-10-22-organigramme-itig.jpg` | 1.2 |
-| Matériel : ordinateurs, imprimante thermique (modèle), connexion, tablettes | attendu — la salle informatique a été endommagée en janvier 2025 | | 3.2, 4.8 |
+| Matériel : ordinateurs, imprimante thermique (modèle), connexion, tablettes | attendu — la salle informatique a été endommagée en janvier 2025 | | 3.2 |

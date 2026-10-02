@@ -4,14 +4,18 @@
 
 Objectif demandé : une première version utilisable en **un mois**, développée seul avec Claude Code. C'est possible **uniquement** avec un périmètre serré. Les priorités cochées (multi-écoles, rôles, finances, impayés, portail parents, tableau de bord, paie) forment trop de travail pour 4 semaines si on ajoute le hors-ligne. On découpe donc :
 
-| Lot | Durée | But |
-|---|---|---|
-| **V1.0** | semaines 1 à 4 | L'ITIG encaisse les frais sur Mwangaza, même sans internet, et les parents voient les paiements. |
-| **V1.1** | semaines 5 à 8 | Paie et dossiers du personnel, dépenses, relances push, cartes d'élève QR et pointage par tablette. |
-| **V1.2** | semaines 9 à 14 | Notes, bulletins EPST, délibération, présences RFID, discipline, messagerie, portail élèves. |
-| **V2** | ensuite | Voir cahier des charges. |
+| Lot | But |
+|---|---|
+| **V1.0** — finances, caisse, portail parents | Une école encaisse ses frais, même sans internet, et les parents voient les paiements. **Faite** ; il reste l'invitation des familles et le guide PDF (4.9, 4.10), puis elle est mise de côté ; mise en ligne quand l'utilisateur le décide. |
+| **V1.1** — plateforme, notifications, communication | Identité de la plateforme configurable (nom, logo…), console de la plateforme avec son propre design (au lieu de l'administration Django), notifications sur l'écran même application fermée, communication de l'école. |
+| **V1.2** — carte unique et présences | Une carte par élève et par membre du personnel (puce NFC + QR + photo), liée en une seconde ; pointage par la puce (téléphone Android enregistré, lecteur ESP32) ou par le QR (n'importe quel appareil enregistré) ; présences suivies et signalées aux parents. |
+| **V1.3** — personnel, paie, dépenses | Dossiers du personnel, paie, dépenses, espace enseignant, congés, pénalités de retard. |
+| **V1.4** — notes, bulletins, vie scolaire | Notes, bulletins EPST, délibération, discipline, messagerie, portail élèves, transferts. |
+| **V2** | Voir cahier des charges et `05` (abonnements, Mobile Money, SMS / WhatsApp, applications dans les stores…). |
 
-Pourquoi les finances d'abord : la rentrée a eu lieu le 1er septembre, les écoles encaissent maintenant, et la caisse est l'endroit où l'argent et la confiance se jouent. Pourquoi la paie en V1.1 : la première paie se fait en fin de mois, elle peut arriver quelques semaines après la caisse. Bulletins (décision Q6 du 2026-09-26) : la 1re période 2026 reste sur papier à l'ITIG ; les bulletins se font avec Mwangaza à partir de la 2e période / 1er semestre ; l'ordre V1.1 puis V1.2 ne change pas.
+Découpage revu le 2026-10-02 à la demande de l'utilisateur : la plateforme et les notifications d'abord (elles servent à toutes les fonctions suivantes), puis la carte et les présences (les présences du personnel nourrissent la paie), puis la paie, puis les notes. **On n'attend rien de l'ITIG** : c'est l'école d'exemple ; comme toute école, elle saisit ses données elle-même.
+
+Pourquoi les finances d'abord : la rentrée a eu lieu le 1er septembre, les écoles encaissent maintenant, et la caisse est l'endroit où l'argent et la confiance se jouent. Pourquoi la paie en V1.1 : la première paie se fait en fin de mois, elle peut arriver quelques semaines après la caisse. Bulletins : V1.4 ; une école qui les veut plus tôt les fait sur papier en attendant (la décision Q6 du 2026-09-26, « à partir de la P2 », est remplacée par le découpage du 2026-10-02).
 
 Deux modules non cochés sont **indispensables** au portail parents et à la caisse, donc inclus en V1.0 : élèves / inscriptions et classes.
 
@@ -82,6 +86,7 @@ Le **hors-ligne** est conçu dès le premier jour (identifiants, synchronisation
 - **H4** — Il voit les annonces de l'école.
 - **H5** — Il met à jour son adresse et ses contacts ; la modification est signalée au secrétariat de chaque école de ses enfants, qui l'applique à sa propre fiche.
 - **H6** — Le portail s'installe sur l'écran d'accueil du téléphone et reste léger.
+- **H7** — L'école invite toutes ses familles d'un coup : une lettre PDF par famille (adresse du portail avec QR, code famille, étapes), imprimable par classe, ou un message prêt à partager ; elle voit quelles familles ont activé leur compte. *(ajouté le 2026-10-02)*
 
 ### I. Transversal
 
@@ -89,14 +94,19 @@ Le **hors-ligne** est conçu dès le premier jour (identifiants, synchronisation
 - **I2** — Interface en français, traduction anglaise disponible. Textes du serveur (administration, messages, PDF, Excel) traduits aussi ; ils suivent la langue choisie dans l'application, pas celle du navigateur.
 - **I3** — Guide de première connexion pour caissier, comptable et parent.
 - **I4** — Sauvegarde quotidienne automatique vers un stockage externe, restauration testée une fois.
+- **I5** — Guide de la version en PDF : ce qu'elle fait, rôle par rôle, avec captures ; ses limites et ce qu'apportent les versions suivantes. *(ajouté le 2026-10-02)*
 
 ## 3. Hors périmètre V1.0 (ne pas coder maintenant)
 
+Version de chaque fonction : `05-plan-de-travail.md`.
+
 Paie, RH, dépenses, notes, bulletins, délibération, présences, discipline, messagerie, portail élèves, paiement en ligne, SMS / WhatsApp, applications dans les stores, connexion Google, pré-inscription en ligne, bibliothèque, cantine, transport, ateliers, IA, rapports EPST, comptabilité SYSCOHADA complète.
 
-## 4. Critères de réussite du pilote ITIG
+## 4. Critères de réussite d'une école qui démarre
 
-- Tous les élèves de l'ITIG importés et inscrits dans leur classe.
+Valables pour toute école, l'ITIG comprise ; rien n'est attendu d'une école en particulier.
+
+- Tous les élèves de l'école importés et inscrits dans leur classe.
 - Les caissiers encaissent uniquement sur Mwangaza pendant 2 semaines, y compris pendant des coupures.
 - Aucune différence entre la clôture de caisse et l'argent compté qui soit due au logiciel.
 - Au moins 30 % des familles ont activé leur compte parent à la fin du premier mois.

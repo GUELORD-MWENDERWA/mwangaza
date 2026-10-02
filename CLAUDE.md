@@ -3,7 +3,7 @@
 Plateforme de gestion scolaire multi-écoles pour la RDC, lancement à Goma.
 École pilote : **ITIG Don Bosco Goma** (institut technique, ~1 200 élèves, ateliers mécanique / auto / électricité / électronique).
 
-**L'ITIG est l'école d'exemple, pas la seule école.** Elle donne un cas concret (niveaux, options, frais, reçus, bulletins, rôles), mais chaque école, l'ITIG comprise, saisit elle-même ses vraies données dans l'application. On n'attend pas les documents de l'ITIG : ce qui manque, Claude l'invente de façon réaliste pour les données de démonstration.
+**L'ITIG est l'école d'exemple, pas la seule école.** Elle donne un cas concret (niveaux, options, frais, reçus, bulletins, rôles), mais chaque école, l'ITIG comprise, saisit elle-même ses vraies données dans l'application. **On n'attend rien de l'ITIG** (ni documents, ni données, ni essai sur place) : aucune tâche n'en dépend ; ce qui manque, Claude l'invente de façon réaliste pour les données de démonstration.
 
 ## Au début de chaque session
 
@@ -24,7 +24,7 @@ Lire `docs/06-suivi.md` (état actuel, tâche en cours, bloquants) avant toute a
 
 Espace de travail de Claude : `docs/claude/` — `plans/` (plan de chaque tâche avant de coder), `recherches/` (notes avec sources), `revues/` (anciennes revues, jusqu'à la 1.7 ; le résultat de `/verifier` va maintenant dans la PR).
 
-GitHub (dépôt privé `GUELORD-MWENDERWA/mwangaza`) : un jalon par version (V1.0, V1.1, V1.2, V2), une issue par tâche titrée « <numéro> — … » ; la PR de la tâche contient `Closes #<n>`. Règles des PR : section « Travail avec GitHub ».
+GitHub (dépôt privé `GUELORD-MWENDERWA/mwangaza`) : un jalon par version (V1.0, V1.1, V1.2, V1.3, V1.4, V2 ; découpage du 2026-10-02 dans `05`), une issue par tâche titrée « <numéro> — … » ; la PR de la tâche contient `Closes #<n>`. Règles des PR : section « Travail avec GitHub ».
 
 Si une demande sort du périmètre de `02-perimetre-v1.md`, le signaler avant de coder.
 
@@ -34,7 +34,7 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 
 - Backend : Python 3.12+, Django 5.2 LTS, Django REST Framework, drf-spectacular (OpenAPI), PostgreSQL 16+, Celery + Redis, WeasyPrint (PDF)
 - Frontend : TypeScript, React, Vite, vite-plugin-pwa (Workbox), Dexie.js (IndexedDB), TanStack Query, React Router, Tailwind CSS + shadcn/ui, react-hook-form + zod, i18next
-- Deux applications front : `frontend/apps/gestion` (personnel de l'école, **hors-ligne d'abord**) et `frontend/apps/portail` (parents et élèves, en ligne, léger)
+- Applications front : `frontend/apps/gestion` (personnel de l'école, **hors-ligne d'abord**), `frontend/apps/portail` (parents et élèves, en ligne, léger) et, à partir de la V1.1 (5.2), `frontend/apps/console` (console de la plateforme pour le super-admin, à `admin.<domaine>` ; l'administration Django ne sert plus qu'au dépannage)
 - Infra : Docker Compose, Caddy, un VPS, Cloudflare (DNS + wildcard), sauvegardes PostgreSQL vers stockage objet
 - Tests : pytest + pytest-django + factory_boy ; Vitest ; Playwright (dont scénarios hors-ligne)
 - Qualité : ruff (lint + format), ESLint + Prettier, pre-commit, GitHub Actions
@@ -49,7 +49,7 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 6. **Permissions** : vérifier la permission côté serveur sur chaque endpoint ; le front ne fait que masquer.
 7. **i18n** : aucun texte d'interface en dur ; français par défaut, anglais disponible.
 8. **Pas de nouvelle dépendance** sans l'expliquer et demander.
-9. **Rien en dur pour une école** : nom, logo, couleur, options, frais, formats et exemplaires des reçus, rôles personnalisés… viennent des paramètres de l'école, jamais du code.
+9. **Rien en dur pour une école ni pour la plateforme** : nom, logo, couleur, options, frais, formats et exemplaires des reçus, rôles personnalisés… viennent des paramètres de l'école ; le nom, le logo, les couleurs et le contact de la plateforme (aujourd'hui « Mwangaza ») viendront de ses paramètres (tâche 5.1), jamais du code.
 
 ## Conventions de code
 
@@ -125,7 +125,7 @@ Adresses en dev : Gestion `http://itig.localhost:5173/app/` (le sous-domaine = c
 
 ## Économie de tokens (obligatoire)
 
-Le quota de tokens est limité et 23 tâches restent avant la V1.0 : une tâche doit tenir dans une conversation. La qualité ne baisse pas : les 9 règles non négociables, pas de requêtes N+1, listes paginées, pas de code bâclé ; une tâche = une branche = une PR (base `main`), Actions vert, l'utilisateur fusionne.
+Le quota de tokens est limité et 30 tâches restent (2 pour clore la V1.0, 28 de la V1.1 à la V1.4) : une tâche doit tenir dans une conversation. La qualité ne baisse pas : les 9 règles non négociables, pas de requêtes N+1, listes paginées, pas de code bâclé ; une tâche = une branche = une PR (base `main`), Actions vert, l'utilisateur fusionne.
 
 - **Tests peu nombreux, utiles, réalistes.** Écrire : isolation entre écoles, permissions, argent, audit, vraies règles métier ; Playwright seulement pour un chemin critique (connexion, caisse, hors-ligne). Ne pas écrire : ce que Django, DRF ou React garantissent déjà, les variantes presque identiques, les libellés ou la mise en page, les cas irréalistes. Dans un fichier de tests ouvert pour la tâche, supprimer ou fusionner les tests redondants (pas de grand nettoyage à part) ; **ne jamais supprimer** un test d'isolation, de permission, d'argent ou d'audit. Erreurs glissées exprès seulement pour l'argent, l'isolation et le hors-ligne.
 - **Lancer peu.** Pendant le travail : les tests du module touché, depuis la racine — `set -a && . ./.env && set +a && cd backend && uv run pytest apps/<app> -q | tail -3` (variables de `.env`, que `make` charge d'habitude) ; `cd frontend && pnpm exec vitest run apps/gestion/src/features/<dossier> | tail -5` (depuis `frontend/` : sa configuration). **Pas de suite complète en local** (≈ 9 min sur la machine) : la CI la lance (≈ 5 min, trois jobs en parallèle).

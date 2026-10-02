@@ -28,8 +28,8 @@ Alternatives écartées : Laravel ou Node (tu devrais réapprendre) ; Flutter po
                          VPS ─ Caddy (HTTPS)
         ┌─────────────────────────┼─────────────────────────────┐
   {ecole}.mwangaza.school   parents.mwangaza.school     admin.mwangaza.school
-   /app  → PWA Gestion      /  → PWA Portail            → super-admin
-   /api  → Django           /api/portal → Django        (administration Django)
+   /app  → PWA Gestion      /  → PWA Portail            → console (V1.1)
+   /api  → Django           /api/portal → Django        /api → Django
    /v/{id} → vérif reçu
         └─────────────────────────┼─────────────────────────────┘
                        Django (gunicorn) ── Celery ── Redis
@@ -55,7 +55,7 @@ mwangaza/
 │   │   ├── schools/            # School, AcademicYear, Term, Level, Track, ClassGroup
 │   │   ├── students/           # Student, Family, Guardian, Enrollment, imports
 │   │   ├── finance/            # FeeType, FeeRule, InstallmentTemplate, StudentCharge, Discount, Payment (+ reçu imprimable), CashRegister, CashClosing, ExchangeRate
-│   │   ├── payroll/            # V1.1
+│   │   ├── payroll/            # V1.3
 │   │   ├── portal/             # API du portail familles
 │   │   ├── notifications/      # annonces, web push
 │   │   ├── sync/               # Device, push/pull, change log
@@ -64,6 +64,7 @@ mwangaza/
 ├── frontend/                   # workspace pnpm
 │   ├── apps/gestion/           # PWA personnel, hors-ligne
 │   ├── apps/portail/           # PWA familles
+│   ├── apps/console/           # console de la plateforme, super-admin (V1.1)
 │   └── packages/
 │       ├── api/                # client généré depuis OpenAPI
 │       ├── ui/                 # composants partagés
@@ -152,7 +153,7 @@ Consultation des élèves et de leur situation financière, encaissement, impres
 ## 7. Impression
 
 - **Format du reçu choisi par l'école** (paramètres, `04` § 1) : thermique 58 mm ou 80 mm, ou imprimante ordinaire avec des reçus A6, A5 ou petit format (≈ 10 × 7 cm) sur une feuille A4, avec traits de découpe ; 1 ou 2 exemplaires (souche).
-- **Reçu thermique** : page HTML dédiée avec CSS `@page { size: 58mm auto; margin: 0 }` ou `80mm auto`, imprimée par la boîte de dialogue du navigateur (fonctionne hors-ligne). Configurer une fois l'imprimante par défaut sur le poste. Logo : version noir et blanc de l'école, sinon logo en niveaux de gris. Plus tard si besoin : impression directe ESC/POS via Web Serial / WebUSB. Le modèle exact de l'imprimante ne bloque rien : test sur la vraie imprimante à la mise en place (4.8).
+- **Reçu thermique** : page HTML dédiée avec CSS `@page { size: 58mm auto; margin: 0 }` ou `80mm auto`, imprimée par la boîte de dialogue du navigateur (fonctionne hors-ligne). Configurer une fois l'imprimante par défaut sur le poste. Logo : version noir et blanc de l'école, sinon logo en niveaux de gris. Plus tard si besoin : impression directe ESC/POS via Web Serial / WebUSB. Le modèle exact de l'imprimante ne bloque rien : chaque école choisit son format.
 - **A4** : même principe hors-ligne ; PDF serveur (WeasyPrint) pour les documents générés en ligne (listes, situations, fiches).
 - **QR code** généré dans le navigateur ; il pointe vers `https://{ecole}.mwangaza.school/v/{payment_id}`, suivi, sur un appareil mémorisé, du contenu du reçu signé par l'appareil : `?n=` numéro, `t=` heure en secondes, `a=` montant, `c=` devise, `r=` caisse, `s=` signature de `id|n|t|a|c|r` (3.5.2).
 - **Vérification d'un reçu imprimé hors ligne** : à son enregistrement (3.3), l'appareil crée une paire de clés ECDSA P-256 avec WebCrypto ; la clé privée, non exportable, reste dans le navigateur (IndexedDB) ; la clé publique est enregistrée sur `Device.public_key`. Chaque reçu est signé sur l'appareil. La page `/v/…` affiche le minimum (école, numéro, date, montant, élève en initiales, valide / annulé) : pour un paiement déjà synchronisé, elle lit la base et refuse un QR dont le contenu diffère ; pour un paiement pas encore reçu, elle vérifie la signature et affiche « reçu authentique, émis hors ligne par la caisse C1, en attente de synchronisation ». Un appareil révoqué ne produit plus de reçu valide. La signature n'ajoute aucune dépendance (WebCrypto est dans tous les navigateurs récents) ; le dessin du QR code en demandera une, à valider en 3.2.
@@ -184,12 +185,12 @@ Consultation des élèves et de leur situation financière, encaissement, impres
 - **Export école** : archive téléchargeable (Excel + PDF) de toutes les données de l'école.
 - **CI** : GitHub Actions — lint, tests, build ; déploiement manuel par une commande au début.
 
-## 10. Présences RFID (V1.2) — aperçu
+## 10. Carte unique et présences (V1.2) — aperçu
 
-- Lecteur ESP32 + module RFID/NFC (MFRC522 ou PN532) + écran/LED/buzzer, alimenté avec batterie tampon.
-- Enregistré comme `Device` de type `reader` avec un jeton propre à l'école.
-- Envoie `{card_token, timestamp, reader_id}` en HTTPS vers `/api/attendance/scan` ; stocke les pointages en mémoire flash si le réseau est coupé et les renvoie ensuite (idempotence par identifiant de pointage).
-- La carte porte un jeton aléatoire, révocable en cas de perte.
+- **Une carte** par élève et par membre du personnel : puce **NTAG215 / 216** (NFC Forum type 2, lue par tous les téléphones Android NFC et par les modules PN532 / RC522 ; les cartes MIFARE Classic, illisibles par beaucoup de téléphones, sont écartées) + QR code imprimé + photo. La puce et le QR portent le **même jeton secret** (pas le matricule), révocable en cas de perte ; la puce est protégée en écriture après l'encodage.
+- **Liaison** sur un appareil enregistré (`Device`) : scanner le QR imprimé puis poser la carte → le jeton est écrit dans la puce et son numéro de série noté ; refus d'une carte déjà liée ou d'une autre école.
+- **Pointage de deux façons** : puce lue par un téléphone Android enregistré (Web NFC de Chrome : lecture du numéro de série et du contenu, écriture ; pas sur iPhone) ou par un lecteur **ESP32** (PN532 + écran + buzzer, `Device` de type `reader`, jeton propre à l'école) ; QR lu par la caméra de n'importe quel appareil enregistré, iPhone compris.
+- Pointages `{card_token, timestamp, device}` envoyés au serveur ; hors ligne : gardés sur l'appareil (file d'opérations) ou en mémoire flash de l'ESP32, renvoyés ensuite (idempotence par identifiant de pointage).
 
 ## 11. Journal des décisions
 
@@ -311,3 +312,4 @@ Consultation des élèves et de leur situation financière, encaissement, impres
 | 2026-10-02 | Guides de première connexion (4.5.1, I3, M20) : entièrement dans le front, sans serveur. Gestion : guide choisi par le **code du rôle système** (`cashier`, sinon `accountant`), étapes filtrées par les droits ; chaque étape = une adresse + un élément marqué `data-guide` ; progression dans le `localStorage` par utilisateur (`mwangaza.guide.<id>.<guide>`), donc par appareil ; le guide ne change de page que depuis l'accueil, sur « Suivant » ou « Aide et guide ». Portail : page `/guide` après l'activation et depuis le profil, exemples fixes traduits | Marche hors-ligne d'office ; rien à synchroniser ; un rôle créé par l'école n'a pas de guide automatique (pas de texte propre à ses droits) |
 | 2026-10-02 | Traductions (4.5.2, I2) : tous les textes du serveur traduits en français dans `django.po` ; un test (`core/tests/test_translations.py`) refuse un texte vide ou « fuzzy » et un `.mo` pas recompilé, donc tout nouveau texte du serveur passe par `make messages` et sa traduction dans la même PR. Langue du serveur : cookie `django_language` (`LANGUAGE_COOKIE_NAME`) posé par `packages/i18n` au démarrage et à chaque changement de langue, lu par `LocaleMiddleware` avant `Accept-Language` ; vaut aussi pour les liens `<a download>` (Excel, PDF). Champs communs de `BaseModel` / `TenantModel` avec `verbose_name` traduisible (migrations sans SQL, sauf `id` : « ID » dans les deux langues). Anglais de l'interface : orthographe britannique déjà en place (colour, organisation, enrolment) mais « installment » ; « log in / log out », « student number », « track » | Un navigateur en anglais donnait Excel, PDF et messages en anglais avec une interface en français ; le test empêche le retour de textes non traduits sans demander gettext à la CI |
 | 2026-10-02 | Production prête (4.6.1 ; 4.6 découpée, domaine et VPS pas encore achetés) : une image par service depuis `infra/Dockerfile` (étapes front, backend, caddy), construite sur le serveur, sans registre ; **gunicorn** (dépendance acceptée le 2026-10-02 ; `FORWARDED_ALLOW_IPS=*`, seul Caddy le joint) ; certificat d'origine Cloudflare chargé par Caddy plutôt qu'un Caddy recompilé avec le plugin DNS de Cloudflare ; adresse IP réelle : plages de Cloudflare écrites dans le Caddyfile (`trusted_proxies`), `CF-Connecting-IP` → `X-Real-IP` → `CLIENT_IP_HEADER` ; HSTS réglable (`DJANGO_HSTS_SECONDS`, 0 pour l'essai local) ; domaine nu redirigé vers le portail ; fichiers des écoles sur un volume jusqu'à la 4.7 | Rien à installer d'autre que Docker sur le VPS ; certificat valable 15 ans, rien à renouveler ; un visiteur ne peut pas changer l'adresse vue par la limitation des tentatives ; `make prod-local` essaie la vraie configuration sans compte |
+| 2026-10-02 | Découpage des versions revu (demande de l'utilisateur) : V1.1 plateforme (identité configurable, console `frontend/apps/console` à `admin.<domaine>` avec son propre design, administration Django réservée au dépannage), notifications système Web Push (même application fermée ; iPhone : application installée) et communication ; V1.2 carte unique (NTAG215 / 216 + QR, même jeton) et présences (téléphone Android enregistré, ESP32, caméra QR) ; V1.3 personnel, paie, dépenses ; V1.4 notes et bulletins ; V2 renumérotée 9.x. On n'attend rien de l'ITIG (4.8 retirée) ; la V1.0 se clôt avec l'invitation des familles (4.9) et son guide PDF (4.10). Mise en ligne quand l'utilisateur le décide ; démonstration gratuite possible (Oracle Cloud + DuckDNS, certificats Let's Encrypt seulement pour une école qui existe) ; vraies données seulement avec le vrai domaine | Plateforme et notifications servent à toutes les fonctions suivantes ; présences du personnel avant la paie ; Web NFC n'existe que sur Chrome Android, d'où le QR sur la même carte ; changer de domaine après de vraies données casserait les applications installées et les QR des reçus |

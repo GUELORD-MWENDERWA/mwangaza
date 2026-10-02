@@ -30,9 +30,10 @@ Dernière mise à jour : 2026-09-26 (PR #83 fusionnée ; tâche 1.5 : super-admi
 | 14 | **[Relire et fusionner la PR #85 (tâche 1.6)](#10-comment-relire-et-fusionner-une-pr)** (premiers écrans : connexion, menu, Mon compte, session support) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make install` (**nouvelles dépendances du front** : React Router, TanStack Query, Tailwind, composants, formulaires, PWA, client de l'API, QR code, outils de test) ; pour `make test-e2e`, une fois : `cd frontend && pnpm exec playwright install chromium` (Chromium de Playwright, ~115 Mo) | 30 min | [x] |
 | 15 | **[Relire et fusionner la PR #86 (tâche 1.7)](#10-comment-relire-et-fusionner-une-pr)** (organisation scolaire ; écrans Paramètres de l'école, Organisation scolaire, Comptes du personnel, Rôles et permissions, Journal d'audit) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make migrate && make demo` (une migration : années, périodes, niveaux, options, classes, format du matricule) | 30 min | [x] |
 | 16 | Installer gettext une fois : `sudo apt install gettext` (outils des traductions du serveur, pour `make messages`) — fait le 2026-09-27 | 2 min | [x] |
-| 17 | **[Acheter le domaine, créer les comptes Cloudflare et VPS](#9-avant-la-semaine-4-tâche-46--comptes-et-achats)** (§ 9) : **urgent** — la production est prête et s'essaie sur ta machine (4.6.1, `make prod-local`) ; la mise en ligne (4.6.2) ne peut pas commencer sans eux ; le stockage objet suit pour la 4.7 | 1 h | [ ] |
+| 17 | [Mise en ligne : hébergement et domaine](#9-mise-en-ligne-462--comptes-et-achats) (§ 9) : **quand tu le décides**, ne bloque plus rien (2026-10-02) — la production est prête et s'essaie sur ta machine (`make prod-local`) ; démonstration gratuite possible, vraies données d'une école seulement avec le vrai domaine | 1 h | [ ] |
+| 18 | **Relire et fusionner la PR du nouveau découpage des versions** (branche `docs/plan-versions`) : V1.0 close avec 4.9 et 4.10, puis V1.1 plateforme et notifications, V1.2 carte et présences, V1.3 paie, V1.4 notes | 15 min | [ ] |
 
-À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). La 4.6.1 est faite : **la mise en ligne (4.6.2) attend la ligne 17**. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant).
+À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). La V1.0 est faite : il reste à la clore (4.9 invitation des familles, 4.10 guide PDF), puis la V1.1. Mise en ligne quand tu veux (ligne 17). [Rien à demander à l'ITIG](#8-litig--rien-à-demander).
 
 ---
 
@@ -194,41 +195,24 @@ La PR des décisions (#78, branche `docs/decisions-q1-q11`) reporte tes réponse
 
 ---
 
-## 8. L'ITIG : quoi demander
+## 8. L'ITIG : rien à demander
 
-**Rien ne bloque** (décision du 2026-09-26) : l'ITIG est l'école d'exemple ; Claude travaille avec des données fictives réalistes, et l'ITIG saisira ses vraies données elle-même dans l'application. Les documents reçus remplacent les données fictives. Détail : [`docs/07-a-fournir.md`](docs/07-a-fournir.md) § 2.
+**On n'attend rien de l'ITIG** (2026-10-02) : c'est l'école d'exemple, pas une étape du projet. Comme toute école, elle saisit ou importe elle-même ses données dans l'application (classes, frais, élèves en Excel, comptes), quand elle veut ; les données de démonstration sont inventées par Claude.
 
-| À demander | Sert à | Fait |
-|---|---|:-:|
-| Date de la remise des bulletins de la P1 2026 (I3) | calendrier ; confirme que la P1 reste sur papier | [ ] |
-| Qui joue le rôle de promoteur (I4) | comptes à créer en 4.8 | [ ] |
-| Photo du reçu actuel (I10) | ajuster le reçu et le montant en lettres (3.2) | [ ] |
-| Bulletins vierges et remplis, par niveau et option (I15) | bulletins (V1.2) | [ ] |
-| Code de l'école à 7 chiffres, N° ID et N° permanent des élèves ; bulletin pré-imprimé acheté ou non (I18) | bulletins (V1.2) | [ ] |
-| Si l'occasion se présente : classes 2026-2027, matricule, grille des frais, liste des élèves en Excel, fiche d'inscription, fonctionnement de la caisse, marque de l'imprimante, logo en bonne qualité (I1, I2, I5–I9, I11, I12) | rendre la démonstration plus proche de la réalité ; tester l'import et l'imprimante en 4.8 | [ ] |
-
-**Conseil** : une seule visite, avec une clé USB. Demander les fichiers Excel dans leur format d'origine, pas en PDF. Une photo au téléphone suffit pour un reçu, une fiche ou un bulletin.
-
-**Message à envoyer** (WhatsApp ou imprimé), à adapter :
-
-> Bonjour, pour préparer le logiciel de gestion de l'ITIG (élèves, frais, caisse, reçus, bulletins), j'aurais besoin de :
-> 1. la date prévue pour la remise des bulletins de la 1re période ;
-> 2. qui joue le rôle de promoteur de l'école ;
-> 3. une photo du reçu de paiement actuel ;
-> 4. un bulletin vierge et un bulletin rempli pour chaque niveau et option ;
-> 5. le code de l'école imprimé sur les bulletins (7 chiffres), et si les bulletins sont achetés pré-imprimés ;
-> 6. si possible : la grille des frais 2026-2027, la liste des élèves en Excel et le logo en bonne qualité.
-> Merci !
-
-**Quand tu reçois quelque chose** :
+Si un document arrive quand même :
 
 - un fichier → le mettre dans `docs/ecole-pilote/depot/` (hors Git), puis dans Claude Code : `/document-ecole`
-- une réponse sans fichier → `/noter l'ITIG dit que …`
 - une liste d'élèves ou tout fichier avec des noms reste **hors Git** (`depot/`, `prive/`) : ne jamais le mettre ailleurs dans le dossier.
 
 ---
 
-## 9. Avant la mise en ligne (tâche 4.6.2) : comptes et achats
+## 9. Mise en ligne (4.6.2) : comptes et achats
+
+**Quand tu le décides** ; rien d'autre n'en dépend. Deux façons :
+
+- **Démonstration gratuite** (données fictives seulement) : serveur Oracle Cloud « Always Free » (carte Visa ou Mastercard demandée à l'inscription, rien n'est prélevé ; un serveur peu utilisé peut être repris par Oracle) et adresse gratuite DuckDNS (`mwangaza.duckdns.org`, chaque école à `itig.mwangaza.duckdns.org`).
+- **Vraie mise en ligne** (vraies données d'une école) : les lignes du tableau ci-dessous. À faire **avant** qu'une école saisisse ses vraies données : changer d'adresse ensuite obligerait à réinstaller les applications et rendrait invérifiables les QR des reçus déjà imprimés.
+
 
 | Quoi | Comment | Fait |
 |---|---|:-:|
@@ -237,8 +221,8 @@ La PR des décisions (#78, branche `docs/decisions-q1-q11`) reporte tes réponse
 | VPS | 2 vCPU, 4 Go de RAM, Ubuntu 24.04 (Hetzner, DigitalOcean, OVH… ; moins de 20 $ / mois). À la création, ajouter ta clé SSH : `ssh-keygen -t ed25519` puis coller le contenu de `~/.ssh/id_ed25519.pub` | [ ] |
 | Stockage objet (sauvegardes, photos) | Backblaze B2 ou Cloudflare R2 : créer un compte et un « bucket » ; Claude dira quelles clés créer | [ ] |
 | Suivi d'erreurs | Sentry (offre gratuite) ou GlitchTip | [ ] |
-| Documents (T5, avant 4.8) | conditions d'utilisation, confidentialité, contrat avec l'ITIG : Claude peut rédiger un brouillon, à faire relire | [ ] |
-| Tarif du pilote (T6, avant 4.8) | décider : gratuit pendant l'essai ? | [ ] |
+| Documents (T5, avant les vraies données d'une école) | conditions d'utilisation, confidentialité, contrat avec chaque école : Claude peut rédiger un brouillon, à faire relire | [ ] |
+| Tarif des écoles (T6, avant les abonnements, 9.2) | décider : essai gratuit ? prix par élève ? | [ ] |
 
 Partout : activer la double authentification et garder les codes de secours. Les mots de passe et clés vont dans le `.env` du serveur, jamais dans une conversation ni dans le dépôt : Claude te dira quel nom de variable remplir.
 
@@ -319,6 +303,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 |---|---|---|
 | commande de déploiement (`make deploy`) | 4.6.2 | met en production sur le VPS en une commande |
 | sauvegarde et restauration | 4.7 | sauvegarde de la base, test de restauration |
+| `make guide` | 4.10 | guide de la version en PDF (ce qu'elle fait, rôle par rôle, ses limites) |
 
 ### Adresses en développement
 
