@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { json, mockApi, type Routes } from "../../test/api";
@@ -202,7 +202,9 @@ describe("Caisse (F1-F2)", () => {
     await user.type(amount, "150");
     await user.click(collect);
     await waitFor(() => expect(attempts).toBe(1));
-    await user.click(collect);
+    // Deux F9 avant le prochain rendu : un seul envoi, donc un seul reçu.
+    fireEvent.keyDown(window, { key: "F9" });
+    fireEvent.keyDown(window, { key: "F9" });
 
     expect(await screen.findByText("Paiement enregistré : reçu ALPHA-C2-26-000184.")).toBeTruthy();
     const sent = requests.filter((request) => request.method === "POST").map((r) => r.body);
@@ -220,6 +222,7 @@ describe("Caisse (F1-F2)", () => {
       ],
       note: "",
     });
+    expect(sent).toHaveLength(2);
     expect(sent[1]).toEqual(sent[0]);
 
     // Reçu (F3) : montant en lettres, solde juste après ce paiement, pas de taux sans conversion.
