@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-02 22:49+0200\n"
+"POT-Creation-Date: 2026-10-03 00:15+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -265,7 +265,8 @@ msgstr "code de secours"
 msgid "recovery codes"
 msgstr "codes de secours"
 
-#: apps/accounts/models.py:252 apps/audit/models.py:66 apps/audit/views.py:109
+#: apps/accounts/models.py:252 apps/audit/models.py:70 apps/audit/models.py:136
+#: apps/audit/views.py:109
 msgid "IP address"
 msgstr "Adresse IP"
 
@@ -277,7 +278,7 @@ msgstr "connexion ratée"
 msgid "failed logins"
 msgstr "connexions ratées"
 
-#: apps/accounts/permissions.py:43
+#: apps/accounts/permissions.py:44
 msgid ""
 "Your roles in this school require two-factor authentication: log in again."
 msgstr ""
@@ -520,7 +521,7 @@ msgstr ""
 msgid "Give a temporary password"
 msgstr "Donner un mot de passe provisoire"
 
-#: apps/accounts/views.py:53
+#: apps/accounts/views.py:54
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
@@ -888,7 +889,20 @@ msgstr "Session support ouverte"
 msgid "Support session closed"
 msgstr "Session support fermée"
 
-#: apps/audit/admin.py:12 apps/audit/admin.py:50 apps/audit/models.py:39
+#: apps/audit/actions.py:183
+msgid "Platform identity changed"
+msgstr "Identité de la plateforme modifiée"
+
+#: apps/audit/actions.py:184
+msgid "Platform logo changed"
+msgstr "Logo de la plateforme changé"
+
+#: apps/audit/actions.py:185
+msgid "Application icon changed"
+msgstr "Icône des applications changée"
+
+#: apps/audit/admin.py:12 apps/audit/admin.py:50 apps/audit/admin.py:79
+#: apps/audit/models.py:43 apps/audit/models.py:121
 msgid "action"
 msgstr "action"
 
@@ -896,55 +910,63 @@ msgstr "action"
 msgid "Audit"
 msgstr "Audit"
 
-#: apps/audit/models.py:47
+#: apps/audit/models.py:51 apps/audit/models.py:128
 msgid "by"
 msgstr "par"
 
-#: apps/audit/models.py:56
+#: apps/audit/models.py:60
 msgid "impersonated by"
 msgstr "via la session support de"
 
-#: apps/audit/models.py:60
+#: apps/audit/models.py:64 apps/audit/models.py:130
 msgid "object type"
 msgstr "type d'objet"
 
-#: apps/audit/models.py:61
+#: apps/audit/models.py:65 apps/audit/models.py:132
 msgid "object"
 msgstr "objet"
 
-#: apps/audit/models.py:62
+#: apps/audit/models.py:66 apps/audit/models.py:133
 msgid "object name"
 msgstr "nom de l'objet"
 
-#: apps/audit/models.py:64
+#: apps/audit/models.py:68 apps/audit/models.py:134
 msgid "before"
 msgstr "avant"
 
-#: apps/audit/models.py:65
+#: apps/audit/models.py:69 apps/audit/models.py:135
 msgid "after"
 msgstr "après"
 
-#: apps/audit/models.py:67 apps/sync/models.py:17
+#: apps/audit/models.py:71 apps/audit/models.py:137 apps/sync/models.py:17
 msgid "browser"
 msgstr "navigateur"
 
-#: apps/audit/models.py:72 apps/finance/models.py:418
+#: apps/audit/models.py:76 apps/finance/models.py:418
 #: apps/finance/models.py:524 apps/finance/models.py:612
 #: apps/finance/models.py:812 apps/sync/models.py:46 apps/sync/models.py:69
 msgid "device"
 msgstr "appareil"
 
-#: apps/audit/models.py:78
+#: apps/audit/models.py:82
 msgid "device time"
 msgstr "heure de l'appareil"
 
-#: apps/audit/models.py:85
+#: apps/audit/models.py:89
 msgid "audit log entry"
 msgstr "entrée du journal d'audit"
 
-#: apps/audit/models.py:86
+#: apps/audit/models.py:90
 msgid "audit log"
 msgstr "journal d'audit"
+
+#: apps/audit/models.py:143
+msgid "platform log entry"
+msgstr "entrée du journal de la plateforme"
+
+#: apps/audit/models.py:144
+msgid "platform log"
+msgstr "journal de la plateforme"
 
 #: apps/audit/serializers.py:126
 msgid "The end date is before the start date."
@@ -999,6 +1021,10 @@ msgstr "Journal d'audit"
 #: apps/audit/views.py:138
 msgid "System"
 msgstr "Système"
+
+#: apps/core/admin.py:19
+msgid "To change it: Identity screen of the platform console."
+msgstr "Pour la modifier : écran « Identité de la plateforme » de la console."
 
 #: apps/core/apps.py:10
 msgid "Core"
@@ -1123,7 +1149,7 @@ msgstr ""
 msgid "page"
 msgstr "page"
 
-#: apps/core/views.py:86
+#: apps/core/views.py:96
 #, python-format
 msgid "%(platform)s — Parents"
 msgstr "%(platform)s — Parents"
@@ -2761,7 +2787,7 @@ msgstr "niveau"
 msgid "levels"
 msgstr "niveaux"
 
-#: apps/schools/models.py:346 apps/schools/serializers.py:364
+#: apps/schools/models.py:346 apps/schools/serializers.py:365
 msgid "1 to 10 capital letters or digits."
 msgstr "1 à 10 lettres majuscules ou chiffres."
 
@@ -2896,17 +2922,17 @@ msgstr "Donnez chaque niveau de l'école une seule fois."
 msgid "Choose a member of the school's staff."
 msgstr "Choisissez un membre du personnel de l'école."
 
-#: apps/schools/serializers.py:79
+#: apps/schools/serializers.py:80
 #, python-format
 msgid "At most %(count)d header lines."
 msgstr "Au plus %(count)d lignes d'en-tête."
 
-#: apps/schools/serializers.py:107
+#: apps/schools/serializers.py:108
 #, python-format
 msgid "Unknown currency: %(codes)s."
 msgstr "Devise inconnue : %(codes)s."
 
-#: apps/schools/serializers.py:286
+#: apps/schools/serializers.py:287
 msgid "Choose the school year to copy from."
 msgstr "Choisissez l'année scolaire à reprendre."
 
@@ -2940,7 +2966,7 @@ msgstr ""
 msgid "Back to the schools"
 msgstr "Retour aux écoles"
 
-#: apps/schools/views.py:58
+#: apps/schools/views.py:59
 msgid "This school has no logo."
 msgstr "Cette école n'a pas de logo."
 

@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from apps.core import urls as core_urls
 from apps.finance.verification import verify_receipt, verify_statement
 from apps.schools.views import (
     SchoolLogoView,
@@ -18,6 +19,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/health/", health, name="health"),
     path("api/platform/", include("apps.core.urls")),
+    path("api/console/platform/", include(core_urls.console_urlpatterns)),
     path("api/school/", current_school, name="current-school"),
     path("api/school/logo/", school_logo, name="school-logo"),
     path("api/school/logo-monochrome/", school_logo_monochrome, name="school-logo-monochrome"),

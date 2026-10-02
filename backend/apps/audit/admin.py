@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.admin import ReadOnlyAdmin
 from apps.audit.actions import Action
-from apps.audit.models import AuditLog
+from apps.audit.models import AuditLog, PlatformAuditLog
 
 
 class ActionFilter(admin.SimpleListFilter):
@@ -49,4 +49,33 @@ class AuditLogAdmin(ReadOnlyAdmin):
 
     @admin.display(description=_("action"), ordering="action")
     def action_label(self, log: AuditLog) -> str:
+        return log.get_action_display()
+
+
+@admin.register(PlatformAuditLog)
+class PlatformAuditLogAdmin(ReadOnlyAdmin):
+    """Journal de la plateforme (console du super-admin), en lecture seule."""
+
+    list_display = ["created_at", "action_label", "actor", "entity_label", "ip"]
+    search_fields = ["entity_label", "actor__phone", "actor__last_name", "actor__first_name"]
+    fields = [
+        "id",
+        "created_at",
+        "action",
+        "actor",
+        "entity_type",
+        "entity_id",
+        "entity_label",
+        "before",
+        "after",
+        "ip",
+        "user_agent",
+    ]
+    date_hierarchy = "created_at"
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("actor")
+
+    @admin.display(description=_("action"), ordering="action")
+    def action_label(self, log: PlatformAuditLog) -> str:
         return log.get_action_display()

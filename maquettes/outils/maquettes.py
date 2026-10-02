@@ -339,6 +339,7 @@ PORTAIL = [
 # Console de la plateforme (super-admin, admin.<domaine>), son propre design (5.2).
 CONSOLE = [
     ("tableau-de-bord", "Tableau de bord", "V1.1", "5.2", True),
+    ("identite-plateforme", "Identité de la plateforme", "V1.1", "5.2.2", True),
 ]
 
 
@@ -376,7 +377,7 @@ def build_index() -> str:
         f'style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">{gestion}</div>\n'
         f'<h2 style="margin-top:12px">Portail familles — {len(PORTAIL)} écrans (mobile)</h2><div class="grid" '
         f'style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">{portail}</div>\n'
-        f'<h2 style="margin-top:12px">Console de la plateforme — {len(CONSOLE)} écran</h2><div class="grid" '
+        f'<h2 style="margin-top:12px">Console de la plateforme — {len(CONSOLE)} écrans</h2><div class="grid" '
         f'style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">{console}</div>\n'
         "</main></body></html>"
     )

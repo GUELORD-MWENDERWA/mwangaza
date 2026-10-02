@@ -108,6 +108,7 @@ Pas de menu latéral comme la Gestion : barre du haut en basalte (marque, pastil
 | Écran | Fichier | Lot | Réf. | État |
 |---|---|---|---|---|
 | Tableau de bord | `console/tableau-de-bord.html` | V1.1 | 5.2 | dessinée par Claude en 5.2.1 (à valider) ; codée en 5.2.1 (menu réduit au tableau de bord, la santé du serveur en pastille dans l'en-tête de la page au lieu de la barre du haut) |
+| Identité de la plateforme | `console/identite-plateforme.html` | V1.1 | 5.2.2 | dessinée par Claude en 5.2.2 (à valider) ; codée en 5.2.2, sans écart (sur téléphone, l'aperçu et les modifications passent sous le formulaire) |
 
 ### Menu de la Gestion
 

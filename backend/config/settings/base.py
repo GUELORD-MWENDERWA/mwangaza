@@ -191,6 +191,8 @@ SPECTACULAR_SETTINGS = {
     # Une seule liste de devises, sous un seul nom (devises de l'école, devise principale).
     "ENUM_NAME_OVERRIDES": {
         "CurrencyEnum": "apps.core.money.Currency",
+        "ActionEnum": "apps.audit.actions.Action",
+        "PlatformActionEnum": "apps.audit.actions.PlatformAction",
         "SchoolStatusEnum": "apps.schools.models.School.Status",
         "YearStatusEnum": "apps.schools.models.AcademicYear.Status",
         "EnrollmentStatusEnum": "apps.students.models.Enrollment.Status",

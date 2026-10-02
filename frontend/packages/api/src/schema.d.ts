@@ -823,6 +823,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/platform/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Identité de la plateforme : nom, nom court, couleurs, support, mentions légales, et les
+         *     dernières modifications. Chaque changement va dans le journal de la plateforme.
+         */
+        get: operations["console_platform_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Identité de la plateforme : nom, nom court, couleurs, support, mentions légales, et les
+         *     dernières modifications. Chaque changement va dans le journal de la plateforme.
+         */
+        patch: operations["console_platform_partial_update"];
+        trace?: never;
+    };
+    "/api/console/platform/icon/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Icône des applications (écran d'accueil, onglet) : PNG carré d'au moins 512 x 512 pixels,
+         *     1 Mo au plus ; sans elle, l'icône de la lampe.
+         */
+        post: operations["console_platform_icon_create"];
+        /**
+         * @description Icône des applications (écran d'accueil, onglet) : PNG carré d'au moins 512 x 512 pixels,
+         *     1 Mo au plus ; sans elle, l'icône de la lampe.
+         */
+        delete: operations["console_platform_icon_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/platform/logo/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Logo de la plateforme : PNG, JPEG ou SVG (sans script), 1 Mo au plus ; sans lui, la
+         *     lampe.
+         */
+        post: operations["console_platform_logo_create"];
+        /**
+         * @description Logo de la plateforme : PNG, JPEG ou SVG (sans script), 1 Mo au plus ; sans lui, la
+         *     lampe.
+         */
+        delete: operations["console_platform_logo_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/contact-changes/": {
         parameters: {
             query?: never;
@@ -3373,6 +3445,35 @@ export interface components {
             active_schools: components["schemas"]["ConsoleActiveSchool"][];
             health: components["schemas"]["ServerHealth"];
         };
+        /**
+         * @description Identité de la plateforme dans la console (5.2.2) : modifiable par le super-admin ;
+         *     couleurs illisibles refusées (contraste 4,5 : 1). Logo et icône s'envoient à part.
+         */
+        ConsolePlatform: {
+            name: string;
+            /** @description Under the application icon on the home screen (12 characters is best). */
+            short_name: string;
+            readonly logo: string | null;
+            readonly icon: string | null;
+            /**
+             * Main colour
+             * @description Buttons and links of the interface.
+             */
+            primary_color: string;
+            /**
+             * Accent colour
+             * @description Mark and highlights on the dark menu.
+             */
+            accent_color: string;
+            /** @description 0970000000 ou +243970000000 ; vide : aucun. */
+            support_phone: string;
+            support_email: string;
+            legal_notice: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+            /** @description Les dernières modifications, de la plus récente à la plus ancienne. */
+            readonly history: components["schemas"]["PlatformChange"][];
+        };
         ConsoleSchoolCounts: {
             active: number;
             trial: number;
@@ -4744,6 +4845,29 @@ export interface components {
              */
             homeroom_teacher?: string | null;
         };
+        /**
+         * @description Identité de la plateforme dans la console (5.2.2) : modifiable par le super-admin ;
+         *     couleurs illisibles refusées (contraste 4,5 : 1). Logo et icône s'envoient à part.
+         */
+        PatchedConsolePlatformRequest: {
+            name?: string;
+            /** @description Under the application icon on the home screen (12 characters is best). */
+            short_name?: string;
+            /**
+             * Main colour
+             * @description Buttons and links of the interface.
+             */
+            primary_color?: string;
+            /**
+             * Accent colour
+             * @description Mark and highlights on the dark menu.
+             */
+            accent_color?: string;
+            /** @description 0970000000 ou +243970000000 ; vide : aucun. */
+            support_phone?: string;
+            support_email?: string;
+            legal_notice?: string;
+        };
         PatchedEnrollmentUpdateRequest: {
             /** Format: uuid */
             class_group?: string;
@@ -5054,6 +5178,31 @@ export interface components {
             support_phone: string;
             support_email: string;
             legal_notice: string;
+        };
+        /**
+         * @description * `platform.updated` - Platform identity changed
+         *     * `platform.logo_changed` - Platform logo changed
+         *     * `platform.icon_changed` - Application icon changed
+         * @enum {string}
+         */
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed";
+        /** @description Une modification de l'identité, dans le journal de la plateforme. */
+        PlatformChange: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            readonly action: components["schemas"]["PlatformActionEnum"];
+            readonly actor: components["schemas"]["AuditActor"] | null;
+            before: unknown;
+            after: unknown;
+        };
+        PlatformIconUploadRequest: {
+            /**
+             * Format: binary
+             * @description PNG carré d'au moins 512 x 512 pixels, 1 Mo au plus.
+             */
+            icon: string;
         };
         PortalAccessRequest: {
             /** @description `true` : suspendre ; `false` : rétablir. */
@@ -8738,6 +8887,278 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConsoleDashboard"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_platform_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlatform"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_platform_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsolePlatformRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedConsolePlatformRequest"];
+                "multipart/form-data": components["schemas"]["PatchedConsolePlatformRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlatform"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_platform_icon_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["PlatformIconUploadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlatform"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_platform_icon_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlatform"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_platform_logo_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["LogoUploadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlatform"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_platform_logo_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlatform"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             403: {

@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.1 — plateforme, notifications, communication |
 | Lot | V1.1 |
-| Tâche en cours | aucune — 5.2.1 terminée (PR à fusionner) ; 5.2 découpée en 5.2.1 et 5.2.2 |
-| Prochaine tâche | 5.2.2 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
+| Tâche en cours | aucune — 5.2.2 terminée (PR à fusionner) |
+| Prochaine tâche | 5.3 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
 | Issue GitHub | #133 |
-| Branche | `tache/5.2.1-console` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/5.2.2-identite-console` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-02 |
 
 ## Avancement
@@ -24,7 +24,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production | 14 | 16 |
 | **V1.0** | **48** | **50** |
-| V1.1 — plateforme, notifications, communication | 2 | 8 |
+| V1.1 — plateforme, notifications, communication | 3 | 8 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
 | V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
@@ -53,6 +53,13 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-02 — Tâche 5.2.2 : identité de la plateforme dans la console
+
+- Fait : écran « Identité de la plateforme » de la console (`/identity` : nom, nom court, logo, icône, couleurs avec aperçu en direct, support, mentions légales, 5 dernières modifications), maquette `console/identite-plateforme` dessinée par Claude ; API `/api/console/platform/` (+ `logo/`, `icon/`) réservée au super-admin ; administration Django en lecture seule pour l'identité.
+- Décision : journal de la plateforme à part (`PlatformAuditLog`, sans école, immuable jusque dans la base) ; il servira aux actions de 5.3–5.4 (`03`, journal des décisions).
+- Tests : accès (403 / 404 hors console), journal (seulement ce qui change), couleur et fichiers refusés, remplacement des fichiers, immuabilité ; écran (enregistrement, refus sous le champ). 5.2 terminée.
+- Suite : 5.3 (console — écoles).
 
 ### 2026-10-02 — Tâche 5.2.1 : console de la plateforme (socle)
 - Fait : 5.2 découpée (5.2.1 ici, 5.2.2 identité ensuite). Troisième application `frontend/apps/console` (`admin.<domaine>`, port 5175, sans service worker) avec son propre design (maquette `console/tableau-de-bord` dessinée par Claude) : connexion du super-admin, tableau de bord de toutes les écoles (`GET /api/console/dashboard/` : écoles par statut, élèves, paiements du jour par devise, écoles les plus actives, santé du serveur) ; Caddy, Dockerfile, `make dev` / `dev-local`.

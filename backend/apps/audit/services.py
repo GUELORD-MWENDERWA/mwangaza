@@ -18,9 +18,9 @@ aussi.
 
 from django.db import models
 
-from apps.audit.actions import Action
+from apps.audit.actions import Action, PlatformAction
 from apps.audit.context import current_request_info
-from apps.audit.models import AuditLog
+from apps.audit.models import AuditLog, PlatformAuditLog
 from apps.core.tenancy import get_current_school
 
 _FROM_REQUEST = object()
@@ -118,6 +118,39 @@ def _entry(
         user_agent=info.user_agent,
         device_id=info.device_id if school and info.device_school_id == school.pk else None,
         device_time=device_time,
+    )
+
+
+def record_platform(
+    action: str,
+    entity: models.Model | None = None,
+    *,
+    actor,
+    before: dict | None = None,
+    after: dict | None = None,
+    label: str | None = None,
+) -> PlatformAuditLog:
+    """Une entrée dans le journal de la plateforme (console du super-admin, sans école) ; mêmes
+    règles que `record` : dans la transaction de l'action, seulement ce qui a changé, aucun
+    secret."""
+    if action not in PlatformAction.values:
+        raise ValueError(f"Action inconnue du journal de la plateforme : {action!r}")
+    _refuse_secrets(before)
+    _refuse_secrets(after)
+    if label is None:
+        label = str(entity) if entity is not None else ""
+    info = current_request_info()
+    return PlatformAuditLog.objects.create(
+        action=action,
+        actor=actor,
+        created_by=actor,
+        entity_type=entity._meta.label_lower if entity is not None else "",
+        entity_id=str(entity.pk) if entity is not None else "",
+        entity_label=label[:255],
+        before=before,
+        after=after,
+        ip=info.ip,
+        user_agent=info.user_agent,
     )
 
 

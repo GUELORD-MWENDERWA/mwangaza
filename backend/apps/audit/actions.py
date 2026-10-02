@@ -174,3 +174,12 @@ def domain_of(action: str) -> str:
 
 
 DOMAINS = sorted({domain_of(action) for action in Action.values})
+
+
+class PlatformAction(models.TextChoices):
+    """Actions du journal de la plateforme (`PlatformAuditLog`, sans école) : console du
+    super-admin. À part de `Action` : le journal d'une école ne les propose pas."""
+
+    PLATFORM_UPDATED = "platform.updated", _("Platform identity changed")
+    PLATFORM_LOGO_CHANGED = "platform.logo_changed", _("Platform logo changed")
+    PLATFORM_ICON_CHANGED = "platform.icon_changed", _("Application icon changed")
