@@ -119,6 +119,14 @@ export function StudentsPage() {
                 {t("students.print.classList.title")}
               </Link>
             </Button>
+            <Button asChild variant="outline">
+              <Link
+                to={`/students/invitations${filters.classGroup ? `?class=${filters.classGroup}` : ""}`}
+              >
+                <Icon name="qr" size={16} />
+                {t("students.invitations.title")}
+              </Link>
+            </Button>
             {can(me, ["students.import"]) && (
               <Button asChild variant="outline">
                 <Link to="/students/import">

@@ -3,7 +3,7 @@ import { applyServerErrors, useTranslation } from "@mwangaza/i18n";
 import { Banner, Button, Card, CardContent, Field, Input, PasswordInput } from "@mwangaza/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
 import { z } from "zod";
@@ -13,6 +13,13 @@ import { AuthFrame } from "./AuthFrame";
 import { FamilyCodeInput } from "./FamilyCodeInput";
 
 const FIELDS = ["phone", "code", "password"] as const;
+
+/** Code famille du QR de la lettre d'invitation (`/activate#K7QM3HPV`, 4.9) : après « # », il
+ *  n'est jamais envoyé au serveur ; « K7QM-3HPV » s'il a bien 8 caractères, sinon rien. */
+export function codeFromLink(hash: string): string {
+  const code = hash.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+  return code.length === 8 ? `${code.slice(0, 4)}-${code.slice(4)}` : "";
+}
 
 /** Activation du compte famille (maquette `activation`, H1) : numéro donné à l'école, code
  *  famille de la fiche d'inscription, mot de passe choisi ; connecté ensuite. */
@@ -31,10 +38,17 @@ export function ActivatePage() {
       }),
     [t],
   );
+  const [linked] = useState(() => codeFromLink(window.location.hash));
   const form = useForm({
     resolver: zodResolver(schema),
-    defaultValues: { phone: "", code: "", password: "" },
+    defaultValues: { phone: "", code: linked, password: "" },
   });
+  // Le code ne reste ni dans la barre d'adresse ni dans l'historique.
+  useEffect(() => {
+    if (window.location.hash) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+  }, []);
   const activate = useMutation({
     mutationFn: async (values: z.infer<typeof schema>) => {
       await ensureCsrf();

@@ -85,6 +85,14 @@ class Action(models.TextChoices):
         _("Family code printed on the registration form"),
     )
     STUDENTS_FAMILY_CODE_RENEWED = "students.family_code_renewed", _("New family code")
+    STUDENTS_FAMILY_INVITATION_PRINTED = (
+        "students.family_invitation_printed",
+        _("Portal invitation letter printed (family code)"),
+    )
+    STUDENTS_FAMILY_INVITATION_SHARED = (
+        "students.family_invitation_shared",
+        _("Portal invitation message opened (family code)"),
+    )
     STUDENTS_PORTAL_SUSPENDED = "students.portal_suspended", _("Parent portal access suspended")
     STUDENTS_PORTAL_RESTORED = "students.portal_restored", _("Parent portal access restored")
     STUDENTS_CONTACT_CHANGE_APPLIED = (

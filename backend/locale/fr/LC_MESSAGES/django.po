@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-02 17:31+0200\n"
+"POT-Creation-Date: 2026-10-02 21:22+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -722,159 +722,167 @@ msgstr "Code famille imprimé sur la fiche d'inscription"
 msgid "New family code"
 msgstr "Nouveau code famille"
 
-#: apps/audit/actions.py:88
+#: apps/audit/actions.py:90
+msgid "Portal invitation letter printed (family code)"
+msgstr "Lettre d'invitation au portail imprimée (code famille)"
+
+#: apps/audit/actions.py:94
+msgid "Portal invitation message opened (family code)"
+msgstr "Message d'invitation au portail ouvert (code famille)"
+
+#: apps/audit/actions.py:96
 msgid "Parent portal access suspended"
 msgstr "Accès au portail suspendu"
 
-#: apps/audit/actions.py:89
+#: apps/audit/actions.py:97
 msgid "Parent portal access restored"
 msgstr "Accès au portail rétabli"
 
-#: apps/audit/actions.py:92
+#: apps/audit/actions.py:100
 msgid "Contact details sent by the parent applied"
 msgstr "Coordonnées envoyées par le parent appliquées"
 
-#: apps/audit/actions.py:96
+#: apps/audit/actions.py:104
 msgid "Contact details sent by the parent not applied"
 msgstr "Coordonnées envoyées par le parent non appliquées"
 
-#: apps/audit/actions.py:99
+#: apps/audit/actions.py:107
 msgid "Parent portal activated"
 msgstr "Portail activé par le parent"
 
-#: apps/audit/actions.py:100
+#: apps/audit/actions.py:108
 msgid "Parent chose a new password"
 msgstr "Nouveau mot de passe choisi par le parent"
 
-#: apps/audit/actions.py:102
+#: apps/audit/actions.py:110
 msgid "Fee type created"
 msgstr "Type de frais créé"
 
-#: apps/audit/actions.py:103
+#: apps/audit/actions.py:111
 msgid "Fee type changed"
 msgstr "Type de frais modifié"
 
-#: apps/audit/actions.py:104
+#: apps/audit/actions.py:112
 msgid "Fee type deleted"
 msgstr "Type de frais supprimé"
 
-#: apps/audit/actions.py:105
+#: apps/audit/actions.py:113
 msgid "Fee rule created"
 msgstr "Barème créé"
 
-#: apps/audit/actions.py:106
+#: apps/audit/actions.py:114
 msgid "Fee rule changed"
 msgstr "Barème modifié"
 
-#: apps/audit/actions.py:107
+#: apps/audit/actions.py:115
 msgid "Fee rule deleted"
 msgstr "Barème supprimé"
 
-#: apps/audit/actions.py:110
+#: apps/audit/actions.py:118
 msgid "Fee rules copied from another school year"
 msgstr "Barèmes repris d'une autre année"
 
-#: apps/audit/actions.py:112
+#: apps/audit/actions.py:120
 msgid "Exchange rate set"
 msgstr "Taux de l'année saisi"
 
-#: apps/audit/actions.py:113
+#: apps/audit/actions.py:121
 msgid "Custom schedule set"
 msgstr "Échéancier particulier enregistré"
 
-#: apps/audit/actions.py:114 apps/finance/models.py:694
+#: apps/audit/actions.py:122 apps/finance/models.py:694
 msgid "Discount granted"
 msgstr "Réduction accordée"
 
-#: apps/audit/actions.py:115
+#: apps/audit/actions.py:123
 msgid "Discount revoked"
 msgstr "Réduction retirée"
 
-#: apps/audit/actions.py:117
+#: apps/audit/actions.py:125
 msgid "Cash register created"
 msgstr "Caisse créée"
 
-#: apps/audit/actions.py:118
+#: apps/audit/actions.py:126
 msgid "Cash register changed"
 msgstr "Caisse modifiée"
 
-#: apps/audit/actions.py:119
+#: apps/audit/actions.py:127
 msgid "Cash session opened"
 msgstr "Caisse ouverte"
 
-#: apps/audit/actions.py:120
+#: apps/audit/actions.py:128
 msgid "Cash session closed"
 msgstr "Caisse clôturée"
 
-#: apps/audit/actions.py:121
+#: apps/audit/actions.py:129
 msgid "Payment recorded"
 msgstr "Paiement encaissé"
 
-#: apps/audit/actions.py:123
+#: apps/audit/actions.py:131
 msgid "Receipt reprinted"
 msgstr "Reçu réimprimé"
 
-#: apps/audit/actions.py:127
+#: apps/audit/actions.py:135
 msgid "Payment cancellation requested"
 msgstr "Annulation de paiement demandée"
 
-#: apps/audit/actions.py:129
+#: apps/audit/actions.py:137
 msgid "Payment cancelled"
 msgstr "Paiement annulé"
 
-#: apps/audit/actions.py:132
+#: apps/audit/actions.py:140
 msgid "Payment cancellation refused"
 msgstr "Annulation de paiement refusée"
 
-#: apps/audit/actions.py:136
+#: apps/audit/actions.py:144
 msgid "Cancellation receipt reprinted"
 msgstr "Reçu d'annulation réimprimé"
 
-#: apps/audit/actions.py:139
+#: apps/audit/actions.py:147
 msgid "Student credit created"
 msgstr "Crédit d'élève créé"
 
-#: apps/audit/actions.py:140
+#: apps/audit/actions.py:148
 msgid "Student credit used"
 msgstr "Crédit d'élève utilisé"
 
-#: apps/audit/actions.py:141
+#: apps/audit/actions.py:149
 msgid "Student credit voided"
 msgstr "Crédit d'élève annulé"
 
-#: apps/audit/actions.py:143
+#: apps/audit/actions.py:151
 msgid "Unpaid fees exported"
 msgstr "Impayés exportés"
 
-#: apps/audit/actions.py:145
+#: apps/audit/actions.py:153
 msgid "Financial statement printed"
 msgstr "Situation financière imprimée"
 
-#: apps/audit/actions.py:148
+#: apps/audit/actions.py:156
 msgid "Announcement published"
 msgstr "Annonce publiée"
 
-#: apps/audit/actions.py:149
+#: apps/audit/actions.py:157
 msgid "Announcement archived"
 msgstr "Annonce archivée"
 
-#: apps/audit/actions.py:152
+#: apps/audit/actions.py:160
 msgid "Device remembered"
 msgstr "Appareil mémorisé"
 
-#: apps/audit/actions.py:153
+#: apps/audit/actions.py:161
 msgid "Device disconnected"
 msgstr "Appareil déconnecté"
 
-#: apps/audit/actions.py:156
+#: apps/audit/actions.py:164
 msgid "Audit log exported"
 msgstr "Journal d'audit exporté"
 
-#: apps/audit/actions.py:160
+#: apps/audit/actions.py:168
 msgid "Support session opened"
 msgstr "Session support ouverte"
 
-#: apps/audit/actions.py:161
+#: apps/audit/actions.py:169
 msgid "Support session closed"
 msgstr "Session support fermée"
 
@@ -997,7 +1005,7 @@ msgstr "Socle"
 msgid "Some fields are invalid."
 msgstr "Certains champs ne sont pas valides."
 
-#: apps/core/errors.py:98 apps/core/tests/test_translations.py:63
+#: apps/core/errors.py:98 apps/core/tests/test_translations.py:66
 msgid "There is no school at this address."
 msgstr "Il n'y a pas d'école à cette adresse."
 
@@ -3041,6 +3049,53 @@ msgstr "Ligne"
 msgid "Problems"
 msgstr "Problèmes"
 
+#: apps/students/invitations.py:33
+msgid ""
+"This family cannot be invited: its portal is activated, suspended, without a "
+"phone number or with an expired code."
+msgstr ""
+"Cette famille ne peut pas être invitée : son portail est activé ou suspendu, "
+"son tuteur principal n'a pas de numéro, ou son code a expiré."
+
+#: apps/students/invitations.py:39
+msgid "Every family of this class has activated its account or cannot."
+msgstr ""
+"Toutes les familles de cette classe ont activé leur compte, ou ne le peuvent "
+"pas encore."
+
+#: apps/students/invitations.py:214
+#, python-format
+msgid ""
+"%(school)s: follow your children's payments and the school's announcements "
+"on your phone."
+msgstr ""
+"%(school)s : suivez les paiements de vos enfants et les annonces de l'école "
+"sur votre téléphone."
+
+#: apps/students/invitations.py:218
+#, python-format
+msgid "1. Open %(url)s"
+msgstr "1. Ouvrez %(url)s"
+
+#: apps/students/invitations.py:219
+#, python-format
+msgid "2. Enter your number %(phone)s and the family code %(code)s"
+msgstr "2. Saisissez votre numéro %(phone)s et le code famille %(code)s"
+
+#: apps/students/invitations.py:221
+msgid "3. Choose a password."
+msgstr "3. Choisissez un mot de passe."
+
+#: apps/students/invitations.py:225
+#: apps/students/templates/students/invitation_letters.html:39
+#, python-format
+msgid "This code works once, until %(date)s."
+msgstr "Ce code sert une seule fois, jusqu'au %(date)s."
+
+#: apps/students/invitations.py:228
+msgid "Do not give this code to anyone."
+msgstr "Ne donnez ce code à personne."
+
 #: apps/students/models.py:27
 msgid "family code"
 msgstr "code famille"
@@ -3306,11 +3361,11 @@ msgstr "La photo ne doit pas dépasser 1 Mo."
 msgid "The photo must be a PNG or JPEG image."
 msgstr "La photo doit être une image PNG ou JPEG."
 
-#: apps/students/serializers.py:280
+#: apps/students/serializers.py:328
 msgid "Either an existing family or new guardians, not both."
 msgstr "Soit une famille existante, soit de nouveaux tuteurs, pas les deux."
 
-#: apps/students/serializers.py:497
+#: apps/students/serializers.py:545
 msgid "Give the name and the phone number."
 msgstr "Donnez le nom et le numéro de téléphone."
 
@@ -3386,6 +3441,58 @@ msgstr "Né le"
 #: apps/students/templates/students/class_list.html:41
 msgid "No active student in this class."
 msgstr "Aucun élève actif dans cette classe."
+
+#: apps/students/templates/students/invitation_letters.html:2
+msgid "Invitation to the parents' portal"
+msgstr "Invitation au portail des familles"
+
+#: apps/students/templates/students/invitation_letters.html:26
+msgid "INVITATION TO THE PARENTS' PORTAL"
+msgstr "INVITATION AU PORTAIL DES FAMILLES"
+
+#: apps/students/templates/students/invitation_letters.html:27
+msgid "To the parents of"
+msgstr "Aux parents de"
+
+#: apps/students/templates/students/invitation_letters.html:29
+msgid ""
+"Follow on your phone the payments, the receipts and the announcements of the "
+"school."
+msgstr ""
+"Suivez sur votre téléphone les paiements, les reçus et les annonces de "
+"l'école."
+
+#: apps/students/templates/students/invitation_letters.html:33
+#, python-format
+msgid "Open <b>%(portal_url)s</b> or scan the QR code."
+msgstr "Ouvrez <b>%(portal_url)s</b> ou scannez le code QR."
+
+#: apps/students/templates/students/invitation_letters.html:34
+#, python-format
+msgid "Enter your number: <b>%(phone)s</b>"
+msgstr "Saisissez votre numéro : <b>%(phone)s</b>"
+
+#: apps/students/templates/students/invitation_letters.html:35
+msgid "Enter the family code opposite and choose a password."
+msgstr "Saisissez le code famille ci-contre et choisissez un mot de passe."
+
+#: apps/students/templates/students/invitation_letters.html:37
+#: apps/students/templates/students/registration_form.html:78
+msgid "FAMILY CODE"
+msgstr "CODE FAMILLE"
+
+#: apps/students/templates/students/invitation_letters.html:40
+msgid ""
+"Not your number any more, or a problem? Ask the school's secretariat. Do not "
+"give this code to anyone: it opens your family's account."
+msgstr ""
+"Ce n'est plus votre numéro, ou un problème ? Adressez-vous au secrétariat de "
+"l'école. Ne donnez ce code à personne : il ouvre le compte de votre famille."
+
+#: apps/students/templates/students/invitation_letters.html:41
+#, python-format
+msgid "Printed on %(date)s by %(printed_by)s"
+msgstr "Imprimé le %(date)s par %(printed_by)s"
 
 #: apps/students/templates/students/registration_form.html:2
 msgid "Registration form"
@@ -3514,10 +3621,6 @@ msgstr "Saisissez votre numéro de téléphone"
 msgid "Enter the family code opposite and choose a password"
 msgstr "Saisissez le code famille ci-contre et choisissez un mot de passe"
 
-#: apps/students/templates/students/registration_form.html:78
-msgid "FAMILY CODE"
-msgstr "CODE FAMILLE"
-
 #: apps/students/templates/students/registration_form.html:80
 #, python-format
 msgid ""
@@ -3527,19 +3630,19 @@ msgstr ""
 "Gardez ce code : il donne accès aux informations de vos enfants. Imprimé le "
 "%(date)s à %(time)s · Mwangaza"
 
-#: apps/students/views.py:71
+#: apps/students/views.py:75
 msgid "This student has no photo."
 msgstr "Cet élève n'a pas de photo."
 
-#: apps/students/views.py:481
+#: apps/students/views.py:544
 msgid "No current school year: choose one."
 msgstr "Aucune année scolaire en cours : choisissez-en une."
 
-#: apps/students/views.py:561
+#: apps/students/views.py:624
 msgid "import-report"
 msgstr "rapport-import"
 
-#: apps/students/views.py:568
+#: apps/students/views.py:631
 msgid "students-template"
 msgstr "modele-eleves"
 

@@ -1,7 +1,8 @@
 // Fiche famille (M10, D4) : code famille, enfants de cette école seulement (la famille appartient à
 // l'école, Q10), tuteurs et contacts modifiables d'un seul envoi (un seul tuteur principal, son
 // téléphone obligatoire). Modifier : `students.edit`. Réimprimer le code : 2.4 ; nouveau code et
-// état du portail : 4.4.1 ; « Suspendre l'accès » : 4.4.2 ; « Échu non payé » : 2.7.
+// état du portail : 4.4.1 ; « Suspendre l'accès » : 4.4.2 ; « Échu non payé » : 2.7 ;
+// lettre et message d'invitation au portail : 4.9.
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api, call } from "@mwangaza/api";
 import { formatDate, type TFunction, useTranslation } from "@mwangaza/i18n";
@@ -39,15 +40,10 @@ import { keys, useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { LoadError } from "../status/StatusPages";
 import { GuardianTable } from "./StudentFamilyTab";
-import { type Family, RELATIONSHIPS, type Relationship, useFamily } from "./data";
+import { type Family, familyName, RELATIONSHIPS, type Relationship, useFamily } from "./data";
+import { InvitationActions } from "./InvitationActions";
 
 const MAX_GUARDIANS = 10;
-
-/** « KAMBALE » : les noms des enfants, sinon le tuteur principal, sinon le code. */
-function familyName(family: Family): string {
-  const names = [...new Set(family.students.map((child) => child.last_name))];
-  return names.join(" · ") || family.guardians[0]?.full_name || family.code;
-}
 
 export function FamilyPage() {
   const { t } = useTranslation();
@@ -85,6 +81,11 @@ export function FamilyPage() {
               <Code className="text-[1.4rem]">{data.code}</Code>
             </div>
             <PortalStatus family={data} />
+            {can(me, ["students.edit"]) && data.portal_status === "pending" && (
+              <span className="flex flex-wrap justify-center gap-1.5">
+                <InvitationActions familyId={data.id} name={name} long />
+              </span>
+            )}
             {can(me, ["students.edit"]) && <NewCodeButton family={data} />}
             {can(me, ["students.edit"]) && <PortalAccessButton family={data} />}
           </div>

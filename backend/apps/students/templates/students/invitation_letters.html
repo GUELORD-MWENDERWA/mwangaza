@@ -1,0 +1,44 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% translate "Invitation to the parents' portal" %}{% endblock %}
+{% block style %}
+@page { margin: 0; @bottom-right { content: none; } }
+@media screen { body { padding: 0; } .letter { border: 1px solid #ccc; margin-bottom: 8px; } }
+.letter { height: 148mm; padding: 10mm 14mm 8mm; position: relative; overflow: hidden; font-size: 11pt; }
+.letter:nth-child(odd) { border-bottom: 1px dashed #888; }
+.letter:nth-child(even) { break-after: page; }
+.letter:last-child { break-after: auto; }
+h1 { margin: .7em 0 .3em; font-size: 1.35em; }
+.contact { white-space: pre-line; }
+.portal { margin-top: .8em; border: 2px solid #111; border-radius: 8px; padding: .7em 1em; align-items: center; }
+.steps { line-height: 1.7; }
+.qr { width: 26mm; height: 26mm; }
+.code { border: 2px dashed #111; border-radius: 6px; padding: .4em .8em; text-align: center; }
+.code b { display: block; font-size: 1.8em; letter-spacing: .08em; font-family: "DejaVu Sans Mono", monospace; }
+.foot { position: absolute; left: 14mm; right: 14mm; bottom: 7mm; }
+{% endblock %}
+{% block content %}
+{% for letter in letters %}
+<section class="letter">
+  <div class="row">
+    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% else %}<div class="logo-text">{{ school_name|slice:":4"|upper }}</div>{% endif %}
+    <div><b>{{ school_name|upper }}</b>{% if contact %}<div class="small contact">{{ contact }}</div>{% endif %}</div>
+  </div>
+  <h1>{% translate "INVITATION TO THE PARENTS' PORTAL" %}</h1>
+  <p class="center">{% translate "To the parents of" %}
+    {% for child in letter.children %}<b>{{ child.name }}</b>{% if child.class %} ({{ child.class }}){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+  <p>{% translate "Follow on your phone the payments, the receipts and the announcements of the school." %}</p>
+  <div class="row portal">
+    <img class="qr" src="{{ letter.qr }}" alt="">
+    <div class="grow steps">
+      1. {% blocktranslate %}Open <b>{{ portal_url }}</b> or scan the QR code.{% endblocktranslate %}<br>
+      2. {% blocktranslate with phone=letter.phone %}Enter your number: <b>{{ phone }}</b>{% endblocktranslate %}<br>
+      3. {% translate "Enter the family code opposite and choose a password." %}
+    </div>
+    <div class="code"><span class="small">{% translate "FAMILY CODE" %}</span><b>{{ letter.code }}</b></div>
+  </div>
+  {% if letter.expires_at %}<p class="small"><b>{% blocktranslate with date=letter.expires_at|date:"d/m/Y" %}This code works once, until {{ date }}.{% endblocktranslate %}</b></p>{% endif %}
+  <p class="small">{% translate "Not your number any more, or a problem? Ask the school's secretariat. Do not give this code to anyone: it opens your family's account." %}</p>
+  <p class="small muted foot">{% blocktranslate with date=printed_at|date:"d/m/Y" %}Printed on {{ date }} by {{ printed_by }}{% endblocktranslate %}</p>
+</section>
+{% endfor %}
+{% endblock %}

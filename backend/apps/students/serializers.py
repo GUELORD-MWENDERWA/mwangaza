@@ -7,7 +7,7 @@ from apps.audit.serializers import AuditLogSerializer
 from apps.finance import services as finance
 from apps.finance.serializers import BalanceSerializer
 from apps.schools.models import AcademicYear, ClassGroup, Track
-from apps.students import documents, imports
+from apps.students import documents, imports, invitations
 from apps.students.models import (
     ContactChange,
     Enrollment,
@@ -47,6 +47,8 @@ class GuardianSerializer(serializers.ModelSerializer):
 class FamilySerializer(serializers.ModelSerializer):
     guardians = GuardianSerializer(many=True, read_only=True)
     student_count = serializers.IntegerField(read_only=True)
+    # Pourquoi la famille ne peut pas (ou plus) activer son compte (H7).
+    portal_status = serializers.SerializerMethodField()
 
     class Meta:
         model = Family
@@ -58,7 +60,12 @@ class FamilySerializer(serializers.ModelSerializer):
             "activated_at",
             "code_expires_at",
             "portal_suspended_at",
+            "portal_status",
         ]
+
+    @extend_schema_field(serializers.ChoiceField(choices=invitations.STATUSES))
+    def get_portal_status(self, family: Family) -> str:
+        return invitations.portal_status(family)
 
 
 class FamilyStudentSerializer(serializers.ModelSerializer):
@@ -95,6 +102,47 @@ class FamilyFilterSerializer(serializers.Serializer):
     search = serializers.CharField(
         required=False, max_length=100, help_text="Code famille, nom ou téléphone d'un tuteur."
     )
+    class_group = serializers.PrimaryKeyRelatedField(
+        queryset=ClassGroup.objects,
+        required=False,
+        help_text="Familles des élèves actifs de cette classe, dans l'ordre de la liste de classe.",
+    )
+    portal = serializers.ChoiceField(
+        choices=["activated", "not_activated"], required=False, help_text="Compte du portail."
+    )
+
+
+class ClassActivationSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    families = serializers.IntegerField()
+    activated = serializers.IntegerField()
+    invitable = serializers.IntegerField(help_text="Familles qui peuvent recevoir une lettre.")
+
+
+class ActivationSummarySerializer(serializers.Serializer):
+    """Comptes du portail activés (H7) : école, puis chaque classe de l'année en cours."""
+
+    families = serializers.IntegerField()
+    activated = serializers.IntegerField()
+    classes = ClassActivationSerializer(many=True)
+
+
+class InvitationLetterQuerySerializer(serializers.Serializer):
+    output = serializers.ChoiceField(
+        choices=["pdf", "html"],
+        default="pdf",
+        help_text="`html` : aperçu, code famille masqué ; `pdf` : à imprimer (noté au journal).",
+    )
+
+
+class InvitationLettersQuerySerializer(InvitationLetterQuerySerializer):
+    class_group = serializers.PrimaryKeyRelatedField(queryset=ClassGroup.objects)
+
+
+class InvitationMessageSerializer(serializers.Serializer):
+    text = serializers.CharField()
+    phone = serializers.CharField(help_text="Numéro du tuteur principal (E.164).")
 
 
 class EnrollmentSerializer(serializers.ModelSerializer):

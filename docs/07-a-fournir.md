@@ -37,7 +37,7 @@ Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, compt
 
 ### V1.0 — clôture
 
-À dessiner par Claude au début de la tâche (règle du 2026-09-29) : lettre d'invitation des familles et suivi des comptes activés (4.9) · mise en page du guide PDF de la V1.0 (4.10).
+Dessinées par Claude en 4.9 (à valider) : invitations au portail et suivi des comptes activés (`gestion/invitations-portail`), lettre d'invitation, deux par A4 (`gestion/lettre-invitation`). À dessiner au début de la tâche : mise en page du guide PDF de la V1.0 (4.10).
 
 ### V1.1 — plateforme, notifications, communication
 
@@ -114,4 +114,4 @@ Commande `make demo` (créée en 1.1, enrichie à chaque tâche qui ajoute un mo
 - **Frais** (2.5–2.6, en attendant I5) : grille fictive d'après les maquettes — minerval en tranches USD, fonctionnement et frais connexes en une fois, atelier par option, motivation des enseignants mensuelle en FC, Exetat en 4e ; taux de l'année s'il manque (ITIG 1 $ = 2 850 FC, Volcans 2 830 FC) ; ce que doit chaque élève inscrit ; quelques réductions (enfants du personnel, fratries, bourses).
 - **Caisse** (3.1–3.8) : ITIG « Caisse 1 » (caissière `0000001005`) et « Caisse 2 » (comptable `0000001004`), Volcans « Caisse principale » ; toutes refermées à chaque `make demo`. Une seule fois par école : paiements de deux semaines avant la rentrée jusqu'à hier (sur dix élèves, quatre à jour avant la 1re tranche, deux ont donné 60,00 $, un le dû du 30/09, trois rien), une session clôturée par caisse et par jour ; deux crédits d'élèves (bourse accordée après paiement, minerval encaissé deux fois hors ligne) ; demandes d'annulation (une validée, une refusée, une en attente, une du comptable que le directeur valide) ; un appareil par caissier et secrétaire (« Appareils connectés »).
 - **Annonces** (4.3) : une seule fois par école, publiées par le directeur : deux à toutes les familles (dont une archivée), une aux dernières classes ; lues par une famille sur deux, jamais par celle du compte du portail (ses annonces restent « Nouvelle »).
-- **Portail** (4.4) : compte `0002000001` (mot de passe `mwangaza-demo`) relié à la famille de l'ITIG qui a aussi des enfants aux Volcans ; le code des Volcans, affiché par `make demo`, sert à « Ajouter un enfant d'une autre école » ; accès remis à chaque `make demo`. Trois demandes de coordonnées des parents attendent le secrétariat de l'ITIG (une seule fois).
+- **Portail** (4.4) : compte `0002000001` (mot de passe `mwangaza-demo`) relié à la famille de l'ITIG qui a aussi des enfants aux Volcans ; le code des Volcans, affiché par `make demo`, sert à « Ajouter un enfant d'une autre école » ; accès remis à chaque `make demo`. Trois demandes de coordonnées des parents attendent le secrétariat de l'ITIG (une seule fois). Environ une famille sur trois de chaque école a activé son compte depuis la rentrée (comptes sans mot de passe utilisable, une seule fois par école : 4.9).
