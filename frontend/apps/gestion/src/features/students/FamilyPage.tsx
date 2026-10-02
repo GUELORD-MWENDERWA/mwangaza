@@ -1,12 +1,13 @@
 // Fiche famille (M10, D4) : code famille, enfants de cette école seulement (la famille appartient à
 // l'école, Q10), tuteurs et contacts modifiables d'un seul envoi (un seul tuteur principal, son
-// téléphone obligatoire). Modifier : `students.edit`. Réimprimer le code : 2.4 ; nouveau code,
-// portail parents : 4.4 ; « Échu non payé » : 2.7.
+// téléphone obligatoire). Modifier : `students.edit`. Réimprimer le code : 2.4 ; nouveau code et
+// état du portail : 4.4.1 ; « Suspendre l'accès » : 4.4.2 ; « Échu non payé » : 2.7.
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api, call } from "@mwangaza/api";
-import { type TFunction, useTranslation } from "@mwangaza/i18n";
+import { formatDate, type TFunction, useTranslation } from "@mwangaza/i18n";
 import {
   Avatar,
+  Banner,
   Button,
   Card,
   CardContent,
@@ -15,6 +16,7 @@ import {
   CardTitle,
   Checkbox,
   Code,
+  ConfirmDialog,
   Field,
   Icon,
   Input,
@@ -30,10 +32,11 @@ import { Controller, type Path, useFieldArray, useForm } from "react-hook-form";
 import { Link, useParams } from "react-router";
 import { z } from "zod";
 
-import { applyServerErrors } from "../../lib/errors";
+import { applyServerErrors, errorMessage } from "../../lib/errors";
 import { studentName } from "../../lib/people";
 import { can } from "../../lib/permissions";
 import { keys, useCurrentMe } from "../../lib/queries";
+import { useCurrentSchool } from "../../lib/school";
 import { LoadError } from "../status/StatusPages";
 import { GuardianTable } from "./StudentFamilyTab";
 import { type Family, RELATIONSHIPS, type Relationship, useFamily } from "./data";
@@ -76,9 +79,13 @@ export function FamilyPage() {
               <Tag>{t("students.family.contacts", { count: data.guardians.length })}</Tag>
             </div>
           </div>
-          <div className="rounded-card border-2 border-lamp px-4 py-2.5 text-center">
-            <div className="text-[.78rem] text-ink-3">{t("students.card.familyCode")}</div>
-            <Code className="text-[1.4rem]">{data.code}</Code>
+          <div className="flex flex-col items-center gap-1.5">
+            <div className="rounded-card border-2 border-lamp px-4 py-2.5 text-center">
+              <div className="text-[.78rem] text-ink-3">{t("students.card.familyCode")}</div>
+              <Code className="text-[1.4rem]">{data.code}</Code>
+            </div>
+            <PortalStatus family={data} />
+            {can(me, ["students.edit"]) && <NewCodeButton family={data} />}
           </div>
         </CardContent>
       </Card>
@@ -137,6 +144,62 @@ export function FamilyPage() {
           <GuardianTable guardians={data.guardians} withEmail />
         )}
       </Card>
+    </>
+  );
+}
+
+/** Portail activé ou pas ; date limite d'un nouveau code pas encore utilisé. */
+function PortalStatus({ family }: { family: Family }) {
+  const { t, i18n } = useTranslation();
+  const school = useCurrentSchool();
+  const date = (iso: string) => formatDate(iso, i18n.language, school.timezone);
+  return (
+    <small className="max-w-[220px] text-center text-ink-3">
+      {family.activated_at
+        ? t("students.family.portalActivated", { date: date(family.activated_at) })
+        : t("students.family.portalNotActivated")}
+      {family.code_expires_at && (
+        <>
+          <br />
+          {t("students.family.codeValidUntil", { date: date(family.code_expires_at) })}
+        </>
+      )}
+    </small>
+  );
+}
+
+/** « Nouveau code » (M10) : l'ancien ne marche plus ; le nouveau sert une fois, 30 jours
+ *  (activation ou mot de passe oublié du portail). */
+function NewCodeButton({ family }: { family: Family }) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const renew = useMutation({
+    mutationFn: () =>
+      call(api.POST("/api/families/{id}/new-code/", { params: { path: { id: family.id } } })),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: keys.families });
+      setOpen(false);
+    },
+  });
+  return (
+    <>
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+        <Icon name="refresh" size={14} />
+        {t("students.family.newCode")}
+      </Button>
+      <ConfirmDialog
+        open={open}
+        onOpenChange={setOpen}
+        title={t("students.family.newCodeTitle")}
+        confirmLabel={t("students.family.newCode")}
+        cancelLabel={t("common.cancel")}
+        pending={renew.isPending}
+        onConfirm={() => renew.mutate()}
+      >
+        <p>{t("students.family.newCodeHelp")}</p>
+        {renew.isError && <Banner tone="due">{errorMessage(renew.error, t)}</Banner>}
+      </ConfirmDialog>
     </>
   );
 }

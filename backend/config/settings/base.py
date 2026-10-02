@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "apps.finance",
     "apps.sync",
     "apps.notifications",
+    "apps.portal",
 ]
 
 MIDDLEWARE = [

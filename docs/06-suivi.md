@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 4 (Rapports, portail, production) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 4.3 terminée, PR #119 à fusionner |
-| Prochaine tâche | 4.4 |
-| Issue GitHub | #31 |
-| Branche | `tache/4.3-annonces` (PR #119) ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-01 |
+| Tâche en cours | aucune — 4.4.1 terminée, PR à fusionner |
+| Prochaine tâche | 4.4.2 |
+| Issue GitHub | #32 (fermée par la 4.4.4) |
+| Branche | `tache/4.4.1-acces-portail` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-02 |
 
 ## Avancement
 
@@ -22,8 +22,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 4 | 9 |
-| **V1.0** | **38** | **43** |
+| Semaine 4 — Rapports, portail, production | 5 | 12 |
+| **V1.0** | **39** | **46** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-02 — Tâche 4.4.1 : accès au portail des familles
+- Fait : 4.4 découpée en 4 sous-tâches (accès, enfants et paiements, annonces, coordonnées). App `portal` (`/api/portal/auth/activate/`, `login/`, `reset/`, `me/`, refusés à l'adresse d'une école) ; « Nouveau code » et état du portail sur la fiche famille (`Family.code_expires_at`) ; Portail : coquille (Tailwind, `ui`, `i18n`, client API), écrans connexion, activation, mot de passe oublié, accueil provisoire. Traduction des erreurs de l'API déplacée dans `@mwangaza/i18n` (partagée).
+- Tests : 8 tests serveur (même erreur pour un mauvais numéro ou code, blocage après 5 essais, code consommé, autres sessions fermées, compte du personnel refusé, école suspendue, 403 sans `students.edit`, 404 depuis une autre école, audit) ; 2 tests d'écrans. `make test` : 908 + 216 verts.
+- Décisions : portail sans double authentification, « Rester connecté » 30 jours, nouveau code à usage unique valable 30 jours, mot de passe oublié refusé pour un compte du personnel (`03`).
+- Suite : 4.4.2 (enfants, paiements, installable, « Suspendre l'accès »).
 
 ### 2026-10-01 — Tâche 4.3 : annonces côté école
 - Fait : app `notifications`, `Announcement` et `/api/announcements/` (`announcements.publish`) : publication à toutes les familles ou à certaines classes de l'année, PDF joint (jamais public), nombre de familles touchées (« Publier pour 156 familles »), archivage ; écran « Annonces » (formulaire, aperçu, liste Publiées / Archivées) ; 3 annonces fictives par école dans `make demo`.

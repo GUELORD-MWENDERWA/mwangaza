@@ -257,3 +257,37 @@ def is_trusted_device(request, user: User) -> bool:
     return data.get("user") == str(user.pk) and constant_time_compare(
         data.get("fingerprint", ""), _trusted_device_fingerprint(user)
     )
+
+
+# Portail des familles (H1, 4.4) : adresse sans école, session à part
+
+
+# « Rester connecté sur ce téléphone » ; sinon, fin de la session à la fermeture du navigateur.
+PORTAL_REMEMBER_DAYS = 30
+PASSWORD_CHANGE_REQUIRED = ApiError(
+    "password_change_required",
+    _("Replace your temporary password at your school's address first."),
+    403,
+)
+
+
+def log_in_portal(request, phone: str, password: str, *, remember: bool) -> User:
+    """Numéro et mot de passe, sans double authentification : le portail ne montre que les
+    enfants du compte, et sa session ne vaut pas à l'adresse d'une école (où elle est demandée).
+    Mot de passe provisoire refusé : l'école qui l'a donné le connaît."""
+    attempts.ensure_allowed(attempts.phone_key(phone), client_ip(request))
+    user = authenticate(request, phone=phone, password=password)
+    if user is None:
+        raise BusinessError(INVALID_CREDENTIALS)
+    if user.must_change_password:
+        raise BusinessError(PASSWORD_CHANGE_REQUIRED)
+    open_portal_session(request, user, remember=remember)
+    return user
+
+
+def open_portal_session(request, user: User, *, remember: bool) -> None:
+    """Connecte `user` au portail : après la connexion, l'activation ou un nouveau mot de passe."""
+    cancel(request)
+    login(request, user, backend=settings.AUTHENTICATION_BACKENDS[0])
+    request.session.set_expiry(PORTAL_REMEMBER_DAYS * 24 * 3600 if remember else 0)
+    attempts.clear_failures(user.phone)

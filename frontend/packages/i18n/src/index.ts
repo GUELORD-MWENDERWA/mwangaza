@@ -5,6 +5,7 @@ import { initReactI18next } from "react-i18next";
 import { en } from "./locales/en";
 import { fr } from "./locales/fr";
 
+export { applyServerErrors, errorMessage, fieldMessage, firstErrorMessage } from "./errors";
 export {
   formatDate,
   formatDateTime,

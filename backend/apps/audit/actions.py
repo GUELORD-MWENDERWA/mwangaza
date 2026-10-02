@@ -84,6 +84,10 @@ class Action(models.TextChoices):
         "students.family_code_printed",
         _("Family code printed on the registration form"),
     )
+    STUDENTS_FAMILY_CODE_RENEWED = "students.family_code_renewed", _("New family code")
+    # Portail des familles (H1).
+    PORTAL_ACTIVATED = "portal.activated", _("Parent portal activated")
+    PORTAL_PASSWORD_RESET = "portal.password_reset", _("Parent chose a new password")
     # Frais, barèmes et taux de l'année (E1, E2, E5).
     FINANCE_FEE_TYPE_CREATED = "finance.fee_type_created", _("Fee type created")
     FINANCE_FEE_TYPE_UPDATED = "finance.fee_type_updated", _("Fee type changed")

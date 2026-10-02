@@ -356,6 +356,14 @@ class FamilyViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsVi
         services.update_family(family, actor=request.user, **serializer.validated_data)
         return self._family(family)
 
+    @extend_schema(request=None, responses={200: FamilyDetailSerializer, **ERRORS})
+    @action(detail=True, methods=["post"], url_path="new-code")
+    def new_code(self, request: Request, pk=None) -> Response:
+        """« Nouveau code » (M10) : l'ancien ne marche plus ; le nouveau sert une fois, 30 jours
+        (activation ou mot de passe oublié du portail)."""
+        family = services.renew_family_code(self.get_object(), actor=request.user)
+        return self._family(family)
+
 
 @extend_schema(tags=["students"])
 class EnrollmentViewSet(StudentsViewSet):
