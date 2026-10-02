@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 00:15+0200\n"
+"POT-Creation-Date: 2026-10-03 01:12+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -22,7 +22,7 @@ msgstr "Nom"
 msgid "Access"
 msgstr "Accès"
 
-#: apps/accounts/admin.py:75 apps/schools/admin.py:130
+#: apps/accounts/admin.py:75 apps/schools/admin.py:44
 msgid "Dates"
 msgstr "Dates"
 
@@ -236,7 +236,7 @@ msgstr "nom"
 msgid "role"
 msgstr "rôle"
 
-#: apps/accounts/models.py:201 apps/core/models.py:52 apps/schools/admin.py:210
+#: apps/accounts/models.py:201 apps/core/models.py:52 apps/schools/admin.py:59
 #: apps/schools/models.py:144
 msgid "school"
 msgstr "école"
@@ -483,7 +483,6 @@ msgid "Continue"
 msgstr "Continuer"
 
 #: apps/accounts/templates/admin/accounts/user/temporary_password.html:6
-#: apps/schools/templates/admin/schools/school/created.html:6
 msgid "Home"
 msgstr "Accueil"
 
@@ -605,7 +604,7 @@ msgstr "Mot de passe provisoire donné"
 msgid "Two-factor authentication reset"
 msgstr "Double authentification réinitialisée"
 
-#: apps/audit/actions.py:48 apps/schools/admin.py:202
+#: apps/audit/actions.py:48 apps/audit/actions.py:187
 msgid "School created"
 msgstr "École créée"
 
@@ -617,11 +616,11 @@ msgstr "Paramètres de l'école modifiés"
 msgid "School logo changed"
 msgstr "Logo de l'école changé"
 
-#: apps/audit/actions.py:51
+#: apps/audit/actions.py:51 apps/audit/actions.py:189
 msgid "School suspended"
 msgstr "École suspendue"
 
-#: apps/audit/actions.py:52
+#: apps/audit/actions.py:52 apps/audit/actions.py:190
 msgid "School reactivated"
 msgstr "École réactivée"
 
@@ -900,6 +899,10 @@ msgstr "Logo de la plateforme changé"
 #: apps/audit/actions.py:185
 msgid "Application icon changed"
 msgstr "Icône des applications changée"
+
+#: apps/audit/actions.py:188
+msgid "School or subscription changed"
+msgstr "École ou abonnement modifié"
 
 #: apps/audit/admin.py:12 apps/audit/admin.py:50 apps/audit/admin.py:79
 #: apps/audit/models.py:43 apps/audit/models.py:121
@@ -2430,95 +2433,43 @@ msgstr "Le caissier"
 msgid "Check this receipt: %(verify_url)s"
 msgstr "Vérifier ce reçu : %(verify_url)s"
 
-#: apps/schools/admin.py:30
-msgid "Currencies"
-msgstr "Devises"
-
-#: apps/schools/admin.py:56
-msgid "Head: phone"
-msgstr "Préfet : téléphone"
-
-#: apps/schools/admin.py:56
-msgid "e.g. 0971234567."
-msgstr "ex. 0971234567."
-
-#: apps/schools/admin.py:59
-msgid "Head: last name"
-msgstr "Préfet : nom"
-
-#: apps/schools/admin.py:62
-msgid "Required for a phone number without an account."
-msgstr "Obligatoire pour un numéro de téléphone sans compte."
-
-#: apps/schools/admin.py:65
-msgid "Head: middle name"
-msgstr "Préfet : post-nom"
-
-#: apps/schools/admin.py:68
-msgid "Head: first name"
-msgstr "Préfet : prénom"
-
-#: apps/schools/admin.py:83
-msgid "This phone number has no account yet: enter the name."
-msgstr "Ce numéro de téléphone n'a pas encore de compte : saisissez le nom."
-
-#: apps/schools/admin.py:98
+#: apps/schools/admin.py:29
 msgid "Identity"
 msgstr "Identité"
 
-#: apps/schools/admin.py:112
+#: apps/schools/admin.py:43
 msgid "Subscription"
 msgstr "Abonnement"
 
-#: apps/schools/admin.py:134
-msgid "Head of the school"
-msgstr "Préfet de l'école"
-
-#: apps/schools/admin.py:214
+#: apps/schools/admin.py:63
 msgid "subscription"
 msgstr "abonnement"
 
-#: apps/schools/admin.py:218
+#: apps/schools/admin.py:67
 #, python-format
 msgid "trial until %(date)s"
 msgstr "essai jusqu'au %(date)s"
 
-#: apps/schools/admin.py:220
+#: apps/schools/admin.py:69
 #, python-format
 msgid "paid until %(date)s"
 msgstr "payé jusqu'au %(date)s"
 
-#: apps/schools/admin.py:223 apps/students/models.py:116
+#: apps/schools/admin.py:72 apps/students/models.py:116
 msgid "students"
 msgstr "élèves"
 
-#: apps/schools/admin.py:227
+#: apps/schools/admin.py:76
 msgid "last activity"
 msgstr "dernière activité"
 
-#: apps/schools/admin.py:236
+#: apps/schools/admin.py:85
 msgid "support"
 msgstr "support"
 
-#: apps/schools/admin.py:244
+#: apps/schools/admin.py:93
 msgid "Open as the school"
 msgstr "Ouvrir en tant qu'école"
-
-#: apps/schools/admin.py:247
-msgid "Suspend the selected schools (nothing is deleted)"
-msgstr "Suspendre les écoles sélectionnées (rien n'est supprimé)"
-
-#: apps/schools/admin.py:251
-msgid "Suspended: nobody can log in any more."
-msgstr "Suspendue : plus personne ne peut se connecter."
-
-#: apps/schools/admin.py:253
-msgid "Reactivate the selected schools"
-msgstr "Réactiver les écoles sélectionnées"
-
-#: apps/schools/admin.py:257
-msgid "Reactivated."
-msgstr "Réactivée."
 
 #: apps/schools/apps.py:10
 msgid "Schools"
@@ -2532,6 +2483,18 @@ msgid ""
 msgstr ""
 "Le texte n'est pas lisible sur cette couleur, ni en blanc ni en encre "
 "foncée. Couleur lisible proche : %(proposal)s."
+
+#: apps/schools/console_serializers.py:68
+msgid "Use « Suspend » to suspend a school."
+msgstr "Utilisez « Suspendre » pour suspendre une école."
+
+#: apps/schools/console_serializers.py:71
+msgid "Reactivate the school first."
+msgstr "Réactivez d'abord l'école."
+
+#: apps/schools/console_serializers.py:119
+msgid "This phone number has no account yet: enter the name."
+msgstr "Ce numéro de téléphone n'a pas encore de compte : saisissez le nom."
 
 #: apps/schools/logos.py:48
 msgid "The logo must not exceed 1 MB."
@@ -2936,37 +2899,7 @@ msgstr "Devise inconnue : %(codes)s."
 msgid "Choose the school year to copy from."
 msgstr "Choisissez l'année scolaire à reprendre."
 
-#: apps/schools/templates/admin/schools/school/created.html:14
-#, python-format
-msgid "%(name)s is ready at %(url)s/app/"
-msgstr "%(name)s est prête à l'adresse %(url)s/app/"
-
-#: apps/schools/templates/admin/schools/school/created.html:16
-#, python-format
-msgid "Temporary password of the head, %(name)s (%(phone)s), shown only once:"
-msgstr ""
-"Mot de passe provisoire du préfet, %(name)s (%(phone)s), affiché une seule "
-"fois :"
-
-#: apps/schools/templates/admin/schools/school/created.html:18
-msgid ""
-"Give it to the head: they choose their own password and turn on two-factor "
-"authentication at their first login."
-msgstr ""
-"Donnez-le au préfet, qui choisira son propre mot de passe et activera la "
-"double authentification à sa première connexion."
-
-#: apps/schools/templates/admin/schools/school/created.html:20
-#, python-format
-msgid "%(name)s already had an account: they log in with their usual password."
-msgstr ""
-"%(name)s avait déjà un compte : connexion avec le mot de passe habituel."
-
-#: apps/schools/templates/admin/schools/school/created.html:22
-msgid "Back to the schools"
-msgstr "Retour aux écoles"
-
-#: apps/schools/views.py:59
+#: apps/schools/views.py:65
 msgid "This school has no logo."
 msgstr "Cette école n'a pas de logo."
 

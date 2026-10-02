@@ -437,7 +437,7 @@ function History({ changes }: { changes: Change[] }) {
               key={change.id}
               className="flex flex-col gap-0.5 border-t border-line px-4 py-2.5 text-[.9rem] first:border-t-0"
             >
-              <b>{t(`console.identity.actions.${change.action}`)}</b>
+              <b>{t(`console.actions.${change.action}`)}</b>
               <span className="text-[.82rem] text-ink-3">
                 {formatDateTime(change.created_at, i18n.language, timeZone)}
                 {change.actor &&

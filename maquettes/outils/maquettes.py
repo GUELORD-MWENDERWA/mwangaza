@@ -340,6 +340,7 @@ PORTAIL = [
 CONSOLE = [
     ("tableau-de-bord", "Tableau de bord", "V1.1", "5.2", True),
     ("identite-plateforme", "Identité de la plateforme", "V1.1", "5.2.2", True),
+    ("ecoles", "Écoles", "V1.1", "5.3", True),
 ]
 
 

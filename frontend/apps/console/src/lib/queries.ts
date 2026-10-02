@@ -8,6 +8,7 @@ export const keys = {
   loginStep: ["login-step"],
   dashboard: ["console", "dashboard"],
   identity: ["console", "platform"],
+  schools: ["console", "schools"],
   platform: ["platform"],
 };
 

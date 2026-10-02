@@ -1,0 +1,220 @@
+// Écoles de la plateforme (5.3, maquette `console/ecoles`) : chiffres du tableau de bord,
+// recherche, filtre par état, liste paginée par le serveur (élèves, abonnement, dernière
+// activité), « Ouvrir en tant qu'école » (session support à l'adresse de l'école, A3).
+import { api, call } from "@mwangaza/api";
+import { errorMessage, formatDateTime, useTranslation } from "@mwangaza/i18n";
+import {
+  Banner,
+  Button,
+  Card,
+  Input,
+  Kpi,
+  PageHeader,
+  Segmented,
+  Skeleton,
+  Table,
+  buttonVariants,
+} from "@mwangaza/ui";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useDeferredValue, useState } from "react";
+import { Link } from "react-router";
+
+import { keys } from "../../lib/queries";
+import { type School, type SchoolStatus, SubscriptionPill } from "./schoolForm";
+
+const FILTERS = ["all", "active", "trial", "suspended"] as const;
+type Filter = (typeof FILTERS)[number];
+
+/** Session support : connexion à l'adresse de l'école, puis motif (jamais dans une école
+ *  suspendue : le serveur la refuse). */
+export function SupportLink({ school, className }: { school: School; className?: string }) {
+  const { t } = useTranslation();
+  if (school.status === "suspended") return null;
+  return (
+    <a
+      href={`${school.url}/app/support`}
+      target="_blank"
+      rel="noopener"
+      className={className ?? buttonVariants({ variant: "outline", size: "sm" })}
+    >
+      {t("console.schools.openAsSchool")}
+    </a>
+  );
+}
+
+export function SchoolsPage() {
+  const { t, i18n } = useTranslation();
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<Filter>("all");
+  const [page, setPage] = useState(1);
+  const query = useDeferredValue(search.trim());
+  const schools = useQuery({
+    queryKey: [...keys.schools, { query, filter, page }],
+    queryFn: () =>
+      call(
+        api.GET("/api/console/schools/", {
+          params: {
+            query: {
+              search: query || undefined,
+              status: filter === "all" ? undefined : (filter as SchoolStatus),
+              page,
+            },
+          },
+        }),
+      ),
+    placeholderData: keepPreviousData,
+  });
+  const dashboard = useQuery({
+    queryKey: keys.dashboard,
+    queryFn: () => call(api.GET("/api/console/dashboard/")),
+  });
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const counts = dashboard.data?.schools;
+
+  return (
+    <>
+      <PageHeader
+        title={t("console.schools.title")}
+        subtitle={t("console.schools.subtitle")}
+        actions={
+          <Link to="/schools/new" className={buttonVariants({ size: "lg" })}>
+            {t("console.schools.new")}
+          </Link>
+        }
+      />
+      {dashboard.data && counts && (
+        <div className="grid grid-cols-2 gap-3.5 min-[820px]:grid-cols-4">
+          <Kpi
+            label={t("console.dashboard.activeSchools")}
+            value={counts.active}
+            sub={t("console.schools.suspendedSub", { count: counts.suspended })}
+          />
+          <Kpi
+            label={t("console.schools.inTrial")}
+            value={counts.trial}
+            sub={t("console.schools.trialEndingSub", { count: counts.trial_ending })}
+          />
+          <Kpi
+            label={t("console.dashboard.students")}
+            value={dashboard.data.students.toLocaleString(i18n.language)}
+          />
+          <Kpi label={t("console.dashboard.payments")} value={dashboard.data.payments_today} />
+        </div>
+      )}
+      <div className="flex flex-wrap items-center gap-3">
+        <Input
+          type="search"
+          aria-label={t("console.schools.search")}
+          placeholder={t("console.schools.search")}
+          value={search}
+          onChange={(event) => {
+            setSearch(event.target.value);
+            setPage(1);
+          }}
+          className="max-w-xs"
+        />
+        <Segmented
+          label={t("console.schools.filter")}
+          value={filter}
+          onValueChange={(value) => {
+            setFilter(value);
+            setPage(1);
+          }}
+          options={FILTERS.map((value) => ({
+            value,
+            label: t(`console.schools.filters.${value}`),
+          }))}
+        />
+      </div>
+      {schools.isPending ? (
+        <Skeleton label={t("common.loading")} />
+      ) : schools.isError ? (
+        <>
+          <Banner tone="due">{errorMessage(schools.error, t)}</Banner>
+          <Button variant="outline" className="w-fit" onClick={() => void schools.refetch()}>
+            {t("common.retry")}
+          </Button>
+        </>
+      ) : (
+        <Card>
+          {schools.data.results.length === 0 ? (
+            <p className="px-4 py-5 text-ink-3">{t("console.schools.none")}</p>
+          ) : (
+            <Table>
+              <thead>
+                <tr>
+                  <th>{t("console.schools.school")}</th>
+                  <th className="text-right">{t("console.schools.students")}</th>
+                  <th>{t("console.schools.subscription")}</th>
+                  <th>{t("console.schools.lastActivity")}</th>
+                  {/* `relative` : le titre invisible reste dans le tableau qui défile, sans
+                      élargir la page sur téléphone. */}
+                  <th className="relative">
+                    <span className="sr-only">{t("console.schools.actions")}</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {schools.data.results.map((school) => (
+                  <tr key={school.id}>
+                    <td>
+                      <Link to={`/schools/${school.id}`} className="font-bold hover:underline">
+                        {school.name}
+                      </Link>
+                      <br />
+                      <span className="text-sm text-ink-3">
+                        {school.url.replace(/^\w+:\/\//, "")}
+                      </span>
+                    </td>
+                    <td className="text-right tabular-nums">
+                      {school.student_count.toLocaleString(i18n.language)}
+                    </td>
+                    <td>
+                      <SubscriptionPill school={school} />
+                    </td>
+                    <td className="text-sm whitespace-nowrap text-ink-3">
+                      {school.last_activity_at
+                        ? formatDateTime(school.last_activity_at, i18n.language, timeZone)
+                        : "—"}
+                    </td>
+                    <td>
+                      <div className="flex justify-end gap-1.5">
+                        <SupportLink school={school} />
+                        <Link
+                          to={`/schools/${school.id}`}
+                          className={buttonVariants({ variant: "ghost", size: "sm" })}
+                        >
+                          {t("console.schools.manage")}
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+          {(schools.data.previous || schools.data.next) && (
+            <div className="flex justify-end gap-2 border-t border-line px-4 py-2.5">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!schools.data.previous}
+                onClick={() => setPage(page - 1)}
+              >
+                {t("console.schools.previous")}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!schools.data.next}
+                onClick={() => setPage(page + 1)}
+              >
+                {t("console.schools.next")}
+              </Button>
+            </div>
+          )}
+        </Card>
+      )}
+    </>
+  );
+}
