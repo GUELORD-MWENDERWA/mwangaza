@@ -30,9 +30,9 @@ Dernière mise à jour : 2026-09-26 (PR #83 fusionnée ; tâche 1.5 : super-admi
 | 14 | **[Relire et fusionner la PR #85 (tâche 1.6)](#10-comment-relire-et-fusionner-une-pr)** (premiers écrans : connexion, menu, Mon compte, session support) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make install` (**nouvelles dépendances du front** : React Router, TanStack Query, Tailwind, composants, formulaires, PWA, client de l'API, QR code, outils de test) ; pour `make test-e2e`, une fois : `cd frontend && pnpm exec playwright install chromium` (Chromium de Playwright, ~115 Mo) | 30 min | [x] |
 | 15 | **[Relire et fusionner la PR #86 (tâche 1.7)](#10-comment-relire-et-fusionner-une-pr)** (organisation scolaire ; écrans Paramètres de l'école, Organisation scolaire, Comptes du personnel, Rôles et permissions, Journal d'audit) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make migrate && make demo` (une migration : années, périodes, niveaux, options, classes, format du matricule) | 30 min | [x] |
 | 16 | Installer gettext une fois : `sudo apt install gettext` (outils des traductions du serveur, pour `make messages`) — fait le 2026-09-27 | 2 min | [x] |
-| 17 | **[Acheter le domaine, créer les comptes Cloudflare et VPS](#9-avant-la-semaine-4-tâche-46--comptes-et-achats)** (§ 9) : **urgent** — la 4.5 est finie, la tâche 4.6 (mise en production) est la prochaine et ne peut pas commencer sans eux ; le stockage objet suit pour la 4.7 | 1 h | [ ] |
+| 17 | **[Acheter le domaine, créer les comptes Cloudflare et VPS](#9-avant-la-semaine-4-tâche-46--comptes-et-achats)** (§ 9) : **urgent** — la production est prête et s'essaie sur ta machine (4.6.1, `make prod-local`) ; la mise en ligne (4.6.2) ne peut pas commencer sans eux ; le stockage objet suit pour la 4.7 | 1 h | [ ] |
 
-À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). La 4.5 est finie : **la 4.6, prochaine tâche, attend la ligne 17**. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant).
+À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). La 4.6.1 est faite : **la mise en ligne (4.6.2) attend la ligne 17**. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant).
 
 ---
 
@@ -228,7 +228,7 @@ La PR des décisions (#78, branche `docs/decisions-q1-q11`) reporte tes réponse
 
 ---
 
-## 9. Avant la semaine 4 (tâche 4.6) : comptes et achats
+## 9. Avant la mise en ligne (tâche 4.6.2) : comptes et achats
 
 | Quoi | Comment | Fait |
 |---|---|:-:|
@@ -303,6 +303,8 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make format` | corrige automatiquement le format et ce qui peut l'être | quand `make lint` signale un problème de format |
 | `make api` | écrit le schéma OpenAPI dans `frontend/packages/api/openapi.yaml`, puis les types TypeScript du client (`src/schema.d.ts`) ; `make api-schema` : seulement le schéma | après tout changement d'API |
 | `make build` | construit les deux applications ; la Gestion devient installable (service worker) : l'essayer avec `cd frontend/apps/gestion && pnpm preview`, puis http://itig.localhost:4173/app/ | avant la mise en production |
+| `make prod-local` | essaie la production sur ta machine : construit les mêmes images que le serveur (Gestion et Portail construits, Django avec gunicorn, Caddy en HTTPS) et les lance ; puis https://itig.localhost/app/, https://parents.localhost/, https://admin.localhost/admin/ (certificat local : accepter l'avertissement du navigateur). Base vide : `make demo` y est refusé | pour voir la production avant la mise en ligne ; la première fois ≈ 10 min (téléchargements) |
+| `make prod-local-stop` | arrête cet essai ; ses données sont gardées (`docker compose -p mwangaza-essai down --volumes` pour tout effacer) | après l'essai |
 | `make superuser` | crée un compte super-administrateur (identifiant : ton numéro de téléphone) ; à sa première connexion à l'administration, il active la double authentification (clé à saisir dans Google Authenticator ou Aegis) | rarement : `make demo` en crée un (`0000000000`) |
 | `make shell` | console Django | explorer les données |
 | `python3 maquettes/outils/maquettes.py menu` | réécrit le menu latéral de toutes les maquettes Gestion | après un changement de menu |
@@ -315,7 +317,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 
 | Commande | Tâche | Effet |
 |---|---|---|
-| commande de déploiement | 4.6 | met en production sur le VPS en une commande |
+| commande de déploiement (`make deploy`) | 4.6.2 | met en production sur le VPS en une commande |
 | sauvegarde et restauration | 4.7 | sauvegarde de la base, test de restauration |
 
 ### Adresses en développement
@@ -355,6 +357,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | http://itig.localhost:5173/api/school/logo/ | logo de l'école (public) |
 | http://itig.localhost:5173/api/support/ | session support « en tant qu'école » : super-admin connecté à l'adresse de l'école (mot de passe et code), motif, 1 heure au plus |
 | http://localhost:8000/admin/ | administration Django : super-admin `0000000000`, mot de passe `mwangaza-demo`, puis le code de `make totp` ; écoles (créer, suspendre, « Ouvrir en tant qu'école »), comptes, journal |
+| https://itig.localhost/app/ · https://parents.localhost/ · https://admin.localhost/admin/ | essai de la production (`make prod-local`) : Gestion, Portail et administration servis par Caddy comme sur le serveur ; base vide : la Gestion affiche « Aucune école à cette adresse » tant qu'aucune école n'est créée ; santé de l'API : https://admin.localhost/api/health/ |
 
 ### Git et GitHub
 
@@ -390,7 +393,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 |---|---|---|
 | `permission denied … docker.sock` | pas encore reconnecté après `usermod` | se déconnecter / reconnecter (ou `newgrp docker` dans ce terminal) |
 | `The SECRET_KEY setting must not be empty` | ancienne version du code avec `DJANGO_SECRET_KEY=` vide dans `.env` | `git switch main && git pull` après la fusion de la PR de correction (étape 5 bis) |
-| `port is already allocated` (5433, 6379, 8000, 5173) | un autre programme utilise le port | `ss -ltnp \| grep 6379` pour le trouver ; par ex. `sudo systemctl stop redis-server` |
+| `port is already allocated` (5433, 6379, 8000, 5173 ; 80 et 443 avec `make prod-local`) | un autre programme utilise le port | `ss -ltnp \| grep 6379` pour le trouver ; par ex. `sudo systemctl stop redis-server` |
 | `InconsistentMigrationHistory: Migration admin.0001_initial is applied before its dependency accounts.0001_initial` (`make migrate`, `make test`, `make dev`) | base de développement créée avant la tâche 1.2 (nouveau modèle de compte) | `make reset-db` une fois |
 | `"code": "too_many_attempts"` à la connexion | 5 essais ratés pour ce numéro en 15 minutes (ou 30 depuis ta machine) | attendre 15 minutes, ou `make demo` (débloque tout en développement) |
 | `"code": "totp_required"` sur une page de l'école | session ouverte sans double authentification, alors qu'un rôle l'exige (ex. rôle donné pendant la session) | se déconnecter (`…/api/auth/logout/`) et se reconnecter |

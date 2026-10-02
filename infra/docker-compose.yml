@@ -1,0 +1,119 @@
+# Production (`docs/03-architecture-technique.md` § 9) : Caddy (HTTPS) devant Django (gunicorn),
+# Celery, Redis, PostgreSQL. Seul Caddy est ouvert sur l'extérieur (ports 80 et 443).
+# Sur le serveur : valeurs dans `infra/.env` (copié de `infra/.env.example`), mise en ligne en 4.6.2.
+# Sur la machine : `make prod-local` (valeurs de `infra/local.env`).
+name: mwangaza
+
+x-logging: &logging
+  # Journaux des conteneurs limités : le disque du VPS ne se remplit pas.
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "5"
+
+x-backend: &backend
+  build:
+    context: ..
+    dockerfile: infra/Dockerfile
+    target: backend
+  image: mwangaza-backend
+  restart: unless-stopped
+  logging: *logging
+  environment:
+    MWANGAZA_DOMAIN: ${MWANGAZA_DOMAIN:?MWANGAZA_DOMAIN manque dans infra/.env}
+    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?DJANGO_SECRET_KEY manque dans infra/.env}
+    DJANGO_SECRET_KEY_FALLBACKS: ${DJANGO_SECRET_KEY_FALLBACKS:-}
+    DJANGO_ALLOWED_HOSTS: .${MWANGAZA_DOMAIN}
+    DJANGO_SCHOOL_BASE_DOMAINS: ${MWANGAZA_DOMAIN}
+    DJANGO_SCHOOL_URL: https://{code}.${MWANGAZA_DOMAIN}
+    DJANGO_PORTAL_URL: https://parents.${MWANGAZA_DOMAIN}
+    DJANGO_HSTS_SECONDS: ${DJANGO_HSTS_SECONDS:-2592000}
+    DJANGO_LOG_LEVEL: ${DJANGO_LOG_LEVEL:-INFO}
+    GUNICORN_WORKERS: ${GUNICORN_WORKERS:-3}
+    POSTGRES_DB: mwangaza
+    POSTGRES_USER: mwangaza
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD manque dans infra/.env}
+    POSTGRES_HOST: db
+    POSTGRES_PORT: "5432"
+    REDIS_URL: redis://redis:6379/0
+    CELERY_TASK_ALWAYS_EAGER: "false"
+  # Logos, photos, pièces jointes : sur le disque jusqu'au stockage objet (4.7).
+  volumes:
+    - media:/app/media
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_started
+
+services:
+  caddy:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+      target: caddy
+    image: mwangaza-caddy
+    restart: unless-stopped
+    logging: *logging
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      MWANGAZA_DOMAIN: ${MWANGAZA_DOMAIN}
+      CADDY_TLS: ${CADDY_TLS:?CADDY_TLS manque dans infra/.env}
+    volumes:
+      # Certificat d'origine Cloudflare (`origin.pem`, `origin.key`), jamais dans Git.
+      - ./certs:/etc/caddy/certs:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      django:
+        condition: service_healthy
+
+  django:
+    <<: *backend
+    healthcheck:
+      # Sonde de l'API (base comprise), comme si la requête venait de Caddy en HTTPS.
+      test:
+        - CMD
+        - python
+        - -c
+        - "import os, urllib.request as r; r.urlopen(r.Request('http://localhost:8000/api/health/', headers={'Host': 'admin.' + os.environ['MWANGAZA_DOMAIN'], 'X-Forwarded-Proto': 'https'}), timeout=5)"
+      interval: 10s
+      timeout: 6s
+      retries: 5
+      start_period: 60s
+
+  celery:
+    <<: *backend
+    command: celery -A config worker --loglevel=info --concurrency=2
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      POSTGRES_DB: mwangaza
+      POSTGRES_USER: mwangaza
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mwangaza -d mwangaza"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    logging: *logging
+    volumes:
+      - redis-data:/data
+
+volumes:
+  db-data:
+  redis-data:
+  media:
+  caddy-data:
+  caddy-config:

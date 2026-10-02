@@ -7,7 +7,7 @@ import pytest
 from django.contrib.auth.hashers import make_password
 from django.test import Client, override_settings
 
-from apps.accounts import services
+from apps.accounts import attempts, services
 from apps.accounts.login import PENDING_SESSION_KEY, TRUSTED_DEVICE_COOKIE
 from apps.accounts.models import Membership, RecoveryCode, Role
 from apps.core.crypto import decrypt
@@ -97,6 +97,21 @@ def test_five_failures_lock_the_number(api, teacher):
     assert response.json()["code"] == "too_many_attempts"
     assert 14 * 60 < int(response["Retry-After"]) <= 15 * 60 + 1
     assert not logged_in(client)
+
+
+@override_settings(CLIENT_IP_HEADER="HTTP_X_REAL_IP")
+def test_behind_the_proxy_an_address_lock_stops_only_that_visitor(teacher):
+    # En production, tout arrive de Caddy (même REMOTE_ADDR) ; le visiteur est dans X-Real-IP.
+    for number in range(30):
+        attempts.record_failure(f"+2430000{number:05d}", "41.243.12.7")
+
+    def log_in_from(ip):
+        client = Client(HTTP_HOST="alpha.localhost", HTTP_X_REAL_IP=ip)
+        data = {"phone": teacher.phone, "password": TEST_PASSWORD}
+        return client.post(LOGIN, data, content_type="application/json")
+
+    assert log_in_from("41.243.12.7").status_code == 429
+    assert log_in_from("197.157.1.20").status_code == 200
 
 
 def test_unknown_number_is_locked_the_same_way(api, school):
