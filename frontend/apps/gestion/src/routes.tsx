@@ -24,6 +24,7 @@ import { StaffPage } from "./features/staff/StaffPage";
 import { ClassListPage } from "./features/students/ClassListPage";
 import { EditStudentPage } from "./features/students/EditStudentPage";
 import { FamilyPage } from "./features/students/FamilyPage";
+import { InvitationsPage } from "./features/students/InvitationsPage";
 import { ImportStudentsPage } from "./features/students/ImportStudentsPage";
 import { NewStudentPage } from "./features/students/NewStudentPage";
 import { RegistrationFormPage } from "./features/students/RegistrationFormPage";
@@ -86,6 +87,7 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
     element: <EditStudentPage />,
   },
   { path: "students/class-list", item: menuItem("students"), element: <ClassListPage /> },
+  { path: "students/invitations", item: menuItem("students"), element: <InvitationsPage /> },
   { path: "students/:id/form", item: menuItem("students"), element: <RegistrationFormPage /> },
   {
     path: "students/:id/statement",

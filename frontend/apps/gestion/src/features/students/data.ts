@@ -10,6 +10,12 @@ import { keys } from "../../lib/queries";
 export type StudentRow = Schemas["StudentList"];
 export type Student = Schemas["Student"];
 export type Family = Schemas["FamilyDetail"];
+
+/** « KAMBALE » : les noms des enfants, sinon le tuteur principal, sinon le code. */
+export function familyName(family: Family): string {
+  const names = [...new Set(family.students.map((child) => child.last_name))];
+  return names.join(" · ") || family.guardians[0]?.full_name || family.code;
+}
 export type Guardian = Schemas["Guardian"];
 export type HistoryEntry = Schemas["StudentHistory"];
 export type Relationship = Schemas["RelationshipEnum"];

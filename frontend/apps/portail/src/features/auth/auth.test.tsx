@@ -2,6 +2,7 @@ import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { apiError, mockApi, renderApp } from "../../test/render";
+import { codeFromLink } from "./ActivatePage";
 
 const ACCOUNT = { id: "01", phone: "+243971234567", name: "Kahindo Neema", language: "fr" };
 const LOGGED_OUT = apiError("not_authenticated", 403);
@@ -51,5 +52,12 @@ describe("accès au portail", () => {
 
     await user.click(screen.getByRole("button", { name: "Activer mon compte" }));
     expect((await screen.findByText(/Numéro invalide/)).id).toBe("phone-error");
+  });
+
+  it("code de la lettre d'invitation (après « # ») prérempli s'il a 8 caractères, sinon rien", () => {
+    expect(codeFromLink("#k7qm3hpv")).toBe("K7QM-3HPV");
+    expect(codeFromLink("#K7QM-3HPV")).toBe("K7QM-3HPV");
+    expect(codeFromLink("#abc")).toBe("");
+    expect(codeFromLink("")).toBe("");
   });
 });

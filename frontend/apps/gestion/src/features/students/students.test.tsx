@@ -546,6 +546,38 @@ describe("Élèves (D2-D4)", () => {
     expect(screen.queryByRole("searchbox")).toBeNull();
   });
 
+  it("invitation au portail depuis la fiche famille : message demandé à l'ouverture, liens WhatsApp et SMS vers le tuteur principal ; rien pour le caissier", async () => {
+    const text = "ITIG : suivez les paiements…\n1. Ouvrez http://localhost:5174/activate#K7M2P9QX";
+    const pending = { ...family, portal_status: "pending" };
+    mockApi(routes("cashier", { [`GET /api/families/${family.id}/`]: pending }));
+    const first = renderApp(`/families/${family.id}`);
+    expect(await screen.findByText("Portail pas encore activé")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /Message à partager/ })).toBeNull();
+    first.unmount();
+
+    const requests = mockApi(
+      routes("head", {
+        [`GET /api/families/${family.id}/`]: pending,
+        [`POST /api/families/${family.id}/invitation-message/`]: { text, phone: guardian.phone },
+      }),
+    );
+    const { user } = renderApp(`/families/${family.id}`);
+    const letter = await screen.findByRole("link", { name: /Lettre d'invitation/ });
+    expect(letter.getAttribute("href")).toBe(`/api/families/${family.id}/letter/`);
+    await user.click(screen.getByRole("button", { name: /Message à partager/ }));
+    const dialog = await screen.findByRole("dialog");
+    const body = encodeURIComponent(text);
+    expect(
+      within(dialog)
+        .getByRole("link", { name: /WhatsApp/ })
+        .getAttribute("href"),
+    ).toBe(`https://wa.me/243972145508?text=${body}`);
+    expect(within(dialog).getByRole("link", { name: /SMS/ }).getAttribute("href")).toBe(
+      `sms:+243972145508?body=${body}`,
+    );
+    expect(requests.filter((r) => r.path.endsWith("/invitation-message/"))).toHaveLength(1);
+  });
+
   it("fiche d'inscription depuis la fiche élève : format et code famille dans l'aperçu et le PDF", async () => {
     mockApi(routes("cashier", card));
     const { user } = renderApp(`/students/${STUDENT}`);

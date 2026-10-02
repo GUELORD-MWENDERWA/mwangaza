@@ -30,7 +30,7 @@ from apps.core.errors import ApiError, ErrorSerializer
 from apps.finance import services as finance
 from apps.schools.models import ClassGroup
 from apps.schools.organisation import current_year
-from apps.students import contact_changes, documents, imports, services
+from apps.students import contact_changes, documents, imports, invitations, services
 from apps.students.models import (
     ContactChange,
     Enrollment,
@@ -41,6 +41,7 @@ from apps.students.models import (
 )
 from apps.students.photos import photo_response
 from apps.students.serializers import (
+    ActivationSummarySerializer,
     ClassListQuerySerializer,
     ContactChangeFilterSerializer,
     ContactChangeSerializer,
@@ -52,6 +53,9 @@ from apps.students.serializers import (
     FamilyWriteSerializer,
     ImportLineFilterSerializer,
     ImportLineSerializer,
+    InvitationLetterQuerySerializer,
+    InvitationLettersQuerySerializer,
+    InvitationMessageSerializer,
     PhotoUploadSerializer,
     PortalAccessSerializer,
     RegistrationFormQuerySerializer,
@@ -318,6 +322,12 @@ class FamilyViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsVi
         if self.action == "list":
             params = FamilyFilterSerializer(data=self.request.query_params)
             params.is_valid(raise_exception=True)
+            group = params.validated_data.get("class_group")
+            if group is not None:
+                queryset = invitations.in_class(queryset, group)
+            portal = params.validated_data.get("portal")
+            if portal:
+                queryset = queryset.filter(activated_at__isnull=portal != "activated")
             search = params.validated_data.get("search", "").strip()
             if search:
                 # Téléphone : seulement une saisie faite de chiffres (un code famille en a aussi).
@@ -377,6 +387,59 @@ class FamilyViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsVi
             self.get_object(), actor=request.user, **serializer.validated_data
         )
         return self._family(family)
+
+    @extend_schema(responses={200: ActivationSummarySerializer, **ERRORS})
+    @action(detail=False)
+    def activation(self, request: Request) -> Response:
+        """Familles qui ont activé leur compte du portail (H7) : école, puis chaque classe de
+        l'année en cours."""
+        summary = invitations.activation_summary(current_year())
+        return Response(ActivationSummarySerializer(summary).data)
+
+    @extend_schema(
+        parameters=[InvitationLettersQuerySerializer],
+        responses={**PRINT_RESPONSE, 400: ErrorSerializer, **ERRORS},
+    )
+    @action(detail=False)
+    def letters(self, request: Request) -> HttpResponse:
+        """Lettres d'invitation au portail d'une classe (H7) : une par famille qui peut encore
+        activer son compte, deux par feuille A4."""
+        _require(request, (STUDENTS_EDIT,))
+        params = InvitationLettersQuerySerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        data = params.validated_data
+        group = data["class_group"]
+        context = invitations.letters(
+            invitations.in_class(Family.objects, group),
+            actor=request.user,
+            preview=data["output"] == "html",
+        )
+        name = f"invitations-{slugify(group.name)}.pdf"
+        return render("students/invitation_letters.html", context, data["output"], name)
+
+    @extend_schema(
+        parameters=[InvitationLetterQuerySerializer],
+        responses={**PRINT_RESPONSE, 400: ErrorSerializer, **ERRORS},
+    )
+    @action(detail=True)
+    def letter(self, request: Request, pk=None) -> HttpResponse:
+        """Lettre d'invitation au portail d'une famille (H7)."""
+        _require(request, (STUDENTS_EDIT,))
+        family = self.get_object()
+        params = InvitationLetterQuerySerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        output = params.validated_data["output"]
+        context = invitations.family_letter(family, actor=request.user, preview=output == "html")
+        return render("students/invitation_letters.html", context, output, "invitation.pdf")
+
+    @extend_schema(
+        request=None, responses={200: InvitationMessageSerializer, 400: ErrorSerializer, **ERRORS}
+    )
+    @action(detail=True, methods=["post"], url_path="invitation-message")
+    def invitation_message(self, request: Request, pk=None) -> Response:
+        """Message d'invitation prêt à partager (WhatsApp, SMS), avec le code famille (H7)."""
+        message = invitations.invitation_message(self.get_object(), actor=request.user)
+        return Response(InvitationMessageSerializer(message).data)
 
 
 @extend_schema(tags=["students"])

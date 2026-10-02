@@ -575,6 +575,8 @@ paths:
           - students.student_imported
           - students.family_code_printed
           - students.family_code_renewed
+          - students.family_invitation_printed
+          - students.family_invitation_shared
           - students.portal_suspended
           - students.portal_restored
           - students.contact_change_applied
@@ -668,6 +670,8 @@ paths:
           * `students.student_imported` - Student imported from a file
           * `students.family_code_printed` - Family code printed on the registration form
           * `students.family_code_renewed` - New family code
+          * `students.family_invitation_printed` - Portal invitation letter printed (family code)
+          * `students.family_invitation_shared` - Portal invitation message opened (family code)
           * `students.portal_suspended` - Parent portal access suspended
           * `students.portal_restored` - Parent portal access restored
           * `students.contact_change_applied` - Contact details sent by the parent applied
@@ -928,6 +932,8 @@ paths:
           - students.student_imported
           - students.family_code_printed
           - students.family_code_renewed
+          - students.family_invitation_printed
+          - students.family_invitation_shared
           - students.portal_suspended
           - students.portal_restored
           - students.contact_change_applied
@@ -1021,6 +1027,8 @@ paths:
           * `students.student_imported` - Student imported from a file
           * `students.family_code_printed` - Family code printed on the registration form
           * `students.family_code_renewed` - New family code
+          * `students.family_invitation_printed` - Portal invitation letter printed (family code)
+          * `students.family_invitation_shared` - Portal invitation message opened (family code)
           * `students.portal_suspended` - Parent portal access suspended
           * `students.portal_restored` - Parent portal access restored
           * `students.contact_change_applied` - Contact details sent by the parent applied
@@ -3510,12 +3518,32 @@ paths:
         Familles et tuteurs (D4) : recherche pour relier un élève, création, tuteurs remplacés
         d'un seul envoi.
       parameters:
+      - in: query
+        name: class_group
+        schema:
+          type: string
+          format: uuid
+        description: Familles des élèves actifs de cette classe, dans l'ordre de la
+          liste de classe.
       - name: page
         required: false
         in: query
         description: A page number within the paginated result set.
         schema:
           type: integer
+      - in: query
+        name: portal
+        schema:
+          enum:
+          - activated
+          - not_activated
+          type: string
+          minLength: 1
+        description: |-
+          Compte du portail.
+
+          * `activated` - activated
+          * `not_activated` - not_activated
       - in: query
         name: search
         schema:
@@ -3682,6 +3710,107 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/families/{id}/invitation-message/:
+    post:
+      operationId: families_invitation_message_create
+      description: Message d'invitation prêt à partager (WhatsApp, SMS), avec le code
+        famille (H7).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this family.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvitationMessage'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/families/{id}/letter/:
+    get:
+      operationId: families_letter_retrieve
+      description: Lettre d'invitation au portail d'une famille (H7).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this family.
+        required: true
+      - in: query
+        name: output
+        schema:
+          enum:
+          - pdf
+          - html
+          type: string
+          default: pdf
+          minLength: 1
+        description: |-
+          `html` : aperçu, code famille masqué ; `pdf` : à imprimer (noté au journal).
+
+          * `pdf` - pdf
+          * `html` - html
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Document PDF (`output=pdf`).
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/families/{id}/new-code/:
     post:
       operationId: families_new_code_create
@@ -3763,6 +3892,95 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: ''
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/families/activation/:
+    get:
+      operationId: families_activation_retrieve
+      description: |-
+        Familles qui ont activé leur compte du portail (H7) : école, puis chaque classe de
+        l'année en cours.
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivationSummary'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/families/letters/:
+    get:
+      operationId: families_letters_retrieve
+      description: |-
+        Lettres d'invitation au portail d'une classe (H7) : une par famille qui peut encore
+        activer son compte, deux par feuille A4.
+      parameters:
+      - in: query
+        name: class_group
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: output
+        schema:
+          enum:
+          - pdf
+          - html
+          type: string
+          default: pdf
+          minLength: 1
+        description: |-
+          `html` : aperçu, code famille masqué ; `pdf` : à imprimer (noté au journal).
+
+          * `pdf` - pdf
+          * `html` - html
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Document PDF (`output=pdf`).
+        '400':
           content:
             application/json:
               schema:
@@ -8327,6 +8545,8 @@ components:
       - students.student_imported
       - students.family_code_printed
       - students.family_code_renewed
+      - students.family_invitation_printed
+      - students.family_invitation_shared
       - students.portal_suspended
       - students.portal_restored
       - students.contact_change_applied
@@ -8419,6 +8639,8 @@ components:
         * `students.student_imported` - Student imported from a file
         * `students.family_code_printed` - Family code printed on the registration form
         * `students.family_code_renewed` - New family code
+        * `students.family_invitation_printed` - Portal invitation letter printed (family code)
+        * `students.family_invitation_shared` - Portal invitation message opened (family code)
         * `students.portal_suspended` - Parent portal access suspended
         * `students.portal_restored` - Parent portal access restored
         * `students.contact_change_applied` - Contact details sent by the parent applied
@@ -8458,6 +8680,23 @@ components:
         * `audit.exported` - Audit log exported
         * `support.started` - Support session opened
         * `support.ended` - Support session closed
+    ActivationSummary:
+      type: object
+      description: 'Comptes du portail activés (H7) : école, puis chaque classe de
+        l''année en cours.'
+      properties:
+        families:
+          type: integer
+        activated:
+          type: integer
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClassActivation'
+      required:
+      - families
+      - activated
+      - classes
     Address:
       type: object
       properties:
@@ -9628,6 +9867,27 @@ components:
       - balance
       - fees
       - payments
+    ClassActivation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        families:
+          type: integer
+        activated:
+          type: integer
+        invitable:
+          type: integer
+          description: Familles qui peuvent recevoir une lettre.
+      required:
+      - id
+      - name
+      - families
+      - activated
+      - invitable
     ClassGroup:
       type: object
       properties:
@@ -10925,6 +11185,10 @@ components:
           type: string
           format: date-time
           nullable: true
+        portal_status:
+          allOf:
+          - $ref: '#/components/schemas/PortalStatusEnum'
+          readOnly: true
       required:
       - id
       - code
@@ -10933,6 +11197,7 @@ components:
       - activated_at
       - code_expires_at
       - portal_suspended_at
+      - portal_status
     FamilyCodeRequest:
       type: object
       description: |-
@@ -10994,6 +11259,10 @@ components:
           type: string
           format: date-time
           nullable: true
+        portal_status:
+          allOf:
+          - $ref: '#/components/schemas/PortalStatusEnum'
+          readOnly: true
         students:
           type: array
           items:
@@ -11007,6 +11276,7 @@ components:
       - activated_at
       - code_expires_at
       - portal_suspended_at
+      - portal_status
       - students
     FamilyStudent:
       type: object
@@ -11652,6 +11922,17 @@ components:
       - amount_minor
       - due_on
       - label
+    InvitationMessage:
+      type: object
+      properties:
+        text:
+          type: string
+        phone:
+          type: string
+          description: Numéro du tuteur principal (E.164).
+      required:
+      - text
+      - phone
     LanguageEnum:
       enum:
       - fr
@@ -13344,6 +13625,20 @@ components:
       - email
       - emergency_contact
       - pending_schools
+    PortalStatusEnum:
+      enum:
+      - pending
+      - activated
+      - no_phone
+      - code_expired
+      - suspended
+      type: string
+      description: |-
+        * `pending` - pending
+        * `activated` - activated
+        * `no_phone` - no_phone
+        * `code_expired` - code_expired
+        * `suspended` - suspended
     PrinterEnum:
       enum:
       - thermal_58

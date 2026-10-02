@@ -6,12 +6,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | V1.0 — clôture (4.9, 4.10), puis V1.1 |
+| Phase | V1.0 — clôture (4.10), puis V1.1 |
 | Lot | V1.0 ; découpage des versions revu le 2026-10-02 |
-| Tâche en cours | aucune — nouveau découpage des versions (PR à fusionner) |
-| Prochaine tâche | 4.9 (invitation des familles au portail), puis 4.10 (guide PDF de la V1.0), puis 5.1 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
-| Issue GitHub | 4.9 et 4.10 : créées après la fusion, avec les jalons V1.3 et V1.4 |
-| Branche | `docs/plan-versions` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.9 terminée (PR à fusionner) |
+| Prochaine tâche | 4.10 (guide PDF de la V1.0), puis 5.1 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
+| Issue GitHub | #130 |
+| Branche | `tache/4.9-invitations` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-02 |
 
 ## Avancement
@@ -22,15 +22,15 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 12 | 16 |
-| **V1.0** | **46** | **50** |
+| Semaine 4 — Rapports, portail, production | 13 | 16 |
+| **V1.0** | **47** | **50** |
 | V1.1 — plateforme, notifications, communication | 0 | 7 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
 | V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
 | V2 | 0 | 15 |
 
-Sur GitHub : onglet *Milestones* — encore l'ancien découpage (V1.0, V1.1, V1.2, V2) ; jalons V1.3 et V1.4 et issues renumérotées après la fusion du nouveau découpage.
+Sur GitHub : onglet *Milestones* — un jalon par version (V1.0 à V1.4, V2), une issue par tâche (renumérotées le 2026-10-02).
 
 ## Bloquants et en attente
 
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-02 — Tâche 4.9 : invitation des familles au portail
+- Fait : écran « Invitations au portail » (`/app/students/invitations`) : familles activées par classe et pour l'école, familles de la classe avec l'état de leur portail (pas encore activé, activé, numéro manquant, code expiré, suspendu) ; lettres de la classe en PDF (deux par A4) ; lettre et message WhatsApp / SMS par famille, aussi depuis la fiche famille ; le Portail préremplit le code venu du QR (`/activate#…`). Maquettes `invitations-portail` et `lettre-invitation` dessinées. Démo : ~1 famille sur 3 activée.
+- Avant : GitHub réaligné sur le nouveau découpage (jalons V1.3, V1.4 ; 35 issues renumérotées, 10 créées dont #130 ; #36, 4.8 retirée, fermée).
+- Tests : `test_invitations.py` (états, compte par classe, lettres et message réservés à `students.edit`, journal, autre école) ; Vitest (message et liens, boutons masqués au caissier ; code prérempli). Décisions : `03` (journal du 2026-10-02).
+- Suite : fusion, puis 4.10.
 
 ### 2026-10-02 — Découpage des versions revu
 - Demande de l'utilisateur : la V1.0 est mise de côté (mise en ligne quand il le décide) ; **on n'attend rien de l'ITIG** (4.8 retirée) ; la V1.0 se clôt avec l'invitation des familles au portail (4.9, H7) et un guide PDF de la version, rôle par rôle, avec ses limites (4.10, I5).

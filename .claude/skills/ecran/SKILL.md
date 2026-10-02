@@ -24,6 +24,7 @@ Suivre aussi la skill `design` (jetons, composants, formats).
 | `gestion/eleves-liste`, `gestion/eleve-fiche-identite`, `gestion/eleve-fiche-famille`, `gestion/eleve-fiche-historique`, `gestion/eleve-fiche`, `gestion/eleve-nouveau`, `gestion/famille-fiche` | V1.0 | D2–D4 | 2.2 (onglet Finances : 2.7) |
 | `gestion/eleves-import` | V1.0 | D1 | 2.3 |
 | `gestion/fiche-inscription`, `gestion/liste-classe` | V1.0 | D5 | 2.4 |
+| `gestion/invitations-portail`, `gestion/lettre-invitation` | V1.0 | H7 | 4.9 |
 | `gestion/frais-baremes`, `gestion/eleve-reduction` | V1.0 | E1–E5 | 2.5 |
 | `gestion/eleve-echeancier` | V1.0 | E4 | 2.6 |
 | `gestion/caisse-ouverture`, `gestion/caisse-accueil`, `gestion/caisse-encaissement` | V1.0 | F1–F5 | 3.1 (en ligne), 3.5 (hors-ligne) |
