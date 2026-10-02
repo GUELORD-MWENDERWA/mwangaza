@@ -169,11 +169,14 @@ export function CashDesk({
         actions={
           <>
             {school.enabled_currencies.length > 1 && current.rate && (
-              <span className="rounded-field border border-line bg-card px-3 py-2 text-sm tabular-nums">
+              <span
+                data-guide="cash-start"
+                className="rounded-field border border-line bg-card px-3 py-2 text-sm tabular-nums"
+              >
                 {t("cash.rate", { rate: formatRate(current.rate) })}
               </span>
             )}
-            <Button variant="outline" onClick={() => setClosing(true)}>
+            <Button data-guide="cash-close" variant="outline" onClick={() => setClosing(true)}>
               <Icon name="lock" size={18} />
               {t("cash.closing.open")}
             </Button>
@@ -300,7 +303,10 @@ function StudentSearch({
   return (
     <Card>
       <CardContent className="flex flex-col gap-2">
-        <label className="flex min-h-[54px] items-center gap-3 rounded-field border-2 border-lake bg-card px-3 text-[1.2rem]">
+        <label
+          data-guide="cash-search"
+          className="flex min-h-[54px] items-center gap-3 rounded-field border-2 border-lake bg-card px-3 text-[1.2rem]"
+        >
           <Icon name="search" size={22} />
           <input
             ref={inputRef}

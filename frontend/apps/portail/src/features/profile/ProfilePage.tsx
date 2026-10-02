@@ -27,7 +27,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useForm, type Path } from "react-hook-form";
-import { useOutletContext } from "react-router";
+import { Link, useOutletContext } from "react-router";
 import { z } from "zod";
 
 import type { Account } from "../../lib/account";
@@ -94,6 +94,10 @@ export function ProfilePage() {
                 onValueChange={(value) => void changeLanguage(value)}
               />
             </div>
+            <Link to="/guide" className="text-ink no-underline">
+              {t("portal.profile.guide")}
+              <Icon name="chevron" size={20} className="text-ink-2" />
+            </Link>
             <button
               type="button"
               className="w-full cursor-pointer text-left text-due disabled:opacity-60"

@@ -20,6 +20,13 @@ export async function enterCode(page: Page) {
   await page.getByRole("button", { name: "Vérifier" }).click();
 }
 
+/** Guide de première connexion (caissier, comptable) : « Passer le guide », comme le ferait
+ *  quelqu'un qui le connaît déjà. */
+export async function skipGuide(page: Page) {
+  await page.getByRole("dialog").getByRole("button", { name: "Passer le guide" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+}
+
 export function mainMenu(page: Page) {
   return page.getByRole("navigation", { name: "Menu principal" }).first();
 }

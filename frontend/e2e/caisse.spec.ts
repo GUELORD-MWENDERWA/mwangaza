@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { allowCodeAgain, manage, unpaidStudent } from "./django";
-import { enterCode, enterPassword, ITIG } from "./helpers";
+import { enterCode, enterPassword, ITIG, skipGuide } from "./helpers";
 
 /** Paiements de l'élève enregistrés sur le serveur (numéros de reçus), ce qu'il a payé en
  *  dollars d'après son solde, et les duplicatas notés au journal à l'heure de l'appareil. */
@@ -71,6 +71,7 @@ test("caissière sans réseau : ouvre sa caisse, encaisse deux fois, réimprime 
   // « Se souvenir de cet appareil » est cochée par défaut : la caisse travaille sur l'appareil.
   await enterPassword(page, "0000001005");
   await enterCode(page);
+  await skipGuide(page);
   const indicator = page.getByRole("status").filter({ hasText: /ligne|Synchronisation/ });
   await expect(indicator).toHaveText("En ligne · à jour", { timeout: 30_000 });
 

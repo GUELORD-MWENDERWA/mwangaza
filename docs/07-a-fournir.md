@@ -33,7 +33,7 @@ Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, compt
 | M17 | Situation financière d'un élève imprimable ; export des impayés (PDF, Excel) | Impression | G1, G2 | 4.1 | `gestion/situation-financiere`, `gestion/impayes-export` | [ ] |
 | M18 | Changements de coordonnées faits par les parents, à prendre en compte par le secrétariat | Gestion | H5 | 4.4 | `gestion/changements-coordonnees` | [ ] |
 | M19 | Portail : se connecter, mot de passe oublié, installer l'application | Portail | H1, H6 | 4.4 | `portail/connexion`, `portail/mot-de-passe-oublie`, `portail/installer` | [ ] |
-| M20 | Guides de première connexion : caissier, comptable, parent | Gestion, Portail | I3 | 4.5 | `gestion/guide-premiere-connexion`, `portail/guide` | [ ] |
+| M20 | Guides de première connexion : caissier, comptable, parent | Gestion, Portail | I3 | 4.5.1 | `gestion/guide-premiere-connexion`, `portail/guide` | [ ] |
 
 ### V1.1 — à prévoir avant la semaine 5
 

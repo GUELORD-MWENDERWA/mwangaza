@@ -481,7 +481,10 @@ function CollectForm({
               )}
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
-              <label className="flex min-h-[54px] items-center gap-2 rounded-field border-2 border-lake bg-card px-3">
+              <label
+                data-guide="cash-amount"
+                className="flex min-h-[54px] items-center gap-2 rounded-field border-2 border-lake bg-card px-3"
+              >
                 <input
                   autoFocus
                   inputMode="decimal"
@@ -588,7 +591,7 @@ function CollectForm({
             )}
           </Field>
           {pay.error && <Banner tone="due">{firstErrorMessage(pay.error, t)}</Banner>}
-          <Button type="submit" size="xl" disabled={!ready}>
+          <Button data-guide="cash-collect" type="submit" size="xl" disabled={!ready}>
             <Icon name="cash" size={20} />
             {t("cash.collect.submit")}
             <kbd className="ml-2 rounded-[5px] bg-white/20 px-1.5 text-[.8rem]">

@@ -16,6 +16,7 @@ import { Link, NavLink, useNavigate } from "react-router";
 import { visibleMenu } from "../../lib/menu";
 import type { Me } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
+import { useGuide } from "../guide/Guide";
 
 export function Nav({ me, onNavigate }: { me: Me; onNavigate?: () => void }) {
   const { t } = useTranslation();
@@ -105,6 +106,7 @@ export function SchoolSwitcher({ me }: { me: Me }) {
 /** Menu latéral des écrans larges (≥ 900 px). */
 export function Sidebar({ me }: { me: Me }) {
   const { t } = useTranslation();
+  const { restart } = useGuide();
   return (
     <aside className="sticky top-0 hidden h-screen flex-col gap-1 overflow-y-auto bg-basalt px-3 py-[18px] text-basalt-ink min-[900px]:flex">
       <Link to="/" className="px-2.5 pt-1 pb-[18px] text-basalt-ink no-underline">
@@ -116,6 +118,18 @@ export function Sidebar({ me }: { me: Me }) {
       </div>
       <div className="mt-auto p-2.5 text-[.78rem] text-basalt-muted">
         {t("common.version", { version: __APP_VERSION__ })}
+        {restart && (
+          <>
+            {" · "}
+            <button
+              type="button"
+              onClick={restart}
+              className="cursor-pointer text-basalt-soft underline-offset-2 hover:underline"
+            >
+              {t("guide.help")}
+            </button>
+          </>
+        )}
       </div>
     </aside>
   );

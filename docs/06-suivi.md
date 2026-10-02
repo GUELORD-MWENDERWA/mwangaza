@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 4 (Rapports, portail, production) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 4.4.5 fusionnée (PR #124) ; PR des documents à fusionner |
-| Prochaine tâche | 4.5 |
-| Issue GitHub | #32 (fermée) ; prochaine : celle de la 4.5 |
-| Branche | `docs/mise-a-jour-md` (PR à fusionner) ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.5.1 terminée (PR à fusionner) ; 4.5 découpée en 4.5.1 et 4.5.2 |
+| Prochaine tâche | 4.5.2 |
+| Issue GitHub | #33 (4.5, fermée par la 4.5.2) |
+| Branche | `tache/4.5.1-guides` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-02 |
 
 ## Avancement
@@ -22,8 +22,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 9 | 13 |
-| **V1.0** | **43** | **47** |
+| Semaine 4 — Rapports, portail, production | 10 | 14 |
+| **V1.0** | **44** | **48** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-02 — Tâche 4.5.1 : guides de première connexion
+- 4.5 découpée : 4.5.1 guides, 4.5.2 traductions (≈ 520 textes du serveur à traduire en français, relecture de l'anglais).
+- Gestion : guide du caissier (5 étapes, caisse) et du comptable (6 étapes : taux, frais, élèves, annulations, clôtures, impayés), choisi par le rôle système, étapes selon les droits ; vrai élément entouré, reste assombri, page utilisable ; progression par utilisateur et par appareil ; « Aide et guide » en bas du menu. Portail : `/guide` après l'activation (puis « Installer »), « Revoir le guide » du profil.
+- Corrigé au passage : après l'activation, le portail allait à l'accueil au lieu d'« Installer » (redirection de la page de connexion trop rapide).
+- Tests : 2 Vitest Gestion (démarrage, reprise, passer, relance ; étapes selon les droits), 1 Portail ; Playwright : la caissière passe le guide après la connexion. Suite : 4.5.2.
 
 ### 2026-10-02 — Façon de travailler : tous les `.md` à jour à chaque tâche
 - Demande de l'utilisateur : à la fin de chaque tâche, mettre à jour **tous** les `.md` que la tâche rend faux, pas seulement le suivi ; les skills suivent. Règle et liste des fichiers dans `CLAUDE.md` (« Suivi du projet », fin d'une tâche), skill `tache` étape 5.3, contrôle n° 15 de `verifier`, rappels dans `backend` et `ecran`.

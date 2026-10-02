@@ -35,7 +35,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Tableau de bord directeur | `gestion/tableau-de-bord.html` | V1.0 | G3 | fournie — codé en 4.2 sans sélecteur de période ni export (hors G3) |
 | Menu sur téléphone et tablette | `gestion/menu-mobile.html` | V1.0 | § 9.4 · M7 | à valider |
 | Pages d'état et d'erreur (Gestion et Portail) | `gestion/pages-etat.html` | V1.0 | M8 | à valider |
-| Guide de première connexion (caissier, comptable) | `gestion/guide-premiere-connexion.html` | V1.0 | I3 · M20 | à valider |
+| Guide de première connexion (caissier, comptable) | `gestion/guide-premiere-connexion.html` | V1.0 | I3 · M20 | à valider — codé en 4.5.1 : « Guide du caissier » (pas de féminin fixe) ; 1re étape du comptable « Vérifiez le taux de change » (taux fixe pour l'année, `04`) ; élément absent (ex. montant avant le choix d'un élève) : carte en bas, sans assombrir ; croix = fermé jusqu'à la prochaine ouverture |
 | Liste des élèves | `gestion/eleves-liste.html` | V1.0 | D2 | fournie |
 | Fiche élève, onglet Identité | `gestion/eleve-fiche-identite.html` | V1.0 | D2–D3 · M9 | à valider |
 | Fiche élève, onglet Famille | `gestion/eleve-fiche-famille.html` | V1.0 | D4 · M9 | à valider |
@@ -91,7 +91,7 @@ Bulletins : structure et maxima repris des formulaires officiels trouvés en lig
 | Se connecter | `portail/connexion.html` | V1.0 | H1 · M19 | à valider |
 | Mot de passe oublié (nouveau code famille) | `portail/mot-de-passe-oublie.html` | V1.0 | H1 · M19 | à valider |
 | Installer l'application | `portail/installer.html` | V1.0 | H6 · M19 | à valider |
-| Guide de première connexion (parent) | `portail/guide.html` | V1.0 | I3 · M20 | à valider |
+| Guide de première connexion (parent) | `portail/guide.html` | V1.0 | I3 · M20 | à valider — codé en 4.5.1 avec des exemples neutres (pas de numéro de reçu d'une école) ; relancé : « L'essentiel du portail en 3 étapes » au lieu de « compte activé » |
 | Accueil — mes enfants (multi-écoles) | `portail/accueil.html` | V1.0 | H2 | fournie |
 | Paiements d'un enfant | `portail/enfant-paiements.html` | V1.0 | H3 | fournie |
 | Annonces | `portail/annonces.html` | V1.0 | H4 | fournie |

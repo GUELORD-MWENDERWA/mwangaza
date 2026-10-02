@@ -189,7 +189,7 @@ export function ClosingsPage() {
         />
       </div>
       <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 min-[1200px]:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-        <Card>
+        <Card data-guide="closings-list">
           {!sessions.data ? (
             <CardContent>
               <Skeleton label={t("common.loading")} />

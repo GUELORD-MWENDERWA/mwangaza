@@ -22,6 +22,7 @@ import { can } from "../../lib/permissions";
 import { useCurrentMe, type Me } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { useLogout } from "../../lib/session";
+import { GuideProvider, useGuide } from "../guide/Guide";
 import { SearchPalette } from "./SearchPalette";
 import { Nav, SchoolSwitcher, Sidebar } from "./Sidebar";
 import { SupportBanner } from "./SupportBanner";
@@ -36,20 +37,22 @@ export function AppShell() {
   // Aucun droit dans cette école : le support ouvre sa session, les autres choisissent une école.
   if (!me.school) return <Navigate to={me.is_platform_admin ? "/support" : "/schools"} replace />;
   return (
-    <div className="min-h-screen min-[900px]:grid min-[900px]:grid-cols-[248px_minmax(0,1fr)]">
-      <Sidebar me={me} />
-      <div className="flex min-w-0 flex-col">
-        {/* Bandeau support et barre du haut restent visibles en faisant défiler. */}
-        <div className="sticky top-0 z-30">
-          {me.support && <SupportBanner support={me.support} />}
-          <TopBar me={me} />
+    <GuideProvider me={me}>
+      <div className="min-h-screen min-[900px]:grid min-[900px]:grid-cols-[248px_minmax(0,1fr)]">
+        <Sidebar me={me} />
+        <div className="flex min-w-0 flex-col">
+          {/* Bandeau support et barre du haut restent visibles en faisant défiler. */}
+          <div className="sticky top-0 z-30">
+            {me.support && <SupportBanner support={me.support} />}
+            <TopBar me={me} />
+          </div>
+          <main className="flex w-full max-w-[1360px] flex-col gap-5 p-4 min-[900px]:p-6">
+            <StorageBanner />
+            <Outlet />
+          </main>
         </div>
-        <main className="flex w-full max-w-[1360px] flex-col gap-5 p-4 min-[900px]:p-6">
-          <StorageBanner />
-          <Outlet />
-        </main>
       </div>
-    </div>
+    </GuideProvider>
   );
 }
 
@@ -88,6 +91,7 @@ function MobileMenu({ me }: { me: Me }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const logout = useLogout();
+  const { restart } = useGuide();
   const close = () => setOpen(false);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -137,6 +141,19 @@ function MobileMenu({ me }: { me: Me }) {
               <span className="sr-only">{t("common.logout")}</span>
             </button>
           </div>
+          {restart && (
+            <button
+              type="button"
+              onClick={() => {
+                close();
+                restart();
+              }}
+              className="flex min-h-11 cursor-pointer items-center gap-2.5 text-sm text-basalt-soft"
+            >
+              <Icon name="info" size={18} />
+              {t("guide.help")}
+            </button>
+          )}
           {logout.isError && (
             <p role="alert" className="text-xs text-lamp">
               {errorMessage(logout.error, t)}

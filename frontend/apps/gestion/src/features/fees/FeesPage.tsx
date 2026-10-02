@@ -150,7 +150,7 @@ function FeeTypesCard({
 }) {
   const { t } = useTranslation();
   return (
-    <Card>
+    <Card data-guide="fees-types">
       <CardHeader>
         <CardTitle>{t("fees.types.title")}</CardTitle>
       </CardHeader>

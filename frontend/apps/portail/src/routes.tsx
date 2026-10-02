@@ -1,5 +1,6 @@
 import { errorMessage, useTranslation } from "@mwangaza/i18n";
 import { Banner, Button, Skeleton } from "@mwangaza/ui";
+import { useState } from "react";
 import { Navigate, Outlet, type RouteObject } from "react-router";
 
 import { AnnouncementsPage } from "./features/announcements/AnnouncementsPage";
@@ -9,15 +10,19 @@ import { LoginPage } from "./features/auth/LoginPage";
 import { ChildPage } from "./features/child/ChildPage";
 import { AddSchoolPage } from "./features/home/AddSchoolPage";
 import { HomePage } from "./features/home/HomePage";
+import { GuidePage } from "./features/home/GuidePage";
 import { InstallPage } from "./features/home/InstallPage";
 import { ProfilePage } from "./features/profile/ProfilePage";
 import { useAccount } from "./lib/account";
 
 /** Pages sans compte, montrées sans attendre le serveur : un parent déjà connecté va à l'accueil
- *  dès que son compte est lu. */
+ *  dès que son compte est lu. Compte arrivé par une connexion faite ici : la page mène elle-même
+ *  plus loin (ex. le guide après l'activation), sans être devancée par l'accueil. */
 function GuestOnly() {
   const account = useAccount();
-  if (account.data) return <Navigate to="/" replace />;
+  const [guest, setGuest] = useState(false);
+  if (account.data === null && !guest) setGuest(true);
+  if (account.data && !guest) return <Navigate to="/" replace />;
   return <Outlet />;
 }
 
@@ -55,6 +60,7 @@ export const routes: RouteObject[] = [
       { index: true, element: <HomePage /> },
       { path: "add-school", element: <AddSchoolPage /> },
       { path: "install", element: <InstallPage /> },
+      { path: "guide", element: <GuidePage /> },
       { path: "children/:id", element: <ChildPage /> },
       { path: "announcements", element: <AnnouncementsPage /> },
       { path: "profile", element: <ProfilePage /> },

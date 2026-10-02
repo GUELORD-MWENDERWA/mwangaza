@@ -151,7 +151,7 @@ export function CancellationsPage() {
       )}
       {reprint.error && <Banner tone="due">{errorMessage(reprint.error, t)}</Banner>}
       <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 min-[1200px]:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-        <Card>
+        <Card data-guide="cancellations-list">
           {!list.data ? (
             <CardContent>
               <Skeleton label={t("common.loading")} />
