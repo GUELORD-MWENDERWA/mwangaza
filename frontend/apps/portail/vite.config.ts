@@ -15,8 +15,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
     // Installable (H6) ; première visite légère, les suivantes servies depuis le cache. Les
-    // données de la famille (compte, enfants) : réseau d'abord, la dernière réponse sans réseau ;
-    // effacées à la déconnexion (`OFFLINE_CACHE`).
+    // données de la famille (compte, enfants, paiements d'un enfant) : réseau d'abord, la
+    // dernière réponse sans réseau ; effacées à la déconnexion (`OFFLINE_CACHE`).
     VitePWA({
       registerType: "autoUpdate",
       injectRegister: false,
@@ -46,7 +46,7 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api\//, /^\/admin\//, /^\/static\//, /^\/media\//],
         runtimeCaching: [
           {
-            urlPattern: /\/api\/portal\/(me|families)\/$/,
+            urlPattern: /\/api\/portal\/(me|families|children\/[0-9a-f-]+)\/$/,
             handler: "NetworkFirst",
             options: { cacheName: "portal-data", networkTimeoutSeconds: 10 },
           },

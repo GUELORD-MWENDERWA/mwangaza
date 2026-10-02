@@ -1,4 +1,6 @@
-from drf_spectacular.utils import extend_schema
+from django.utils.text import slugify
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.request import Request
@@ -7,16 +9,20 @@ from rest_framework.views import APIView
 
 from apps.accounts import login
 from apps.accounts.views import AuthView
+from apps.core.documents import PDF, render
 from apps.core.errors import ErrorSerializer
-from apps.portal import families, services
+from apps.portal import children, families, receipts, services
 from apps.portal.serializers import (
+    ChildPaymentsSerializer,
     FamilyCodeSerializer,
     LinkedFamilySerializer,
     LinkSerializer,
     PortalLoginSerializer,
     PortalMeSerializer,
 )
+from apps.students.photos import photo_response
 
+READ_ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
 ERRORS = {
     400: ErrorSerializer,
     403: ErrorSerializer,
@@ -112,3 +118,55 @@ class LinkView(APIView):
         serializer.is_valid(raise_exception=True)
         family = services.link_family(request, **serializer.validated_data)
         return Response(LinkedFamilySerializer(families.linked(family)).data)
+
+
+@extend_schema(tags=["portal"])
+class ChildView(APIView):
+    """Paiements d'un enfant (H3) : frais dus, solde, paiements ; 404 s'il n'est pas d'une
+    famille reliée au compte, ou si l'accès ou l'école est suspendu."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(responses={200: ChildPaymentsSerializer, **READ_ERRORS})
+    def get(self, request: Request, pk) -> Response:
+        return Response(ChildPaymentsSerializer(children.child_payments(request.user, pk)).data)
+
+
+@extend_schema(tags=["portal"])
+class ChildPhotoView(APIView):
+    """Photo de l'enfant, seulement avec le consentement du parent (`photo_consent`)."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(
+        responses={
+            (200, "image/*"): OpenApiResponse(OpenApiTypes.BINARY, description="PNG ou JPEG."),
+            **READ_ERRORS,
+        }
+    )
+    def get(self, request: Request, pk):
+        student = children.find_student(request.user, pk)
+        response = photo_response(student) if student.photo_consent else None
+        if response is None:
+            raise NotFound
+        return response
+
+
+@extend_schema(tags=["portal"])
+class ReceiptView(APIView):
+    """Reçu d'un paiement en PDF A5 ; 404 pour un paiement annulé ou d'une autre famille."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(
+        responses={
+            (200, PDF): OpenApiResponse(OpenApiTypes.BINARY, description="Reçu PDF."),
+            **READ_ERRORS,
+        }
+    )
+    def get(self, request: Request, pk):
+        payment = receipts.find_payment(request.user, pk)
+        with children.in_school(payment.school):
+            context = receipts.receipt_document(payment)
+            name = f"recu-{slugify(context['number'])}.pdf"
+            return render("portal/receipt.html", context, "pdf", name)

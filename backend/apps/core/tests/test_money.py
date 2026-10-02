@@ -8,6 +8,7 @@ from apps.core.money import (
     Currency,
     CurrencyMismatchError,
     Money,
+    amount_in_words,
     format_amount,
     percent_of,
     prorate,
@@ -244,3 +245,24 @@ def test_format_amount_matches_the_interface_for_printed_documents():
     ] == ["1\xa0234,56\xa0$", "0,05\xa0$", "1\xa0260\xa0000\xa0FC", "\u221225,00\xa0$"]
     with pytest.raises(TypeError):
         format_amount(12.5, "USD")
+
+
+def test_amount_in_words_is_the_same_as_on_the_cash_desk_receipt():
+    """Mêmes règles que `amountInWords` de `@mwangaza/money` (reçu de la caisse)."""
+    francs = {
+        0: "Zéro franc congolais",
+        21: "Vingt et un francs congolais",
+        71: "Soixante et onze francs congolais",
+        80: "Quatre-vingts francs congolais",
+        91: "Quatre-vingt-onze francs congolais",
+        200: "Deux cents francs congolais",
+        80_000: "Quatre-vingt mille francs congolais",
+        1_000_000: "Un million de francs congolais",
+        1_280_001: "Un million deux cent quatre-vingt mille un francs congolais",
+        200_000_000: "Deux cents millions de francs congolais",
+    }
+    assert {amount: amount_in_words(amount, "CDF") for amount in francs} == francs
+    assert amount_in_words(15025, "USD") == (
+        "Cent cinquante dollars américains et vingt-cinq centimes"
+    )
+    assert amount_in_words(101, "USD") == "Un dollar américain et un centime"

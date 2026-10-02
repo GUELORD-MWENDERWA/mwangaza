@@ -2,20 +2,17 @@
 inscrits cette année avec leur situation de paiement (même calcul que la Gestion : par devise,
 jamais additionnée, réductions déduites, paiements annulés exclus).
 
-Le portail n'a pas d'école : chaque famille se lit dans la sienne (`use_school`, son fuseau),
-seulement si elle est reliée à ce compte (`primary_user`). École suspendue ou accès suspendu par
-l'école : la famille apparaît, sans aucune donnée de ses enfants. Cinq requêtes par école
-reliée (un parent en a une ou deux)."""
+Le portail n'a pas d'école : chaque famille se lit dans la sienne (`children.in_school`, son
+fuseau), seulement si elle est reliée à ce compte (`primary_user`). École suspendue ou accès
+suspendu par l'école : la famille apparaît, sans aucune donnée de ses enfants. Cinq requêtes par
+école reliée (un parent en a une ou deux)."""
 
 from dataclasses import dataclass
-from zoneinfo import ZoneInfo
-
-from django.utils import timezone
 
 from apps.accounts.models import User
-from apps.core.tenancy import use_school
 from apps.finance import services as finance
 from apps.finance.models import Payment
+from apps.portal.children import fee_label, in_school, photo_url
 from apps.schools.models import School
 from apps.students.models import Enrollment, Family
 
@@ -28,6 +25,7 @@ class Child:
     balance: finance.Balance
     first_overdue: str | None
     last_payment: Payment | None
+    photo: str | None
 
 
 @dataclass
@@ -35,12 +33,6 @@ class LinkedFamily:
     family: Family
     status: str
     children: list[Child]
-
-
-def _fee(charge) -> str:
-    """« Minerval · 1re tranche » ; le libellé seul quand il répète le type."""
-    name = charge.fee_type.name
-    return name if charge.label == name else f"{name} · {charge.label}"
 
 
 def _children(family: Family) -> list[Child]:
@@ -70,8 +62,9 @@ def _children(family: Family) -> list[Child]:
             Child(
                 enrollment=enrollment,
                 balance=finance.balance(items),
-                first_overdue=_fee(overdue) if overdue else None,
+                first_overdue=fee_label(overdue) if overdue else None,
                 last_payment=last.get(enrollment.pk),
+                photo=photo_url(enrollment.student),
             )
         )
     return children
@@ -83,7 +76,7 @@ def linked(family: Family) -> LinkedFamily:
         return LinkedFamily(family, SCHOOL_UNAVAILABLE, [])
     if family.portal_suspended_at is not None:
         return LinkedFamily(family, SUSPENDED, [])
-    with use_school(school), timezone.override(ZoneInfo(school.timezone)):
+    with in_school(school):
         return LinkedFamily(family, ACTIVE, _children(family))
 
 

@@ -1,0 +1,50 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% blocktranslate %}Receipt {{ number }}{% endblocktranslate %}{% endblock %}
+{% block style %}
+.mark { border: 1px solid #111; padding: .3em .6em; margin: 0 0 .8em; font-size: .9em; }
+.qr { width: 22mm; height: 22mm; flex: none; }
+h1 { margin-top: .8em; }
+.identity td { border-left: 0; border-right: 0; }
+.identity td.label { width: 22%; color: #333; }
+.total { margin-top: .6em; font-size: 1.15em; }
+.words { font-style: italic; margin: .2em 0 .6em; }
+.rows { border-top: 1px solid #111; padding-top: .4em; }
+.foot { margin-top: 1.2em; }
+{% endblock %}
+{% block content %}
+<p class="mark">{% blocktranslate with date=printed_at|date:"d/m/Y" time=printed_at|time:"H:i" %}<b>Copy</b> downloaded from the families' portal on {{ date }} at {{ time }}.{% endblocktranslate %}</p>
+<div class="row between">
+  <div class="row">
+    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% else %}<div class="logo-text">{{ school_name|slice:":4"|upper }}</div>{% endif %}
+    <div><b>{{ school_name|upper }}</b>{% for line in header_lines %}<br><span class="small">{{ line }}</span>{% endfor %}</div>
+  </div>
+  <img class="qr" src="{{ qr }}" alt="">
+</div>
+
+<h1>{% blocktranslate %}Receipt {{ number }}{% endblocktranslate %}</h1>
+<p class="center">{{ paid_at|date:"d/m/Y H:i" }} · {% blocktranslate %}School year {{ year }}{% endblocktranslate %}</p>
+
+<table class="identity">
+  <tr><td class="label">{% translate "Student" %}</td><td><b>{{ student }}</b></td></tr>
+  <tr><td class="label">{% translate "Student number" %}</td><td>{{ matricule|default:"—" }}</td></tr>
+  <tr><td class="label">{% translate "Class" %}</td><td>{{ class_group }}</td></tr>
+</table>
+
+<table>
+  <thead><tr><th>{% translate "Fee" %}</th><th>{% translate "Due date" %}</th><th class="num">{% translate "Amount" %}</th></tr></thead>
+  {% for line in lines %}<tr><td>{{ line.fee }}</td><td>{{ line.due_on|date:"d/m/Y" }}</td><td class="num">{{ line.amount }}</td></tr>{% endfor %}
+</table>
+
+<p class="row between total"><b>{% translate "Total received" %}</b><b>{{ total }}</b></p>
+<p class="words">{{ words }}</p>
+{% if rate %}<p>{% blocktranslate %}Rate used: 1 $ = {{ rate }} FC{% endblocktranslate %}</p>{% endif %}
+<div class="rows">
+  <p class="row between"><span>{% translate "Overdue remaining" %}</span><b>{{ overdue }}</b></p>
+  <p class="row between"><span>{% translate "Remaining for the year" %}</span><b>{{ remaining }}</b></p>
+</div>
+{% if note %}<p>{% blocktranslate %}Note: {{ note }}{% endblocktranslate %}</p>{% endif %}
+
+<p class="foot">{% translate "The cashier" %}<br><b>{{ cashier }}</b> · {{ cash_register }}</p>
+<p class="small muted">{% blocktranslate %}Check this receipt: {{ verify_url }}{% endblocktranslate %}</p>
+{% if footer %}<p class="small center">{{ footer }}</p>{% endif %}
+{% endblock %}

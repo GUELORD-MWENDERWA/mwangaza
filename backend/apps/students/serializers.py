@@ -9,7 +9,7 @@ from apps.finance.serializers import BalanceSerializer
 from apps.schools.models import AcademicYear, ClassGroup, Track
 from apps.students import documents, imports
 from apps.students.models import Enrollment, Family, Guardian, Student, StudentImport
-from apps.students.photos import validate_photo
+from apps.students.photos import photo_version, validate_photo
 
 
 class AddressSerializer(serializers.Serializer):
@@ -179,8 +179,7 @@ def photo_url(student: Student) -> str | None:
     """Adresse de la photo (servie par l'API) ; elle change avec chaque photo (cache)."""
     if not student.photo:
         return None
-    version = student.photo.name.rsplit("/", 1)[-1].split(".")[0].removeprefix("photo-")
-    return f"/api/students/{student.pk}/photo/?v={version}"
+    return f"/api/students/{student.pk}/photo/?v={photo_version(student)}"
 
 
 class StudentSerializer(_StudentFields):

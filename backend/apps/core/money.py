@@ -152,6 +152,14 @@ def format_amount(amount_minor: int, currency: str) -> str:
     return f"{'\u2212' if amount_minor < 0 else ''}{text}{NBSP}{SYMBOLS[currency]}"
 
 
+def format_rate(rate: Decimal) -> str:
+    """`Decimal("2850.500")` → `2 850,5` (francs pour 1 dollar) : comme `formatRate`."""
+    whole, _, fraction = f"{rate:f}".partition(".")
+    whole = f"{int(whole):,}".replace(",", NBSP)
+    fraction = fraction.rstrip("0")
+    return f"{whole},{fraction}" if fraction else whole
+
+
 def percent_of(amount_minor: int, percent: int) -> int:
     """`percent` % d'un montant positif, arrondi demi supérieur à l'unité de la devise (réduction
     en %, skill `argent`), en entiers seulement."""
@@ -178,3 +186,81 @@ def prorate(total_minor: int, weights: list[int]) -> list[int]:
     for _remainder, index in sorted(remainders)[: total_minor - sum(shares)]:
         shares[index] += 1
     return shares
+
+
+# Montant en lettres (F3) : mêmes règles que `amountInWords` de `@mwangaza/money` (reçu de la
+# caisse), en français (orthographe traditionnelle, comme les documents officiels en RDC).
+
+_UNITS = [
+    *["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf"],
+    *["dix", "onze", "douze", "treize", "quatorze", "quinze", "seize"],
+    *["dix-sept", "dix-huit", "dix-neuf"],
+]
+_TENS = ["", "", "vingt", "trente", "quarante", "cinquante", "soixante"]
+_NAMES = {
+    Currency.USD: ("dollar américain", "dollars américains"),
+    Currency.CDF: ("franc congolais", "francs congolais"),
+}
+
+
+def _below_100(n: int, plural: bool) -> str:
+    """`plural` : rien ne suit (ou « millions ») : « quatre-vingts », « deux cents » ; devant
+    « mille », jamais de s."""
+    if n < 20:
+        return _UNITS[n]
+    ten, one = divmod(n, 10)
+    if ten == 7:
+        return "soixante et onze" if one == 1 else f"soixante-{_UNITS[10 + one]}"
+    if ten == 8:
+        if one:
+            return f"quatre-vingt-{_UNITS[one]}"
+        return "quatre-vingts" if plural else "quatre-vingt"
+    if ten == 9:
+        return f"quatre-vingt-{_UNITS[10 + one]}"
+    if not one:
+        return _TENS[ten]
+    return f"{_TENS[ten]} et un" if one == 1 else f"{_TENS[ten]}-{_UNITS[one]}"
+
+
+def _below_1000(n: int, plural: bool) -> str:
+    hundreds, rest = divmod(n, 100)
+    words = []
+    if hundreds == 1:
+        words.append("cent")
+    elif hundreds:
+        words.append(f"{_UNITS[hundreds]} {'cents' if not rest and plural else 'cent'}")
+    if rest:
+        words.append(_below_100(rest, plural))
+    return " ".join(words)
+
+
+def _number_in_words(n: int) -> str:
+    if n == 0:
+        return _UNITS[0]
+    words = []
+    rest = n
+    for value, name in ((10**9, "milliard"), (10**6, "million")):
+        count, rest = divmod(rest, value)
+        if count:
+            words.append(f"{_number_in_words(count)} {name}{'s' if count > 1 else ''}")
+    thousands, rest = divmod(rest, 1000)
+    if thousands:
+        words.append("mille" if thousands == 1 else f"{_below_1000(thousands, False)} mille")
+    if rest:
+        words.append(_below_1000(rest, True))
+    return " ".join(words)
+
+
+def amount_in_words(amount_minor: int, currency: str) -> str:
+    """`15025, "USD"` → « Cent cinquante dollars américains et vingt-cinq centimes » ;
+    `1000000, "CDF"` → « Un million de francs congolais »."""
+    if amount_minor < 0:
+        raise ValueError(f"Montant invalide : {amount_minor}")
+    major, cents = divmod(amount_minor, 10 ** DECIMALS[currency])
+    one, many = _NAMES[currency]
+    # « un million de francs », mais « un million deux cents francs ».
+    of = "de " if major >= 10**6 and major % 10**6 == 0 else ""
+    text = f"{_number_in_words(major)} {of}{many if major > 1 else one}"
+    if cents:
+        text += f" et {_number_in_words(cents)} {'centimes' if cents > 1 else 'centime'}"
+    return text[0].upper() + text[1:]

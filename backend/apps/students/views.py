@@ -1,10 +1,8 @@
 """API des élèves, familles et inscriptions (D2-D4) : `students.view` pour lire,
 `students.edit` pour écrire, vérifiés par le serveur sur chaque requête."""
 
-from pathlib import Path
-
 from django.db.models import Count, Prefetch, Q
-from django.http import FileResponse, HttpResponse
+from django.http import HttpResponse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.types import OpenApiTypes
@@ -34,7 +32,7 @@ from apps.schools.models import ClassGroup
 from apps.schools.organisation import current_year
 from apps.students import documents, imports, services
 from apps.students.models import Enrollment, Family, Guardian, Student, StudentImport
-from apps.students.photos import CONTENT_TYPES
+from apps.students.photos import photo_response
 from apps.students.serializers import (
     ClassListQuerySerializer,
     EnrollmentCreateSerializer,
@@ -252,17 +250,9 @@ class StudentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsV
         if request.method == "DELETE":
             services.set_photo(student, None, actor=request.user)
             return self._student(student)
-        if not student.photo:
+        response = photo_response(student)
+        if response is None:
             return Response(NO_PHOTO.body(), status=NO_PHOTO.status)
-        try:
-            file = student.photo.open("rb")
-        except FileNotFoundError:
-            return Response(NO_PHOTO.body(), status=NO_PHOTO.status)
-        kind = Path(student.photo.name).suffix.removeprefix(".")
-        response = FileResponse(file, content_type=CONTENT_TYPES.get(kind, "image/jpeg"))
-        response["X-Content-Type-Options"] = "nosniff"
-        # L'adresse donnée par l'API change avec chaque photo ; jamais dans un cache partagé.
-        response["Cache-Control"] = "private, max-age=86400"
         return response
 
     @extend_schema(request=None, responses={200: StudentHistorySerializer(many=True), **ERRORS})
