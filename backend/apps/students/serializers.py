@@ -43,7 +43,7 @@ class FamilySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Family
-        fields = ["id", "code", "guardians", "student_count", "activated_at"]
+        fields = ["id", "code", "guardians", "student_count", "activated_at", "code_expires_at"]
 
 
 class FamilyStudentSerializer(serializers.ModelSerializer):

@@ -35,6 +35,9 @@ class Family(TenantModel):
         verbose_name=_("parent account"),
     )
     activated_at = models.DateTimeField(_("activated at"), null=True, blank=True)
+    # Code donné par « Nouveau code » (4.4) : valable jusqu'à cette date, pour une seule
+    # activation ou un seul nouveau mot de passe ; vide ensuite. Vide pour le premier code.
+    code_expires_at = models.DateTimeField(_("code valid until"), null=True, blank=True)
 
     class Meta:
         ordering = ["code"]

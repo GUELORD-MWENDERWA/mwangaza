@@ -574,6 +574,9 @@ paths:
           - students.enrollment_updated
           - students.student_imported
           - students.family_code_printed
+          - students.family_code_renewed
+          - portal.activated
+          - portal.password_reset
           - finance.fee_type_created
           - finance.fee_type_updated
           - finance.fee_type_deleted
@@ -660,6 +663,9 @@ paths:
           * `students.enrollment_updated` - Enrollment changed
           * `students.student_imported` - Student imported from a file
           * `students.family_code_printed` - Family code printed on the registration form
+          * `students.family_code_renewed` - New family code
+          * `portal.activated` - Parent portal activated
+          * `portal.password_reset` - Parent chose a new password
           * `finance.fee_type_created` - Fee type created
           * `finance.fee_type_updated` - Fee type changed
           * `finance.fee_type_deleted` - Fee type deleted
@@ -710,6 +716,7 @@ paths:
           - devices
           - finance
           - organisation
+          - portal
           - roles
           - school
           - staff
@@ -725,6 +732,7 @@ paths:
           * `devices` - devices
           * `finance` - finance
           * `organisation` - organisation
+          * `portal` - portal
           * `roles` - roles
           * `school` - school
           * `staff` - staff
@@ -911,6 +919,9 @@ paths:
           - students.enrollment_updated
           - students.student_imported
           - students.family_code_printed
+          - students.family_code_renewed
+          - portal.activated
+          - portal.password_reset
           - finance.fee_type_created
           - finance.fee_type_updated
           - finance.fee_type_deleted
@@ -997,6 +1008,9 @@ paths:
           * `students.enrollment_updated` - Enrollment changed
           * `students.student_imported` - Student imported from a file
           * `students.family_code_printed` - Family code printed on the registration form
+          * `students.family_code_renewed` - New family code
+          * `portal.activated` - Parent portal activated
+          * `portal.password_reset` - Parent chose a new password
           * `finance.fee_type_created` - Fee type created
           * `finance.fee_type_updated` - Fee type changed
           * `finance.fee_type_deleted` - Fee type deleted
@@ -1047,6 +1061,7 @@ paths:
           - devices
           - finance
           - organisation
+          - portal
           - roles
           - school
           - staff
@@ -1062,6 +1077,7 @@ paths:
           * `devices` - devices
           * `finance` - finance
           * `organisation` - organisation
+          * `portal` - portal
           * `roles` - roles
           * `school` - school
           * `staff` - staff
@@ -3504,6 +3520,43 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/families/{id}/new-code/:
+    post:
+      operationId: families_new_code_create
+      description: |-
+        « Nouveau code » (M10) : l'ancien ne marche plus ; le nouveau sert une fois, 30 jours
+        (activation ou mot de passe oublié du portail).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this family.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FamilyDetail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/fee-rules/:
     get:
       operationId: fee_rules_list
@@ -4699,6 +4752,206 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/auth/activate/:
+    post:
+      operationId: portal_auth_activate_create
+      description: 'Activation (H1) : numéro du tuteur principal, code famille, mot
+        de passe choisi.'
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FamilyCodeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FamilyCodeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FamilyCodeRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalMe'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/auth/login/:
+    post:
+      operationId: portal_auth_login_create
+      description: 'Connexion : numéro et mot de passe.'
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PortalLoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PortalLoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PortalLoginRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalMe'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/auth/reset/:
+    post:
+      operationId: portal_auth_reset_create
+      description: 'Mot de passe oublié : numéro, nouveau code donné par l''école,
+        nouveau mot de passe.'
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FamilyCodeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FamilyCodeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FamilyCodeRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalMe'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/me/:
+    get:
+      operationId: portal_me_retrieve
+      description: Le compte connecté au portail.
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalMe'
           description: ''
         '403':
           content:
@@ -7491,6 +7744,9 @@ components:
       - students.enrollment_updated
       - students.student_imported
       - students.family_code_printed
+      - students.family_code_renewed
+      - portal.activated
+      - portal.password_reset
       - finance.fee_type_created
       - finance.fee_type_updated
       - finance.fee_type_deleted
@@ -7576,6 +7832,9 @@ components:
         * `students.enrollment_updated` - Enrollment changed
         * `students.student_imported` - Student imported from a file
         * `students.family_code_printed` - Family code printed on the registration form
+        * `students.family_code_renewed` - New family code
+        * `portal.activated` - Parent portal activated
+        * `portal.password_reset` - Parent chose a new password
         * `finance.fee_type_created` - Fee type created
         * `finance.fee_type_updated` - Fee type changed
         * `finance.fee_type_deleted` - Fee type deleted
@@ -9517,6 +9776,7 @@ components:
       - devices
       - finance
       - organisation
+      - portal
       - roles
       - school
       - staff
@@ -9702,12 +9962,45 @@ components:
           type: string
           format: date-time
           nullable: true
+        code_expires_at:
+          type: string
+          format: date-time
+          nullable: true
+          title: Code valid until
       required:
       - id
       - code
       - guardians
       - student_count
       - activated_at
+      - code_expires_at
+    FamilyCodeRequest:
+      type: object
+      description: |-
+        Activation (code imprimé sur la fiche d'inscription) ou mot de passe oublié (nouveau
+        code donné par l'école) : numéro, code et mot de passe choisi.
+      properties:
+        phone:
+          type: string
+          minLength: 1
+          description: Numéro du tuteur principal. Ex. 0971234567.
+        code:
+          type: string
+          minLength: 1
+          description: Code famille, ex. K7M4-P9TX.
+          maxLength: 20
+        password:
+          type: string
+          minLength: 1
+          maxLength: 128
+        remember:
+          type: boolean
+          default: false
+          description: '« Rester connecté » : 30 jours sur ce téléphone.'
+      required:
+      - code
+      - password
+      - phone
     FamilyDetail:
       type: object
       description: 'Famille avec ses enfants : pour la reconnaître en inscrivant un
@@ -9733,6 +10026,11 @@ components:
           type: string
           format: date-time
           nullable: true
+        code_expires_at:
+          type: string
+          format: date-time
+          nullable: true
+          title: Code valid until
         students:
           type: array
           items:
@@ -9744,6 +10042,7 @@ components:
       - guardians
       - student_count
       - activated_at
+      - code_expires_at
       - students
     FamilyStudent:
       type: object
@@ -11871,6 +12170,45 @@ components:
           description: PNG ou JPEG, 1 Mo au plus.
       required:
       - photo
+    PortalLoginRequest:
+      type: object
+      properties:
+        phone:
+          type: string
+          minLength: 1
+          description: Ex. 0971234567 ou +243971234567.
+          maxLength: 64
+        password:
+          type: string
+          minLength: 1
+          maxLength: 128
+        remember:
+          type: boolean
+          default: false
+          description: '« Rester connecté » : 30 jours sur ce téléphone.'
+      required:
+      - password
+      - phone
+    PortalMe:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        phone:
+          type: string
+          description: Identifies the person on the whole platform, e.g. +243971234567.
+          maxLength: 16
+        name:
+          type: string
+        language:
+          $ref: '#/components/schemas/LanguageEnum'
+      required:
+      - id
+      - phone
+      - name
+      - language
     PrinterEnum:
       enum:
       - thermal_58

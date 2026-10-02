@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@mwangaza/api": "workspace:*",
     "i18next": "^26.4.2",
     "react-i18next": "^17.0.15"
   },
@@ -14,11 +15,13 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "react": "^19.3.0"
+    "react": "^19.3.0",
+    "react-hook-form": "^7.88.0"
   },
   "devDependencies": {
     "@types/react": "^19.3.0",
     "react": "^19.3.0",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "react-hook-form": "^7.88.0"
   }
 }

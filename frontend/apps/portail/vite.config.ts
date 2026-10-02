@@ -1,3 +1,4 @@
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
@@ -9,7 +10,7 @@ const proxy = { target: apiTarget, changeOrigin: false };
 
 export default defineConfig({
   base: "/",
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   server: {
     host: process.env.VITE_HOST ?? "localhost",
     port: 5174,

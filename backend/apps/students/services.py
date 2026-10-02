@@ -6,7 +6,7 @@ identifiant donné par l'appareil (UUID v7) : le même envoi rejoué ne crée ri
 """
 
 import secrets
-from datetime import date
+from datetime import date, timedelta
 from functools import partial
 from uuid import UUID
 
@@ -153,6 +153,28 @@ def update_family(family: Family, *, actor: User, guardians: list[dict]) -> Fami
                 before={"guardians": before},
                 after={"guardians": after},
             )
+    return family
+
+
+# Le parent qui a perdu son code ou son mot de passe a ce délai pour se servir du nouveau code.
+RENEWED_CODE_DAYS = 30
+
+
+def renew_family_code(family: Family, *, actor: User) -> Family:
+    """« Nouveau code » (M10) : l'ancien code ne marche plus ; le nouveau sert une seule fois,
+    pendant 30 jours, à activer le portail ou à choisir un nouveau mot de passe (portail)."""
+    with transaction.atomic():
+        old = family.code
+        family.code = new_family_code()
+        family.code_expires_at = timezone.now() + timedelta(days=RENEWED_CODE_DAYS)
+        family.save(update_fields=["code", "code_expires_at", "updated_at"])
+        audit.record(
+            Action.STUDENTS_FAMILY_CODE_RENEWED,
+            family,
+            actor=actor,
+            after={"code_expires_at": family.code_expires_at.isoformat()},
+            label=old,
+        )
     return family
 
 

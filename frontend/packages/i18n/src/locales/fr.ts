@@ -931,6 +931,7 @@ export const fr = {
       school: "École",
       organisation: "Organisation scolaire",
       students: "Élèves",
+      portal: "Portail des familles",
       finance: "Frais et finances",
       audit: "Journal d'audit",
       support: "Support",
@@ -1004,6 +1005,11 @@ export const fr = {
         enrolled: "Élève inscrit",
         enrollment_updated: "Inscription modifiée",
         family_code_printed: "Code famille imprimé",
+        family_code_renewed: "Nouveau code famille",
+      },
+      portal: {
+        activated: "Portail activé par le parent",
+        password_reset: "Nouveau mot de passe choisi par le parent",
       },
       finance: {
         fee_type_created: "Type de frais créé",
@@ -1399,6 +1405,13 @@ export const fr = {
     },
     family: {
       title: "Famille {{name}}",
+      newCode: "Nouveau code",
+      newCodeTitle: "Donner un nouveau code famille ?",
+      newCodeHelp:
+        "L'ancien code ne marchera plus. Le nouveau sert une seule fois, pendant 30 jours : le parent s'en sert pour activer le portail ou choisir un nouveau mot de passe (« Mot de passe oublié »). Imprimez-le ensuite sur la fiche d'inscription d'un enfant.",
+      portalActivated: "Portail activé le {{date}}",
+      portalNotActivated: "Portail pas encore activé",
+      codeValidUntil: "Code valable jusqu'au {{date}}",
       open: "Ouvrir la fiche famille",
       openStudent: "Ouvrir",
       primary: "Tuteur principal",
@@ -2236,6 +2249,61 @@ export const fr = {
       },
     },
   },
+  portal: {
+    languages: "Langue",
+    login: {
+      title: "Bon retour",
+      subtitle: "Paiements, reçus et annonces des écoles de vos enfants.",
+      heading: "Se connecter",
+      phone: "Numéro de téléphone",
+      phonePlaceholder: "Ex. 0971234567",
+      password: "Mot de passe",
+      remember: "Rester connecté sur ce téléphone",
+      submit: "Se connecter",
+      forgot: "Mot de passe oublié ?",
+      firstTime:
+        "Première fois ? Il vous faut le <b>code famille</b> imprimé sur la fiche d'inscription.",
+      activate: "Activer",
+    },
+    activate: {
+      title: "Suivez la scolarité de vos enfants",
+      subtitle: "Paiements, reçus, annonces de l'école. Sur votre téléphone.",
+      heading: "Activer mon compte famille",
+      phoneHint: "Le numéro que vous avez donné à l'école.",
+      code: "Code famille",
+      codeHint:
+        "Imprimé sur la fiche d'inscription. Demandez-le au secrétariat si vous l'avez perdu.",
+      password: "Choisissez un mot de passe",
+      passwordHint: "Au moins 10 caractères.",
+      submit: "Activer mon compte",
+      hasAccount: "Déjà un compte ?",
+      login: "Se connecter",
+      where: "Le code se trouve en bas de la fiche d'inscription remise par l'école.",
+      form: "Fiche d'inscription",
+    },
+    forgot: {
+      title: "Mot de passe oublié",
+      subtitle: "Pas de panique : le secrétariat de l'école peut vous aider.",
+      back: "Retour",
+      heading: "Choisir un nouveau mot de passe",
+      intro:
+        "Mwangaza n'envoie pas de SMS. Pour prouver que vous êtes le parent, il vous faut un <b>nouveau code famille</b>.",
+      step1:
+        "Passez au <b>secrétariat</b> de l'école d'un de vos enfants, avec votre pièce d'identité.",
+      step2: "Le secrétariat imprime un <b>nouveau code famille</b>. L'ancien ne marche plus.",
+      step3: "Saisissez-le ici et choisissez votre nouveau mot de passe.",
+      code: "Nouveau code famille",
+      password: "Nouveau mot de passe",
+      confirm: "Confirmer",
+      confirmPlaceholder: "Retapez-le",
+      submit: "Enregistrer et me connecter",
+    },
+    home: {
+      greeting: "Bonjour, {{name}}",
+      soon: "Vos enfants, leurs paiements et les annonces de leurs écoles s'afficheront ici.",
+      logout: "Se déconnecter",
+    },
+  },
   errors: {
     file_too_large: "Le fichier dépasse 5 Mo.",
     old_excel:
@@ -2268,6 +2336,16 @@ export const fr = {
     own_cancellation: "Un autre compte doit valider votre propre demande d'annulation.",
     cancellation_id_taken: "Cet identifiant appartient à une autre demande.",
     nothing_owed: "L'élève ne doit plus rien dans la devise de ce crédit.",
+    invalid_family_code: "Numéro de téléphone ou code famille incorrect.",
+    already_activated:
+      "Cette famille a déjà un compte : connectez-vous, ou demandez un nouveau code à l'école.",
+    not_activated: "Cette famille n'a pas encore de compte : activez-le avec ce code.",
+    account_exists: "Ce numéro a déjà un compte : connectez-vous.",
+    staff_account:
+      "Ce compte sert aussi au personnel d'une école : demandez un nouveau mot de passe au support de la plateforme.",
+    school_unavailable: "Service temporairement indisponible pour cette école.",
+    password_change_required:
+      "Remplacez d'abord votre mot de passe provisoire à l'adresse de votre école.",
     invalid_credentials: "Numéro de téléphone ou mot de passe incorrect.",
     login_expired: "La connexion a pris trop de temps : recommencez.",
     wrong_step: "Cette étape n'est plus valable : recommencez la connexion.",
