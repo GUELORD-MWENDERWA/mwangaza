@@ -196,7 +196,7 @@ export interface paths {
         };
         /**
          * @description Les personnes qui apparaissent dans le journal de l'école (filtre « Personne » de M6),
-         *     sans le support Mwangaza.
+         *     sans le support de la plateforme.
          */
         get: operations["audit_actors_list"];
         put?: never;
@@ -1548,6 +1548,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/platform/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Nom, logo, couleurs, contact du support et mentions légales de la plateforme. */
+        get: operations["platform_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/portal/announcements/": {
         parameters: {
             query?: never;
@@ -2802,9 +2819,9 @@ export interface components {
             readonly action: components["schemas"]["ActionEnum"];
             /** @description Domaine de l'action (filtre de M6). */
             readonly domain: components["schemas"]["DomainEnum"];
-            /** @description Qui ; vide pour le support Mwangaza (`by_support`) ou le système. */
+            /** @description Qui ; vide pour le support de la plateforme (`by_support`) ou le système. */
             readonly actor: components["schemas"]["AuditActor"] | null;
-            /** @description Action du support Mwangaza : l'interface affiche « Support Mwangaza ». */
+            /** @description Action du support de la plateforme : l'interface affiche « Support {nom} ». */
             readonly by_support: boolean;
             /** Object type */
             readonly entity_type: string;
@@ -4932,6 +4949,29 @@ export interface components {
              */
             photo: string;
         };
+        /** @description Identité de la plateforme, publique : écrans de connexion, menus, documents. */
+        Platform: {
+            name: string;
+            /** @description Under the application icon on the home screen (12 characters is best). */
+            short_name: string;
+            /** @description Adresse du logo ; vide : la lampe. */
+            logo: string | null;
+            /** @description Adresse de l'icône des applications ; vide : celle de l'application. */
+            icon: string | null;
+            /**
+             * Main colour
+             * @description Buttons and links of the interface.
+             */
+            primary_color: string;
+            /**
+             * Accent colour
+             * @description Mark and highlights on the dark menu.
+             */
+            accent_color: string;
+            support_phone: string;
+            support_email: string;
+            legal_notice: string;
+        };
         PortalAccessRequest: {
             /** @description `true` : suspendre ; `false` : rétablir. */
             suspended: boolean;
@@ -5551,9 +5591,9 @@ export interface components {
             readonly action: components["schemas"]["ActionEnum"];
             /** @description Domaine de l'action (filtre de M6). */
             readonly domain: components["schemas"]["DomainEnum"];
-            /** @description Qui ; vide pour le support Mwangaza (`by_support`) ou le système. */
+            /** @description Qui ; vide pour le support de la plateforme (`by_support`) ou le système. */
             readonly actor: components["schemas"]["AuditActor"] | null;
-            /** @description Action du support Mwangaza : l'interface affiche « Support Mwangaza ». */
+            /** @description Action du support de la plateforme : l'interface affiche « Support {nom} ». */
             readonly by_support: boolean;
             /** Object type */
             readonly entity_type: string;
@@ -11136,6 +11176,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    platform_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Platform"];
                 };
             };
         };

@@ -4,14 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>{% block title %}{% translate "Receipt verification" %}{% endblock %} · Mwangaza</title>
+<title>{% block title %}{% translate "Receipt verification" %}{% endblock %} · {{ platform.name }}</title>
 <style>
-:root { --basalt: #2B2724; --basalt-2: #3A3531; --basalt-ink: #EDE8E3; --lamp: #F2B632; --ink: #1A2233; --ink-3: #77818F; --surface: #F3F5F6; --line: #DDE3E6; --ok: #1F7A4D; --ok-50: #E5F3EB; --due: #B42318; --due-50: #FBE9E7; --warn: #9A5B00; --warn-50: #FFF1D6; }
+:root { --basalt: #2B2724; --basalt-2: #3A3531; --basalt-ink: #EDE8E3; --lamp: {{ platform.accent_color }}; --ink: #1A2233; --ink-3: #77818F; --surface: #F3F5F6; --line: #DDE3E6; --ok: #1F7A4D; --ok-50: #E5F3EB; --due: #B42318; --due-50: #FBE9E7; --warn: #9A5B00; --warn-50: #FFF1D6; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--surface); color: var(--ink); font: 15px/1.45 "Atkinson Hyperlegible", system-ui, sans-serif; }
 .phone { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
 header { background: var(--basalt); color: var(--basalt-ink); padding: 14px 16px 18px; }
 .brand { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; }
+.logo { height: 30px; max-width: 120px; object-fit: contain; }
 .mark { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 50% 55%, var(--lamp) 0 38%, transparent 40%), var(--basalt-2); box-shadow: 0 0 0 2px var(--lamp) inset; }
 header p { margin: 6px 0 0; color: #CFC7BF; font-size: .85rem; }
 main { padding: 16px; }
@@ -34,7 +35,7 @@ dd { margin: 0; font-weight: 700; text-align: right; font-variant-numeric: tabul
 <body>
 <div class="phone">
 <header>
-  <div class="brand"><span class="mark"></span><b>Mwangaza</b></div>
+  <div class="brand">{% if platform.logo_url %}<img class="logo" src="{{ platform.logo_url }}" alt="">{% else %}<span class="mark"></span>{% endif %}<b>{{ platform.name }}</b></div>
   <p>{% translate "Document verification" %}</p>
 </header>
 <main>

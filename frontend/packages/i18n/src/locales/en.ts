@@ -26,6 +26,8 @@ export const en: Messages<typeof fr> = {
     previous: "Previous",
     next: "Next",
     close: "Close",
+    legalNotice: "Legal notice",
+    supportContact: "{{platform}} support:",
   },
   auth: {
     side: {
@@ -103,9 +105,9 @@ export const en: Messages<typeof fr> = {
       print: "Print",
       confirmCodes: "I have printed or copied my 8 recovery codes",
       finish: "Finish",
-      fileName: "mwangaza-recovery-codes.txt",
-      fileTitle: "Mwangaza recovery codes",
-      fileHeader: "Mwangaza recovery codes — account {{phone}}",
+      fileName: "recovery-codes.txt",
+      fileTitle: "{{platform}} recovery codes",
+      fileHeader: "{{platform}} recovery codes — account {{phone}}",
       fileHelp: "Each code works only once. Keep this sheet somewhere safe.",
       currentCode: "Current code from the app, or a recovery code",
       askKey: "Show the new key",
@@ -256,7 +258,7 @@ export const en: Messages<typeof fr> = {
     promoter: "Promoter",
     teacher: "Teacher",
     parent: "Parent",
-    support: "Mwangaza support",
+    support: "{{platform}} support",
     none: "No role",
   },
   account: {
@@ -353,7 +355,7 @@ export const en: Messages<typeof fr> = {
   support: {
     title: "Open a support session",
     subtitle:
-      "You are logged in as Mwangaza support. You have no rights in this school until the session is open.",
+      "You are logged in as {{platform}} support. You have no rights in this school until the session is open.",
     rules:
       "The session lasts <b>1 hour</b> at most. You have the school's rights <b>except the cash desk</b> (collect, cancel, close). The school reads the reason and each of your actions in its log.",
     reason: "Reason",
@@ -410,7 +412,7 @@ export const en: Messages<typeof fr> = {
     },
     suspended: {
       title: "Access to this school is suspended",
-      text: "The school's data is kept. To restore access, the school management must contact Mwangaza support.",
+      text: "The school's data is kept. To restore access, the school management must contact {{platform}} support.",
     },
     noSchool: {
       title: "No school at this address",
@@ -475,7 +477,7 @@ export const en: Messages<typeof fr> = {
       name: "Short name",
       nameHelp: "Menu, thermal receipt, parent portal.",
       address: "Application address",
-      addressHelp: "Can only be changed by Mwangaza support.",
+      addressHelp: "Can only be changed by {{platform}} support.",
       officialName: "Official name",
       officialNameHelp: "A4 receipts, forms, report cards.",
       timezone: "Time zone",
@@ -538,7 +540,7 @@ export const en: Messages<typeof fr> = {
     color: {
       label: "School colour",
       picker: "Choose the colour",
-      help: "Used on printed documents and the school badge. The interface keeps the Mwangaza colours (readability).",
+      help: "Used on printed documents and the school badge. The interface keeps the {{platform}} colours (readability).",
       unreadable:
         "Text is not readable on this colour, neither in white nor in black. Nearest readable colour: {{color}}.",
       useProposal: "Use {{color}}",
@@ -863,7 +865,7 @@ export const en: Messages<typeof fr> = {
       deactivate: "Deactivate",
       reactivate: "Reactivate",
       editAccount: "Names and phone",
-      elsewhere: "Account used elsewhere: contact Mwangaza support.",
+      elsewhere: "Account used elsewhere: contact {{platform}} support.",
       schoolRole: "school role",
     },
     password: {
@@ -889,7 +891,7 @@ export const en: Messages<typeof fr> = {
       phone: "Phone number",
       phonePlaceholder: "e.g. 0971234567",
       known:
-        "If this number already has a Mwangaza account, it is added to the school with the chosen roles, without a new password or any change to its names; its other schools are never shown.",
+        "If this number already has a {{platform}} account, it is added to the school with the chosen roles, without a new password or any change to its names; its other schools are never shown.",
       unknown:
         "Otherwise: last name, middle name, first name, then a temporary password to change at the first login.",
       lastName: "Last name",
@@ -897,7 +899,7 @@ export const en: Messages<typeof fr> = {
       firstName: "First name",
       roles: "Roles",
       submit: "Create the account",
-      added: "{{name}} already has a Mwangaza account: added to the school with their roles.",
+      added: "{{name}} already has a {{platform}} account: added to the school with their roles.",
     },
   },
   rolesPage: {
@@ -954,7 +956,7 @@ export const en: Messages<typeof fr> = {
       action: "Action",
       on: "On",
     },
-    support: "Mwangaza support",
+    support: "{{platform}} support",
     system: "System",
     range: "{{from}} – {{to}} of {{count}} entries",
     empty: "No entry for these filters.",
@@ -1717,7 +1719,7 @@ export const en: Messages<typeof fr> = {
       running_one: "Importing 1 student…",
       running_other: "Importing {{number}} students…",
       failed:
-        "The import failed: no student was created. Try again; if it keeps failing, contact Mwangaza support.",
+        "The import failed: no student was created. Try again; if it keeps failing, contact {{platform}} support.",
       done_zero: "No student imported.",
       done_one: "1 student imported and enrolled.",
       done_other: "{{number}} students imported and enrolled.",
@@ -2438,7 +2440,7 @@ export const en: Messages<typeof fr> = {
       back: "Back",
       heading: "Choose a new password",
       intro:
-        "Mwangaza does not send text messages. To prove you are the parent, you need a <b>new family code</b>.",
+        "{{platform}} does not send text messages. To prove you are the parent, you need a <b>new family code</b>.",
       step1: "Go to the <b>office</b> of one of your children's schools, with your ID.",
       step2: "The office prints a <b>new family code</b>. The old one no longer works.",
       step3: "Type it here and choose your new password.",
@@ -2451,7 +2453,7 @@ export const en: Messages<typeof fr> = {
     home: {
       greeting: "Hello, {{name}}",
       logout: "Log out",
-      installBanner: "Add Mwangaza to your home screen to open it like an app.",
+      installBanner: "Add {{platform}} to your home screen to open it like an app.",
       installAction: "Add",
       children: "My children",
       addSchool: "Add a child from another school",
@@ -2515,9 +2517,9 @@ export const en: Messages<typeof fr> = {
       },
     },
     install: {
-      title: "Install Mwangaza",
+      title: "Install {{platform}}",
       subtitle: "Find your children in one tap, even with a weak connection.",
-      heading: "Mwangaza on your home screen",
+      heading: "{{platform}} on your home screen",
       benefits: {
         oneTap: "Opens in one tap, like an app",
         offline: "Shows your latest information even offline",
@@ -2660,7 +2662,7 @@ export const en: Messages<typeof fr> = {
     not_found: "Not found.",
     school_suspended: "This school is suspended.",
     school_not_found: "There is no school at this address.",
-    not_platform_admin: "Only Mwangaza support can open a support session.",
+    not_platform_admin: "Only {{platform}} support can open a support session.",
     totp_required: "Log in again with two-factor authentication.",
     no_support_session: "No support session is open in this school.",
     network: "No connection to the server. Check the internet and try again.",
@@ -2683,7 +2685,7 @@ export const en: Messages<typeof fr> = {
     role_name_required: "Give the role a name.",
     already_member: "This number already has an account in this school.",
     names_required: "This number has no account yet: enter at least the last name.",
-    account_used_elsewhere: "Account used elsewhere: contact Mwangaza support.",
+    account_used_elsewhere: "Account used elsewhere: contact {{platform}} support.",
     phone_taken: "This number already has an account.",
     no_photo: "This student has no photo.",
     no_logo: "This school has no logo.",

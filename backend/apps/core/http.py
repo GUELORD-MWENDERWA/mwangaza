@@ -1,9 +1,13 @@
 """Ce qu'on lit d'une requête pour la sécurité : adresse IP (limitation des tentatives, journal
-d'audit) et navigateur (journal d'audit)."""
+d'audit) et navigateur (journal d'audit). Images publiques servies sans risque."""
 
 import ipaddress
+from pathlib import Path
 
 from django.conf import settings
+from django.http import FileResponse, HttpResponse
+
+from apps.schools.logos import CONTENT_TYPES as LOGO_TYPES
 
 USER_AGENT_MAX_LENGTH = 255
 
@@ -23,3 +27,21 @@ def client_ip(request) -> str | None:
 
 def user_agent(request) -> str:
     return request.META.get("HTTP_USER_AGENT", "")[:USER_AGENT_MAX_LENGTH]
+
+
+def serve_image(file) -> HttpResponse | None:
+    """Logo ou icône public (hors de l'API typée : c'est une image) ; None s'il manque. Un SVG
+    ne peut rien exécuter, même ouvert seul dans le navigateur. L'adresse donnée par l'API change
+    avec chaque fichier : il peut rester un jour en cache."""
+    if not file:
+        return None
+    try:
+        content = file.open("rb")
+    except FileNotFoundError:
+        return None
+    kind = Path(file.name).suffix.removeprefix(".")
+    response = FileResponse(content, content_type=LOGO_TYPES.get(kind, "application/octet-stream"))
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Content-Security-Policy"] = "default-src 'none'; style-src 'unsafe-inline'; sandbox"
+    response["Cache-Control"] = "public, max-age=86400"
+    return response

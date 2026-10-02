@@ -1,7 +1,7 @@
 // Composants partagés de la Gestion et du Portail (skill `design`, table « Composants »).
 export { Avatar, initials } from "./components/avatar";
 export { Banner } from "./components/banner";
-export { Brand, BrandMark } from "./components/brand";
+export { Brand, BrandMark, PlatformMark } from "./components/brand";
 export { Button, buttonVariants } from "./components/button";
 export { Card, CardContent, CardFooter, CardHeader, CardTitle, List } from "./components/card";
 export { Checkbox, CheckboxField } from "./components/checkbox";
@@ -42,3 +42,11 @@ export { Toast } from "./components/toast";
 export { Kpi } from "./components/kpi";
 export { Icon, type IconName } from "./icons";
 export { cn } from "./lib/cn";
+export {
+  applyPlatform,
+  LegalNotice,
+  NO_PLATFORM,
+  PlatformContext,
+  type PlatformIdentity,
+  usePlatform,
+} from "./platform";

@@ -5,6 +5,8 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from apps.accounts.phone import PhoneNumberField
+from apps.core import platform
 from apps.core.ids import uuid7
 from apps.core.tenancy import (
     AllSchoolsManager,
@@ -13,6 +15,7 @@ from apps.core.tenancy import (
     TenantManager,
     get_current_school,
 )
+from apps.schools.logos import validate_logo
 
 
 class BaseModel(models.Model):
@@ -116,3 +119,78 @@ class TenantModel(BaseModel):
                 raise CrossSchoolError(
                     f"{type(self).__name__}.{field.name} pointe vers une ligne d'une autre école."
                 )
+
+
+class PlatformSettings(models.Model):
+    """Identité de la plateforme (5.1) : une seule ligne, lue partout (Gestion, Portail, PDF,
+    administration, manifestes des applications). Les valeurs par défaut ci-dessous sont celles
+    du départ, le seul endroit du code où figure le nom : ensuite, on les change sans code."""
+
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+    name = models.CharField(_("name"), max_length=60, default="Mwangaza")
+    short_name = models.CharField(
+        _("short name"),
+        max_length=20,
+        default="Mwangaza",
+        help_text=_("Under the application icon on the home screen (12 characters is best)."),
+    )
+    logo = models.FileField(
+        _("logo"),
+        upload_to=platform.logo_path,
+        blank=True,
+        validators=[validate_logo],
+        help_text=_("PNG, JPEG or SVG, 1 MB at most. Without it: the lamp."),
+    )
+    icon = models.FileField(
+        _("application icon"),
+        upload_to=platform.icon_path,
+        blank=True,
+        validators=[platform.validate_icon],
+        help_text=_("Square PNG of at least 512 x 512 pixels. Without it: the lamp icon."),
+    )
+    primary_color = models.CharField(
+        _("main colour"),
+        max_length=7,
+        default="#0E5C6B",
+        validators=[platform.validate_primary_color],
+        help_text=_("Buttons and links of the interface."),
+    )
+    accent_color = models.CharField(
+        _("accent colour"),
+        max_length=7,
+        default="#F2B632",
+        validators=[platform.validate_accent_color],
+        help_text=_("Mark and highlights on the dark menu."),
+    )
+    support_phone = PhoneNumberField(_("support phone"), blank=True)
+    support_email = models.EmailField(_("support email"), blank=True)
+    legal_notice = models.TextField(_("legal notice"), blank=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("platform identity")
+        verbose_name_plural = _("platform identity")
+        constraints = [
+            models.CheckConstraint(condition=models.Q(id=1), name="platform_settings_single_row")
+        ]
+
+    def __str__(self) -> str:
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.primary_color = self.primary_color.upper()
+        self.accent_color = self.accent_color.upper()
+        super().save(*args, **kwargs)
+
+    @property
+    def logo_url(self) -> str | None:
+        return platform.file_url(self.logo, "logo")
+
+    @property
+    def icon_url(self) -> str | None:
+        return platform.file_url(self.icon, "icon")
+
+    @classmethod
+    def load(cls) -> "PlatformSettings":
+        """La ligne de la plateforme, créée avec les valeurs de départ si elle manque."""
+        return cls.objects.get_or_create(pk=1)[0]

@@ -129,6 +129,8 @@ Pour dessiner un nouvel écran : écrire la page avec la même coquille (`page_g
 
 ### Couleurs (à reporter dans le thème Tailwind / variables shadcn)
 
+Depuis la 5.1, le nom « Mwangaza », la lampe et les couleurs `lamp` / `lake` des maquettes sont les valeurs **de départ** de l'identité de la plateforme : l'application lit le nom, le logo (sinon la lampe), l'icône et ces deux couleurs dans ses paramètres. Ajouts sans maquette : lien « Mentions légales » à la suite des langues sous les connexions (Gestion et Portail, s'il y a un texte) ; téléphone et e-mail du support sous « École suspendue » et « Aucune école à cette adresse ».
+
 | Jeton | Valeur | Usage |
 |---|---|---|
 | `basalt` | `#2B2724` | barre latérale, en-tête portail |

@@ -8,10 +8,12 @@ import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 
 import { UpdatePrompt } from "./features/shell/UpdatePrompt";
+import { PlatformProvider, startPlatform } from "./lib/platform";
 import { createQueryClient } from "./lib/queryClient";
 import { routes } from "./routes";
 
 setupI18n();
+startPlatform();
 const queryClient = createQueryClient();
 const router = createBrowserRouter(routes, { basename: "/app" });
 
@@ -21,8 +23,10 @@ if (!root) throw new Error("#root introuvable");
 createRoot(root).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-      <UpdatePrompt />
+      <PlatformProvider>
+        <RouterProvider router={router} />
+        <UpdatePrompt />
+      </PlatformProvider>
     </QueryClientProvider>
   </StrictMode>,
 );

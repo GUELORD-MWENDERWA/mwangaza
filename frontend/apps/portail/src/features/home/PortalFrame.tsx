@@ -1,6 +1,6 @@
 import { api, call } from "@mwangaza/api";
 import { errorMessage, useTranslation } from "@mwangaza/i18n";
-import { Banner, Brand, BrandMark, Button, cn, Icon, type IconName } from "@mwangaza/ui";
+import { Banner, Brand, Button, cn, Icon, type IconName, PlatformMark } from "@mwangaza/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { Link, NavLink } from "react-router";
@@ -38,7 +38,7 @@ export function PortalFrame({
         <div className="mx-auto flex max-w-[640px] items-center justify-between gap-3">
           {heading !== undefined ? (
             <div className="flex items-center gap-2.5">
-              <BrandMark className="size-[26px]" />
+              <PlatformMark className="h-[26px] min-w-[26px]" />
               <h1 className="text-[1.1rem] text-basalt-ink">{heading}</h1>
             </div>
           ) : title === undefined ? (

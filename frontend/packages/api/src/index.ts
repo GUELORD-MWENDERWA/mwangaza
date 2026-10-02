@@ -98,3 +98,27 @@ export function ensureCsrf() {
   if (cookie("csrftoken")) return Promise.resolve();
   return call(api.GET("/api/auth/csrf/")).then(() => undefined);
 }
+
+export type Platform = Schemas["Platform"];
+const PLATFORM_KEY = "mwangaza.platform";
+
+/** Identité de la plateforme gardée sur l'appareil : affichée tout de suite, même sans réseau. */
+export function cachedPlatform(): Platform | null {
+  try {
+    const value = globalThis.localStorage?.getItem(PLATFORM_KEY);
+    return value ? (JSON.parse(value) as Platform) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Identité de la plateforme (nom, logo, couleurs, support), lue puis gardée sur l'appareil. */
+export async function loadPlatform(): Promise<Platform> {
+  const platform = await call(api.GET("/api/platform/"));
+  try {
+    globalThis.localStorage?.setItem(PLATFORM_KEY, JSON.stringify(platform));
+  } catch {
+    // Stockage refusé : relue à la prochaine visite.
+  }
+  return platform;
+}

@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
   Icon,
+  usePlatform,
 } from "@mwangaza/ui";
 import { useNavigate } from "react-router";
 
@@ -23,6 +24,7 @@ export function InstallPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const install = useInstallPrompt();
+  const { icon } = usePlatform();
   const home = () => void navigate("/", { replace: true });
 
   return (
@@ -38,11 +40,15 @@ export function InstallPage() {
         <Card className="overflow-hidden">
           <div
             aria-hidden="true"
-            className="grid place-items-center bg-[linear-gradient(160deg,#355C7D,#0E5C6B)] py-6"
+            className="grid place-items-center bg-[linear-gradient(160deg,#355C7D,var(--color-lake))] py-6"
           >
-            <span className="grid size-[60px] place-items-center rounded-[14px] bg-basalt">
-              <BrandMark />
-            </span>
+            {icon ? (
+              <img src={icon} alt="" className="size-[60px] rounded-[14px]" />
+            ) : (
+              <span className="grid size-[60px] place-items-center rounded-[14px] bg-basalt">
+                <BrandMark />
+              </span>
+            )}
           </div>
           <CardContent className="flex flex-col gap-4">
             <h2 className="text-[1.25rem]">{t("portal.install.heading")}</h2>

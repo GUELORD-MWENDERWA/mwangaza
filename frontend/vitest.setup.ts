@@ -2,9 +2,11 @@
 import { cleanup, configure } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 
-import { changeLanguage, setupI18n } from "./packages/i18n/src";
+import { changeLanguage, setPlatformName, setupI18n } from "./packages/i18n/src";
 
 setupI18n("fr");
+// Nom de la plateforme dans les textes (`{{platform}}`), d'habitude lu sur le serveur.
+setPlatformName("Mwangaza");
 
 // Écrans lancés en parallèle (4 cœurs, comme la CI) : un écran met parfois plus d'une seconde à
 // paraître. Une vraie absence échoue toujours, seulement un peu plus tard.

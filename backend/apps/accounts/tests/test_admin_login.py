@@ -109,7 +109,7 @@ def test_wrong_password(client, secret):
     response = log_in(client, password="pas-le-bon")
 
     assert response.status_code == 200
-    assert "pas un compte d&#x27;administration Mwangaza" in response.content.decode()
+    assert "pas un compte d&#x27;administration de la plateforme" in response.content.decode()
     assert LoginFailure.objects.count() == 1
 
 
@@ -119,7 +119,7 @@ def test_staff_of_a_school_is_refused_like_a_wrong_password(client, school):
     response = log_in(client, phone=head.phone, password="mot-de-passe-de-test")
 
     assert response.status_code == 200
-    assert "pas un compte d&#x27;administration Mwangaza" in response.content.decode()
+    assert "pas un compte d&#x27;administration de la plateforme" in response.content.decode()
     assert "_auth_user_id" not in client.session
     assert client.get(LOGIN).context["form"].fields.keys() == {"phone", "password"}
     assert not AuditLog.all_schools.exists()

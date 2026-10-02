@@ -4,7 +4,7 @@ Le super-admin se connecte **à l'adresse de l'école** comme tout le monde (mot
 puis ouvre une session support avec un motif. Pendant une heure au plus, il a les droits de
 l'école, sauf la caisse (`SUPPORT_PERMISSIONS`) ; l'interface affiche un bandeau rouge
 permanent (`/api/me/`). Ouverture, fermeture et chaque action de la session vont dans le journal
-de l'école, avec `impersonated_by` ; l'école y voit « Support Mwangaza ».
+de l'école, avec `impersonated_by` ; l'école y voit « Support » suivi du nom de la plateforme.
 
 La session est gardée dans la session Django de cette adresse : elle ne donne rien dans une autre
 école.
@@ -38,7 +38,7 @@ SUPPORT_EXCLUDED_PERMISSIONS = frozenset(
 SUPPORT_PERMISSIONS = frozenset(PERMISSIONS) - SUPPORT_EXCLUDED_PERMISSIONS
 
 NOT_PLATFORM_ADMIN = ApiError(
-    "not_platform_admin", _("Only Mwangaza support can open a support session."), 403
+    "not_platform_admin", _("Only the platform support can open a support session."), 403
 )
 SUPPORT_TOTP_REQUIRED = ApiError(
     "totp_required", _("Log in again with two-factor authentication."), 403

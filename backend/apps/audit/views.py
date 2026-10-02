@@ -20,6 +20,7 @@ from apps.audit.serializers import (
 )
 from apps.core.documents import XLSX, XLSX_RESPONSE, file_response, workbook
 from apps.core.errors import ErrorSerializer
+from apps.core.models import PlatformSettings
 
 
 @extend_schema_view(
@@ -73,7 +74,7 @@ class AuditLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolVi
     @action(detail=False, methods=["get"], pagination_class=None)
     def actors(self, request: Request) -> Response:
         """Les personnes qui apparaissent dans le journal de l'école (filtre « Personne » de M6),
-        sans le support Mwangaza."""
+        sans le support de la plateforme."""
         logs = AuditLog.objects.filter(actor__isnull=False, impersonated_by__isnull=True)
         users = (
             User.objects.filter(pk__in=logs.values("actor"))
@@ -96,6 +97,7 @@ class AuditLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolVi
             AuditLog.objects.select_related("actor", "device"), filters=AuditLogExportSerializer
         )
         serializer = AuditLogSerializer(context={})
+        support = gettext("%(platform)s support") % {"platform": PlatformSettings.load().name}
         content = workbook(
             [
                 gettext("Date"),
@@ -108,7 +110,7 @@ class AuditLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolVi
                 gettext("Device"),
                 gettext("Device time"),
             ],
-            (_export_row(log, serializer) for log in logs.iterator(chunk_size=2000)),
+            (_export_row(log, serializer, support) for log in logs.iterator(chunk_size=2000)),
             title=gettext("Audit log"),
             widths=[18, 26, 34, 34, 40, 40, 16, 26, 18],
         )
@@ -126,10 +128,10 @@ def _changes(values: dict | None) -> str:
     return "; ".join(f"{key}: {value}" for key, value in (values or {}).items())
 
 
-def _export_row(log: AuditLog, serializer: AuditLogSerializer) -> list:
+def _export_row(log: AuditLog, serializer: AuditLogSerializer, support: str) -> list:
     """Une ligne, dite comme à l'écran : le support n'est pas nommé, un rôle système a son nom."""
     if serializer.get_by_support(log):
-        person = gettext("Mwangaza support")
+        person = support
     elif log.actor:
         person = log.actor.get_full_name() or log.actor.phone
     else:

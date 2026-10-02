@@ -9,14 +9,15 @@ const ROOTS = [
   fileURLToPath(new URL("src", import.meta.url)),
   fileURLToPath(new URL("../../packages/ui/src", import.meta.url)),
 ];
-// Nom de la marque, jamais traduit (`Brand`).
-const ALLOWED = new Set(["Mwangaza"]);
+// Nom de départ de la plateforme (`PlatformSettings`) : lu dans ses paramètres, jamais écrit.
+const PLATFORM = "Mwangaza";
+const FRONTEND = fileURLToPath(new URL("../..", import.meta.url));
 
-function sources(dir: string): string[] {
+function sources(dir: string, pattern = /\.tsx$/): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name);
-    if (entry.isDirectory()) return entry.name === "test" ? [] : sources(path);
-    return /\.tsx$/.test(entry.name) && !entry.name.includes(".test.") ? [path] : [];
+    if (entry.isDirectory()) return entry.name === "test" ? [] : sources(path, pattern);
+    return pattern.test(entry.name) && !entry.name.includes(".test.") ? [path] : [];
   });
 }
 
@@ -35,11 +36,29 @@ describe("textes d'interface", () => {
             ...code.matchAll(/\b(?:label|placeholder|title|aria-label|alt)="([^"]*\p{L}[^"]*)"/gu),
           ].map((m) => m[1]!),
         ];
-        for (const text of texts) {
-          if (!ALLOWED.has(text.trim())) found.push(`${relative(root, file)} : ${text.trim()}`);
-        }
+        for (const text of texts) found.push(`${relative(root, file)} : ${text.trim()}`);
       }
     }
     expect(found).toEqual([]);
+  });
+});
+
+describe("nom de la plateforme", () => {
+  it("n'est écrit ni dans les traductions, ni dans les écrans, ni dans les pages et manifestes", () => {
+    const files = [
+      ...["apps/gestion/src", "apps/portail/src", "packages/ui/src", "packages/i18n/src"].flatMap(
+        (dir) => sources(join(FRONTEND, dir), /\.tsx?$/),
+      ),
+      ...["gestion", "portail"].flatMap((app) => [
+        join(FRONTEND, "apps", app, "index.html"),
+        join(FRONTEND, "apps", app, "vite.config.ts"),
+      ]),
+    ];
+    const found = files.filter((file) =>
+      readFileSync(file, "utf8")
+        .replace(/\/\*[\s\S]*?\*\/|\/\/.*$|<!--[\s\S]*?-->/gm, "")
+        .includes(PLATFORM),
+    );
+    expect(found.map((file) => relative(FRONTEND, file))).toEqual([]);
   });
 });

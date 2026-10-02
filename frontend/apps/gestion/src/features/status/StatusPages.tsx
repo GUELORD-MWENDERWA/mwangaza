@@ -1,8 +1,8 @@
 // Pages d'état (M8) : ce qui se passe, pourquoi, et quoi faire. Dans la coquille quand le compte
 // est connecté (menu visible), sinon seules sur la page (`StandaloneStatus`).
 import { ApiError } from "@mwangaza/api";
-import { useTranslation } from "@mwangaza/i18n";
-import { Brand, Button, StateCard, Tag } from "@mwangaza/ui";
+import { formatPhone, useTranslation } from "@mwangaza/i18n";
+import { Brand, Button, StateCard, Tag, usePlatform } from "@mwangaza/ui";
 import type { ReactNode } from "react";
 import { isRouteErrorResponse, Link, useLocation, useRouteError } from "react-router";
 
@@ -110,6 +110,7 @@ export function Suspended() {
   return (
     <StateCard icon="shield" tone="gray" title={t("status.suspended.title")}>
       {t("status.suspended.text")}
+      <SupportContact />
     </StateCard>
   );
 }
@@ -119,7 +120,22 @@ export function NoSchool() {
   return (
     <StateCard icon="school" tone="gray" title={t("status.noSchool.title")}>
       {t("status.noSchool.text")}
+      <SupportContact />
     </StateCard>
+  );
+}
+
+/** Téléphone et e-mail du support, tirés des paramètres de la plateforme. */
+function SupportContact() {
+  const { t } = useTranslation();
+  const { support_phone: phone, support_email: email } = usePlatform();
+  if (!phone && !email) return null;
+  return (
+    <span className="mt-2 flex flex-wrap justify-center gap-x-3 font-bold">
+      <span>{t("common.supportContact")}</span>
+      {phone && <a href={`tel:${phone}`}>{formatPhone(phone)}</a>}
+      {email && <a href={`mailto:${email}`}>{email}</a>}
+    </span>
   );
 }
 

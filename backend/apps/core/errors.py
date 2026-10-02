@@ -97,5 +97,5 @@ class ErrorSerializer(serializers.Serializer):
 
 SCHOOL_NOT_FOUND = ApiError("school_not_found", _("There is no school at this address."), 404)
 SCHOOL_SUSPENDED = ApiError(
-    "school_suspended", _("This school is suspended. Please contact Mwangaza."), 403
+    "school_suspended", _("This school is suspended. Please contact the platform support."), 403
 )

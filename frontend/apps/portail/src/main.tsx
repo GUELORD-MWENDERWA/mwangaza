@@ -8,10 +8,12 @@ import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 
 import { listenForInstallPrompt } from "./lib/install";
+import { PlatformProvider, startPlatform } from "./lib/platform";
 import { createQueryClient } from "./lib/queryClient";
 import { routes } from "./routes";
 
 setupI18n();
+startPlatform();
 listenForInstallPrompt();
 // Application installable (H6) : service worker seulement après `make build` ; une nouvelle
 // version s'installe d'elle-même (rien à synchroniser dans le portail).
@@ -27,7 +29,9 @@ if (!root) throw new Error("#root introuvable");
 createRoot(root).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <PlatformProvider>
+        <RouterProvider router={router} />
+      </PlatformProvider>
     </QueryClientProvider>
   </StrictMode>,
 );

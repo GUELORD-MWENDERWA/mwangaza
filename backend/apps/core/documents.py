@@ -19,6 +19,7 @@ from openpyxl.cell import WriteOnlyCell
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
 
+from apps.core.models import PlatformSettings
 from apps.schools.logos import CONTENT_TYPES as LOGO_TYPES
 from apps.schools.logos import logo_kind
 from apps.schools.models import School
@@ -69,7 +70,7 @@ def school_header(school: School) -> dict:
 def render(template: str, context: dict, output: str, name: str) -> HttpResponse:
     """`html` : aperçu dans la page (même origine seulement) ; `pdf` : fichier ouvert dans le
     navigateur, qui l'imprime ou l'enregistre."""
-    html = render_to_string(template, context)
+    html = render_to_string(template, {"platform": PlatformSettings.load(), **context})
     if output == "html":
         response = HttpResponse(html, content_type=f"{HTML}; charset=utf-8")
         response["X-Frame-Options"] = "SAMEORIGIN"

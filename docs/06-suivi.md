@@ -6,12 +6,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | V1.0 close (guide PDF fait), puis V1.1 |
-| Lot | V1.0 ; découpage des versions revu le 2026-10-02 |
-| Tâche en cours | aucune — 4.10 terminée (PR à fusionner) |
-| Prochaine tâche | 5.1 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
-| Issue GitHub | #131 |
-| Branche | `tache/4.10-guide` ; dossier local : `~/Projets/mwangaza` |
+| Phase | V1.1 — plateforme, notifications, communication |
+| Lot | V1.1 |
+| Tâche en cours | aucune — 5.1 terminée (PR à fusionner) |
+| Prochaine tâche | 5.2 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
+| Issue GitHub | #132 |
+| Branche | `tache/5.1-identite-plateforme` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-02 |
 
 ## Avancement
@@ -24,7 +24,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production | 14 | 16 |
 | **V1.0** | **48** | **50** |
-| V1.1 — plateforme, notifications, communication | 0 | 7 |
+| V1.1 — plateforme, notifications, communication | 1 | 7 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
 | V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-02 — Tâche 5.1 : identité de la plateforme
+- Fait : `PlatformSettings` (nom, nom court, logo, icône, couleurs, support, mentions légales), modifiable dans l'administration Django ; API publique `/api/platform/` (+ logo, icône, manifestes) ; lue par la Gestion, le Portail, les PDF, la vérification d'un reçu, l'administration, le TOTP et le guide ; `{{platform}}` dans toutes les traductions ; couleurs appliquées au thème ; contact du support sur « École suspendue » ; lien « Mentions légales » sous les connexions ; `make demo` remet l'identité de départ.
+- Tests : `core/tests/test_platform.py` (publique même pour une école suspendue, nouveau nom partout, couleurs illisibles et icône refusées, édition par le super-admin, nom refusé dans les textes du serveur), `textes.test.ts` (nom refusé dans les textes du front), i18n (`setPlatformName`).
+- Décisions : `03` « Journal des décisions » (pas de Pillow : icône PNG carrée ≥ 512 px ; le domaine reste dans `.env`).
+- Suite : 5.2 (console de la plateforme, dont l'écran « Identité de la plateforme »).
 
 ### 2026-10-02 — Tâche 4.10 : guide de la V1.0 en PDF
 - Fait : `docs/guide/guide-v1.0.pdf` (16 pages) : la version en bref, se connecter, rôle par rôle (directeur, promoteur, comptable, caissier, secrétaire, études, discipline, enseignant, parent, super-admin) avec captures sur `make demo`, hors ligne et contrôle de l'argent, ce qui manque et V1.1 → V2. `make guide` : `frontend/guide/` (config Playwright à part, `captures.spec.ts`, `guide.html`). Trouvé en chemin : l'écran d'activation de la double authentification débordait de 32 px à 390 px (grilles sans colonne bornée dans `AuthFrame` et `TwoFactorSetup`), corrigé.
