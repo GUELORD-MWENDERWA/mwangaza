@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 4 (Rapports, portail, production) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 4.4.2 terminée, PR #121 à fusionner |
-| Prochaine tâche | 4.4.3 |
+| Tâche en cours | aucune — 4.4.3 terminée, PR à fusionner |
+| Prochaine tâche | 4.4.4 |
 | Issue GitHub | #32 (fermée par la 4.4.5) |
-| Branche | `tache/4.4.2-enfants-portail` (PR #121) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/4.4.3-paiements-portail` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-02 |
 
 ## Avancement
@@ -22,8 +22,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 6 | 13 |
-| **V1.0** | **40** | **47** |
+| Semaine 4 — Rapports, portail, production | 7 | 13 |
+| **V1.0** | **41** | **47** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-02 — Tâche 4.4.3 : paiements et reçus (Portail)
+- Fait : `GET /api/portal/children/{id}/` (frais dus de l'année avec leur état — payé, payé d'avance, partiel, en retard, à venir —, solde par devise, paiements, annulés marqués), `…/photo/` (seulement avec le consentement du parent, aussi sur les cartes de l'accueil), `GET /api/portal/payments/{id}/receipt/` (reçu PDF A5 par le serveur, même contenu que celui de la caisse, mention « Copie téléchargée sur le portail », QR de vérification). Portail : écran des paiements d'un enfant, barre de navigation en bas (Accueil, Paiements), page gardée hors connexion. Montant en lettres porté en Python (`core/money.py`, mêmes règles que la caisse).
+- Tests : 3 tests serveur (compte d'une autre famille ou d'une autre école : ni enfant, ni photo, ni reçu ; états et montants par devise ; reçu d'un paiement annulé ou d'une famille suspendue refusé ; photo sans consentement refusée) + montant en lettres ; 1 test d'écran.
+- Décisions (`03`) : reçu du portail produit par le serveur, marqué « Copie », jamais pour un paiement annulé, téléchargement non noté au journal.
+- Suite : 4.4.4 (annonces dans le portail, « lue par N familles »).
 
 ### 2026-10-02 — Tâche 4.4.2 : enfants et installable (Portail)
 - Fait : 4.4 redécoupée en 5 (paiements et reçus à part : 4.4.3). Serveur : `GET /api/portal/families/` (familles reliées au compte, une par école, enfants inscrits avec la situation par devise, premier frais en retard, dernier paiement), `POST /api/portal/families/link/` (« Ajouter un enfant d'une autre école »), « Suspendre l'accès » (`Family.portal_suspended_at`, `POST /api/families/{id}/portal-access/`). Portail : accueil, ajout d'une école, écran « Installer » et bandeau, PWA (cache des données vidé à la déconnexion). Gestion : bouton sur la fiche famille. `make demo` : compte du portail `0002000001`, code des Volcans affiché.
