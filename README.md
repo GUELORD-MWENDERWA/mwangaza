@@ -31,7 +31,7 @@ Dans Claude Code : `/etat`. Sur GitHub : onglet **Milestones** (une barre de pro
 │   ├── 07-a-fournir.md            maquettes, informations et décisions encore manquantes
 │   ├── ecole-pilote/              ITIG : fiche-itig.md, depot/ (tes fichiers, hors Git),
 │   │                              documents/ (rangés), prive/ (données personnelles, hors Git)
-│   └── claude/                    espace de travail de Claude : plans/, recherches/, revues/
+│   └── claude/                    espace de travail de Claude : plans/, recherches/ (revues/ : jusqu'à 1.7)
 ├── maquettes/
 │   ├── README.md              système de design + inventaire des écrans
 │   ├── index.html             galerie : ouvrir dans un navigateur

@@ -32,7 +32,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Choisir l'école (compte dans plusieurs écoles) | `gestion/choix-ecole.html` | V1.0 | B3 · M2 | à valider |
 | Déverrouillage PIN hors-ligne | `gestion/deverrouillage-pin.html` | V1.0 | B5 | fournie |
 | Mon compte | `gestion/mon-compte.html` | V1.0 | B4–B5 · M4 | à valider |
-| Tableau de bord directeur | `gestion/tableau-de-bord.html` | V1.0 | G3 | fournie |
+| Tableau de bord directeur | `gestion/tableau-de-bord.html` | V1.0 | G3 | fournie — codé en 4.2 sans sélecteur de période ni export (hors G3) |
 | Menu sur téléphone et tablette | `gestion/menu-mobile.html` | V1.0 | § 9.4 · M7 | à valider |
 | Pages d'état et d'erreur (Gestion et Portail) | `gestion/pages-etat.html` | V1.0 | M8 | à valider |
 | Guide de première connexion (caissier, comptable) | `gestion/guide-premiere-connexion.html` | V1.0 | I3 · M20 | à valider |
@@ -63,7 +63,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Situation financière imprimable | `gestion/situation-financiere.html` | V1.0 | G2 · M17 | à valider |
 | Export des impayés (PDF par classe, Excel) | `gestion/impayes-export.html` | V1.0 | G1 · M17 | à valider |
 | Annonces | `gestion/annonces.html` | V1.0 | H4 | fournie |
-| Demandes des parents (changements de coordonnées) | `gestion/changements-coordonnees.html` | V1.0 | H5 · M18 | à valider |
+| Demandes des parents (changements de coordonnées) | `gestion/changements-coordonnees.html` | V1.0 | H5 · M18 | à valider — codée en 4.4.5 : le secrétariat **applique** la demande (rien ne change sans lui, `02` H5 et `04` priment sur la note « déjà enregistré ») |
 | Paramètres de l'école | `gestion/parametres-ecole.html` | V1.0 | A1, § 8.1 · M5 | à valider |
 | Organisation scolaire | `gestion/organisation-scolaire.html` | V1.0 | C1–C3 | fournie |
 | Comptes du personnel | `gestion/personnel-comptes.html` | V1.0 | B1–B3 · M3 | à valider |
@@ -95,7 +95,7 @@ Bulletins : structure et maxima repris des formulaires officiels trouvés en lig
 | Accueil — mes enfants (multi-écoles) | `portail/accueil.html` | V1.0 | H2 | fournie |
 | Paiements d'un enfant | `portail/enfant-paiements.html` | V1.0 | H3 | fournie |
 | Annonces | `portail/annonces.html` | V1.0 | H4 | fournie |
-| Profil et coordonnées | `portail/profil.html` | V1.0 | H5 | fournie |
+| Profil et coordonnées | `portail/profil.html` | V1.0 | H5 | fournie — codé en 4.4.5 avec le contact d'urgence à la place du « Téléphone secondaire » (pas de champ au modèle) |
 | Vérification publique d'un reçu (`/v/{id}`) | `portail/verification-recu.html` | V1.0 | F4 | fournie |
 | Scolarité d'un enfant | `portail/enfant-scolarite.html` | V1.2 | 6.8 | fournie |
 

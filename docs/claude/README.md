@@ -6,7 +6,7 @@ Les fichiers de travail de Claude Code : ce qui prépare, justifie ou contrôle 
 |---|---|---|
 | `plans/` | Plan de chaque tâche, écrit **avant** de coder : fichiers touchés, tests prévus, décisions à prendre. Mis à jour si le plan change en cours de route. | `tache-0.1.md` |
 | `recherches/` | Notes de recherche avec sources : informations web, comparaison de bibliothèques, règles scolaires RDC / EPST, formats officiels. | `AAAA-MM-JJ-sujet.md` |
-| `revues/` | Résultat de `/verifier` à la fin de chaque tâche (tableau des règles ✔ / ✘ et corrections). | `tache-1.1.md` |
+| `revues/` | Anciennes revues `/verifier`, jusqu'à la tâche 1.7. Depuis, le résultat tient en quelques lignes dans la PR (section « Tests ») : plus de fichier ici. | `tache-1.1.md` |
 
 ## Règles
 

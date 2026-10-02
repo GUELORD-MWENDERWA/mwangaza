@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 4 (Rapports, portail, production) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 4.4.5 terminée, PR à fusionner |
+| Tâche en cours | aucune — 4.4.5 fusionnée (PR #124) ; PR des documents à fusionner |
 | Prochaine tâche | 4.5 |
-| Issue GitHub | #32 (fermée par la PR de la 4.4.5) |
-| Branche | `tache/4.4.5-coordonnees-portail` (PR à fusionner) ; dossier local : `~/Projets/mwangaza` |
+| Issue GitHub | #32 (fermée) ; prochaine : celle de la 4.5 |
+| Branche | `docs/mise-a-jour-md` (PR à fusionner) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-02 |
 
 ## Avancement
@@ -53,6 +53,11 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-02 — Façon de travailler : tous les `.md` à jour à chaque tâche
+- Demande de l'utilisateur : à la fin de chaque tâche, mettre à jour **tous** les `.md` que la tâche rend faux, pas seulement le suivi ; les skills suivent. Règle et liste des fichiers dans `CLAUDE.md` (« Suivi du projet », fin d'une tâche), skill `tache` étape 5.3, contrôle n° 15 de `verifier`, rappels dans `backend` et `ecran`.
+- Rattrapage (en retard depuis la semaine 2) : `A-FAIRE.md` § 11 (écrans des semaines 2 à 4, portail, `make demo`, `make test-e2e`) et nouvelle action n° 17 (domaine, Cloudflare, VPS : la 4.6 vient après la 4.5) ; `CLAUDE.md` (`make demo`, API et écrans du portail) ; `07` § 4 (élèves, frais, caisse, annonces, portail) ; `maquettes/README.md` (écarts des écrans 4.2 et 4.4.5) ; skill `ecran` et `07` § 1 alignées sur la décision du 2026-09-29 (maquette dessinée → coder sans attendre l'accord).
+- Suite : fusionner la PR des documents, puis 4.5.
 
 ### 2026-10-02 — Tâche 4.4.5 : coordonnées des parents
 - Fait : `ContactChange` (une demande par école reliée, seulement ce qui diffère de sa fiche, une seule en attente par famille) ; portail `GET/POST /api/portal/profile/` et écran « Mon profil » (adresse, e-mail, contact d'urgence, langue, déconnexion, entrée Profil de la barre) ; Gestion `/api/contact-changes/` (+ `apply/`, `dismiss/`, droit `students.edit`) et écran « Demandes des parents » ; `make demo` : 3 demandes à l'ITIG. La 4.4 (Portail) est finie ; tous les écrans du menu V1.0 sont construits.
