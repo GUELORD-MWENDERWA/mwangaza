@@ -1,16 +1,6 @@
 import { errorMessage, formatDay, formatVisit, useTranslation } from "@mwangaza/i18n";
 import { formatAmount } from "@mwangaza/money";
-import {
-  Avatar,
-  Banner,
-  Button,
-  buttonVariants,
-  Card,
-  CardContent,
-  Icon,
-  initials,
-  Skeleton,
-} from "@mwangaza/ui";
+import { Banner, Button, buttonVariants, Card, CardContent, Icon, Skeleton } from "@mwangaza/ui";
 import { useState } from "react";
 import { Link, useOutletContext } from "react-router";
 
@@ -18,11 +8,12 @@ import type { Account } from "../../lib/account";
 import { type Child, type LinkedFamily, useFamilies } from "../../lib/families";
 import { shouldOfferInstall } from "../../lib/install";
 import { LanguageLinks } from "../auth/AuthFrame";
+import { ChildAvatar } from "../child/ChildAvatar";
 import { PortalFrame } from "./PortalFrame";
 
 /** Accueil (maquette `accueil`, H2) : une carte par enfant, toutes écoles reliées ; chaque carte
- *  ne montre que les données de l'école de l'enfant. Paiements d'un enfant : 4.4.3 ; annonces
- *  récentes : 4.4.4. */
+ *  ne montre que les données de l'école de l'enfant et ouvre ses paiements ; annonces récentes :
+ *  4.4.4. */
 export function HomePage() {
   const { t } = useTranslation();
   const account = useOutletContext<Account>();
@@ -86,73 +77,77 @@ function ChildCard({ child, family }: { child: Child; family: LinkedFamily }) {
   const { t, i18n } = useTranslation();
   const { balance, last_payment: last } = child;
   const overdue = balance.currencies.filter((line) => line.overdue_minor > 0);
-  const names = child.full_name.split(" ");
 
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-3">
-        <div className="flex items-center gap-3">
-          <Avatar
-            text={initials(names[0] ?? "", names.at(-1) ?? "")}
-            className="size-14 text-[1.1rem]"
-          />
-          <div className="min-w-0 flex-1">
-            <b className="block">{child.full_name}</b>
-            <span className="text-[.88rem] text-ink-3">
-              {family.school_name} · {child.class_name}
-            </span>
-          </div>
-        </div>
-        {overdue.length > 0 ? (
-          <Banner tone="due">
-            <span>
-              {t("portal.home.overdue")}{" "}
-              <b>
-                {overdue.map((line) => formatAmount(line.overdue_minor, line.currency)).join(" + ")}
-              </b>
-              {child.first_overdue && ` (${child.first_overdue})`}
-            </span>
-          </Banner>
-        ) : (
-          <Banner tone="ok">
-            {balance.next_due_on
-              ? t("portal.home.upToDateNext", {
-                  date: formatDay(balance.next_due_on, i18n.language),
-                })
-              : t("portal.home.upToDate")}
-          </Banner>
-        )}
-        {balance.currencies.map((line) => {
-          const percent = line.total_minor ? (line.paid_minor * 100) / line.total_minor : 100;
-          return (
-            <div key={line.currency} className="text-[.88rem]">
-              <div className="flex justify-between gap-3">
-                <span>{t("portal.home.paidThisYear")}</span>
-                <b className="tabular-nums">
-                  {t("portal.home.paidOf", {
-                    paid: formatAmount(line.paid_minor, line.currency),
-                    total: formatAmount(line.total_minor, line.currency),
-                  })}
-                </b>
-              </div>
-              <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-gray-50">
-                <div className="h-full rounded-full bg-ok" style={{ width: `${percent}%` }} />
-              </div>
+    <Link to={`/children/${child.id}`} className="text-inherit no-underline">
+      <Card>
+        <CardContent className="flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <ChildAvatar
+              name={child.full_name}
+              photo={child.photo}
+              className="size-14 text-[1.1rem]"
+            />
+            <div className="min-w-0 flex-1">
+              <b className="block">{child.full_name}</b>
+              <span className="text-[.88rem] text-ink-3">
+                {family.school_name} · {child.class_name}
+              </span>
             </div>
-          );
-        })}
-        {last && (
-          <div className="flex justify-between gap-3 text-[.88rem]">
-            <span className="text-ink-3">{t("portal.home.lastPayment")}</span>
-            <span className="tabular-nums">
-              {formatAmount(last.received_amount_minor, last.received_currency)} ·{" "}
-              {formatVisit(last.paid_at, i18n.language, family.school_timezone, (time) =>
-                t("portal.home.today", { time }),
-              )}
-            </span>
           </div>
-        )}
-      </CardContent>
-    </Card>
+          {overdue.length > 0 ? (
+            <Banner tone="due">
+              <span>
+                {t("portal.home.overdue")}{" "}
+                <b>
+                  {overdue
+                    .map((line) => formatAmount(line.overdue_minor, line.currency))
+                    .join(" + ")}
+                </b>
+                {child.first_overdue && ` (${child.first_overdue})`}
+              </span>
+            </Banner>
+          ) : (
+            <Banner tone="ok">
+              {balance.next_due_on
+                ? t("portal.home.upToDateNext", {
+                    date: formatDay(balance.next_due_on, i18n.language),
+                  })
+                : t("portal.home.upToDate")}
+            </Banner>
+          )}
+          {balance.currencies.map((line) => {
+            const percent = line.total_minor ? (line.paid_minor * 100) / line.total_minor : 100;
+            return (
+              <div key={line.currency} className="text-[.88rem]">
+                <div className="flex justify-between gap-3">
+                  <span>{t("portal.home.paidThisYear")}</span>
+                  <b className="tabular-nums">
+                    {t("portal.home.paidOf", {
+                      paid: formatAmount(line.paid_minor, line.currency),
+                      total: formatAmount(line.total_minor, line.currency),
+                    })}
+                  </b>
+                </div>
+                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-gray-50">
+                  <div className="h-full rounded-full bg-ok" style={{ width: `${percent}%` }} />
+                </div>
+              </div>
+            );
+          })}
+          {last && (
+            <div className="flex justify-between gap-3 text-[.88rem]">
+              <span className="text-ink-3">{t("portal.home.lastPayment")}</span>
+              <span className="tabular-nums">
+                {formatAmount(last.received_amount_minor, last.received_currency)} ·{" "}
+                {formatVisit(last.paid_at, i18n.language, family.school_timezone, (time) =>
+                  t("portal.home.today", { time }),
+                )}
+              </span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

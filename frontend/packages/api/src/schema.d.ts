@@ -1471,6 +1471,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/portal/children/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Paiements d'un enfant (H3) : frais dus, solde, paiements ; 404 s'il n'est pas d'une
+         *     famille reliée au compte, ou si l'accès ou l'école est suspendu.
+         */
+        get: operations["portal_children_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/children/{id}/photo/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Photo de l'enfant, seulement avec le consentement du parent (`photo_consent`). */
+        get: operations["portal_children_photo_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/portal/families/": {
         parameters: {
             query?: never;
@@ -1514,6 +1551,23 @@ export interface paths {
         };
         /** @description Le compte connecté au portail. */
         get: operations["portal_me_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/payments/{id}/receipt/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Reçu d'un paiement en PDF A5 ; 404 pour un paiement annulé ou d'une autre famille. */
+        get: operations["portal_payments_receipt_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2852,6 +2906,66 @@ export interface components {
             first_overdue: string | null;
             /** @description Hors paiements annulés. */
             last_payment: components["schemas"]["LastPayment"] | null;
+            /** @description Adresse de la photo, seulement avec le consentement du parent. */
+            photo: string | null;
+        };
+        /** @description Un frais dû de l'année (« Minerval · 1re tranche »), après réductions. */
+        ChildFee: {
+            /** Format: uuid */
+            id: string;
+            fee: string;
+            /** Format: date */
+            due_on: string;
+            currency: components["schemas"]["CurrencyEnum"];
+            /** @description Dû, après réductions. */
+            amount_minor: number;
+            remaining_minor: number;
+            /**
+             * @description `paid_early` : soldé avant son échéance ; `partial` : entamé, pas encore échu.
+             *
+             *     * `paid` - paid
+             *     * `paid_early` - paid_early
+             *     * `partial` - partial
+             *     * `overdue` - overdue
+             *     * `upcoming` - upcoming
+             */
+            state: components["schemas"]["ChildFeeStateEnum"];
+        };
+        /**
+         * @description * `paid` - paid
+         *     * `paid_early` - paid_early
+         *     * `partial` - partial
+         *     * `overdue` - overdue
+         *     * `upcoming` - upcoming
+         * @enum {string}
+         */
+        ChildFeeStateEnum: "paid" | "paid_early" | "partial" | "overdue" | "upcoming";
+        ChildPayment: {
+            /** Format: uuid */
+            id: string;
+            receipt_number: string;
+            /** Format: date-time */
+            paid_at: string;
+            received_amount_minor: number;
+            received_currency: components["schemas"]["CurrencyEnum"];
+            /** @description Annulé : ne compte plus, pas de reçu PDF. */
+            cancelled: boolean;
+        };
+        /** @description Paiements d'un enfant (H3), dans son école. */
+        ChildPayments: {
+            /** Format: uuid */
+            id: string;
+            full_name: string;
+            class_name: string;
+            academic_year: string;
+            school_name: string;
+            school_timezone: string;
+            /** @description Adresse de la photo, seulement avec le consentement du parent. */
+            photo: string | null;
+            balance: components["schemas"]["Balance"];
+            fees: components["schemas"]["ChildFee"][];
+            /** @description Les plus récents d'abord. */
+            payments: components["schemas"]["ChildPayment"][];
         };
         ClassGroup: {
             /** Format: uuid */
@@ -10465,6 +10579,81 @@ export interface operations {
             };
         };
     };
+    portal_children_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChildPayments"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    portal_children_photo_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description PNG ou JPEG. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/*": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     portal_families_list: {
         parameters: {
             query?: never;
@@ -10580,6 +10769,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PortalMe"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    portal_payments_receipt_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Reçu PDF. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
                 };
             };
             403: {

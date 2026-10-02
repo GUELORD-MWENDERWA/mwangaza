@@ -11,4 +11,7 @@ urlpatterns = [
     path("me/", views.MeView.as_view(), name="me"),
     path("families/", views.FamiliesView.as_view(), name="families"),
     path("families/link/", views.LinkView.as_view(), name="link"),
+    path("children/<uuid:pk>/", views.ChildView.as_view(), name="child"),
+    path("children/<uuid:pk>/photo/", views.ChildPhotoView.as_view(), name="child-photo"),
+    path("payments/<uuid:pk>/receipt/", views.ReceiptView.as_view(), name="receipt"),
 ]

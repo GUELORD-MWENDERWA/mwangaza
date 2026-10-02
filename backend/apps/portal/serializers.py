@@ -5,8 +5,9 @@ from rest_framework.fields import get_error_detail
 
 from apps.accounts.models import User
 from apps.accounts.serializers import LoginSerializer, PhoneField
+from apps.core.money import Currency
 from apps.finance.serializers import BalanceSerializer, LastPaymentSerializer
-from apps.portal import families
+from apps.portal import children, families
 
 _PASSWORD = {"max_length": 128, "trim_whitespace": False, "style": {"input_type": "password"}}
 _REMEMBER = {"default": False, "help_text": "« Rester connecté » : 30 jours sur ce téléphone."}
@@ -57,6 +58,9 @@ class ChildSerializer(serializers.Serializer):
         allow_null=True, help_text="Le plus ancien frais en retard, ex. « Minerval · 1re tranche »."
     )
     last_payment = LastPaymentSerializer(allow_null=True, help_text="Hors paiements annulés.")
+    photo = serializers.CharField(
+        allow_null=True, help_text="Adresse de la photo, seulement avec le consentement du parent."
+    )
 
 
 class LinkedFamilySerializer(serializers.Serializer):
@@ -70,3 +74,45 @@ class LinkedFamilySerializer(serializers.Serializer):
         choices=[families.ACTIVE, families.SUSPENDED, families.SCHOOL_UNAVAILABLE]
     )
     children = ChildSerializer(many=True)
+
+
+class ChildFeeSerializer(serializers.Serializer):
+    """Un frais dû de l'année (« Minerval · 1re tranche »), après réductions."""
+
+    id = serializers.UUIDField()
+    fee = serializers.CharField()
+    due_on = serializers.DateField()
+    currency = serializers.ChoiceField(choices=Currency.choices)
+    amount_minor = serializers.IntegerField(source="due_minor", help_text="Dû, après réductions.")
+    remaining_minor = serializers.IntegerField()
+    state = serializers.ChoiceField(
+        choices=children.FEE_STATES,
+        source="display_state",
+        help_text="`paid_early` : soldé avant son échéance ; `partial` : entamé, pas encore échu.",
+    )
+
+
+class ChildPaymentSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    receipt_number = serializers.CharField()
+    paid_at = serializers.DateTimeField()
+    received_amount_minor = serializers.IntegerField()
+    received_currency = serializers.ChoiceField(choices=Currency.choices)
+    cancelled = serializers.BooleanField(help_text="Annulé : ne compte plus, pas de reçu PDF.")
+
+
+class ChildPaymentsSerializer(serializers.Serializer):
+    """Paiements d'un enfant (H3), dans son école."""
+
+    id = serializers.UUIDField(source="enrollment.student_id")
+    full_name = serializers.CharField(source="enrollment.student.full_name")
+    class_name = serializers.CharField(source="enrollment.class_group.name")
+    academic_year = serializers.CharField(source="enrollment.academic_year.name")
+    school_name = serializers.CharField(source="school.name")
+    school_timezone = serializers.CharField(source="school.timezone")
+    photo = serializers.CharField(
+        allow_null=True, help_text="Adresse de la photo, seulement avec le consentement du parent."
+    )
+    balance = BalanceSerializer()
+    fees = ChildFeeSerializer(many=True)
+    payments = ChildPaymentSerializer(many=True, help_text="Les plus récents d'abord.")

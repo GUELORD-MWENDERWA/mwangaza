@@ -5,6 +5,7 @@ import { Navigate, Outlet, type RouteObject } from "react-router";
 import { ActivatePage } from "./features/auth/ActivatePage";
 import { ForgotPasswordPage } from "./features/auth/ForgotPasswordPage";
 import { LoginPage } from "./features/auth/LoginPage";
+import { ChildPage } from "./features/child/ChildPage";
 import { AddSchoolPage } from "./features/home/AddSchoolPage";
 import { HomePage } from "./features/home/HomePage";
 import { InstallPage } from "./features/home/InstallPage";
@@ -52,6 +53,7 @@ export const routes: RouteObject[] = [
       { index: true, element: <HomePage /> },
       { path: "add-school", element: <AddSchoolPage /> },
       { path: "install", element: <InstallPage /> },
+      { path: "children/:id", element: <ChildPage /> },
     ],
   },
   { path: "*", element: <Navigate to="/" replace /> },
