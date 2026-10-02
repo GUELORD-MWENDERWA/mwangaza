@@ -12,6 +12,7 @@ describe("accès au portail", () => {
       "GET /api/portal/me/": LOGGED_OUT,
       "GET /api/auth/csrf/": {},
       "POST /api/portal/auth/login/": ACCOUNT,
+      "GET /api/portal/families/": [],
     });
     const { user, router } = renderApp("/");
 
@@ -21,7 +22,8 @@ describe("accès au portail", () => {
     await user.type(screen.getByLabelText("Mot de passe"), "Lac-Kivu-2026");
     await user.click(screen.getByRole("button", { name: "Se connecter" }));
 
-    await screen.findByRole("heading", { name: "Bonjour, Kahindo Neema" });
+    await screen.findByRole("heading", { name: "Mes enfants" });
+    expect(screen.getByText("Bonjour, Kahindo Neema")).toBeTruthy();
     expect(requests.find((r) => r.path === "/api/portal/auth/login/")?.body).toEqual({
       phone: "0971234567",
       password: "Lac-Kivu-2026",

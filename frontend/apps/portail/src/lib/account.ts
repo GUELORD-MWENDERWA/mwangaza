@@ -22,12 +22,12 @@ export function useAccount() {
 }
 
 /** Après la connexion, l'activation ou un nouveau mot de passe : le compte renvoyé par le
- *  serveur, puis l'accueil. */
-export function useSignedIn() {
+ *  serveur, puis l'accueil (ou `to`). */
+export function useSignedIn(to = "/") {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   return (account: Account) => {
     queryClient.setQueryData(accountKey, account);
-    void navigate("/", { replace: true });
+    void navigate(to, { replace: true });
   };
 }

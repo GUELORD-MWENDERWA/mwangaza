@@ -1,48 +1,158 @@
-import { api, call } from "@mwangaza/api";
-import { errorMessage, useTranslation } from "@mwangaza/i18n";
-import { Banner, Brand, Button, Card, CardContent, Icon } from "@mwangaza/ui";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useOutletContext } from "react-router";
+import { errorMessage, formatDay, formatVisit, useTranslation } from "@mwangaza/i18n";
+import { formatAmount } from "@mwangaza/money";
+import {
+  Avatar,
+  Banner,
+  Button,
+  buttonVariants,
+  Card,
+  CardContent,
+  Icon,
+  initials,
+  Skeleton,
+} from "@mwangaza/ui";
+import { useState } from "react";
+import { Link, useOutletContext } from "react-router";
 
-import { type Account, accountKey } from "../../lib/account";
+import type { Account } from "../../lib/account";
+import { type Child, type LinkedFamily, useFamilies } from "../../lib/families";
+import { shouldOfferInstall } from "../../lib/install";
 import { LanguageLinks } from "../auth/AuthFrame";
+import { PortalFrame } from "./PortalFrame";
 
-/** Accueil du compte. Les enfants, leurs paiements et les annonces arrivent avec la tâche 4.4.2
- *  (maquette `accueil`). */
+/** Accueil (maquette `accueil`, H2) : une carte par enfant, toutes écoles reliées ; chaque carte
+ *  ne montre que les données de l'école de l'enfant. Paiements d'un enfant : 4.4.3 ; annonces
+ *  récentes : 4.4.4. */
 export function HomePage() {
   const { t } = useTranslation();
   const account = useOutletContext<Account>();
-  const queryClient = useQueryClient();
-  const logout = useMutation({
-    mutationFn: () => call(api.POST("/api/auth/logout/")),
-    onSuccess: () => queryClient.setQueryData(accountKey, null),
-  });
+  const families = useFamilies();
+  const [offerInstall] = useState(() => shouldOfferInstall());
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="bg-basalt px-4 py-4 text-basalt-ink">
-        <div className="mx-auto flex max-w-[640px] items-center justify-between gap-3">
-          <Brand />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-basalt-ink"
-            disabled={logout.isPending}
-            onClick={() => logout.mutate()}
-          >
-            <Icon name="logout" size={16} />
-            {t("portal.home.logout")}
+    <PortalFrame subtitle={t("portal.home.greeting", { name: account.name })}>
+      {offerInstall && (
+        <Banner tone="lamp" icon="phone" className="items-center">
+          <span className="flex-1">{t("portal.home.installBanner")}</span>
+          <Link to="/install" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            {t("portal.home.installAction")}
+          </Link>
+        </Banner>
+      )}
+      <h2 className="text-[1.25rem]">{t("portal.home.children")}</h2>
+      {families.isPending && <Skeleton label={t("common.loading")} />}
+      {families.isError && (
+        <div className="flex flex-col gap-3">
+          <Banner tone="due">{errorMessage(families.error, t)}</Banner>
+          <Button variant="outline" onClick={() => void families.refetch()}>
+            {t("common.retry")}
           </Button>
         </div>
-      </header>
-      <main className="mx-auto flex max-w-[640px] flex-col gap-4 px-4 py-5">
-        <h1 className="text-[1.5rem]">{t("portal.home.greeting", { name: account.name })}</h1>
-        {logout.isError && <Banner tone="due">{errorMessage(logout.error, t)}</Banner>}
-        <Card>
-          <CardContent>{t("portal.home.soon")}</CardContent>
-        </Card>
-        <LanguageLinks />
-      </main>
-    </div>
+      )}
+      {families.data?.map((family) => (
+        <FamilyCards key={family.id} family={family} />
+      ))}
+      <Link to="/add-school" className={buttonVariants({ variant: "outline" })}>
+        <Icon name="plus" size={16} />
+        {t("portal.home.addSchool")}
+      </Link>
+      <LanguageLinks />
+    </PortalFrame>
+  );
+}
+
+/** Les enfants d'une famille ; école suspendue ou accès suspendu par l'école : son nom seul. */
+function FamilyCards({ family }: { family: LinkedFamily }) {
+  const { t } = useTranslation();
+  if (family.status !== "active" || family.children.length === 0) {
+    const message = {
+      active: t("portal.home.noChildren"),
+      suspended: t("portal.home.suspended"),
+      school_unavailable: t("portal.home.unavailable"),
+    }[family.status];
+    return (
+      <Card>
+        <CardContent className="flex flex-col gap-3">
+          <b>{family.school_name}</b>
+          <Banner tone={family.status === "active" ? "info" : "warn"}>{message}</Banner>
+        </CardContent>
+      </Card>
+    );
+  }
+  return family.children.map((child) => <ChildCard key={child.id} child={child} family={family} />);
+}
+
+function ChildCard({ child, family }: { child: Child; family: LinkedFamily }) {
+  const { t, i18n } = useTranslation();
+  const { balance, last_payment: last } = child;
+  const overdue = balance.currencies.filter((line) => line.overdue_minor > 0);
+  const names = child.full_name.split(" ");
+
+  return (
+    <Card>
+      <CardContent className="flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <Avatar
+            text={initials(names[0] ?? "", names.at(-1) ?? "")}
+            className="size-14 text-[1.1rem]"
+          />
+          <div className="min-w-0 flex-1">
+            <b className="block">{child.full_name}</b>
+            <span className="text-[.88rem] text-ink-3">
+              {family.school_name} · {child.class_name}
+            </span>
+          </div>
+        </div>
+        {overdue.length > 0 ? (
+          <Banner tone="due">
+            <span>
+              {t("portal.home.overdue")}{" "}
+              <b>
+                {overdue.map((line) => formatAmount(line.overdue_minor, line.currency)).join(" + ")}
+              </b>
+              {child.first_overdue && ` (${child.first_overdue})`}
+            </span>
+          </Banner>
+        ) : (
+          <Banner tone="ok">
+            {balance.next_due_on
+              ? t("portal.home.upToDateNext", {
+                  date: formatDay(balance.next_due_on, i18n.language),
+                })
+              : t("portal.home.upToDate")}
+          </Banner>
+        )}
+        {balance.currencies.map((line) => {
+          const percent = line.total_minor ? (line.paid_minor * 100) / line.total_minor : 100;
+          return (
+            <div key={line.currency} className="text-[.88rem]">
+              <div className="flex justify-between gap-3">
+                <span>{t("portal.home.paidThisYear")}</span>
+                <b className="tabular-nums">
+                  {t("portal.home.paidOf", {
+                    paid: formatAmount(line.paid_minor, line.currency),
+                    total: formatAmount(line.total_minor, line.currency),
+                  })}
+                </b>
+              </div>
+              <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-gray-50">
+                <div className="h-full rounded-full bg-ok" style={{ width: `${percent}%` }} />
+              </div>
+            </div>
+          );
+        })}
+        {last && (
+          <div className="flex justify-between gap-3 text-[.88rem]">
+            <span className="text-ink-3">{t("portal.home.lastPayment")}</span>
+            <span className="tabular-nums">
+              {formatAmount(last.received_amount_minor, last.received_currency)} ·{" "}
+              {formatVisit(last.paid_at, i18n.language, family.school_timezone, (time) =>
+                t("portal.home.today", { time }),
+              )}
+            </span>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

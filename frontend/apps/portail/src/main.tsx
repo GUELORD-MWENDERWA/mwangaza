@@ -7,10 +7,17 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 
+import { listenForInstallPrompt } from "./lib/install";
 import { createQueryClient } from "./lib/queryClient";
 import { routes } from "./routes";
 
 setupI18n();
+listenForInstallPrompt();
+// Application installable (H6) : service worker seulement après `make build` ; une nouvelle
+// version s'installe d'elle-même (rien à synchroniser dans le portail).
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  void navigator.serviceWorker.register("/sw.js", { scope: "/" });
+}
 const queryClient = createQueryClient();
 const router = createBrowserRouter(routes);
 

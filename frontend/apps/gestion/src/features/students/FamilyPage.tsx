@@ -86,6 +86,7 @@ export function FamilyPage() {
             </div>
             <PortalStatus family={data} />
             {can(me, ["students.edit"]) && <NewCodeButton family={data} />}
+            {can(me, ["students.edit"]) && <PortalAccessButton family={data} />}
           </div>
         </CardContent>
       </Card>
@@ -158,6 +159,12 @@ function PortalStatus({ family }: { family: Family }) {
       {family.activated_at
         ? t("students.family.portalActivated", { date: date(family.activated_at) })
         : t("students.family.portalNotActivated")}
+      {family.portal_suspended_at && (
+        <>
+          <br />
+          {t("students.family.portalSuspended", { date: date(family.portal_suspended_at) })}
+        </>
+      )}
       {family.code_expires_at && (
         <>
           <br />
@@ -199,6 +206,52 @@ function NewCodeButton({ family }: { family: Family }) {
       >
         <p>{t("students.family.newCodeHelp")}</p>
         {renew.isError && <Banner tone="due">{errorMessage(renew.error, t)}</Banner>}
+      </ConfirmDialog>
+    </>
+  );
+}
+
+/** « Suspendre l'accès » / « Rétablir l'accès » (M10) : le portail ne montre plus rien de cette
+ *  famille, sans supprimer le compte du parent. */
+function PortalAccessButton({ family }: { family: Family }) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const suspended = family.portal_suspended_at !== null;
+  const change = useMutation({
+    mutationFn: () =>
+      call(
+        api.POST("/api/families/{id}/portal-access/", {
+          params: { path: { id: family.id } },
+          body: { suspended: !suspended },
+        }),
+      ),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: keys.families });
+      setOpen(false);
+    },
+  });
+  const label = t(suspended ? "students.family.restoreAccess" : "students.family.suspendAccess");
+  return (
+    <>
+      <Button
+        size="sm"
+        variant={suspended ? "outline" : "destructive-outline"}
+        onClick={() => setOpen(true)}
+      >
+        {label}
+      </Button>
+      <ConfirmDialog
+        open={open}
+        onOpenChange={setOpen}
+        title={t(suspended ? "students.family.restoreTitle" : "students.family.suspendTitle")}
+        confirmLabel={label}
+        cancelLabel={t("common.cancel")}
+        pending={change.isPending}
+        onConfirm={() => change.mutate()}
+      >
+        <p>{t(suspended ? "students.family.restoreHelp" : "students.family.suspendHelp")}</p>
+        {change.isError && <Banner tone="due">{errorMessage(change.error, t)}</Banner>}
       </ConfirmDialog>
     </>
   );

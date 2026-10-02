@@ -5,7 +5,9 @@ import { Navigate, Outlet, type RouteObject } from "react-router";
 import { ActivatePage } from "./features/auth/ActivatePage";
 import { ForgotPasswordPage } from "./features/auth/ForgotPasswordPage";
 import { LoginPage } from "./features/auth/LoginPage";
+import { AddSchoolPage } from "./features/home/AddSchoolPage";
 import { HomePage } from "./features/home/HomePage";
+import { InstallPage } from "./features/home/InstallPage";
 import { useAccount } from "./lib/account";
 
 /** Pages sans compte, montrées sans attendre le serveur : un parent déjà connecté va à l'accueil
@@ -44,6 +46,13 @@ export const routes: RouteObject[] = [
       { path: "forgot-password", element: <ForgotPasswordPage /> },
     ],
   },
-  { element: <RequireAccount />, children: [{ index: true, element: <HomePage /> }] },
+  {
+    element: <RequireAccount />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: "add-school", element: <AddSchoolPage /> },
+      { path: "install", element: <InstallPage /> },
+    ],
+  },
   { path: "*", element: <Navigate to="/" replace /> },
 ];
