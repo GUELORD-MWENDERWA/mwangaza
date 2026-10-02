@@ -1,0 +1,93 @@
+"""Tableau de bord de la console de la plateforme (5.2) : toutes les écoles à la fois, lues hors de
+toute école (`all_schools`), pour le super-admin seulement (`IsPlatformAdmin`).
+
+Écoles par statut (essais qui finissent bientôt), élèves (inscriptions actives de l'année en
+cours de chaque école), paiements du jour par devise (annulés exclus ; montants jamais
+additionnés entre devises ; jour dans le fuseau de la plateforme, `TIME_ZONE`), écoles les plus
+actives du jour et santé du serveur."""
+
+from collections import defaultdict
+from datetime import datetime, time, timedelta
+
+from django.db.models import Count, Sum
+from django.utils import timezone
+
+from apps.core import health
+from apps.core.money import Currency
+from apps.finance.models import Payment
+from apps.schools.models import School
+from apps.students.models import Enrollment
+
+# Un essai qui finit dans ces jours est signalé.
+TRIAL_ENDING_DAYS = 30
+ACTIVE_SCHOOLS = 10
+
+
+def _schools(day) -> dict:
+    counts = dict(School.objects.values_list("status").annotate(count=Count("id")).order_by())
+    ending = School.objects.filter(
+        status=School.Status.TRIAL, trial_ends_on__lte=day + timedelta(days=TRIAL_ENDING_DAYS)
+    ).count()
+    return {
+        "active": counts.get(School.Status.ACTIVE, 0),
+        "trial": counts.get(School.Status.TRIAL, 0),
+        "suspended": counts.get(School.Status.SUSPENDED, 0),
+        "trial_ending": ending,
+    }
+
+
+def _today_payments(day) -> tuple[list[dict], list[dict]]:
+    start = timezone.make_aware(datetime.combine(day, time()))
+    rows = (
+        Payment.all_schools.filter(
+            cancellation__isnull=True, paid_at__gte=start, paid_at__lt=start + timedelta(days=1)
+        )
+        .values("school", "received_currency")
+        .annotate(amount_minor=Sum("received_amount_minor"), count=Count("id"))
+        .order_by()
+    )
+    totals = defaultdict(lambda: {"amount_minor": 0, "count": 0})
+    by_school = defaultdict(lambda: {"payments": 0, "amounts": defaultdict(int)})
+    for row in rows:
+        currency = row["received_currency"]
+        totals[currency]["amount_minor"] += row["amount_minor"]
+        totals[currency]["count"] += row["count"]
+        by_school[row["school"]]["payments"] += row["count"]
+        by_school[row["school"]]["amounts"][currency] += row["amount_minor"]
+
+    # Chaque devise de la plateforme, même à zéro, dollars d'abord.
+    today = [{"currency": c, **totals[c]} for c in Currency.values]
+    busiest = sorted(by_school.items(), key=lambda item: -item[1]["payments"])[:ACTIVE_SCHOOLS]
+    schools = School.objects.in_bulk([school_id for school_id, _row in busiest])
+    active = [
+        {
+            "id": school_id,
+            "code": schools[school_id].code,
+            "name": schools[school_id].name,
+            "status": schools[school_id].status,
+            "payments": row["payments"],
+            "today": [
+                {"currency": c, "amount_minor": row["amounts"][c]}
+                for c in Currency.values
+                if c in row["amounts"]
+            ],
+        }
+        for school_id, row in busiest
+    ]
+    return today, active
+
+
+def dashboard() -> dict:
+    day = timezone.localdate()
+    today, active = _today_payments(day)
+    return {
+        "day": day,
+        "schools": _schools(day),
+        "students": Enrollment.all_schools.filter(
+            status="active", academic_year__is_current=True
+        ).count(),
+        "today": today,
+        "payments_today": sum(row["count"] for row in today),
+        "active_schools": active,
+        "health": health.report(),
+    }

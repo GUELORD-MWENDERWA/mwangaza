@@ -9,6 +9,7 @@ from apps.accounts.login import MFA_SESSION_KEY
 from apps.accounts.roles import TOTP_PERMISSIONS
 from apps.accounts.services import SchoolAccess, get_school_access
 from apps.core.errors import SCHOOL_NOT_FOUND
+from apps.core.middleware import is_console_host
 
 
 def school_access(request) -> SchoolAccess | None:
@@ -47,3 +48,20 @@ class HasSchoolPermission(BasePermission):
         if isinstance(required, str):
             return required in access.permissions
         return not access.permissions.isdisjoint(required)
+
+
+class IsPlatformAdmin(BasePermission):
+    """Console de la plateforme (5.2) : seulement à son adresse (`admin.mwangaza.school`), pour
+    un super-admin actif dont la session est passée par la double authentification. Ailleurs (une
+    école, le portail), ces points d'API n'existent pas."""
+
+    def has_permission(self, request, view) -> bool:
+        if not is_console_host(request.get_host()):
+            raise NotFound
+        user = request.user
+        return bool(
+            user.is_authenticated
+            and user.is_active
+            and user.is_platform_admin
+            and request.session.get(MFA_SESSION_KEY)
+        )

@@ -10,6 +10,7 @@ from rest_framework import serializers
 from rest_framework.fields import get_error_detail
 
 from apps.accounts.models import User
+from apps.core import health
 from apps.core.money import Currency
 from apps.schools import organisation, receipts
 from apps.schools.logos import validate_logo
@@ -450,3 +451,55 @@ class MatriculeFormatSerializer(MatriculeFormatInputSerializer):
     example = serializers.CharField(
         help_text="Prochain matricule : année en cours, première option (C3)."
     )
+
+
+# Console de la plateforme (5.2)
+
+
+class ConsoleSchoolCountsSerializer(serializers.Serializer):
+    active = serializers.IntegerField()
+    trial = serializers.IntegerField()
+    suspended = serializers.IntegerField()
+    trial_ending = serializers.IntegerField(help_text="Essais qui finissent dans les 30 jours.")
+
+
+class ConsoleAmountSerializer(serializers.Serializer):
+    currency = serializers.ChoiceField(choices=Currency.choices)
+    amount_minor = serializers.IntegerField()
+
+
+class ConsoleCollectedSerializer(ConsoleAmountSerializer):
+    count = serializers.IntegerField()
+
+
+class ConsoleActiveSchoolSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    code = serializers.CharField()
+    name = serializers.CharField()
+    status = serializers.ChoiceField(choices=School.Status.choices)
+    payments = serializers.IntegerField()
+    today = ConsoleAmountSerializer(many=True)
+
+
+class HealthCheckSerializer(serializers.Serializer):
+    name = serializers.ChoiceField(choices=health.CHECKS)
+    status = serializers.ChoiceField(choices=health.STATUSES)
+    value = serializers.IntegerField(
+        allow_null=True,
+        help_text="Millisecondes (base, Redis), travailleurs (tâches), pourcentage libre (disque).",
+    )
+
+
+class ServerHealthSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=health.STATUSES)
+    checks = HealthCheckSerializer(many=True)
+
+
+class ConsoleDashboardSerializer(serializers.Serializer):
+    day = serializers.DateField()
+    schools = ConsoleSchoolCountsSerializer()
+    students = serializers.IntegerField()
+    today = ConsoleCollectedSerializer(many=True)
+    payments_today = serializers.IntegerField()
+    active_schools = ConsoleActiveSchoolSerializer(many=True)
+    health = ServerHealthSerializer()

@@ -4,9 +4,10 @@ import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-// Écrans de la Gestion et composants partagés (hors tests).
+// Écrans de la Gestion, de la console et composants partagés (hors tests).
 const ROOTS = [
   fileURLToPath(new URL("src", import.meta.url)),
+  fileURLToPath(new URL("../console/src", import.meta.url)),
   fileURLToPath(new URL("../../packages/ui/src", import.meta.url)),
 ];
 // Nom de départ de la plateforme (`PlatformSettings`) : lu dans ses paramètres, jamais écrit.
@@ -46,10 +47,14 @@ describe("textes d'interface", () => {
 describe("nom de la plateforme", () => {
   it("n'est écrit ni dans les traductions, ni dans les écrans, ni dans les pages et manifestes", () => {
     const files = [
-      ...["apps/gestion/src", "apps/portail/src", "packages/ui/src", "packages/i18n/src"].flatMap(
-        (dir) => sources(join(FRONTEND, dir), /\.tsx?$/),
-      ),
-      ...["gestion", "portail"].flatMap((app) => [
+      ...[
+        "apps/gestion/src",
+        "apps/portail/src",
+        "apps/console/src",
+        "packages/ui/src",
+        "packages/i18n/src",
+      ].flatMap((dir) => sources(join(FRONTEND, dir), /\.tsx?$/)),
+      ...["gestion", "portail", "console"].flatMap((app) => [
         join(FRONTEND, "apps", app, "index.html"),
         join(FRONTEND, "apps", app, "vite.config.ts"),
       ]),

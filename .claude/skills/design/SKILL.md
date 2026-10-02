@@ -9,7 +9,7 @@ Sources de vérité, dans cet ordre : `maquettes/assets/styles.css` (bloc `:root
 
 ## Intention
 
-- **Basalte** (pierre volcanique de Goma) : barre latérale de la Gestion, en-tête du Portail.
+- **Basalte** (pierre volcanique de Goma) : barre latérale de la Gestion, en-tête du Portail, barre du haut de la console (pastille « Console » en lampe).
 - **Lampe** (jaune, *mwangaza* = lumière) : repère de l'élément actif, logo, points d'attention. **Jamais en fond de page ni de grande surface.**
 - **Lac** (bleu-vert du lac Kivu) : toutes les actions principales, liens, focus.
 - Utilisateurs peu habitués à l'informatique, écrans de faible qualité : gros boutons, formulaires courts, texte lisible.
@@ -78,6 +78,7 @@ Les composants partagés vont dans `frontend/packages/ui` (exportés par `@mwang
 | `.side` `.brand` `.school` `.navlabel` `.nav a.on` `.soon` `.count` | coquille `AppShell` de la Gestion | 248 px ; groupes Pilotage / Scolarité / Finances / Communication / Paramètres ; entrée active = fond `basalt-2` + barre `lamp` ; entrées V1.1 / V1.2 **masquées** en V1.0 ; entrées filtrées par permission |
 | `.top` `.search` `.kbd` `.user` | barre du haut | recherche globale `Ctrl K` |
 | `.ptop` `.pnav` `.phone` | coquille du Portail | en-tête basalte, navigation basse à 4 entrées, largeur max 430 px |
+| `.ctop` `.cmain` (`maquettes/console/`) | coquille de la console (`frontend/apps/console`, `ConsoleShell`) | pas de menu latéral : barre du haut basalte, marque + pastille « Console », navigation dessous (repère lampe), contenu clair jusqu'à 1 240 px ; connexion : carte blanche sur fond basalte |
 | `.thermal` | gabarit reçu thermique | `@page { size: 80mm auto; margin: 0 }` ou `58mm auto` selon le réglage de l'école ; reçus A6 / A5 / petit format sur A4 avec traits de découpe : à dessiner en 3.2 |
 | `.a4` | gabarit A4 | |
 | `.authgrid` `.authside` `.authmain` | coquille des écrans hors application | connexion, activation 2FA, choix de l'école ; une colonne sous 900 px |

@@ -101,6 +101,14 @@ Bulletins : structure et maxima repris des formulaires officiels trouvés en lig
 | Vérification publique d'un reçu (`/v/{id}`) | `portail/verification-recu.html` | V1.0 | F4 | fournie |
 | Scolarité d'un enfant | `portail/enfant-scolarite.html` | V1.4 | 8.8 | fournie |
 
+### Console de la plateforme — `admin.mwangaza.school` (super-admin, son propre design)
+
+Pas de menu latéral comme la Gestion : barre du haut en basalte (marque, pastille « Console », menu du compte), navigation dessous avec le repère lampe, contenu clair et large (styles de la coquille dans la page : `.ctop`, `.cmain`). Connexion : carte blanche sur fond basalte, mêmes étapes que la Gestion (`gestion/connexion`, `gestion/connexion-double-authentification`), sans « Se souvenir de cet appareil ».
+
+| Écran | Fichier | Lot | Réf. | État |
+|---|---|---|---|---|
+| Tableau de bord | `console/tableau-de-bord.html` | V1.1 | 5.2 | dessinée par Claude en 5.2.1 (à valider) ; codée en 5.2.1 (menu réduit au tableau de bord, la santé du serveur en pastille dans l'en-tête de la page au lieu de la barre du haut) |
+
 ### Menu de la Gestion
 
 Depuis le 2026-09-26, le menu latéral compte 5 entrées de plus, pour les nouveaux écrans : **Crédits d'élèves** (Finances), **Demandes des parents** (Communication), **Paramètres de l'école**, **Comptes du personnel** et **Journal d'audit** (Paramètres). Le menu est identique sur toutes les maquettes (voir « Outils »). Le super-admin garde son propre menu.
@@ -112,8 +120,8 @@ Aucune dépendance à installer (Python 3, Node 22 et Google Chrome de la machin
 | Commande | Effet |
 |---|---|
 | `python3 maquettes/outils/maquettes.py menu` | réécrit le menu latéral de toutes les pages Gestion depuis `MENU` (à lancer après avoir ajouté une entrée) |
-| `python3 maquettes/outils/maquettes.py index` | régénère `index.html` depuis le catalogue `GESTION` / `PORTAIL` |
-| `node maquettes/outils/captures.mjs [fichier.html …]` | refait les captures PNG (bureau 1440 px, mobile 390 px × 2) ; sans argument : toutes |
+| `python3 maquettes/outils/maquettes.py index` | régénère `index.html` depuis le catalogue `GESTION` / `PORTAIL` / `CONSOLE` |
+| `node maquettes/outils/captures.mjs [fichier.html …]` | refait les captures PNG (bureau 1440 px, mobile 390 px × 2 ; console : les deux) ; sans argument : toutes |
 
 Pour dessiner un nouvel écran : écrire la page avec la même coquille (`page_gestion`, `page_auth`, `page_portail` et `ic` dans `maquettes.py`), l'ajouter au catalogue, puis `index` et `captures`.
 

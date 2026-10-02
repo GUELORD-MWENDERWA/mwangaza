@@ -12,7 +12,7 @@ from django.http.request import split_domain_port
 from django.utils import timezone
 
 from apps.core.errors import SCHOOL_NOT_FOUND, SCHOOL_SUSPENDED, ApiError
-from apps.core.tenancy import RESERVED_SUBDOMAINS, use_school
+from apps.core.tenancy import CONSOLE_SUBDOMAIN, RESERVED_SUBDOMAINS, use_school
 from apps.schools.models import School
 
 
@@ -25,6 +25,13 @@ def school_code_from_host(host: str) -> str | None:
             code = domain.removesuffix(suffix)
             return None if code in RESERVED_SUBDOMAINS else code
     return None
+
+
+def is_console_host(host: str) -> bool:
+    """Adresse de la console de la plateforme (`admin.mwangaza.school`, 5.2) : celle du
+    super-admin, sans école."""
+    domain, _port = split_domain_port(host)
+    return any(domain == f"{CONSOLE_SUBDOMAIN}.{base}" for base in settings.SCHOOL_BASE_DOMAINS)
 
 
 def _error_response(error: ApiError) -> JsonResponse:

@@ -1,8 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
-// Parcours réels dans Chromium : Django (données de `make demo`, remises à zéro au début) et la
-// Gestion (Vite), aux adresses des écoles ({code}.localhost). `make test-e2e` ; en CI, un job à
-// part. Sur la machine, des serveurs déjà lancés (`make dev-local`) sont réutilisés.
+// Parcours réels dans Chromium : Django (données de `make demo`, remises à zéro au début), la
+// Gestion (Vite), aux adresses des écoles ({code}.localhost), et la console (admin.localhost).
+// `make test-e2e` ; en CI, un job à part. Sur la machine, des serveurs déjà lancés
+// (`make dev-local`) sont réutilisés.
 const backend = new URL("../backend", import.meta.url).pathname;
 
 export default defineConfig({
@@ -40,6 +41,15 @@ export default defineConfig({
       cwd: new URL("apps/gestion", import.meta.url).pathname,
       env: { VITE_API_TARGET: "http://127.0.0.1:8000" },
       url: "http://127.0.0.1:5173/app/",
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+    {
+      // Console de la plateforme (super-admin), à admin.localhost.
+      command: "./node_modules/.bin/vite --port 5175 --host 127.0.0.1",
+      cwd: new URL("apps/console", import.meta.url).pathname,
+      env: { VITE_API_TARGET: "http://127.0.0.1:8000" },
+      url: "http://127.0.0.1:5175/",
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
     },

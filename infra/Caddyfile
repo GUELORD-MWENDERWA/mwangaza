@@ -70,7 +70,8 @@ parents.{$MWANGAZA_DOMAIN} {
 	}
 }
 
-# Super-admin : administration Django.
+# Super-admin : console de la plateforme (5.2) ; l'administration Django, pour le dépannage, à la
+# même adresse (même session).
 admin.{$MWANGAZA_DOMAIN} {
 	import site
 	handle /static/* {
@@ -78,8 +79,14 @@ admin.{$MWANGAZA_DOMAIN} {
 		header Cache-Control "public, max-age=86400"
 		file_server
 	}
-	handle {
+	handle /api/* {
 		import django
+	}
+	handle /admin/* {
+		import django
+	}
+	handle {
+		import pwa /srv/console
 	}
 }
 

@@ -40,6 +40,7 @@ from apps.accounts.serializers import (
     TotpSetupSerializer,
 )
 from apps.core.errors import BusinessError, ErrorSerializer
+from apps.core.middleware import is_console_host
 
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
 # Étapes de connexion : saisie refusée, trop d'essais, étape expirée ou pas la bonne.
@@ -335,7 +336,8 @@ class CsrfView(AuthView):
 
 @extend_schema(tags=["auth"])
 class LoginView(StepView):
-    """Étape 1 : numéro et mot de passe."""
+    """Étape 1 : numéro et mot de passe. À l'adresse de la console (5.2), seulement le
+    super-admin, comme dans l'administration Django."""
 
     serializer_class = LoginSerializer
 
@@ -343,7 +345,9 @@ class LoginView(StepView):
     def post(self, request: Request) -> Response:
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response({"step": login.log_in(request, **serializer.validated_data)})
+        admin_only = is_console_host(request.get_host())
+        step = login.log_in(request, **serializer.validated_data, admin_only=admin_only)
+        return Response({"step": step})
 
 
 @extend_schema(tags=["auth"])
@@ -360,7 +364,8 @@ class LoginCodeView(StepView):
         with login.counting_failures(request, user):
             method = services.verify_second_factor(user, serializer.validated_data["code"])
         response = Response({"step": login.second_factor_passed(request, user, method)})
-        if serializer.validated_data["trust_device"]:
+        # Jamais d'appareil de confiance pour la console : le code y est toujours demandé.
+        if serializer.validated_data["trust_device"] and not is_console_host(request.get_host()):
             login.trust_device(response, user)
         return response
 

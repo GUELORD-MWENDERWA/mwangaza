@@ -19,7 +19,7 @@ const MOBILE_GESTION = new Set([
 function pages(args) {
   if (args.length) return args.map((a) => resolve(a));
   const out = [];
-  for (const app of ["gestion", "portail"]) {
+  for (const app of ["gestion", "portail", "console"]) {
     for (const f of readdirSync(join(ROOT, app)).sort()) if (f.endsWith(".html")) out.push(join(ROOT, app, f));
   }
   return out;
@@ -29,8 +29,8 @@ function targets(file) {
   const app = basename(dirname(file));
   const name = basename(file, ".html");
   const t = [];
-  if (app === "gestion") t.push({ kind: "desktop", width: 1440, height: 900, scale: 1 });
-  if (app === "portail" || MOBILE_GESTION.has(name)) t.push({ kind: "mobile", width: 390, height: 844, scale: 2 });
+  if (app === "gestion" || app === "console") t.push({ kind: "desktop", width: 1440, height: 900, scale: 1 });
+  if (app === "portail" || app === "console" || MOBILE_GESTION.has(name)) t.push({ kind: "mobile", width: 390, height: 844, scale: 2 });
   return t.map((x) => ({ ...x, out: join(ROOT, "captures", x.kind, `${app}-${name}.png`) }));
 }
 
