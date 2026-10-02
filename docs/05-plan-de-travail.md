@@ -13,9 +13,9 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
 ## Avant de coder (toi, cette semaine)
 
 - [x] ~~Récupérer auprès de l'ITIG les éléments listés au § 11 du cahier des charges (surtout : grille des frais, liste des élèves en Excel, modèle de reçu actuel)~~ — plus un préalable (2026-09-26) : Claude crée des données fictives réalistes ; les documents de l'ITIG servent quand ils arrivent (`07-a-fournir.md` § 2)
-- [ ] Choisir le nom définitif, vérifier le domaine, l'acheter — nom et domaine choisis le 2026-09-26 : **Mwangaza**, `mwangaza.school` ; reste à l'acheter (avant 4.6)
-- [ ] Créer les comptes : hébergeur VPS, Cloudflare, stockage objet, GitHub (dépôt privé)
-- [x] ~~Noter le modèle de l'imprimante thermique de l'ITIG~~ — plus nécessaire (2026-09-26) : formats standards gérés (58 mm, 80 mm, A4), test sur la vraie imprimante en 4.8
+- [ ] Choisir le nom définitif, vérifier le domaine, l'acheter — nom et domaine choisis le 2026-09-26 : **Mwangaza**, `mwangaza.school` ; à acheter **quand tu décides la mise en ligne** (4.6.2) ; ne bloque pas le développement (2026-10-02)
+- [ ] Créer les comptes : hébergeur, stockage objet (GitHub : fait) — avec la mise en ligne (4.6.2, 4.7)
+- [x] ~~Noter le modèle de l'imprimante thermique de l'ITIG~~ — plus nécessaire (2026-09-26) : formats standards gérés (58 mm, 80 mm, A4)
 
 ## Semaine 1 — Socle
 
@@ -90,55 +90,75 @@ Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **i
    - [x] **4.5.2** Traductions (I2) : textes du serveur en français (administration Django, messages, PDF, Excel) ; relecture de la traduction anglaise des deux applications
 - [ ] **4.6** Infra de production : VPS, Caddy, wildcard Cloudflare, variables d'environnement, déploiement en une commande ; adresse IP réelle du visiteur transmise par Caddy et Cloudflare (limitation des tentatives, 1.3) ; Caddy envoie `/v/*` de l'adresse de l'école à Django (vérification d'un reçu) *(ajouté le 2026-09-28, 3.2.3)*, découpée le 2026-10-02 (domaine, Cloudflare et VPS pas encore achetés) :
    - [x] **4.6.1** Production prête, essayée sur la machine : images Docker (front construit, Django + gunicorn, Caddy), `infra/docker-compose.yml`, Caddyfile (sous-domaines, `/v/*`, compression, cache des PWA), variables d'environnement, adresse IP réelle du visiteur ; `make prod-local`
-   - [ ] **4.6.2** Mise en ligne : VPS préparé (mises à jour, pare-feu limité à Cloudflare, SSH par clé), DNS et certificat d'origine Cloudflare, `make deploy` en une commande, premier déploiement, premier super-admin
-- [ ] **4.7** Sauvegardes continues + dump quotidien + **test de restauration** (I4) ; suivi d'erreurs ; sonde de disponibilité
-- [ ] **4.8** Mise en place à l'ITIG : l'école saisit ou importe ses vraies données (élèves, frais, comptes) avec notre aide, formation des caissiers, test sur la vraie imprimante
+   - [ ] **4.6.2** Mise en ligne, **quand tu le décides** (ne bloque pas la suite) : démonstration gratuite possible (Oracle Cloud « Always Free » + adresse DuckDNS, certificats Let's Encrypt demandés seulement pour une école qui existe, données fictives avec des mots de passe propres au serveur) ou VPS + `mwangaza.school` + Cloudflare (certificat d'origine, pare-feu limité à Cloudflare) ; serveur préparé (mises à jour, SSH par clé), `make deploy` en une commande, premier super-admin. **Vraies données d'une école seulement avec le vrai domaine et les sauvegardes (4.7)** : changer d'adresse ensuite obligerait à réinstaller les applications et rendrait invérifiables les QR des reçus imprimés
+- [ ] **4.7** Sauvegardes continues + dump quotidien + **test de restauration** (I4) ; suivi d'erreurs ; sonde de disponibilité — avec la mise en ligne
+- [x] ~~**4.8** Mise en place à l'ITIG~~ — retirée le 2026-10-02 : on n'attend rien de l'ITIG ; comme toute école, elle saisit ou importe elle-même ses données (import Excel, écrans de la V1.0), quand elle veut
+- [ ] **4.9** Invitation des familles au portail (H7) : lettre PDF par famille (adresse du portail avec QR, code famille, 3 étapes, aide), imprimable pour une classe ou depuis la fiche famille ; message prêt à partager (WhatsApp, SMS) ; suivi des comptes activés par classe (« pas encore activé ») ; code remis noté au journal *(ajoutée le 2026-10-02)*
+- [ ] **4.10** Guide de la V1.0 en PDF (I5) : ce que fait la version et comment, rôle par rôle (directeur, promoteur, comptable, caissier, secrétaire, directeur des études et de discipline, enseignant, parent, super-admin), avec captures des écrans sur les données de démonstration ; ce qu'elle ne fait pas encore et ce qu'apportent les versions suivantes ; dans le système de design, régénéré à chaque version (`make guide`) *(ajoutée le 2026-10-02)*
 
-## Semaines 5 à 8 — V1.1
+Découpage revu le 2026-10-02 (demande de l'utilisateur) : la V1.0 est mise de côté une fois 4.9 et 4.10 faites (la mise en ligne vient quand tu le décides), puis V1.1 → V1.4 dans l'ordre. Plus de semaines : le rythme réel (la V1.0 en une semaine) les rendait trompeuses. Chaque tâche trop grosse est redécoupée (X.Y.1, X.Y.2…) au moment de la commencer.
 
-- [ ] **5.1** Dépenses par catégorie, rapports entrées / sorties
-- [ ] **5.2** RH : dossier employé, contrats, qualifications, statut SECOPE
-- [ ] **5.3** Paie : périodes, lignes, primes, motivation enseignants liée aux frais, avances, retenues, fiche de paie PDF
-- [ ] **5.4** Notifications push (paiement reçu, échéance proche, annonce) ; relances automatiques d'impayés
-- [ ] **5.5** Cartes d'élève PDF avec photo et QR ; pointage d'entrée par scan QR sur tablette, hors-ligne
-- [ ] **5.6** Pénalités de retard, validation d'inscription liée au paiement, documents téléversés
-- [ ] **5.7** Connexion Google, champs complémentaires de la fiche élève
-- [ ] **5.8** Communication : annonces au personnel (destinataire « Personnel » de 4.3, avec un écran où le personnel les lit), messages à une classe, calendrier des événements, circulaires PDF, convocations ; portail : calendrier, titulaire et enseignants avec contacts *(ajoutée le 2026-09-25 — cahier § 8.9, 8.10)*
-- [ ] **5.9** Espace enseignant : fiche de paie et horaire ; jeton de carte RFID / NFC de l'élève, révocable *(ajoutée le 2026-09-25 — cahier § 8.3, 8.5, 8.12)*
+## V1.1 — Plateforme, notifications et communication
 
-## Semaines 9 à 14 — V1.2 (bulletins avec Mwangaza à partir de la P2 / 1er semestre — décision Q6)
+- [ ] **5.1** Identité de la plateforme : nom, nom court, logo, icône des applications, couleurs, contact du support, mentions légales, dans les paramètres de la plateforme (plus rien d'écrit en dur : changer le nom ou le logo ne demande pas de code) ; lue par la Gestion, le Portail, la console, les PDF, l'administration et les manifestes des applications (servis par le serveur) ; test qui refuse le nom de la plateforme écrit en dur dans les textes
+- [ ] **5.2** Console de la plateforme — socle : troisième application (`frontend/apps/console`, `admin.<domaine>`) avec son propre design ; connexion du super-admin (mot de passe + double authentification) ; tableau de bord (écoles, élèves, encaissements du jour, santé du serveur) ; écran « Identité de la plateforme » (5.1) ; l'administration Django ne sert plus qu'au dépannage
+- [ ] **5.3** Console — écoles (maquette `superadmin-ecoles`) : cartes et liste, créer une école avec son directeur, paramètres, suspendre / réactiver, abonnement (offre, essai, échéance ; sans facturation), « Ouvrir en tant qu'école » (session support)
+- [ ] **5.4** Console — comptes, appareils et journal : chercher un compte dans toutes les écoles, réinitialiser son mot de passe ou sa double authentification, sessions support, appareils enregistrés, journal de la plateforme ; annonces de la plateforme aux écoles
+- [ ] **5.5** Notifications sur l'écran — socle : notifications système (Web Push) qui s'affichent même application fermée, sur Android, ordinateur et iPhone (application installée sur l'écran d'accueil) ; abonnement de chaque appareil, préférences par compte, centre de notifications dans la Gestion et le Portail ; envoi par Celery
+- [ ] **5.6** Notifications — événements : parent (paiement reçu avec son reçu, annonce, échéance proche, retard de paiement), personnel (annonce, alertes du directeur : écart de caisse, annulations, caisse non clôturée) ; relances automatiques d'impayés réglées par l'école
+- [ ] **5.7** Communication : annonces au personnel (destinataire « Personnel » de 4.3, écran où le personnel les lit), messages à une classe, calendrier des événements, circulaires PDF, convocations ; portail : calendrier, titulaire et enseignants avec contacts (cahier § 8.9, 8.10)
 
-- [ ] **6.1** Cours, maxima, domaines, attribution enseignants
-- [ ] **6.2** Saisie des notes (y compris hors-ligne), verrouillage, validation, historique
-- [ ] **6.3** Bulletin EPST PDF avec QR d'authenticité, calcul des totaux, places, mentions ; deux modes d'impression : bulletin complet, ou notes seules sur le formulaire pré-imprimé (Q11) ; régime et code de l'école (EPST, 7 chiffres) dans les paramètres de l'école (M5) *(ajouté le 2026-09-27, 1.7)*
-- [ ] **6.4** Délibération, décisions, palmarès, passage de classe
-- [ ] **6.5** Lecteurs RFID ESP32 (dossier `firmware/`) et API de pointage ; présences du personnel
-- [ ] **6.6** Notifications d'absence et de retard, justification par le parent
-- [ ] **6.7** Discipline ; messagerie parent ↔ titulaire / administration ; rendez-vous
-- [ ] **6.8** Portail élèves ; espace enseignant et titulaire
-- [ ] **6.9** Transfert d'élève entre écoles de la plateforme (copie du dossier vers l'école d'arrivée) ; attestations et certificats
-- [ ] **6.10** Portail parents V1.2 : présences en direct, notes, bulletins PDF, discipline, documents ; tableau de bord : taux de présence et résultats scolaires *(ajoutée le 2026-09-25 — cahier § 8.10, 8.13)*
-- [ ] **6.11** Congés et permissions du personnel ; sondages ; option de blocage des bulletins / examens en cas de dette (désactivée par défaut) *(ajoutée le 2026-09-25 — cahier § 8.4, 8.5, 8.9)*
+## V1.2 — Carte unique et présences
 
-## V2 — après la V1.2 (proposition : ordre et découpage à valider avant de commencer)
+Une seule carte par élève et par membre du personnel : **puce sans contact (NFC) + QR code + photo et informations**. Pointage de deux façons : la puce (téléphone Android enregistré ou lecteur ESP32) ou le QR (caméra de n'importe quel téléphone ou tablette enregistrés, iPhone compris).
 
-Chaque tâche V2 sera redécoupée en sous-tâches (7.1.1, 7.1.2…) au moment de la commencer.
+- [ ] **6.1** Carte de l'élève et du personnel : modèle de carte réglé par l'école (couleurs, champs, recto / verso) ; PDF au format carte bancaire (imprimante à cartes) et planche A4 ; jeton secret dans la puce et le QR (pas le matricule), révocable ; carte perdue remplacée, l'ancienne refusée partout ; cartes conseillées : NTAG215 / 216 (lues par tous les téléphones NFC et par l'ESP32)
+- [ ] **6.2** Liaison des cartes : poste d'encodage sur un appareil enregistré (téléphone Android avec NFC, ou lecteur ESP32 en mode encodage) ; classe par classe, scanner le QR imprimé puis poser la carte : la puce reçoit le jeton, est liée à la personne et protégée en écriture, en une seconde ; carte déjà liée, doublon ou carte d'une autre école refusés ; suivi « à lier / liées »
+- [ ] **6.3** Pointage par téléphone ou tablette enregistrés : mode borne plein écran, puce (Android) et / ou caméra QR (tout appareil) ; entrée / sortie, retard selon l'horaire de l'école ; photo affichée pour contrôle ; hors ligne (file d'opérations, idempotent)
+- [ ] **6.4** Lecteurs ESP32 (`firmware/`) : PN532 + écran + buzzer, enregistrés comme appareils de l'école, pointages gardés en mémoire si le réseau coupe, API de pointage idempotente ; guide de montage
+- [ ] **6.5** Suivi des présences : listes du jour par classe, absents, retards, correction manuelle (journal), présences du personnel ; rapports et export ; tableau de bord : taux de présence
+- [ ] **6.6** Présences et parents : notification d'arrivée, d'absence et de retard (5.5), justification par le parent dans le Portail, présences en direct dans le Portail ; alerte après X absences
 
-- [ ] **7.1** Réseau : tableau consolidé promoteur / coordination confessionnelle, comparaison entre années (cahier § 6.1, 8.13)
-- [ ] **7.2** Plateforme : abonnements et facturation des écoles (tarif par élève, offres Découverte / Standard / Réseau, essai), revendeurs, annonces à toutes les écoles, statistiques globales (§ 5, 6.1) ; écran dédié du super-admin (maquette `superadmin-ecoles` : cartes, liste, abonnements), en V1.0 l'administration Django *(ajouté le 2026-09-26, 1.5)*
-- [ ] **7.3** Paiement en ligne Mobile Money via agrégateur, argent versé directement sur le compte de l'école (§ 5, 8.14)
-- [ ] **7.4** SMS et WhatsApp avec crédits achetés par l'école ; relances d'impayés par SMS (§ 8.4, 8.9)
-- [ ] **7.5** Applications Android et iPhone (Capacitor) publiées dans les stores (§ 8.10)
-- [ ] **7.6** Pré-inscription en ligne, test d'admission, liste d'attente (§ 8.3)
-- [ ] **7.7** Comptabilité SYSCOHADA complète : journal, grand livre, budget prévisionnel, rapprochement bancaire (§ 8.4)
-- [ ] **7.8** Emploi du temps automatique sans conflit ; devoirs et cours publiés (enseignant, élève, parent) (§ 8.6, 8.10–8.12)
-- [ ] **7.9** Évaluations d'atelier (écoles techniques) ; évaluation des enseignants (§ 8.5, 8.6)
-- [ ] **7.10** Rapports officiels EPST : statistiques de fin d'année, listes ENAFEP / Exetat, palmarès officiel (§ 8.13)
-- [ ] **7.11** Enseignement supérieur LMD : semestres, unités d'enseignement, crédits, sessions (§ 7)
-- [ ] **7.12** Vie scolaire : bibliothèque, cantine (menu dans le portail), transport (itinéraires, suivi GPS), internat (§ 8.10, 8.14)
-- [ ] **7.13** Gestion matérielle : inventaire, ateliers (équipements, matières d'œuvre, TP), boutique (uniformes, fournitures) (§ 8.14)
-- [ ] **7.14** Orientation scolaire, anciens élèves, site vitrine généré pour chaque école (`{ecole}.mwangaza.school/`) (§ 8.14, architecture § 2)
-- [ ] **7.15** Sécurité en profondeur : Row Level Security PostgreSQL (architecture § 4)
+## V1.3 — Personnel, paie et dépenses
+
+- [ ] **7.1** Dépenses par catégorie, rapports entrées / sorties
+- [ ] **7.2** RH : dossier employé, contrats, qualifications, statut SECOPE ; carte du personnel sans compte (6.1)
+- [ ] **7.3** Paie : périodes, lignes, primes, motivation enseignants liée aux frais, avances, retenues (absences pointées, en option), fiche de paie PDF
+- [ ] **7.4** Espace enseignant : fiche de paie et horaire ; congés et permissions du personnel (cahier § 8.5, 8.12)
+- [ ] **7.5** Pénalités de retard, validation d'inscription liée au paiement, documents téléversés
+- [ ] **7.6** Connexion Google, champs complémentaires de la fiche élève
+
+## V1.4 — Notes, bulletins et vie scolaire
+
+- [ ] **8.1** Cours, maxima, domaines, attribution enseignants
+- [ ] **8.2** Saisie des notes (y compris hors-ligne), verrouillage, validation, historique
+- [ ] **8.3** Bulletin EPST PDF avec QR d'authenticité, calcul des totaux, places, mentions ; deux modes d'impression : bulletin complet, ou notes seules sur le formulaire pré-imprimé (Q11) ; régime et code de l'école (EPST, 7 chiffres) dans les paramètres de l'école (M5) *(ajouté le 2026-09-27, 1.7)*
+- [ ] **8.4** Délibération, décisions, palmarès, passage de classe
+- [ ] **8.5** Discipline ; messagerie parent ↔ titulaire / administration ; rendez-vous
+- [ ] **8.6** Portail élèves ; espace enseignant et titulaire
+- [ ] **8.7** Transfert d'élève entre écoles de la plateforme (copie du dossier vers l'école d'arrivée) ; attestations et certificats
+- [ ] **8.8** Portail parents : notes, bulletins PDF, discipline, documents ; tableau de bord : résultats scolaires (cahier § 8.10, 8.13)
+- [ ] **8.9** Sondages ; option de blocage des bulletins / examens en cas de dette (désactivée par défaut) (cahier § 8.4, 8.9)
+
+## V2 — après la V1.4 (proposition : ordre et découpage à valider avant de commencer)
+
+Chaque tâche V2 sera redécoupée en sous-tâches (9.1.1, 9.1.2…) au moment de la commencer.
+
+- [ ] **9.1** Réseau : tableau consolidé promoteur / coordination confessionnelle, comparaison entre années (cahier § 6.1, 8.13)
+- [ ] **9.2** Plateforme : abonnements et facturation des écoles (tarif par élève, offres Découverte / Standard / Réseau, essai), revendeurs, statistiques globales (§ 5, 6.1) ; la console elle-même arrive en V1.1 (5.2–5.4)
+- [ ] **9.3** Paiement en ligne Mobile Money via agrégateur, argent versé directement sur le compte de l'école (§ 5, 8.14)
+- [ ] **9.4** SMS et WhatsApp avec crédits achetés par l'école ; relances d'impayés par SMS (§ 8.4, 8.9)
+- [ ] **9.5** Applications Android et iPhone (Capacitor) publiées dans les stores ; lecture de la puce de la carte sur iPhone (§ 8.10)
+- [ ] **9.6** Pré-inscription en ligne, test d'admission, liste d'attente (§ 8.3)
+- [ ] **9.7** Comptabilité SYSCOHADA complète : journal, grand livre, budget prévisionnel, rapprochement bancaire (§ 8.4)
+- [ ] **9.8** Emploi du temps automatique sans conflit ; devoirs et cours publiés (enseignant, élève, parent) (§ 8.6, 8.10–8.12)
+- [ ] **9.9** Évaluations d'atelier (écoles techniques) ; évaluation des enseignants (§ 8.5, 8.6)
+- [ ] **9.10** Rapports officiels EPST : statistiques de fin d'année, listes ENAFEP / Exetat, palmarès officiel (§ 8.13)
+- [ ] **9.11** Enseignement supérieur LMD : semestres, unités d'enseignement, crédits, sessions (§ 7)
+- [ ] **9.12** Vie scolaire : bibliothèque, cantine (menu dans le portail), transport (itinéraires, suivi GPS), internat (§ 8.10, 8.14)
+- [ ] **9.13** Gestion matérielle : inventaire, ateliers (équipements, matières d'œuvre, TP), boutique (uniformes, fournitures) (§ 8.14)
+- [ ] **9.14** Orientation scolaire, anciens élèves, site vitrine généré pour chaque école (`{ecole}.mwangaza.school/`) (§ 8.14, architecture § 2)
+- [ ] **9.15** Sécurité en profondeur : Row Level Security PostgreSQL (architecture § 4)
 
 ## Plus tard (non planifié)
 

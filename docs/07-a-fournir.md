@@ -4,13 +4,13 @@ Liste de tout ce qui manque pour aller jusqu'au bout : maquettes, informations d
 
 Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, comptes à créer, commandes) : [`A-FAIRE.md`](../A-FAIRE.md).
 
-**Rien ci-dessous ne bloque le travail** (décision du 2026-09-26). L'ITIG est l'école d'exemple, pas la seule : ce qui manque, Claude l'invente de façon réaliste (dernière section), et chaque école saisit ensuite ses vraies données elle-même. Les documents de l'ITIG remplacent les données fictives quand ils arrivent.
+**Rien ci-dessous ne bloque le travail** (décision du 2026-09-26). **On n'attend rien de l'ITIG** (redit le 2026-10-02) : c'est l'école d'exemple, pas la seule ; ce qui manque, Claude l'invente de façon réaliste (dernière section), et chaque école, l'ITIG comprise, saisit ses vraies données elle-même dans l'application. Le § 2 garde seulement la trace des exemples utilisés.
 
 ## 1. Maquettes manquantes
 
 30 maquettes ont été fournies. Le 2026-09-26, à la demande de l'utilisateur (T3), Claude a dessiné dans le même système de design les écrans qui manquaient pour la V1.0, plus les bulletins officiels et les cours / maxima (V1.2) : **61 maquettes** au total (`maquettes/index.html`). **Valider** = fusionner la PR des maquettes ; une remarque sur un écran = commentaire de PR, Claude corrige avant de coder l'écran. Pour les lots suivants, même règle : si une maquette n'est pas fournie avant sa tâche, Claude la dessine, code avec elle sans attendre l'accord et la signale dans « À valider » de la PR (décision du 2026-09-29). **Documents imprimables** (reçus, listes, rapports, bulletins…) : même règle, Claude propose le design dans le système de design, état « à valider » (décision du 2026-09-26).
 
-### V1.0 — nécessaires pour le pilote
+### V1.0
 
 | # | Écran | App | Réf. | Tâche | Maquette (dessinée le 2026-09-26) | Validée |
 |---|---|---|---|---|---|:-:|
@@ -35,21 +35,33 @@ Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, compt
 | M19 | Portail : se connecter, mot de passe oublié, installer l'application | Portail | H1, H6 | 4.4 | `portail/connexion`, `portail/mot-de-passe-oublie`, `portail/installer` | [ ] |
 | M20 | Guides de première connexion : caissier, comptable, parent | Gestion, Portail | I3 | 4.5.1 | `gestion/guide-premiere-connexion`, `portail/guide` | [ ] |
 
-### V1.1 — à prévoir avant la semaine 5
+### V1.0 — clôture
 
-Pas encore dessinées (Claude les dessine avant la semaine 5 si elles ne sont pas fournies) : Dépenses et rapports entrées / sorties (5.1) · dossier employé et contrats (5.2) · fiche de paie PDF (5.3) · réglages des notifications et relances (5.4) · carte d'élève PDF (5.5) · pénalités, validation d'inscription, documents téléversés (5.6) · messages à une classe, calendrier, circulaires, convocations (5.8) · espace enseignant (5.9). Existent déjà : paie, pointage QR.
+À dessiner par Claude au début de la tâche (règle du 2026-09-29) : lettre d'invitation des familles et suivi des comptes activés (4.9) · mise en page du guide PDF de la V1.0 (4.10).
 
-### V1.2 — à prévoir avant la semaine 9
+### V1.1 — plateforme, notifications, communication
 
-Déjà dessinés le 2026-09-26 d'après les **formulaires officiels** trouvés en ligne : cours et maxima (`gestion/cours-maxima`, 6.1), bulletin des humanités techniques (`gestion/bulletin`, formulaire IGE/P.S/100) et bulletin 7e–8e (`gestion/bulletin-education-de-base`, IGE/P.S/005) — voir `docs/claude/recherches/2026-09-26-bulletins-rdc.md`. Reste à dessiner : attribution des enseignants (6.1) · délibération et palmarès (6.4) · présences RFID et du personnel (6.5) · absences et justification par le parent (6.6) · discipline, messagerie, rendez-vous (6.7) · portail élève et espace titulaire (6.8) · transfert et attestations (6.9) · portail parents complet (6.10) · congés, sondages (6.11). Existent déjà : saisie des notes, scolarité d'un enfant.
+À dessiner : console de la plateforme — tableau de bord, identité de la plateforme (5.1, 5.2) · comptes, appareils, journal de la plateforme (5.4) · centre de notifications et réglages (5.5, 5.6) · messages à une classe, calendrier, circulaires, convocations (5.7). Existe déjà : `gestion/superadmin-ecoles` (5.3), à redessiner dans le design de la console.
+
+### V1.2 — carte unique et présences
+
+À dessiner : carte (recto / verso, format carte bancaire et planche A4) et son modèle réglé par l'école (6.1) · poste de liaison des cartes (6.2) · borne de pointage puce / QR (6.3) · suivi des présences et du personnel (6.5) · absences et justification par le parent (6.6). Existe déjà : `gestion/presences-pointage-qr` (6.3), à compléter avec la puce.
+
+### V1.3 — personnel, paie, dépenses
+
+À dessiner : dépenses et rapports entrées / sorties (7.1) · dossier employé et contrats (7.2) · fiche de paie PDF (7.3) · espace enseignant, congés (7.4) · pénalités, validation d'inscription, documents téléversés (7.5). Existe déjà : paie.
+
+### V1.4 — notes, bulletins, vie scolaire
+
+Déjà dessinés le 2026-09-26 d'après les **formulaires officiels** trouvés en ligne : cours et maxima (`gestion/cours-maxima`, 8.1), bulletin des humanités techniques (`gestion/bulletin`, formulaire IGE/P.S/100) et bulletin 7e–8e (`gestion/bulletin-education-de-base`, IGE/P.S/005) — voir `docs/claude/recherches/2026-09-26-bulletins-rdc.md`. Reste à dessiner : attribution des enseignants (8.1) · délibération et palmarès (8.4) · discipline, messagerie, rendez-vous (8.5) · portail élève et espace titulaire (8.6) · transfert et attestations (8.7) · portail parents complet (8.8) · sondages (8.9). Existent déjà : saisie des notes, scolarité d'un enfant.
 
 ### V2
 
-À dessiner tâche par tâche (7.1 à 7.15) au moment de les commencer.
+À dessiner tâche par tâche (9.1 à 9.15) au moment de les commencer.
 
-## 2. Informations de l'ITIG
+## 2. Exemples de données d'une école (l'ITIG)
 
-Déposer les fichiers dans `docs/ecole-pilote/depot/` puis `/document-ecole`. Pour une réponse sans fichier : `/noter …`. Aucune de ces informations ne bloque : la colonne « En attendant » dit ce qu'on utilise.
+**Plus rien n'est attendu** (2026-10-02) : l'ITIG saisit ces informations elle-même dans l'application, comme toute école. La colonne « En attendant » dit ce qu'utilisent les données de démonstration ; si un document arrive quand même, `/document-ecole` l'intègre.
 
 ### Pour la V1.0
 
@@ -58,14 +70,14 @@ Déposer les fichiers dans `docs/ecole-pilote/depot/` puis `/document-ecole`. Po
 | I1 | Classes 2026-2027 : sections par niveau (7e A, B, C…), options et sections de la 1re à la 4e | 1.7 | semaine 1 | structure publique + sections inventées | [ ] |
 | I2 | Format actuel du matricule | 1.7 | semaine 1 | `ITIG-{AAAA}-{0000}` (maquettes) | [ ] |
 | I3 | Calendrier 2026-2027 : périodes, examens, dates ; date de proclamation de la P1 | 1.7, Q6 | semaine 1 | modèle secondaire : 2 semestres, 4 périodes, 2 examens | [ ] |
-| I4 | Qui fait quoi : préfet, directeurs des études, directeur de discipline, économe / comptable, caissiers, secrétaires, promoteur ; liste des comptes à créer | 1.2, 4.8 | semaine 1 | un compte fictif par rôle (9 rôles système) ; « qui est le promoteur » : l'utilisateur le demande à l'ITIG | [ ] |
+| I4 | Qui fait quoi : préfet, directeurs des études, directeur de discipline, économe / comptable, caissiers, secrétaires, promoteur ; liste des comptes à créer | 1.2 | — | un compte fictif par rôle (9 rôles système) ; l'école crée elle-même ses comptes | [ ] |
 | I5 | Grille des frais 2026-2027 : types, devise de chaque frais, montants par niveau / option, tranches et dates limites, frais mensuels | 2.5 | semaine 2 | grille fictive réaliste, à partir de celle des maquettes (minerval en tranches USD, fonctionnement, atelier, motivation mensuelle en FC) | [ ] |
 | I6 | Réductions pratiquées (enfants du personnel, fratrie, bourses) et qui les accorde | 2.5 | semaine 2 | modèles du cahier des charges : ils choisissent le motif, la valeur est saisie à chaque fois ; droit `finance.grant_discount` (préfet, comptable) ; valeurs par défaut par école à ajouter si l'ITIG en a de fixes | [ ] |
 | I7 | Liste des élèves en Excel (même partielle, pour voir les colonnes) | 2.3 | semaine 2 | ~800 élèves fictifs avec familles, fratries et paiements sur plusieurs mois ; fichier Excel fictif : `make demo-excel` (2.3) | [ ] |
 | I8 | Fiche d'inscription et liste de classe actuelles | 2.4 | semaine 2 | maquettes M11 | [ ] |
 | I9 | La caisse aujourd'hui : combien de caisses et de caissiers, qui valide une annulation, comment se fait la clôture (le taux est tranché : fixe pour l'année, saisi par le comptable) | 3.1, 3.8 | semaine 3 | 2 caisses, règles des maquettes, taux de l'année 1 $ = 2 850 FC | [ ] |
 | I10 | Modèle de reçu actuel (photo) et formulation du montant en lettres | 3.2 | semaine 3 | reçu proposé par Claude ; montant en lettres « Cent cinquante dollars américains et vingt-cinq centimes » (Q5), ajusté quand le reçu arrivera | [ ] |
-| I11 | Imprimante thermique (marque, modèle, papier 80 ou 58 mm) ; ordinateurs, tablettes, navigateur ; connexion internet | 4.8 | à la mise en place | tous les formats gérés au choix de l'école (58 mm, 80 mm, A4) ; test sur la vraie imprimante en 4.8 ; Chrome | [ ] |
+| I11 | Imprimante thermique (marque, modèle, papier 80 ou 58 mm) ; ordinateurs, tablettes, navigateur ; connexion internet | — | — | tous les formats gérés au choix de l'école (58 mm, 80 mm, A4) ; Chrome | [ ] |
 | I12 | Logo haute qualité (vectoriel si possible) + version noir et blanc ; nom officiel exact ; cachet ; en-tête | 1.5, 3.2 | semaine 3 | logo du site web ; version noir et blanc préparée par Claude (`ecole-pilote/documents/2026-09-26-logo-itig-noir-et-blanc.png`) | [ ] |
 | I13 | Code de l'école dans l'adresse : `itig` ? | 1.5 | semaine 1 | `itig` | [ ] |
 
@@ -87,8 +99,8 @@ Déposer les fichiers dans `docs/ecole-pilote/depot/` puis `/document-ecole`. Po
 | T2 | Valider les propositions Q1 à Q11 de `06-suivi.md` — **tranché le 2026-09-26** (journal de `06-suivi.md`) | avant 1.2 | [x] |
 | T3 | Maquettes : les fournir, ou laisser Claude les dessiner (défaut) — **tranché le 2026-09-26 : Claude dessine** ; reste à valider les maquettes dessinées (PR) | maintenant | [x] |
 | T4 | Comptes : VPS, Cloudflare, stockage objet, suivi d'erreurs (Sentry ou GlitchTip) | VPS et Cloudflare avant 4.6.2 ; le reste avant 4.7 | [ ] |
-| T5 | Conditions d'utilisation, politique de confidentialité, contrat de traitement des données avec l'ITIG (Claude peut rédiger un brouillon) | avant 4.8 | [ ] |
-| T6 | Tarif du pilote ITIG (gratuit pendant l'essai ?) | avant 4.8 | [ ] |
+| T5 | Conditions d'utilisation, politique de confidentialité, contrat de traitement des données avec chaque école (Claude peut rédiger un brouillon) | avant les vraies données d'une école (4.6.2) | [ ] |
+| T6 | Tarif des écoles (essai gratuit ?) | avant les abonnements (9.2) | [ ] |
 
 ## 4. Données de démonstration
 

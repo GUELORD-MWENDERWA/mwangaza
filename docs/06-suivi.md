@@ -6,12 +6,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | V1.0 — semaine 4 (Rapports, portail, production) |
-| Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 4.6.1 terminée (PR à fusionner) |
-| Prochaine tâche | 4.6.2 (mise en ligne) dès que le domaine, Cloudflare et le VPS existent (`A-FAIRE.md` n° 17) ; sinon 4.7 en partie (suivi d'erreurs, sonde) |
-| Issue GitHub | #34 (4.6) |
-| Branche | `tache/4.6.1-production` ; dossier local : `~/Projets/mwangaza` |
+| Phase | V1.0 — clôture (4.9, 4.10), puis V1.1 |
+| Lot | V1.0 ; découpage des versions revu le 2026-10-02 |
+| Tâche en cours | aucune — nouveau découpage des versions (PR à fusionner) |
+| Prochaine tâche | 4.9 (invitation des familles au portail), puis 4.10 (guide PDF de la V1.0), puis 5.1 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
+| Issue GitHub | 4.9 et 4.10 : créées après la fusion, avec les jalons V1.3 et V1.4 |
+| Branche | `docs/plan-versions` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-02 |
 
 ## Avancement
@@ -22,13 +22,15 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 12 | 15 |
-| **V1.0** | **46** | **49** |
-| V1.1 — semaines 5 à 8 | 0 | 9 |
-| V1.2 — semaines 9 à 14 | 0 | 11 |
+| Semaine 4 — Rapports, portail, production | 12 | 16 |
+| **V1.0** | **46** | **50** |
+| V1.1 — plateforme, notifications, communication | 0 | 7 |
+| V1.2 — carte unique et présences | 0 | 6 |
+| V1.3 — personnel, paie, dépenses | 0 | 6 |
+| V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
 | V2 | 0 | 15 |
 
-Sur GitHub : onglet *Milestones* — V1.0 (36 issues, dont les 4 « avant de coder »), V1.1 (9), V1.2 (11), V2 (15).
+Sur GitHub : onglet *Milestones* — encore l'ancien découpage (V1.0, V1.1, V1.2, V2) ; jalons V1.3 et V1.4 et issues renumérotées après la fusion du nouveau découpage.
 
 ## Bloquants et en attente
 
@@ -36,9 +38,7 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 
 | Sujet | Attendu de | Bloque |
 |---|---|---|
-| Achat du domaine `mwangaza.school` (vérifier d'abord la disponibilité) | toi | 4.6.2 |
-| Comptes VPS, Cloudflare (GitHub : fait) | toi | 4.6.2 |
-| Stockage objet (sauvegardes, photos) | toi | 4.7 |
+| Mise en ligne : hébergement, domaine, stockage objet — **quand tu le décides** | toi | 4.6.2, 4.7 seulement ; rien d'autre n'en dépend |
 
 ## Questions ouvertes
 
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-02 — Découpage des versions revu
+- Demande de l'utilisateur : la V1.0 est mise de côté (mise en ligne quand il le décide) ; **on n'attend rien de l'ITIG** (4.8 retirée) ; la V1.0 se clôt avec l'invitation des familles au portail (4.9, H7) et un guide PDF de la version, rôle par rôle, avec ses limites (4.10, I5).
+- Nouvelles versions : V1.1 plateforme (identité configurable, console avec son propre design au lieu de l'administration Django), notifications sur l'écran même application fermée, communication ; V1.2 carte unique (puce NFC + QR + photo, liaison en une seconde) et présences (téléphone Android enregistré, ESP32, caméra QR) ; V1.3 personnel, paie, dépenses ; V1.4 notes et bulletins ; V2 renumérotée 9.x.
+- Recherches : Web NFC seulement dans Chrome Android (numéro de série, lecture, écriture ; pas sur iPhone, d'où le QR sur la même carte) ; cartes NTAG215 / 216 ; offre gratuite d'Oracle réduite à 2 cœurs et 12 Go depuis juin 2026, reprise des serveurs peu utilisés.
+- Mis à jour : `01`, `02`, `03` (§ 2, 3, 10, journal des décisions), `04`, `05`, `07`, `A-FAIRE.md`, `CLAUDE.md` (règle 9 étendue à la plateforme), skills, `maquettes/README.md`, `firmware/README.md`. Suite : fusion, jalons et issues GitHub, puis `/tache 4.9`.
 
 ### 2026-10-02 — Tâche 4.6.1 : production prête, essayée sur la machine
 - 4.6 découpée avec l'accord de l'utilisateur, car le domaine, Cloudflare et le VPS ne sont pas encore achetés. Fait : `infra/Dockerfile` (front construit, Django + gunicorn, Caddy), `infra/docker-compose.yml`, `infra/Caddyfile` (sous-domaines, `/v/*`, compression, cache des PWA), `infra/.env.example`, `make prod-local` ; la vraie adresse du visiteur (Cloudflare → `X-Real-IP` → `CLIENT_IP_HEADER`) est utilisée par la limitation des tentatives. Dépendance acceptée : gunicorn.

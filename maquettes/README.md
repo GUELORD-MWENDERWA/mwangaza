@@ -14,7 +14,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 1. Avant de construire un écran, ouvrir **la capture PNG** (pour l'aspect) et **le fichier HTML** (pour la structure exacte, les libellés et les notes).
 2. Reproduire l'écran en React + Tailwind + shadcn/ui, **pas** copier le HTML tel quel. Les maquettes ne contiennent aucune logique.
 3. Les encadrés jaunes pointillés (`.note`) sont des **règles métier et critères d'acceptation** : les appliquer, ne pas les afficher dans l'application.
-4. Les bandeaux « V1.1 » ou « V1.2 » signalent un écran ou un élément à **ne pas coder en V1.0**. Dans le menu V1.0, ces entrées sont masquées.
+4. Les bandeaux « V1.1 » ou « V1.2 » signalent un écran ou un élément d'une version suivante, à **ne pas coder avant sa tâche** ; dans le menu, ces entrées sont masquées. Ils datent de l'ancien découpage : depuis le 2026-10-02, la version qui compte est celle de `docs/05-plan-de-travail.md` et du tableau ci-dessous (ex. paie : V1.3, pointage : V1.2, notes : V1.4).
 5. Libellés : reprendre ceux des maquettes dans les fichiers de traduction `fr` (puis traduire en `en`).
 6. Si une maquette contredit `docs/02-perimetre-v1.md` ou `docs/04-modele-de-donnees.md`, **les documents font foi** ; signaler l'écart.
 
@@ -70,14 +70,14 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Rôles et permissions | `gestion/roles-permissions.html` | V1.0 | B1–B2 | fournie |
 | Appareils et synchronisation | `gestion/appareils-synchro.html` | V1.0 | F5, B5 | fournie |
 | Journal d'audit | `gestion/journal-audit.html` | V1.0 | I1 · M6 | à valider |
-| Super-admin — écoles (`admin.mwangaza.school`) | `gestion/superadmin-ecoles.html` | V1.0 (fonctions dans l'administration Django, 1.5) ; écran : 7.2 | A1–A3 | fournie |
+| Super-admin — écoles (`admin.mwangaza.school`) | `gestion/superadmin-ecoles.html` | V1.0 (fonctions dans l'administration Django, 1.5) ; écran dans la console : 5.3 (V1.1) | A1–A3 | fournie |
 | Session support « en tant qu'école » (ouverture avec le motif, bandeau rouge) | `gestion/session-support.html` | V1.0 | A3 | validée par l'utilisateur le 2026-09-26 (dessinée pour la tâche 1.6) |
-| Paie | `gestion/paie.html` | V1.1 | 5.3 | fournie |
-| Pointage QR | `gestion/presences-pointage-qr.html` | V1.1 | 5.5 | fournie |
-| Saisie des notes | `gestion/notes-saisie.html` | V1.2 | 6.2 | fournie |
-| Cours et maxima par classe | `gestion/cours-maxima.html` | V1.2 | 6.1 | à valider |
-| Bulletin officiel — humanités techniques (formulaire IGE/P.S/100) | `gestion/bulletin.html` | V1.2 | 6.3 | à valider (remplace le gabarit provisoire) |
-| Bulletin officiel — 7e–8e EB (formulaire IGE/P.S/005) | `gestion/bulletin-education-de-base.html` | V1.2 | 6.3 | à valider |
+| Paie | `gestion/paie.html` | V1.3 | 7.3 | fournie |
+| Pointage QR (carte unique : puce ou QR) | `gestion/presences-pointage-qr.html` | V1.2 | 6.3 | fournie |
+| Saisie des notes | `gestion/notes-saisie.html` | V1.4 | 8.2 | fournie |
+| Cours et maxima par classe | `gestion/cours-maxima.html` | V1.4 | 8.1 | à valider |
+| Bulletin officiel — humanités techniques (formulaire IGE/P.S/100) | `gestion/bulletin.html` | V1.4 | 8.3 | à valider (remplace le gabarit provisoire) |
+| Bulletin officiel — 7e–8e EB (formulaire IGE/P.S/005) | `gestion/bulletin-education-de-base.html` | V1.4 | 8.3 | à valider |
 
 Captures mobiles aussi fournies pour : caisse (encaissement, ouverture), pointage, saisie des notes, menu mobile, guide de première connexion (la Gestion doit rester utilisable sur tablette et téléphone Android).
 
@@ -97,7 +97,7 @@ Bulletins : structure et maxima repris des formulaires officiels trouvés en lig
 | Annonces | `portail/annonces.html` | V1.0 | H4 | fournie |
 | Profil et coordonnées | `portail/profil.html` | V1.0 | H5 | fournie — codé en 4.4.5 avec le contact d'urgence à la place du « Téléphone secondaire » (pas de champ au modèle) |
 | Vérification publique d'un reçu (`/v/{id}`) | `portail/verification-recu.html` | V1.0 | F4 | fournie |
-| Scolarité d'un enfant | `portail/enfant-scolarite.html` | V1.2 | 6.8 | fournie |
+| Scolarité d'un enfant | `portail/enfant-scolarite.html` | V1.4 | 8.8 | fournie |
 
 ### Menu de la Gestion
 

@@ -13,7 +13,7 @@ Suivre les étapes dans l'ordre, en appliquant **« Économie de tokens » de `C
 1. `docs/06-suivi.md` : lire seulement « État actuel » et « Bloquants » (`grep -n`). Si une autre tâche est « en cours », demander s'il faut la terminer d'abord.
 2. Trouver la tâche dans `docs/05-plan-de-travail.md` ; vérifier que ses dépendances sont cochées.
 3. Relire seulement les passages utiles (`grep -n` sur les références A1, F5…, le nom des modèles) de `02-perimetre-v1.md`, `01`, `03`, `04`. Pas de lecture intégrale d'un document déjà connu.
-4. Périmètre : ce qui relève de V1.1 / V1.2 / V2 (`02` § 3) → le signaler, ne pas le coder.
+4. Périmètre : ce qui relève d'une version suivante (`05`, `02` § 1) → le signaler, ne pas le coder.
 5. **Taille** : si la tâche dépasse à peu près un module serveur ou deux écrans, proposer de la découper dans `05` **avant de coder** et attendre la réponse. Tâche simple (écrans de saisie, documents) : rappeler que `/model` permet de passer à Sonnet.
 6. Bloquants et lignes de `07-a-fournir.md` qui touchent la tâche : valeur « en attendant » de `07`, le dire. Règle scolaire RDC floue : demander, ne pas supposer.
 7. Skills à suivre : modèle / service / endpoint → `backend` ; montants → `argent` ; synchronisation → `hors-ligne` ; écran → `ecran`.
