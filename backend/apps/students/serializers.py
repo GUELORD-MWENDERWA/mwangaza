@@ -8,7 +8,14 @@ from apps.finance import services as finance
 from apps.finance.serializers import BalanceSerializer
 from apps.schools.models import AcademicYear, ClassGroup, Track
 from apps.students import documents, imports
-from apps.students.models import Enrollment, Family, Guardian, Student, StudentImport
+from apps.students.models import (
+    ContactChange,
+    Enrollment,
+    Family,
+    Guardian,
+    Student,
+    StudentImport,
+)
 from apps.students.photos import photo_version, validate_photo
 
 
@@ -467,4 +474,102 @@ class ClassListQuerySerializer(serializers.Serializer):
     )
     order = serializers.ChoiceField(
         choices=[documents.BY_NAME, documents.BY_MATRICULE], default=documents.BY_NAME
+    )
+
+
+# Coordonnées envoyées par les parents (H5, M18)
+
+
+class ContactAddressSerializer(serializers.Serializer):
+    commune = serializers.CharField(max_length=80, allow_blank=True, default="")
+    quartier = serializers.CharField(max_length=80, allow_blank=True, default="")
+    avenue = serializers.CharField(max_length=120, allow_blank=True, default="")
+    number = serializers.CharField(max_length=20, allow_blank=True, default="")
+
+
+class EmergencyContactSerializer(serializers.Serializer):
+    full_name = serializers.CharField(max_length=150, allow_blank=True, default="")
+    phone = PhoneField(allow_blank=True, default="", help_text="Ex. 0971234567.")
+
+    def validate(self, data):
+        if bool(data["full_name"]) != bool(data["phone"]):
+            raise serializers.ValidationError(
+                _("Give the name and the phone number."), code="incomplete"
+            )
+        return data
+
+
+class ContactDetailsSerializer(serializers.Serializer):
+    """Coordonnées que le parent tient à jour : adresse (celle de ses enfants), e-mail (le
+    sien), contact d'urgence. Le numéro de son compte ne change pas ici."""
+
+    address = ContactAddressSerializer()
+    email = serializers.EmailField(allow_blank=True)
+    emergency_contact = EmergencyContactSerializer()
+
+
+class AddressChangeSerializer(serializers.Serializer):
+    before = ContactAddressSerializer()
+    after = ContactAddressSerializer()
+
+
+class EmailChangeSerializer(serializers.Serializer):
+    before = serializers.CharField()
+    after = serializers.CharField()
+
+
+class EmergencyChangeSerializer(serializers.Serializer):
+    before = EmergencyContactSerializer()
+    after = EmergencyContactSerializer()
+
+
+class ChangesSerializer(serializers.Serializer):
+    """Seulement ce qui diffère de la fiche au moment de l'envoi."""
+
+    address = AddressChangeSerializer(required=False)
+    email = EmailChangeSerializer(required=False)
+    emergency_contact = EmergencyChangeSerializer(required=False)
+
+
+class ContactChangeFamilySerializer(serializers.ModelSerializer):
+    parent = serializers.SerializerMethodField()
+    phone = serializers.SerializerMethodField()
+    children = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Family
+        fields = ["id", "code", "parent", "phone", "children"]
+
+    def _primary(self, family: Family) -> Guardian | None:
+        return next(iter(family.primary_guardians), None)
+
+    def get_parent(self, family: Family) -> str:
+        primary = self._primary(family)
+        return primary.full_name if primary else ""
+
+    def get_phone(self, family: Family) -> str:
+        primary = self._primary(family)
+        return primary.phone if primary else ""
+
+    def get_children(self, family: Family) -> list[str]:
+        return [student.full_name for student in family.students.all()]
+
+
+class ContactChangeSerializer(serializers.ModelSerializer):
+    family = ContactChangeFamilySerializer()
+    changes = ChangesSerializer()
+    handled_by = serializers.CharField(
+        source="handled_by.__str__", default=None, allow_null=True, read_only=True
+    )
+
+    class Meta:
+        model = ContactChange
+        fields = ["id", "family", "changes", "status", "created_at", "handled_by", "handled_at"]
+
+
+class ContactChangeFilterSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(
+        choices=["pending", "handled", "all"],
+        default="pending",
+        help_text="À traiter (par défaut), traitées (appliquées ou non) ou toutes.",
     )

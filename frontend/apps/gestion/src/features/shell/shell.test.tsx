@@ -42,16 +42,6 @@ describe("coquille et menu (M7)", () => {
     expect(screen.getByText(/ne permet pas d'ouvrir « Frais et barèmes »/)).toBeTruthy();
   });
 
-  it("écran permis pas encore construit : « bientôt disponible »", async () => {
-    mockApi(loggedIn(me("head")));
-    renderApp("/parent-requests");
-
-    expect(await screen.findByText("Cet écran arrive bientôt")).toBeTruthy();
-    expect(
-      screen.getByText("« Demandes des parents » n'est pas encore disponible dans cette version."),
-    ).toBeTruthy();
-  });
-
   it("adresse inconnue : 404 dans la coquille", async () => {
     mockApi(loggedIn());
     renderApp("/nimporte-quoi");

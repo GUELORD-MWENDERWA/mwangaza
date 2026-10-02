@@ -30,16 +30,7 @@ export function PortalFrame({
   children: ReactNode;
 }) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const logout = useMutation({
-    mutationFn: () => call(api.POST("/api/auth/logout/")),
-    onSuccess: async () => {
-      // Rien de cette famille ne reste sur le téléphone, ni en mémoire ni hors ligne.
-      await forgetOfflineData();
-      queryClient.removeQueries({ queryKey: ["portal"] });
-      queryClient.setQueryData(accountKey, null);
-    },
-  });
+  const logout = useLogout();
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -87,8 +78,21 @@ export function PortalFrame({
   );
 }
 
+/** Déconnexion : rien de cette famille ne reste sur le téléphone, ni en mémoire ni hors ligne. */
+export function useLogout() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => call(api.POST("/api/auth/logout/")),
+    onSuccess: async () => {
+      await forgetOfflineData();
+      queryClient.removeQueries({ queryKey: ["portal"] });
+      queryClient.setQueryData(accountKey, null);
+    },
+  });
+}
+
 /** `.pnav` des maquettes. « Paiements » : l'enfant affiché, sinon le premier de l'accueil.
- *  Profil s'ajoute avec son écran (4.4.5). */
+ */
 function PortalNav({ childId }: { childId?: string }) {
   const { t } = useTranslation();
   const families = useFamilies();
@@ -101,6 +105,7 @@ function PortalNav({ childId }: { childId?: string }) {
     items.push({ to: `/children/${payments}`, icon: "card", label: t("portal.nav.payments") });
   }
   items.push({ to: "/announcements", icon: "bell", label: t("portal.nav.announcements") });
+  items.push({ to: "/profile", icon: "user", label: t("portal.nav.profile") });
 
   return (
     <nav

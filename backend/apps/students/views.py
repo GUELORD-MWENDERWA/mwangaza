@@ -30,11 +30,20 @@ from apps.core.errors import ApiError, ErrorSerializer
 from apps.finance import services as finance
 from apps.schools.models import ClassGroup
 from apps.schools.organisation import current_year
-from apps.students import documents, imports, services
-from apps.students.models import Enrollment, Family, Guardian, Student, StudentImport
+from apps.students import contact_changes, documents, imports, services
+from apps.students.models import (
+    ContactChange,
+    Enrollment,
+    Family,
+    Guardian,
+    Student,
+    StudentImport,
+)
 from apps.students.photos import photo_response
 from apps.students.serializers import (
     ClassListQuerySerializer,
+    ContactChangeFilterSerializer,
+    ContactChangeSerializer,
     EnrollmentCreateSerializer,
     EnrollmentSerializer,
     EnrollmentUpdateSerializer,
@@ -558,3 +567,56 @@ class StudentImportViewSet(mixins.RetrieveModelMixin, SchoolViewSet):
         """Modèle à remplir : une colonne par champ, titres reconnus à l'import."""
         name = _("students-template")
         return file_response(imports.template_workbook(), XLSX, f"{name}.xlsx")
+
+
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[ContactChangeFilterSerializer],
+        responses={200: ContactChangeSerializer(many=True), **ERRORS},
+    )
+)
+@extend_schema(tags=["students"])
+class ContactChangeViewSet(mixins.ListModelMixin, SchoolViewSet):
+    """Demandes des parents (M18) : coordonnées envoyées depuis le portail, les plus récentes
+    d'abord ; le secrétariat les applique à la fiche de la famille, ou pas."""
+
+    required_permission = STUDENTS_EDIT
+    serializer_class = ContactChangeSerializer
+    http_method_names = ["get", "post", "head", "options"]
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return ContactChange.all_schools.none()
+        queryset = ContactChange.objects.select_related("family", "handled_by").prefetch_related(
+            Prefetch(
+                "family__guardians",
+                queryset=Guardian.objects.filter(is_primary=True),
+                to_attr="primary_guardians",
+            ),
+            Prefetch("family__students", queryset=Student.objects.order_by("last_name")),
+        )
+        if self.action == "list":
+            query = ContactChangeFilterSerializer(data=self.request.query_params)
+            query.is_valid(raise_exception=True)
+            pending = ContactChange.Status.PENDING
+            match query.validated_data["status"]:
+                case "pending":
+                    queryset = queryset.filter(status=pending)
+                case "handled":
+                    queryset = queryset.exclude(status=pending)
+        return queryset
+
+    def _change(self, change: ContactChange) -> Response:
+        return Response(ContactChangeSerializer(self.get_queryset().get(pk=change.pk)).data)
+
+    @extend_schema(request=None, responses={200: ContactChangeSerializer, **WRITE_ERRORS})
+    @action(detail=True, methods=["post"])
+    def apply(self, request: Request, pk=None) -> Response:
+        """Recopie les coordonnées envoyées dans la fiche de la famille."""
+        return self._change(contact_changes.apply(self.get_object(), actor=request.user))
+
+    @extend_schema(request=None, responses={200: ContactChangeSerializer, **WRITE_ERRORS})
+    @action(detail=True, methods=["post"])
+    def dismiss(self, request: Request, pk=None) -> Response:
+        """Garde la fiche telle quelle."""
+        return self._change(contact_changes.dismiss(self.get_object(), actor=request.user))

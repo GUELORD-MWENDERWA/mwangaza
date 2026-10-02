@@ -797,6 +797,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/contact-changes/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Demandes des parents (M18) : coordonnées envoyées depuis le portail, les plus récentes
+         *     d'abord ; le secrétariat les applique à la fiche de la famille, ou pas.
+         */
+        get: operations["contact_changes_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/contact-changes/{id}/apply/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Recopie les coordonnées envoyées dans la fiche de la famille. */
+        post: operations["contact_changes_apply_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/contact-changes/{id}/dismiss/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Garde la fiche telle quelle. */
+        post: operations["contact_changes_dismiss_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/dashboard/": {
         parameters: {
             query?: never;
@@ -1621,6 +1675,30 @@ export interface paths {
         get: operations["portal_payments_receipt_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/profile/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Coordonnées du parent (H5) ; un envoi est transmis à chaque école de ses enfants, qui
+         *     l'applique à sa propre fiche.
+         */
+        get: operations["portal_profile_retrieve"];
+        put?: never;
+        /**
+         * @description Coordonnées du parent (H5) ; un envoi est transmis à chaque école de ses enfants, qui
+         *     l'applique à sa propre fiche.
+         */
+        post: operations["portal_profile_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2498,6 +2576,8 @@ export interface components {
          *     * `students.family_code_renewed` - New family code
          *     * `students.portal_suspended` - Parent portal access suspended
          *     * `students.portal_restored` - Parent portal access restored
+         *     * `students.contact_change_applied` - Contact details sent by the parent applied
+         *     * `students.contact_change_dismissed` - Contact details sent by the parent not applied
          *     * `portal.activated` - Parent portal activated
          *     * `portal.password_reset` - Parent chose a new password
          *     * `finance.fee_type_created` - Fee type created
@@ -2535,12 +2615,16 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "students.family_code_renewed" | "students.portal_suspended" | "students.portal_restored" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "students.family_code_renewed" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         Address: {
             commune: string;
             quartier: string;
             avenue: string;
             number: string;
+        };
+        AddressChange: {
+            before: components["schemas"]["ContactAddress"];
+            after: components["schemas"]["ContactAddress"];
         };
         AddressRequest: {
             commune?: string;
@@ -2948,6 +3032,12 @@ export interface components {
             enrollment: components["schemas"]["SyncEnrollment"] | null;
             config: components["schemas"]["SyncConfig"] | null;
         };
+        /** @description Seulement ce qui diffère de la fiche au moment de l'envoi. */
+        Changes: {
+            address: components["schemas"]["AddressChange"];
+            email: components["schemas"]["EmailChange"];
+            emergency_contact: components["schemas"]["EmergencyChange"];
+        };
         /** @description Un enfant inscrit cette année : classe et situation de paiement de son école. */
         Child: {
             /** Format: uuid */
@@ -3120,6 +3210,63 @@ export interface components {
         CodeRequest: {
             /** @description Code à 6 chiffres de l'application, ou code de secours (ex. 7KQ4-M2XP). */
             code: string;
+        };
+        ContactAddress: {
+            /** @default  */
+            commune: string;
+            /** @default  */
+            quartier: string;
+            /** @default  */
+            avenue: string;
+            /** @default  */
+            number: string;
+        };
+        ContactAddressRequest: {
+            /** @default  */
+            commune: string;
+            /** @default  */
+            quartier: string;
+            /** @default  */
+            avenue: string;
+            /** @default  */
+            number: string;
+        };
+        ContactChange: {
+            /** Format: uuid */
+            readonly id: string;
+            family: components["schemas"]["ContactChangeFamily"];
+            changes: components["schemas"]["Changes"];
+            status: components["schemas"]["ContactChangeStatusEnum"];
+            /** Format: date-time */
+            readonly created_at: string;
+            readonly handled_by: string | null;
+            /** Format: date-time */
+            handled_at: string | null;
+        };
+        ContactChangeFamily: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Family code */
+            code: string;
+            readonly parent: string;
+            readonly phone: string;
+            readonly children: string[];
+        };
+        /**
+         * @description * `pending` - To review
+         *     * `applied` - Applied
+         *     * `dismissed` - Not applied
+         * @enum {string}
+         */
+        ContactChangeStatusEnum: "pending" | "applied" | "dismissed";
+        /**
+         * @description Coordonnées que le parent tient à jour : adresse (celle de ses enfants), e-mail (le
+         *     sien), contact d'urgence. Le numéro de son compte ne change pas ici.
+         */
+        ContactDetailsRequest: {
+            address: components["schemas"]["ContactAddressRequest"];
+            email: string;
+            emergency_contact: components["schemas"]["EmergencyContactRequest"];
         };
         /**
          * @description * `1` - 1
@@ -3427,6 +3574,32 @@ export interface components {
         };
         /** @enum {string} */
         DomainEnum: "account" | "announcements" | "audit" | "auth" | "devices" | "finance" | "organisation" | "portal" | "roles" | "school" | "staff" | "students" | "support";
+        EmailChange: {
+            before: string;
+            after: string;
+        };
+        EmergencyChange: {
+            before: components["schemas"]["EmergencyContact"];
+            after: components["schemas"]["EmergencyContact"];
+        };
+        EmergencyContact: {
+            /** @default  */
+            full_name: string;
+            /**
+             * @description Ex. 0971234567.
+             * @default
+             */
+            phone: string;
+        };
+        EmergencyContactRequest: {
+            /** @default  */
+            full_name: string;
+            /**
+             * @description Ex. 0971234567.
+             * @default
+             */
+            phone: string;
+        };
         Enrollment: {
             /** Format: uuid */
             readonly id: string;
@@ -4138,6 +4311,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["CashSessionClosing"][];
         };
+        PaginatedContactChangeList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["ContactChange"][];
+        };
         PaginatedDeviceList: {
             /** @example 123 */
             count: number;
@@ -4683,6 +4871,17 @@ export interface components {
             phone: string;
             name: string;
             language: components["schemas"]["LanguageEnum"];
+        };
+        /**
+         * @description Coordonnées que le parent tient à jour : adresse (celle de ses enfants), e-mail (le
+         *     sien), contact d'urgence. Le numéro de son compte ne change pas ici.
+         */
+        PortalProfile: {
+            address: components["schemas"]["ContactAddress"];
+            email: string;
+            emergency_contact: components["schemas"]["EmergencyContact"];
+            /** @description Écoles qui n'ont pas encore traité les coordonnées envoyées. */
+            readonly pending_schools: string[];
         };
         /**
          * @description * `thermal_58` - thermal_58
@@ -6299,6 +6498,8 @@ export interface operations {
                  *     * `students.family_code_renewed` - New family code
                  *     * `students.portal_suspended` - Parent portal access suspended
                  *     * `students.portal_restored` - Parent portal access restored
+                 *     * `students.contact_change_applied` - Contact details sent by the parent applied
+                 *     * `students.contact_change_dismissed` - Contact details sent by the parent not applied
                  *     * `portal.activated` - Parent portal activated
                  *     * `portal.password_reset` - Parent chose a new password
                  *     * `finance.fee_type_created` - Fee type created
@@ -6335,7 +6536,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "students.family_code_renewed" | "students.portal_suspended" | "students.portal_restored" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "students.family_code_renewed" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -6527,6 +6728,8 @@ export interface operations {
                  *     * `students.family_code_renewed` - New family code
                  *     * `students.portal_suspended` - Parent portal access suspended
                  *     * `students.portal_restored` - Parent portal access restored
+                 *     * `students.contact_change_applied` - Contact details sent by the parent applied
+                 *     * `students.contact_change_dismissed` - Contact details sent by the parent not applied
                  *     * `portal.activated` - Parent portal activated
                  *     * `portal.password_reset` - Parent chose a new password
                  *     * `finance.fee_type_created` - Fee type created
@@ -6563,7 +6766,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "students.family_code_renewed" | "students.portal_suspended" | "students.portal_restored" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.family_code_printed" | "students.family_code_renewed" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -8273,6 +8476,160 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    contact_changes_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /**
+                 * @description À traiter (par défaut), traitées (appliquées ou non) ou toutes.
+                 *
+                 *     * `pending` - pending
+                 *     * `handled` - handled
+                 *     * `all` - all
+                 */
+                status?: "pending" | "handled" | "all";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedContactChangeList"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    contact_changes_apply_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this contact details change. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactChange"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    contact_changes_dismiss_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this contact details change. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactChange"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -11008,6 +11365,74 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    portal_profile_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalProfile"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    portal_profile_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContactDetailsRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ContactDetailsRequest"];
+                "multipart/form-data": components["schemas"]["ContactDetailsRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalProfile"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

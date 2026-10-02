@@ -239,3 +239,46 @@ class StudentImport(TenantModel):
 
     def __str__(self) -> str:
         return self.file_name
+
+
+class ContactChange(TenantModel):
+    """Coordonnées envoyées par un parent depuis le portail (H5, M18) : une demande par école où
+    il a une famille ; le secrétariat l'applique à la copie de son école, ou pas. `created_by` :
+    le compte du parent. `changes` : seulement ce qui diffère de l'école au moment de l'envoi,
+    `{champ: {"before": …, "after": …}}` (champs : `CONTACT_FIELDS`)."""
+
+    class Status(models.TextChoices):
+        PENDING = "pending", _("To review")
+        APPLIED = "applied", _("Applied")
+        DISMISSED = "dismissed", _("Not applied")
+
+    family = models.ForeignKey(
+        Family, on_delete=models.CASCADE, related_name="contact_changes", verbose_name=_("family")
+    )
+    changes = models.JSONField(_("changes"))
+    status = models.CharField(
+        _("status"), max_length=10, choices=Status.choices, default=Status.PENDING
+    )
+    handled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("handled by"),
+    )
+    handled_at = models.DateTimeField(_("handled at"), null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        verbose_name = _("contact details change")
+        verbose_name_plural = _("contact details changes")
+        constraints = [
+            # Un nouvel envoi du parent remplace sa demande pas encore traitée.
+            models.UniqueConstraint(
+                fields=["family"], condition=Q(status="pending"), name="one_pending_contact_change"
+            )
+        ]
+
+    def __str__(self) -> str:
+        return str(self.family)

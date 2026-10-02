@@ -8,6 +8,7 @@ from apps.accounts.serializers import LoginSerializer, PhoneField
 from apps.core.money import Currency
 from apps.finance.serializers import BalanceSerializer, LastPaymentSerializer
 from apps.portal import children, families
+from apps.students.serializers import ContactDetailsSerializer
 
 _PASSWORD = {"max_length": 128, "trim_whitespace": False, "style": {"input_type": "password"}}
 _REMEMBER = {"default": False, "help_text": "« Rester connecté » : 30 jours sur ce téléphone."}
@@ -151,4 +152,12 @@ class ReadSerializer(serializers.Serializer):
         child=serializers.UUIDField(),
         max_length=100,
         help_text="Annonces affichées ; celles qui ne visent pas la famille sont ignorées.",
+    )
+
+
+class PortalProfileSerializer(ContactDetailsSerializer):
+    pending_schools = serializers.ListField(
+        child=serializers.CharField(),
+        read_only=True,
+        help_text="Écoles qui n'ont pas encore traité les coordonnées envoyées.",
     )
