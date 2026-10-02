@@ -22,6 +22,7 @@ from rest_framework.views import APIView
 
 from apps.accounts.permissions import HasSchoolPermission, school_access
 from apps.accounts.roles import (
+    ANNOUNCEMENTS_PUBLISH,
     CLASSES_MANAGE,
     FEES_READ,
     FINANCE_CONFIGURE_FEES,
@@ -190,7 +191,7 @@ class _OrganisationViewSet(SchoolViewSet):
     @property
     def required_permission(self) -> str | tuple[str, ...]:
         if self.shared_reads and self.action in {"list", "retrieve"}:
-            return (CLASSES_MANAGE, STUDENTS_VIEW, *FEES_READ)
+            return (CLASSES_MANAGE, STUDENTS_VIEW, ANNOUNCEMENTS_PUBLISH, *FEES_READ)
         return CLASSES_MANAGE
 
     http_method_names = ["get", "post", "put", "patch", "delete", "head", "options"]

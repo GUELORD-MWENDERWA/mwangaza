@@ -97,6 +97,10 @@ export function renderValue(
       return String(value) in fr.audit.values
         ? t(`audit.values.${value as "totp"}`)
         : String(value);
+    case "audience":
+      return t(`announcements.audiences.${value as "all_families"}`);
+    case "class_groups":
+      return (value as string[]).join(", ");
     case "cycle":
       return t(`cycles.${value as "basic"}`);
     case "template":

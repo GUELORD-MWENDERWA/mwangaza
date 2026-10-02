@@ -38,6 +38,7 @@ export const keys = {
   credits: ["student-credits"],
   unpaid: ["unpaid"],
   dashboard: ["dashboard"],
+  announcements: ["announcements"],
   myDevices: ["my-devices"],
   schoolDevices: ["school-devices"],
   /** L'appareil mémorisé dans ce navigateur (code PIN), pas le serveur. */

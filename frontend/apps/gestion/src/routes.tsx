@@ -5,6 +5,7 @@ import type { RouteObject } from "react-router";
 
 import { AccountPage } from "./features/account/AccountPage";
 import { AccountTwoFactorPage } from "./features/account/AccountTwoFactorPage";
+import { AnnouncementsPage } from "./features/announcements/AnnouncementsPage";
 import { AuditPage } from "./features/audit/AuditPage";
 import { CodePage } from "./features/auth/CodePage";
 import { LoginLayout } from "./features/auth/LoginLayout";
@@ -60,6 +61,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   roles: <RolesPage />,
   devices: <DevicesPage />,
   audit: <AuditPage />,
+  announcements: <AnnouncementsPage />,
 };
 
 const menuItem = (key: MenuKey) => MENU_ITEMS.find((item) => item.key === key)!;

@@ -39,6 +39,8 @@ SCHOOL_CONFIGURE = "school.configure"
 CLASSES_MANAGE = "classes.manage"
 # Gérer les rôles et les comptes du personnel : une école garde toujours un compte actif qui l'a.
 ROLES_MANAGE = "roles.manage"
+# Publier et archiver les annonces aux familles (H4).
+ANNOUNCEMENTS_PUBLISH = "announcements.publish"
 # Lire le journal d'audit de l'école (M6).
 AUDIT_VIEW = "audit.view"
 # Élèves, familles et inscriptions (D2-D4) : lire, puis créer et modifier.

@@ -312,6 +312,208 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/announcements/:
+    get:
+      operationId: announcements_list
+      description: |-
+        Annonces de l'école aux familles (H4), les plus récentes d'abord : publiées tout de suite,
+        jamais modifiées, seulement archivées (retirées du portail).
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - announcements
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAnnouncementList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: announcements_create
+      description: |-
+        Annonces de l'école aux familles (H4), les plus récentes d'abord : publiées tout de suite,
+        jamais modifiées, seulement archivées (retirées du portail).
+      tags:
+      - announcements
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AnnouncementCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/announcements/{id}/archive/:
+    post:
+      operationId: announcements_archive_create
+      description: Retire l'annonce du portail des familles.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this announcement.
+        required: true
+      tags:
+      - announcements
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/announcements/{id}/attachment/:
+    get:
+      operationId: announcements_attachment_retrieve
+      description: PDF joint à l'annonce, jamais public.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this announcement.
+        required: true
+      tags:
+      - announcements
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: PDF.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/announcements/recipients/:
+    get:
+      operationId: announcements_recipients_retrieve
+      description: Nombre de familles qu'une annonce toucherait (« Publier pour 156
+        familles »).
+      parameters:
+      - in: query
+        name: audience
+        schema:
+          enum:
+          - all_families
+          - class_groups
+          type: string
+          minLength: 1
+        description: |-
+          * `all_families` - All families
+          * `class_groups` - Some classes
+        required: true
+      - in: query
+        name: class_groups
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+        description: Classes de l'année en cours (pour `class_groups`).
+      tags:
+      - announcements
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipients'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/audit/:
     get:
       operationId: audit_list
@@ -398,6 +600,8 @@ paths:
           - finance.credit_voided
           - finance.unpaid_exported
           - finance.statement_printed
+          - announcements.published
+          - announcements.archived
           - devices.registered
           - devices.revoked
           - audit.exported
@@ -482,6 +686,8 @@ paths:
           * `finance.credit_voided` - Student credit voided
           * `finance.unpaid_exported` - Unpaid fees exported
           * `finance.statement_printed` - Financial statement printed
+          * `announcements.published` - Announcement published
+          * `announcements.archived` - Announcement archived
           * `devices.registered` - Device remembered
           * `devices.revoked` - Device disconnected
           * `audit.exported` - Audit log exported
@@ -498,6 +704,7 @@ paths:
         schema:
           enum:
           - account
+          - announcements
           - audit
           - auth
           - devices
@@ -512,6 +719,7 @@ paths:
           minLength: 1
         description: |-
           * `account` - account
+          * `announcements` - announcements
           * `audit` - audit
           * `auth` - auth
           * `devices` - devices
@@ -729,6 +937,8 @@ paths:
           - finance.credit_voided
           - finance.unpaid_exported
           - finance.statement_printed
+          - announcements.published
+          - announcements.archived
           - devices.registered
           - devices.revoked
           - audit.exported
@@ -813,6 +1023,8 @@ paths:
           * `finance.credit_voided` - Student credit voided
           * `finance.unpaid_exported` - Unpaid fees exported
           * `finance.statement_printed` - Financial statement printed
+          * `announcements.published` - Announcement published
+          * `announcements.archived` - Announcement archived
           * `devices.registered` - Device remembered
           * `devices.revoked` - Device disconnected
           * `audit.exported` - Audit log exported
@@ -829,6 +1041,7 @@ paths:
         schema:
           enum:
           - account
+          - announcements
           - audit
           - auth
           - devices
@@ -843,6 +1056,7 @@ paths:
           minLength: 1
         description: |-
           * `account` - account
+          * `announcements` - announcements
           * `audit` - audit
           * `auth` - auth
           * `devices` - devices
@@ -7303,6 +7517,8 @@ components:
       - finance.credit_voided
       - finance.unpaid_exported
       - finance.statement_printed
+      - announcements.published
+      - announcements.archived
       - devices.registered
       - devices.revoked
       - audit.exported
@@ -7386,6 +7602,8 @@ components:
         * `finance.credit_voided` - Student credit voided
         * `finance.unpaid_exported` - Unpaid fees exported
         * `finance.statement_printed` - Financial statement printed
+        * `announcements.published` - Announcement published
+        * `announcements.archived` - Announcement archived
         * `devices.registered` - Device remembered
         * `devices.revoked` - Device disconnected
         * `audit.exported` - Audit log exported
@@ -7478,6 +7696,95 @@ components:
       - cancellations_per_day
       - closing_time
       - difference_minor
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        body:
+          type: string
+          readOnly: true
+          title: Message
+        audience:
+          allOf:
+          - $ref: '#/components/schemas/AudienceEnum'
+          readOnly: true
+          title: Recipients
+        class_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClassGroupName'
+          readOnly: true
+        attachment:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Adresse du PDF joint (`GET …/attachment/`) ; null sans pièce
+            jointe.
+        published_at:
+          type: string
+          format: date-time
+          readOnly: true
+        published_by:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+          nullable: true
+        archived_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - id
+      - title
+      - body
+      - audience
+      - class_groups
+      - attachment
+      - published_at
+      - published_by
+      - archived_at
+    AnnouncementCreateRequest:
+      type: object
+      properties:
+        audience:
+          $ref: '#/components/schemas/AudienceEnum'
+        class_groups:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Classes de l'année en cours (pour `class_groups`).
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+        body:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        attachment:
+          type: string
+          format: binary
+          description: PDF, 5 Mo au plus.
+      required:
+      - audience
+      - body
+      - title
+    AudienceEnum:
+      enum:
+      - all_families
+      - class_groups
+      type: string
+      description: |-
+        * `all_families` - All families
+        * `class_groups` - Some classes
     AuditActor:
       type: object
       properties:
@@ -8368,6 +8675,20 @@ components:
       required:
       - academic_year
       - level
+    ClassGroupName:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+          description: « 4e Électricité A ».
+      required:
+      - id
+      - name
     ClosingCurrency:
       type: object
       properties:
@@ -9190,6 +9511,7 @@ components:
     DomainEnum:
       enum:
       - account
+      - announcements
       - audit
       - auth
       - devices
@@ -10496,6 +10818,31 @@ components:
         * `applied` - applied
         * `duplicate` - duplicate
         * `rejected` - rejected
+    PaginatedAnnouncementList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Announcement'
     PaginatedAuditLogList:
       type: object
       required:
@@ -11680,6 +12027,14 @@ components:
       - header
       - printer
       - sheet_size
+    Recipients:
+      type: object
+      properties:
+        families:
+          type: integer
+          description: Familles qui recevront l'annonce (une fratrie compte une fois).
+      required:
+      - families
     RecoveryCodes:
       type: object
       properties:

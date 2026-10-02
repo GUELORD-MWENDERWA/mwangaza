@@ -120,7 +120,7 @@ Règles :
 
 ## 5. Notifications et annonces
 
-**Announcement [T]** — `title`, `body`, `audience` (`all_families`, `class_group`, `staff`), `class_group` (optionnel), `published_at`, `attachment`.
+**Announcement [T]** — `title`, `body`, `audience` (`all_families`, `class_groups` ; `staff` avec 5.8), `class_groups` (une ou plusieurs classes de l'année en cours), `attachment` (PDF, 5 Mo, jamais public), `published_at`, `archived_at`, `archived_by`. Publiée dès sa création, jamais modifiée ensuite (des familles l'ont peut-être lue) : on l'archive (retirée du portail) et on en publie une autre. Familles touchées : celles qui ont un enfant inscrit (actif) cette année dans les classes visées ; une fratrie compte une fois (4.3).
 
 **PushSubscription [G]** — `user`, `endpoint`, `keys`, `user_agent`, `created_at`.
 

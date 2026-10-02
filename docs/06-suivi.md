@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 4 (Rapports, portail, production) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 4.2 terminée, PR #118 à fusionner |
-| Prochaine tâche | 4.3 |
-| Issue GitHub | #30 |
-| Branche | `tache/4.2-tableau-de-bord` (PR #118) ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.3 terminée, PR #119 à fusionner |
+| Prochaine tâche | 4.4 |
+| Issue GitHub | #31 |
+| Branche | `tache/4.3-annonces` (PR #119) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-01 |
 
 ## Avancement
@@ -22,8 +22,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 3 | 9 |
-| **V1.0** | **37** | **43** |
+| Semaine 4 — Rapports, portail, production | 4 | 9 |
+| **V1.0** | **38** | **43** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-01 — Tâche 4.3 : annonces côté école
+- Fait : app `notifications`, `Announcement` et `/api/announcements/` (`announcements.publish`) : publication à toutes les familles ou à certaines classes de l'année, PDF joint (jamais public), nombre de familles touchées (« Publier pour 156 familles »), archivage ; écran « Annonces » (formulaire, aperçu, liste Publiées / Archivées) ; 3 annonces fictives par école dans `make demo`.
+- Tests : isolation (école beta : ni liste, ni archivage, ni PDF, ni classes de l'autre école), 403 caissier, familles touchées (fratrie une fois, élève qui a abandonné exclu), PDF refusé, audit de la publication et de l'archivage ; écran : classe exigée, classes envoyées.
+- Décisions : plusieurs classes par annonce (comme la maquette, `04` mis à jour) ; jamais modifiée après publication, seulement archivée ; destinataire « Personnel » reporté à 5.8 et « lue par N familles » à 4.4 (`05`).
+- Suite : 4.4 (portail des familles).
 
 ### 2026-10-01 — Tâche 4.2 : tableau de bord directeur et seuils d'alerte
 - Fait : `GET /api/dashboard/` (`finance.view_reports` : directeur, comptable, promoteur) et écran « Tableau de bord » : encaissé aujourd'hui et ce mois (comparé à la même période du mois d'avant), 21 derniers jours, impayés échus, taux de recouvrement, effectifs par classe, option et sexe, recouvrement par classe (→ impayés filtrés), 5 derniers paiements ; alertes : annulations à valider, caisses pas clôturées, écarts et annulations au-delà des seuils. Seuils de l'école dans les paramètres (carte « Alertes au directeur », M5).
