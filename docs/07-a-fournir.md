@@ -83,10 +83,10 @@ Déposer les fichiers dans `docs/ecole-pilote/depot/` puis `/document-ecole`. Po
 
 | # | Sujet | Quand | Fait |
 |---|---|---|:-:|
-| T1 | **Nom et domaine** (Q9) — **tranché le 2026-09-26 : Mwangaza, `mwangaza.school`** ; reste à vérifier la disponibilité et acheter le domaine avant 4.6 (`A-FAIRE.md` § 9) | maintenant ; domaine acheté avant 4.6 | [x] |
+| T1 | **Nom et domaine** (Q9) — **tranché le 2026-09-26 : Mwangaza, `mwangaza.school`** ; reste à vérifier la disponibilité et acheter le domaine avant la mise en ligne, 4.6.2 (`A-FAIRE.md` § 9 ; la 4.6.1 s'en passe : `make prod-local`) | maintenant ; domaine acheté avant 4.6 | [x] |
 | T2 | Valider les propositions Q1 à Q11 de `06-suivi.md` — **tranché le 2026-09-26** (journal de `06-suivi.md`) | avant 1.2 | [x] |
 | T3 | Maquettes : les fournir, ou laisser Claude les dessiner (défaut) — **tranché le 2026-09-26 : Claude dessine** ; reste à valider les maquettes dessinées (PR) | maintenant | [x] |
-| T4 | Comptes : VPS, Cloudflare, stockage objet, suivi d'erreurs (Sentry ou GlitchTip) | avant 4.6 | [ ] |
+| T4 | Comptes : VPS, Cloudflare, stockage objet, suivi d'erreurs (Sentry ou GlitchTip) | VPS et Cloudflare avant 4.6.2 ; le reste avant 4.7 | [ ] |
 | T5 | Conditions d'utilisation, politique de confidentialité, contrat de traitement des données avec l'ITIG (Claude peut rédiger un brouillon) | avant 4.8 | [ ] |
 | T6 | Tarif du pilote ITIG (gratuit pendant l'essai ?) | avant 4.8 | [ ] |
 

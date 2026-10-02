@@ -6,11 +6,14 @@ export $(shell sed -n 's/^\([A-Z_][A-Z0-9_]*\)=.*/\1/p' .env)
 endif
 
 COMPOSE := docker compose -f infra/docker-compose.dev.yml
+# Essai de la production sur la machine : mêmes images que le serveur, valeurs de infra/local.env.
+PROD_LOCAL := docker compose -f infra/docker-compose.yml --env-file infra/local.env -p mwangaza-essai
 MANAGE := cd backend && uv run python manage.py
 
 .DEFAULT_GOAL := help
 .PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp messages superuser shell \
-	test test-back test-front test-e2e lint lint-back lint-front format api api-schema build
+	test test-back test-front test-e2e lint lint-back lint-front format api api-schema build \
+	prod-local prod-local-stop
 
 help: ## Afficher les commandes
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  make %-15s %s\n", $$1, $$2}'
@@ -112,3 +115,11 @@ api-schema: ## Seulement le schéma OpenAPI (CI du backend, sans pnpm)
 
 build: ## Construire les deux PWA
 	cd frontend && pnpm build
+
+prod-local: ## Essayer la production sur la machine (images du serveur, Caddy) : https://itig.localhost/app/
+	mkdir -p infra/certs
+	$(PROD_LOCAL) up --build --detach --wait
+	@echo "Prêt : https://itig.localhost/app/ · https://parents.localhost/ · https://admin.localhost/admin/ (certificat local : accepter l'avertissement)"
+
+prod-local-stop: ## Arrêter l'essai de la production (données gardées ; tout effacer : ajouter --volumes à la commande)
+	$(PROD_LOCAL) down

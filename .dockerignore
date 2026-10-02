@@ -1,0 +1,18 @@
+# Images de production (`infra/Dockerfile`) : seulement ce qui sert à les construire. Liste
+# blanche : jamais `prive/`, `depot/`, `.env`, ni les fichiers de la machine.
+*
+!backend
+!frontend
+!infra/Caddyfile
+**/node_modules
+**/__pycache__
+**/.venv
+**/.env
+**/.env.*
+**/dist
+**/*.tsbuildinfo
+backend/media
+backend/staticfiles
+frontend/e2e
+frontend/test-results
+frontend/playwright-report

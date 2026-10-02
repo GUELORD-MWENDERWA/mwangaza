@@ -32,6 +32,9 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 SECRET_KEY_FALLBACKS = env_list("DJANGO_SECRET_KEY_FALLBACKS")
 DEBUG = False
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS")
+# En-tête où le proxy (Caddy) écrit l'adresse du visiteur, ex. `HTTP_X_REAL_IP` ; vide : la
+# connexion elle-même (`REMOTE_ADDR`). Seulement si Django n'est joignable que par ce proxy.
+CLIENT_IP_HEADER = env("DJANGO_CLIENT_IP_HEADER")
 
 INSTALLED_APPS = [
     # Administration Django du super-admin, avec la double authentification.

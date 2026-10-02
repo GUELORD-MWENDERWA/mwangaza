@@ -1,0 +1,90 @@
+# Production (`docs/03-architecture-technique.md` § 2 et § 9), derrière Cloudflare.
+# Variables (`docker-compose.yml`) : MWANGAZA_DOMAIN (ex. mwangaza.school) et CADDY_TLS
+# (certificat d'origine Cloudflare sur le serveur ; `internal` pour l'essai sur la machine).
+{
+	servers {
+		# Adresse réelle du visiteur : `CF-Connecting-IP`, crue seulement si la requête vient de
+		# Cloudflare (https://www.cloudflare.com/ips/, relevé le 2026-10-02). Une requête venue
+		# d'ailleurs garde son adresse de connexion, quel que soit l'en-tête qu'elle envoie.
+		trusted_proxies static 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
+		client_ip_headers CF-Connecting-IP
+	}
+}
+
+(site) {
+	tls {$CADDY_TLS}
+	# Compression : API (instantané de synchronisation…) et fichiers.
+	encode zstd gzip
+}
+
+(django) {
+	reverse_proxy django:8000 {
+		# Lu par Django (`CLIENT_IP_HEADER`) ; remplace tout X-Real-IP envoyé par le visiteur.
+		header_up X-Real-IP {client_ip}
+	}
+}
+
+# Application construite : fichiers à empreinte gardés un an ; le reste (index.html, service
+# worker, manifeste) revalidé à chaque visite, sinon un appareil garderait l'ancienne version.
+(pwa) {
+	root * {args[0]}
+	@hashed path /assets/*
+	@other not path /assets/*
+	header @hashed Cache-Control "public, max-age=31536000, immutable"
+	header @other Cache-Control "no-cache"
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy same-origin
+	}
+	try_files {path} /index.html
+	file_server
+}
+
+# Une école : {code}.mwangaza.school (le code est lu par Django dans le nom d'hôte).
+*.{$MWANGAZA_DOMAIN} {
+	import site
+	handle /api/* {
+		import django
+	}
+	# Vérification publique d'un reçu ou d'une situation financière (QR code).
+	handle /v/* {
+		import django
+	}
+	handle_path /app/* {
+		import pwa /srv/gestion
+	}
+	# Plus tard : site vitrine de l'école (`03` § 2).
+	handle {
+		redir * /app/
+	}
+}
+
+# Portail des familles (une famille peut avoir des enfants dans plusieurs écoles).
+parents.{$MWANGAZA_DOMAIN} {
+	import site
+	handle /api/* {
+		import django
+	}
+	handle {
+		import pwa /srv/portail
+	}
+}
+
+# Super-admin : administration Django.
+admin.{$MWANGAZA_DOMAIN} {
+	import site
+	handle /static/* {
+		root * /srv
+		header Cache-Control "public, max-age=86400"
+		file_server
+	}
+	handle {
+		import django
+	}
+}
+
+# Domaine nu : vers le portail des familles, en attendant un site de présentation.
+{$MWANGAZA_DOMAIN}, www.{$MWANGAZA_DOMAIN} {
+	import site
+	redir https://parents.{$MWANGAZA_DOMAIN}{uri}
+}

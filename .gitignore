@@ -23,6 +23,9 @@ htmlcov/
 backend/media/
 backend/staticfiles/
 
+# Production : certificat d'origine (infra/certs/origin.pem et .key)
+infra/certs/
+
 # Node
 node_modules/
 dist/
