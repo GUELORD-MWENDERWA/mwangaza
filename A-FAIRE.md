@@ -32,9 +32,10 @@ Dernière mise à jour : 2026-09-26 (PR #83 fusionnée ; tâche 1.5 : super-admi
 | 16 | Installer gettext une fois : `sudo apt install gettext` (outils des traductions du serveur, pour `make messages`) — fait le 2026-09-27 | 2 min | [x] |
 | 17 | [Mise en ligne : hébergement et domaine](#9-mise-en-ligne-462--comptes-et-achats) (§ 9) : **quand tu le décides**, ne bloque plus rien (2026-10-02) — la production est prête et s'essaie sur ta machine (`make prod-local`) ; démonstration gratuite possible, vraies données d'une école seulement avec le vrai domaine | 1 h | [ ] |
 | 18 | **Relire et fusionner la PR du nouveau découpage des versions** (branche `docs/plan-versions`) — fusionnée le 2026-10-02 ; jalons V1.3, V1.4 et issues renumérotées sur GitHub par Claude : V1.0 close avec 4.9 et 4.10, puis V1.1 plateforme et notifications, V1.2 carte et présences, V1.3 paie, V1.4 notes | 15 min | [x] |
-| 19 | **Relire et fusionner la PR de la tâche 4.9** (invitation des familles au portail) : suivre « À tester toi-même » de la PR | 15 min | [ ] |
+| 19 | **Relire et fusionner la PR de la tâche 4.9** (invitation des familles au portail) : suivre « À tester toi-même » de la PR | 15 min | [x] |
+| 20 | **Relire et fusionner la PR de la tâche 4.10** (guide de la V1.0 en PDF) : lire `docs/guide/guide-v1.0.pdf` dans la PR ; ensuite tu peux l'envoyer aux écoles | 20 min | [ ] |
 
-À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). La V1.0 est faite : il reste à la clore (4.10 guide PDF ; 4.9 invitation des familles : PR à fusionner), puis la V1.1. Mise en ligne quand tu veux (ligne 17). [Rien à demander à l'ITIG](#8-litig--rien-à-demander).
+À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). La V1.0 est faite, guide PDF compris (`docs/guide/guide-v1.0.pdf`, PR de la 4.10 à fusionner) ; ensuite la V1.1. Mise en ligne quand tu veux (ligne 17). [Rien à demander à l'ITIG](#8-litig--rien-à-demander).
 
 ---
 
@@ -288,6 +289,7 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make format` | corrige automatiquement le format et ce qui peut l'être | quand `make lint` signale un problème de format |
 | `make api` | écrit le schéma OpenAPI dans `frontend/packages/api/openapi.yaml`, puis les types TypeScript du client (`src/schema.d.ts`) ; `make api-schema` : seulement le schéma | après tout changement d'API |
 | `make build` | construit les deux applications ; la Gestion devient installable (service worker) : l'essayer avec `cd frontend/apps/gestion && pnpm preview`, puis http://itig.localhost:4173/app/ | avant la mise en production |
+| `make guide` | écrit le guide de la version en PDF, `docs/guide/guide-v1.0.pdf` (ce qu'elle fait, rôle par rôle, avec des captures des écrans sur les données fictives ; ce qu'elle ne fait pas encore ; la suite) : se connecte avec chaque compte fictif, prend les captures, puis imprime le guide ; **remet les données de `make demo` à zéro, avant et après** ; lance Django, la Gestion et le Portail, ou réutilise ceux de `make dev` / `make dev-local` (≈ 3 min) | à la fin de chaque version (Claude met le texte à jour) ; le PDF est dans Git, prêt à envoyer |
 | `make prod-local` | essaie la production sur ta machine : construit les mêmes images que le serveur (Gestion et Portail construits, Django avec gunicorn, Caddy en HTTPS) et les lance ; puis https://itig.localhost/app/, https://parents.localhost/, https://admin.localhost/admin/ (certificat local : accepter l'avertissement du navigateur). Base vide : `make demo` y est refusé | pour voir la production avant la mise en ligne ; la première fois ≈ 10 min (téléchargements) |
 | `make prod-local-stop` | arrête cet essai ; ses données sont gardées (`docker compose -p mwangaza-essai down --volumes` pour tout effacer) | après l'essai |
 | `make superuser` | crée un compte super-administrateur (identifiant : ton numéro de téléphone) ; à sa première connexion à l'administration, il active la double authentification (clé à saisir dans Google Authenticator ou Aegis) | rarement : `make demo` en crée un (`0000000000`) |
@@ -304,7 +306,6 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 |---|---|---|
 | commande de déploiement (`make deploy`) | 4.6.2 | met en production sur le VPS en une commande |
 | sauvegarde et restauration | 4.7 | sauvegarde de la base, test de restauration |
-| `make guide` | 4.10 | guide de la version en PDF (ce qu'elle fait, rôle par rôle, ses limites) |
 
 ### Adresses en développement
 

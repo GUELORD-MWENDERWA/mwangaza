@@ -95,6 +95,9 @@ test-front: ## Tests front : vérification des types puis Vitest
 test-e2e: db-up ## Parcours dans Chromium (Playwright) : Django + Gestion ; remet les données de make demo à zéro
 	cd frontend && pnpm exec playwright test
 
+guide: db-up ## Guide de la version en PDF (docs/guide/) : captures des écrans de chaque rôle sur make demo
+	cd frontend && pnpm exec playwright test -c guide/playwright.config.ts
+
 lint: lint-back lint-front ## Vérifier le code sans rien modifier (ruff, ESLint, Prettier)
 
 lint-back: ## Vérifier le code Python (ruff)

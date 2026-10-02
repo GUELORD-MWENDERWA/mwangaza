@@ -6,7 +6,7 @@ Objectif demandé : une première version utilisable en **un mois**, développé
 
 | Lot | But |
 |---|---|
-| **V1.0** — finances, caisse, portail parents | Une école encaisse ses frais, même sans internet, et les parents voient les paiements. **Faite** ; il reste le guide PDF (4.10 ; invitation des familles faite en 4.9), puis elle est mise de côté ; mise en ligne quand l'utilisateur le décide. |
+| **V1.0** — finances, caisse, portail parents | Une école encaisse ses frais, même sans internet, et les parents voient les paiements. **Faite**, guide PDF compris (4.10 : `docs/guide/guide-v1.0.pdf`), puis mise de côté ; mise en ligne quand l'utilisateur le décide. |
 | **V1.1** — plateforme, notifications, communication | Identité de la plateforme configurable (nom, logo…), console de la plateforme avec son propre design (au lieu de l'administration Django), notifications sur l'écran même application fermée, communication de l'école. |
 | **V1.2** — carte unique et présences | Une carte par élève et par membre du personnel (puce NFC + QR + photo), liée en une seconde ; pointage par la puce (téléphone Android enregistré, lecteur ESP32) ou par le QR (n'importe quel appareil enregistré) ; présences suivies et signalées aux parents. |
 | **V1.3** — personnel, paie, dépenses | Dossiers du personnel, paie, dépenses, espace enseignant, congés, pénalités de retard. |

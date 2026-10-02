@@ -24,8 +24,14 @@ export default defineConfig([
     languageOptions: { globals: globals.browser },
   },
   {
-    // Fichiers lus par Node : configurations de Vite, Vitest, ESLint, Playwright ; parcours `e2e/`.
-    files: ["**/*.config.{ts,mjs,js}", "**/*.config.test.ts", "e2e/**", "vitest.setup.ts"],
+    // Fichiers lus par Node : configurations de Vite, Vitest, ESLint, Playwright ; `e2e/` et `guide/`.
+    files: [
+      "**/*.config.{ts,mjs,js}",
+      "**/*.config.test.ts",
+      "e2e/**",
+      "guide/**",
+      "vitest.setup.ts",
+    ],
     languageOptions: { globals: globals.node },
   },
   prettier,

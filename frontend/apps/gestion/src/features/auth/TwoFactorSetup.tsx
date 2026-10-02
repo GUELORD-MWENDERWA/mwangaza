@@ -81,7 +81,7 @@ export function TwoFactorSetup({
           />
         </CardContent>
       </Card>
-      <div className="grid items-start gap-4 min-[900px]:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-4 min-[900px]:grid-cols-2">
         <Card>
           <form noValidate onSubmit={submit}>
             <CardContent className="flex flex-col gap-3">

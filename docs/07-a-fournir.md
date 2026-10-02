@@ -37,7 +37,7 @@ Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, compt
 
 ### V1.0 — clôture
 
-Dessinées par Claude en 4.9 (à valider) : invitations au portail et suivi des comptes activés (`gestion/invitations-portail`), lettre d'invitation, deux par A4 (`gestion/lettre-invitation`). À dessiner au début de la tâche : mise en page du guide PDF de la V1.0 (4.10).
+Dessinées par Claude en 4.9 (à valider) : invitations au portail et suivi des comptes activés (`gestion/invitations-portail`), lettre d'invitation, deux par A4 (`gestion/lettre-invitation`). Dessinée par Claude en 4.10 (à valider) : mise en page du guide PDF de la version, qui est sa propre maquette (`frontend/guide/guide.html`, jetons du design, résultat `docs/guide/guide-v1.0.pdf`).
 
 ### V1.1 — plateforme, notifications, communication
 

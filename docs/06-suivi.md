@@ -6,12 +6,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | V1.0 — clôture (4.10), puis V1.1 |
+| Phase | V1.0 close (guide PDF fait), puis V1.1 |
 | Lot | V1.0 ; découpage des versions revu le 2026-10-02 |
-| Tâche en cours | aucune — 4.9 terminée (PR à fusionner) |
-| Prochaine tâche | 4.10 (guide PDF de la V1.0), puis 5.1 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
-| Issue GitHub | #130 |
-| Branche | `tache/4.9-invitations` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.10 terminée (PR à fusionner) |
+| Prochaine tâche | 5.1 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
+| Issue GitHub | #131 |
+| Branche | `tache/4.10-guide` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-02 |
 
 ## Avancement
@@ -22,8 +22,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 13 | 16 |
-| **V1.0** | **47** | **50** |
+| Semaine 4 — Rapports, portail, production | 14 | 16 |
+| **V1.0** | **48** | **50** |
 | V1.1 — plateforme, notifications, communication | 0 | 7 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-02 — Tâche 4.10 : guide de la V1.0 en PDF
+- Fait : `docs/guide/guide-v1.0.pdf` (16 pages) : la version en bref, se connecter, rôle par rôle (directeur, promoteur, comptable, caissier, secrétaire, études, discipline, enseignant, parent, super-admin) avec captures sur `make demo`, hors ligne et contrôle de l'argent, ce qui manque et V1.1 → V2. `make guide` : `frontend/guide/` (config Playwright à part, `captures.spec.ts`, `guide.html`). Trouvé en chemin : l'écran d'activation de la double authentification débordait de 32 px à 390 px (grilles sans colonne bornée dans `AuthFrame` et `TwoFactorSetup`), corrigé.
+- Tests : aucun test automatique (document) ; le script échoue si un écran ou une capture manque ; `make lint`.
+- Décisions : PDF par Chromium de Playwright, sans dépendance ; PDF dans Git, captures hors Git ; pas dans la CI ; guide en français ; régénéré à la fin de chaque version (`05`).
+- Suite : fusion, puis 5.1 (V1.1).
 
 ### 2026-10-02 — Tâche 4.9 : invitation des familles au portail
 - Fait : écran « Invitations au portail » (`/app/students/invitations`) : familles activées par classe et pour l'école, familles de la classe avec l'état de leur portail (pas encore activé, activé, numéro manquant, code expiré, suspendu) ; lettres de la classe en PDF (deux par A4) ; lettre et message WhatsApp / SMS par famille, aussi depuis la fiche famille ; le Portail préremplit le code venu du QR (`/activate#…`). Maquettes `invitations-portail` et `lettre-invitation` dessinées. Démo : ~1 famille sur 3 activée.
