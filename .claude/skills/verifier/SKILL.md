@@ -25,6 +25,7 @@ Périmètre : `git diff main...HEAD --stat` + `git status`, puis les passages ut
 | 12 | Secrets | Aucun `.env`, mot de passe, clé ou jeton ajouté. Aucune donnée personnelle réelle de l'ITIG hors de `docs/ecole-pilote/prive/`. |
 | 13 | Tests et qualité | Lint et tests lancés une fois à la fin, résultat réel montré. Tests utiles seulement (isolation, permissions, argent, audit, règles métier) ; aucun test d'isolation, de permission, d'argent ou d'audit supprimé. Pas de N+1 dans les nouvelles listes, listes paginées. |
 | 14 | Suivi | Tâche cochée dans `docs/05`, `docs/06-suivi.md` à jour (état, compteur, journal de 3 à 5 lignes), décision notée dans `docs/03` seulement si c'en est une vraie. |
+| 15 | Autres `.md` | Chaque nouvel écran, API, commande ou donnée de `make demo` du diff figure dans `CLAUDE.md` (Commandes, Adresses en dev) **et** `A-FAIRE.md` § 11 ; `07` § 4 décrit ce que crée `make demo` ; écart à une maquette noté dans `maquettes/README.md` ; action de l'utilisateur dans `A-FAIRE.md` « Maintenant » ; skills et README à jour si une façon de faire a changé (liste complète : `CLAUDE.md`, « Suivi du projet »). Un `.md` oublié = ✘, à corriger dans la PR. |
 
 ## Réponse
 

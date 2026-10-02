@@ -48,7 +48,12 @@ Tout ce qui est fait pendant la tâche va sur cette branche, dans la PR de la t�
 
 1. `docs/05-plan-de-travail.md` : cocher `- [x]`.
 2. `docs/06-suivi.md` : « État actuel » (tâche en cours = aucune, prochaine, date), compteur du bloc dans « Avancement », bloquants réglés retirés, **journal : 3 à 5 lignes** en haut — `### AAAA-MM-JJ — Tâche X.Y : titre` puis fait, tests, décisions, suite.
-3. `03` « Journal des décisions » seulement pour une vraie décision technique. `A-FAIRE.md` seulement si l'utilisateur a une action à faire. `CLAUDE.md` et skills seulement si une commande change.
+3. **Tous les autres `.md`, dans la même PR** (liste de `CLAUDE.md`, « Suivi du projet », fin d'une tâche). Pour chacun, se demander « la tâche le rend-il faux ou incomplet ? » et le corriger ; ne rien laisser « pour plus tard » :
+   - nouvel écran ou nouvelle API → « Adresses en dev » de `CLAUDE.md` **et** § 11 « Adresses en développement » de `A-FAIRE.md` ; nouveau modèle dans `make demo` → ligne `make demo` des deux fichiers **et** `07` § 4 ;
+   - action de l'utilisateur nouvelle, faite ou devenue urgente → `A-FAIRE.md` « Maintenant » (et § 8–9) ;
+   - décision technique → `03` « Journal des décisions » ; règle ou champ → `02` / `04` ; maquette dessinée, ou écran codé avec un écart à sa maquette → `07` § 1 et `maquettes/README.md` ;
+   - façon de faire, commande ou helper de test qui change → skills concernées (`.claude/skills/*/SKILL.md`) et README du dossier touché.
+   Vérification rapide : `git diff main --stat -- '*.md'` doit montrer chaque fichier concerné.
 4. Commits en français, style conventionnel, terminés par la ligne Co-Authored-By ; commit, push et PR sans redemander (autorisation générale de l'utilisateur).
 5. PR **unique**, `base: main` : `gh pr create --base main --title "<numéro> — <titre>" --body-file <fichier>` (modèle ci-dessous). **Ne jamais fusionner.** Corriger la description : `gh api -X PATCH repos/GUELORD-MWENDERWA/mwangaza/pulls/<n> -F body=@<fichier>` (`gh pr edit` échoue).
 6. **Pas d'attente à vide** : surveiller la CI **en arrière-plan** — `gh run list --branch <branche> --limit 1` jusqu'à ce que le passage existe (`gh pr checks --watch` lancé trop tôt répond « no checks »), puis `gh run watch <id> --exit-status` — et répondre tout de suite à l'utilisateur (étape 6), contrôles en cours. Vert : « ✅ contrôles verts, tu peux fusionner ». Rouge : `gh run view <id> --log-failed | tail -40`, corriger, pousser, le dire.

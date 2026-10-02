@@ -292,8 +292,17 @@ function CollectForm({
     onError: onRefused,
   });
   const ready = received > 0 && lines.length > 0 && surplus === 0 && !pay.isPending;
+  // Verrou immédiat : deux F9 avant le prochain rendu ne doivent ni enregistrer ni imprimer
+  // deux fois (`isPending` ne change qu'au rendu suivant).
+  const sending = useRef(false);
   const submit = () => {
-    if (ready) pay.mutate(lines);
+    if (!ready || sending.current) return;
+    sending.current = true;
+    pay.mutate(lines, {
+      onSettled: () => {
+        sending.current = false;
+      },
+    });
   };
   const formRef = useRef<HTMLFormElement>(null);
   useEffect(() => {

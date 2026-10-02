@@ -30,8 +30,9 @@ Dernière mise à jour : 2026-09-26 (PR #83 fusionnée ; tâche 1.5 : super-admi
 | 14 | **[Relire et fusionner la PR #85 (tâche 1.6)](#10-comment-relire-et-fusionner-une-pr)** (premiers écrans : connexion, menu, Mon compte, session support) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make install` (**nouvelles dépendances du front** : React Router, TanStack Query, Tailwind, composants, formulaires, PWA, client de l'API, QR code, outils de test) ; pour `make test-e2e`, une fois : `cd frontend && pnpm exec playwright install chromium` (Chromium de Playwright, ~115 Mo) | 30 min | [x] |
 | 15 | **[Relire et fusionner la PR #86 (tâche 1.7)](#10-comment-relire-et-fusionner-une-pr)** (organisation scolaire ; écrans Paramètres de l'école, Organisation scolaire, Comptes du personnel, Rôles et permissions, Journal d'audit) : suivre « À tester toi-même », **fusionner sur GitHub**, puis `git switch main && git pull && make migrate && make demo` (une migration : années, périodes, niveaux, options, classes, format du matricule) | 30 min | [x] |
 | 16 | Installer gettext une fois : `sudo apt install gettext` (outils des traductions du serveur, pour `make messages`) — fait le 2026-09-27 | 2 min | [x] |
+| 17 | **[Acheter le domaine, créer les comptes Cloudflare et VPS](#9-avant-la-semaine-4-tâche-46--comptes-et-achats)** (§ 9) : la tâche 4.6 (mise en production) vient juste après la 4.5 et ne peut pas commencer sans eux ; le stockage objet suit pour la 4.7 | 1 h | [ ] |
 
-À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). Rien d'autre ne bloque : Claude enchaîne les tâches. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant), et [les comptes et le domaine](#9-avant-la-semaine-4-tâche-46--comptes-et-achats) avant la semaine 4.
+À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). Claude enchaîne les tâches jusqu'à la 4.5 ; **la 4.6 attend la ligne 17**. Quand tu peux : [demander à l'ITIG](#8-litig--quoi-demander) ce qui reste (rien n'est bloquant).
 
 ---
 
@@ -290,14 +291,14 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make reset-db` | **efface** la base de développement (et celle des tests), puis la recrée : migrations et données fictives (`make demo`) | quand une PR le demande (ex. tâche 1.2), ou si `make migrate` affiche `InconsistentMigrationHistory` ; tu ne perds que des données fictives |
 | `make migrate` | applique les migrations à la base | après un `git pull` qui ajoute des migrations |
 | `make makemigrations app=finance name=exchange_rate` | crée une migration | après un changement de modèle |
-| `make demo` | crée ou remet à jour les données fictives : écoles `itig` et `volcans` avec leur année 2026-2027, leurs classes, leur format de matricule, leurs frais (grille fictive) et leur taux de l'année, un compte par rôle et un compte parent du portail (liste, mot de passe et clé de double authentification affichés à la fin ; plus de données à chaque tâche) ; débloque les connexions bloquées par des essais ratés ; refusé en production | après `make migrate`, ou pour remettre la démonstration à zéro |
+| `make demo` | crée ou remet à jour les données fictives : écoles `itig` et `volcans` avec leur année 2026-2027, leurs classes, leur format de matricule, leurs frais (grille fictive) et leur taux de l'année ; ~800 élèves à l'ITIG et ~150 aux Volcans avec leurs familles ; réductions, caisses, paiements depuis la rentrée, crédits et demandes d'annulation ; annonces ; un compte par rôle et un compte parent du portail, trois demandes de coordonnées des parents (liste des comptes, mot de passe et clé de double authentification affichés à la fin ; détail : `docs/07-a-fournir.md` § 4) ; débloque les connexions bloquées par des essais ratés ; refusé en production | après `make migrate`, ou pour remettre la démonstration à zéro |
 | `make totp` | affiche le code de double authentification du moment pour les comptes fictifs qui la demandent (super-admin, directeur, comptable, caissière) ; `make totp key=<clé>` : pour la clé donnée à l'activation ; seulement en développement | se connecter sans téléphone ; ou ajouter une fois la clé affichée par `make demo` dans Google Authenticator ou Aegis |
 | `make demo-excel` | écrit `eleves-fictifs.xlsx` à la racine du projet : une liste de ~800 élèves fictifs comme en tient un secrétariat (titre, colonnes NOM, POSTNOM…, fratries, quelques erreurs glissées exprès) ; seulement en développement | essayer l'import des élèves (Élèves → Importer Excel) |
 | `make messages` | met à jour les traductions françaises des textes du serveur (`backend/locale/fr/…/django.po`), puis les compile ; demande gettext (`sudo apt install gettext`) | quand Claude le demande ; les fichiers compilés sont dans Git |
 | `make test` | tous les tests | avant de fusionner une PR |
 | `make test-back` | tests backend (pytest) | |
 | `make test-front` | vérification des types du front, puis tests Vitest (logique et écrans) | |
-| `make test-e2e` | parcours dans un vrai navigateur (Playwright) : connexion, menu, activation, session support… ; **remet les données de `make demo` à zéro, avant et après** ; lance Django et la Gestion, ou réutilise ceux de `make dev-local` | une fois avant : `cd frontend && pnpm exec playwright install chromium` ; ensuite quand tu veux, la CI le fait à chaque PR |
+| `make test-e2e` | parcours dans un vrai navigateur (Playwright) : connexion, menu, activation, session support, paramètres, caisse sans réseau, démarrage hors ligne avec le PIN… ; **remet les données de `make demo` à zéro, avant et après** ; lance Django et la Gestion, ou réutilise ceux de `make dev-local` | une fois avant : `cd frontend && pnpm exec playwright install chromium` ; ensuite quand tu veux, la CI le fait à chaque PR |
 | `make lint` | vérifie le code sans rien modifier : ruff (Python), ESLint et Prettier (front) ; `make lint-back` ou `make lint-front` pour une seule partie | avant de fusionner une PR |
 | `make format` | corrige automatiquement le format et ce qui peut l'être | quand `make lint` signale un problème de format |
 | `make api` | écrit le schéma OpenAPI dans `frontend/packages/api/openapi.yaml`, puis les types TypeScript du client (`src/schema.d.ts`) ; `make api-schema` : seulement le schéma | après tout changement d'API |
@@ -316,7 +317,6 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 |---|---|---|
 | commande de déploiement | 4.6 | met en production sur le VPS en une commande |
 | sauvegarde et restauration | 4.7 | sauvegarde de la base, test de restauration |
-| parcours Playwright hors-ligne (dans `make test-e2e`) | 3.5 | parcours dans le navigateur, réseau coupé |
 
 ### Adresses en développement
 
@@ -328,10 +328,20 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | http://itig.localhost:5173/app/organisation | Organisation scolaire : année, découpage, niveaux, options, classes, matricule (directeur, directeur des études `0000001002`) |
 | http://itig.localhost:5173/app/staff · …/app/roles | Comptes du personnel ; Rôles et permissions (directeur) |
 | http://itig.localhost:5173/app/audit | Journal d'audit : qui a fait quoi, quand (directeur, promoteur) |
+| http://itig.localhost:5173/app/dashboard | Tableau de bord : encaissé, recouvrement, alertes (directeur `0000001001`, comptable `0000001004`) |
+| http://itig.localhost:5173/app/students | Élèves : liste, fiche (identité, famille, finances, historique), nouvel élève, import Excel, liste de classe, fiche d'inscription, situation financière (secrétaire `0000001006`, directeur) |
+| http://itig.localhost:5173/app/cash | Caisse : ouvrir sa session, encaisser, reçu, réimprimer, demander une annulation, clôturer (caissière `0000001005`) ; marche sans réseau sur un appareil mémorisé |
+| http://itig.localhost:5173/app/unpaid | Impayés : liste, export PDF et Excel, situations à imprimer (directeur, comptable) |
+| http://itig.localhost:5173/app/fees | Frais : types, barèmes, tranches, taux de l'année (comptable) |
+| http://itig.localhost:5173/app/cancellations · …/app/cash-closings · …/app/credits | Annulations à valider ; clôtures de caisse ; crédits d'élèves (comptable) |
+| http://itig.localhost:5173/app/announcements | Annonces aux familles : rédiger, joindre un PDF, archiver, « lue par N familles » (directeur) |
+| http://itig.localhost:5173/app/parent-requests | Demandes des parents : coordonnées envoyées depuis le portail, à appliquer ou non (secrétaire) |
+| http://itig.localhost:5173/app/devices | Appareils de l'école : postes mémorisés, dernière synchro, déconnecter (directeur) |
 | http://itig.localhost:5173/app/support | session support « en tant qu'école » (super-admin `0000000000`) : motif, bandeau rouge, « Quitter » |
 | http://volcans.localhost:5173/app/ | Gestion de la seconde école fictive : on s'y connecte à part (session propre à chaque adresse) |
 | http://itig.localhost:5173/api/school/ | quelle école répond à ce sous-domaine (après `make demo`) |
-| http://localhost:5174/ | Portail parents |
+| http://localhost:5174/ | Portail parents : compte `0002000001`, mot de passe `mwangaza-demo` ; mes enfants, paiements et reçus (`/children/…`), annonces (`/announcements`), profil et coordonnées (`/profile`), ajouter un enfant d'une autre école (`/add-school`, code des Volcans affiché par `make demo`), installer (`/install`) ; première fois : `/activate` |
+| http://itig.localhost:5173/v/… | vérification publique d'un reçu (QR du reçu) ou d'une situation financière (`/v/s/…`) |
 | http://localhost:8000/api/health/ | l'API répond-elle ? |
 | http://localhost:8000/api/docs/ | documentation de l'API |
 | http://itig.localhost:5173/api/auth/login/ | se connecter par l'API (l'écran est à `/app/login`) : téléphone d'un compte de `make demo`, mot de passe `mwangaza-demo` ; la réponse donne l'étape suivante (`step`) |

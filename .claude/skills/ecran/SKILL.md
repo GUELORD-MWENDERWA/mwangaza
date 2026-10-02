@@ -41,7 +41,7 @@ Suivre aussi la skill `design` (jetons, composants, formats).
 
 Maquettes marquées « à valider » dans `maquettes/README.md` : dessinées par Claude ; si l'utilisateur a laissé une remarque (PR ou `docs/06-suivi.md`), l'appliquer à la maquette avant de coder.
 
-Écran absent de ce tableau : chercher dans `docs/07-a-fournir.md` § 1 (M1–M20…). S'il n'a pas de maquette, **la dessiner d'abord** dans le même système (`maquettes/<app>/<nom>.html` avec `assets/styles.css` et la coquille de `maquettes/outils/maquettes.py`, encadrés `.note` pour les règles), l'ajouter à `maquettes/README.md` et au catalogue de `maquettes.py` (puis `python3 maquettes/outils/maquettes.py index` et `node maquettes/outils/captures.mjs <fichier>`), la montrer à l'utilisateur et attendre son accord avant de coder ; puis cocher la ligne dans `07`.
+Écran absent de ce tableau : chercher dans `docs/07-a-fournir.md` § 1 (M1–M20…). S'il n'a pas de maquette, **la dessiner d'abord** dans le même système (`maquettes/<app>/<nom>.html` avec `assets/styles.css` et la coquille de `maquettes/outils/maquettes.py`, encadrés `.note` pour les règles), l'ajouter à `maquettes/README.md` et au catalogue de `maquettes.py` (puis `python3 maquettes/outils/maquettes.py index` et `node maquettes/outils/captures.mjs <fichier>`), puis **coder avec elle sans attendre l'accord** (décision du 2026-09-29) : la signaler dans « À valider » de la PR, la noter dans `07` § 1.
 
 Écran V1.1 / V1.2 alors que la tâche en cours est V1.0 : **s'arrêter et le signaler**. Les éléments marqués « V1.1 » / « V1.2 » à l'intérieur d'un écran V1.0 ne sont pas codés et leurs entrées de menu sont masquées.
 
@@ -75,4 +75,4 @@ Maquettes marquées « à valider » dans `maquettes/README.md` : dessinées par
 
 ## 5. Rendre compte
 
-Liste courte : règles `.note` appliquées (et testées), écarts avec la maquette ou les documents, états ajoutés, puis `📍` l'état de la tâche.
+Liste courte : règles `.note` appliquées (et testées), écarts avec la maquette ou les documents, états ajoutés, puis `📍` l'état de la tâche. Écart à la maquette → noté sur la ligne de l'écran dans `maquettes/README.md` ; nouvelle adresse → « Adresses en dev » de `CLAUDE.md` et § 11 de `A-FAIRE.md` (même PR).
