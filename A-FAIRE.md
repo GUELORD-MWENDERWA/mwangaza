@@ -245,7 +245,7 @@ Partout : activer la double authentification et garder les codes de secours. Les
 
 ## 10. Comment relire et fusionner une PR
 
-Tu es le chef de projet et le relecteur ; Claude est le développeur. Il code, teste et ouvre **une seule PR par tâche** (corrections et documents compris), toujours sur `main`. Il ne te la donne que quand les contrôles GitHub sont verts. **Toi seul fusionnes.**
+Tu es le chef de projet et le relecteur ; Claude est le développeur. Il code, teste et ouvre **une seule PR par tâche** (corrections et documents compris), toujours sur `main`. Il te la donne dès qu'elle est poussée, contrôles GitHub en cours (≈ 5 min) : commence tes tests pendant ce temps ; il te dit « ✅ contrôles verts » ensuite. **Toi seul fusionnes**, et seulement après le ✅.
 
 Chaque PR se termine par trois sections en français simple : **« À valider »**, **« À tester toi-même »**, **« Après la fusion »**. Le message de fin de Claude dans le terminal reprend les mêmes.
 

@@ -54,6 +54,9 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
 
+### 2026-10-02 — Façon de travailler : plus d'attente à vide
+- Mesuré sur 4.4.3 : suite complète en local ≈ 9 min, puis la CI refait les mêmes tests en ≈ 5 min. Décidé à ta demande : plus de `make test` en local (lint + tests des modules touchés seulement, suite complète par la CI) ; un seul push à la fin ; la PR est donnée tout de suite, contrôles en cours, et Claude confirme « ✅ » ensuite (`CLAUDE.md`, skill `tache`, `A-FAIRE.md` § 10). Commencer la tâche suivante pendant la CI : non (mêmes fichiers, PR empilée interdite, une conversation par tâche).
+
 ### 2026-10-02 — Tâche 4.4.3 : paiements et reçus (Portail)
 - Fait : `GET /api/portal/children/{id}/` (frais dus de l'année avec leur état — payé, payé d'avance, partiel, en retard, à venir —, solde par devise, paiements, annulés marqués), `…/photo/` (seulement avec le consentement du parent, aussi sur les cartes de l'accueil), `GET /api/portal/payments/{id}/receipt/` (reçu PDF A5 par le serveur, même contenu que celui de la caisse, mention « Copie téléchargée sur le portail », QR de vérification). Portail : écran des paiements d'un enfant, barre de navigation en bas (Accueil, Paiements), page gardée hors connexion. Montant en lettres porté en Python (`core/money.py`, mêmes règles que la caisse).
 - Tests : 3 tests serveur (compte d'une autre famille ou d'une autre école : ni enfant, ni photo, ni reçu ; états et montants par devise ; reçu d'un paiement annulé ou d'une famille suspendue refusé ; photo sans consentement refusée) + montant en lettres ; 1 test d'écran.

@@ -40,7 +40,7 @@ Tout ce qui est fait pendant la tâche va sur cette branche, dans la PR de la t�
 
 ## 4. Vérifier
 
-1. **Une seule fois à la fin** : `make lint` puis `make test` (sorties filtrées avec `tail`) ; `make test-e2e` seulement si un parcours Playwright a changé ou si la connexion / la caisse sont touchées (sinon la CI le fait). Montrer le résultat réel ; un échec → corriger.
+1. **Une seule fois à la fin** : `make lint` (sortie filtrée avec `tail`) ; les tests des modules touchés sont déjà verts. **Pas de `make test` en local** (≈ 9 min) : la CI lance la suite complète (≈ 5 min, en parallèle). `make test-e2e` en local seulement si un parcours Playwright a changé (sinon la CI le fait). Un échec → corriger.
 2. Skill `verifier` : résultat en quelques lignes, mis dans la PR (pas de fichier dans `docs/claude/revues/`).
 3. Nouvel écran : une seule capture, à 390 px, comparée à la maquette. Pas de rejeu des étapes « À tester toi-même ».
 
@@ -51,8 +51,8 @@ Tout ce qui est fait pendant la tâche va sur cette branche, dans la PR de la t�
 3. `03` « Journal des décisions » seulement pour une vraie décision technique. `A-FAIRE.md` seulement si l'utilisateur a une action à faire. `CLAUDE.md` et skills seulement si une commande change.
 4. Commits en français, style conventionnel, terminés par la ligne Co-Authored-By ; commit, push et PR sans redemander (autorisation générale de l'utilisateur).
 5. PR **unique**, `base: main` : `gh pr create --base main --title "<numéro> — <titre>" --body-file <fichier>` (modèle ci-dessous). **Ne jamais fusionner.** Corriger la description : `gh api -X PATCH repos/GUELORD-MWENDERWA/mwangaza/pulls/<n> -F body=@<fichier>` (`gh pr edit` échoue).
-6. `gh pr checks <n> --watch`. Rouge : `gh run view <id> --log-failed | tail -40`, corriger, pousser, recommencer. Donner la PR seulement quand tout est vert.
-7. Numéro de la PR dans « État actuel » de `06` : dans le commit de clôture si possible (ouvrir la PR avant ce dernier commit), sinon un petit commit, puis contrôles verts.
+6. **Pas d'attente à vide** : surveiller la CI **en arrière-plan** — `gh run list --branch <branche> --limit 1` jusqu'à ce que le passage existe (`gh pr checks --watch` lancé trop tôt répond « no checks »), puis `gh run watch <id> --exit-status` — et répondre tout de suite à l'utilisateur (étape 6), contrôles en cours. Vert : « ✅ contrôles verts, tu peux fusionner ». Rouge : `gh run view <id> --log-failed | tail -40`, corriger, pousser, le dire.
+7. **Un seul push** : code, documents et suivi dans le même push (chaque push relance la CI et annule le passage en cours). Pas de numéro de PR dans `06` (il se retrouve par la branche), donc pas de commit après la PR.
 
 ### Modèle de description de PR
 
@@ -63,7 +63,7 @@ Français simple, court ; l'utilisateur comprend **sans lire le code**.
 2 à 5 puces : ce qui est nouveau pour l'école ou le projet, et pourquoi.
 
 ## Tests
-Nombre et résultat (`make test`, `make lint`), contrôles GitHub verts. Vérification des règles : 2 à 4 lignes (✔ / points à noter).
+Tests ajoutés, `make lint` et tests des modules touchés ; suite complète : CI. Vérification des règles : 2 à 4 lignes (✔ / points à noter).
 
 ## À valider
 Décisions acceptées en fusionnant (où les lire) ; nouvelles dépendances avec leur raison. Sinon : « Rien. »
@@ -82,6 +82,6 @@ Closes #<n>
 
 ## 6. Répondre à l'utilisateur
 
-Message court : lien de la PR, contrôles verts, « À valider », « À tester toi-même », « Après la fusion » ; action nouvelle de `A-FAIRE.md` s'il y en a. Puis « Fusionne la PR, puis tape /clear et /tache X.Z » (et le rappel `/model` → Sonnet si X.Z est simple).
+Message court, sans attendre la CI : lien de la PR, « contrôles en cours, je te dis ✅ dès qu'ils sont verts », « À valider », « À tester toi-même », « Après la fusion » ; action nouvelle de `A-FAIRE.md` s'il y en a. Puis « Fusionne la PR, puis tape /clear et /tache X.Z » (et le rappel `/model` → Sonnet si X.Z est simple).
 
 Dernière ligne : `📍 Tâche X.Y terminée — prochaine : X.Z`.
