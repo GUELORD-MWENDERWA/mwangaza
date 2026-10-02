@@ -42,6 +42,17 @@ export const PERMISSIONS = {
   promoter: ["students.view", "finance.view_reports", "audit.view"],
   study_director: ["classes.manage", "students.view", "students.edit", "announcements.publish"],
   teacher: [],
+  accountant: [
+    "students.view",
+    "finance.configure_fees",
+    "finance.set_exchange_rate",
+    "finance.grant_discount",
+    "finance.collect_payment",
+    "finance.request_cancellation",
+    "finance.approve_cancellation",
+    "finance.close_register",
+    "finance.view_reports",
+  ],
 } satisfies Record<string, Permission[]>;
 
 type Role = keyof typeof PERMISSIONS;

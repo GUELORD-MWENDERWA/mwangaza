@@ -188,6 +188,63 @@ export const fr = {
       onlineOnly: "Continuer en ligne seulement",
     },
   },
+  guide: {
+    help: "Aide et guide",
+    progress: "{{guide}} · étape {{step}} sur {{total}}",
+    names: { cashier: "Guide du caissier", accountant: "Guide du comptable" },
+    next: "Suivant",
+    finish: "Terminer",
+    skip: "Passer le guide",
+    close: "Fermer le guide",
+    cashier: {
+      open: {
+        title: "Ouvrez la caisse",
+        text: "Le matin, ouvrez votre caisse et vérifiez le taux du jour. S'il vous semble faux, prévenez le comptable avant d'encaisser.",
+      },
+      search: {
+        title: "Cherchez l'élève",
+        text: "Tapez quelques lettres du nom ou le matricule. Vous pouvez chercher même sans internet. Raccourci : Ctrl K.",
+      },
+      amount: {
+        title: "Saisissez le montant",
+        text: "Après avoir choisi l'élève, tapez le montant reçu. Vérifiez sa répartition sur les tranches avant d'encaisser.",
+      },
+      collect: {
+        title: "Encaissez et imprimez le reçu",
+        text: "« Encaisser » ou la touche F9 enregistre le paiement et imprime le reçu. Sans internet aussi : il partira au retour du réseau.",
+      },
+      close: {
+        title: "Clôturez la caisse le soir",
+        text: "En fin de journée, comptez l'argent et clôturez la caisse. Un écart avec le montant attendu est signalé au comptable.",
+      },
+    },
+    accountant: {
+      rate: {
+        title: "Vérifiez le taux de change",
+        text: "Il sert à toutes les caisses de l'école pendant l'année. Corrigez-le ici si besoin : les paiements déjà faits gardent leur taux.",
+      },
+      fees: {
+        title: "Vérifiez les frais et barèmes",
+        text: "Chaque frais a son montant, sa devise et ses tranches par niveau ou par option. Ce sont eux que les caisses encaissent.",
+      },
+      discount: {
+        title: "Accordez une réduction",
+        text: "Cherchez l'élève, ouvrez sa fiche, onglet « Finances », puis « Accorder une réduction ». Elle est gardée au journal d'audit.",
+      },
+      cancellations: {
+        title: "Validez ou refusez les annulations",
+        text: "Une caisse ne supprime jamais un paiement : elle demande son annulation. Vous la validez ou la refusez ici, avec un motif.",
+      },
+      closings: {
+        title: "Contrôlez les clôtures",
+        text: "Les caisses clôturées arrivent ici. Les écarts entre l'argent compté et le montant attendu sont mis en évidence.",
+      },
+      unpaid: {
+        title: "Suivez les impayés",
+        text: "Les élèves en retard de paiement, par classe et par frais. Exportez la liste ou imprimez les situations à remettre aux parents.",
+      },
+    },
+  },
   roles: {
     head: "Directeur",
     study_director: "Directeur des études",
@@ -2388,6 +2445,47 @@ export const fr = {
       codeHint: "8 caractères, ex. K7M4-P9TX",
       submit: "Ajouter",
     },
+    guide: {
+      title: "Bienvenue, {{name}}",
+      activated: "Votre compte famille est activé. Voici l'essentiel en 3 étapes.",
+      again: "L'essentiel du portail en 3 étapes.",
+      step: "Étape {{step}} sur {{total}}",
+      next: "Suivant",
+      start: "Commencer",
+      skip: "Passer",
+      stepsTitle: "Les 3 étapes :",
+      steps: {
+        children: {
+          title: "Vos enfants",
+          text: "Tous vos enfants sont sur l'accueil, même s'ils sont dans des écoles différentes. Touchez un enfant pour voir sa situation.",
+          summary: "Vos enfants, même dans des écoles différentes",
+        },
+        payments: {
+          title: "Paiements et reçus",
+          text: "Voyez ce qui est payé, ce qui reste et les prochaines dates. Chaque reçu de l'école est ici, en PDF : plus besoin de garder le papier.",
+          summary: "Paiements et reçus",
+        },
+        news: {
+          title: "Annonces et coordonnées",
+          text: "Lisez les annonces de l'école. Votre téléphone ou votre adresse change ? Signalez-le depuis votre profil : l'école mettra sa fiche à jour.",
+          summary: "Annonces de l'école et vos coordonnées",
+        },
+      },
+      example: {
+        child1: "Amani",
+        class1: "2e Scientifique A",
+        child2: "Grâce",
+        class2: "7e EB B",
+        school1: "Première école",
+        school2: "Deuxième école",
+        fee: "Minerval · 2e tranche",
+        rest: "Reste à payer",
+        receipt: "Reçu n° 000184",
+        announcement: "Réunion des parents",
+        announcementText: "Samedi à 9 h, dans la grande salle.",
+        phone: "Mon téléphone",
+      },
+    },
     install: {
       title: "Installez Mwangaza",
       subtitle: "Retrouvez vos enfants en un geste, même avec une connexion faible.",
@@ -2417,6 +2515,7 @@ export const fr = {
     },
     profile: {
       title: "Mon profil",
+      guide: "Revoir le guide",
       account: "{{phone}} · compte famille",
       loadError: "Vos coordonnées n'ont pas pu être chargées. Réessayez plus tard.",
       contact: "Mes coordonnées",

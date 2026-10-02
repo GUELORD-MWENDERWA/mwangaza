@@ -9,7 +9,6 @@ import { Link } from "react-router";
 import { z } from "zod";
 
 import { useSignedIn } from "../../lib/account";
-import { shouldOfferInstall } from "../../lib/install";
 import { AuthFrame } from "./AuthFrame";
 import { FamilyCodeInput } from "./FamilyCodeInput";
 
@@ -20,7 +19,8 @@ const FIELDS = ["phone", "code", "password"] as const;
 export function ActivatePage() {
   const { t } = useTranslation();
   // « Installer » proposé une fois, juste après l'activation (M19).
-  const signedIn = useSignedIn(shouldOfferInstall() ? "/install" : "/");
+  // Le guide d'abord, puis « Installer » s'il est proposé (M20, M19).
+  const signedIn = useSignedIn("/guide?first=1");
   const [general, setGeneral] = useState<string | null>(null);
   const schema = useMemo(
     () =>

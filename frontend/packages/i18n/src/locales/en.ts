@@ -189,6 +189,63 @@ export const en: Messages<typeof fr> = {
       onlineOnly: "Continue online only",
     },
   },
+  guide: {
+    help: "Help and guide",
+    progress: "{{guide}} · step {{step}} of {{total}}",
+    names: { cashier: "Cashier guide", accountant: "Accountant guide" },
+    next: "Next",
+    finish: "Finish",
+    skip: "Skip the guide",
+    close: "Close the guide",
+    cashier: {
+      open: {
+        title: "Open the cash register",
+        text: "In the morning, open your register and check today's rate. If it looks wrong, tell the accountant before collecting.",
+      },
+      search: {
+        title: "Find the student",
+        text: "Type a few letters of the name or the student number. Search works even without internet. Shortcut: Ctrl K.",
+      },
+      amount: {
+        title: "Enter the amount",
+        text: "Once the student is chosen, type the amount received. Check how it is split across instalments before collecting.",
+      },
+      collect: {
+        title: "Collect and print the receipt",
+        text: "“Collect” or the F9 key records the payment and prints the receipt. Without internet too: it is sent when the network is back.",
+      },
+      close: {
+        title: "Close the register in the evening",
+        text: "At the end of the day, count the cash and close the register. Any difference from the expected amount is reported to the accountant.",
+      },
+    },
+    accountant: {
+      rate: {
+        title: "Check the exchange rate",
+        text: "Every register of the school uses it for the year. Correct it here if needed: payments already made keep their rate.",
+      },
+      fees: {
+        title: "Check fees and amounts",
+        text: "Each fee has its amount, currency and instalments per level or option. These are what the registers collect.",
+      },
+      discount: {
+        title: "Grant a discount",
+        text: "Find the student, open their record, “Finances” tab, then “Grant a discount”. It is kept in the audit log.",
+      },
+      cancellations: {
+        title: "Approve or reject cancellations",
+        text: "A register never deletes a payment: it requests a cancellation. You approve or reject it here, with a reason.",
+      },
+      closings: {
+        title: "Review register closings",
+        text: "Closed registers arrive here. Differences between the cash counted and the expected amount are highlighted.",
+      },
+      unpaid: {
+        title: "Follow unpaid fees",
+        text: "Students behind on payments, by class and by fee. Export the list or print statements to hand to parents.",
+      },
+    },
+  },
   roles: {
     head: "Head of school",
     study_director: "Director of studies",
@@ -2371,6 +2428,47 @@ export const en: Messages<typeof fr> = {
       codeHint: "8 characters, e.g. K7M4-P9TX",
       submit: "Add",
     },
+    guide: {
+      title: "Welcome, {{name}}",
+      activated: "Your family account is active. Here are the essentials in 3 steps.",
+      again: "The essentials of the portal in 3 steps.",
+      step: "Step {{step}} of {{total}}",
+      next: "Next",
+      start: "Get started",
+      skip: "Skip",
+      stepsTitle: "The 3 steps:",
+      steps: {
+        children: {
+          title: "Your children",
+          text: "All your children are on the home page, even if they attend different schools. Tap a child to see where things stand.",
+          summary: "Your children, even in different schools",
+        },
+        payments: {
+          title: "Payments and receipts",
+          text: "See what is paid, what is left and the next due dates. Every receipt from the school is here as a PDF: no need to keep the paper.",
+          summary: "Payments and receipts",
+        },
+        news: {
+          title: "News and contact details",
+          text: "Read the school's announcements. New phone number or address? Report it from your profile: the school will update its records.",
+          summary: "School announcements and your contact details",
+        },
+      },
+      example: {
+        child1: "Amani",
+        class1: "2nd Science A",
+        child2: "Grâce",
+        class2: "7th EB B",
+        school1: "First school",
+        school2: "Second school",
+        fee: "Tuition · 2nd instalment",
+        rest: "Left to pay",
+        receipt: "Receipt no. 000184",
+        announcement: "Parents' meeting",
+        announcementText: "Saturday at 9 am, in the main hall.",
+        phone: "My phone",
+      },
+    },
     install: {
       title: "Install Mwangaza",
       subtitle: "Find your children in one tap, even with a weak connection.",
@@ -2399,6 +2497,7 @@ export const en: Messages<typeof fr> = {
     },
     profile: {
       title: "My profile",
+      guide: "See the guide again",
       account: "{{phone}} · family account",
       loadError: "Your contact details could not be loaded. Try again later.",
       contact: "My contact details",

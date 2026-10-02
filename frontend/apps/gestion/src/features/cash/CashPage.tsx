@@ -355,6 +355,7 @@ function OpenSession({ current, device }: { current: CurrentSession; device?: De
           </Card>
           {printer.area}
           <Button
+            data-guide="cash-start"
             size="xl"
             disabled={!selected || open.isPending}
             onClick={() => selected && submit(selected)}

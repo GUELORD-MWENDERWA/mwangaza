@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { allowCodeAgain, closeCashSessions, manage, unpaidStudent } from "./django";
-import { enterCode, enterPassword, ITIG } from "./helpers";
+import { enterCode, enterPassword, ITIG, skipGuide } from "./helpers";
 
 /** Inscriptions de l'année en cours de l'ITIG : ce que l'instantané descend sur l'appareil. */
 function currentEnrollments(): number {
@@ -28,6 +28,7 @@ test("appareil mémorisé : l'école descend sur l'appareil, puis hors ligne et 
   // « Se souvenir de cet appareil » est cochée par défaut.
   await enterPassword(page, "0000001005");
   await enterCode(page);
+  await skipGuide(page);
 
   const indicator = page.getByRole("status").filter({ hasText: /ligne|Synchronisation/ });
   await expect(indicator).toHaveText("En ligne · à jour", { timeout: 30_000 });
@@ -69,6 +70,7 @@ test("démarrage sans réseau : code PIN, puis la caisse encaisse sur l'appareil
   await page.goto(`${ITIG}account`);
   await enterPassword(page, "0000001005");
   await enterCode(page);
+  await skipGuide(page);
   const indicator = page.getByRole("status").filter({ hasText: /ligne|Synchronisation/ });
   await expect(indicator).toHaveText("En ligne · à jour", { timeout: 30_000 });
 

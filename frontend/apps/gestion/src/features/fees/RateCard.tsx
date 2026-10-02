@@ -53,7 +53,7 @@ export function RateCard({ year }: { year: Year }) {
   const { errors } = form.formState;
 
   return (
-    <Card>
+    <Card data-guide="fees-rate">
       <CardHeader>
         <CardTitle>{t("fees.rate.title")}</CardTitle>
         <span className="text-sm text-ink-3">{year.name}</span>

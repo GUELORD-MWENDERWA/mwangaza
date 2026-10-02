@@ -138,7 +138,7 @@ export function StudentsPage() {
           </>
         }
       />
-      <Card>
+      <Card data-guide="students-search">
         <CardContent
           // Avec le filtre « Paiement », la recherche prend sa propre ligne : six filtres sur une
           // seule couperaient leurs libellés.

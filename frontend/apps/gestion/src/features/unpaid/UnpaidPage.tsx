@@ -232,7 +232,7 @@ export function UnpaidPage() {
           </Button>
         </CardContent>
       </Card>
-      <Card>
+      <Card data-guide="unpaid-list">
         {!list.data ? (
           <CardContent>
             <Skeleton label={t("common.loading")} />

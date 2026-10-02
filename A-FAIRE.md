@@ -322,7 +322,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 
 | Adresse | Quoi |
 |---|---|
-| http://itig.localhost:5173/app/ | Gestion (le sous-domaine = code de l'école) : connexion avec un compte de `make demo` (mot de passe `mwangaza-demo`, code de `make totp`), menu selon le rôle |
+| http://itig.localhost:5173/app/ | Gestion (le sous-domaine = code de l'école) : connexion avec un compte de `make demo` (mot de passe `mwangaza-demo`, code de `make totp`), menu selon le rôle ; caissier et comptable : guide de première connexion (« Aide et guide » en bas du menu pour le revoir) |
 | http://itig.localhost:5173/app/account | Mon compte : langue, mot de passe, double authentification, écoles, déconnexion |
 | http://itig.localhost:5173/app/settings | Paramètres de l'école : nom, logo, couleur, fuseau, devises (directeur) |
 | http://itig.localhost:5173/app/organisation | Organisation scolaire : année, découpage, niveaux, options, classes, matricule (directeur, directeur des études `0000001002`) |
@@ -340,7 +340,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | http://itig.localhost:5173/app/support | session support « en tant qu'école » (super-admin `0000000000`) : motif, bandeau rouge, « Quitter » |
 | http://volcans.localhost:5173/app/ | Gestion de la seconde école fictive : on s'y connecte à part (session propre à chaque adresse) |
 | http://itig.localhost:5173/api/school/ | quelle école répond à ce sous-domaine (après `make demo`) |
-| http://localhost:5174/ | Portail parents : compte `0002000001`, mot de passe `mwangaza-demo` ; mes enfants, paiements et reçus (`/children/…`), annonces (`/announcements`), profil et coordonnées (`/profile`), ajouter un enfant d'une autre école (`/add-school`, code des Volcans affiché par `make demo`), installer (`/install`) ; première fois : `/activate` |
+| http://localhost:5174/ | Portail parents : compte `0002000001`, mot de passe `mwangaza-demo` ; mes enfants, paiements et reçus (`/children/…`), annonces (`/announcements`), profil et coordonnées (`/profile`), ajouter un enfant d'une autre école (`/add-school`, code des Volcans affiché par `make demo`), installer (`/install`), guide du parent (`/guide`, aussi « Revoir le guide » du profil) ; première fois : `/activate` |
 | http://itig.localhost:5173/v/… | vérification publique d'un reçu (QR du reçu) ou d'une situation financière (`/v/s/…`) |
 | http://localhost:8000/api/health/ | l'API répond-elle ? |
 | http://localhost:8000/api/docs/ | documentation de l'API |

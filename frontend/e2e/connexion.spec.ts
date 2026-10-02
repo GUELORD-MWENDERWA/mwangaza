@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { allowCodeAgain, shell, totp } from "./django";
-import { enterCode, enterPassword, ITIG, mainMenu, VOLCANS } from "./helpers";
+import { enterCode, enterPassword, ITIG, mainMenu, skipGuide, VOLCANS } from "./helpers";
 
 test("directeur : mot de passe puis code, menu complet, Mon compte, menu tiroir", async ({
   page,
@@ -50,6 +50,8 @@ test("caissière : seulement la caisse ; un écran interdit ouvert par son adres
   await page.goto(ITIG);
   await enterPassword(page, "0000001005");
   await enterCode(page);
+  await expect(page.getByText("Guide du caissier · étape 1 sur 5")).toBeVisible();
+  await skipGuide(page);
 
   const menu = mainMenu(page);
   await expect(menu.getByRole("link", { name: "Caisse", exact: true })).toBeVisible();
