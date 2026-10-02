@@ -8,8 +8,14 @@ from rest_framework.views import APIView
 from apps.accounts import login
 from apps.accounts.views import AuthView
 from apps.core.errors import ErrorSerializer
-from apps.portal import services
-from apps.portal.serializers import FamilyCodeSerializer, PortalLoginSerializer, PortalMeSerializer
+from apps.portal import families, services
+from apps.portal.serializers import (
+    FamilyCodeSerializer,
+    LinkedFamilySerializer,
+    LinkSerializer,
+    PortalLoginSerializer,
+    PortalMeSerializer,
+)
 
 ERRORS = {
     400: ErrorSerializer,
@@ -74,3 +80,35 @@ class MeView(APIView):
     @extend_schema(responses={200: PortalMeSerializer, 403: ErrorSerializer, 404: ErrorSerializer})
     def get(self, request: Request) -> Response:
         return Response(PortalMeSerializer(request.user).data)
+
+
+@extend_schema(tags=["portal"])
+class FamiliesView(APIView):
+    """Accueil (H2) : les familles reliées au compte, une par école, avec leurs enfants."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(
+        responses={
+            200: LinkedFamilySerializer(many=True),
+            403: ErrorSerializer,
+            404: ErrorSerializer,
+        }
+    )
+    def get(self, request: Request) -> Response:
+        items = families.linked_families(request.user)
+        return Response(LinkedFamilySerializer(items, many=True).data)
+
+
+@extend_schema(tags=["portal"])
+class LinkView(APIView):
+    """« Ajouter un enfant d'une autre école » : le code famille remis par cette école."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(request=LinkSerializer, responses={200: LinkedFamilySerializer, **ERRORS})
+    def post(self, request: Request) -> Response:
+        serializer = LinkSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        family = services.link_family(request, **serializer.validated_data)
+        return Response(LinkedFamilySerializer(families.linked(family)).data)

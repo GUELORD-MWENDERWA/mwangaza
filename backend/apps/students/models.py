@@ -38,6 +38,9 @@ class Family(TenantModel):
     # Code donné par « Nouveau code » (4.4) : valable jusqu'à cette date, pour une seule
     # activation ou un seul nouveau mot de passe ; vide ensuite. Vide pour le premier code.
     code_expires_at = models.DateTimeField(_("code valid until"), null=True, blank=True)
+    # « Suspendre l'accès » (4.4) : le portail ne montre plus rien de cette famille et son code
+    # n'ouvre plus rien ; le compte du parent reste (autres écoles).
+    portal_suspended_at = models.DateTimeField(_("portal suspended at"), null=True, blank=True)
 
     class Meta:
         ordering = ["code"]

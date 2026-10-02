@@ -43,7 +43,15 @@ class FamilySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Family
-        fields = ["id", "code", "guardians", "student_count", "activated_at", "code_expires_at"]
+        fields = [
+            "id",
+            "code",
+            "guardians",
+            "student_count",
+            "activated_at",
+            "code_expires_at",
+            "portal_suspended_at",
+        ]
 
 
 class FamilyStudentSerializer(serializers.ModelSerializer):
@@ -70,6 +78,10 @@ class FamilyDetailSerializer(FamilySerializer):
 
 class FamilyWriteSerializer(serializers.Serializer):
     guardians = GuardianSerializer(many=True)
+
+
+class PortalAccessSerializer(serializers.Serializer):
+    suspended = serializers.BooleanField(help_text="`true` : suspendre ; `false` : rétablir.")
 
 
 class FamilyFilterSerializer(serializers.Serializer):
