@@ -42,7 +42,7 @@ Dans Claude Code : `/etat`. Sur GitHub : onglet **Milestones** (une barre de pro
 └── .claude/skills/            skills Claude Code du projet
 ```
 
-Code (tâche 0.1, voir `docs/03-architecture-technique.md` § 3) : `backend/` (Django), `frontend/` (workspace pnpm : `apps/gestion`, `apps/portail`, `packages/api|ui|i18n|money` ; `e2e/` parcours Playwright, `guide/` guide PDF de la version), `infra/` (Docker Compose), `firmware/` (V1.2), `Makefile`.
+Code (tâche 0.1, voir `docs/03-architecture-technique.md` § 3) : `backend/` (Django), `frontend/` (workspace pnpm : `apps/gestion`, `apps/portail`, `apps/console` (console de la plateforme, super-admin), `packages/api|ui|i18n|money` ; `e2e/` parcours Playwright, `guide/` guide PDF de la version), `infra/` (Docker Compose), `firmware/` (V1.2), `Makefile`.
 
 ## Travailler avec Claude Code
 
@@ -70,5 +70,5 @@ make install     # dépendances
 make dev         # tout lancer dans Docker
 ```
 
-Puis ouvrir la Gestion sur http://itig.localhost:5173/app/ et le Portail sur http://localhost:5174/.
+Puis ouvrir la Gestion sur http://itig.localhost:5173/app/, le Portail sur http://localhost:5174/ et la console de la plateforme (super-admin) sur http://admin.localhost:5175/.
 Toutes les commandes : `make` (détail dans `CLAUDE.md`, section « Commandes »).

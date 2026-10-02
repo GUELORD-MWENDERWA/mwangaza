@@ -18,7 +18,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts.permissions import HasSchoolPermission, school_access
+from apps.accounts.permissions import HasSchoolPermission, IsPlatformAdmin, school_access
 from apps.accounts.roles import (
     ANNOUNCEMENTS_PUBLISH,
     CLASSES_MANAGE,
@@ -30,7 +30,7 @@ from apps.accounts.roles import (
 from apps.accounts.views import SchoolViewSet
 from apps.core.errors import SCHOOL_NOT_FOUND, ApiError, ErrorSerializer
 from apps.core.http import serve_image
-from apps.schools import organisation, services
+from apps.schools import console, organisation, services
 from apps.schools.matricule import validate_matricule_format
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.schools.serializers import (
@@ -41,6 +41,7 @@ from apps.schools.serializers import (
     ClassGroupFilterSerializer,
     ClassGroupSerializer,
     ClassGroupUpdateSerializer,
+    ConsoleDashboardSerializer,
     CurrentSchoolSerializer,
     LevelReorderSerializer,
     LevelSerializer,
@@ -497,3 +498,17 @@ class MatriculePreviewView(_MatriculeView):
         except DjangoValidationError as exc:
             raise DjangoValidationError({"matricule_format": exc}) from None
         return self._response(value)
+
+
+@extend_schema(tags=["console"])
+class ConsoleDashboardView(APIView):
+    """Tableau de bord de la console de la plateforme (5.2) : toutes les écoles, super-admin
+    seulement, à l'adresse de la console."""
+
+    permission_classes = [IsPlatformAdmin]
+
+    @extend_schema(
+        responses={200: ConsoleDashboardSerializer, 403: ErrorSerializer, 404: ErrorSerializer}
+    )
+    def get(self, request: Request) -> Response:
+        return Response(ConsoleDashboardSerializer(console.dashboard()).data)

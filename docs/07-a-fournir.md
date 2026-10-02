@@ -41,7 +41,7 @@ Dessinées par Claude en 4.9 (à valider) : invitations au portail et suivi des 
 
 ### V1.1 — plateforme, notifications, communication
 
-À dessiner : console de la plateforme — tableau de bord, identité de la plateforme (5.1, 5.2) · comptes, appareils, journal de la plateforme (5.4) · centre de notifications et réglages (5.5, 5.6) · messages à une classe, calendrier, circulaires, convocations (5.7). Existe déjà : `gestion/superadmin-ecoles` (5.3), à redessiner dans le design de la console.
+Dessinée par Claude en 5.2.1 (à valider) : console de la plateforme, tableau de bord et coquille propre à la console (`console/tableau-de-bord`). À dessiner : identité de la plateforme (5.2.2) · comptes, appareils, journal de la plateforme (5.4) · centre de notifications et réglages (5.5, 5.6) · messages à une classe, calendrier, circulaires, convocations (5.7). Existe déjà : `gestion/superadmin-ecoles` (5.3), à redessiner dans le design de la console.
 
 ### V1.2 — carte unique et présences
 

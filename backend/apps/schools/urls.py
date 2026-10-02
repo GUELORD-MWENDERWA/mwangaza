@@ -10,6 +10,7 @@ router.register("tracks", views.TrackViewSet, basename="track")
 router.register("class-groups", views.ClassGroupViewSet, basename="class-group")
 
 urlpatterns = [
+    path("console/dashboard/", views.ConsoleDashboardView.as_view(), name="console-dashboard"),
     path("matricule-format/", views.MatriculeFormatView.as_view(), name="matricule-format"),
     path(
         "matricule-format/preview/",

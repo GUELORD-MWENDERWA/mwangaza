@@ -18,6 +18,8 @@ if TYPE_CHECKING:
 RESERVED_SUBDOMAINS = frozenset(
     {"www", "parents", "admin", "api", "app", "static", "media", "mail", "status", "docs"}
 )
+# Console de la plateforme (super-admin, 5.2) : admin.mwangaza.school.
+CONSOLE_SUBDOMAIN = "admin"
 
 _current_school: ContextVar["School | None"] = ContextVar("current_school", default=None)
 

@@ -1180,7 +1180,9 @@ paths:
   /api/auth/login/:
     get:
       operationId: auth_login_retrieve
-      description: 'Étape 1 : numéro et mot de passe.'
+      description: |-
+        Étape 1 : numéro et mot de passe. À l'adresse de la console (5.2), seulement le
+        super-admin, comme dans l'administration Django.
       tags:
       - auth
       security:
@@ -1195,7 +1197,9 @@ paths:
           description: ''
     post:
       operationId: auth_login_create
-      description: 'Étape 1 : numéro et mot de passe.'
+      description: |-
+        Étape 1 : numéro et mot de passe. À l'adresse de la console (5.2), seulement le
+        super-admin, comme dans l'administration Django.
       tags:
       - auth
       requestBody:
@@ -2719,6 +2723,35 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Person'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/dashboard/:
+    get:
+      operationId: console_dashboard_retrieve
+      description: |-
+        Tableau de bord de la console de la plateforme (5.2) : toutes les écoles, super-admin
+        seulement, à l'adresse de la console.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleDashboard'
           description: ''
         '403':
           content:
@@ -10123,6 +10156,101 @@ components:
           maxLength: 20
       required:
       - code
+    ConsoleActiveSchool:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        status:
+          $ref: '#/components/schemas/SchoolStatusEnum'
+        payments:
+          type: integer
+        today:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleAmount'
+      required:
+      - id
+      - code
+      - name
+      - status
+      - payments
+      - today
+    ConsoleAmount:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        amount_minor:
+          type: integer
+      required:
+      - currency
+      - amount_minor
+    ConsoleCollected:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        amount_minor:
+          type: integer
+        count:
+          type: integer
+      required:
+      - currency
+      - amount_minor
+      - count
+    ConsoleDashboard:
+      type: object
+      properties:
+        day:
+          type: string
+          format: date
+        schools:
+          $ref: '#/components/schemas/ConsoleSchoolCounts'
+        students:
+          type: integer
+        today:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleCollected'
+        payments_today:
+          type: integer
+        active_schools:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleActiveSchool'
+        health:
+          $ref: '#/components/schemas/ServerHealth'
+      required:
+      - day
+      - schools
+      - students
+      - today
+      - payments_today
+      - active_schools
+      - health
+    ConsoleSchoolCounts:
+      type: object
+      properties:
+        active:
+          type: integer
+        trial:
+          type: integer
+        suspended:
+          type: integer
+        trial_ending:
+          type: integer
+          description: Essais qui finissent dans les 30 jours.
+      required:
+      - active
+      - trial
+      - suspended
+      - trial_ending
     ContactAddress:
       type: object
       properties:
@@ -11650,6 +11778,46 @@ components:
       required:
       - status
       - database
+    HealthCheck:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/HealthCheckEnum'
+        status:
+          $ref: '#/components/schemas/HealthStatusEnum'
+        value:
+          type: integer
+          nullable: true
+          description: Millisecondes (base, Redis), travailleurs (tâches), pourcentage
+            libre (disque).
+      required:
+      - name
+      - status
+      - value
+    HealthCheckEnum:
+      enum:
+      - database
+      - redis
+      - workers
+      - disk
+      type: string
+      description: |-
+        * `database` - database
+        * `redis` - redis
+        * `workers` - workers
+        * `disk` - disk
+    HealthStatusEnum:
+      enum:
+      - ok
+      - warning
+      - error
+      - 'off'
+      type: string
+      description: |-
+        * `ok` - ok
+        * `warning` - warning
+        * `error` - error
+        * `off` - off
     ImportClass:
       type: object
       properties:
@@ -14190,6 +14358,18 @@ components:
         * `trial` - Trial
         * `active` - Active
         * `suspended` - Suspended
+    ServerHealth:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/HealthStatusEnum'
+        checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/HealthCheck'
+      required:
+      - status
+      - checks
     SessionLine:
       type: object
       properties:

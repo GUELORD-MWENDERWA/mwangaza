@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console — tableau de bord — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+/* Console de la plateforme (5.2) : son propre design. Pas de menu latéral comme la Gestion :
+   une barre du haut en basalte, la navigation dessous, le contenu sur un fond clair et large. */
+body{background:var(--surface)}
+.ctop{background:var(--basalt);color:var(--basalt-ink)}
+.ctop .in{max-width:1240px;margin:0 auto;padding:12px 24px 0;display:flex;flex-direction:column;gap:10px}
+.ctop .row1{display:flex;align-items:center;gap:12px}
+.ctop .brand{padding:0}
+.ctop .chip{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--basalt);background:var(--lamp);border-radius:var(--r-pill);padding:2px 9px}
+.ctop .grow{flex:1}
+.ctop .state{font-size:.82rem;display:flex;align-items:center;gap:6px;color:#CFC7BF}
+.ctop .state i{width:8px;height:8px;border-radius:50%;background:#4CC38A;display:inline-block}
+.ctop .me{display:flex;align-items:center;gap:8px;font-size:.88rem}
+.ctop .me .avatar{background:var(--basalt-2);color:var(--lamp)}
+.ctop nav{display:flex;gap:4px;overflow-x:auto}
+.ctop nav a{color:#CFC7BF;text-decoration:none;padding:10px 12px;border-bottom:3px solid transparent;white-space:nowrap;font-size:.92rem}
+.ctop nav a.on{color:#fff;border-bottom-color:var(--lamp);font-weight:700}
+.ctop nav a .soon{font-size:.7rem;color:#9A918A;margin-left:4px}
+.cmain{max-width:1240px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:20px}
+.g4{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.two{display:grid;gap:16px;grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.health li{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem}
+.health li:first-child{border-top:0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.due{background:var(--due)}.dot.off{background:var(--ink-3)}
+@media (max-width:820px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}.ctop .state,.ctop .me b{display:none}.cmain,.ctop .in{padding-left:16px;padding-right:16px}}
+</style></head>
+<body>
+<header class="ctop"><div class="in">
+  <div class="row1"><div class="brand"><span class="mark"></span><b>Mwangaza</b></div><span class="chip">Console</span><span class="grow"></span>
+    <span class="state"><i></i>Tous les services fonctionnent</span>
+    <span class="me"><span class="avatar">GM</span><b>Guelord Mwenderwa</b></span></div>
+  <nav><a class="on" href="#">Tableau de bord</a><a href="#">Écoles<span class="soon">5.3</span></a><a href="#">Comptes et appareils<span class="soon">5.4</span></a><a href="#">Journal<span class="soon">5.4</span></a><a href="#">Identité de la plateforme<span class="soon">5.2.2</span></a></nav>
+</div></header>
+<main class="cmain">
+  <div class="pagehead"><div><h1>Tableau de bord</h1><p>Toutes les écoles de la plateforme — jeudi 2 octobre 2026.</p></div></div>
+  <div class="g4">
+    <div class="card kpi"><div class="lbl">Écoles actives</div><div class="val">3</div><div class="sub">2 en essai (1 finit dans moins de 30 j) · 1 suspendue</div></div>
+    <div class="card kpi"><div class="lbl">Élèves inscrits</div><div class="val">4 631</div><div class="sub">année en cours de chaque école</div></div>
+    <div class="card kpi"><div class="lbl">Paiements aujourd'hui</div><div class="val">213</div><div class="sub">annulés exclus</div></div>
+    <div class="card kpi"><div class="lbl">Encaissé aujourd'hui</div><div class="val">8 412,50 $</div><div class="sub">+ 1 935 000 FC</div></div>
+  </div>
+  <div class="two">
+    <div class="card"><div class="hd"><h2>Écoles les plus actives aujourd'hui</h2></div>
+      <div class="tblwrap"><table class="tbl"><thead><tr><th>École</th><th>Statut</th><th class="num">Paiements</th><th class="num">Encaissé</th></tr></thead><tbody>
+        <tr><td><b>ITIG Don Bosco Goma</b><br><span class="small muted">itig.mwangaza.school</span></td><td><span class="pill info">Essai</span></td><td class="num">96</td><td class="num">3 840,00 $<br><span class="small muted">+ 912 000 FC</span></td></tr>
+        <tr><td><b>Complexe scolaire Les Volcans</b><br><span class="small muted">volcans.mwangaza.school</span></td><td><span class="pill ok">Active</span></td><td class="num">71</td><td class="num">2 905,50 $<br><span class="small muted">+ 640 000 FC</span></td></tr>
+        <tr><td><b>Institut Bahati</b><br><span class="small muted">bahati.mwangaza.school</span></td><td><span class="pill info">Essai</span></td><td class="num">46</td><td class="num">1 667,00 $<br><span class="small muted">+ 383 000 FC</span></td></tr>
+      </tbody></table></div></div>
+    <div class="card"><div class="hd"><h2>Santé du serveur</h2></div>
+      <ul class="health" style="list-style:none;margin:0;padding:0">
+        <li><span><i class="dot ok"></i>Base de données</span><span class="muted">3 ms</span></li>
+        <li><span><i class="dot ok"></i>Redis (file des tâches)</span><span class="muted">1 ms</span></li>
+        <li><span><i class="dot ok"></i>Tâches en arrière-plan</span><span class="muted">2 travailleurs</span></li>
+        <li><span><i class="dot warn"></i>Disque des fichiers</span><span class="muted">18 % libre</span></li>
+      </ul></div>
+  </div>
+  <div class="note"><b>5.2 :</b> réservée au super-admin, à <code>admin.&lt;domaine&gt;</code>, après mot de passe et code (jamais d'appareil de confiance). Chiffres de toutes les écoles ; montants par devise, jamais additionnés ; paiements annulés exclus ; « aujourd'hui » dans le fuseau de la plateforme. Santé : point vert, orange (disque sous 20 % libre), rouge (panne, disque sous 10 %), gris (sans objet). Entrées du menu ajoutées avec leur tâche (5.2.2, 5.3, 5.4).</div>
+</main>
+</body></html>

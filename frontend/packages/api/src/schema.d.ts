@@ -251,10 +251,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Étape 1 : numéro et mot de passe. */
+        /**
+         * @description Étape 1 : numéro et mot de passe. À l'adresse de la console (5.2), seulement le
+         *     super-admin, comme dans l'administration Django.
+         */
         get: operations["auth_login_retrieve"];
         put?: never;
-        /** @description Étape 1 : numéro et mot de passe. */
+        /**
+         * @description Étape 1 : numéro et mot de passe. À l'adresse de la console (5.2), seulement le
+         *     super-admin, comme dans l'administration Django.
+         */
         post: operations["auth_login_create"];
         delete?: never;
         options?: never;
@@ -789,6 +795,26 @@ export interface paths {
         };
         /** @description Titulaires possibles : le personnel actif de l'école. */
         get: operations["class_groups_homeroom_candidates_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/dashboard/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Tableau de bord de la console de la plateforme (5.2) : toutes les écoles, super-admin
+         *     seulement, à l'adresse de la console.
+         */
+        get: operations["console_dashboard_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3319,6 +3345,41 @@ export interface components {
             /** @description Code à 6 chiffres de l'application, ou code de secours (ex. 7KQ4-M2XP). */
             code: string;
         };
+        ConsoleActiveSchool: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            status: components["schemas"]["SchoolStatusEnum"];
+            payments: number;
+            today: components["schemas"]["ConsoleAmount"][];
+        };
+        ConsoleAmount: {
+            currency: components["schemas"]["CurrencyEnum"];
+            amount_minor: number;
+        };
+        ConsoleCollected: {
+            currency: components["schemas"]["CurrencyEnum"];
+            amount_minor: number;
+            count: number;
+        };
+        ConsoleDashboard: {
+            /** Format: date */
+            day: string;
+            schools: components["schemas"]["ConsoleSchoolCounts"];
+            students: number;
+            today: components["schemas"]["ConsoleCollected"][];
+            payments_today: number;
+            active_schools: components["schemas"]["ConsoleActiveSchool"][];
+            health: components["schemas"]["ServerHealth"];
+        };
+        ConsoleSchoolCounts: {
+            active: number;
+            trial: number;
+            suspended: number;
+            /** @description Essais qui finissent dans les 30 jours. */
+            trial_ending: number;
+        };
         ContactAddress: {
             /** @default  */
             commune: string;
@@ -4011,6 +4072,28 @@ export interface components {
             status: string;
             database: string;
         };
+        HealthCheck: {
+            name: components["schemas"]["HealthCheckEnum"];
+            status: components["schemas"]["HealthStatusEnum"];
+            /** @description Millisecondes (base, Redis), travailleurs (tâches), pourcentage libre (disque). */
+            value: number | null;
+        };
+        /**
+         * @description * `database` - database
+         *     * `redis` - redis
+         *     * `workers` - workers
+         *     * `disk` - disk
+         * @enum {string}
+         */
+        HealthCheckEnum: "database" | "redis" | "workers" | "disk";
+        /**
+         * @description * `ok` - ok
+         *     * `warning` - warning
+         *     * `error` - error
+         *     * `off` - off
+         * @enum {string}
+         */
+        HealthStatusEnum: "ok" | "warning" | "error" | "off";
         ImportClass: {
             /** @description Classe écrite dans le fichier. */
             label: string;
@@ -5289,6 +5372,10 @@ export interface components {
          * @enum {string}
          */
         SchoolStatusEnum: "trial" | "active" | "suspended";
+        ServerHealth: {
+            status: components["schemas"]["HealthStatusEnum"];
+            checks: components["schemas"]["HealthCheck"][];
+        };
         SessionLine: {
             currency: components["schemas"]["CurrencyEnum"];
             /** @description Figé à la clôture ; session ouverte : paiements pas annulés à cette heure. */
@@ -8616,6 +8703,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Person"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_dashboard_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleDashboard"];
                 };
             };
             403: {

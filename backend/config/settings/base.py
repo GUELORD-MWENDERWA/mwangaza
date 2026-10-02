@@ -200,6 +200,8 @@ SPECTACULAR_SETTINGS = {
         "CreditStateEnum": "apps.finance.serializers.CREDIT_STATES",
         "CancellationStatusEnum": "apps.finance.models.CancellationRequest.Status",
         "ClosingStateEnum": "apps.finance.serializers.CLOSING_STATES",
+        "HealthCheckEnum": "apps.core.health.CHECKS",
+        "HealthStatusEnum": "apps.core.health.STATUSES",
     },
 }
 

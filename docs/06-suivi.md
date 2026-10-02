@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.1 — plateforme, notifications, communication |
 | Lot | V1.1 |
-| Tâche en cours | aucune — 5.1 terminée (PR à fusionner) |
-| Prochaine tâche | 5.2 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
-| Issue GitHub | #132 |
-| Branche | `tache/5.1-identite-plateforme` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 5.2.1 terminée (PR à fusionner) ; 5.2 découpée en 5.2.1 et 5.2.2 |
+| Prochaine tâche | 5.2.2 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
+| Issue GitHub | #133 |
+| Branche | `tache/5.2.1-console` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-02 |
 
 ## Avancement
@@ -24,7 +24,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production | 14 | 16 |
 | **V1.0** | **48** | **50** |
-| V1.1 — plateforme, notifications, communication | 1 | 7 |
+| V1.1 — plateforme, notifications, communication | 2 | 8 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
 | V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-02 — Tâche 5.2.1 : console de la plateforme (socle)
+- Fait : 5.2 découpée (5.2.1 ici, 5.2.2 identité ensuite). Troisième application `frontend/apps/console` (`admin.<domaine>`, port 5175, sans service worker) avec son propre design (maquette `console/tableau-de-bord` dessinée par Claude) : connexion du super-admin, tableau de bord de toutes les écoles (`GET /api/console/dashboard/` : écoles par statut, élèves, paiements du jour par devise, écoles les plus actives, santé du serveur) ; Caddy, Dockerfile, `make dev` / `dev-local`.
+- Tests : `schools/tests/test_console.py` (refus hors super-admin, sans double authentification, ailleurs qu'à l'adresse de la console ; chiffres de deux écoles, annulé exclu ; connexion refusée à un comptable, jamais d'appareil de confiance ; Redis en panne), Vitest de l'écran, Playwright `console.spec.ts`, `textes.test.ts` étendu à la console.
+- Décisions : `03` « Journal des décisions » (connexion à l'adresse de la console = celle de l'administration ; première connexion terminée dans l'administration ; jour du fuseau de la plateforme).
+- Suite : 5.2.2 (écran « Identité de la plateforme »).
 
 ### 2026-10-02 — Tâche 5.1 : identité de la plateforme
 - Fait : `PlatformSettings` (nom, nom court, logo, icône, couleurs, support, mentions légales), modifiable dans l'administration Django ; API publique `/api/platform/` (+ logo, icône, manifestes) ; lue par la Gestion, le Portail, les PDF, la vérification d'un reçu, l'administration, le TOTP et le guide ; `{{platform}}` dans toutes les traductions ; couleurs appliquées au thème ; contact du support sur « École suspendue » ; lien « Mentions légales » sous les connexions ; `make demo` remet l'identité de départ.

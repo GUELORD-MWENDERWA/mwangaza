@@ -57,6 +57,7 @@ dev-local: db-up ## Lancer Django et Vite sur la machine (base décrite dans .en
 	@(cd backend && exec uv run python manage.py runserver) & \
 	(cd frontend/apps/gestion && exec pnpm exec vite) & \
 	(cd frontend/apps/portail && exec pnpm exec vite) & \
+	(cd frontend/apps/console && exec pnpm exec vite) & \
 	trap 'wait; exit 0' INT; wait
 
 migrate: db-up ## Appliquer les migrations

@@ -1,0 +1,85 @@
+import { screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+import { apiError, mockApi, renderApp } from "../../test/render";
+
+const ADMIN = {
+  id: "a1",
+  phone: "+243000000000",
+  last_name: "Mwenderwa",
+  middle_name: "",
+  first_name: "Guelord",
+  language: "fr",
+  is_platform_admin: true,
+};
+
+const DASHBOARD = {
+  day: "2026-10-02",
+  schools: { active: 1, trial: 1, suspended: 0, trial_ending: 1 },
+  students: 950,
+  today: [
+    { currency: "USD", amount_minor: 17000, count: 2 },
+    { currency: "CDF", amount_minor: 10000, count: 1 },
+  ],
+  payments_today: 3,
+  active_schools: [
+    {
+      id: "s1",
+      code: "itig",
+      name: "ITIG Don Bosco Goma",
+      status: "trial",
+      payments: 2,
+      today: [
+        { currency: "USD", amount_minor: 12000 },
+        { currency: "CDF", amount_minor: 10000 },
+      ],
+    },
+  ],
+  health: {
+    status: "error",
+    checks: [
+      { name: "database", status: "ok", value: 3 },
+      { name: "redis", status: "error", value: null },
+      { name: "workers", status: "off", value: null },
+      { name: "disk", status: "warning", value: 18 },
+    ],
+  },
+};
+
+afterEach(() => vi.unstubAllGlobals());
+
+describe("console : tableau de bord", () => {
+  it("montre chaque devise à part et le service en panne", async () => {
+    mockApi({ "GET /api/me/": ADMIN, "GET /api/console/dashboard/": DASHBOARD });
+    renderApp("/");
+
+    const collected = (await screen.findByText("Encaissé aujourd'hui")).closest("section")!;
+    // Dollars et francs jamais additionnés : les francs à part, sous les dollars.
+    expect(within(collected).getByText(/170,00/)).toBeTruthy();
+    expect(within(collected).getByText(/10 000 FC/)).toBeTruthy();
+    expect(screen.getByText("Un service est en panne")).toBeTruthy();
+    const redis = screen.getByText("Redis (file des tâches)").closest("li")!;
+    expect(within(redis).getByText("en panne")).toBeTruthy();
+    expect(screen.getByText("18 % libre")).toBeTruthy();
+  });
+
+  it("renvoie vers la connexion sans session, puis demande le code", async () => {
+    const requests = mockApi({
+      "GET /api/me/": apiError("not_authenticated", 403),
+      "GET /api/auth/login/": { step: "password" },
+      "GET /api/auth/csrf/": new Response(null, { status: 204 }),
+      "POST /api/auth/login/": { step: "totp" },
+    });
+    const { user } = renderApp("/");
+
+    await user.type(await screen.findByLabelText("Numéro de téléphone"), "0000000000");
+    await user.type(screen.getByLabelText("Mot de passe"), "secret");
+    await user.click(screen.getByRole("button", { name: "Se connecter" }));
+
+    expect(await screen.findByLabelText("Code à 6 chiffres")).toBeTruthy();
+    expect(requests.find((r) => r.method === "POST")?.body).toEqual({
+      phone: "0000000000",
+      password: "secret",
+    });
+  });
+});

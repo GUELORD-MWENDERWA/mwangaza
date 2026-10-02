@@ -61,4 +61,5 @@ FROM caddy:2-alpine AS caddy
 COPY infra/Caddyfile /etc/caddy/Caddyfile
 COPY --from=front /front/apps/gestion/dist /srv/gestion
 COPY --from=front /front/apps/portail/dist /srv/portail
+COPY --from=front /front/apps/console/dist /srv/console
 COPY --from=backend /app/staticfiles /srv/static
