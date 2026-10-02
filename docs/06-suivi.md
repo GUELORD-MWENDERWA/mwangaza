@@ -8,7 +8,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 4 (Rapports, portail, production) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | 4.4.2 — enfants et installable (Portail) |
+| Tâche en cours | aucune — 4.4.2 terminée, PR à fusionner |
 | Prochaine tâche | 4.4.3 |
 | Issue GitHub | #32 (fermée par la 4.4.5) |
 | Branche | `tache/4.4.2-enfants-portail` ; dossier local : `~/Projets/mwangaza` |
@@ -22,8 +22,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 5 | 12 |
-| **V1.0** | **39** | **46** |
+| Semaine 4 — Rapports, portail, production | 6 | 13 |
+| **V1.0** | **40** | **47** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-02 — Tâche 4.4.2 : enfants et installable (Portail)
+- Fait : 4.4 redécoupée en 5 (paiements et reçus à part : 4.4.3). Serveur : `GET /api/portal/families/` (familles reliées au compte, une par école, enfants inscrits avec la situation par devise, premier frais en retard, dernier paiement), `POST /api/portal/families/link/` (« Ajouter un enfant d'une autre école »), « Suspendre l'accès » (`Family.portal_suspended_at`, `POST /api/families/{id}/portal-access/`). Portail : accueil, ajout d'une école, écran « Installer » et bandeau, PWA (cache des données vidé à la déconnexion). Gestion : bouton sur la fiche famille. `make demo` : compte du portail `0002000001`, code des Volcans affiché.
+- Tests : 4 tests serveur (familles du compte seulement, montants par devise, ajout refusé sans le bon numéro, suspension 403 / autre école 404 / audit, école ou famille suspendue sans données) ; 2 tests d'écrans.
+- Décisions (`03`) : ajout d'une école = code + numéro du compte égal au contact principal de cette école ; famille suspendue : rien affiché, code refusé (activation, ajout, mot de passe oublié).
+- Suite : 4.4.3 (paiements d'un enfant, reçus PDF, photo).
 
 ### 2026-10-02 — Tâche 4.4.1 : accès au portail des familles
 - Fait : 4.4 découpée en 4 sous-tâches (accès, enfants et paiements, annonces, coordonnées). App `portal` (`/api/portal/auth/activate/`, `login/`, `reset/`, `me/`, refusés à l'adresse d'une école) ; « Nouveau code » et état du portail sur la fiche famille (`Family.code_expires_at`) ; Portail : coquille (Tailwind, `ui`, `i18n`, client API), écrans connexion, activation, mot de passe oublié, accueil provisoire. Traduction des erreurs de l'API déplacée dans `@mwangaza/i18n` (partagée).
