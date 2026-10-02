@@ -14,6 +14,7 @@ from apps.accounts.demo import (
     create_demo_accounts,
 )
 from apps.accounts.models import User
+from apps.core.demo import create_demo_platform
 from apps.finance.demo import (
     create_demo_cancellations,
     create_demo_charges,
@@ -45,6 +46,7 @@ class Command(BaseCommand):
         if not settings.DEBUG:
             raise CommandError("Données de démonstration refusées hors développement (DEBUG).")
         with transaction.atomic():
+            create_demo_platform()
             schools = create_demo_schools()
             accounts = create_demo_accounts(schools)
             create_demo_organisation(schools)

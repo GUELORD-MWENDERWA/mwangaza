@@ -1,0 +1,121 @@
+"""Identité de la plateforme (5.1) : lisible partout, contrôlée, et jamais écrite en dur."""
+
+import re
+import uuid
+from pathlib import Path
+
+import pytest
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import SimpleUploadedFile
+
+from apps.accounts import totp
+from apps.core.models import PlatformSettings
+from apps.schools.models import School
+
+INITIAL_NAME = PlatformSettings._meta.get_field("name").default
+
+
+def png(width: int, height: int) -> SimpleUploadedFile:
+    """En-tête d'un PNG (seul lu par le contrôle de l'icône)."""
+    header = b"\x89PNG\r\n\x1a\n" + (13).to_bytes(4, "big") + b"IHDR"
+    size = width.to_bytes(4, "big") + height.to_bytes(4, "big")
+    return SimpleUploadedFile("icone.png", header + size + b"\x08\x06\x00\x00\x00" + bytes(64))
+
+
+def test_identity_is_public_at_every_address(client, school):
+    school.status = School.Status.SUSPENDED
+    school.save()
+
+    for host in ("alpha.localhost", "inconnue.localhost", "localhost"):
+        response = client.get("/api/platform/", HTTP_HOST=host)
+        assert response.status_code == 200, host
+        assert response.json()["name"] == INITIAL_NAME
+    # Le reste de l'adresse d'une école suspendue reste fermé.
+    assert client.get("/api/school/", HTTP_HOST="alpha.localhost").status_code == 403
+
+
+def test_a_new_name_is_used_everywhere_without_code(client, school):
+    platform = PlatformSettings.load()
+    platform.name, platform.short_name = "Lumière", "Lumi"
+    platform.save()
+
+    gestion = client.get("/api/platform/manifest/gestion/", HTTP_HOST="alpha.localhost").json()
+    assert (gestion["name"], gestion["short_name"], gestion["start_url"]) == (
+        "Lumière",
+        "Lumi",
+        "/app/",
+    )
+    assert gestion["icons"][0]["src"] == "/app/icons/icon-192.png"  # pas d'icône : la lampe
+    portail = client.get("/api/platform/manifest/portail/", HTTP_HOST="localhost").json()
+    assert portail["name"] == "Lumière — Parents"
+    assert "issuer=Lumi%C3%A8re" in totp.provisioning_uri("SECRET", "+243970000000")
+    assert "Administration Lumière" in client.get("/admin/login/").content.decode()
+    verification = client.get(f"/v/{uuid.uuid4()}", HTTP_HOST="alpha.localhost")
+    assert "Lumière" in verification.content.decode()
+
+
+def test_unreadable_colours_and_wrong_icon_are_refused(db):
+    platform = PlatformSettings.load()
+    platform.primary_color = "#F2B632"  # trop clair sous un texte blanc
+    platform.accent_color = "#0E5C6B"  # trop sombre sur le menu
+    platform.icon = png(600, 500)
+    with pytest.raises(ValidationError) as refused:
+        platform.full_clean()
+    assert set(refused.value.message_dict) == {"primary_color", "accent_color", "icon"}
+
+
+def test_uploaded_icon_and_logo_are_served(client, db):
+    platform = PlatformSettings.load()
+    platform.icon = png(1024, 1024)
+    platform.full_clean()
+    platform.save()
+
+    manifest = client.get("/api/platform/manifest/gestion/", HTTP_HOST="localhost").json()
+    assert manifest["icons"] == [
+        {"src": platform.icon_url, "sizes": "1024x1024", "type": "image/png"}
+    ]
+    icon = client.get(platform.icon_url, HTTP_HOST="alpha.localhost")
+    assert (icon.status_code, icon["Content-Type"]) == (200, "image/png")
+    assert client.get("/api/platform/logo/").status_code == 404  # pas de logo : la lampe
+
+
+def test_platform_name_is_not_written_in_server_texts():
+    """Règle 9 : le nom vient des paramètres ; ni traduction ni gabarit ne l'écrit."""
+    found = []
+    po = Path(settings.BASE_DIR, "locale/fr/LC_MESSAGES/django.po").read_text()
+    for entry in po.split("\n\n")[1:]:  # après l'en-tête du fichier
+        texts = "".join(re.findall(r'^(?:msgid|msgstr)?\s*"(.*)"$', entry, re.M))
+        if INITIAL_NAME in texts:
+            found.append(texts[:80])
+    for template in Path(settings.BASE_DIR, "apps").glob("*/templates/**/*.html"):
+        if INITIAL_NAME in template.read_text():
+            found.append(str(template))
+    assert found == []
+
+
+def test_platform_admin_edits_the_single_identity(admin_client):
+    change = "/admin/core/platformsettings/1/change/"
+    assert admin_client.get("/admin/core/platformsettings/").url == change
+    assert admin_client.get("/admin/core/platformsettings/add/").status_code == 403
+
+    response = admin_client.post(
+        change,
+        {
+            "name": "Lumière",
+            "short_name": "Lumière",
+            "primary_color": "#1d4ed8",
+            "accent_color": "#F2B632",
+            "support_phone": "0970000000",
+            "support_email": "",
+            "legal_notice": "",
+        },
+    )
+
+    assert response.status_code == 302
+    platform = PlatformSettings.load()
+    assert (platform.name, platform.primary_color, platform.support_phone) == (
+        "Lumière",
+        "#1D4ED8",
+        "+243970000000",
+    )

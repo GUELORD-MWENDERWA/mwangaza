@@ -17,6 +17,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
@@ -25,9 +26,10 @@ from rest_framework.exceptions import APIException
 from apps.accounts import login, services, totp
 from apps.accounts.login import MFA_SESSION_KEY, Step
 from apps.core.errors import BusinessError
+from apps.core.models import PlatformSettings
 
 ADMIN_INVALID_CREDENTIALS = _(
-    "Wrong phone number or password, or not a Mwangaza administration account."
+    "Wrong phone number or password, or not a platform administration account."
 )
 
 
@@ -65,9 +67,16 @@ _INTROS = {
 
 
 class PlatformAdminSite(admin.AdminSite):
-    site_header = _("Mwangaza administration")
-    site_title = _("Mwangaza administration")
     index_title = _("Platform")
+
+    def each_context(self, request):
+        """Titre : nom de la plateforme, lu dans ses paramètres (5.1)."""
+        context = super().each_context(request)
+        name = PlatformSettings.load().name
+        context["site_header"] = context["site_title"] = gettext("%(platform)s administration") % {
+            "platform": name
+        }
+        return context
 
     def has_permission(self, request) -> bool:
         """Super-admin actif, session passée par la double authentification."""

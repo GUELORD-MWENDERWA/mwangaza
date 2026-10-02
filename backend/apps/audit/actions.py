@@ -23,7 +23,7 @@ class Action(models.TextChoices):
     ACCOUNT_TOTP_DISABLED = "account.totp_disabled", _("Two-factor authentication turned off")
     ACCOUNT_TOTP_RESET = "account.totp_reset", _("Two-factor authentication reset by support")
     ACCOUNT_RECOVERY_CODES_RENEWED = "account.recovery_codes_renewed", _("New recovery codes")
-    # Par le support Mwangaza, dans l'administration Django.
+    # Par le support de la plateforme, dans l'administration Django.
     ACCOUNT_CHANGED = "account.changed", _("Names or phone changed by support")
     ACCOUNT_DEACTIVATED = "account.deactivated", _("Account deactivated by support")
     ACCOUNT_REACTIVATED = "account.reactivated", _("Account reactivated by support")

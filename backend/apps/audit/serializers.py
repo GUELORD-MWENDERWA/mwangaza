@@ -33,10 +33,10 @@ class AuditLogSerializer(serializers.ModelSerializer):
     action = serializers.ChoiceField(choices=Action.choices, read_only=True)
     domain = serializers.SerializerMethodField(help_text="Domaine de l'action (filtre de M6).")
     actor = serializers.SerializerMethodField(
-        help_text="Qui ; vide pour le support Mwangaza (`by_support`) ou le système."
+        help_text="Qui ; vide pour le support de la plateforme (`by_support`) ou le système."
     )
     by_support = serializers.SerializerMethodField(
-        help_text="Action du support Mwangaza : l'interface affiche « Support Mwangaza »."
+        help_text="Action du support de la plateforme : l'interface affiche « Support {nom} »."
     )
     entity_label = serializers.CharField(
         read_only=True,

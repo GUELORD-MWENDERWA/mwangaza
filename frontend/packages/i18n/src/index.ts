@@ -75,3 +75,12 @@ function applyLanguage(language: string) {
   document.documentElement.lang = language;
   document.cookie = `${SERVER_COOKIE}=${language}; path=/; max-age=31536000; samesite=lax`;
 }
+
+/** Nom de la plateforme dans les textes (`{{platform}}`), lu dans ses paramètres (5.1) : aucun
+ *  texte ne l'écrit. Les textes déjà affichés sont redessinés. */
+export function setPlatformName(name: string) {
+  const interpolation = (i18next.options.interpolation ??= {});
+  if (interpolation.defaultVariables?.platform === name) return;
+  interpolation.defaultVariables = { ...interpolation.defaultVariables, platform: name };
+  if (i18next.isInitialized) void i18next.changeLanguage(i18next.language);
+}

@@ -17,6 +17,7 @@ from config.views import health
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/health/", health, name="health"),
+    path("api/platform/", include("apps.core.urls")),
     path("api/school/", current_school, name="current-school"),
     path("api/school/logo/", school_logo, name="school-logo"),
     path("api/school/logo-monochrome/", school_logo_monochrome, name="school-logo-monochrome"),

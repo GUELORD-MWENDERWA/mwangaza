@@ -71,7 +71,7 @@ class User(BaseModel, AbstractBaseUser):
     is_platform_admin = models.BooleanField(
         _("platform administrator"),
         default=False,
-        help_text=_("Mwangaza super-administrator: Django administration only, no school rights."),
+        help_text=_("Platform super-administrator: Django administration only, no school rights."),
     )
     # Mot de passe provisoire donné par l'école : à changer à la connexion.
     must_change_password = models.BooleanField(_("must change password"), default=False)

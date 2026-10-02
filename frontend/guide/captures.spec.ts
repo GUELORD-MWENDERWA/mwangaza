@@ -8,7 +8,6 @@ import { enterCode, ITIG, PASSWORD, skipGuide } from "../e2e/helpers";
 // Version du guide et nom de la plateforme, écrits dans la page (`data-guide`) et dans le nom du
 // PDF. Le nom viendra des paramètres de la plateforme (5.1) ; ici seulement, pas dans le texte.
 const VERSION = "1.0";
-const PLATFORM = "Mwangaza";
 
 const CAPTURES = new URL("captures/", import.meta.url).pathname;
 const PDF = new URL(`../../docs/guide/guide-v${VERSION}.pdf`, import.meta.url).pathname;
@@ -234,7 +233,11 @@ test("super-admin", async ({ page }) => {
   await open(page, "dashboard", "support-session");
 });
 
-test("PDF", async ({ page }) => {
+test("PDF", async ({ page, request }) => {
+  // Nom de la plateforme : celui de ses paramètres (5.1), comme dans les applications.
+  const { name: platform } = (await (
+    await request.get("http://localhost:8000/api/platform/")
+  ).json()) as { name: string };
   await page.goto(new URL("guide.html", import.meta.url).href);
   const today = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(new Date());
   await page.evaluate(
@@ -243,7 +246,7 @@ test("PDF", async ({ page }) => {
         node.textContent = values[node.dataset.guide as keyof typeof values];
       document.title = `${values.platform} — guide de la version ${values.version}`;
     },
-    { version: VERSION, platform: PLATFORM, date: today },
+    { version: VERSION, platform, date: today },
   );
   await page.evaluate(() => document.fonts.ready);
   // Toutes les captures présentes.
@@ -257,7 +260,7 @@ test("PDF", async ({ page }) => {
     printBackground: true,
     displayHeaderFooter: true,
     headerTemplate: "<span></span>",
-    footerTemplate: `<div style="width:100%;font-size:8px;color:#77818f;padding:0 14mm;display:flex;justify-content:space-between"><span>${PLATFORM} — guide de la version ${VERSION}</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`,
+    footerTemplate: `<div style="width:100%;font-size:8px;color:#77818f;padding:0 14mm;display:flex;justify-content:space-between"><span>${platform} — guide de la version ${VERSION}</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`,
     margin: { top: "14mm", bottom: "16mm", left: "14mm", right: "14mm" },
   });
 });

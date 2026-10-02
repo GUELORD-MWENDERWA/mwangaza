@@ -1,5 +1,5 @@
 import { changeLanguage, LANGUAGES, useTranslation } from "@mwangaza/i18n";
-import { Brand, cn, SchoolBadge } from "@mwangaza/ui";
+import { Brand, cn, LegalNotice, SchoolBadge } from "@mwangaza/ui";
 import type { ReactNode } from "react";
 
 import type { School } from "../../lib/queries";
@@ -67,7 +67,7 @@ export function AuthFrame({
   );
 }
 
-/** « {code}.mwangaza.school · Français | English » en bas du panneau. */
+/** « {code}.<domaine> · Français | English · Mentions légales » en bas du panneau. */
 function LanguageLinks({ className }: { className?: string }) {
   const { t, i18n } = useTranslation();
   return (
@@ -93,6 +93,11 @@ function LanguageLinks({ className }: { className?: string }) {
           </button>
         </span>
       ))}
+      <LegalNotice
+        label={t("common.legalNotice")}
+        closeLabel={t("common.close")}
+        className="before:mr-1 before:content-['·']"
+      />
     </nav>
   );
 }

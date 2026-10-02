@@ -57,7 +57,7 @@ NAMES_REQUIRED = ApiError(
 )
 ACCOUNT_USED_ELSEWHERE = ApiError(
     "account_used_elsewhere",
-    _("This account is also used outside this school: only Mwangaza support can change it."),
+    _("This account is also used outside this school: only the platform support can change it."),
     409,
 )
 PHONE_TAKEN = ApiError("phone_taken", _("This phone number already has an account."), 409)

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-02 21:22+0200\n"
+"POT-Creation-Date: 2026-10-02 22:49+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -53,39 +53,39 @@ msgstr "droits"
 msgid "roles"
 msgstr "rôles"
 
-#: apps/accounts/admin_site.py:30
+#: apps/accounts/admin_site.py:32
 msgid ""
-"Wrong phone number or password, or not a Mwangaza administration account."
+"Wrong phone number or password, or not a platform administration account."
 msgstr ""
-"Numéro de téléphone ou mot de passe incorrect, ou ce n'est pas un compte "
-"d'administration Mwangaza."
+"Numéro ou mot de passe incorrect, ou ce n'est pas un compte d'administration "
+"de la plateforme."
 
-#: apps/accounts/admin_site.py:36 apps/finance/documents.py:147
+#: apps/accounts/admin_site.py:38 apps/finance/documents.py:147
 #: apps/students/templates/students/registration_form.html:40
 msgid "Phone"
 msgstr "Téléphone"
 
-#: apps/accounts/admin_site.py:41
+#: apps/accounts/admin_site.py:43
 msgid "Password"
 msgstr "Mot de passe"
 
-#: apps/accounts/admin_site.py:49
+#: apps/accounts/admin_site.py:51
 msgid "Code"
 msgstr "Code"
 
-#: apps/accounts/admin_site.py:57
+#: apps/accounts/admin_site.py:59
 msgid "Enter the code of your authentication application, or a recovery code."
 msgstr ""
 "Saisissez le code de votre application d'authentification, ou un code de "
 "secours."
 
-#: apps/accounts/admin_site.py:58
+#: apps/accounts/admin_site.py:60
 msgid "Your password is temporary: choose your own (10 characters or more)."
 msgstr ""
 "Votre mot de passe est provisoire : choisissez le vôtre (10 caractères ou "
 "plus)."
 
-#: apps/accounts/admin_site.py:60
+#: apps/accounts/admin_site.py:62
 msgid ""
 "Two-factor authentication is required for the administration. In your "
 "authentication application (Google Authenticator, Aegis…), add an account "
@@ -95,15 +95,16 @@ msgstr ""
 "application d'authentification (Google Authenticator, Aegis…), ajoutez un "
 "compte avec la clé ci-dessous, puis saisissez le code qu'elle affiche."
 
-#: apps/accounts/admin_site.py:68 apps/accounts/admin_site.py:69
-msgid "Mwangaza administration"
-msgstr "Administration Mwangaza"
-
 #: apps/accounts/admin_site.py:70
 msgid "Platform"
 msgstr "Plateforme"
 
-#: apps/accounts/admin_site.py:108
+#: apps/accounts/admin_site.py:76
+#, python-format
+msgid "%(platform)s administration"
+msgstr "Administration %(platform)s"
+
+#: apps/accounts/admin_site.py:117
 msgid "Log in"
 msgstr "Se connecter"
 
@@ -192,10 +193,10 @@ msgstr "administrateur de la plateforme"
 
 #: apps/accounts/models.py:74
 msgid ""
-"Mwangaza super-administrator: Django administration only, no school rights."
+"Platform super-administrator: Django administration only, no school rights."
 msgstr ""
-"Super-administrateur Mwangaza : administration Django seulement, aucun droit "
-"dans les écoles."
+"Super-administrateur de la plateforme : administration Django seulement, "
+"aucun droit dans une école."
 
 #: apps/accounts/models.py:77
 msgid "must change password"
@@ -223,10 +224,11 @@ msgstr "comptes"
 msgid "code"
 msgstr "code"
 
-#: apps/accounts/models.py:141 apps/finance/models.py:35
-#: apps/finance/models.py:371 apps/schools/models.py:77
-#: apps/schools/models.py:219 apps/schools/models.py:277
-#: apps/schools/models.py:316 apps/schools/models.py:340 apps/sync/models.py:27
+#: apps/accounts/models.py:141 apps/core/models.py:130
+#: apps/finance/models.py:35 apps/finance/models.py:371
+#: apps/schools/models.py:77 apps/schools/models.py:219
+#: apps/schools/models.py:277 apps/schools/models.py:316
+#: apps/schools/models.py:340 apps/sync/models.py:27
 msgid "name"
 msgstr "nom"
 
@@ -234,7 +236,7 @@ msgstr "nom"
 msgid "role"
 msgstr "rôle"
 
-#: apps/accounts/models.py:201 apps/core/models.py:49 apps/schools/admin.py:210
+#: apps/accounts/models.py:201 apps/core/models.py:52 apps/schools/admin.py:210
 #: apps/schools/models.py:144
 msgid "school"
 msgstr "école"
@@ -263,7 +265,7 @@ msgstr "code de secours"
 msgid "recovery codes"
 msgstr "codes de secours"
 
-#: apps/accounts/models.py:252 apps/audit/models.py:66 apps/audit/views.py:107
+#: apps/accounts/models.py:252 apps/audit/models.py:66 apps/audit/views.py:109
 msgid "IP address"
 msgstr "Adresse IP"
 
@@ -426,11 +428,11 @@ msgstr "Ce numéro de téléphone n'a pas encore de compte : saisissez le nom."
 
 #: apps/accounts/services.py:60
 msgid ""
-"This account is also used outside this school: only Mwangaza support can "
+"This account is also used outside this school: only the platform support can "
 "change it."
 msgstr ""
-"Ce compte sert aussi en dehors de cette école : seul le support Mwangaza "
-"peut le modifier."
+"Ce compte sert aussi en dehors de cette école : seul le support de la "
+"plateforme peut le modifier."
 
 #: apps/accounts/services.py:63
 msgid "This phone number already has an account."
@@ -453,8 +455,8 @@ msgstr ""
 "désactivée."
 
 #: apps/accounts/support.py:41
-msgid "Only Mwangaza support can open a support session."
-msgstr "Seul le support Mwangaza peut ouvrir une session support."
+msgid "Only the platform support can open a support session."
+msgstr "Seul le support de la plateforme peut ouvrir une session support."
 
 #: apps/accounts/support.py:44
 msgid "Log in again with two-factor authentication."
@@ -952,48 +954,49 @@ msgstr "La date de fin est avant la date de début."
 msgid "Export at most one year at a time."
 msgstr "Exportez au plus une année à la fois."
 
-#: apps/audit/views.py:101 apps/finance/documents.py:66
-#: apps/finance/templates/finance/receipt_verification.html:69
+#: apps/audit/views.py:100
+#, python-format
+msgid "%(platform)s support"
+msgstr "Support %(platform)s"
+
+#: apps/audit/views.py:103 apps/finance/documents.py:66
+#: apps/finance/templates/finance/receipt_verification.html:70
 msgid "Date"
 msgstr "Date"
 
-#: apps/audit/views.py:102
+#: apps/audit/views.py:104
 msgid "Person"
 msgstr "Personne"
 
-#: apps/audit/views.py:103
+#: apps/audit/views.py:105
 msgid "Action"
 msgstr "Action"
 
-#: apps/audit/views.py:104
+#: apps/audit/views.py:106
 msgid "Object"
 msgstr "Objet"
 
-#: apps/audit/views.py:105
+#: apps/audit/views.py:107
 msgid "Before"
 msgstr "Avant"
 
-#: apps/audit/views.py:106
+#: apps/audit/views.py:108
 msgid "After"
 msgstr "Après"
 
-#: apps/audit/views.py:108
+#: apps/audit/views.py:110
 msgid "Device"
 msgstr "Appareil"
 
-#: apps/audit/views.py:109
+#: apps/audit/views.py:111
 msgid "Device time"
 msgstr "Heure de l'appareil"
 
-#: apps/audit/views.py:112
+#: apps/audit/views.py:114
 msgid "Audit log"
 msgstr "Journal d'audit"
 
-#: apps/audit/views.py:132
-msgid "Mwangaza support"
-msgstr "Support Mwangaza"
-
-#: apps/audit/views.py:136
+#: apps/audit/views.py:138
 msgid "System"
 msgstr "Système"
 
@@ -1010,20 +1013,78 @@ msgid "There is no school at this address."
 msgstr "Il n'y a pas d'école à cette adresse."
 
 #: apps/core/errors.py:100
-msgid "This school is suspended. Please contact Mwangaza."
-msgstr "Cette école est suspendue. Contactez Mwangaza."
+msgid "This school is suspended. Please contact the platform support."
+msgstr "Cette école est suspendue. Contactez le support de la plateforme."
 
-#: apps/core/models.py:20
+#: apps/core/models.py:23
 msgid "created at"
 msgstr "créé le"
 
-#: apps/core/models.py:21
+#: apps/core/models.py:24 apps/core/models.py:168
 msgid "updated at"
 msgstr "modifié le"
 
-#: apps/core/models.py:31
+#: apps/core/models.py:34
 msgid "created by"
 msgstr "créé par"
+
+#: apps/core/models.py:132
+msgid "short name"
+msgstr "nom court"
+
+#: apps/core/models.py:135
+msgid "Under the application icon on the home screen (12 characters is best)."
+msgstr ""
+"Sous l'icône de l'application sur l'écran d'accueil (12 caractères au mieux)."
+
+#: apps/core/models.py:138 apps/schools/models.py:81
+msgid "logo"
+msgstr "logo"
+
+#: apps/core/models.py:142
+msgid "PNG, JPEG or SVG, 1 MB at most. Without it: the lamp."
+msgstr "PNG, JPEG ou SVG, 1 Mo au plus. Sans lui : la lampe."
+
+#: apps/core/models.py:145
+msgid "application icon"
+msgstr "icône des applications"
+
+#: apps/core/models.py:149
+msgid "Square PNG of at least 512 x 512 pixels. Without it: the lamp icon."
+msgstr ""
+"PNG carré d'au moins 512 x 512 pixels. Sans elle : l'icône de la lampe."
+
+#: apps/core/models.py:152
+msgid "main colour"
+msgstr "couleur principale"
+
+#: apps/core/models.py:156
+msgid "Buttons and links of the interface."
+msgstr "Boutons et liens de l'interface."
+
+#: apps/core/models.py:159
+msgid "accent colour"
+msgstr "couleur d'accent"
+
+#: apps/core/models.py:163
+msgid "Mark and highlights on the dark menu."
+msgstr "Marque et repères sur le menu sombre."
+
+#: apps/core/models.py:165
+msgid "support phone"
+msgstr "téléphone du support"
+
+#: apps/core/models.py:166
+msgid "support email"
+msgstr "e-mail du support"
+
+#: apps/core/models.py:167
+msgid "legal notice"
+msgstr "mentions légales"
+
+#: apps/core/models.py:171 apps/core/models.py:172
+msgid "platform identity"
+msgstr "identité de la plateforme"
 
 #: apps/core/money.py:17
 msgid "US dollar"
@@ -1033,9 +1094,39 @@ msgstr "Dollar américain"
 msgid "Congolese franc"
 msgstr "Franc congolais"
 
+#: apps/core/platform.py:43
+msgid "The icon must not exceed 1 MB."
+msgstr "L'icône ne doit pas dépasser 1 Mo."
+
+#: apps/core/platform.py:47
+msgid "The icon must be a square PNG image of at least 512 x 512 pixels."
+msgstr "L'icône doit être une image PNG carrée d'au moins 512 x 512 pixels."
+
+#: apps/core/platform.py:57 apps/schools/colors.py:82
+msgid "Enter a colour as #RRGGBB, e.g. #0E5C6B."
+msgstr "Saisissez une couleur au format #RRGGBB, ex. #0E5C6B."
+
+#: apps/core/platform.py:73
+msgid ""
+"This colour is too light: white text on it, or the colour on a light "
+"background, is not readable."
+msgstr ""
+"Cette couleur est trop claire : un texte blanc posé dessus, ou la couleur "
+"sur un fond clair, n'est pas lisible."
+
+#: apps/core/platform.py:83
+msgid "This colour is too dark: it is not readable on the dark menu."
+msgstr ""
+"Cette couleur est trop sombre : elle n'est pas lisible sur le menu sombre."
+
 #: apps/core/templates/core/print_base.html:10
 msgid "page"
 msgstr "page"
+
+#: apps/core/views.py:86
+#, python-format
+msgid "%(platform)s — Parents"
+msgstr "%(platform)s — Parents"
 
 #: apps/finance/apps.py:10
 msgid "Finance"
@@ -1122,7 +1213,7 @@ msgid "Student number"
 msgstr "Matricule"
 
 #: apps/finance/documents.py:145
-#: apps/finance/templates/finance/receipt_verification.html:70
+#: apps/finance/templates/finance/receipt_verification.html:71
 #: apps/finance/templates/finance/statement.html:29
 #: apps/finance/templates/finance/statement_verification.html:21
 #: apps/finance/templates/finance/unpaid.html:32
@@ -1153,7 +1244,7 @@ msgid "Due date"
 msgstr "Échéance"
 
 #: apps/finance/documents.py:151 apps/finance/models.py:224
-#: apps/finance/templates/finance/receipt_verification.html:71
+#: apps/finance/templates/finance/receipt_verification.html:72
 #: apps/finance/templates/finance/statement.html:35
 #: apps/portal/templates/portal/receipt.html:34
 #: apps/students/templates/students/registration_form.html:50
@@ -1851,35 +1942,35 @@ msgstr "Expliquez l'écart : le comptable le verra."
 msgid "Receipt verification"
 msgstr "Vérification d'un reçu"
 
-#: apps/finance/templates/finance/receipt_verification.html:38
+#: apps/finance/templates/finance/receipt_verification.html:39
 msgid "Document verification"
 msgstr "Vérification de document"
 
-#: apps/finance/templates/finance/receipt_verification.html:49
+#: apps/finance/templates/finance/receipt_verification.html:50
 msgid "Authentic receipt"
 msgstr "Reçu authentique"
 
-#: apps/finance/templates/finance/receipt_verification.html:50
+#: apps/finance/templates/finance/receipt_verification.html:51
 msgid "This receipt was issued by the school and has not been cancelled."
 msgstr "Ce reçu a bien été émis par l'école et n'a pas été annulé."
 
-#: apps/finance/templates/finance/receipt_verification.html:52
+#: apps/finance/templates/finance/receipt_verification.html:53
 #, python-format
 msgid "Receipt cancelled on %(date)s"
 msgstr "Reçu annulé le %(date)s"
 
-#: apps/finance/templates/finance/receipt_verification.html:53
+#: apps/finance/templates/finance/receipt_verification.html:54
 msgid ""
 "This receipt was issued by the school, then cancelled: it no longer counts "
 "as a payment."
 msgstr ""
 "Ce reçu a été émis par l'école, puis annulé : il ne vaut plus comme paiement."
 
-#: apps/finance/templates/finance/receipt_verification.html:55
+#: apps/finance/templates/finance/receipt_verification.html:56
 msgid "Authentic receipt, awaiting synchronisation"
 msgstr "Reçu authentique, en attente de synchronisation"
 
-#: apps/finance/templates/finance/receipt_verification.html:56
+#: apps/finance/templates/finance/receipt_verification.html:57
 #, python-format
 msgid ""
 "Issued offline by cash register %(register)s on %(date)s, signed by the "
@@ -1888,11 +1979,11 @@ msgstr ""
 "Émis hors ligne par la caisse %(register)s le %(date)s, signé par l'appareil "
 "de l'école. Il apparaîtra ici dès que l'appareil sera de nouveau en ligne."
 
-#: apps/finance/templates/finance/receipt_verification.html:58
+#: apps/finance/templates/finance/receipt_verification.html:59
 msgid "Forged receipt"
 msgstr "Reçu falsifié"
 
-#: apps/finance/templates/finance/receipt_verification.html:59
+#: apps/finance/templates/finance/receipt_verification.html:60
 #, python-format
 msgid ""
 "This code does not match any receipt issued by %(school)s: the receipt was "
@@ -1901,11 +1992,11 @@ msgstr ""
 "Ce code ne correspond à aucun reçu émis par %(school)s : le reçu a été "
 "modifié. Renseignez-vous auprès de l'école."
 
-#: apps/finance/templates/finance/receipt_verification.html:61
+#: apps/finance/templates/finance/receipt_verification.html:62
 msgid "Unknown receipt"
 msgstr "Reçu inconnu"
 
-#: apps/finance/templates/finance/receipt_verification.html:62
+#: apps/finance/templates/finance/receipt_verification.html:63
 #, python-format
 msgid ""
 "No receipt of %(school)s matches this code. This receipt may be false: check "
@@ -1914,12 +2005,12 @@ msgstr ""
 "Aucun reçu de %(school)s ne correspond à ce code. Ce reçu est peut-être "
 "faux : renseignez-vous auprès de l'école."
 
-#: apps/finance/templates/finance/receipt_verification.html:67
+#: apps/finance/templates/finance/receipt_verification.html:68
 #: apps/finance/templates/finance/statement_verification.html:19
 msgid "School"
 msgstr "École"
 
-#: apps/finance/templates/finance/receipt_verification.html:68
+#: apps/finance/templates/finance/receipt_verification.html:69
 msgid "Number"
 msgstr "Numéro"
 
@@ -2407,10 +2498,6 @@ msgstr "Réactivée."
 msgid "Schools"
 msgstr "Écoles"
 
-#: apps/schools/colors.py:82
-msgid "Enter a colour as #RRGGBB, e.g. #0E5C6B."
-msgstr "Saisissez une couleur au format #RRGGBB, ex. #0E5C6B."
-
 #: apps/schools/colors.py:87
 #, python-format
 msgid ""
@@ -2498,10 +2585,6 @@ msgstr ""
 #: apps/schools/models.py:79
 msgid "official name"
 msgstr "nom officiel"
-
-#: apps/schools/models.py:81
-msgid "logo"
-msgstr "logo"
 
 #: apps/schools/models.py:85
 msgid "PNG, JPEG or SVG, 1 MB at most."
@@ -2857,7 +2940,7 @@ msgstr ""
 msgid "Back to the schools"
 msgstr "Retour aux écoles"
 
-#: apps/schools/views.py:60
+#: apps/schools/views.py:58
 msgid "This school has no logo."
 msgstr "Cette école n'a pas de logo."
 
@@ -3625,10 +3708,10 @@ msgstr "Saisissez le code famille ci-contre et choisissez un mot de passe"
 #, python-format
 msgid ""
 "Keep this code: it gives access to your children's information. Printed on "
-"%(date)s at %(time)s · Mwangaza"
+"%(date)s at %(time)s"
 msgstr ""
 "Gardez ce code : il donne accès aux informations de vos enfants. Imprimé le "
-"%(date)s à %(time)s · Mwangaza"
+"%(date)s à %(time)s"
 
 #: apps/students/views.py:75
 msgid "This student has no photo."

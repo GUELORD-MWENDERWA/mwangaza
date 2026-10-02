@@ -1,6 +1,6 @@
 import { ApiError } from "@mwangaza/api";
 import { useTranslation } from "@mwangaza/i18n";
-import { Skeleton } from "@mwangaza/ui";
+import { Skeleton, usePlatform } from "@mwangaza/ui";
 import { useEffect } from "react";
 import { Outlet } from "react-router";
 
@@ -16,10 +16,11 @@ export function SchoolGate() {
   const { t } = useTranslation();
   const school = useSchool();
   const name = school.data?.name;
+  const platform = usePlatform().name;
 
   useEffect(() => {
-    if (name) document.title = `${name} · Mwangaza`;
-  }, [name]);
+    document.title = [name, platform].filter(Boolean).join(" · ");
+  }, [name, platform]);
 
   if (school.isPending) {
     return (

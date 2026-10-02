@@ -13,12 +13,13 @@ import struct
 import time
 from urllib.parse import quote, urlencode
 
+from apps.core.models import PlatformSettings
+
 PERIOD = 30
 DIGITS = 6
 # Un code de la période précédente ou suivante est accepté aussi : horloge du téléphone un peu
 # décalée, code tapé à la fin de sa période.
 WINDOW = 1
-ISSUER = "Mwangaza"
 
 RECOVERY_CODE_COUNT = 8
 # Majuscules et chiffres sans ceux qu'on confond en les recopiant (I, O, 0, 1) : 32 signes,
@@ -61,12 +62,14 @@ def matching_step(
 
 
 def provisioning_uri(secret: str, account: str) -> str:
-    """Adresse `otpauth://` du QR code à scanner avec l'application."""
-    label = f"{quote(ISSUER)}:{quote(account)}"
+    """Adresse `otpauth://` du QR code à scanner avec l'application ; l'émetteur est le nom de
+    la plateforme (5.1)."""
+    issuer = PlatformSettings.load().name
+    label = f"{quote(issuer)}:{quote(account)}"
     query = urlencode(
         {
             "secret": secret,
-            "issuer": ISSUER,
+            "issuer": issuer,
             "algorithm": "SHA1",
             "digits": DIGITS,
             "period": PERIOD,

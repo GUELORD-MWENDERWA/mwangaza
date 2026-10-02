@@ -23,6 +23,8 @@ export const fr = {
     previous: "Précédent",
     next: "Suivant",
     close: "Fermer",
+    legalNotice: "Mentions légales",
+    supportContact: "Support {{platform}} :",
   },
   auth: {
     side: {
@@ -101,9 +103,9 @@ export const fr = {
       print: "Imprimer",
       confirmCodes: "J'ai imprimé ou recopié mes 8 codes de secours",
       finish: "Terminer",
-      fileName: "mwangaza-codes-de-secours.txt",
-      fileTitle: "Codes de secours Mwangaza",
-      fileHeader: "Codes de secours Mwangaza — compte {{phone}}",
+      fileName: "codes-de-secours.txt",
+      fileTitle: "Codes de secours {{platform}}",
+      fileHeader: "Codes de secours {{platform}} — compte {{phone}}",
       fileHelp: "Chaque code ne sert qu'une fois. Gardez cette feuille dans un endroit sûr.",
       currentCode: "Code actuel de l'application, ou un code de secours",
       askKey: "Afficher la nouvelle clé",
@@ -255,7 +257,7 @@ export const fr = {
     promoter: "Promoteur",
     teacher: "Enseignant",
     parent: "Parent",
-    support: "Support Mwangaza",
+    support: "Support {{platform}}",
     none: "Aucun rôle",
   },
   account: {
@@ -354,7 +356,7 @@ export const fr = {
   support: {
     title: "Ouvrir une session support",
     subtitle:
-      "Vous êtes connecté comme support Mwangaza. Vous n'avez aucun droit dans cette école tant que la session n'est pas ouverte.",
+      "Vous êtes connecté comme support {{platform}}. Vous n'avez aucun droit dans cette école tant que la session n'est pas ouverte.",
     rules:
       "La session dure <b>1 heure</b> au plus. Vous avez les droits de l'école <b>sauf la caisse</b> (encaisser, annuler, clôturer). L'école lit le motif et chacune de vos actions dans son journal.",
     reason: "Motif",
@@ -412,7 +414,7 @@ export const fr = {
     },
     suspended: {
       title: "L'accès à cette école est suspendu",
-      text: "Les données de l'école sont conservées. Pour rétablir l'accès, la direction de l'école doit contacter le support Mwangaza.",
+      text: "Les données de l'école sont conservées. Pour rétablir l'accès, la direction de l'école doit contacter le support {{platform}}.",
     },
     noSchool: {
       title: "Aucune école à cette adresse",
@@ -477,7 +479,7 @@ export const fr = {
       name: "Nom court",
       nameHelp: "Menu, reçu thermique, portail.",
       address: "Adresse de l'application",
-      addressHelp: "Modifiable seulement par le support Mwangaza.",
+      addressHelp: "Modifiable seulement par le support {{platform}}.",
       officialName: "Nom officiel",
       officialNameHelp: "Reçus A4, fiches, bulletins.",
       timezone: "Fuseau horaire",
@@ -544,7 +546,7 @@ export const fr = {
     color: {
       label: "Couleur de l'école",
       picker: "Choisir la couleur",
-      help: "Utilisée sur les documents imprimés et le badge de l'école. L'interface garde les couleurs Mwangaza (lisibilité).",
+      help: "Utilisée sur les documents imprimés et le badge de l'école. L'interface garde les couleurs de {{platform}} (lisibilité).",
       unreadable:
         "Texte illisible sur cette couleur, en blanc comme en noir. Couleur lisible la plus proche : {{color}}.",
       useProposal: "Utiliser {{color}}",
@@ -869,7 +871,7 @@ export const fr = {
       deactivate: "Désactiver",
       reactivate: "Réactiver",
       editAccount: "Noms et téléphone",
-      elsewhere: "Compte utilisé ailleurs : contactez le support Mwangaza.",
+      elsewhere: "Compte utilisé ailleurs : contactez le support {{platform}}.",
       schoolRole: "rôle de l'école",
     },
     password: {
@@ -895,7 +897,7 @@ export const fr = {
       phone: "Numéro de téléphone",
       phonePlaceholder: "Ex. 0971234567",
       known:
-        "Si ce numéro a déjà un compte Mwangaza, il est ajouté à l'école avec les rôles choisis, sans nouveau mot de passe ni changement de ses noms ; ses autres écoles ne sont jamais affichées.",
+        "Si ce numéro a déjà un compte {{platform}}, il est ajouté à l'école avec les rôles choisis, sans nouveau mot de passe ni changement de ses noms ; ses autres écoles ne sont jamais affichées.",
       unknown:
         "Sinon : nom, post-nom, prénom, puis un mot de passe provisoire à changer à la première connexion.",
       lastName: "Nom",
@@ -903,7 +905,7 @@ export const fr = {
       firstName: "Prénom",
       roles: "Rôles",
       submit: "Créer le compte",
-      added: "{{name}} a déjà un compte Mwangaza : ajouté à l'école avec ses rôles.",
+      added: "{{name}} a déjà un compte {{platform}} : ajouté à l'école avec ses rôles.",
     },
   },
   rolesPage: {
@@ -962,7 +964,7 @@ export const fr = {
       action: "Action",
       on: "Sur",
     },
-    support: "Support Mwangaza",
+    support: "Support {{platform}}",
     system: "Système",
     range: "{{from}} – {{to}} sur {{count}} entrées",
     empty: "Aucune entrée pour ces filtres.",
@@ -1726,7 +1728,7 @@ export const fr = {
       running_one: "Import d'1 élève en cours…",
       running_other: "Import de {{number}} élèves en cours…",
       failed:
-        "L'import a échoué : aucun élève n'a été créé. Réessayez ; si l'échec se répète, contactez le support Mwangaza.",
+        "L'import a échoué : aucun élève n'a été créé. Réessayez ; si l'échec se répète, contactez le support {{platform}}.",
       done_zero: "Aucun élève importé.",
       done_one: "1 élève importé et inscrit.",
       done_other: "{{number}} élèves importés et inscrits.",
@@ -2453,7 +2455,7 @@ export const fr = {
       back: "Retour",
       heading: "Choisir un nouveau mot de passe",
       intro:
-        "Mwangaza n'envoie pas de SMS. Pour prouver que vous êtes le parent, il vous faut un <b>nouveau code famille</b>.",
+        "{{platform}} n'envoie pas de SMS. Pour prouver que vous êtes le parent, il vous faut un <b>nouveau code famille</b>.",
       step1:
         "Passez au <b>secrétariat</b> de l'école d'un de vos enfants, avec votre pièce d'identité.",
       step2: "Le secrétariat imprime un <b>nouveau code famille</b>. L'ancien ne marche plus.",
@@ -2468,7 +2470,7 @@ export const fr = {
       greeting: "Bonjour, {{name}}",
       logout: "Se déconnecter",
       installBanner:
-        "Ajoutez Mwangaza à votre écran d'accueil pour l'ouvrir comme une application.",
+        "Ajoutez {{platform}} à votre écran d'accueil pour l'ouvrir comme une application.",
       installAction: "Ajouter",
       children: "Mes enfants",
       addSchool: "Ajouter un enfant d'une autre école",
@@ -2532,9 +2534,9 @@ export const fr = {
       },
     },
     install: {
-      title: "Installez Mwangaza",
+      title: "Installez {{platform}}",
       subtitle: "Retrouvez vos enfants en un geste, même avec une connexion faible.",
-      heading: "Mwangaza sur l'écran d'accueil",
+      heading: "{{platform}} sur l'écran d'accueil",
       benefits: {
         oneTap: "S'ouvre d'un geste, comme une application",
         offline: "Affiche vos dernières informations même sans connexion",
@@ -2682,7 +2684,7 @@ export const fr = {
     not_found: "Introuvable.",
     school_suspended: "Cette école est suspendue.",
     school_not_found: "Aucune école à cette adresse.",
-    not_platform_admin: "Seul le support Mwangaza peut ouvrir une session support.",
+    not_platform_admin: "Seul le support {{platform}} peut ouvrir une session support.",
     totp_required: "Reconnectez-vous avec la double authentification.",
     no_support_session: "Aucune session support n'est ouverte dans cette école.",
     network: "Pas de connexion au serveur. Vérifiez internet et réessayez.",
@@ -2705,7 +2707,7 @@ export const fr = {
     role_name_required: "Donnez un nom au rôle.",
     already_member: "Ce numéro a déjà un compte dans cette école.",
     names_required: "Ce numéro n'a pas encore de compte : saisissez au moins le nom.",
-    account_used_elsewhere: "Compte utilisé ailleurs : contactez le support Mwangaza.",
+    account_used_elsewhere: "Compte utilisé ailleurs : contactez le support {{platform}}.",
     phone_taken: "Ce numéro a déjà un compte.",
     no_photo: "Cet élève n'a pas de photo.",
     no_logo: "Cette école n'a pas de logo.",

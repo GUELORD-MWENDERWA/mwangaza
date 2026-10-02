@@ -13,6 +13,7 @@ from apps.accounts.models import Membership, Role, User
 from apps.accounts.roles import SYSTEM_ROLES
 from apps.audit.models import AuditLog
 from apps.core.crypto import decrypt
+from apps.core.models import PlatformSettings
 from apps.core.tenancy import use_school
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment, Guardian, Student
@@ -119,8 +120,13 @@ def test_demo_can_run_twice_and_resets_the_demo(demo):
     head = User.objects.get(phone="+243000001001")
     head.set_password("changé")
     head.save()
+    PlatformSettings.objects.update(name="Lumière", primary_color="#000000")
 
     call_command("demo")
+
+    platform = PlatformSettings.load()
+    assert (platform.name, platform.primary_color) == ("Mwangaza", "#0E5C6B")
+    assert platform.support_phone and platform.legal_notice
 
     assert School.objects.count() == 2
     assert User.objects.filter(phone="+243000001001").count() == 1

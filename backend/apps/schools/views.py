@@ -1,8 +1,6 @@
-from pathlib import Path
-
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import Count, Q
-from django.http import FileResponse, HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_GET
 from drf_spectacular.utils import extend_schema, extend_schema_view
@@ -31,8 +29,8 @@ from apps.accounts.roles import (
 )
 from apps.accounts.views import SchoolViewSet
 from apps.core.errors import SCHOOL_NOT_FOUND, ApiError, ErrorSerializer
+from apps.core.http import serve_image
 from apps.schools import organisation, services
-from apps.schools.logos import CONTENT_TYPES
 from apps.schools.matricule import validate_matricule_format
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.schools.serializers import (
@@ -77,20 +75,8 @@ def _serve_logo(request: HttpRequest, field: str) -> HttpResponse:
     school = request.school
     if school is None:
         return JsonResponse(SCHOOL_NOT_FOUND.body(), status=SCHOOL_NOT_FOUND.status)
-    logo = getattr(school, field)
-    if not logo:
-        return JsonResponse(NO_LOGO.body(), status=NO_LOGO.status)
-    try:
-        file = logo.open("rb")
-    except FileNotFoundError:
-        return JsonResponse(NO_LOGO.body(), status=NO_LOGO.status)
-    kind = Path(logo.name).suffix.removeprefix(".")
-    response = FileResponse(file, content_type=CONTENT_TYPES.get(kind, "application/octet-stream"))
-    response["X-Content-Type-Options"] = "nosniff"
-    response["Content-Security-Policy"] = "default-src 'none'; style-src 'unsafe-inline'; sandbox"
-    # L'adresse donnée par l'API change avec chaque logo.
-    response["Cache-Control"] = "public, max-age=86400"
-    return response
+    response = serve_image(getattr(school, field))
+    return response or JsonResponse(NO_LOGO.body(), status=NO_LOGO.status)
 
 
 @require_GET

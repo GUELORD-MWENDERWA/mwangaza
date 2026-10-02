@@ -77,6 +77,6 @@ td.label { width: 22%; }
   <img class="qr" src="{{ portal_qr }}" alt="{{ portal_url }}">
   <div class="code"><span class="small">{% translate "FAMILY CODE" %}</span><b>{{ family_code }}</b></div>
 </div>
-<p class="small muted">{% blocktranslate with date=printed_at|date:"d/m/Y" time=printed_at|time:"H:i" %}Keep this code: it gives access to your children's information. Printed on {{ date }} at {{ time }} · Mwangaza{% endblocktranslate %}</p>
+<p class="small muted">{% blocktranslate with date=printed_at|date:"d/m/Y" time=printed_at|time:"H:i" %}Keep this code: it gives access to your children's information. Printed on {{ date }} at {{ time }}{% endblocktranslate %} · {{ platform.name }}</p>
 {% endif %}
 {% endblock %}

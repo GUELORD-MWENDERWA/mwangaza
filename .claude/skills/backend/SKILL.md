@@ -27,6 +27,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 - `Membership` est [G] : toujours filtré avec l'école explicite (`school=request.school`). Un M2M d'un modèle [G] vers un modèle [T] passe par le manager de l'école courante (lecture) ; refuser un lien vers une autre école par un signal `m2m_changed` (exemple : `apps/accounts/signals.py`). Un refus levé dans ce signal annule la transaction en cours.
 - Portail : un compte parent peut être relié à des familles de plusieurs écoles (`Family.primary_user`) ; ne renvoyer que ces familles et leurs enfants, chacun avec les données de son école.
 - Rien de propre à une école dans le code (l'ITIG n'est que l'école d'exemple) : ce qui varie d'une école à l'autre vient de `School` ou de `School.settings`.
+- Rien de propre à la plateforme non plus : son nom, son logo, ses couleurs et son contact viennent de `PlatformSettings.load()` (`apps/core/models.py`) ; dans un gabarit (PDF, page servie par Django) : `{{ platform.name }}`, déjà dans le contexte ; dans un texte traduit : `_("%(platform)s support") % {"platform": …}` ou une formule neutre (« le support de la plateforme »). `core/tests/test_platform.py` refuse le nom dans les traductions et les gabarits.
 
 ## Service (`services.py`)
 

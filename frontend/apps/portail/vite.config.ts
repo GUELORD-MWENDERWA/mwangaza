@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-// Portail familles, servi sur parents.mwangaza.school — en dev : http://localhost:5174/
+// Portail familles, servi sur parents.<domaine> — en dev : http://localhost:5174/
 // L'API est servie sur la même origine grâce au proxy : les cookies de session restent valides
 // et le sous-domaine de l'école ({code}.localhost) est transmis tel quel à Django.
 const apiTarget = process.env.VITE_API_TARGET ?? "http://localhost:8000";
@@ -20,26 +20,8 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       injectRegister: false,
-      manifest: {
-        name: "Mwangaza — Parents",
-        short_name: "Mwangaza",
-        lang: "fr",
-        start_url: "/",
-        scope: "/",
-        display: "standalone",
-        background_color: "#F3F5F6",
-        theme_color: "#2B2724",
-        icons: [
-          { src: "icons/icon-192.png", sizes: "192x192", type: "image/png" },
-          { src: "icons/icon-512.png", sizes: "512x512", type: "image/png" },
-          {
-            src: "icons/icon-maskable-512.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "maskable",
-          },
-        ],
-      },
+      // Manifeste servi par le serveur (nom et icône de la plateforme, 5.1) : `index.html`.
+      manifest: false,
       workbox: {
         globPatterns: ["**/*.{js,css,html,woff2,png,svg}"],
         navigateFallback: "/index.html",

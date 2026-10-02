@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-// Application Gestion (personnel), servie sur {code}.mwangaza.school/app — en dev : http://itig.localhost:5173/app/
+// Application Gestion (personnel), servie sur {code}.<domaine>/app — en dev : http://itig.localhost:5173/app/
 // L'API est servie sur la même origine grâce au proxy : les cookies de session restent valides
 // et le sous-domaine de l'école ({code}.localhost) est transmis tel quel à Django.
 const apiTarget = process.env.VITE_API_TARGET ?? "http://localhost:8000";
@@ -27,26 +27,8 @@ export default defineConfig({
     VitePWA({
       registerType: "prompt",
       injectRegister: false,
-      manifest: {
-        name: "Mwangaza",
-        short_name: "Mwangaza",
-        lang: "fr",
-        start_url: "/app/",
-        scope: "/app/",
-        display: "standalone",
-        background_color: "#F3F5F6",
-        theme_color: "#2B2724",
-        icons: [
-          { src: "icons/icon-192.png", sizes: "192x192", type: "image/png" },
-          { src: "icons/icon-512.png", sizes: "512x512", type: "image/png" },
-          {
-            src: "icons/icon-maskable-512.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "maskable",
-          },
-        ],
-      },
+      // Manifeste servi par le serveur (nom et icône de la plateforme, 5.1) : `index.html`.
+      manifest: false,
       workbox: {
         globPatterns: ["**/*.{js,css,html,woff2,png,svg}"],
         navigateFallback: "/app/index.html",

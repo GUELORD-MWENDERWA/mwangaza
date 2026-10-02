@@ -36,9 +36,14 @@ def _school_timezone(school: School | None):
     return timezone.override(ZoneInfo(school.timezone)) if school else nullcontext()
 
 
+# Identité de la plateforme : l'écran « école suspendue » donne le contact du support.
+PLATFORM_PATH = "/api/platform/"
+
+
 class TenantMiddleware:
     """Charge l'école du sous-domaine dans `request.school` et en fait l'école courante pendant la
-    requête, avec son fuseau horaire. École inconnue : 404 ; suspendue : 403. Le rôle de
+    requête, avec son fuseau horaire. École inconnue : 404 ; suspendue : 403, sauf l'identité de
+    la plateforme (`PLATFORM_PATH`), lisible partout. Le rôle de
     l'utilisateur dans l'école est vérifié par les permissions de l'API (tâches 1.2 et 1.3),
     après l'authentification."""
 
@@ -48,7 +53,7 @@ class TenantMiddleware:
     def __call__(self, request: HttpRequest) -> HttpResponse:
         school = None
         code = school_code_from_host(request.get_host())
-        if code is not None:
+        if code is not None and not request.path.startswith(PLATFORM_PATH):
             school = School.objects.filter(code=code).first()
             if school is None:
                 return _error_response(SCHOOL_NOT_FOUND)

@@ -92,7 +92,7 @@ def test_malformed_codes_are_refused(code):
     assert totp.matching_step(totp.new_secret(), code, at=AT) is None
 
 
-def test_provisioning_uri_for_the_qr_code():
+def test_provisioning_uri_for_the_qr_code(db):
     uri = totp.provisioning_uri("JBSWY3DPEHPK3PXP", "+243970000000")
 
     parsed = urlparse(uri)

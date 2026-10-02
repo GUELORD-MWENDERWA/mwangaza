@@ -1,5 +1,5 @@
 import { changeLanguage, LANGUAGES, useTranslation } from "@mwangaza/i18n";
-import { Brand, cn } from "@mwangaza/ui";
+import { Brand, cn, LegalNotice } from "@mwangaza/ui";
 import type { ReactNode } from "react";
 
 /** Écrans sans compte connecté (maquettes `connexion`, `activation`, `mot-de-passe-oublie`) :
@@ -32,7 +32,7 @@ export function AuthFrame({
   );
 }
 
-/** « Français · English » en bas de page. */
+/** « Français · English · Mentions légales » en bas de page. */
 export function LanguageLinks({ className }: { className?: string }) {
   const { t, i18n } = useTranslation();
   return (
@@ -57,6 +57,11 @@ export function LanguageLinks({ className }: { className?: string }) {
           </button>
         </span>
       ))}
+      <LegalNotice
+        label={t("common.legalNotice")}
+        closeLabel={t("common.close")}
+        className="before:mr-1 before:content-['·']"
+      />
     </nav>
   );
 }

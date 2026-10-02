@@ -844,7 +844,7 @@ paths:
       operationId: audit_actors_list
       description: |-
         Les personnes qui apparaissent dans le journal de l'école (filtre « Personne » de M6),
-        sans le support Mwangaza.
+        sans le support de la plateforme.
       tags:
       - audit
       security:
@@ -5206,6 +5206,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/platform/:
+    get:
+      operationId: platform_retrieve
+      description: Nom, logo, couleurs, contact du support et mentions légales de
+        la plateforme.
+      tags:
+      - platform
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Platform'
+          description: ''
   /api/portal/announcements/:
     get:
       operationId: portal_announcements_list
@@ -8954,12 +8970,13 @@ components:
           - $ref: '#/components/schemas/AuditActor'
           nullable: true
           readOnly: true
-          description: Qui ; vide pour le support Mwangaza (`by_support`) ou le système.
+          description: Qui ; vide pour le support de la plateforme (`by_support`)
+            ou le système.
         by_support:
           type: boolean
           readOnly: true
-          description: 'Action du support Mwangaza : l''interface affiche « Support
-            Mwangaza ».'
+          description: 'Action du support de la plateforme : l''interface affiche
+            « Support {nom} ».'
         entity_type:
           type: string
           readOnly: true
@@ -13510,6 +13527,59 @@ components:
           description: PNG ou JPEG, 1 Mo au plus.
       required:
       - photo
+    Platform:
+      type: object
+      description: 'Identité de la plateforme, publique : écrans de connexion, menus,
+        documents.'
+      properties:
+        name:
+          type: string
+          maxLength: 60
+        short_name:
+          type: string
+          description: Under the application icon on the home screen (12 characters
+            is best).
+          maxLength: 20
+        logo:
+          type: string
+          nullable: true
+          description: 'Adresse du logo ; vide : la lampe.'
+        icon:
+          type: string
+          nullable: true
+          description: 'Adresse de l''icône des applications ; vide : celle de l''application.'
+        primary_color:
+          type: string
+          title: Main colour
+          description: Buttons and links of the interface.
+          maxLength: 7
+        accent_color:
+          type: string
+          title: Accent colour
+          description: Mark and highlights on the dark menu.
+          maxLength: 7
+        support_phone:
+          type: string
+          maxLength: 16
+        support_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        legal_notice:
+          type: string
+      required:
+      - name
+      - short_name
+      - logo
+      - icon
+      - primary_color
+      - accent_color
+      - support_phone
+      - support_email
+      - legal_notice
     PortalAccessRequest:
       type: object
       properties:
@@ -14820,12 +14890,13 @@ components:
           - $ref: '#/components/schemas/AuditActor'
           nullable: true
           readOnly: true
-          description: Qui ; vide pour le support Mwangaza (`by_support`) ou le système.
+          description: Qui ; vide pour le support de la plateforme (`by_support`)
+            ou le système.
         by_support:
           type: boolean
           readOnly: true
-          description: 'Action du support Mwangaza : l''interface affiche « Support
-            Mwangaza ».'
+          description: 'Action du support de la plateforme : l''interface affiche
+            « Support {nom} ».'
         entity_type:
           type: string
           readOnly: true

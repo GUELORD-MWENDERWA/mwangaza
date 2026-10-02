@@ -16,6 +16,8 @@ Sources de vérité, dans cet ordre : `maquettes/assets/styles.css` (bloc `:root
 
 ## Jetons
 
+Les valeurs de `lake` et `lamp` (et leurs teintes `lake-700`, `lake-50`, `lamp-soft`, `info`) sont celles de départ : depuis la 5.1, les couleurs de la plateforme (`PlatformSettings`, contraste vérifié par le serveur) les remplacent à l'exécution (`applyPlatform` de `@mwangaza/ui`, teintes en `color-mix`). Toujours passer par ces jetons, jamais leur valeur en dur.
+
 | Jeton | Valeur | Usage |
 |---|---|---|
 | `basalt` | `#2B2724` | barre latérale, en-tête portail |
@@ -51,7 +53,7 @@ Ajouter `ok`, `due`, `warn`, `info` (et leurs `-50`), `lamp`, `lamp-soft`, `basa
 
 ## Composants (maquette → application)
 
-Les composants partagés vont dans `frontend/packages/ui` (exportés par `@mwangaza/ui`). Les construire une fois, les réutiliser partout. **Déjà construits (1.6)** : `Button`, `Input`, `PasswordInput`, `Textarea`, `Field`, `Checkbox` / `CheckboxField`, `Segmented`, `CodeInput`, `Card…`, `List`, `Banner`, `StatusPill`, `Tag`, `Steps`, `Code` / `CodeList`, `Sheet…`, `DialogRoot` / `DialogContent`, `DropdownMenu…`, `Avatar`, `Brand`, `SchoolBadge`, `SyncIndicator`, `PageHeader`, `StateCard`, `Toast`, `Skeleton`, `Icon` (icônes des maquettes) ; **1.7** : `Tabs` / `TabsList` / `TabsTrigger` / `TabsContent`, `Switch`, `Select` (liste native stylée), `Table`, `ConfirmDialog` ; les autres noms du tableau sont à créer avec leur premier écran.
+Les composants partagés vont dans `frontend/packages/ui` (exportés par `@mwangaza/ui`). Les construire une fois, les réutiliser partout. **Déjà construits (1.6)** : `Button`, `Input`, `PasswordInput`, `Textarea`, `Field`, `Checkbox` / `CheckboxField`, `Segmented`, `CodeInput`, `Card…`, `List`, `Banner`, `StatusPill`, `Tag`, `Steps`, `Code` / `CodeList`, `Sheet…`, `DialogRoot` / `DialogContent`, `DropdownMenu…`, `Avatar`, `Brand` (logo de la plateforme ou lampe, et son nom) / `PlatformMark` / `BrandMark` (lampe seule), `SchoolBadge`, `SyncIndicator`, `PageHeader`, `StateCard`, `Toast`, `Skeleton`, `Icon` (icônes des maquettes) ; **1.7** : `Tabs` / `TabsList` / `TabsTrigger` / `TabsContent`, `Switch`, `Select` (liste native stylée), `Table`, `ConfirmDialog` ; **5.1** : `usePlatform()` (identité de la plateforme : nom, logo, icône, couleurs, support, mentions légales), `LegalNotice` (lien et fenêtre des mentions légales) ; les autres noms du tableau sont à créer avec leur premier écran.
 
 | Maquette | Composant | Notes |
 |---|---|---|
