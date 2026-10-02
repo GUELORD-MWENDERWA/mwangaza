@@ -36,7 +36,9 @@ def test_console_is_only_for_the_platform_admin_after_two_factor_at_its_address(
 def test_dashboard_counts_every_school_and_today_payments_by_currency(
     api, platform_admin, school, other_school, head, cashier, other_head, monkeypatch
 ):
+    # Redis et le disque de la machine de test ne comptent pas (CI : disque presque plein).
     monkeypatch.setattr(health, "_redis_latency", lambda: 1)
+    monkeypatch.setattr(health, "_disk_free_percent", lambda: 50)
     alpha = school_with_fees(school, head)
     beta = school_with_fees(other_school, other_head)
     beta_cashier = MembershipFactory(school=other_school, roles=["cashier"]).user
