@@ -116,3 +116,39 @@ class ChildPaymentsSerializer(serializers.Serializer):
     balance = BalanceSerializer()
     fees = ChildFeeSerializer(many=True)
     payments = ChildPaymentSerializer(many=True, help_text="Les plus récents d'abord.")
+
+
+class AnnouncementsQuerySerializer(serializers.Serializer):
+    family = serializers.UUIDField(
+        required=False, help_text="Une seule école : l'`id` d'une famille de `families/`."
+    )
+
+
+class PortalAnnouncementSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    school_name = serializers.CharField(source="school.name")
+    school_timezone = serializers.CharField(source="school.timezone")
+    classes = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="Classes visées où un enfant est inscrit ; vide : à toutes les familles.",
+    )
+    title = serializers.CharField()
+    body = serializers.CharField()
+    attachment = serializers.SerializerMethodField(
+        help_text="Adresse du PDF joint ; null sans pièce jointe."
+    )
+    published_at = serializers.DateTimeField()
+    read = serializers.BooleanField(help_text="Déjà lue par la famille.")
+
+    def get_attachment(self, announcement) -> str | None:
+        if not announcement.attachment:
+            return None
+        return f"/api/portal/announcements/{announcement.pk}/attachment/"
+
+
+class ReadSerializer(serializers.Serializer):
+    ids = serializers.ListField(
+        child=serializers.UUIDField(),
+        max_length=100,
+        help_text="Annonces affichées ; celles qui ne visent pas la famille sont ignorées.",
+    )

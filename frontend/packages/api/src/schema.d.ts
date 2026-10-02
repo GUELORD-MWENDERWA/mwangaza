@@ -1420,6 +1420,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/portal/announcements/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Annonces des écoles reliées qui visent la famille (H4), les plus récentes d'abord. */
+        get: operations["portal_announcements_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/announcements/{id}/attachment/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description PDF joint à une annonce qui vise la famille ; 404 sinon ou sans pièce jointe. */
+        get: operations["portal_announcements_attachment_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/announcements/read/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Marque lues les annonces affichées (« lue par N familles » dans la Gestion). */
+        post: operations["portal_announcements_read_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/portal/auth/activate/": {
         parameters: {
             query?: never;
@@ -2541,6 +2592,8 @@ export interface components {
             readonly published_by: components["schemas"]["Person"] | null;
             /** Format: date-time */
             readonly archived_at: string | null;
+            /** @description Familles qui l'ont lue dans le portail. */
+            readonly read_by: number;
         };
         AnnouncementCreateRequest: {
             audience: components["schemas"]["AudienceEnum"];
@@ -4145,6 +4198,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["Payment"][];
         };
+        PaginatedPortalAnnouncementList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["PortalAnnouncement"][];
+        };
         PaginatedRoleList: {
             /** @example 123 */
             count: number;
@@ -4582,6 +4650,22 @@ export interface components {
             /** @description `true` : suspendre ; `false` : rétablir. */
             suspended: boolean;
         };
+        PortalAnnouncement: {
+            /** Format: uuid */
+            id: string;
+            school_name: string;
+            school_timezone: string;
+            /** @description Classes visées où un enfant est inscrit ; vide : à toutes les familles. */
+            classes: string[];
+            title: string;
+            body: string;
+            /** @description Adresse du PDF joint ; null sans pièce jointe. */
+            readonly attachment: string | null;
+            /** Format: date-time */
+            published_at: string;
+            /** @description Déjà lue par la famille. */
+            read: boolean;
+        };
         PortalLoginRequest: {
             /** @description Ex. 0971234567 ou +243971234567. */
             phone: string;
@@ -4622,6 +4706,10 @@ export interface components {
         };
         PushResult: {
             results: components["schemas"]["Outcome"][];
+        };
+        ReadRequest: {
+            /** @description Annonces affichées ; celles qui ne visent pas la famille sont ignorées. */
+            ids: string[];
         };
         /**
          * @description * `staff_child` - Staff child
@@ -10375,6 +10463,108 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    portal_announcements_list: {
+        parameters: {
+            query?: {
+                /** @description Une seule école : l'`id` d'une famille de `families/`. */
+                family?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPortalAnnouncementList"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    portal_announcements_attachment_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description PDF. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    portal_announcements_read_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReadRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReadRequest"];
+                "multipart/form-data": components["schemas"]["ReadRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };

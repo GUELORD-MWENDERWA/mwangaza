@@ -46,7 +46,7 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api\//, /^\/admin\//, /^\/static\//, /^\/media\//],
         runtimeCaching: [
           {
-            urlPattern: /\/api\/portal\/(me|families|children\/[0-9a-f-]+)\/$/,
+            urlPattern: /\/api\/portal\/(me|families|children\/[0-9a-f-]+|announcements)\/$/,
             handler: "NetworkFirst",
             options: { cacheName: "portal-data", networkTimeoutSeconds: 10 },
           },

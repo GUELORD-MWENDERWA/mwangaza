@@ -375,6 +375,7 @@ function PublishedItem({ announcement }: { announcement: Announcement }) {
     formatDate(announcement.published_at, i18n.language, school.timezone),
     announcement.published_by &&
       t("announcements.by", { name: fullName(announcement.published_by) }),
+    t("announcements.readBy", { count: announcement.read_by }),
   ].filter(Boolean);
   return (
     <div>

@@ -22,6 +22,9 @@ class AnnouncementSerializer(serializers.ModelSerializer):
         help_text="Adresse du PDF joint (`GET …/attachment/`) ; null sans pièce jointe."
     )
     published_by = PersonSerializer(source="created_by", read_only=True, allow_null=True)
+    read_by = serializers.IntegerField(
+        read_only=True, help_text="Familles qui l'ont lue dans le portail."
+    )
 
     class Meta:
         model = Announcement
@@ -35,6 +38,7 @@ class AnnouncementSerializer(serializers.ModelSerializer):
             "published_at",
             "published_by",
             "archived_at",
+            "read_by",
         ]
         read_only_fields = fields
 

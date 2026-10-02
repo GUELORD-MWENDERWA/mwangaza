@@ -27,6 +27,7 @@ const published = {
   published_at: "2026-10-15T08:00:00Z",
   published_by: { id: id(5), last_name: "Furaha", middle_name: "", first_name: "Masika" },
   archived_at: null,
+  read_by: 402,
 };
 
 describe("Annonces", () => {

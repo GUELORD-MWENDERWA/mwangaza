@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 4 (Rapports, portail, production) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 4.4.3 terminée, PR #122 à fusionner |
-| Prochaine tâche | 4.4.4 |
+| Tâche en cours | aucune — 4.4.4 terminée, PR à fusionner |
+| Prochaine tâche | 4.4.5 |
 | Issue GitHub | #32 (fermée par la 4.4.5) |
-| Branche | `tache/4.4.3-paiements-portail` (PR #122) ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/4.4.4-annonces-portail` (PR à fusionner) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-02 |
 
 ## Avancement
@@ -22,8 +22,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 7 | 13 |
-| **V1.0** | **41** | **47** |
+| Semaine 4 — Rapports, portail, production | 8 | 13 |
+| **V1.0** | **42** | **47** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-02 — Tâche 4.4.4 : annonces dans le portail
+- Fait : `AnnouncementRead` (annonce lue par une famille, une fois) ; portail `GET /api/portal/announcements/` (écoles reliées, `?family=` pour une seule), `POST …/read/`, `GET …/{id}/attachment/` ; écran « Annonces » du Portail (puces par école, « Nouvelle », pièce jointe, entrée de la barre du bas, 1re page gardée hors connexion) ; « lue par N familles » dans la liste de la Gestion ; `make demo` : une famille sur deux a lu les annonces, jamais celle du compte du portail.
+- Tests : 2 tests serveur (classes visées, archivée, année passée, autre école, accès ou école suspendus ; marquage une fois par famille et compté dans la bonne école ; PDF refusé hors destinataires ; requêtes en nombre fixe) ; 1 test d'écran. Corrigé au passage : l'ordre de la liste de la Gestion (le comptage le faisait perdre).
+- Décisions : une annonce s'affiche si elle a été publiée après la fin de l'année scolaire précédente (celles de la rentrée, publiées pendant les vacances, restent) ; elle est marquée lue dès qu'elle s'affiche (le message entier est sur la carte).
+- Suite : 4.4.5 (coordonnées, « Demandes des parents »).
 
 ### 2026-10-02 — Façon de travailler : plus d'attente à vide
 - Mesuré sur 4.4.3 : suite complète en local ≈ 9 min, puis la CI refait les mêmes tests en ≈ 5 min. Décidé à ta demande : plus de `make test` en local (lint + tests des modules touchés seulement, suite complète par la CI) ; un seul push à la fin ; la PR est donnée tout de suite, contrôles en cours, et Claude confirme « ✅ » ensuite (`CLAUDE.md`, skill `tache`, `A-FAIRE.md` § 10). Commencer la tâche suivante pendant la CI : non (mêmes fichiers, PR empilée interdite, une conversation par tâche).
