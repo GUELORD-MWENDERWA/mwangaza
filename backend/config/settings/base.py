@@ -146,6 +146,8 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = "fr"
 LANGUAGES = [("fr", "Français"), ("en", "English")]
 LOCALE_PATHS = [BASE_DIR / "locale"]
+# Posé par la Gestion et le Portail (`packages/i18n`) : le serveur suit la langue de l'interface.
+LANGUAGE_COOKIE_NAME = "django_language"
 TIME_ZONE = "Africa/Lubumbashi"
 USE_I18N = True
 USE_TZ = True

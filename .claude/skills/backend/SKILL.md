@@ -53,7 +53,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 - Pagination sur les listes ; recherche élève < 2 s sur 3 000 élèves (index adaptés, pas de N+1 : `select_related` / `prefetch_related`).
 - Erreur sur un champ (règle métier d'un service) : lever la `ValidationError` de Django avec le chemin du champ (`ValidationError({"terms.0.ends_on": ValidationError(msg, code="outside_year")})`) : l'API répond comme pour une saisie refusée. **Vérifier avant de modifier l'objet** (un refus ne doit pas laisser un objet à moitié changé).
 - Listes de configuration (années, niveaux, options, classes d'une année) : `pagination_class = None` ; les autres listes restent paginées (50) avec des filtres côté serveur.
-- Erreurs métier : le service lève `apps.core.errors.BusinessError(ApiError(code, detail, statut))` ; l'API répond `{"code": …, "detail": …}` (`ErrorSerializer` pour le schéma), comme pour 403 / 404 / 405. `code` stable, traduit par l'interface ; `detail` en `gettext`. Erreurs de saisie : format DRF `{champ: [messages]}`.
+- Erreurs métier : le service lève `apps.core.errors.BusinessError(ApiError(code, detail, statut))` ; l'API répond `{"code": …, "detail": …}` (`ErrorSerializer` pour le schéma), comme pour 403 / 404 / 405. `code` stable, traduit par l'interface ; `detail` en `gettext`. **Tout nouveau texte du serveur** (`detail`, `verbose_name`, admin, PDF, Excel) : `make messages`, traduire dans `backend/locale/fr/LC_MESSAGES/django.po` (rien de vide ni « fuzzy »), `make messages` de nouveau pour compiler ; sinon `core/tests/test_translations.py` échoue. Erreurs de saisie : format DRF `{champ: [messages]}`.
 
 ## Migrations
 

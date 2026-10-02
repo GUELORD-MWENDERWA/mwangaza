@@ -208,7 +208,7 @@ export const en: Messages<typeof fr> = {
       },
       amount: {
         title: "Enter the amount",
-        text: "Once the student is chosen, type the amount received. Check how it is split across instalments before collecting.",
+        text: "Once the student is chosen, type the amount received. Check how it is split across installments before collecting.",
       },
       collect: {
         title: "Collect and print the receipt",
@@ -226,7 +226,7 @@ export const en: Messages<typeof fr> = {
       },
       fees: {
         title: "Check fees and amounts",
-        text: "Each fee has its amount, currency and instalments per level or option. These are what the registers collect.",
+        text: "Each fee has its amount, currency and installments per level or track. These are what the registers collect.",
       },
       discount: {
         title: "Grant a discount",
@@ -312,9 +312,9 @@ export const en: Messages<typeof fr> = {
       title: "Unlock PIN",
       defined: "Set",
       undefined: "Not set",
-      text: "It reopens the app on this device, even without internet. The password is still required at least every 7 days and after “Sign out”.",
+      text: "It reopens the app on this device, even without internet. The password is still required at least every 7 days and after “Log out”.",
       noDevice:
-        "The PIN only works on a remembered device. Tick “Remember this device” next time you sign in.",
+        "The PIN only works on a remembered device. Tick “Remember this device” next time you log in.",
       new: "New PIN",
       help: "4 digits. Avoid 1234, 0000 and your date of birth.",
       confirm: "Confirm the PIN",
@@ -376,11 +376,11 @@ export const en: Messages<typeof fr> = {
     wrong_one: "Wrong PIN. {{count}} try left.",
     wrong_other: "Wrong PIN. {{count}} tries left.",
     erase: "Erase",
-    blocked: "5 wrong PINs. Sign in with your password when the network is back.",
+    blocked: "5 wrong PINs. Log in with your password when the network is back.",
     expired:
-      "Your last sign-in with a password was more than 7 days ago. Sign in when the network is back.",
+      "Your last login with a password was more than 7 days ago. Log in when the network is back.",
     signed_out:
-      "You signed out of this device. Sign in with your password when the network is back.",
+      "You logged out of this device. Log in with your password when the network is back.",
     none: "No PIN on this device.",
     changeUser: "Switch user",
     chooseTitle: "Who is working?",
@@ -515,7 +515,7 @@ export const en: Messages<typeof fr> = {
       title: "Receipts",
       preview: "header preview",
       header: "Header lines",
-      headerHelp: "Address, phone, e-mail: 5 lines at most.",
+      headerHelp: "Address, phone, email: 5 lines at most.",
       headerPlaceholder: "E.g. 1 Peace Avenue, Goma",
       tooManyLines: "5 lines at most.",
       footer: "Note at the bottom of the receipt",
@@ -526,14 +526,14 @@ export const en: Messages<typeof fr> = {
       printerOptions: { thermal_80: "80 mm", thermal_58: "58 mm", sheet: "A4 sheet" },
       printers: { thermal_80: "Thermal 80 mm", thermal_58: "Thermal 58 mm", sheet: "A4 sheet" },
       sheetSize: "Receipt size on the A4 sheet",
-      sheetSizeHelp: "The small size (≈ 10 × 7 cm) is glued into the pupil's exercise book.",
+      sheetSizeHelp: "The small size (≈ 10 × 7 cm) is glued into the student's exercise book.",
       sheetSizes: {
         a6: "A6 · 4 per sheet",
         a5: "A5 · 2 per sheet",
         small: "Small · 8 per sheet",
       },
       copies: "Copies",
-      copiesOptions: { one: "1 · pupil", two: "2 · pupil + stub" },
+      copiesOptions: { one: "1 · student", two: "2 · student + stub" },
     },
     color: {
       label: "School colour",
@@ -1052,7 +1052,7 @@ export const en: Messages<typeof fr> = {
         student_updated: "Student changed",
         student_imported: "Student imported from a file",
         enrolled: "Student enrolled",
-        enrollment_updated: "Enrollment changed",
+        enrollment_updated: "Enrolment changed",
         family_code_printed: "Family code printed",
         family_code_renewed: "New family code",
         portal_suspended: "Portal access suspended",
@@ -1086,7 +1086,7 @@ export const en: Messages<typeof fr> = {
         credit_used: "Student credit used",
         credit_voided: "Student credit voided",
         cancellation_requested: "Payment cancellation requested",
-        payment_cancelled: "This payment was cancelled: its receipt is no longer valid.",
+        payment_cancelled: "Payment cancelled",
         cancellation_rejected: "Payment cancellation refused",
         cancellation_reprinted: "Cancellation receipt reprinted",
         unpaid_exported: "Unpaid fees exported",
@@ -1210,8 +1210,8 @@ export const en: Messages<typeof fr> = {
       yearOption: "Year: {{name}}",
       class: "Class",
       allClasses: "Class: all",
-      track: "Option",
-      allTracks: "Option: all",
+      track: "Track",
+      allTracks: "Track: all",
       status: "Status",
       statuses: {
         active: "Status: active",
@@ -1462,7 +1462,7 @@ export const en: Messages<typeof fr> = {
       newCode: "New code",
       newCodeTitle: "Give a new family code?",
       newCodeHelp:
-        'The old code will stop working. The new one works once, for 30 days: the parent uses it to activate the portal or choose a new password ("Forgot your password"). Then print it on a child\'s registration form.',
+        "The old code will stop working. The new one works once, for 30 days: the parent uses it to activate the portal or choose a new password (“Forgot your password?”). Then print it on a child's registration form.",
       portalActivated: "Portal activated on {{date}}",
       portalSuspended: "Portal access suspended on {{date}}",
       suspendAccess: "Suspend access",
@@ -1534,7 +1534,7 @@ export const en: Messages<typeof fr> = {
         groupTitle: "Financial statements",
         groupSubtitle_one: "{{count}} student selected in Unpaid fees.",
         groupSubtitle_other: "{{count}} students selected in Unpaid fees, one page per student.",
-        upcoming: "Show upcoming instalments",
+        upcoming: "Show upcoming installments",
         payments: "Show the list of payments",
         hidePaid: "Hide fees paid in full",
         help: "Same calculation as the Finances tab. Each PDF is recorded in the audit log; its QR code lets anyone check the document.",
@@ -1721,7 +1721,7 @@ export const en: Messages<typeof fr> = {
     desk: {
       subtitle_one: "Session opened at {{time}} by {{name}} · {{count}} payment",
       subtitle_other: "Session opened at {{time}} by {{name}} · {{count}} payments",
-      search: "Student's last name, middle name, first name or ID number…",
+      search: "Student's last name, middle name, first name or student number…",
       searchLabel: "Student who pays",
       noResult: "No student matches.",
       notEnrolled: "not enrolled this year",
@@ -1741,7 +1741,7 @@ export const en: Messages<typeof fr> = {
       storageTag: "Persistent storage refused",
       missingTitle: "Student not found on this device",
       missingText:
-        "This student has not reached this device yet. Synchronize with internet, then try again.",
+        "This student has not reached this device yet. Sync with the internet, then try again.",
     },
     payments: {
       title: "Today's payments",
@@ -1855,7 +1855,7 @@ export const en: Messages<typeof fr> = {
       title: "Receipt no. {{number}}",
       year: "School year {{year}}",
       student: "Student",
-      matricule: "Student ID",
+      matricule: "Student number",
       classGroup: "Class",
       total: "Total received",
       rate: "Rate used: $1 = {{rate}} FC",
@@ -1967,7 +1967,7 @@ export const en: Messages<typeof fr> = {
       reason: "Reason",
       reasonHelp: "E.g. wrong student, wrong amount or currency, payment collected twice.",
       counts:
-        "The payment still counts in the till and in what the student owes until it is approved. Once approved, a cancellation receipt is printed: the money is given back to the parent or collected for the right student.",
+        "The payment still counts in the cash register and in what the student owes until it is approved. Once approved, a cancellation receipt is printed: the money is given back to the parent or collected for the right student.",
       offline: "Offline, the request leaves at the next sync.",
       send: "Send the request",
     },
@@ -2037,7 +2037,7 @@ export const en: Messages<typeof fr> = {
   credits: {
     title: "Student credits",
     subtitle:
-      "Money received beyond what a student owes. It is never lost: it pays their next instalments, or is given back through a cancellation.",
+      "Money received beyond what a student owes. It is never lost: it pays their next installments, or is given back through a cancellation.",
     filter: "Credits shown",
     filters: { to_process: "To process ({{count}})", used: "Used", all: "All" },
     kpi: {
@@ -2045,13 +2045,13 @@ export const en: Messages<typeof fr> = {
       toProcessSub: "to use or give back",
       amount: "Amount ({{currency}})",
       usedThisMonth: "Used this month",
-      usedSub: "on the next instalments",
+      usedSub: "on the next installments",
     },
     columns: { student: "Student", origin: "Origin", credit: "Credit", since: "Since" },
     origins: { offline_surplus: "Paid twice", discount: "Discount granted" },
     originDetail: {
       offline_surplus: "offline, {{register}}",
-      discount: "on an instalment already paid",
+      discount: "on an installment already paid",
     },
     states: { to_process: "To process", used: "Used", voided: "Voided" },
     empty: {
@@ -2066,13 +2066,13 @@ export const en: Messages<typeof fr> = {
     allFees: "all fees",
     explain: {
       offline_surplus:
-        "The tills were offline: this payment arrived when the student owed nothing more in this currency. When it synced, it became a credit.",
+        "The cash registers were offline: this payment arrived when the student owed nothing more in this currency. When it synced, it became a credit.",
       discount:
-        "A discount was granted on instalments already paid: what was paid beyond became a credit.",
+        "A discount was granted on installments already paid: what was paid beyond became a credit.",
       voided: "Credit voided: its discount was revoked. What it paid is due again.",
     },
     whatToDo: "What to do?",
-    useOption: "Use on the next instalments",
+    useOption: "Use on the next installments",
     useOf: "(of {{amount}})",
     nothingOwed: "The student owes nothing more in this currency: the credit stays to process.",
     refundOption: "Give the money back to the parent",
@@ -2116,7 +2116,7 @@ export const en: Messages<typeof fr> = {
       month: "Collected in {{month}}",
       payments_one: "{{count}} payment",
       payments_other: "{{count}} payments",
-      change: "{{arrow}} {{percent}} % vs {{month}}",
+      change: "{{arrow}} {{percent}}% vs {{month}}",
       overdue: "Overdue fees",
       overdueStudents_one: "{{count}} student",
       overdueStudents_other: "{{count}} students",
@@ -2237,7 +2237,7 @@ export const en: Messages<typeof fr> = {
   closings: {
     title: "Cash closings",
     subtitle:
-      "Every evening, each cashier counts the money in their till. Here you see the differences and the sessions left open.",
+      "Every evening, each cashier counts the money in their cash register. Here you see the differences and the sessions left open.",
     period: "Period",
     periodOption: "Period: {{month}}",
     register: "Cash register",
@@ -2288,9 +2288,9 @@ export const en: Messages<typeof fr> = {
       notClosed: "Opened at {{time}}, not closed yet.",
       signedBy: "Signed by",
       late_one:
-        "{{count}} payment collected offline arrived after the closing: it is not in the expected amount. Its money may have been in the counted till.",
+        "{{count}} payment collected offline arrived after the closing: it is not in the expected amount. Its money may have been in the cash counted.",
       late_other:
-        "{{count}} payments collected offline arrived after the closing: they are not in the expected amount. Their money may have been in the counted till.",
+        "{{count}} payments collected offline arrived after the closing: they are not in the expected amount. Their money may have been in the cash counted.",
       lateLine: "collected at {{paid}} · received by the server on {{received}}",
       slip: "Closing slip",
       payments: "See the payments",
@@ -2335,7 +2335,7 @@ export const en: Messages<typeof fr> = {
       pending: "Pending operations",
       rejected: "Rejected operations",
       data: "Local data",
-      dataValue: "{{students}} students · {{charges}} dues · {{payments}} payments",
+      dataValue: "{{students}} students · {{charges}} fees due · {{payments}} payments",
       storage: "Persistent storage",
       lastReceipt: "Last receipt number",
       noReceipt: "none",
@@ -2461,7 +2461,7 @@ export const en: Messages<typeof fr> = {
         class2: "7th EB B",
         school1: "First school",
         school2: "Second school",
-        fee: "Tuition · 2nd instalment",
+        fee: "Tuition · 2nd installment",
         rest: "Left to pay",
         receipt: "Receipt no. 000184",
         announcement: "Parents' meeting",
