@@ -5,10 +5,11 @@ import { FinishInAdminPage } from "./features/auth/FinishInAdminPage";
 import { LoginLayout } from "./features/auth/LoginLayout";
 import { LoginPage } from "./features/auth/LoginPage";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
+import { IdentityPage } from "./features/identity/IdentityPage";
 import { ConsoleShell } from "./features/shell/ConsoleShell";
 import { RequireAdmin } from "./features/shell/RequireAdmin";
 
-/** Écrans de la console ; les entrées du menu arrivent avec leur tâche (5.2.2, 5.3, 5.4). */
+/** Écrans de la console ; les entrées du menu arrivent avec leur tâche (5.3, 5.4). */
 export const routes: RouteObject[] = [
   {
     path: "/login",
@@ -22,7 +23,13 @@ export const routes: RouteObject[] = [
   {
     element: <RequireAdmin />,
     children: [
-      { element: <ConsoleShell />, children: [{ index: true, element: <DashboardPage /> }] },
+      {
+        element: <ConsoleShell />,
+        children: [
+          { index: true, element: <DashboardPage /> },
+          { path: "identity", element: <IdentityPage /> },
+        ],
+      },
     ],
   },
 ];

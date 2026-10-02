@@ -7,6 +7,8 @@ export const keys = {
   me: ["me"],
   loginStep: ["login-step"],
   dashboard: ["console", "dashboard"],
+  identity: ["console", "platform"],
+  platform: ["platform"],
 };
 
 export function hasCode(error: unknown, ...codes: string[]): error is ApiError {

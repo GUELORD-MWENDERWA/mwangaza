@@ -94,28 +94,14 @@ def test_platform_name_is_not_written_in_server_texts():
     assert found == []
 
 
-def test_platform_admin_edits_the_single_identity(admin_client):
+def test_django_admin_only_shows_the_identity(admin_client):
+    """Dépannage seulement : l'identité se modifie dans la console, qui la note au journal."""
     change = "/admin/core/platformsettings/1/change/"
     assert admin_client.get("/admin/core/platformsettings/").url == change
+    assert admin_client.get(change).status_code == 200
     assert admin_client.get("/admin/core/platformsettings/add/").status_code == 403
 
-    response = admin_client.post(
-        change,
-        {
-            "name": "Lumière",
-            "short_name": "Lumière",
-            "primary_color": "#1d4ed8",
-            "accent_color": "#F2B632",
-            "support_phone": "0970000000",
-            "support_email": "",
-            "legal_notice": "",
-        },
-    )
+    response = admin_client.post(change, {"name": "Lumière", "short_name": "Lumière"})
 
-    assert response.status_code == 302
-    platform = PlatformSettings.load()
-    assert (platform.name, platform.primary_color, platform.support_phone) == (
-        "Lumière",
-        "#1D4ED8",
-        "+243970000000",
-    )
+    assert response.status_code == 403
+    assert PlatformSettings.load().name == INITIAL_NAME

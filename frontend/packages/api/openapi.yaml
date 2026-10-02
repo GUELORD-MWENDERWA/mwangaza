@@ -2765,6 +2765,236 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/console/platform/:
+    get:
+      operationId: console_platform_retrieve
+      description: |-
+        Identité de la plateforme : nom, nom court, couleurs, support, mentions légales, et les
+        dernières modifications. Chaque changement va dans le journal de la plateforme.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsolePlatform'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: console_platform_partial_update
+      description: |-
+        Identité de la plateforme : nom, nom court, couleurs, support, mentions légales, et les
+        dernières modifications. Chaque changement va dans le journal de la plateforme.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConsolePlatformRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedConsolePlatformRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConsolePlatformRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsolePlatform'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/platform/icon/:
+    post:
+      operationId: console_platform_icon_create
+      description: |-
+        Icône des applications (écran d'accueil, onglet) : PNG carré d'au moins 512 x 512 pixels,
+        1 Mo au plus ; sans elle, l'icône de la lampe.
+      tags:
+      - console
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PlatformIconUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsolePlatform'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: console_platform_icon_destroy
+      description: |-
+        Icône des applications (écran d'accueil, onglet) : PNG carré d'au moins 512 x 512 pixels,
+        1 Mo au plus ; sans elle, l'icône de la lampe.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsolePlatform'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/platform/logo/:
+    post:
+      operationId: console_platform_logo_create
+      description: |-
+        Logo de la plateforme : PNG, JPEG ou SVG (sans script), 1 Mo au plus ; sans lui, la
+        lampe.
+      tags:
+      - console
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LogoUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsolePlatform'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: console_platform_logo_destroy
+      description: |-
+        Logo de la plateforme : PNG, JPEG ou SVG (sans script), 1 Mo au plus ; sans lui, la
+        lampe.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsolePlatform'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/contact-changes/:
     get:
       operationId: contact_changes_list
@@ -10234,6 +10464,72 @@ components:
       - payments_today
       - active_schools
       - health
+    ConsolePlatform:
+      type: object
+      description: |-
+        Identité de la plateforme dans la console (5.2.2) : modifiable par le super-admin ;
+        couleurs illisibles refusées (contraste 4,5 : 1). Logo et icône s'envoient à part.
+      properties:
+        name:
+          type: string
+          maxLength: 60
+        short_name:
+          type: string
+          description: Under the application icon on the home screen (12 characters
+            is best).
+          maxLength: 20
+        logo:
+          type: string
+          readOnly: true
+          nullable: true
+        icon:
+          type: string
+          readOnly: true
+          nullable: true
+        primary_color:
+          type: string
+          title: Main colour
+          description: Buttons and links of the interface.
+          maxLength: 7
+        accent_color:
+          type: string
+          title: Accent colour
+          description: Mark and highlights on the dark menu.
+          maxLength: 7
+        support_phone:
+          type: string
+          description: '0970000000 ou +243970000000 ; vide : aucun.'
+        support_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        legal_notice:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformChange'
+          readOnly: true
+          description: Les dernières modifications, de la plus récente à la plus ancienne.
+      required:
+      - name
+      - short_name
+      - logo
+      - icon
+      - primary_color
+      - accent_color
+      - support_phone
+      - support_email
+      - legal_notice
+      - updated_at
+      - history
     ConsoleSchoolCounts:
       type: object
       properties:
@@ -13094,6 +13390,46 @@ components:
           format: uuid
           nullable: true
           description: Titulaire (`id` du compte).
+    PatchedConsolePlatformRequest:
+      type: object
+      description: |-
+        Identité de la plateforme dans la console (5.2.2) : modifiable par le super-admin ;
+        couleurs illisibles refusées (contraste 4,5 : 1). Logo et icône s'envoient à part.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 60
+        short_name:
+          type: string
+          minLength: 1
+          description: Under the application icon on the home screen (12 characters
+            is best).
+          maxLength: 20
+        primary_color:
+          type: string
+          minLength: 1
+          title: Main colour
+          description: Buttons and links of the interface.
+          maxLength: 7
+        accent_color:
+          type: string
+          minLength: 1
+          title: Accent colour
+          description: Mark and highlights on the dark menu.
+          maxLength: 7
+        support_phone:
+          type: string
+          description: '0970000000 ou +243970000000 ; vide : aucun.'
+        support_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        legal_notice:
+          type: string
     PatchedEnrollmentUpdateRequest:
       type: object
       properties:
@@ -13748,6 +14084,57 @@ components:
       - support_phone
       - support_email
       - legal_notice
+    PlatformActionEnum:
+      enum:
+      - platform.updated
+      - platform.logo_changed
+      - platform.icon_changed
+      type: string
+      description: |-
+        * `platform.updated` - Platform identity changed
+        * `platform.logo_changed` - Platform logo changed
+        * `platform.icon_changed` - Application icon changed
+    PlatformChange:
+      type: object
+      description: Une modification de l'identité, dans le journal de la plateforme.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        action:
+          allOf:
+          - $ref: '#/components/schemas/PlatformActionEnum'
+          readOnly: true
+        actor:
+          allOf:
+          - $ref: '#/components/schemas/AuditActor'
+          readOnly: true
+          nullable: true
+        before:
+          nullable: true
+        after:
+          nullable: true
+      required:
+      - id
+      - created_at
+      - action
+      - actor
+      - before
+      - after
+    PlatformIconUploadRequest:
+      type: object
+      properties:
+        icon:
+          type: string
+          format: binary
+          description: PNG carré d'au moins 512 x 512 pixels, 1 Mo au plus.
+      required:
+      - icon
     PortalAccessRequest:
       type: object
       properties:

@@ -7,14 +7,24 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET
 from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from apps.accounts.permissions import IsPlatformAdmin
+from apps.core import services
+from apps.core.errors import ErrorSerializer
 from apps.core.http import serve_image
 from apps.core.models import PlatformSettings
 from apps.core.platform import png_size
-from apps.core.serializers import PlatformSerializer
+from apps.core.serializers import (
+    ConsolePlatformSerializer,
+    PlatformIconUploadSerializer,
+    PlatformSerializer,
+)
+from apps.schools.serializers import LogoUploadSerializer
 
 # Application installable : adresse de départ, portée et icônes par défaut (lampe, dans son build).
 APPS = {
@@ -98,3 +108,79 @@ def platform_manifest(request: HttpRequest, app: str) -> HttpResponse:
     response = JsonResponse(manifest, content_type="application/manifest+json")
     response["Cache-Control"] = "no-cache"
     return response
+
+
+# Console de la plateforme (5.2.2) : super-admin seulement, à l'adresse de la console ; ailleurs,
+# ces points d'API n'existent pas (404).
+CONSOLE_ERRORS = {400: ErrorSerializer, 403: ErrorSerializer, 404: ErrorSerializer}
+
+
+def _console_response() -> Response:
+    return Response(ConsolePlatformSerializer(PlatformSettings.load()).data)
+
+
+@extend_schema(tags=["console"])
+class ConsolePlatformView(APIView):
+    """Identité de la plateforme : nom, nom court, couleurs, support, mentions légales, et les
+    dernières modifications. Chaque changement va dans le journal de la plateforme."""
+
+    permission_classes = [IsPlatformAdmin]
+    serializer_class = ConsolePlatformSerializer
+
+    @extend_schema(responses={200: ConsolePlatformSerializer, **CONSOLE_ERRORS})
+    def get(self, request: Request) -> Response:
+        return _console_response()
+
+    @extend_schema(
+        request=ConsolePlatformSerializer,
+        responses={200: ConsolePlatformSerializer, **CONSOLE_ERRORS},
+    )
+    def patch(self, request: Request) -> Response:
+        serializer = ConsolePlatformSerializer(
+            PlatformSettings.load(), data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        services.update_platform(actor=request.user, **serializer.validated_data)
+        return _console_response()
+
+
+@extend_schema(tags=["console"])
+class ConsolePlatformLogoView(APIView):
+    """Logo de la plateforme : PNG, JPEG ou SVG (sans script), 1 Mo au plus ; sans lui, la
+    lampe."""
+
+    permission_classes = [IsPlatformAdmin]
+    parser_classes = [MultiPartParser, FormParser]
+    serializer_class = LogoUploadSerializer
+    field = "logo"
+
+    @extend_schema(
+        request={"multipart/form-data": LogoUploadSerializer},
+        responses={200: ConsolePlatformSerializer, **CONSOLE_ERRORS},
+    )
+    def post(self, request: Request) -> Response:
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        services.update_platform(actor=request.user, **serializer.validated_data)
+        return _console_response()
+
+    @extend_schema(request=None, responses={200: ConsolePlatformSerializer, **CONSOLE_ERRORS})
+    def delete(self, request: Request) -> Response:
+        services.update_platform(actor=request.user, **{self.field: None})
+        return _console_response()
+
+
+@extend_schema(tags=["console"])
+class ConsolePlatformIconView(ConsolePlatformLogoView):
+    """Icône des applications (écran d'accueil, onglet) : PNG carré d'au moins 512 x 512 pixels,
+    1 Mo au plus ; sans elle, l'icône de la lampe."""
+
+    serializer_class = PlatformIconUploadSerializer
+    field = "icon"
+
+    @extend_schema(
+        request={"multipart/form-data": PlatformIconUploadSerializer},
+        responses={200: ConsolePlatformSerializer, **CONSOLE_ERRORS},
+    )
+    def post(self, request: Request) -> Response:
+        return super().post(request)

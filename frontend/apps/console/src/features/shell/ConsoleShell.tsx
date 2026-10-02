@@ -15,8 +15,11 @@ import { useMe } from "../../lib/queries";
 import { useLogout } from "../auth/useGoToStep";
 import { ConsoleTag } from "./ConsoleTag";
 
-// Entrées du menu, ajoutées avec leur tâche (5.2.2 identité, 5.3 écoles, 5.4 comptes et journal).
-const MENU = [{ to: "/", key: "dashboard" }] as const;
+// Entrées du menu, ajoutées avec leur tâche (5.3 écoles, 5.4 comptes et journal).
+const MENU = [
+  { to: "/", key: "dashboard" },
+  { to: "/identity", key: "identity" },
+] as const;
 
 /** Design propre à la console (maquette `console/tableau-de-bord`) : pas de menu latéral comme la
  *  Gestion, une barre du haut en basalte avec la navigation dessous, contenu large et clair. */
