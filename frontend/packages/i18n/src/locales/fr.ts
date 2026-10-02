@@ -1006,6 +1006,8 @@ export const fr = {
         enrollment_updated: "Inscription modifiée",
         family_code_printed: "Code famille imprimé",
         family_code_renewed: "Nouveau code famille",
+        portal_suspended: "Accès au portail suspendu",
+        portal_restored: "Accès au portail rétabli",
       },
       portal: {
         activated: "Portail activé par le parent",
@@ -1410,6 +1412,14 @@ export const fr = {
       newCodeHelp:
         "L'ancien code ne marchera plus. Le nouveau sert une seule fois, pendant 30 jours : le parent s'en sert pour activer le portail ou choisir un nouveau mot de passe (« Mot de passe oublié »). Imprimez-le ensuite sur la fiche d'inscription d'un enfant.",
       portalActivated: "Portail activé le {{date}}",
+      portalSuspended: "Accès au portail suspendu le {{date}}",
+      suspendAccess: "Suspendre l'accès",
+      restoreAccess: "Rétablir l'accès",
+      suspendTitle: "Suspendre l'accès au portail ?",
+      suspendHelp:
+        "Le parent ne verra plus rien de cette famille dans le portail et son code n'ouvrira plus rien. Son compte reste (autres écoles) ; vous pourrez rétablir l'accès.",
+      restoreTitle: "Rétablir l'accès au portail ?",
+      restoreHelp: "Le parent verra de nouveau les enfants de cette famille dans le portail.",
       portalNotActivated: "Portail pas encore activé",
       codeValidUntil: "Code valable jusqu'au {{date}}",
       open: "Ouvrir la fiche famille",
@@ -2300,8 +2310,49 @@ export const fr = {
     },
     home: {
       greeting: "Bonjour, {{name}}",
-      soon: "Vos enfants, leurs paiements et les annonces de leurs écoles s'afficheront ici.",
       logout: "Se déconnecter",
+      installBanner:
+        "Ajoutez Mwangaza à votre écran d'accueil pour l'ouvrir comme une application.",
+      installAction: "Ajouter",
+      children: "Mes enfants",
+      addSchool: "Ajouter un enfant d'une autre école",
+      overdue: "En retard :",
+      upToDate: "À jour",
+      upToDateNext: "À jour · prochaine échéance le {{date}}",
+      paidThisYear: "Payé cette année",
+      paidOf: "{{paid}} sur {{total}}",
+      lastPayment: "Dernier paiement",
+      today: "aujourd'hui {{time}}",
+      noChildren: "Aucun enfant inscrit cette année dans cette école.",
+      suspended:
+        "L'école a suspendu l'accès au portail pour cette famille. Pour le rétablir, contactez son secrétariat.",
+      unavailable: "Service temporairement indisponible pour cette école.",
+    },
+    addSchool: {
+      title: "Ajouter un enfant d'une autre école",
+      help: "Chaque école remet son propre code famille (fiche d'inscription ou reçu). Elle doit avoir enregistré le numéro de votre compte pour le contact principal.",
+      codeHint: "8 caractères, ex. K7M4-P9TX",
+      submit: "Ajouter",
+    },
+    install: {
+      title: "Installez Mwangaza",
+      subtitle: "Retrouvez vos enfants en un geste, même avec une connexion faible.",
+      heading: "Mwangaza sur l'écran d'accueil",
+      benefits: {
+        oneTap: "S'ouvre d'un geste, comme une application",
+        offline: "Affiche vos dernières informations même sans connexion",
+        light: "Très léger : pas de Play Store",
+      },
+      install: "Installer",
+      browserMenu:
+        "Dans le menu du navigateur, choisissez « Installer l'application » ou « Ajouter à l'écran d'accueil ».",
+      later: "Plus tard",
+      iphone: "Sur iPhone (Safari)",
+      steps: {
+        share: "Touchez « Partager » en bas de l'écran",
+        addToHome: "Choisissez « Sur l'écran d'accueil »",
+        add: "Touchez « Ajouter »",
+      },
     },
   },
   errors: {
@@ -2337,6 +2388,10 @@ export const fr = {
     cancellation_id_taken: "Cet identifiant appartient à une autre demande.",
     nothing_owed: "L'élève ne doit plus rien dans la devise de ce crédit.",
     invalid_family_code: "Numéro de téléphone ou code famille incorrect.",
+    invalid_link_code:
+      "Code famille inconnu, ou cette école a un autre numéro pour le contact principal.",
+    portal_suspended:
+      "L'école a suspendu l'accès au portail pour cette famille : contactez son secrétariat.",
     already_activated:
       "Cette famille a déjà un compte : connectez-vous, ou demandez un nouveau code à l'école.",
     not_activated: "Cette famille n'a pas encore de compte : activez-le avec ce code.",

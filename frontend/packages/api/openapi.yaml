@@ -575,6 +575,8 @@ paths:
           - students.student_imported
           - students.family_code_printed
           - students.family_code_renewed
+          - students.portal_suspended
+          - students.portal_restored
           - portal.activated
           - portal.password_reset
           - finance.fee_type_created
@@ -664,6 +666,8 @@ paths:
           * `students.student_imported` - Student imported from a file
           * `students.family_code_printed` - Family code printed on the registration form
           * `students.family_code_renewed` - New family code
+          * `students.portal_suspended` - Parent portal access suspended
+          * `students.portal_restored` - Parent portal access restored
           * `portal.activated` - Parent portal activated
           * `portal.password_reset` - Parent chose a new password
           * `finance.fee_type_created` - Fee type created
@@ -920,6 +924,8 @@ paths:
           - students.student_imported
           - students.family_code_printed
           - students.family_code_renewed
+          - students.portal_suspended
+          - students.portal_restored
           - portal.activated
           - portal.password_reset
           - finance.fee_type_created
@@ -1009,6 +1015,8 @@ paths:
           * `students.student_imported` - Student imported from a file
           * `students.family_code_printed` - Family code printed on the registration form
           * `students.family_code_renewed` - New family code
+          * `students.portal_suspended` - Parent portal access suspended
+          * `students.portal_restored` - Parent portal access restored
           * `portal.activated` - Parent portal activated
           * `portal.password_reset` - Parent chose a new password
           * `finance.fee_type_created` - Fee type created
@@ -3557,6 +3565,67 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/families/{id}/portal-access/:
+    post:
+      operationId: families_portal_access_create
+      description: |-
+        « Suspendre l'accès » / « Rétablir l'accès » (M10) : le portail ne montre plus rien de
+        cette famille, sans supprimer le compte du parent.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this family.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PortalAccessRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PortalAccessRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PortalAccessRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FamilyDetail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/fee-rules/:
     get:
       operationId: fee_rules_list
@@ -4907,6 +4976,94 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PortalMe'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/families/:
+    get:
+      operationId: portal_families_list
+      description: 'Accueil (H2) : les familles reliées au compte, une par école,
+        avec leurs enfants.'
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LinkedFamily'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/families/link/:
+    post:
+      operationId: portal_families_link_create
+      description: '« Ajouter un enfant d''une autre école » : le code famille remis
+        par cette école.'
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LinkRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LinkRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkedFamily'
           description: ''
         '400':
           content:
@@ -7745,6 +7902,8 @@ components:
       - students.student_imported
       - students.family_code_printed
       - students.family_code_renewed
+      - students.portal_suspended
+      - students.portal_restored
       - portal.activated
       - portal.password_reset
       - finance.fee_type_created
@@ -7833,6 +7992,8 @@ components:
         * `students.student_imported` - Student imported from a file
         * `students.family_code_printed` - Family code printed on the registration form
         * `students.family_code_renewed` - New family code
+        * `students.portal_suspended` - Parent portal access suspended
+        * `students.portal_restored` - Parent portal access restored
         * `portal.activated` - Parent portal activated
         * `portal.password_reset` - Parent chose a new password
         * `finance.fee_type_created` - Fee type created
@@ -8853,6 +9014,37 @@ components:
       - operation
       - enrollment
       - config
+    Child:
+      type: object
+      description: 'Un enfant inscrit cette année : classe et situation de paiement
+        de son école.'
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        class_name:
+          type: string
+        balance:
+          $ref: '#/components/schemas/Balance'
+        first_overdue:
+          type: string
+          nullable: true
+          description: Le plus ancien frais en retard, ex. « Minerval · 1re tranche
+            ».
+        last_payment:
+          allOf:
+          - $ref: '#/components/schemas/LastPayment'
+          nullable: true
+          description: Hors paiements annulés.
+      required:
+      - id
+      - full_name
+      - class_name
+      - balance
+      - first_overdue
+      - last_payment
     ClassGroup:
       type: object
       properties:
@@ -9967,6 +10159,10 @@ components:
           format: date-time
           nullable: true
           title: Code valid until
+        portal_suspended_at:
+          type: string
+          format: date-time
+          nullable: true
       required:
       - id
       - code
@@ -9974,6 +10170,7 @@ components:
       - student_count
       - activated_at
       - code_expires_at
+      - portal_suspended_at
     FamilyCodeRequest:
       type: object
       description: |-
@@ -10031,6 +10228,10 @@ components:
           format: date-time
           nullable: true
           title: Code valid until
+        portal_suspended_at:
+          type: string
+          format: date-time
+          nullable: true
         students:
           type: array
           items:
@@ -10043,6 +10244,7 @@ components:
       - student_count
       - activated_at
       - code_expires_at
+      - portal_suspended_at
       - students
     FamilyStudent:
       type: object
@@ -10794,6 +10996,51 @@ components:
       required:
       - cycle
       - name
+    LinkRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          description: Code famille remis par l'école.
+          maxLength: 20
+      required:
+      - code
+    LinkedFamily:
+      type: object
+      description: |-
+        Une famille reliée au compte, dans son école ; sans enfants si l'école est suspendue
+        (`school_unavailable`) ou si elle a suspendu l'accès de la famille (`suspended`).
+      properties:
+        id:
+          type: string
+          format: uuid
+        school_name:
+          type: string
+        school_timezone:
+          type: string
+        status:
+          $ref: '#/components/schemas/LinkedFamilyStatusEnum'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/Child'
+      required:
+      - id
+      - school_name
+      - school_timezone
+      - status
+      - children
+    LinkedFamilyStatusEnum:
+      enum:
+      - active
+      - suspended
+      - school_unavailable
+      type: string
+      description: |-
+        * `active` - active
+        * `suspended` - suspended
+        * `school_unavailable` - school_unavailable
     LoginCodeRequest:
       type: object
       properties:
@@ -12170,6 +12417,14 @@ components:
           description: PNG ou JPEG, 1 Mo au plus.
       required:
       - photo
+    PortalAccessRequest:
+      type: object
+      properties:
+        suspended:
+          type: boolean
+          description: '`true` : suspendre ; `false` : rétablir.'
+      required:
+      - suspended
     PortalLoginRequest:
       type: object
       properties:

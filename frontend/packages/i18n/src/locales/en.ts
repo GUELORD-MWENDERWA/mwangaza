@@ -998,6 +998,8 @@ export const en: Messages<typeof fr> = {
         enrollment_updated: "Enrollment changed",
         family_code_printed: "Family code printed",
         family_code_renewed: "New family code",
+        portal_suspended: "Portal access suspended",
+        portal_restored: "Portal access restored",
       },
       portal: {
         activated: "Portal activated by the parent",
@@ -1403,6 +1405,14 @@ export const en: Messages<typeof fr> = {
       newCodeHelp:
         'The old code will stop working. The new one works once, for 30 days: the parent uses it to activate the portal or choose a new password ("Forgot your password"). Then print it on a child\'s registration form.',
       portalActivated: "Portal activated on {{date}}",
+      portalSuspended: "Portal access suspended on {{date}}",
+      suspendAccess: "Suspend access",
+      restoreAccess: "Restore access",
+      suspendTitle: "Suspend portal access?",
+      suspendHelp:
+        "The parent will no longer see anything of this family in the portal and its code will open nothing. Their account stays (other schools); you can restore access.",
+      restoreTitle: "Restore portal access?",
+      restoreHelp: "The parent will see this family's children in the portal again.",
       portalNotActivated: "Portal not activated yet",
       codeValidUntil: "Code valid until {{date}}",
       open: "Open the family record",
@@ -2284,8 +2294,47 @@ export const en: Messages<typeof fr> = {
     },
     home: {
       greeting: "Hello, {{name}}",
-      soon: "Your children, their payments and their schools' announcements will appear here.",
       logout: "Log out",
+      installBanner: "Add Mwangaza to your home screen to open it like an app.",
+      installAction: "Add",
+      children: "My children",
+      addSchool: "Add a child from another school",
+      overdue: "Overdue:",
+      upToDate: "Up to date",
+      upToDateNext: "Up to date · next due date {{date}}",
+      paidThisYear: "Paid this year",
+      paidOf: "{{paid}} of {{total}}",
+      lastPayment: "Last payment",
+      today: "today {{time}}",
+      noChildren: "No child enrolled this year in this school.",
+      suspended:
+        "The school has suspended portal access for this family. To restore it, contact its office.",
+      unavailable: "This school's service is temporarily unavailable.",
+    },
+    addSchool: {
+      title: "Add a child from another school",
+      help: "Each school gives its own family code (registration form or receipt). It must have your account's phone number for the main contact.",
+      codeHint: "8 characters, e.g. K7M4-P9TX",
+      submit: "Add",
+    },
+    install: {
+      title: "Install Mwangaza",
+      subtitle: "Find your children in one tap, even with a weak connection.",
+      heading: "Mwangaza on your home screen",
+      benefits: {
+        oneTap: "Opens in one tap, like an app",
+        offline: "Shows your latest information even offline",
+        light: "Very light: no Play Store",
+      },
+      install: "Install",
+      browserMenu: "In the browser menu, choose “Install app” or “Add to home screen”.",
+      later: "Later",
+      iphone: "On iPhone (Safari)",
+      steps: {
+        share: "Tap “Share” at the bottom of the screen",
+        addToHome: "Choose “Add to Home Screen”",
+        add: "Tap “Add”",
+      },
     },
   },
   errors: {
@@ -2319,6 +2368,9 @@ export const en: Messages<typeof fr> = {
     cancellation_id_taken: "This identifier belongs to another request.",
     nothing_owed: "The student owes nothing more in the currency of this credit.",
     invalid_family_code: "Wrong phone number or family code.",
+    invalid_link_code:
+      "Unknown family code, or this school has another phone number for the main contact.",
+    portal_suspended: "The school has suspended portal access for this family: contact its office.",
     already_activated:
       "This family already has an account: log in, or ask the school for a new code.",
     not_activated: "This family has no account yet: activate it with this code.",

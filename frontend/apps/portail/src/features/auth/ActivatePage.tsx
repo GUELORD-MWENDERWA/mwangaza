@@ -9,6 +9,7 @@ import { Link } from "react-router";
 import { z } from "zod";
 
 import { useSignedIn } from "../../lib/account";
+import { shouldOfferInstall } from "../../lib/install";
 import { AuthFrame } from "./AuthFrame";
 import { FamilyCodeInput } from "./FamilyCodeInput";
 
@@ -18,7 +19,8 @@ const FIELDS = ["phone", "code", "password"] as const;
  *  famille de la fiche d'inscription, mot de passe choisi ; connecté ensuite. */
 export function ActivatePage() {
   const { t } = useTranslation();
-  const signedIn = useSignedIn();
+  // « Installer » proposé une fois, juste après l'activation (M19).
+  const signedIn = useSignedIn(shouldOfferInstall() ? "/install" : "/");
   const [general, setGeneral] = useState<string | null>(null);
   const schema = useMemo(
     () =>

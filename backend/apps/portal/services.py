@@ -41,6 +41,17 @@ STAFF_ACCOUNT = ApiError(
 SCHOOL_UNAVAILABLE = ApiError(
     "school_unavailable", _("This school's service is temporarily unavailable."), 403
 )
+PORTAL_SUSPENDED = ApiError(
+    "portal_suspended",
+    _("The school has suspended portal access for this family: contact its office."),
+    403,
+)
+# Le numéro n'est pas tapé : un message qui ne dit pas lequel des deux ne va pas.
+INVALID_LINK_CODE = ApiError(
+    "invalid_link_code",
+    _("Unknown family code, or the school has another phone number for the main contact."),
+    400,
+)
 
 
 def _clean_code(code: str) -> str:
@@ -59,7 +70,9 @@ def _expected_phone(family: Family) -> str | None:
         return None
 
 
-def _family(request, phone: str, code: str, *, renewed_only: bool) -> Family:
+def _family(
+    request, phone: str, code: str, *, renewed_only: bool, error: ApiError = INVALID_FAMILY_CODE
+) -> Family:
     """La famille de ce code, s'il est encore valable et que `phone` lui correspond. Sinon, une
     seule erreur pour tous les cas (rien à deviner) et un essai compté pour ce numéro.
     `renewed_only` : seulement un code donné par « Nouveau code » (le premier code, imprimé sur la
@@ -77,10 +90,21 @@ def _family(request, phone: str, code: str, *, renewed_only: bool) -> Family:
     valid = family is not None and (expires > timezone.now() if expires else not renewed_only)
     if not valid or _expected_phone(family) != phone:
         attempts.record_failure(key, ip)
-        raise BusinessError(INVALID_FAMILY_CODE)
+        raise BusinessError(error)
     if family.school.status == School.Status.SUSPENDED:
         raise BusinessError(SCHOOL_UNAVAILABLE)
+    if family.portal_suspended_at is not None:
+        raise BusinessError(PORTAL_SUSPENDED)
     return family
+
+
+def _link(family: Family, user: User) -> None:
+    """Relie la famille (verrouillée) au compte ; son code a servi."""
+    family.primary_user = user
+    family.activated_at = timezone.now()
+    family.code_expires_at = None
+    family.save(update_fields=["primary_user", "activated_at", "code_expires_at", "updated_at"])
+    audit.record(Action.PORTAL_ACTIVATED, family, actor=user, label=str(user))
 
 
 def activate(request, *, phone: str, code: str, password: str, remember: bool) -> User:
@@ -99,13 +123,25 @@ def activate(request, *, phone: str, code: str, password: str, remember: bool) -
         if locked.primary_user_id is not None:
             raise BusinessError(ALREADY_ACTIVATED)
         user = User.objects.create_user(phone, password, last_name=primary.full_name[:100])
-        locked.primary_user = user
-        locked.activated_at = timezone.now()
-        locked.code_expires_at = None
-        locked.save(update_fields=["primary_user", "activated_at", "code_expires_at", "updated_at"])
-        audit.record(Action.PORTAL_ACTIVATED, locked, actor=user, label=str(user))
+        _link(locked, user)
     login.open_portal_session(request, user, remember=remember)
     return user
+
+
+def link_family(request, *, code: str) -> Family:
+    """« Ajouter un enfant d'une autre école » (H2) : le code famille remis par cette école, si
+    son tuteur principal a le numéro du compte (comme l'activation). Jamais par le numéro seul.
+    Une famille déjà reliée à ce compte le reste."""
+    user = request.user
+    family = _family(request, user.phone, code, renewed_only=False, error=INVALID_LINK_CODE)
+    if family.primary_user_id == user.pk:
+        return family
+    with transaction.atomic(), use_school(family.school):
+        locked = Family.objects.select_for_update().get(pk=family.pk)
+        if locked.primary_user_id is not None:
+            raise BusinessError(ALREADY_ACTIVATED)
+        _link(locked, user)
+    return locked
 
 
 def reset_password(request, *, phone: str, code: str, password: str, remember: bool) -> User:

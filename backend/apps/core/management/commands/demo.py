@@ -23,6 +23,7 @@ from apps.finance.demo import (
     create_demo_payments,
 )
 from apps.notifications.demo import create_demo_announcements
+from apps.portal.demo import create_demo_portal
 from apps.schools.demo import create_demo_organisation, create_demo_schools
 from apps.students.demo import create_demo_students
 from apps.sync.demo import create_demo_devices
@@ -52,6 +53,7 @@ class Command(BaseCommand):
             create_demo_cancellations(schools)
             create_demo_devices(schools)
             create_demo_announcements(schools)
+            portal = create_demo_portal(schools)
         for school in schools.values():
             self.stdout.write(f"  {school.code:<8} {school.name} — {school.url}/app/")
         self.stdout.write(f"Comptes fictifs (mot de passe : {DEMO_PASSWORD}) :")
@@ -71,6 +73,11 @@ class Command(BaseCommand):
                 totp_text = " — double authentification à activer"
             self.stdout.write(
                 f"  {_local(account.phone)}  {schools_text:<14} {account.description}{totp_text}"
+            )
+        if portal is not None:
+            self.stdout.write(
+                f"  {_local(portal.phone)}  portail        parent (http://localhost:5174/) : "
+                f"enfants à l'ITIG ; ajouter ceux des Volcans avec le code {portal.code_to_add}"
             )
         key = " ".join(DEMO_TOTP_SECRET[i : i + 4] for i in range(0, len(DEMO_TOTP_SECRET), 4))
         self.stdout.write(

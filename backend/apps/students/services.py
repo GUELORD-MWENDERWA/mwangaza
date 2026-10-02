@@ -178,6 +178,19 @@ def renew_family_code(family: Family, *, actor: User) -> Family:
     return family
 
 
+def set_portal_access(family: Family, *, actor: User, suspended: bool) -> Family:
+    """« Suspendre l'accès » (M10) : le portail ne montre plus rien de cette famille, sans
+    supprimer le compte du parent ; « Rétablir l'accès » le rouvre."""
+    if (family.portal_suspended_at is not None) == suspended:
+        return family
+    with transaction.atomic():
+        family.portal_suspended_at = timezone.now() if suspended else None
+        family.save(update_fields=["portal_suspended_at", "updated_at"])
+        action = Action.STUDENTS_PORTAL_SUSPENDED if suspended else Action.STUDENTS_PORTAL_RESTORED
+        audit.record(action, family, actor=actor, label=family.code)
+    return family
+
+
 # Élèves
 
 
