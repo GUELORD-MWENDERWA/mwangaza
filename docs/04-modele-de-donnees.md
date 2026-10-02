@@ -120,7 +120,9 @@ Règles :
 
 ## 5. Notifications et annonces
 
-**Announcement [T]** — `title`, `body`, `audience` (`all_families`, `class_groups` ; `staff` avec 5.8), `class_groups` (une ou plusieurs classes de l'année en cours), `attachment` (PDF, 5 Mo, jamais public), `published_at`, `archived_at`, `archived_by`. Publiée dès sa création, jamais modifiée ensuite (des familles l'ont peut-être lue) : on l'archive (retirée du portail) et on en publie une autre. Familles touchées : celles qui ont un enfant inscrit (actif) cette année dans les classes visées ; une fratrie compte une fois (4.3).
+**Announcement [T]** — `title`, `body`, `audience` (`all_families`, `class_groups` ; `staff` avec 5.8), `class_groups` (une ou plusieurs classes de l'année en cours), `attachment` (PDF, 5 Mo, jamais public), `published_at`, `archived_at`, `archived_by`. Publiée dès sa création, jamais modifiée ensuite (des familles l'ont peut-être lue) : on l'archive (retirée du portail) et on en publie une autre. Familles touchées : celles qui ont un enfant inscrit (actif) cette année dans les classes visées ; une fratrie compte une fois (4.3). Le portail montre à une famille les annonces non archivées qui la visent, publiées après la fin de l'année scolaire précédente (4.4.4).
+
+**AnnouncementRead [T]** — `announcement`, `family`, unique ensemble ; `created_at` = lue le. Écrite quand l'annonce s'affiche dans le portail ; « lue par N familles » dans la Gestion (4.4.4).
 
 **PushSubscription [G]** — `user`, `endpoint`, `keys`, `user_agent`, `created_at`.
 

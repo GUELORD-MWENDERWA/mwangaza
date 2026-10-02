@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from apps.core.models import TenantModel
 from apps.notifications.attachments import attachment_path
 from apps.schools.models import ClassGroup
+from apps.students.models import Family
 
 
 class Announcement(TenantModel):
@@ -45,3 +46,24 @@ class Announcement(TenantModel):
 
     def __str__(self) -> str:
         return self.title
+
+
+class AnnouncementRead(TenantModel):
+    """Annonce lue par une famille dans le portail (une fois par famille, même si plusieurs de
+    ses enfants sont visés) : « lue par N familles » dans la Gestion. `created_at` : lue le."""
+
+    announcement = models.ForeignKey(
+        Announcement, on_delete=models.CASCADE, related_name="reads", verbose_name=_("announcement")
+    )
+    family = models.ForeignKey(
+        Family, on_delete=models.CASCADE, related_name="+", verbose_name=_("family")
+    )
+
+    class Meta:
+        verbose_name = _("announcement read")
+        verbose_name_plural = _("announcements read")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["announcement", "family"], name="announcement_read_once"
+            )
+        ]

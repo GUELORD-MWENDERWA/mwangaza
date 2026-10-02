@@ -1,6 +1,6 @@
 import { api, call } from "@mwangaza/api";
 import { errorMessage, useTranslation } from "@mwangaza/i18n";
-import { Banner, Brand, Button, cn, Icon, type IconName } from "@mwangaza/ui";
+import { Banner, Brand, BrandMark, Button, cn, Icon, type IconName } from "@mwangaza/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { Link, NavLink } from "react-router";
@@ -8,17 +8,20 @@ import { Link, NavLink } from "react-router";
 import { accountKey } from "../../lib/account";
 import { forgetOfflineData, useFamilies } from "../../lib/families";
 
-/** Pages du compte (maquettes `accueil`, `enfant-paiements`) : en-tête sombre avec la marque et
- *  la déconnexion, ou, sur la page d'un enfant (`title`), le retour à l'accueil et son nom ; une
- *  ligne sous le titre (salutation, école…) ; barre de navigation en bas. */
+/** Pages du compte (maquettes `accueil`, `enfant-paiements`, `annonces`) : en-tête sombre avec
+ *  la marque et la déconnexion, ou, sur la page d'un enfant (`title`), le retour à l'accueil et
+ *  son nom, ou, sur une page de la barre du bas (`heading`), la marque et son titre ; une ligne
+ *  sous le titre (salutation, école…) ; barre de navigation en bas. */
 export function PortalFrame({
   subtitle,
+  heading,
   title,
   aside,
   childId,
   children,
 }: {
   subtitle?: string;
+  heading?: string;
   title?: string;
   /** À droite du titre (photo de l'enfant). */
   aside?: ReactNode;
@@ -42,7 +45,12 @@ export function PortalFrame({
     <div className="flex min-h-screen flex-col bg-background">
       <header className="bg-basalt px-4 py-4 text-basalt-ink">
         <div className="mx-auto flex max-w-[640px] items-center justify-between gap-3">
-          {title === undefined ? (
+          {heading !== undefined ? (
+            <div className="flex items-center gap-2.5">
+              <BrandMark className="size-[26px]" />
+              <h1 className="text-[1.1rem] text-basalt-ink">{heading}</h1>
+            </div>
+          ) : title === undefined ? (
             <>
               <Brand />
               <Button
@@ -80,7 +88,7 @@ export function PortalFrame({
 }
 
 /** `.pnav` des maquettes. « Paiements » : l'enfant affiché, sinon le premier de l'accueil.
- *  Annonces et Profil s'ajoutent avec leurs écrans (4.4.4, 4.4.5). */
+ *  Profil s'ajoute avec son écran (4.4.5). */
 function PortalNav({ childId }: { childId?: string }) {
   const { t } = useTranslation();
   const families = useFamilies();
@@ -92,6 +100,7 @@ function PortalNav({ childId }: { childId?: string }) {
   if (payments) {
     items.push({ to: `/children/${payments}`, icon: "card", label: t("portal.nav.payments") });
   }
+  items.push({ to: "/announcements", icon: "bell", label: t("portal.nav.announcements") });
 
   return (
     <nav

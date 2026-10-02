@@ -1,7 +1,9 @@
 from django.utils.text import slugify
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema
+from rest_framework import status
 from rest_framework.exceptions import NotFound
+from rest_framework.generics import ListAPIView
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -11,14 +13,18 @@ from apps.accounts import login
 from apps.accounts.views import AuthView
 from apps.core.documents import PDF, render
 from apps.core.errors import ErrorSerializer
-from apps.portal import children, families, receipts, services
+from apps.notifications.attachments import attachment_response
+from apps.portal import announcements, children, families, receipts, services
 from apps.portal.serializers import (
+    AnnouncementsQuerySerializer,
     ChildPaymentsSerializer,
     FamilyCodeSerializer,
     LinkedFamilySerializer,
     LinkSerializer,
+    PortalAnnouncementSerializer,
     PortalLoginSerializer,
     PortalMeSerializer,
+    ReadSerializer,
 )
 from apps.students.photos import photo_response
 
@@ -170,3 +176,59 @@ class ReceiptView(APIView):
             context = receipts.receipt_document(payment)
             name = f"recu-{slugify(context['number'])}.pdf"
             return render("portal/receipt.html", context, "pdf", name)
+
+
+@extend_schema(tags=["portal"])
+class AnnouncementsView(ListAPIView):
+    """Annonces des écoles reliées qui visent la famille (H4), les plus récentes d'abord."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+    serializer_class = PortalAnnouncementSerializer
+
+    @extend_schema(
+        parameters=[AnnouncementsQuerySerializer],
+        responses={200: PortalAnnouncementSerializer(many=True), 403: ErrorSerializer},
+    )
+    def get(self, request: Request, *args, **kwargs) -> Response:
+        return super().get(request, *args, **kwargs)
+
+    def list(self, request: Request, *args, **kwargs) -> Response:
+        query = AnnouncementsQuerySerializer(data=request.query_params)
+        query.is_valid(raise_exception=True)
+        found = announcements.readers(request.user, query.validated_data.get("family"))
+        page = self.paginate_queryset(announcements.visible(request.user, found))
+        announcements.describe(page, found)
+        return self.get_paginated_response(self.get_serializer(page, many=True).data)
+
+
+@extend_schema(tags=["portal"])
+class AnnouncementsReadView(APIView):
+    """Marque lues les annonces affichées (« lue par N familles » dans la Gestion)."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(request=ReadSerializer, responses={204: None, 400: ErrorSerializer})
+    def post(self, request: Request) -> Response:
+        serializer = ReadSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        announcements.mark_read(request.user, serializer.validated_data["ids"])
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@extend_schema(tags=["portal"])
+class AnnouncementAttachmentView(APIView):
+    """PDF joint à une annonce qui vise la famille ; 404 sinon ou sans pièce jointe."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(
+        responses={
+            (200, PDF): OpenApiResponse(OpenApiTypes.BINARY, description="PDF."),
+            **READ_ERRORS,
+        }
+    )
+    def get(self, request: Request, pk):
+        response = attachment_response(announcements.find(request.user, pk))
+        if response is None:
+            raise NotFound
+        return response

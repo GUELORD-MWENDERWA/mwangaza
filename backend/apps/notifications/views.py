@@ -1,6 +1,4 @@
-from django.db.models import Prefetch
-from django.http import FileResponse
-from django.utils.text import slugify
+from django.db.models import Count, Prefetch
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
@@ -14,6 +12,7 @@ from apps.accounts.roles import ANNOUNCEMENTS_PUBLISH
 from apps.accounts.views import SchoolViewSet
 from apps.core.errors import ApiError, ErrorSerializer
 from apps.notifications import services
+from apps.notifications.attachments import attachment_response
 from apps.notifications.models import Announcement
 from apps.notifications.serializers import (
     AnnouncementCreateSerializer,
@@ -48,8 +47,11 @@ class AnnouncementViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, School
         if getattr(self, "swagger_fake_view", False):
             return Announcement.all_schools.none()
         groups = ClassGroup.objects.select_related("level", "track")
-        return Announcement.objects.select_related("created_by").prefetch_related(
-            Prefetch("class_groups", queryset=groups)
+        return (
+            Announcement.objects.select_related("created_by")
+            .prefetch_related(Prefetch("class_groups", queryset=groups))
+            .annotate(read_by=Count("reads"))
+            .order_by("-published_at", "-id")  # GROUP BY : l'ordre du modèle ne compte plus
         )
 
     def get_serializer_class(self):
@@ -83,20 +85,9 @@ class AnnouncementViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, School
     @action(detail=True, methods=["get"])
     def attachment(self, request: Request, pk=None):
         """PDF joint à l'annonce, jamais public."""
-        announcement = self.get_object()
-        if not announcement.attachment:
+        response = attachment_response(self.get_object())
+        if response is None:
             return Response(NO_ATTACHMENT.body(), status=NO_ATTACHMENT.status)
-        try:
-            file = announcement.attachment.open("rb")
-        except FileNotFoundError:
-            return Response(NO_ATTACHMENT.body(), status=NO_ATTACHMENT.status)
-        filename = f"{slugify(announcement.title)[:60] or 'annonce'}.pdf"
-        response = FileResponse(file, content_type="application/pdf", filename=filename)
-        response["Content-Disposition"] = response["Content-Disposition"].replace(
-            "attachment", "inline", 1
-        )
-        response["X-Content-Type-Options"] = "nosniff"
-        response["Cache-Control"] = "private, max-age=86400"
         return response
 
     @extend_schema(

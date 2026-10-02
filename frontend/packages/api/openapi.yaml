@@ -4834,6 +4834,107 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/portal/announcements/:
+    get:
+      operationId: portal_announcements_list
+      description: Annonces des écoles reliées qui visent la famille (H4), les plus
+        récentes d'abord.
+      parameters:
+      - in: query
+        name: family
+        schema:
+          type: string
+          format: uuid
+        description: 'Une seule école : l''`id` d''une famille de `families/`.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPortalAnnouncementList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/announcements/{id}/attachment/:
+    get:
+      operationId: portal_announcements_attachment_retrieve
+      description: PDF joint à une annonce qui vise la famille ; 404 sinon ou sans
+        pièce jointe.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: PDF.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/announcements/read/:
+    post:
+      operationId: portal_announcements_read_create
+      description: Marque lues les annonces affichées (« lue par N familles » dans
+        la Gestion).
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReadRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/portal/auth/activate/:
     post:
       operationId: portal_auth_activate_create
@@ -8267,6 +8368,10 @@ components:
           format: date-time
           readOnly: true
           nullable: true
+        read_by:
+          type: integer
+          readOnly: true
+          description: Familles qui l'ont lue dans le portail.
       required:
       - id
       - title
@@ -8277,6 +8382,7 @@ components:
       - published_at
       - published_by
       - archived_at
+      - read_by
     AnnouncementCreateRequest:
       type: object
       properties:
@@ -11796,6 +11902,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Payment'
+    PaginatedPortalAnnouncementList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalAnnouncement'
     PaginatedRoleList:
       type: object
       required:
@@ -12657,6 +12788,47 @@ components:
           description: '`true` : suspendre ; `false` : rétablir.'
       required:
       - suspended
+    PortalAnnouncement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        school_name:
+          type: string
+        school_timezone:
+          type: string
+        classes:
+          type: array
+          items:
+            type: string
+          description: 'Classes visées où un enfant est inscrit ; vide : à toutes
+            les familles.'
+        title:
+          type: string
+        body:
+          type: string
+        attachment:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Adresse du PDF joint ; null sans pièce jointe.
+        published_at:
+          type: string
+          format: date-time
+        read:
+          type: boolean
+          description: Déjà lue par la famille.
+      required:
+      - id
+      - school_name
+      - school_timezone
+      - classes
+      - title
+      - body
+      - attachment
+      - published_at
+      - read
     PortalLoginRequest:
       type: object
       properties:
@@ -12746,6 +12918,19 @@ components:
             $ref: '#/components/schemas/Outcome'
       required:
       - results
+    ReadRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Annonces affichées ; celles qui ne visent pas la famille sont
+            ignorées.
+          maxItems: 100
+      required:
+      - ids
     ReasonCodeEnum:
       enum:
       - staff_child

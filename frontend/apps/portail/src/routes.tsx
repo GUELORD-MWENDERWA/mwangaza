@@ -2,6 +2,7 @@ import { errorMessage, useTranslation } from "@mwangaza/i18n";
 import { Banner, Button, Skeleton } from "@mwangaza/ui";
 import { Navigate, Outlet, type RouteObject } from "react-router";
 
+import { AnnouncementsPage } from "./features/announcements/AnnouncementsPage";
 import { ActivatePage } from "./features/auth/ActivatePage";
 import { ForgotPasswordPage } from "./features/auth/ForgotPasswordPage";
 import { LoginPage } from "./features/auth/LoginPage";
@@ -54,6 +55,7 @@ export const routes: RouteObject[] = [
       { path: "add-school", element: <AddSchoolPage /> },
       { path: "install", element: <InstallPage /> },
       { path: "children/:id", element: <ChildPage /> },
+      { path: "announcements", element: <AnnouncementsPage /> },
     ],
   },
   { path: "*", element: <Navigate to="/" replace /> },

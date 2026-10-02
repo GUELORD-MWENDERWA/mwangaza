@@ -21,15 +21,16 @@ export const apiError = (code: string, status: number, fields?: object) =>
 
 /** Remplace `fetch` ; renvoie les requêtes reçues, avec leur corps JSON. */
 export function mockApi(routes: Record<string, Response | object | (() => Response | object)>) {
-  const requests: { method: string; path: string; body: unknown }[] = [];
+  const requests: { method: string; path: string; search: string; body: unknown }[] = [];
   vi.stubGlobal(
     "fetch",
     vi.fn(async (request: Request) => {
-      const { pathname } = new URL(request.url);
+      const { pathname, search } = new URL(request.url);
       const text = request.method === "GET" ? "" : await request.clone().text();
       requests.push({
         method: request.method,
         path: pathname,
+        search,
         body: text ? JSON.parse(text) : null,
       });
       const reply = routes[`${request.method} ${pathname}`];
