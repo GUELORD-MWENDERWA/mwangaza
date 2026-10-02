@@ -29,6 +29,7 @@ Dans Claude Code : `/etat`. Sur GitHub : onglet **Milestones** (une barre de pro
 │   ├── 05-plan-de-travail.md      tâches ordonnées à cocher
 │   ├── 06-suivi.md                état actuel et journal
 │   ├── 07-a-fournir.md            maquettes, informations et décisions encore manquantes
+│   ├── guide/                     guide de chaque version en PDF, à envoyer aux écoles (`make guide`)
 │   ├── ecole-pilote/              ITIG : fiche-itig.md, depot/ (tes fichiers, hors Git),
 │   │                              documents/ (rangés), prive/ (données personnelles, hors Git)
 │   └── claude/                    espace de travail de Claude : plans/, recherches/ (revues/ : jusqu'à 1.7)
@@ -41,7 +42,7 @@ Dans Claude Code : `/etat`. Sur GitHub : onglet **Milestones** (une barre de pro
 └── .claude/skills/            skills Claude Code du projet
 ```
 
-Code (tâche 0.1, voir `docs/03-architecture-technique.md` § 3) : `backend/` (Django), `frontend/` (workspace pnpm : `apps/gestion`, `apps/portail`, `packages/api|ui|i18n|money`), `infra/` (Docker Compose), `firmware/` (V1.2), `Makefile`.
+Code (tâche 0.1, voir `docs/03-architecture-technique.md` § 3) : `backend/` (Django), `frontend/` (workspace pnpm : `apps/gestion`, `apps/portail`, `packages/api|ui|i18n|money` ; `e2e/` parcours Playwright, `guide/` guide PDF de la version), `infra/` (Docker Compose), `firmware/` (V1.2), `Makefile`.
 
 ## Travailler avec Claude Code
 

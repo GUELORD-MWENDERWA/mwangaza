@@ -17,7 +17,7 @@ export function AuthFrame({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="grid min-h-screen grid-rows-[auto_1fr] min-[900px]:grid-cols-2 min-[900px]:grid-rows-1">
+    <div className="grid min-h-screen grid-cols-1 grid-rows-[auto_1fr] min-[900px]:grid-cols-2 min-[900px]:grid-rows-1">
       <aside className="flex flex-col justify-between gap-3 bg-basalt px-4 py-5 text-basalt-ink min-[900px]:gap-6 min-[900px]:p-12">
         <Brand large />
         {/* Téléphone : l'école en une ligne sous la marque (le grand encadré est masqué). */}

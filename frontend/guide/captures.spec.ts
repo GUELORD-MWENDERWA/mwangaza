@@ -1,0 +1,263 @@
+import { mkdirSync } from "node:fs";
+
+import { expect, test, type Page } from "@playwright/test";
+
+import { allowCodeAgain, manage, totp, unpaidStudent } from "../e2e/django";
+import { enterCode, ITIG, PASSWORD, skipGuide } from "../e2e/helpers";
+
+// Version du guide et nom de la plateforme, écrits dans la page (`data-guide`) et dans le nom du
+// PDF. Le nom viendra des paramètres de la plateforme (5.1) ; ici seulement, pas dans le texte.
+const VERSION = "1.0";
+const PLATFORM = "Mwangaza";
+
+const CAPTURES = new URL("captures/", import.meta.url).pathname;
+const PDF = new URL(`../../docs/guide/guide-v${VERSION}.pdf`, import.meta.url).pathname;
+const PORTAL = "http://localhost:5174/";
+const ADMIN = "http://localhost:8000/admin/";
+
+test.describe.configure({ mode: "serial" });
+test.beforeAll(() => mkdirSync(CAPTURES, { recursive: true }));
+
+async function shot(page: Page, name: string) {
+  await page.screenshot({ path: `${CAPTURES}${name}.jpg`, type: "jpeg", quality: 72 });
+}
+
+/** Écran chargé : plus de requête en cours, titre affiché, synchronisation terminée. */
+async function settle(page: Page) {
+  await page.waitForLoadState("networkidle");
+  await expect(page.getByRole("heading").first()).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: /Synchronisation/ })).toHaveCount(0, {
+    timeout: 30_000,
+  });
+}
+
+async function open(page: Page, path: string, name: string) {
+  await page.goto(`${ITIG}${path}`);
+  await settle(page);
+  await shot(page, name);
+}
+
+/** Connexion à la Gestion de l'ITIG (code de double authentification si le compte l'a). */
+async function login(page: Page, phone: string, { code = false, remember = false } = {}) {
+  if (code) allowCodeAgain(`+243${phone.slice(1)}`);
+  await page.goto(ITIG);
+  await page.getByLabel("Numéro de téléphone").fill(phone);
+  await page.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
+  if (!remember) await page.getByLabel("Se souvenir de cet appareil").uncheck();
+  await page.getByRole("button", { name: "Se connecter" }).click();
+  if (code) await enterCode(page);
+  await page.waitForURL((url) => !url.pathname.includes("/login"));
+}
+
+/** Un élève inscrit qui a déjà payé et a une réduction : sa fiche montre tout. */
+function studentWithHistory(): string {
+  const output = manage(
+    "shell",
+    "-c",
+    `from apps.core.tenancy import use_school
+from apps.schools.models import School
+from apps.students.models import Enrollment
+with use_school(School.objects.get(code="itig")):
+    e = (Enrollment.objects.filter(status="active", payments__isnull=False, discounts__isnull=False)
+         .order_by("student__matricule").first())
+    print(e.student_id)`,
+  );
+  return output.trim().split("\n").at(-1)!;
+}
+
+test("connexion", async ({ page }) => {
+  await page.goto(ITIG);
+  await expect(page.getByRole("button", { name: "Se connecter" })).toBeVisible();
+  await shot(page, "connexion");
+});
+
+test("directeur", async ({ page }) => {
+  await login(page, "0000001001", { code: true });
+  await open(page, "dashboard", "directeur-tableau-de-bord");
+  await open(page, "settings", "directeur-parametres");
+  await open(page, "roles", "directeur-roles");
+});
+
+test("promoteur", async ({ page }) => {
+  await page.goto(ITIG);
+  await page.getByLabel("Numéro de téléphone").fill("0000001007");
+  await page.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
+  await page.getByLabel("Se souvenir de cet appareil").uncheck();
+  await page.getByRole("button", { name: "Se connecter" }).click();
+  // Première connexion : double authentification à activer (étape obligatoire), au format
+  // téléphone pour la colonne du guide.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByText("Étape obligatoire")).toBeVisible();
+  const key = (await page.getByText(/^([A-Z2-7]{4} ?)+$/).innerText()).replace(/\s/g, "");
+  await shot(page, "double-authentification");
+  await page.getByLabel("Code à 6 chiffres").fill(await totp(key));
+  await page.getByRole("button", { name: "Vérifier et activer" }).click();
+  await page.getByText("J'ai imprimé ou recopié mes 8 codes de secours").click();
+  await page.getByRole("button", { name: "Terminer" }).click();
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await open(page, "unpaid", "promoteur-impayes");
+  await open(page, "audit", "promoteur-audit");
+});
+
+test("comptable", async ({ page }) => {
+  await login(page, "0000001004", { code: true });
+  await skipGuide(page);
+  await open(page, "fees", "comptable-frais");
+  await open(page, `students/${studentWithHistory()}/finances`, "comptable-finances-eleve");
+  await open(page, "cancellations", "comptable-annulations");
+  await open(page, "cash-closings", "comptable-clotures");
+});
+
+test("caissière", async ({ page, context }) => {
+  const student = unpaidStudent();
+  // Stockage persistant accordé (Chromium sans écran le refuse, M8). Impression : copie du reçu
+  // gardée dans la page pour la capture, sans fenêtre d'impression.
+  await page.addInitScript(() => {
+    navigator.storage.persist = async () => true;
+    navigator.storage.persisted = async () => true;
+    window.print = () => {
+      const area = document.querySelector(".print-area");
+      if (!area) return;
+      document.getElementById("guide-print")?.remove();
+      const copy = area.cloneNode(true) as HTMLElement;
+      copy.id = "guide-print";
+      copy.className = "";
+      copy.hidden = true;
+      Object.assign(copy.style, { width: "fit-content", padding: "12px", background: "#fff" });
+      document.body.append(copy);
+    };
+  });
+  await login(page, "0000001005", { code: true, remember: true });
+  await skipGuide(page);
+  const indicator = page.getByRole("status").filter({ hasText: /ligne|Synchronisation/ });
+  await expect(indicator).toHaveText("En ligne · à jour", { timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: "Ouvrir la caisse" })).toBeVisible();
+  await shot(page, "caisse-ouverture");
+  await page.getByRole("button", { name: /^Ouvrir la caisse C/ }).click();
+
+  const recorded = page.getByText(/^Paiement enregistré : reçu /);
+  async function collect(amount: string, name?: string) {
+    await page.getByLabel("Élève qui paie").fill(student.matricule);
+    await page.getByRole("button", { name: new RegExp(student.matricule) }).click();
+    await page.getByLabel("Montant reçu en USD").fill(amount);
+    await expect(page.getByText("Répartition")).toBeVisible();
+    if (name) await shot(page, name);
+    await page.keyboard.press("F9");
+    await expect(recorded).toBeVisible();
+  }
+  await collect("50", "caisse-encaissement");
+  const receipt = page.locator("#guide-print");
+  await receipt.evaluate((copy) => (copy.hidden = false));
+  await receipt.screenshot({ path: `${CAPTURES}caisse-recu.jpg`, type: "jpeg", quality: 85 });
+  await receipt.evaluate((copy) => copy.remove());
+
+  // Sans réseau : la caisse continue, le paiement attend la synchronisation.
+  await context.setOffline(true);
+  await expect(indicator).toHaveText("Hors ligne");
+  await collect("20");
+  await expect(indicator).toHaveText(/Hors ligne · \d+ en attente/);
+  await shot(page, "caisse-hors-ligne");
+  await context.setOffline(false);
+  await expect(indicator).toHaveText("En ligne · à jour", { timeout: 30_000 });
+
+  await page.getByRole("button", { name: "Clôturer la caisse" }).click();
+  await page.getByLabel("Argent compté en USD").fill("70");
+  await page.getByLabel("Argent compté en FC").fill("0");
+  await shot(page, "caisse-cloture");
+});
+
+test("secrétaire", async ({ page }) => {
+  await login(page, "0000001006");
+  await open(page, "students", "secretaire-eleves");
+  await open(page, `students/${studentWithHistory()}`, "secretaire-fiche-eleve");
+  await open(page, "students/import", "secretaire-import");
+  await open(page, "students/invitations", "secretaire-invitations");
+});
+
+test("directrice des études", async ({ page }) => {
+  await login(page, "0000001002");
+  await open(page, "organisation", "etudes-organisation");
+});
+
+test("directeur de discipline", async ({ page }) => {
+  await login(page, "0000001003");
+  await open(page, "announcements", "discipline-annonces");
+});
+
+test("enseignant dans deux écoles", async ({ page }) => {
+  await login(page, "0000001008");
+  await open(page, "schools", "enseignant-ecoles");
+});
+
+test.describe("parent", () => {
+  test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true });
+
+  test("portail", async ({ page }) => {
+    await page.goto(`${PORTAL}login`);
+    await page.getByLabel("Numéro de téléphone").fill("0002000001");
+    await page.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
+    await page.getByRole("button", { name: "Se connecter" }).click();
+    await page.waitForLoadState("networkidle");
+    const skip = page.getByRole("button", { name: "Passer le guide" });
+    if (await skip.isVisible()) await skip.click();
+    await settle(page);
+    await shot(page, "parent-enfants");
+    await page.getByRole("link").filter({ hasText: /ITIG/ }).first().click();
+    await expect(page.getByRole("heading", { name: "Détail des frais" })).toBeVisible();
+    await settle(page);
+    await shot(page, "parent-paiements");
+    await page.goto(`${PORTAL}announcements`);
+    await settle(page);
+    await shot(page, "parent-annonces");
+  });
+});
+
+test("super-admin", async ({ page }) => {
+  allowCodeAgain("+243000000000");
+  await page.goto(ADMIN);
+  await page.locator("input[name=phone]").fill("0000000000");
+  await page.locator("input[name=password]").fill(PASSWORD);
+  await page.locator("[type=submit]").click();
+  await page.locator("input[name=code]").fill(await totp());
+  await page.locator("[type=submit]").click();
+  await page.goto(`${ADMIN}schools/school/`);
+  await shot(page, "admin-ecoles");
+
+  allowCodeAgain("+243000000000");
+  await page.goto(`${ITIG}support`);
+  await page.getByLabel("Numéro de téléphone").fill("0000000000");
+  await page.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
+  await page.getByRole("button", { name: "Se connecter" }).click();
+  await enterCode(page);
+  await page.getByLabel("Motif").fill("Aider la comptable à corriger un barème");
+  await page.getByRole("button", { name: "Ouvrir la session support" }).click();
+  await open(page, "dashboard", "support-session");
+});
+
+test("PDF", async ({ page }) => {
+  await page.goto(new URL("guide.html", import.meta.url).href);
+  const today = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(new Date());
+  await page.evaluate(
+    (values) => {
+      for (const node of document.querySelectorAll<HTMLElement>("[data-guide]"))
+        node.textContent = values[node.dataset.guide as keyof typeof values];
+      document.title = `${values.platform} — guide de la version ${values.version}`;
+    },
+    { version: VERSION, platform: PLATFORM, date: today },
+  );
+  await page.evaluate(() => document.fonts.ready);
+  // Toutes les captures présentes.
+  const missing = await page.$$eval("img", (images) =>
+    images.filter((image) => !image.naturalWidth).map((image) => image.getAttribute("src")),
+  );
+  expect(missing).toEqual([]);
+  await page.pdf({
+    path: PDF,
+    format: "A4",
+    printBackground: true,
+    displayHeaderFooter: true,
+    headerTemplate: "<span></span>",
+    footerTemplate: `<div style="width:100%;font-size:8px;color:#77818f;padding:0 14mm;display:flex;justify-content:space-between"><span>${PLATFORM} — guide de la version ${VERSION}</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`,
+    margin: { top: "14mm", bottom: "16mm", left: "14mm", right: "14mm" },
+  });
+});

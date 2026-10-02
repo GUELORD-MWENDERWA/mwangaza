@@ -33,6 +33,8 @@ dist/
 coverage/
 playwright-report/
 test-results/
+# Captures du guide de la version (`make guide`), refaites à chaque fois.
+frontend/guide/captures/
 *.tsbuildinfo
 
 # Éditeurs et système

@@ -1,0 +1,964 @@
+<!doctype html>
+<!--
+  Guide de la version (I5), imprimé en PDF par `make guide` (captures.spec.ts) : captures dans
+  `captures/`, nom de la plateforme, version et date écrits dans les éléments `data-guide`.
+  À mettre à jour à la fin de chaque version, puis `make guide`.
+-->
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Guide de la version</title>
+    <style>
+      @font-face {
+        font-family: "Atkinson Hyperlegible";
+        font-weight: 400;
+        src: url("../packages/ui/src/fonts/atkinson-hyperlegible-latin-400-normal.woff2")
+          format("woff2");
+      }
+      @font-face {
+        font-family: "Atkinson Hyperlegible";
+        font-weight: 700;
+        src: url("../packages/ui/src/fonts/atkinson-hyperlegible-latin-700-normal.woff2")
+          format("woff2");
+      }
+      /* Jetons de maquettes/README.md (packages/ui/src/styles.css). */
+      :root {
+        --basalt: #2b2724;
+        --basalt-2: #3a3531;
+        --basalt-ink: #ede8e3;
+        --basalt-muted: #a8a09a;
+        --lamp: #f2b632;
+        --lamp-soft: #fdf3d8;
+        --lake: #0e5c6b;
+        --lake-700: #0a4652;
+        --lake-50: #e6f0f2;
+        --ink: #1a2233;
+        --ink-2: #4a5568;
+        --ink-3: #77818f;
+        --surface: #f3f5f6;
+        --line: #dde3e6;
+        --ok: #1f7a4d;
+        --ok-50: #e5f3eb;
+        --warn: #9a5b00;
+        --warn-50: #fff1d6;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Atkinson Hyperlegible", system-ui, sans-serif;
+        font-size: 10.5pt;
+        line-height: 1.45;
+        color: var(--ink);
+        background: #fff;
+      }
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0;
+      }
+      h1 {
+        font-size: 20pt;
+        padding-bottom: 6px;
+        border-bottom: 3px solid var(--lamp);
+        margin-bottom: 12px;
+      }
+      h2 {
+        font-size: 14pt;
+        color: var(--lake-700);
+        margin: 16px 0 6px;
+      }
+      h3 {
+        font-size: 11pt;
+        margin: 12px 0 4px;
+      }
+      p {
+        margin: 0 0 8px;
+      }
+      ul,
+      ol {
+        margin: 0 0 8px;
+        padding-left: 18px;
+      }
+      li {
+        margin-bottom: 3px;
+      }
+      section,
+      .next {
+        break-before: page;
+      }
+      .lead {
+        font-size: 11.5pt;
+        color: var(--ink-2);
+      }
+      .who {
+        display: inline-block;
+        font-size: 8.5pt;
+        font-weight: 700;
+        color: var(--lake-700);
+        background: var(--lake-50);
+        border-radius: 999px;
+        padding: 2px 10px;
+        margin-bottom: 6px;
+      }
+      .steps {
+        list-style: none;
+        counter-reset: step;
+        padding: 0;
+      }
+      .steps li {
+        counter-increment: step;
+        position: relative;
+        padding-left: 26px;
+        margin-bottom: 5px;
+      }
+      .steps li::before {
+        content: counter(step);
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--lake);
+        color: #fff;
+        font-size: 8.5pt;
+        font-weight: 700;
+        text-align: center;
+        line-height: 18px;
+      }
+      .note {
+        background: var(--lake-50);
+        border-left: 4px solid var(--lake);
+        border-radius: 6px;
+        padding: 8px 12px;
+        margin: 8px 0 10px;
+        break-inside: avoid;
+      }
+      .note.warn {
+        background: var(--warn-50);
+        border-color: var(--warn);
+      }
+      .note strong:first-child {
+        display: block;
+        margin-bottom: 2px;
+      }
+      figure {
+        margin: 8px 0 12px;
+        break-inside: avoid;
+      }
+      figure img {
+        display: block;
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+      }
+      figcaption {
+        font-size: 8.5pt;
+        color: var(--ink-3);
+        margin-top: 4px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 12px;
+      }
+      .phones {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0 12px;
+      }
+      .side {
+        display: grid;
+        grid-template-columns: 1fr 58mm;
+        gap: 14px;
+        align-items: start;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 6px 0 12px;
+        font-size: 9.5pt;
+      }
+      th,
+      td {
+        text-align: left;
+        vertical-align: top;
+        padding: 5px 8px;
+        border-bottom: 1px solid var(--line);
+      }
+      th {
+        font-size: 8.5pt;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--ink-3);
+        background: var(--surface);
+      }
+      td:first-child {
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      tr {
+        break-inside: avoid;
+      }
+
+      /* Couverture : panneau basalte sur toute la zone imprimable. */
+      .cover {
+        height: 262mm;
+        background: var(--basalt);
+        color: var(--basalt-ink);
+        border-radius: 10px;
+        padding: 22mm 18mm;
+        display: flex;
+        flex-direction: column;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 15pt;
+        font-weight: 700;
+      }
+      .lamp {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: var(--lamp);
+        box-shadow:
+          0 0 0 4px var(--basalt),
+          0 0 0 6px var(--lamp);
+      }
+      .cover h1 {
+        font-size: 32pt;
+        color: #fff;
+        border: none;
+        margin: 42mm 0 6px;
+      }
+      .cover .subtitle {
+        font-size: 15pt;
+        color: var(--lamp);
+        margin-bottom: 16mm;
+      }
+      .cover .contents {
+        columns: 2;
+        gap: 12mm;
+        font-size: 10.5pt;
+        color: var(--basalt-ink);
+        padding-left: 18px;
+      }
+      .cover .foot {
+        margin-top: auto;
+        font-size: 9pt;
+        color: var(--basalt-muted);
+        border-top: 1px solid var(--basalt-2);
+        padding-top: 8px;
+      }
+      .versions td:first-child {
+        color: var(--lake-700);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cover">
+      <div class="brand"><span class="lamp"></span><span data-guide="platform"></span></div>
+      <h1>Guide de la version <span data-guide="version"></span></h1>
+      <div class="subtitle">Finances, caisse et portail des familles</div>
+      <ol class="contents">
+        <li>La version en bref</li>
+        <li>Se connecter</li>
+        <li>Directeur</li>
+        <li>Promoteur</li>
+        <li>Comptable</li>
+        <li>Caissier</li>
+        <li>Secrétaire</li>
+        <li>Directeur des études, de discipline, enseignant</li>
+        <li>Parent (portail des familles)</li>
+        <li>Plateforme (super-admin)</li>
+        <li>Hors ligne et contrôle de l'argent</li>
+        <li>Ce qui n'est pas encore là, et la suite</li>
+      </ol>
+      <div class="foot">
+        Pour les directions, le personnel et les familles des écoles. Mis à jour le
+        <span data-guide="date"></span>. Les captures montrent des données fictives de démonstration
+        : écoles, élèves, familles et montants sont inventés.
+      </div>
+    </div>
+
+    <section>
+      <h1>1. La version en bref</h1>
+      <p class="lead">
+        Avec cette version, une école encaisse ses frais scolaires, même sans internet, et les
+        parents suivent les paiements de leurs enfants sur leur téléphone.
+      </p>
+      <h2>Deux applications</h2>
+      <ul>
+        <li>
+          <strong>La Gestion</strong>, pour le personnel de l'école, à l'adresse de l'école (par
+          exemple <em>itig.&lt;domaine&gt;/app</em>) : élèves, frais, caisse, reçus, impayés,
+          tableau de bord. Sur un appareil mémorisé, elle continue de fonctionner sans internet.
+        </li>
+        <li>
+          <strong>Le Portail des familles</strong>, pour les parents
+          (<em>parents.&lt;domaine&gt;</em>) : enfants, paiements, reçus, annonces. Il s'installe
+          sur l'écran d'accueil du téléphone.
+        </li>
+      </ul>
+      <h2>Ce qui est garanti</h2>
+      <ul>
+        <li>
+          <strong>Chaque école garde ses données</strong> : elle ne voit ni ne modifie celles d'une
+          autre école. Une famille dont les enfants sont dans deux écoles a une fiche dans chacune.
+        </li>
+        <li>
+          <strong>L'argent est exact</strong> : montants en dollars ou en francs congolais, sans
+          arrondi caché ; le taux de change de l'année est noté sur chaque paiement.
+        </li>
+        <li>
+          <strong>Un paiement ne se modifie ni ne s'efface</strong>. Pour corriger une erreur, on
+          demande une annulation, avec un motif, qu'une autre personne valide.
+        </li>
+        <li>
+          <strong>Tout est tracé</strong> : le journal d'audit garde qui a fait quoi, et quand, sur
+          les finances, les élèves et les rôles.
+        </li>
+        <li>
+          <strong>Chacun voit seulement ce que son rôle permet</strong> ; l'école peut créer ses
+          propres rôles (par exemple « chef d'atelier ») en cochant des permissions.
+        </li>
+      </ul>
+      <h2>Qui fait quoi</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Rôle</th>
+            <th>Dans cette version</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Directeur</td>
+            <td>
+              Tableau de bord, paramètres et organisation de l'école, personnel et rôles, frais,
+              réductions, validation des annulations, journal d'audit, annonces.
+            </td>
+          </tr>
+          <tr>
+            <td>Promoteur</td>
+            <td>Consulte sans modifier : tableau de bord, impayés, clôtures, élèves, audit.</td>
+          </tr>
+          <tr>
+            <td>Comptable</td>
+            <td>
+              Frais et barèmes, taux de l'année, réductions et échéanciers, annulations, clôtures de
+              caisse, impayés, crédits d'élèves ; peut aussi encaisser.
+            </td>
+          </tr>
+          <tr>
+            <td>Caissier</td>
+            <td>
+              Ouvre sa caisse, encaisse et imprime les reçus (même sans internet), réimprime,
+              demande une annulation, clôture sa caisse.
+            </td>
+          </tr>
+          <tr>
+            <td>Secrétaire</td>
+            <td>
+              Élèves, familles et inscriptions, import Excel, fiches et listes de classe,
+              invitations au portail, demandes des parents, annonces.
+            </td>
+          </tr>
+          <tr>
+            <td>Directeur des études</td>
+            <td>Organisation scolaire (années, niveaux, options, classes), élèves, annonces.</td>
+          </tr>
+          <tr>
+            <td>Directeur de discipline</td>
+            <td>Consulte les élèves, publie des annonces.</td>
+          </tr>
+          <tr>
+            <td>Enseignant</td>
+            <td>Compte prêt ; ses fonctions arrivent avec les versions 1.3 et 1.4.</td>
+          </tr>
+          <tr>
+            <td>Parent</td>
+            <td>
+              Portail : enfants (même dans plusieurs écoles), paiements, reçus, échéances, annonces,
+              coordonnées.
+            </td>
+          </tr>
+          <tr>
+            <td>Super-admin</td>
+            <td>
+              Équipe de la plateforme : crée les écoles et leur premier directeur, suit les
+              abonnements, aide une école en session support.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h1>2. Se connecter</h1>
+      <div class="side">
+        <div>
+          <ol class="steps">
+            <li>
+              Ouvrir l'adresse de l'école, saisir son <strong>numéro de téléphone</strong> et son
+              <strong>mot de passe</strong>. Un nouveau compte reçoit un mot de passe provisoire :
+              on choisit le sien à la première connexion.
+            </li>
+            <li>
+              Directeur, promoteur, comptable et caissier ajoutent un
+              <strong>code à 6 chiffres</strong> donné par une application d'authentification
+              (double authentification, activée à la première connexion, avec 8 codes de secours à
+              garder).
+            </li>
+            <li>
+              Cocher <strong>« Se souvenir de cet appareil »</strong> sur l'ordinateur ou le
+              téléphone de travail : l'appareil est mémorisé et peut travailler sans internet.
+            </li>
+          </ol>
+          <div class="note">
+            <strong>Code PIN</strong>
+            Sur un appareil mémorisé, un code PIN (« Mon compte ») déverrouille l'application, même
+            sans réseau. Après 5 PIN faux, ou plus de 7 jours sans connexion complète, il faut se
+            reconnecter avec le mot de passe.
+          </div>
+          <ul>
+            <li>
+              <strong>Un seul compte pour plusieurs écoles</strong> : une personne qui travaille
+              dans deux écoles choisit l'école au moment d'entrer.
+            </li>
+            <li>
+              <strong>Langue</strong> : français ou anglais, au bas de l'écran ; les reçus, PDF et
+              fichiers Excel suivent la langue choisie.
+            </li>
+            <li>
+              <strong>Guides de première connexion</strong> : le caissier et le comptable sont
+              guidés pas à pas sur leurs vrais écrans ; « Aide et guide », en bas du menu, les
+              relance.
+            </li>
+          </ul>
+        </div>
+        <figure>
+          <img src="captures/double-authentification.jpg" alt="" />
+          <figcaption>
+            Première connexion du promoteur : activer la double authentification.
+          </figcaption>
+        </figure>
+      </div>
+      <div class="grid">
+        <figure>
+          <img src="captures/connexion.jpg" alt="" />
+          <figcaption>Connexion à la Gestion, aux couleurs et au logo de l'école.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/enseignant-ecoles.jpg" alt="" />
+          <figcaption>Un compte dans deux écoles : choisir l'école.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <span class="who">Rôle : directeur (préfet des études)</span>
+      <h1>3. Directeur</h1>
+      <p class="lead">
+        Le directeur règle l'école, suit l'argent d'un coup d'œil et contrôle les opérations
+        sensibles.
+      </p>
+      <figure>
+        <img src="captures/directeur-tableau-de-bord.jpg" alt="" />
+        <figcaption>
+          Tableau de bord : encaissé aujourd'hui et ce mois par devise, impayés, taux de
+          recouvrement, encaissements des 21 derniers jours, effectifs par classe et par sexe.
+        </figcaption>
+      </figure>
+      <ul>
+        <li>
+          <strong>Tableau de bord</strong> : les alertes signalent les annulations à valider, une
+          caisse pas clôturée, un écart de caisse au-delà du seuil choisi par l'école.
+        </li>
+        <li>
+          <strong>Paramètres de l'école</strong> : nom, logo, couleur, fuseau horaire, contenu et
+          format des reçus (ticket 58 ou 80 mm, A6, A5 ou petit reçu à coller dans le cahier ; 1
+          exemplaire ou 2 avec souche), seuils d'alerte.
+        </li>
+        <li>
+          <strong>Organisation scolaire</strong> : année et périodes, niveaux, options, classes,
+          format du matricule.
+        </li>
+        <li>
+          <strong>Personnel et rôles</strong> : créer les comptes, donner un ou plusieurs rôles,
+          créer un rôle propre à l'école en cochant ses permissions.
+        </li>
+        <li>
+          <strong>Argent</strong> : comme le comptable, il règle les frais, accorde des réductions
+          et valide ou refuse les demandes d'annulation.
+        </li>
+        <li>
+          <strong>Appareils et synchro</strong> : voir les appareils mémorisés et en révoquer un
+          (perdu, volé) ; ses données locales sont alors effacées.
+        </li>
+        <li><strong>Journal d'audit</strong> : qui a fait quoi, et quand ; export Excel.</li>
+      </ul>
+      <div class="next">
+        <figure>
+          <img src="captures/directeur-parametres.jpg" alt="" />
+          <figcaption>Paramètres de l'école : identité, reçus, logo et couleur.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/directeur-roles.jpg" alt="" />
+          <figcaption>Rôles et permissions : rôles prédéfinis et rôles de l'école.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <span class="who">Rôle : promoteur</span>
+      <h1>4. Promoteur</h1>
+      <p class="lead">
+        Le promoteur suit son école sans rien modifier : tableau de bord, impayés, clôtures de
+        caisse, crédits d'élèves, fiches des élèves et journal d'audit.
+      </p>
+      <figure>
+        <img src="captures/promoteur-impayes.jpg" alt="" />
+        <figcaption>
+          Impayés : élèves en retard, filtrés par classe, frais, tranche, retard ou devise ; export
+          Excel et PDF par classe.
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="captures/promoteur-audit.jpg" alt="" />
+        <figcaption>
+          Journal d'audit : par personne, action, domaine et période ; rien ne s'y modifie ni ne
+          s'efface.
+        </figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <span class="who">Rôle : comptable</span>
+      <h1>5. Comptable</h1>
+      <p class="lead">
+        Le comptable prépare ce que chaque élève doit payer et contrôle tout l'argent reçu.
+      </p>
+      <ol class="steps">
+        <li>
+          <strong>Taux de l'année</strong> (1 $ = … FC) : fixe toute l'année, il peut être corrigé ;
+          l'historique garde qui, quand, l'ancien et le nouveau taux. Les paiements déjà faits
+          gardent leur taux.
+        </li>
+        <li>
+          <strong>Frais et barèmes</strong> : types de frais (minerval, fonctionnement, frais
+          connexes…), puis pour chacun un montant en dollars ou en francs par niveau, option ou
+          classe, en tranches avec dates limites, en une fois ou par mois.
+        </li>
+        <li>
+          <strong>Fiche de l'élève, onglet Finances</strong> : ce qu'il doit par frais et par
+          tranche ; réduction (montant ou pourcentage, avec motif), échéancier particulier,
+          situation financière imprimable.
+        </li>
+        <li>
+          <strong>Contrôle</strong> : valider ou refuser les demandes d'annulation, vérifier les
+          clôtures de caisse et leurs écarts, suivre les impayés et les crédits d'élèves (argent
+          payé en trop, utilisé sur les échéances suivantes).
+        </li>
+      </ol>
+      <figure>
+        <img src="captures/comptable-frais.jpg" alt="" />
+        <figcaption>Frais et barèmes, et taux de l'année.</figcaption>
+      </figure>
+      <div class="next">
+        <figure>
+          <img src="captures/comptable-finances-eleve.jpg" alt="" />
+          <figcaption>
+            Finances d'un élève : total, déjà payé, en retard, prochaine échéance, réductions et
+            détail par tranche.
+          </figcaption>
+        </figure>
+        <div class="grid">
+          <figure>
+            <img src="captures/comptable-annulations.jpg" alt="" />
+            <figcaption>
+              Annulations : demande du caissier et son motif ; validée par une autre personne, elle
+              produit un reçu d'annulation.
+            </figcaption>
+          </figure>
+          <figure>
+            <img src="captures/comptable-clotures.jpg" alt="" />
+            <figcaption>
+              Clôtures de caisse : attendu, compté et écart par devise ; sessions pas clôturées.
+            </figcaption>
+          </figure>
+        </div>
+        <div class="note">
+          <strong>Le paiement d'origine reste visible</strong>
+          Un paiement annulé reste dans l'historique, marqué « annulé », à côté de son reçu
+          d'annulation. Personne ne peut valider sa propre demande.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <span class="who">Rôle : caissier</span>
+      <h1>6. Caissier</h1>
+      <p class="lead">
+        Le caissier encaisse et remet un reçu tout de suite, que le réseau soit là ou non.
+      </p>
+      <ol class="steps">
+        <li><strong>Ouvrir la caisse</strong> au début de la journée (choisir sa caisse).</li>
+        <li>
+          <strong>Chercher l'élève</strong> par son nom, son matricule ou le code famille : ce qu'il
+          doit s'affiche par frais et par tranche, dans chaque devise.
+        </li>
+        <li>
+          <strong>Saisir le montant reçu</strong> en dollars ou en francs : il est réparti sur les
+          échéances les plus anciennes ; on peut changer la répartition avant de valider.
+        </li>
+        <li>
+          <strong>Valider</strong> (bouton ou touche F9) : le reçu s'imprime aussitôt, avec le
+          montant en lettres, le reste à payer et un QR code de vérification.
+        </li>
+        <li>
+          <strong>Clôturer la caisse</strong> en fin de journée : compter l'argent par devise ;
+          l'écart s'affiche et le bordereau s'imprime. Plus d'encaissement dans cette session.
+        </li>
+      </ol>
+      <figure>
+        <img src="captures/caisse-encaissement.jpg" alt="" />
+        <figcaption>Encaisser : ce que doit l'élève, montant reçu, répartition.</figcaption>
+      </figure>
+      <div class="next">
+        <div class="side">
+          <div>
+            <figure>
+              <img src="captures/caisse-hors-ligne.jpg" alt="" />
+              <figcaption>
+                Sans internet : « Hors ligne · 1 en attente ». Le reçu est imprimé ; le paiement
+                part tout seul au retour du réseau.
+              </figcaption>
+            </figure>
+            <ul>
+              <li>
+                <strong>Réimprimer</strong> un reçu depuis « Paiements du jour » : il porte la
+                mention DUPLICATA.
+              </li>
+              <li>
+                <strong>Erreur de saisie</strong> : demander une annulation avec un motif ; le
+                comptable ou le directeur la valide.
+              </li>
+            </ul>
+          </div>
+          <figure>
+            <img src="captures/caisse-recu.jpg" alt="" />
+            <figcaption>Reçu sur ticket de 80 mm (format choisi par l'école).</figcaption>
+          </figure>
+        </div>
+        <div class="grid">
+          <figure>
+            <img src="captures/caisse-ouverture.jpg" alt="" />
+            <figcaption>Ouvrir la caisse.</figcaption>
+          </figure>
+          <figure>
+            <img src="captures/caisse-cloture.jpg" alt="" />
+            <figcaption>
+              Clôturer : argent compté par devise, écart, résumé de la session.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <span class="who">Rôle : secrétaire</span>
+      <h1>7. Secrétaire</h1>
+      <p class="lead">
+        Le secrétariat tient à jour les élèves et les familles, et invite les parents au portail.
+      </p>
+      <ul>
+        <li>
+          <strong>Élèves</strong> : recherche rapide par nom, post-nom, prénom ou matricule ;
+          filtres par classe, option, statut, paiements ; liste de classe en PDF ou Excel.
+        </li>
+        <li>
+          <strong>Nouvel élève</strong> : inscription dans une classe, matricule donné tout seul,
+          famille (tuteur principal et contacts) avec son <strong>code famille</strong> ; fiche
+          d'inscription imprimable.
+        </li>
+        <li>
+          <strong>Import Excel</strong> : choisir le fichier, faire correspondre les colonnes, voir
+          les erreurs ligne par ligne, importer sans doublon.
+        </li>
+        <li>
+          <strong>Invitations au portail</strong> : une lettre par famille (adresse avec QR code,
+          code famille, 3 étapes), imprimée pour une classe ou une famille ; ou un message prêt à
+          envoyer par WhatsApp ou SMS ; suivi des familles qui ont activé leur compte.
+        </li>
+        <li>
+          <strong>Demandes des parents</strong> : les coordonnées changées sur le portail arrivent
+          ici ; le secrétariat les vérifie et les applique à la fiche.
+        </li>
+        <li>
+          <strong>Annonces</strong> : à toutes les familles ou à certaines classes, avec une pièce
+          jointe.
+        </li>
+      </ul>
+      <div class="grid">
+        <figure>
+          <img src="captures/secretaire-eleves.jpg" alt="" />
+          <figcaption>Liste des élèves et filtres.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/secretaire-fiche-eleve.jpg" alt="" />
+          <figcaption>Fiche de l'élève : identité, famille, finances, historique.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/secretaire-import.jpg" alt="" />
+          <figcaption>Import des élèves depuis Excel, en 4 étapes.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/secretaire-invitations.jpg" alt="" />
+          <figcaption>Invitations au portail : comptes activés par classe.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <span class="who">Rôles : directeur des études, directeur de discipline, enseignant</span>
+      <h1>8. Études, discipline, enseignants</h1>
+      <h2>Directeur des études</h2>
+      <p>
+        Il prépare l'année : périodes et examens, niveaux, options, classes et format du matricule.
+        Il voit et modifie les élèves, et publie des annonces.
+      </p>
+      <figure>
+        <img src="captures/etudes-organisation.jpg" alt="" />
+        <figcaption>
+          Organisation scolaire : année, découpage, niveaux, options, classes, matricule.
+        </figcaption>
+      </figure>
+      <div class="grid">
+        <div>
+          <h2>Directeur de discipline</h2>
+          <p>
+            Il consulte les élèves et publie des annonces aux familles. Le suivi de la discipline
+            arrive avec la version 1.4.
+          </p>
+          <h2>Enseignant</h2>
+          <p>
+            Son compte existe déjà (un seul compte même s'il enseigne dans plusieurs écoles). Son
+            espace (horaire, fiche de paie) arrive avec la version 1.3, les notes avec la 1.4.
+          </p>
+          <h2>Rôle propre à l'école</h2>
+          <p>
+            Le directeur peut créer d'autres rôles, par exemple « chef d'atelier », en cochant les
+            permissions utiles.
+          </p>
+        </div>
+        <figure>
+          <img src="captures/discipline-annonces.jpg" alt="" />
+          <figcaption>
+            Annonces : nouvelle annonce, annonces publiées et lues par les familles.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <span class="who">Rôle : parent</span>
+      <h1>9. Parent : le portail des familles</h1>
+      <ol class="steps">
+        <li>
+          <strong>Activer son compte</strong> : ouvrir l'adresse du portail (ou scanner le QR code
+          de la lettre d'invitation), saisir son numéro de téléphone et le code famille remis par
+          l'école, choisir un mot de passe. Un petit guide présente ensuite le portail.
+        </li>
+        <li>
+          <strong>Mes enfants</strong> : tous ses enfants, même dans des écoles différentes ; pour
+          ajouter une autre école, saisir le code famille qu'elle a remis.
+        </li>
+        <li>
+          <strong>Paiements</strong> de chaque enfant : payé, reste, retard, prochaines échéances,
+          détail des frais, reçus en PDF.
+        </li>
+        <li>
+          <strong>Annonces</strong> de l'école ; <strong>Profil</strong> : adresse et contacts,
+          envoyés au secrétariat de chaque école.
+        </li>
+      </ol>
+      <div class="phones">
+        <figure>
+          <img src="captures/parent-enfants.jpg" alt="" />
+          <figcaption>Mes enfants.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/parent-paiements.jpg" alt="" />
+          <figcaption>Paiements d'un enfant.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/parent-annonces.jpg" alt="" />
+          <figcaption>Annonces.</figcaption>
+        </figure>
+      </div>
+      <div class="note">
+        <strong>Mot de passe oublié</strong>
+        L'école donne un nouveau code depuis la fiche de la famille (« Nouveau code ») ; le parent
+        choisit alors un nouveau mot de passe. L'école peut aussi suspendre l'accès d'une famille.
+      </div>
+    </section>
+
+    <section>
+      <span class="who">Rôle : super-admin (équipe de la plateforme)</span>
+      <h1>10. Plateforme</h1>
+      <ul>
+        <li>
+          <strong>Écoles</strong> : créer une école (nom, adresse, logo, devises, fuseau) et son
+          premier directeur ; voir pour chacune le nombre d'élèves, la dernière activité et
+          l'abonnement ; suspendre une école (ses familles voient « service temporairement
+          indisponible », ses données sont gardées).
+        </li>
+        <li>
+          <strong>Session support</strong> : pour aider une école, ouvrir une session « en tant
+          qu'école », avec un motif. Un bandeau rouge reste affiché, tout est noté au journal
+          d'audit, et la caisse reste interdite.
+        </li>
+      </ul>
+      <p>
+        Dans cette version, ces outils sont dans l'administration de la plateforme ; une console à
+        part arrive avec la version 1.1.
+      </p>
+      <div class="grid">
+        <figure>
+          <img src="captures/admin-ecoles.jpg" alt="" />
+          <figcaption>Administration de la plateforme : les écoles.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/support-session.jpg" alt="" />
+          <figcaption>
+            Session support : bandeau rouge, motif, droits de l'école sauf la caisse.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <h1>11. Hors ligne et contrôle de l'argent</h1>
+      <h2>Quand internet coupe</h2>
+      <ul>
+        <li>
+          Sur un appareil mémorisé, la caisse continue : chercher un élève, voir ce qu'il doit,
+          encaisser, imprimer et réimprimer, demander une annulation, ouvrir et clôturer la caisse.
+        </li>
+        <li>
+          En haut de l'écran : « En ligne · à jour », « Hors ligne · 2 en attente »… Au retour du
+          réseau, tout part tout seul, <strong>sans doublon</strong>, même si l'envoi est répété.
+        </li>
+        <li>
+          Chaque appareil numérote ses propres reçus : deux caisses sans réseau ne donnent jamais le
+          même numéro.
+        </li>
+        <li>
+          Une nouvelle version de l'application ne s'installe que lorsque rien n'attend d'être
+          envoyé.
+        </li>
+      </ul>
+      <div class="note warn">
+        <strong>À ne pas faire</strong>
+        Ne pas effacer les données du navigateur sur un appareil de caisse : des paiements peuvent
+        attendre d'être envoyés. Un appareil perdu se révoque depuis « Appareils et synchro ».
+      </div>
+      <h2>Contrôle de l'argent</h2>
+      <ul>
+        <li>
+          <strong>Reçu vérifiable</strong> : le QR code ouvre une page publique qui dit si le reçu
+          est valide ou annulé (école, numéro, date, montant, initiales de l'élève seulement). Un
+          reçu imprimé sans réseau est déjà vérifiable : « reçu authentique, en attente de
+          synchronisation ».
+        </li>
+        <li>
+          <strong>Annulation à deux</strong> : demandée avec un motif, validée par une autre
+          personne ; reçu d'annulation dans sa propre série.
+        </li>
+        <li>
+          <strong>Clôture signée</strong> par le caissier, vue par le comptable avec ses écarts ; un
+          paiement arrivé après la clôture est signalé.
+        </li>
+        <li>
+          <strong>Journal d'audit</strong> : chaque création, modification ou annulation sur les
+          finances, les élèves et les rôles.
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h1>12. Ce qui n'est pas encore là, et la suite</h1>
+      <h2>Pas dans cette version</h2>
+      <p>
+        Paie et dépenses, notes et bulletins, présences, discipline, messagerie, portail des élèves,
+        paiement en ligne (Mobile Money), SMS et WhatsApp automatiques, applications dans les
+        stores, pré-inscription en ligne, bibliothèque, cantine, transport, ateliers, rapports
+        officiels EPST, comptabilité SYSCOHADA complète.
+      </p>
+      <h2>Les prochaines versions</h2>
+      <table class="versions">
+        <thead>
+          <tr>
+            <th>Version</th>
+            <th>Ce qu'elle apporte</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1.1</td>
+            <td>
+              <strong>Plateforme, notifications, communication</strong> : nom, logo et couleurs de
+              la plateforme réglables ; console de la plateforme (écoles, comptes, appareils,
+              journal) ; notifications sur l'écran du téléphone même application fermée (parents et
+              personnel) ; annonces au personnel.
+            </td>
+          </tr>
+          <tr>
+            <td>1.2</td>
+            <td>
+              <strong>Carte unique et présences</strong> : une carte par élève et par membre du
+              personnel (puce, QR code, photo) ; pointage par téléphone, tablette ou lecteur ;
+              listes du jour, absents et retards ; arrivées et absences signalées aux parents.
+            </td>
+          </tr>
+          <tr>
+            <td>1.3</td>
+            <td>
+              <strong>Personnel, paie, dépenses</strong> : dossiers du personnel, paie (primes,
+              motivation des enseignants, avances, retenues), dépenses par catégorie, espace
+              enseignant (horaire, fiche de paie), pénalités de retard.
+            </td>
+          </tr>
+          <tr>
+            <td>1.4</td>
+            <td>
+              <strong>Notes, bulletins, vie scolaire</strong> : cours et maxima, saisie des notes,
+              bulletin EPST avec QR d'authenticité, délibération et passage de classe, discipline,
+              portail des élèves, notes et bulletins dans le portail des familles, transfert d'un
+              élève vers une autre école de la plateforme.
+            </td>
+          </tr>
+          <tr>
+            <td>Ensuite</td>
+            <td>
+              Abonnements des écoles, tableau d'un réseau d'écoles, paiement Mobile Money, SMS et
+              WhatsApp, applications Android et iPhone, pré-inscription en ligne, comptabilité
+              SYSCOHADA, emploi du temps, rapports EPST, bibliothèque, cantine, transport.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="note">
+        <strong>Une version à la fois</strong>
+        Chaque version arrive complète et testée, avec son propre guide. Les données saisies restent
+        : rien n'est à refaire d'une version à l'autre.
+      </div>
+    </section>
+  </body>
+</html>
