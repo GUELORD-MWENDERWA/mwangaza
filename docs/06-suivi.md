@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 — semaine 4 (Rapports, portail, production) |
 | Lot | V1.0 — semaines 1 à 4 |
-| Tâche en cours | aucune — 4.4.4 terminée, PR à fusionner |
-| Prochaine tâche | 4.4.5 |
-| Issue GitHub | #32 (fermée par la 4.4.5) |
-| Branche | `tache/4.4.4-annonces-portail` (PR à fusionner) ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.4.5 terminée, PR à fusionner |
+| Prochaine tâche | 4.5 |
+| Issue GitHub | #32 (fermée par la PR de la 4.4.5) |
+| Branche | `tache/4.4.5-coordonnees-portail` (PR à fusionner) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-02 |
 
 ## Avancement
@@ -22,8 +22,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 8 | 13 |
-| **V1.0** | **42** | **47** |
+| Semaine 4 — Rapports, portail, production | 9 | 13 |
+| **V1.0** | **43** | **47** |
 | V1.1 — semaines 5 à 8 | 0 | 9 |
 | V1.2 — semaines 9 à 14 | 0 | 11 |
 | V2 | 0 | 15 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-02 — Tâche 4.4.5 : coordonnées des parents
+- Fait : `ContactChange` (une demande par école reliée, seulement ce qui diffère de sa fiche, une seule en attente par famille) ; portail `GET/POST /api/portal/profile/` et écran « Mon profil » (adresse, e-mail, contact d'urgence, langue, déconnexion, entrée Profil de la barre) ; Gestion `/api/contact-changes/` (+ `apply/`, `dismiss/`, droit `students.edit`) et écran « Demandes des parents » ; `make demo` : 3 demandes à l'ITIG. La 4.4 (Portail) est finie ; tous les écrans du menu V1.0 sont construits.
+- Tests : 3 tests serveur (une demande par école, remplacée au nouvel envoi, rien pour un accès suspendu ; appliquer : fiche de cette école seulement, autre école 404, enseignant 403, journal, déjà traitée 409, requêtes en nombre fixe ; ne pas appliquer : fiche gardée, journal) ; 2 tests d'écran. Test « bientôt disponible » retiré (plus d'écran V1.0 à venir).
+- Décisions : `02` H5 et `04` priment sur la note de la maquette M18 — le secrétariat **applique** la demande (rien ne change sans lui) au lieu de « déjà enregistré, marquer comme vu » ; « Téléphone secondaire » remplacé par le contact d'urgence (pas de champ au modèle) ; aucune école ne voit les autres écoles de la famille.
+- Suite : 4.5 (guides de première connexion, traductions).
 
 ### 2026-10-02 — Tâche 4.4.4 : annonces dans le portail
 - Fait : `AnnouncementRead` (annonce lue par une famille, une fois) ; portail `GET /api/portal/announcements/` (écoles reliées, `?family=` pour une seule), `POST …/read/`, `GET …/{id}/attachment/` ; écran « Annonces » du Portail (puces par école, « Nouvelle », pièce jointe, entrée de la barre du bas, 1re page gardée hors connexion) ; « lue par N familles » dans la liste de la Gestion ; `make demo` : une famille sur deux a lu les annonces, jamais celle du compte du portail.

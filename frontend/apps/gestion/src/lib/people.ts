@@ -20,11 +20,8 @@ export function rolesLabel(roles: Role[], t: TFunction): string {
   return roles.length ? roles.map((role) => roleName(role, t)).join(", ") : t("roles.none");
 }
 
-/** `+243971183062` → `+243 97 118 30 62` (numéro de la RDC) ; les autres tels quels. */
-export function formatPhone(phone: string): string {
-  const match = /^\+243(\d{2})(\d{3})(\d{2})(\d{2})$/.exec(phone);
-  return match ? `+243 ${match.slice(1).join(" ")}` : phone;
-}
+// Partagé avec le Portail.
+export { formatPhone } from "@mwangaza/i18n";
 
 /** « Prénom Post-nom NOM » d'une personne. */
 export function fullName(person: { first_name: string; middle_name: string; last_name: string }) {

@@ -39,6 +39,7 @@ export const keys = {
   unpaid: ["unpaid"],
   dashboard: ["dashboard"],
   announcements: ["announcements"],
+  contactChanges: ["contact-changes"],
   myDevices: ["my-devices"],
   schoolDevices: ["school-devices"],
   /** L'appareil mémorisé dans ce navigateur (code PIN), pas le serveur. */

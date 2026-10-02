@@ -10,6 +10,7 @@ import { ChildPage } from "./features/child/ChildPage";
 import { AddSchoolPage } from "./features/home/AddSchoolPage";
 import { HomePage } from "./features/home/HomePage";
 import { InstallPage } from "./features/home/InstallPage";
+import { ProfilePage } from "./features/profile/ProfilePage";
 import { useAccount } from "./lib/account";
 
 /** Pages sans compte, montrées sans attendre le serveur : un parent déjà connecté va à l'accueil
@@ -56,6 +57,7 @@ export const routes: RouteObject[] = [
       { path: "install", element: <InstallPage /> },
       { path: "children/:id", element: <ChildPage /> },
       { path: "announcements", element: <AnnouncementsPage /> },
+      { path: "profile", element: <ProfilePage /> },
     ],
   },
   { path: "*", element: <Navigate to="/" replace /> },

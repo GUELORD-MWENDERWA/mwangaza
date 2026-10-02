@@ -577,6 +577,8 @@ paths:
           - students.family_code_renewed
           - students.portal_suspended
           - students.portal_restored
+          - students.contact_change_applied
+          - students.contact_change_dismissed
           - portal.activated
           - portal.password_reset
           - finance.fee_type_created
@@ -668,6 +670,8 @@ paths:
           * `students.family_code_renewed` - New family code
           * `students.portal_suspended` - Parent portal access suspended
           * `students.portal_restored` - Parent portal access restored
+          * `students.contact_change_applied` - Contact details sent by the parent applied
+          * `students.contact_change_dismissed` - Contact details sent by the parent not applied
           * `portal.activated` - Parent portal activated
           * `portal.password_reset` - Parent chose a new password
           * `finance.fee_type_created` - Fee type created
@@ -926,6 +930,8 @@ paths:
           - students.family_code_renewed
           - students.portal_suspended
           - students.portal_restored
+          - students.contact_change_applied
+          - students.contact_change_dismissed
           - portal.activated
           - portal.password_reset
           - finance.fee_type_created
@@ -1017,6 +1023,8 @@ paths:
           * `students.family_code_renewed` - New family code
           * `students.portal_suspended` - Parent portal access suspended
           * `students.portal_restored` - Parent portal access restored
+          * `students.contact_change_applied` - Contact details sent by the parent applied
+          * `students.contact_change_dismissed` - Contact details sent by the parent not applied
           * `portal.activated` - Parent portal activated
           * `portal.password_reset` - Parent chose a new password
           * `finance.fee_type_created` - Fee type created
@@ -2703,6 +2711,152 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Person'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/contact-changes/:
+    get:
+      operationId: contact_changes_list
+      description: |-
+        Demandes des parents (M18) : coordonnées envoyées depuis le portail, les plus récentes
+        d'abord ; le secrétariat les applique à la fiche de la famille, ou pas.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          enum:
+          - pending
+          - handled
+          - all
+          type: string
+          default: pending
+          minLength: 1
+        description: |-
+          À traiter (par défaut), traitées (appliquées ou non) ou toutes.
+
+          * `pending` - pending
+          * `handled` - handled
+          * `all` - all
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedContactChangeList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/contact-changes/{id}/apply/:
+    post:
+      operationId: contact_changes_apply_create
+      description: Recopie les coordonnées envoyées dans la fiche de la famille.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this contact details change.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactChange'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/contact-changes/{id}/dismiss/:
+    post:
+      operationId: contact_changes_dismiss_create
+      description: Garde la fiche telle quelle.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this contact details change.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactChange'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
         '403':
           content:
@@ -5325,6 +5479,69 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: ''
         '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/profile/:
+    get:
+      operationId: portal_profile_retrieve
+      description: |-
+        Coordonnées du parent (H5) ; un envoi est transmis à chaque école de ses enfants, qui
+        l'applique à sa propre fiche.
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalProfile'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: portal_profile_create
+      description: |-
+        Coordonnées du parent (H5) ; un envoi est transmis à chaque école de ses enfants, qui
+        l'applique à sa propre fiche.
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactDetailsRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ContactDetailsRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ContactDetailsRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalProfile'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
           content:
             application/json:
               schema:
@@ -8112,6 +8329,8 @@ components:
       - students.family_code_renewed
       - students.portal_suspended
       - students.portal_restored
+      - students.contact_change_applied
+      - students.contact_change_dismissed
       - portal.activated
       - portal.password_reset
       - finance.fee_type_created
@@ -8202,6 +8421,8 @@ components:
         * `students.family_code_renewed` - New family code
         * `students.portal_suspended` - Parent portal access suspended
         * `students.portal_restored` - Parent portal access restored
+        * `students.contact_change_applied` - Contact details sent by the parent applied
+        * `students.contact_change_dismissed` - Contact details sent by the parent not applied
         * `portal.activated` - Parent portal activated
         * `portal.password_reset` - Parent chose a new password
         * `finance.fee_type_created` - Fee type created
@@ -8257,6 +8478,16 @@ components:
       - quartier
       - avenue
       - number
+    AddressChange:
+      type: object
+      properties:
+        before:
+          $ref: '#/components/schemas/ContactAddress'
+        after:
+          $ref: '#/components/schemas/ContactAddress'
+      required:
+      - before
+      - after
     AddressRequest:
       type: object
       properties:
@@ -9227,6 +9458,20 @@ components:
       - operation
       - enrollment
       - config
+    Changes:
+      type: object
+      description: Seulement ce qui diffère de la fiche au moment de l'envoi.
+      properties:
+        address:
+          $ref: '#/components/schemas/AddressChange'
+        email:
+          $ref: '#/components/schemas/EmailChange'
+        emergency_contact:
+          $ref: '#/components/schemas/EmergencyChange'
+      required:
+      - address
+      - email
+      - emergency_contact
     Child:
       type: object
       description: 'Un enfant inscrit cette année : classe et situation de paiement
@@ -9601,6 +9846,140 @@ components:
           maxLength: 20
       required:
       - code
+    ContactAddress:
+      type: object
+      properties:
+        commune:
+          type: string
+          default: ''
+          maxLength: 80
+        quartier:
+          type: string
+          default: ''
+          maxLength: 80
+        avenue:
+          type: string
+          default: ''
+          maxLength: 120
+        number:
+          type: string
+          default: ''
+          maxLength: 20
+      required:
+      - commune
+      - quartier
+      - avenue
+      - number
+    ContactAddressRequest:
+      type: object
+      properties:
+        commune:
+          type: string
+          default: ''
+          maxLength: 80
+        quartier:
+          type: string
+          default: ''
+          maxLength: 80
+        avenue:
+          type: string
+          default: ''
+          maxLength: 120
+        number:
+          type: string
+          default: ''
+          maxLength: 20
+    ContactChange:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        family:
+          $ref: '#/components/schemas/ContactChangeFamily'
+        changes:
+          $ref: '#/components/schemas/Changes'
+        status:
+          $ref: '#/components/schemas/ContactChangeStatusEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        handled_by:
+          type: string
+          readOnly: true
+          nullable: true
+        handled_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - family
+      - changes
+      - status
+      - created_at
+      - handled_by
+      - handled_at
+    ContactChangeFamily:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Family code
+          maxLength: 8
+        parent:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+        children:
+          type: array
+          items:
+            type: string
+          readOnly: true
+      required:
+      - id
+      - code
+      - parent
+      - phone
+      - children
+    ContactChangeStatusEnum:
+      enum:
+      - pending
+      - applied
+      - dismissed
+      type: string
+      description: |-
+        * `pending` - To review
+        * `applied` - Applied
+        * `dismissed` - Not applied
+    ContactDetailsRequest:
+      type: object
+      description: |-
+        Coordonnées que le parent tient à jour : adresse (celle de ses enfants), e-mail (le
+        sien), contact d'urgence. Le numéro de son compte ne change pas ici.
+      properties:
+        address:
+          $ref: '#/components/schemas/ContactAddressRequest'
+        email:
+          oneOf:
+          - type: string
+            format: email
+          - type: string
+            maxLength: 0
+        emergency_contact:
+          $ref: '#/components/schemas/EmergencyContactRequest'
+      required:
+      - address
+      - email
+      - emergency_contact
     CopiesEnum:
       enum:
       - 1
@@ -10313,6 +10692,51 @@ components:
       - students
       - support
       type: string
+    EmailChange:
+      type: object
+      properties:
+        before:
+          type: string
+        after:
+          type: string
+      required:
+      - before
+      - after
+    EmergencyChange:
+      type: object
+      properties:
+        before:
+          $ref: '#/components/schemas/EmergencyContact'
+        after:
+          $ref: '#/components/schemas/EmergencyContact'
+      required:
+      - before
+      - after
+    EmergencyContact:
+      type: object
+      properties:
+        full_name:
+          type: string
+          default: ''
+          maxLength: 150
+        phone:
+          type: string
+          default: ''
+          description: Ex. 0971234567.
+      required:
+      - full_name
+      - phone
+    EmergencyContactRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+          default: ''
+          maxLength: 150
+        phone:
+          type: string
+          default: ''
+          description: Ex. 0971234567.
     Enrollment:
       type: object
       properties:
@@ -11802,6 +12226,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CashSessionClosing'
+    PaginatedContactChangeList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContactChange'
     PaginatedDeviceList:
       type: object
       required:
@@ -12868,6 +13317,33 @@ components:
       - phone
       - name
       - language
+    PortalProfile:
+      type: object
+      description: |-
+        Coordonnées que le parent tient à jour : adresse (celle de ses enfants), e-mail (le
+        sien), contact d'urgence. Le numéro de son compte ne change pas ici.
+      properties:
+        address:
+          $ref: '#/components/schemas/ContactAddress'
+        email:
+          oneOf:
+          - type: string
+            format: email
+          - type: string
+            maxLength: 0
+        emergency_contact:
+          $ref: '#/components/schemas/EmergencyContact'
+        pending_schools:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Écoles qui n'ont pas encore traité les coordonnées envoyées.
+      required:
+      - address
+      - email
+      - emergency_contact
+      - pending_schools
     PrinterEnum:
       enum:
       - thermal_58

@@ -38,6 +38,7 @@ import { HomePage } from "./features/shell/HomePage";
 import { MenuScreen } from "./features/shell/MenuScreen";
 import { RequireAuth } from "./features/shell/RequireAuth";
 import { SchoolGate } from "./features/shell/SchoolGate";
+import { ParentRequestsPage } from "./features/parent-requests/ParentRequestsPage";
 import { NotFound, RouteError } from "./features/status/StatusPages";
 import { SupportPage } from "./features/support/SupportPage";
 import { UnpaidExportPage } from "./features/unpaid/UnpaidExportPage";
@@ -62,6 +63,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   devices: <DevicesPage />,
   audit: <AuditPage />,
   announcements: <AnnouncementsPage />,
+  parentRequests: <ParentRequestsPage />,
 };
 
 const menuItem = (key: MenuKey) => MENU_ITEMS.find((item) => item.key === key)!;

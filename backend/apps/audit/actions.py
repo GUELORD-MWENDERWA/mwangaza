@@ -87,6 +87,14 @@ class Action(models.TextChoices):
     STUDENTS_FAMILY_CODE_RENEWED = "students.family_code_renewed", _("New family code")
     STUDENTS_PORTAL_SUSPENDED = "students.portal_suspended", _("Parent portal access suspended")
     STUDENTS_PORTAL_RESTORED = "students.portal_restored", _("Parent portal access restored")
+    STUDENTS_CONTACT_CHANGE_APPLIED = (
+        "students.contact_change_applied",
+        _("Contact details sent by the parent applied"),
+    )
+    STUDENTS_CONTACT_CHANGE_DISMISSED = (
+        "students.contact_change_dismissed",
+        _("Contact details sent by the parent not applied"),
+    )
     # Portail des familles (H1).
     PORTAL_ACTIVATED = "portal.activated", _("Parent portal activated")
     PORTAL_PASSWORD_RESET = "portal.password_reset", _("Parent chose a new password")

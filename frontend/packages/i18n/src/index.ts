@@ -11,6 +11,7 @@ export {
   formatDateTime,
   formatDay,
   formatMonth,
+  formatPhone,
   formatTime,
   formatVisit,
 } from "./format";

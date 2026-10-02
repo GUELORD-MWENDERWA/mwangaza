@@ -61,3 +61,9 @@ export function formatVisit(
     ? today(formatTime(value, language, timeZone))
     : day;
 }
+
+/** `+243971183062` → `+243 97 118 30 62` (numéro de la RDC) ; les autres tels quels. */
+export function formatPhone(phone: string): string {
+  const match = /^\+243(\d{2})(\d{3})(\d{2})(\d{2})$/.exec(phone);
+  return match ? `+243 ${match.slice(1).join(" ")}` : phone;
+}

@@ -24,9 +24,12 @@ from apps.portal.serializers import (
     PortalAnnouncementSerializer,
     PortalLoginSerializer,
     PortalMeSerializer,
+    PortalProfileSerializer,
     ReadSerializer,
 )
+from apps.students import contact_changes
 from apps.students.photos import photo_response
+from apps.students.serializers import ContactDetailsSerializer
 
 READ_ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
 ERRORS = {
@@ -92,6 +95,33 @@ class MeView(APIView):
     @extend_schema(responses={200: PortalMeSerializer, 403: ErrorSerializer, 404: ErrorSerializer})
     def get(self, request: Request) -> Response:
         return Response(PortalMeSerializer(request.user).data)
+
+
+@extend_schema(tags=["portal"])
+class ProfileView(APIView):
+    """Coordonnées du parent (H5) ; un envoi est transmis à chaque école de ses enfants, qui
+    l'applique à sa propre fiche."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    def _profile(self, user) -> Response:
+        values, schools = contact_changes.profile(user)
+        names = [school.name for school in schools]
+        return Response(PortalProfileSerializer({**values, "pending_schools": names}).data)
+
+    @extend_schema(responses={200: PortalProfileSerializer, 403: ErrorSerializer})
+    def get(self, request: Request) -> Response:
+        return self._profile(request.user)
+
+    @extend_schema(
+        request=ContactDetailsSerializer,
+        responses={200: PortalProfileSerializer, 400: ErrorSerializer, 403: ErrorSerializer},
+    )
+    def post(self, request: Request) -> Response:
+        serializer = ContactDetailsSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        contact_changes.submit(request.user, serializer.validated_data)
+        return self._profile(request.user)
 
 
 @extend_schema(tags=["portal"])
