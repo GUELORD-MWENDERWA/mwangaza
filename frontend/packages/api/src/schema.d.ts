@@ -886,6 +886,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/announcements/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Annonces de la plateforme aux écoles (5.4.3), les plus récentes d'abord : super-admin
+         *     seulement, à l'adresse de la console. Publiées tout de suite, jamais modifiées, seulement
+         *     archivées ; chaque publication et archivage va dans le journal de la plateforme.
+         */
+        get: operations["console_announcements_list"];
+        put?: never;
+        /**
+         * @description Annonces de la plateforme aux écoles (5.4.3), les plus récentes d'abord : super-admin
+         *     seulement, à l'adresse de la console. Publiées tout de suite, jamais modifiées, seulement
+         *     archivées ; chaque publication et archivage va dans le journal de la plateforme.
+         */
+        post: operations["console_announcements_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/announcements/{id}/archive/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Retire l'annonce de la Gestion des écoles. */
+        post: operations["console_announcements_archive_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/audit/": {
         parameters: {
             query?: never;
@@ -1902,6 +1945,44 @@ export interface paths {
         get: operations["platform_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/platform-announcements/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Annonces de la plateforme que lit le personnel de l'école (5.4.3) : bandeau et liste de la
+         *     Gestion, les plus récentes d'abord. Tout compte de l'école les lit ; « lue » est noté par
+         *     compte (rien pendant une session support).
+         */
+        get: operations["platform_announcements_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/platform-announcements/read/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Noter des annonces comme lues par ce compte (bandeau fermé, liste ouverte). */
+        post: operations["platform_announcements_read_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3836,6 +3917,30 @@ export interface components {
             /** @description Les dernières modifications, de la plus récente à la plus ancienne. */
             readonly history: components["schemas"]["PlatformChange"][];
         };
+        ConsolePlatformAnnouncement: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly title: string;
+            /** Message */
+            readonly body: string;
+            /** Recipients */
+            readonly audience: components["schemas"]["PlatformAudienceEnum"];
+            readonly schools: components["schemas"]["ConsoleSchoolRef"][];
+            /** Format: date-time */
+            readonly published_at: string;
+            readonly published_by: components["schemas"]["Person"] | null;
+            /** Format: date-time */
+            readonly archived_at: string | null;
+            /** @description Comptes qui l'ont lue dans la Gestion. */
+            readonly read_by: number;
+        };
+        ConsolePlatformAnnouncementCreateRequest: {
+            title: string;
+            body: string;
+            audience: components["schemas"]["PlatformAudienceEnum"];
+            /** @description Écoles visées quand `audience` vaut `schools`. */
+            schools?: string[];
+        };
         /**
          * @description Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
          *     marcher), ses noms et son abonnement ; couleur, fuseau, devises et logo sont réglés par
@@ -5199,6 +5304,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["ConsoleDevice"][];
         };
+        PaginatedConsolePlatformAnnouncementList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["ConsolePlatformAnnouncement"][];
+        };
         PaginatedConsoleSchoolList: {
             /** @example 123 */
             count: number;
@@ -5318,6 +5438,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["PlatformLog"][];
+        };
+        PaginatedPlatformNewsList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["PlatformNews"][];
         };
         PaginatedPortalAnnouncementList: {
             /** @example 123 */
@@ -5868,9 +6003,17 @@ export interface components {
          *     * `account.password_reset` - Temporary password given by support
          *     * `account.totp_reset` - Two-factor authentication reset by support
          *     * `device.revoked` - Device disconnected by support
+         *     * `announcement.published` - Announcement to schools published
+         *     * `announcement.archived` - Announcement to schools archived
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived";
+        /**
+         * @description * `all_schools` - All schools
+         *     * `schools` - Some schools
+         * @enum {string}
+         */
+        PlatformAudienceEnum: "all_schools" | "schools";
         /** @description Une modification de l'identité, dans le journal de la plateforme. */
         PlatformChange: {
             /** Format: uuid */
@@ -5905,6 +6048,20 @@ export interface components {
             readonly entity_label: string;
             readonly before: unknown;
             readonly after: unknown;
+        };
+        PlatformNews: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly title: string;
+            /** Message */
+            readonly body: string;
+            /** Format: date-time */
+            readonly published_at: string;
+            /** @description Lue par ce compte. */
+            readonly is_read: boolean;
+        };
+        PlatformNewsReadRequest: {
+            ids: string[];
         };
         PortalAccessRequest: {
             /** @description `true` : suspendre ; `false` : rétablir. */
@@ -9845,16 +10002,150 @@ export interface operations {
             };
         };
     };
+    console_announcements_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedConsolePlatformAnnouncementList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_announcements_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsolePlatformAnnouncementCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ConsolePlatformAnnouncementCreateRequest"];
+                "multipart/form-data": components["schemas"]["ConsolePlatformAnnouncementCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlatformAnnouncement"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_announcements_archive_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this platform announcement. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlatformAnnouncement"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     console_audit_list: {
         parameters: {
             query?: {
                 /**
                  * @description * `account` - account
+                 *     * `announcement` - announcement
                  *     * `device` - device
                  *     * `platform` - platform
                  *     * `school` - school
                  */
-                domain?: "account" | "device" | "platform" | "school";
+                domain?: "account" | "announcement" | "device" | "platform" | "school";
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Dans le nom de l'objet. */
@@ -13201,6 +13492,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Platform"];
+                };
+            };
+        };
+    };
+    platform_announcements_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Seulement les non lues. */
+                unread?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPlatformNewsList"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    platform_announcements_read_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlatformNewsReadRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PlatformNewsReadRequest"];
+                "multipart/form-data": components["schemas"]["PlatformNewsReadRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
         };

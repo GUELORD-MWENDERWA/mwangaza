@@ -1,26 +1,36 @@
 from django.db.models import Count, Prefetch
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
-from rest_framework import mixins, status
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    OpenApiResponse,
+    extend_schema,
+    extend_schema_view,
+)
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from apps.accounts.permissions import HasSchoolAccess, IsPlatformAdmin, school_access
 from apps.accounts.roles import ANNOUNCEMENTS_PUBLISH
 from apps.accounts.views import SchoolViewSet
 from apps.core.errors import ApiError, ErrorSerializer
-from apps.notifications import services
+from apps.notifications import platform, services
 from apps.notifications.attachments import attachment_response
-from apps.notifications.models import Announcement
+from apps.notifications.models import Announcement, PlatformAnnouncement
 from apps.notifications.serializers import (
     AnnouncementCreateSerializer,
     AnnouncementSerializer,
+    ConsolePlatformAnnouncementCreateSerializer,
+    ConsolePlatformAnnouncementSerializer,
+    PlatformNewsReadSerializer,
+    PlatformNewsSerializer,
     RecipientsQuerySerializer,
     RecipientsSerializer,
 )
-from apps.schools.models import ClassGroup
+from apps.schools.models import ClassGroup, School
 
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
 NO_ATTACHMENT = ApiError("no_attachment", _("This announcement has no attachment."), 404)
@@ -103,3 +113,88 @@ class AnnouncementViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, School
             query.validated_data["audience"], query.validated_data.get("class_groups", [])
         )
         return Response(RecipientsSerializer({"families": families.count()}).data)
+
+
+CONSOLE_ERRORS = {400: ErrorSerializer, **ERRORS}
+
+
+@extend_schema(tags=["console"])
+@extend_schema_view(
+    list=extend_schema(
+        responses={200: ConsolePlatformAnnouncementSerializer(many=True), **CONSOLE_ERRORS}
+    ),
+    create=extend_schema(
+        request=ConsolePlatformAnnouncementCreateSerializer,
+        responses={201: ConsolePlatformAnnouncementSerializer, **CONSOLE_ERRORS},
+    ),
+)
+class ConsolePlatformAnnouncementViewSet(
+    mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet
+):
+    """Annonces de la plateforme aux écoles (5.4.3), les plus récentes d'abord : super-admin
+    seulement, à l'adresse de la console. Publiées tout de suite, jamais modifiées, seulement
+    archivées ; chaque publication et archivage va dans le journal de la plateforme."""
+
+    permission_classes = [IsPlatformAdmin]
+    serializer_class = ConsolePlatformAnnouncementSerializer
+    http_method_names = ["get", "post", "head", "options"]
+
+    def get_queryset(self):
+        schools = Prefetch("schools", queryset=School.objects.order_by("name"))
+        return (
+            PlatformAnnouncement.objects.select_related("created_by")
+            .prefetch_related(schools)
+            .annotate(read_by=Count("reads"))
+            .order_by("-published_at", "-id")  # GROUP BY : l'ordre du modèle ne compte plus
+        )
+
+    def _announcement(self, announcement, code=status.HTTP_200_OK) -> Response:
+        announcement = self.get_queryset().get(pk=announcement.pk)
+        return Response(ConsolePlatformAnnouncementSerializer(announcement).data, status=code)
+
+    def create(self, request: Request) -> Response:
+        serializer = ConsolePlatformAnnouncementCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        announcement = platform.publish(actor=request.user, **serializer.validated_data)
+        return self._announcement(announcement, status.HTTP_201_CREATED)
+
+    @extend_schema(request=None, responses={200: ConsolePlatformAnnouncementSerializer, **ERRORS})
+    @action(detail=True, methods=["post"])
+    def archive(self, request: Request, pk=None) -> Response:
+        """Retire l'annonce de la Gestion des écoles."""
+        announcement = platform.archive(self.get_object(), actor=request.user)
+        return self._announcement(announcement)
+
+
+@extend_schema(tags=["announcements"])
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[OpenApiParameter("unread", bool, description="Seulement les non lues.")],
+        responses={200: PlatformNewsSerializer(many=True), **ERRORS},
+    )
+)
+class PlatformNewsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """Annonces de la plateforme que lit le personnel de l'école (5.4.3) : bandeau et liste de la
+    Gestion, les plus récentes d'abord. Tout compte de l'école les lit ; « lue » est noté par
+    compte (rien pendant une session support)."""
+
+    permission_classes = [HasSchoolAccess]
+    serializer_class = PlatformNewsSerializer
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return PlatformAnnouncement.objects.none()
+        announcements = platform.for_school(self.request.school, self.request.user)
+        if self.request.query_params.get("unread") in ("1", "true"):
+            announcements = announcements.filter(is_read=False)
+        return announcements
+
+    @extend_schema(request=PlatformNewsReadSerializer, responses={204: None, **ERRORS})
+    @action(detail=False, methods=["post"])
+    def read(self, request: Request) -> Response:
+        """Noter des annonces comme lues par ce compte (bandeau fermé, liste ouverte)."""
+        serializer = PlatformNewsReadSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if school_access(request).membership is not None:
+            platform.mark_read(request.school, request.user, serializer.validated_data["ids"])
+        return Response(status=status.HTTP_204_NO_CONTENT)

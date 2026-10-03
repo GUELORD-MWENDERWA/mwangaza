@@ -50,6 +50,16 @@ class HasSchoolPermission(BasePermission):
         return not access.permissions.isdisjoint(required)
 
 
+class HasSchoolAccess(BasePermission):
+    """Tout compte qui a des droits dans l'école de l'adresse, quels qu'ils soient (appartenance
+    active ou session support) : ce que tout le personnel lit (annonces de la plateforme)."""
+
+    def has_permission(self, request, view) -> bool:
+        if request.school is None:
+            raise NotFound(SCHOOL_NOT_FOUND.detail, code=SCHOOL_NOT_FOUND.code)
+        return school_access(request) is not None
+
+
 class IsPlatformAdmin(BasePermission):
     """Console de la plateforme (5.2) : seulement à son adresse (`admin.mwangaza.school`), pour
     un super-admin actif dont la session est passée par la double authentification. Ailleurs (une

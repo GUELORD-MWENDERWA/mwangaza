@@ -17,6 +17,7 @@ import { visibleMenu } from "../../lib/menu";
 import type { Me } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { useGuide } from "../guide/Guide";
+import { PlatformNewsLink } from "../platform-news/PlatformNewsLink";
 
 export function Nav({ me, onNavigate }: { me: Me; onNavigate?: () => void }) {
   const { t } = useTranslation();
@@ -116,7 +117,10 @@ export function Sidebar({ me }: { me: Me }) {
       <div className="mt-3">
         <Nav me={me} />
       </div>
-      <div className="mt-auto p-2.5 text-[.78rem] text-basalt-muted">
+      <div className="mt-auto px-2.5">
+        <PlatformNewsLink />
+      </div>
+      <div className="p-2.5 text-[.78rem] text-basalt-muted">
         {t("common.version", { version: __APP_VERSION__ })}
         {restart && (
           <>

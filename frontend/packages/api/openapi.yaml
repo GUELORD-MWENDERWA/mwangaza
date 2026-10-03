@@ -2984,6 +2984,131 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/console/announcements/:
+    get:
+      operationId: console_announcements_list
+      description: |-
+        Annonces de la plateforme aux écoles (5.4.3), les plus récentes d'abord : super-admin
+        seulement, à l'adresse de la console. Publiées tout de suite, jamais modifiées, seulement
+        archivées ; chaque publication et archivage va dans le journal de la plateforme.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedConsolePlatformAnnouncementList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: console_announcements_create
+      description: |-
+        Annonces de la plateforme aux écoles (5.4.3), les plus récentes d'abord : super-admin
+        seulement, à l'adresse de la console. Publiées tout de suite, jamais modifiées, seulement
+        archivées ; chaque publication et archivage va dans le journal de la plateforme.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsolePlatformAnnouncementCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConsolePlatformAnnouncementCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConsolePlatformAnnouncementCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsolePlatformAnnouncement'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/announcements/{id}/archive/:
+    post:
+      operationId: console_announcements_archive_create
+      description: Retire l'annonce de la Gestion des écoles.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this platform announcement.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsolePlatformAnnouncement'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/console/audit/:
     get:
       operationId: console_audit_list
@@ -2996,6 +3121,7 @@ paths:
         schema:
           enum:
           - account
+          - announcement
           - device
           - platform
           - school
@@ -3003,6 +3129,7 @@ paths:
           minLength: 1
         description: |-
           * `account` - account
+          * `announcement` - announcement
           * `device` - device
           * `platform` - platform
           * `school` - school
@@ -6233,6 +6360,84 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Platform'
+          description: ''
+  /api/platform-announcements/:
+    get:
+      operationId: platform_announcements_list
+      description: |-
+        Annonces de la plateforme que lit le personnel de l'école (5.4.3) : bandeau et liste de la
+        Gestion, les plus récentes d'abord. Tout compte de l'école les lit ; « lue » est noté par
+        compte (rien pendant une session support).
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: unread
+        schema:
+          type: boolean
+        description: Seulement les non lues.
+      tags:
+      - announcements
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPlatformNewsList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/platform-announcements/read/:
+    post:
+      operationId: platform_announcements_read_create
+      description: Noter des annonces comme lues par ce compte (bandeau fermé, liste
+        ouverte).
+      tags:
+      - announcements
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformNewsReadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PlatformNewsReadRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PlatformNewsReadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
   /api/portal/announcements/:
     get:
@@ -11559,6 +11764,81 @@ components:
       - legal_notice
       - updated_at
       - history
+    ConsolePlatformAnnouncement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        body:
+          type: string
+          readOnly: true
+          title: Message
+        audience:
+          allOf:
+          - $ref: '#/components/schemas/PlatformAudienceEnum'
+          readOnly: true
+          title: Recipients
+        schools:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleSchoolRef'
+          readOnly: true
+        published_at:
+          type: string
+          format: date-time
+          readOnly: true
+        published_by:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+          nullable: true
+        archived_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        read_by:
+          type: integer
+          readOnly: true
+          description: Comptes qui l'ont lue dans la Gestion.
+      required:
+      - id
+      - title
+      - body
+      - audience
+      - schools
+      - published_at
+      - published_by
+      - archived_at
+      - read_by
+    ConsolePlatformAnnouncementCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+        body:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        audience:
+          $ref: '#/components/schemas/PlatformAudienceEnum'
+        schools:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Écoles visées quand `audience` vaut `schools`.
+      required:
+      - audience
+      - body
+      - title
     ConsoleSchool:
       type: object
       description: |-
@@ -14460,6 +14740,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ConsoleDevice'
+    PaginatedConsolePlatformAnnouncementList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsolePlatformAnnouncement'
     PaginatedConsoleSchoolList:
       type: object
       required:
@@ -14660,6 +14965,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PlatformLog'
+    PaginatedPlatformNewsList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformNews'
     PaginatedPortalAnnouncementList:
       type: object
       required:
@@ -15712,6 +16042,8 @@ components:
       - account.password_reset
       - account.totp_reset
       - device.revoked
+      - announcement.published
+      - announcement.archived
       type: string
       description: |-
         * `platform.updated` - Platform identity changed
@@ -15727,6 +16059,16 @@ components:
         * `account.password_reset` - Temporary password given by support
         * `account.totp_reset` - Two-factor authentication reset by support
         * `device.revoked` - Device disconnected by support
+        * `announcement.published` - Announcement to schools published
+        * `announcement.archived` - Announcement to schools archived
+    PlatformAudienceEnum:
+      enum:
+      - all_schools
+      - schools
+      type: string
+      description: |-
+        * `all_schools` - All schools
+        * `schools` - Some schools
     PlatformChange:
       type: object
       description: Une modification de l'identité, dans le journal de la plateforme.
@@ -15817,6 +16159,45 @@ components:
       - entity_label
       - before
       - after
+    PlatformNews:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        body:
+          type: string
+          readOnly: true
+          title: Message
+        published_at:
+          type: string
+          format: date-time
+          readOnly: true
+        is_read:
+          type: boolean
+          readOnly: true
+          description: Lue par ce compte.
+      required:
+      - id
+      - title
+      - body
+      - published_at
+      - is_read
+    PlatformNewsReadRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 100
+      required:
+      - ids
     PortalAccessRequest:
       type: object
       properties:

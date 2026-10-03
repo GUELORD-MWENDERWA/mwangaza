@@ -39,6 +39,7 @@ export const keys = {
   unpaid: ["unpaid"],
   dashboard: ["dashboard"],
   announcements: ["announcements"],
+  platformNews: ["platform-news"],
   contactChanges: ["contact-changes"],
   myDevices: ["my-devices"],
   schoolDevices: ["school-devices"],
