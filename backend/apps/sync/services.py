@@ -27,8 +27,9 @@ from django.utils.translation import gettext_lazy as _
 from apps.accounts.models import User
 from apps.accounts.roles import FINANCE_COLLECT_PAYMENT, FINANCE_VIEW_REPORTS
 from apps.audit import services as audit
-from apps.audit.actions import Action
+from apps.audit.actions import Action, PlatformAction
 from apps.core.errors import ApiError, BusinessError
+from apps.core.tenancy import use_school
 from apps.finance import services as finance
 from apps.finance.models import (
     CashRegister,
@@ -110,6 +111,26 @@ def revoke_device(device: Device, *, actor: User) -> None:
         audit.record(Action.DEVICES_REVOKED, device, actor=actor)
     if device.session_key:
         import_module(settings.SESSION_ENGINE).SessionStore(device.session_key).delete()
+
+
+def support_revoke_device(device: Device, *, actor: User) -> Device:
+    """« Déconnecter » depuis la console (5.4.2) : comme dans l'école, et noté aussi dans le
+    journal de la plateforme. Déjà déconnecté : rien de plus."""
+    with use_school(device.school), transaction.atomic():
+        device = (
+            Device.objects.select_related("school", "user")
+            .select_for_update(of=("self",))
+            .get(pk=device.pk)
+        )
+        if device.revoked_at is None:
+            revoke_device(device, actor=actor)
+            audit.record_platform(
+                PlatformAction.DEVICE_REVOKED,
+                device,
+                actor=actor,
+                label=f"{device.label} · {device.prefix} — {device.user} ({device.school.name})",
+            )
+    return device
 
 
 def verify_signature(device: Device, message: bytes, signature: bytes) -> bool:

@@ -10,6 +10,9 @@ export const keys = {
   identity: ["console", "platform"],
   schools: ["console", "schools"],
   accounts: ["console", "accounts"],
+  devices: ["console", "devices"],
+  journal: ["console", "journal"],
+  supportSessions: ["console", "support-sessions"],
   platform: ["platform"],
 };
 

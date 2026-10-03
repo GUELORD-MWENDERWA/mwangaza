@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 05:37+0200\n"
+"POT-Creation-Date: 2026-10-03 06:12+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -266,7 +266,7 @@ msgid "recovery codes"
 msgstr "codes de secours"
 
 #: apps/accounts/models.py:252 apps/audit/models.py:70 apps/audit/models.py:136
-#: apps/audit/views.py:109
+#: apps/audit/views.py:112
 msgid "IP address"
 msgstr "Adresse IP"
 
@@ -471,15 +471,15 @@ msgstr ""
 "Un de vos rôles exige la double authentification : elle ne peut pas être "
 "désactivée."
 
-#: apps/accounts/support.py:41
+#: apps/accounts/support.py:57
 msgid "Only the platform support can open a support session."
 msgstr "Seul le support de la plateforme peut ouvrir une session support."
 
-#: apps/accounts/support.py:44
+#: apps/accounts/support.py:60
 msgid "Log in again with two-factor authentication."
 msgstr "Reconnectez-vous avec la double authentification."
 
-#: apps/accounts/support.py:47
+#: apps/accounts/support.py:63
 msgid "No support session is open in this school."
 msgstr "Aucune session support n'est ouverte dans cette école."
 
@@ -536,7 +536,7 @@ msgstr ""
 msgid "Give a temporary password"
 msgstr "Donner un mot de passe provisoire"
 
-#: apps/accounts/views.py:58
+#: apps/accounts/views.py:59
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
@@ -920,6 +920,10 @@ msgstr "Icône des applications changée"
 msgid "School or subscription changed"
 msgstr "École ou abonnement modifié"
 
+#: apps/audit/actions.py:200
+msgid "Device disconnected by support"
+msgstr "Appareil déconnecté par le support"
+
 #: apps/audit/admin.py:12 apps/audit/admin.py:50 apps/audit/admin.py:79
 #: apps/audit/models.py:43 apps/audit/models.py:121
 msgid "action"
@@ -991,53 +995,53 @@ msgstr "journal de la plateforme"
 msgid "The end date is before the start date."
 msgstr "La date de fin est avant la date de début."
 
-#: apps/audit/serializers.py:145
+#: apps/audit/serializers.py:180
 msgid "Export at most one year at a time."
 msgstr "Exportez au plus une année à la fois."
 
-#: apps/audit/views.py:100
+#: apps/audit/views.py:103
 #, python-format
 msgid "%(platform)s support"
 msgstr "Support %(platform)s"
 
-#: apps/audit/views.py:103 apps/finance/documents.py:66
+#: apps/audit/views.py:106 apps/finance/documents.py:66
 #: apps/finance/templates/finance/receipt_verification.html:70
 msgid "Date"
 msgstr "Date"
 
-#: apps/audit/views.py:104
+#: apps/audit/views.py:107
 msgid "Person"
 msgstr "Personne"
 
-#: apps/audit/views.py:105
+#: apps/audit/views.py:108
 msgid "Action"
 msgstr "Action"
 
-#: apps/audit/views.py:106
+#: apps/audit/views.py:109
 msgid "Object"
 msgstr "Objet"
 
-#: apps/audit/views.py:107
+#: apps/audit/views.py:110
 msgid "Before"
 msgstr "Avant"
 
-#: apps/audit/views.py:108
+#: apps/audit/views.py:111
 msgid "After"
 msgstr "Après"
 
-#: apps/audit/views.py:110
+#: apps/audit/views.py:113
 msgid "Device"
 msgstr "Appareil"
 
-#: apps/audit/views.py:111
+#: apps/audit/views.py:114
 msgid "Device time"
 msgstr "Heure de l'appareil"
 
-#: apps/audit/views.py:114
+#: apps/audit/views.py:117
 msgid "Audit log"
 msgstr "Journal d'audit"
 
-#: apps/audit/views.py:138
+#: apps/audit/views.py:141
 msgid "System"
 msgstr "Système"
 
@@ -3804,20 +3808,20 @@ msgstr "changement"
 msgid "This application is out of date: update it."
 msgstr "Cette application n'est plus à jour : mettez-la à jour."
 
-#: apps/sync/services.py:52
+#: apps/sync/services.py:53
 msgid "This device was disconnected. It is no longer remembered."
 msgstr "Cet appareil a été déconnecté. Il n'est plus mémorisé."
 
-#: apps/sync/services.py:55
+#: apps/sync/services.py:56
 msgid "Remember this device when you log in to work without internet."
 msgstr ""
 "Mémorisez cet appareil en vous connectant pour travailler sans internet."
 
-#: apps/sync/services.py:61
+#: apps/sync/services.py:62
 msgid "The data of this device is out of date: download it again."
 msgstr ""
 "Les données de cet appareil ne sont plus à jour : téléchargez-les de nouveau."
 
-#: apps/sync/services.py:156
+#: apps/sync/services.py:177
 msgid "Invalid device key."
 msgstr "Clé d'appareil non valide."

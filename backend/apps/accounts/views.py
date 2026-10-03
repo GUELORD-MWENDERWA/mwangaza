@@ -16,6 +16,7 @@ from apps.accounts import console, login, services, support, totp
 from apps.accounts.console_serializers import (
     ConsoleAccountDetailSerializer,
     ConsoleAccountSerializer,
+    ConsoleSupportSessionSerializer,
 )
 from apps.accounts.login import MFA_SESSION_KEY, Step
 from apps.accounts.models import Membership, Role, User
@@ -614,3 +615,21 @@ class ConsoleAccountViewSet(
         services.ensure_console_can_change(user)
         services.support_reset_totp(user, actor=request.user)
         return self._changed(user)
+
+
+@extend_schema(tags=["console"])
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[OpenApiParameter("search", str, description="Nom ou code de l'école.")],
+        responses={200: ConsoleSupportSessionSerializer(many=True), **CONSOLE_ERRORS},
+    )
+)
+class ConsoleSupportSessionViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """Sessions support de toutes les écoles (5.4.2), ouvertes et passées, la plus récente
+    d'abord : super-admin seulement, à l'adresse de la console."""
+
+    permission_classes = [IsPlatformAdmin]
+    serializer_class = ConsoleSupportSessionSerializer
+
+    def get_queryset(self):
+        return support.sessions(self.request.query_params.get("search", ""))

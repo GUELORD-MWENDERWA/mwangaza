@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.1 — plateforme, notifications, communication |
 | Lot | V1.1 |
-| Tâche en cours | aucune — 5.4.1 terminée (PR à fusionner) |
-| Prochaine tâche | 5.4.2 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
+| Tâche en cours | aucune — 5.4.2 terminée (PR à fusionner) |
+| Prochaine tâche | 5.4.3 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
 | Issue GitHub | #135 |
-| Branche | `tache/5.4.1-console-comptes` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/5.4.2-console-appareils-journal` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-03 |
 
 ## Avancement
@@ -24,7 +24,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production | 14 | 16 |
 | **V1.0** | **48** | **50** |
-| V1.1 — plateforme, notifications, communication | 5 | 10 |
+| V1.1 — plateforme, notifications, communication | 6 | 10 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
 | V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
@@ -53,6 +53,13 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-03 — Tâche 5.4.2 : console, appareils, sessions support, journal
+
+- Fait : menu « Appareils » de la console (`/devices` : toutes les écoles, recherche, en service / déconnectés, « Déconnecter » après confirmation) et « Journal » (`/journal` : journal de la plateforme filtré par type, période et objet, lien vers la fiche ; onglet `/journal/support` : sessions support ouvertes, fermées ou expirées, motif, nombre d'actions). API `/api/console/devices/` · `<id>/revoke/`, `/api/console/support-sessions/`, `/api/console/audit/`. Maquettes `console/appareils` et `console/journal` dessinées.
+- Tests : accès (directeur 403, sans double authentification 403, adresse d'une école 404) pour les trois API ; déconnexion → session fermée, une entrée au journal de l'école de l'appareil seulement et au journal de la plateforme, deuxième clic sans rien de plus ; sessions : actions comptées dans la seule école de la session, réouverture, expiration ; filtres du journal ; requêtes bornées ; un test Vitest (confirmation).
+- Décisions : sessions support reconstituées depuis le journal des écoles, sans nouvelle table ; le journal mène à la fiche (école, compte, identité) au lieu de répéter l'avant → après (`03` § 11).
+- Suite : fusion, puis 5.4.3 (annonces de la plateforme aux écoles).
 
 ### 2026-10-03 — Tâche 5.4.1 : console, comptes
 

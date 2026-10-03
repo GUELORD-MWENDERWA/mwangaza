@@ -1,5 +1,6 @@
 from django.contrib.auth import logout
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from django.db.models import F, Q
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
@@ -8,13 +9,14 @@ from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.accounts.permissions import HasSchoolPermission, school_access
+from apps.accounts.permissions import HasSchoolPermission, IsPlatformAdmin, school_access
 from apps.accounts.roles import FINANCE_COLLECT_PAYMENT, ROLES_MANAGE, STUDENTS_VIEW
-from apps.accounts.views import SchoolViewSet
+from apps.accounts.views import CONSOLE_ERRORS, SchoolViewSet
 from apps.core.errors import SCHOOL_NOT_FOUND, ErrorSerializer
 from apps.sync import operations, services
 from apps.sync.models import Device
 from apps.sync.serializers import (
+    ConsoleDeviceSerializer,
     DeviceRegisterSerializer,
     DeviceSerializer,
     PullQuerySerializer,
@@ -126,6 +128,56 @@ class SchoolDeviceViewSet(mixins.ListModelMixin, SchoolViewSet):
     def revoke(self, request: Request, pk=None) -> Response:
         """Révoquer : sa session est fermée, il efface ses données au prochain contact."""
         return revoke(request, self.get_object())
+
+
+@extend_schema(tags=["console"])
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter("search", str, description="Appareil, préfixe, compte ou école."),
+            OpenApiParameter("state", str, enum=["active", "revoked"]),
+        ],
+        responses={200: ConsoleDeviceSerializer(many=True), **CONSOLE_ERRORS},
+    )
+)
+class ConsoleDeviceViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """Appareils enregistrés de toutes les écoles (5.4.2) : super-admin seulement, à l'adresse de
+    la console ; les plus récemment vus d'abord."""
+
+    permission_classes = [IsPlatformAdmin]
+    serializer_class = ConsoleDeviceSerializer
+
+    def get_queryset(self):
+        devices = Device.all_schools.select_related("school", "user").order_by(
+            F("last_seen_at").desc(nulls_last=True), "-created_at"
+        )
+        if self.action != "list":
+            return devices
+        params = self.request.query_params
+        for word in params.get("search", "").split():
+            devices = devices.filter(
+                Q(label__icontains=word)
+                | Q(prefix__iexact=word)
+                | Q(user__last_name__icontains=word)
+                | Q(user__middle_name__icontains=word)
+                | Q(user__first_name__icontains=word)
+                | Q(school__name__icontains=word)
+                | Q(school__code__iexact=word)
+            )
+        state = params.get("state")
+        if state == "active":
+            devices = devices.filter(revoked_at__isnull=True)
+        elif state == "revoked":
+            devices = devices.filter(revoked_at__isnull=False)
+        return devices
+
+    @extend_schema(request=None, responses={200: ConsoleDeviceSerializer, **CONSOLE_ERRORS})
+    @action(detail=True, methods=["post"])
+    def revoke(self, request: Request, pk=None) -> Response:
+        """Déconnecter : sa session est fermée, il efface ses données au prochain contact ; noté
+        dans le journal de son école et dans celui de la plateforme."""
+        device = services.support_revoke_device(self.get_object(), actor=request.user)
+        return Response(ConsoleDeviceSerializer(device).data)
 
 
 def revoke(request: Request, device: Device) -> Response:

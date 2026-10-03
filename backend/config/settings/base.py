@@ -204,6 +204,8 @@ SPECTACULAR_SETTINGS = {
         "ClosingStateEnum": "apps.finance.serializers.CLOSING_STATES",
         "HealthCheckEnum": "apps.core.health.CHECKS",
         "HealthStatusEnum": "apps.core.health.STATUSES",
+        "DeviceKindEnum": "apps.sync.models.Device.Kind",
+        "SupportSessionStateEnum": "apps.accounts.support.SESSION_STATES",
     },
 }
 

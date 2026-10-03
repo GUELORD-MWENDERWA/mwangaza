@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console — journal — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+/* Console de la plateforme (5.2) : son propre design. Pas de menu latéral comme la Gestion :
+   une barre du haut en basalte, la navigation dessous, le contenu sur un fond clair et large. */
+body{background:var(--surface)}
+.ctop{background:var(--basalt);color:var(--basalt-ink)}
+.ctop .in{max-width:1240px;margin:0 auto;padding:12px 24px 0;display:flex;flex-direction:column;gap:10px}
+.ctop .row1{display:flex;align-items:center;gap:12px}
+.ctop .brand{padding:0}
+.ctop .chip{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--basalt);background:var(--lamp);border-radius:var(--r-pill);padding:2px 9px}
+.ctop .grow{flex:1}
+.ctop .state{font-size:.82rem;display:flex;align-items:center;gap:6px;color:#CFC7BF}
+.ctop .state i{width:8px;height:8px;border-radius:50%;background:#4CC38A;display:inline-block}
+.ctop .me{display:flex;align-items:center;gap:8px;font-size:.88rem}
+.ctop .me .avatar{background:var(--basalt-2);color:var(--lamp)}
+.ctop nav{display:flex;gap:4px;overflow-x:auto}
+.ctop nav a{color:#CFC7BF;text-decoration:none;padding:10px 12px;border-bottom:3px solid transparent;white-space:nowrap;font-size:.92rem}
+.ctop nav a.on{color:#fff;border-bottom-color:var(--lamp);font-weight:700}
+.ctop nav a .soon{font-size:.7rem;color:#9A918A;margin-left:4px}
+.cmain{max-width:1240px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:20px}
+.g4{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.two{display:grid;gap:16px;grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.health li{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem}
+.health li:first-child{border-top:0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.due{background:var(--due)}.dot.off{background:var(--ink-3)}
+@media (max-width:820px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}.ctop .state,.ctop .me b{display:none}.cmain,.ctop .in{padding-left:16px;padding-right:16px}}
+.filters{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:#fff}
+.seg span{padding:8px 14px;font-size:.88rem;font-weight:700;color:var(--ink-2)}.seg span.on{background:var(--lake-600);color:#fff}
+.form{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr));padding:16px}
+dl.brief{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;padding:12px 16px 16px;margin:0;font-size:.9rem}dl.brief dt{color:var(--ink-3)}dl.brief dd{margin:0}
+.pwd{font-family:var(--mono);font-size:1.1rem;background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px 10px}
+@media (max-width:820px){.form{grid-template-columns:1fr}}
+.roles{display:flex;flex-wrap:wrap;gap:4px}
+.acts{display:flex;flex-direction:column;gap:10px;padding:16px}
+.acts .row{justify-content:space-between;gap:12px;flex-wrap:wrap}
+ul.plain{list-style:none;margin:0;padding:0}ul.plain li{padding:10px 16px;border-top:1px solid var(--line);font-size:.9rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}ul.plain li:first-child{border-top:0}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line)}.tabs span{padding:10px 14px;font-weight:700;color:var(--ink-3);border-bottom:3px solid transparent}.tabs span.on{color:var(--ink);border-bottom-color:var(--lake-600)}
+</style></head>
+<body>
+<header class="ctop"><div class="in">
+  <div class="row1"><div class="brand"><span class="mark"></span><b>Mwangaza</b></div><span class="chip">Console</span><span class="grow"></span>
+    <span class="me"><span class="avatar">GM</span><b>Guelord Mwenderwa</b></span></div>
+  <nav><a href="#">Tableau de bord</a><a href="#">Écoles</a><a href="#">Comptes</a><a href="#">Identité de la plateforme</a><a href="#">Appareils</a><a class="on" href="#">Journal</a></nav>
+</div></header>
+<main class="cmain">
+  <div class="pagehead"><div><h1>Journal</h1><p>Ce que le support a fait : dans la console, et dans les écoles en session support.</p></div></div>
+  <div class="tabs"><span class="on">Actions de la console</span><span>Sessions support</span></div>
+  <div class="filters"><label class="f">Type<span class="inp">Tous</span></label><label class="f">Du<span class="inp">01/10/2026</span></label><label class="f">Au<span class="inp">03/10/2026</span></label><label class="f" style="min-width:260px">Objet<span class="inp"><span class="ph">École, compte, appareil…</span></span></label></div>
+  <div class="card"><div class="tblwrap"><table class="tbl"><thead><tr><th>Quand</th><th>Action</th><th>Objet</th><th>Par</th></tr></thead><tbody>
+    <tr><td class="small muted">03/10/2026 10:52</td><td><b>Appareil déconnecté par le support</b></td><td>Windows · Edge · P1 — Bahati Furaha (ITIG Don Bosco Goma)</td><td>Guelord Mwenderwa</td></tr>
+    <tr><td class="small muted">03/10/2026 10:41</td><td><b>Mot de passe provisoire donné par le support</b></td><td><a href="#">Kasereka Mumbere Dieudonné</a></td><td>Guelord Mwenderwa</td></tr>
+    <tr><td class="small muted">02/10/2026 16:05</td><td><b>École ou abonnement modifié</b></td><td><a href="#">Complexe scolaire Les Volcans</a></td><td>Guelord Mwenderwa</td></tr>
+    <tr><td class="small muted">01/10/2026 09:12</td><td><b>Identité de la plateforme modifiée</b></td><td><a href="#">Mwangaza</a></td><td>Guelord Mwenderwa</td></tr>
+  </tbody></table></div><div class="ft"><span class="small muted">4 entrées</span><span><a class="btn sm" href="#">Précédent</a> <a class="btn sm" href="#">Suivant</a></span></div></div>
+  <h2>Onglet « Sessions support »</h2>
+  <div class="filters"><label class="f" style="min-width:320px"><span class="inp"><span class="ph">École…</span></span></label></div>
+  <div class="card"><div class="tblwrap"><table class="tbl"><thead><tr><th>École</th><th>Motif</th><th>Début</th><th>Fin</th><th>Actions</th><th>Par</th></tr></thead><tbody>
+    <tr><td><a href="#"><b>ITIG Don Bosco Goma</b></a></td><td>Le directeur ne trouve plus le rôle de la caissière</td><td class="small muted">03/10/2026 10:20</td><td><span class="pill info">Ouverte</span> <span class="small muted">jusqu'à 11:20</span></td><td>3</td><td>Guelord Mwenderwa</td></tr>
+    <tr><td><a href="#"><b>Complexe scolaire Les Volcans</b></a></td><td>Import des élèves bloqué</td><td class="small muted">02/10/2026 14:02</td><td class="small muted">02/10/2026 14:31</td><td>7</td><td>Guelord Mwenderwa</td></tr>
+    <tr><td><a href="#"><b>ITIG Don Bosco Goma</b></a></td><td>Vérifier le format du matricule</td><td class="small muted">29/09/2026 09:15</td><td><span class="pill warn">Expirée</span> <span class="small muted">10:15</span></td><td>0</td><td>Guelord Mwenderwa</td></tr>
+  </tbody></table></div></div>
+  <div class="note"><b>5.4.2 :</b> journal de la plateforme en lecture seule, le plus récent d'abord, paginé ; filtres : type (plateforme, écoles, comptes, appareils), période (jours de Goma, bornes comprises) et nom de l'objet. Le nom d'une école, d'un compte ou de la plateforme mène à sa fiche (ou à « Identité de la plateforme »), où « Derniers changements » montre l'avant → après ; un appareil n'a pas de fiche.</div>
+  <div class="note">Sessions support : ouvertes à l'adresse de l'école (motif, une heure au plus), reconstituées depuis le journal de chaque école — ouverture, fermeture (bouton du bandeau, déconnexion ou réouverture), sinon « Expirée » à la fin de l'heure. « Actions » : ce que le support a fait dans l'école pendant la session ; le détail est dans le journal de l'école (Gestion), qui l'affiche « Support ».</div>
+</main>
+</body></html>

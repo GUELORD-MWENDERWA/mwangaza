@@ -7,14 +7,17 @@ import { FinishInAdminPage } from "./features/auth/FinishInAdminPage";
 import { LoginLayout } from "./features/auth/LoginLayout";
 import { LoginPage } from "./features/auth/LoginPage";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
+import { DevicesPage } from "./features/devices/DevicesPage";
 import { IdentityPage } from "./features/identity/IdentityPage";
+import { JournalPage } from "./features/journal/JournalPage";
+import { SupportSessionsPage } from "./features/journal/SupportSessionsPage";
 import { NewSchoolPage } from "./features/schools/NewSchoolPage";
 import { SchoolPage } from "./features/schools/SchoolPage";
 import { SchoolsPage } from "./features/schools/SchoolsPage";
 import { ConsoleShell } from "./features/shell/ConsoleShell";
 import { RequireAdmin } from "./features/shell/RequireAdmin";
 
-/** Écrans de la console ; les entrées du menu arrivent avec leur tâche (5.4.2 : appareils, journal). */
+/** Écrans de la console ; les entrées du menu arrivent avec leur tâche. */
 export const routes: RouteObject[] = [
   {
     path: "/login",
@@ -38,6 +41,9 @@ export const routes: RouteObject[] = [
           { path: "accounts", element: <AccountsPage /> },
           { path: "accounts/:id", element: <AccountPage /> },
           { path: "identity", element: <IdentityPage /> },
+          { path: "devices", element: <DevicesPage /> },
+          { path: "journal", element: <JournalPage /> },
+          { path: "journal/support", element: <SupportSessionsPage /> },
         ],
       },
     ],

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from apps.accounts.console_serializers import ConsoleSchoolRefSerializer
 from apps.core.errors import ErrorSerializer
 from apps.finance.models import CreditAllocation, FeeType
 from apps.finance.serializers import (
@@ -36,6 +37,33 @@ class SchoolDeviceSerializer(DeviceSerializer):
 
     class Meta(DeviceSerializer.Meta):
         fields = [*DeviceSerializer.Meta.fields, "kind", "user_name"]
+        read_only_fields = fields
+
+
+class ConsoleDeviceUserSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField(source="__str__")
+
+
+class ConsoleDeviceSerializer(serializers.ModelSerializer):
+    """Un appareil enregistré dans une école (console de la plateforme, 5.4.2)."""
+
+    school = ConsoleSchoolRefSerializer(read_only=True)
+    user = ConsoleDeviceUserSerializer(read_only=True, help_text="Compte de l'appareil.")
+
+    class Meta:
+        model = Device
+        fields = [
+            "id",
+            "label",
+            "kind",
+            "prefix",
+            "school",
+            "user",
+            "created_at",
+            "last_seen_at",
+            "revoked_at",
+        ]
         read_only_fields = fields
 
 

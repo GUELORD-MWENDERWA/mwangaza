@@ -12,8 +12,23 @@ La session est gardée dans la session Django de cette adresse : elle ne donne r
 
 import time
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
+from django.db.models import (
+    Case,
+    Count,
+    DateTimeField,
+    ExpressionWrapper,
+    F,
+    OuterRef,
+    Q,
+    QuerySet,
+    Subquery,
+    Value,
+    When,
+)
+from django.db.models.functions import Coalesce
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.login import MFA_SESSION_KEY
@@ -21,6 +36,7 @@ from apps.accounts.roles import PERMISSIONS
 from apps.accounts.services import SchoolAccess
 from apps.audit import services as audit
 from apps.audit.actions import Action
+from apps.audit.models import AuditLog
 from apps.core.errors import SCHOOL_NOT_FOUND, ApiError, BusinessError
 from apps.schools.models import School
 
@@ -134,3 +150,63 @@ def end(request) -> bool:
     user = request.user
     audit.record(Action.SUPPORT_ENDED, session.school, actor=user, impersonated_by=user)
     return True
+
+
+# État d'une session dans la console : `expired`, l'heure passée sans fermeture.
+OPEN, ENDED, EXPIRED = "open", "ended", "expired"
+SESSION_STATES = [OPEN, ENDED, EXPIRED]
+
+
+def _after(start, duration: timedelta) -> ExpressionWrapper:
+    return ExpressionWrapper(start + duration, output_field=DateTimeField())
+
+
+def sessions(search: str = "", *, now: datetime | None = None) -> QuerySet[AuditLog]:
+    """Sessions support de toutes les écoles (console, 5.4.2), reconstituées depuis leur journal :
+    une par ouverture (`support.started`), avec sa fermeture (même super-admin, même école, dans
+    l'heure ; une réouverture ferme d'abord la session en cours), son état (`open`, `ended`,
+    `expired` : l'heure passée sans fermeture) et le nombre d'actions faites pendant la session
+    dans cette école. Deux sous-requêtes, pas une par session."""
+    duration = timedelta(seconds=SUPPORT_DURATION)
+    logs = AuditLog.all_schools
+    ended = (
+        logs.filter(
+            action=Action.SUPPORT_ENDED,
+            school=OuterRef("school"),
+            actor=OuterRef("actor"),
+            created_at__gte=OuterRef("created_at"),
+            created_at__lte=_after(OuterRef("created_at"), duration),
+        )
+        .order_by("created_at")
+        .values("created_at")[:1]
+    )
+    actions = (
+        logs.filter(
+            school=OuterRef("school"),
+            impersonated_by=OuterRef("actor"),
+            created_at__gt=OuterRef("created_at"),
+            created_at__lt=OuterRef("ends_at"),
+        )
+        .exclude(action__in=[Action.SUPPORT_STARTED, Action.SUPPORT_ENDED])
+        .order_by()
+        .values("school")
+        .annotate(count=Count("pk"))
+        .values("count")
+    )
+    started = logs.filter(action=Action.SUPPORT_STARTED)
+    for word in search.split():
+        started = started.filter(Q(school__name__icontains=word) | Q(school__code__iexact=word))
+    return (
+        started.select_related("school", "actor")
+        .annotate(ended_at=Subquery(ended), expires_at=_after(F("created_at"), duration))
+        .annotate(ends_at=Coalesce("ended_at", "expires_at"))
+        .annotate(
+            actions=Coalesce(Subquery(actions), 0),
+            state=Case(
+                When(ended_at__isnull=False, then=Value(ENDED)),
+                When(expires_at__gt=now or timezone.now(), then=Value(OPEN)),
+                default=Value(EXPIRED),
+            ),
+        )
+        .order_by("-created_at", "-id")
+    )
