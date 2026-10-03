@@ -166,10 +166,10 @@ function DeviceCard({ me }: { me: Me }) {
   }, []);
 
   const publicKey = preferences.data?.vapid_public_key ?? "";
-  const run = (action: () => Promise<PushState>) => {
+  const run = (pending: ReturnType<typeof pushState>) => {
     setBusy(true);
     setError(null);
-    action()
+    pending
       .then(setState)
       .catch(setError)
       .finally(() => setBusy(false));
@@ -208,7 +208,7 @@ function DeviceCard({ me }: { me: Me }) {
                 variant="outline"
                 size="sm"
                 disabled={!canChange}
-                onClick={() => run(() => disablePush().then(() => "off" as const))}
+                onClick={() => run(disablePush().then(() => "off" as const))}
               >
                 {t("notifications.device.disable")}
               </Button>
@@ -221,11 +221,7 @@ function DeviceCard({ me }: { me: Me }) {
               </Button>
             </>
           ) : (
-            <Button
-              size="sm"
-              disabled={!canChange}
-              onClick={() => run(() => enablePush(publicKey))}
-            >
+            <Button size="sm" disabled={!canChange} onClick={() => run(enablePush(publicKey))}>
               <Icon name="bell" size={16} />
               {t("notifications.device.enable")}
             </Button>
