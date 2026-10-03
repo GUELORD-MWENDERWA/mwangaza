@@ -2,6 +2,7 @@ import type { RouteObject } from "react-router";
 
 import { AccountPage } from "./features/accounts/AccountPage";
 import { AccountsPage } from "./features/accounts/AccountsPage";
+import { AnnouncementsPage } from "./features/announcements/AnnouncementsPage";
 import { CodePage } from "./features/auth/CodePage";
 import { FinishInAdminPage } from "./features/auth/FinishInAdminPage";
 import { LoginLayout } from "./features/auth/LoginLayout";
@@ -40,6 +41,7 @@ export const routes: RouteObject[] = [
           { path: "schools/:id", element: <SchoolPage /> },
           { path: "accounts", element: <AccountsPage /> },
           { path: "accounts/:id", element: <AccountPage /> },
+          { path: "announcements", element: <AnnouncementsPage /> },
           { path: "identity", element: <IdentityPage /> },
           { path: "devices", element: <DevicesPage /> },
           { path: "journal", element: <JournalPage /> },

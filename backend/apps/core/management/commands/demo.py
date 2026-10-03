@@ -23,7 +23,10 @@ from apps.finance.demo import (
     create_demo_fees,
     create_demo_payments,
 )
-from apps.notifications.demo import create_demo_announcements
+from apps.notifications.demo import (
+    create_demo_announcements,
+    create_demo_platform_announcements,
+)
 from apps.portal.demo import (
     create_demo_activations,
     create_demo_contact_changes,
@@ -59,6 +62,7 @@ class Command(BaseCommand):
             create_demo_cancellations(schools)
             create_demo_devices(schools)
             create_demo_announcements(schools)
+            create_demo_platform_announcements(schools)
             portal = create_demo_portal(schools)
             create_demo_contact_changes(schools["itig"])
             for school in schools.values():

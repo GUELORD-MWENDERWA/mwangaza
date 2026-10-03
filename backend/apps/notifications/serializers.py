@@ -2,9 +2,10 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from apps.accounts.console_serializers import ConsoleSchoolRefSerializer
 from apps.notifications.attachments import validate_attachment
-from apps.notifications.models import Announcement
-from apps.schools.models import ClassGroup
+from apps.notifications.models import Announcement, PlatformAnnouncement
+from apps.schools.models import ClassGroup, School
 from apps.schools.serializers import PersonSerializer
 
 
@@ -80,3 +81,51 @@ class RecipientsSerializer(serializers.Serializer):
     families = serializers.IntegerField(
         help_text="Familles qui recevront l'annonce (une fratrie compte une fois)."
     )
+
+
+class ConsolePlatformAnnouncementSerializer(serializers.ModelSerializer):
+    schools = ConsoleSchoolRefSerializer(many=True, read_only=True)
+    published_by = PersonSerializer(source="created_by", read_only=True, allow_null=True)
+    read_by = serializers.IntegerField(
+        read_only=True, help_text="Comptes qui l'ont lue dans la Gestion."
+    )
+
+    class Meta:
+        model = PlatformAnnouncement
+        fields = [
+            "id",
+            "title",
+            "body",
+            "audience",
+            "schools",
+            "published_at",
+            "published_by",
+            "archived_at",
+            "read_by",
+        ]
+        read_only_fields = fields
+
+
+class ConsolePlatformAnnouncementCreateSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=120)
+    body = serializers.CharField(max_length=2000)
+    audience = serializers.ChoiceField(choices=PlatformAnnouncement.Audience.choices)
+    schools = serializers.PrimaryKeyRelatedField(
+        queryset=School.objects.all(),
+        many=True,
+        required=False,
+        help_text="Écoles visées quand `audience` vaut `schools`.",
+    )
+
+
+class PlatformNewsSerializer(serializers.ModelSerializer):
+    is_read = serializers.BooleanField(read_only=True, help_text="Lue par ce compte.")
+
+    class Meta:
+        model = PlatformAnnouncement
+        fields = ["id", "title", "body", "published_at", "is_read"]
+        read_only_fields = fields
+
+
+class PlatformNewsReadSerializer(serializers.Serializer):
+    ids = serializers.ListField(child=serializers.UUIDField(), max_length=100)

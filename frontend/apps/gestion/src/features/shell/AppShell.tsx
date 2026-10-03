@@ -23,6 +23,8 @@ import { useCurrentMe, type Me } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { useLogout } from "../../lib/session";
 import { GuideProvider, useGuide } from "../guide/Guide";
+import { PlatformNewsBanner } from "../platform-news/PlatformNewsBanner";
+import { PlatformNewsLink } from "../platform-news/PlatformNewsLink";
 import { SearchPalette } from "./SearchPalette";
 import { Nav, SchoolSwitcher, Sidebar } from "./Sidebar";
 import { SupportBanner } from "./SupportBanner";
@@ -47,6 +49,7 @@ export function AppShell() {
             <TopBar me={me} />
           </div>
           <main className="flex w-full max-w-[1360px] flex-col gap-5 p-4 min-[900px]:p-6">
+            <PlatformNewsBanner />
             <StorageBanner />
             <Outlet />
           </main>
@@ -141,6 +144,7 @@ function MobileMenu({ me }: { me: Me }) {
               <span className="sr-only">{t("common.logout")}</span>
             </button>
           </div>
+          <PlatformNewsLink onClick={close} />
           {restart && (
             <button
               type="button"

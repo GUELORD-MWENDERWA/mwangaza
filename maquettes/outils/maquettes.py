@@ -344,6 +344,7 @@ CONSOLE = [
     ("comptes", "Comptes", "V1.1", "5.4.1", True),
     ("appareils", "Appareils", "V1.1", "5.4.2", True),
     ("journal", "Journal (et sessions support)", "V1.1", "5.4.2", True),
+    ("annonces", "Annonces aux écoles (et bandeau de la Gestion)", "V1.1", "5.4.3", True),
 ]
 
 

@@ -1,16 +1,26 @@
 """Annonces de démonstration (H4), publiées par le directeur fictif de chaque école, une seule
 fois par école : deux à toutes les familles (dont une archivée), une aux dernières classes. Une
 famille sur deux les a lues dans le portail, jamais celle du compte de démonstration du portail
-(ses annonces y restent « Nouvelle »)."""
+(ses annonces y restent « Nouvelle »).
+
+Annonces de la plateforme (5.4.3), publiées une seule fois par le super-admin : une à toutes
+les écoles, une à l'ITIG seule, une archivée ; non lues à chaque `make demo` (le bandeau
+s'affiche)."""
 
 from datetime import timedelta
 
 from django.utils import timezone
 
+from apps.accounts.demo import PLATFORM_ADMIN_PHONE
 from apps.accounts.models import User
 from apps.core.tenancy import use_school
-from apps.notifications import services
-from apps.notifications.models import Announcement, AnnouncementRead
+from apps.notifications import platform, services
+from apps.notifications.models import (
+    Announcement,
+    AnnouncementRead,
+    PlatformAnnouncement,
+    PlatformAnnouncementRead,
+)
 from apps.schools.models import ClassGroup, School
 from apps.students.models import Family
 
@@ -39,6 +49,34 @@ ANNOUNCEMENTS = [
         "9 h dans la grande salle. Présence vivement souhaitée.",
         2,
         True,
+        False,
+    ),
+]
+
+# Titre, message, jours depuis la publication, écoles visées (vide : toutes), archivée.
+PLATFORM_ANNOUNCEMENTS = [
+    (
+        "Nouvelle version de l'application",
+        "La liste des impayés s'imprime maintenant par classe. Rechargez l'application si "
+        "l'écran vous propose une mise à jour.",
+        20,
+        (),
+        True,
+    ),
+    (
+        "Votre période d'essai est prolongée",
+        "L'essai gratuit de votre école est prolongé jusqu'à la fin du trimestre. Aucune action "
+        "n'est demandée de votre part.",
+        3,
+        ("itig",),
+        False,
+    ),
+    (
+        "Maintenance du serveur samedi soir",
+        "L'application sera indisponible samedi de 22 h à minuit pour une mise à jour. Les "
+        "caisses continuent hors ligne ; tout se synchronise ensuite.",
+        1,
+        (),
         False,
     ),
 ]
@@ -98,3 +136,26 @@ def _create_reads() -> None:
             for family in list(families)[::2]
         ]
         AnnouncementRead.objects.bulk_create(rows)
+
+
+def create_demo_platform_announcements(schools: dict[str, School]) -> None:
+    PlatformAnnouncementRead.objects.all().delete()
+    if PlatformAnnouncement.objects.exists():
+        return
+    admin = User.objects.get(phone=PLATFORM_ADMIN_PHONE)
+    now = timezone.now()
+    # Pas avant la création des écoles (base neuve) : elles ne verraient pas l'annonce.
+    start = max(school.created_at for school in schools.values())
+    for title, body, days, codes, archived in PLATFORM_ANNOUNCEMENTS:
+        announcement = platform.publish(
+            actor=admin,
+            title=title,
+            body=body,
+            audience="schools" if codes else "all_schools",
+            schools=[schools[code] for code in codes],
+        )
+        if archived:
+            platform.archive(announcement, actor=admin)
+        PlatformAnnouncement.objects.filter(pk=announcement.pk).update(
+            published_at=max(now - timedelta(days=days), start)
+        )

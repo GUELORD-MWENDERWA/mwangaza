@@ -11,6 +11,7 @@ export const keys = {
   schools: ["console", "schools"],
   accounts: ["console", "accounts"],
   devices: ["console", "devices"],
+  announcements: ["console", "announcements"],
   journal: ["console", "journal"],
   supportSessions: ["console", "support-sessions"],
   platform: ["platform"],

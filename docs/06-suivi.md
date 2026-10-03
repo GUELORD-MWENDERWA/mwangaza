@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.1 — plateforme, notifications, communication |
 | Lot | V1.1 |
-| Tâche en cours | aucune — 5.4.2 terminée (PR à fusionner) |
-| Prochaine tâche | 5.4.3 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
+| Tâche en cours | aucune — 5.4.3 terminée (PR à fusionner) |
+| Prochaine tâche | 5.5 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
 | Issue GitHub | #135 |
-| Branche | `tache/5.4.2-console-appareils-journal` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/5.4.3-annonces-plateforme` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-03 |
 
 ## Avancement
@@ -24,7 +24,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production | 14 | 16 |
 | **V1.0** | **48** | **50** |
-| V1.1 — plateforme, notifications, communication | 6 | 10 |
+| V1.1 — plateforme, notifications, communication | 7 | 10 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
 | V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-03 — Tâche 5.4.3 : annonces de la plateforme aux écoles
+- Fait : modèles globaux `PlatformAnnouncement` et `PlatformAnnouncementRead` ; console « Annonces » (`/announcements` : rédiger pour toutes les écoles ou certaines, « lue par N personnes », archiver ; journal de la plateforme) ; Gestion : bandeau de la dernière non lue, liste `/app/platform-news`, lien en bas du menu avec le nombre de non lues. Maquette `console/annonces` dessinée (à valider). Démo : trois annonces, remises à « non lues ».
+- Tests : isolation (annonce d'une autre école ni lue ni marquée lue), console refusée hors super-admin, journal, annonce antérieure à l'école cachée, « lue » par compte ; Vitest : publication console, bandeau fermé.
+- Décisions : tout le personnel de l'école visée (pas de ciblage par rôle, pas de pièce jointe), « lue » par compte, permission `HasSchoolAccess` (`03`).
+- Suite : 5.5 (notifications sur l'écran — socle) ; la tâche 5.4 est complète.
 
 ### 2026-10-03 — Tâche 5.4.2 : console, appareils, sessions support, journal
 

@@ -6,6 +6,7 @@ import type { RouteObject } from "react-router";
 import { AccountPage } from "./features/account/AccountPage";
 import { AccountTwoFactorPage } from "./features/account/AccountTwoFactorPage";
 import { AnnouncementsPage } from "./features/announcements/AnnouncementsPage";
+import { PlatformNewsPage } from "./features/platform-news/PlatformNewsPage";
 import { AuditPage } from "./features/audit/AuditPage";
 import { CodePage } from "./features/auth/CodePage";
 import { LoginLayout } from "./features/auth/LoginLayout";
@@ -135,6 +136,7 @@ export const routes: RouteObject[] = [
                   { index: true, element: <HomePage /> },
                   { path: "account", element: <AccountPage /> },
                   { path: "account/two-factor", element: <AccountTwoFactorPage /> },
+                  { path: "platform-news", element: <PlatformNewsPage /> },
                   ...MENU_ITEMS.map((item) => ({
                     path: item.path,
                     element: <MenuScreen item={item}>{SCREENS[item.key]}</MenuScreen>,

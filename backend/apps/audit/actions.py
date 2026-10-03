@@ -198,6 +198,9 @@ class PlatformAction(models.TextChoices):
     # Appareils (5.4.2) : l'école de l'appareil le voit aussi dans son journal
     # (`Action.DEVICES_REVOKED`).
     DEVICE_REVOKED = "device.revoked", _("Device disconnected by support")
+    # Annonces de la plateforme aux écoles (5.4.3).
+    ANNOUNCEMENT_PUBLISHED = "announcement.published", _("Announcement to schools published")
+    ANNOUNCEMENT_ARCHIVED = "announcement.archived", _("Announcement to schools archived")
 
 
 PLATFORM_DOMAINS = sorted({domain_of(action) for action in PlatformAction.values})

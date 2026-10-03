@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 06:12+0200\n"
+"POT-Creation-Date: 2026-10-03 06:43+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -211,7 +211,8 @@ msgid "two-factor authentication enabled on"
 msgstr "double authentification activée le"
 
 #: apps/accounts/models.py:93 apps/accounts/models.py:198
-#: apps/accounts/models.py:234 apps/sync/models.py:22
+#: apps/accounts/models.py:234 apps/notifications/models.py:122
+#: apps/sync/models.py:22
 msgid "account"
 msgstr "compte"
 
@@ -923,6 +924,14 @@ msgstr "École ou abonnement modifié"
 #: apps/audit/actions.py:200
 msgid "Device disconnected by support"
 msgstr "Appareil déconnecté par le support"
+
+#: apps/audit/actions.py:202
+msgid "Announcement to schools published"
+msgstr "Annonce aux écoles publiée"
+
+#: apps/audit/actions.py:203
+msgid "Announcement to schools archived"
+msgstr "Annonce aux écoles archivée"
 
 #: apps/audit/admin.py:12 apps/audit/admin.py:50 apps/audit/admin.py:79
 #: apps/audit/models.py:43 apps/audit/models.py:121
@@ -2297,15 +2306,15 @@ msgstr "Toutes les familles"
 msgid "Some classes"
 msgstr "Certaines classes"
 
-#: apps/notifications/models.py:20
+#: apps/notifications/models.py:20 apps/notifications/models.py:81
 msgid "title"
 msgstr "titre"
 
-#: apps/notifications/models.py:21
+#: apps/notifications/models.py:21 apps/notifications/models.py:82
 msgid "message"
 msgstr "message"
 
-#: apps/notifications/models.py:22
+#: apps/notifications/models.py:22 apps/notifications/models.py:83
 msgid "recipients"
 msgstr "destinataires"
 
@@ -2317,19 +2326,20 @@ msgstr "classes"
 msgid "attachment"
 msgstr "pièce jointe"
 
-#: apps/notifications/models.py:28
+#: apps/notifications/models.py:28 apps/notifications/models.py:88
 msgid "published at"
 msgstr "publiée le"
 
-#: apps/notifications/models.py:29
+#: apps/notifications/models.py:29 apps/notifications/models.py:89
 msgid "archived at"
 msgstr "archivée le"
 
-#: apps/notifications/models.py:36
+#: apps/notifications/models.py:36 apps/notifications/models.py:96
 msgid "archived by"
 msgstr "archivée par"
 
 #: apps/notifications/models.py:41 apps/notifications/models.py:56
+#: apps/notifications/models.py:116
 msgid "announcement"
 msgstr "annonce"
 
@@ -2351,11 +2361,43 @@ msgstr "lecture d'annonce"
 msgid "announcements read"
 msgstr "lectures d'annonces"
 
+#: apps/notifications/models.py:78
+msgid "All schools"
+msgstr "Toutes les écoles"
+
+#: apps/notifications/models.py:79
+msgid "Some schools"
+msgstr "Certaines écoles"
+
+#: apps/notifications/models.py:86 apps/schools/models.py:145
+msgid "schools"
+msgstr "écoles"
+
+#: apps/notifications/models.py:101
+msgid "platform announcement"
+msgstr "annonce de la plateforme"
+
+#: apps/notifications/models.py:102
+msgid "platform announcements"
+msgstr "annonces de la plateforme"
+
+#: apps/notifications/models.py:126
+msgid "platform announcement read"
+msgstr "lecture d'annonce de la plateforme"
+
+#: apps/notifications/models.py:127
+msgid "platform announcements read"
+msgstr "lectures d'annonces de la plateforme"
+
+#: apps/notifications/platform.py:24
+msgid "Choose at least one school."
+msgstr "Choisissez au moins une école."
+
 #: apps/notifications/services.py:46
 msgid "Choose at least one class."
 msgstr "Choisissez au moins une classe."
 
-#: apps/notifications/views.py:26
+#: apps/notifications/views.py:36
 msgid "This announcement has no attachment."
 msgstr "Cette annonce n'a pas de pièce jointe."
 
@@ -2663,10 +2705,6 @@ msgstr "payé jusqu'au"
 #: apps/schools/models.py:140
 msgid "settings"
 msgstr "paramètres"
-
-#: apps/schools/models.py:145
-msgid "schools"
-msgstr "écoles"
 
 #: apps/schools/models.py:170
 msgid "Choose at least one currency."

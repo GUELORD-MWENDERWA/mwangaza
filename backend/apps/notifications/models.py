@@ -2,9 +2,9 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from apps.core.models import TenantModel
+from apps.core.models import BaseModel, TenantModel
 from apps.notifications.attachments import attachment_path
-from apps.schools.models import ClassGroup
+from apps.schools.models import ClassGroup, School
 from apps.students.models import Family
 
 
@@ -65,5 +65,68 @@ class AnnouncementRead(TenantModel):
         constraints = [
             models.UniqueConstraint(
                 fields=["announcement", "family"], name="announcement_read_once"
+            )
+        ]
+
+
+class PlatformAnnouncement(BaseModel):
+    """Annonce de la plateforme aux écoles [G] (5.4.3) : rédigée par le super-admin dans la
+    console, lue par le personnel dans la Gestion (bandeau, liste). Comme une annonce d'école :
+    publiée dès sa création, jamais modifiée, seulement archivée (retirée de la Gestion)."""
+
+    class Audience(models.TextChoices):
+        ALL_SCHOOLS = "all_schools", _("All schools")
+        SCHOOLS = "schools", _("Some schools")
+
+    title = models.CharField(_("title"), max_length=120)
+    body = models.TextField(_("message"), max_length=2000)
+    audience = models.CharField(_("recipients"), max_length=20, choices=Audience.choices)
+    # Écoles visées ; vide pour toutes (une école créée ensuite ne reçoit pas les anciennes).
+    schools = models.ManyToManyField(
+        School, blank=True, related_name="+", verbose_name=_("schools")
+    )
+    published_at = models.DateTimeField(_("published at"))
+    archived_at = models.DateTimeField(_("archived at"), null=True, blank=True)
+    archived_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("archived by"),
+    )
+
+    class Meta:
+        ordering = ["-published_at", "-id"]
+        verbose_name = _("platform announcement")
+        verbose_name_plural = _("platform announcements")
+
+    def __str__(self) -> str:
+        return self.title
+
+
+class PlatformAnnouncementRead(BaseModel):
+    """Annonce de la plateforme lue par un compte [G] (bandeau fermé ou liste ouverte), une fois
+    pour toutes ses écoles. `created_at` : lue le."""
+
+    announcement = models.ForeignKey(
+        PlatformAnnouncement,
+        on_delete=models.CASCADE,
+        related_name="reads",
+        verbose_name=_("announcement"),
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="+",
+        verbose_name=_("account"),
+    )
+
+    class Meta:
+        verbose_name = _("platform announcement read")
+        verbose_name_plural = _("platform announcements read")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["announcement", "user"], name="platform_announcement_read_once"
             )
         ]
