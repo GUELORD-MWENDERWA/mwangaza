@@ -183,3 +183,8 @@ class PlatformAction(models.TextChoices):
     PLATFORM_UPDATED = "platform.updated", _("Platform identity changed")
     PLATFORM_LOGO_CHANGED = "platform.logo_changed", _("Platform logo changed")
     PLATFORM_ICON_CHANGED = "platform.icon_changed", _("Application icon changed")
+    # Écoles (5.3) : identité et abonnement ; l'école en voit une partie dans son propre journal.
+    SCHOOL_CREATED = "school.created", _("School created")
+    SCHOOL_UPDATED = "school.updated", _("School or subscription changed")
+    SCHOOL_SUSPENDED = "school.suspended", _("School suspended")
+    SCHOOL_REACTIVATED = "school.reactivated", _("School reactivated")

@@ -1,9 +1,10 @@
 """Écoles : création par le super-admin avec son premier directeur (A1), changements faits par le
-super-admin (administration Django) ou par l'école (paramètres, M5), suspension.
+super-admin (console, 5.3) ou par l'école (paramètres, M5), suspension.
 
 Tout va dans le journal de l'école : création, identité (avant / après), logo, suspension et
 réactivation. L'abonnement (offre, dates, essai ↔ actif) n'y va pas : c'est l'affaire de la
-plateforme (historique de l'administration Django).
+plateforme. Ce que fait le super-admin (identité et abonnement) va aussi dans le journal de la
+plateforme.
 """
 
 from dataclasses import dataclass
@@ -15,7 +16,7 @@ from django.utils import timezone
 from apps.accounts import services as accounts
 from apps.accounts.models import Membership, Role
 from apps.audit import services as audit
-from apps.audit.actions import Action
+from apps.audit.actions import Action, PlatformAction
 from apps.core.tenancy import use_school
 from apps.schools import alerts, receipts
 from apps.schools.models import School
@@ -30,6 +31,8 @@ IDENTITY_FIELDS = (
     "enabled_currencies",
     "default_currency",
 )
+# Ce que le journal de la plateforme garde en plus.
+SUBSCRIPTION_FIELDS = ("status", "plan", "trial_ends_on", "paid_until")
 
 
 @dataclass(frozen=True)
@@ -46,6 +49,25 @@ def _identity(school: School) -> dict:
     return {field: getattr(school, field) for field in IDENTITY_FIELDS}
 
 
+def _platform_fields(school: School) -> dict:
+    """Identité et abonnement, dates écrites `AAAA-MM-JJ` (JSON)."""
+    subscription = {field: getattr(school, field) for field in SUBSCRIPTION_FIELDS}
+    dates = ("trial_ends_on", "paid_until")
+    return {
+        **_identity(school),
+        **{f: str(v) if f in dates and v else v for f, v in subscription.items()},
+    }
+
+
+def _record_platform(action: str, school: School, *, actor, before: dict | None = None) -> None:
+    after = _platform_fields(school)
+    if before is not None:
+        before, after = audit.changes(before, after)
+        if not after:
+            return
+    audit.record_platform(action, school, actor=actor, before=before, after=after)
+
+
 def create_school(school: School, *, actor, director: Director) -> tuple[Membership, str | None]:
     """Nouvelle école (`school`, pas encore enregistrée) : rôles système copiés, premier
     directeur avec le rôle `head`. Nouveau numéro : mot de passe provisoire renvoyé une seule
@@ -53,6 +75,7 @@ def create_school(school: School, *, actor, director: Director) -> tuple[Members
     with transaction.atomic():
         school.created_by = actor
         school.save()  # rôles système copiés (`accounts/signals.py`)
+        _record_platform(PlatformAction.SCHOOL_CREATED, school, actor=actor)
         with use_school(school):
             audit.record(Action.SCHOOL_CREATED, school, actor=actor, after=_identity(school))
             return accounts.add_staff_member(
@@ -124,9 +147,25 @@ def update_school(school: School, *, actor, **fields) -> School:
     return save_school(school, actor=actor)
 
 
+def change_school(school: School, *, actor, **fields) -> School:
+    """Console (5.3) : identité ou abonnement changés par le super-admin, notés dans le journal
+    de la plateforme (avant / après) ; l'école ne voit que son identité changer."""
+    with transaction.atomic():
+        before = _platform_fields(school)
+        update_school(school, actor=actor, **fields)
+        _record_platform(PlatformAction.SCHOOL_UPDATED, school, actor=actor, before=before)
+    return school
+
+
 def suspend(school: School, *, actor) -> School:
     """Plus personne ne se connecte à l'école ; rien n'est supprimé (A1)."""
-    return update_school(school, actor=actor, status=School.Status.SUSPENDED)
+    if school.status == School.Status.SUSPENDED:
+        return school
+    before = _platform_fields(school)
+    with transaction.atomic():
+        update_school(school, actor=actor, status=School.Status.SUSPENDED)
+        _record_platform(PlatformAction.SCHOOL_SUSPENDED, school, actor=actor, before=before)
+    return school
 
 
 def reactivate(school: School, *, actor) -> School:
@@ -135,4 +174,8 @@ def reactivate(school: School, *, actor) -> School:
         return school
     trial = school.trial_ends_on is not None and school.trial_ends_on >= timezone.localdate()
     status = School.Status.TRIAL if trial else School.Status.ACTIVE
-    return update_school(school, actor=actor, status=status)
+    before = _platform_fields(school)
+    with transaction.atomic():
+        update_school(school, actor=actor, status=status)
+        _record_platform(PlatformAction.SCHOOL_REACTIVATED, school, actor=actor, before=before)
+    return school

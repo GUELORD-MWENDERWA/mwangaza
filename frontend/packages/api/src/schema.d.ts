@@ -895,6 +895,88 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/schools/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
+         *     changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
+         *     Une école ne se supprime jamais : on la suspend.
+         */
+        get: operations["console_schools_list"];
+        put?: never;
+        /**
+         * @description Nouvelle école avec son premier directeur. Nouveau numéro : mot de passe provisoire
+         *     renvoyé une seule fois (pas de SMS en V1) ; numéro connu : ajouté sans nouveau mot de
+         *     passe.
+         */
+        post: operations["console_schools_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/schools/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
+         *     changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
+         *     Une école ne se supprime jamais : on la suspend.
+         */
+        get: operations["console_schools_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Noms, adresse (l'ancienne cesse de marcher) et abonnement. */
+        patch: operations["console_schools_partial_update"];
+        trace?: never;
+    };
+    "/api/console/schools/{id}/reactivate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description De nouveau ouverte : en essai si l'essai n'est pas fini, sinon active. */
+        post: operations["console_schools_reactivate_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/schools/{id}/suspend/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Plus personne ne se connecte à l'école ; rien n'est supprimé. */
+        post: operations["console_schools_suspend_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/contact-changes/": {
         parameters: {
             query?: never;
@@ -3474,12 +3556,154 @@ export interface components {
             /** @description Les dernières modifications, de la plus récente à la plus ancienne. */
             readonly history: components["schemas"]["PlatformChange"][];
         };
+        /**
+         * @description Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
+         *     marcher), ses noms et son abonnement ; couleur, fuseau, devises et logo sont réglés par
+         *     l'école (M5). Suspendre et réactiver passent par leurs actions.
+         */
+        ConsoleSchool: {
+            /** Format: uuid */
+            readonly id: string;
+            /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
+            code: string;
+            name: string;
+            official_name: string;
+            /** @description Adresse de l'école. */
+            readonly url: string;
+            /**
+             * @description Essai ou active ; « suspendue » seulement par l'action `suspend`.
+             *
+             *     * `trial` - Trial
+             *     * `active` - Active
+             *     * `suspended` - Suspended
+             */
+            status: components["schemas"]["SchoolStatusEnum"];
+            /** @description e.g. Discovery, Standard. */
+            plan: string;
+            /**
+             * End of the trial
+             * Format: date
+             */
+            trial_ends_on: string | null;
+            /** Format: date */
+            paid_until: string | null;
+            /** Currencies */
+            readonly enabled_currencies: components["schemas"]["CurrencyEnum"][];
+            /**
+             * Main currency
+             * @description Currency of the reports.
+             *
+             *     * `USD` - US dollar
+             *     * `CDF` - Congolese franc
+             */
+            readonly default_currency: components["schemas"]["CurrencyEnum"];
+            /** @description Inscriptions actives de l'année en cours. */
+            readonly student_count: number;
+            /**
+             * Format: date-time
+             * @description Dernière entrée de son journal, hors support et super-admin.
+             */
+            readonly last_activity_at: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
         ConsoleSchoolCounts: {
             active: number;
             trial: number;
             suspended: number;
             /** @description Essais qui finissent dans les 30 jours. */
             trial_ending: number;
+        };
+        /**
+         * @description Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
+         *     marcher), ses noms et son abonnement ; couleur, fuseau, devises et logo sont réglés par
+         *     l'école (M5). Suspendre et réactiver passent par leurs actions.
+         */
+        ConsoleSchoolCreateRequest: {
+            /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
+            code: string;
+            name: string;
+            official_name?: string;
+            /**
+             * @description Essai ou active ; « suspendue » seulement par l'action `suspend`.
+             *
+             *     * `trial` - Trial
+             *     * `active` - Active
+             *     * `suspended` - Suspended
+             */
+            status?: components["schemas"]["SchoolStatusEnum"];
+            /** @description e.g. Discovery, Standard. */
+            plan?: string;
+            /**
+             * End of the trial
+             * Format: date
+             */
+            trial_ends_on?: string | null;
+            /** Format: date */
+            paid_until?: string | null;
+            /** @description Devises de l'école (au moins une). */
+            enabled_currencies: components["schemas"]["CurrencyEnum"][];
+            default_currency: components["schemas"]["CurrencyEnum"];
+            head: components["schemas"]["SchoolHeadRequest"];
+        };
+        ConsoleSchoolCreated: {
+            school: components["schemas"]["ConsoleSchool"];
+            head: components["schemas"]["HeadAccount"];
+            /** @description Nouveau compte seulement : affiché une seule fois, à transmettre au directeur. */
+            temporary_password: string | null;
+        };
+        /**
+         * @description Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
+         *     marcher), ses noms et son abonnement ; couleur, fuseau, devises et logo sont réglés par
+         *     l'école (M5). Suspendre et réactiver passent par leurs actions.
+         */
+        ConsoleSchoolDetail: {
+            /** Format: uuid */
+            readonly id: string;
+            /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
+            code: string;
+            name: string;
+            official_name: string;
+            /** @description Adresse de l'école. */
+            readonly url: string;
+            /**
+             * @description Essai ou active ; « suspendue » seulement par l'action `suspend`.
+             *
+             *     * `trial` - Trial
+             *     * `active` - Active
+             *     * `suspended` - Suspended
+             */
+            status: components["schemas"]["SchoolStatusEnum"];
+            /** @description e.g. Discovery, Standard. */
+            plan: string;
+            /**
+             * End of the trial
+             * Format: date
+             */
+            trial_ends_on: string | null;
+            /** Format: date */
+            paid_until: string | null;
+            /** Currencies */
+            readonly enabled_currencies: components["schemas"]["CurrencyEnum"][];
+            /**
+             * Main currency
+             * @description Currency of the reports.
+             *
+             *     * `USD` - US dollar
+             *     * `CDF` - Congolese franc
+             */
+            readonly default_currency: components["schemas"]["CurrencyEnum"];
+            /** @description Inscriptions actives de l'année en cours. */
+            readonly student_count: number;
+            /**
+             * Format: date-time
+             * @description Dernière entrée de son journal, hors support et super-admin.
+             */
+            readonly last_activity_at: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** @description Les derniers changements faits dans la console, du plus récent au plus ancien. */
+            readonly history: components["schemas"]["PlatformChange"][];
         };
         ContactAddress: {
             /** @default  */
@@ -4169,6 +4393,15 @@ export interface components {
             /** Emergency contact */
             is_emergency_contact?: boolean;
         };
+        HeadAccount: {
+            /** Format: uuid */
+            readonly id: string;
+            /** @description Identifies the person on the whole platform, e.g. +243971234567. */
+            phone: string;
+            last_name: string;
+            middle_name: string;
+            first_name: string;
+        };
         Health: {
             status: string;
             database: string;
@@ -4610,6 +4843,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["CashSessionClosing"][];
         };
+        PaginatedConsoleSchoolList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["ConsoleSchool"][];
+        };
         PaginatedContactChangeList: {
             /** @example 123 */
             count: number;
@@ -4867,6 +5115,34 @@ export interface components {
             support_phone?: string;
             support_email?: string;
             legal_notice?: string;
+        };
+        /**
+         * @description Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
+         *     marcher), ses noms et son abonnement ; couleur, fuseau, devises et logo sont réglés par
+         *     l'école (M5). Suspendre et réactiver passent par leurs actions.
+         */
+        PatchedConsoleSchoolRequest: {
+            /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
+            code?: string;
+            name?: string;
+            official_name?: string;
+            /**
+             * @description Essai ou active ; « suspendue » seulement par l'action `suspend`.
+             *
+             *     * `trial` - Trial
+             *     * `active` - Active
+             *     * `suspended` - Suspended
+             */
+            status?: components["schemas"]["SchoolStatusEnum"];
+            /** @description e.g. Discovery, Standard. */
+            plan?: string;
+            /**
+             * End of the trial
+             * Format: date
+             */
+            trial_ends_on?: string | null;
+            /** Format: date */
+            paid_until?: string | null;
         };
         PatchedEnrollmentUpdateRequest: {
             /** Format: uuid */
@@ -5183,9 +5459,13 @@ export interface components {
          * @description * `platform.updated` - Platform identity changed
          *     * `platform.logo_changed` - Platform logo changed
          *     * `platform.icon_changed` - Application icon changed
+         *     * `school.created` - School created
+         *     * `school.updated` - School or subscription changed
+         *     * `school.suspended` - School suspended
+         *     * `school.reactivated` - School reactivated
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated";
         /** @description Une modification de l'identité, dans le journal de la plateforme. */
         PlatformChange: {
             /** Format: uuid */
@@ -5479,6 +5759,14 @@ export interface components {
          * @enum {string}
          */
         SchoolDeviceKindEnum: "browser" | "reader";
+        /** @description Premier directeur. Nouveau numéro : nom obligatoire ; numéro connu : noms ignorés (B3). */
+        SchoolHeadRequest: {
+            /** @description Ex. 0971234567 ou +243971234567. */
+            phone: string;
+            last_name?: string;
+            middle_name?: string;
+            first_name?: string;
+        };
         /** @description Paramètres de l'école (M5). Le code (adresse) ne change que par le support Mwangaza. */
         SchoolSettings: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
@@ -9151,6 +9439,294 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConsolePlatform"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_schools_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Nom, nom officiel ou code. */
+                search?: string;
+                status?: "active" | "suspended" | "trial";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedConsoleSchoolList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_schools_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsoleSchoolCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ConsoleSchoolCreateRequest"];
+                "multipart/form-data": components["schemas"]["ConsoleSchoolCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSchoolCreated"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_schools_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this school. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSchoolDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_schools_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this school. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsoleSchoolRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedConsoleSchoolRequest"];
+                "multipart/form-data": components["schemas"]["PatchedConsoleSchoolRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSchoolDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_schools_reactivate_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this school. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSchoolDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_schools_suspend_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this school. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSchoolDetail"];
                 };
             };
             400: {

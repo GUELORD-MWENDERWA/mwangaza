@@ -8,6 +8,7 @@ router.register("academic-years", views.AcademicYearViewSet, basename="academic-
 router.register("levels", views.LevelViewSet, basename="level")
 router.register("tracks", views.TrackViewSet, basename="track")
 router.register("class-groups", views.ClassGroupViewSet, basename="class-group")
+router.register("console/schools", views.ConsoleSchoolViewSet, basename="console-school")
 
 urlpatterns = [
     path("console/dashboard/", views.ConsoleDashboardView.as_view(), name="console-dashboard"),

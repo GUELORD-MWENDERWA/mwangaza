@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 import { enterCode, enterPassword, ITIG, mainMenu } from "./helpers";
 
 test("super-admin : session support « en tant qu'école » (A3)", async ({ page }) => {
-  // Lien « Ouvrir en tant qu'école » de l'administration Django.
+  // Lien « Ouvrir en tant qu'école » de la console (ou de l'administration Django).
   await page.goto(`${ITIG}support`);
   await enterPassword(page, "0000000000");
   await enterCode(page);

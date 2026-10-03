@@ -3,8 +3,8 @@ from django.db.models import Count, Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_GET
-from drf_spectacular.utils import extend_schema, extend_schema_view
-from rest_framework import mixins, status
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import (
     action,
     api_view,
@@ -31,6 +31,12 @@ from apps.accounts.views import SchoolViewSet
 from apps.core.errors import SCHOOL_NOT_FOUND, ApiError, ErrorSerializer
 from apps.core.http import serve_image
 from apps.schools import console, organisation, services
+from apps.schools.console_serializers import (
+    ConsoleSchoolCreatedSerializer,
+    ConsoleSchoolCreateSerializer,
+    ConsoleSchoolDetailSerializer,
+    ConsoleSchoolSerializer,
+)
 from apps.schools.matricule import validate_matricule_format
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.schools.serializers import (
@@ -512,3 +518,104 @@ class ConsoleDashboardView(APIView):
     )
     def get(self, request: Request) -> Response:
         return Response(ConsoleDashboardSerializer(console.dashboard()).data)
+
+
+CONSOLE_ERRORS = {400: ErrorSerializer, 403: ErrorSerializer, 404: ErrorSerializer}
+
+
+@extend_schema(tags=["console"])
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter("search", str, description="Nom, nom officiel ou code."),
+            OpenApiParameter("status", str, enum=School.Status.values),
+        ],
+        responses={200: ConsoleSchoolSerializer(many=True), **CONSOLE_ERRORS},
+    ),
+    retrieve=extend_schema(responses={200: ConsoleSchoolDetailSerializer, **CONSOLE_ERRORS}),
+)
+class ConsoleSchoolViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
+    """Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
+    changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
+    Une école ne se supprime jamais : on la suspend."""
+
+    permission_classes = [IsPlatformAdmin]
+    http_method_names = ["get", "post", "patch", "head", "options"]
+
+    def get_queryset(self):
+        schools = console.schools()
+        if self.action != "list":
+            return schools
+        params = self.request.query_params
+        if search := params.get("search", "").strip():
+            schools = schools.filter(
+                Q(name__icontains=search)
+                | Q(official_name__icontains=search)
+                | Q(code__icontains=search)
+            )
+        if (state := params.get("status")) in School.Status.values:
+            schools = schools.filter(status=state)
+        return schools
+
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return ConsoleSchoolDetailSerializer
+        return ConsoleSchoolSerializer
+
+    def _detail(self, school: School) -> Response:
+        return Response(ConsoleSchoolDetailSerializer(console.schools().get(pk=school.pk)).data)
+
+    @extend_schema(
+        request=ConsoleSchoolCreateSerializer,
+        responses={201: ConsoleSchoolCreatedSerializer, **CONSOLE_ERRORS},
+    )
+    def create(self, request: Request) -> Response:
+        """Nouvelle école avec son premier directeur. Nouveau numéro : mot de passe provisoire
+        renvoyé une seule fois (pas de SMS en V1) ; numéro connu : ajouté sans nouveau mot de
+        passe."""
+        serializer = ConsoleSchoolCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = dict(serializer.validated_data)
+        head = data.pop("head")
+        director = services.Director(
+            phone=head["phone"],
+            **{
+                name: head.get(name, "").strip()
+                for name in ("last_name", "middle_name", "first_name")
+            },
+        )
+        membership, password = services.create_school(
+            School(**data), actor=request.user, director=director
+        )
+        created = {
+            "school": console.schools().get(pk=membership.school_id),
+            "head": membership.user,
+            "temporary_password": password,
+        }
+        return Response(ConsoleSchoolCreatedSerializer(created).data, status=201)
+
+    @extend_schema(
+        request=ConsoleSchoolSerializer,
+        responses={200: ConsoleSchoolDetailSerializer, **CONSOLE_ERRORS},
+    )
+    def partial_update(self, request: Request, pk=None) -> Response:
+        """Noms, adresse (l'ancienne cesse de marcher) et abonnement."""
+        school = self.get_object()
+        serializer = ConsoleSchoolSerializer(school, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        services.change_school(school, actor=request.user, **serializer.validated_data)
+        return self._detail(school)
+
+    @extend_schema(request=None, responses={200: ConsoleSchoolDetailSerializer, **CONSOLE_ERRORS})
+    @action(detail=True, methods=["post"])
+    def suspend(self, request: Request, pk=None) -> Response:
+        """Plus personne ne se connecte à l'école ; rien n'est supprimé."""
+        return self._detail(services.suspend(self.get_object(), actor=request.user))
+
+    @extend_schema(request=None, responses={200: ConsoleSchoolDetailSerializer, **CONSOLE_ERRORS})
+    @action(detail=True, methods=["post"])
+    def reactivate(self, request: Request, pk=None) -> Response:
+        """De nouveau ouverte : en essai si l'essai n'est pas fini, sinon active."""
+        return self._detail(services.reactivate(self.get_object(), actor=request.user))

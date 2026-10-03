@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.1 — plateforme, notifications, communication |
 | Lot | V1.1 |
-| Tâche en cours | aucune — 5.2.2 terminée (PR à fusionner) |
-| Prochaine tâche | 5.3 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
-| Issue GitHub | #133 |
-| Branche | `tache/5.2.2-identite-console` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-02 |
+| Tâche en cours | aucune — 5.3 terminée (PR à fusionner) |
+| Prochaine tâche | 5.4 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
+| Issue GitHub | #134 |
+| Branche | `tache/5.3-console-ecoles` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-03 |
 
 ## Avancement
 
@@ -24,7 +24,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production | 14 | 16 |
 | **V1.0** | **48** | **50** |
-| V1.1 — plateforme, notifications, communication | 3 | 8 |
+| V1.1 — plateforme, notifications, communication | 4 | 8 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
 | V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
@@ -53,6 +53,13 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-03 — Tâche 5.3 : console, écoles
+
+- Fait : menu « Écoles » de la console — liste (chiffres, recherche, filtre par état, élèves, abonnement, dernière activité, « Ouvrir en tant qu'école »), « Nouvelle école » avec son premier directeur (mot de passe provisoire affiché une seule fois), fiche (noms, adresse, abonnement, suspendre après confirmation / réactiver, derniers changements) ; API `/api/console/schools/` ; maquette `console/ecoles` dessinée.
+- Tests : accès (autre compte 403, autre adresse 404), création (nouveau compte, compte connu, refus sans rien créer), liste sans N+1, journaux de l'école et de la plateforme, suspension ; anciens tests de l'administration portés sur l'API ; deux tests d'écran.
+- Décisions : chaque action sur une école au journal de la plateforme ; administration Django des écoles en lecture seule ; couleur, logo, fuseau et devises réglés par l'école (`03`, journal des décisions).
+- Suite : 5.4 (comptes, appareils, journal de la plateforme, annonces aux écoles).
 
 ### 2026-10-02 — Tâche 5.2.2 : identité de la plateforme dans la console
 

@@ -1,5 +1,6 @@
 """Tableau de bord de la console de la plateforme (5.2) : toutes les écoles à la fois, lues hors de
-toute école (`all_schools`), pour le super-admin seulement (`IsPlatformAdmin`).
+toute école (`all_schools`), pour le super-admin seulement (`IsPlatformAdmin`). Liste des écoles
+(5.3) : élèves et dernière activité de chacune.
 
 Écoles par statut (essais qui finissent bientôt), élèves (inscriptions actives de l'année en
 cours de chaque école), paiements du jour par devise (annulés exclus ; montants jamais
@@ -9,9 +10,11 @@ actives du jour et santé du serveur."""
 from collections import defaultdict
 from datetime import datetime, time, timedelta
 
-from django.db.models import Count, Sum
+from django.db.models import Count, OuterRef, QuerySet, Subquery, Sum
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
+from apps.audit.models import AuditLog
 from apps.core import health
 from apps.core.money import Currency
 from apps.finance.models import Payment
@@ -21,6 +24,30 @@ from apps.students.models import Enrollment
 # Un essai qui finit dans ces jours est signalé.
 TRIAL_ENDING_DAYS = 30
 ACTIVE_SCHOOLS = 10
+
+
+def schools() -> QuerySet[School]:
+    """Écoles avec `student_count` (inscriptions actives de l'année en cours, A2) et
+    `last_activity_at` (dernière entrée de son journal qui n'est ni du support ni du
+    super-admin) ; deux sous-requêtes, pas une requête par école."""
+    last = (
+        AuditLog.all_schools.filter(school=OuterRef("pk"), impersonated_by__isnull=True)
+        .exclude(actor__is_platform_admin=True)
+        .order_by("-created_at")
+        .values("created_at")[:1]
+    )
+    students = (
+        Enrollment.all_schools.filter(
+            school=OuterRef("pk"), status="active", academic_year__is_current=True
+        )
+        .order_by()
+        .values("school")
+        .annotate(count=Count("pk"))
+        .values("count")
+    )
+    return School.objects.annotate(
+        last_activity_at=Subquery(last), student_count=Coalesce(Subquery(students), 0)
+    )
 
 
 def _schools(day) -> dict:

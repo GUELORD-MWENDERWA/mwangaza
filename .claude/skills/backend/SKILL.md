@@ -41,7 +41,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
   - changement du compte d'une personne (mot de passe, double authentification, changements du support) : `accounts.services._audit_account` (journal de chaque école où elle est active) ;
   - session support « en tant qu'école » (A3) : rien à faire, `record()` remplit `impersonated_by` d'après la requête (`AuditMiddleware`), seulement dans le journal de l'école de la session ;
   - identité de l'école (noms, couleur, logo, fuseau, devises, suspension) : passer par `apps.schools.services.update_school` / `save_school`, jamais `school.save()` dans une vue.
-  - action du super-admin sur la plateforme, hors de toute école (console : identité, plus tard écoles et comptes) : `audit.record_platform(PlatformAction.X, objet, actor=…, before=…, after=…)` → `PlatformAuditLog` (journal de la plateforme, mêmes règles) ; identité de la plateforme : `apps.core.services.update_platform`.
+  - action du super-admin sur la plateforme, hors de toute école (console : identité, écoles ; plus tard comptes) : `audit.record_platform(PlatformAction.X, objet, actor=…, before=…, after=…)` → `PlatformAuditLog` (journal de la plateforme, mêmes règles) ; identité de la plateforme : `apps.core.services.update_platform`.
 - Entité descendue sur les appareils (élèves, classes, frais, échéances, soldes) : écrire une ligne `ChangeLog` (voir skill `hors-ligne`).
 - Entité créable hors-ligne : accepter l'UUID fourni par le client, opération idempotente par `op_id`.
 

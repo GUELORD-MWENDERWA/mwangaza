@@ -72,7 +72,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Rôles et permissions | `gestion/roles-permissions.html` | V1.0 | B1–B2 | fournie |
 | Appareils et synchronisation | `gestion/appareils-synchro.html` | V1.0 | F5, B5 | fournie |
 | Journal d'audit | `gestion/journal-audit.html` | V1.0 | I1 · M6 | à valider |
-| Super-admin — écoles (`admin.mwangaza.school`) | `gestion/superadmin-ecoles.html` | V1.0 (fonctions dans l'administration Django, 1.5) ; écran dans la console : 5.3 (V1.1) | A1–A3 | fournie |
+| Super-admin — écoles (`admin.mwangaza.school`) | `gestion/superadmin-ecoles.html` | V1.0 (fonctions dans l'administration Django, 1.5) ; remplacée par `console/ecoles` (5.3) | A1–A3 | fournie |
 | Session support « en tant qu'école » (ouverture avec le motif, bandeau rouge) | `gestion/session-support.html` | V1.0 | A3 | validée par l'utilisateur le 2026-09-26 (dessinée pour la tâche 1.6) |
 | Paie | `gestion/paie.html` | V1.3 | 7.3 | fournie |
 | Pointage QR (carte unique : puce ou QR) | `gestion/presences-pointage-qr.html` | V1.2 | 6.3 | fournie |
@@ -109,6 +109,7 @@ Pas de menu latéral comme la Gestion : barre du haut en basalte (marque, pastil
 |---|---|---|---|---|
 | Tableau de bord | `console/tableau-de-bord.html` | V1.1 | 5.2 | dessinée par Claude en 5.2.1 (à valider) ; codée en 5.2.1 (menu réduit au tableau de bord, la santé du serveur en pastille dans l'en-tête de la page au lieu de la barre du haut) |
 | Identité de la plateforme | `console/identite-plateforme.html` | V1.1 | 5.2.2 | dessinée par Claude en 5.2.2 (à valider) ; codée en 5.2.2, sans écart (sur téléphone, l'aperçu et les modifications passent sous le formulaire) |
+| Écoles | `console/ecoles.html` | V1.1 | 5.3 | dessinée par Claude en 5.3 d'après `gestion/superadmin-ecoles` (à valider) ; codée en 5.3 en trois écrans (liste, `/schools/new`, fiche `/schools/<id>`) ; « Créer l'école » donne un mot de passe provisoire affiché une seule fois au lieu d'un lien d'activation (pas de SMS en V1) |
 
 ### Menu de la Gestion
 
