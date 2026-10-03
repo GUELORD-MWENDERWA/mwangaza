@@ -2430,6 +2430,51 @@ export const fr = {
     empty: "Aucune annonce pour le moment.",
     range: "{{from}}–{{to}} sur {{count}}",
   },
+  notifications: {
+    title: "Notifications",
+    subtitle:
+      "Ce qui vous concerne dans cette école. Elles s'affichent aussi sur l'écran de vos appareils, même application fermée.",
+    bellUnread_one: "Notifications : {{count}} non lue",
+    bellUnread_other: "Notifications : {{count}} non lues",
+    markAll: "Tout marquer comme lu",
+    received: "Reçues",
+    unread_one: "{{count}} non lue",
+    unread_other: "{{count}} non lues",
+    new: "Nouvelle",
+    empty: "Aucune notification pour le moment.",
+    range: "{{from}}–{{to}} sur {{count}}",
+    kinds: {
+      test: "Notification d'essai",
+      platform_news: "Annonces de {{platform}}",
+    },
+    kindHelp: {
+      test: "Pour vérifier que cet appareil les reçoit.",
+      platform_news: "Messages de l'équipe de la plateforme à votre école",
+    },
+    kindsTitle: "Que recevoir sur l'écran",
+    kindsHelp: "Vaut pour toutes vos écoles. Une sorte coupée reste dans la liste.",
+    device: {
+      title: "Sur cet appareil",
+      intro:
+        "Les notifications s'affichent sur l'écran de cet appareil, même quand l'application est fermée. Chaque appareil s'active à part.",
+      states: {
+        on: "Activées",
+        off: "Désactivées",
+        denied: "Bloquées",
+        unsupported: "Indisponibles",
+      },
+      enable: "Activer sur cet appareil",
+      disable: "Désactiver sur cet appareil",
+      test: "Envoyer un essai",
+      testSent: "Essai envoyé : il s'affiche sur l'écran dans quelques secondes.",
+      unsupported:
+        "Ce navigateur ne peut pas afficher de notifications sur l'écran. Sur iPhone : ajoutez d'abord l'application à l'écran d'accueil (Partager → « Sur l'écran d'accueil »), puis ouvrez-la depuis cette icône.",
+      denied:
+        "Les notifications sont bloquées pour cette adresse. Autorisez-les dans les réglages du site (le cadenas à gauche de l'adresse), puis rechargez la page.",
+      notConfigured: "Le serveur n'envoie pas encore de notifications sur l'écran.",
+      support: "Pendant une session support, il n'y a rien à activer.",
+    },
+  },
   console: {
     tag: "Console",
     menu: {
@@ -3003,6 +3048,7 @@ export const fr = {
     },
   },
   errors: {
+    support_session: "Indisponible pendant une session support.",
     file_too_large: "Le fichier dépasse 5 Mo.",
     old_excel:
       "Ancien fichier Excel (.xls) : dans Excel, enregistrez-le au format .xlsx, puis recommencez.",

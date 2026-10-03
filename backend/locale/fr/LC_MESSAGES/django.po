@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 06:43+0200\n"
+"POT-Creation-Date: 2026-10-03 07:48+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -212,7 +212,8 @@ msgstr "double authentification activée le"
 
 #: apps/accounts/models.py:93 apps/accounts/models.py:198
 #: apps/accounts/models.py:234 apps/notifications/models.py:122
-#: apps/sync/models.py:22
+#: apps/notifications/models.py:153 apps/notifications/models.py:184
+#: apps/notifications/models.py:223 apps/sync/models.py:22
 msgid "account"
 msgstr "compte"
 
@@ -237,7 +238,8 @@ msgstr "nom"
 msgid "role"
 msgstr "rôle"
 
-#: apps/accounts/models.py:201 apps/core/models.py:52 apps/schools/admin.py:59
+#: apps/accounts/models.py:201 apps/core/models.py:52
+#: apps/notifications/models.py:193 apps/schools/admin.py:59
 #: apps/schools/models.py:144
 msgid "school"
 msgstr "école"
@@ -970,7 +972,8 @@ msgstr "avant"
 msgid "after"
 msgstr "après"
 
-#: apps/audit/models.py:71 apps/audit/models.py:137 apps/sync/models.py:17
+#: apps/audit/models.py:71 apps/audit/models.py:137
+#: apps/notifications/models.py:198 apps/sync/models.py:17
 msgid "browser"
 msgstr "navigateur"
 
@@ -1529,7 +1532,8 @@ msgstr "Bourse"
 msgid "Waiver from the head"
 msgstr "Exonération de la direction"
 
-#: apps/finance/models.py:247 apps/schools/models.py:266 apps/sync/models.py:26
+#: apps/finance/models.py:247 apps/notifications/models.py:156
+#: apps/schools/models.py:266 apps/sync/models.py:26
 msgid "kind"
 msgstr "type"
 
@@ -2307,10 +2311,12 @@ msgid "Some classes"
 msgstr "Certaines classes"
 
 #: apps/notifications/models.py:20 apps/notifications/models.py:81
+#: apps/notifications/models.py:157
 msgid "title"
 msgstr "titre"
 
 #: apps/notifications/models.py:21 apps/notifications/models.py:82
+#: apps/notifications/models.py:158
 msgid "message"
 msgstr "message"
 
@@ -2389,7 +2395,63 @@ msgstr "lecture d'annonce de la plateforme"
 msgid "platform announcements read"
 msgstr "lectures d'annonces de la plateforme"
 
-#: apps/notifications/platform.py:24
+#: apps/notifications/models.py:142
+msgid "Management app"
+msgstr "Application de gestion"
+
+#: apps/notifications/models.py:143 apps/portal/apps.py:10
+msgid "Parent portal"
+msgstr "Portail des parents"
+
+#: apps/notifications/models.py:146
+msgid "Test notification"
+msgstr "Notification d'essai"
+
+#: apps/notifications/models.py:147
+msgid "Platform announcement"
+msgstr "Annonce de la plateforme"
+
+#: apps/notifications/models.py:155 apps/notifications/models.py:186
+msgid "app"
+msgstr "application"
+
+#: apps/notifications/models.py:160
+msgid "link"
+msgstr "lien"
+
+#: apps/notifications/models.py:161
+msgid "read at"
+msgstr "lue le"
+
+#: apps/notifications/models.py:165
+msgid "notification"
+msgstr "notification"
+
+#: apps/notifications/models.py:166
+msgid "notifications"
+msgstr "notifications"
+
+#: apps/notifications/models.py:195
+msgid "endpoint"
+msgstr "adresse d'envoi"
+
+#: apps/notifications/models.py:201
+msgid "push subscription"
+msgstr "abonnement aux notifications"
+
+#: apps/notifications/models.py:202
+msgid "push subscriptions"
+msgstr "abonnements aux notifications"
+
+#: apps/notifications/models.py:225
+msgid "muted kinds"
+msgstr "sortes coupées"
+
+#: apps/notifications/models.py:228 apps/notifications/models.py:229
+msgid "notification preferences"
+msgstr "préférences de notification"
+
+#: apps/notifications/platform.py:25
 msgid "Choose at least one school."
 msgstr "Choisissez au moins une école."
 
@@ -2397,13 +2459,24 @@ msgstr "Choisissez au moins une école."
 msgid "Choose at least one class."
 msgstr "Choisissez au moins une classe."
 
-#: apps/notifications/views.py:36
+#: apps/notifications/views.py:42
+msgid "Not available during a support session."
+msgstr "Indisponible pendant une session support."
+
+#: apps/notifications/views.py:43
 msgid "This announcement has no attachment."
 msgstr "Cette annonce n'a pas de pièce jointe."
 
-#: apps/portal/apps.py:10
-msgid "Parent portal"
-msgstr "Portail des parents"
+#: apps/notifications/views.py:257
+msgid "Notifications are working"
+msgstr "Les notifications fonctionnent"
+
+#: apps/notifications/views.py:258
+#, python-format
+msgid ""
+"Notifications from %(school)s will appear here, even with the app closed."
+msgstr ""
+"Les notifications de %(school)s s'afficheront ici, même application fermée."
 
 #: apps/portal/receipts.py:55
 msgid "nothing"

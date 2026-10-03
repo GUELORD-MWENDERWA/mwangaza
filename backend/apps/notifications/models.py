@@ -130,3 +130,103 @@ class PlatformAnnouncementRead(BaseModel):
                 fields=["announcement", "user"], name="platform_announcement_read_once"
             )
         ]
+
+
+class Notification(TenantModel):
+    """Notification d'un compte dans une école (5.5) : gardée au centre de notifications de son
+    application (Gestion ou Portail) et, sauf sorte coupée dans ses préférences, montrée sur
+    l'écran de ses navigateurs abonnés (Web Push), même application fermée. Texte écrit à la
+    création, dans la langue de la requête qui l'a créée."""
+
+    class App(models.TextChoices):
+        GESTION = "gestion", _("Management app")
+        PORTAIL = "portail", _("Parent portal")
+
+    class Kind(models.TextChoices):
+        TEST = "test", _("Test notification")
+        PLATFORM_NEWS = "platform_news", _("Platform announcement")
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="+",
+        verbose_name=_("account"),
+    )
+    app = models.CharField(_("app"), max_length=10, choices=App.choices)
+    kind = models.CharField(_("kind"), max_length=30, choices=Kind.choices)
+    title = models.CharField(_("title"), max_length=120)
+    body = models.CharField(_("message"), max_length=300, blank=True)
+    # Écran à ouvrir dans l'application (adresse du routeur, ex. `/platform-news`).
+    url = models.CharField(_("link"), max_length=300, blank=True)
+    read_at = models.DateTimeField(_("read at"), null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        verbose_name = _("notification")
+        verbose_name_plural = _("notifications")
+        indexes = [
+            models.Index(fields=["school", "user", "app", "-created_at"], name="notification_inbox")
+        ]
+
+    def __str__(self) -> str:
+        return self.title
+
+
+class PushSubscription(BaseModel):
+    """Navigateur abonné aux notifications sur l'écran d'un compte [G] (Web Push). Gestion :
+    chaque adresse d'école a son service worker, donc son abonnement (`school`) ; Portail : une
+    seule adresse, sans école. Supprimé quand le service de notifications le dit expiré."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="push_subscriptions",
+        verbose_name=_("account"),
+    )
+    app = models.CharField(_("app"), max_length=10, choices=Notification.App.choices)
+    school = models.ForeignKey(
+        School,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("school"),
+    )
+    endpoint = models.URLField(_("endpoint"), max_length=1000, unique=True)
+    p256dh = models.CharField(max_length=200)
+    auth = models.CharField(max_length=100)
+    user_agent = models.CharField(_("browser"), max_length=300, blank=True)
+
+    class Meta:
+        verbose_name = _("push subscription")
+        verbose_name_plural = _("push subscriptions")
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(app="gestion", school__isnull=False)
+                | models.Q(app="portail", school__isnull=True),
+                name="push_subscription_school_for_gestion",
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.user} — {self.app}"
+
+
+class NotificationPreference(BaseModel):
+    """Préférences de notification d'un compte [G], pour toutes ses écoles : sortes dont l'envoi
+    sur l'écran est coupé (elles restent au centre de notifications)."""
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="notification_preference",
+        verbose_name=_("account"),
+    )
+    muted = models.JSONField(_("muted kinds"), default=list, blank=True)
+
+    class Meta:
+        verbose_name = _("notification preferences")
+        verbose_name_plural = _("notification preferences")
+
+    def __str__(self) -> str:
+        return str(self.user)

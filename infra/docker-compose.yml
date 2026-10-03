@@ -37,6 +37,8 @@ x-backend: &backend
     POSTGRES_PORT: "5432"
     REDIS_URL: redis://redis:6379/0
     CELERY_TASK_ALWAYS_EAGER: "false"
+    WEBPUSH_VAPID_PUBLIC_KEY: ${WEBPUSH_VAPID_PUBLIC_KEY:-}
+    WEBPUSH_VAPID_PRIVATE_KEY: ${WEBPUSH_VAPID_PRIVATE_KEY:-}
   # Logos, photos, pièces jointes : sur le disque jusqu'au stockage objet (4.7).
   volumes:
     - media:/app/media

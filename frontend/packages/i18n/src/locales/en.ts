@@ -2417,6 +2417,51 @@ export const en: Messages<typeof fr> = {
     empty: "No announcements yet.",
     range: "{{from}}–{{to}} of {{count}}",
   },
+  notifications: {
+    title: "Notifications",
+    subtitle:
+      "What concerns you in this school. They also appear on your devices' screens, even with the app closed.",
+    bellUnread_one: "Notifications: {{count}} unread",
+    bellUnread_other: "Notifications: {{count}} unread",
+    markAll: "Mark all as read",
+    received: "Received",
+    unread_one: "{{count}} unread",
+    unread_other: "{{count}} unread",
+    new: "New",
+    empty: "No notifications yet.",
+    range: "{{from}}–{{to}} of {{count}}",
+    kinds: {
+      test: "Test notification",
+      platform_news: "{{platform}} announcements",
+    },
+    kindHelp: {
+      test: "To check that this device receives them.",
+      platform_news: "Messages from the platform team to your school",
+    },
+    kindsTitle: "What to receive on screen",
+    kindsHelp: "Applies to all your schools. A muted kind stays in the list.",
+    device: {
+      title: "On this device",
+      intro:
+        "Notifications appear on this device's screen, even when the app is closed. Each device is turned on separately.",
+      states: {
+        on: "On",
+        off: "Off",
+        denied: "Blocked",
+        unsupported: "Unavailable",
+      },
+      enable: "Turn on for this device",
+      disable: "Turn off for this device",
+      test: "Send a test",
+      testSent: "Test sent: it will appear on screen in a few seconds.",
+      unsupported:
+        'This browser cannot show notifications on screen. On iPhone: first add the app to the home screen (Share → "Add to Home Screen"), then open it from that icon.',
+      denied:
+        "Notifications are blocked for this address. Allow them in the site settings (the padlock left of the address), then reload the page.",
+      notConfigured: "The server does not send on-screen notifications yet.",
+      support: "During a support session, there is nothing to turn on.",
+    },
+  },
   console: {
     tag: "Console",
     menu: {
@@ -2980,6 +3025,7 @@ export const en: Messages<typeof fr> = {
     },
   },
   errors: {
+    support_session: "Not available during a support session.",
     already_handled: "This request has already been handled by someone else.",
     file_too_large: "The file is larger than 5 MB.",
     old_excel: "Old Excel file (.xls): in Excel, save it as .xlsx, then try again.",

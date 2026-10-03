@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from apps.accounts.console_serializers import ConsoleSchoolRefSerializer
 from apps.notifications.attachments import validate_attachment
-from apps.notifications.models import Announcement, PlatformAnnouncement
+from apps.notifications.models import Announcement, Notification, PlatformAnnouncement
 from apps.schools.models import ClassGroup, School
 from apps.schools.serializers import PersonSerializer
 
@@ -129,3 +129,55 @@ class PlatformNewsSerializer(serializers.ModelSerializer):
 
 class PlatformNewsReadSerializer(serializers.Serializer):
     ids = serializers.ListField(child=serializers.UUIDField(), max_length=100)
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ["id", "kind", "title", "body", "url", "created_at", "read_at"]
+        read_only_fields = fields
+
+
+class NotificationReadSerializer(serializers.Serializer):
+    ids = serializers.ListField(
+        child=serializers.UUIDField(),
+        max_length=100,
+        required=False,
+        help_text="Notifications à noter comme lues ; absent ou vide : toutes.",
+    )
+
+
+class PushKeysSerializer(serializers.Serializer):
+    p256dh = serializers.CharField(max_length=200)
+    auth = serializers.CharField(max_length=100)
+
+
+class PushSubscriptionSerializer(serializers.Serializer):
+    """Abonnement du navigateur, tel que le donne `PushSubscription.toJSON()`."""
+
+    endpoint = serializers.URLField(max_length=1000)
+    keys = PushKeysSerializer()
+
+
+class PushUnsubscribeSerializer(serializers.Serializer):
+    endpoint = serializers.URLField(max_length=1000)
+
+
+class NotificationPreferencesSerializer(serializers.Serializer):
+    vapid_public_key = serializers.CharField(
+        read_only=True, help_text="Clé publique Web Push ; vide : envoi sur l'écran indisponible."
+    )
+    kinds = serializers.ListField(
+        child=serializers.ChoiceField(choices=Notification.Kind.choices),
+        read_only=True,
+        help_text="Sortes que ce compte peut couper dans cette application.",
+    )
+    muted = serializers.ListField(
+        child=serializers.ChoiceField(choices=Notification.Kind.choices),
+        max_length=20,
+        help_text="Sortes coupées sur l'écran (gardées au centre de notifications).",
+    )
+
+    def validate_muted(self, value: list[str]) -> list[str]:
+        allowed = self.context["kinds"]
+        return sorted({kind for kind in value if kind in allowed})

@@ -34,5 +34,10 @@ export default defineConfig([
     ],
     languageOptions: { globals: globals.node },
   },
+  {
+    // Ajouts au service worker des applications (`workbox.importScripts`) : notifications (5.5).
+    files: ["apps/*/public/**/*.js"],
+    languageOptions: { globals: globals.serviceworker },
+  },
   prettier,
 ]);

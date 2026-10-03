@@ -132,7 +132,11 @@ Règles :
 
 **AnnouncementRead [T]** — `announcement`, `family`, unique ensemble ; `created_at` = lue le. Écrite quand l'annonce s'affiche dans le portail ; « lue par N familles » dans la Gestion (4.4.4).
 
-**PushSubscription [G]** — `user`, `endpoint`, `keys`, `user_agent`, `created_at`.
+**Notification [T]** (5.5) — `user`, `app` (`gestion`, `portail`), `kind` (`test`, `platform_news` ; d'autres en 5.6), `title` (120), `body` (300), `url` (écran à ouvrir dans l'application), `read_at`, `created_at`. Gardée au centre de notifications de son application, dans son école : à l'adresse d'une autre école, le même compte ne la voit pas. Texte écrit à la création (langue de la requête qui la crée). Envoyée sur l'écran des navigateurs abonnés après validation de la transaction (Celery, Web Push), sauf sorte coupée. Une annonce de la plateforme publiée notifie le personnel actif des écoles visées (non suspendues).
+
+**PushSubscription [G]** — `user`, `app`, `school` (Gestion : l'école de l'adresse, chaque adresse ayant son service worker ; Portail : vide), `endpoint` (unique), `p256dh`, `auth`, `user_agent`. Le même navigateur repris par un autre compte passe à ce compte ; supprimé quand le service de notifications répond 404 / 410, ou à la déconnexion.
+
+**NotificationPreference [G]** (5.5) — `user` (unique), `muted` (sortes coupées sur l'écran, pour toutes les écoles du compte ; elles restent au centre de notifications ; la notification d'essai part toujours).
 
 ## 6. Synchronisation
 

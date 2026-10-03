@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.1 — plateforme, notifications, communication |
 | Lot | V1.1 |
-| Tâche en cours | aucune — 5.4.3 terminée (PR à fusionner) |
-| Prochaine tâche | 5.5 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
-| Issue GitHub | #135 |
-| Branche | `tache/5.4.3-annonces-plateforme` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 5.5.1 terminée (PR à fusionner) |
+| Prochaine tâche | 5.5.2 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
+| Issue GitHub | #40 |
+| Branche | `tache/5.5.1-notifications-socle` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-03 |
 
 ## Avancement
@@ -24,7 +24,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production | 14 | 16 |
 | **V1.0** | **48** | **50** |
-| V1.1 — plateforme, notifications, communication | 7 | 10 |
+| V1.1 — plateforme, notifications, communication | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
 | V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-03 — Tâche 5.5.1 : notifications sur l'écran, socle serveur et Gestion
+
+- Fait : 5.5 découpée (5.5.1 serveur et Gestion, 5.5.2 Portail). Modèles `Notification` [T], `PushSubscription` et `NotificationPreference` [G] ; envoi Web Push par Celery (`pywebpush`, acceptée), clés VAPID (`webpush_keys`) ; API `/api/notifications/` ; Gestion : cloche, centre `/app/notifications` (réglages de l'appareil et sortes), `push-sw.js`, désabonnement à la déconnexion ; une annonce de la plateforme publiée notifie le personnel des écoles visées ; maquette `gestion/notifications` dessinée ; `make demo` crée ces notifications.
+- Tests : 6 serveur (isolation du centre et des abonnements entre deux écoles, envoi au seul bon navigateur, sorte coupée, abonnement expiré, permissions et session support, annonce → personnel actif), 2 écrans ; `make lint`.
+- Suite : 5.5.2 (Portail), puis 5.6 (événements).
 
 ### 2026-10-03 — Tâche 5.4.3 : annonces de la plateforme aux écoles
 - Fait : modèles globaux `PlatformAnnouncement` et `PlatformAnnouncementRead` ; console « Annonces » (`/announcements` : rédiger pour toutes les écoles ou certaines, « lue par N personnes », archiver ; journal de la plateforme) ; Gestion : bandeau de la dernière non lue, liste `/app/platform-news`, lien en bas du menu avec le nombre de non lues. Maquette `console/annonces` dessinée (à valider). Démo : trois annonces, remises à « non lues ».

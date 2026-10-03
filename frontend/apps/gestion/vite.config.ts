@@ -33,6 +33,8 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,woff2,png,svg}"],
         navigateFallback: "/app/index.html",
         navigateFallbackDenylist: [/^\/api\//, /^\/admin\//, /^\/static\//, /^\/media\//],
+        // Notifications sur l'écran (5.5) : réception et clic, `public/push-sw.js`.
+        importScripts: ["push-sw.js"],
       },
     }),
   ],
