@@ -19,4 +19,6 @@ SECURE_HSTS_SECONDS = int(env("DJANGO_HSTS_SECONDS", str(60 * 60 * 24 * 30)))
 # Caddy écrit l'adresse du visiteur dans X-Real-IP (`infra/Caddyfile`).
 CLIENT_IP_HEADER = env("DJANGO_CLIENT_IP_HEADER", "HTTP_X_REAL_IP")
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# Seulement dans l'essai sur plusieurs appareils (`infra/docker-compose.reseau.yml`).
+DEMO_DATA = env_bool("DJANGO_DEMO_DATA", False)
 SECURE_CONTENT_TYPE_NOSNIFF = True

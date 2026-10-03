@@ -2,18 +2,26 @@
 
 ifneq (,$(wildcard .env))
 include .env
-export $(shell sed -n 's/^\([A-Z_][A-Z0-9_]*\)=.*/\1/p' .env)
+DEV_VARS := $(shell sed -n 's/^\([A-Z_][A-Z0-9_]*\)=.*/\1/p' .env)
+export $(DEV_VARS)
 endif
+# Les essais de la production ne voient pas les variables du développement : docker compose les
+# préférerait aux valeurs de leur fichier --env-file.
+WITHOUT_DEV_ENV := env $(addprefix -u ,$(DEV_VARS))
 
 COMPOSE := docker compose -f infra/docker-compose.dev.yml
 # Essai de la production sur la machine : mêmes images que le serveur, valeurs de infra/local.env.
-PROD_LOCAL := docker compose -f infra/docker-compose.yml --env-file infra/local.env -p mwangaza-essai
+PROD_LOCAL := $(WITHOUT_DEV_ENV) docker compose -f infra/docker-compose.yml --env-file infra/local.env -p mwangaza-essai
+# Essai sur plusieurs appareils du même réseau (adresse DuckDNS, vrai certificat) : valeurs de
+# infra/reseau/reseau.env (hors Git), créé par `make reseau`.
+RESEAU := $(WITHOUT_DEV_ENV) docker compose -f infra/docker-compose.yml -f infra/docker-compose.reseau.yml --env-file infra/reseau/reseau.env -p mwangaza-reseau
+ESSAI := cd backend && uv run python ../infra/reseau/essai.py
 MANAGE := cd backend && uv run python manage.py
 
 .DEFAULT_GOAL := help
 .PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp messages superuser shell \
 	test test-back test-front test-e2e lint lint-back lint-front format api api-schema build \
-	prod-local prod-local-stop
+	prod-local prod-local-stop reseau reseau-ip reseau-demo reseau-stop
 
 help: ## Afficher les commandes
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  make %-15s %s\n", $$1, $$2}'
@@ -127,3 +135,21 @@ prod-local: ## Essayer la production sur la machine (images du serveur, Caddy) :
 
 prod-local-stop: ## Arrêter l'essai de la production (données gardées ; tout effacer : ajouter --volumes à la commande)
 	$(PROD_LOCAL) down
+
+reseau: ## Essai sur plusieurs appareils du même réseau, vrai certificat (A-FAIRE.md § 9 bis) : https://www.<adresse>.duckdns.org/
+	$(ESSAI) init
+	$(ESSAI) ip
+	$(ESSAI) accueil
+	mkdir -p infra/certs
+	$(PROD_LOCAL) down
+	$(RESEAU) up --build --detach --wait
+	@$(ESSAI) adresses
+
+reseau-ip: ## Remettre l'adresse de la machine dans DuckDNS (réseau changé) ; make reseau-ip ip=… pour la choisir
+	$(ESSAI) ip $(ip)
+
+reseau-demo: ## Données fictives dans l'essai sur plusieurs appareils (codes : make totp)
+	$(RESEAU) exec django python manage.py demo
+
+reseau-stop: ## Arrêter l'essai sur plusieurs appareils (données et certificat gardés)
+	$(RESEAU) down

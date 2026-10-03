@@ -4,6 +4,8 @@
 !backend
 !frontend
 !infra/Caddyfile
+!infra/Caddyfile.reseau
+!infra/routes.caddy
 **/node_modules
 **/__pycache__
 **/.venv

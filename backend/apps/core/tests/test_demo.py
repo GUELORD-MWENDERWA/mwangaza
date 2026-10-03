@@ -24,7 +24,7 @@ pytestmark = pytest.mark.django_db
 
 @pytest.fixture
 def demo(settings):
-    settings.DEBUG = True
+    settings.DEMO_DATA = True
     call_command("demo")
     return {school.code: school for school in School.objects.all()}
 
@@ -154,8 +154,9 @@ def test_demo_students_with_siblings_and_a_family_in_both_schools(demo):
         assert Student.objects.count() == 800
 
 
-def test_demo_is_refused_outside_development(settings):
-    settings.DEBUG = False
+def test_demo_is_refused_outside_development_and_the_essai(settings):
+    # Serveur : `DJANGO_DEMO_DATA` absent ; seul l'essai sur plusieurs appareils le met.
+    settings.DEMO_DATA = False
 
     with pytest.raises(CommandError):
         call_command("demo")
