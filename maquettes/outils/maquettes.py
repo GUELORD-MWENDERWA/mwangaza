@@ -342,6 +342,8 @@ CONSOLE = [
     ("identite-plateforme", "Identité de la plateforme", "V1.1", "5.2.2", True),
     ("ecoles", "Écoles", "V1.1", "5.3", True),
     ("comptes", "Comptes", "V1.1", "5.4.1", True),
+    ("appareils", "Appareils", "V1.1", "5.4.2", True),
+    ("journal", "Journal (et sessions support)", "V1.1", "5.4.2", True),
 ]
 
 

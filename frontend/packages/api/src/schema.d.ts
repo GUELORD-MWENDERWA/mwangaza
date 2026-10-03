@@ -886,6 +886,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/audit/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Journal de la plateforme (5.4.2), le plus récent d'abord : actions du support dans la
+         *     console (identité, écoles, comptes, appareils). Super-admin seulement, en lecture seule.
+         */
+        get: operations["console_audit_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/dashboard/": {
         parameters: {
             query?: never;
@@ -900,6 +920,46 @@ export interface paths {
         get: operations["console_dashboard_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/devices/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Appareils enregistrés de toutes les écoles (5.4.2) : super-admin seulement, à l'adresse de
+         *     la console ; les plus récemment vus d'abord.
+         */
+        get: operations["console_devices_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/devices/{id}/revoke/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Déconnecter : sa session est fermée, il efface ses données au prochain contact ; noté
+         *     dans le journal de son école et dans celui de la plateforme.
+         */
+        post: operations["console_devices_revoke_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1054,6 +1114,26 @@ export interface paths {
         put?: never;
         /** @description Plus personne ne se connecte à l'école ; rien n'est supprimé. */
         post: operations["console_schools_suspend_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/support-sessions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Sessions support de toutes les écoles (5.4.2), ouvertes et passées, la plus récente
+         *     d'abord : super-admin seulement, à l'adresse de la console.
+         */
+        get: operations["console_support_sessions_list"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3666,6 +3746,35 @@ export interface components {
             active_schools: components["schemas"]["ConsoleActiveSchool"][];
             health: components["schemas"]["ServerHealth"];
         };
+        /** @description Un appareil enregistré dans une école (console de la plateforme, 5.4.2). */
+        ConsoleDevice: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Name */
+            readonly label: string;
+            readonly kind: components["schemas"]["DeviceKindEnum"];
+            readonly prefix: string;
+            readonly school: components["schemas"]["ConsoleSchoolRef"];
+            /** @description Compte de l'appareil. */
+            readonly user: components["schemas"]["ConsoleDeviceUser"];
+            /** Format: date-time */
+            readonly created_at: string;
+            /**
+             * Last seen
+             * Format: date-time
+             */
+            readonly last_seen_at: string | null;
+            /**
+             * Disconnected at
+             * Format: date-time
+             */
+            readonly revoked_at: string | null;
+        };
+        ConsoleDeviceUser: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
         /** @description Une famille du portail reliée au compte (parent). */
         ConsoleFamily: {
             /** Format: uuid */
@@ -3887,6 +3996,34 @@ export interface components {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
             code: string;
             name: string;
+        };
+        /**
+         * @description Une session support « en tant qu'école » (5.4.2), reconstituée depuis le journal de
+         *     l'école (`support.sessions`).
+         */
+        ConsoleSupportSession: {
+            /** Format: uuid */
+            readonly id: string;
+            school: components["schemas"]["ConsoleSchoolRef"];
+            /** @description Super-admin de la session. */
+            admin: components["schemas"]["AuditActor"];
+            reason: string;
+            /** Format: date-time */
+            started_at: string;
+            /** Format: date-time */
+            expires_at: string;
+            /** Format: date-time */
+            ended_at: string | null;
+            /**
+             * @description `expired` : l'heure est passée sans fermeture.
+             *
+             *     * `open` - open
+             *     * `ended` - ended
+             *     * `expired` - expired
+             */
+            state: components["schemas"]["SupportSessionStateEnum"];
+            /** @description Actions faites dans l'école pendant la session. */
+            actions: number;
         };
         ContactAddress: {
             /** @default  */
@@ -4175,6 +4312,12 @@ export interface components {
             /** @description Appareil de cette session. */
             readonly is_current: boolean;
         };
+        /**
+         * @description * `browser` - browser
+         *     * `reader` - card reader
+         * @enum {string}
+         */
+        DeviceKindEnum: "browser" | "reader";
         DeviceRegisterRequest: {
             /** @description Ex. « Windows · Edge ». */
             label: string;
@@ -5041,6 +5184,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["ConsoleAccount"][];
         };
+        PaginatedConsoleDeviceList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["ConsoleDevice"][];
+        };
         PaginatedConsoleSchoolList: {
             /** @example 123 */
             count: number;
@@ -5055,6 +5213,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["ConsoleSchool"][];
+        };
+        PaginatedConsoleSupportSessionList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["ConsoleSupportSession"][];
         };
         PaginatedContactChangeList: {
             /** @example 123 */
@@ -5130,6 +5303,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["Payment"][];
+        };
+        PaginatedPlatformLogList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["PlatformLog"][];
         };
         PaginatedPortalAnnouncementList: {
             /** @example 123 */
@@ -5679,9 +5867,10 @@ export interface components {
          *     * `account.reactivated` - Account reactivated by support
          *     * `account.password_reset` - Temporary password given by support
          *     * `account.totp_reset` - Two-factor authentication reset by support
+         *     * `device.revoked` - Device disconnected by support
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked";
         /** @description Une modification de l'identité, dans le journal de la plateforme. */
         PlatformChange: {
             /** Format: uuid */
@@ -5699,6 +5888,23 @@ export interface components {
              * @description PNG carré d'au moins 512 x 512 pixels, 1 Mo au plus.
              */
             icon: string;
+        };
+        /** @description Une entrée du journal de la plateforme (console, 5.4.2). */
+        PlatformLog: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            readonly action: components["schemas"]["PlatformActionEnum"];
+            readonly actor: components["schemas"]["AuditActor"] | null;
+            /** Object type */
+            readonly entity_type: string;
+            /** Object */
+            readonly entity_id: string;
+            /** Object name */
+            readonly entity_label: string;
+            readonly before: unknown;
+            readonly after: unknown;
         };
         PortalAccessRequest: {
             /** @description `true` : suspendre ; `false` : rétablir. */
@@ -5965,16 +6171,10 @@ export interface components {
             readonly last_seen_at: string | null;
             /** @description Appareil de cette session. */
             readonly is_current: boolean;
-            readonly kind: components["schemas"]["SchoolDeviceKindEnum"];
+            readonly kind: components["schemas"]["DeviceKindEnum"];
             /** @description Compte de l'appareil. */
             user_name: string;
         };
-        /**
-         * @description * `browser` - browser
-         *     * `reader` - card reader
-         * @enum {string}
-         */
-        SchoolDeviceKindEnum: "browser" | "reader";
         /** @description Premier directeur. Nouveau numéro : nom obligatoire ; numéro connu : noms ignorés (B3). */
         SchoolHeadRequest: {
             /** @description Ex. 0971234567 ou +243971234567. */
@@ -6480,6 +6680,13 @@ export interface components {
              */
             expires_at: string;
         };
+        /**
+         * @description * `open` - open
+         *     * `ended` - ended
+         *     * `expired` - expired
+         * @enum {string}
+         */
+        SupportSessionStateEnum: "open" | "ended" | "expired";
         SupportStartRequest: {
             /** @description Motif, lu par l'école dans son journal (ex. demande du directeur). */
             reason: string;
@@ -9638,6 +9845,65 @@ export interface operations {
             };
         };
     };
+    console_audit_list: {
+        parameters: {
+            query?: {
+                /**
+                 * @description * `account` - account
+                 *     * `device` - device
+                 *     * `platform` - platform
+                 *     * `school` - school
+                 */
+                domain?: "account" | "device" | "platform" | "school";
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Dans le nom de l'objet. */
+                search?: string;
+                /** @description À partir de ce jour. */
+                since?: string;
+                /** @description Jusqu'à ce jour. */
+                until?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPlatformLogList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     console_dashboard_retrieve: {
         parameters: {
             query?: never;
@@ -9653,6 +9919,101 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConsoleDashboard"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_devices_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Appareil, préfixe, compte ou école. */
+                search?: string;
+                state?: "active" | "revoked";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedConsoleDeviceList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_devices_revoke_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this device. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleDevice"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             403: {
@@ -10205,6 +10566,54 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConsoleSchoolDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_support_sessions_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Nom ou code de l'école. */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedConsoleSupportSessionList"];
                 };
             };
             400: {

@@ -1,22 +1,25 @@
 from django.utils import timezone
 from django.utils.translation import gettext
 from drf_spectacular.utils import extend_schema, extend_schema_view
-from rest_framework import mixins
+from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.accounts.models import User
+from apps.accounts.permissions import IsPlatformAdmin
 from apps.accounts.roles import AUDIT_VIEW, SYSTEM_ROLES
-from apps.accounts.views import ERRORS, SchoolViewSet
+from apps.accounts.views import CONSOLE_ERRORS, ERRORS, SchoolViewSet
 from apps.audit import services as audit
 from apps.audit.actions import Action
-from apps.audit.models import AuditLog
+from apps.audit.models import AuditLog, PlatformAuditLog
 from apps.audit.serializers import (
     AuditActorSerializer,
     AuditLogExportSerializer,
     AuditLogFilterSerializer,
     AuditLogSerializer,
+    PlatformLogFilterSerializer,
+    PlatformLogSerializer,
 )
 from apps.core.documents import XLSX, XLSX_RESPONSE, file_response, workbook
 from apps.core.errors import ErrorSerializer
@@ -150,3 +153,36 @@ def _export_row(log: AuditLog, serializer: AuditLogSerializer, support: str) -> 
         str(log.device) if log.device else "",
         timezone.localtime(log.device_time).replace(tzinfo=None) if log.device_time else "",
     ]
+
+
+@extend_schema(tags=["console"])
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[PlatformLogFilterSerializer],
+        responses={200: PlatformLogSerializer(many=True), **CONSOLE_ERRORS},
+    )
+)
+class ConsolePlatformLogViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """Journal de la plateforme (5.4.2), le plus récent d'abord : actions du support dans la
+    console (identité, écoles, comptes, appareils). Super-admin seulement, en lecture seule."""
+
+    permission_classes = [IsPlatformAdmin]
+    serializer_class = PlatformLogSerializer
+
+    def get_queryset(self):
+        logs = PlatformAuditLog.objects.select_related("actor")
+        if self.action != "list":
+            return logs
+        params = PlatformLogFilterSerializer(data=self.request.query_params)
+        params.is_valid(raise_exception=True)
+        data = params.validated_data
+        if "domain" in data:
+            logs = logs.filter(action__startswith=f"{data['domain']}.")
+        # `__date` : jour dans le fuseau du serveur (Goma, `TIME_ZONE`).
+        if "since" in data:
+            logs = logs.filter(created_at__date__gte=data["since"])
+        if "until" in data:
+            logs = logs.filter(created_at__date__lte=data["until"])
+        if data.get("search"):
+            logs = logs.filter(entity_label__icontains=data["search"])
+        return logs

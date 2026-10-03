@@ -2984,6 +2984,82 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/console/audit/:
+    get:
+      operationId: console_audit_list
+      description: |-
+        Journal de la plateforme (5.4.2), le plus récent d'abord : actions du support dans la
+        console (identité, écoles, comptes, appareils). Super-admin seulement, en lecture seule.
+      parameters:
+      - in: query
+        name: domain
+        schema:
+          enum:
+          - account
+          - device
+          - platform
+          - school
+          type: string
+          minLength: 1
+        description: |-
+          * `account` - account
+          * `device` - device
+          * `platform` - platform
+          * `school` - school
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description: Dans le nom de l'objet.
+      - in: query
+        name: since
+        schema:
+          type: string
+          format: date
+        description: À partir de ce jour.
+      - in: query
+        name: until
+        schema:
+          type: string
+          format: date
+        description: Jusqu'à ce jour.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPlatformLogList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/console/dashboard/:
     get:
       operationId: console_dashboard_retrieve
@@ -3000,6 +3076,103 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConsoleDashboard'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/devices/:
+    get:
+      operationId: console_devices_list
+      description: |-
+        Appareils enregistrés de toutes les écoles (5.4.2) : super-admin seulement, à l'adresse de
+        la console ; les plus récemment vus d'abord.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Appareil, préfixe, compte ou école.
+      - in: query
+        name: state
+        schema:
+          type: string
+          enum:
+          - active
+          - revoked
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedConsoleDeviceList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/devices/{id}/revoke/:
+    post:
+      operationId: console_devices_revoke_create
+      description: |-
+        Déconnecter : sa session est fermée, il efface ses données au prochain contact ; noté
+        dans le journal de son école et dans celui de la plateforme.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this device.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleDevice'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
         '403':
           content:
@@ -3505,6 +3678,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConsoleSchoolDetail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/support-sessions/:
+    get:
+      operationId: console_support_sessions_list
+      description: |-
+        Sessions support de toutes les écoles (5.4.2), ouvertes et passées, la plus récente
+        d'abord : super-admin seulement, à l'adresse de la console.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Nom ou code de l'école.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedConsoleSupportSessionList'
           description: ''
         '400':
           content:
@@ -11136,6 +11356,72 @@ components:
       - payments_today
       - active_schools
       - health
+    ConsoleDevice:
+      type: object
+      description: Un appareil enregistré dans une école (console de la plateforme,
+        5.4.2).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        label:
+          type: string
+          readOnly: true
+          title: Name
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/DeviceKindEnum'
+          readOnly: true
+        prefix:
+          type: string
+          readOnly: true
+        school:
+          allOf:
+          - $ref: '#/components/schemas/ConsoleSchoolRef'
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/ConsoleDeviceUser'
+          readOnly: true
+          description: Compte de l'appareil.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        last_seen_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Last seen
+        revoked_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Disconnected at
+      required:
+      - id
+      - label
+      - kind
+      - prefix
+      - school
+      - user
+      - created_at
+      - last_seen_at
+      - revoked_at
+    ConsoleDeviceUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+      - id
+      - name
     ConsoleFamily:
       type: object
       description: Une famille du portail reliée au compte (parent).
@@ -11599,6 +11885,56 @@ components:
       required:
       - code
       - name
+    ConsoleSupportSession:
+      type: object
+      description: |-
+        Une session support « en tant qu'école » (5.4.2), reconstituée depuis le journal de
+        l'école (`support.sessions`).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        school:
+          $ref: '#/components/schemas/ConsoleSchoolRef'
+        admin:
+          allOf:
+          - $ref: '#/components/schemas/AuditActor'
+          description: Super-admin de la session.
+        reason:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+        state:
+          allOf:
+          - $ref: '#/components/schemas/SupportSessionStateEnum'
+          description: |-
+            `expired` : l'heure est passée sans fermeture.
+
+            * `open` - open
+            * `ended` - ended
+            * `expired` - expired
+        actions:
+          type: integer
+          description: Actions faites dans l'école pendant la session.
+      required:
+      - id
+      - school
+      - admin
+      - reason
+      - started_at
+      - expires_at
+      - ended_at
+      - state
+      - actions
     ContactAddress:
       type: object
       properties:
@@ -12252,6 +12588,14 @@ components:
       - created_at
       - last_seen_at
       - is_current
+    DeviceKindEnum:
+      enum:
+      - browser
+      - reader
+      type: string
+      description: |-
+        * `browser` - browser
+        * `reader` - card reader
     DeviceRegisterRequest:
       type: object
       properties:
@@ -14091,6 +14435,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ConsoleAccount'
+    PaginatedConsoleDeviceList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleDevice'
     PaginatedConsoleSchoolList:
       type: object
       required:
@@ -14116,6 +14485,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ConsoleSchool'
+    PaginatedConsoleSupportSessionList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleSupportSession'
     PaginatedContactChangeList:
       type: object
       required:
@@ -14241,6 +14635,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Payment'
+    PaginatedPlatformLogList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformLog'
     PaginatedPortalAnnouncementList:
       type: object
       required:
@@ -15292,6 +15711,7 @@ components:
       - account.reactivated
       - account.password_reset
       - account.totp_reset
+      - device.revoked
       type: string
       description: |-
         * `platform.updated` - Platform identity changed
@@ -15306,6 +15726,7 @@ components:
         * `account.reactivated` - Account reactivated by support
         * `account.password_reset` - Temporary password given by support
         * `account.totp_reset` - Two-factor authentication reset by support
+        * `device.revoked` - Device disconnected by support
     PlatformChange:
       type: object
       description: Une modification de l'identité, dans le journal de la plateforme.
@@ -15347,6 +15768,55 @@ components:
           description: PNG carré d'au moins 512 x 512 pixels, 1 Mo au plus.
       required:
       - icon
+    PlatformLog:
+      type: object
+      description: Une entrée du journal de la plateforme (console, 5.4.2).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        action:
+          allOf:
+          - $ref: '#/components/schemas/PlatformActionEnum'
+          readOnly: true
+        actor:
+          allOf:
+          - $ref: '#/components/schemas/AuditActor'
+          readOnly: true
+          nullable: true
+        entity_type:
+          type: string
+          readOnly: true
+          title: Object type
+        entity_id:
+          type: string
+          readOnly: true
+          title: Object
+        entity_label:
+          type: string
+          readOnly: true
+          title: Object name
+        before:
+          readOnly: true
+          nullable: true
+        after:
+          readOnly: true
+          nullable: true
+      required:
+      - id
+      - created_at
+      - action
+      - actor
+      - entity_type
+      - entity_id
+      - entity_label
+      - before
+      - after
     PortalAccessRequest:
       type: object
       properties:
@@ -15852,7 +16322,7 @@ components:
           description: Appareil de cette session.
         kind:
           allOf:
-          - $ref: '#/components/schemas/SchoolDeviceKindEnum'
+          - $ref: '#/components/schemas/DeviceKindEnum'
           readOnly: true
         user_name:
           type: string
@@ -15866,14 +16336,6 @@ components:
       - is_current
       - kind
       - user_name
-    SchoolDeviceKindEnum:
-      enum:
-      - browser
-      - reader
-      type: string
-      description: |-
-        * `browser` - browser
-        * `reader` - card reader
     SchoolHeadRequest:
       type: object
       description: 'Premier directeur. Nouveau numéro : nom obligatoire ; numéro connu
@@ -17009,6 +17471,16 @@ components:
       - reason
       - started_at
       - expires_at
+    SupportSessionStateEnum:
+      enum:
+      - open
+      - ended
+      - expired
+      type: string
+      description: |-
+        * `open` - open
+        * `ended` - ended
+        * `expired` - expired
     SupportStartRequest:
       type: object
       properties:

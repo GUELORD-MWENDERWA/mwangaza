@@ -7,7 +7,9 @@ from rest_framework import serializers
 
 from apps.accounts.models import Membership, User
 from apps.accounts.serializers import PhoneField
-from apps.audit.models import PlatformAuditLog
+from apps.accounts.support import SESSION_STATES
+from apps.audit.models import AuditLog, PlatformAuditLog
+from apps.audit.serializers import AuditActorSerializer
 from apps.core.serializers import PlatformChangeSerializer
 from apps.schools.models import School
 from apps.students.models import Family
@@ -92,3 +94,34 @@ class ConsoleAccountDetailSerializer(ConsoleAccountSerializer):
             entity_type=user._meta.label_lower, entity_id=str(user.pk)
         ).select_related("actor")[: self.HISTORY]
         return PlatformChangeSerializer(changes, many=True).data
+
+
+class ConsoleSupportSessionSerializer(serializers.ModelSerializer):
+    """Une session support « en tant qu'école » (5.4.2), reconstituée depuis le journal de
+    l'école (`support.sessions`)."""
+
+    school = ConsoleSchoolRefSerializer()
+    admin = AuditActorSerializer(source="actor", help_text="Super-admin de la session.")
+    reason = serializers.CharField(source="after.reason")
+    started_at = serializers.DateTimeField(source="created_at")
+    expires_at = serializers.DateTimeField()
+    ended_at = serializers.DateTimeField(allow_null=True)
+    state = serializers.ChoiceField(
+        choices=SESSION_STATES, help_text="`expired` : l'heure est passée sans fermeture."
+    )
+    actions = serializers.IntegerField(help_text="Actions faites dans l'école pendant la session.")
+
+    class Meta:
+        model = AuditLog
+        fields = [
+            "id",
+            "school",
+            "admin",
+            "reason",
+            "started_at",
+            "expires_at",
+            "ended_at",
+            "state",
+            "actions",
+        ]
+        read_only_fields = fields

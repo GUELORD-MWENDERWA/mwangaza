@@ -7,6 +7,11 @@ router = SimpleRouter()
 router.register("roles", views.RoleViewSet, basename="role")
 router.register("staff", views.StaffViewSet, basename="staff")
 router.register("console/accounts", views.ConsoleAccountViewSet, basename="console-account")
+router.register(
+    "console/support-sessions",
+    views.ConsoleSupportSessionViewSet,
+    basename="console-support-session",
+)
 
 urlpatterns = [
     path("me/", views.MeView.as_view(), name="me"),

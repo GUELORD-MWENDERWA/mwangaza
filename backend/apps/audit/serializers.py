@@ -4,8 +4,8 @@ from rest_framework import serializers
 
 from apps.accounts.models import Role, User
 from apps.accounts.roles import SYSTEM_ROLES
-from apps.audit.actions import DOMAINS, Action, domain_of
-from apps.audit.models import AuditLog
+from apps.audit.actions import DOMAINS, PLATFORM_DOMAINS, Action, PlatformAction, domain_of
+from apps.audit.models import AuditLog, PlatformAuditLog
 from apps.sync.models import Device
 
 
@@ -126,6 +126,41 @@ class AuditLogFilterSerializer(serializers.Serializer):
                 {"until": [_("The end date is before the start date.")]}
             )
         return data
+
+
+class PlatformLogFilterSerializer(serializers.Serializer):
+    """Filtres du journal de la plateforme (console, 5.4.2) ; mêmes dates que M6."""
+
+    domain = serializers.ChoiceField(choices=PLATFORM_DOMAINS, required=False)
+    since = serializers.DateField(required=False, help_text="À partir de ce jour.")
+    until = serializers.DateField(required=False, help_text="Jusqu'à ce jour.")
+    search = serializers.CharField(
+        required=False, max_length=100, help_text="Dans le nom de l'objet."
+    )
+
+    validate = AuditLogFilterSerializer.validate
+
+
+class PlatformLogSerializer(serializers.ModelSerializer):
+    """Une entrée du journal de la plateforme (console, 5.4.2)."""
+
+    action = serializers.ChoiceField(choices=PlatformAction.choices, read_only=True)
+    actor = AuditActorSerializer(read_only=True, allow_null=True)
+
+    class Meta:
+        model = PlatformAuditLog
+        fields = [
+            "id",
+            "created_at",
+            "action",
+            "actor",
+            "entity_type",
+            "entity_id",
+            "entity_label",
+            "before",
+            "after",
+        ]
+        read_only_fields = fields
 
 
 # Une année scolaire, avec un peu de marge : au-delà, exporter en plusieurs fois.
