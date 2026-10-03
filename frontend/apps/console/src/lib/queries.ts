@@ -9,6 +9,7 @@ export const keys = {
   dashboard: ["console", "dashboard"],
   identity: ["console", "platform"],
   schools: ["console", "schools"],
+  accounts: ["console", "accounts"],
   platform: ["platform"],
 };
 

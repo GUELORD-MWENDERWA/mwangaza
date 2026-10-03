@@ -1,0 +1,94 @@
+"""Comptes dans la console de la plateforme (5.4.1) : liste, fiche, noms, téléphone et accès
+(super-admin seulement). Mot de passe provisoire et double authentification passent par leurs
+actions."""
+
+from drf_spectacular.utils import extend_schema_field
+from rest_framework import serializers
+
+from apps.accounts.models import Membership, User
+from apps.accounts.serializers import PhoneField
+from apps.audit.models import PlatformAuditLog
+from apps.core.serializers import PlatformChangeSerializer
+from apps.schools.models import School
+from apps.students.models import Family
+
+
+class ConsoleSchoolRefSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = School
+        fields = ["id", "code", "name"]
+
+
+class ConsoleMembershipSerializer(serializers.ModelSerializer):
+    """Le compte dans une école : ses rôles, actif ou non, dernière connexion à son adresse."""
+
+    school = ConsoleSchoolRefSerializer()
+    roles = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Membership
+        fields = ["id", "school", "roles", "is_active", "last_login_at"]
+
+    def get_roles(self, membership: Membership) -> list[str]:
+        return [str(role) for role in membership.roles.all()]
+
+
+class ConsoleFamilySerializer(serializers.ModelSerializer):
+    """Une famille du portail reliée au compte (parent)."""
+
+    school = ConsoleSchoolRefSerializer()
+
+    class Meta:
+        model = Family
+        fields = ["id", "code", "school", "activated_at", "portal_suspended_at"]
+
+
+class ConsoleAccountSerializer(serializers.ModelSerializer):
+    """Un compte vu par le super-admin. Il change les noms, le téléphone (l'identifiant de
+    connexion) et l'accès ; un compte super-admin, seulement dans l'administration Django."""
+
+    phone = PhoneField(required=False, help_text="Ex. 0971234567 ou +243971234567.")
+    totp_enabled = serializers.BooleanField(read_only=True)
+    memberships = ConsoleMembershipSerializer(many=True, read_only=True)
+    families = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "phone",
+            "last_name",
+            "middle_name",
+            "first_name",
+            "is_active",
+            "is_platform_admin",
+            "totp_enabled",
+            "must_change_password",
+            "last_login",
+            "memberships",
+            "families",
+        ]
+        read_only_fields = ["is_platform_admin", "must_change_password", "last_login"]
+
+    @extend_schema_field(ConsoleFamilySerializer(many=True))
+    def get_families(self, user: User) -> list[dict]:
+        families = self.context.get("families", {}).get(user.pk, [])
+        return ConsoleFamilySerializer(families, many=True).data
+
+
+class ConsoleAccountDetailSerializer(ConsoleAccountSerializer):
+    HISTORY = 10
+
+    history = serializers.SerializerMethodField(
+        help_text="Les derniers changements faits par le support, du plus récent au plus ancien."
+    )
+
+    class Meta(ConsoleAccountSerializer.Meta):
+        fields = [*ConsoleAccountSerializer.Meta.fields, "created_at", "history"]
+
+    @extend_schema_field(PlatformChangeSerializer(many=True))
+    def get_history(self, user: User) -> list[dict]:
+        changes = PlatformAuditLog.objects.filter(
+            entity_type=user._meta.label_lower, entity_id=str(user.pk)
+        ).select_related("actor")[: self.HISTORY]
+        return PlatformChangeSerializer(changes, many=True).data

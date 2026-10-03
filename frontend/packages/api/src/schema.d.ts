@@ -803,6 +803,89 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/accounts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Comptes de toutes les écoles (5.4.1) : super-admin seulement, à l'adresse de la console.
+         *     Chaque changement va dans le journal de la plateforme et dans celui de chaque école où la
+         *     personne est active. Un compte ne se supprime jamais : on le désactive.
+         */
+        get: operations["console_accounts_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/accounts/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Comptes de toutes les écoles (5.4.1) : super-admin seulement, à l'adresse de la console.
+         *     Chaque changement va dans le journal de la plateforme et dans celui de chaque école où la
+         *     personne est active. Un compte ne se supprime jamais : on le désactive.
+         */
+        get: operations["console_accounts_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Noms, téléphone et accès (désactivé : plus de connexion nulle part). */
+        patch: operations["console_accounts_partial_update"];
+        trace?: never;
+    };
+    "/api/console/accounts/{id}/new-password/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Mot de passe provisoire, renvoyé une seule fois ; pas pour un compte qui ne sert
+         *     qu'au portail des parents (son école donne un nouveau code famille).
+         */
+        post: operations["console_accounts_new_password_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/accounts/{id}/reset-totp/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Téléphone perdu : la double authentification se réactive à la prochaine connexion si
+         *     un rôle de la personne l'exige.
+         */
+        post: operations["console_accounts_reset_totp_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/dashboard/": {
         parameters: {
             query?: never;
@@ -3499,6 +3582,62 @@ export interface components {
             /** @description Code à 6 chiffres de l'application, ou code de secours (ex. 7KQ4-M2XP). */
             code: string;
         };
+        /**
+         * @description Un compte vu par le super-admin. Il change les noms, le téléphone (l'identifiant de
+         *     connexion) et l'accès ; un compte super-admin, seulement dans l'administration Django.
+         */
+        ConsoleAccount: {
+            /** Format: uuid */
+            readonly id: string;
+            /** @description Ex. 0971234567 ou +243971234567. */
+            phone: string;
+            last_name: string;
+            middle_name: string;
+            first_name: string;
+            /** Active */
+            is_active: boolean;
+            /**
+             * Platform administrator
+             * @description Platform super-administrator: Django administration only, no school rights.
+             */
+            readonly is_platform_admin: boolean;
+            readonly totp_enabled: boolean;
+            readonly must_change_password: boolean;
+            /** Format: date-time */
+            readonly last_login: string | null;
+            readonly memberships: components["schemas"]["ConsoleMembership"][];
+            readonly families: components["schemas"]["ConsoleFamily"][];
+        };
+        /**
+         * @description Un compte vu par le super-admin. Il change les noms, le téléphone (l'identifiant de
+         *     connexion) et l'accès ; un compte super-admin, seulement dans l'administration Django.
+         */
+        ConsoleAccountDetail: {
+            /** Format: uuid */
+            readonly id: string;
+            /** @description Ex. 0971234567 ou +243971234567. */
+            phone: string;
+            last_name: string;
+            middle_name: string;
+            first_name: string;
+            /** Active */
+            is_active: boolean;
+            /**
+             * Platform administrator
+             * @description Platform super-administrator: Django administration only, no school rights.
+             */
+            readonly is_platform_admin: boolean;
+            readonly totp_enabled: boolean;
+            readonly must_change_password: boolean;
+            /** Format: date-time */
+            readonly last_login: string | null;
+            readonly memberships: components["schemas"]["ConsoleMembership"][];
+            readonly families: components["schemas"]["ConsoleFamily"][];
+            /** Format: date-time */
+            readonly created_at: string;
+            /** @description Les derniers changements faits par le support, du plus récent au plus ancien. */
+            readonly history: components["schemas"]["PlatformChange"][];
+        };
         ConsoleActiveSchool: {
             /** Format: uuid */
             id: string;
@@ -3526,6 +3665,38 @@ export interface components {
             payments_today: number;
             active_schools: components["schemas"]["ConsoleActiveSchool"][];
             health: components["schemas"]["ServerHealth"];
+        };
+        /** @description Une famille du portail reliée au compte (parent). */
+        ConsoleFamily: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Family code */
+            code: string;
+            school: components["schemas"]["ConsoleSchoolRef"];
+            /** Format: date-time */
+            activated_at: string | null;
+            /** Format: date-time */
+            portal_suspended_at: string | null;
+        };
+        /** @description Le compte dans une école : ses rôles, actif ou non, dernière connexion à son adresse. */
+        ConsoleMembership: {
+            /** Format: uuid */
+            readonly id: string;
+            school: components["schemas"]["ConsoleSchoolRef"];
+            readonly roles: string[];
+            /** Active */
+            is_active: boolean;
+            /**
+             * Last login
+             * Format: date-time
+             */
+            readonly last_login_at: string | null;
+        };
+        /** @description Le compte dans une école : ses rôles, actif ou non, dernière connexion à son adresse. */
+        ConsoleMembershipRequest: {
+            school: components["schemas"]["ConsoleSchoolRefRequest"];
+            /** Active */
+            is_active?: boolean;
         };
         /**
          * @description Identité de la plateforme dans la console (5.2.2) : modifiable par le super-admin ;
@@ -3704,6 +3875,18 @@ export interface components {
             readonly created_at: string;
             /** @description Les derniers changements faits dans la console, du plus récent au plus ancien. */
             readonly history: components["schemas"]["PlatformChange"][];
+        };
+        ConsoleSchoolRef: {
+            /** Format: uuid */
+            readonly id: string;
+            /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
+            code: string;
+            name: string;
+        };
+        ConsoleSchoolRefRequest: {
+            /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
+            code: string;
+            name: string;
         };
         ContactAddress: {
             /** @default  */
@@ -4843,6 +5026,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["CashSessionClosing"][];
         };
+        PaginatedConsoleAccountList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["ConsoleAccount"][];
+        };
         PaginatedConsoleSchoolList: {
             /** @example 123 */
             count: number;
@@ -5092,6 +5290,19 @@ export interface components {
              * @description Titulaire (`id` du compte).
              */
             homeroom_teacher?: string | null;
+        };
+        /**
+         * @description Un compte vu par le super-admin. Il change les noms, le téléphone (l'identifiant de
+         *     connexion) et l'accès ; un compte super-admin, seulement dans l'administration Django.
+         */
+        PatchedConsoleAccountRequest: {
+            /** @description Ex. 0971234567 ou +243971234567. */
+            phone?: string;
+            last_name?: string;
+            middle_name?: string;
+            first_name?: string;
+            /** Active */
+            is_active?: boolean;
         };
         /**
          * @description Identité de la plateforme dans la console (5.2.2) : modifiable par le super-admin ;
@@ -5463,9 +5674,14 @@ export interface components {
          *     * `school.updated` - School or subscription changed
          *     * `school.suspended` - School suspended
          *     * `school.reactivated` - School reactivated
+         *     * `account.changed` - Names or phone changed by support
+         *     * `account.deactivated` - Account deactivated by support
+         *     * `account.reactivated` - Account reactivated by support
+         *     * `account.password_reset` - Temporary password given by support
+         *     * `account.totp_reset` - Two-factor authentication reset by support
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset";
         /** @description Une modification de l'identité, dans le journal de la plateforme. */
         PlatformChange: {
             /** Format: uuid */
@@ -9151,6 +9367,268 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_accounts_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Noms, ou chiffres du téléphone. */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedConsoleAccountList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_accounts_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this account. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleAccountDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_accounts_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this account. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsoleAccountRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedConsoleAccountRequest"];
+                "multipart/form-data": components["schemas"]["PatchedConsoleAccountRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleAccountDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_accounts_new_password_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this account. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TemporaryPassword"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_accounts_reset_totp_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this account. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleAccountDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

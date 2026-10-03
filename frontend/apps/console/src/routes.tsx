@@ -1,5 +1,7 @@
 import type { RouteObject } from "react-router";
 
+import { AccountPage } from "./features/accounts/AccountPage";
+import { AccountsPage } from "./features/accounts/AccountsPage";
 import { CodePage } from "./features/auth/CodePage";
 import { FinishInAdminPage } from "./features/auth/FinishInAdminPage";
 import { LoginLayout } from "./features/auth/LoginLayout";
@@ -12,7 +14,7 @@ import { SchoolsPage } from "./features/schools/SchoolsPage";
 import { ConsoleShell } from "./features/shell/ConsoleShell";
 import { RequireAdmin } from "./features/shell/RequireAdmin";
 
-/** Écrans de la console ; les entrées du menu arrivent avec leur tâche (5.4 : comptes, journal). */
+/** Écrans de la console ; les entrées du menu arrivent avec leur tâche (5.4.2 : appareils, journal). */
 export const routes: RouteObject[] = [
   {
     path: "/login",
@@ -33,6 +35,8 @@ export const routes: RouteObject[] = [
           { path: "schools", element: <SchoolsPage /> },
           { path: "schools/new", element: <NewSchoolPage /> },
           { path: "schools/:id", element: <SchoolPage /> },
+          { path: "accounts", element: <AccountsPage /> },
+          { path: "accounts/:id", element: <AccountPage /> },
           { path: "identity", element: <IdentityPage /> },
         ],
       },

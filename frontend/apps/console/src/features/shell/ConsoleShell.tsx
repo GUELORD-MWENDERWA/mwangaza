@@ -15,10 +15,11 @@ import { useMe } from "../../lib/queries";
 import { useLogout } from "../auth/useGoToStep";
 import { ConsoleTag } from "./ConsoleTag";
 
-// Entrées du menu, ajoutées avec leur tâche (5.4 : comptes et journal).
+// Entrées du menu, ajoutées avec leur tâche (5.4.2 : appareils et journal).
 const MENU = [
   { to: "/", key: "dashboard", end: true },
   { to: "/schools", key: "schools", end: false },
+  { to: "/accounts", key: "accounts", end: false },
   { to: "/identity", key: "identity", end: true },
 ] as const;
 

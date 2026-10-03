@@ -110,6 +110,7 @@ Pas de menu latéral comme la Gestion : barre du haut en basalte (marque, pastil
 | Tableau de bord | `console/tableau-de-bord.html` | V1.1 | 5.2 | dessinée par Claude en 5.2.1 (à valider) ; codée en 5.2.1 (menu réduit au tableau de bord, la santé du serveur en pastille dans l'en-tête de la page au lieu de la barre du haut) |
 | Identité de la plateforme | `console/identite-plateforme.html` | V1.1 | 5.2.2 | dessinée par Claude en 5.2.2 (à valider) ; codée en 5.2.2, sans écart (sur téléphone, l'aperçu et les modifications passent sous le formulaire) |
 | Écoles | `console/ecoles.html` | V1.1 | 5.3 | dessinée par Claude en 5.3 d'après `gestion/superadmin-ecoles` (à valider) ; codée en 5.3 en trois écrans (liste, `/schools/new`, fiche `/schools/<id>`) ; « Créer l'école » donne un mot de passe provisoire affiché une seule fois au lieu d'un lien d'activation (pas de SMS en V1) |
+| Comptes | `console/comptes.html` | V1.1 | 5.4.1 | dessinée par Claude en 5.4.1 d'après `console/ecoles` (à valider) ; codée en 5.4.1 en deux écrans (liste `/accounts`, fiche `/accounts/<id>`) ; les familles du portail ont leur propre carte au lieu de partager celle des écoles |
 
 ### Menu de la Gestion
 
