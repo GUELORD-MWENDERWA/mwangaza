@@ -40,6 +40,8 @@ export const keys = {
   dashboard: ["dashboard"],
   announcements: ["announcements"],
   platformNews: ["platform-news"],
+  notifications: ["notifications"],
+  notificationPreferences: ["notification-preferences"],
   contactChanges: ["contact-changes"],
   myDevices: ["my-devices"],
   schoolDevices: ["school-devices"],

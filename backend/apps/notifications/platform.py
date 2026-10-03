@@ -10,6 +10,7 @@ from django.utils.translation import gettext as _
 from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import PlatformAction
+from apps.notifications import push
 from apps.notifications.models import PlatformAnnouncement, PlatformAnnouncementRead
 from apps.schools.models import School
 
@@ -39,6 +40,7 @@ def publish(
     audit.record_platform(
         PlatformAction.ANNOUNCEMENT_PUBLISHED, announcement, actor=actor, after=after
     )
+    push.notify_platform_news(announcement, schools)
     return announcement
 
 

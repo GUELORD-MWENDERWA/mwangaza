@@ -5,7 +5,7 @@ famille sur deux les a lues dans le portail, jamais celle du compte de démonstr
 
 Annonces de la plateforme (5.4.3), publiées une seule fois par le super-admin : une à toutes
 les écoles, une à l'ITIG seule, une archivée ; non lues à chaque `make demo` (le bandeau
-s'affiche)."""
+s'affiche), comme leurs notifications au personnel des écoles visées (5.5)."""
 
 from datetime import timedelta
 
@@ -14,10 +14,11 @@ from django.utils import timezone
 from apps.accounts.demo import PLATFORM_ADMIN_PHONE
 from apps.accounts.models import User
 from apps.core.tenancy import use_school
-from apps.notifications import platform, services
+from apps.notifications import platform, push, services
 from apps.notifications.models import (
     Announcement,
     AnnouncementRead,
+    Notification,
     PlatformAnnouncement,
     PlatformAnnouncementRead,
 )
@@ -140,8 +141,21 @@ def _create_reads() -> None:
 
 def create_demo_platform_announcements(schools: dict[str, School]) -> None:
     PlatformAnnouncementRead.objects.all().delete()
-    if PlatformAnnouncement.objects.exists():
-        return
+    if not PlatformAnnouncement.objects.exists():
+        _publish_platform(schools)
+    news = Notification.all_schools.filter(kind=Notification.Kind.PLATFORM_NEWS)
+    if not news.exists():
+        # Base d'avant la 5.5 : les annonces en cours notifient le personnel.
+        for announcement in PlatformAnnouncement.objects.filter(
+            archived_at__isnull=True
+        ).prefetch_related("schools"):
+            push.notify_platform_news(announcement, list(announcement.schools.all()))
+    for announcement in PlatformAnnouncement.objects.all():
+        news.filter(title=announcement.title).update(created_at=announcement.published_at)
+    news.update(read_at=None)
+
+
+def _publish_platform(schools: dict[str, School]) -> None:
     admin = User.objects.get(phone=PLATFORM_ADMIN_PHONE)
     now = timezone.now()
     # Pas avant la création des écoles (base neuve) : elles ne verraient pas l'annonce.

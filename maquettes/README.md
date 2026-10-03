@@ -34,6 +34,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Mon compte | `gestion/mon-compte.html` | V1.0 | B4–B5 · M4 | à valider |
 | Tableau de bord directeur | `gestion/tableau-de-bord.html` | V1.0 | G3 | fournie — codé en 4.2 sans sélecteur de période ni export (hors G3) |
 | Menu sur téléphone et tablette | `gestion/menu-mobile.html` | V1.0 | § 9.4 · M7 | à valider |
+| Notifications : centre et réglages (cloche de la barre du haut) | `gestion/notifications.html` | V1.1 | 5.5 | dessinée par Claude en 5.5.1 d'après `console/annonces` et `mon-compte` (à valider) ; codée en 5.5.1 : `/app/notifications`, réglages sur la même page (pas dans « Mon compte »), aperçu du téléphone non reproduit (c'est le système qui l'affiche) |
 | Pages d'état et d'erreur (Gestion et Portail) | `gestion/pages-etat.html` | V1.0 | M8 | à valider |
 | Guide de première connexion (caissier, comptable) | `gestion/guide-premiere-connexion.html` | V1.0 | I3 · M20 | à valider — codé en 4.5.1 : « Guide du caissier » (pas de féminin fixe) ; 1re étape du comptable « Vérifiez le taux de change » (taux fixe pour l'année, `04`) ; élément absent (ex. montant avant le choix d'un élève) : carte en bas, sans assombrir ; croix = fermé jusqu'à la prochaine ouverture |
 | Liste des élèves | `gestion/eleves-liste.html` | V1.0 | D2 | fournie |

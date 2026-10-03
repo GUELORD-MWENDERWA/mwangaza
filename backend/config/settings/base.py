@@ -120,6 +120,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 # Portail des parents (un seul domaine pour toutes les écoles), écrit sur la fiche d'inscription.
 PORTAL_URL = env("DJANGO_PORTAL_URL", "https://parents.mwangaza.school")
+# Notifications sur l'écran (5.5, Web Push) : paire de clés VAPID de la plateforme, créée une fois
+# par `manage.py webpush_keys` et jamais changée (elle invaliderait tous les abonnements). Vides :
+# rien n'est envoyé sur les écrans ; le centre de notifications marche quand même.
+WEBPUSH_VAPID_PUBLIC_KEY = env("WEBPUSH_VAPID_PUBLIC_KEY", "")
+WEBPUSH_VAPID_PRIVATE_KEY = env("WEBPUSH_VAPID_PRIVATE_KEY", "")
 # Indicatif du pays pour un numéro tapé sous sa forme nationale (0971234567) : RDC.
 PHONE_DEFAULT_COUNTRY_CODE = "243"
 
@@ -205,6 +210,7 @@ SPECTACULAR_SETTINGS = {
         "HealthCheckEnum": "apps.core.health.CHECKS",
         "HealthStatusEnum": "apps.core.health.STATUSES",
         "DeviceKindEnum": "apps.sync.models.Device.Kind",
+        "NotificationKindEnum": "apps.notifications.models.Notification.Kind",
         "SupportSessionStateEnum": "apps.accounts.support.SESSION_STATES",
         "AudienceEnum": "apps.notifications.models.Announcement.Audience",
         "PlatformAudienceEnum": "apps.notifications.models.PlatformAnnouncement.Audience",

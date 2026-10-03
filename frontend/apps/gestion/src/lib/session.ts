@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 
 import { signOutDevice } from "./pin";
+import { disablePush } from "./push";
 import { keys, type Me } from "./queries";
 
 /** « Se déconnecter » : seulement une fois la session fermée par le serveur. Sans réseau, le
@@ -11,7 +12,11 @@ export function useLogout() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   return useMutation({
-    mutationFn: () => call(api.POST("/api/auth/logout/")),
+    mutationFn: async () => {
+      // Ordinateur partagé : plus rien sur l'écran pour ce compte (5.5), tant que la session dure.
+      await disablePush().catch(() => undefined);
+      return call(api.POST("/api/auth/logout/"));
+    },
     onSuccess: () => {
       // Plus de déverrouillage par PIN ici avant une nouvelle connexion complète (B5).
       const user = queryClient.getQueryData<Me>(keys.me)?.id;

@@ -271,6 +271,7 @@ GESTION = [
     ("choix-ecole", "Choisir l'école", "V1.0", "Accès · B3 · M2", True),
     ("deverrouillage-pin", "Déverrouillage PIN hors-ligne", "V1.0", "Accès · B5", False),
     ("mon-compte", "Mon compte", "V1.0", "Accès · B4–B5 · M4", True),
+    ("notifications", "Notifications : centre et réglages", "V1.1", "Coquille · 5.5", True),
     ("tableau-de-bord", "Tableau de bord directeur", "V1.0", "Pilotage · G3", False),
     ("menu-mobile", "Menu sur téléphone et tablette", "V1.0", "Coquille · M7", True),
     ("pages-etat", "Pages d'état et d'erreur", "V1.0", "Coquille · M8", True),

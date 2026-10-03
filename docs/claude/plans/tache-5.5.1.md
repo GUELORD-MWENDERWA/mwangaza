@@ -1,0 +1,11 @@
+# Tâche 5.5.1 — Notifications sur l'écran : socle serveur et Gestion
+
+- **Modèles** (`notifications`) : `Notification` [T] (`user`, `app` gestion/portail, `kind`, `title`, `body`, `url`, `read_at`), `PushSubscription` [G] (`user`, `app`, `school` pour la Gestion — une adresse d'école = un service worker —, `endpoint` unique, `p256dh`, `auth`, `user_agent`), `NotificationPreference` [G] (`user` unique, `muted` : sortes coupées).
+- **Service** `push.py` : `notify(users, school, app, kind, title, body, url)` → `bulk_create` + `on_commit` → tâche Celery `deliver(ids)` (pywebpush, clés VAPID de l'environnement, abonnement 404/410 supprimé, sorte coupée = pas d'envoi mais gardée au centre). Sortes : `test`, `platform_news` (annonce de la plateforme publiée → personnel des écoles visées : vraie preuve du socle).
+- **API Gestion** (`HasSchoolAccess`, adresse de l'école) : `/api/notifications/` (liste paginée, `?unread=true`), `read/` (ids ou tout), `test/`, `preferences/` (GET/PUT : clé publique VAPID, sortes, coupées), `/api/push-subscriptions/` (POST upsert, `remove/`). Session support : lecture vide, écritures refusées.
+- **Commande** `webpush_keys` (paire de clés pour la production) ; clés de dev par défaut dans `dev.py`.
+- **Front Gestion** : `public/push-sw.js` (push, clic → ouvre l'adresse) via `workbox.importScripts` (pas de dépendance) ; cloche avec nombre de non lues dans la barre du haut → `/app/notifications` ; carte « Notifications » dans Mon compte (activer sur cet appareil, essai, sortes).
+- **Maquette** `gestion/notifications.html` dessinée (centre + carte de réglages) + capture.
+- **Demo** : notifications « annonce de la plateforme » au personnel des écoles visées.
+- **Tests** : isolation (notification et abonnement de l'école A invisibles / intouchables depuis B ; envoi seulement aux abonnements de la bonne école et de la bonne application), permissions (anonyme, parent sans rôle : 403 ; support : écritures refusées), sorte coupée non envoyée, abonnement expiré supprimé, publication d'une annonce → notifications ; Vitest : centre et carte.
+- **Risques** : push seulement avec le service worker (`make build` + `pnpm preview`) ; iPhone : application installée (5.5.2 pour le portail).

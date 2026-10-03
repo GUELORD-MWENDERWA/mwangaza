@@ -23,6 +23,7 @@ import { useCurrentMe, type Me } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { useLogout } from "../../lib/session";
 import { GuideProvider, useGuide } from "../guide/Guide";
+import { NotificationBell } from "../notifications/NotificationBell";
 import { PlatformNewsBanner } from "../platform-news/PlatformNewsBanner";
 import { PlatformNewsLink } from "../platform-news/PlatformNewsLink";
 import { SearchPalette } from "./SearchPalette";
@@ -73,9 +74,10 @@ function TopBar({ me }: { me: Me }) {
       <MobileMenu me={me} />
       {can(me, ["students.view"]) && <SearchPalette />}
       <SyncMenu className="max-[899px]:px-[9px] max-[899px]:py-[5px] max-[899px]:text-[.78rem]" />
+      <NotificationBell />
       <Link
         to="/account"
-        className="ml-auto flex items-center gap-2.5 text-[.88rem] text-ink no-underline"
+        className="flex items-center gap-2.5 text-[.88rem] text-ink no-underline"
         aria-label={`${displayName(me)} — ${t("shell.account")}`}
       >
         <span className="hidden text-right min-[900px]:block">
