@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console — comptes — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+/* Console de la plateforme (5.2) : son propre design. Pas de menu latéral comme la Gestion :
+   une barre du haut en basalte, la navigation dessous, le contenu sur un fond clair et large. */
+body{background:var(--surface)}
+.ctop{background:var(--basalt);color:var(--basalt-ink)}
+.ctop .in{max-width:1240px;margin:0 auto;padding:12px 24px 0;display:flex;flex-direction:column;gap:10px}
+.ctop .row1{display:flex;align-items:center;gap:12px}
+.ctop .brand{padding:0}
+.ctop .chip{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--basalt);background:var(--lamp);border-radius:var(--r-pill);padding:2px 9px}
+.ctop .grow{flex:1}
+.ctop .state{font-size:.82rem;display:flex;align-items:center;gap:6px;color:#CFC7BF}
+.ctop .state i{width:8px;height:8px;border-radius:50%;background:#4CC38A;display:inline-block}
+.ctop .me{display:flex;align-items:center;gap:8px;font-size:.88rem}
+.ctop .me .avatar{background:var(--basalt-2);color:var(--lamp)}
+.ctop nav{display:flex;gap:4px;overflow-x:auto}
+.ctop nav a{color:#CFC7BF;text-decoration:none;padding:10px 12px;border-bottom:3px solid transparent;white-space:nowrap;font-size:.92rem}
+.ctop nav a.on{color:#fff;border-bottom-color:var(--lamp);font-weight:700}
+.ctop nav a .soon{font-size:.7rem;color:#9A918A;margin-left:4px}
+.cmain{max-width:1240px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:20px}
+.g4{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.two{display:grid;gap:16px;grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.health li{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem}
+.health li:first-child{border-top:0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.due{background:var(--due)}.dot.off{background:var(--ink-3)}
+@media (max-width:820px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:1fr}.ctop .state,.ctop .me b{display:none}.cmain,.ctop .in{padding-left:16px;padding-right:16px}}
+.filters{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:#fff}
+.seg span{padding:8px 14px;font-size:.88rem;font-weight:700;color:var(--ink-2)}.seg span.on{background:var(--lake-600);color:#fff}
+.form{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr));padding:16px}
+dl.brief{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;padding:12px 16px 16px;margin:0;font-size:.9rem}dl.brief dt{color:var(--ink-3)}dl.brief dd{margin:0}
+.pwd{font-family:var(--mono);font-size:1.1rem;background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px 10px}
+@media (max-width:820px){.form{grid-template-columns:1fr}}
+.roles{display:flex;flex-wrap:wrap;gap:4px}
+.acts{display:flex;flex-direction:column;gap:10px;padding:16px}
+.acts .row{justify-content:space-between;gap:12px;flex-wrap:wrap}
+ul.plain{list-style:none;margin:0;padding:0}ul.plain li{padding:10px 16px;border-top:1px solid var(--line);font-size:.9rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}ul.plain li:first-child{border-top:0}
+</style></head>
+<body>
+<header class="ctop"><div class="in">
+  <div class="row1"><div class="brand"><span class="mark"></span><b>Mwangaza</b></div><span class="chip">Console</span><span class="grow"></span>
+    <span class="me"><span class="avatar">GM</span><b>Guelord Mwenderwa</b></span></div>
+  <nav><a href="#">Tableau de bord</a><a href="#">Écoles</a><a class="on" href="#">Comptes</a><a href="#">Identité de la plateforme</a><a href="#">Appareils<span class="soon">5.4.2</span></a><a href="#">Journal<span class="soon">5.4.2</span></a></nav>
+</div></header>
+<main class="cmain">
+  <div class="pagehead"><div><h1>Comptes</h1><p>Toutes les personnes de la plateforme : personnel des écoles et parents du portail.</p></div></div>
+  <div class="filters"><label class="f" style="min-width:320px"><span class="inp"><span class="ph">Nom ou numéro de téléphone…</span></span></label></div>
+  <div class="card"><div class="tblwrap"><table class="tbl"><thead><tr><th>Personne</th><th>Écoles et rôles</th><th>Double auth.</th><th>Dernière connexion</th><th></th></tr></thead><tbody>
+    <tr><td><b>Kasereka Mumbere Dieudonné</b><br><span class="small muted">+243 970 001 122</span></td><td><div class="roles"><span class="tag">ITIG · Préfet des études</span><span class="tag">Les Volcans · Enseignant</span><span class="tag v">Parent · Les Volcans</span></div></td><td><span class="pill ok">Activée</span></td><td class="small muted">03/10/2026 08:12</td><td><a class="btn sm ghost" href="#">Gérer</a></td></tr>
+    <tr><td><b>Kahindo Neema</b><br><span class="small muted">+243 990 004 518</span></td><td><div class="roles"><span class="tag v">Parent · ITIG</span></div></td><td class="small muted">—</td><td class="small muted">02/10/2026 19:40</td><td><a class="btn sm ghost" href="#">Gérer</a></td></tr>
+    <tr><td><b>Bahati Furaha</b><br><span class="small muted">+243 812 340 077</span></td><td><div class="roles"><span class="tag">ITIG · Caissier</span></div></td><td><span class="pill ok">Activée</span></td><td class="small muted">03/10/2026 07:55</td><td><a class="btn sm ghost" href="#">Gérer</a></td></tr>
+    <tr><td><b>Paluku Jean-Marie</b> <span class="pill due">Désactivé</span><br><span class="small muted">+243 975 220 310</span></td><td><div class="roles"><span class="tag">Les Volcans · Comptable</span></div></td><td class="small muted">—</td><td class="small muted">12/09/2026 10:02</td><td><a class="btn sm ghost" href="#">Gérer</a></td></tr>
+    <tr><td><b>Mwenderwa Guelord</b> <span class="pill info">Plateforme</span><br><span class="small muted">+243 000 000 000</span></td><td class="small muted">—</td><td><span class="pill ok">Activée</span></td><td class="small muted">03/10/2026 10:30</td><td><a class="btn sm ghost" href="#">Gérer</a></td></tr>
+  </tbody></table></div></div>
+  <div class="two">
+    <div class="card"><div class="hd"><h2>Fiche (<code>/accounts/&lt;id&gt;</code>) — Identité</h2></div>
+      <div class="form">
+        <label class="f">Nom<span class="inp">Kasereka</span></label>
+        <label class="f">Post-nom<span class="inp">Mumbere</span></label>
+        <label class="f">Prénom<span class="inp">Dieudonné</span></label>
+        <label class="f">Téléphone (identifiant de connexion)<span class="inp">0970001122</span></label>
+      </div>
+      <div class="ft"><span class="small muted">Noté au journal de la plateforme et de chaque école de la personne</span><a class="btn primary" href="#">Enregistrer</a></div></div>
+    <div class="card"><div class="hd"><h2>Accès</h2></div>
+      <div class="acts">
+        <div class="row"><span>Mot de passe oublié</span><a class="btn sm" href="#">Donner un mot de passe provisoire</a></div>
+        <div class="small muted">Affiché une seule fois, à changer à la connexion : <span class="pwd">kivu-7mpq-23xa</span></div>
+        <div class="row"><span>Double authentification <span class="pill ok">Activée</span></span><a class="btn sm" href="#">Réinitialiser (téléphone perdu)</a></div>
+        <div class="row"><span>Compte actif partout</span><a class="btn sm danger" href="#">Désactiver le compte</a></div>
+      </div></div>
+  </div>
+  <div class="two">
+    <div class="card"><div class="hd"><h2>Écoles et rôles</h2></div>
+      <ul class="plain"><li><span><b>ITIG Don Bosco Goma</b> · Préfet des études</span><span class="small muted">dernière connexion 03/10/2026 08:12</span></li>
+      <li><span><b>Complexe scolaire Les Volcans</b> · Enseignant</span><span class="small muted">dernière connexion 29/09/2026 14:20</span></li></ul>
+      <div class="hd" style="border-top:1px solid var(--line)"><h2>Familles du portail</h2></div>
+      <ul class="plain"><li><span><b>Complexe scolaire Les Volcans</b> · famille <code>K7Q2M9TA</code></span><span class="small muted">activée le 21/09/2026</span></li></ul></div>
+    <div class="card"><div class="hd"><h2>Derniers changements</h2></div>
+      <ul class="plain"><li><span><b>Mot de passe provisoire donné par le support</b></span><span class="small muted">03/10/2026 10:41 · Guelord Mwenderwa</span></li>
+      <li><span><b>Noms ou téléphone changés par le support</b><br><span class="small">Téléphone : +243 970 001 121 → +243 970 001 122</span></span><span class="small muted">01/10/2026 16:05 · Guelord Mwenderwa</span></li></ul></div>
+  </div>
+  <div class="note"><b>5.4.1 :</b> recherche par mots du nom (dans n'importe quel ordre) ou chiffres du numéro (0970… ou +243 970…), dans toutes les écoles ; liste paginée. Un compte est unique sur la plateforme : il peut être du personnel de plusieurs écoles et parent de familles de plusieurs écoles. Un compte « Plateforme » (super-admin) ne se change pas ici : administration Django.</div>
+  <div class="note">Mot de passe provisoire : seulement pour un compte du personnel (au moins une école active) — le portail refuse un mot de passe provisoire ; un parent qui a oublié le sien demande un nouveau code famille à son école. Réinitialiser la double authentification : seulement si elle est activée. Désactiver (après confirmation) : plus de connexion nulle part, sessions fermées ; on ne supprime jamais un compte. Chaque action va au journal de la plateforme et à celui de chaque école où la personne est active.</div>
+</main>
+</body></html>

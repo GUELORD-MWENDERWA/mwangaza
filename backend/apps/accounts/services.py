@@ -26,7 +26,7 @@ from apps.accounts.models import Membership, RecoveryCode, Role, User
 from apps.accounts.phone import normalize_phone
 from apps.accounts.roles import ROLES_MANAGE, SYSTEM_ROLES, TOTP_PERMISSIONS, sorted_permissions
 from apps.audit import services as audit
-from apps.audit.actions import Action
+from apps.audit.actions import Action, PlatformAction
 from apps.core.crypto import DecryptionError, decrypt, encrypt
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import CrossSchoolError, require_current_school, use_school
@@ -61,6 +61,19 @@ ACCOUNT_USED_ELSEWHERE = ApiError(
     409,
 )
 PHONE_TAKEN = ApiError("phone_taken", _("This phone number already has an account."), 409)
+PLATFORM_ACCOUNT = ApiError(
+    "platform_account",
+    _("A platform administrator account is changed in the Django administration only."),
+    409,
+)
+PORTAL_ONLY_ACCOUNT = ApiError(
+    "portal_only_account",
+    _(
+        "This account is only used for the parent portal: its school gives the parent a new "
+        "family code instead."
+    ),
+    409,
+)
 INVALID_CODE = ApiError(
     "invalid_code", _("This code is not valid, or it has already been used."), 400
 )
@@ -516,43 +529,97 @@ def disable_totp(user: User, code: str) -> None:
 
 
 def support_reset_totp(user: User, *, actor: User) -> None:
-    """Par le support (administration Django), pour un compte qui sert dans plusieurs écoles
-    (téléphone perdu) ; noté dans le journal de chacune."""
+    """Par le support (console ou administration Django), ex. téléphone perdu : noté dans le
+    journal de la plateforme et dans celui de chaque école où la personne est active. Rien à
+    réinitialiser : rien n'est noté."""
+    if not (user.totp_enabled or user.totp_secret):
+        return
     with transaction.atomic():
         reset_totp(user)
-        _audit_account(user, Action.ACCOUNT_TOTP_RESET, actor=actor)
+        _audit_support(user, Action.ACCOUNT_TOTP_RESET, PlatformAction.ACCOUNT_TOTP_RESET, actor)
 
 
-# Support de la plateforme (administration Django)
+# Support de la plateforme (console, 5.4.1 ; administration Django pour le dépannage)
 
 _SUPPORT_ACCOUNT_FIELDS = ("phone", "last_name", "middle_name", "first_name")
 
 
+def _audit_support(
+    user: User, action: str, platform_action: str, actor: User, **data: dict | None
+) -> None:
+    """Action du support sur un compte : journal de la plateforme, et journal de chaque école où
+    la personne est active (elle y voit le support, pas le reste de la console)."""
+    _audit_account(user, action, actor=actor, **data)
+    audit.record_platform(platform_action, user, actor=actor, label=str(user), **data)
+
+
 def audit_support_changes(old: User, user: User, *, actor: User) -> None:
     """Après un changement du compte par le support (`old` : le compte avant) : noms et
-    téléphone, désactivation ou réactivation du compte, dans le journal de chaque école où la
-    personne est active."""
+    téléphone, désactivation ou réactivation du compte."""
     before, after = audit.changes(
         {field: getattr(old, field) for field in _SUPPORT_ACCOUNT_FIELDS},
         {field: getattr(user, field) for field in _SUPPORT_ACCOUNT_FIELDS},
     )
     if after:
-        _audit_account(user, Action.ACCOUNT_CHANGED, actor=actor, before=before, after=after)
+        _audit_support(
+            user,
+            Action.ACCOUNT_CHANGED,
+            PlatformAction.ACCOUNT_CHANGED,
+            actor,
+            before=before,
+            after=after,
+        )
     if old.is_active != user.is_active:
-        action = Action.ACCOUNT_REACTIVATED if user.is_active else Action.ACCOUNT_DEACTIVATED
-        _audit_account(user, action, actor=actor)
+        if user.is_active:
+            actions = (Action.ACCOUNT_REACTIVATED, PlatformAction.ACCOUNT_REACTIVATED)
+        else:
+            actions = (Action.ACCOUNT_DEACTIVATED, PlatformAction.ACCOUNT_DEACTIVATED)
+        _audit_support(user, *actions, actor)
+
+
+def ensure_console_can_change(user: User) -> None:
+    """La console ne change pas un compte de la plateforme : un super-admin se dépanne dans
+    l'administration Django (double authentification exigée)."""
+    if user.is_platform_admin:
+        raise BusinessError(PLATFORM_ACCOUNT)
+
+
+def support_update_account(user: User, *, actor: User, **fields) -> User:
+    """Noms, téléphone (l'identifiant de connexion) et accès d'un compte, par le support
+    (console). Désactivé : plus de connexion nulle part, ni à une école ni au portail ; ses
+    sessions ouvertes ne valent plus."""
+    ensure_console_can_change(user)
+    old = User.objects.get(pk=user.pk)
+    with transaction.atomic():
+        is_active = fields.pop("is_active", user.is_active)
+        if fields:
+            _update_account(user, **fields)
+        if is_active != user.is_active:
+            user.is_active = is_active
+            user.save(update_fields=["is_active", "updated_at"])
+        audit_support_changes(old, user, actor=actor)
+    return user
 
 
 def support_set_temporary_password(user: User, *, actor: User) -> str:
     """Mot de passe provisoire donné par le support (comme « Nouveau mot de passe » de M3),
     renvoyé une seule fois, à changer à la prochaine connexion ; les sessions ouvertes de la
-    personne sont fermées. Le support ne choisit jamais le mot de passe de quelqu'un."""
+    personne sont fermées. Le support ne choisit jamais le mot de passe de quelqu'un.
+
+    Pas pour un compte qui ne sert qu'au portail des parents : le portail refuse un mot de
+    passe provisoire ; le parent demande un nouveau code famille à son école (4.4)."""
+    if not (
+        user.is_platform_admin or Membership.objects.filter(user=user, is_active=True).exists()
+    ):
+        raise BusinessError(PORTAL_ONLY_ACCOUNT)
     password = make_temporary_password()
     with transaction.atomic():
         user.set_password(password)
         user.must_change_password = True
         user.save(update_fields=["password", "must_change_password", "updated_at"])
-        _audit_account(user, Action.ACCOUNT_PASSWORD_RESET, actor=actor)
+        _audit_support(
+            user, Action.ACCOUNT_PASSWORD_RESET, PlatformAction.ACCOUNT_PASSWORD_RESET, actor
+        )
     return password
 
 

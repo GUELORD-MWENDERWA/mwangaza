@@ -2736,6 +2736,254 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/console/accounts/:
+    get:
+      operationId: console_accounts_list
+      description: |-
+        Comptes de toutes les écoles (5.4.1) : super-admin seulement, à l'adresse de la console.
+        Chaque changement va dans le journal de la plateforme et dans celui de chaque école où la
+        personne est active. Un compte ne se supprime jamais : on le désactive.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Noms, ou chiffres du téléphone.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedConsoleAccountList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/accounts/{id}/:
+    get:
+      operationId: console_accounts_retrieve
+      description: |-
+        Comptes de toutes les écoles (5.4.1) : super-admin seulement, à l'adresse de la console.
+        Chaque changement va dans le journal de la plateforme et dans celui de chaque école où la
+        personne est active. Un compte ne se supprime jamais : on le désactive.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this account.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleAccountDetail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: console_accounts_partial_update
+      description: 'Noms, téléphone et accès (désactivé : plus de connexion nulle
+        part).'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this account.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleAccountRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleAccountRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleAccountRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleAccountDetail'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/accounts/{id}/new-password/:
+    post:
+      operationId: console_accounts_new_password_create
+      description: |-
+        Mot de passe provisoire, renvoyé une seule fois ; pas pour un compte qui ne sert
+        qu'au portail des parents (son école donne un nouveau code famille).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this account.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemporaryPassword'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/accounts/{id}/reset-totp/:
+    post:
+      operationId: console_accounts_reset_totp_create
+      description: |-
+        Téléphone perdu : la double authentification se réactive à la prochaine connexion si
+        un rôle de la personne l'exige.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this account.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleAccountDetail'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/console/dashboard/:
     get:
       operationId: console_dashboard_retrieve
@@ -10667,6 +10915,149 @@ components:
           maxLength: 20
       required:
       - code
+    ConsoleAccount:
+      type: object
+      description: |-
+        Un compte vu par le super-admin. Il change les noms, le téléphone (l'identifiant de
+        connexion) et l'accès ; un compte super-admin, seulement dans l'administration Django.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        phone:
+          type: string
+          description: Ex. 0971234567 ou +243971234567.
+        last_name:
+          type: string
+          maxLength: 100
+        middle_name:
+          type: string
+          maxLength: 100
+        first_name:
+          type: string
+          maxLength: 100
+        is_active:
+          type: boolean
+          title: Active
+        is_platform_admin:
+          type: boolean
+          readOnly: true
+          title: Platform administrator
+          description: 'Platform super-administrator: Django administration only,
+            no school rights.'
+        totp_enabled:
+          type: boolean
+          readOnly: true
+        must_change_password:
+          type: boolean
+          readOnly: true
+        last_login:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        memberships:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleMembership'
+          readOnly: true
+        families:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleFamily'
+          readOnly: true
+      required:
+      - id
+      - phone
+      - last_name
+      - middle_name
+      - first_name
+      - is_active
+      - is_platform_admin
+      - totp_enabled
+      - must_change_password
+      - last_login
+      - memberships
+      - families
+    ConsoleAccountDetail:
+      type: object
+      description: |-
+        Un compte vu par le super-admin. Il change les noms, le téléphone (l'identifiant de
+        connexion) et l'accès ; un compte super-admin, seulement dans l'administration Django.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        phone:
+          type: string
+          description: Ex. 0971234567 ou +243971234567.
+        last_name:
+          type: string
+          maxLength: 100
+        middle_name:
+          type: string
+          maxLength: 100
+        first_name:
+          type: string
+          maxLength: 100
+        is_active:
+          type: boolean
+          title: Active
+        is_platform_admin:
+          type: boolean
+          readOnly: true
+          title: Platform administrator
+          description: 'Platform super-administrator: Django administration only,
+            no school rights.'
+        totp_enabled:
+          type: boolean
+          readOnly: true
+        must_change_password:
+          type: boolean
+          readOnly: true
+        last_login:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        memberships:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleMembership'
+          readOnly: true
+        families:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleFamily'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformChange'
+          readOnly: true
+          description: Les derniers changements faits par le support, du plus récent
+            au plus ancien.
+      required:
+      - id
+      - phone
+      - last_name
+      - middle_name
+      - first_name
+      - is_active
+      - is_platform_admin
+      - totp_enabled
+      - must_change_password
+      - last_login
+      - memberships
+      - families
+      - created_at
+      - history
     ConsoleActiveSchool:
       type: object
       properties:
@@ -10745,6 +11136,77 @@ components:
       - payments_today
       - active_schools
       - health
+    ConsoleFamily:
+      type: object
+      description: Une famille du portail reliée au compte (parent).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          title: Family code
+          maxLength: 8
+        school:
+          $ref: '#/components/schemas/ConsoleSchoolRef'
+        activated_at:
+          type: string
+          format: date-time
+          nullable: true
+        portal_suspended_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - code
+      - school
+      - activated_at
+      - portal_suspended_at
+    ConsoleMembership:
+      type: object
+      description: 'Le compte dans une école : ses rôles, actif ou non, dernière connexion
+        à son adresse.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        school:
+          $ref: '#/components/schemas/ConsoleSchoolRef'
+        roles:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        is_active:
+          type: boolean
+          title: Active
+        last_login_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Last login
+      required:
+      - id
+      - school
+      - roles
+      - is_active
+      - last_login_at
+    ConsoleMembershipRequest:
+      type: object
+      description: 'Le compte dans une école : ses rôles, actif ou non, dernière connexion
+        à son adresse.'
+      properties:
+        school:
+          $ref: '#/components/schemas/ConsoleSchoolRefRequest'
+        is_active:
+          type: boolean
+          title: Active
+      required:
+      - school
     ConsolePlatform:
       type: object
       description: |-
@@ -11100,6 +11562,43 @@ components:
       - last_activity_at
       - created_at
       - history
+    ConsoleSchoolRef:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          description: 'Subdomain of the school: {code}.mwangaza.school. Changed by
+            the platform only: the old address stops working.'
+          pattern: ^[a-z0-9][a-z0-9-]{0,28}[a-z0-9]$
+          maxLength: 30
+        name:
+          type: string
+          maxLength: 200
+      required:
+      - id
+      - code
+      - name
+    ConsoleSchoolRefRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          description: 'Subdomain of the school: {code}.mwangaza.school. Changed by
+            the platform only: the old address stops working.'
+          pattern: ^[a-z0-9][a-z0-9-]{0,28}[a-z0-9]$
+          maxLength: 30
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - code
+      - name
     ContactAddress:
       type: object
       properties:
@@ -13567,6 +14066,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CashSessionClosing'
+    PaginatedConsoleAccountList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleAccount'
     PaginatedConsoleSchoolList:
       type: object
       required:
@@ -13994,6 +14518,29 @@ components:
           format: uuid
           nullable: true
           description: Titulaire (`id` du compte).
+    PatchedConsoleAccountRequest:
+      type: object
+      description: |-
+        Un compte vu par le super-admin. Il change les noms, le téléphone (l'identifiant de
+        connexion) et l'accès ; un compte super-admin, seulement dans l'administration Django.
+      properties:
+        phone:
+          type: string
+          minLength: 1
+          description: Ex. 0971234567 ou +243971234567.
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        middle_name:
+          type: string
+          maxLength: 100
+        first_name:
+          type: string
+          maxLength: 100
+        is_active:
+          type: boolean
+          title: Active
     PatchedConsolePlatformRequest:
       type: object
       description: |-
@@ -14740,6 +15287,11 @@ components:
       - school.updated
       - school.suspended
       - school.reactivated
+      - account.changed
+      - account.deactivated
+      - account.reactivated
+      - account.password_reset
+      - account.totp_reset
       type: string
       description: |-
         * `platform.updated` - Platform identity changed
@@ -14749,6 +15301,11 @@ components:
         * `school.updated` - School or subscription changed
         * `school.suspended` - School suspended
         * `school.reactivated` - School reactivated
+        * `account.changed` - Names or phone changed by support
+        * `account.deactivated` - Account deactivated by support
+        * `account.reactivated` - Account reactivated by support
+        * `account.password_reset` - Temporary password given by support
+        * `account.totp_reset` - Two-factor authentication reset by support
     PlatformChange:
       type: object
       description: Une modification de l'identité, dans le journal de la plateforme.

@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.1 — plateforme, notifications, communication |
 | Lot | V1.1 |
-| Tâche en cours | aucune — 5.3 terminée (PR à fusionner) |
-| Prochaine tâche | 5.4 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
-| Issue GitHub | #134 |
-| Branche | `tache/5.3-console-ecoles` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 5.4.1 terminée (PR à fusionner) |
+| Prochaine tâche | 5.4.2 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
+| Issue GitHub | #135 |
+| Branche | `tache/5.4.1-console-comptes` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-03 |
 
 ## Avancement
@@ -24,7 +24,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production | 14 | 16 |
 | **V1.0** | **48** | **50** |
-| V1.1 — plateforme, notifications, communication | 4 | 8 |
+| V1.1 — plateforme, notifications, communication | 5 | 10 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
 | V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
@@ -53,6 +53,13 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-03 — Tâche 5.4.1 : console, comptes
+
+- Fait : 5.4 découpée en 5.4.1 (comptes), 5.4.2 (appareils, sessions support, journal) et 5.4.3 (annonces aux écoles). Menu « Comptes » de la console : recherche dans toutes les écoles (mots du nom ou chiffres du numéro), écoles et rôles, familles du portail, double authentification, dernière connexion ; fiche `/accounts/<id>` : noms et téléphone, mot de passe provisoire, double authentification réinitialisée, désactiver / réactiver (après confirmation), derniers changements. API `/api/console/accounts/`. Maquette `console/comptes` dessinée ; navigation des maquettes de la console mise au même point.
+- Tests : accès (directeur d'une école 403 à la console, adresse d'une école 404), recherche dans deux écoles sans N+1, journaux de la plateforme et de chaque école, refus (super-admin, compte du portail seul), désactivation qui coupe la session ouverte ; deux tests de la fiche (Vitest).
+- Décisions : un compte super-admin ne se change que dans l'administration Django ; pas de mot de passe provisoire pour un compte qui ne sert qu'au portail (le portail le refuse : l'école donne un nouveau code famille) ; les actions du support, console ou administration, vont aussi au journal de la plateforme (`03` § 11).
+- Suite : fusion, puis 5.4.2.
 
 ### 2026-10-03 — Tâche 5.3 : console, écoles
 

@@ -1,12 +1,13 @@
 """Administration Django : réservée au super-admin (`User.is_platform_admin`), avec la double
 authentification (`admin_site.py`).
 
-Comptes : création et modification par le support. Noms, téléphone, désactivation, mot de passe
-provisoire et réinitialisation de la double authentification sont notés dans le journal de
-chaque école où la personne est active. Le support ne choisit jamais le mot de passe de
-quelqu'un : il donne un mot de passe provisoire. Rôles et appartenances : lecture seule, toutes
-écoles ; les changements passent par l'API de l'école et ses règles (école séparée, dernier
-gestionnaire des rôles).
+Comptes : création et modification par le support, pour le dépannage (la console, 5.4.1, fait
+le reste ; un compte super-admin ne se change qu'ici). Noms, téléphone, désactivation, mot de
+passe provisoire et réinitialisation de la double authentification sont notés dans le journal de
+la plateforme et dans celui de chaque école où la personne est active. Le support ne choisit
+jamais le mot de passe de quelqu'un : il donne un mot de passe provisoire. Rôles et
+appartenances : lecture seule, toutes écoles ; les changements passent par l'API de l'école et
+ses règles (école séparée, dernier gestionnaire des rôles).
 """
 
 from django.contrib import admin, messages
@@ -22,6 +23,7 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.accounts import services
 from apps.accounts.models import Membership, Role, User
+from apps.core.errors import BusinessError
 
 # Les groupes de Django ne servent pas : les droits dans une école viennent de ses rôles.
 admin.site.unregister(Group)
@@ -120,10 +122,13 @@ class UserAdmin(DjangoUserAdmin):
             "has_view_permission": True,
         }
         if request.method == "POST":
-            with transaction.atomic():
-                context["temporary_password"] = services.support_set_temporary_password(
-                    user, actor=request.user
-                )
+            try:
+                with transaction.atomic():
+                    context["temporary_password"] = services.support_set_temporary_password(
+                        user, actor=request.user
+                    )
+            except BusinessError as error:
+                self.message_user(request, error.error.detail, messages.ERROR)
         return TemplateResponse(request, "admin/accounts/user/temporary_password.html", context)
 
     @admin.action(description=_("Reset two-factor authentication (lost phone)"))

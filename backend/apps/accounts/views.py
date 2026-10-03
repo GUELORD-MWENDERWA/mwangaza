@@ -2,7 +2,7 @@ from django.contrib.auth import logout, update_session_auth_hash
 from django.db.models import Count, Exists, OuterRef, Prefetch, Q
 from django.middleware.csrf import get_token
 from django.utils.translation import gettext_lazy as _
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
@@ -12,10 +12,14 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts import login, services, support, totp
+from apps.accounts import console, login, services, support, totp
+from apps.accounts.console_serializers import (
+    ConsoleAccountDetailSerializer,
+    ConsoleAccountSerializer,
+)
 from apps.accounts.login import MFA_SESSION_KEY, Step
 from apps.accounts.models import Membership, Role, User
-from apps.accounts.permissions import HasSchoolPermission, school_access
+from apps.accounts.permissions import HasSchoolPermission, IsPlatformAdmin, school_access
 from apps.accounts.roles import ROLES_MANAGE, sorted_permissions
 from apps.accounts.serializers import (
     CodeSerializer,
@@ -525,3 +529,88 @@ class SupportView(APIView):
         if not support.end(request):
             raise BusinessError(support.NO_SUPPORT_SESSION)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+CONSOLE_ERRORS = {400: ErrorSerializer, 403: ErrorSerializer, 404: ErrorSerializer}
+
+
+@extend_schema(tags=["console"])
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter("search", str, description="Noms, ou chiffres du téléphone."),
+        ],
+        responses={200: ConsoleAccountSerializer(many=True), **CONSOLE_ERRORS},
+    ),
+    retrieve=extend_schema(responses={200: ConsoleAccountDetailSerializer, **CONSOLE_ERRORS}),
+)
+class ConsoleAccountViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
+    """Comptes de toutes les écoles (5.4.1) : super-admin seulement, à l'adresse de la console.
+    Chaque changement va dans le journal de la plateforme et dans celui de chaque école où la
+    personne est active. Un compte ne se supprime jamais : on le désactive."""
+
+    permission_classes = [IsPlatformAdmin]
+    serializer_class = ConsoleAccountSerializer
+    http_method_names = ["get", "post", "patch", "head", "options"]
+
+    def get_queryset(self):
+        search = self.request.query_params.get("search", "") if self.action == "list" else ""
+        return console.accounts(search)
+
+    def list(self, request: Request) -> Response:
+        page = self.paginate_queryset(self.get_queryset())
+        context = {**self.get_serializer_context(), "families": console.families_of(page)}
+        return self.get_paginated_response(
+            ConsoleAccountSerializer(page, many=True, context=context).data
+        )
+
+    def _detail(self, user: User) -> Response:
+        context = {**self.get_serializer_context(), "families": console.families_of([user])}
+        return Response(ConsoleAccountDetailSerializer(user, context=context).data)
+
+    def retrieve(self, request: Request, pk=None) -> Response:
+        return self._detail(self.get_object())
+
+    def _changed(self, user: User) -> Response:
+        # Rôles, familles et journal relus après le changement.
+        return self._detail(console.accounts().get(pk=user.pk))
+
+    @extend_schema(
+        request=ConsoleAccountSerializer,
+        responses={200: ConsoleAccountDetailSerializer, 409: ErrorSerializer, **CONSOLE_ERRORS},
+    )
+    def partial_update(self, request: Request, pk=None) -> Response:
+        """Noms, téléphone et accès (désactivé : plus de connexion nulle part)."""
+        user = self.get_object()
+        serializer = ConsoleAccountSerializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        services.support_update_account(user, actor=request.user, **serializer.validated_data)
+        return self._changed(user)
+
+    @extend_schema(
+        request=None,
+        responses={200: TemporaryPasswordSerializer, 409: ErrorSerializer, **CONSOLE_ERRORS},
+    )
+    @action(detail=True, methods=["post"], url_path="new-password")
+    def new_password(self, request: Request, pk=None) -> Response:
+        """Mot de passe provisoire, renvoyé une seule fois ; pas pour un compte qui ne sert
+        qu'au portail des parents (son école donne un nouveau code famille)."""
+        user = self.get_object()
+        services.ensure_console_can_change(user)
+        password = services.support_set_temporary_password(user, actor=request.user)
+        return Response({"temporary_password": password})
+
+    @extend_schema(
+        request=None,
+        responses={200: ConsoleAccountDetailSerializer, 409: ErrorSerializer, **CONSOLE_ERRORS},
+    )
+    @action(detail=True, methods=["post"], url_path="reset-totp")
+    def reset_totp(self, request: Request, pk=None) -> Response:
+        """Téléphone perdu : la double authentification se réactive à la prochaine connexion si
+        un rôle de la personne l'exige."""
+        user = self.get_object()
+        services.ensure_console_can_change(user)
+        services.support_reset_totp(user, actor=request.user)
+        return self._changed(user)

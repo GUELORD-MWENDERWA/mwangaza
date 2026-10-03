@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 01:12+0200\n"
+"POT-Creation-Date: 2026-10-03 05:37+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -14,41 +14,41 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: apps/accounts/admin.py:63
+#: apps/accounts/admin.py:65
 msgid "Name"
 msgstr "Nom"
 
-#: apps/accounts/admin.py:65
+#: apps/accounts/admin.py:67
 msgid "Access"
 msgstr "Accès"
 
-#: apps/accounts/admin.py:75 apps/schools/admin.py:44
+#: apps/accounts/admin.py:77 apps/schools/admin.py:44
 msgid "Dates"
 msgstr "Dates"
 
-#: apps/accounts/admin.py:95
+#: apps/accounts/admin.py:97
 msgid "two-factor authentication"
 msgstr "double authentification"
 
-#: apps/accounts/admin.py:117
+#: apps/accounts/admin.py:119
 msgid "Temporary password"
 msgstr "Mot de passe provisoire"
 
-#: apps/accounts/admin.py:129
+#: apps/accounts/admin.py:134
 msgid "Reset two-factor authentication (lost phone)"
 msgstr "Réinitialiser la double authentification (téléphone perdu)"
 
-#: apps/accounts/admin.py:135
+#: apps/accounts/admin.py:140
 msgid ""
 "Two-factor authentication reset: to be turned on again at the next login."
 msgstr ""
 "Double authentification réinitialisée : à réactiver à la prochaine connexion."
 
-#: apps/accounts/admin.py:161 apps/accounts/models.py:144
+#: apps/accounts/admin.py:166 apps/accounts/models.py:144
 msgid "permissions"
 msgstr "droits"
 
-#: apps/accounts/admin.py:176 apps/accounts/models.py:153
+#: apps/accounts/admin.py:181 apps/accounts/models.py:153
 #: apps/accounts/models.py:204
 msgid "roles"
 msgstr "rôles"
@@ -439,15 +439,31 @@ msgstr ""
 msgid "This phone number already has an account."
 msgstr "Ce numéro de téléphone a déjà un compte."
 
-#: apps/accounts/services.py:65
+#: apps/accounts/services.py:66
+msgid ""
+"A platform administrator account is changed in the Django administration "
+"only."
+msgstr ""
+"Un compte de super-administrateur ne se modifie que dans l'administration "
+"Django."
+
+#: apps/accounts/services.py:72
+msgid ""
+"This account is only used for the parent portal: its school gives the parent "
+"a new family code instead."
+msgstr ""
+"Ce compte ne sert qu'au portail des parents : son école donne plutôt au "
+"parent un nouveau code famille."
+
+#: apps/accounts/services.py:78
 msgid "This code is not valid, or it has already been used."
 msgstr "Ce code n'est pas valide, ou il a déjà été utilisé."
 
-#: apps/accounts/services.py:67
+#: apps/accounts/services.py:80
 msgid "The current password is not correct."
 msgstr "Le mot de passe actuel n'est pas correct."
 
-#: apps/accounts/services.py:70
+#: apps/accounts/services.py:83
 msgid ""
 "One of your roles requires two-factor authentication: it cannot be turned "
 "off."
@@ -520,7 +536,7 @@ msgstr ""
 msgid "Give a temporary password"
 msgstr "Donner un mot de passe provisoire"
 
-#: apps/accounts/views.py:54
+#: apps/accounts/views.py:58
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
@@ -540,7 +556,7 @@ msgstr "Double authentification sur un nouveau téléphone"
 msgid "Two-factor authentication turned off"
 msgstr "Double authentification désactivée"
 
-#: apps/audit/actions.py:24
+#: apps/audit/actions.py:24 apps/audit/actions.py:197
 msgid "Two-factor authentication reset by support"
 msgstr "Double authentification réinitialisée par le support"
 
@@ -548,19 +564,19 @@ msgstr "Double authentification réinitialisée par le support"
 msgid "New recovery codes"
 msgstr "Nouveaux codes de secours"
 
-#: apps/audit/actions.py:27
+#: apps/audit/actions.py:27 apps/audit/actions.py:193
 msgid "Names or phone changed by support"
 msgstr "Noms ou téléphone changés par le support"
 
-#: apps/audit/actions.py:28
+#: apps/audit/actions.py:28 apps/audit/actions.py:194
 msgid "Account deactivated by support"
 msgstr "Compte désactivé par le support"
 
-#: apps/audit/actions.py:29
+#: apps/audit/actions.py:29 apps/audit/actions.py:195
 msgid "Account reactivated by support"
 msgstr "Compte réactivé par le support"
 
-#: apps/audit/actions.py:30
+#: apps/audit/actions.py:30 apps/audit/actions.py:196
 msgid "Temporary password given by support"
 msgstr "Mot de passe provisoire donné par le support"
 

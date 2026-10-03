@@ -8,7 +8,6 @@ import {
   errorMessage,
   formatDateTime,
   formatDay,
-  type TFunction,
   useTranslation,
 } from "@mwangaza/i18n";
 import {
@@ -29,6 +28,7 @@ import { useForm } from "react-hook-form";
 import { useParams } from "react-router";
 
 import { keys } from "../../lib/queries";
+import { Differences, History } from "../shell/History";
 import { SupportLink } from "./SchoolsPage";
 import {
   IdentityFields,
@@ -41,7 +41,8 @@ import {
 } from "./schoolForm";
 
 type Detail = Schemas["ConsoleSchoolDetail"];
-type Change = Schemas["PlatformChange"];
+
+const SHOWN = new Set<string>(SCHOOL_FIELDS);
 
 const valuesOf = (school: Detail): SchoolValues => ({
   name: school.name,
@@ -210,7 +211,24 @@ function SchoolForm({ school }: { school: Detail }) {
               <dd>{formatDay(school.created_at.slice(0, 10), i18n.language)}</dd>
             </dl>
           </Card>
-          <History changes={school.history} />
+          <History
+            changes={school.history}
+            details={(change) =>
+              change.action === "school.updated" && (
+                <Differences
+                  change={change}
+                  label={(field) =>
+                    SHOWN.has(field)
+                      ? t(`console.schools.fields.${field as (typeof SCHOOL_FIELDS)[number]}`)
+                      : null
+                  }
+                  shown={(field, value) =>
+                    field === "status" ? t(`console.schools.status.${value as "trial"}`) : value
+                  }
+                />
+              )
+            }
+          />
         </div>
       </div>
       <ConfirmDialog
@@ -225,66 +243,6 @@ function SchoolForm({ school }: { school: Detail }) {
       >
         {t("console.schools.suspendText")}
       </ConfirmDialog>
-    </>
-  );
-}
-
-function History({ changes }: { changes: Change[] }) {
-  const { t, i18n } = useTranslation();
-  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("console.schools.historyTitle")}</CardTitle>
-      </CardHeader>
-      {changes.length === 0 && (
-        <CardContent className="text-[.9rem] text-ink-3">
-          {t("console.identity.noChange")}
-        </CardContent>
-      )}
-      <ul className="m-0 list-none p-0">
-        {changes.map((change) => (
-          <li
-            key={change.id}
-            className="flex flex-col gap-0.5 border-t border-line px-4 py-2.5 text-[.9rem] first:border-t-0"
-          >
-            <b>{t(`console.actions.${change.action}`)}</b>
-            <span className="text-[.82rem] text-ink-3">
-              {formatDateTime(change.created_at, i18n.language, timeZone)}
-              {change.actor && ` · ${[change.actor.first_name, change.actor.last_name].join(" ")}`}
-            </span>
-            {change.action === "school.updated" && <Differences change={change} t={t} />}
-          </li>
-        ))}
-      </ul>
-    </Card>
-  );
-}
-
-const SHOWN = new Set<string>(SCHOOL_FIELDS);
-
-function Differences({ change, t }: { change: Change; t: TFunction }) {
-  const before = (change.before ?? {}) as Record<string, string | null>;
-  const after = (change.after ?? {}) as Record<string, string | null>;
-  const shown = (field: string, value: string | null | undefined) =>
-    !value
-      ? t("console.identity.empty")
-      : field === "status"
-        ? t(`console.schools.status.${value as "trial"}`)
-        : value;
-  return (
-    <>
-      {Object.keys(after)
-        .filter((field) => SHOWN.has(field))
-        .map((field) => (
-          <span key={field} className="text-[.85rem] break-words">
-            {t("console.identity.difference", {
-              field: t(`console.schools.fields.${field as (typeof SCHOOL_FIELDS)[number]}`),
-              before: shown(field, before[field]),
-              after: shown(field, after[field]),
-            })}
-          </span>
-        ))}
     </>
   );
 }

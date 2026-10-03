@@ -188,3 +188,10 @@ class PlatformAction(models.TextChoices):
     SCHOOL_UPDATED = "school.updated", _("School or subscription changed")
     SCHOOL_SUSPENDED = "school.suspended", _("School suspended")
     SCHOOL_REACTIVATED = "school.reactivated", _("School reactivated")
+    # Comptes (5.4.1), par le support (console ou administration Django) ; chaque école où la
+    # personne est active le voit aussi dans son journal (`Action.ACCOUNT_*`).
+    ACCOUNT_CHANGED = "account.changed", _("Names or phone changed by support")
+    ACCOUNT_DEACTIVATED = "account.deactivated", _("Account deactivated by support")
+    ACCOUNT_REACTIVATED = "account.reactivated", _("Account reactivated by support")
+    ACCOUNT_PASSWORD_RESET = "account.password_reset", _("Temporary password given by support")
+    ACCOUNT_TOTP_RESET = "account.totp_reset", _("Two-factor authentication reset by support")
