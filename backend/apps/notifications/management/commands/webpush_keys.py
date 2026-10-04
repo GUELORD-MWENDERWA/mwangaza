@@ -12,14 +12,20 @@ def _b64(raw: bytes) -> str:
     return base64.urlsafe_b64encode(raw).rstrip(b"=").decode()
 
 
+def vapid_keys() -> tuple[str, str]:
+    """Clé publique et clé privée, au format des réglages (aussi pour `infra/reseau/essai.py`)."""
+    key = ec.generate_private_key(ec.SECP256R1())
+    public = key.public_key().public_bytes(
+        serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint
+    )
+    private = key.private_numbers().private_value.to_bytes(32, "big")
+    return _b64(public), _b64(private)
+
+
 class Command(BaseCommand):
     help = "Crée une paire de clés Web Push (VAPID) à mettre dans les variables d'environnement."
 
     def handle(self, *args, **options) -> None:
-        key = ec.generate_private_key(ec.SECP256R1())
-        public = key.public_key().public_bytes(
-            serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint
-        )
-        private = key.private_numbers().private_value.to_bytes(32, "big")
-        self.stdout.write(f"WEBPUSH_VAPID_PUBLIC_KEY={_b64(public)}")
-        self.stdout.write(f"WEBPUSH_VAPID_PRIVATE_KEY={_b64(private)}")
+        public, private = vapid_keys()
+        self.stdout.write(f"WEBPUSH_VAPID_PUBLIC_KEY={public}")
+        self.stdout.write(f"WEBPUSH_VAPID_PRIVATE_KEY={private}")

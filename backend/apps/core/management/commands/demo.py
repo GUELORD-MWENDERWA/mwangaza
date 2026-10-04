@@ -43,11 +43,14 @@ def _local(phone: str) -> str:
 
 
 class Command(BaseCommand):
-    help = "Crée ou remet à jour les données fictives de démonstration (développement seulement)."
+    help = "Crée ou remet à jour les données fictives (développement et essai seulement)."
 
     def handle(self, *args, **options):
-        if not settings.DEBUG:
-            raise CommandError("Données de démonstration refusées hors développement (DEBUG).")
+        if not settings.DEMO_DATA:
+            raise CommandError(
+                "Données de démonstration refusées ici (seulement en développement et dans l'essai "
+                "sur plusieurs appareils : DEMO_DATA)."
+            )
         with transaction.atomic():
             create_demo_platform()
             schools = create_demo_schools()

@@ -4,6 +4,7 @@ from .base import *  # noqa: F403
 from .base import env, env_bool
 
 DEBUG = True
+DEMO_DATA = True
 SECRET_KEY = env("DJANGO_SECRET_KEY", "dev-uniquement-ne-pas-utiliser-en-production")
 ALLOWED_HOSTS = [".localhost", "localhost", "127.0.0.1"]
 SCHOOL_BASE_DOMAINS = ["localhost"]

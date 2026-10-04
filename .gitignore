@@ -25,6 +25,9 @@ backend/staticfiles/
 
 # Production : certificat d'origine (infra/certs/origin.pem et .key)
 infra/certs/
+# Essai sur plusieurs appareils : secrets et jeton DuckDNS, page d'accueil générée
+infra/reseau/reseau.env
+infra/reseau/accueil/
 
 # Node
 node_modules/

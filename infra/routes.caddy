@@ -1,0 +1,72 @@
+# Routes de chaque adresse, communes au serveur (`Caddyfile`, aussi `make prod-local`) et à
+# l'essai sur plusieurs appareils (`Caddyfile.reseau`, `make reseau`) : seul le certificat change.
+
+(django) {
+	reverse_proxy django:8000 {
+		# Lu par Django (`CLIENT_IP_HEADER`) ; remplace tout X-Real-IP envoyé par le visiteur.
+		header_up X-Real-IP {client_ip}
+	}
+}
+
+# Application construite : fichiers à empreinte gardés un an ; le reste (index.html, service
+# worker, manifeste) revalidé à chaque visite, sinon un appareil garderait l'ancienne version.
+(pwa) {
+	root * {args[0]}
+	@hashed path /assets/*
+	@other not path /assets/*
+	header @hashed Cache-Control "public, max-age=31536000, immutable"
+	header @other Cache-Control "no-cache"
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy same-origin
+	}
+	try_files {path} /index.html
+	file_server
+}
+
+# Une école : {code}.mwangaza.school (le code est lu par Django dans le nom d'hôte).
+(ecole) {
+	handle /api/* {
+		import django
+	}
+	# Vérification publique d'un reçu ou d'une situation financière (QR code).
+	handle /v/* {
+		import django
+	}
+	handle_path /app/* {
+		import pwa /srv/gestion
+	}
+	# Plus tard : site vitrine de l'école (`03` § 2).
+	handle {
+		redir * /app/
+	}
+}
+
+# Portail des familles (une famille peut avoir des enfants dans plusieurs écoles).
+(parents) {
+	handle /api/* {
+		import django
+	}
+	handle {
+		import pwa /srv/portail
+	}
+}
+
+# Super-admin : console de la plateforme (5.2) ; l'administration Django, pour le dépannage, à la
+# même adresse (même session).
+(admin) {
+	handle /static/* {
+		root * /srv
+		header Cache-Control "public, max-age=86400"
+		file_server
+	}
+	handle /api/* {
+		import django
+	}
+	handle /admin/* {
+		import django
+	}
+	handle {
+		import pwa /srv/console
+	}
+}

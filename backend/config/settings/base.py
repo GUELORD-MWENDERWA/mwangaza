@@ -125,6 +125,9 @@ PORTAL_URL = env("DJANGO_PORTAL_URL", "https://parents.mwangaza.school")
 # rien n'est envoyé sur les écrans ; le centre de notifications marche quand même.
 WEBPUSH_VAPID_PUBLIC_KEY = env("WEBPUSH_VAPID_PUBLIC_KEY", "")
 WEBPUSH_VAPID_PRIVATE_KEY = env("WEBPUSH_VAPID_PRIVATE_KEY", "")
+# `make demo` : données fictives permises en développement et dans l'essai sur plusieurs appareils
+# (`infra/docker-compose.reseau.yml`), jamais sur le serveur.
+DEMO_DATA = False
 # Indicatif du pays pour un numéro tapé sous sa forme nationale (0971234567) : RDC.
 PHONE_DEFAULT_COUNTRY_CODE = "243"
 

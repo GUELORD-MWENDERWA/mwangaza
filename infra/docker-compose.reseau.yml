@@ -1,0 +1,20 @@
+# Essai sur plusieurs appareils du même réseau (`make reseau`, tâche 4.11), jamais sur le serveur :
+# ajouté à `docker-compose.yml`, valeurs dans `infra/reseau/reseau.env` (hors Git, créé par
+# `make reseau`). Caddy avec le module DuckDNS (`Caddyfile.reseau`), page d'accueil avec les QR
+# codes, données de démonstration permises (`make reseau-demo`).
+services:
+  caddy:
+    build:
+      target: caddy-reseau
+    image: mwangaza-caddy-reseau
+    environment:
+      DUCKDNS_TOKEN: ${DUCKDNS_TOKEN:?DUCKDNS_TOKEN manque dans infra/reseau/reseau.env}
+    volumes:
+      - ./reseau/accueil:/srv/accueil:ro
+
+  django:
+    environment:
+      DJANGO_DEMO_DATA: "true"
+    volumes:
+      # Logos des écoles de démonstration (`apps/schools/demo.py`).
+      - ../docs/ecole-pilote/documents:/docs/ecole-pilote/documents:ro

@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.1 — plateforme, notifications, communication |
 | Lot | V1.1 |
-| Tâche en cours | aucune — 5.5.1 terminée (PR à fusionner) |
+| Tâche en cours | aucune — 4.11 terminée (PR à fusionner) |
 | Prochaine tâche | 5.5.2 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
-| Issue GitHub | #40 |
-| Branche | `tache/5.5.1-notifications-socle` ; dossier local : `~/Projets/mwangaza` |
+| Issue GitHub | #150 |
+| Branche | `tache/4.11-essai-reseau` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-03 |
 
 ## Avancement
@@ -22,8 +22,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 14 | 16 |
-| **V1.0** | **48** | **50** |
+| Semaine 4 — Rapports, portail, production | 15 | 17 |
+| **V1.0** | **49** | **51** |
 | V1.1 — plateforme, notifications, communication | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -53,6 +53,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-03 — Tâche 4.11 : essai sur plusieurs appareils (DuckDNS, vrai certificat)
+- Fait : `make reseau` lance l'application construite pour tous les appareils du même réseau (projet `mwangaza-reseau`, données à part) avec un vrai certificat joker obtenu par DNS chez DuckDNS (image Caddy `caddy-reseau` avec `caddy-dns/duckdns`) ; `infra/reseau/essai.py` crée `reseau.env` (secrets neufs, hors Git), met l'adresse de la machine dans DuckDNS (`make reseau-ip`) et écrit la page des QR codes (`https://www.<nom>.duckdns.org/`) ; `make reseau-demo` (réglage `DEMO_DATA`).
+- Aussi : routes de Caddy communes (`infra/routes.caddy`, configuration du serveur identique) ; les essais ignorent les variables du `.env` de développement (docker compose les préférait à leur fichier).
+- Tests : `demo` refusé sans `DEMO_DATA` ; `caddy adapt` des deux configurations ; script essayé à blanc (fichier, page, refus de DuckDNS). Certificat réel : à l'essai de l'utilisateur (compte DuckDNS).
+- Suite : 5.5.2 (notifications dans le Portail).
 
 ### 2026-10-03 — Tâche 5.5.1 : notifications sur l'écran, socle serveur et Gestion
 
