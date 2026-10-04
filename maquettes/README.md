@@ -28,7 +28,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 |---|---|---|---|---|
 | Connexion | `gestion/connexion.html` | V1.0 | B4 | fournie |
 | Double authentification | `gestion/connexion-double-authentification.html` | V1.0 | B4 | fournie |
-| Activer la double authentification (QR + codes de secours) | `gestion/double-authentification-activation.html` | V1.0 | B4 · M1 | à valider |
+| Activer la double authentification (QR + codes de secours) | `gestion/double-authentification-activation.html` | V1.0 | B4 · M1 | à valider — écart (4.6.2) : sur téléphone, bouton « Ajouter à mon application » (lien `otpauth://`, on ne peut pas scanner son propre écran) au-dessus du QR, et « Copier la clé » sous la clé |
 | Choisir l'école (compte dans plusieurs écoles) | `gestion/choix-ecole.html` | V1.0 | B3 · M2 | à valider |
 | Déverrouillage PIN hors-ligne | `gestion/deverrouillage-pin.html` | V1.0 | B5 | fournie |
 | Mon compte | `gestion/mon-compte.html` | V1.0 | B4–B5 · M4 | à valider |

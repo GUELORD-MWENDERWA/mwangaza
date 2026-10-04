@@ -89,9 +89,14 @@ export const fr = {
       installTitle: "Installez une application d'authentification",
       installText:
         "Google Authenticator, Microsoft Authenticator ou Aegis (gratuites, fonctionnent sans internet).",
-      scanTitle: "Scannez ce QR code avec l'application",
+      scanTitle: "Ajoutez le compte dans l'application",
+      onPhone:
+        "Sur ce téléphone : touchez le bouton, l'application s'ouvre et ajoute le compte. Depuis un autre appareil : scannez le QR code.",
+      openApp: "Ajouter à mon application",
       qrAlt: "QR code à scanner avec l'application d'authentification",
       cantScan: "Impossible de scanner ? Saisissez la clé :",
+      copyKey: "Copier la clé",
+      keyCopied: "Clé copiée",
       codeTitle: "Saisissez le code affiché",
       codeText: "Il change toutes les 30 secondes.",
       activate: "Vérifier et activer",

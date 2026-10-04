@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.1 — plateforme, notifications, communication |
 | Lot | V1.1 |
-| Tâche en cours | aucune — 4.11 terminée (PR à fusionner) |
-| Prochaine tâche | 5.5.2 ; mise en ligne (4.6.2, 4.7) quand l'utilisateur le décide |
-| Issue GitHub | #150 |
-| Branche | `tache/4.11-essai-reseau` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-03 |
+| Tâche en cours | aucune — 4.6.2 terminée (PR à fusionner) |
+| Prochaine tâche | 5.5.2 |
+| Issue GitHub | #34 (4.6) |
+| Branche | `tache/4.6.2-mise-en-ligne-gratuite` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-04 |
 
 ## Avancement
 
@@ -22,8 +22,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 15 | 17 |
-| **V1.0** | **49** | **51** |
+| Semaine 4 — Rapports, portail, production | 16 | 18 |
+| **V1.0** | **50** | **52** |
 | V1.1 — plateforme, notifications, communication | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -38,7 +38,8 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 
 | Sujet | Attendu de | Bloque |
 |---|---|---|
-| Mise en ligne : hébergement, domaine, stockage objet — **quand tu le décides** | toi | 4.6.2, 4.7 seulement ; rien d'autre n'en dépend |
+| Serveur de démonstration : compte Oracle Cloud, VM, adresse DuckDNS (`A-FAIRE.md` § 9 ter) — **quand tu veux** | toi | rien : la démo en ligne seulement |
+| Vrai domaine, Cloudflare, stockage objet — **avant la première vraie école** | toi | 4.6.3, 4.7 seulement |
 
 ## Questions ouvertes
 
@@ -53,6 +54,12 @@ Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-04 — Tâche 4.6.2 : serveur de démonstration gratuit en ligne, rangement du dépôt
+- Fait (choix de l'utilisateur : Oracle Cloud « Always Free » + DuckDNS, 0 $) : `make deploy-setup` (une fois : mises à jour automatiques, Docker, ports 80/443, SSH par clé), `make deploy` (code de `main` envoyé par SSH, construit sur le serveur), `deploy-demo`, `deploy-superuser`, `deploy-logs`, `deploy-ssh` ; `essai.py --serveur` (`infra/serveur/serveur.env`, hors Git). Démo du serveur : mot de passe propre (`DJANGO_DEMO_PASSWORD`), pas de clé commune, chacun lie Google Authenticator. Activation sur téléphone : « Ajouter à mon application » (lien `otpauth://`), « Copier la clé » ; QR code dans l'administration Django.
+- Rangement : `PROMPT-DEMARRAGE.md` et `docs/claude/revues/` supprimés ; `CLAUDE.md` 31 → 21 Ko (détail des commandes et adresses dans `docs/claude/reference.md`) ; `A-FAIRE.md` 53 → 42 Ko (« Maintenant » réduit à ce qui reste, § 7 installation, § 9 ter serveur) ; skill `/deployer`. 4.6.3 ajoutée (vrai domaine avant les vraies données).
+- Tests : démo du serveur (mot de passe, clé commune retirée, clé liée gardée), QR et lien de l'administration, lien et copie à l'activation (Vitest) ; scripts à blanc (`bash -n`, fichier de valeurs, page, IP). Serveur réel : à l'essai de l'utilisateur (compte Oracle).
+- Suite : 5.5.2 (notifications dans le Portail).
 
 ### 2026-10-03 — Tâche 4.11 : essai sur plusieurs appareils (DuckDNS, vrai certificat)
 - Fait : `make reseau` lance l'application construite pour tous les appareils du même réseau (projet `mwangaza-reseau`, données à part) avec un vrai certificat joker obtenu par DNS chez DuckDNS (image Caddy `caddy-reseau` avec `caddy-dns/duckdns`) ; `infra/reseau/essai.py` crée `reseau.env` (secrets neufs, hors Git), met l'adresse de la machine dans DuckDNS (`make reseau-ip`) et écrit la page des QR codes (`https://www.<nom>.duckdns.org/`) ; `make reseau-demo` (réglage `DEMO_DATA`).

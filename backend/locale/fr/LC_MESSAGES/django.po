@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 07:48+0200\n"
+"POT-Creation-Date: 2026-10-04 09:34+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -53,58 +53,60 @@ msgstr "droits"
 msgid "roles"
 msgstr "rôles"
 
-#: apps/accounts/admin_site.py:32
+#: apps/accounts/admin_site.py:33
 msgid ""
 "Wrong phone number or password, or not a platform administration account."
 msgstr ""
 "Numéro ou mot de passe incorrect, ou ce n'est pas un compte d'administration "
 "de la plateforme."
 
-#: apps/accounts/admin_site.py:38 apps/finance/documents.py:147
+#: apps/accounts/admin_site.py:39 apps/finance/documents.py:147
 #: apps/students/templates/students/registration_form.html:40
 msgid "Phone"
 msgstr "Téléphone"
 
-#: apps/accounts/admin_site.py:43
+#: apps/accounts/admin_site.py:44
 msgid "Password"
 msgstr "Mot de passe"
 
-#: apps/accounts/admin_site.py:51
+#: apps/accounts/admin_site.py:52
 msgid "Code"
 msgstr "Code"
 
-#: apps/accounts/admin_site.py:59
+#: apps/accounts/admin_site.py:60
 msgid "Enter the code of your authentication application, or a recovery code."
 msgstr ""
 "Saisissez le code de votre application d'authentification, ou un code de "
 "secours."
 
-#: apps/accounts/admin_site.py:60
+#: apps/accounts/admin_site.py:61
 msgid "Your password is temporary: choose your own (10 characters or more)."
 msgstr ""
 "Votre mot de passe est provisoire : choisissez le vôtre (10 caractères ou "
 "plus)."
 
-#: apps/accounts/admin_site.py:62
+#: apps/accounts/admin_site.py:63
 msgid ""
 "Two-factor authentication is required for the administration. In your "
-"authentication application (Google Authenticator, Aegis…), add an account "
-"with the key below, then enter the code it shows."
+"authentication application (Google Authenticator, Aegis…), add an account: "
+"scan the QR code, or on this phone tap the button, or type the key. Then "
+"enter the code it shows."
 msgstr ""
 "La double authentification est obligatoire pour l'administration. Dans votre "
 "application d'authentification (Google Authenticator, Aegis…), ajoutez un "
-"compte avec la clé ci-dessous, puis saisissez le code qu'elle affiche."
+"compte : scannez le QR code, ou sur ce téléphone touchez le bouton, ou "
+"saisissez la clé. Puis saisissez le code qu'elle affiche."
 
-#: apps/accounts/admin_site.py:70
+#: apps/accounts/admin_site.py:71
 msgid "Platform"
 msgstr "Plateforme"
 
-#: apps/accounts/admin_site.py:76
+#: apps/accounts/admin_site.py:77
 #, python-format
 msgid "%(platform)s administration"
 msgstr "Administration %(platform)s"
 
-#: apps/accounts/admin_site.py:117
+#: apps/accounts/admin_site.py:118
 msgid "Log in"
 msgstr "Se connecter"
 
@@ -497,9 +499,17 @@ msgstr ""
 "téléphone. Ils ne seront plus affichés."
 
 #: apps/accounts/templates/admin/accounts/login.html:13
-#: apps/accounts/templates/admin/accounts/login.html:26
+#: apps/accounts/templates/admin/accounts/login.html:31
 msgid "Continue"
 msgstr "Continuer"
+
+#: apps/accounts/templates/admin/accounts/login.html:18
+msgid "QR code to scan with the authentication application"
+msgstr "QR code à scanner avec l'application d'authentification"
+
+#: apps/accounts/templates/admin/accounts/login.html:19
+msgid "Add to my app"
+msgstr "Ajouter à mon application"
 
 #: apps/accounts/templates/admin/accounts/user/temporary_password.html:6
 msgid "Home"

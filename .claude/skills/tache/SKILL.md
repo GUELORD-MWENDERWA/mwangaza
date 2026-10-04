@@ -41,7 +41,7 @@ Tout ce qui est fait pendant la tâche va sur cette branche, dans la PR de la t�
 ## 4. Vérifier
 
 1. **Une seule fois à la fin** : `make lint` (sortie filtrée avec `tail`) ; les tests des modules touchés sont déjà verts. **Pas de `make test` en local** (≈ 9 min) : la CI lance la suite complète (≈ 5 min, en parallèle). `make test-e2e` en local seulement si un parcours Playwright a changé (sinon la CI le fait). Un échec → corriger.
-2. Skill `verifier` : résultat en quelques lignes, mis dans la PR (pas de fichier dans `docs/claude/revues/`).
+2. Skill `verifier` : résultat en quelques lignes, mis dans la PR.
 3. Nouvel écran : une seule capture, à 390 px, comparée à la maquette. Pas de rejeu des étapes « À tester toi-même ».
 
 ## 5. Clôturer (obligatoire)
@@ -49,7 +49,7 @@ Tout ce qui est fait pendant la tâche va sur cette branche, dans la PR de la t�
 1. `docs/05-plan-de-travail.md` : cocher `- [x]`.
 2. `docs/06-suivi.md` : « État actuel » (tâche en cours = aucune, prochaine, date), compteur du bloc dans « Avancement », bloquants réglés retirés, **journal : 3 à 5 lignes** en haut — `### AAAA-MM-JJ — Tâche X.Y : titre` puis fait, tests, décisions, suite.
 3. **Tous les autres `.md`, dans la même PR** (liste de `CLAUDE.md`, « Suivi du projet », fin d'une tâche). Pour chacun, se demander « la tâche le rend-il faux ou incomplet ? » et le corriger ; ne rien laisser « pour plus tard » :
-   - nouvel écran ou nouvelle API → « Adresses en dev » de `CLAUDE.md` **et** § 11 « Adresses en développement » de `A-FAIRE.md` ; nouveau modèle dans `make demo` → ligne `make demo` des deux fichiers **et** `07` § 4 ;
+   - nouvel écran ou nouvelle API → « Adresses en développement » de `docs/claude/reference.md` **et** § 11 de `A-FAIRE.md` ; nouveau modèle dans `make demo` → ligne `make demo` de `reference.md` et de `A-FAIRE.md` § 11 **et** `07` § 4 ; commande nouvelle ou changée → tableau « Commandes » de `CLAUDE.md` (court) et détail dans `reference.md` ;
    - action de l'utilisateur nouvelle, faite ou devenue urgente → `A-FAIRE.md` « Maintenant » (et § 8–9) ;
    - décision technique → `03` « Journal des décisions » ; règle ou champ → `02` / `04` ; maquette dessinée, ou écran codé avec un écart à sa maquette → `07` § 1 et `maquettes/README.md` ;
    - façon de faire, commande ou helper de test qui change → skills concernées (`.claude/skills/*/SKILL.md`) et README du dossier touché.

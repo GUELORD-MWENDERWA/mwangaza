@@ -76,6 +76,8 @@ def test_first_login_turns_two_factor_authentication_on(client, platform_admin):
     assert 'name="code"' in page
     secret = decrypt(client.session[TOTP_SETUP_SESSION_KEY])
     assert " ".join(secret[i : i + 4] for i in range(0, len(secret), 4)) in page
+    # QR code, et lien qui ouvre l'application sur le téléphone : la même clé.
+    assert f"secret={secret}" in page and 'src="data:image/svg+xml' in page
 
     response = enter(client, totp_code(secret))
 

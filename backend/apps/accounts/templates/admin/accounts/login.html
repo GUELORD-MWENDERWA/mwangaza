@@ -13,7 +13,12 @@
     <div class="submit-row"><a class="button" href="{{ next }}">{% translate "Continue" %}</a></div>
   {% else %}
     {% if intro %}<p>{{ intro }}</p>{% endif %}
-    {% if secret %}<p><code style="font-size: 1.2em;">{{ secret }}</code></p>{% endif %}
+    {% if secret %}
+    <p><img src="{{ qr_code }}" width="200" height="200" style="background: #fff; padding: 8px;"
+      alt="{% translate 'QR code to scan with the authentication application' %}"></p>
+    <p><a class="button" href="{{ otpauth_uri }}">{% translate "Add to my app" %}</a></p>
+    <p><code style="font-size: 1.2em;">{{ secret }}</code></p>
+    {% endif %}
     <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
       {% for field in form %}
       <div class="form-row">

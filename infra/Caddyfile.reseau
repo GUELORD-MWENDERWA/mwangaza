@@ -1,4 +1,5 @@
-# Essai sur plusieurs appareils du même réseau (`make reseau`, tâche 4.11), jamais sur le serveur.
+# Adresse DuckDNS : essai sur plusieurs appareils du même réseau (`make reseau`, 4.11) et serveur
+# de démonstration en ligne (`make deploy`, 4.6.2) ; jamais pour de vraies écoles (4.6.3).
 # MWANGAZA_DOMAIN : adresse DuckDNS (ex. mwangaza-demo.duckdns.org) pointée vers la machine.
 # Un seul certificat Let's Encrypt, joker, obtenu par DNS : DuckDNS ne garde qu'un enregistrement
 # TXT à la fois, et Caddy réutilise ce certificat pour parents., admin. et www. Pas de domaine nu :

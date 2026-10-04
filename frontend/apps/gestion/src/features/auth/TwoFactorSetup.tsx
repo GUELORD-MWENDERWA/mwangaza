@@ -10,12 +10,13 @@ import {
   Code,
   CodeInput,
   Field,
+  Icon,
   StatusPill,
   Steps,
   Tag,
 } from "@mwangaza/ui";
 import { useMutation } from "@tanstack/react-query";
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 
 import { errorMessage } from "../../lib/errors";
 import { hasCode, type LoginStep } from "../../lib/queries";
@@ -26,7 +27,9 @@ type TotpKey = Schemas["TotpKey"];
 
 /** Activer la double authentification (M1) : application, QR code (ou clé), premier code, puis
  *  les 8 codes de secours, montrés une seule fois. « Terminer » reste bloqué tant que la case
- *  n'est pas cochée. Sert à la connexion (étape obligatoire) et dans Mon compte. */
+ *  n'est pas cochée. Sert à la connexion (étape obligatoire) et dans Mon compte. Sur un téléphone,
+ *  impossible de scanner son propre écran : le lien `otpauth://` ouvre l'application, qui ajoute
+ *  le compte (Google Authenticator, Microsoft Authenticator, Aegis, Mots de passe d'iPhone). */
 export function TwoFactorSetup({
   totpKey,
   phone,
@@ -43,6 +46,7 @@ export function TwoFactorSetup({
   const { t } = useTranslation();
   const [code, setCode] = useState("");
   const [missing, setMissing] = useState(false);
+  const [copied, setCopied] = useState(false);
   const activate = useMutation({
     mutationFn: () => call(api.POST("/api/auth/totp/activate/", { body: { code } })),
     onError: (error) => {
@@ -88,15 +92,33 @@ export function TwoFactorSetup({
               <Instruction number={1} title={t("auth.setup.installTitle")}>
                 {t("auth.setup.installText")}
               </Instruction>
-              <Instruction number={2} title={t("auth.setup.scanTitle")} />
+              <Instruction number={2} title={t("auth.setup.scanTitle")}>
+                <span className="min-[900px]:hidden">{t("auth.setup.onPhone")}</span>
+              </Instruction>
+              <Button asChild size="lg" className="min-[900px]:hidden">
+                <a href={totpKey.otpauth_uri}>
+                  <Icon name="key" size={18} />
+                  {t("auth.setup.openApp")}
+                </a>
+              </Button>
               <div className="flex justify-center py-1.5">
                 <QrCode value={totpKey.otpauth_uri} label={t("auth.setup.qrAlt")} />
               </div>
-              <p className="text-center text-sm text-ink-3">
+              <div className="flex flex-col items-center gap-1.5 text-center text-sm text-ink-3">
                 {t("auth.setup.cantScan")}
-                <br />
                 <Code className="text-ink">{totpKey.secret.replace(/(.{4})(?=.)/g, "$1 ")}</Code>
-              </p>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    void navigator.clipboard?.writeText(totpKey.secret).then(() => setCopied(true))
+                  }
+                >
+                  <Icon name={copied ? "check" : "file"} size={14} />
+                  {t(copied ? "auth.setup.keyCopied" : "auth.setup.copyKey")}
+                </Button>
+              </div>
               <Instruction number={3} title={t("auth.setup.codeTitle")}>
                 {t("auth.setup.codeText")}
               </Instruction>
@@ -145,7 +167,7 @@ function Instruction({
 }: {
   number: number;
   title: string;
-  children?: string;
+  children?: ReactNode;
 }) {
   return (
     <div className="flex items-start gap-3">
