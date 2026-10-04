@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate
 from django.core.management import CommandError, call_command
 
 from apps.accounts import attempts, services, totp
-from apps.accounts.demo import DEMO_PASSWORD, DEMO_TOTP_SECRET
+from apps.accounts.demo import DEMO_PASSWORD, DEMO_TOTP_SECRET, create_demo_accounts
 from apps.accounts.models import Membership, Role, User
 from apps.accounts.roles import SYSTEM_ROLES
 from apps.audit.models import AuditLog
@@ -197,6 +197,26 @@ def test_demo_resets_two_factor_authentication(demo):
     promoter.refresh_from_db()
     assert head.totp_enabled
     assert not promoter.totp_enabled
+
+
+def test_demo_server_has_its_own_password_and_no_shared_key(demo, settings):
+    """Serveur de démonstration en ligne (4.6.2) : mot de passe propre au serveur, pas de clé
+    commune (connue de tout le dépôt) ; une application liée par la personne est gardée."""
+    settings.DEMO_PASSWORD = "propre-au-serveur"
+    cashier = User.objects.get(phone="+243000001005")
+    promoter = User.objects.get(phone="+243000001007")
+    own_key = enable_totp(promoter)
+
+    create_demo_accounts(demo)
+
+    cashier.refresh_from_db()
+    promoter.refresh_from_db()
+    assert authenticate(username="0000001005", password="propre-au-serveur") == cashier
+    assert authenticate(username="0000001005", password=DEMO_PASSWORD) is None
+    # La connexion demandera de lier l'application (étape obligatoire pour ce rôle).
+    assert not cashier.totp_enabled and services.totp_required(cashier)
+    assert not User.objects.get(phone="+243000000000").totp_enabled
+    assert decrypt(promoter.totp_secret) == own_key
 
 
 def test_demo_code_is_shown(settings):

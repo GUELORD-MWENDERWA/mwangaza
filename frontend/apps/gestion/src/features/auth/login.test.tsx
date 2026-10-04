@@ -149,7 +149,7 @@ describe("connexion (M1)", () => {
     expect(requests.some((r) => r.path === "/api/auth/password/")).toBe(false);
   });
 
-  it("activation obligatoire : « Terminer » bloqué tant que la case n'est pas cochée", async () => {
+  it("activation obligatoire : lien vers l'application, clé copiée, « Terminer » bloqué sans la case", async () => {
     const routes = loggedOut({
       "GET /api/auth/login/": { step: "totp_setup" },
       "POST /api/auth/totp/setup/": {
@@ -165,6 +165,11 @@ describe("connexion (M1)", () => {
     const { user, router } = renderApp("/login");
 
     expect(await screen.findByText("JBSW Y3DP EHPK 3PXP")).toBeTruthy();
+    // Sur le téléphone : le lien ouvre l'application, qui ajoute le compte ; ou la clé copiée.
+    const openApp = screen.getByRole("link", { name: "Ajouter à mon application" });
+    expect(openApp.getAttribute("href")).toMatch(/^otpauth:\/\/totp\/.*secret=JBSWY3DPEHPK3PXP/);
+    await user.click(screen.getByRole("button", { name: "Copier la clé" }));
+    expect(await navigator.clipboard.readText()).toBe("JBSWY3DPEHPK3PXP");
     await user.type(screen.getByLabelText("Code à 6 chiffres"), "123456");
     await user.click(screen.getByRole("button", { name: "Vérifier et activer" }));
 

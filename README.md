@@ -3,10 +3,13 @@
 Plateforme de gestion scolaire multi-écoles pour la RDC, lancement à Goma.
 École pilote : ITIG Don Bosco Goma.
 
-Deux applications sur un même serveur :
+Trois applications sur un même serveur :
 
 - **Gestion** (`{ecole}.mwangaza.school/app`) — le personnel gère élèves, frais, caisse, reçus. Fonctionne **hors-ligne**.
 - **Portail** (`parents.mwangaza.school`) — les familles consultent paiements, reçus, échéances et annonces.
+- **Console** (`admin.mwangaza.school`) — le super-admin gère les écoles, les comptes et la plateforme.
+
+En attendant le vrai domaine : serveur de démonstration gratuit (Oracle Cloud + DuckDNS, `make deploy`), données fictives seulement.
 
 ## Où en est le projet ?
 
@@ -19,7 +22,6 @@ Dans Claude Code : `/etat`. Sur GitHub : onglet **Milestones** (une barre de pro
 .
 ├── CLAUDE.md                  règles du projet, lues automatiquement par Claude Code
 ├── A-FAIRE.md                 ce que toi seul peux faire, comment, et toutes les commandes
-├── PROMPT-DEMARRAGE.md        comment démarrer et quels prompts utiliser
 ├── README.md                  ce fichier
 ├── docs/
 │   ├── 01-cahier-des-charges.md   tout le produit visé (V1.0 → V2)
@@ -32,17 +34,18 @@ Dans Claude Code : `/etat`. Sur GitHub : onglet **Milestones** (une barre de pro
 │   ├── guide/                     guide de chaque version en PDF, à envoyer aux écoles (`make guide`)
 │   ├── ecole-pilote/              ITIG : fiche-itig.md, depot/ (tes fichiers, hors Git),
 │   │                              documents/ (rangés), prive/ (données personnelles, hors Git)
-│   └── claude/                    espace de travail de Claude : plans/, recherches/ (revues/ : jusqu'à 1.7)
+│   └── claude/                    espace de travail de Claude : reference.md (adresses, détail de make demo),
+│                                  plans/, recherches/
 ├── maquettes/
 │   ├── README.md              système de design + inventaire des écrans
 │   ├── index.html             galerie : ouvrir dans un navigateur
-│   ├── gestion/  portail/     maquettes HTML de chaque écran
+│   ├── gestion/ portail/ console/  maquettes HTML de chaque écran
 │   ├── captures/              captures PNG desktop (1440 px) et mobile (390 px)
 │   └── assets/                styles.css (jetons du design) et police Atkinson Hyperlegible
 └── .claude/skills/            skills Claude Code du projet
 ```
 
-Code (tâche 0.1, voir `docs/03-architecture-technique.md` § 3) : `backend/` (Django), `frontend/` (workspace pnpm : `apps/gestion`, `apps/portail`, `apps/console` (console de la plateforme, super-admin), `packages/api|ui|i18n|money` ; `e2e/` parcours Playwright, `guide/` guide PDF de la version), `infra/` (Docker Compose), `firmware/` (V1.2), `Makefile`.
+Code (tâche 0.1, voir `docs/03-architecture-technique.md` § 3) : `backend/` (Django), `frontend/` (workspace pnpm : `apps/gestion`, `apps/portail`, `apps/console` (console de la plateforme, super-admin), `packages/api|ui|i18n|money` ; `e2e/` parcours Playwright, `guide/` guide PDF de la version), `infra/` (Docker Compose, Caddy ; `reseau/` essai sur plusieurs appareils, `serveur/` serveur de démonstration en ligne), `firmware/` (V1.2), `Makefile`.
 
 ## Travailler avec Claude Code
 
@@ -58,6 +61,7 @@ Code (tâche 0.1, voir `docs/03-architecture-technique.md` § 3) : `backend/` (D
 | `/hors-ligne` | Synchronisation et caisse sans internet |
 | `/verifier` | Contrôle des règles non négociables avant commit |
 | `/document-ecole` | Intégrer un document réel de l'ITIG |
+| `/deployer` | Mettre en ligne, mettre à jour ou dépanner le serveur de démonstration |
 
 ## Démarrer
 

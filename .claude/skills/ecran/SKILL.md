@@ -76,4 +76,4 @@ Maquettes marquées « à valider » dans `maquettes/README.md` : dessinées par
 
 ## 5. Rendre compte
 
-Liste courte : règles `.note` appliquées (et testées), écarts avec la maquette ou les documents, états ajoutés, puis `📍` l'état de la tâche. Écart à la maquette → noté sur la ligne de l'écran dans `maquettes/README.md` ; nouvelle adresse → « Adresses en dev » de `CLAUDE.md` et § 11 de `A-FAIRE.md` (même PR).
+Liste courte : règles `.note` appliquées (et testées), écarts avec la maquette ou les documents, états ajoutés, puis `📍` l'état de la tâche. Écart à la maquette → noté sur la ligne de l'écran dans `maquettes/README.md` ; nouvelle adresse → « Adresses en développement » de `docs/claude/reference.md` et § 11 de `A-FAIRE.md` (même PR).

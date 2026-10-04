@@ -1,13 +1,17 @@
-"""Essai de l'application construite sur plusieurs appareils du même réseau (`make reseau`).
+"""Adresse DuckDNS de l'essai sur plusieurs appareils du même réseau (`make reseau`) et, avec
+`--serveur`, du serveur de démonstration en ligne (`make deploy`, 4.6.2).
 
-    init      crée `reseau.env` (hors Git) avec des secrets neufs, puis vérifie qu'il est rempli
-    ip [IP]   met l'adresse de la machine sur le réseau dans DuckDNS (après un changement de réseau)
-    accueil   écrit la page d'accueil de l'essai : adresses et QR codes des applications
+    init      crée le fichier de valeurs (hors Git) avec des secrets neufs, puis vérifie qu'il est
+              rempli : `infra/reseau/reseau.env`, ou `infra/serveur/serveur.env` avec `--serveur`
+    ip [IP]   met dans DuckDNS l'adresse de la machine sur le réseau (après un changement de
+              réseau) ; avec `--serveur`, l'adresse publique du serveur (fin de SERVEUR)
+    accueil   écrit la page d'accueil : adresses et QR codes des applications
     adresses  affiche les adresses
 
 Lancé depuis `backend/` par `uv run` : segno et la création des clés Web Push viennent du projet.
 """
 
+import ipaddress
 import re
 import secrets
 import socket
@@ -20,8 +24,11 @@ from pathlib import Path
 import segno
 
 HERE = Path(__file__).resolve().parent
-ENV_FILE = HERE / "reseau.env"
-PAGE = HERE / "accueil" / "index.html"
+SERVEUR = "--serveur" in sys.argv
+if SERVEUR:
+    sys.argv.remove("--serveur")
+ENV_FILE = HERE.parent / "serveur" / "serveur.env" if SERVEUR else HERE / "reseau.env"
+PAGE = ENV_FILE.parent / "accueil" / "index.html"
 sys.path.insert(0, str(HERE.parent.parent / "backend"))
 
 from apps.notifications.management.commands.webpush_keys import vapid_keys  # noqa: E402
@@ -42,6 +49,27 @@ WEBPUSH_VAPID_PUBLIC_KEY={public}
 WEBPUSH_VAPID_PRIVATE_KEY={private}
 DJANGO_HSTS_SECONDS=0
 GUNICORN_WORKERS=2
+"""
+
+TEMPLATE_SERVEUR = """\
+# Serveur de démonstration en ligne (`make deploy`, 4.6.2) : jamais dans Git. Copié sur le serveur
+# à chaque `make deploy`. En garder une copie en lieu sûr : sans DJANGO_SECRET_KEY, chacun devrait
+# relier son application d'authentification ; sans les clés Web Push, réabonner chaque appareil.
+# À remplir : l'accès SSH au serveur (ex. ubuntu@141.144.10.20), une autre adresse DuckDNS que
+# celle de `make reseau` (ex. mwangaza-goma.duckdns.org) et le jeton de https://www.duckdns.org.
+SERVEUR=
+MWANGAZA_DOMAIN=
+DUCKDNS_TOKEN=
+# La suite est remplie toute seule. DJANGO_DEMO_PASSWORD : mot de passe des comptes fictifs
+# (`make deploy-demo`), à donner seulement aux personnes à qui tu montres l'application.
+CADDY_TLS=duckdns
+ACCUEIL=./serveur/accueil
+DJANGO_DEMO_PASSWORD={demo_password}
+DJANGO_SECRET_KEY={secret}
+POSTGRES_PASSWORD={password}
+WEBPUSH_VAPID_PUBLIC_KEY={public}
+WEBPUSH_VAPID_PRIVATE_KEY={private}
+GUNICORN_WORKERS=3
 """
 
 # Écoles de `make demo` ; une école créée dans l'essai s'ouvre de la même façon : https://<code>.…
@@ -69,25 +97,43 @@ def duckdns_name(domain: str) -> str:
 
 
 def settings() -> tuple[str, str]:
-    """Adresse et jeton de `reseau.env`, ou arrêt avec ce qu'il reste à faire."""
+    """Adresse et jeton du fichier de valeurs, ou arrêt avec ce qu'il reste à faire."""
     values = read_env()
     domain, token = values.get("MWANGAZA_DOMAIN", ""), values.get("DUCKDNS_TOKEN", "")
-    if not domain or not token:
-        sys.exit(
-            "Remplis MWANGAZA_DOMAIN et DUCKDNS_TOKEN dans infra/reseau/reseau.env "
-            "(A-FAIRE.md § 9 bis), puis relance make reseau."
+    required = ["SERVEUR"] if SERVEUR else []
+    missing = [
+        name for name in [*required, "MWANGAZA_DOMAIN", "DUCKDNS_TOKEN"] if not values.get(name)
+    ]
+    if missing:
+        then = (
+            "A-FAIRE.md § 9 ter, puis make deploy"
+            if SERVEUR
+            else "A-FAIRE.md § 9 bis, puis make reseau"
         )
+        where = ENV_FILE.relative_to(HERE.parent.parent)
+        sys.exit(f"Remplis {', '.join(missing)} dans {where} ({then}).")
     duckdns_name(domain)
     return domain.lower(), token
+
+
+def server_ip() -> str:
+    """`ubuntu@141.144.10.20` → `141.144.10.20` : l'adresse publique du serveur."""
+    host = read_env()["SERVEUR"].rpartition("@")[2]
+    try:
+        return str(ipaddress.ip_address(host))
+    except ValueError:
+        sys.exit(f"SERVEUR doit finir par l'adresse IP publique du serveur, pas « {host} ».")
 
 
 def init() -> None:
     if not ENV_FILE.exists():
         public, private = vapid_keys()
+        ENV_FILE.parent.mkdir(exist_ok=True)
         ENV_FILE.write_text(
-            TEMPLATE.format(
+            (TEMPLATE_SERVEUR if SERVEUR else TEMPLATE).format(
                 secret=secrets.token_urlsafe(50),
                 password=secrets.token_urlsafe(24),
+                demo_password=secrets.token_urlsafe(9),
                 public=public,
                 private=private,
             )
@@ -105,7 +151,7 @@ def local_ip() -> str:
 
 def update_ip(ip: str | None = None) -> None:
     domain, token = settings()
-    ip = ip or local_ip()
+    ip = ip or (server_ip() if SERVEUR else local_ip())
     query = urllib.parse.urlencode({"domains": duckdns_name(domain), "token": token, "ip": ip})
     with urllib.request.urlopen(f"https://www.duckdns.org/update?{query}", timeout=30) as answer:
         if answer.read().decode().strip() != "OK":
@@ -139,7 +185,7 @@ def page(domain: str) -> str:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Essai sur plusieurs appareils</title>
+<title>{TITLE}</title>
 <style>
 :root {{ --ink:#1A2233; --surface:#F3F5F6; --card:#FFFFFF; --line:#DDE3E6; --lake:#0E5C6B;
   --lamp:#F2B632; }}
@@ -159,8 +205,8 @@ p {{ margin: 0 0 20px; }}
 </head>
 <body>
 <main>
-<h1>Essai sur plusieurs appareils</h1>
-<p>Scanner un code avec l'appareil photo du téléphone, connecté au même réseau que cette machine.
+<h1>{TITLE}</h1>
+<p>Scanner un code avec l'appareil photo du téléphone{WHERE}.
 iPhone : ouvrir dans Safari, puis Partager → « Sur l'écran d'accueil » pour installer l'application
 (nécessaire pour les notifications).</p>
 <div class="grid">
@@ -170,6 +216,12 @@ iPhone : ouvrir dans Safari, puis Partager → « Sur l'écran d'accueil » pour
 </body>
 </html>
 """
+
+
+TITLE = "Démonstration" if SERVEUR else "Essai sur plusieurs appareils"
+WHERE = (
+    ", depuis n'importe quel réseau" if SERVEUR else ", connecté au même réseau que cette machine"
+)
 
 
 def write_page() -> None:

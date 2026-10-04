@@ -4,25 +4,34 @@ démonstration, quelques-uns à Volcans, un enseignant dans les deux écoles, un
 Numéros en +243 0… : aucun numéro réel ne commence par 0 après l'indicatif, ces comptes ne
 peuvent donc pas être ceux de vraies personnes. Noms inventés. Le mot de passe et la clé de
 double authentification de développement ne sont pas des secrets : `make demo` est refusé hors
-développement.
+développement et des essais ; le serveur de démonstration en ligne a son propre mot de passe.
 """
 
 from dataclasses import dataclass
 
+from django.conf import settings
 from django.utils import timezone
 
 from apps.accounts import services
 from apps.accounts.models import LoginFailure, Membership, Role, User
 from apps.accounts.roles import SYSTEM_ROLES
 from apps.accounts.services import create_system_roles
-from apps.core.crypto import encrypt
+from apps.core.crypto import DecryptionError, decrypt, encrypt
 from apps.core.tenancy import use_school
 from apps.schools.models import School
 
 DEMO_PASSWORD = "mwangaza-demo"
 # Double authentification des comptes qui l'exigent (directeur, comptable, caissier) : une seule
-# clé, à ajouter une fois dans une application d'authentification ; ou `make totp`.
+# clé, à ajouter une fois dans une application d'authentification ; ou `make totp`. Jamais sur le
+# serveur de démonstration en ligne (`demo_password`).
 DEMO_TOTP_SECRET = "MWANGAZADEMOTOTPMWANGAZADEMOTOTP"
+
+
+def demo_password() -> str:
+    """Mot de passe des comptes fictifs : celui du serveur de démonstration en ligne
+    (`DJANGO_DEMO_PASSWORD`, 4.6.2), sinon celui du dépôt, connu de tous."""
+    return settings.DEMO_PASSWORD or DEMO_PASSWORD
+
 
 PLATFORM_ADMIN_PHONE = "+243000000000"
 
@@ -119,7 +128,7 @@ def _account(phone: str, **fields) -> User:
         setattr(user, field, value)
     user.is_active = True
     user.must_change_password = False
-    user.set_password(DEMO_PASSWORD)
+    user.set_password(demo_password())
     user.save()
     return user
 
@@ -154,8 +163,21 @@ def create_demo_accounts(schools: dict[str, School]) -> list[DemoAccount]:
 
 
 def _set_demo_totp(user: User, *, enabled: bool) -> None:
+    if settings.DEMO_PASSWORD:
+        # Serveur en ligne : pas de clé commune, écrite dans le dépôt ; chaque compte lie sa
+        # propre application à la première connexion et la garde quand `make demo` est relancé.
+        if _has_shared_key(user):
+            services.reset_totp(user)
+        return
     services.reset_totp(user)
     if enabled:
         user.totp_secret = encrypt(DEMO_TOTP_SECRET)
         user.totp_enabled_at = timezone.now()
         user.save(update_fields=["totp_secret", "totp_enabled_at", "updated_at"])
+
+
+def _has_shared_key(user: User) -> bool:
+    try:
+        return user.totp_enabled and decrypt(user.totp_secret) == DEMO_TOTP_SECRET
+    except DecryptionError:
+        return False

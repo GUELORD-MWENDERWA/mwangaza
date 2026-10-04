@@ -25,6 +25,7 @@ from rest_framework.exceptions import APIException
 
 from apps.accounts import login, services, totp
 from apps.accounts.login import MFA_SESSION_KEY, Step
+from apps.core.documents import qr_code
 from apps.core.errors import BusinessError
 from apps.core.models import PlatformSettings
 
@@ -60,8 +61,8 @@ _INTROS = {
     Step.NEW_PASSWORD: _("Your password is temporary: choose your own (10 characters or more)."),
     Step.TOTP_SETUP: _(
         "Two-factor authentication is required for the administration. In your authentication "
-        "application (Google Authenticator, Aegis…), add an account with the key below, then "
-        "enter the code it shows."
+        "application (Google Authenticator, Aegis…), add an account: scan the QR code, or on "
+        "this phone tap the button, or type the key. Then enter the code it shows."
     ),
 }
 
@@ -108,7 +109,7 @@ class PlatformAdminSite(admin.AdminSite):
                 if not done:
                     return redirect(request.get_full_path())
         if step == Step.TOTP_SETUP and not context.get("recovery_codes"):
-            context["secret"] = self._setup_key(request)
+            context.update(self._setup_key(request))
         return TemplateResponse(
             request,
             "admin/accounts/login.html",
@@ -143,13 +144,20 @@ class PlatformAdminSite(admin.AdminSite):
             return str(ADMIN_INVALID_CREDENTIALS)
         return str(exc.error.detail)
 
-    def _setup_key(self, request) -> str:
+    def _setup_key(self, request) -> dict[str, str]:
+        """Clé à ajouter dans l'application : QR code, lien `otpauth://` (sur le téléphone, il
+        ouvre l'application) et clé à recopier."""
         try:
             secret = login.totp_setup_secret(request)
         except BusinessError:
             secret = totp.new_secret()
             login.start_totp_setup(request, secret)
-        return " ".join(secret[i : i + 4] for i in range(0, len(secret), 4))
+        uri = totp.provisioning_uri(secret, login.pending_user(request).phone)
+        return {
+            "secret": " ".join(secret[i : i + 4] for i in range(0, len(secret), 4)),
+            "otpauth_uri": uri,
+            "qr_code": qr_code(uri),
+        }
 
     def _run(self, request, step: Step, form, context: dict) -> bool:
         """Une étape de la connexion ; True quand le compte est connecté."""

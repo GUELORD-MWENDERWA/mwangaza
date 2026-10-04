@@ -5,7 +5,7 @@ description: Créer ou modifier un modèle, un service, un serializer, un endpoi
 
 # Backend Django conforme
 
-Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permissions § 8), `docs/03-architecture-technique.md` § 4 (multi-écoles), § 6 (argent), § 8 (sécurité). Emplacements et commandes : sections « Commandes » de `CLAUDE.md` (fixées en tâche 0.1).
+Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permissions § 8), `docs/03-architecture-technique.md` § 4 (multi-écoles), § 6 (argent), § 8 (sécurité). Emplacements et commandes : « Commandes » de `CLAUDE.md`, détail dans `docs/claude/reference.md`.
 
 ## Modèle
 
@@ -51,7 +51,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 - Permission serveur **sur chaque endpoint** avec un code de `04` § 8 (ex. `finance.collect_payment`) : hériter de `apps.accounts.views.SchoolViewSet` (ou `permission_classes = [HasSchoolPermission]`) et poser `required_permission = "…"`. Droits de l'utilisateur dans l'école : `apps.accounts.permissions.school_access(request)`. Lecture ouverte à tout le personnel de l'école, sans code (annonces de la plateforme) : `HasSchoolAccess` ; console de la plateforme : `IsPlatformAdmin` (404 ailleurs qu'à `admin.<domaine>`). Nouveau code → `apps/accounts/roles.py` (+ rôles système qui doivent l'avoir, migration de données pour les écoles existantes, tableau de `04` § 8 et de `test_system_roles.py`) et le signaler ; code sensible (argent, notes, réglages, audit) → aussi dans `TOTP_PERMISSIONS` (double authentification exigée, vérifiée par `HasSchoolPermission` : `totp_required`).
 - Droits pendant une session support : `school_access(request)` les donne déjà (tous sauf la caisse, `accounts/support.py`) ; un nouveau droit qui déplace de l'argent → aussi dans `SUPPORT_EXCLUDED_PERMISSIONS`.
 - Connexion : jamais de `login()` hors de `apps/accounts/login.py` (connexion en étapes ; administration Django : `admin_site.py`, mêmes fonctions) ; un point d'API qui vérifie un code ou un mot de passe passe par `login.counting_failures(request, user)` (limitation des tentatives). Vue sans compte connecté qui écrit : hériter de `AuthView` (CSRF vérifié).
-- Annoter pour drf-spectacular (`extend_schema`, types de réponse), puis régénérer le client `frontend/packages/api`. Nouveau point d'API → « Adresses en dev » de `CLAUDE.md` et § 11 de `A-FAIRE.md` ; nouveau modèle dans `make demo` → ligne `make demo` de ces deux fichiers et `docs/07-a-fournir.md` § 4 (même PR).
+- Annoter pour drf-spectacular (`extend_schema`, types de réponse), puis régénérer le client `frontend/packages/api`. Nouveau point d'API → « Adresses en développement » de `docs/claude/reference.md` et § 11 de `A-FAIRE.md` ; nouveau modèle dans `make demo` → ligne `make demo` de `reference.md`, de `A-FAIRE.md` § 11 et `docs/07-a-fournir.md` § 4 (même PR).
 - Pagination sur les listes ; recherche élève < 2 s sur 3 000 élèves (index adaptés, pas de N+1 : `select_related` / `prefetch_related`).
 - Erreur sur un champ (règle métier d'un service) : lever la `ValidationError` de Django avec le chemin du champ (`ValidationError({"terms.0.ends_on": ValidationError(msg, code="outside_year")})`) : l'API répond comme pour une saisie refusée. **Vérifier avant de modifier l'objet** (un refus ne doit pas laisser un objet à moitié changé).
 - Listes de configuration (années, niveaux, options, classes d'une année) : `pagination_class = None` ; les autres listes restent paginées (50) avec des filtres côté serveur.

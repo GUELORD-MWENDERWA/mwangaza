@@ -8,10 +8,10 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from apps.accounts.demo import (
-    DEMO_PASSWORD,
     DEMO_TOTP_SECRET,
     PLATFORM_ADMIN_PHONE,
     create_demo_accounts,
+    demo_password,
 )
 from apps.accounts.models import User
 from apps.core.demo import create_demo_platform
@@ -72,7 +72,7 @@ class Command(BaseCommand):
                 create_demo_activations(school)
         for school in schools.values():
             self.stdout.write(f"  {school.code:<8} {school.name} — {school.url}/app/")
-        self.stdout.write(f"Comptes fictifs (mot de passe : {DEMO_PASSWORD}) :")
+        self.stdout.write(f"Comptes fictifs (mot de passe : {demo_password()}) :")
         self.stdout.write(
             f"  {_local(PLATFORM_ADMIN_PHONE)}  super-admin (administration Django : "
             "http://localhost:8000/admin/) — code : make totp"
@@ -95,9 +95,15 @@ class Command(BaseCommand):
                 f"  {_local(portal.phone)}  portail        parent (http://localhost:5174/) : "
                 f"enfants à l'ITIG ; ajouter ceux des Volcans avec le code {portal.code_to_add}"
             )
-        key = " ".join(DEMO_TOTP_SECRET[i : i + 4] for i in range(0, len(DEMO_TOTP_SECRET), 4))
-        self.stdout.write(
-            f"Double authentification (« code ») : clé {key} dans une application "
-            "(Google Authenticator, Aegis…), ou le code du moment avec `make totp`."
-        )
+        if settings.DEMO_PASSWORD:
+            self.stdout.write(
+                "Double authentification : chaque compte qui l'exige lie sa propre application "
+                "(Google Authenticator…) à la première connexion."
+            )
+        else:
+            key = " ".join(DEMO_TOTP_SECRET[i : i + 4] for i in range(0, len(DEMO_TOTP_SECRET), 4))
+            self.stdout.write(
+                f"Double authentification (« code ») : clé {key} dans une application "
+                "(Google Authenticator, Aegis…), ou le code du moment avec `make totp`."
+            )
         self.stdout.write(self.style.SUCCESS(f"{len(schools)} écoles de démonstration prêtes."))

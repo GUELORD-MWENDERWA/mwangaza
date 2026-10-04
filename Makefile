@@ -16,12 +16,16 @@ PROD_LOCAL := $(WITHOUT_DEV_ENV) docker compose -f infra/docker-compose.yml --en
 # infra/reseau/reseau.env (hors Git), créé par `make reseau`.
 RESEAU := $(WITHOUT_DEV_ENV) docker compose -f infra/docker-compose.yml -f infra/docker-compose.reseau.yml --env-file infra/reseau/reseau.env -p mwangaza-reseau
 ESSAI := cd backend && uv run python ../infra/reseau/essai.py
+# Serveur de démonstration en ligne (Oracle Cloud + DuckDNS), piloté par SSH : valeurs de
+# infra/serveur/serveur.env (hors Git), créé au premier lancement.
+DEPLOYER := infra/serveur/deployer.sh
 MANAGE := cd backend && uv run python manage.py
 
 .DEFAULT_GOAL := help
 .PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp messages superuser shell \
 	test test-back test-front test-e2e lint lint-back lint-front format api api-schema build \
-	prod-local prod-local-stop reseau reseau-ip reseau-demo reseau-stop
+	prod-local prod-local-stop reseau reseau-ip reseau-demo reseau-stop \
+	deploy-setup deploy deploy-demo deploy-superuser deploy-logs deploy-ssh
 
 help: ## Afficher les commandes
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  make %-15s %s\n", $$1, $$2}'
@@ -153,3 +157,21 @@ reseau-demo: ## Données fictives dans l'essai sur plusieurs appareils (codes : 
 
 reseau-stop: ## Arrêter l'essai sur plusieurs appareils (données et certificat gardés)
 	$(RESEAU) down
+
+deploy-setup: ## Serveur de démonstration en ligne : le préparer, une seule fois (A-FAIRE.md § 9 ter)
+	$(DEPLOYER) setup
+
+deploy: ## Mettre en ligne main sur le serveur de démonstration ; make deploy ref=origin/<branche> pour une autre
+	$(DEPLOYER) deploy $(ref)
+
+deploy-demo: ## Données fictives sur le serveur de démonstration (mot de passe propre au serveur, dans serveur.env)
+	$(DEPLOYER) demo
+
+deploy-superuser: ## Créer un compte super-admin sur le serveur de démonstration
+	$(DEPLOYER) superuser
+
+deploy-logs: ## Derniers journaux du serveur de démonstration ; make deploy-logs service=django
+	$(DEPLOYER) logs $(service)
+
+deploy-ssh: ## Ouvrir une session sur le serveur de démonstration
+	$(DEPLOYER) ssh

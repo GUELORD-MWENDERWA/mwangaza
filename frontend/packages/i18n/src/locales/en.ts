@@ -91,9 +91,14 @@ export const en: Messages<typeof fr> = {
       installTitle: "Install an authenticator app",
       installText:
         "Google Authenticator, Microsoft Authenticator or Aegis (free, they work without the internet).",
-      scanTitle: "Scan this QR code with the app",
+      scanTitle: "Add the account to the app",
+      onPhone:
+        "On this phone: tap the button, the app opens and adds the account. From another device: scan the QR code.",
+      openApp: "Add to my app",
       qrAlt: "QR code to scan with the authenticator app",
       cantScan: "Can't scan? Enter the key:",
+      copyKey: "Copy the key",
+      keyCopied: "Key copied",
       codeTitle: "Enter the code shown",
       codeText: "It changes every 30 seconds.",
       activate: "Verify and turn on",
