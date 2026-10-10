@@ -11,7 +11,10 @@ from apps.portal import children, families
 from apps.students.serializers import ContactDetailsSerializer
 
 _PASSWORD = {"max_length": 128, "trim_whitespace": False, "style": {"input_type": "password"}}
-_REMEMBER = {"default": False, "help_text": "« Rester connecté » : 30 jours sur ce téléphone."}
+_REMEMBER = {
+    "default": False,
+    "help_text": "« Rester connecté » : 90 jours après la dernière visite ; sinon 12 heures.",
+}
 
 
 class PortalLoginSerializer(LoginSerializer):

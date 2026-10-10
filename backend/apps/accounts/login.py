@@ -262,8 +262,13 @@ def is_trusted_device(request, user: User) -> bool:
 # Portail des familles (H1, 4.4) : adresse sans école, session à part
 
 
-# « Rester connecté sur ce téléphone » ; sinon, fin de la session à la fermeture du navigateur.
-PORTAL_REMEMBER_DAYS = 30
+# « Rester connecté sur ce téléphone » : 90 jours après la dernière visite. Sinon 12 heures, sans
+# prolongation ; cookie daté dans les deux cas (un cookie sans durée est perdu dès qu'on quitte
+# l'application installée).
+PORTAL_REMEMBER_DAYS = 90
+PORTAL_SHORT_SESSION_HOURS = 12
+# Jour de la dernière prolongation ; présent seulement avec « Rester connecté ».
+PORTAL_RENEWED_SESSION_KEY = "accounts.portal_renewed"
 PASSWORD_CHANGE_REQUIRED = ApiError(
     "password_change_required",
     _("Replace your temporary password at your school's address first."),
@@ -289,5 +294,19 @@ def open_portal_session(request, user: User, *, remember: bool) -> None:
     """Connecte `user` au portail : après la connexion, l'activation ou un nouveau mot de passe."""
     cancel(request)
     login(request, user, backend=settings.AUTHENTICATION_BACKENDS[0])
-    request.session.set_expiry(PORTAL_REMEMBER_DAYS * 24 * 3600 if remember else 0)
+    if remember:
+        request.session.set_expiry(PORTAL_REMEMBER_DAYS * 24 * 3600)
+        request.session[PORTAL_RENEWED_SESSION_KEY] = timezone.localdate().isoformat()
+    else:
+        request.session.set_expiry(PORTAL_SHORT_SESSION_HOURS * 3600)
     attempts.clear_failures(user.phone)
+
+
+def renew_portal_session(request) -> None:
+    """Le parent revient : ses 90 jours repartent. Le jour est gardé dans la session, donc au
+    plus **une écriture par jour et par appareil** (session et cookie), jamais à chaque requête."""
+    today = timezone.localdate().isoformat()
+    if request.session.get(PORTAL_RENEWED_SESSION_KEY, today) == today:
+        return
+    request.session.set_expiry(PORTAL_REMEMBER_DAYS * 24 * 3600)
+    request.session[PORTAL_RENEWED_SESSION_KEY] = today

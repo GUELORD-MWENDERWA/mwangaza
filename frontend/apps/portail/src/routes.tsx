@@ -1,7 +1,7 @@
 import { errorMessage, useTranslation } from "@mwangaza/i18n";
 import { Banner, Button, Skeleton } from "@mwangaza/ui";
 import { useState } from "react";
-import { Navigate, Outlet, type RouteObject } from "react-router";
+import { Navigate, Outlet, type RouteObject, useLocation } from "react-router";
 
 import { AnnouncementsPage } from "./features/announcements/AnnouncementsPage";
 import { ActivatePage } from "./features/auth/ActivatePage";
@@ -26,10 +26,13 @@ function GuestOnly() {
   return <Outlet />;
 }
 
-/** Pages du compte : sans session, la connexion. */
+/** Pages du compte : sans session, la connexion, qui ramène ensuite à la page demandée. Réseau
+ *  lent ou coupé au retour dans l'application : le compte déjà lu reste à l'écran. */
 function RequireAccount() {
   const { t } = useTranslation();
+  const location = useLocation();
   const account = useAccount();
+  if (account.data) return <Outlet context={account.data} />;
   if (account.isPending) return <Skeleton label={t("common.loading")} />;
   if (account.isError) {
     return (
@@ -41,8 +44,7 @@ function RequireAccount() {
       </div>
     );
   }
-  if (!account.data) return <Navigate to="/login" replace />;
-  return <Outlet context={account.data} />;
+  return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
 }
 
 export const routes: RouteObject[] = [

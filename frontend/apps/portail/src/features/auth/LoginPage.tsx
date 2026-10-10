@@ -15,17 +15,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { z } from "zod";
 
-import { useSignedIn } from "../../lib/account";
+import { lastSession, useSignedIn } from "../../lib/account";
 import { AuthFrame } from "./AuthFrame";
 
 /** Connexion (maquette `connexion`, M19) : numéro du tuteur principal et mot de passe. */
 export function LoginPage() {
   const { t } = useTranslation();
-  const signedIn = useSignedIn();
+  // Session finie (trace gardée jusqu'à la déconnexion) : numéro rempli, message, puis retour à
+  // la page demandée.
+  const [last] = useState(lastSession);
+  const from = (useLocation().state as { from?: string } | null)?.from;
   const [remember, setRemember] = useState(true);
+  const signedIn = useSignedIn((last && from) || "/", remember);
   const schema = useMemo(
     () =>
       z.object({
@@ -36,7 +40,7 @@ export function LoginPage() {
   );
   const form = useForm({
     resolver: zodResolver(schema),
-    defaultValues: { phone: "", password: "" },
+    defaultValues: { phone: last?.phone ?? "", password: "" },
   });
   const login = useMutation({
     mutationFn: async (values: z.infer<typeof schema>) => {
@@ -58,7 +62,11 @@ export function LoginPage() {
             onSubmit={form.handleSubmit((values) => login.mutate(values))}
           >
             <h2 className="text-[1.4rem]">{t("portal.login.heading")}</h2>
-            {login.isError && <Banner tone="due">{errorMessage(login.error, t)}</Banner>}
+            {login.isError ? (
+              <Banner tone="due">{errorMessage(login.error, t)}</Banner>
+            ) : (
+              last && <Banner>{t("portal.login.sessionEnded")}</Banner>
+            )}
             <Field id="phone" label={t("portal.login.phone")} error={errors.phone?.message}>
               {(control) => (
                 <Input

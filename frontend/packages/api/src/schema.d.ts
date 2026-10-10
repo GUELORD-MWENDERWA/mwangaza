@@ -2276,7 +2276,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Le compte connecté au portail. */
+        /**
+         * @description Le compte connecté au portail. Lu à chaque ouverture du portail et à chaque retour au
+         *     premier plan : c'est ici, et seulement ici, que la session est prolongée.
+         */
         get: operations["portal_me_retrieve"];
         put?: never;
         post?: never;
@@ -4750,7 +4753,7 @@ export interface components {
             code: string;
             password: string;
             /**
-             * @description « Rester connecté » : 30 jours sur ce téléphone.
+             * @description « Rester connecté » : 90 jours après la dernière visite ; sinon 12 heures.
              * @default false
              */
             remember: boolean;
@@ -6246,7 +6249,7 @@ export interface components {
             phone: string;
             password: string;
             /**
-             * @description « Rester connecté » : 30 jours sur ce téléphone.
+             * @description « Rester connecté » : 90 jours après la dernière visite ; sinon 12 heures.
              * @default false
              */
             remember: boolean;

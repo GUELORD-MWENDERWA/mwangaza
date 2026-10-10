@@ -1,6 +1,9 @@
 """Accès au portail des familles (H1, M19) : activation, connexion, mot de passe oublié avec un
 nouveau code, et « Nouveau code » de la fiche famille."""
 
+from datetime import timedelta
+
+from django.contrib.sessions.models import Session
 from django.test import Client
 from django.utils import timezone
 
@@ -61,7 +64,7 @@ def test_activation_creates_the_account_links_the_family_and_logs_in(school, hea
     family = reloaded(family)
     assert family.primary_user.phone == PHONE and family.activated_at is not None
     assert client.get("/api/portal/me/").json()["name"] == "Kahindo Neema"
-    assert client.session.get_expiry_age() == 30 * 24 * 3600
+    assert client.session.get_expiry_age() == 90 * 24 * 3600
     [entry] = actions(school, "portal.activated")
     assert entry.actor == family.primary_user and entry.entity_id == family.pk
     # Le code a servi : une seconde activation ne prend pas la famille.
@@ -109,12 +112,43 @@ def test_login_with_the_password_only_temporary_password_refused(school):
     # La double authentification protège l'adresse de l'école, pas le portail.
     logged_in = post(client, "auth/login/", phone="0971234567", password=TEST_PASSWORD)
     assert logged_in.status_code == 200
-    assert client.session.get_expire_at_browser_close()
+    # Sans « Rester connecté » : 12 heures, cookie daté (gardé en quittant l'application installée).
+    assert logged_in.cookies["sessionid"]["max-age"] == 12 * 3600
     assert client.get("/api/portal/me/").json()["phone"] == PHONE
 
     User.objects.filter(pk=user.pk).update(must_change_password=True)
     refused = post(portal(), "auth/login/", phone=PHONE, password=TEST_PASSWORD)
     assert (refused.status_code, refused.json()["code"]) == (403, "password_change_required")
+
+
+def test_session_extended_when_the_parent_comes_back_one_write_a_day_at_most(db, monkeypatch):
+    """« Rester connecté » : 90 jours après la dernière visite, prolongés par `/me/` (lu à chaque
+    ouverture du portail), une seule écriture par jour ; décoché : 12 heures, jamais prolongées."""
+    UserFactory(phone=PHONE)
+    clock = [timezone.now().replace(hour=10, minute=0)]  # midi à Lubumbashi
+    monkeypatch.setattr(timezone, "now", lambda: clock[0])
+    kept, short = portal(), portal()
+    post(kept, "auth/login/", phone=PHONE, password=TEST_PASSWORD, remember=True)
+    post(short, "auth/login/", phone=PHONE, password=TEST_PASSWORD)
+
+    def expires(client):
+        return Session.objects.get(pk=client.cookies["sessionid"].value).expire_date
+
+    opened = expires(kept)
+    clock[0] += timedelta(hours=2)
+    same_day = kept.get("/api/portal/me/")
+    assert "sessionid" not in same_day.cookies and expires(kept) == opened
+    assert short.get("/api/portal/me/").status_code == 200 and expires(short) < opened
+
+    clock[0] += timedelta(hours=11)  # le lendemain, 13 heures après la connexion
+    assert short.get("/api/portal/me/").json()["code"] == "not_authenticated"
+    next_day = kept.get("/api/portal/me/")
+    assert next_day.cookies["sessionid"]["max-age"] == 90 * 24 * 3600
+    assert expires(kept) == clock[0] + timedelta(days=90)
+    assert "sessionid" not in kept.get("/api/portal/me/").cookies
+
+    clock[0] += timedelta(days=89)  # au-delà des 90 jours de la connexion : toujours connecté
+    assert kept.get("/api/portal/me/").json()["phone"] == PHONE
 
 
 def test_forgot_password_with_the_new_code_given_by_the_school_once(api, school, head):

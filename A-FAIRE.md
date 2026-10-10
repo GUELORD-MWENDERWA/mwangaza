@@ -5,14 +5,14 @@ Claude ne peut pas : installer avec `sudo`, fusionner une PR, parler à l'ITIG, 
 
 Ce qui manque en détail (maquettes, informations ITIG, décisions) : [`docs/07-a-fournir.md`](docs/07-a-fournir.md). Ici : **quoi faire, dans quel ordre, avec quelles commandes**.
 
-Dernière mise à jour : 2026-10-04 (tâche 4.6.2 : serveur de démonstration gratuit en ligne).
+Dernière mise à jour : 2026-10-10 (tâche 4.12 : connexion du Portail).
 
 ## Maintenant
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
-| 1 | **Relire et fusionner la PR du plan « Lancement » revu** (plan de départ fusionné, PR #153) : le bloc de 11 tâches et la liste « Retiré ou simplifié » dans [`docs/05-plan-de-travail.md`](docs/05-plan-de-travail.md), les espaces réel / essai / démonstration dans [`docs/03-architecture-technique.md`](docs/03-architecture-technique.md) § 4 bis ; fusionner vaut accord sur les décisions de la section « À valider » de la PR ; puis `git switch main && git pull` | 15 min | [ ] |
-| 2 | **Dire ce que tu vois exactement** : déconnexions du Portail (Q13) et matricule exigé à l'import (Q14), questions dans [`docs/06-suivi.md`](docs/06-suivi.md) | 5 min | [ ] |
+| 1 | **Relire et fusionner la PR de la tâche 4.12** (Portail — connexion fiable), puis `git switch main && git pull` | 15 min | [ ] |
+| 2 | **Essayer le Portail sur ton vrai téléphone**, ce que je ne peux pas faire (navigateur, puis application installée ; Android et iPhone si possible) : [§ 9 bis](#9-bis-essai-sur-plusieurs-appareils-411) (`make reseau`), parent `0002000001`, quitter l'application, la rouvrir plus tard et le lendemain, couper le réseau. Me dire si une déconnexion revient (quand, sur quel téléphone), et **à quel moment l'import exige un matricule** (Q14, [`docs/06-suivi.md`](docs/06-suivi.md)) | 15 min | [ ] |
 | 3 | **Mettre le serveur de démonstration en ligne**, quand tu veux : [§ 9 ter](#9-ter-serveur-de-démonstration-en-ligne-462) (compte Oracle Cloud, serveur gratuit, adresse DuckDNS, `make deploy-setup`, `make deploy`) | 1 h | [ ] |
 | 4 | Juste après : garder une **copie de `infra/serveur/serveur.env`** en lieu sûr (clé USB, gestionnaire de mots de passe) | 2 min | [ ] |
 | 5 | **Avant la première vraie école** : vrai domaine et sauvegardes, [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats) (tâches 4.6.3 et 4.7.2, après le bloc « Lancement — version finie ») | 1 h | [ ] |
@@ -291,6 +291,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | `make test-e2e` : `Executable doesn't exist at …/ms-playwright/…` | Chromium de Playwright pas encore téléchargé | une fois : `cd frontend && pnpm exec playwright install chromium` |
 | `make test-e2e` : « Ce code n'est pas valable, ou il a déjà servi » | tu t'es connecté avec le même compte fictif dans les 30 secondes d'avant (un code ne sert qu'une fois) | relancer `make test-e2e` (il remet la démonstration à zéro au début) |
 | PDF (fiche d'inscription, liste de classe) : `cannot load library 'libpango-1.0-0'`, ou avertissement `HarfBuzz-Subset will be required` (`make dev-local`, `make test`) | bibliothèques de WeasyPrint absentes de ta machine (Docker les a déjà) | `sudo apt install libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0` |
+| Le Portail change de compte ou se déconnecte tout seul, en développement | l'administration Django (`http://localhost:8000/admin/`) et le Portail (`http://localhost:5174/`) sont tous deux à `localhost` : ils partagent le même cookie de session, quel que soit le port | ouvrir l'administration dans une fenêtre privée, ou se reconnecter au Portail (rien de tel en ligne : chaque application a son adresse) |
 | La Gestion affiche « Pas de connexion au serveur » | Django ne tourne pas (ou pas encore) | lancer `make dev-local` ou `make dev`, puis « Réessayer » |
 | La Gestion affiche « Aucune école à cette adresse » | adresse sans code d'école (`localhost:5173/app/`) ou code inconnu | http://itig.localhost:5173/app/ ; après `make demo` si la base est neuve |
 | Administration Django : impossible de supprimer une école ou un compte (« objets protégés », `Journal d'audit`) | l'école ou le compte apparaît dans le journal d'audit, qui ne s'efface jamais ; une école ne se supprime jamais (bouton retiré) | suspendre l'école, désactiver le compte ; en développement seulement, `make reset-db` repart d'une base vide |

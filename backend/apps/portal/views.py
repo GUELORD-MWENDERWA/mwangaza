@@ -88,12 +88,14 @@ class ResetView(PortalAuthView):
 
 @extend_schema(tags=["portal"])
 class MeView(APIView):
-    """Le compte connecté au portail."""
+    """Le compte connecté au portail. Lu à chaque ouverture du portail et à chaque retour au
+    premier plan : c'est ici, et seulement ici, que la session est prolongée."""
 
     permission_classes = [PortalAddress, IsAuthenticated]
 
     @extend_schema(responses={200: PortalMeSerializer, 403: ErrorSerializer, 404: ErrorSerializer})
     def get(self, request: Request) -> Response:
+        login.renew_portal_session(request)
         return Response(PortalMeSerializer(request.user).data)
 
 

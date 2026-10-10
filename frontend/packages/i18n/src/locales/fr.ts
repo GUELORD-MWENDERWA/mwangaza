@@ -2861,6 +2861,7 @@ export const fr = {
       phonePlaceholder: "Ex. 0971234567",
       password: "Mot de passe",
       remember: "Rester connecté sur ce téléphone",
+      sessionEnded: "Votre session est terminée. Reconnectez-vous pour continuer.",
       submit: "Se connecter",
       forgot: "Mot de passe oublié ?",
       firstTime:

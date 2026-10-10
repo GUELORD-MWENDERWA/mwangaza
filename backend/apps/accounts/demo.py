@@ -33,6 +33,13 @@ def demo_password() -> str:
     return settings.DEMO_PASSWORD or DEMO_PASSWORD
 
 
+def set_demo_password(user: User) -> None:
+    """Sans toucher au mot de passe qui est déjà le bon : un nouveau hachage fermerait toutes les
+    sessions du compte à chaque `make demo` (Gestion et Portail déconnectés)."""
+    if not user.check_password(demo_password()):
+        user.set_password(demo_password())
+
+
 PLATFORM_ADMIN_PHONE = "+243000000000"
 
 # Rôle propre à l'ITIG de démonstration (Q7) : un rôle créé par l'école, pas un rôle du code.
@@ -128,7 +135,7 @@ def _account(phone: str, **fields) -> User:
         setattr(user, field, value)
     user.is_active = True
     user.must_change_password = False
-    user.set_password(demo_password())
+    set_demo_password(user)
     user.save()
     return user
 
