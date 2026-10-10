@@ -11,10 +11,11 @@ Dernière mise à jour : 2026-10-04 (tâche 4.6.2 : serveur de démonstration gr
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
-| 1 | **Relire et fusionner la PR de la tâche 4.6.2** (serveur de démonstration gratuit, activation de la double authentification plus simple sur téléphone, rangement du dépôt) : suivre « À tester toi-même » de la PR, [comment relire](#10-comment-relire-et-fusionner-une-pr), puis `git switch main && git pull` | 20 min | [ ] |
-| 2 | **Mettre le serveur de démonstration en ligne**, quand tu veux : [§ 9 ter](#9-ter-serveur-de-démonstration-en-ligne-462) (compte Oracle Cloud, serveur gratuit, adresse DuckDNS, `make deploy-setup`, `make deploy`) | 1 h | [ ] |
-| 3 | Juste après : garder une **copie de `infra/serveur/serveur.env`** en lieu sûr (clé USB, gestionnaire de mots de passe) | 2 min | [ ] |
-| 4 | **Avant la première vraie école** : vrai domaine et sauvegardes, [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats) (tâches 4.6.3 et 4.7) | 1 h | [ ] |
+| 1 | **Relire et fusionner la PR du plan « Lancement — version finie »** : le bloc de 13 tâches dans [`docs/05-plan-de-travail.md`](docs/05-plan-de-travail.md), les espaces réel / essai / démonstration dans [`docs/03-architecture-technique.md`](docs/03-architecture-technique.md) § 4 bis ; fusionner vaut accord sur les décisions de la section « À valider » de la PR ; puis `git switch main && git pull` | 15 min | [ ] |
+| 2 | **Dire ce que tu vois exactement** : déconnexions du Portail (Q13) et matricule exigé à l'import (Q14), questions dans [`docs/06-suivi.md`](docs/06-suivi.md) | 5 min | [ ] |
+| 3 | **Mettre le serveur de démonstration en ligne**, quand tu veux : [§ 9 ter](#9-ter-serveur-de-démonstration-en-ligne-462) (compte Oracle Cloud, serveur gratuit, adresse DuckDNS, `make deploy-setup`, `make deploy`) | 1 h | [ ] |
+| 4 | Juste après : garder une **copie de `infra/serveur/serveur.env`** en lieu sûr (clé USB, gestionnaire de mots de passe) | 2 min | [ ] |
+| 5 | **Avant la première vraie école** : vrai domaine et sauvegardes, [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats) (tâches 4.6.3 et 4.7.2, après le bloc « Lancement — version finie ») | 1 h | [ ] |
 
 Déjà fait : installation de la machine (Docker, `.env`, gettext), décisions (nom, domaine, Q1 à Q11), PR des tâches 0.1 à 4.11 et 5.1 à 5.5.1 ; historique complet : [`docs/06-suivi.md`](docs/06-suivi.md). À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). [Rien à demander à l'ITIG](#8-litig--rien-à-demander).
 
@@ -61,7 +62,7 @@ Si un document arrive quand même :
 | Domaine **`mwangaza.school`** (choisi le 2026-09-26) | vérifier qu'il est libre, l'acheter chez un registrar qui vend le `.school` ; activer le renouvellement automatique | [ ] |
 | Cloudflare (gratuit) | créer le compte, ajouter le domaine, remplacer les serveurs DNS chez le registrar par ceux que Cloudflare indique | [ ] |
 | Serveur | celui du § 9 ter (gratuit), ou un VPS payant (2 vCPU, 4 Go, Ubuntu 24.04, moins de 20 $ / mois) si une école l'exige | [ ] |
-| Stockage objet (sauvegardes, photos) | gratuit : Oracle Object Storage (20 Go, même compte) ou Backblaze B2 (10 Go) ; Claude dira quelles clés créer (4.7) | [ ] |
+| Stockage objet (sauvegardes, photos) | gratuit : Oracle Object Storage (20 Go, même compte) ou Backblaze B2 (10 Go) ; Claude dira quelles clés créer (4.7.2) | [ ] |
 | Suivi d'erreurs et sonde de disponibilité | Sentry (offre gratuite) ou GlitchTip ; UptimeRobot (gratuit) | [ ] |
 | Documents (T5, avant les vraies données d'une école) | conditions d'utilisation, confidentialité, contrat avec chaque école : Claude peut rédiger un brouillon, à faire relire | [ ] |
 | Tarif des écoles (T6, avant les abonnements, 9.2) | décider : essai gratuit ? prix par élève ? | [ ] |
@@ -201,7 +202,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 
 | Commande | Tâche | Effet |
 |---|---|---|
-| sauvegarde et restauration | 4.7 | sauvegarde de la base, test de restauration |
+| sauvegarde et restauration | 4.7.1 | sauvegarde de la base, test de restauration |
 
 ### Adresses en développement
 
