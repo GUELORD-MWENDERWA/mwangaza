@@ -1,5 +1,6 @@
 // Format du matricule (C3) : aperçu « Prochain matricule » pendant la saisie (calculé par le
 // serveur, seul à générer les matricules), enregistrement pour les matricules donnés ensuite.
+// Interrupteur (C5) : sur non, ni l'inscription ni l'import ne donnent de matricule.
 import { ApiError, api, call } from "@mwangaza/api";
 import { useTranslation } from "@mwangaza/i18n";
 import {
@@ -13,6 +14,7 @@ import {
   Field,
   Input,
   Skeleton,
+  Switch,
 } from "@mwangaza/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -37,7 +39,11 @@ export function MatriculeCard() {
   return <MatriculeForm saved={current.data} />;
 }
 
-function MatriculeForm({ saved }: { saved: { matricule_format: string; example: string } }) {
+function MatriculeForm({
+  saved,
+}: {
+  saved: { matricule_format: string; auto_matricule: boolean; example: string };
+}) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [value, setValue] = useState(saved.matricule_format);
@@ -55,7 +61,17 @@ function MatriculeForm({ saved }: { saved: { matricule_format: string; example: 
       call(api.PATCH("/api/matricule-format/", { body: { matricule_format: value.trim() } })),
     onSuccess: (data) => queryClient.setQueryData(keys.matricule, data),
   });
-  const error = save.error ?? (changed ? preview.error : null);
+  const toggle = useMutation({
+    mutationFn: (on: boolean) =>
+      call(api.PATCH("/api/matricule-format/", { body: { auto_matricule: on } })),
+    onSuccess: (data) => {
+      queryClient.setQueryData(keys.matricule, data);
+      // L'écran d'inscription lit ce choix dans l'école.
+      void queryClient.invalidateQueries({ queryKey: keys.school });
+    },
+  });
+  const automatic = saved.auto_matricule;
+  const error = toggle.error ?? save.error ?? (changed ? preview.error : null);
   const [fieldError] = error instanceof ApiError ? (error.fields.matricule_format ?? []) : [];
   const example = changed ? preview.data?.example : saved.example;
 
@@ -72,6 +88,20 @@ function MatriculeForm({ saved }: { saved: { matricule_format: string; example: 
           <CardTitle>{t("organisation.matricule.title")}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <label htmlFor="matricule-auto" className="cursor-pointer">
+              <b>{t("organisation.matricule.auto")}</b>
+              <span className="block text-[.8rem] text-ink-3">
+                {t(automatic ? "organisation.matricule.autoOn" : "organisation.matricule.autoOff")}
+              </span>
+            </label>
+            <Switch
+              id="matricule-auto"
+              checked={automatic}
+              disabled={toggle.isPending}
+              onCheckedChange={(on) => toggle.mutate(on)}
+            />
+          </div>
           <Field
             id="matricule-format"
             label={t("organisation.matricule.label")}
@@ -89,6 +119,7 @@ function MatriculeForm({ saved }: { saved: { matricule_format: string; example: 
                 {...control}
                 className="font-mono"
                 value={value}
+                disabled={!automatic}
                 onChange={(event) => {
                   setValue(event.target.value);
                   save.reset();
@@ -96,7 +127,7 @@ function MatriculeForm({ saved }: { saved: { matricule_format: string; example: 
               />
             )}
           </Field>
-          {example && !fieldError && (
+          {automatic && example && !fieldError && (
             <Banner tone="info">
               {t("organisation.matricule.next")} <b className="font-mono">{example}</b>
             </Banner>
@@ -114,7 +145,10 @@ function MatriculeForm({ saved }: { saved: { matricule_format: string; example: 
             type="submit"
             variant="outline"
             disabled={
-              save.isPending || value.trim() === "" || value.trim() === saved.matricule_format
+              !automatic ||
+              save.isPending ||
+              value.trim() === "" ||
+              value.trim() === saved.matricule_format
             }
           >
             {t("common.save")}

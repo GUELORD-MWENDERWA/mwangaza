@@ -26,7 +26,7 @@ h1 { margin-top: .8em; }
 
 <table class="identity">
   <tr><td class="label">{% translate "Student" %}</td><td><b>{{ student }}</b></td></tr>
-  <tr><td class="label">{% translate "Student number" %}</td><td>{{ matricule|default:"—" }}</td></tr>
+  {% if matricule %}<tr><td class="label">{% translate "Student number" %}</td><td>{{ matricule }}</td></tr>{% endif %}
   <tr><td class="label">{% translate "Class" %}</td><td>{{ class_group }}</td></tr>
 </table>
 

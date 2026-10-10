@@ -55,6 +55,8 @@ from apps.schools.serializers import (
     LogoUploadSerializer,
     MatriculeFormatInputSerializer,
     MatriculeFormatSerializer,
+    MatriculeSettingsInputSerializer,
+    MatriculeSettingsSerializer,
     PersonSerializer,
     SchoolSettingsSerializer,
     TermsUpdateSerializer,
@@ -458,33 +460,42 @@ class _MatriculeView(APIView):
     required_permission = CLASSES_MANAGE
     serializer_class = MatriculeFormatInputSerializer
 
-    def _response(self, value: str) -> Response:
+    def _response(self, value: str, **settings) -> Response:
         return Response(
-            {"matricule_format": value, "example": organisation.matricule_example(value)}
+            {
+                "matricule_format": value,
+                **settings,
+                "example": organisation.matricule_example(value),
+            }
         )
 
 
 @extend_schema(tags=["organisation"])
 class MatriculeFormatView(_MatriculeView):
-    """Format du matricule de l'école (C3) et « Prochain matricule »."""
+    """Format du matricule de l'école (C3), « Prochain matricule » et choix d'en attribuer un
+    automatiquement (C5)."""
 
-    @extend_schema(responses={200: MatriculeFormatSerializer, **ERRORS})
+    def _settings(self, school: School) -> Response:
+        return self._response(school.matricule_format, auto_matricule=school.auto_matricule)
+
+    @extend_schema(responses={200: MatriculeSettingsSerializer, **ERRORS})
     def get(self, request: Request) -> Response:
-        school = School.objects.get(pk=request.school.pk)
-        return self._response(school.matricule_format)
+        return self._settings(School.objects.get(pk=request.school.pk))
 
     @extend_schema(
-        request=MatriculeFormatInputSerializer,
-        responses={200: MatriculeFormatSerializer, 400: ErrorSerializer, **ERRORS},
+        request=MatriculeSettingsInputSerializer,
+        responses={200: MatriculeSettingsSerializer, 400: ErrorSerializer, **ERRORS},
     )
     def patch(self, request: Request) -> Response:
-        """Vaut pour les matricules donnés ensuite ; les anciens ne changent pas."""
-        serializer = MatriculeFormatInputSerializer(data=request.data)
+        """Un seul des deux champs suffit. Vaut pour les inscriptions et les imports suivants ;
+        les matricules déjà donnés ne changent pas."""
+        serializer = MatriculeSettingsInputSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
         school = organisation.set_matricule_format(
-            serializer.validated_data["matricule_format"], actor=request.user
+            data.get("matricule_format"), actor=request.user, automatic=data.get("auto_matricule")
         )
-        return self._response(school.matricule_format)
+        return self._settings(school)
 
 
 @extend_schema(tags=["organisation"])

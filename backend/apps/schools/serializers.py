@@ -135,6 +135,7 @@ class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
             "timezone",
             "enabled_currencies",
             "default_currency",
+            "auto_matricule",
             "receipt",
         ]
 
@@ -451,6 +452,20 @@ class MatriculeFormatSerializer(MatriculeFormatInputSerializer):
     example = serializers.CharField(
         help_text="Prochain matricule : année en cours, première option (C3)."
     )
+
+
+AUTO_MATRICULE_HELP = (
+    "Non : ni l'inscription ni l'import ne donnent de matricule ; l'école garde les siens "
+    "(importés ou saisis sur la fiche) ou n'en a pas (C5)."
+)
+
+
+class MatriculeSettingsInputSerializer(MatriculeFormatInputSerializer):
+    auto_matricule = serializers.BooleanField(help_text=AUTO_MATRICULE_HELP)
+
+
+class MatriculeSettingsSerializer(MatriculeFormatSerializer):
+    auto_matricule = serializers.BooleanField(help_text=AUTO_MATRICULE_HELP)
 
 
 # Console de la plateforme (5.2)

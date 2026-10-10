@@ -127,6 +127,9 @@ class School(BaseModel):
         validators=[matricule.validate_matricule_format],
         help_text=_("e.g. ABC-{AAAA}-{0000}: year, number, option code {OPT}."),
     )
+    # C5 : sur non, ni l'inscription ni l'import ne donnent de matricule (l'école garde les siens,
+    # saisis ou importés, ou n'en a pas).
+    auto_matricule = models.BooleanField(_("give student numbers automatically"), default=True)
     status = models.CharField(
         _("status"), max_length=10, choices=Status.choices, default=Status.TRIAL
     )

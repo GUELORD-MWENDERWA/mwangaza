@@ -593,25 +593,37 @@ def matricule_example(template: str) -> str:
     )
 
 
-def set_matricule_format(value: str, *, actor: User) -> School:
-    """Nouveau format : il vaut pour les matricules donnés ensuite, jamais pour les anciens."""
+def set_matricule_format(
+    value: str | None = None, *, actor: User, automatic: bool | None = None
+) -> School:
+    """Nouveau format, ou choix d'attribuer un matricule (`automatic`, C5) : ils valent pour les
+    inscriptions et les imports suivants, jamais pour les matricules déjà donnés."""
     school_id = require_current_school().pk
-    value = value.strip()
-    try:
-        matricule.validate_matricule_format(value)
-    except ValidationError as exc:
-        raise ValidationError({"matricule_format": exc}) from None
+    changes = {}
+    if value is not None:
+        changes["matricule_format"] = value.strip()
+        try:
+            matricule.validate_matricule_format(changes["matricule_format"])
+        except ValidationError as exc:
+            raise ValidationError({"matricule_format": exc}) from None
+    if automatic is not None:
+        changes["auto_matricule"] = automatic
     with transaction.atomic():
         school = School.objects.select_for_update().get(pk=school_id)
-        if school.matricule_format != value:
-            before = school.matricule_format
-            school.matricule_format = value
-            school.save(update_fields=["matricule_format", "updated_at"])
+        before = {
+            name: getattr(school, name)
+            for name, new in changes.items()
+            if getattr(school, name) != new
+        }
+        if before:
+            for name in before:
+                setattr(school, name, changes[name])
+            school.save(update_fields=[*before, "updated_at"])
             audit.record(
                 Action.ORGANISATION_MATRICULE_FORMAT_CHANGED,
                 school,
                 actor=actor,
-                before={"matricule_format": before},
-                after={"matricule_format": value},
+                before=before,
+                after={name: changes[name] for name in before},
             )
     return school

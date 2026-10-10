@@ -201,6 +201,9 @@ def class_list(class_group: ClassGroup, *, columns: list[str], blank_columns: in
                 else "",
             }
         )
+    if not any(row["matricule"] for row in rows):
+        # École sans matricule (C5) : pas de colonne vide sur la liste.
+        columns = [column for column in columns if column != MATRICULE]
     teacher = class_group.homeroom_teacher
     return {
         **school_header(require_current_school()),

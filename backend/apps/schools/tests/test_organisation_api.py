@@ -351,16 +351,39 @@ def test_matricule_format(api, head, school, alpha):
     saved = client.patch(MATRICULE, {"matricule_format": "ITIG-{AAAA}-{0000}"})
     refused = client.patch(MATRICULE, {"matricule_format": "ITIG-{AAAA}"})
 
-    assert current == {"matricule_format": "ALPHA-{AAAA}-{0000}", "example": "ALPHA-2026-0001"}
+    assert current == {
+        "matricule_format": "ALPHA-{AAAA}-{0000}",
+        "auto_matricule": True,
+        "example": "ALPHA-2026-0001",
+    }
     assert preview.json() == {
         "matricule_format": "LV/{OPT}/{AA}/{000}",
         "example": "LV/ELEC/26/001",
     }
     assert wrong.json()["fields"]["matricule_format"][0]["code"] == "matricule_year_missing"
-    assert saved.json() == {"matricule_format": "ITIG-{AAAA}-{0000}", "example": "ITIG-2026-0001"}
+    assert saved.json() == {
+        "matricule_format": "ITIG-{AAAA}-{0000}",
+        "auto_matricule": True,
+        "example": "ITIG-2026-0001",
+    }
     assert refused.json()["fields"]["matricule_format"][0]["code"] == "matricule_number_missing"
     assert School.objects.get(pk=school.pk).matricule_format == "ITIG-{AAAA}-{0000}"
     assert len(entries(school, "organisation.matricule_format_changed")) == 1
+
+
+def test_school_stops_giving_matricules_alone_and_it_is_logged(api, head, school, alpha, beta):
+    """4.13 (C5) : l'interrupteur seul, sans toucher au format ni à l'autre école."""
+    client = api(head)
+
+    off = client.patch(MATRICULE, {"auto_matricule": False})
+    client.patch(MATRICULE, {"auto_matricule": False})
+
+    assert off.json()["auto_matricule"] is False
+    assert off.json()["matricule_format"] == "ALPHA-{AAAA}-{0000}"
+    assert client.get("/api/school/").json()["auto_matricule"] is False
+    (entry,) = entries(school, "organisation.matricule_format_changed")
+    assert (entry.before, entry.after) == ({"auto_matricule": True}, {"auto_matricule": False})
+    assert School.objects.get(code="beta").auto_matricule is True
 
 
 # Isolation entre écoles

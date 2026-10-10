@@ -329,9 +329,7 @@ function ColumnsCard({
                   ) : REQUIRED.includes(name) ? (
                     <StatusPill tone="due">{t("students.import.columns.required")}</StatusPill>
                   ) : (
-                    <StatusPill tone="gray" className="max-[560px]:hidden">
-                      {t("students.import.columns.unused")}
-                    </StatusPill>
+                    <StatusPill tone="gray">{t("students.import.columns.optional")}</StatusPill>
                   )}
                 </td>
               </tr>

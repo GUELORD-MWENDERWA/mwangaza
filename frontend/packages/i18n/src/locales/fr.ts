@@ -815,6 +815,10 @@ export const fr = {
     },
     matricule: {
       title: "Format du matricule",
+      auto: "Attribuer un matricule automatiquement",
+      autoOn: "À l'inscription et à l'import, pour chaque élève qui n'en a pas.",
+      autoOff:
+        "Aucun matricule n'est créé. Ceux de votre fichier Excel ou saisis sur la fiche de l'élève sont gardés.",
       label: "Modèle",
       help: "Variables : {AAAA} année de début, {AA}, {0000} numéro à 4 chiffres, {OPT} code option.",
       next: "Prochain matricule :",
@@ -1171,6 +1175,7 @@ export const fr = {
       capacity: "Capacité",
       homeroom_teacher: "Titulaire",
       matricule_format: "Format du matricule",
+      auto_matricule: "Matricule automatique",
       sex: "Sexe",
       birth_date: "Date de naissance",
       birth_place: "Lieu de naissance",
@@ -1334,6 +1339,7 @@ export const fr = {
     card: {
       created:
         "{{name}} est inscrit en {{className}} : matricule {{matricule}}, code famille {{code}}.",
+      createdNoMatricule: "{{name}} est inscrit en {{className}} : code famille {{code}}.",
       edit: "Modifier",
       age_one: "{{count}} an",
       age_other: "{{count}} ans",
@@ -1471,7 +1477,8 @@ export const fr = {
       title: "Modifier l'élève",
       submit: "Enregistrer",
       schooling: "Scolarité",
-      matriculeHelp: "Donné à la première inscription ; à corriger seulement en cas d'erreur.",
+      matriculeHelp:
+        "Donné à la première inscription si l'école en attribue ; sinon, saisissez celui de l'école.",
     },
     family: {
       title: "Famille {{name}}",
@@ -1679,7 +1686,7 @@ export const fr = {
         ignore: "— ignorer —",
         untitled: "Colonne {{number}}",
         found: "Reconnu",
-        unused: "Non utilisé",
+        optional: "Facultatif",
         required: "Obligatoire",
       },
       classes: {

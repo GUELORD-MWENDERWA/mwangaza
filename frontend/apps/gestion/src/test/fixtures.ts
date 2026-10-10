@@ -13,6 +13,7 @@ export const school: Schemas["CurrentSchool"] = {
   timezone: "Africa/Lubumbashi",
   enabled_currencies: ["USD", "CDF"],
   default_currency: "USD",
+  auto_matricule: true,
   receipt: { printer: "thermal_80", sheet_size: "a6", copies: 1, header: "", footer: "" },
 };
 

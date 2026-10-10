@@ -28,6 +28,15 @@ def test_first_enrollment_gives_the_matricule_of_the_school_format(school, head,
 
     assert (first.matricule, second.matricule) == ("AL/ELEC-26-001", "AL/ELEC-26-002")
 
+    # 4.13 (C5) : l'école n'en attribue plus ; le numéro suivant n'est pas consommé.
+    with use_school(school):
+        organisation.set_matricule_format(actor=head, automatic=False)
+    without = enrolled(school, head, alpha["group"], first_name="Daniel")
+    with use_school(school):
+        organisation.set_matricule_format(actor=head, automatic=True)
+    third = enrolled(school, head, alpha["group"], first_name="Neema", sex="F")
+    assert (without.matricule, third.matricule) == ("", "AL/ELEC-26-003")
+
 
 def test_the_matricule_is_kept_at_re_enrollment_and_numbers_restart_each_year(school, head, alpha):
     student = enrolled(school, head, alpha["group"])

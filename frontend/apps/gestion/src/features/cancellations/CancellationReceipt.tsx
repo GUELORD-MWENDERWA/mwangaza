@@ -93,7 +93,7 @@ function CancellationCopy({
       </p>
       <dl className="receipt__rows">
         {row(t("cash.receipt.student"), <b>{payment.student.full_name}</b>)}
-        {row(t("cash.receipt.matricule"), payment.student.matricule)}
+        {payment.student.matricule && row(t("cash.receipt.matricule"), payment.student.matricule)}
         {row(t("cash.receipt.classGroup"), payment.class_group)}
       </dl>
       <table className="receipt__lines">
