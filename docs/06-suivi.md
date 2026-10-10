@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — plan du bloc « Lancement — version finie » à valider (PR) |
-| Prochaine tâche | 4.12 (Portail — rester connecté) |
+| Tâche en cours | aucune — plan du bloc « Lancement — version finie » revu, à valider (PR) |
+| Prochaine tâche | 4.12 (Portail — connexion fiable) |
 | Issue GitHub | une par tâche du bloc, créées au début de 4.12 (plan validé) |
-| Branche | `plan/lancement-version-finie` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `plan/lancement-revue-senior` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-10 |
 
 ## Avancement
@@ -23,8 +23,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.23, 4.7.1) | 0 | 13 |
-| **V1.0** | **50** | **65** |
+| Lancement — version finie (4.12 à 4.21, 4.7.1) | 0 | 11 |
+| **V1.0** | **50** | **63** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -51,13 +51,19 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 | Q12 | Découpage officiel de l'année au **primaire** (trimestres ? périodes et examens par trimestre ?) : pour proposer un modèle « primaire » à la création d'une année (C1) | avant la première école primaire (aucune en V1.0 : l'ITIG n'a pas de primaire) | pas de modèle « primaire » : une école du primaire part du modèle « 3 trimestres, 6 périodes, 3 examens » ou d'un découpage vide, et l'ajuste |
 
 | Q13 | Déconnexions du **Portail** : que se passe-t-il exactement (renvoyé à la connexion en rouvrant l'application ? après combien de temps ? sur quel téléphone, application installée ou navigateur ? sur le serveur de démonstration ou en local ?) | 4.12 | la tâche commence par reproduire ; causes déjà vues dans le code : session de 30 jours non prolongée, session perdue en quittant l'application si « Rester connecté » est décoché, réseau lent traité comme une session finie |
-| Q14 | **Import** : à quel moment le matricule est-il exigé (message exact, fichier utilisé) ? Dans le code la colonne est facultative, mais un matricule est créé d'office pour chaque élève | 4.14 | la tâche commence par reproduire ; le matricule devient un choix de l'école |
+| Q14 | **Import** : à quel moment le matricule est-il exigé (message exact, fichier utilisé) ? Dans le code la colonne est facultative, mais un matricule est créé d'office pour chaque élève | 4.13 | la tâche commence par reproduire ; le matricule devient un choix de l'école |
 
 Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-10 — Plan « Lancement » revu en développeur senior (demande de l'utilisateur)
+- Demande : ne pas accepter un programme tel quel ; se demander d'abord si c'est utile, faisable, et sans coût pour le serveur plus tard. Règle ajoutée à `CLAUDE.md` (« Façon de travailler ») et à la skill `tache` (étape 1).
+- Fait : PR #153 fusionnée ; bloc ramené de 13 à 11 tâches (4.12 à 4.21, 4.7.1), garde-fous de performance et liste « Retiré ou simplifié » dans `05` ; `03` § 4 bis et `02` § 2 bis alignés.
+- Trouvé en relisant : rien n'efface les sessions expirées (purge ajoutée à 4.7.1) ; prolonger la session à chaque requête aurait écrit en base à chaque appel (une écriture par jour au plus) ; aucun planificateur Celery sur le serveur (on n'en ajoute pas).
+- Suite : fusion de la PR, puis 4.12.
 
 ### 2026-10-10 — Plan « Lancement — version finie » (demande de l'utilisateur)
 - Demande : arrêter les nouvelles fonctions et finir une version qui marche de bout en bout ; défauts signalés : déconnexions du Portail, import qui impose des matricules, pas de séparation entre espace réel, espace d'essai et espace de démonstration (une seule plateforme qui les lance, les suspend, les arrête).

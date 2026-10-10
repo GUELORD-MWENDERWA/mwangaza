@@ -11,7 +11,7 @@ Dernière mise à jour : 2026-10-04 (tâche 4.6.2 : serveur de démonstration gr
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
-| 1 | **Relire et fusionner la PR du plan « Lancement — version finie »** : le bloc de 13 tâches dans [`docs/05-plan-de-travail.md`](docs/05-plan-de-travail.md), les espaces réel / essai / démonstration dans [`docs/03-architecture-technique.md`](docs/03-architecture-technique.md) § 4 bis ; fusionner vaut accord sur les décisions de la section « À valider » de la PR ; puis `git switch main && git pull` | 15 min | [ ] |
+| 1 | **Relire et fusionner la PR du plan « Lancement » revu** (plan de départ fusionné, PR #153) : le bloc de 11 tâches et la liste « Retiré ou simplifié » dans [`docs/05-plan-de-travail.md`](docs/05-plan-de-travail.md), les espaces réel / essai / démonstration dans [`docs/03-architecture-technique.md`](docs/03-architecture-technique.md) § 4 bis ; fusionner vaut accord sur les décisions de la section « À valider » de la PR ; puis `git switch main && git pull` | 15 min | [ ] |
 | 2 | **Dire ce que tu vois exactement** : déconnexions du Portail (Q13) et matricule exigé à l'import (Q14), questions dans [`docs/06-suivi.md`](docs/06-suivi.md) | 5 min | [ ] |
 | 3 | **Mettre le serveur de démonstration en ligne**, quand tu veux : [§ 9 ter](#9-ter-serveur-de-démonstration-en-ligne-462) (compte Oracle Cloud, serveur gratuit, adresse DuckDNS, `make deploy-setup`, `make deploy`) | 1 h | [ ] |
 | 4 | Juste après : garder une **copie de `infra/serveur/serveur.env`** en lieu sûr (clé USB, gestionnaire de mots de passe) | 2 min | [ ] |

@@ -39,9 +39,9 @@ Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, compt
 
 Dessinées par Claude en 4.9 (à valider) : invitations au portail et suivi des comptes activés (`gestion/invitations-portail`), lettre d'invitation, deux par A4 (`gestion/lettre-invitation`). Dessinée par Claude en 4.10 (à valider) : mise en page du guide PDF de la version, qui est sa propre maquette (`frontend/guide/guide.html`, jetons du design, résultat `docs/guide/guide-v1.0.pdf`).
 
-### Lancement — version finie (4.12 à 4.23)
+### Lancement — version finie (4.12 à 4.21)
 
-À dessiner par Claude avec leur tâche, d'après les écrans existants (à valider dans la PR de la tâche) : console « Espaces » avec les trois types et les états (`console/ecoles` mise à jour, 4.17), confirmation « Vider / Supprimer » (4.18), création d'un espace de démonstration et fiche d'accès (4.19), bandeau d'essai et de démonstration, reçu « SPÉCIMEN » (4.20), reprise des paiements d'avant Mwangaza (4.21), liste « Mise en route » du tableau de bord (4.22), réglage « Matricules » et annulation d'un import (4.14, 4.15).
+À dessiner par Claude avec leur tâche, d'après les écrans existants (à valider dans la PR de la tâche) : console « Espaces » avec les trois types et l'état « arrêté » (`console/ecoles` mise à jour, 4.15), confirmation « Supprimer » (4.16), création d'un espace de démonstration et fiche d'accès (4.17), bandeau d'essai et de démonstration, reçu « SPÉCIMEN » (4.18), reprise des paiements d'avant Mwangaza (4.19), liste « Mise en route » du tableau de bord (4.20), annulation d'un import (4.14).
 
 ### V1.1 — plateforme, notifications, communication
 

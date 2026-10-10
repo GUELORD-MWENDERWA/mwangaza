@@ -98,16 +98,16 @@ Le **hors-ligne** est conçu dès le premier jour (identifiants, synchronisation
 
 ## 2 bis. Version de lancement (ajouté le 2026-10-10)
 
-Ce qu'il faut en plus pour qu'une vraie école démarre sans aide ; tâches 4.12 à 4.23 et 4.7.1 de `05-plan-de-travail.md`, détail des espaces dans `03-architecture-technique.md` § 4 bis.
+Ce qu'il faut en plus pour qu'une vraie école démarre sans aide ; tâches 4.12 à 4.21 et 4.7.1 de `05-plan-de-travail.md`, détail des espaces dans `03-architecture-technique.md` § 4 bis.
 
-- **A4** — La plateforme n'a qu'une console. J'y crée des espaces de trois types : **réel** (vide, pour une vraie école, rien d'inventé), **essai** (vide, pour moi et les personnes intéressées), **démonstration** (rempli de données fictives). Je lance, suspends, réactive et arrête chaque espace ; un essai peut avoir une date de fin.
-- **A5** — Je vide ou supprime un espace d'essai ou de démonstration ; jamais un espace réel, que j'arrête et dont j'exporte les données.
+- **A4** — La plateforme n'a qu'une console. J'y crée des espaces de trois types : **réel** (vide, pour une vraie école, rien d'inventé), **essai** (vide, pour moi et les personnes intéressées), **démonstration** (rempli de données fictives). Je lance (en le créant), suspends, réactive et arrête chaque espace.
+- **A5** — Je supprime un espace d'essai ou de démonstration ; jamais un espace réel, que j'arrête.
 - **A6** — Je crée un espace de démonstration en un clic et je reçois sa fiche d'accès (adresses, un numéro par rôle, mot de passe, codes famille) à remettre à un visiteur ; je le remets à zéro quand je veux.
-- **A7** — Un espace d'essai ou de démonstration se reconnaît partout : bandeau à l'écran, « SPÉCIMEN » sur les reçus et documents. Ses chiffres ne comptent pas dans ceux de la plateforme.
+- **A7** — Un espace d'essai ou de démonstration se reconnaît partout : bandeau à l'écran, « SPÉCIMEN » sur les reçus. Ses chiffres ne comptent pas dans ceux de la plateforme.
 - **C4** — Le directeur d'une école neuve suit une liste « Mise en route » qui le mène, étape par étape, jusqu'au premier encaissement.
-- **C5** — L'école choisit ses matricules : attribués automatiquement, les siens seulement, ou aucun (remplace « attribué automatiquement » de C3 et D3 quand elle le décide).
-- **D6** — Le secrétariat importe ses élèves sans matricule ; il annule un import raté, crée les classes manquantes depuis le rapport, complète plus tard les élèves déjà importés.
-- **E6** — Une école qui démarre en cours d'année saisit ce que chaque élève a déjà payé avant Mwangaza, sans reçu ni effet sur la caisse du jour.
+- **C5** — L'école choisit si les matricules sont attribués automatiquement (précise C3 et D3) ; sinon elle garde les siens ou n'en a pas.
+- **D6** — Le secrétariat importe ses élèves sans matricule et annule un import raté.
+- **E6** — Une école qui démarre en cours d'année importe ce que chaque élève a déjà payé avant Mwangaza, sans reçu ni effet sur la caisse du jour.
 - **H8** — Le parent reste connecté sur son téléphone, y compris quand le réseau est mauvais ; une session finie le ramène à la connexion avec un message clair.
 - **I4** (précisé) — Sauvegardes et restauration prêtes et essayées sur la machine avant l'achat du stockage ; branchées au vrai stockage à la mise en ligne.
 
