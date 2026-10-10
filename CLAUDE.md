@@ -118,6 +118,7 @@ Adresses en dev : Gestion `http://itig.localhost:5173/app/` (sous-domaine = code
 
 - Une tâche du plan = une branche = une PR, tests inclus (voir « Travail avec GitHub »).
 - Avant de coder une fonction, relire la section correspondante du cahier des charges et du modèle de données.
+- **Regard de développeur senior, avant d'accepter une tâche, un plan ou une demande** (y compris de l'utilisateur) : est-ce vraiment utile ? faisable ? que coûtera-t-il au serveur plus tard (écritures par requête, tâches de fond, taille des tables, requêtes d'un écran chargé souvent) ? Retirer ou simplifier ce qui ne sert pas, le dire avec la raison dans le plan de la tâche et dans « À valider », puis travailler.
 - Après chaque tâche : cocher la case dans `docs/05-plan-de-travail.md` et noter toute décision nouvelle dans la section « Journal des décisions » de `docs/03-architecture-technique.md`.
 - En cas de doute sur une règle scolaire RDC (bulletins, délibération, frais), demander plutôt que supposer.
 

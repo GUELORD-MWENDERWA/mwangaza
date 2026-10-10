@@ -14,9 +14,10 @@ Suivre les étapes dans l'ordre, en appliquant **« Économie de tokens » de `C
 2. Trouver la tâche dans `docs/05-plan-de-travail.md` ; vérifier que ses dépendances sont cochées.
 3. Relire seulement les passages utiles (`grep -n` sur les références A1, F5…, le nom des modèles) de `02-perimetre-v1.md`, `01`, `03`, `04`. Pas de lecture intégrale d'un document déjà connu.
 4. Périmètre : ce qui relève d'une version suivante (`05`, `02` § 1) → le signaler, ne pas le coder.
-5. **Taille** : si la tâche dépasse à peu près un module serveur ou deux écrans, proposer de la découper dans `05` **avant de coder** et attendre la réponse. Tâche simple (écrans de saisie, documents) : rappeler que `/model` permet de passer à Sonnet.
-6. Bloquants et lignes de `07-a-fournir.md` qui touchent la tâche : valeur « en attendant » de `07`, le dire. Règle scolaire RDC floue : demander, ne pas supposer.
-7. Skills à suivre : modèle / service / endpoint → `backend` ; montants → `argent` ; synchronisation → `hors-ligne` ; écran → `ecran`.
+5. **Regard senior** (`CLAUDE.md`, « Façon de travailler ») : chaque point de la tâche est-il vraiment utile, faisable, sans coût caché pour le serveur ? Retirer ou simplifier, noter la raison dans le plan (étape 2.4) et dans « À valider » de la PR.
+6. **Taille** : si la tâche dépasse à peu près un module serveur ou deux écrans, proposer de la découper dans `05` **avant de coder** et attendre la réponse. Tâche simple (écrans de saisie, documents) : rappeler que `/model` permet de passer à Sonnet.
+7. Bloquants et lignes de `07-a-fournir.md` qui touchent la tâche : valeur « en attendant » de `07`, le dire. Règle scolaire RDC floue : demander, ne pas supposer.
+8. Skills à suivre : modèle / service / endpoint → `backend` ; montants → `argent` ; synchronisation → `hors-ligne` ; écran → `ecran`.
 
 ## 2. Démarrer
 
