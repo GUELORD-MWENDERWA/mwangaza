@@ -392,8 +392,10 @@ function Proof({ credit, onDone }: { credit: Detail; onDone: () => void }) {
               <b>{t("credits.proof.title")}</b>
             </p>
             <p>
-              {t("credits.proof.student")} : {credit.student.full_name} · {credit.student.matricule}{" "}
-              · {credit.class_group}
+              {t("credits.proof.student")} :{" "}
+              {[credit.student.full_name, credit.student.matricule, credit.class_group]
+                .filter(Boolean)
+                .join(" · ")}
             </p>
             <p>
               {t("credits.proof.origin")} : {t(`credits.origins.${credit.origin}`)}

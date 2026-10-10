@@ -149,6 +149,9 @@ _TITLES = {
     },
 }
 
+# Colonne « Matricule » : mots (sans accents ni ponctuation) qui veulent dire « pas de matricule ».
+_NO_MATRICULE = {"neant", "na", "nd", "aucun", "sans", "rien", "nil", "null", "none"}
+
 ERROR, WARNING, INFO = "error", "warning", "info"
 ISSUES = {
     "missing_last_name": (ERROR, _("Last name missing")),
@@ -289,6 +292,13 @@ def guess_mapping(headers: list[str]) -> dict:
 # Vérification
 
 
+def _matricule(value: str) -> str:
+    """Matricule de la ligne. « - », « 0 », « néant », « N/A »… remplissent souvent la colonne
+    d'un élève qui n'en a pas : ce n'est pas un matricule (sinon « répété » à chaque ligne)."""
+    key = _key(value)
+    return "" if not key.strip("0") or key in _NO_MATRICULE else value
+
+
 def _class_key(text: str) -> str:
     """« 3ème Élec. A » et « 3E ELEC A » → « 3eeleca »."""
     text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode().lower().strip()
@@ -393,6 +403,7 @@ def _check(imp: StudentImport) -> tuple[dict, list[_Row]]:
             name: cells[column] if column is not None and column < len(cells) else ""
             for name, column in columns.items()
         }
+        values["matricule"] = _matricule(values["matricule"])
         row = _Row(line=line, values=values)
         rows.append(row)
         last_name, first_name = values["last_name"], values["first_name"]
@@ -619,13 +630,15 @@ def run(imp: StudentImport, *, actor: User) -> None:
         Family.objects.bulk_create(families.values(), batch_size=500)
         Guardian.objects.bulk_create(guardians, batch_size=500)
 
-        template = School.objects.values_list("matricule_format", flat=True).get(pk=imp.school_id)
+        automatic, template = School.objects.values_list("auto_matricule", "matricule_format").get(
+            pk=imp.school_id
+        )
         sequence, _created = MatriculeSequence.objects.get_or_create(academic_year=year)
         taken = set(Student.objects.exclude(matricule="").values_list("matricule", flat=True))
         students = []
         for row in rows:
             fields = dict(row.student)
-            if not fields["matricule"]:
+            if automatic and not fields["matricule"]:
                 while True:
                     sequence.last_number += 1
                     fields["matricule"] = matricule.render(
@@ -636,7 +649,8 @@ def run(imp: StudentImport, *, actor: User) -> None:
                     )
                     if fields["matricule"] not in taken:
                         break
-            taken.add(fields["matricule"])
+            if fields["matricule"]:
+                taken.add(fields["matricule"])
             students.append(Student(family=row.family, created_by=actor, **fields))
         sequence.save(update_fields=["last_number", "updated_at"])
         Student.objects.bulk_create(students, batch_size=500)
@@ -694,8 +708,16 @@ def fail(imp: StudentImport) -> None:
 
 
 def template_workbook() -> bytes:
-    """Modèle à remplir : une colonne par champ, titres reconnus à l'import."""
-    return workbook([str(FIELD_LABELS[name]).upper() for name in FIELDS], [])
+    """Modèle à remplir : une colonne par champ, titres reconnus à l'import. « (facultatif) »,
+    ignoré à la lecture comme toute parenthèse, sur les colonnes qu'on peut vider ou retirer sans
+    rien bloquer (la date de naissance manquante donne un avertissement : pas marquée)."""
+    titles = []
+    for name in FIELDS:
+        title = str(FIELD_LABELS[name]).upper()
+        if name not in REQUIRED_FIELDS and name != "birth_date":
+            title = gettext("%(title)s (optional)") % {"title": title}
+        titles.append(title)
+    return workbook(titles, [])
 
 
 def issue_text(issue: dict) -> str:

@@ -211,7 +211,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | http://itig.localhost:5173/app/ | Gestion (le sous-domaine = code de l'école) : connexion avec un compte de `make demo` (mot de passe `mwangaza-demo`, code de `make totp`), menu selon le rôle ; caissier et comptable : guide de première connexion (« Aide et guide » en bas du menu pour le revoir) |
 | http://itig.localhost:5173/app/account | Mon compte : langue, mot de passe, double authentification, écoles, déconnexion |
 | http://itig.localhost:5173/app/settings | Paramètres de l'école : nom, logo, couleur, fuseau, devises (directeur) |
-| http://itig.localhost:5173/app/organisation | Organisation scolaire : année, découpage, niveaux, options, classes, matricule (directeur, directeur des études `0000001002`) |
+| http://itig.localhost:5173/app/organisation | Organisation scolaire : année, découpage, niveaux, options, classes, matricule — son format, et l'interrupteur « Attribuer un matricule automatiquement » (sur non, l'école garde les siens ou n'en a pas) (directeur, directeur des études `0000001002`) |
 | http://itig.localhost:5173/app/staff · …/app/roles | Comptes du personnel ; Rôles et permissions (directeur) |
 | http://itig.localhost:5173/app/audit | Journal d'audit : qui a fait quoi, quand (directeur, promoteur) |
 | http://itig.localhost:5173/app/dashboard | Tableau de bord : encaissé, recouvrement, alertes (directeur `0000001001`, comptable `0000001004`) |

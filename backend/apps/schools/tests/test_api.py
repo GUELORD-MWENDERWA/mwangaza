@@ -22,6 +22,8 @@ def test_each_school_sees_its_own_name(client, school, other_school):
         # … et les montants dans les devises de l'école.
         "enabled_currencies": ["USD", "CDF"],
         "default_currency": "USD",
+        # L'écran d'inscription annonce un matricule seulement si l'école en attribue (C5).
+        "auto_matricule": True,
         # Le reçu imprimé par la caisse (réglages par défaut).
         "receipt": {
             "printer": "thermal_80",

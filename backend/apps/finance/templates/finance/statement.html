@@ -26,7 +26,7 @@ tr.overdue td { font-weight: 700; }
 <p class="center">{% blocktranslate with year=page.year %}School year {{ year }}{% endblocktranslate %}</p>
 
 <table class="identity">
-  <tr><td class="label">{% translate "Student" %}</td><td><b>{{ page.student }}</b></td><td class="label">{% translate "Student number" %}</td><td>{{ page.matricule }}</td></tr>
+  <tr><td class="label">{% translate "Student" %}</td>{% if page.matricule %}<td><b>{{ page.student }}</b></td><td class="label">{% translate "Student number" %}</td><td>{{ page.matricule }}</td>{% else %}<td colspan="3"><b>{{ page.student }}</b></td>{% endif %}</tr>
   <tr><td class="label">{% translate "Class" %}</td><td>{{ page.class_group }}</td><td class="label">{% translate "Guardian" %}</td><td>{{ page.guardian|default:"—" }}</td></tr>
 </table>
 

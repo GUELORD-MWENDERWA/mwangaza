@@ -1754,14 +1754,20 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Format du matricule de l'école (C3) et « Prochain matricule ». */
+        /**
+         * @description Format du matricule de l'école (C3), « Prochain matricule » et choix d'en attribuer un
+         *     automatiquement (C5).
+         */
         get: operations["matricule_format_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** @description Vaut pour les matricules donnés ensuite ; les anciens ne changent pas. */
+        /**
+         * @description Un seul des deux champs suffit. Vaut pour les inscriptions et les imports suivants ;
+         *     les matricules déjà donnés ne changent pas.
+         */
         patch: operations["matricule_format_partial_update"];
         trace?: never;
     };
@@ -4415,6 +4421,8 @@ export interface components {
              *     * `CDF` - Congolese franc
              */
             default_currency: components["schemas"]["CurrencyEnum"];
+            /** Give student numbers automatically */
+            auto_matricule: boolean;
             readonly receipt: components["schemas"]["ReceiptSettings"];
         };
         CurrentSchoolAccess: {
@@ -5203,6 +5211,14 @@ export interface components {
             /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
             matricule_format: string;
         };
+        MatriculeSettings: {
+            /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
+            matricule_format: string;
+            /** @description Prochain matricule : année en cours, première option (C3). */
+            example: string;
+            /** @description Non : ni l'inscription ni l'import ne donnent de matricule ; l'école garde les siens (importés ou saisis sur la fiche) ou n'en a pas (C5). */
+            auto_matricule: boolean;
+        };
         Me: {
             /** Format: uuid */
             id: string;
@@ -5862,9 +5878,11 @@ export interface components {
             name?: string;
             cycle?: components["schemas"]["CycleEnum"];
         };
-        PatchedMatriculeFormatInputRequest: {
+        PatchedMatriculeSettingsInputRequest: {
             /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
             matricule_format?: string;
+            /** @description Non : ni l'inscription ni l'import ne donnent de matricule ; l'école garde les siens (importés ou saisis sur la fiche) ou n'en a pas (C5). */
+            auto_matricule?: boolean;
         };
         PatchedMeUpdateRequest: {
             language?: components["schemas"]["LanguageEnum"];
@@ -13118,7 +13136,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MatriculeFormat"];
+                    "application/json": components["schemas"]["MatriculeSettings"];
                 };
             };
             403: {
@@ -13148,9 +13166,9 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": components["schemas"]["PatchedMatriculeFormatInputRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["PatchedMatriculeFormatInputRequest"];
-                "multipart/form-data": components["schemas"]["PatchedMatriculeFormatInputRequest"];
+                "application/json": components["schemas"]["PatchedMatriculeSettingsInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedMatriculeSettingsInputRequest"];
+                "multipart/form-data": components["schemas"]["PatchedMatriculeSettingsInputRequest"];
             };
         };
         responses: {
@@ -13159,7 +13177,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MatriculeFormat"];
+                    "application/json": components["schemas"]["MatriculeSettings"];
                 };
             };
             400: {

@@ -209,7 +209,7 @@ export function CashDesk({
             <CardContent className="flex flex-wrap items-center gap-3 text-[1.1rem]">
               <Icon name="search" size={22} />
               <b className="min-w-0 flex-1">
-                {[chosen.name, chosen.matricule, chosen.classGroup].join(" · ")}
+                {[chosen.name, chosen.matricule, chosen.classGroup].filter(Boolean).join(" · ")}
               </b>
               <Button variant="outline" size="sm" onClick={() => setChosen(null)}>
                 {t("cash.desk.change")}
@@ -283,7 +283,7 @@ function StudentSearch({
       return {
         id: enrollment.id,
         name,
-        detail: [matricule, classGroup].join(" · "),
+        detail: [matricule, classGroup].filter(Boolean).join(" · "),
         chosen: { enrollment: enrollment.id, name, matricule, classGroup, guardian: null },
       };
     });
@@ -294,7 +294,9 @@ function StudentSearch({
       detail: [
         student.matricule,
         student.enrollment?.class_group_name ?? t("cash.desk.notEnrolled"),
-      ].join(" · "),
+      ]
+        .filter(Boolean)
+        .join(" · "),
       chosen: chosenFrom(student),
     }));
   }

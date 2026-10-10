@@ -809,6 +809,10 @@ export const en: Messages<typeof fr> = {
     },
     matricule: {
       title: "Student number format",
+      auto: "Give student numbers automatically",
+      autoOn: "At enrolment and at import, for each student who has none.",
+      autoOff:
+        "No student number is created. Those from your Excel file or typed on the student's page are kept.",
       label: "Template",
       help: "Variables: {AAAA} start year, {AA}, {0000} 4-digit number, {OPT} track code.",
       next: "Next student number:",
@@ -1163,6 +1167,7 @@ export const en: Messages<typeof fr> = {
       capacity: "Capacity",
       homeroom_teacher: "Homeroom teacher",
       matricule_format: "Student number format",
+      auto_matricule: "Automatic student number",
       sex: "Sex",
       birth_date: "Date of birth",
       birth_place: "Place of birth",
@@ -1326,6 +1331,7 @@ export const en: Messages<typeof fr> = {
     card: {
       created:
         "{{name}} is enrolled in {{className}}: student number {{matricule}}, family code {{code}}.",
+      createdNoMatricule: "{{name}} is enrolled in {{className}}: family code {{code}}.",
       edit: "Edit",
       age_one: "{{count}} year old",
       age_other: "{{count}} years old",
@@ -1464,7 +1470,8 @@ export const en: Messages<typeof fr> = {
       title: "Edit the student",
       submit: "Save",
       schooling: "Schooling",
-      matriculeHelp: "Given at the first enrolment; only correct it if it is wrong.",
+      matriculeHelp:
+        "Given at the first enrolment if the school gives them; otherwise, type the school's own.",
     },
     family: {
       title: "{{name}} family",
@@ -1671,7 +1678,7 @@ export const en: Messages<typeof fr> = {
         ignore: "— ignore —",
         untitled: "Column {{number}}",
         found: "Recognised",
-        unused: "Not used",
+        optional: "Optional",
         required: "Required",
       },
       classes: {

@@ -32,7 +32,7 @@ td.label { width: 22%; }
 
 <table>
   <tr><th colspan="4">{% translate "SCHOOLING" %}</th></tr>
-  <tr><td class="label">{% translate "Class" %}</td><td><b>{{ enrollment.class_group.name }}</b></td><td class="label">{% translate "Student number" %}</td><td><b>{{ student.matricule }}</b></td></tr>
+  <tr><td class="label">{% translate "Class" %}</td>{% if student.matricule %}<td><b>{{ enrollment.class_group.name }}</b></td><td class="label">{% translate "Student number" %}</td><td><b>{{ student.matricule }}</b></td>{% else %}<td colspan="3"><b>{{ enrollment.class_group.name }}</b></td>{% endif %}</tr>
   <tr><td class="label">{% translate "Previous school" %}</td><td colspan="3">{{ student.previous_school }}</td></tr>
 </table>
 

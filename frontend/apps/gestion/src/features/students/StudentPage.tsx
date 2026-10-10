@@ -77,7 +77,7 @@ export function StudentPage({ schedule = false }: { schedule?: boolean }) {
       </p>
       {created && (
         <Banner tone="ok" role="status">
-          {t("students.card.created", {
+          {t(created.matricule ? "students.card.created" : "students.card.createdNoMatricule", {
             name: created.name,
             className: created.className,
             matricule: created.matricule,

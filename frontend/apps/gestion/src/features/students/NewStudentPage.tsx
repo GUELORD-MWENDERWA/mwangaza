@@ -17,7 +17,7 @@ import { z } from "zod";
 import { applyServerErrors } from "../../lib/errors";
 import { uuidv7 } from "../../lib/ids";
 import { formatPhone, studentName } from "../../lib/people";
-import { hasCode, keys } from "../../lib/queries";
+import { hasCode, keys, useSchool } from "../../lib/queries";
 import { useSettled } from "../../lib/settled";
 import { type ClassGroup, useClasses, useYears } from "../organisation/data";
 import type { Created } from "./StudentPage";
@@ -115,6 +115,8 @@ export function NewStudentPage() {
   const years = useYears();
   const year = years.data?.find((candidate) => candidate.is_current);
   const classes = useClasses(year?.id ?? "");
+  // C5 : rien n'est annoncé si l'école n'attribue pas de matricule (il se saisit sur la fiche).
+  const givesMatricule = useSchool().data?.auto_matricule !== false;
   // Un identifiant par écran ouvert : renvoyé tel quel si l'envoi est recommencé.
   const ids = useRef({ student: uuidv7(), enrollment: uuidv7() });
   const [general, setGeneral] = useState<string | null>(null);
@@ -251,20 +253,22 @@ export function NewStudentPage() {
               name="previous_school"
               label={t("students.new.previousSchool")}
             />
-            <Field
-              id="student-matricule"
-              label={t("students.new.matricule")}
-              help={t("students.new.matriculeHelp")}
-            >
-              {(control) => (
-                <Input
-                  {...control}
-                  readOnly
-                  value={t("students.new.matriculeValue")}
-                  className="text-ink-3"
-                />
-              )}
-            </Field>
+            {givesMatricule && (
+              <Field
+                id="student-matricule"
+                label={t("students.new.matricule")}
+                help={t("students.new.matriculeHelp")}
+              >
+                {(control) => (
+                  <Input
+                    {...control}
+                    readOnly
+                    value={t("students.new.matriculeValue")}
+                    className="text-ink-3"
+                  />
+                )}
+              </Field>
+            )}
           </div>
         </Section>
         <PhotoSection form={form} photo={photo} onPhoto={setPhoto} />

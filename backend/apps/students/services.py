@@ -356,13 +356,15 @@ def next_matricule_number(year: AcademicYear | None) -> int:
 
 
 def _give_matricule(year: AcademicYear, group: ClassGroup) -> str:
-    """Prochain matricule de l'année au format de l'école. L'année est verrouillée pendant la
-    transaction : deux inscriptions simultanées n'ont jamais le même numéro. Un numéro déjà pris
-    (matricule saisi à la main ou importé) est sauté."""
-    AcademicYear.objects.select_for_update().get(pk=year.pk)
-    template = School.objects.values_list("matricule_format", flat=True).get(
+    """Prochain matricule de l'année au format de l'école ; vide si l'école n'en attribue pas
+    (C5). L'année est verrouillée pendant la transaction : deux inscriptions simultanées n'ont
+    jamais le même numéro. Un numéro déjà pris (matricule saisi à la main ou importé) est sauté."""
+    automatic, template = School.objects.values_list("auto_matricule", "matricule_format").get(
         pk=require_current_school().pk
     )
+    if not automatic:
+        return ""
+    AcademicYear.objects.select_for_update().get(pk=year.pk)
     sequence, _created = MatriculeSequence.objects.get_or_create(academic_year=year)
     track_code = group.track.code if group.track_id else ""
     number = sequence.last_number
@@ -396,8 +398,8 @@ def enroll(
     enrollment_id: UUID | None = None,
 ) -> tuple[Enrollment, bool]:
     """Inscrit l'élève pour l'année de la classe (D3), avec les frais dus d'après les barèmes. Sa
-    première inscription dans l'école lui donne son matricule ; il le garde ensuite. Renvoie
-    `(inscription, créée)`."""
+    première inscription dans l'école lui donne son matricule (si l'école en attribue, C5) ; il
+    le garde ensuite. Renvoie `(inscription, créée)`."""
     if enrollment_id is not None:
         replayed = Enrollment.objects.filter(pk=enrollment_id).first()
         if replayed is not None:
@@ -417,8 +419,8 @@ def enroll(
             created_by=actor,
             **extra,
         )
-        if not student.matricule:
-            student.matricule = _give_matricule(year, class_group)
+        if not student.matricule and (number := _give_matricule(year, class_group)):
+            student.matricule = number
             student.save(update_fields=["matricule", "updated_at"])
         audit.record(
             Action.STUDENTS_ENROLLED,

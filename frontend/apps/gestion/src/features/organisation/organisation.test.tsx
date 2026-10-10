@@ -70,6 +70,7 @@ function routes(extra: Routes = {}): Routes {
     "GET /api/class-groups/homeroom-candidates/": [teacher],
     "GET /api/matricule-format/": {
       matricule_format: "ITIG-{AAAA}-{0000}",
+      auto_matricule: true,
       example: "ITIG-2026-0001",
     },
     ...extra,
@@ -312,6 +313,30 @@ describe("Organisation scolaire (C1-C3)", () => {
     ).toBeTruthy();
   });
 
+  it("matricule : l'école choisit de ne plus en attribuer, le format ne se règle plus", async () => {
+    const requests = mockApi(
+      routes({
+        "PATCH /api/matricule-format/": {
+          matricule_format: "ITIG-{AAAA}-{0000}",
+          auto_matricule: false,
+          example: "ITIG-2026-0001",
+        },
+      }),
+    );
+    const { user } = renderApp("/organisation");
+
+    await user.click(await screen.findByRole("tab", { name: "Matricule" }));
+    const matricule = await card("Format du matricule");
+    await user.click(
+      matricule.getByRole("switch", { name: /Attribuer un matricule automatiquement/ }),
+    );
+
+    expect(await matricule.findByText(/Aucun matricule n'est créé/)).toBeTruthy();
+    expect(requests.find((r) => r.method === "PATCH")?.body).toEqual({ auto_matricule: false });
+    expect((matricule.getByLabelText("Modèle") as HTMLInputElement).disabled).toBe(true);
+    expect(matricule.queryByText("ITIG-2026-0001")).toBeNull();
+  });
+
   it("matricule : aperçu calculé par le serveur pendant la saisie, refus sous le champ", async () => {
     const all = routes({
       "POST /api/matricule-format/preview/": (request: Request) =>
@@ -324,7 +349,11 @@ describe("Organisation scolaire (C1-C3)", () => {
                 },
               }),
         ),
-      "PATCH /api/matricule-format/": { matricule_format: "LV/{AA}/{000}", example: "LV/26/001" },
+      "PATCH /api/matricule-format/": {
+        matricule_format: "LV/{AA}/{000}",
+        auto_matricule: true,
+        example: "LV/26/001",
+      },
     });
     const requests = mockApi(all);
     const { user } = renderApp("/organisation");

@@ -102,10 +102,12 @@ function ReceiptCopy({ job, school, copy }: { job: Printing; school: School; cop
             <b>{payment.student.full_name}</b>
           </dd>
         </div>
-        <div>
-          <dt>{t("cash.receipt.matricule")}</dt>
-          <dd>{payment.student.matricule}</dd>
-        </div>
+        {payment.student.matricule && (
+          <div>
+            <dt>{t("cash.receipt.matricule")}</dt>
+            <dd>{payment.student.matricule}</dd>
+          </div>
+        )}
         <div>
           <dt>{t("cash.receipt.classGroup")}</dt>
           <dd>{payment.class_group}</dd>

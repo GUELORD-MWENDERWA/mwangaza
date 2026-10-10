@@ -13,6 +13,7 @@ from apps.audit.models import AuditLog
 from apps.core.tenancy import use_school
 from apps.finance import services as finance
 from apps.finance.models import StudentCharge
+from apps.schools.models import School
 from apps.students import imports
 from apps.students.demo import import_rows, import_workbook
 from apps.students.models import Enrollment, Family, Student, StudentImport
@@ -135,6 +136,33 @@ def test_each_row_is_checked_then_imported_once_with_siblings_and_matricules(
     assert response.status_code == 409 and response.json()["code"] == "nothing_to_import"
     response = client.post(f"{IMPORTS}{imp['id']}/confirm/")
     assert response.json()["code"] == "import_closed"
+
+
+def test_waiting_values_are_no_matricule_and_the_school_may_give_none(
+    api, school, head, alpha, django_capture_on_commit_callbacks
+):
+    """4.13 : « - », « 0 », « néant » dans la colonne ne bloquent plus (c'était « matricule
+    répété ») ; une école qui n'attribue pas de matricule n'en reçoit aucun de l'import."""
+    School.objects.filter(pk=school.pk).update(auto_matricule=False)
+    rows = [
+        ["KAMBALE", "", "Josué", "M", "03/05/2010", "3E ELEC A", "", "", "-"],
+        ["KAVIRA", "", "Esther", "F", "05/06/2011", "3E ELEC A", "", "", "-"],
+        ["PALUKU", "", "Daniel", "M", "01/02/2008", "3E ELEC A", "", "", 0],
+        ["SIKULI", "", "Grâce", "F", "17/01/2010", "3E ELEC A", "", "", "Néant"],
+        ["BAHATI", "", "Christian", "M", "09/07/2011", "3E ELEC A", "", "", "ANCIEN-7"],
+        ["MUMBERE", "", "Élie", "M", "09/08/2011", "3E ELEC A", "", "", "ANCIEN-7"],
+    ]
+    client = api(head)
+    imp = upload(client, xlsx(rows)).json()
+    assert statuses(client, imp["id"]) == {
+        **{line: ("ready", []) for line in range(3, 8)},
+        8: ("error", ["matricule_repeated"]),
+    }
+    with django_capture_on_commit_callbacks(execute=True):
+        client.post(f"{IMPORTS}{imp['id']}/confirm/")
+    with use_school(school):
+        numbers = sorted(Student.objects.values_list("matricule", flat=True))
+    assert numbers == ["", "", "", "", "ANCIEN-7"]
 
 
 def test_import_of_one_school_is_invisible_to_another(api, school, head, alpha, other_head, beta):

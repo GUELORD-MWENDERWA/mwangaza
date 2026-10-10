@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.12 terminée, PR à relire et fusionner |
-| Prochaine tâche | 4.13 (Import — matricule jamais imposé) |
-| Issue GitHub | #156 pour 4.13 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.12-portail-connexion` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.13 terminée, PR à relire et fusionner |
+| Prochaine tâche | 4.14 (Annuler un import) |
+| Issue GitHub | #157 pour 4.14 (bloc : #155 à #165, créées le 2026-10-10) |
+| Branche | `tache/4.13-import-matricule` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-10 |
 
 ## Avancement
@@ -23,8 +23,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.21, 4.7.1) | 1 | 11 |
-| **V1.0** | **51** | **63** |
+| Lancement — version finie (4.12 à 4.21, 4.7.1) | 2 | 11 |
+| **V1.0** | **52** | **63** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -50,13 +50,19 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 |---|---|---|---|
 | Q12 | Découpage officiel de l'année au **primaire** (trimestres ? périodes et examens par trimestre ?) : pour proposer un modèle « primaire » à la création d'une année (C1) | avant la première école primaire (aucune en V1.0 : l'ITIG n'a pas de primaire) | pas de modèle « primaire » : une école du primaire part du modèle « 3 trimestres, 6 périodes, 3 examens » ou d'un découpage vide, et l'ajuste |
 
-| Q14 | **Import** : à quel moment le matricule est-il exigé (message exact, fichier utilisé) ? Dans le code la colonne est facultative, mais un matricule est créé d'office pour chaque élève | 4.13 | la tâche commence par reproduire ; le matricule devient un choix de l'école |
 
-Q1 à Q11 tranchées le 2026-09-26, Q13 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
+Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-10 — Tâche 4.13 : Import, matricule jamais imposé
+- Q14 tranchée en reproduisant : la colonne était bien facultative ; le blocage venait d'une colonne « Matricule » remplie de « - », « 0 » ou « néant », refusée dès la 2e ligne (« Matricule répété »). Ces valeurs veulent maintenant dire « pas de matricule ».
+- Fait : interrupteur « Attribuer un matricule automatiquement » (`School.auto_matricule`, oui par défaut) sur la carte « Format du matricule » ; sur non, ni l'inscription ni l'import n'en créent. Modèle Excel et étape « Colonnes » : « facultatif ». Plus de « Matricule » vide : reçu, reçu d'annulation, preuve d'avoir, caisse, reçu du portail, relevé, fiche d'inscription, liste de classe.
+- Tests : valeurs d'attente importées sans matricule (vrai matricule répété toujours refusé), inscription sans matricule puis reprise de la séquence, interrupteur (journal, autre école intacte) ; Vitest : interrupteur.
+- Décisions (`03`) : pas de saisie du matricule à l'inscription (colonne de l'import ou « Modifier » sur la fiche) ; même action de journal que le format.
+- Suite : fusion de la PR, puis 4.14.
 
 ### 2026-10-10 — Tâche 4.12 : Portail, connexion fiable
 - Fait : « Rester connecté » = 90 jours après la dernière visite (prolongés par `/api/portal/me/` seul, une écriture par jour et par appareil au plus) ; décoché = 12 heures, cookie daté ; réseau coupé : la page reste ; session finie (au retour ou en cours d'usage) : connexion avec le numéro rempli, message, retour à la page demandée, données de la famille effacées du téléphone ; `make demo` ne ferme plus les sessions ouvertes. Issues #155 à #165 créées (une par tâche du bloc).

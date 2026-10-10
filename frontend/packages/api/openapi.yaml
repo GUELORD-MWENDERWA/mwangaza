@@ -5829,7 +5829,9 @@ paths:
   /api/matricule-format/:
     get:
       operationId: matricule_format_retrieve
-      description: Format du matricule de l'école (C3) et « Prochain matricule ».
+      description: |-
+        Format du matricule de l'école (C3), « Prochain matricule » et choix d'en attribuer un
+        automatiquement (C5).
       tags:
       - organisation
       security:
@@ -5839,7 +5841,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MatriculeFormat'
+                $ref: '#/components/schemas/MatriculeSettings'
           description: ''
         '403':
           content:
@@ -5855,21 +5857,22 @@ paths:
           description: ''
     patch:
       operationId: matricule_format_partial_update
-      description: Vaut pour les matricules donnés ensuite ; les anciens ne changent
-        pas.
+      description: |-
+        Un seul des deux champs suffit. Vaut pour les inscriptions et les imports suivants ;
+        les matricules déjà donnés ne changent pas.
       tags:
       - organisation
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedMatriculeFormatInputRequest'
+              $ref: '#/components/schemas/PatchedMatriculeSettingsInputRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedMatriculeFormatInputRequest'
+              $ref: '#/components/schemas/PatchedMatriculeSettingsInputRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedMatriculeFormatInputRequest'
+              $ref: '#/components/schemas/PatchedMatriculeSettingsInputRequest'
       security:
       - cookieAuth: []
       responses:
@@ -5877,7 +5880,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MatriculeFormat'
+                $ref: '#/components/schemas/MatriculeSettings'
           description: ''
         '400':
           content:
@@ -12838,6 +12841,9 @@ components:
 
             * `USD` - US dollar
             * `CDF` - Congolese franc
+        auto_matricule:
+          type: boolean
+          title: Give student numbers automatically
         receipt:
           allOf:
           - $ref: '#/components/schemas/ReceiptSettings'
@@ -12852,6 +12858,7 @@ components:
       - timezone
       - enabled_currencies
       - default_currency
+      - auto_matricule
       - receipt
     CurrentSchoolAccess:
       type: object
@@ -14603,6 +14610,26 @@ components:
           maxLength: 60
       required:
       - matricule_format
+    MatriculeSettings:
+      type: object
+      properties:
+        matricule_format:
+          type: string
+          description: 'Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro,
+            3 à 6 chiffres), {OPT} (code de l''option).'
+          maxLength: 60
+        example:
+          type: string
+          description: 'Prochain matricule : année en cours, première option (C3).'
+        auto_matricule:
+          type: boolean
+          description: 'Non : ni l''inscription ni l''import ne donnent de matricule
+            ; l''école garde les siens (importés ou saisis sur la fiche) ou n''en
+            a pas (C5).'
+      required:
+      - matricule_format
+      - example
+      - auto_matricule
     Me:
       type: object
       properties:
@@ -15790,7 +15817,7 @@ components:
           maxLength: 40
         cycle:
           $ref: '#/components/schemas/CycleEnum'
-    PatchedMatriculeFormatInputRequest:
+    PatchedMatriculeSettingsInputRequest:
       type: object
       properties:
         matricule_format:
@@ -15799,6 +15826,11 @@ components:
           description: 'Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro,
             3 à 6 chiffres), {OPT} (code de l''option).'
           maxLength: 60
+        auto_matricule:
+          type: boolean
+          description: 'Non : ni l''inscription ni l''import ne donnent de matricule
+            ; l''école garde les siens (importés ou saisis sur la fiche) ou n''en
+            a pas (C5).'
     PatchedMeUpdateRequest:
       type: object
       properties:
