@@ -6,13 +6,13 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | V1.1 — plateforme, notifications, communication |
-| Lot | V1.1 |
-| Tâche en cours | aucune — 4.6.2 terminée (PR à fusionner) |
-| Prochaine tâche | 5.5.2 |
-| Issue GitHub | #34 (4.6) |
-| Branche | `tache/4.6.2-mise-en-ligne-gratuite` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-04 |
+| Phase | Lancement — version finie (passe devant la suite de la V1.1) |
+| Lot | V1.0 |
+| Tâche en cours | aucune — plan du bloc « Lancement — version finie » à valider (PR) |
+| Prochaine tâche | 4.12 (Portail — rester connecté) |
+| Issue GitHub | une par tâche du bloc, créées au début de 4.12 (plan validé) |
+| Branche | `plan/lancement-version-finie` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-10 |
 
 ## Avancement
 
@@ -22,9 +22,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production | 16 | 18 |
-| **V1.0** | **50** | **52** |
-| V1.1 — plateforme, notifications, communication | 8 | 11 |
+| Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
+| Lancement — version finie (4.12 à 4.23, 4.7.1) | 0 | 13 |
+| **V1.0** | **50** | **65** |
+| V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
 | V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
@@ -49,11 +50,20 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 |---|---|---|---|
 | Q12 | Découpage officiel de l'année au **primaire** (trimestres ? périodes et examens par trimestre ?) : pour proposer un modèle « primaire » à la création d'une année (C1) | avant la première école primaire (aucune en V1.0 : l'ITIG n'a pas de primaire) | pas de modèle « primaire » : une école du primaire part du modèle « 3 trimestres, 6 périodes, 3 examens » ou d'un découpage vide, et l'ajuste |
 
-Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q13.
+| Q13 | Déconnexions du **Portail** : que se passe-t-il exactement (renvoyé à la connexion en rouvrant l'application ? après combien de temps ? sur quel téléphone, application installée ou navigateur ? sur le serveur de démonstration ou en local ?) | 4.12 | la tâche commence par reproduire ; causes déjà vues dans le code : session de 30 jours non prolongée, session perdue en quittant l'application si « Rester connecté » est décoché, réseau lent traité comme une session finie |
+| Q14 | **Import** : à quel moment le matricule est-il exigé (message exact, fichier utilisé) ? Dans le code la colonne est facultative, mais un matricule est créé d'office pour chaque élève | 4.14 | la tâche commence par reproduire ; le matricule devient un choix de l'école |
+
+Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-10 — Plan « Lancement — version finie » (demande de l'utilisateur)
+- Demande : arrêter les nouvelles fonctions et finir une version qui marche de bout en bout ; défauts signalés : déconnexions du Portail, import qui impose des matricules, pas de séparation entre espace réel, espace d'essai et espace de démonstration (une seule plateforme qui les lance, les suspend, les arrête).
+- Fait : bloc de 13 tâches dans `05` (4.12 à 4.23 et 4.7.1 ; 4.7 découpée) ; espaces décrits dans `03` § 4 bis ; périmètre `02` § 2 bis. Ajouté d'office : matricule facultatif, annulation d'un import, reprise des paiements d'avant Mwangaza, mise en route d'une école neuve, marquage « SPÉCIMEN », sauvegardes essayées sur la machine, recette finale. PR 4.6.2 fusionnée (#152).
+- Décisions (à valider en fusionnant) : un seul serveur et une seule console ; type d'espace fixé à la création ; comptes de démonstration dans une plage réservée, sans double authentification ; effacement réservé aux espaces d'essai et de démonstration ; 5.5.2, 5.6 et 5.7 en pause.
+- Suite : réponses à Q13 et Q14, puis 4.12. Après le bloc : achat du domaine, 4.6.3 et 4.7.2.
 
 ### 2026-10-04 — Tâche 4.6.2 : serveur de démonstration gratuit en ligne, rangement du dépôt
 - Fait (choix de l'utilisateur : Oracle Cloud « Always Free » + DuckDNS, 0 $) : `make deploy-setup` (une fois : mises à jour automatiques, Docker, ports 80/443, SSH par clé), `make deploy` (code de `main` envoyé par SSH, construit sur le serveur), `deploy-demo`, `deploy-superuser`, `deploy-logs`, `deploy-ssh` ; `essai.py --serveur` (`infra/serveur/serveur.env`, hors Git). Démo du serveur : mot de passe propre (`DJANGO_DEMO_PASSWORD`), pas de clé commune, chacun lie Google Authenticator. Activation sur téléphone : « Ajouter à mon application » (lien `otpauth://`), « Copier la clé » ; QR code dans l'administration Django.
