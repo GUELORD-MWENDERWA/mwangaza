@@ -7128,7 +7128,9 @@ paths:
   /api/portal/me/:
     get:
       operationId: portal_me_retrieve
-      description: Le compte connecté au portail.
+      description: |-
+        Le compte connecté au portail. Lu à chaque ouverture du portail et à chaque retour au
+        premier plan : c'est ici, et seulement ici, que la session est prolongée.
       tags:
       - portal
       security:
@@ -13590,7 +13592,8 @@ components:
         remember:
           type: boolean
           default: false
-          description: '« Rester connecté » : 30 jours sur ce téléphone.'
+          description: '« Rester connecté » : 90 jours après la dernière visite ;
+            sinon 12 heures.'
       required:
       - code
       - password
@@ -16631,7 +16634,8 @@ components:
         remember:
           type: boolean
           default: false
-          description: '« Rester connecté » : 30 jours sur ce téléphone.'
+          description: '« Rester connecté » : 90 jours après la dernière visite ;
+            sinon 12 heures.'
       required:
       - password
       - phone

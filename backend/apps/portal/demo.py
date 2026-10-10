@@ -10,7 +10,7 @@ from datetime import timedelta
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
 
-from apps.accounts.demo import demo_password
+from apps.accounts.demo import demo_password, set_demo_password
 from apps.accounts.models import User
 from apps.accounts.phone import InvalidPhoneError, normalize_phone
 from apps.core.tenancy import use_school
@@ -41,7 +41,7 @@ def create_demo_portal(schools: dict[str, School]) -> DemoPortal | None:
     if user is None:
         user = User.objects.create_user(phone, demo_password(), last_name=primary.full_name[:100])
     else:
-        user.set_password(demo_password())
+        set_demo_password(user)
         user.save(update_fields=["password", "updated_at"])
     Family.all_schools.filter(primary_user=user).exclude(pk=itig.pk).update(
         primary_user=None, activated_at=None

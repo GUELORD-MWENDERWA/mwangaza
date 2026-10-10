@@ -120,6 +120,7 @@ def test_demo_can_run_twice_and_resets_the_demo(demo):
     head = User.objects.get(phone="+243000001001")
     head.set_password("changé")
     head.save()
+    kept = User.objects.get(phone="+243000001002").password
     PlatformSettings.objects.update(name="Lumière", primary_color="#000000")
 
     call_command("demo")
@@ -136,6 +137,8 @@ def test_demo_can_run_twice_and_resets_the_demo(demo):
         cashier = Role.objects.get(code="cashier")
     assert (cashier.name, cashier.permissions) == ("", list(SYSTEM_ROLES["cashier"].permissions))
     assert authenticate(username="0000001001", password=DEMO_PASSWORD) == head
+    # Mot de passe déjà le bon : hachage gardé, `make demo` ne ferme pas les sessions ouvertes.
+    assert User.objects.get(phone="+243000001002").password == kept
 
 
 def test_demo_students_with_siblings_and_a_family_in_both_schools(demo):

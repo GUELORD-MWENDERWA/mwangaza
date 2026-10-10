@@ -5,8 +5,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { Link, NavLink } from "react-router";
 
-import { accountKey } from "../../lib/account";
-import { forgetOfflineData, useFamilies } from "../../lib/families";
+import { accountKey, forgetFamilyData, forgetLastSession } from "../../lib/account";
+import { useFamilies } from "../../lib/families";
 
 /** Pages du compte (maquettes `accueil`, `enfant-paiements`, `annonces`) : en-tête sombre avec
  *  la marque et la déconnexion, ou, sur la page d'un enfant (`title`), le retour à l'accueil et
@@ -78,14 +78,14 @@ export function PortalFrame({
   );
 }
 
-/** Déconnexion : rien de cette famille ne reste sur le téléphone, ni en mémoire ni hors ligne. */
+/** Déconnexion : rien de cette famille ne reste sur le téléphone, ni ses données ni son numéro. */
 export function useLogout() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => call(api.POST("/api/auth/logout/")),
     onSuccess: async () => {
-      await forgetOfflineData();
-      queryClient.removeQueries({ queryKey: ["portal"] });
+      forgetLastSession();
+      await forgetFamilyData(queryClient);
       queryClient.setQueryData(accountKey, null);
     },
   });

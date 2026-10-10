@@ -2842,6 +2842,7 @@ export const en: Messages<typeof fr> = {
       phonePlaceholder: "E.g. 0971234567",
       password: "Password",
       remember: "Stay logged in on this phone",
+      sessionEnded: "Your session has ended. Log in again to continue.",
       submit: "Log in",
       forgot: "Forgot your password?",
       firstTime: "First time? You need the <b>family code</b> printed on the registration form.",

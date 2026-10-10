@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { apiError, mockApi, renderApp } from "../../test/render";
@@ -30,6 +30,69 @@ describe("accès au portail", () => {
       password: "Lac-Kivu-2026",
       remember: true,
     });
+  });
+
+  it("session finie en cours d'usage : numéro rempli, message, retour à la page demandée ; déconnexion : rien de gardé", async () => {
+    let session = false;
+    const guarded = (body: object) => () => (session ? body : LOGGED_OUT);
+    mockApi({
+      "GET /api/portal/me/": guarded(ACCOUNT),
+      "GET /api/auth/csrf/": {},
+      "POST /api/portal/auth/login/": () => ((session = true), ACCOUNT),
+      "GET /api/portal/families/": guarded([]),
+      "GET /api/portal/announcements/": guarded({
+        count: 0,
+        next: null,
+        previous: null,
+        results: [],
+      }),
+      "POST /api/auth/logout/": () => ((session = false), new Response(null, { status: 204 })),
+    });
+    const { user, router } = renderApp("/login");
+    const phone = () => screen.getByLabelText<HTMLInputElement>("Numéro de téléphone");
+    const logIn = async () => {
+      await user.type(screen.getByLabelText("Mot de passe"), "Lac-Kivu-2026");
+      await user.click(screen.getByRole("button", { name: "Se connecter" }));
+    };
+    await user.type(await screen.findByLabelText("Numéro de téléphone"), "0971234567");
+    await logIn();
+    await screen.findByRole("heading", { name: "Mes enfants" });
+
+    session = false; // le serveur ne reconnaît plus le compte
+    await user.click(screen.getByRole("link", { name: "Annonces" }));
+    await screen.findByText("Votre session est terminée. Reconnectez-vous pour continuer.");
+    expect(phone().value).toBe(ACCOUNT.phone);
+    await logIn();
+    await waitFor(() => expect(router.state.location.pathname).toBe("/announcements"));
+
+    await user.click(await screen.findByRole("link", { name: "Accueil" }));
+    await user.click(await screen.findByRole("button", { name: "Se déconnecter" }));
+    await screen.findByRole("heading", { name: "Se connecter" });
+    expect(phone().value).toBe("");
+    expect(screen.queryByText(/session est terminée/)).toBeNull();
+  });
+
+  it("réseau coupé au retour dans l'application : la page reste, pas de retour à la connexion", async () => {
+    let offline = false;
+    const online = (body: object) => () => {
+      if (offline) throw new TypeError("Failed to fetch");
+      return body;
+    };
+    const requests = mockApi({
+      "GET /api/portal/me/": online(ACCOUNT),
+      "GET /api/portal/families/": online([]),
+    });
+    const { router } = renderApp("/");
+    await screen.findByRole("heading", { name: "Mes enfants" });
+
+    offline = true;
+    window.dispatchEvent(new Event("visibilitychange"));
+    await waitFor(() =>
+      expect(requests.filter((r) => r.path === "/api/portal/me/")).toHaveLength(2),
+    );
+    await screen.findByText("Pas de connexion au serveur. Vérifiez internet et réessayez.");
+    expect(screen.getByRole("heading", { name: "Mes enfants" })).toBeTruthy();
+    expect(router.state.location.pathname).toBe("/");
   });
 
   it("activation refusée : l'erreur du serveur traduite, et sous le champ quand elle le vise", async () => {

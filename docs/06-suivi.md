@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — plan du bloc « Lancement — version finie » revu, à valider (PR) |
-| Prochaine tâche | 4.12 (Portail — connexion fiable) |
-| Issue GitHub | une par tâche du bloc, créées au début de 4.12 (plan validé) |
-| Branche | `plan/lancement-revue-senior` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.12 terminée, PR à relire et fusionner |
+| Prochaine tâche | 4.13 (Import — matricule jamais imposé) |
+| Issue GitHub | #156 pour 4.13 (bloc : #155 à #165, créées le 2026-10-10) |
+| Branche | `tache/4.12-portail-connexion` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-10 |
 
 ## Avancement
@@ -23,8 +23,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.21, 4.7.1) | 0 | 11 |
-| **V1.0** | **50** | **63** |
+| Lancement — version finie (4.12 à 4.21, 4.7.1) | 1 | 11 |
+| **V1.0** | **51** | **63** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -50,14 +50,19 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 |---|---|---|---|
 | Q12 | Découpage officiel de l'année au **primaire** (trimestres ? périodes et examens par trimestre ?) : pour proposer un modèle « primaire » à la création d'une année (C1) | avant la première école primaire (aucune en V1.0 : l'ITIG n'a pas de primaire) | pas de modèle « primaire » : une école du primaire part du modèle « 3 trimestres, 6 périodes, 3 examens » ou d'un découpage vide, et l'ajuste |
 
-| Q13 | Déconnexions du **Portail** : que se passe-t-il exactement (renvoyé à la connexion en rouvrant l'application ? après combien de temps ? sur quel téléphone, application installée ou navigateur ? sur le serveur de démonstration ou en local ?) | 4.12 | la tâche commence par reproduire ; causes déjà vues dans le code : session de 30 jours non prolongée, session perdue en quittant l'application si « Rester connecté » est décoché, réseau lent traité comme une session finie |
 | Q14 | **Import** : à quel moment le matricule est-il exigé (message exact, fichier utilisé) ? Dans le code la colonne est facultative, mais un matricule est créé d'office pour chaque élève | 4.13 | la tâche commence par reproduire ; le matricule devient un choix de l'école |
 
-Q1 à Q11 tranchées le 2026-09-26 (voir le journal). Prochain numéro : Q15.
+Q1 à Q11 tranchées le 2026-09-26, Q13 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-10 — Tâche 4.12 : Portail, connexion fiable
+- Fait : « Rester connecté » = 90 jours après la dernière visite (prolongés par `/api/portal/me/` seul, une écriture par jour et par appareil au plus) ; décoché = 12 heures, cookie daté ; réseau coupé : la page reste ; session finie (au retour ou en cours d'usage) : connexion avec le numéro rempli, message, retour à la page demandée, données de la famille effacées du téléphone ; `make demo` ne ferme plus les sessions ouvertes. Issues #155 à #165 créées (une par tâche du bloc).
+- Tests : serveur (durées, cookie daté, prolongation le lendemain et pas deux fois le même jour, 12 heures dépassées) ; Vitest (session finie en cours d'usage puis déconnexion, réseau coupé).
+- Q13 tranchée par la lecture du code : 6 causes, dans `docs/claude/plans/tache-4.12.md`. **Pas essayé sur un vrai téléphone** : à faire par l'utilisateur (`A-FAIRE.md`, « Maintenant »). Décisions (`03`) : pas de Playwright pour le Portail ; limite par adresse IP et délai de 10 s du service worker inchangés.
+- Suite : fusion de la PR, puis 4.13.
 
 ### 2026-10-10 — Plan « Lancement » revu en développeur senior (demande de l'utilisateur)
 - Demande : ne pas accepter un programme tel quel ; se demander d'abord si c'est utile, faisable, et sans coût pour le serveur plus tard. Règle ajoutée à `CLAUDE.md` (« Façon de travailler ») et à la skill `tache` (étape 1).
