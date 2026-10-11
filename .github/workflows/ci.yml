@@ -1,4 +1,6 @@
 # Contrôles de chaque PR et de main, avec les mêmes commandes `make` que sur la machine.
+# Une PR ne lance que les contrôles concernés par les fichiers qu'elle change
+# (`.github/scripts/changes.sh`) ; `main` relance toujours tout après une fusion.
 name: CI
 
 on:
@@ -14,8 +16,40 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    name: Fichiers changés
+    runs-on: ubuntu-24.04
+    outputs:
+      backend: ${{ steps.areas.outputs.backend }}
+      frontend: ${{ steps.areas.outputs.frontend }}
+      e2e: ${{ steps.areas.outputs.e2e }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Une PR est testée fusionnée dans `main` : ce commit et ses deux parents suffisent.
+          fetch-depth: 2
+      - name: Contrôles à lancer
+        id: areas
+        env:
+          EVENT: ${{ github.event_name }}
+        # `shell: bash` : une erreur du script arrête l'étape (pipefail), au lieu de tout sauter.
+        shell: bash
+        run: |
+          if [ "$EVENT" = pull_request ]; then
+            # Premier parent = `main` : la différence est ce que la PR change. Diff impossible :
+            # liste vide, donc tout est lancé.
+            files=$(git -c core.quotePath=false diff --name-only HEAD^1 HEAD || true)
+          else
+            files=
+          fi
+          echo "$files"
+          echo "$files" | bash .github/scripts/changes.sh | tee -a "$GITHUB_OUTPUT"
+
+  # Chaque contrôle n'est sauté que sur un « false » explicite : sortie absente, il tourne.
   backend:
     name: Backend (ruff, pytest, OpenAPI)
+    needs: changes
+    if: needs.changes.outputs.backend != 'false'
     runs-on: ubuntu-24.04
     services:
       postgres:
@@ -56,6 +90,8 @@ jobs:
 
   frontend:
     name: Frontend (ESLint, Prettier, types, Vitest, build)
+    needs: changes
+    if: needs.changes.outputs.frontend != 'false'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
@@ -84,6 +120,8 @@ jobs:
 
   e2e:
     name: Parcours dans le navigateur (Playwright)
+    needs: changes
+    if: needs.changes.outputs.e2e != 'false'
     runs-on: ubuntu-24.04
     services:
       postgres:

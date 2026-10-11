@@ -11,7 +11,7 @@ Dernière mise à jour : 2026-10-11 (tâche 4.14 : annuler un import).
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
-| 1 | **Relire et fusionner la PR « 4.15 — captures de la maquette `console/ecoles` »** (suite de la tâche 4.15, déjà fusionnée), puis `git switch main && git pull` | 2 min | [ ] |
+| 1 | **Relire et fusionner la PR « Contrôles GitHub selon les fichiers changés »**, puis `git switch main && git pull` | 5 min | [ ] |
 | 2 | **Essayer le Portail sur ton vrai téléphone**, ce que je ne peux pas faire (navigateur, puis application installée ; Android et iPhone si possible) : [§ 9 bis](#9-bis-essai-sur-plusieurs-appareils-411) (`make reseau`), parent `0002000001`, quitter l'application, la rouvrir plus tard et le lendemain, couper le réseau. Me dire si une déconnexion revient (quand, sur quel téléphone), et **à quel moment l'import exige un matricule** (Q14, [`docs/06-suivi.md`](docs/06-suivi.md)) | 15 min | [ ] |
 | 3 | **Mettre le serveur de démonstration en ligne**, quand tu veux : [§ 9 ter](#9-ter-serveur-de-démonstration-en-ligne-462) (compte Oracle Cloud, serveur gratuit, adresse DuckDNS, `make deploy-setup`, `make deploy`) | 1 h | [ ] |
 | 4 | Juste après : garder une **copie de `infra/serveur/serveur.env`** en lieu sûr (clé USB, gestionnaire de mots de passe) | 2 min | [ ] |
@@ -127,7 +127,7 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 **En 5 étapes** (10 à 20 minutes) :
 
 1. **Ouvrir la PR** : le lien donné par Claude, ou `gh pr view <numéro> --web`. En haut, vérifier **`base: main`** ; sinon, ne pas fusionner et le dire à Claude.
-2. **Contrôles verts** : en bas de la page, « All checks have passed » ✔ (ou `gh pr checks <numéro>`). Une croix rouge ✘ : ne pas fusionner, donner le numéro à Claude.
+2. **Contrôles verts** : en bas de la page, « All checks have passed » ✔ (ou `gh pr checks <numéro>`). Une croix rouge ✘ : ne pas fusionner, donner le numéro à Claude. Un contrôle gris « Skipped » est normal : il n'a pas de rapport avec les fichiers de la PR (une PR de documents ou de maquettes ne lance aucun test, une PR d'écrans ne lance pas les tests du serveur) ; tout est relancé sur `main` après la fusion.
 3. **Lire la description** : correspond-elle à la tâche (`docs/05-plan-de-travail.md`) ? Puis **« À valider »** : ce que tu acceptes en fusionnant.
    - D'accord : étape 4.
    - Pas d'accord : un commentaire sur la PR (onglet *Conversation*, ou sur une ligne dans *Files changed*), puis dire à Claude « regarde les commentaires de la PR #n ». Il corrige **dans la même PR** et te la redonne quand elle est verte.
