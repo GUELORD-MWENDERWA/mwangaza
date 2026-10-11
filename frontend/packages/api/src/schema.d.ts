@@ -3081,7 +3081,7 @@ export interface paths {
         };
         /**
          * @description Avec un droit de lecture des frais, le solde de l'inscription de chaque élève de la
-         *     page (`finance`) : deux requêtes de plus, quelle que soit la taille de la page.
+         *     page (`finance`) : trois requêtes de plus, quelle que soit la taille de la page.
          */
         get: operations["students_list"];
         put?: never;

@@ -717,11 +717,14 @@ def discount_shares(charges: list[StudentCharge], discounts: list[Discount]) -> 
     au total, puis se répartissent au prorata des échéances (`prorate` : l'écart d'arrondi sur
     les dernières). Réductions retirées, frais retirés ou remplacés : ignorés. Même calcul dans
     `@mwangaza/money` (tableau « Effet sur ce que doit l'élève »). Renvoie {id du frais: part}."""
-    groups = defaultdict(list)
-    for charge in charges:
-        if charge.status == StudentCharge.Status.ACTIVE:
-            groups[charge.fee_type_id, charge.currency].append(charge)
     live = [discount for discount in discounts if discount.revoked_at is None]
+    active = [charge for charge in charges if charge.status == StudentCharge.Status.ACTIVE]
+    if not live:
+        # Le cas de presque tous les élèves : rien à répartir, ni tri ni prorata.
+        return {charge.pk: 0 for charge in active}
+    groups = defaultdict(list)
+    for charge in active:
+        groups[charge.fee_type_id, charge.currency].append(charge)
     shares = {}
     for (fee_type_id, currency), group in groups.items():
         group.sort(key=lambda charge: (charge.due_on, charge.label, str(charge.pk)))
@@ -958,7 +961,7 @@ def charges_of(enrollment_id) -> list[StudentCharge]:
 # Colonnes du solde et des listes : lire des milliers de frais dus (impayés) sans le reste.
 BALANCE_FIELDS = (
     "enrollment",
-    "fee_type__name",
+    "fee_type",
     "label",
     "amount_minor",
     "currency",
@@ -969,12 +972,21 @@ BALANCE_FIELDS = (
 
 def charges_by_enrollment(enrollment_ids, *, light: bool = False) -> dict:
     """`charges_of` pour plusieurs inscriptions (une classe), en deux requêtes :
-    {id de l'inscription: frais dus} ; `light` : seulement `BALANCE_FIELDS`."""
+    {id de l'inscription: frais dus}, et une troisième pour leurs types de frais ; `light` :
+    seulement `BALANCE_FIELDS`."""
     charges, discounts = defaultdict(list), defaultdict(list)
-    queryset = StudentCharge.objects.filter(enrollment_id__in=enrollment_ids)
+    # Sans `select_related` : un objet par type de frais et non un par frais dû, soit la moitié
+    # des objets créés sur les milliers de lignes des impayés, du tableau de bord et de la
+    # première synchronisation (mesuré à la recette, 4.21).
+    queryset = _ordered(StudentCharge.objects.filter(enrollment_id__in=enrollment_ids))
+    queryset = queryset.select_related(None)
     if light:
         queryset = queryset.only(*BALANCE_FIELDS)
-    for charge in _ordered(queryset):
+    rows = list(queryset)
+    fee_types = FeeType.objects.in_bulk({charge.fee_type_id for charge in rows})
+    fee_type = StudentCharge._meta.get_field("fee_type")
+    for charge in rows:
+        fee_type.set_cached_value(charge, fee_types[charge.fee_type_id])
         charges[charge.enrollment_id].append(charge)
     for discount in Discount.objects.filter(enrollment_id__in=enrollment_ids):
         discounts[discount.enrollment_id].append(discount)

@@ -192,7 +192,7 @@ class StudentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, StudentsV
 
     def list(self, request: Request) -> Response:
         """Avec un droit de lecture des frais, le solde de l'inscription de chaque élève de la
-        page (`finance`) : deux requêtes de plus, quelle que soit la taille de la page."""
+        page (`finance`) : trois requêtes de plus, quelle que soit la taille de la page."""
         page = self.paginate_queryset(self.filter_queryset(self.get_queryset()))
         balances = None
         if not school_access(request).permissions.isdisjoint(CHARGES_READ):

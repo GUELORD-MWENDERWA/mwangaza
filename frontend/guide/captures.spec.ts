@@ -2,7 +2,7 @@ import { mkdirSync } from "node:fs";
 
 import { expect, test, type Page } from "@playwright/test";
 
-import { allowCodeAgain, manage, totp, unpaidStudent } from "../e2e/django";
+import { allowCodeAgain, manage, unpaidStudent } from "../e2e/django";
 import { enterCode, ITIG, PASSWORD, skipGuide } from "../e2e/helpers";
 
 // Version du guide et nom de la plateforme, écrits dans la page (`data-guide`) et dans le nom du
@@ -12,7 +12,7 @@ const VERSION = "1.0";
 const CAPTURES = new URL("captures/", import.meta.url).pathname;
 const PDF = new URL(`../../docs/guide/guide-v${VERSION}.pdf`, import.meta.url).pathname;
 const PORTAL = "http://localhost:5174/";
-const ADMIN = "http://localhost:8000/admin/";
+const CONSOLE = "http://admin.localhost:5175/";
 
 test.describe.configure({ mode: "serial" });
 test.beforeAll(() => mkdirSync(CAPTURES, { recursive: true }));
@@ -78,21 +78,14 @@ test("directeur", async ({ page }) => {
 });
 
 test("promoteur", async ({ page }) => {
-  await page.goto(ITIG);
-  await page.getByLabel("Numéro de téléphone").fill("0000001007");
-  await page.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
-  await page.getByLabel("Se souvenir de cet appareil").uncheck();
-  await page.getByRole("button", { name: "Se connecter" }).click();
-  // Première connexion : double authentification à activer (étape obligatoire), au format
-  // téléphone pour la colonne du guide.
+  await login(page, "0000001007");
+  // Double authentification : étape obligatoire à la première connexion d'un rôle sensible dans
+  // un espace réel. Un espace de démonstration ne la demande pas : on la montre depuis « Mon
+  // compte », au format téléphone pour la colonne du guide.
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.getByText("Étape obligatoire")).toBeVisible();
-  const key = (await page.getByText(/^([A-Z2-7]{4} ?)+$/).innerText()).replace(/\s/g, "");
+  await page.goto(`${ITIG}account/two-factor`);
+  await settle(page);
   await shot(page, "double-authentification");
-  await page.getByLabel("Code à 6 chiffres").fill(await totp(key));
-  await page.getByRole("button", { name: "Vérifier et activer" }).click();
-  await page.getByText("J'ai imprimé ou recopié mes 8 codes de secours").click();
-  await page.getByRole("button", { name: "Terminer" }).click();
   await page.setViewportSize({ width: 1280, height: 720 });
   await open(page, "unpaid", "promoteur-impayes");
   await open(page, "audit", "promoteur-audit");
@@ -212,15 +205,23 @@ test.describe("parent", () => {
 });
 
 test("super-admin", async ({ page }) => {
+  // Console de la plateforme : les espaces par type, puis le choix du type à la création.
   allowCodeAgain("+243000000000");
-  await page.goto(ADMIN);
-  await page.locator("input[name=phone]").fill("0000000000");
-  await page.locator("input[name=password]").fill(PASSWORD);
-  await page.locator("[type=submit]").click();
-  await page.locator("input[name=code]").fill(await totp());
-  await page.locator("[type=submit]").click();
-  await page.goto(`${ADMIN}schools/school/`);
-  await shot(page, "admin-ecoles");
+  await page.goto(CONSOLE);
+  await page.getByLabel("Numéro de téléphone").fill("0000000000");
+  await page.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
+  await page.getByRole("button", { name: "Se connecter" }).click();
+  await enterCode(page);
+  await expect(page.getByRole("heading", { name: "Tableau de bord" })).toBeVisible();
+  await page.goto(`${CONSOLE}schools`);
+  await page.getByRole("tab", { name: "Démonstration" }).click();
+  await expect(page.getByText("ITIG Don Bosco Goma (démo)")).toBeVisible();
+  await page.waitForLoadState("networkidle");
+  await shot(page, "console-ecoles");
+  await page.goto(`${CONSOLE}schools/new`);
+  await page.waitForLoadState("networkidle");
+  await expect(page.getByRole("heading").first()).toBeVisible();
+  await shot(page, "console-nouvelle-ecole");
 
   allowCodeAgain("+243000000000");
   await page.goto(`${ITIG}support`);

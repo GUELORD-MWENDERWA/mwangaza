@@ -141,8 +141,9 @@ def _sort(rows: list[UnpaidStudent], filters: Filters) -> None:
 
 
 def unpaid_students(filters: Filters) -> list[UnpaidStudent]:
-    """Élèves en retard selon les filtres, triés. Trois requêtes quelle que soit la taille de
-    l'école : inscriptions, frais dus avec ce qui est payé, réductions (`charges_by_enrollment`)."""
+    """Élèves en retard selon les filtres, triés. Quatre requêtes quelle que soit la taille de
+    l'école : inscriptions, puis frais dus avec ce qui est payé, réductions et types de frais
+    (`charges_by_enrollment`)."""
     day = services.today()
     enrollments = {
         enrollment.pk: enrollment

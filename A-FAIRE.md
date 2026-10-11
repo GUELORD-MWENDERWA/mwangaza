@@ -11,11 +11,12 @@ Dernière mise à jour : 2026-10-11 (tâche 4.22 : `make demo` refuse une platef
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
-| 1 | **Relire et fusionner la PR « 4.22 — make demo sans danger pour une plateforme qui a de vraies écoles »** (attendre les coches vertes) : `make demo`, `make reseau-demo` et `make deploy-demo` refusent désormais dès qu'un espace réel existe, sans rien modifier ; les démonstrations se créent alors dans la console (Écoles, onglet « Démonstration »). Puis `git switch main && git pull`. Sur ta machine, `make test-e2e` échoue à deux anciens parcours tant que `itig` garde 839 élèves au lieu de 800 (`make demo` ne retire pas les élèves ajoutés à la main ou par un import d'essai) : `make reset-db` repart d'une base neuve. Essai sur plusieurs appareils ou serveur en ligne déjà lancés : il n'y a plus de super-admin fictif `0000000000` hors développement — après `make reseau-demo` ou `make deploy-demo`, créer le tien avec `make reseau-superuser` ou `make deploy-superuser` | 15 min | [ ] |
+| 1 | **Relire et fusionner la PR « 4.21 — Recette finale »** (attendre les coches vertes) : revue des trois applications rôle par rôle, mesure des écrans lourds et deux corrections de vitesse, guide de la version régénéré (`docs/guide/guide-v1.0.pdf`), [« Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école). Puis `git switch main && git pull`. **La version 1.0 est finie** : il ne reste que les achats et la mise en ligne. L'essai sur plusieurs appareils (`make reseau`) tourne déjà avec cette version | 15 min | [ ] |
+| 1 bis | **Essai sur plusieurs appareils : repartir d'une base neuve**, quand tu veux (constat de la recette) : dans ton essai, `itig` et `volcans` ont été créées avant les espaces et y sont restées « réelles » — pas de bandeau « Démonstration », reçus sans « SPÉCIMEN », et `make reseau-demo` refuse. Je n'y ai pas touché (ton compte super-admin et 5 appareils y sont). Commandes : [§ 12](#12-dépannage), ligne « Cette plateforme a un espace réel » | 10 min | [ ] |
 | 2 | **Essayer le Portail sur ton vrai téléphone**, ce que je ne peux pas faire (navigateur, puis application installée ; Android et iPhone si possible) : [§ 9 bis](#9-bis-essai-sur-plusieurs-appareils-411) (`make reseau`), parent `0002000001`, quitter l'application, la rouvrir plus tard et le lendemain, couper le réseau. Me dire si une déconnexion revient (quand, sur quel téléphone), et **à quel moment l'import exige un matricule** (Q14, [`docs/06-suivi.md`](docs/06-suivi.md)) | 15 min | [ ] |
 | 3 | **Mettre le serveur de démonstration en ligne**, quand tu veux : [§ 9 ter](#9-ter-serveur-de-démonstration-en-ligne-462) (compte Oracle Cloud, serveur gratuit, adresse DuckDNS, `make deploy-setup`, `make deploy`) | 1 h | [ ] |
 | 4 | Juste après : garder une **copie de `infra/serveur/serveur.env`** en lieu sûr (clé USB, gestionnaire de mots de passe) | 2 min | [ ] |
-| 5 | **Avant la première vraie école** : vrai domaine et sauvegardes, [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats) (tâches 4.6.3 et 4.7.2, après le bloc « Lancement — version finie ») | 1 h | [ ] |
+| 5 | **Avant la première vraie école** : achats du [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats), puis les étapes du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) (tâches 4.6.3, 4.7.2 et 4.23) | 1 h | [ ] |
 
 Déjà fait : installation de la machine (Docker, `.env`, gettext), décisions (nom, domaine, Q1 à Q11), PR des tâches 0.1 à 4.11 et 5.1 à 5.5.1 ; historique complet : [`docs/06-suivi.md`](docs/06-suivi.md). À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). [Rien à demander à l'ITIG](#8-litig--rien-à-demander).
 
@@ -116,6 +117,27 @@ Ensuite :
 - **Un problème** : `make deploy-logs` (journaux ; `make deploy-logs service=caddy` pour le certificat), ou dans Claude Code : `/deployer panne`.
 
 Limites : Oracle peut arrêter un serveur gratuit peu utilisé (sauf compte *Pay As You Go*) : le redémarrer sur le site d'Oracle ; si son adresse IP a changé, corriger `SERVEUR` puis `make deploy`. Pas de sauvegarde : jamais de vraies données ici (§ 9).
+
+---
+
+## 9 quater. Le jour du lancement (première vraie école)
+
+Après la recette finale (4.21), il ne manque que les achats et la mise en ligne. Dans l'ordre, sans sauter d'étape :
+
+| # | Étape | Comment | Fait |
+|:-:|---|---|:-:|
+| 1 | **Achats et comptes** | [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats) : domaine `mwangaza.school`, Cloudflare, serveur, stockage objet, phrase secrète des sauvegardes notée **hors du serveur** | [ ] |
+| 2 | **Vrai domaine** | dans Claude Code : `/tache 4.6.3` — Claude te dit quelles valeurs remplir dans le fichier du serveur, puis met en ligne | [ ] |
+| 3 | **Sauvegardes hors du serveur, alertes** | `/tache 4.7.2` ; à la fin, vérifier qu'une sauvegarde de la nuit existe dans le stockage objet et que `make restore` la relit | [ ] |
+| 4 | **Mesure sur le vrai serveur** | `/tache 4.23` : temps du tableau de bord et des impayés sur le serveur, correction si c'est lent (sur ta machine : 1,3 s et 1,2 s pour 800 élèves) | [ ] |
+| 5 | **Ton compte super-admin** | `make deploy-superuser` (ton vrai numéro), double authentification liée à ton téléphone, codes de secours rangés | [ ] |
+| 6 | **Identité de la plateforme** | console (`https://admin.mwangaza.school/`) → Identité : nom, logo, contact du support, mentions légales — les vraies valeurs | [ ] |
+| 7 | **Premier espace réel** | console → Écoles → Nouvelle école → type **Réel** : nom, code (c'est son adresse, `code.mwangaza.school` : il ne change plus), premier directeur avec son vrai numéro. Lui remettre l'adresse et son mot de passe provisoire | [ ] |
+| 8 | **L'école se met en route** | le directeur suit la liste « Mise en route » de son tableau de bord : année, classes, frais et taux, comptes du personnel, caisse et appareil, élèves (import Excel). Rentrée déjà passée : « Reprise » (ce que chaque élève a déjà payé) | [ ] |
+| 9 | **Premier encaissement** | un vrai paiement : reçu imprimé, QR vérifié avec un téléphone ; le soir, clôture de caisse ; le parent voit le reçu sur le Portail | [ ] |
+| 10 | **Le lendemain** | la sauvegarde de la nuit existe ; aucune alerte | [ ] |
+
+À ne plus faire une fois l'étape 7 passée : `make demo`, `make deploy-demo` et `make reseau-demo` sur cette plateforme (refusés d'office dès qu'un espace réel existe) ; changer de domaine ; saisir de vraies données dans un espace d'essai ou de démonstration (ils se suppriment). Montrer l'application à une autre école : console → Écoles → onglet « Démonstration », sa fiche d'accès à imprimer.
 
 ---
 
@@ -288,7 +310,7 @@ Rien pour l'instant.
 | `permission denied … docker.sock` | pas encore reconnecté après `usermod` | se déconnecter / reconnecter (ou `newgrp docker` dans ce terminal) |
 | `port is already allocated` (5433, 6379, 8000, 5173 ; 80 et 443 avec `make prod-local`) | un autre programme utilise le port | `ss -ltnp \| grep 6379` pour le trouver ; par ex. `sudo systemctl stop redis-server` |
 | `InconsistentMigrationHistory: Migration admin.0001_initial is applied before its dependency accounts.0001_initial` (`make migrate`, `make test`, `make dev`) | base de développement créée avant la tâche 1.2 (nouveau modèle de compte) | `make reset-db` une fois |
-| `make demo`, `make reseau-demo`, `make deploy-demo` ou `make test-e2e` : « Cette plateforme a un espace réel. […] refusé, rien n'a été modifié » (ou « Code pris par un espace qui n'est pas de démonstration ») | depuis la tâche 4.22, les données fictives ne s'écrivent plus sur une plateforme qui a une vraie école, ni par-dessus un espace d'essai nommé `itig` ou `volcans` | sur ta machine : `make reset-db` (efface la base de développement et la recrée) ; essai sur plusieurs appareils ou serveur : créer la démonstration dans la console, Écoles, onglet « Démonstration » |
+| `make demo`, `make reseau-demo`, `make deploy-demo` ou `make test-e2e` : « Cette plateforme a un espace réel. […] refusé, rien n'a été modifié » (ou « Code pris par un espace qui n'est pas de démonstration ») | depuis la tâche 4.22, les données fictives ne s'écrivent plus sur une plateforme qui a une vraie école, ni par-dessus un espace d'essai nommé `itig` ou `volcans` | sur ta machine : `make reset-db` (efface la base de développement et la recrée) ; essai sur plusieurs appareils ou serveur : créer la démonstration dans la console, Écoles, onglet « Démonstration ». Essai dont `itig` et `volcans` datent d'avant les espaces (ils y sont « réels » : pas de bandeau, pas de « SPÉCIMEN ») : repartir d'une base neuve — `make reseau-stop`, `docker volume rm mwangaza-reseau_db-data mwangaza-reseau_media`, puis `make reseau`, `make reseau-demo`, `make reseau-superuser` (certificat et adresse gardés ; chaque appareil se reconnecte) |
 | `"code": "too_many_attempts"` à la connexion | 5 essais ratés pour ce numéro en 15 minutes (ou 30 depuis ta machine) | attendre 15 minutes, ou `make demo` (débloque tout en développement) |
 | `"code": "totp_required"` sur une page de l'école | session ouverte sans double authentification, alors qu'un rôle l'exige (ex. rôle donné pendant la session) | se déconnecter (`…/api/auth/logout/`) et se reconnecter |
 | `"code": "invalid_code"` avec le code de `make totp` | code déjà utilisé (un code ne sert qu'une fois) | attendre le code suivant (30 secondes) et refaire `make totp` |

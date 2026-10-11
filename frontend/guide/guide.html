@@ -292,7 +292,7 @@
         Avec cette version, une école encaisse ses frais scolaires, même sans internet, et les
         parents suivent les paiements de leurs enfants sur leur téléphone.
       </p>
-      <h2>Deux applications</h2>
+      <h2>Trois applications</h2>
       <ul>
         <li>
           <strong>La Gestion</strong>, pour le personnel de l'école, à l'adresse de l'école (par
@@ -303,6 +303,10 @@
           <strong>Le Portail des familles</strong>, pour les parents
           (<em>parents.&lt;domaine&gt;</em>) : enfants, paiements, reçus, annonces. Il s'installe
           sur l'écran d'accueil du téléphone.
+        </li>
+        <li>
+          <strong>La Console de la plateforme</strong>, pour l'équipe qui héberge le service
+          (<em>admin.&lt;domaine&gt;</em>) : écoles, comptes, appareils, annonces, journal.
         </li>
       </ul>
       <h2>Ce qui est garanti</h2>
@@ -445,7 +449,8 @@
         <figure>
           <img src="captures/double-authentification.jpg" alt="" />
           <figcaption>
-            Première connexion du promoteur : activer la double authentification.
+            Activer la double authentification : obligatoire à la première connexion d'un rôle
+            sensible.
           </figcaption>
         </figure>
       </div>
@@ -476,6 +481,11 @@
         </figcaption>
       </figure>
       <ul>
+        <li>
+          <strong>Mise en route d'une école neuve</strong> : tant que l'école n'est pas prête, le
+          tableau de bord montre la liste des étapes (année, classes, frais et taux, comptes du
+          personnel, caisse et appareil, élèves) ; chacune mène à son écran et se coche seule.
+        </li>
         <li>
           <strong>Tableau de bord</strong> : les alertes signalent les annulations à valider, une
           caisse pas clôturée, un écart de caisse au-delà du seuil choisi par l'école.
@@ -554,6 +564,11 @@
           <strong>Frais et barèmes</strong> : types de frais (minerval, fonctionnement, frais
           connexes…), puis pour chacun un montant en dollars ou en francs par niveau, option ou
           classe, en tranches avec dates limites, en une fois ou par mois.
+        </li>
+        <li>
+          <strong>Reprise en cours d'année</strong> : une école qui commence après la rentrée
+          importe, depuis Excel, ce que chaque élève a déjà payé ; ces montants comptent dans les
+          soldes, sans reçu et hors de la caisse du jour.
         </li>
         <li>
           <strong>Fiche de l'élève, onglet Finances</strong> : ce qu'il doit par frais et par
@@ -689,7 +704,8 @@
         </li>
         <li>
           <strong>Import Excel</strong> : choisir le fichier, faire correspondre les colonnes, voir
-          les erreurs ligne par ligne, importer sans doublon.
+          les erreurs ligne par ligne, importer sans doublon. Un fichier importé par erreur
+          s'annule, avec un motif, tant qu'aucun paiement ni réduction ne touche ses élèves.
         </li>
         <li>
           <strong>Invitations au portail</strong> : une lettre par famille (adresse avec QR code,
@@ -817,7 +833,26 @@
           <strong>Écoles</strong> : créer une école (nom, adresse, logo, devises, fuseau) et son
           premier directeur ; voir pour chacune le nombre d'élèves, la dernière activité et
           l'abonnement ; suspendre une école (ses familles voient « service temporairement
-          indisponible », ses données sont gardées).
+          indisponible ») ou l'arrêter, avec un motif : ses données sont gardées.
+        </li>
+        <li>
+          <strong>Trois types d'espace</strong>, choisi à la création et jamais changé. Un espace
+          <em>réel</em> est celui d'une vraie école : il démarre vide, rien n'y est inventé. Un
+          espace <em>d'essai</em> est un bac à sable vide, pour essayer. Un espace
+          <em>de démonstration</em> est rempli de données fictives (petite ou grande école) ; sa
+          fiche d'accès à imprimer donne les adresses, un compte par rôle et des parents.
+        </li>
+        <li>
+          <strong>Jamais de confusion</strong> : un essai ou une démonstration garde un bandeau en
+          haut de chaque écran, ses reçus portent « SPÉCIMEN — sans valeur », et la vérification
+          d'un reçu le dit. Seuls ces espaces peuvent être supprimés ou remis à zéro, en tapant leur
+          code ; un espace réel ne se supprime pas.
+        </li>
+        <li>
+          <strong>Comptes, appareils, annonces, journal</strong> : chercher un compte dans toutes
+          les écoles, réinitialiser sa double authentification, déconnecter un appareil, écrire une
+          annonce aux écoles, relire chaque action de l'équipe ; nom, logo et couleurs de la
+          plateforme.
         </li>
         <li>
           <strong>Session support</strong> : pour aider une école, ouvrir une session « en tant
@@ -825,14 +860,14 @@
           d'audit, et la caisse reste interdite.
         </li>
       </ul>
-      <p>
-        Dans cette version, ces outils sont dans l'administration de la plateforme ; une console à
-        part arrive avec la version 1.1.
-      </p>
       <div class="grid">
         <figure>
-          <img src="captures/admin-ecoles.jpg" alt="" />
-          <figcaption>Administration de la plateforme : les écoles.</figcaption>
+          <img src="captures/console-ecoles.jpg" alt="" />
+          <figcaption>Console : les espaces de démonstration.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/console-nouvelle-ecole.jpg" alt="" />
+          <figcaption>Nouvelle école : espace réel, d'essai ou de démonstration.</figcaption>
         </figure>
         <figure>
           <img src="captures/support-session.jpg" alt="" />
@@ -913,10 +948,9 @@
           <tr>
             <td>1.1</td>
             <td>
-              <strong>Plateforme, notifications, communication</strong> : nom, logo et couleurs de
-              la plateforme réglables ; console de la plateforme (écoles, comptes, appareils,
-              journal) ; notifications sur l'écran du téléphone même application fermée (parents et
-              personnel) ; annonces au personnel.
+              <strong>Notifications, communication</strong> : notifications sur l'écran du téléphone
+              même application fermée, pour les parents (paiement reçu, annonce, échéance proche) et
+              pour le personnel ; relances ; annonces au personnel.
             </td>
           </tr>
           <tr>
