@@ -50,10 +50,11 @@ export function SetupChecklist() {
   });
   const finish = useMutation({
     mutationFn: () => call(api.POST("/api/school/setup/finish/")),
-    onSuccess: () =>
-      queryClient.setQueryData<School>(keys.school, (current) =>
+    onSuccess: () => {
+      queryClient.setQueryData(keys.school, (current: School | undefined) =>
         current ? { ...current, setup_done: true } : current,
-      ),
+      );
+    },
   });
   // Sans réseau ou en erreur : le tableau de bord s'affiche sans la liste. Terminée depuis un
   // autre appareil : plus rien à montrer.
