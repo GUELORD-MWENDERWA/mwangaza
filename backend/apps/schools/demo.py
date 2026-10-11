@@ -130,7 +130,12 @@ def create_demo_schools(*, password: str, shared_totp_key: bool) -> list[DemoSpa
     spaces = []
     for code, fields in _make_demo_schools().items():
         school, _created = School.objects.update_or_create(
-            code=code, defaults={**fields, "environment": School.Environment.DEMO}
+            code=code,
+            defaults={
+                **fields,
+                "environment": School.Environment.DEMO,
+                "setup_completed_at": timezone.now(),
+            },
         )
         numbers = MAKE_DEMO_NUMBERS[code]
         spaces.append(DemoSpace(school, code, numbers, password, shared_totp_key, with_logo=True))

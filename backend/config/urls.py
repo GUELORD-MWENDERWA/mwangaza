@@ -9,6 +9,8 @@ from apps.schools.views import (
     SchoolLogoView,
     SchoolMonochromeLogoView,
     SchoolSettingsView,
+    SchoolSetupFinishView,
+    SchoolSetupView,
     current_school,
     school_logo,
     school_logo_monochrome,
@@ -24,6 +26,8 @@ urlpatterns = [
     path("api/school/logo/", school_logo, name="school-logo"),
     path("api/school/logo-monochrome/", school_logo_monochrome, name="school-logo-monochrome"),
     path("api/school/settings/", SchoolSettingsView.as_view(), name="school-settings"),
+    path("api/school/setup/", SchoolSetupView.as_view(), name="school-setup"),
+    path("api/school/setup/finish/", SchoolSetupFinishView.as_view(), name="school-setup-finish"),
     path("api/school/settings/logo/", SchoolLogoView.as_view(), name="school-settings-logo"),
     path(
         "api/school/settings/logo-monochrome/",

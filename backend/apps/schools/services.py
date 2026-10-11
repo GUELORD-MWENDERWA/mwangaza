@@ -102,6 +102,9 @@ def open_space(school: School, *, actor) -> School:
     """Enregistre le nouvel espace `school` et le note dans les deux journaux."""
     with transaction.atomic():
         school.created_by = actor
+        if school.environment == School.Environment.DEMO:
+            # Déjà rempli : pas de liste « Mise en route » (`setup.py`).
+            school.setup_completed_at = timezone.now()
         school.save()  # rôles système copiés (`accounts/signals.py`)
         _record_platform(PlatformAction.SCHOOL_CREATED, school, actor=actor)
         with use_school(school):
