@@ -31,7 +31,7 @@ from apps.accounts.views import SchoolViewSet
 from apps.core.documents import PRINT_RESPONSE, render
 from apps.core.errors import SCHOOL_NOT_FOUND, ApiError, ErrorSerializer
 from apps.core.http import serve_image
-from apps.schools import console, demonstrations, organisation, services
+from apps.schools import console, demonstrations, organisation, services, setup
 from apps.schools.console_serializers import (
     AccessSheetQuerySerializer,
     ConsoleSchoolCreatedSerializer,
@@ -64,6 +64,7 @@ from apps.schools.serializers import (
     MatriculeSettingsSerializer,
     PersonSerializer,
     SchoolSettingsSerializer,
+    SetupSerializer,
     TermsUpdateSerializer,
     TrackSerializer,
     TrackUpdateSerializer,
@@ -179,6 +180,27 @@ class SchoolMonochromeLogoView(SchoolLogoView):
 # lignes, jamais des milliers) : sans pagination.
 
 CONFLICT = {409: ErrorSerializer}
+
+
+@extend_schema(tags=["schools"])
+class SchoolSetupView(_SchoolSettingsBase):
+    """Liste « Mise en route » d'une école neuve (C4) : chaque étape cochée d'après ce que
+    l'école a déjà saisi, rien de gardé. Vide, sans rien lire, une fois terminée : `/api/school/`
+    dit alors `setup_done` et le tableau de bord ne l'appelle plus."""
+
+    @extend_schema(responses={200: SetupSerializer, **ERRORS})
+    def get(self, request: Request) -> Response:
+        return Response(SetupSerializer(setup.status(self.school())).data)
+
+
+@extend_schema(tags=["schools"])
+class SchoolSetupFinishView(_SchoolSettingsBase):
+    """Le directeur termine la mise en route : la date est gardée sur l'école, une fois pour
+    toutes. 409 `setup_incomplete` tant qu'une étape obligatoire manque."""
+
+    @extend_schema(request=None, responses={200: SetupSerializer, **ERRORS, **CONFLICT})
+    def post(self, request: Request) -> Response:
+        return Response(SetupSerializer(setup.finish(self.school())).data)
 
 
 class _OrganisationViewSet(SchoolViewSet):

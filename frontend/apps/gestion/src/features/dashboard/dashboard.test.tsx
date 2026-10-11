@@ -1,7 +1,7 @@
-import { screen, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { mockApi } from "../../test/api";
+import { mockApi, type Routes } from "../../test/api";
 import { me, school } from "../../test/fixtures";
 import { renderApp } from "../../test/render";
 
@@ -61,20 +61,34 @@ const dashboard = {
   },
 };
 
-const render = (role: "head" | "promoter") => {
-  mockApi({
+const STEPS = ["year", "classes", "fees", "staff", "cash", "students", "prior", "invitations"];
+/** Liste « Mise en route » dont les `done` premières étapes sont faites. */
+const setup = (done: number) => ({
+  steps: STEPS.map((key, index) => ({ key, done: index < done, optional: index >= 6 })),
+  ready: done >= 6,
+  finished_at: null,
+});
+
+const render = (role: "head" | "promoter", routes: Routes = {}) => {
+  const requests = mockApi({
     "GET /api/school/": school,
     "GET /api/me/": me(role),
     "GET /api/dashboard/": dashboard,
+    ...routes,
   });
-  return renderApp("/dashboard");
+  renderApp("/dashboard");
+  return requests;
 };
+const asked = (requests: { path: string }[], path: string) =>
+  requests.filter((request) => request.path === path).length;
 
 describe("Tableau de bord (G3)", () => {
   it("montants par devise jamais additionnés, alertes de l'école, classe vers ses impayés", async () => {
-    render("head");
+    const requests = render("head");
 
     const today = (await screen.findByText("Encaissé aujourd'hui")).parentElement!;
+    // Mise en route terminée : la liste n'est plus jamais demandée.
+    expect(asked(requests, "/api/school/setup/")).toBe(0);
     within(today).getByText("2 845,00 $");
     within(today).getByText("+ 1 260 000 FC · 32 paiements");
     screen.getByText("+ 21 450 000 FC · ▲ 12 % vs septembre 2026");
@@ -91,12 +105,48 @@ describe("Tableau de bord (G3)", () => {
   });
 
   it("le promoteur (lecture seule) n'a de lien que vers les clôtures, pas vers les annulations", async () => {
-    render("promoter");
+    // École neuve : la mise en route est l'affaire de qui règle l'école, pas du promoteur.
+    const requests = render("promoter", { "GET /api/school/": { ...school, setup_done: false } });
 
     await screen.findByText("2 annulations attendent une validation.");
+    expect(asked(requests, "/api/school/setup/")).toBe(0);
     const links = screen.getAllByRole("link", { name: "Voir" });
     expect(links.map((link) => link.getAttribute("href"))).toEqual(
       Array(2).fill(expect.stringMatching(/\/cash-closings$/)),
     );
+  });
+
+  it("école neuve : la mise en route mène à l'écran de chaque étape (C4)", async () => {
+    render("head", {
+      "GET /api/school/": { ...school, setup_done: false },
+      "GET /api/school/setup/": setup(2),
+    });
+
+    const list = await screen.findByRole("region", { name: "Mise en route" });
+    within(list).getByText("2 / 6 étapes");
+    expect(within(list).getAllByText("Facultatif")).toHaveLength(2);
+    const next = within(list).getByRole("link", {
+      name: "Fixer les frais et le taux : ouvrir l'écran",
+    });
+    expect(next.getAttribute("href")).toMatch(/\/fees$/);
+    // Tant que l'école ne peut pas encaisser, rien à terminer.
+    expect(within(list).queryByRole("button", { name: "Terminer la mise en route" })).toBeNull();
+  });
+
+  it("école prête à encaisser : le directeur termine la mise en route, la liste disparaît", async () => {
+    const requests = render("head", {
+      "GET /api/school/": { ...school, setup_done: false },
+      "GET /api/school/setup/": setup(6),
+      "POST /api/school/setup/finish/": {
+        ...setup(6),
+        steps: [],
+        finished_at: "2026-10-19T08:00:00Z",
+      },
+    });
+
+    fireEvent.click(await screen.findByRole("button", { name: "Terminer la mise en route" }));
+
+    await waitFor(() => expect(screen.queryByRole("region", { name: "Mise en route" })).toBeNull());
+    expect(asked(requests, "/api/school/setup/finish/")).toBe(1);
   });
 });

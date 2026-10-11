@@ -163,6 +163,10 @@ class School(BaseModel):
     paid_until = models.DateField(_("paid until"), null=True, blank=True)
     # Règles réglées par l'école : `receipt` (M5, `receipts.py`), plus tard les alertes (4.2).
     settings = models.JSONField(_("settings"), default=dict, blank=True)
+    # Fin de la liste « Mise en route » (C4, `setup.py`) : ensuite elle n'est plus calculée.
+    setup_completed_at = models.DateTimeField(
+        _("setup finished at"), null=True, blank=True, editable=False
+    )
 
     class Meta:
         ordering = ["name"]

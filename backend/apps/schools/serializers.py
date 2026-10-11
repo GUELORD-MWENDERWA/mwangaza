@@ -122,6 +122,9 @@ class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
         help_text="Adresse du logo noir et blanc des reçus thermiques (public) ; null sans lui."
     )
     receipt = serializers.SerializerMethodField()
+    setup_done = serializers.SerializerMethodField(
+        help_text="Liste « Mise en route » terminée : le tableau de bord ne la demande plus."
+    )
 
     class Meta:
         model = School
@@ -138,7 +141,11 @@ class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
             "default_currency",
             "auto_matricule",
             "receipt",
+            "setup_done",
         ]
+
+    def get_setup_done(self, school: School) -> bool:
+        return school.setup_completed_at is not None
 
     @extend_schema_field(serializers.CharField(allow_null=True))
     def get_logo_monochrome(self, school: School) -> str | None:
@@ -519,3 +526,19 @@ class ConsoleDashboardSerializer(serializers.Serializer):
     payments_today = serializers.IntegerField()
     active_schools = ConsoleActiveSchoolSerializer(many=True)
     health = ServerHealthSerializer()
+
+
+class SetupStepSerializer(serializers.Serializer):
+    key = serializers.ChoiceField(
+        choices=["year", "classes", "fees", "staff", "cash", "students", "prior", "invitations"]
+    )
+    done = serializers.BooleanField()
+    optional = serializers.BooleanField(help_text="Ne retient pas la fin de la liste.")
+
+
+class SetupSerializer(serializers.Serializer):
+    """Liste « Mise en route » (C4) : étapes dans l'ordre ; vide une fois terminée."""
+
+    steps = SetupStepSerializer(many=True)
+    ready = serializers.BooleanField(help_text="Toutes les étapes obligatoires sont faites.")
+    finished_at = serializers.DateTimeField(allow_null=True)

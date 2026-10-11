@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.19 terminée, PR à relire et fusionner |
-| Prochaine tâche | 4.20 (Mise en route d'une école neuve) |
-| Issue GitHub | #162 pour 4.19 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.19-reprise-paiements` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.20.1 terminée, PR à relire et fusionner |
+| Prochaine tâche | 4.20.2 (école neuve : états vides et parcours Playwright de bout en bout) |
+| Issue GitHub | #163 pour 4.20.1, #179 pour 4.20.2 (bloc : #155 à #165, créées le 2026-10-10) |
+| Branche | `tache/4.20.1-mise-en-route` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement
@@ -23,8 +23,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.21, 4.7.1 ; 4.17 en deux) | 9 | 12 |
-| **V1.0** | **59** | **64** |
+| Lancement — version finie (4.12 à 4.21, 4.7.1 ; 4.17 et 4.20 en deux) | 10 | 13 |
+| **V1.0** | **60** | **65** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -56,6 +56,13 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-11 — Tâche 4.20.1 : Mise en route d'une école neuve (la liste)
+
+- Fait : liste « Mise en route » en haut du tableau de bord de qui règle l'école (`schools/setup.py`, `GET /api/school/setup/`, `POST …/finish/`, carte `features/dashboard/SetupChecklist.tsx`) : huit étapes qui se cochent seules et mènent à leur écran ; « Terminer la mise en route » quand l'école peut encaisser ; maquette `gestion/mise-en-route` dessinée. **4.20 découpée** : états vides et parcours Playwright « école neuve » → 4.20.2 (issue #179).
+- Décisions : six étapes obligatoires (année, classes, barèmes et taux si deux devises, un compte qui encaisse, une caisse et l'appareil d'un caissier, élèves inscrits), reprise et invitations facultatives ; rien n'est écrit pendant la lecture — le directeur termine la liste, date gardée dans `School.setup_completed_at`, et `/api/school/` dit `setup_done` : la liste n'est plus jamais demandée ; un espace de démonstration naît fini (`make demo`, console, migration) ; pas de journal d'audit (ni argent ni rôles).
+- Tests : `schools/tests/test_setup.py` (isolation, permission, étapes une à une, fin refusée puis gardée, démonstration finie), Vitest du tableau de bord ; `make lint` ; suite complète : CI.
+- Suite : 4.20.2 (états vides vérifiés dans un espace vide, parcours Playwright « école neuve de bout en bout »).
 
 ### 2026-10-11 — Tâche 4.19 : Reprise en cours d'année (payé avant Mwangaza)
 

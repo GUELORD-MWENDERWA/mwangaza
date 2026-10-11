@@ -31,6 +31,7 @@ import { can } from "../../lib/permissions";
 import { keys, useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { LoadError } from "../status/StatusPages";
+import { SetupChecklist } from "./SetupChecklist";
 
 type Dashboard = Schemas["Dashboard"];
 type Amount = { currency: string; amount_minor: number; count?: number };
@@ -61,12 +62,12 @@ const BAR_COLORS = { ok: "bg-ok", warn: "bg-warn", due: "bg-due" } as const;
 
 function Bar({ percent, className }: { percent: number; className?: string }) {
   return (
-    <div className={cn("h-2 overflow-hidden rounded-full bg-gray-50", className)}>
-      <div
-        className={cn("h-full rounded-full", BAR_COLORS[tone(percent)])}
+    <span className={cn("block h-2 overflow-hidden rounded-full bg-gray-50", className)}>
+      <span
+        className={cn("block h-full rounded-full", BAR_COLORS[tone(percent)])}
         style={{ width: `${percent}%` }}
       />
-    </div>
+    </span>
   );
 }
 
@@ -109,6 +110,7 @@ export function DashboardPage() {
             : t("dashboard.subtitleNoYear")
         }
       />
+      <SetupChecklist />
       <Alerts alerts={data.alerts} open={open} />
       <div className="grid gap-4 min-[560px]:grid-cols-2 min-[1000px]:grid-cols-4">
         <Kpi

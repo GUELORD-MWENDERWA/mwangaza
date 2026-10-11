@@ -2618,6 +2618,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/school/setup/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Liste « Mise en route » d'une école neuve (C4) : chaque étape cochée d'après ce que
+         *     l'école a déjà saisi, rien de gardé. Vide, sans rien lire, une fois terminée : `/api/school/`
+         *     dit alors `setup_done` et le tableau de bord ne l'appelle plus.
+         */
+        get: operations["school_setup_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/school/setup/finish/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Le directeur termine la mise en route : la date est gardée sur l'école, une fois pour
+         *     toutes. 409 `setup_incomplete` tant qu'une étape obligatoire manque.
+         */
+        post: operations["school_setup_finish_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/staff/": {
         parameters: {
             query?: never;
@@ -4665,6 +4706,8 @@ export interface components {
             /** Give student numbers automatically */
             auto_matricule: boolean;
             readonly receipt: components["schemas"]["ReceiptSettings"];
+            /** @description Liste « Mise en route » terminée : le tableau de bord ne la demande plus. */
+            readonly setup_done: boolean;
         };
         CurrentSchoolAccess: {
             code: string;
@@ -5390,6 +5433,18 @@ export interface components {
             /** @description Numéro du tuteur principal (E.164). */
             phone: string;
         };
+        /**
+         * @description * `year` - year
+         *     * `classes` - classes
+         *     * `fees` - fees
+         *     * `staff` - staff
+         *     * `cash` - cash
+         *     * `students` - students
+         *     * `prior` - prior
+         *     * `invitations` - invitations
+         * @enum {string}
+         */
+        KeyEnum: "year" | "classes" | "fees" | "staff" | "cash" | "students" | "prior" | "invitations";
         /**
          * @description * `fr` - Français
          *     * `en` - English
@@ -7005,6 +7060,20 @@ export interface components {
             currency: components["schemas"]["CurrencyEnum"];
             amount_minor: number;
             count: number;
+        };
+        /** @description Liste « Mise en route » (C4) : étapes dans l'ordre ; vide une fois terminée. */
+        Setup: {
+            steps: components["schemas"]["SetupStep"][];
+            /** @description Toutes les étapes obligatoires sont faites. */
+            ready: boolean;
+            /** Format: date-time */
+            finished_at: string | null;
+        };
+        SetupStep: {
+            key: components["schemas"]["KeyEnum"];
+            done: boolean;
+            /** @description Ne retient pas la fin de la liste. */
+            optional: boolean;
         };
         /**
          * @description * `M` - Male
@@ -15989,6 +16058,84 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    school_setup_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Setup"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    school_setup_finish_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Setup"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

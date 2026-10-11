@@ -2297,6 +2297,54 @@ export const fr = {
       by: "Par {{name}}, le {{date}}",
     },
   },
+  setup: {
+    title: "Mise en route",
+    subtitle: "Les étapes pour encaisser votre premier paiement. Chacune se coche toute seule.",
+    progress: "{{done}} / {{total}} étapes",
+    optional: "Facultatif",
+    open: "Ouvrir",
+    see: "Voir",
+    openStep: "{{step}} : ouvrir l'écran",
+    stateDone: "fait",
+    stateTodo: "à faire",
+    ready:
+      "Votre école est prête à encaisser. Terminez la mise en route pour retirer cette liste du tableau de bord.",
+    finish: "Terminer la mise en route",
+    steps: {
+      year: {
+        title: "Créer l'année scolaire",
+        hint: "Dates de l'année, périodes et examens.",
+      },
+      classes: {
+        title: "Créer les classes",
+        hint: "Niveaux, options, puis les classes de l'année.",
+      },
+      fees: {
+        title: "Fixer les frais et le taux",
+        hint: "Types de frais, barèmes par classe et taux de change de l'année.",
+      },
+      staff: {
+        title: "Créer les comptes du personnel",
+        hint: "Au moins un compte qui peut encaisser, par exemple un caissier.",
+      },
+      cash: {
+        title: "Préparer la caisse et son appareil",
+        hint: "Créez une caisse, puis le caissier se connecte une fois sur l'appareil de la caisse.",
+      },
+      students: {
+        title: "Inscrire les élèves",
+        hint: "Importez votre liste Excel ou inscrivez-les un par un.",
+      },
+      prior: {
+        title: "Reprendre les paiements déjà reçus",
+        hint: "Si l'année a déjà commencé : importez ce que chaque élève a payé jusqu'ici.",
+      },
+      invitations: {
+        title: "Inviter les parents",
+        hint: "Imprimez les lettres d'invitation au portail, classe par classe.",
+      },
+    },
+  },
   dashboard: {
     title: "Tableau de bord",
     subtitle: "Vue d'ensemble de l'école pour l'année {{year}}.",

@@ -8105,6 +8105,71 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/school/setup/:
+    get:
+      operationId: school_setup_retrieve
+      description: |-
+        Liste « Mise en route » d'une école neuve (C4) : chaque étape cochée d'après ce que
+        l'école a déjà saisi, rien de gardé. Vide, sans rien lire, une fois terminée : `/api/school/`
+        dit alors `setup_done` et le tableau de bord ne l'appelle plus.
+      tags:
+      - schools
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Setup'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/school/setup/finish/:
+    post:
+      operationId: school_setup_finish_create
+      description: |-
+        Le directeur termine la mise en route : la date est gardée sur l'école, une fois pour
+        toutes. 409 `setup_incomplete` tant qu'une étape obligatoire manque.
+      tags:
+      - schools
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Setup'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/staff/:
     get:
       operationId: staff_list
@@ -13491,6 +13556,11 @@ components:
           allOf:
           - $ref: '#/components/schemas/ReceiptSettings'
           readOnly: true
+        setup_done:
+          type: boolean
+          readOnly: true
+          description: 'Liste « Mise en route » terminée : le tableau de bord ne la
+            demande plus.'
       required:
       - code
       - name
@@ -13504,6 +13574,7 @@ components:
       - default_currency
       - auto_matricule
       - receipt
+      - setup_done
     CurrentSchoolAccess:
       type: object
       properties:
@@ -15146,6 +15217,26 @@ components:
       required:
       - text
       - phone
+    KeyEnum:
+      enum:
+      - year
+      - classes
+      - fees
+      - staff
+      - cash
+      - students
+      - prior
+      - invitations
+      type: string
+      description: |-
+        * `year` - year
+        * `classes` - classes
+        * `fees` - fees
+        * `staff` - staff
+        * `cash` - cash
+        * `students` - students
+        * `prior` - prior
+        * `invitations` - invitations
     LanguageEnum:
       enum:
       - fr
@@ -18323,6 +18414,40 @@ components:
       - currency
       - amount_minor
       - count
+    Setup:
+      type: object
+      description: 'Liste « Mise en route » (C4) : étapes dans l''ordre ; vide une
+        fois terminée.'
+      properties:
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/SetupStep'
+        ready:
+          type: boolean
+          description: Toutes les étapes obligatoires sont faites.
+        finished_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - steps
+      - ready
+      - finished_at
+    SetupStep:
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/KeyEnum'
+        done:
+          type: boolean
+        optional:
+          type: boolean
+          description: Ne retient pas la fin de la liste.
+      required:
+      - key
+      - done
+      - optional
     SexEnum:
       enum:
       - M
