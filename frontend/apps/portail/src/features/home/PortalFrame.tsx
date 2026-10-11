@@ -31,9 +31,17 @@ export function PortalFrame({
 }) {
   const { t } = useTranslation();
   const logout = useLogout();
+  const families = useFamilies();
+  // Démonstration ou essai (4.18) : le bandeau suit la première école qui n'est pas réelle.
+  const space = families.data?.find((family) => family.school_environment !== "live");
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      {space && (
+        <Banner tone="warn" className="rounded-none" role="note">
+          <b>{t(`space.${space.school_environment as "demo" | "test"}`)}</b>
+        </Banner>
+      )}
       <header className="bg-basalt px-4 py-4 text-basalt-ink">
         <div className="mx-auto flex max-w-[640px] items-center justify-between gap-3">
           {heading !== undefined ? (

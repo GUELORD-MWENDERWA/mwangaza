@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 17:04+0200\n"
+"POT-Creation-Date: 2026-10-11 17:43+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -1067,7 +1067,7 @@ msgid "%(platform)s support"
 msgstr "Support %(platform)s"
 
 #: apps/audit/views.py:106 apps/finance/documents.py:66
-#: apps/finance/templates/finance/receipt_verification.html:70
+#: apps/finance/templates/finance/receipt_verification.html:72
 msgid "Date"
 msgstr "Date"
 
@@ -1328,7 +1328,7 @@ msgid "Student number"
 msgstr "Matricule"
 
 #: apps/finance/documents.py:145
-#: apps/finance/templates/finance/receipt_verification.html:71
+#: apps/finance/templates/finance/receipt_verification.html:73
 #: apps/finance/templates/finance/statement.html:29
 #: apps/finance/templates/finance/statement_verification.html:21
 #: apps/finance/templates/finance/unpaid.html:32
@@ -1359,7 +1359,7 @@ msgid "Due date"
 msgstr "Échéance"
 
 #: apps/finance/documents.py:151 apps/finance/models.py:224
-#: apps/finance/templates/finance/receipt_verification.html:72
+#: apps/finance/templates/finance/receipt_verification.html:74
 #: apps/finance/templates/finance/statement.html:35
 #: apps/portal/templates/portal/receipt.html:34
 #: apps/students/templates/students/registration_form.html:50
@@ -2058,35 +2058,42 @@ msgstr "Expliquez l'écart : le comptable le verra."
 msgid "Receipt verification"
 msgstr "Vérification d'un reçu"
 
-#: apps/finance/templates/finance/receipt_verification.html:39
+#: apps/finance/templates/finance/receipt_verification.html:40
 msgid "Document verification"
 msgstr "Vérification de document"
 
-#: apps/finance/templates/finance/receipt_verification.html:50
+#: apps/finance/templates/finance/receipt_verification.html:43
+msgid ""
+"Test receipt: this school space holds no real data, the receipt has no value."
+msgstr ""
+"Reçu d'essai : cet espace ne contient pas de vraies données, le reçu n'a "
+"aucune valeur."
+
+#: apps/finance/templates/finance/receipt_verification.html:52
 msgid "Authentic receipt"
 msgstr "Reçu authentique"
 
-#: apps/finance/templates/finance/receipt_verification.html:51
+#: apps/finance/templates/finance/receipt_verification.html:53
 msgid "This receipt was issued by the school and has not been cancelled."
 msgstr "Ce reçu a bien été émis par l'école et n'a pas été annulé."
 
-#: apps/finance/templates/finance/receipt_verification.html:53
+#: apps/finance/templates/finance/receipt_verification.html:55
 #, python-format
 msgid "Receipt cancelled on %(date)s"
 msgstr "Reçu annulé le %(date)s"
 
-#: apps/finance/templates/finance/receipt_verification.html:54
+#: apps/finance/templates/finance/receipt_verification.html:56
 msgid ""
 "This receipt was issued by the school, then cancelled: it no longer counts "
 "as a payment."
 msgstr ""
 "Ce reçu a été émis par l'école, puis annulé : il ne vaut plus comme paiement."
 
-#: apps/finance/templates/finance/receipt_verification.html:56
+#: apps/finance/templates/finance/receipt_verification.html:58
 msgid "Authentic receipt, awaiting synchronisation"
 msgstr "Reçu authentique, en attente de synchronisation"
 
-#: apps/finance/templates/finance/receipt_verification.html:57
+#: apps/finance/templates/finance/receipt_verification.html:59
 #, python-format
 msgid ""
 "Issued offline by cash register %(register)s on %(date)s, signed by the "
@@ -2095,11 +2102,11 @@ msgstr ""
 "Émis hors ligne par la caisse %(register)s le %(date)s, signé par l'appareil "
 "de l'école. Il apparaîtra ici dès que l'appareil sera de nouveau en ligne."
 
-#: apps/finance/templates/finance/receipt_verification.html:59
+#: apps/finance/templates/finance/receipt_verification.html:61
 msgid "Forged receipt"
 msgstr "Reçu falsifié"
 
-#: apps/finance/templates/finance/receipt_verification.html:60
+#: apps/finance/templates/finance/receipt_verification.html:62
 #, python-format
 msgid ""
 "This code does not match any receipt issued by %(school)s: the receipt was "
@@ -2108,11 +2115,11 @@ msgstr ""
 "Ce code ne correspond à aucun reçu émis par %(school)s : le reçu a été "
 "modifié. Renseignez-vous auprès de l'école."
 
-#: apps/finance/templates/finance/receipt_verification.html:62
+#: apps/finance/templates/finance/receipt_verification.html:64
 msgid "Unknown receipt"
 msgstr "Reçu inconnu"
 
-#: apps/finance/templates/finance/receipt_verification.html:63
+#: apps/finance/templates/finance/receipt_verification.html:65
 #, python-format
 msgid ""
 "No receipt of %(school)s matches this code. This receipt may be false: check "
@@ -2121,12 +2128,12 @@ msgstr ""
 "Aucun reçu de %(school)s ne correspond à ce code. Ce reçu est peut-être "
 "faux : renseignez-vous auprès de l'école."
 
-#: apps/finance/templates/finance/receipt_verification.html:68
+#: apps/finance/templates/finance/receipt_verification.html:70
 #: apps/finance/templates/finance/statement_verification.html:19
 msgid "School"
 msgstr "École"
 
-#: apps/finance/templates/finance/receipt_verification.html:69
+#: apps/finance/templates/finance/receipt_verification.html:71
 msgid "Number"
 msgstr "Numéro"
 
@@ -3039,7 +3046,7 @@ msgstr "niveau"
 msgid "levels"
 msgstr "niveaux"
 
-#: apps/schools/models.py:424 apps/schools/serializers.py:366
+#: apps/schools/models.py:424 apps/schools/serializers.py:367
 msgid "1 to 10 capital letters or digits."
 msgstr "1 à 10 lettres majuscules ou chiffres."
 
@@ -3184,7 +3191,7 @@ msgstr "Au plus %(count)d lignes d'en-tête."
 msgid "Unknown currency: %(codes)s."
 msgstr "Devise inconnue : %(codes)s."
 
-#: apps/schools/serializers.py:288
+#: apps/schools/serializers.py:289
 msgid "Choose the school year to copy from."
 msgstr "Choisissez l'année scolaire à reprendre."
 

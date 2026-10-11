@@ -14,6 +14,7 @@ from apps.core.ids import uuid7
 from apps.core.tenancy import use_school
 from apps.finance.models import PaymentCancellation
 from apps.finance.tests.test_payments import pay, school_with_fees
+from apps.schools.models import School
 from apps.sync import services as sync
 from apps.sync.models import Device, SyncOperation
 
@@ -76,6 +77,19 @@ def test_a_receipt_shows_the_minimum_then_its_cancellation(api, school, head, ca
         )
     _response, html = page(api, payment.pk)
     assert 'data-state="cancelled"' in html and payment.receipt_number in html
+
+
+def test_a_receipt_of_a_test_or_demo_space_says_it_has_no_value(api, school, head, cashier):
+    alpha = school_with_fees(school, head)
+    payment = pay(school, cashier, alpha["enrollment"], 15025, "USD")
+
+    _response, html = page(api, payment.pk)
+    assert 'role="note"' not in html
+
+    for kind in (School.Environment.TEST, School.Environment.DEMO):
+        School.objects.filter(pk=school.pk).update(environment=kind)
+        response, html = page(api, payment.pk)
+        assert response.status_code == 200 and 'role="note"' in html
 
 
 def test_a_receipt_of_another_school_or_an_unknown_one_is_unknown(

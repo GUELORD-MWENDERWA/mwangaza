@@ -2470,6 +2470,11 @@ export const en: Messages<typeof fr> = {
       },
     },
   },
+  space: {
+    demo: "Demonstration — fictitious data",
+    test: "Trial — no real data",
+    specimen: "SPECIMEN — no value",
+  },
   platformNews: {
     title: "{{platform}} announcements",
     subtitle: "Messages from the platform team to your school.",

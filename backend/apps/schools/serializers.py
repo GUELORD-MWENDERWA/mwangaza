@@ -130,6 +130,7 @@ class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
             "name",
             "primary_color",
             "text_color",
+            "environment",
             "logo",
             "logo_monochrome",
             "timezone",

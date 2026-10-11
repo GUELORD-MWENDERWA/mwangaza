@@ -13316,6 +13316,11 @@ components:
           type: string
           readOnly: true
           description: 'Couleur du texte posé sur `primary_color` : blanc ou encre.'
+        environment:
+          allOf:
+          - $ref: '#/components/schemas/SchoolEnvironmentEnum'
+          readOnly: true
+          title: Kind of space
         logo:
           type: string
           nullable: true
@@ -13359,6 +13364,7 @@ components:
       - name
       - primary_color
       - text_color
+      - environment
       - logo
       - logo_monochrome
       - timezone
@@ -15137,6 +15143,15 @@ components:
           type: string
         school_timezone:
           type: string
+        school_environment:
+          allOf:
+          - $ref: '#/components/schemas/SchoolEnvironmentEnum'
+          description: |-
+            Type de l'espace : le Portail affiche un bandeau hors espace réel.
+
+            * `live` - Live
+            * `test` - Sandbox
+            * `demo` - Demonstration
         status:
           $ref: '#/components/schemas/LinkedFamilyStatusEnum'
         children:
@@ -15147,6 +15162,7 @@ components:
       - id
       - school_name
       - school_timezone
+      - school_environment
       - status
       - children
     LinkedFamilyStatusEnum:

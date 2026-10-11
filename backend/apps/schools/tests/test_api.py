@@ -15,6 +15,8 @@ def test_each_school_sees_its_own_name(client, school, other_school):
         "name": "École Alpha (fictive)",
         "primary_color": "#0E5C6B",
         "text_color": "#FFFFFF",
+        # Hors espace réel, la Gestion et le reçu le disent (bandeau, « SPÉCIMEN »).
+        "environment": "live",
         "logo": None,
         "logo_monochrome": None,
         # Les dates de l'application s'affichent à l'heure de l'école.

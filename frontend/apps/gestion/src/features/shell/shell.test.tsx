@@ -1,4 +1,4 @@
-import { act, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { apiError, mockApi, noContent, offline, type Routes } from "../../test/api";
@@ -32,6 +32,18 @@ describe("coquille et menu (M7)", () => {
 
     const account = await screen.findByRole("link", { name: "Aline Test — Mon compte" });
     expect(within(account).getByText("Caissier")).toBeTruthy();
+  });
+
+  it("espace de démonstration ou d'essai : bandeau permanent ; espace réel : aucun", async () => {
+    mockApi(loggedIn(me("head")));
+    renderApp("/");
+    await mainMenu();
+    expect(screen.queryByRole("note")).toBeNull();
+    cleanup();
+
+    mockApi(loggedIn(me("head"), { "GET /api/school/": { ...school, environment: "test" } }));
+    renderApp("/");
+    expect((await screen.findByRole("note")).textContent).toBe("Essai — pas de vraies données");
   });
 
   it("écran interdit ouvert par son adresse : 403 sans aucune donnée", async () => {

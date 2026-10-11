@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.17.2 terminée, PR à relire et fusionner |
-| Prochaine tâche | 4.18 (Espaces d'essai et de démonstration reconnaissables) |
-| Issue GitHub | #161 pour 4.18 (#174 : 4.17.2 ; bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.17.2-demo-console` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.18 terminée, PR à relire et fusionner |
+| Prochaine tâche | 4.19 (Reprise en cours d'année) |
+| Issue GitHub | #161 pour 4.18 (bloc : #155 à #165, créées le 2026-10-10) |
+| Branche | `tache/4.18-espaces-reconnaissables` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement
@@ -23,8 +23,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.21, 4.7.1 ; 4.17 en deux) | 7 | 12 |
-| **V1.0** | **57** | **64** |
+| Lancement — version finie (4.12 à 4.21, 4.7.1 ; 4.17 en deux) | 8 | 12 |
+| **V1.0** | **58** | **64** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -56,6 +56,13 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-11 — Tâche 4.18 : Espaces d'essai et de démonstration reconnaissables
+
+- Fait : `environment` ajouté à `GET /api/school/` et `school_environment` aux familles du Portail ; bandeau permanent (`space.demo` / `space.test`) en haut de la Gestion et du Portail, rien dans un espace réel ; reçu imprimé marqué « SPÉCIMEN — sans valeur » ; page `/v/<id>` : encadré « Reçu d'essai » hors espace réel.
+- Tests : vérification du reçu (réel sans encadré, essai et démonstration avec), bandeau de la Gestion et du Portail ; l'API de l'école renvoie le type. Aucun appel ni écriture de plus (le type voyage avec des réponses déjà envoyées).
+- Décisions : pas de nouvelle maquette (le bandeau reprend `.banner` « warn »). Le bandeau du Portail suit la première école non réelle du compte. La situation financière imprimée n'est pas touchée (hors tâche).
+- Suite : 4.19.
 
 ### 2026-10-11 — Tâche 4.17.2 : Démonstration depuis la console
 - Fait : « Nouvel espace », type Démonstration → nom, code, petite ou grande école ; le serveur remplit l'espace en tâche de fond (`core.demo.fill`), la fiche montre l'avancement ; carte « Démonstration » : **fiche d'accès** (document du serveur, aperçu et PDF : adresses, mot de passe, un compte par rôle, parents du portail avec leur code famille) et « Remettre à zéro ». Modèle `Demonstration` (profil, bloc de numéros, mot de passe chiffré, état), réglage `DJANGO_DEMO_SPACES_MAX` (5). Maquette `console/ecoles` complétée.

@@ -62,6 +62,11 @@ function ReceiptCopy({ job, school, copy }: { job: Printing; school: School; cop
 
   return (
     <article className="receipt">
+      {school.environment !== "live" && (
+        <p className="receipt__mark">
+          <strong>{t("space.specimen")}</strong>
+        </p>
+      )}
       {(job.reprintedAt || job.test) && (
         <p className="receipt__mark">
           <strong>{t(job.test ? "cash.receipt.test" : "cash.receipt.duplicate")}</strong>
