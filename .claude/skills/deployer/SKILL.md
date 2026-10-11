@@ -14,11 +14,11 @@ Tâche 4.6.2. Pas à pas pour l'utilisateur : `A-FAIRE.md` § 9 ter ; commandes 
 - **On met en ligne `main`**, fusionnée et CI verte. Une branche seulement à la demande de l'utilisateur : `make deploy ref=origin/<branche>`.
 - **Demander avant d'agir sur le serveur** (visible de tous) : `make deploy`, `make deploy-demo` (remet la démo à zéro, efface les essais faits dessus), redémarrage. Jamais `docker compose down --volumes` ni `docker volume rm` : la base serait effacée.
 - **`infra/serveur/serveur.env`** : hors Git, jamais affiché en entier (secrets), jamais recréé. Lire seulement `SERVEUR` et `MWANGAZA_DOMAIN` (`grep -E '^(SERVEUR|MWANGAZA_DOMAIN)='`). Perdre `DJANGO_SECRET_KEY` oblige chacun à relier son application d'authentification ; perdre les clés Web Push, à réabonner chaque appareil. L'utilisateur en garde une copie en lieu sûr.
-- Comptes fictifs : mot de passe `DJANGO_DEMO_PASSWORD` (à donner seulement à qui l'utilisateur montre l'application) ; pas de clé commune : chaque compte qui l'exige lie son application à la première connexion et la garde quand `make deploy-demo` est relancé. Compte bloqué sur le téléphone d'un autre : console → Comptes → « Réinitialiser la double authentification ».
+- Comptes fictifs : mot de passe `DJANGO_DEMO_PASSWORD` (à donner seulement à qui l'utilisateur montre l'application) ; pas de double authentification (espaces de démonstration, 4.17.1) et pas de super-admin fictif : la console s'ouvre avec le compte créé par `make deploy-superuser`, qui lie son application à la première connexion. Super-admin bloqué (téléphone perdu) : console → Comptes → « Réinitialiser la double authentification », depuis un autre super-admin.
 
 ## Première fois
 
-L'utilisateur fait `A-FAIRE.md` § 9 ter étapes 1 à 4 (compte Oracle, VM ARM Ubuntu 24.04 avec sa clé SSH, ports 80 et 443 dans la liste de sécurité, adresse DuckDNS à part). Puis : `make deploy-setup` (crée `serveur.env` et dit quoi remplir ; relancer une fois rempli), `make deploy` (premier build ≈ 10 à 15 min sur ARM), `make deploy-demo`, puis ouvrir `https://www.<nom>.duckdns.org/`.
+L'utilisateur fait `A-FAIRE.md` § 9 ter étapes 1 à 4 (compte Oracle, VM ARM Ubuntu 24.04 avec sa clé SSH, ports 80 et 443 dans la liste de sécurité, adresse DuckDNS à part). Puis : `make deploy-setup` (crée `serveur.env` et dit quoi remplir ; relancer une fois rempli), `make deploy` (premier build ≈ 10 à 15 min sur ARM), `make deploy-demo`, `make deploy-superuser` (le compte de l'utilisateur pour la console : il n'y a pas de super-admin fictif hors développement), puis ouvrir `https://www.<nom>.duckdns.org/`.
 
 ## Mise à jour
 

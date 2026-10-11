@@ -151,7 +151,7 @@ def test_new_account_added(api, school, head):
     cashier = role_of(school, "cashier")
 
     response = api(head).post(
-        STAFF, {"phone": "0000091001", "last_name": "Kahindo", "roles": [str(cashier.id)]}
+        STAFF, {"phone": "0100091001", "last_name": "Kahindo", "roles": [str(cashier.id)]}
     )
 
     data = ok(response).json()
@@ -219,13 +219,13 @@ def test_names_and_phone_changed(api, school, head):
     ok(
         api(head).patch(
             f"{STAFF}{membership.id}/",
-            {"last_name": "Kahindo", "first_name": "Grâce", "phone": "0000091002"},
+            {"last_name": "Kahindo", "first_name": "Grâce", "phone": "0100091002"},
         )
     )
 
     log = only(school, "staff.account_changed")
     assert log.before == {"first_name": "Grace", "phone": old_phone}
-    assert log.after == {"first_name": "Grâce", "phone": "+243000091002"}
+    assert log.after == {"first_name": "Grâce", "phone": "+243100091002"}
     assert log.entity_label == "Kahindo Grâce"
 
 
@@ -412,13 +412,13 @@ def test_failed_login_writes_nothing(api, school, head):
 def test_no_secret_ever_reaches_the_journal(api, school, head):
     client = api(head)
     cashier = role_of(school, "cashier")
-    new_cashier = {"phone": "0000091003", "last_name": "Kahindo", "roles": [str(cashier.id)]}
+    new_cashier = {"phone": "0100091003", "last_name": "Kahindo", "roles": [str(cashier.id)]}
     created = ok(client.post(STAFF, new_cashier)).json()
     reset = ok(client.post(f"{STAFF}{created['id']}/new-password/")).json()["temporary_password"]
 
     # La nouvelle caissière se connecte : nouveau mot de passe, double authentification.
     newcomer = api()
-    assert ok(newcomer.post(LOGIN, {"phone": "0000091003", "password": reset})).json() == {
+    assert ok(newcomer.post(LOGIN, {"phone": "0100091003", "password": reset})).json() == {
         "step": "new_password"
     }
     ok(newcomer.post(PASSWORD, {"new_password": NEW_PASSWORD}))

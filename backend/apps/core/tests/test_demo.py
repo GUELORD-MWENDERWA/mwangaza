@@ -8,13 +8,16 @@ from django.contrib.auth import authenticate
 from django.core.management import CommandError, call_command
 
 from apps.accounts import attempts, services, totp
-from apps.accounts.demo import DEMO_PASSWORD, DEMO_TOTP_SECRET, create_demo_accounts
+from apps.accounts.demo import DEMO_PASSWORD, DEMO_TOTP_SECRET
 from apps.accounts.models import Membership, Role, User
+from apps.accounts.phone import is_demo_phone
 from apps.accounts.roles import SYSTEM_ROLES
 from apps.audit.models import AuditLog
 from apps.core.crypto import decrypt
+from apps.core.demo import STEPS, fill
 from apps.core.models import PlatformSettings
 from apps.core.tenancy import use_school
+from apps.schools.demo import DemoNumbers, DemoSpace
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment, Guardian, Student
 from tests.factories import enable_totp
@@ -24,7 +27,9 @@ pytestmark = pytest.mark.django_db
 
 @pytest.fixture
 def demo(settings):
+    # Développement : `DEBUG` (super-admin fictif, clé commune de double authentification).
     settings.DEMO_DATA = True
+    settings.DEBUG = True
     call_command("demo")
     return {school.code: school for school in School.objects.all()}
 
@@ -41,6 +46,8 @@ def test_demo_creates_the_two_demo_schools(demo):
     assert demo["itig"].primary_color == "#003C6C"
     assert demo["itig"].status == School.Status.TRIAL
     assert demo["volcans"].status == School.Status.ACTIVE
+    # Données fictives : jamais dans un espace réel (`03` § 4 bis).
+    assert {school.environment for school in demo.values()} == {School.Environment.DEMO}
 
 
 def test_demo_puts_back_the_demo_logos(demo, settings):
@@ -67,12 +74,15 @@ def test_demo_puts_back_the_demo_logos(demo, settings):
 def test_demo_puts_back_a_suspended_school(demo):
     demo["volcans"].status = School.Status.SUSPENDED
     demo["volcans"].primary_color = "#000000"
+    # Base d'avant la 4.17 : l'école de démonstration y était un espace réel.
+    demo["volcans"].environment = School.Environment.LIVE
     demo["volcans"].save()
 
     call_command("demo")
 
     volcans = School.objects.get(code="volcans")
     assert volcans.status == School.Status.ACTIVE
+    assert volcans.is_demo
     assert volcans.primary_color == "#7A3E00"
 
 
@@ -202,24 +212,56 @@ def test_demo_resets_two_factor_authentication(demo):
     assert not promoter.totp_enabled
 
 
-def test_demo_server_has_its_own_password_and_no_shared_key(demo, settings):
-    """Serveur de démonstration en ligne (4.6.2) : mot de passe propre au serveur, pas de clé
-    commune (connue de tout le dépôt) ; une application liée par la personne est gardée."""
+def test_outside_development_own_password_no_code_and_no_demo_super_admin(demo, settings):
+    """Essai sur plusieurs appareils, serveur de démonstration en ligne : mot de passe propre au
+    serveur, ni clé commune ni code demandé (comptes partagés entre visiteurs), et plus de
+    super-admin fictif, dont le mot de passe et la clé sont écrits dans le dépôt."""
+    settings.DEBUG = False
     settings.DEMO_PASSWORD = "propre-au-serveur"
-    cashier = User.objects.get(phone="+243000001005")
     promoter = User.objects.get(phone="+243000001007")
-    own_key = enable_totp(promoter)
+    enable_totp(promoter)
 
-    create_demo_accounts(demo)
+    call_command("demo")
 
-    cashier.refresh_from_db()
-    promoter.refresh_from_db()
+    cashier = User.objects.get(phone="+243000001005")
     assert authenticate(username="0000001005", password="propre-au-serveur") == cashier
     assert authenticate(username="0000001005", password=DEMO_PASSWORD) is None
-    # La connexion demandera de lier l'application (étape obligatoire pour ce rôle).
-    assert not cashier.totp_enabled and services.totp_required(cashier)
-    assert not User.objects.get(phone="+243000000000").totp_enabled
-    assert decrypt(promoter.totp_secret) == own_key
+    assert not User.objects.filter(totp_enabled_at__isnull=False).exists()
+    assert not services.totp_required(cashier)
+    admin = User.objects.get(phone="+243000000000")
+    assert not admin.is_platform_admin and not admin.is_active
+
+
+def test_another_demo_space_gets_the_same_data_in_its_own_numbers(db):
+    """Le code de `make demo` remplit n'importe quel espace de démonstration (console, 4.17.2) :
+    mêmes données, numéros de son bloc, son mot de passe ; rien dans un espace réel."""
+    school = School.objects.create(
+        code="vitrine", name="École vitrine", environment=School.Environment.DEMO
+    )
+    space = DemoSpace(school, "volcans", DemoNumbers.block(40), "mot-de-passe-vitrine")
+    steps = []
+
+    fill([space], on_step=lambda done, total: steps.append((done, total)))
+
+    assert steps == [(done, len(STEPS)) for done in range(1, len(STEPS) + 1)]
+    staff = set(Membership.objects.filter(school=school).values_list("user__phone", flat=True))
+    assert staff == {"+243004002001", "+243004002004", "+243004002005", "+243004001008"}
+    head = authenticate(username="0004002001", password="mot-de-passe-vitrine")
+    assert roles_of(head.phone, school) == {"head"}
+    assert not head.totp_enabled and not services.totp_required(head)
+    with use_school(school):
+        assert Student.objects.count() == 150
+        phones = set(Guardian.objects.values_list("phone", flat=True))
+        assert all(phone.startswith("+24300401") for phone in phones)
+    # Le parent du portail : premier tuteur de la première famille, même mot de passe.
+    assert authenticate(username="0004010001", password="mot-de-passe-vitrine") is not None
+    assert all(is_demo_phone(phone) for phone in User.objects.values_list("phone", flat=True))
+
+    real = School.objects.create(code="reelle", name="École réelle")
+    with pytest.raises(ValueError, match="reelle"):
+        fill([DemoSpace(real, "volcans", DemoNumbers.block(41), "x")])
+    with use_school(real):
+        assert not Student.objects.exists()
 
 
 def test_demo_code_is_shown(settings):

@@ -24,7 +24,7 @@ MANAGE := cd backend && uv run python manage.py
 .DEFAULT_GOAL := help
 .PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp messages superuser shell \
 	test test-back test-front test-e2e lint lint-back lint-front format api api-schema build \
-	prod-local prod-local-stop reseau reseau-ip reseau-demo reseau-stop \
+	prod-local prod-local-stop reseau reseau-ip reseau-demo reseau-superuser reseau-stop \
 	deploy-setup deploy deploy-demo deploy-superuser deploy-logs deploy-ssh
 
 help: ## Afficher les commandes
@@ -152,8 +152,11 @@ reseau: ## Essai sur plusieurs appareils du même réseau, vrai certificat (A-FA
 reseau-ip: ## Remettre l'adresse de la machine dans DuckDNS (réseau changé) ; make reseau-ip ip=… pour la choisir
 	$(ESSAI) ip $(ip)
 
-reseau-demo: ## Données fictives dans l'essai sur plusieurs appareils (codes : make totp)
+reseau-demo: ## Données fictives dans l'essai sur plusieurs appareils (espaces de démonstration, sans code)
 	$(RESEAU) exec django python manage.py demo
+
+reseau-superuser: ## Créer un compte super-admin dans l'essai sur plusieurs appareils (console)
+	$(RESEAU) exec django python manage.py createsuperuser
 
 reseau-stop: ## Arrêter l'essai sur plusieurs appareils (données et certificat gardés)
 	$(RESEAU) down

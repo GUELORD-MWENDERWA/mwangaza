@@ -13,7 +13,13 @@ from apps.core.tenancy import use_school
 from apps.schools.models import School
 from apps.students import services as students
 from apps.students.models import Family
-from tests.factories import TEST_PASSWORD, MembershipFactory, UserFactory, enable_totp
+from tests.factories import (
+    TEST_PASSWORD,
+    MembershipFactory,
+    SchoolFactory,
+    UserFactory,
+    enable_totp,
+)
 
 PHONE = "+243971234567"
 PASSWORD = "Lac-Kivu-2026"
@@ -100,6 +106,22 @@ def test_number_with_an_account_or_suspended_school_does_not_activate(school, he
     response = activate(portal(), elsewhere.code, phone="+243990000002")
     assert (response.status_code, response.json()["code"]) == (403, "school_unavailable")
     assert reloaded(family).primary_user is None and reloaded(elsewhere).primary_user is None
+
+
+def test_a_reserved_number_only_activates_in_a_demo_space_which_takes_no_other(school, head):
+    """Pas de mélange (`03` § 4 bis) : le compte d'une vraie personne n'est jamais relié à une
+    famille fictive, ni un compte de démonstration à une vraie famille."""
+    fictitious = new_family(school, head, phone="+243004100001")
+    assert activate(portal(), fictitious.code, "0004100001").json()["code"] == "demo_number"
+
+    demo = SchoolFactory(code="vitrine", environment=School.Environment.DEMO)
+    actor = MembershipFactory(school=demo, roles=["head"]).user
+    real = new_family(demo, actor)
+    assert activate(portal(), real.code).json()["code"] == "demo_space_numbers"
+    assert not User.objects.filter(phone=PHONE).exists()
+
+    shown = new_family(demo, actor, phone="+243004100002")
+    assert activate(portal(), shown.code, "0004100002").status_code == 200
 
 
 def test_login_with_the_password_only_temporary_password_refused(school):

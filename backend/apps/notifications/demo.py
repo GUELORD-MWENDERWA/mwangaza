@@ -22,6 +22,7 @@ from apps.notifications.models import (
     PlatformAnnouncement,
     PlatformAnnouncementRead,
 )
+from apps.schools.demo import DemoSpace
 from apps.schools.models import ClassGroup, School
 from apps.students.models import Family
 
@@ -83,11 +84,12 @@ PLATFORM_ANNOUNCEMENTS = [
 ]
 
 
-def create_demo_announcements(schools: dict[str, School]) -> None:
-    for code, school in schools.items():
-        with use_school(school):
+def create_demo_announcements(spaces: list[DemoSpace]) -> None:
+    for space in spaces:
+        with use_school(space.school):
             if not Announcement.objects.exists():
-                _publish(User.objects.get(phone=PUBLISHERS[code]))
+                publisher = space.numbers.of(PUBLISHERS[space.profile])
+                _publish(User.objects.get(phone=publisher))
             _create_reads()
 
 
@@ -139,10 +141,12 @@ def _create_reads() -> None:
         AnnouncementRead.objects.bulk_create(rows)
 
 
-def create_demo_platform_announcements(schools: dict[str, School]) -> None:
+def create_demo_platform_announcements(spaces: list[DemoSpace]) -> None:
+    """Annonces de la plateforme, publiées par le super-admin fictif : développement seulement
+    (`make demo`), jamais depuis la console."""
     PlatformAnnouncementRead.objects.all().delete()
     if not PlatformAnnouncement.objects.exists():
-        _publish_platform(schools)
+        _publish_platform({space.profile: space.school for space in spaces})
     news = Notification.all_schools.filter(kind=Notification.Kind.PLATFORM_NEWS)
     if not news.exists():
         # Base d'avant la 5.5 : les annonces en cours notifient le personnel.

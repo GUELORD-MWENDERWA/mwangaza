@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { allowCodeAgain, shell, totp } from "./django";
-import { enterCode, enterPassword, ITIG, mainMenu, skipGuide, VOLCANS } from "./helpers";
+import { enterCode, enterPassword, ITIG, mainMenu, PASSWORD, skipGuide, VOLCANS } from "./helpers";
 
 test("directeur : mot de passe puis code, menu complet, Mon compte, menu tiroir", async ({
   page,
@@ -62,9 +62,35 @@ test("caissière : seulement la caisse ; un écran interdit ouvert par son adres
   await expect(page.getByText("Vous n'avez pas accès à cette page")).toBeVisible();
 });
 
-test("promoteur : activation obligatoire de la double authentification (M1)", async ({ page }) => {
+test("démonstration : pas de code ; espace d'essai : double authentification obligatoire (M1)", async ({
+  page,
+}) => {
+  // Espace de démonstration : le promoteur entre sans code, avec un rôle qui l'exige ailleurs.
   await page.goto(ITIG);
   await enterPassword(page, "0000001007");
+  await expect(page.getByRole("heading", { name: /^Bonjour/ })).toBeVisible();
+  await expect(mainMenu(page).getByRole("link", { name: "Journal d'audit" })).toBeVisible();
+
+  // Le même rôle dans un espace d'essai (créé ici, hors de la plage de numéros réservée).
+  shell(`from apps.accounts import services
+from apps.accounts.models import Membership, Role, User
+from apps.core.tenancy import use_school
+from apps.schools.models import School
+school, _ = School.objects.get_or_create(
+    code="essaie2e", defaults={"name": "Espace d'essai (parcours)", "environment": "test"}
+)
+user = User.objects.filter(phone="+243100001007").first()
+user = user or User(phone="+243100001007", last_name="Essai")
+user.set_password("${PASSWORD}")
+user.must_change_password = False
+user.save()
+services.reset_totp(user)
+membership, _ = Membership.objects.get_or_create(user=user, school=school)
+with use_school(school):
+    membership.roles.set([Role.objects.get(code="promoter")])
+`);
+  await page.goto("http://essaie2e.localhost:5173/app/");
+  await enterPassword(page, "0100001007");
 
   await expect(page.getByText("Étape obligatoire")).toBeVisible();
   const key = (await page.getByText(/^([A-Z2-7]{4} ?)+$/).innerText()).replace(/\s/g, "");

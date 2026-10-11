@@ -1,18 +1,19 @@
-"""Élèves fictifs de `make demo` : ~800 à l'ITIG, ~150 aux Volcans, avec leurs familles
-(fratries comprises) et une inscription en 2026-2027 dans une classe de leur âge.
+"""Élèves fictifs d'un espace de démonstration : ~800 pour le profil `itig`, ~150 pour
+`volcans`, avec leurs familles (fratries comprises) et une inscription en 2026-2027 dans une
+classe de leur âge.
 
-Noms inventés à partir de noms courants du Kivu ; téléphones dans la plage fictive `+24300…`
+Noms inventés à partir de noms courants du Kivu ; téléphones dans la plage réservée de l'espace
 (jamais un vrai numéro). Tirage fixe par école : deux lancements donnent les mêmes élèves.
 Créés une seule fois par école : un nouveau lancement garde les élèves déjà là, et ceux que
 l'utilisateur a ajoutés en essayant l'application."""
 
 import random
-from dataclasses import dataclass
 from datetime import date, timedelta
 
 from apps.core.tenancy import use_school
 from apps.schools import matricule
-from apps.schools.models import AcademicYear, ClassGroup, School
+from apps.schools.demo import DemoSpace
+from apps.schools.models import AcademicYear, ClassGroup
 from apps.students.models import (
     FAMILY_CODE_ALPHABET,
     FAMILY_CODE_LENGTH,
@@ -23,17 +24,8 @@ from apps.students.models import (
     Student,
 )
 
-
-@dataclass(frozen=True)
-class DemoStudents:
-    count: int
-    phone_prefix: str  # 3 chiffres après +24300
-
-
-DEMO_STUDENTS = {
-    "itig": DemoStudents(count=800, phone_prefix="2"),
-    "volcans": DemoStudents(count=150, phone_prefix="3"),
-}
+# Nombre d'élèves de chaque profil.
+DEMO_STUDENTS = {"itig": 800, "volcans": 150}
 
 LAST_NAMES = [
     "Kasereka", "Kambale", "Muhindo", "Paluku", "Katembo", "Mbusa", "Kakule", "Mumbere",
@@ -127,23 +119,25 @@ def _student(
     )
 
 
-def _create(school: School, demo: DemoStudents, shared_guardians: list[Guardian]) -> None:
+def _create(space: DemoSpace, shared_guardians: list[Guardian]) -> None:
+    school, count = space.school, DEMO_STUDENTS[space.profile]
     rng = random.Random(f"mwangaza-demo-{school.code}")
     year = AcademicYear.objects.get(is_current=True)
     groups = list(ClassGroup.objects.filter(academic_year=year).select_related("level", "track"))
     # Places dans les classes, au hasard, jusqu'au nombre d'élèves voulu.
-    seats = [groups[index % len(groups)] for index in range(demo.count)]
+    seats = [groups[index % len(groups)] for index in range(count)]
     rng.shuffle(seats)
     taken_codes = set(Family.all_schools.values_list("code", flat=True))
-    phones = (f"+24300{demo.phone_prefix}{number:06d}" for number in range(1, 10**6))
+    phones = (space.numbers.guardian(number) for number in range(1, 10**4))
 
     families, guardians, students = [], [], []
-    while len(students) < demo.count:
+    while len(students) < count:
         family = Family(code=_family_code(rng, taken_codes))
         address = _address(rng)
         last_name = rng.choice(LAST_NAMES)
         if shared_guardians and not families:
-            # Famille qui a aussi des enfants à l'ITIG : mêmes parents, fiche et code à part.
+            # Famille qui a aussi des enfants dans l'autre école de `make demo` : mêmes parents,
+            # fiche et code à part.
             guardians += [
                 Guardian(
                     family=family,
@@ -159,7 +153,7 @@ def _create(school: School, demo: DemoStudents, shared_guardians: list[Guardian]
             guardians += _guardians(rng, family, last_name, phones)
         families.append(family)
         size = rng.choices([1, 2, 3, 4], weights=[62, 26, 9, 3])[0]
-        for _ in range(min(size, demo.count - len(students))):
+        for _ in range(min(size, count - len(students))):
             students.append(_student(rng, family, last_name, seats[len(students)], address))
 
     Family.objects.bulk_create(families)
@@ -187,15 +181,16 @@ def _create(school: School, demo: DemoStudents, shared_guardians: list[Guardian]
     )
 
 
-def create_demo_students(schools: dict[str, School]) -> None:
+def create_demo_students(spaces: list[DemoSpace]) -> None:
+    """Créés une seule fois par espace. Remplis ensemble (`make demo`), deux espaces ont une
+    famille en commun : la première du premier a aussi des enfants dans le suivant."""
     shared: list[Guardian] = []
-    for code, demo in DEMO_STUDENTS.items():
-        school = schools[code]
-        with use_school(school):
+    for space in spaces:
+        with use_school(space.school):
             if not Student.objects.exists():
-                _create(school, demo, shared)
+                _create(space, shared)
             first = Family.objects.order_by("created_at", "id").first()
-            if code == "itig" and first is not None:
+            if not shared and first is not None:
                 shared = list(first.guardians.all())
 
 

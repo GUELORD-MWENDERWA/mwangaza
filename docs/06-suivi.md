@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.16 terminée, PR à relire et fusionner |
-| Prochaine tâche | 4.17 (Démonstration depuis la console) |
-| Issue GitHub | #160 pour 4.17 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.16-supprimer-espace` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.17.1 terminée, PR à relire et fusionner |
+| Prochaine tâche | 4.17.2 (Démonstration depuis la console : création, fiche d'accès, remise à zéro) |
+| Issue GitHub | #174 pour 4.17.2 (#160 : 4.17.1 ; bloc : #155 à #165, créées le 2026-10-10) |
+| Branche | `tache/4.17.1-espaces-demo` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement
@@ -23,8 +23,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.21, 4.7.1) | 5 | 11 |
-| **V1.0** | **55** | **63** |
+| Lancement — version finie (4.12 à 4.21, 4.7.1 ; 4.17 en deux) | 6 | 12 |
+| **V1.0** | **56** | **64** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -56,6 +56,16 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-11 — Coupure de courant pendant la 4.17.1 : dépôt réparé
+- Fait : la machine s'est arrêtée juste après le `git add` de fin de tâche ; 12 objets Git (tous les `.md`, `Makefile`, `test_demo_spaces.py`) sont restés vides sur le disque, puis leur copie de travail a été remplacée par un aller-retour sur `main`. Reconstruits depuis la photo du `git stash` de 09:33 et les commandes du journal de session ; chaque fichier a la même empreinte SHA-1 que dans le commit, `git fsck` propre.
+- À retenir : après un arrêt brutal, `git fsck` avant tout changement de branche ; commiter au fil de la tâche plutôt que tout garder en attente. Proposé : `git config core.fsync added` (Git force alors l'écriture de chaque `git add` sur le disque).
+
+### 2026-10-11 — Tâche 4.17.1 : Espaces de démonstration, règles du serveur et `make demo`
+- Fait : la 4.17 est découpée (4.17.2 : console — création avec avancement, fiche d'accès, remise à zéro ; issue #174). Ici : plage de numéros réservée `+243 0…` ; un numéro réservé n'entre que dans un espace de démonstration, qui n'accepte que lui (personnel, changement de numéro, portail) ; pas de double authentification dans un espace de démonstration ; données fictives rangées par profil et écrites par `core.demo.fill` dans n'importe quel espace, avec ses numéros et son mot de passe ; `make demo` : `itig` et `volcans` en espaces de démonstration, super-admin fictif en développement seulement ; cible `make reseau-superuser`.
+- Tests : numéro réservé refusé dans un espace réel ou d'essai, seul accepté en démonstration (API du personnel, changement de numéro, activation du portail) ; pas de code en démonstration, exigé dès qu'un rôle sensible existe dans un espace réel ; `make demo` hors développement (mot de passe du serveur, aucun code, super-admin retiré) ; un autre espace rempli dans son bloc de numéros, refus pour un espace réel. Parcours Playwright : promoteur sans code à l'ITIG, activation obligatoire dans un espace d'essai, ITIG sous l'onglet « Démonstration ».
+- Décisions : numéros fictifs à taper en `000…` (`0012…` est lu comme un numéro international) ; blocs `+243 00 BB…` (40 à 99) pour les espaces de la console ; clé commune gardée en développement (directeur, comptable, caissière) pour que les parcours vérifient toujours la connexion en deux étapes ; fabrique de comptes des tests en `+243 1…`.
+- Suite : 4.17.2. À y trancher : empêcher un visiteur de changer le mot de passe d'un compte de démonstration partagé ; réactiver les comptes désactivés par une suppression avant de recréer.
 
 ### 2026-10-11 — Tâche 4.16 : Supprimer un espace d'essai ou de démonstration
 - Fait : « Supprimer » sur la fiche d'un espace d'essai ou de démonstration (console), confirmé en retapant son code ; refusé par le serveur **et par la base** pour un espace réel. Dans la requête : espace fermé (état « suppression en cours », adresse « école introuvable »), comptes restés sans école désactivés, journal de la plateforme. En tâche de fond : `apps/schools/deletion.py` trouve seul tous les modèles d'une école, les ordonne et les vide par paquets de 2 000 lignes, fichiers compris ; rejouable (« Relancer la suppression »).

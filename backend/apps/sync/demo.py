@@ -9,10 +9,10 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from django.utils import timezone
 
-from apps.accounts.demo import DEMO_ACCOUNTS
+from apps.accounts.demo import demo_accounts
 from apps.accounts.models import Membership
 from apps.core.tenancy import use_school
-from apps.schools.models import School
+from apps.schools.demo import DemoSpace
 from apps.sync.models import Device
 from apps.sync.services import _next_prefix
 
@@ -25,11 +25,12 @@ def _public_key() -> str:
     return base64.b64encode(spki).decode()
 
 
-def create_demo_devices(schools: dict[str, School]) -> None:
+def create_demo_devices(spaces: list[DemoSpace]) -> None:
     """Crée les appareils qui manquent ; remet les autres comme au départ (pas déconnectés).
     Ceux que les comptes fictifs ont enregistrés en essayant sont déconnectés."""
-    phones = [account.phone for account in DEMO_ACCOUNTS]
-    for school in schools.values():
+    for space in spaces:
+        school = space.school
+        phones = [space.numbers.of(account.phone) for account in demo_accounts(space)]
         members = (
             Membership.objects.filter(
                 school=school,

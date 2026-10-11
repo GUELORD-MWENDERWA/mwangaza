@@ -35,7 +35,7 @@ def new_school(**fields) -> School:
 
 
 def test_create_a_school_with_a_new_director(platform_admin, school):
-    director = Director(phone="0000003001", last_name="Kasereka", first_name="Dieudonné")
+    director = Director(phone="0100003001", last_name="Kasereka", first_name="Dieudonné")
 
     membership, password = services.create_school(
         new_school(official_name="Institut technique Gamma"),
@@ -83,11 +83,11 @@ def test_create_a_school_whose_director_already_has_an_account(platform_admin, s
 
 def test_a_new_director_needs_a_name(platform_admin):
     with pytest.raises(BusinessError) as error:
-        services.create_school(new_school(), actor=platform_admin, director=Director("0000003002"))
+        services.create_school(new_school(), actor=platform_admin, director=Director("0100003002"))
 
     assert error.value.error.code == "names_required"
     assert not School.objects.filter(code="gamma").exists()
-    assert not User.objects.filter(phone="+243000003002").exists()
+    assert not User.objects.filter(phone="+243100003002").exists()
 
 
 # Changements

@@ -13,6 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from apps.accounts import attempts, login
 from apps.accounts.models import Membership, User
 from apps.accounts.phone import InvalidPhoneError, normalize_phone
+from apps.accounts.services import ensure_number_fits_space
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
@@ -92,6 +93,8 @@ def _family(
         raise BusinessError(error)
     if family.school.is_closed:
         raise BusinessError(SCHOOL_UNAVAILABLE)
+    # Numéro et code justes : rien à deviner, on peut dire pourquoi ce compte n'entre pas ici.
+    ensure_number_fits_space(phone, family.school)
     if family.portal_suspended_at is not None:
         raise BusinessError(PORTAL_SUSPENDED)
     return family
