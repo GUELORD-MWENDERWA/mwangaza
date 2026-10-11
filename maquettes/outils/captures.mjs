@@ -2,7 +2,7 @@
 // Usage : node maquettes/outils/captures.mjs [fichier.html …]   (sans argument : toutes les maquettes)
 // Bureau : 1440 px de large, page entière. Mobile (écrans listés dans MOBILE) : 390 px, densité 2.
 import { spawn } from "node:child_process";
-import { mkdtempSync, readdirSync, writeFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname, basename, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -17,7 +17,13 @@ const MOBILE_GESTION = new Set([
 ]);
 
 function pages(args) {
-  if (args.length) return args.map((a) => resolve(a));
+  if (args.length) {
+    const files = args.map((a) => resolve(a));
+    // Chemin faux : s'arrêter, plutôt que d'enregistrer la page d'erreur du navigateur.
+    const missing = files.filter((f) => !f.endsWith(".html") || !existsSync(f));
+    if (missing.length) throw new Error(`Maquette introuvable : ${missing.join(", ")}`);
+    return files;
+  }
   const out = [];
   for (const app of ["gestion", "portail", "console"]) {
     for (const f of readdirSync(join(ROOT, app)).sort()) if (f.endsWith(".html")) out.push(join(ROOT, app, f));
