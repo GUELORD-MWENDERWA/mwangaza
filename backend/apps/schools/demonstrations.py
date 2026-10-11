@@ -59,11 +59,14 @@ class _Leaving(Exception):
 
 
 def _start(school: School, *, profile: str, block: int, actor) -> None:
+    from apps.core import demo  # les données fictives de toutes les apps
+
     Demonstration.objects.create(
         school=school,
         profile=profile,
         block=block,
         password=encrypt(make_temporary_password()),
+        steps_total=len(demo.STEPS),
         created_by=actor,
     )
     transaction.on_commit(partial(tasks.fill_demonstration.delay, str(school.pk)))
@@ -119,7 +122,7 @@ def fill(school_id: str) -> None:
                 raise _Leaving
 
         try:
-            on_step(0, len(demo.STEPS))
+            on_step(0, len(demo.STEPS))  # déjà parti ? on ne remplit rien
             demo.fill([_space(record)], on_step)
         except _Leaving:
             leaving = True

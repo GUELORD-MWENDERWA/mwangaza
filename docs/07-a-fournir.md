@@ -41,7 +41,7 @@ Dessinées par Claude en 4.9 (à valider) : invitations au portail et suivi des 
 
 ### Lancement — version finie (4.12 à 4.21)
 
-À dessiner par Claude avec leur tâche, d'après les écrans existants (à valider dans la PR de la tâche) : création d'un espace de démonstration et fiche d'accès (4.17.2), bandeau d'essai et de démonstration, reçu « SPÉCIMEN » (4.18), reprise des paiements d'avant Mwangaza (4.19), liste « Mise en route » du tableau de bord (4.20). Dessinées : annulation d'un import (`gestion/eleves-import-annulation`, 4.14, à valider) ; confirmation « Supprimer » et état « Suppression en cours » (`console/ecoles`, 4.16, à valider).
+À dessiner par Claude avec leur tâche, d'après les écrans existants (à valider dans la PR de la tâche) : bandeau d'essai et de démonstration, reçu « SPÉCIMEN » (4.18), reprise des paiements d'avant Mwangaza (4.19), liste « Mise en route » du tableau de bord (4.20). Dessinées : annulation d'un import (`gestion/eleves-import-annulation`, 4.14, à valider) ; confirmation « Supprimer » et état « Suppression en cours » (`console/ecoles`, 4.16, à valider) ; création d'un espace de démonstration, avancement, carte « Démonstration » et fiche d'accès (`console/ecoles`, 4.17.2, à valider).
 
 ### V1.1 — plateforme, notifications, communication
 

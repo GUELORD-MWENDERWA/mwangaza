@@ -40,6 +40,8 @@ x-backend: &backend
     CELERY_TASK_ALWAYS_EAGER: "false"
     WEBPUSH_VAPID_PUBLIC_KEY: ${WEBPUSH_VAPID_PUBLIC_KEY:-}
     WEBPUSH_VAPID_PRIVATE_KEY: ${WEBPUSH_VAPID_PRIVATE_KEY:-}
+    # Espaces de démonstration créés depuis la console (4.17.2) ; vide : 5.
+    DJANGO_DEMO_SPACES_MAX: ${DJANGO_DEMO_SPACES_MAX:-}
   # Logos, photos, pièces jointes : sur le disque jusqu'au stockage objet (4.7).
   volumes:
     - media:/app/media

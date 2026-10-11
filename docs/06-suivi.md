@@ -8,9 +8,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | 4.17.2 — Démonstration depuis la console (création, fiche d'accès, remise à zéro) |
+| Tâche en cours | aucune — 4.17.2 terminée, PR à relire et fusionner |
 | Prochaine tâche | 4.18 (Espaces d'essai et de démonstration reconnaissables) |
-| Issue GitHub | #174 pour 4.17.2 (bloc : #155 à #165, créées le 2026-10-10) |
+| Issue GitHub | #161 pour 4.18 (#174 : 4.17.2 ; bloc : #155 à #165, créées le 2026-10-10) |
 | Branche | `tache/4.17.2-demo-console` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
@@ -23,8 +23,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.21, 4.7.1 ; 4.17 en deux) | 6 | 12 |
-| **V1.0** | **56** | **64** |
+| Lancement — version finie (4.12 à 4.21, 4.7.1 ; 4.17 en deux) | 7 | 12 |
+| **V1.0** | **57** | **64** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -56,6 +56,12 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-11 — Tâche 4.17.2 : Démonstration depuis la console
+- Fait : « Nouvel espace », type Démonstration → nom, code, petite ou grande école ; le serveur remplit l'espace en tâche de fond (`core.demo.fill`), la fiche montre l'avancement ; carte « Démonstration » : **fiche d'accès** (document du serveur, aperçu et PDF : adresses, mot de passe, un compte par rôle, parents du portail avec leur code famille) et « Remettre à zéro ». Modèle `Demonstration` (profil, bloc de numéros, mot de passe chiffré, état), réglage `DJANGO_DEMO_SPACES_MAX` (5). Maquette `console/ecoles` complétée.
+- Tests : super-admin seul ; limite et « un seul travail à la fois » refusés ; deux espaces remplis chacun dans son bloc, fiche sans rien de l'autre ; remise à zéro (même identifiant, autre espace intact ligne pour ligne, comptes réactivés, nouveau mot de passe) ; étape en échec ; espace supprimé pendant son remplissage ; mot de passe d'un compte partagé refusé. Vitest : création, avancement, remise à zéro. Essai réel avec un vrai worker Celery : grande école remplie en 20 s, remise à zéro en 21 s, PDF correct ; capture à 390 px.
+- Décisions : remise à zéro = suppression (4.16) puis recréation **dans la transaction qui efface la ligne de l'école** (même identifiant, même adresse, même bloc) avec un **nouveau mot de passe** ; un compte d'une fiche d'accès ne change ni de mot de passe ni de double authentification ; fiche d'accès = un seul gabarit du serveur pour l'écran et le PDF ; pas de « relancer le remplissage » (remettre à zéro ou supprimer) ; espaces de `make demo` : ni fiche ni remise à zéro dans la console ; `POST /api/console/schools/` n'accepte plus le type démonstration.
+- Suite : 4.18 (bandeau « Démonstration » / « Essai », reçu « SPÉCIMEN »).
 
 ### 2026-10-11 — Coupure de courant pendant la 4.17.1 : dépôt réparé
 - Fait : la machine s'est arrêtée juste après le `git add` de fin de tâche ; 12 objets Git (tous les `.md`, `Makefile`, `test_demo_spaces.py`) sont restés vides sur le disque, puis leur copie de travail a été remplacée par un aller-retour sur `main`. Reconstruits depuis la photo du `git stash` de 09:33 et les commandes du journal de session ; chaque fichier a la même empreinte SHA-1 que dans le commit, `git fsck` propre.
