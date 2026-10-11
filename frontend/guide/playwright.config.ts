@@ -45,5 +45,13 @@ export default defineConfig({
       reuseExistingServer: true,
       timeout: 120_000,
     },
+    {
+      command: "./node_modules/.bin/vite --port 5175 --host 127.0.0.1",
+      cwd: new URL("../apps/console", import.meta.url).pathname,
+      env: apiTarget,
+      url: "http://127.0.0.1:5175/",
+      reuseExistingServer: true,
+      timeout: 120_000,
+    },
   ],
 });

@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.7.1 terminée (PR ouverte, à fusionner) |
-| Prochaine tâche | 4.21 (recette finale) : dernière du bloc « Lancement » |
+| Tâche en cours | **4.21** Recette finale (démarrée le 2026-10-11) — **en pause, mémoire de la machine** : la revue automatique a été arrêtée par le système (8 Go, échange plein). Fait et commité sur la branche (pas poussé) : revue du Portail et de 6 rôles de la Gestion sur 8, mesure sur 12 écoles et deux corrections de vitesse, onglet « Famille » corrigé (pas encore revu à 390 px), texte du guide, `A-FAIRE.md` § 9 quater, tâche 4.23 (#186). **Reste**, à lancer une étape à la fois quand l'utilisateur le demande : (1) revue du promoteur, de l'enseignant et de la console, et de `students/<id>/family` à 390 px ; (2) `make guide` ; (3) `make reseau` puis contrôle des trois adresses ; (4) `make lint`, PR. Base de mesure `mwangaza_mesure` (PostgreSQL de développement) à supprimer à la fin ; parcours provisoire de la revue rangé dans `git stash` (« recette 4.21 »), jamais commité |
+| Prochaine tâche | 4.6.3 et 4.7.2 (avec la mise en ligne), puis reprise de la V1.1 (5.5.2) |
 | Issue GitHub | #165 pour 4.21 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.7.1-sauvegardes` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/4.21-recette-finale` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement

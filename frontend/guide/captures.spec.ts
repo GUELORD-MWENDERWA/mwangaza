@@ -12,7 +12,7 @@ const VERSION = "1.0";
 const CAPTURES = new URL("captures/", import.meta.url).pathname;
 const PDF = new URL(`../../docs/guide/guide-v${VERSION}.pdf`, import.meta.url).pathname;
 const PORTAL = "http://localhost:5174/";
-const ADMIN = "http://localhost:8000/admin/";
+const CONSOLE = "http://admin.localhost:5175/";
 
 test.describe.configure({ mode: "serial" });
 test.beforeAll(() => mkdirSync(CAPTURES, { recursive: true }));
@@ -212,15 +212,23 @@ test.describe("parent", () => {
 });
 
 test("super-admin", async ({ page }) => {
+  // Console de la plateforme : les espaces par type, puis le choix du type à la création.
   allowCodeAgain("+243000000000");
-  await page.goto(ADMIN);
-  await page.locator("input[name=phone]").fill("0000000000");
-  await page.locator("input[name=password]").fill(PASSWORD);
-  await page.locator("[type=submit]").click();
-  await page.locator("input[name=code]").fill(await totp());
-  await page.locator("[type=submit]").click();
-  await page.goto(`${ADMIN}schools/school/`);
-  await shot(page, "admin-ecoles");
+  await page.goto(CONSOLE);
+  await page.getByLabel("Numéro de téléphone").fill("0000000000");
+  await page.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
+  await page.getByRole("button", { name: "Se connecter" }).click();
+  await enterCode(page);
+  await expect(page.getByRole("heading", { name: "Tableau de bord" })).toBeVisible();
+  await page.goto(`${CONSOLE}schools`);
+  await page.getByRole("tab", { name: "Démonstration" }).click();
+  await expect(page.getByText("ITIG Don Bosco Goma (démo)")).toBeVisible();
+  await page.waitForLoadState("networkidle");
+  await shot(page, "console-ecoles");
+  await page.goto(`${CONSOLE}schools/new`);
+  await page.waitForLoadState("networkidle");
+  await expect(page.getByRole("heading").first()).toBeVisible();
+  await shot(page, "console-nouvelle-ecole");
 
   allowCodeAgain("+243000000000");
   await page.goto(`${ITIG}support`);

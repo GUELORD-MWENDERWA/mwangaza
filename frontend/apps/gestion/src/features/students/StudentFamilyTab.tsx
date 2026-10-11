@@ -50,7 +50,7 @@ export function StudentFamilyTab({ student, canEdit }: { student: Student; canEd
   if (!family.data) return <Skeleton label={t("common.loading")} />;
   const siblings = family.data.students.filter((child) => child.id !== student.id);
   return (
-    <div className="grid items-start gap-4 min-[1100px]:grid-cols-[2fr_1fr]">
+    <div className="grid grid-cols-1 items-start gap-4 min-[1100px]:grid-cols-[2fr_1fr]">
       <div className="flex flex-col gap-4">
         <Card>
           <CardHeader className="flex-row flex-wrap items-center justify-between gap-3">

@@ -11,11 +11,11 @@ Dernière mise à jour : 2026-10-11 (tâche 4.22 : `make demo` refuse une platef
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
-| 1 | **Relire et fusionner la PR « 4.22 — make demo sans danger pour une plateforme qui a de vraies écoles »** (attendre les coches vertes) : `make demo`, `make reseau-demo` et `make deploy-demo` refusent désormais dès qu'un espace réel existe, sans rien modifier ; les démonstrations se créent alors dans la console (Écoles, onglet « Démonstration »). Puis `git switch main && git pull`. Sur ta machine, `make test-e2e` échoue à deux anciens parcours tant que `itig` garde 839 élèves au lieu de 800 (`make demo` ne retire pas les élèves ajoutés à la main ou par un import d'essai) : `make reset-db` repart d'une base neuve. Essai sur plusieurs appareils ou serveur en ligne déjà lancés : il n'y a plus de super-admin fictif `0000000000` hors développement — après `make reseau-demo` ou `make deploy-demo`, créer le tien avec `make reseau-superuser` ou `make deploy-superuser` | 15 min | [ ] |
+| 1 | **Recette finale (4.21) : libérer de la mémoire, puis me dire de reprendre.** La machine (8 Go, mémoire d'échange pleine) a arrêté la revue automatique en cours de route. Il reste trois étapes lourdes : fin de la revue (promoteur, enseignant, console), `make guide`, `make reseau`. Fermer ce qui ne sert pas (onglets du navigateur, VS Code…), puis dans Claude Code : « reprends la 4.21 ». Détail : « État actuel » de [`docs/06-suivi.md`](docs/06-suivi.md) | 5 min | [ ] |
 | 2 | **Essayer le Portail sur ton vrai téléphone**, ce que je ne peux pas faire (navigateur, puis application installée ; Android et iPhone si possible) : [§ 9 bis](#9-bis-essai-sur-plusieurs-appareils-411) (`make reseau`), parent `0002000001`, quitter l'application, la rouvrir plus tard et le lendemain, couper le réseau. Me dire si une déconnexion revient (quand, sur quel téléphone), et **à quel moment l'import exige un matricule** (Q14, [`docs/06-suivi.md`](docs/06-suivi.md)) | 15 min | [ ] |
 | 3 | **Mettre le serveur de démonstration en ligne**, quand tu veux : [§ 9 ter](#9-ter-serveur-de-démonstration-en-ligne-462) (compte Oracle Cloud, serveur gratuit, adresse DuckDNS, `make deploy-setup`, `make deploy`) | 1 h | [ ] |
 | 4 | Juste après : garder une **copie de `infra/serveur/serveur.env`** en lieu sûr (clé USB, gestionnaire de mots de passe) | 2 min | [ ] |
-| 5 | **Avant la première vraie école** : vrai domaine et sauvegardes, [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats) (tâches 4.6.3 et 4.7.2, après le bloc « Lancement — version finie ») | 1 h | [ ] |
+| 5 | **Avant la première vraie école** : achats du [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats), puis les étapes du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) (tâches 4.6.3, 4.7.2 et 4.23) | 1 h | [ ] |
 
 Déjà fait : installation de la machine (Docker, `.env`, gettext), décisions (nom, domaine, Q1 à Q11), PR des tâches 0.1 à 4.11 et 5.1 à 5.5.1 ; historique complet : [`docs/06-suivi.md`](docs/06-suivi.md). À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). [Rien à demander à l'ITIG](#8-litig--rien-à-demander).
 
@@ -116,6 +116,27 @@ Ensuite :
 - **Un problème** : `make deploy-logs` (journaux ; `make deploy-logs service=caddy` pour le certificat), ou dans Claude Code : `/deployer panne`.
 
 Limites : Oracle peut arrêter un serveur gratuit peu utilisé (sauf compte *Pay As You Go*) : le redémarrer sur le site d'Oracle ; si son adresse IP a changé, corriger `SERVEUR` puis `make deploy`. Pas de sauvegarde : jamais de vraies données ici (§ 9).
+
+---
+
+## 9 quater. Le jour du lancement (première vraie école)
+
+Après la recette finale (4.21), il ne manque que les achats et la mise en ligne. Dans l'ordre, sans sauter d'étape :
+
+| # | Étape | Comment | Fait |
+|:-:|---|---|:-:|
+| 1 | **Achats et comptes** | [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats) : domaine `mwangaza.school`, Cloudflare, serveur, stockage objet, phrase secrète des sauvegardes notée **hors du serveur** | [ ] |
+| 2 | **Vrai domaine** | dans Claude Code : `/tache 4.6.3` — Claude te dit quelles valeurs remplir dans le fichier du serveur, puis met en ligne | [ ] |
+| 3 | **Sauvegardes hors du serveur, alertes** | `/tache 4.7.2` ; à la fin, vérifier qu'une sauvegarde de la nuit existe dans le stockage objet et que `make restore` la relit | [ ] |
+| 4 | **Mesure sur le vrai serveur** | `/tache 4.23` : temps du tableau de bord et des impayés sur le serveur, correction si c'est lent (sur ta machine : 1,3 s et 1,2 s pour 800 élèves) | [ ] |
+| 5 | **Ton compte super-admin** | `make deploy-superuser` (ton vrai numéro), double authentification liée à ton téléphone, codes de secours rangés | [ ] |
+| 6 | **Identité de la plateforme** | console (`https://admin.mwangaza.school/`) → Identité : nom, logo, contact du support, mentions légales — les vraies valeurs | [ ] |
+| 7 | **Premier espace réel** | console → Écoles → Nouvelle école → type **Réel** : nom, code (c'est son adresse, `code.mwangaza.school` : il ne change plus), premier directeur avec son vrai numéro. Lui remettre l'adresse et son mot de passe provisoire | [ ] |
+| 8 | **L'école se met en route** | le directeur suit la liste « Mise en route » de son tableau de bord : année, classes, frais et taux, comptes du personnel, caisse et appareil, élèves (import Excel). Rentrée déjà passée : « Reprise » (ce que chaque élève a déjà payé) | [ ] |
+| 9 | **Premier encaissement** | un vrai paiement : reçu imprimé, QR vérifié avec un téléphone ; le soir, clôture de caisse ; le parent voit le reçu sur le Portail | [ ] |
+| 10 | **Le lendemain** | la sauvegarde de la nuit existe ; aucune alerte | [ ] |
+
+À ne plus faire une fois l'étape 7 passée : `make demo`, `make deploy-demo` et `make reseau-demo` sur cette plateforme (refusés d'office dès qu'un espace réel existe) ; changer de domaine ; saisir de vraies données dans un espace d'essai ou de démonstration (ils se suppriment). Montrer l'application à une autre école : console → Écoles → onglet « Démonstration », sa fiche d'accès à imprimer.
 
 ---
 
