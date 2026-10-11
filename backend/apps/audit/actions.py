@@ -130,6 +130,11 @@ class Action(models.TextChoices):
     FINANCE_CASH_SESSION_OPENED = "finance.cash_session_opened", _("Cash session opened")
     FINANCE_CASH_SESSION_CLOSED = "finance.cash_session_closed", _("Cash session closed")
     FINANCE_PAYMENT_RECORDED = "finance.payment_recorded", _("Payment recorded")
+    # Reprise en cours d'année (E6) : payé avant que l'école n'utilise l'application, hors caisse.
+    FINANCE_PRIOR_PAYMENT_RECORDED = (
+        "finance.prior_payment_recorded",
+        _("Earlier payment recorded (not at the cash desk)"),
+    )
     # Reçus (F6) : chaque duplicata est noté.
     FINANCE_PAYMENT_REPRINTED = "finance.payment_reprinted", _("Receipt reprinted")
     # Annulations (F7) : demande, décision, duplicata du reçu d'annulation.

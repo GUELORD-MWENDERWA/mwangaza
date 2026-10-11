@@ -28,6 +28,7 @@ PERMISSIONS: dict[str, Promise] = {
     "finance.approve_cancellation": _("Approve a payment cancellation"),
     "finance.close_register": _("Close a cash register"),
     "finance.view_reports": _("View financial reports"),
+    "finance.import_prior_payments": _("Record what students paid before the school started here"),
     "announcements.publish": _("Publish announcements"),
     "audit.view": _("View the audit log"),
 }
@@ -55,6 +56,8 @@ FINANCE_COLLECT_PAYMENT = "finance.collect_payment"
 FINANCE_VIEW_REPORTS = "finance.view_reports"
 FINANCE_APPROVE_CANCELLATION = "finance.approve_cancellation"
 FINANCE_REQUEST_CANCELLATION = "finance.request_cancellation"
+# Reprise en cours d'année (E6) : importer ce que chaque élève avait déjà payé, hors caisse.
+FINANCE_IMPORT_PRIOR_PAYMENTS = "finance.import_prior_payments"
 # Crédits d'élèves (M14) : tous lus avec l'un de ces droits ; utilisés par le comptable, ou à la
 # caisse par le caissier (3.6.2), qui voit ceux de l'élève avec ses frais dus (`CHARGES_READ`).
 CREDITS_READ = (FINANCE_VIEW_REPORTS, FINANCE_APPROVE_CANCELLATION)
@@ -99,6 +102,7 @@ SYSTEM_ROLES: dict[str, SystemRole] = {
             "finance.grant_discount",
             "finance.approve_cancellation",
             "finance.view_reports",
+            "finance.import_prior_payments",
             "announcements.publish",
             "audit.view",
         ),
@@ -122,6 +126,7 @@ SYSTEM_ROLES: dict[str, SystemRole] = {
             "finance.approve_cancellation",
             "finance.close_register",
             "finance.view_reports",
+            "finance.import_prior_payments",
         ),
     ),
     "cashier": SystemRole(
@@ -153,3 +158,7 @@ def sorted_permissions(codes) -> list[str]:
     if unknown:
         raise ValueError(f"Codes de permission inconnus : {sorted(unknown)}")
     return [code for code in PERMISSIONS if code in wanted]
+
+
+# Codes des rôles système avec leur nom (choix de `Role.code`, nom de l'énumération OpenAPI).
+SYSTEM_ROLE_CHOICES = [(code, role.label) for code, role in SYSTEM_ROLES.items()]

@@ -9,6 +9,7 @@ from apps.core.tenancy import use_school
 from apps.finance.models import PaymentCancellation
 from apps.finance.tests.test_balance import at
 from apps.finance.tests.test_payments import pay, school_with_fees
+from apps.finance.tests.test_prior_payments import earlier
 from apps.portal import receipts
 from apps.portal.tests.test_access import activate, new_family, portal
 from apps.portal.tests.test_families import family_of
@@ -119,6 +120,11 @@ def test_a_receipt_pdf_only_for_a_valid_payment_of_an_active_family(
 
     assert client.get(receipt_url(cancelled)).status_code == 404
     assert stranger.get(receipt_url(payment)).status_code == 404
+    # Payé avant que l'école n'utilise l'application (E6) : montré au parent, sans reçu.
+    prior = earlier(school, head, enrollment, "30")
+    shown = client.get(child_url(enrollment)).json()["payments"]
+    assert [p["origin"] for p in shown if p["id"] == str(prior.pk)] == ["prior"]
+    assert client.get(receipt_url(prior)).status_code == 404
     with use_school(school):
         students.set_portal_access(family, actor=head, suspended=True)
     assert client.get(receipt_url(payment)).status_code == 404

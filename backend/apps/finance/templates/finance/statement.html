@@ -53,7 +53,7 @@ tr.overdue td { font-weight: 700; }
 
 {% if page.payments %}
 <p class="small"><b>{% translate "Payments received:" %}</b>
-{% for payment in page.payments %}{% if payment.cancelled %}{% blocktranslate with number=payment.number date=payment.paid_at|date:"d/m/Y" %}receipt {{ number }} of {{ date }} cancelled{% endblocktranslate %}{% else %}{% blocktranslate with number=payment.number date=payment.paid_at|date:"d/m/Y" amount=payment.amount %}{{ number }} of {{ date }} ({{ amount }}){% endblocktranslate %}{% endif %}{% if not forloop.last %} · {% endif %}{% endfor %}</p>
+{% for payment in page.payments %}{% if payment.cancelled %}{% blocktranslate with number=payment.number date=payment.paid_at|date:"d/m/Y" %}receipt {{ number }} of {{ date }} cancelled{% endblocktranslate %}{% elif payment.prior %}{% blocktranslate with amount=payment.amount %}paid before the school started here ({{ amount }}){% endblocktranslate %}{% else %}{% blocktranslate with number=payment.number date=payment.paid_at|date:"d/m/Y" amount=payment.amount %}{{ number }} of {{ date }} ({{ amount }}){% endblocktranslate %}{% endif %}{% if not forloop.last %} · {% endif %}{% endfor %}</p>
 {% endif %}
 
 <div class="row between foot">

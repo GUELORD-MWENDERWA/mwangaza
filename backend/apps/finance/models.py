@@ -481,10 +481,18 @@ class Payment(ImmutableModel):
     """Paiement encaissé [T] [I] (F2) : montant reçu dans une devise, réparti sur les frais dus
     de l'élève (`PaymentAllocation`), avec le taux USD → CDF en vigueur à l'encaissement. Le reçu
     n'est pas un modèle : c'est la vue imprimable du paiement (décision Q2). Jamais modifié ni
-    effacé : une annulation est une `PaymentCancellation`."""
+    effacé : une annulation est une `PaymentCancellation`.
+
+    Reprise en cours d'année (E6, `prior_payments.py`) : `origin=prior`, ce que l'élève avait
+    payé avant que l'école n'utilise l'application. Hors caisse (pas de session, donc ni caisse
+    du jour ni clôture), sans reçu ; `receipt_number` est sa référence dans la série `RP`."""
 
     class Method(models.TextChoices):
         CASH = "cash", _("Cash")
+
+    class Origin(models.TextChoices):
+        CASH = "cash", _("Collected at the cash desk")
+        PRIOR = "prior", _("Paid before the school started here")
 
     enrollment = models.ForeignKey(
         "students.Enrollment",
@@ -493,8 +501,17 @@ class Payment(ImmutableModel):
         verbose_name=_("enrollment"),
     )
     cash_session = models.ForeignKey(
-        CashSession, on_delete=models.PROTECT, related_name="payments", verbose_name=_("session")
+        CashSession,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="payments",
+        verbose_name=_("session"),
     )
+    origin = models.CharField(
+        _("origin"), max_length=8, choices=Origin.choices, default=Origin.CASH
+    )
+    # Le caissier ; pour une reprise, le compte qui a importé le fichier.
     cashier = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
@@ -535,6 +552,12 @@ class Payment(ImmutableModel):
             ),
             models.CheckConstraint(
                 condition=models.Q(received_amount_minor__gt=0), name="payment_amount_positive"
+            ),
+            # Encaissé dans une session de caisse, ou repris hors caisse : jamais entre les deux.
+            models.CheckConstraint(
+                condition=models.Q(origin="cash", cash_session__isnull=False)
+                | models.Q(origin="prior", cash_session__isnull=True, device__isnull=True),
+                name="payment_session_matches_origin",
             ),
         ]
         indexes = [

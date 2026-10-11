@@ -237,10 +237,11 @@ def _read_csv(file) -> list:
     ]
 
 
-def read_file(file) -> tuple[str, list[str], list]:
+def read_file(file, known: set[str] | None = None) -> tuple[str, list[str], list]:
     """`(feuille, titres, lignes)` ; chaque ligne : `[numéro dans le fichier, cellules]`. La
     ligne des titres est celle qui en reconnaît le plus parmi les premières (une liste commence
-    souvent par le nom de l'école)."""
+    souvent par le nom de l'école). `known` : titres reconnus d'un autre fichier que la liste
+    d'élèves (reprise des paiements)."""
     name = file.name.lower()
     if file.size > MAX_FILE_SIZE:
         raise BusinessError(FILE_TOO_LARGE)
@@ -255,7 +256,7 @@ def read_file(file) -> tuple[str, list[str], list]:
     lines = [(number, cells) for number, cells in enumerate(table, start=1) if any(cells)]
     if len(lines) < 2:
         raise BusinessError(EMPTY_FILE)
-    known = set().union(*_TITLES.values())
+    known = known or set().union(*_TITLES.values())
     top = lines[:HEADER_SEARCH_ROWS]
     position = max(
         range(len(top)), key=lambda i: (sum(_key(cell) in known for cell in top[i][1]), -i)

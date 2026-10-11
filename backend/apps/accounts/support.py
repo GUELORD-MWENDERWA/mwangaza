@@ -42,13 +42,14 @@ from apps.schools.models import School
 
 SUPPORT_SESSION_KEY = "accounts.support"
 SUPPORT_DURATION = 60 * 60
-# Le support ne touche pas à l'argent de la caisse.
+# Le support ne touche pas à l'argent : ni la caisse, ni la reprise des paiements.
 SUPPORT_EXCLUDED_PERMISSIONS = frozenset(
     {
         "finance.collect_payment",
         "finance.request_cancellation",
         "finance.approve_cancellation",
         "finance.close_register",
+        "finance.import_prior_payments",
     }
 )
 SUPPORT_PERMISSIONS = frozenset(PERMISSIONS) - SUPPORT_EXCLUDED_PERMISSIONS

@@ -120,8 +120,9 @@ class OfflineReprintSerializer(serializers.Serializer):
 
 def _reprint(data: dict, device: Device, actor: User) -> dict:
     payment = data["payment"]
-    # La caisse de l'appareil ne montre que les paiements de la session du caissier.
-    if payment.cash_session.cashier_id != actor.pk:
+    # La caisse de l'appareil ne montre que les paiements de la session du caissier ; une
+    # reprise (E6) n'a ni session ni reçu.
+    if payment.cash_session_id is None or payment.cashier_id != actor.pk:
         raise PermissionDenied()
     finance.reprint_payment(payment, actor=actor, device_time=data["reprinted_at"])
     return {"payment": str(payment.pk)}
@@ -158,7 +159,7 @@ class OfflineCancellationSerializer(serializers.Serializer):
 
 def _request_cancellation(data: dict, device: Device, actor: User) -> dict:
     payment = data["payment"]
-    if data["own_only"] and payment.cash_session.cashier_id != actor.pk:
+    if data["own_only"] and payment.cashier_id != actor.pk:
         raise PermissionDenied()
     request, _created = finance.request_cancellation(
         payment,

@@ -37,6 +37,7 @@ TABLE = {
     "finance.approve_cancellation": "✔ . . ✔ . . .",
     "finance.close_register": ". . . ✔ ✔ . .",
     "finance.view_reports": "✔ . . ✔ . . ✔",
+    "finance.import_prior_payments": "✔ . . ✔ . . .",
     "announcements.publish": "✔ ✔ ✔ . . ✔ .",
     "audit.view": "✔ . . . . . ✔",
 }

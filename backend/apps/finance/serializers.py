@@ -576,9 +576,11 @@ class PaymentAllocationSerializer(serializers.ModelSerializer):
 class PaymentSerializer(serializers.ModelSerializer):
     student = PaymentStudentSerializer(source="enrollment.student", read_only=True)
     class_group = serializers.CharField(source="enrollment.class_group.name", read_only=True)
-    cash_register = serializers.CharField(source="cash_session.cash_register.code", read_only=True)
+    # Reprise (`origin=prior`, E6) : hors caisse, donc ni caisse (code vide) ni session, et pas
+    # de reçu.
+    cash_register = serializers.SerializerMethodField(help_text="Code ; vide pour une reprise.")
     # Paiements d'une session retrouvés sur l'appareil (caisse hors ligne, 3.5).
-    cash_session = serializers.UUIDField(source="cash_session_id", read_only=True)
+    cash_session = serializers.UUIDField(source="cash_session_id", read_only=True, allow_null=True)
     cashier = PersonSerializer(read_only=True)
     cancelled = serializers.SerializerMethodField()
     # Pour un duplicata exact sur l'appareil : un paiement annulé après un autre comptait encore
@@ -592,11 +594,18 @@ class PaymentSerializer(serializers.ModelSerializer):
     def get_cancelled(self, payment: Payment) -> bool:
         return payment.cancelled_at is not None
 
+    def get_cash_register(self, payment: Payment) -> str:
+        return payment.cash_session.cash_register.code if payment.cash_session else ""
+
+    def get_cash_register_name(self, payment: Payment) -> str:
+        return payment.cash_session.cash_register.name if payment.cash_session else ""
+
     class Meta:
         model = Payment
         fields = [
             "id",
             "receipt_number",
+            "origin",
             "enrollment",
             "student",
             "class_group",
@@ -620,9 +629,7 @@ class PaymentReceiptSerializer(PaymentSerializer):
     """Paiement avec ce qu'imprime son reçu (F3) : nom de la caisse, année scolaire et solde de
     l'élève juste après ce paiement (`services.balance_after`, mis dans `balance_after`)."""
 
-    cash_register_name = serializers.CharField(
-        source="cash_session.cash_register.name", read_only=True
-    )
+    cash_register_name = serializers.SerializerMethodField()
     academic_year = serializers.CharField(source="enrollment.academic_year.name", read_only=True)
     balance = BalanceSerializer(source="balance_after", read_only=True)
 
@@ -663,6 +670,11 @@ class PaymentCreateSerializer(serializers.Serializer):
 class PaymentFilterSerializer(serializers.Serializer):
     session = serializers.UUIDField(required=False, help_text="Paiements d'une session de caisse.")
     enrollment = serializers.UUIDField(required=False, help_text="Paiements d'une inscription.")
+    origin = serializers.ChoiceField(
+        choices=Payment.Origin.choices,
+        required=False,
+        help_text="`prior` : seulement les reprises en cours d'année (E6).",
+    )
     search = serializers.CharField(
         required=False, help_text="Numéro de reçu, nom ou matricule de l'élève."
     )
@@ -794,9 +806,7 @@ class CreditSummarySerializer(serializers.Serializer):
 class CancelledPaymentSerializer(PaymentSerializer):
     """Paiement d'une demande d'annulation : son état est celui de la demande."""
 
-    cash_register_name = serializers.CharField(
-        source="cash_session.cash_register.name", read_only=True
-    )
+    cash_register_name = serializers.SerializerMethodField(help_text="Vide pour une reprise.")
     academic_year = serializers.CharField(source="enrollment.academic_year.name", read_only=True)
 
     class Meta(PaymentSerializer.Meta):
@@ -1123,3 +1133,70 @@ class DashboardSerializer(serializers.Serializer):
     classes = DashboardClassSerializer(many=True)
     recent_payments = DashboardPaymentSerializer(many=True)
     alerts = DashboardAlertsSerializer()
+
+
+# Reprise en cours d'année (4.19, E6)
+
+
+class PriorPaymentTotalSerializer(serializers.Serializer):
+    currency = serializers.ChoiceField(choices=Currency.choices)
+    amount_minor = serializers.IntegerField(min_value=1)
+    count = serializers.IntegerField(min_value=1)
+
+
+class PriorPaymentUploadSerializer(serializers.Serializer):
+    file = serializers.FileField(help_text="Excel (.xlsx) ou CSV, 5 Mo au plus.")
+    expected = serializers.JSONField(
+        required=False,
+        help_text="Totaux de l'aperçu (`totals`, en JSON) : présents, le fichier est enregistré.",
+    )
+
+    def validate_expected(self, value):
+        totals = PriorPaymentTotalSerializer(data=value, many=True)
+        totals.is_valid(raise_exception=True)
+        return [dict(total) for total in totals.validated_data]
+
+
+# Pourquoi une ligne du fichier n'est pas enregistrée ; texte traduit par l'écran.
+PRIOR_PAYMENT_ISSUES = [
+    "missing_matricule",
+    "unknown_student",
+    "missing_currency",
+    "unknown_currency",
+    "invalid_amount",
+    "unknown_fee",
+    "already_recorded",
+    "more_than_due",
+]
+
+
+class PriorPaymentIssueSerializer(serializers.Serializer):
+    code = serializers.ChoiceField(choices=PRIOR_PAYMENT_ISSUES)
+    due_minor = serializers.IntegerField(
+        required=False, help_text="`more_than_due` : ce que l'élève doit encore."
+    )
+    currency = serializers.CharField(required=False)
+
+
+class PriorPaymentLineSerializer(serializers.Serializer):
+    line = serializers.IntegerField(source="number", help_text="Numéro de la ligne du fichier.")
+    matricule = serializers.CharField()
+    student = serializers.CharField(source="enrollment.student", allow_null=True)
+    class_group = serializers.CharField(source="enrollment.class_group.name", allow_null=True)
+    amount = serializers.CharField(help_text="Montant tel qu'il est écrit dans le fichier.")
+    amount_minor = serializers.IntegerField(allow_null=True)
+    currency = serializers.CharField(help_text="Devise reconnue, sinon le texte du fichier.")
+    fee = serializers.CharField()
+    issues = PriorPaymentIssueSerializer(many=True)
+
+
+class PriorPaymentPreviewSerializer(serializers.Serializer):
+    """Aperçu d'un fichier de reprise, ou son résultat une fois enregistré (`recorded`)."""
+
+    recorded = serializers.BooleanField()
+    ready_count = serializers.IntegerField(help_text="Lignes prêtes (ou enregistrées).")
+    error_count = serializers.IntegerField(help_text="Lignes en erreur : jamais enregistrées.")
+    empty_count = serializers.IntegerField(help_text="Lignes sans montant : ignorées.")
+    totals = PriorPaymentTotalSerializer(many=True)
+    errors = PriorPaymentLineSerializer(many=True, help_text="Les 300 premières.")
+    ready = PriorPaymentLineSerializer(many=True, help_text="Les 20 premières.")

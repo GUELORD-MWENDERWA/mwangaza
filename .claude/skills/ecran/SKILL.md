@@ -27,6 +27,7 @@ Suivre aussi la skill `design` (jetons, composants, formats).
 | `gestion/invitations-portail`, `gestion/lettre-invitation` | V1.0 | H7 | 4.9 |
 | `gestion/frais-baremes`, `gestion/eleve-reduction` | V1.0 | E1–E5 | 2.5 |
 | `gestion/eleve-echeancier` | V1.0 | E4 | 2.6 |
+| `gestion/reprise-paiements` | V1.0 | E6 | 4.19 |
 | `gestion/caisse-ouverture`, `gestion/caisse-accueil`, `gestion/caisse-encaissement` | V1.0 | F1–F5 | 3.1 (en ligne), 3.5 (hors-ligne) |
 | `gestion/recu`, `portail/verification-recu` | V1.0 | F3–F6, F4 | 3.2 |
 | `gestion/appareils-synchro` | V1.0 | F5, B5 | 3.3, 3.7 |

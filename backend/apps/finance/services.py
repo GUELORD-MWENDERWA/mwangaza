@@ -1121,11 +1121,13 @@ def _cash_register_data(register: CashRegister) -> dict:
 
 # Série des reçus d'annulation (`ITIG-AN-26-000007`) : jamais le code d'une caisse.
 CANCELLATION_SERIES = "AN"
+# Série des reprises en cours d'année (`prior_payments.py`).
+PRIOR_SERIES = "RP"
 
 
 def _check_cash_register(*, name: str, code: str = "", register_id=None) -> None:
-    if code == CANCELLATION_SERIES:
-        message = _("This code is kept for cancellation receipts.")
+    if code in {CANCELLATION_SERIES, PRIOR_SERIES}:
+        message = _("This code is kept for cancellations and for earlier payments.")
         raise _invalid("code", message, "code_reserved")
     taken = Q(name__iexact=name) | Q(code=code) if code else Q(name__iexact=name)
     if CashRegister.objects.filter(taken).exclude(pk=register_id).exists():
