@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 06:26+0200\n"
+"POT-Creation-Date: 2026-10-11 06:56+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -3106,15 +3106,19 @@ msgstr "Téléphone du tuteur principal"
 msgid "Payment status"
 msgstr "Situation des paiements"
 
-#: apps/students/import_cancellation.py:42
+#: apps/students/import_cancellation.py:46
 msgid "Only a finished import can be cancelled."
 msgstr "Seul un import terminé peut être annulé."
 
-#: apps/students/import_cancellation.py:45
+#: apps/students/import_cancellation.py:50
+msgid "This import can no longer be cancelled: the time limit has passed."
+msgstr "Cet import ne peut plus être annulé : le délai est passé."
+
+#: apps/students/import_cancellation.py:54
 msgid "No student of this import can be removed."
 msgstr "Aucun élève de cet import ne peut être retiré."
 
-#: apps/students/import_cancellation.py:48
+#: apps/students/import_cancellation.py:57
 msgid "A student of this import has just changed: try again."
 msgstr "Un élève de cet import vient de changer : réessayez."
 
@@ -3605,7 +3609,7 @@ msgstr "La photo doit être une image PNG ou JPEG."
 msgid "Either an existing family or new guardians, not both."
 msgstr "Soit une famille existante, soit de nouveaux tuteurs, pas les deux."
 
-#: apps/students/serializers.py:600
+#: apps/students/serializers.py:608
 msgid "Give the name and the phone number."
 msgstr "Donnez le nom et le numéro de téléphone."
 

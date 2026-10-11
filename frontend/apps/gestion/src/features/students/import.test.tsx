@@ -53,6 +53,7 @@ const analysed = {
   cancelled_at: null,
   cancelled_by_name: null,
   cancel_reason: "",
+  cancellable_until: null,
 };
 const done = {
   ...analysed,
@@ -60,6 +61,7 @@ const done = {
   counts: { rows: 4, ready: 4, warning: 0, error: 0 },
   created_count: 4,
   finished_at: "2026-09-27T08:05:00Z",
+  cancellable_until: "2099-01-01T00:00:00Z",
 };
 const values = (last: string, date: string, klass: string) => ({
   last_name: last,
@@ -166,6 +168,7 @@ describe("importer des élèves (D1)", () => {
     const cancelled = {
       ...done,
       status: "cancelled",
+      cancellable_until: null,
       cancelled_count: 3,
       cancelled_at: "2026-09-28T09:00:00Z",
       cancelled_by_name: "Masika Furaha",

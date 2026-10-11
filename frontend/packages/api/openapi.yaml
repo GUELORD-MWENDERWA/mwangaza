@@ -18364,6 +18364,13 @@ components:
           type: string
           readOnly: true
           title: Cancellation reason
+        cancellable_until:
+          type: string
+          format: date-time
+          nullable: true
+          readOnly: true
+          description: Fin du délai d'annulation (30 jours) ; vide si l'import n'est
+            pas fini.
       required:
       - id
       - academic_year
@@ -18384,6 +18391,7 @@ components:
       - cancelled_at
       - cancelled_by_name
       - cancel_reason
+      - cancellable_until
     StudentImportCreateRequest:
       type: object
       properties:

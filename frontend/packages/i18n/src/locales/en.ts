@@ -1787,6 +1787,7 @@ export const en: Messages<typeof fr> = {
         done_one: "Import cancelled on {{date}} by {{name}}: 1 student removed.",
         done_other: "Import cancelled on {{date}} by {{name}}: {{number}} students removed.",
         doneReason: "Reason: {{reason}}",
+        tooLate: "This import can no longer be cancelled: the time limit ended on {{date}}.",
       },
     },
     validation: {

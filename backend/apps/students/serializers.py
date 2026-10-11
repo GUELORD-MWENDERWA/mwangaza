@@ -407,6 +407,9 @@ class StudentImportSerializer(serializers.ModelSerializer):
     cancelled_by_name = serializers.CharField(
         source="cancelled_by.__str__", default=None, allow_null=True
     )
+    cancellable_until = serializers.SerializerMethodField(
+        help_text="Fin du délai d'annulation (30 jours) ; vide si l'import n'est pas fini."
+    )
 
     class Meta:
         model = StudentImport
@@ -430,12 +433,17 @@ class StudentImportSerializer(serializers.ModelSerializer):
             "cancelled_at",
             "cancelled_by_name",
             "cancel_reason",
+            "cancellable_until",
         ]
         read_only_fields = fields
 
     @extend_schema_field(serializers.IntegerField())
     def get_importable_count(self, imp: StudentImport) -> int:
         return imports.importable_count(imp)
+
+    @extend_schema_field(serializers.DateTimeField(allow_null=True))
+    def get_cancellable_until(self, imp: StudentImport):
+        return import_cancellation.cancellable_until(imp)
 
 
 class StudentImportListSerializer(serializers.ModelSerializer):

@@ -6,6 +6,8 @@ leurs frais dus et les familles restées sans élève. Un élève que quelque ch
 reste, avec sa famille et son lien : paiement ou crédit, réduction, échéancier particulier,
 compte parent activé. Aucun paiement n'est touché ; les frais dus effacés ici n'ont jamais rien
 reçu (seule exception à « rien n'est effacé dans les finances », décision du 2026-10-11).
+Un import ne s'annule que dans les 30 jours qui suivent sa fin : passé ce délai, un geste de trop
+effacerait une année d'élèves qui n'ont pas encore payé.
 
 Tout nouveau modèle lié à un élève ou à une inscription s'ajoute ici : aux raisons de garder
 l'élève (`_touches`) ou à ce qui part avec lui (`cancel`). Sinon la base refuse l'annulation.
@@ -13,6 +15,7 @@ l'élève (`_touches`) ou à ce qui part avec lui (`cancel`). Sinon la base refu
 
 import logging
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from functools import partial, reduce
 from operator import or_
 
@@ -37,9 +40,15 @@ PAYMENT, DISCOUNT, SCHEDULE, PORTAL = "payment", "discount", "schedule", "portal
 REASONS = (PAYMENT, DISCOUNT, SCHEDULE, PORTAL)
 # Élèves gardés nommés à l'écran ; au-delà, leur nombre seulement.
 KEPT_SHOWN = 50
+CANCEL_WITHIN = timedelta(days=30)
 
 NOT_CANCELLABLE = ApiError(
     "import_not_cancellable", _("Only a finished import can be cancelled."), 409
+)
+TOO_OLD = ApiError(
+    "import_too_old",
+    _("This import can no longer be cancelled: the time limit has passed."),
+    409,
 )
 NOTHING_TO_CANCEL = ApiError(
     "nothing_to_cancel", _("No student of this import can be removed."), 409
@@ -55,6 +64,13 @@ class Cancellation:
     kept_count: int
     # Les premiers élèves gardés, chacun avec ses `reasons`.
     kept: list[Student]
+
+
+def cancellable_until(imp: StudentImport) -> datetime | None:
+    """Fin du délai d'annulation d'un import fini ; rien pour un autre état."""
+    if imp.status != StudentImport.Status.DONE or imp.finished_at is None:
+        return None
+    return imp.finished_at + CANCEL_WITHIN
 
 
 def _touches() -> dict[str, tuple[str, Exists]]:
@@ -125,6 +141,8 @@ def _cancel(imp: StudentImport, *, actor: User, reason: str) -> StudentImport:
     imp = StudentImport.objects.select_for_update().defer("rows").get(pk=imp.pk)
     if imp.status != StudentImport.Status.DONE:
         raise BusinessError(NOT_CANCELLABLE)
+    if timezone.now() > cancellable_until(imp):
+        raise BusinessError(TOO_OLD)
     # Année verrouillée, comme à l'import et à l'inscription : le numéro de matricule ne
     # bouge pas pendant qu'il est repris.
     year = AcademicYear.objects.select_for_update().get(pk=imp.academic_year_id)
