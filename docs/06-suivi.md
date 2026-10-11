@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.20.1 terminée, PR à relire et fusionner |
-| Prochaine tâche | 4.20.2 (école neuve : états vides et parcours Playwright de bout en bout) |
-| Issue GitHub | #163 pour 4.20.1, #179 pour 4.20.2 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.20.1-mise-en-route` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.20.2 terminée, PR à relire et fusionner |
+| Prochaine tâche | 4.7.1 (sauvegardes prêtes, essayées sur la machine) |
+| Issue GitHub | #179 pour 4.20.2 (bloc : #155 à #165, créées le 2026-10-10) |
+| Branche | `tache/4.20.2-ecole-neuve` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement
@@ -23,8 +23,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.21, 4.7.1 ; 4.17 et 4.20 en deux) | 10 | 13 |
-| **V1.0** | **60** | **65** |
+| Lancement — version finie (4.12 à 4.21, 4.7.1 ; 4.17 et 4.20 en deux) | 11 | 13 |
+| **V1.0** | **61** | **65** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -56,6 +56,13 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-11 — Tâche 4.20.2 : École neuve — états vides et parcours de bout en bout
+
+- Fait : texte de chaque écran de la Gestion relevé dans un espace d'essai vide (20 écrans et leurs onglets) ; la plupart disaient déjà quoi faire. Corrigés : l'accueil d'après connexion (« Choisissez un écran dans le menu ») affiche maintenant la liste « Mise en route », la liste des élèves d'une école sans élève et les invitations sans classe disent quoi faire. Parcours Playwright `e2e/ecole-neuve.spec.ts` : espace créé dans la console → première connexion du directeur → mise en route complète → inscription → encaissement, reçu, clôture → le parent active son portail et voit le reçu.
+- Décisions : le parcours crée un espace **d'essai** (vide comme un réel, mais supprimable) et le supprime à la fin ; un seul long parcours (≈ 1 min 30) plutôt qu'un par étape ; le Portail rejoint les serveurs lancés par Playwright ; écrans vides où il n'y a rien à faire (impayés, annulations, clôtures, crédits, demandes) laissés tels quels.
+- Tests : le parcours (argent vérifié sur le serveur : un paiement de 5 000 centimes au taux de l'année, 50 $ payés sur 120, clôture sans écart) ; Vitest de la Gestion ; `make lint` ; `make test-e2e` en local : le nouveau parcours passe, deux anciens échouent pour une raison propre à la base locale (`itig` y compte 839 élèves au lieu de 800 : matricule suivant 0840 au lieu de 0801, impayés plus lents que les 5 s attendues) ; suite complète sur une base neuve : CI.
+- Suite : 4.7.1 (sauvegardes prêtes, essayées sur la machine).
 
 ### 2026-10-11 — Tâche 4.20.1 : Mise en route d'une école neuve (la liste)
 

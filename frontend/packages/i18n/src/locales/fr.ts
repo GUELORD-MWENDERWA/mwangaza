@@ -1307,6 +1307,8 @@ export const fr = {
       situations: { up_to_date: "À jour", partial: "Partiel", overdue: "En retard" },
       notEnrolled: "Pas inscrit cette année",
       empty: "Aucun élève ne correspond à ces filtres.",
+      emptySchool:
+        "Aucun élève inscrit pour le moment. Importez votre liste Excel ou inscrivez un nouvel élève.",
       range: "{{from}} – {{to}} sur {{count}}",
     },
     filters: {
@@ -1637,7 +1639,7 @@ export const fr = {
       school: "École : {{activated}} / {{families}} familles",
       class: "Classe",
       activated: "Activées",
-      noClasses: "Aucune classe dans l'année en cours.",
+      noClasses: "Aucune classe dans l'année en cours : créez-les dans « Organisation scolaire ».",
       classSummary: "{{activated}} familles sur {{families}} ont activé leur compte",
       printLetters: "Imprimer les lettres ({{count}})",
       filter: "Familles",

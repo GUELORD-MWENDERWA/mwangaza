@@ -1301,6 +1301,7 @@ export const en: Messages<typeof fr> = {
       situations: { up_to_date: "Up to date", partial: "Partial", overdue: "Overdue" },
       notEnrolled: "Not enrolled this year",
       empty: "No student matches these filters.",
+      emptySchool: "No student enrolled yet. Import your Excel list or enrol a new student.",
       range: "{{from}} – {{to}} of {{count}}",
     },
     filters: {
@@ -1631,7 +1632,7 @@ export const en: Messages<typeof fr> = {
       school: "School: {{activated}} / {{families}} families",
       class: "Class",
       activated: "Activated",
-      noClasses: "No class in the current school year.",
+      noClasses: "No class in the current school year: create them in “School organisation”.",
       classSummary: "{{activated}} families out of {{families}} have activated their account",
       printLetters: "Print the letters ({{count}})",
       filter: "Families",

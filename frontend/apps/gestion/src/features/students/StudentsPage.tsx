@@ -250,7 +250,9 @@ export function StudentsPage() {
             <Skeleton label={t("common.loading")} />
           </CardContent>
         ) : results.length === 0 ? (
-          <CardContent className="text-ink-3">{t("students.list.empty")}</CardContent>
+          <CardContent className="text-ink-3">
+            {t(filtered ? "students.list.empty" : "students.list.emptySchool")}
+          </CardContent>
         ) : (
           <StudentTable students={results} finance={finance} />
         )}
