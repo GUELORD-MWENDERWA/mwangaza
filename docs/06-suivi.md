@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.14 terminée, PR à relire et fusionner |
+| Tâche en cours | aucune — 4.14 fusionnée ; sa suite (délai de 30 jours) : PR à relire et fusionner |
 | Prochaine tâche | 4.15 (Type d'espace et arrêt, serveur et console) |
 | Issue GitHub | #158 pour 4.15 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.14-annuler-import` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/4.14-delai-annulation` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement
@@ -61,7 +61,7 @@ Entrée la plus récente en haut. Format : date — titre, puis fait / tests / d
 - Fait : chaque élève garde le lien vers son import (`Student.student_import`) ; « Imports précédents » sous l'étape « Fichier », puis « Annuler cet import » (nombres, élèves gardés nommés, motif obligatoire). L'annulation efface élèves, inscriptions, frais dus jamais payés et familles restées sans élève ; les appareils les retirent à la synchronisation ; les numéros de matricule sont repris ; le même fichier se ré-importe. Maquette `gestion/eleves-import-annulation` dessinée.
 - Tests : élève gardé par un paiement, une réduction, un échéancier particulier ou un compte parent ; paiement et répartition intacts ; motif obligatoire ; une seule annulation ; journal (une ligne par élève, une pour l'import) ; `ChangeLog` `delete` ; isolation (l'école B n'annule ni ne lit l'import de A) ; 403 sans `students.import` ; 800 élèves annulés en moins de 30 requêtes ; Vitest : fenêtre et motif.
 - Décisions (`03`) : annulation par élève et non tout ou rien ; effacement réel ; pas de nouveau droit ; compte parent activé = élève gardé ; dans la requête, sans tâche de fond ; délai de 30 jours.
-- Délai de 30 jours après la fin de l'import pour l'annuler (accord de l'utilisateur, le 2026-10-11) ; ensuite l'écran donne la date de fin du délai. Un import fait avant cette tâche n'a pas le lien : il ne s'annule pas.
+- Délai de 30 jours après la fin de l'import pour l'annuler (accord de l'utilisateur, le 2026-10-11 ; PR de suite, la première ayant été fusionnée avant ce commit) ; ensuite l'écran donne la date de fin du délai. Un import fait avant cette tâche n'a pas le lien : il ne s'annule pas.
 - Suite : fusion de la PR, puis 4.15.
 
 ### 2026-10-10 — Tâche 4.13 : Import, matricule jamais imposé
