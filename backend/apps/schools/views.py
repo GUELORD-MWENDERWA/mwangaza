@@ -28,14 +28,17 @@ from apps.accounts.roles import (
     STUDENTS_VIEW,
 )
 from apps.accounts.views import SchoolViewSet
+from apps.core.documents import PRINT_RESPONSE, render
 from apps.core.errors import SCHOOL_NOT_FOUND, ApiError, ErrorSerializer
 from apps.core.http import serve_image
-from apps.schools import console, organisation, services
+from apps.schools import console, demonstrations, organisation, services
 from apps.schools.console_serializers import (
+    AccessSheetQuerySerializer,
     ConsoleSchoolCreatedSerializer,
     ConsoleSchoolCreateSerializer,
     ConsoleSchoolDetailSerializer,
     ConsoleSchoolSerializer,
+    DemonstrationCreateSerializer,
     SchoolDeleteSerializer,
     SchoolStopSerializer,
 )
@@ -663,3 +666,48 @@ class ConsoleSchoolViewSet(
         serializer.is_valid(raise_exception=True)
         services.delete_space(self.get_object(), actor=request.user, **serializer.validated_data)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @extend_schema(
+        request=DemonstrationCreateSerializer,
+        responses={201: ConsoleSchoolDetailSerializer, 409: ErrorSerializer, **CONSOLE_ERRORS},
+    )
+    @action(detail=False, methods=["post"])
+    def demo(self, request: Request) -> Response:
+        """Nouvel espace de démonstration (A6) : ouvert tout de suite, rempli de données fictives
+        en tâche de fond (`demonstration` de la fiche : avancement). Refusé si la plateforme en a
+        déjà son maximum, ou pendant qu'un autre espace se crée ou s'efface."""
+        serializer = DemonstrationCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        school = demonstrations.create(actor=request.user, **serializer.validated_data)
+        detail = ConsoleSchoolDetailSerializer(console.schools().get(pk=school.pk))
+        return Response(detail.data, status=201)
+
+    @extend_schema(
+        request=SchoolDeleteSerializer,
+        responses={200: ConsoleSchoolDetailSerializer, 409: ErrorSerializer, **CONSOLE_ERRORS},
+    )
+    @action(detail=True, methods=["post"])
+    def reset(self, request: Request, pk=None) -> Response:
+        """« Remettre à zéro » un espace de démonstration créé depuis la console : supprimé puis
+        recréé (même adresse, mêmes numéros, nouveau mot de passe), en tâche de fond. `confirm` :
+        le code de l'espace."""
+        serializer = SchoolDeleteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        school = self.get_object()
+        demonstrations.reset(school, actor=request.user, **serializer.validated_data)
+        return self._detail(school)
+
+    @extend_schema(
+        parameters=[AccessSheetQuerySerializer],
+        responses={**PRINT_RESPONSE, 409: ErrorSerializer, **CONSOLE_ERRORS},
+    )
+    @action(detail=True, url_path="access-sheet")
+    def access_sheet(self, request: Request, pk=None) -> HttpResponse:
+        """Fiche d'accès d'un espace de démonstration prêt (A6), à remettre à un visiteur :
+        adresses, mot de passe, un compte par rôle, parents du portail avec leur code famille."""
+        params = AccessSheetQuerySerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        school = self.get_object()
+        context = demonstrations.access_sheet(school)
+        name = f"fiche-acces-{school.code}.pdf"
+        return render("schools/access_sheet.html", context, params.validated_data["output"], name)

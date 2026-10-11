@@ -157,7 +157,7 @@ def test_a_space_being_deleted_is_closed_and_cannot_be_changed_but_the_deletion_
     assert not refused_by_the_database(DELETE_JOURNAL, sandbox)
     # Une suppression à la fois.
     busy = delete(console, other_sandbox)
-    assert (busy.status_code, busy.json()["code"]) == (409, "deletion_running")
+    assert (busy.status_code, busy.json()["code"]) == (409, "space_busy")
 
     with django_capture_on_commit_callbacks(execute=True):
         assert delete(console, sandbox).status_code == 204

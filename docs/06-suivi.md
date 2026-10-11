@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.17.1 terminée, PR à relire et fusionner |
-| Prochaine tâche | 4.17.2 (Démonstration depuis la console : création, fiche d'accès, remise à zéro) |
-| Issue GitHub | #174 pour 4.17.2 (#160 : 4.17.1 ; bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.17.1-espaces-demo` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | 4.17.2 — Démonstration depuis la console (création, fiche d'accès, remise à zéro) |
+| Prochaine tâche | 4.18 (Espaces d'essai et de démonstration reconnaissables) |
+| Issue GitHub | #174 pour 4.17.2 (bloc : #155 à #165, créées le 2026-10-10) |
+| Branche | `tache/4.17.2-demo-console` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement

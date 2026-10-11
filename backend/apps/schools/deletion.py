@@ -7,20 +7,20 @@ fait échouer, donc les tests avec lui, au lieu d'être oublié ou vidé par err
 """
 
 import logging
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager, suppress
 from graphlib import CycleError, TopologicalSorter
 
 from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
-from django.db import DatabaseError, connection, models
+from django.db import DatabaseError, connection, models, transaction
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 
 from apps.accounts.models import Membership, User
 from apps.core.models import TenantModel
 from apps.notifications.models import PushSubscription
-from apps.schools.models import School
+from apps.schools.models import Demonstration, School
 from apps.students.models import Family
 
 logger = logging.getLogger(__name__)
@@ -29,6 +29,9 @@ logger = logging.getLogger(__name__)
 BATCH = 2000
 # Modèles globaux [G] dont chaque ligne appartient pourtant à une seule école.
 GLOBAL_MODELS_OF_A_SCHOOL = (Membership, PushSubscription)
+# Ceux-là partent à la toute fin, avec la ligne de l'école (`CASCADE`) : une suppression
+# interrompue doit encore savoir qu'une remise à zéro était demandée (4.17.2).
+GONE_WITH_THE_SCHOOL_ROW = (Demonstration,)
 # Verrou PostgreSQL (clé arbitraire) : un seul passage à la fois sur le serveur.
 _LOCK = 4_160_001
 
@@ -62,6 +65,8 @@ def plan() -> Plan:
     lookups: dict[type[models.Model], tuple[str, ...]] = {}
     for model in every:
         direct = tuple(f.name for f in _foreign_keys(model) if f.related_model is School)
+        if model in GONE_WITH_THE_SCHOOL_ROW:
+            continue
         if issubclass(model, TenantModel):
             lookups[model] = ("school",)
         elif direct and (model in GLOBAL_MODELS_OF_A_SCHOOL or model._meta.auto_created):
@@ -129,12 +134,17 @@ def _empty(model: type[models.Model], rows: QuerySet) -> int:
 
 
 @contextmanager
-def _only_one() -> Iterator[bool]:
-    """`True` si aucun autre passage ne tourne (verrou de session PostgreSQL, rendu à la fin ou
-    quand la connexion tombe)."""
+def only_one(*, wait: bool = False) -> Iterator[bool]:
+    """Un seul travail lourd à la fois sur le serveur : effacer un espace, ou en remplir un
+    (`demonstrations.fill`). `True` si aucun autre ne tourne (verrou de session PostgreSQL, rendu
+    à la fin ou quand la connexion tombe) ; `wait` : attendre son tour au lieu de renoncer."""
     with connection.cursor() as cursor:
-        cursor.execute("SELECT pg_try_advisory_lock(%s)", [_LOCK])
-        free = cursor.fetchone()[0]
+        if wait:
+            cursor.execute("SELECT pg_advisory_lock(%s)", [_LOCK])
+            free = True
+        else:
+            cursor.execute("SELECT pg_try_advisory_lock(%s)", [_LOCK])
+            free = cursor.fetchone()[0]
     try:
         yield free
     finally:
@@ -164,10 +174,12 @@ def deactivate_accounts_left_without_school(school: School) -> int:
     )
 
 
-def run(school_id: str) -> None:
+def run(school_id: str, *, then: Callable[[School], None] | None = None) -> None:
     """Vide puis supprime l'espace `school_id`, déjà marqué « suppression en cours ». Rejouable :
-    un nouveau passage efface ce qu'une panne a laissé."""
-    with _only_one() as free:
+    un nouveau passage efface ce qu'une panne a laissé. `then(école effacée)` tourne dans la
+    transaction qui efface la ligne de l'école : une remise à zéro la recrée sans qu'elle manque
+    un instant, ou pas du tout (`demonstrations.recreation`)."""
+    with only_one() as free:
         if not free:
             logger.warning("Suppression de l'espace %s : un autre passage tourne déjà", school_id)
             return
@@ -185,6 +197,10 @@ def run(school_id: str) -> None:
             total += _empty(model, rows)
         mine = School.objects.filter(pk=school.pk)
         _delete_files(School, mine)
-        # Par Django cette fois : `PROTECT` refuse si une ligne de l'école avait échappé au plan.
-        mine.delete()
+        with transaction.atomic():
+            # Par Django cette fois : `PROTECT` refuse si une ligne de l'école avait échappé au
+            # plan.
+            mine.delete()
+            if then is not None:
+                then(school)
         logger.info("Espace %s supprimé : %d lignes", school.code, total)

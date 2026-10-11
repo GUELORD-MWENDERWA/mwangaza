@@ -14,7 +14,7 @@ from apps.accounts.serializers import PhoneField
 from apps.audit.models import PlatformAuditLog
 from apps.core.money import Currency
 from apps.core.serializers import PlatformChangeSerializer
-from apps.schools.models import School
+from apps.schools.models import Demonstration, School
 
 
 class HeadAccountSerializer(serializers.ModelSerializer):
@@ -90,15 +90,38 @@ class ConsoleSchoolSerializer(serializers.ModelSerializer):
         return data
 
 
+class DemonstrationSerializer(serializers.ModelSerializer):
+    """Espace de démonstration créé depuis la console (4.17.2) : où en est son remplissage."""
+
+    STATES = [*Demonstration.State.values, "resetting"]
+
+    state = serializers.SerializerMethodField(
+        help_text="`resetting` : remise à zéro demandée, l'espace s'efface puis se remplit."
+    )
+
+    class Meta:
+        model = Demonstration
+        fields = ["profile", "state", "steps_done", "steps_total"]
+
+    @extend_schema_field(serializers.ChoiceField(choices=STATES))
+    def get_state(self, demonstration: Demonstration) -> str:
+        return "resetting" if demonstration.reset_requested else demonstration.state
+
+
 class ConsoleSchoolDetailSerializer(ConsoleSchoolSerializer):
     HISTORY = 10
 
     history = serializers.SerializerMethodField(
         help_text="Les derniers changements faits dans la console, du plus récent au plus ancien."
     )
+    demonstration = DemonstrationSerializer(
+        read_only=True,
+        allow_null=True,
+        help_text="Vide : pas un espace de démonstration créé depuis la console.",
+    )
 
     class Meta(ConsoleSchoolSerializer.Meta):
-        fields = [*ConsoleSchoolSerializer.Meta.fields, "history"]
+        fields = [*ConsoleSchoolSerializer.Meta.fields, "history", "demonstration"]
 
     @extend_schema_field(PlatformChangeSerializer(many=True))
     def get_history(self, school: School) -> list[dict]:
@@ -132,15 +155,32 @@ class ConsoleSchoolCreateSerializer(ConsoleSchoolSerializer):
     )
     default_currency = serializers.ChoiceField(choices=Currency.choices)
     environment = serializers.ChoiceField(
-        choices=School.Environment.choices,
+        choices=[School.Environment.LIVE, School.Environment.TEST],
         default=School.Environment.LIVE,
-        help_text="Réel, essai ou démonstration : jamais changé ensuite.",
+        help_text="Réel ou essai, jamais changé ensuite. Démonstration : `schools/demo/`.",
     )
     head = SchoolHeadSerializer(write_only=True)
 
     class Meta(ConsoleSchoolSerializer.Meta):
         fields = [*ConsoleSchoolSerializer.Meta.fields, "head"]
         read_only_fields = ["created_at"]
+
+
+class DemonstrationCreateSerializer(serializers.ModelSerializer):
+    """Nouvel espace de démonstration : son adresse, son nom et la taille de l'école fictive."""
+
+    profile = serializers.ChoiceField(
+        choices=Demonstration.Profile.choices,
+        help_text="Petite école (≈ 150 élèves) ou grande école (≈ 800).",
+    )
+
+    class Meta:
+        model = School
+        fields = ["code", "name", "profile"]
+
+
+class AccessSheetQuerySerializer(serializers.Serializer):
+    output = serializers.ChoiceField(choices=["pdf", "html"], help_text="PDF, ou son aperçu HTML.")
 
 
 class SchoolStopSerializer(serializers.Serializer):
