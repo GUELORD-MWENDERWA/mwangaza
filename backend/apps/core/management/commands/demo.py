@@ -19,7 +19,7 @@ from apps.accounts.models import User
 from apps.core.demo import create_demo_platform, fill
 from apps.notifications.demo import create_demo_platform_announcements
 from apps.portal.demo import demo_portal
-from apps.schools.demo import create_demo_schools
+from apps.schools.demo import create_demo_schools, make_demo_refusal
 
 
 def _local(phone: str) -> str:
@@ -35,6 +35,19 @@ class Command(BaseCommand):
             raise CommandError(
                 "Données de démonstration refusées ici (seulement en développement et dans l'essai "
                 "sur plusieurs appareils : DEMO_DATA)."
+            )
+        # Le réglage ne suffit pas : tous les espaces partagent une plateforme (`03` § 4 bis).
+        refusal = make_demo_refusal()
+        if refusal is not None:
+            reset = (
+                " Base de développement : `make reset-db` l'efface et la recrée."
+                if settings.DEBUG
+                else ""
+            )
+            raise CommandError(
+                f"{refusal} `make demo` remettrait à zéro l'identité de la plateforme et ses "
+                "espaces : refusé, rien n'a été modifié. Une démonstration se crée dans la "
+                f"console (Écoles, onglet « Démonstration »).{reset}"
             )
         # Clé commune de double authentification : en développement seulement, jamais là où le
         # mot de passe est propre au serveur.
