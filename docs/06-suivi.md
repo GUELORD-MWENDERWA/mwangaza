@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.15 terminée : PR à relire et fusionner |
+| Tâche en cours | aucune — 4.15 fusionnée ; sa suite (captures de la maquette `console/ecoles` réparées) : PR à relire et fusionner |
 | Prochaine tâche | 4.16 (Supprimer un espace d'essai ou de démonstration) |
 | Issue GitHub | #159 pour 4.16 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.15-type-espace` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/4.15-captures` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement
@@ -61,6 +61,7 @@ Entrée la plus récente en haut. Format : date — titre, puis fait / tests / d
 - Fait : `School.environment` (réel, essai, démonstration), choisi à la création et jamais changé ; état « arrêté » (plus d'accès à l'adresse, aux droits, au portail ni à la session support ; données gardées) ; console : onglets Réels · Essai · Démonstration, type à la création, « Arrêter » avec motif (journal de la plateforme), « Relancer » ; tableau de bord : espaces réels seulement ; Gestion : page « Cet espace est arrêté » ; maquette `console/ecoles` mise à jour.
 - Tests : `stop` réservé au super-admin ; arrêt = accès coupé et données gardées, motif obligatoire, deux journaux ; type jamais changé (API et service) ; tableau de bord sans le paiement ni l'élève d'un espace de démonstration ; états « suspendue » et « arrêtée » testés ensemble (adresse, droits, portail). Vitest : onglets, arrêt avec motif. Capture à 390 px.
 - Décisions : arrêt réversible ; pas de colonnes `stopped_at` / `stopped_reason` (le journal de la plateforme les garde) ; l'état `trial` s'affiche « Essai gratuit » ; écoles existantes = espaces réels ; un espace de démonstration créé ici est vide jusqu'à la 4.17.
+- Correction (PR de suite, même jour) : les deux captures de `console/ecoles` fusionnées montraient une page « fichier introuvable » (l'outil attend un chemin, `maquettes/console/ecoles.html`) ; régénérées ; choix sélectionné rendu visible dans les cinq maquettes de la console qui utilisaient `--lake-600`, couleur qui n'existe pas (`--lake`) ; l'outil de capture refuse désormais un chemin faux.
 - Suite : 4.16 (supprimer un espace d'essai ou de démonstration). À la 4.17, `itig` et `volcans` deviennent des démonstrations : le parcours Playwright de la console, qui attend l'ITIG sur le tableau de bord, sera à adapter.
 
 ### 2026-10-11 — Tâche 4.14 : Annuler un import
