@@ -20,11 +20,13 @@ from apps.schools.receipts import receipt_settings
 
 
 def find_payment(user: User, payment_id) -> Payment:
-    """Paiement non annulé d'un enfant d'une famille reliée à ce compte ; sinon 404."""
+    """Paiement non annulé d'un enfant d'une famille reliée à ce compte ; sinon 404. Une
+    reprise (E6, payé avant que l'école n'utilise l'application) n'a pas de reçu."""
     payment = (
         Payment.all_schools.filter(
             pk=payment_id,
             cancellation__isnull=True,
+            origin=Payment.Origin.CASH,
             **linked_to(user, "enrollment__student__family"),
         )
         .exclude(school__status__in=School.CLOSED_STATUSES)

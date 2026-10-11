@@ -102,6 +102,8 @@ Règles :
 
 **Payment [T]** **[I]** — `id` (UUID client), `enrollment`, `cash_session`, `device` (appareil qui l'a encaissé hors ligne ; l'opération d'origine est dans `SyncOperation`), `cashier`, `received_amount_minor`, `received_currency`, `rate_used` (taux USD → CDF en vigueur à l'encaissement), `paid_at` (heure de l'appareil), `synced_at` (arrivée au serveur d'un paiement hors ligne), `receipt_number` (unique dans l'école ; en ligne, donné par le serveur : `{ÉCOLE}-{CAISSE}-{AA}-{séquence}`, AA = année scolaire de l'inscription ; hors ligne, préfixe de l'appareil, 3.3), `method` (`cash` en V1 ; `mobile_money`, `bank` plus tard), `note`. Le reçu n'est pas un modèle : c'est une vue imprimable du paiement (décision Q2).
 
+**Reprise en cours d'année (E6, 4.19)** — pas de modèle : un `Payment` avec `origin=prior` (`cash` pour un encaissement), **sans `cash_session`** (contrainte en base : l'un ne va pas sans l'autre), `cashier` = le compte qui a importé le fichier, `paid_at` = le moment de la reprise, `receipt_number` = sa référence dans la série `{ÉCOLE}-RP-{AA}-{séquence}` (code `RP` réservé comme `AN` : jamais celui d'une caisse). Il compte dans les soldes, le relevé, les impayés et le Portail comme tout paiement ; il n'entre ni dans une session, ni dans une clôture, ni dans « encaissé » du tableau de bord, et n'a pas de reçu (lecture, réimpression, PDF du portail et vérification publique : 404). Une ligne du fichier = un élève (matricule), un montant dans la devise de ses frais (pas de conversion), un frais facultatif ; répartition par défaut de la caisse ; refusée si elle dépasse ce que doit l'élève, ou si l'élève a déjà une reprise non annulée dans cette devise (un fichier envoyé deux fois ne double rien). Corrigée par l'annulation habituelle. Permission `finance.import_prior_payments`, une entrée au journal par paiement (`finance.prior_payment_recorded`).
+
 **PaymentAllocation [T]** **[I]** — répartition d'un paiement : `payment`, `student_charge`, `received_minor` (part du montant reçu, dans la devise reçue ; somme des parts = montant reçu, sauf un paiement hors ligne qui dépasse ce que l'élève doit à son arrivée : le surplus n'est affecté à rien : il devient un `StudentCredit`), `amount_minor` (dans la devise de la charge, converti depuis `received_minor`).
 
 **CancellationRequest [T]** — `payment`, `reason`, `requested_by`, `requested_at` (heure de l'appareil hors ligne), `device`, `status` (`pending`, `approved`, `rejected`), `decided_by`, `decided_at`, `decision_note`. Une seule demande en attente par paiement ; le paiement compte jusqu'à la décision (3.8.1).
@@ -175,6 +177,7 @@ Règles :
 | `finance.approve_cancellation` | ✔ | | | ✔ | | | |
 | `finance.close_register` | | | | ✔ | ✔ | | |
 | `finance.view_reports` | ✔ | | | ✔ | | | ✔ |
+| `finance.import_prior_payments` | ✔ | | | ✔ | | | |
 | `announcements.publish` | ✔ | ✔ | ✔ | | | ✔ | |
 | `audit.view` | ✔ | | | | | | ✔ |
 

@@ -316,6 +316,8 @@ def _statement_page(item: statements.Statement, absolute, *, upcoming, payments,
                 "paid_at": timezone.localtime(payment.paid_at),
                 "amount": format_amount(payment.received_amount_minor, payment.received_currency),
                 "cancelled": hasattr(payment, "cancellation"),
+                # Reprise (E6) : pas un reçu, ce qui était payé avant.
+                "prior": payment.origin == payment.Origin.PRIOR,
             }
             for payment in item.payments
         ]

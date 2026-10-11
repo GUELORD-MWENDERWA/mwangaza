@@ -39,7 +39,9 @@ def _currencies(present) -> list[str]:
 
 
 def _payments():
-    return Payment.objects.filter(cancellation__isnull=True)
+    """Argent entré en caisse : sans les paiements annulés ni les reprises (E6, payé avant que
+    l'école n'utilise l'application)."""
+    return Payment.objects.filter(cancellation__isnull=True, origin=Payment.Origin.CASH)
 
 
 def collected(start: datetime, end: datetime) -> list[dict]:

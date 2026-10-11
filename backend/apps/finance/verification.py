@@ -119,7 +119,8 @@ def verify_receipt(request: HttpRequest, payment_id: UUID) -> HttpResponse:
             "cash_session__cash_register",
             "cancellation",
         )
-        .filter(pk=payment_id)
+        # Une reprise (E6) n'a pas de reçu à vérifier.
+        .filter(pk=payment_id, origin=Payment.Origin.CASH)
         .first()
     )
     try:

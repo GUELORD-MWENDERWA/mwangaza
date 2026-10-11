@@ -6,6 +6,7 @@ from rest_framework.fields import get_error_detail
 from apps.accounts.models import User
 from apps.accounts.serializers import LoginSerializer, PhoneField
 from apps.core.money import Currency
+from apps.finance.models import Payment
 from apps.finance.serializers import BalanceSerializer, LastPaymentSerializer
 from apps.portal import children, families
 from apps.schools.models import School
@@ -109,6 +110,10 @@ class ChildPaymentSerializer(serializers.Serializer):
     received_amount_minor = serializers.IntegerField()
     received_currency = serializers.ChoiceField(choices=Currency.choices)
     cancelled = serializers.BooleanField(help_text="Annulé : ne compte plus, pas de reçu PDF.")
+    origin = serializers.ChoiceField(
+        choices=Payment.Origin.choices,
+        help_text="`prior` : payé avant que l'école n'utilise l'application, pas de reçu PDF.",
+    )
 
 
 class ChildPaymentsSerializer(serializers.Serializer):

@@ -19,5 +19,11 @@ router.register("unpaid", views.UnpaidViewSet, basename="unpaid")
 
 urlpatterns = [
     path("dashboard/", views.DashboardView.as_view(), name="dashboard"),
+    path("prior-payments/", views.PriorPaymentsView.as_view(), name="prior-payments"),
+    path(
+        "prior-payments/template/",
+        views.PriorPaymentsTemplateView.as_view(),
+        name="prior-payments-template",
+    ),
     *router.urls,
 ]

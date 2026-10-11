@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.18 terminée, PR à relire et fusionner |
-| Prochaine tâche | 4.19 (Reprise en cours d'année) |
-| Issue GitHub | #161 pour 4.18 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.18-espaces-reconnaissables` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | 4.19 (Reprise en cours d'année) — en cours depuis le 2026-10-11 |
+| Prochaine tâche | 4.20 (Mise en route d'une école neuve) |
+| Issue GitHub | #162 pour 4.19 (bloc : #155 à #165, créées le 2026-10-10) |
+| Branche | `tache/4.19-reprise-paiements` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement

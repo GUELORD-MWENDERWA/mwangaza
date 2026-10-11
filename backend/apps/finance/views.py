@@ -5,6 +5,7 @@ from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema
 from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.parsers import MultiPartParser
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -19,6 +20,7 @@ from apps.accounts.roles import (
     FINANCE_COLLECT_PAYMENT,
     FINANCE_CONFIGURE_FEES,
     FINANCE_GRANT_DISCOUNT,
+    FINANCE_IMPORT_PRIOR_PAYMENTS,
     FINANCE_REQUEST_CANCELLATION,
     FINANCE_SET_EXCHANGE_RATE,
     FINANCE_VIEW_REPORTS,
@@ -28,7 +30,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.documents import PRINT_RESPONSE, XLSX, XLSX_RESPONSE, file_response, render
 from apps.core.errors import ErrorSerializer
-from apps.finance import dashboard, documents, services, statements, unpaid
+from apps.finance import dashboard, documents, prior_payments, services, statements, unpaid
 from apps.finance.models import (
     CancellationRequest,
     CashRegister,
@@ -76,6 +78,8 @@ from apps.finance.serializers import (
     PaymentFilterSerializer,
     PaymentReceiptSerializer,
     PaymentSerializer,
+    PriorPaymentPreviewSerializer,
+    PriorPaymentUploadSerializer,
     RescheduleSerializer,
     StatementSerializer,
     StudentChargeFilterSerializer,
@@ -663,7 +667,8 @@ class PaymentViewSet(
         if FINANCE_VIEW_REPORTS not in school_access(self.request).permissions:
             payments = payments.filter(cash_session__cashier=self.request.user)
         if self.action != "list":
-            return payments
+            # Une reprise (E6) n'a pas de reçu : ni lecture ni réimpression.
+            return payments.filter(origin=Payment.Origin.CASH)
         params = PaymentFilterSerializer(data=self.request.query_params)
         params.is_valid(raise_exception=True)
         filters = params.validated_data
@@ -848,7 +853,7 @@ class CancellationViewSet(
         data = serializer.validated_data
         payment = data["payment"]
         own = FINANCE_VIEW_REPORTS not in school_access(request).permissions
-        if own and payment.cash_session.cashier_id != request.user.pk:
+        if own and payment.cashier_id != request.user.pk:
             raise PermissionDenied()
         item, created = services.request_cancellation(
             payment, actor=request.user, reason=data["reason"], request_id=data.get("id")
@@ -992,3 +997,60 @@ class DashboardView(APIView):
     @extend_schema(responses={200: DashboardSerializer, **ERRORS})
     def get(self, request: Request) -> Response:
         return Response(DashboardSerializer(dashboard.overview()).data)
+
+
+@extend_schema(tags=["finance"])
+class PriorPaymentsView(APIView):
+    """Reprise en cours d'année (E6) : ce que chaque élève avait payé avant que l'école
+    n'utilise l'application, importé d'un fichier. Sans `expected` : aperçu (200), rien n'est
+    écrit. Avec les totaux de l'aperçu : enregistré (201) hors caisse et sans reçu, lignes en
+    erreur laissées ; 409 `preview_outdated` si le résultat n'est plus celui de l'aperçu."""
+
+    permission_classes = [HasSchoolPermission]
+    required_permission = FINANCE_IMPORT_PRIOR_PAYMENTS
+    parser_classes = [MultiPartParser]
+
+    @extend_schema(
+        request={"multipart/form-data": PriorPaymentUploadSerializer},
+        responses={
+            200: PriorPaymentPreviewSerializer,
+            201: PriorPaymentPreviewSerializer,
+            **INVALID,
+            **CONFLICT,
+            **ERRORS,
+        },
+    )
+    def post(self, request: Request) -> Response:
+        params = PriorPaymentUploadSerializer(data=request.data)
+        params.is_valid(raise_exception=True)
+        file, expected = params.validated_data["file"], params.validated_data.get("expected")
+        if expected is None:
+            preview = prior_payments.check(file)
+        else:
+            preview = prior_payments.record(file, actor=request.user, expected=expected)
+        errors = preview.errors
+        data = {
+            "recorded": expected is not None,
+            "ready_count": len(preview.ready),
+            "error_count": len(errors),
+            "empty_count": preview.empty,
+            "totals": preview.totals,
+            "errors": errors[: prior_payments.MAX_ERRORS],
+            "ready": preview.ready[: prior_payments.MAX_READY],
+        }
+        return Response(
+            PriorPaymentPreviewSerializer(data).data,
+            status=status.HTTP_200_OK if expected is None else status.HTTP_201_CREATED,
+        )
+
+
+@extend_schema(tags=["finance"])
+class PriorPaymentsTemplateView(APIView):
+    """Modèle Excel de la reprise, déjà garni : les élèves de l'année et leur reste à payer."""
+
+    permission_classes = [HasSchoolPermission]
+    required_permission = FINANCE_IMPORT_PRIOR_PAYMENTS
+
+    @extend_schema(responses={**XLSX_RESPONSE, **CONFLICT, **ERRORS})
+    def get(self, request: Request) -> HttpResponse:
+        return file_response(prior_payments.template_workbook(), XLSX, "reprise-paiements.xlsx")
