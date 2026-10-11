@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.20.2 fusionnée (contrôles verts) |
-| Prochaine tâche | 4.7.1 (sauvegardes prêtes, essayées sur la machine), puis 4.22 (`make demo` sans danger pour les vraies écoles), puis 4.21 |
-| Issue GitHub | #164 pour 4.7.1, #182 pour 4.22, #165 pour 4.21 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `docs/plan-4.22-make-demo` (plan seulement) ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.22 terminée (PR ouverte, à fusionner) |
+| Prochaine tâche | 4.7.1 (sauvegardes prêtes, essayées sur la machine), puis 4.21 |
+| Issue GitHub | #164 pour 4.7.1, #165 pour 4.21 (bloc : #155 à #165, créées le 2026-10-10) |
+| Branche | `tache/4.22-make-demo-sur` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement
@@ -23,8 +23,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 11 | 14 |
-| **V1.0** | **61** | **66** |
+| Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 12 | 14 |
+| **V1.0** | **62** | **66** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -56,6 +56,13 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-11 — Tâche 4.22 : `make demo` sans danger pour une plateforme qui a de vraies écoles
+
+- Fait : `make demo` (donc `make deploy-demo` et `make reseau-demo`) refuse avant toute écriture dès qu'un espace réel existe, quel que soit `DEMO_DATA`, ou si le code `itig` / `volcans` est pris par un espace qui n'est pas de démonstration ; le message renvoie à la console (Écoles, onglet « Démonstration ») et, en développement seulement, à `make reset-db`. `create_demo_schools` cherche ses espaces par code et type : le type d'un espace existant n'est plus jamais écrit.
+- Tests : école réelle avec un paiement, identité de plateforme personnalisée et super-admin au numéro `0000000000`, hors `DEBUG` → refus, rien n'a bougé ; code `volcans` pris par un espace d'essai → refus. Le test « base d'avant la 4.17 » ne fait plus redevenir démonstration un espace réel.
+- Décisions : pas de réglage pour passer outre ; un espace d'essai seul ne bloque pas ; pas de migration pour les vieilles bases (`make reset-db`).
+- Suite : 4.7.1 (sauvegardes), puis 4.21.
 
 ### 2026-10-11 — Proposition « version finie » examinée : tâche 4.22 ajoutée
 
