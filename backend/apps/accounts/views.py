@@ -88,7 +88,8 @@ class MeView(APIView):
         # Rôles de chaque école du compte : lus hors de l'école de l'adresse, pour ce compte seul.
         memberships = (
             Membership.objects.filter(user=user, is_active=True)
-            .exclude(school__status=School.Status.STOPPED)  # arrêté : plus proposé
+            # Arrêté ou en cours de suppression : plus proposé.
+            .exclude(school__status__in=(School.Status.STOPPED, School.Status.DELETING))
             .select_related("school")
             .prefetch_related(
                 Prefetch("roles", queryset=Role.all_schools.order_by("id"), to_attr="role_list")

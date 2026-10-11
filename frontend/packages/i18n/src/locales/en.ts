@@ -2576,6 +2576,7 @@ export const en: Messages<typeof fr> = {
         active: "Active",
         suspended: "Suspended",
         stopped: "Stopped",
+        deleting: "Being deleted",
       },
     },
     health: {
@@ -2687,7 +2688,13 @@ export const en: Messages<typeof fr> = {
       openAsSchool: "Open as the school",
       previous: "Previous",
       next: "Next",
-      status: { trial: "Free trial", active: "Active", suspended: "Suspended", stopped: "Stopped" },
+      status: {
+        trial: "Free trial",
+        active: "Active",
+        suspended: "Suspended",
+        stopped: "Stopped",
+        deleting: "Being deleted",
+      },
       trialUntil: "Free trial · ends {{date}}",
       paidUntil: "paid until {{date}}",
       overdue: "overdue ({{date}})",
@@ -2758,6 +2765,17 @@ export const en: Messages<typeof fr> = {
       stopReasonRequired: "Enter the reason.",
       stopReasonShown: "Reason: {{reason}}",
       stoppedBanner: "Stopped space: nobody can log in; the data is kept.",
+      delete: "Delete",
+      deleteTitle: "Delete {{name}}?",
+      deleteText:
+        "All the data of this space is erased for good: students, families, fees, payments, receipts, staff roles and the school journal. Accounts that were only used here are deactivated. This cannot be undone.",
+      deleteConfirm: "To confirm, type the code of the space: {{code}}",
+      deleteConfirmWrong: "This is not the code of this space.",
+      deletingBanner:
+        "Being deleted: nobody enters this space any more and its data is being erased. It leaves the list when it is done.",
+      deleteRelaunch: "Relaunch the deletion",
+      deleteRelaunchHelp:
+        "Is the space still there after a few minutes? The deletion was interrupted: relaunch it, it picks up where it stopped.",
     },
     accounts: {
       title: "Accounts",
@@ -2916,6 +2934,7 @@ export const en: Messages<typeof fr> = {
       "school.suspended": "School suspended",
       "school.reactivated": "School reactivated",
       "school.stopped": "School stopped",
+      "school.deleted": "Sandbox or demonstration space deleted",
       "account.changed": "Names or phone changed by support",
       "account.deactivated": "Account deactivated by support",
       "account.reactivated": "Account reactivated by support",

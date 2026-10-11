@@ -3561,7 +3561,8 @@ paths:
       description: |-
         Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
         changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
-        Un espace réel ne se supprime jamais : on le suspend ou on l'arrête.
+        Un espace réel ne se supprime jamais : on le suspend ou on l'arrête ; un espace d'essai ou de
+        démonstration se supprime (4.16).
       parameters:
       - in: query
         name: environment
@@ -3588,6 +3589,7 @@ paths:
           type: string
           enum:
           - active
+          - deleting
           - stopped
           - suspended
           - trial
@@ -3673,7 +3675,8 @@ paths:
       description: |-
         Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
         changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
-        Un espace réel ne se supprime jamais : on le suspend ou on l'arrête.
+        Un espace réel ne se supprime jamais : on le suspend ou on l'arrête ; un espace d'essai ou de
+        démonstration se supprime (4.16).
       parameters:
       - in: path
         name: id
@@ -3743,6 +3746,64 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConsoleSchoolDetail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/schools/{id}/delete/:
+    post:
+      operationId: console_schools_delete_create
+      description: |-
+        Espace d'essai ou de démonstration supprimé avec toutes ses données, en tâche de
+        fond ; refusé pour un espace réel. `confirm` : le code de l'espace. Déjà en cours : la
+        suppression est relancée.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this school.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolDeleteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SchoolDeleteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SchoolDeleteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
         '400':
           content:
@@ -12358,6 +12419,7 @@ components:
             * `active` - Active
             * `suspended` - Suspended
             * `stopped` - Stopped
+            * `deleting` - Being deleted
         plan:
           type: string
           description: e.g. Discovery, Standard.
@@ -12476,6 +12538,7 @@ components:
             * `active` - Active
             * `suspended` - Suspended
             * `stopped` - Stopped
+            * `deleting` - Being deleted
         plan:
           type: string
           description: e.g. Discovery, Standard.
@@ -12564,6 +12627,7 @@ components:
             * `active` - Active
             * `suspended` - Suspended
             * `stopped` - Stopped
+            * `deleting` - Being deleted
         plan:
           type: string
           description: e.g. Discovery, Standard.
@@ -16092,6 +16156,7 @@ components:
             * `active` - Active
             * `suspended` - Suspended
             * `stopped` - Stopped
+            * `deleting` - Being deleted
         plan:
           type: string
           description: e.g. Discovery, Standard.
@@ -16774,6 +16839,7 @@ components:
       - school.suspended
       - school.reactivated
       - school.stopped
+      - school.deleted
       - account.changed
       - account.deactivated
       - account.reactivated
@@ -16792,6 +16858,7 @@ components:
         * `school.suspended` - School suspended
         * `school.reactivated` - School reactivated
         * `school.stopped` - School stopped
+        * `school.deleted` - Sandbox or demonstration space deleted
         * `account.changed` - Names or phone changed by support
         * `account.deactivated` - Account deactivated by support
         * `account.reactivated` - Account reactivated by support
@@ -17462,6 +17529,16 @@ components:
         * `installments` - Installments
         * `monthly` - Monthly
         * `single` - Single payment
+    SchoolDeleteRequest:
+      type: object
+      properties:
+        confirm:
+          type: string
+          minLength: 1
+          description: Code de l'espace, retapé pour confirmer.
+          maxLength: 63
+      required:
+      - confirm
     SchoolDevice:
       type: object
       description: Un appareil de l'école (« Appareils et synchro », `roles.manage`).
@@ -17616,12 +17693,14 @@ components:
       - active
       - suspended
       - stopped
+      - deleting
       type: string
       description: |-
         * `trial` - Free trial
         * `active` - Active
         * `suspended` - Suspended
         * `stopped` - Stopped
+        * `deleting` - Being deleted
     SchoolStopRequest:
       type: object
       properties:

@@ -2589,6 +2589,7 @@ export const fr = {
         active: "Active",
         suspended: "Suspendue",
         stopped: "Arrêtée",
+        deleting: "Suppression en cours",
       },
     },
     health: {
@@ -2705,6 +2706,7 @@ export const fr = {
         active: "Active",
         suspended: "Suspendue",
         stopped: "Arrêtée",
+        deleting: "Suppression en cours",
       },
       trialUntil: "Essai gratuit · fin {{date}}",
       paidUntil: "payé jusqu'au {{date}}",
@@ -2779,6 +2781,17 @@ export const fr = {
       stopReasonRequired: "Indiquez le motif.",
       stopReasonShown: "Motif : {{reason}}",
       stoppedBanner: "Espace arrêté : personne ne peut s'y connecter ; les données sont gardées.",
+      delete: "Supprimer",
+      deleteTitle: "Supprimer {{name}} ?",
+      deleteText:
+        "Toutes les données de cet espace sont effacées pour de bon : élèves, familles, frais, paiements, reçus, rôles du personnel et journal de l'école. Les comptes qui ne servaient qu'ici sont désactivés. Cela ne se rattrape pas.",
+      deleteConfirm: "Pour confirmer, tapez le code de l'espace : {{code}}",
+      deleteConfirmWrong: "Ce n'est pas le code de cet espace.",
+      deletingBanner:
+        "Suppression en cours : plus personne n'entre dans cet espace et ses données s'effacent. Il disparaît de la liste quand c'est fini.",
+      deleteRelaunch: "Relancer la suppression",
+      deleteRelaunchHelp:
+        "L'espace est toujours là après quelques minutes ? La suppression s'est interrompue : relancez-la, elle reprend où elle s'était arrêtée.",
     },
     accounts: {
       title: "Comptes",
@@ -2939,6 +2952,7 @@ export const fr = {
       "school.suspended": "École suspendue",
       "school.reactivated": "École réactivée",
       "school.stopped": "École arrêtée",
+      "school.deleted": "Espace d'essai ou de démonstration supprimé",
       "account.changed": "Noms ou téléphone changés par le support",
       "account.deactivated": "Compte désactivé par le support",
       "account.reactivated": "Compte réactivé par le support",

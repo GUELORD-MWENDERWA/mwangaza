@@ -149,6 +149,12 @@ class SchoolStopSerializer(serializers.Serializer):
     )
 
 
+class SchoolDeleteSerializer(serializers.Serializer):
+    confirm = serializers.CharField(
+        max_length=63, help_text="Code de l'espace, retapé pour confirmer."
+    )
+
+
 class ConsoleSchoolCreatedSerializer(serializers.Serializer):
     school = ConsoleSchoolSerializer()
     head = HeadAccountSerializer()

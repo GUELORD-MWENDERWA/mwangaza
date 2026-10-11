@@ -36,6 +36,7 @@ from apps.schools.console_serializers import (
     ConsoleSchoolCreateSerializer,
     ConsoleSchoolDetailSerializer,
     ConsoleSchoolSerializer,
+    SchoolDeleteSerializer,
     SchoolStopSerializer,
 )
 from apps.schools.matricule import validate_matricule_format
@@ -552,7 +553,8 @@ class ConsoleSchoolViewSet(
 ):
     """Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
     changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
-    Un espace réel ne se supprime jamais : on le suspend ou on l'arrête."""
+    Un espace réel ne se supprime jamais : on le suspend ou on l'arrête ; un espace d'essai ou de
+    démonstration se supprime (4.16)."""
 
     permission_classes = [IsPlatformAdmin]
     http_method_names = ["get", "post", "patch", "head", "options"]
@@ -647,3 +649,17 @@ class ConsoleSchoolViewSet(
         """Suspendue ou arrêtée, de nouveau ouverte : en essai gratuit s'il n'est pas fini, sinon
         active."""
         return self._detail(services.reactivate(self.get_object(), actor=request.user))
+
+    @extend_schema(
+        request=SchoolDeleteSerializer,
+        responses={204: None, 409: ErrorSerializer, **CONSOLE_ERRORS},
+    )
+    @action(detail=True, methods=["post"], url_path="delete")
+    def delete_space(self, request: Request, pk=None) -> Response:
+        """Espace d'essai ou de démonstration supprimé avec toutes ses données, en tâche de
+        fond ; refusé pour un espace réel. `confirm` : le code de l'espace. Déjà en cours : la
+        suppression est relancée."""
+        serializer = SchoolDeleteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        services.delete_space(self.get_object(), actor=request.user, **serializer.validated_data)
+        return Response(status=status.HTTP_204_NO_CONTENT)

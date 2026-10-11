@@ -1,5 +1,6 @@
 """Écoles : création par le super-admin avec son premier directeur (A1), changements faits par le
-super-admin (console, 5.3) ou par l'école (paramètres, M5), suspension, arrêt (4.15).
+super-admin (console, 5.3) ou par l'école (paramètres, M5), suspension, arrêt (4.15), suppression
+d'un espace d'essai ou de démonstration (4.16).
 
 Tout va dans le journal de l'école : création, identité (avant / après), logo, suspension, arrêt
 et réactivation. L'abonnement (offre, dates, essai ↔ actif) n'y va pas : c'est l'affaire de la
@@ -10,16 +11,27 @@ plateforme.
 from dataclasses import dataclass
 from functools import partial
 
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from apps.accounts import services as accounts
 from apps.accounts.models import Membership, Role
 from apps.audit import services as audit
 from apps.audit.actions import Action, PlatformAction
+from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import use_school
-from apps.schools import alerts, receipts
+from apps.schools import alerts, deletion, receipts, tasks
 from apps.schools.models import School
+
+LIVE_SPACE = ApiError("live_space", _("A live space is never deleted: stop it instead."), 409)
+DELETION_RUNNING = ApiError(
+    "deletion_running", _("Another space is being deleted: wait until it is done."), 409
+)
+SPACE_BEING_DELETED = ApiError(
+    "space_being_deleted", _("This space is being deleted: it can no longer be changed."), 409
+)
 
 # Ce que l'école voit changer dans son journal.
 IDENTITY_FIELDS = (
@@ -92,6 +104,9 @@ def save_school(school: School, *, actor) -> School:
     """Enregistre les changements faits sur `school` et les note dans son journal."""
     with transaction.atomic():
         old = School.objects.select_for_update().get(pk=school.pk)
+        if old.status == School.Status.DELETING:
+            # Ni relancé, ni arrêté, ni renommé : ses données partent déjà (4.16).
+            raise BusinessError(SPACE_BEING_DELETED)
         if school.environment != old.environment:
             # Pas de passage d'un type à l'autre (`03` § 4 bis) : on repart d'un espace neuf.
             raise ValueError("Le type d'un espace ne change jamais.")
@@ -206,3 +221,36 @@ def reactivate(school: School, *, actor) -> School:
         update_school(school, actor=actor, status=status)
         _record_platform(PlatformAction.SCHOOL_REACTIVATED, school, actor=actor, before=before)
     return school
+
+
+def delete_space(school: School, *, actor, confirm: str) -> None:
+    """Supprime un espace d'essai ou de démonstration (4.16) ; jamais un espace réel, qu'on
+    arrête. `confirm` : le code de l'espace, retapé.
+
+    Dans la requête : l'espace est fermé à tous, les comptes qui n'avaient que lui sont
+    désactivés et le journal de la plateforme est écrit. Les données sont effacées en tâche de
+    fond (`deletion.run`), un espace à la fois. Déjà en cours : la tâche est seulement relancée
+    (une panne l'avait interrompue)."""
+    if school.environment == School.Environment.LIVE:
+        raise BusinessError(LIVE_SPACE)
+    if confirm.strip().lower() != school.code:
+        message = _("Type the code of the space to confirm.")
+        raise ValidationError({"confirm": ValidationError(message, code="wrong_code")})
+    deleting = School.Status.DELETING
+    with transaction.atomic():
+        school = School.objects.select_for_update().get(pk=school.pk)
+        if school.status != deleting:
+            if School.objects.filter(status=deleting).exists():
+                raise BusinessError(DELETION_RUNNING)
+            before = _platform_fields(school)
+            deactivated = deletion.deactivate_accounts_left_without_school(school)
+            school.status = deleting
+            school.save(update_fields=["status", "updated_at"])
+            audit.record_platform(
+                PlatformAction.SCHOOL_DELETED,
+                school,
+                actor=actor,
+                before=before,
+                after={"accounts_deactivated": deactivated},
+            )
+        transaction.on_commit(partial(tasks.delete_space.delay, str(school.pk)))

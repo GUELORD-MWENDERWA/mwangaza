@@ -192,6 +192,7 @@ class PlatformAction(models.TextChoices):
     SCHOOL_SUSPENDED = "school.suspended", _("School suspended")
     SCHOOL_REACTIVATED = "school.reactivated", _("School reactivated")
     SCHOOL_STOPPED = "school.stopped", _("School stopped")
+    SCHOOL_DELETED = "school.deleted", _("Sandbox or demonstration space deleted")
     # Comptes (5.4.1), par le support (console ou administration Django) ; chaque école où la
     # personne est active le voit aussi dans son journal (`Action.ACCOUNT_*`).
     ACCOUNT_CHANGED = "account.changed", _("Names or phone changed by support")
