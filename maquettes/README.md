@@ -101,6 +101,7 @@ Bulletins : structure et maxima repris des formulaires officiels trouvés en lig
 | Accueil — mes enfants (multi-écoles) | `portail/accueil.html` | V1.0 | H2 | fournie |
 | Paiements d'un enfant | `portail/enfant-paiements.html` | V1.0 | H3 | fournie |
 | Annonces | `portail/annonces.html` | V1.0 | H4 | fournie |
+| Notifications (cloche de l'en-tête) | `portail/notifications.html` | V1.1 | 5.5.2 | dessinée par Claude en 5.5.2 d'après `gestion/notifications` et `portail/annonces` (à valider) ; codée en 5.5.2 : `/notifications`. Écart : dans la barre du bas, « Annonces » prend le porte-voix (la cloche est celle des notifications) — les autres maquettes du portail montrent encore une cloche |
 | Profil et coordonnées | `portail/profil.html` | V1.0 | H5 | fournie — codé en 4.4.5 avec le contact d'urgence à la place du « Téléphone secondaire » (pas de champ au modèle) |
 | Vérification publique d'un reçu (`/v/{id}`) | `portail/verification-recu.html` | V1.0 | F4 | fournie |
 | Scolarité d'un enfant | `portail/enfant-scolarite.html` | V1.4 | 8.8 | fournie |
