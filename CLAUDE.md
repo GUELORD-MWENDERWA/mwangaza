@@ -107,7 +107,7 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 | `make prod-local` · `make reseau…` | essai de la production sur la machine ; essai sur plusieurs appareils du même réseau (DuckDNS, `A-FAIRE.md` § 9 bis) |
 | `make deploy-setup` · `make deploy` · `make deploy-demo` · `make deploy-superuser` · `make deploy-logs` · `make deploy-ssh` | serveur de démonstration en ligne (Oracle Cloud + DuckDNS, `A-FAIRE.md` § 9 ter, skill `/deployer`) : préparer une fois, mettre en ligne `main`, données fictives (mot de passe propre au serveur, chacun lie son application d'authentification), super-admin, journaux |
 | `make superuser` · `make shell` | compte super-admin ; console Django |
-| GitHub Actions | à chaque PR et sur `main` : lint + tests du serveur + schéma OpenAPI à jour ; types du client + lint + tests du front + build ; `make test-e2e` |
+| GitHub Actions | à chaque PR et sur `main` : lint + tests du serveur + schéma OpenAPI à jour ; types du client + lint + tests du front + build ; `make test-e2e`. Une PR ne lance que les contrôles concernés par ses fichiers (`.github/scripts/changes.sh` : documents et maquettes → rien ; `frontend/` → front + parcours ; `backend/` → serveur + parcours ; le reste → tout) ; `main` relance toujours tout |
 | `python3 maquettes/outils/maquettes.py menu` · `… index` · `node maquettes/outils/captures.mjs` | maquettes : menu latéral commun, galerie, captures PNG |
 
 Détail de chaque commande (dont tout ce que crée `make demo`) : `docs/claude/reference.md`.

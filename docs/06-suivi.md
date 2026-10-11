@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.15 fusionnée ; sa suite (captures de la maquette `console/ecoles` réparées) : PR à relire et fusionner |
+| Tâche en cours | aucune — 4.15 fusionnée (suite comprise) ; hors plan : contrôles GitHub selon les fichiers changés, PR à relire et fusionner |
 | Prochaine tâche | 4.16 (Supprimer un espace d'essai ou de démonstration) |
 | Issue GitHub | #159 pour 4.16 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.15-captures` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `ci/controles-selon-fichiers` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement
@@ -56,6 +56,12 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-11 — Contrôles GitHub selon les fichiers changés (hors plan, demande de l'utilisateur)
+- Fait : un job « Fichiers changés » décide, pour chaque PR, des contrôles à lancer (`.github/scripts/changes.sh`) : documents, maquettes et skills → aucun ; `frontend/` → front + parcours ; `backend/` → serveur + parcours ; tout autre fichier → tout. `main` relance toujours tout après une fusion.
+- Vérifié : onze cas essayés sur la machine, plus le rejeu des PR #170 (tout) et #171 (rien). Trouvé en vérifiant : `make demo` lit le logo de l'école pilote dans `docs/ecole-pilote/`, donc ce dossier compte comme du serveur.
+- Garde-fous : dans le doute tout tourne (fichier inconnu, différence impossible, sortie absente) ; une erreur du script fait échouer le passage au lieu de tout sauter.
+- Gain : PR de documents ou de maquettes ≈ 10 s au lieu de ≈ 9 min ; PR d'écrans seuls ≈ 4 min ; aucun gain quand le serveur change.
 
 ### 2026-10-11 — Tâche 4.15 : Type d'espace et arrêt (serveur et console)
 - Fait : `School.environment` (réel, essai, démonstration), choisi à la création et jamais changé ; état « arrêté » (plus d'accès à l'adresse, aux droits, au portail ni à la session support ; données gardées) ; console : onglets Réels · Essai · Démonstration, type à la création, « Arrêter » avec motif (journal de la plateforme), « Relancer » ; tableau de bord : espaces réels seulement ; Gestion : page « Cet espace est arrêté » ; maquette `console/ecoles` mise à jour.
