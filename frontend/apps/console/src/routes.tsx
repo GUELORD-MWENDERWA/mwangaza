@@ -12,6 +12,7 @@ import { DevicesPage } from "./features/devices/DevicesPage";
 import { IdentityPage } from "./features/identity/IdentityPage";
 import { JournalPage } from "./features/journal/JournalPage";
 import { SupportSessionsPage } from "./features/journal/SupportSessionsPage";
+import { AccessSheetPage } from "./features/schools/Demonstration";
 import { NewSchoolPage } from "./features/schools/NewSchoolPage";
 import { SchoolPage } from "./features/schools/SchoolPage";
 import { SchoolsPage } from "./features/schools/SchoolsPage";
@@ -39,6 +40,7 @@ export const routes: RouteObject[] = [
           { path: "schools", element: <SchoolsPage /> },
           { path: "schools/new", element: <NewSchoolPage /> },
           { path: "schools/:id", element: <SchoolPage /> },
+          { path: "schools/:id/access", element: <AccessSheetPage /> },
           { path: "accounts", element: <AccountsPage /> },
           { path: "accounts/:id", element: <AccountPage /> },
           { path: "announcements", element: <AnnouncementsPage /> },

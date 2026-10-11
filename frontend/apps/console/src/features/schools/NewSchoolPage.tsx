@@ -1,5 +1,6 @@
 // Nouvelle école (5.3, A1) : type d'espace (4.15 : réel, essai ou démonstration, choisi une fois
-// pour toutes), identité, devises, abonnement et premier directeur. Nouveau numéro :
+// pour toutes), identité, devises, abonnement et premier directeur. Démonstration : formulaire
+// court de `Demonstration.tsx`, le serveur écrit les données fictives (4.17.2). Nouveau numéro :
 // le serveur crée son compte et renvoie un mot de passe provisoire, affiché ici une seule fois
 // (pas de SMS en V1) ; numéro connu : le compte est ajouté, ses noms ne changent pas.
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,6 +30,7 @@ import { Link, useSearchParams } from "react-router";
 import { z } from "zod";
 
 import { keys } from "../../lib/queries";
+import { NewDemoSpace } from "./Demonstration";
 import {
   IdentityFields,
   KINDS,
@@ -99,8 +101,13 @@ export function NewSchoolPage() {
   });
   const kind = useWatch({ control: form.control, name: "environment" });
   const create = useMutation({
-    mutationFn: (values: Values) =>
-      call(api.POST("/api/console/schools/", { body: { ...values, ...schoolBody(values) } })),
+    mutationFn: ({ environment, ...values }: Values) =>
+      call(
+        api.POST("/api/console/schools/", {
+          // Un espace de démonstration passe par son propre formulaire.
+          body: { ...values, ...schoolBody(values), environment: environment as "live" | "test" },
+        }),
+      ),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: keys.schools });
       void queryClient.invalidateQueries({ queryKey: keys.dashboard });
@@ -125,6 +132,33 @@ export function NewSchoolPage() {
   if (create.data) return <Done created={create.data} />;
 
   const errors = form.formState.errors;
+  const kindField = (
+    <Field
+      id="school-environment"
+      label={t("console.schools.kindLabel")}
+      help={t(`console.schools.kindHelp.${kind}`)}
+      error={errors.environment?.message}
+    >
+      {() => (
+        <Controller
+          control={form.control}
+          name="environment"
+          render={({ field }) => (
+            <Segmented
+              label={t("console.schools.kindLabel")}
+              value={field.value}
+              onValueChange={field.onChange}
+              options={KINDS.map((value) => ({
+                value,
+                label: t(`console.schools.kind.${value}`),
+              }))}
+            />
+          )}
+        />
+      )}
+    </Field>
+  );
+  if (kind === "demo") return <NewDemoSpace kindField={kindField} />;
   const head = (name: (typeof HEAD_FIELDS)[number], help?: string) => (
     <Field
       id={`head-${name}`}
@@ -168,30 +202,7 @@ export function NewSchoolPage() {
             <CardTitle>{t("console.schools.identityTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4">
-            <Field
-              id="school-environment"
-              label={t("console.schools.kindLabel")}
-              help={t(`console.schools.kindHelp.${kind}`)}
-              error={errors.environment?.message}
-            >
-              {() => (
-                <Controller
-                  control={form.control}
-                  name="environment"
-                  render={({ field }) => (
-                    <Segmented
-                      label={t("console.schools.kindLabel")}
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      options={KINDS.map((value) => ({
-                        value,
-                        label: t(`console.schools.kind.${value}`),
-                      }))}
-                    />
-                  )}
-                />
-              )}
-            </Field>
+            {kindField}
             <IdentityFields form={form} codeHelp={t("console.schools.fields.codeHelp")} />
             <Field
               id="school-currencies"

@@ -90,14 +90,17 @@ export function DeleteSpace({ school }: { school: School }) {
   );
 }
 
-/** Fiche d'un espace en cours de suppression : plus rien à y changer. */
-export function DeletingSpace({ school }: { school: School }) {
+/** Fiche d'un espace en cours de suppression : plus rien à y changer. `resetting` : il est remis
+ *  à zéro (4.17.2), la même fiche montrera ensuite son remplissage. */
+export function DeletingSpace({ school, resetting }: { school: School; resetting?: boolean }) {
   const { t } = useTranslation();
   const relaunch = useDeleteSpace(school);
   return (
     <>
       <PageHeader title={school.name} subtitle={school.url.replace(/^\w+:\/\//, "")} />
-      <Banner tone="warn">{t("console.schools.deletingBanner")}</Banner>
+      <Banner tone="warn" role="status">
+        {t(resetting ? "console.demo.resetting" : "console.schools.deletingBanner")}
+      </Banner>
       {relaunch.isError && <Banner tone="due">{errorMessage(relaunch.error, t)}</Banner>}
       <p className="text-sm text-ink-3">{t("console.schools.deleteRelaunchHelp")}</p>
       <Button

@@ -2793,6 +2793,35 @@ export const fr = {
       deleteRelaunchHelp:
         "L'espace est toujours là après quelques minutes ? La suppression s'est interrompue : relancez-la, elle reprend où elle s'était arrêtée.",
     },
+    demo: {
+      newSubtitle:
+        "Un espace rempli de données fictives, à montrer à un visiteur. Le serveur le remplit en une à deux minutes.",
+      create: "Créer l'espace de démonstration",
+      profileLabel: "École fictive",
+      profileHelp:
+        "Petite : environ 150 élèves, vite remplie. Grande : environ 800 élèves, plusieurs mois de paiements.",
+      profile: { small: "Petite école", large: "Grande école" },
+      title: "Démonstration",
+      filling: "Création en cours : étape {{done}} sur {{total}}.",
+      fillingHelp:
+        "Le serveur écrit les données fictives. Cette page se met à jour toute seule : vous pouvez la quitter et revenir.",
+      progressLabel: "Avancement du remplissage",
+      ready:
+        "{{profile}} fictive, prête à être montrée. La fiche d'accès donne les adresses, les comptes et le mot de passe.",
+      failed:
+        "Le remplissage s'est arrêté sur une erreur. Remettez l'espace à zéro, ou supprimez-le.",
+      sheet: "Fiche d'accès",
+      sheetSubtitle:
+        "À remettre au visiteur : adresses, comptes, mot de passe, parents du portail.",
+      sheetPdf: "Télécharger le PDF",
+      backToSpace: "Retour à l'espace",
+      reset: "Remettre à zéro",
+      resetTitle: "Remettre à zéro {{name}} ?",
+      resetText:
+        "Tout ce qui a été fait dans cet espace est effacé, puis les données fictives sont réécrites comme au départ. L'adresse et les numéros restent les mêmes ; le mot de passe change : les visiteurs d'avant n'entrent plus, et la fiche d'accès est à redonner.",
+      resetting:
+        "Remise à zéro en cours : l'espace s'efface, puis il se remplit de nouveau. Cette page se met à jour toute seule.",
+    },
     accounts: {
       title: "Comptes",
       subtitle:

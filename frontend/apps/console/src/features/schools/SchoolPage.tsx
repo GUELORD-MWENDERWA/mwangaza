@@ -2,6 +2,7 @@
 // confirmation) ou réactiver ; arrêter avec un motif, relancer (4.15) ; supprimer un espace
 // d'essai ou de démonstration (4.16) ; type d'espace, fixé à la création ; derniers changements
 // (journal de la plateforme). Couleur, fuseau, devises et logo sont réglés par l'école (M5).
+// Espace de démonstration créé ici (4.17.2) : avancement relu toutes les 2 s, carte « Démonstration ».
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api, call, type Schemas } from "@mwangaza/api";
 import {
@@ -33,6 +34,7 @@ import { useParams } from "react-router";
 import { keys } from "../../lib/queries";
 import { Differences, History } from "../shell/History";
 import { DeleteSpace, DeletingSpace } from "./DeleteSpace";
+import { DemoCard, DemoProgress, isWorking } from "./Demonstration";
 import { SupportLink } from "./SchoolsPage";
 import {
   IdentityFields,
@@ -66,6 +68,7 @@ export function SchoolPage() {
   const school = useQuery({
     queryKey: [...keys.schools, id],
     queryFn: () => call(api.GET("/api/console/schools/{id}/", { params: { path: { id } } })),
+    refetchInterval: (query) => (isWorking(query.state.data) ? 2000 : false),
   });
   if (school.isPending) return <Skeleton label={t("common.loading")} />;
   if (school.isError) {
@@ -78,7 +81,13 @@ export function SchoolPage() {
       </>
     );
   }
-  if (school.data.status === "deleting") return <DeletingSpace school={school.data} />;
+  const { demonstration } = school.data;
+  if (school.data.status === "deleting") {
+    return <DeletingSpace school={school.data} resetting={demonstration?.state === "resetting"} />;
+  }
+  if (demonstration?.state === "filling") {
+    return <DemoProgress school={{ ...school.data, demonstration }} />;
+  }
   return <SchoolForm key={school.data.id} school={school.data} />;
 }
 
@@ -231,6 +240,9 @@ function SchoolForm({ school }: { school: Detail }) {
           </Card>
         </form>
         <div className="flex flex-col gap-4">
+          {school.demonstration && (
+            <DemoCard school={{ ...school, demonstration: school.demonstration }} />
+          )}
           <Card>
             <CardHeader>
               <CardTitle>{t("console.schools.summaryTitle")}</CardTitle>
