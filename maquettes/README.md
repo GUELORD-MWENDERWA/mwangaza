@@ -33,7 +33,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Déverrouillage PIN hors-ligne | `gestion/deverrouillage-pin.html` | V1.0 | B5 | fournie |
 | Mon compte | `gestion/mon-compte.html` | V1.0 | B4–B5 · M4 | à valider |
 | Tableau de bord directeur | `gestion/tableau-de-bord.html` | V1.0 | G3 | fournie — codé en 4.2 sans sélecteur de période ni export (hors G3) |
-| Mise en route d'une école neuve | `gestion/mise-en-route.html` | V1.0 | C4 | à valider — dessinée par Claude en 4.20.1 d'après `tableau-de-bord` ; codée en 4.20.1 (carte en haut du tableau de bord ; « Terminer la mise en route » dans le pied de la carte quand l'école peut encaisser) |
+| Mise en route d'une école neuve | `gestion/mise-en-route.html` | V1.0 | C4 | à valider — dessinée par Claude en 4.20.1 d'après `tableau-de-bord` ; codée en 4.20.1 (carte en haut du tableau de bord ; « Terminer la mise en route » dans le pied de la carte quand l'école peut encaisser) ; la même carte est aussi sur l'accueil d'après connexion (4.20.2, sans maquette propre) |
 | Menu sur téléphone et tablette | `gestion/menu-mobile.html` | V1.0 | § 9.4 · M7 | à valider |
 | Notifications : centre et réglages (cloche de la barre du haut) | `gestion/notifications.html` | V1.1 | 5.5 | dessinée par Claude en 5.5.1 d'après `console/annonces` et `mon-compte` (à valider) ; codée en 5.5.1 : `/app/notifications`, réglages sur la même page (pas dans « Mon compte »), aperçu du téléphone non reproduit (c'est le système qui l'affiche) |
 | Pages d'état et d'erreur (Gestion et Portail) | `gestion/pages-etat.html` | V1.0 | M8 | à valider |
