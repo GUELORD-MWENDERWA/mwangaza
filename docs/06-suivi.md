@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.22 terminée (PR ouverte, à fusionner) |
-| Prochaine tâche | 4.7.1 (sauvegardes prêtes, essayées sur la machine), puis 4.21 |
-| Issue GitHub | #164 pour 4.7.1, #165 pour 4.21 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.22-make-demo-sur` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.7.1 terminée (PR ouverte, à fusionner) |
+| Prochaine tâche | 4.21 (recette finale) : dernière du bloc « Lancement » |
+| Issue GitHub | #165 pour 4.21 (bloc : #155 à #165, créées le 2026-10-10) |
+| Branche | `tache/4.7.1-sauvegardes` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement
@@ -23,8 +23,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 12 | 14 |
-| **V1.0** | **62** | **66** |
+| Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 13 | 14 |
+| **V1.0** | **63** | **66** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -56,6 +56,13 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-11 — Tâche 4.7.1 : sauvegardes prêtes, essayées sur la machine
+
+- Fait : `infra/backup/sauvegarde.sh` — `make backup` (sessions expirées purgées, dump de la base et archive des fichiers chiffrés par `gpg`, rotation 30 / 7 jours) et `make restore` (essai dans une base à part, comparée table par table à la base en service ; `remplacer=oui` : bascule par renommage, l'ancienne base est gardée). `make deploy` installe la tâche de chaque nuit dans le crontab du compte ; sans clé `BACKUP_PASSPHRASE` (serveur de démonstration) : purge seule.
+- Essais réels, pas de test en CI (script d'exploitation, Docker requis) : pile de développement (57 tables, 27 888 lignes, 10 fichiers : identique) et images du serveur (`pile=reseau` : 56 tables, 26 236 lignes) ; mauvaise clé refusée ; session expirée purgée ; rotation ; bascule confirmée, les deux renommages annulés ensemble si l'un échoue, Django relit la base ; tâche lancée comme cron (environnement vide, clé lue dans le fichier de valeurs).
+- Pas essayé : la bascule sur les images du serveur (même SQL que sur la pile de développement) ; le crontab sur le vrai serveur (posé au prochain `make deploy`).
+- Décisions : `03`, journal du 2026-10-11. Suite : 4.21 (recette finale) ; 4.7.2 avec la mise en ligne (copie hors du serveur, sauvegarde continue, alerte si la tâche de la nuit échoue).
 
 ### 2026-10-11 — Tâche 4.22 : `make demo` sans danger pour une plateforme qui a de vraies écoles
 

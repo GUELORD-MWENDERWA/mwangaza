@@ -55,7 +55,7 @@ Si un document arrive quand même :
 
 ## 9. Vraie mise en ligne (4.6.3, 4.7) : comptes et achats
 
-À faire **avant** qu'une école saisisse ses vraies données : changer d'adresse ensuite obligerait à réinstaller les applications et rendrait invérifiables les QR des reçus déjà imprimés. Le serveur Oracle du § 9 ter peut servir aussi pour la vraie mise en ligne au début ; il lui manque le vrai domaine et les sauvegardes.
+À faire **avant** qu'une école saisisse ses vraies données : changer d'adresse ensuite obligerait à réinstaller les applications et rendrait invérifiables les QR des reçus déjà imprimés. Le serveur Oracle du § 9 ter peut servir aussi pour la vraie mise en ligne au début ; il lui manque le vrai domaine et la copie des sauvegardes hors du serveur (4.7.2).
 
 | Quoi | Comment | Fait |
 |---|---|:-:|
@@ -63,6 +63,7 @@ Si un document arrive quand même :
 | Cloudflare (gratuit) | créer le compte, ajouter le domaine, remplacer les serveurs DNS chez le registrar par ceux que Cloudflare indique | [ ] |
 | Serveur | celui du § 9 ter (gratuit), ou un VPS payant (2 vCPU, 4 Go, Ubuntu 24.04, moins de 20 $ / mois) si une école l'exige | [ ] |
 | Stockage objet (sauvegardes, photos) | gratuit : Oracle Object Storage (20 Go, même compte) ou Backblaze B2 (10 Go) ; Claude dira quelles clés créer (4.7.2) | [ ] |
+| Clé des sauvegardes (4.7.2) | une phrase secrète `BACKUP_PASSPHRASE` dans le fichier de valeurs du serveur : dès qu'elle y est, la sauvegarde de chaque nuit se fait. **La noter aussi hors du serveur** (gestionnaire de mots de passe), avec `DJANGO_SECRET_KEY` : sans ces deux clés, une sauvegarde ne se relit pas | [ ] |
 | Suivi d'erreurs et sonde de disponibilité | Sentry (offre gratuite) ou GlitchTip ; UptimeRobot (gratuit) | [ ] |
 | Documents (T5, avant les vraies données d'une école) | conditions d'utilisation, confidentialité, contrat avec chaque école : Claude peut rédiger un brouillon, à faire relire | [ ] |
 | Tarif des écoles (T6, avant les abonnements, 9.2) | décider : essai gratuit ? prix par élève ? | [ ] |
@@ -191,6 +192,8 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make deploy-superuser` | crée un compte super-administrateur sur le serveur de démonstration | pour ton propre compte |
 | `make deploy-logs` | derniers journaux du serveur et version en ligne (`make deploy-logs service=django`, `caddy`…) | quand quelque chose ne marche pas |
 | `make deploy-ssh` | ouvre une session sur le serveur | dépannage |
+| `make backup` | sauvegarde ta base et tes fichiers (logos, photos, pièces jointes) dans `sauvegardes/dev/`, chiffrés ; efface aussi les sessions expirées et les vieilles sauvegardes (base : 30 jours, fichiers : 7) | pour essayer ; sur le serveur, c'est fait chaque nuit tout seul |
+| `make restore` | essai de restauration : la dernière sauvegarde est relue dans une base à part et comparée à la base en service, puis la base à part est effacée (rien ne change). `make restore file=sauvegardes/dev/<fichier>` pour une autre ; `make restore remplacer=oui` la remet en service (il faut taper REMPLACER ; l'ancienne base est gardée) | une fois par mois sur le serveur ; `remplacer=oui` seulement après une panne |
 | `make superuser` | crée un compte super-administrateur (identifiant : ton numéro de téléphone) ; à sa première connexion à l'administration, il active la double authentification (clé à saisir dans Google Authenticator ou Aegis) | rarement en développement : `make demo` y crée un (`0000000000`) |
 | `make shell` | console Django | explorer les données |
 | `python3 maquettes/outils/maquettes.py menu` | réécrit le menu latéral de toutes les maquettes Gestion | après un changement de menu |
@@ -201,9 +204,7 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 
 Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce moment-là.
 
-| Commande | Tâche | Effet |
-|---|---|---|
-| sauvegarde et restauration | 4.7.1 | sauvegarde de la base, test de restauration |
+Rien pour l'instant.
 
 ### Adresses en développement
 

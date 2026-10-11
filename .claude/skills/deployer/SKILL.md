@@ -23,7 +23,7 @@ L'utilisateur fait `A-FAIRE.md` § 9 ter étapes 1 à 4 (compte Oracle, VM ARM U
 
 ## Mise à jour
 
-`git switch main && git pull`, puis `make deploy` : code envoyé, images construites pendant que l'ancienne version reste en ligne, migrations au démarrage de Django. Vérifier : `make deploy-logs` (première ligne : commit en ligne, à comparer à `git rev-parse --short origin/main`) et `curl -s https://admin.<nom>.duckdns.org/api/health/`.
+`git switch main && git pull`, puis `make deploy` : code envoyé, images construites pendant que l'ancienne version reste en ligne, migrations au démarrage de Django, tâche de chaque nuit remise dans le crontab du compte (`infra/backup/sauvegarde.sh` : sessions expirées effacées ; sauvegarde chiffrée dans `~/mwangaza/sauvegardes` seulement si `serveur.env` a une clé `BACKUP_PASSPHRASE` ; journal : `make deploy-ssh` puis `journalctl -t mwangaza -n 20`). Vérifier : `make deploy-logs` (première ligne : commit en ligne, à comparer à `git rev-parse --short origin/main`) et `curl -s https://admin.<nom>.duckdns.org/api/health/`.
 
 ## Panne
 
