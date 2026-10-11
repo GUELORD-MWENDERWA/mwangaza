@@ -6,13 +6,13 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | Lancement — version finie (passe devant la suite de la V1.1) |
-| Lot | V1.0 |
-| Tâche en cours | **4.21** Recette finale (démarrée le 2026-10-11) — **en pause, mémoire de la machine** : la revue automatique a été arrêtée par le système (8 Go, échange plein). Fait et commité sur la branche (pas poussé) : revue du Portail et de 6 rôles de la Gestion sur 8, mesure sur 12 écoles et deux corrections de vitesse, onglet « Famille » corrigé (pas encore revu à 390 px), texte du guide, `A-FAIRE.md` § 9 quater, tâche 4.23 (#186). **Reste**, à lancer une étape à la fois quand l'utilisateur le demande : (1) revue du promoteur, de l'enseignant et de la console, et de `students/<id>/family` à 390 px ; (2) `make guide` ; (3) `make reseau` puis contrôle des trois adresses ; (4) `make lint`, PR. Base de mesure `mwangaza_mesure` (PostgreSQL de développement) à supprimer à la fin ; parcours provisoire de la revue rangé dans `git stash` (« recette 4.21 »), jamais commité |
-| Prochaine tâche | 4.6.3 et 4.7.2 (avec la mise en ligne), puis reprise de la V1.1 (5.5.2) |
-| Issue GitHub | #165 pour 4.21 (bloc : #155 à #165, créées le 2026-10-10) |
+| Phase | V1.0 finie (recette du 2026-10-12), en attente de la mise en ligne ; la V1.1 reprend |
+| Lot | V1.0 (mise en ligne), puis V1.1 |
+| Tâche en cours | aucune — 4.21 terminée (PR ouverte, à fusionner) : **la V1.0 est finie**, il reste la mise en ligne |
+| Prochaine tâche | 5.5.2 (la V1.1 reprend) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #165 pour 4.21 ; #186 pour 4.23 (ajoutée à la recette) |
 | Branche | `tache/4.21-recette-finale` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-11 |
+| Dernière mise à jour | 2026-10-12 |
 
 ## Avancement
 
@@ -22,9 +22,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 13 | 14 |
-| **V1.0** | **63** | **66** |
+| Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2 et 4.23, avec la mise en ligne) | 16 | 19 |
+| Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 14 | 14 |
+| **V1.0** | **64** | **67** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -56,6 +56,15 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-12 — Tâche 4.21 : recette finale, la V1.0 est finie
+
+- Revue : parcours Playwright provisoire (non commité) sur `make demo`, à 390 px, en français et en anglais — 8 rôles de la Gestion (37 écrans chacun, accès refusés compris), parent du Portail (10 écrans), super-admin de la console (11 écrans). Aucune erreur JavaScript, aucune clé de traduction affichée, aucun texte resté en français en anglais. Un défaut : l'onglet « Famille » de la fiche élève dépassait la largeur d'un téléphone (470 px) — corrigé, revu. À savoir : Gestion et console prennent la langue du compte, pas celle du navigateur.
+- Mesure, base à part de 12 écoles (6 350 élèves, 107 000 frais dus) : le coût vient de la taille d'une école, pas du nombre d'écoles, et il est dans Python. Deux corrections sans changer un résultat (`charges_by_enrollment`, `discount_shares`) : tableau de bord 1,7 → 1,3 s, impayés 1,9 → 1,2 s, première synchronisation d'une caisse 6,6 → 4,9 s ; portail et console sous 150 ms ; recherche de la caisse : locale, sans serveur. 138 tests des modules touchés verts. Suite : 4.23 (#186), sur le vrai serveur.
+- Guide régénéré (console et espaces ; le parcours du guide était cassé depuis la 4.17.1 : un promoteur de démonstration entre sans code). `make reseau` relancé avec cette version. `A-FAIRE.md` § 9 quater « Le jour du lancement ».
+- Constat sur l'essai de l'utilisateur (`make reseau`, contrôlé après la relance : 7 adresses en 200, certificat valide, aucune migration en attente) : `itig` et `volcans`, créées avant les espaces, y sont « réelles » ; base laissée telle quelle, marche à suivre dans `A-FAIRE.md` (« Maintenant » 1 bis, § 12).
+- Pas fait par Claude : vrai téléphone (action de l'utilisateur) ; serveur de démonstration en ligne (pas encore créé). Incident : la machine (8 Go) a arrêté la revue par manque de mémoire le 2026-10-11 ; reprise le lendemain, un rôle à la fois.
+- Décisions : `03`, journal du 2026-10-11 (pas de cache de montants ; règle Dexie : `outbox` jamais supprimée ni renommée). Suite : 5.5.2.
 
 ### 2026-10-11 — Tâche 4.7.1 : sauvegardes prêtes, essayées sur la machine
 
