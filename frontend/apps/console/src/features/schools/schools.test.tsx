@@ -201,4 +201,48 @@ describe("Écoles de la console", () => {
     expect(requests.some((r) => r.search.includes("environment=test"))).toBe(true);
     expect(screen.queryByRole("link", { name: "Ouvrir en tant qu'école" })).toBeNull();
   });
+
+  it("crée un espace de démonstration, suit son remplissage et le remet à zéro", async () => {
+    const demo = (state: string, status = "active") => ({
+      ...GAMMA,
+      id: "d1",
+      code: "vitrine",
+      name: "Vitrine",
+      environment: "demo",
+      status,
+      demonstration: { profile: "large", state, steps_done: 3, steps_total: 15 },
+    });
+    let reads = 0;
+    const requests = mockApi({
+      "GET /api/me/": ADMIN,
+      "POST /api/console/schools/demo/": () => demo("filling"),
+      "GET /api/console/schools/d1/": () => demo(reads++ ? "ready" : "filling"),
+      "POST /api/console/schools/d1/reset/": () => demo("resetting", "deleting"),
+    });
+    const { user } = renderApp("/schools/new?type=demo");
+
+    // Ni directeur, ni devises, ni abonnement : le serveur écrit tout.
+    await user.type(await screen.findByLabelText("Nom"), "Vitrine");
+    await user.type(screen.getByLabelText("Code (adresse)"), "vitrine");
+    await user.click(screen.getByText("Grande école"));
+    await user.click(screen.getByRole("button", { name: "Créer l'espace de démonstration" }));
+
+    expect(await screen.findByText("Création en cours : étape 3 sur 15.")).toBeTruthy();
+    expect(requests.find((r) => r.method === "POST")).toMatchObject({
+      path: "/api/console/schools/demo/",
+      body: { name: "Vitrine", code: "vitrine", profile: "large" },
+    });
+    // La fiche se relit seule : prête, elle donne la fiche d'accès.
+    const sheet = await screen.findByRole("link", { name: "Fiche d'accès" }, { timeout: 6000 });
+    expect(sheet.getAttribute("href")).toBe("/schools/d1/access");
+
+    await user.click(screen.getByRole("button", { name: "Remettre à zéro" }));
+    await screen.findByText(/le mot de passe change/);
+    await user.click(screen.getByRole("button", { name: "Remettre à zéro" }));
+
+    expect(await screen.findByText(/Remise à zéro en cours/)).toBeTruthy();
+    expect(requests.filter((r) => r.method === "POST").at(-1)?.body).toEqual({
+      confirm: "vitrine",
+    });
+  }, 15_000);
 });

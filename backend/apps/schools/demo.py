@@ -69,6 +69,9 @@ class DemoSpace:
     password: str
     # Développement seulement : clé commune de double authentification (`accounts/demo.py`).
     shared_totp_key: bool = False
+    # `make demo` seulement : logo public de l'école d'exemple (`DEMO_LOGOS`). Un espace créé
+    # depuis la console porte le nom que lui donne le super-admin : pas le logo d'une autre.
+    with_logo: bool = False
 
 
 def _make_demo_schools() -> dict[str, dict]:
@@ -129,7 +132,8 @@ def create_demo_schools(*, password: str, shared_totp_key: bool) -> list[DemoSpa
         school, _created = School.objects.update_or_create(
             code=code, defaults={**fields, "environment": School.Environment.DEMO}
         )
-        spaces.append(DemoSpace(school, code, MAKE_DEMO_NUMBERS[code], password, shared_totp_key))
+        numbers = MAKE_DEMO_NUMBERS[code]
+        spaces.append(DemoSpace(school, code, numbers, password, shared_totp_key, with_logo=True))
     return spaces
 
 
@@ -145,7 +149,7 @@ def create_demo_look(spaces: list[DemoSpace]) -> None:
         school.settings = {"receipt": look["receipt"]}
         school.logo, school.logo_monochrome = "", ""
         school.save()
-        logo = DEMO_LOGOS.get(space.profile)
+        logo = DEMO_LOGOS.get(space.profile) if space.with_logo else None
         if logo is not None and logo.exists():
             with logo.open("rb") as file:
                 school.logo.save(logo.name, File(file))

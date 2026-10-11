@@ -23,14 +23,14 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.accounts import totp
 from apps.accounts.models import Membership, RecoveryCode, Role, User
-from apps.accounts.phone import is_demo_phone, normalize_phone
+from apps.accounts.phone import demo_block, is_demo_phone, normalize_phone
 from apps.accounts.roles import ROLES_MANAGE, SYSTEM_ROLES, TOTP_PERMISSIONS, sorted_permissions
 from apps.audit import services as audit
 from apps.audit.actions import Action, PlatformAction
 from apps.core.crypto import DecryptionError, decrypt, encrypt
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import CrossSchoolError, require_current_school, use_school
-from apps.schools.models import School
+from apps.schools.models import Demonstration, School
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +91,14 @@ INVALID_CODE = ApiError(
     "invalid_code", _("This code is not valid, or it has already been used."), 400
 )
 WRONG_PASSWORD = ApiError("wrong_password", _("The current password is not correct."), 400)
+SHARED_ACCOUNT = ApiError(
+    "shared_demo_account",
+    _(
+        "This demonstration account is shared between visitors: its password and its two-step "
+        "verification do not change."
+    ),
+    409,
+)
 TOTP_STILL_REQUIRED = ApiError(
     "totp_still_required",
     _("One of your roles requires two-factor authentication: it cannot be turned off."),
@@ -409,11 +417,22 @@ def _update_account(user: User, **fields: str) -> None:
     user.save(update_fields=[*fields, "updated_at"])
 
 
+def ensure_not_shared(user: User) -> None:
+    """Compte d'un espace de démonstration créé depuis la console (4.17.2) : partagé entre les
+    visiteurs par la fiche d'accès, qui doit rester juste. Ni son mot de passe ni sa double
+    authentification ne changent ; « Remettre à zéro » en donne un nouveau. Une requête, pour
+    les seuls numéros réservés."""
+    block = demo_block(user.phone)
+    if block is not None and Demonstration.objects.filter(block=block).exists():
+        raise BusinessError(SHARED_ACCOUNT)
+
+
 def set_temporary_password(membership: Membership, *, actor: User) -> str:
     """« Nouveau mot de passe » (M3) : mot de passe provisoire renvoyé une seule fois, à changer
     à la prochaine connexion. Les sessions ouvertes de la personne sont fermées (Django lie la
     session au mot de passe)."""
     user = _account_of(membership)
+    ensure_not_shared(user)
     password = make_temporary_password()
     with transaction.atomic():
         user.set_password(password)
@@ -441,6 +460,7 @@ def change_password(user: User, new_password: str, *, current_password: str | No
     fermées ; la vue garde la session en cours."""
     if current_password is not None and not user.check_password(current_password):
         raise BusinessError(WRONG_PASSWORD)
+    ensure_not_shared(user)
     with transaction.atomic():
         user.set_password(new_password)
         user.must_change_password = False
@@ -532,6 +552,7 @@ def enable_totp(user: User, secret: str, code: str) -> list[str]:
     step = totp.matching_step(secret, code)
     if step is None:
         raise BusinessError(INVALID_CODE)
+    ensure_not_shared(user)
     action = Action.ACCOUNT_TOTP_CHANGED if user.totp_enabled else Action.ACCOUNT_TOTP_ENABLED
     with transaction.atomic():
         user.totp_secret = encrypt(secret)

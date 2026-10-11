@@ -59,6 +59,9 @@ def test_only_the_platform_admin_manages_schools_at_the_console(api, platform_ad
         ("post", f"{detail}stop/", {"reason": "Piratage"}),
         ("post", f"{detail}reactivate/", None),
         ("post", f"{detail}delete/", {"confirm": "alpha"}),
+        ("post", f"{SCHOOLS}demo/", {"code": "gamma", "name": "Gamma", "profile": "small"}),
+        ("post", f"{detail}reset/", {"confirm": "alpha"}),
+        ("get", f"{detail}access-sheet/?output=html", None),
     ]
     for method, url, data in calls:
 

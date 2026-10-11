@@ -2777,6 +2777,33 @@ export const en: Messages<typeof fr> = {
       deleteRelaunchHelp:
         "Is the space still there after a few minutes? The deletion was interrupted: relaunch it, it picks up where it stopped.",
     },
+    demo: {
+      newSubtitle:
+        "A space filled with fictitious data, to show to a visitor. The server fills it in one to two minutes.",
+      create: "Create the demonstration space",
+      profileLabel: "Fictitious school",
+      profileHelp:
+        "Small: about 150 students, filled quickly. Large: about 800 students, several months of payments.",
+      profile: { small: "Small school", large: "Large school" },
+      title: "Demonstration",
+      filling: "Being created: step {{done}} of {{total}}.",
+      fillingHelp:
+        "The server is writing the fictitious data. This page updates by itself: you can leave it and come back.",
+      progressLabel: "Filling progress",
+      ready:
+        "Fictitious {{profile}}, ready to be shown. The access sheet gives the addresses, the accounts and the password.",
+      failed: "The filling stopped on an error. Reset the space, or delete it.",
+      sheet: "Access sheet",
+      sheetSubtitle: "To hand to the visitor: addresses, accounts, password, portal parents.",
+      sheetPdf: "Download the PDF",
+      backToSpace: "Back to the space",
+      reset: "Reset",
+      resetTitle: "Reset {{name}}?",
+      resetText:
+        "Everything done in this space is erased, then the fictitious data is written again as at the start. The address and the numbers stay the same; the password changes: earlier visitors no longer get in, and the access sheet must be handed out again.",
+      resetting:
+        "Reset in progress: the space is being erased, then it is filled again. This page updates by itself.",
+    },
     accounts: {
       title: "Accounts",
       subtitle: "Everyone on the platform: school staff and portal parents.",

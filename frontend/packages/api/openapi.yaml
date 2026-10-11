@@ -3765,6 +3765,73 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/console/schools/{id}/access-sheet/:
+    get:
+      operationId: console_schools_access_sheet_retrieve
+      description: |-
+        Fiche d'accès d'un espace de démonstration prêt (A6), à remettre à un visiteur :
+        adresses, mot de passe, un compte par rôle, parents du portail avec leur code famille.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this school.
+        required: true
+      - in: query
+        name: output
+        schema:
+          enum:
+          - pdf
+          - html
+          type: string
+          minLength: 1
+        description: |-
+          PDF, ou son aperçu HTML.
+
+          * `pdf` - pdf
+          * `html` - html
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Document PDF (`output=pdf`).
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/console/schools/{id}/delete/:
     post:
       operationId: console_schools_delete_create
@@ -3866,6 +3933,68 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/console/schools/{id}/reset/:
+    post:
+      operationId: console_schools_reset_create
+      description: |-
+        « Remettre à zéro » un espace de démonstration créé depuis la console : supprimé puis
+        recréé (même adresse, mêmes numéros, nouveau mot de passe), en tâche de fond. `confirm` :
+        le code de l'espace.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this school.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolDeleteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SchoolDeleteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SchoolDeleteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSchoolDetail'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/console/schools/{id}/stop/:
     post:
       operationId: console_schools_stop_create
@@ -3942,6 +4071,60 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConsoleSchoolDetail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/schools/demo/:
+    post:
+      operationId: console_schools_demo_create
+      description: |-
+        Nouvel espace de démonstration (A6) : ouvert tout de suite, rempli de données fictives
+        en tâche de fond (`demonstration` de la fiche : avancement). Refusé si la plateforme en a
+        déjà son maximum, ou pendant qu'un autre espace se crée ou s'efface.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DemonstrationCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DemonstrationCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DemonstrationCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSchoolDetail'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
         '400':
           content:
@@ -12496,6 +12679,14 @@ components:
       - trial
       - suspended
       - trial_ending
+    ConsoleSchoolCreateEnvironmentEnum:
+      enum:
+      - live
+      - test
+      type: string
+      description: |-
+        * `live` - live
+        * `test` - test
     ConsoleSchoolCreateRequest:
       type: object
       description: |-
@@ -12520,14 +12711,13 @@ components:
           maxLength: 255
         environment:
           allOf:
-          - $ref: '#/components/schemas/SchoolEnvironmentEnum'
+          - $ref: '#/components/schemas/ConsoleSchoolCreateEnvironmentEnum'
           default: live
           description: |-
-            Réel, essai ou démonstration : jamais changé ensuite.
+            Réel ou essai, jamais changé ensuite. Démonstration : `schools/demo/`.
 
-            * `live` - Live
-            * `test` - Sandbox
-            * `demo` - Demonstration
+            * `live` - live
+            * `test` - test
         status:
           allOf:
           - $ref: '#/components/schemas/SchoolStatusEnum'
@@ -12678,6 +12868,12 @@ components:
           readOnly: true
           description: Les derniers changements faits dans la console, du plus récent
             au plus ancien.
+        demonstration:
+          allOf:
+          - $ref: '#/components/schemas/Demonstration'
+          readOnly: true
+          nullable: true
+          description: 'Vide : pas un espace de démonstration créé depuis la console.'
       required:
       - id
       - code
@@ -12695,6 +12891,7 @@ components:
       - last_activity_at
       - created_at
       - history
+      - demonstration
     ConsoleSchoolRef:
       type: object
       properties:
@@ -13402,6 +13599,68 @@ components:
       - student
       - class_group
       - cash_register
+    Demonstration:
+      type: object
+      description: 'Espace de démonstration créé depuis la console (4.17.2) : où en
+        est son remplissage.'
+      properties:
+        profile:
+          $ref: '#/components/schemas/ProfileEnum'
+        state:
+          allOf:
+          - $ref: '#/components/schemas/DemonstrationStateEnum'
+          description: '`resetting` : remise à zéro demandée, l''espace s''efface
+            puis se remplit.'
+          readOnly: true
+        steps_done:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        steps_total:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          title: Steps
+      required:
+      - profile
+      - state
+      - steps_done
+      - steps_total
+    DemonstrationCreateRequest:
+      type: object
+      description: 'Nouvel espace de démonstration : son adresse, son nom et la taille
+        de l''école fictive.'
+      properties:
+        code:
+          type: string
+          minLength: 1
+          description: 'Subdomain of the school: {code}.mwangaza.school. Changed by
+            the platform only: the old address stops working.'
+          pattern: ^[a-z0-9][a-z0-9-]{0,28}[a-z0-9]$
+          maxLength: 30
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        profile:
+          allOf:
+          - $ref: '#/components/schemas/ProfileEnum'
+          description: |-
+            Petite école (≈ 150 élèves) ou grande école (≈ 800).
+
+            * `small` - Small school
+            * `large` - Large school
+      required:
+      - code
+      - name
+      - profile
+    DemonstrationStateEnum:
+      enum:
+      - filling
+      - ready
+      - failed
+      - resetting
+      type: string
     Device:
       type: object
       description: Un appareil du compte dans l'école (« Appareils connectés » de
@@ -17144,6 +17403,14 @@ components:
         * `thermal_58` - thermal_58
         * `thermal_80` - thermal_80
         * `sheet` - sheet
+    ProfileEnum:
+      enum:
+      - small
+      - large
+      type: string
+      description: |-
+        * `small` - Small school
+        * `large` - Large school
     Pull:
       type: object
       properties:

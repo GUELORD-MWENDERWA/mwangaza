@@ -107,17 +107,25 @@ def _activate(school: School) -> None:
         when = now - timedelta(days=draw.randint(0, 30), hours=draw.randint(0, 9))
         drawn[phone] = (family, primary, when)
     # Seulement les numéros tirés : pas tous les comptes de la plateforme.
-    taken = set(User.objects.filter(phone__in=drawn).values_list("phone", flat=True))
+    known = {user.phone: user for user in User.objects.filter(phone__in=drawn)}
     password = make_password(None)
-    chosen = []
+    chosen, new, back = [], [], []
     for phone, (family, primary, when) in drawn.items():
-        if phone not in taken:
-            family.primary_user = User(
-                phone=phone, password=password, last_name=primary.full_name[:100]
-            )
-            family.activated_at = when
-            chosen.append(family)
-    User.objects.bulk_create([family.primary_user for family in chosen])
+        user = known.get(phone)
+        if user is None:
+            user = User(phone=phone, password=password, last_name=primary.full_name[:100])
+            new.append(user)
+        elif user.is_active:
+            continue
+        else:
+            # Désactivé par la suppression de l'espace (remise à zéro, 4.17.2) : il resert.
+            user.is_active, user.password = True, password
+            back.append(user)
+        family.primary_user = user
+        family.activated_at = when
+        chosen.append(family)
+    User.objects.bulk_create(new)
+    User.objects.bulk_update(back, ["is_active", "password"], batch_size=500)
     Family.objects.bulk_update(chosen, ["primary_user", "activated_at"], batch_size=500)
 
 

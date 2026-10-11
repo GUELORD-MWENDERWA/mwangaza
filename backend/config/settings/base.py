@@ -132,6 +132,9 @@ DEMO_DATA = False
 # Serveur de démonstration en ligne (4.6.2) : mot de passe des comptes fictifs, propre au serveur ;
 # défini, `make demo` n'active aucune clé commune de double authentification (`accounts/demo.py`).
 DEMO_PASSWORD = ""
+# Espaces de démonstration (4.17.2) : nombre maximal sur la plateforme, ceux de `make demo`
+# compris. Ils partagent la base des vraies écoles ; au plus 60 blocs de numéros.
+DEMO_SPACES_MAX = int(env("DJANGO_DEMO_SPACES_MAX", "5"))
 # Indicatif du pays pour un numéro tapé sous sa forme nationale (0971234567) : RDC.
 PHONE_DEFAULT_COUNTRY_CODE = "243"
 

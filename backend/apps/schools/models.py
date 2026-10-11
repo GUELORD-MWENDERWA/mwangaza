@@ -240,6 +240,47 @@ class School(BaseModel):
         return colors.text_color(self.primary_color) or colors.WHITE
 
 
+class Demonstration(BaseModel):
+    """Espace de démonstration créé depuis la console [G] (4.17.2, `03` § 4 bis) : de quoi le
+    remplir, montrer sa fiche d'accès et le remettre à zéro (`demonstrations.py`). Une ligne par
+    espace, qui part avec lui ; `created_by` : qui l'a créé ou remis à zéro. Les espaces de
+    `make demo` n'en ont pas."""
+
+    class Profile(models.TextChoices):
+        """Données d'exemple à y écrire (`demo.py`) : ≈ 150 ou ≈ 800 élèves."""
+
+        SMALL = "small", _("Small school")
+        LARGE = "large", _("Large school")
+
+    class State(models.TextChoices):
+        FILLING = "filling", _("Being filled")
+        READY = "ready", _("Ready")
+        FAILED = "failed", _("Failed")
+
+    school = models.OneToOneField(
+        School, on_delete=models.CASCADE, related_name="demonstration", verbose_name=_("school")
+    )
+    profile = models.CharField(_("profile"), max_length=10, choices=Profile.choices)
+    # Bloc de numéros réservés de ses comptes (`DemoNumbers.block`), gardé à la remise à zéro.
+    block = models.PositiveSmallIntegerField(_("block of numbers"), unique=True)
+    # Mot de passe commun de ses comptes, chiffré (`core.crypto`) : la fiche d'accès le montre.
+    password = models.TextField(_("password"))
+    state = models.CharField(
+        _("state"), max_length=10, choices=State.choices, default=State.FILLING
+    )
+    steps_done = models.PositiveSmallIntegerField(_("steps done"), default=0)
+    steps_total = models.PositiveSmallIntegerField(_("steps"), default=0)
+    # « Remettre à zéro » : la suppression en cours recrée l'espace au lieu de le laisser partir.
+    reset_requested = models.BooleanField(_("reset requested"), default=False)
+
+    class Meta:
+        verbose_name = _("demonstration space")
+        verbose_name_plural = _("demonstration spaces")
+
+    def __str__(self) -> str:
+        return f"{self.school} ({self.get_profile_display()})"
+
+
 # Organisation scolaire (C1-C3, `docs/04-modele-de-donnees.md` § 2). Changée avec `classes.manage`
 # par `organisation.py`, chaque changement noté dans le journal de l'école.
 

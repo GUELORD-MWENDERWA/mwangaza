@@ -30,6 +30,13 @@ def is_demo_phone(phone: str) -> bool:
     return phone.startswith(DEMO_PHONE_PREFIX)
 
 
+def demo_block(phone: str) -> int | None:
+    """Bloc d'un numéro +243 00 BB… : celui d'un espace de démonstration créé depuis la console
+    (`schools.demo.DemoNumbers.block`). `None` : pas un numéro de ces blocs."""
+    block = phone[6:8] if phone.startswith(f"{DEMO_PHONE_PREFIX}0") else ""
+    return int(block) if block.isdigit() else None
+
+
 INVALID_PHONE_MESSAGE = _("Enter a valid phone number, for example 0971234567 or +243971234567.")
 
 

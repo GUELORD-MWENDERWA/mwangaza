@@ -23,11 +23,12 @@ from apps.audit.actions import Action, PlatformAction
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import use_school
 from apps.schools import alerts, deletion, receipts, tasks
-from apps.schools.models import School
+from apps.schools.models import Demonstration, School
 
 LIVE_SPACE = ApiError("live_space", _("A live space is never deleted: stop it instead."), 409)
-DELETION_RUNNING = ApiError(
-    "deletion_running", _("Another space is being deleted: wait until it is done."), 409
+# Remplir ou effacer un espace est lourd : un seul à la fois, par un refus (pas de file d'attente).
+SPACE_BUSY = ApiError(
+    "space_busy", _("Another space is being created or deleted: wait until it is done."), 409
 )
 SPACE_BEING_DELETED = ApiError(
     "space_being_deleted", _("This space is being deleted: it can no longer be changed."), 409
@@ -85,11 +86,8 @@ def create_school(school: School, *, actor, director: Director) -> tuple[Members
     directeur avec le rôle `head`. Nouveau numéro : mot de passe provisoire renvoyé une seule
     fois, à transmettre au directeur (pas de SMS en V1)."""
     with transaction.atomic():
-        school.created_by = actor
-        school.save()  # rôles système copiés (`accounts/signals.py`)
-        _record_platform(PlatformAction.SCHOOL_CREATED, school, actor=actor)
+        open_space(school, actor=actor)
         with use_school(school):
-            audit.record(Action.SCHOOL_CREATED, school, actor=actor, after=_identity(school))
             return accounts.add_staff_member(
                 actor=actor,
                 phone=director.phone,
@@ -98,6 +96,26 @@ def create_school(school: School, *, actor, director: Director) -> tuple[Members
                 middle_name=director.middle_name,
                 first_name=director.first_name,
             )
+
+
+def open_space(school: School, *, actor) -> School:
+    """Enregistre le nouvel espace `school` et le note dans les deux journaux."""
+    with transaction.atomic():
+        school.created_by = actor
+        school.save()  # rôles système copiés (`accounts/signals.py`)
+        _record_platform(PlatformAction.SCHOOL_CREATED, school, actor=actor)
+        with use_school(school):
+            audit.record(Action.SCHOOL_CREATED, school, actor=actor, after=_identity(school))
+    return school
+
+
+def space_busy(*, but: School | None = None) -> bool:
+    """Un autre espace que `but` se remplit ou s'efface en ce moment."""
+    filling = Demonstration.objects.filter(state=Demonstration.State.FILLING)
+    deleting = School.objects.filter(status=School.Status.DELETING)
+    if but is not None:
+        filling, deleting = filling.exclude(school=but), deleting.exclude(pk=but.pk)
+    return filling.exists() or deleting.exists()
 
 
 def save_school(school: School, *, actor) -> School:
@@ -240,8 +258,8 @@ def delete_space(school: School, *, actor, confirm: str) -> None:
     with transaction.atomic():
         school = School.objects.select_for_update().get(pk=school.pk)
         if school.status != deleting:
-            if School.objects.filter(status=deleting).exists():
-                raise BusinessError(DELETION_RUNNING)
+            if space_busy(but=school):
+                raise BusinessError(SPACE_BUSY)
             before = _platform_fields(school)
             deactivated = deletion.deactivate_accounts_left_without_school(school)
             school.status = deleting

@@ -1,0 +1,45 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% blocktranslate with name=school.name %}Access sheet — {{ name }}{% endblocktranslate %}{% endblock %}
+{% block style %}
+h1 { margin-top: .4em; }
+h2 { font-size: 1.15em; margin: 1.3em 0 .2em; }
+.notice { border: 2px solid #111; border-radius: 8px; padding: .5em .9em; margin-top: .9em; text-align: center; font-weight: 700; }
+.box { border: 2px dashed #111; border-radius: 6px; padding: .4em .9em; margin-top: .5em; }
+.box b, td.key { font-family: "DejaVu Sans Mono", monospace; font-size: 1.15em; white-space: nowrap; }
+.box b { font-size: 1.5em; letter-spacing: .04em; }
+.links b { word-break: break-all; }
+{% endblock %}
+{% block content %}
+<p class="small muted center">{{ platform.name }}</p>
+<h1>{% translate "Demonstration access sheet" %}</h1>
+<p class="center"><b>{{ school.name }}</b></p>
+<p class="notice">{% translate "Demonstration space: every name, number and amount is fictitious." %}</p>
+
+<h2>{% translate "1. Open the application" %}</h2>
+<p class="links">{% translate "School staff:" %} <b>{{ gestion_url }}</b><br>
+{% translate "Parents' portal:" %} <b>{{ portal_url }}</b></p>
+
+<h2>{% translate "2. Sign in with one of these accounts" %}</h2>
+<div class="box">{% translate "Password of every account:" %} <b>{{ password }}</b></div>
+<table>
+  <thead><tr><th>{% translate "Role" %}</th><th>{% translate "Name" %}</th><th>{% translate "Number to type" %}</th></tr></thead>
+  <tbody>
+  {% for account in accounts %}<tr><td>{{ account.role }}</td><td>{{ account.name }}</td><td class="key">{{ account.phone }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p class="small muted">{% translate "No verification code is asked in a demonstration space. These accounts are shared: their password cannot be changed." %}</p>
+
+{% if parents %}
+<h2>{% translate "3. Parents' portal" %}</h2>
+<table>
+  <thead><tr><th>{% translate "Parent" %}</th><th>{% translate "Number to type" %}</th><th>{% translate "To sign in" %}</th></tr></thead>
+  <tbody>
+  {% for parent in parents %}<tr><td>{{ parent.name }}</td><td class="key">{{ parent.phone }}</td>
+    <td>{% if parent.code %}{% translate "« Activate my account », family code:" %} <span class="key">{{ parent.code }}</span>{% else %}{% translate "Account already activated: same password as above." %}{% endif %}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+<p class="small muted">{% blocktranslate with date=printed_at|date:"d/m/Y H:i" %}Sheet of {{ date }}. A reset of the space gives a new password: ask for the new sheet.{% endblocktranslate %}</p>
+{% endblock %}

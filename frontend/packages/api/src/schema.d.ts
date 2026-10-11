@@ -1131,6 +1131,26 @@ export interface paths {
         patch: operations["console_schools_partial_update"];
         trace?: never;
     };
+    "/api/console/schools/{id}/access-sheet/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Fiche d'accès d'un espace de démonstration prêt (A6), à remettre à un visiteur :
+         *     adresses, mot de passe, un compte par rôle, parents du portail avec leur code famille.
+         */
+        get: operations["console_schools_access_sheet_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/schools/{id}/delete/": {
         parameters: {
             query?: never;
@@ -1172,6 +1192,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/schools/{id}/reset/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description « Remettre à zéro » un espace de démonstration créé depuis la console : supprimé puis
+         *     recréé (même adresse, mêmes numéros, nouveau mot de passe), en tâche de fond. `confirm` :
+         *     le code de l'espace.
+         */
+        post: operations["console_schools_reset_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/schools/{id}/stop/": {
         parameters: {
             query?: never;
@@ -1200,6 +1241,27 @@ export interface paths {
         put?: never;
         /** @description Plus personne ne se connecte à l'école ; rien n'est supprimé. */
         post: operations["console_schools_suspend_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/schools/demo/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Nouvel espace de démonstration (A6) : ouvert tout de suite, rempli de données fictives
+         *     en tâche de fond (`demonstration` de la fiche : avancement). Refusé si la plateforme en a
+         *     déjà son maximum, ou pendant qu'un autre espace se crée ou s'efface.
+         */
+        post: operations["console_schools_demo_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4214,6 +4276,12 @@ export interface components {
             trial_ending: number;
         };
         /**
+         * @description * `live` - live
+         *     * `test` - test
+         * @enum {string}
+         */
+        ConsoleSchoolCreateEnvironmentEnum: "live" | "test";
+        /**
          * @description Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
          *     marcher), ses noms et son abonnement ; couleur, fuseau, devises et logo sont réglés par
          *     l'école (M5). Suspendre, arrêter et réactiver passent par leurs actions ; le type d'espace
@@ -4225,14 +4293,13 @@ export interface components {
             name: string;
             official_name?: string;
             /**
-             * @description Réel, essai ou démonstration : jamais changé ensuite.
+             * @description Réel ou essai, jamais changé ensuite. Démonstration : `schools/demo/`.
              *
-             *     * `live` - Live
-             *     * `test` - Sandbox
-             *     * `demo` - Demonstration
+             *     * `live` - live
+             *     * `test` - test
              * @default live
              */
-            environment: components["schemas"]["SchoolEnvironmentEnum"];
+            environment: components["schemas"]["ConsoleSchoolCreateEnvironmentEnum"];
             /**
              * @description Essai gratuit ou active ; « suspendue » et « arrêtée » par leurs actions.
              *
@@ -4319,6 +4386,8 @@ export interface components {
             readonly created_at: string;
             /** @description Les derniers changements faits dans la console, du plus récent au plus ancien. */
             readonly history: components["schemas"]["PlatformChange"][];
+            /** @description Vide : pas un espace de démonstration créé depuis la console. */
+            readonly demonstration: components["schemas"]["Demonstration"] | null;
         };
         ConsoleSchoolRef: {
             /** Format: uuid */
@@ -4632,6 +4701,30 @@ export interface components {
             class_group: string;
             cash_register: string;
         };
+        /** @description Espace de démonstration créé depuis la console (4.17.2) : où en est son remplissage. */
+        Demonstration: {
+            profile: components["schemas"]["ProfileEnum"];
+            /** @description `resetting` : remise à zéro demandée, l'espace s'efface puis se remplit. */
+            readonly state: components["schemas"]["DemonstrationStateEnum"];
+            steps_done: number;
+            /** Steps */
+            steps_total: number;
+        };
+        /** @description Nouvel espace de démonstration : son adresse, son nom et la taille de l'école fictive. */
+        DemonstrationCreateRequest: {
+            /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
+            code: string;
+            name: string;
+            /**
+             * @description Petite école (≈ 150 élèves) ou grande école (≈ 800).
+             *
+             *     * `small` - Small school
+             *     * `large` - Large school
+             */
+            profile: components["schemas"]["ProfileEnum"];
+        };
+        /** @enum {string} */
+        DemonstrationStateEnum: "filling" | "ready" | "failed" | "resetting";
         /** @description Un appareil du compte dans l'école (« Appareils connectés » de Mon compte). */
         Device: {
             /** Format: uuid */
@@ -6464,6 +6557,12 @@ export interface components {
          * @enum {string}
          */
         PrinterEnum: "thermal_58" | "thermal_80" | "sheet";
+        /**
+         * @description * `small` - Small school
+         *     * `large` - Large school
+         * @enum {string}
+         */
+        ProfileEnum: "small" | "large";
         Pull: {
             changes: components["schemas"]["Change"][];
             /** @description `since` de la prochaine demande. */
@@ -11203,6 +11302,70 @@ export interface operations {
             };
         };
     };
+    console_schools_access_sheet_retrieve: {
+        parameters: {
+            query: {
+                /**
+                 * @description PDF, ou son aperçu HTML.
+                 *
+                 *     * `pdf` - pdf
+                 *     * `html` - html
+                 */
+                output: "pdf" | "html";
+            };
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this school. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document PDF (`output=pdf`). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                    "text/html": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     console_schools_delete_create: {
         parameters: {
             query?: never;
@@ -11308,6 +11471,66 @@ export interface operations {
             };
         };
     };
+    console_schools_reset_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this school. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SchoolDeleteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SchoolDeleteRequest"];
+                "multipart/form-data": components["schemas"]["SchoolDeleteRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSchoolDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     console_schools_stop_create: {
         parameters: {
             query?: never;
@@ -11397,6 +11620,63 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_schools_demo_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DemonstrationCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["DemonstrationCreateRequest"];
+                "multipart/form-data": components["schemas"]["DemonstrationCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSchoolDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
