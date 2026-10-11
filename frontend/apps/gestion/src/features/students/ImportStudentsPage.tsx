@@ -3,7 +3,7 @@
 // un rechargement retrouve l'étape. Le serveur vérifie chaque ligne ; les lignes en erreur ne sont
 // pas importées, celles en avertissement le sont (à vérifier ensuite). Un import fini se retrouve
 // sous l'étape « Fichier » et s'annule (`ImportCancellation`).
-import { useTranslation } from "@mwangaza/i18n";
+import { formatDate, useTranslation } from "@mwangaza/i18n";
 import {
   Banner,
   Button,
@@ -30,6 +30,7 @@ import { Link, useNavigate, useParams } from "react-router";
 
 import { errorMessage } from "../../lib/errors";
 import { keys } from "../../lib/queries";
+import { useCurrentSchool } from "../../lib/school";
 import { useClasses, useYears } from "../organisation/data";
 import { Pagination } from "../shell/Pagination";
 import { LoadError } from "../status/StatusPages";
@@ -505,7 +506,8 @@ type IssueCode =
 
 /** Étape 4 : import en tâche de fond, suivi jusqu'au bout. */
 function ImportStep({ imp }: { imp: StudentImport }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const school = useCurrentSchool();
   const number = useNumber();
   const queryClient = useQueryClient();
   const [cancelling, setCancelling] = useState(false);
@@ -545,11 +547,20 @@ function ImportStep({ imp }: { imp: StudentImport }) {
       </CardContent>
       {imp.status !== "importing" && (
         <CardFooter className="flex-wrap justify-end gap-2.5">
-          {imp.status === "done" && imp.created_count > 0 && (
-            <Button variant="outline" className="mr-auto" onClick={() => setCancelling(true)}>
-              {t("students.import.cancel.action")}
-            </Button>
-          )}
+          {imp.status === "done" &&
+            imp.created_count > 0 &&
+            imp.cancellable_until &&
+            (new Date(imp.cancellable_until) > new Date() ? (
+              <Button variant="outline" className="mr-auto" onClick={() => setCancelling(true)}>
+                {t("students.import.cancel.action")}
+              </Button>
+            ) : (
+              <span className="mr-auto text-sm text-ink-3">
+                {t("students.import.cancel.tooLate", {
+                  date: formatDate(imp.cancellable_until, i18n.language, school.timezone),
+                })}
+              </span>
+            ))}
           {imp.status === "done" && imp.counts.error > 0 && (
             <Button asChild variant="outline">
               <a href={importReportUrl(imp.id)} download>

@@ -5,7 +5,7 @@ compte parent), paiements intacts, journal, appareils prévenus."""
 
 import io
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 import openpyxl
@@ -361,6 +361,17 @@ def test_cancelling_an_import_removes_untouched_students_and_never_touches_money
     assert response.status_code == 400 and "reason" in response.json()["fields"]
     with use_school(school):
         assert Student.objects.count() == 7
+
+    # Passé 30 jours, plus d'annulation.
+    with use_school(school):
+        late = timezone.now() - timedelta(days=31)
+        StudentImport.objects.filter(pk=imp.pk).update(finished_at=late)
+    assert client.get(path).json()["cancellable_until"] < timezone.now().isoformat()
+    response = client.post(f"{path}cancel/", {"reason": "Trop tard"})
+    assert response.status_code == 409 and response.json()["code"] == "import_too_old"
+    with use_school(school):
+        assert Student.objects.count() == 7
+        StudentImport.objects.filter(pk=imp.pk).update(finished_at=timezone.now())
 
     response = client.post(f"{path}cancel/", {"reason": "Fichier importé dans la mauvaise classe"})
     assert response.status_code == 200, response.json()
