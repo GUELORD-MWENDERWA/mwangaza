@@ -1,4 +1,4 @@
-import { type Browser, expect, type Page, test } from "@playwright/test";
+import { type Browser, type BrowserContext, expect, type Page, test } from "@playwright/test";
 
 import { allowCodeAgain, manage, shell } from "./django";
 import {
@@ -30,10 +30,16 @@ const today = new Date();
 const startYear = today.getMonth() >= 8 ? today.getFullYear() : today.getFullYear() - 1;
 const YEAR = `${startYear}-${startYear + 1}`;
 
+// Appareils ouverts par le parcours, fermés à la fin : sinon ils restent ouverts (et la caisse
+// continue de se synchroniser) pendant les parcours suivants.
+const devices: BrowserContext[] = [];
+
 /** Une personne sur son propre appareil. Pas de fenêtre d'impression : on garde ce qui serait
  *  imprimé. Stockage persistant accordé (Chromium sans écran le refuse : caisse bloquée, M8). */
 async function person(browser: Browser): Promise<Page> {
-  const page = await (await browser.newContext()).newPage();
+  const context = await browser.newContext();
+  devices.push(context);
+  const page = await context.newPage();
   await page.addInitScript(() => {
     window.print = () => {
       document.body.dataset.printed = document.querySelector(".print-area")?.textContent ?? "";
@@ -260,6 +266,7 @@ test("école neuve de bout en bout : espace créé dans la console, mise en rout
       .click();
     await expect(parent.getByText(receipt)).toBeVisible();
   } finally {
+    await Promise.all(devices.map((device) => device.close()));
     deleteSpace();
   }
 });
