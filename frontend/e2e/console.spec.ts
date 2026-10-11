@@ -9,7 +9,7 @@ const ADMIN = "0000000000";
 test("super-admin : console de la plateforme, mot de passe puis code, tableau de bord", async ({
   page,
 }) => {
-  allowCodeAgain(ADMIN);
+  allowCodeAgain("+243000000000");
   await page.goto(CONSOLE);
   await expect(page).toHaveURL(/\/login$/);
 
@@ -29,5 +29,5 @@ test("super-admin : console de la plateforme, mot de passe puis code, tableau de
   await page.getByRole("tab", { name: "Démonstration" }).click();
   await expect(page.getByText("ITIG Don Bosco Goma (démo)")).toBeVisible();
   // Le parcours suivant du super-admin peut reprendre le même code.
-  allowCodeAgain(ADMIN);
+  allowCodeAgain("+243000000000");
 });

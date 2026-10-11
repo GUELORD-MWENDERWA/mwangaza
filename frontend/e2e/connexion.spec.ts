@@ -1,7 +1,16 @@
 import { expect, test } from "@playwright/test";
 
-import { allowCodeAgain, shell, totp } from "./django";
-import { enterCode, enterPassword, ITIG, mainMenu, PASSWORD, skipGuide, VOLCANS } from "./helpers";
+import { allowCodeAgain, shell } from "./django";
+import {
+  activateTwoFactor,
+  enterCode,
+  enterPassword,
+  ITIG,
+  mainMenu,
+  PASSWORD,
+  skipGuide,
+  VOLCANS,
+} from "./helpers";
 
 test("directeur : mot de passe puis code, menu complet, Mon compte, menu tiroir", async ({
   page,
@@ -92,15 +101,7 @@ with use_school(school):
   await page.goto("http://essaie2e.localhost:5173/app/");
   await enterPassword(page, "0100001007");
 
-  await expect(page.getByText("Étape obligatoire")).toBeVisible();
-  const key = (await page.getByText(/^([A-Z2-7]{4} ?)+$/).innerText()).replace(/\s/g, "");
-  await page.getByLabel("Code à 6 chiffres").fill(await totp(key));
-  await page.getByRole("button", { name: "Vérifier et activer" }).click();
-
-  const finish = page.getByRole("button", { name: "Terminer" });
-  await expect(finish).toBeDisabled();
-  await page.getByText("J'ai imprimé ou recopié mes 8 codes de secours").click();
-  await finish.click();
+  await activateTwoFactor(page);
 
   await expect(page.getByRole("heading", { name: /^Bonjour/ })).toBeVisible();
   await expect(mainMenu(page).getByRole("link", { name: "Journal d'audit" })).toBeVisible();

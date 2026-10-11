@@ -1,7 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
 // Parcours réels dans Chromium : Django (données de `make demo`, remises à zéro au début), la
-// Gestion (Vite), aux adresses des écoles ({code}.localhost), et la console (admin.localhost).
+// Gestion (Vite), aux adresses des écoles ({code}.localhost), le portail des parents (localhost)
+// et la console (admin.localhost).
 // `make test-e2e` ; en CI, un job à part. Sur la machine, des serveurs déjà lancés
 // (`make dev-local`) sont réutilisés.
 const backend = new URL("../backend", import.meta.url).pathname;
@@ -41,6 +42,15 @@ export default defineConfig({
       cwd: new URL("apps/gestion", import.meta.url).pathname,
       env: { VITE_API_TARGET: "http://127.0.0.1:8000" },
       url: "http://127.0.0.1:5173/app/",
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+    {
+      // Portail des parents (parcours « école neuve » : le parent voit son reçu).
+      command: "./node_modules/.bin/vite --port 5174 --host 127.0.0.1",
+      cwd: new URL("apps/portail", import.meta.url).pathname,
+      env: { VITE_API_TARGET: "http://127.0.0.1:8000" },
+      url: "http://127.0.0.1:5174/",
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
     },
