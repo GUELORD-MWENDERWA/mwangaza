@@ -1,6 +1,7 @@
 // Fiche d'une école dans la console (5.3) : noms, adresse et abonnement ; suspendre (après
-// confirmation) ou réactiver ; derniers changements (journal de la plateforme). Couleur, fuseau,
-// devises et logo sont réglés par l'école elle-même (M5).
+// confirmation) ou réactiver ; arrêter avec un motif, relancer (4.15) ; type d'espace, fixé à la
+// création ; derniers changements (journal de la plateforme). Couleur, fuseau, devises et logo
+// sont réglés par l'école elle-même (M5).
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api, call, type Schemas } from "@mwangaza/api";
 import {
@@ -19,6 +20,8 @@ import {
   CardHeader,
   CardTitle,
   ConfirmDialog,
+  Field,
+  Input,
   PageHeader,
   Skeleton,
 } from "@mwangaza/ui";
@@ -36,6 +39,7 @@ import {
   SchoolValues,
   SubscriptionFields,
   SubscriptionPill,
+  isClosed,
   schoolBody,
   useSchoolSchema,
 } from "./schoolForm";
@@ -48,7 +52,7 @@ const valuesOf = (school: Detail): SchoolValues => ({
   name: school.name,
   official_name: school.official_name,
   code: school.code,
-  // Suspendue : le champ est grisé, la valeur n'est pas envoyée.
+  // Suspendue ou arrêtée : le champ est grisé, la valeur n'est pas envoyée.
   status: school.status === "active" ? "active" : "trial",
   plan: school.plan,
   trial_ends_on: school.trial_ends_on ?? "",
@@ -81,7 +85,11 @@ function SchoolForm({ school }: { school: Detail }) {
   const queryClient = useQueryClient();
   const [general, setGeneral] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
-  const suspended = school.status === "suspended";
+  const [stopping, setStopping] = useState(false);
+  const [reason, setReason] = useState("");
+  const [reasonMissing, setReasonMissing] = useState(false);
+  const closed = isClosed(school);
+  const stopped = school.status === "stopped";
   const form = useForm<SchoolValues>({
     resolver: zodResolver(useSchoolSchema()),
     defaultValues: valuesOf(school),
@@ -103,7 +111,7 @@ function SchoolForm({ school }: { school: Detail }) {
       return call(
         api.PATCH("/api/console/schools/{id}/", {
           ...path,
-          body: suspended ? body : { ...body, status },
+          body: closed ? body : { ...body, status },
         }),
       );
     },
@@ -113,7 +121,7 @@ function SchoolForm({ school }: { school: Detail }) {
   const toggle = useMutation({
     mutationFn: () =>
       call(
-        suspended
+        closed
           ? api.POST("/api/console/schools/{id}/reactivate/", path)
           : api.POST("/api/console/schools/{id}/suspend/", path),
       ),
@@ -126,6 +134,18 @@ function SchoolForm({ school }: { school: Detail }) {
       setGeneral(errorMessage(error, t));
     },
   });
+  const stop = useMutation({
+    mutationFn: () =>
+      call(
+        api.POST("/api/console/schools/{id}/stop/", { ...path, body: { reason: reason.trim() } }),
+      ),
+    onSuccess: saved,
+    onError: (error) => setGeneral(errorMessage(error, t)),
+    onSettled: () => {
+      setStopping(false);
+      setReason("");
+    },
+  });
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return (
@@ -136,19 +156,28 @@ function SchoolForm({ school }: { school: Detail }) {
         actions={
           <div className="flex flex-wrap gap-2">
             <SupportLink school={school} />
-            {suspended ? (
+            {closed ? (
               <Button variant="outline" size="sm" onClick={() => toggle.mutate()}>
-                {t("console.schools.reactivate")}
+                {t(stopped ? "console.schools.restart" : "console.schools.reactivate")}
               </Button>
             ) : (
               <Button variant="destructive" size="sm" onClick={() => setConfirm(true)}>
                 {t("console.schools.suspend")}
               </Button>
             )}
+            {!stopped && (
+              <Button variant="destructive-outline" size="sm" onClick={() => setStopping(true)}>
+                {t("console.schools.stop")}
+              </Button>
+            )}
           </div>
         }
       />
-      {suspended && <Banner tone="due">{t("console.schools.suspendedBanner")}</Banner>}
+      {closed && (
+        <Banner tone="due">
+          {t(stopped ? "console.schools.stoppedBanner" : "console.schools.suspendedBanner")}
+        </Banner>
+      )}
       {general && <Banner tone="due">{general}</Banner>}
       {save.isSuccess && !form.formState.isDirty && (
         <Banner tone="ok" role="status">
@@ -178,7 +207,18 @@ function SchoolForm({ school }: { school: Detail }) {
               <CardTitle>{t("console.schools.subscriptionTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 min-[820px]:grid-cols-2">
-              <SubscriptionFields form={form} suspended={suspended} />
+              <SubscriptionFields
+                form={form}
+                lockedHelp={
+                  closed
+                    ? t(
+                        stopped
+                          ? "console.schools.fields.statusStopped"
+                          : "console.schools.fields.statusSuspended",
+                      )
+                    : undefined
+                }
+              />
             </CardContent>
             <CardFooter>
               <Button type="submit" disabled={save.isPending}>
@@ -193,6 +233,8 @@ function SchoolForm({ school }: { school: Detail }) {
               <CardTitle>{t("console.schools.summaryTitle")}</CardTitle>
             </CardHeader>
             <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 px-4 pt-3 pb-4 text-[.9rem] [&_dt]:text-ink-3">
+              <dt>{t("console.schools.kindLabel")}</dt>
+              <dd>{t(`console.schools.kind.${school.environment}`)}</dd>
               <dt>{t("console.schools.subscription")}</dt>
               <dd>
                 <SubscriptionPill school={school} />
@@ -214,18 +256,26 @@ function SchoolForm({ school }: { school: Detail }) {
           <History
             changes={school.history}
             details={(change) =>
-              change.action === "school.updated" && (
-                <Differences
-                  change={change}
-                  label={(field) =>
-                    SHOWN.has(field)
-                      ? t(`console.schools.fields.${field as (typeof SCHOOL_FIELDS)[number]}`)
-                      : null
-                  }
-                  shown={(field, value) =>
-                    field === "status" ? t(`console.schools.status.${value as "trial"}`) : value
-                  }
-                />
+              change.action === "school.stopped" ? (
+                <span className="text-[.85rem] break-words">
+                  {t("console.schools.stopReasonShown", {
+                    reason: String((change.after as { reason?: unknown } | null)?.reason ?? ""),
+                  })}
+                </span>
+              ) : (
+                change.action === "school.updated" && (
+                  <Differences
+                    change={change}
+                    label={(field) =>
+                      SHOWN.has(field)
+                        ? t(`console.schools.fields.${field as (typeof SCHOOL_FIELDS)[number]}`)
+                        : null
+                    }
+                    shown={(field, value) =>
+                      field === "status" ? t(`console.schools.status.${value as "trial"}`) : value
+                    }
+                  />
+                )
               )
             }
           />
@@ -242,6 +292,38 @@ function SchoolForm({ school }: { school: Detail }) {
         destructive
       >
         {t("console.schools.suspendText")}
+      </ConfirmDialog>
+      <ConfirmDialog
+        open={stopping}
+        onOpenChange={setStopping}
+        title={t("console.schools.stopTitle", { name: school.name })}
+        confirmLabel={t("console.schools.stop")}
+        cancelLabel={t("common.cancel")}
+        onConfirm={() => (reason.trim() ? stop.mutate() : setReasonMissing(true))}
+        pending={stop.isPending}
+        destructive
+      >
+        <div className="flex flex-col gap-4">
+          <p>{t("console.schools.stopText")}</p>
+          <Field
+            id="stop-reason"
+            label={t("console.schools.stopReason")}
+            help={t("console.schools.stopReasonHelp")}
+            error={reasonMissing ? t("console.schools.stopReasonRequired") : undefined}
+          >
+            {(control) => (
+              <Input
+                {...control}
+                maxLength={200}
+                value={reason}
+                onChange={(event) => {
+                  setReason(event.target.value);
+                  setReasonMissing(false);
+                }}
+              />
+            )}
+          </Field>
+        </div>
       </ConfirmDialog>
     </>
   );

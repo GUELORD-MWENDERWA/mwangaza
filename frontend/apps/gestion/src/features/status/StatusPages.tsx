@@ -104,6 +104,18 @@ export function LoadError({ error, onRetry }: { error: unknown; onRetry: () => v
   return <ErrorState status={status} onRetry={onRetry} />;
 }
 
+/** 4.15 : espace arrêté (l'école a quitté la plateforme, essai fini) ; le serveur refuse tout à
+ *  son adresse, comme pour une école suspendue. */
+export function Stopped() {
+  const { t } = useTranslation();
+  return (
+    <StateCard icon="shield" tone="gray" title={t("status.stopped.title")}>
+      {t("status.stopped.text")}
+      <SupportContact />
+    </StateCard>
+  );
+}
+
 /** A1 : aucune donnée de l'école ; le serveur refuse tout à son adresse (même la déconnexion). */
 export function Suspended() {
   const { t } = useTranslation();

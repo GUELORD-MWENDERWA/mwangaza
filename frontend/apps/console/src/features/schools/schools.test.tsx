@@ -19,6 +19,7 @@ const GAMMA = {
   name: "Institut Gamma",
   official_name: "",
   url: "http://gamma.localhost:5173",
+  environment: "live",
   status: "active",
   plan: "Standard",
   trial_ends_on: null,
@@ -53,7 +54,7 @@ describe("Écoles de la console", () => {
               temporary_password: "kivu-lac-42",
             },
     });
-    const { user } = renderApp("/schools/new");
+    const { user } = renderApp("/schools/new?type=test");
 
     const [name, headName] = await screen.findAllByLabelText("Nom");
     await user.type(name!, "Institut Gamma");
@@ -66,6 +67,8 @@ describe("Écoles de la console", () => {
     expect(await screen.findByText("Ce code est réservé par la plateforme.")).toBeTruthy();
     expect(requests.find((r) => r.method === "POST")?.body).toMatchObject({
       code: "admin",
+      // Type de l'onglet d'où l'on vient (`?type=test`).
+      environment: "test",
       status: "trial",
       paid_until: null,
       enabled_currencies: ["USD", "CDF"],
@@ -114,5 +117,48 @@ describe("Écoles de la console", () => {
     expect(screen.getByRole("button", { name: "Réactiver" })).toBeTruthy();
     // Plus de session support dans une école suspendue.
     expect(screen.queryByRole("link", { name: "Ouvrir en tant qu'école" })).toBeNull();
+  });
+
+  it("range les espaces par type et n'en arrête un qu'avec un motif", async () => {
+    const requests = mockApi({
+      "GET /api/me/": ADMIN,
+      "GET /api/console/dashboard/": apiError("not_found", 404),
+      "GET /api/console/schools/": () => ({
+        count: 1,
+        next: null,
+        previous: null,
+        results: requests.at(-1)?.search.includes("environment=test")
+          ? [{ ...GAMMA, id: "s2", name: "Essai Kivu", environment: "test" }]
+          : [GAMMA],
+      }),
+      "GET /api/console/schools/s1/": GAMMA,
+      "POST /api/console/schools/s1/stop/": { ...GAMMA, status: "stopped" },
+    });
+    const { user } = renderApp("/schools");
+
+    expect(await screen.findByRole("link", { name: "Institut Gamma" })).toBeTruthy();
+    await user.click(screen.getByRole("tab", { name: "Essai" }));
+    expect(await screen.findByRole("link", { name: "Essai Kivu" })).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "Institut Gamma" })).toBeNull();
+
+    await user.click(screen.getByRole("tab", { name: "Réels" }));
+    await user.click(await screen.findByRole("link", { name: "Gérer" }));
+    await user.click(await screen.findByRole("button", { name: "Arrêter" }));
+    // Sans motif : rien n'est envoyé.
+    await user.click(await screen.findByRole("button", { name: "Arrêter" }));
+    expect(await screen.findByText("Indiquez le motif.")).toBeTruthy();
+    expect(requests.some((r) => r.method === "POST")).toBe(false);
+
+    await user.type(screen.getByLabelText("Motif"), "A quitté la plateforme");
+    await user.click(screen.getByRole("button", { name: "Arrêter" }));
+
+    expect(await screen.findByText(/Espace arrêté : personne ne peut s'y connecter/)).toBeTruthy();
+    expect(requests.find((r) => r.method === "POST")?.body).toEqual({
+      reason: "A quitté la plateforme",
+    });
+    // Arrêté : ni session support, ni « Arrêter » ; « Relancer » rattrape une erreur.
+    expect(screen.getByRole("button", { name: "Relancer" })).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "Ouvrir en tant qu'école" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Arrêter" })).toBeNull();
   });
 });

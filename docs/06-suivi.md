@@ -8,9 +8,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | 4.15 (Type d'espace et arrêt, serveur et console) — démarrée le 2026-10-11 |
+| Tâche en cours | aucune — 4.15 terminée : PR à relire et fusionner |
 | Prochaine tâche | 4.16 (Supprimer un espace d'essai ou de démonstration) |
-| Issue GitHub | #158 pour 4.15 (bloc : #155 à #165, créées le 2026-10-10) |
+| Issue GitHub | #159 pour 4.16 (bloc : #155 à #165, créées le 2026-10-10) |
 | Branche | `tache/4.15-type-espace` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
@@ -23,8 +23,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.21, 4.7.1) | 3 | 11 |
-| **V1.0** | **53** | **63** |
+| Lancement — version finie (4.12 à 4.21, 4.7.1) | 4 | 11 |
+| **V1.0** | **54** | **63** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -56,6 +56,12 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-11 — Tâche 4.15 : Type d'espace et arrêt (serveur et console)
+- Fait : `School.environment` (réel, essai, démonstration), choisi à la création et jamais changé ; état « arrêté » (plus d'accès à l'adresse, aux droits, au portail ni à la session support ; données gardées) ; console : onglets Réels · Essai · Démonstration, type à la création, « Arrêter » avec motif (journal de la plateforme), « Relancer » ; tableau de bord : espaces réels seulement ; Gestion : page « Cet espace est arrêté » ; maquette `console/ecoles` mise à jour.
+- Tests : `stop` réservé au super-admin ; arrêt = accès coupé et données gardées, motif obligatoire, deux journaux ; type jamais changé (API et service) ; tableau de bord sans le paiement ni l'élève d'un espace de démonstration ; états « suspendue » et « arrêtée » testés ensemble (adresse, droits, portail). Vitest : onglets, arrêt avec motif. Capture à 390 px.
+- Décisions : arrêt réversible ; pas de colonnes `stopped_at` / `stopped_reason` (le journal de la plateforme les garde) ; l'état `trial` s'affiche « Essai gratuit » ; écoles existantes = espaces réels ; un espace de démonstration créé ici est vide jusqu'à la 4.17.
+- Suite : 4.16 (supprimer un espace d'essai ou de démonstration). À la 4.17, `itig` et `volcans` deviennent des démonstrations : le parcours Playwright de la console, qui attend l'ITIG sur le tableau de bord, sera à adapter.
 
 ### 2026-10-11 — Tâche 4.14 : Annuler un import
 - Fait : chaque élève garde le lien vers son import (`Student.student_import`) ; « Imports précédents » sous l'étape « Fichier », puis « Annuler cet import » (nombres, élèves gardés nommés, motif obligatoire). L'annulation efface élèves, inscriptions, frais dus jamais payés et familles restées sans élève ; les appareils les retirent à la synchronisation ; les numéros de matricule sont repris ; le même fichier se ré-importe. Maquette `gestion/eleves-import-annulation` dessinée.

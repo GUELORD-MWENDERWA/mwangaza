@@ -1,4 +1,5 @@
-// Écoles de la plateforme (5.3, maquette `console/ecoles`) : chiffres du tableau de bord,
+// Écoles de la plateforme (5.3, 4.15, maquette `console/ecoles`) : un onglet par type d'espace
+// (réels, essai, démonstration), chiffres du tableau de bord (espaces réels seulement),
 // recherche, filtre par état, liste paginée par le serveur (élèves, abonnement, dernière
 // activité), « Ouvrir en tant qu'école » (session support à l'adresse de l'école, A3).
 import { api, call } from "@mwangaza/api";
@@ -10,9 +11,13 @@ import {
   Input,
   Kpi,
   PageHeader,
-  Segmented,
+  Select,
   Skeleton,
   Table,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
   buttonVariants,
 } from "@mwangaza/ui";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
@@ -20,16 +25,16 @@ import { useDeferredValue, useState } from "react";
 import { Link } from "react-router";
 
 import { keys } from "../../lib/queries";
-import { type School, type SchoolStatus, SubscriptionPill } from "./schoolForm";
+import { KINDS, type School, type SchoolKind, SubscriptionPill, isClosed } from "./schoolForm";
 
-const FILTERS = ["all", "active", "trial", "suspended"] as const;
+const FILTERS = ["all", "active", "trial", "suspended", "stopped"] as const;
 type Filter = (typeof FILTERS)[number];
 
 /** Session support : connexion à l'adresse de l'école, puis motif (jamais dans une école
- *  suspendue : le serveur la refuse). */
+ *  suspendue ou arrêtée : le serveur la refuse). */
 export function SupportLink({ school, className }: { school: School; className?: string }) {
   const { t } = useTranslation();
-  if (school.status === "suspended") return null;
+  if (isClosed(school)) return null;
   return (
     <a
       href={`${school.url}/app/support`}
@@ -44,19 +49,21 @@ export function SupportLink({ school, className }: { school: School; className?:
 
 export function SchoolsPage() {
   const { t, i18n } = useTranslation();
+  const [kind, setKind] = useState<SchoolKind>("live");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [page, setPage] = useState(1);
   const query = useDeferredValue(search.trim());
   const schools = useQuery({
-    queryKey: [...keys.schools, { query, filter, page }],
+    queryKey: [...keys.schools, { kind, query, filter, page }],
     queryFn: () =>
       call(
         api.GET("/api/console/schools/", {
           params: {
             query: {
+              environment: kind,
               search: query || undefined,
-              status: filter === "all" ? undefined : (filter as SchoolStatus),
+              status: filter === "all" ? undefined : filter,
               page,
             },
           },
@@ -71,18 +78,9 @@ export function SchoolsPage() {
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const counts = dashboard.data?.schools;
 
-  return (
+  const list = (
     <>
-      <PageHeader
-        title={t("console.schools.title")}
-        subtitle={t("console.schools.subtitle")}
-        actions={
-          <Link to="/schools/new" className={buttonVariants({ size: "lg" })}>
-            {t("console.schools.new")}
-          </Link>
-        }
-      />
-      {dashboard.data && counts && (
+      {kind === "live" && dashboard.data && counts && (
         <div className="grid grid-cols-2 gap-3.5 min-[820px]:grid-cols-4">
           <Kpi
             label={t("console.dashboard.activeSchools")}
@@ -113,18 +111,21 @@ export function SchoolsPage() {
           }}
           className="max-w-xs"
         />
-        <Segmented
-          label={t("console.schools.filter")}
+        <Select
+          aria-label={t("console.schools.filter")}
           value={filter}
-          onValueChange={(value) => {
-            setFilter(value);
+          onChange={(event) => {
+            setFilter(event.target.value as Filter);
             setPage(1);
           }}
-          options={FILTERS.map((value) => ({
-            value,
-            label: t(`console.schools.filters.${value}`),
-          }))}
-        />
+          className="w-auto"
+        >
+          {FILTERS.map((value) => (
+            <option key={value} value={value}>
+              {t(`console.schools.filters.${value}`)}
+            </option>
+          ))}
+        </Select>
       </div>
       {schools.isPending ? (
         <Skeleton label={t("common.loading")} />
@@ -215,6 +216,36 @@ export function SchoolsPage() {
           )}
         </Card>
       )}
+    </>
+  );
+
+  return (
+    <>
+      <PageHeader
+        title={t("console.schools.title")}
+        subtitle={t("console.schools.subtitle")}
+        actions={
+          <Link to={`/schools/new?type=${kind}`} className={buttonVariants({ size: "lg" })}>
+            {t("console.schools.new")}
+          </Link>
+        }
+      />
+      <Tabs
+        value={kind}
+        onValueChange={(value) => {
+          setKind(value as SchoolKind);
+          setPage(1);
+        }}
+      >
+        <TabsList aria-label={t("console.schools.kindLabel")}>
+          {KINDS.map((value) => (
+            <TabsTrigger key={value} value={value}>
+              {t(`console.schools.kinds.${value}`)}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        <TabsContent value={kind}>{list}</TabsContent>
+      </Tabs>
     </>
   );
 }
