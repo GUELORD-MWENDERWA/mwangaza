@@ -77,7 +77,7 @@ def notify_platform_news(announcement: PlatformAnnouncement, schools: list[Schoo
     """Annonce de la plateforme publiée (5.4.3) : tout le personnel actif des écoles visées
     (toutes les écoles non suspendues quand la liste est vide)."""
     memberships = Membership.objects.filter(is_active=True, user__is_active=True).exclude(
-        school__status=School.Status.SUSPENDED
+        school__status__in=School.CLOSED_STATUSES
     )
     if schools:
         memberships = memberships.filter(school__in=schools)

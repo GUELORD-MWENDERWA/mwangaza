@@ -50,6 +50,7 @@ class Action(models.TextChoices):
     SCHOOL_LOGO_CHANGED = "school.logo_changed", _("School logo changed")
     SCHOOL_SUSPENDED = "school.suspended", _("School suspended")
     SCHOOL_REACTIVATED = "school.reactivated", _("School reactivated")
+    SCHOOL_STOPPED = "school.stopped", _("School stopped")
 
     # Organisation scolaire (C1-C3) : années, découpage, niveaux, options, classes, matricule.
     ORGANISATION_YEAR_CREATED = "organisation.year_created", _("School year created")
@@ -190,6 +191,7 @@ class PlatformAction(models.TextChoices):
     SCHOOL_UPDATED = "school.updated", _("School or subscription changed")
     SCHOOL_SUSPENDED = "school.suspended", _("School suspended")
     SCHOOL_REACTIVATED = "school.reactivated", _("School reactivated")
+    SCHOOL_STOPPED = "school.stopped", _("School stopped")
     # Comptes (5.4.1), par le support (console ou administration Django) ; chaque école où la
     # personne est active le voit aussi dans son journal (`Action.ACCOUNT_*`).
     ACCOUNT_CHANGED = "account.changed", _("Names or phone changed by support")

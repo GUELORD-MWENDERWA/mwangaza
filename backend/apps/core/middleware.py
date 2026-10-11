@@ -11,7 +11,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.http.request import split_domain_port
 from django.utils import timezone
 
-from apps.core.errors import SCHOOL_NOT_FOUND, SCHOOL_SUSPENDED, ApiError
+from apps.core.errors import SCHOOL_NOT_FOUND, SCHOOL_STOPPED, SCHOOL_SUSPENDED, ApiError
 from apps.core.tenancy import CONSOLE_SUBDOMAIN, RESERVED_SUBDOMAINS, use_school
 from apps.schools.models import School
 
@@ -49,10 +49,10 @@ PLATFORM_PATH = "/api/platform/"
 
 class TenantMiddleware:
     """Charge l'école du sous-domaine dans `request.school` et en fait l'école courante pendant la
-    requête, avec son fuseau horaire. École inconnue : 404 ; suspendue : 403, sauf l'identité de
-    la plateforme (`PLATFORM_PATH`), lisible partout. Le rôle de
-    l'utilisateur dans l'école est vérifié par les permissions de l'API (tâches 1.2 et 1.3),
-    après l'authentification."""
+    requête, avec son fuseau horaire. École inconnue : 404 ; suspendue ou arrêtée : 403, sauf
+    l'identité de la plateforme (`PLATFORM_PATH`), lisible partout. Le rôle de l'utilisateur dans
+    l'école est vérifié par les permissions de l'API (tâches 1.2 et 1.3), après
+    l'authentification."""
 
     def __init__(self, get_response):
         self.get_response = get_response
@@ -64,6 +64,8 @@ class TenantMiddleware:
             school = School.objects.filter(code=code).first()
             if school is None:
                 return _error_response(SCHOOL_NOT_FOUND)
+            if school.status == School.Status.STOPPED:
+                return _error_response(SCHOOL_STOPPED)
             if school.status == School.Status.SUSPENDED:
                 return _error_response(SCHOOL_SUSPENDED)
         request.school = school

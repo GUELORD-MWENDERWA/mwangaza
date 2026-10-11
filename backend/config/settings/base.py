@@ -206,6 +206,7 @@ SPECTACULAR_SETTINGS = {
         "ActionEnum": "apps.audit.actions.Action",
         "PlatformActionEnum": "apps.audit.actions.PlatformAction",
         "SchoolStatusEnum": "apps.schools.models.School.Status",
+        "SchoolEnvironmentEnum": "apps.schools.models.School.Environment",
         "YearStatusEnum": "apps.schools.models.AcademicYear.Status",
         "EnrollmentStatusEnum": "apps.students.models.Enrollment.Status",
         "StudentImportStatusEnum": "apps.students.models.StudentImport.Status",

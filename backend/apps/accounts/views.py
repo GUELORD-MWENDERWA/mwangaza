@@ -46,6 +46,7 @@ from apps.accounts.serializers import (
 )
 from apps.core.errors import BusinessError, ErrorSerializer
 from apps.core.middleware import is_console_host
+from apps.schools.models import School
 
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
 # Étapes de connexion : saisie refusée, trop d'essais, étape expirée ou pas la bonne.
@@ -87,6 +88,7 @@ class MeView(APIView):
         # Rôles de chaque école du compte : lus hors de l'école de l'adresse, pour ce compte seul.
         memberships = (
             Membership.objects.filter(user=user, is_active=True)
+            .exclude(school__status=School.Status.STOPPED)  # arrêté : plus proposé
             .select_related("school")
             .prefetch_related(
                 Prefetch("roles", queryset=Role.all_schools.order_by("id"), to_attr="role_list")

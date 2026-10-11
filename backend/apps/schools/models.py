@@ -52,10 +52,21 @@ class School(BaseModel):
     """École [G]. Tout ce qui est propre à une école se règle ici, jamais dans le code.
     Champs de `docs/04-modele-de-donnees.md` § 1 ajoutés avec leur tâche (1.7, 3.2…)."""
 
+    class Environment(models.TextChoices):
+        """Type d'espace (`03` § 4 bis), choisi à la création et jamais changé."""
+
+        LIVE = "live", _("Live")
+        TEST = "test", _("Sandbox")
+        DEMO = "demo", _("Demonstration")
+
     class Status(models.TextChoices):
-        TRIAL = "trial", _("Trial")
+        TRIAL = "trial", _("Free trial")
         ACTIVE = "active", _("Active")
         SUSPENDED = "suspended", _("Suspended")
+        STOPPED = "stopped", _("Stopped")
+
+    # Plus personne n'y entre ; les données restent.
+    CLOSED_STATUSES = (Status.SUSPENDED, Status.STOPPED)
 
     code = models.CharField(
         _("code"),
@@ -130,6 +141,15 @@ class School(BaseModel):
     # C5 : sur non, ni l'inscription ni l'import ne donnent de matricule (l'école garde les siens,
     # saisis ou importés, ou n'en a pas).
     auto_matricule = models.BooleanField(_("give student numbers automatically"), default=True)
+    # Réel : vraie école, jamais supprimée. Essai et démonstration : hors des chiffres de la
+    # plateforme, supprimables (4.16).
+    environment = models.CharField(
+        _("kind of space"),
+        max_length=10,
+        choices=Environment.choices,
+        default=Environment.LIVE,
+        editable=False,
+    )
     status = models.CharField(
         _("status"), max_length=10, choices=Status.choices, default=Status.TRIAL
     )
@@ -184,6 +204,11 @@ class School(BaseModel):
                 raise ValidationError(
                     {"enabled_currencies": ValidationError(message, code="currency_in_use")}
                 )
+
+    @property
+    def is_closed(self) -> bool:
+        """Suspendue ou arrêtée : ni connexion, ni portail, ni session support."""
+        return self.status in self.CLOSED_STATUSES
 
     @property
     def url(self) -> str:

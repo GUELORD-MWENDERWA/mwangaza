@@ -1091,7 +1091,7 @@ export interface paths {
         /**
          * @description Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
          *     changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
-         *     Une école ne se supprime jamais : on la suspend.
+         *     Un espace réel ne se supprime jamais : on le suspend ou on l'arrête.
          */
         get: operations["console_schools_list"];
         put?: never;
@@ -1117,7 +1117,7 @@ export interface paths {
         /**
          * @description Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
          *     changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
-         *     Une école ne se supprime jamais : on la suspend.
+         *     Un espace réel ne se supprime jamais : on le suspend ou on l'arrête.
          */
         get: operations["console_schools_retrieve"];
         put?: never;
@@ -1138,8 +1138,28 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description De nouveau ouverte : en essai si l'essai n'est pas fini, sinon active. */
+        /**
+         * @description Suspendue ou arrêtée, de nouveau ouverte : en essai gratuit s'il n'est pas fini, sinon
+         *     active.
+         */
         post: operations["console_schools_reactivate_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/schools/{id}/stop/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Espace arrêté, avec un motif : plus personne n'y entre, les données restent. */
+        post: operations["console_schools_stop_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3228,6 +3248,7 @@ export interface components {
          *     * `school.logo_changed` - School logo changed
          *     * `school.suspended` - School suspended
          *     * `school.reactivated` - School reactivated
+         *     * `school.stopped` - School stopped
          *     * `organisation.year_created` - School year created
          *     * `organisation.year_updated` - School year changed
          *     * `organisation.year_deleted` - School year deleted
@@ -3298,7 +3319,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         /** @description Comptes du portail activés (H7) : école, puis chaque classe de l'année en cours. */
         ActivationSummary: {
             families: number;
@@ -4110,7 +4131,8 @@ export interface components {
         /**
          * @description Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
          *     marcher), ses noms et son abonnement ; couleur, fuseau, devises et logo sont réglés par
-         *     l'école (M5). Suspendre et réactiver passent par leurs actions.
+         *     l'école (M5). Suspendre, arrêter et réactiver passent par leurs actions ; le type d'espace
+         *     (`environment`) est fixé à la création.
          */
         ConsoleSchool: {
             /** Format: uuid */
@@ -4121,12 +4143,14 @@ export interface components {
             official_name: string;
             /** @description Adresse de l'école. */
             readonly url: string;
+            readonly environment: components["schemas"]["SchoolEnvironmentEnum"];
             /**
-             * @description Essai ou active ; « suspendue » seulement par l'action `suspend`.
+             * @description Essai gratuit ou active ; « suspendue » et « arrêtée » par leurs actions.
              *
-             *     * `trial` - Trial
+             *     * `trial` - Free trial
              *     * `active` - Active
              *     * `suspended` - Suspended
+             *     * `stopped` - Stopped
              */
             status: components["schemas"]["SchoolStatusEnum"];
             /** @description e.g. Discovery, Standard. */
@@ -4168,7 +4192,8 @@ export interface components {
         /**
          * @description Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
          *     marcher), ses noms et son abonnement ; couleur, fuseau, devises et logo sont réglés par
-         *     l'école (M5). Suspendre et réactiver passent par leurs actions.
+         *     l'école (M5). Suspendre, arrêter et réactiver passent par leurs actions ; le type d'espace
+         *     (`environment`) est fixé à la création.
          */
         ConsoleSchoolCreateRequest: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
@@ -4176,11 +4201,21 @@ export interface components {
             name: string;
             official_name?: string;
             /**
-             * @description Essai ou active ; « suspendue » seulement par l'action `suspend`.
+             * @description Réel, essai ou démonstration : jamais changé ensuite.
              *
-             *     * `trial` - Trial
+             *     * `live` - Live
+             *     * `test` - Sandbox
+             *     * `demo` - Demonstration
+             * @default live
+             */
+            environment: components["schemas"]["SchoolEnvironmentEnum"];
+            /**
+             * @description Essai gratuit ou active ; « suspendue » et « arrêtée » par leurs actions.
+             *
+             *     * `trial` - Free trial
              *     * `active` - Active
              *     * `suspended` - Suspended
+             *     * `stopped` - Stopped
              */
             status?: components["schemas"]["SchoolStatusEnum"];
             /** @description e.g. Discovery, Standard. */
@@ -4206,7 +4241,8 @@ export interface components {
         /**
          * @description Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
          *     marcher), ses noms et son abonnement ; couleur, fuseau, devises et logo sont réglés par
-         *     l'école (M5). Suspendre et réactiver passent par leurs actions.
+         *     l'école (M5). Suspendre, arrêter et réactiver passent par leurs actions ; le type d'espace
+         *     (`environment`) est fixé à la création.
          */
         ConsoleSchoolDetail: {
             /** Format: uuid */
@@ -4217,12 +4253,14 @@ export interface components {
             official_name: string;
             /** @description Adresse de l'école. */
             readonly url: string;
+            readonly environment: components["schemas"]["SchoolEnvironmentEnum"];
             /**
-             * @description Essai ou active ; « suspendue » seulement par l'action `suspend`.
+             * @description Essai gratuit ou active ; « suspendue » et « arrêtée » par leurs actions.
              *
-             *     * `trial` - Trial
+             *     * `trial` - Free trial
              *     * `active` - Active
              *     * `suspended` - Suspended
+             *     * `stopped` - Stopped
              */
             status: components["schemas"]["SchoolStatusEnum"];
             /** @description e.g. Discovery, Standard. */
@@ -5918,7 +5956,8 @@ export interface components {
         /**
          * @description Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
          *     marcher), ses noms et son abonnement ; couleur, fuseau, devises et logo sont réglés par
-         *     l'école (M5). Suspendre et réactiver passent par leurs actions.
+         *     l'école (M5). Suspendre, arrêter et réactiver passent par leurs actions ; le type d'espace
+         *     (`environment`) est fixé à la création.
          */
         PatchedConsoleSchoolRequest: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
@@ -5926,11 +5965,12 @@ export interface components {
             name?: string;
             official_name?: string;
             /**
-             * @description Essai ou active ; « suspendue » seulement par l'action `suspend`.
+             * @description Essai gratuit ou active ; « suspendue » et « arrêtée » par leurs actions.
              *
-             *     * `trial` - Trial
+             *     * `trial` - Free trial
              *     * `active` - Active
              *     * `suspended` - Suspended
+             *     * `stopped` - Stopped
              */
             status?: components["schemas"]["SchoolStatusEnum"];
             /** @description e.g. Discovery, Standard. */
@@ -6264,6 +6304,7 @@ export interface components {
          *     * `school.updated` - School or subscription changed
          *     * `school.suspended` - School suspended
          *     * `school.reactivated` - School reactivated
+         *     * `school.stopped` - School stopped
          *     * `account.changed` - Names or phone changed by support
          *     * `account.deactivated` - Account deactivated by support
          *     * `account.reactivated` - Account reactivated by support
@@ -6274,7 +6315,7 @@ export interface components {
          *     * `announcement.archived` - Announcement to schools archived
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived";
         /**
          * @description * `all_schools` - All schools
          *     * `schools` - Some schools
@@ -6621,6 +6662,13 @@ export interface components {
             /** @description Compte de l'appareil. */
             user_name: string;
         };
+        /**
+         * @description * `live` - Live
+         *     * `test` - Sandbox
+         *     * `demo` - Demonstration
+         * @enum {string}
+         */
+        SchoolEnvironmentEnum: "live" | "test" | "demo";
         /** @description Premier directeur. Nouveau numéro : nom obligatoire ; numéro connu : noms ignorés (B3). */
         SchoolHeadRequest: {
             /** @description Ex. 0971234567 ou +243971234567. */
@@ -6665,12 +6713,17 @@ export interface components {
             alerts: components["schemas"]["AlertSettings"];
         };
         /**
-         * @description * `trial` - Trial
+         * @description * `trial` - Free trial
          *     * `active` - Active
          *     * `suspended` - Suspended
+         *     * `stopped` - Stopped
          * @enum {string}
          */
-        SchoolStatusEnum: "trial" | "active" | "suspended";
+        SchoolStatusEnum: "trial" | "active" | "suspended" | "stopped";
+        SchoolStopRequest: {
+            /** @description Motif, gardé dans le journal de la plateforme. */
+            reason: string;
+        };
         ServerHealth: {
             status: components["schemas"]["HealthStatusEnum"];
             checks: components["schemas"]["HealthCheck"][];
@@ -8039,6 +8092,7 @@ export interface operations {
                  *     * `school.logo_changed` - School logo changed
                  *     * `school.suspended` - School suspended
                  *     * `school.reactivated` - School reactivated
+                 *     * `school.stopped` - School stopped
                  *     * `organisation.year_created` - School year created
                  *     * `organisation.year_updated` - School year changed
                  *     * `organisation.year_deleted` - School year deleted
@@ -8108,7 +8162,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -8273,6 +8327,7 @@ export interface operations {
                  *     * `school.logo_changed` - School logo changed
                  *     * `school.suspended` - School suspended
                  *     * `school.reactivated` - School reactivated
+                 *     * `school.stopped` - School stopped
                  *     * `organisation.year_created` - School year created
                  *     * `organisation.year_updated` - School year changed
                  *     * `organisation.year_deleted` - School year deleted
@@ -8342,7 +8397,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -10921,11 +10976,12 @@ export interface operations {
     console_schools_list: {
         parameters: {
             query?: {
+                environment?: "demo" | "live" | "test";
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Nom, nom officiel ou code. */
                 search?: string;
-                status?: "active" | "suspended" | "trial";
+                status?: "active" | "stopped" | "suspended" | "trial";
             };
             header?: never;
             path?: never;
@@ -11125,6 +11181,58 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSchoolDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_schools_stop_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this school. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SchoolStopRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SchoolStopRequest"];
+                "multipart/form-data": components["schemas"]["SchoolStopRequest"];
+            };
+        };
         responses: {
             200: {
                 headers: {

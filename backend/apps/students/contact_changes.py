@@ -30,7 +30,7 @@ def linked(user: User):
     """Familles du compte que le portail montre, dans l'ordre où il les a reliées."""
     return (
         Family.all_schools.filter(primary_user=user, portal_suspended_at__isnull=True)
-        .exclude(school__status=School.Status.SUSPENDED)
+        .exclude(school__status__in=School.CLOSED_STATUSES)
         .select_related("school")
         .order_by("activated_at", "id")
     )

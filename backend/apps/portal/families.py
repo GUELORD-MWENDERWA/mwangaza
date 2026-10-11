@@ -13,7 +13,6 @@ from apps.accounts.models import User
 from apps.finance import services as finance
 from apps.finance.models import Payment
 from apps.portal.children import fee_label, in_school, photo_url
-from apps.schools.models import School
 from apps.students.models import Enrollment, Family
 
 ACTIVE, SUSPENDED, SCHOOL_UNAVAILABLE = "active", "suspended", "school_unavailable"
@@ -72,7 +71,7 @@ def _children(family: Family) -> list[Child]:
 
 def linked(family: Family) -> LinkedFamily:
     school = family.school
-    if school.status == School.Status.SUSPENDED:
+    if school.is_closed:
         return LinkedFamily(family, SCHOOL_UNAVAILABLE, [])
     if family.portal_suspended_at is not None:
         return LinkedFamily(family, SUSPENDED, [])

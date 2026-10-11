@@ -22,7 +22,7 @@ class SchoolAdmin(admin.ModelAdmin):
         "last_activity",
         "support_link",
     ]
-    list_filter = ["status"]
+    list_filter = ["environment", "status"]
     search_fields = ["code", "name", "official_name"]
     fieldsets = [
         (
@@ -84,7 +84,7 @@ class SchoolAdmin(admin.ModelAdmin):
 
     @admin.display(description=_("support"))
     def support_link(self, school: School):
-        if school.status == School.Status.SUSPENDED:
+        if school.is_closed:
             return "—"
         # Écran « Session support » de la Gestion, à l'adresse de l'école (A3) : connexion d'abord.
         return format_html(

@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.14 fusionnée ; sa suite (délai de 30 jours) : PR à relire et fusionner |
-| Prochaine tâche | 4.15 (Type d'espace et arrêt, serveur et console) |
+| Tâche en cours | 4.15 (Type d'espace et arrêt, serveur et console) — démarrée le 2026-10-11 |
+| Prochaine tâche | 4.16 (Supprimer un espace d'essai ou de démonstration) |
 | Issue GitHub | #158 pour 4.15 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.14-delai-annulation` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/4.15-type-espace` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement

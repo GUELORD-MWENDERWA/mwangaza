@@ -2,8 +2,9 @@
 toute école (`all_schools`), pour le super-admin seulement (`IsPlatformAdmin`). Liste des écoles
 (5.3) : élèves et dernière activité de chacune.
 
-Écoles par statut (essais qui finissent bientôt), élèves (inscriptions actives de l'année en
-cours de chaque école), paiements du jour par devise (annulés exclus ; montants jamais
+Chiffres des espaces réels seulement (4.15) : un espace d'essai ou de démonstration n'y compte
+jamais. Écoles par statut (essais qui finissent bientôt), élèves (inscriptions actives de l'année
+en cours de chaque école), paiements du jour par devise (annulés exclus ; montants jamais
 additionnés entre devises ; jour dans le fuseau de la plateforme, `TIME_ZONE`), écoles les plus
 actives du jour et santé du serveur."""
 
@@ -24,6 +25,7 @@ from apps.students.models import Enrollment
 # Un essai qui finit dans ces jours est signalé.
 TRIAL_ENDING_DAYS = 30
 ACTIVE_SCHOOLS = 10
+LIVE = School.Environment.LIVE
 
 
 def schools() -> QuerySet[School]:
@@ -51,8 +53,9 @@ def schools() -> QuerySet[School]:
 
 
 def _schools(day) -> dict:
-    counts = dict(School.objects.values_list("status").annotate(count=Count("id")).order_by())
-    ending = School.objects.filter(
+    live = School.objects.filter(environment=LIVE)
+    counts = dict(live.values_list("status").annotate(count=Count("id")).order_by())
+    ending = live.filter(
         status=School.Status.TRIAL, trial_ends_on__lte=day + timedelta(days=TRIAL_ENDING_DAYS)
     ).count()
     return {
@@ -67,7 +70,10 @@ def _today_payments(day) -> tuple[list[dict], list[dict]]:
     start = timezone.make_aware(datetime.combine(day, time()))
     rows = (
         Payment.all_schools.filter(
-            cancellation__isnull=True, paid_at__gte=start, paid_at__lt=start + timedelta(days=1)
+            school__environment=LIVE,
+            cancellation__isnull=True,
+            paid_at__gte=start,
+            paid_at__lt=start + timedelta(days=1),
         )
         .values("school", "received_currency")
         .annotate(amount_minor=Sum("received_amount_minor"), count=Count("id"))
@@ -111,7 +117,7 @@ def dashboard() -> dict:
         "day": day,
         "schools": _schools(day),
         "students": Enrollment.all_schools.filter(
-            status="active", academic_year__is_current=True
+            school__environment=LIVE, status="active", academic_year__is_current=True
         ).count(),
         "today": today,
         "payments_today": sum(row["count"] for row in today),

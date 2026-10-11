@@ -1,6 +1,7 @@
 """Console de la plateforme (5.2.1) : réservée au super-admin, à son adresse (`admin.<domaine>`),
 après la double authentification ; connexion refusée à tout autre compte ; tableau de bord de
-toutes les écoles (paiements annulés exclus, devises jamais additionnées) et santé du serveur."""
+toutes les écoles réelles (paiements annulés exclus, devises jamais additionnées ; espaces d'essai
+et de démonstration jamais comptés, 4.15) et santé du serveur."""
 
 from datetime import timedelta
 
@@ -72,6 +73,25 @@ def test_dashboard_counts_every_school_and_today_payments_by_currency(
         {"currency": "CDF", "amount_minor": 10000},
     ]
     assert data["health"]["status"] == "ok"
+
+
+def test_dashboard_leaves_out_sandbox_and_demonstration_spaces(
+    api, platform_admin, school, other_school, other_head, monkeypatch
+):
+    monkeypatch.setattr(health, "_redis_latency", lambda: 1)
+    monkeypatch.setattr(health, "_disk_free_percent", lambda: 50)
+    beta = school_with_fees(other_school, other_head)
+    beta_cashier = MembershipFactory(school=other_school, roles=["cashier"]).user
+    pay(other_school, beta_cashier, beta["enrollment"], 5000, "USD")
+    School.objects.filter(pk=other_school.pk).update(environment=School.Environment.DEMO)
+    School.objects.create(code="gamma", name="Essai", environment=School.Environment.TEST)
+
+    data = api(platform_admin, host=CONSOLE).get(DASHBOARD).json()
+
+    # Seule l'école réelle compte : ni l'élève, ni le paiement fictifs.
+    assert data["schools"] == {"active": 1, "trial": 0, "suspended": 0, "trial_ending": 0}
+    assert (data["students"], data["payments_today"], data["active_schools"]) == (0, 0, [])
+    assert [row["amount_minor"] for row in data["today"]] == [0, 0]
 
 
 def test_console_login_refuses_other_accounts_and_always_asks_the_code(api, platform_admin):

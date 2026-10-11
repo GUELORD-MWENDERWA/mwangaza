@@ -2,6 +2,8 @@
 chaque enfant ; « Ajouter un enfant d'une autre école » ; « Suspendre l'accès » de la fiche
 famille."""
 
+import pytest
+
 from apps.core.tenancy import use_school
 from apps.finance.tests.test_balance import at
 from apps.finance.tests.test_payments import pay, school_with_fees
@@ -111,8 +113,9 @@ def test_suspending_portal_access_needs_students_edit_stays_in_its_school_and_is
     assert suspended.actor == restored.actor == head and suspended.entity_id == family.pk
 
 
-def test_a_suspended_family_or_school_shows_no_child_data_and_its_code_opens_nothing(
-    school, other_school, head, other_head
+@pytest.mark.parametrize("closed", School.CLOSED_STATUSES)
+def test_a_suspended_family_or_closed_school_shows_no_child_data_and_its_code_opens_nothing(
+    school, other_school, head, other_head, closed
 ):
     alpha = school_with_fees(school, head)
     beta = school_with_fees(other_school, other_head)
@@ -124,7 +127,7 @@ def test_a_suspended_family_or_school_shows_no_child_data_and_its_code_opens_not
         students.set_portal_access(mine, actor=head, suspended=True)
         waiting = new_family(school, head, phone="+243990000001")
         students.set_portal_access(waiting, actor=head, suspended=True)
-    School.objects.filter(pk=other_school.pk).update(status=School.Status.SUSPENDED)
+    School.objects.filter(pk=other_school.pk).update(status=closed)
 
     assert [(f["status"], f["children"]) for f in client.get(FAMILIES).json()] == [
         ("suspended", []),

@@ -41,7 +41,7 @@ def readers(user: User, family_id: UUID | None = None) -> list[Reader]:
     Trois requêtes."""
     families = (
         Family.all_schools.filter(primary_user=user, portal_suspended_at__isnull=True)
-        .exclude(school__status=School.Status.SUSPENDED)
+        .exclude(school__status__in=School.CLOSED_STATUSES)
         .select_related("school")
     )
     if family_id is not None:

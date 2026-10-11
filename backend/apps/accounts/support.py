@@ -92,7 +92,7 @@ def current(request) -> SupportSession | None:
         and user.is_platform_admin
         and request.session.get(MFA_SESSION_KEY)
         and time.time() < data["expires"]
-        and school.status != School.Status.SUSPENDED
+        and not school.is_closed
     )
     if not valid:
         del request.session[SUPPORT_SESSION_KEY]
