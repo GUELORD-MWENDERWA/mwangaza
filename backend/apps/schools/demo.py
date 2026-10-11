@@ -124,18 +124,33 @@ DEMO_LOOKS = {
 }
 
 
+def make_demo_refusal() -> str | None:
+    """Pourquoi `make demo` ne doit pas tourner sur cette plateforme, ou `None`. La commande remet
+    à zéro l'identité de la plateforme, le super-admin fictif et ses deux espaces : jamais là où
+    un espace réel existe, ni par-dessus un espace d'un autre type (`03` § 4 bis)."""
+    if School.objects.filter(environment=School.Environment.LIVE).exists():
+        return "Cette plateforme a un espace réel."
+    taken = (
+        School.objects.filter(code__in=MAKE_DEMO_NUMBERS)
+        .exclude(environment=School.Environment.DEMO)
+        .values_list("code", flat=True)
+    )
+    if taken:
+        codes = ", ".join(sorted(taken))
+        return f"Code pris par un espace qui n'est pas de démonstration : {codes}."
+    return None
+
+
 def create_demo_schools(*, password: str, shared_totp_key: bool) -> list[DemoSpace]:
     """Les deux espaces de `make demo`, créés ou remis comme au départ (nom, abonnement, pas
-    suspendus). De démonstration, y compris dans une base d'avant la 4.17 où ils étaient réels."""
+    suspendus). Cherchés par code **et** type : le type d'un espace existant n'est jamais écrit
+    (code pris par un autre type : `make_demo_refusal`, et la base refuse le doublon)."""
     spaces = []
     for code, fields in _make_demo_schools().items():
         school, _created = School.objects.update_or_create(
             code=code,
-            defaults={
-                **fields,
-                "environment": School.Environment.DEMO,
-                "setup_completed_at": timezone.now(),
-            },
+            environment=School.Environment.DEMO,
+            defaults={**fields, "setup_completed_at": timezone.now()},
         )
         numbers = MAKE_DEMO_NUMBERS[code]
         spaces.append(DemoSpace(school, code, numbers, password, shared_totp_key, with_logo=True))

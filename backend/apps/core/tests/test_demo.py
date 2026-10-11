@@ -17,10 +17,12 @@ from apps.core.crypto import decrypt
 from apps.core.demo import STEPS, fill
 from apps.core.models import PlatformSettings
 from apps.core.tenancy import use_school
+from apps.finance.models import Payment
+from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.schools.demo import DemoNumbers, DemoSpace
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment, Guardian, Student
-from tests.factories import enable_totp
+from tests.factories import SchoolFactory, enable_totp
 
 pytestmark = pytest.mark.django_db
 
@@ -74,8 +76,6 @@ def test_demo_puts_back_the_demo_logos(demo, settings):
 def test_demo_puts_back_a_suspended_school(demo):
     demo["volcans"].status = School.Status.SUSPENDED
     demo["volcans"].primary_color = "#000000"
-    # Base d'avant la 4.17 : l'école de démonstration y était un espace réel.
-    demo["volcans"].environment = School.Environment.LIVE
     demo["volcans"].save()
 
     call_command("demo")
@@ -175,6 +175,43 @@ def test_demo_is_refused_outside_development_and_the_essai(settings):
         call_command("demo")
 
     assert not School.objects.exists()
+    assert not User.objects.exists()
+
+
+def test_demo_is_refused_on_a_platform_with_a_live_school_and_nothing_moves(
+    settings, school, head, cashier, platform_admin
+):
+    """Tous les espaces partagent une plateforme (`03` § 4 bis) : le réglage ne suffit pas. Comme
+    sur un serveur (pas `DEBUG`), où `make demo` retire ses droits au compte `0000000000`."""
+    settings.DEMO_DATA, settings.DEBUG = True, False
+    payment = pay(school, cashier, school_with_fees(school, head)["enrollment"], 12000, "USD")
+    PlatformSettings.objects.update_or_create(
+        pk=1, defaults={"name": "Shule Yetu", "support_phone": "+243970000001"}
+    )
+
+    with pytest.raises(CommandError, match="Démonstration"):
+        call_command("demo")
+
+    assert list(School.objects.values_list("code", "environment")) == [("alpha", "live")]
+    with use_school(school):
+        assert Payment.objects.get() == payment
+    platform = PlatformSettings.objects.get()
+    assert (platform.name, str(platform.support_phone)) == ("Shule Yetu", "+243970000001")
+    platform_admin.refresh_from_db()
+    assert platform_admin.is_platform_admin and platform_admin.is_active
+
+
+def test_demo_never_changes_the_kind_of_an_existing_space(settings):
+    """Le code `volcans` est pris par un espace d'essai : il ne devient pas une démonstration,
+    dont les données sont remplacées et qui se supprime."""
+    settings.DEMO_DATA = settings.DEBUG = True
+    SchoolFactory(code="volcans", name="Essai des Volcans", environment=School.Environment.TEST)
+
+    with pytest.raises(CommandError, match="volcans"):
+        call_command("demo")
+
+    spaces = School.objects.values_list("code", "name", "environment")
+    assert list(spaces) == [("volcans", "Essai des Volcans", "test")]
     assert not User.objects.exists()
 
 
