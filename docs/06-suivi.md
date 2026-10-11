@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 finie (recette du 2026-10-12), en attente de la mise en ligne ; la V1.1 reprend |
 | Lot | V1.0 (mise en ligne), puis V1.1 |
-| Tâche en cours | aucune — 4.21 terminée (PR ouverte, à fusionner) : **la V1.0 est finie**, il reste la mise en ligne |
+| Tâche en cours | **5.5.2** Notifications dans le Portail (démarrée le 2026-10-12) ; 4.21 terminée, PR #187 ouverte, à fusionner d'abord |
 | Prochaine tâche | 5.5.2 (la V1.1 reprend) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
 | Issue GitHub | #165 pour 4.21 ; #186 pour 4.23 (ajoutée à la recette) |
-| Branche | `tache/4.21-recette-finale` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/5.5.2-portail-notifications` (posée sur `tache/4.21-recette-finale`) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-12 |
 
 ## Avancement

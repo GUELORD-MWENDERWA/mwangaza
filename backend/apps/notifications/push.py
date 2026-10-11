@@ -110,13 +110,25 @@ def mark_read(user: User, app: str, ids: list | None) -> None:
     unread.update(read_at=timezone.now())
 
 
-def muted_kinds(user: User) -> list[str]:
+def muted_kinds(user: User, app: str) -> list[str]:
+    """Sortes coupées par le compte, parmi celles que règle cette application."""
     preference = NotificationPreference.objects.filter(user=user).first()
-    return preference.muted if preference else []
+    stored = preference.muted if preference else []
+    return [kind for kind in stored if kind in PREFERENCE_KINDS[app]]
 
 
-def set_muted_kinds(user: User, muted: list[str]) -> list[str]:
-    NotificationPreference.objects.update_or_create(user=user, defaults={"muted": sorted(muted)})
+def set_muted_kinds(user: User, app: str, muted: list[str]) -> list[str]:
+    """Remplace les sortes coupées de cette application ; celles que règle l'autre application
+    (compte à la fois du personnel et parent) ne bougent pas."""
+    preference = NotificationPreference.objects.filter(user=user).first()
+    others = [
+        kind
+        for kind in (preference.muted if preference else [])
+        if kind not in PREFERENCE_KINDS[app]
+    ]
+    NotificationPreference.objects.update_or_create(
+        user=user, defaults={"muted": sorted({*others, *muted})}
+    )
     return sorted(muted)
 
 

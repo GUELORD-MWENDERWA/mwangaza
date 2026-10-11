@@ -22,4 +22,16 @@ urlpatterns = [
         views.AnnouncementAttachmentView.as_view(),
         name="announcement-attachment",
     ),
+    path("notifications/", views.NotificationsView.as_view(), name="notifications"),
+    path("notifications/read/", views.NotificationsReadView.as_view(), name="notifications-read"),
+    path("notifications/test/", views.NotificationsTestView.as_view(), name="notifications-test"),
+    path(
+        "notifications/preferences/",
+        views.NotificationPreferencesView.as_view(),
+        name="notification-preferences",
+    ),
+    path("notifications/subscribe/", views.PushSubscribeView.as_view(), name="push-subscribe"),
+    path(
+        "notifications/unsubscribe/", views.PushUnsubscribeView.as_view(), name="push-unsubscribe"
+    ),
 ]

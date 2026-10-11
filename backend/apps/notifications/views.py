@@ -284,13 +284,13 @@ class NotificationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def preferences(self, request: Request) -> Response:
         """Préférences du compte (toutes ses écoles) et clé publique pour s'abonner."""
         if request.method == "GET":
-            return self._preferences(request, push.muted_kinds(request.user))
+            return self._preferences(request, push.muted_kinds(request.user, self.app))
         self._member_only()
         serializer = NotificationPreferencesSerializer(
             data=request.data, context={"kinds": push.PREFERENCE_KINDS[self.app]}
         )
         serializer.is_valid(raise_exception=True)
-        muted = push.set_muted_kinds(request.user, serializer.validated_data["muted"])
+        muted = push.set_muted_kinds(request.user, self.app, serializer.validated_data["muted"])
         return self._preferences(request, muted)
 
     @extend_schema(

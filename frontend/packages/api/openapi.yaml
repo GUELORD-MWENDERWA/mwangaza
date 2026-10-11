@@ -7494,6 +7494,187 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/portal/notifications/:
+    get:
+      operationId: portal_notifications_list
+      description: |-
+        Centre de notifications du parent (5.5.2), toutes ses écoles mêlées, les plus récentes
+        d'abord ; `unread` : seulement les non lues (leur nombre : `count`).
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPortalNotificationList'
+          description: ''
+  /api/portal/notifications/preferences/:
+    get:
+      operationId: portal_notifications_preferences_retrieve
+      description: Préférences du compte (sortes coupées sur l'écran) et clé publique
+        pour s'abonner.
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPreferences'
+          description: ''
+    put:
+      operationId: portal_notifications_preferences_update
+      description: Préférences du compte (sortes coupées sur l'écran) et clé publique
+        pour s'abonner.
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationPreferencesRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationPreferencesRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationPreferencesRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPreferences'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/notifications/read/:
+    post:
+      operationId: portal_notifications_read_create
+      description: Noter comme lues celles données, ou toutes.
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationReadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationReadRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationReadRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/notifications/subscribe/:
+    post:
+      operationId: portal_notifications_subscribe_create
+      description: Abonner ce navigateur aux notifications sur l'écran de ce compte
+        (Web Push).
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushSubscriptionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PushSubscriptionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PushSubscriptionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/notifications/test/:
+    post:
+      operationId: portal_notifications_test_create
+      description: Notification d'essai, envoyée sur les écrans abonnés de ce compte.
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalNotification'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/notifications/unsubscribe/:
+    post:
+      operationId: portal_notifications_unsubscribe_create
+      description: Ce navigateur ne reçoit plus rien sur l'écran (désactivation, déconnexion).
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushUnsubscribeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PushUnsubscribeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PushUnsubscribeRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/portal/payments/{id}/receipt/:
     get:
       operationId: portal_payments_receipt_retrieve
@@ -9347,7 +9528,7 @@ paths:
       operationId: students_list
       description: |-
         Avec un droit de lecture des frais, le solde de l'inscription de chaque élève de la
-        page (`finance`) : deux requêtes de plus, quelle que soit la taille de la page.
+        page (`finance`) : trois requêtes de plus, quelle que soit la taille de la page.
       parameters:
       - in: query
         name: academic_year
@@ -16274,6 +16455,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PortalAnnouncement'
+    PaginatedPortalNotificationList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalNotification'
     PaginatedRoleList:
       type: object
       required:
@@ -17603,6 +17809,51 @@ components:
       - phone
       - name
       - language
+    PortalNotification:
+      type: object
+      description: 'Notification du parent, avec son école : le centre du portail
+        mêle toutes ses écoles.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/NotificationKindEnum'
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        body:
+          type: string
+          readOnly: true
+          title: Message
+        url:
+          type: string
+          readOnly: true
+          title: Link
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        read_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        school_name:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - kind
+      - title
+      - body
+      - url
+      - created_at
+      - read_at
+      - school_name
     PortalProfile:
       type: object
       description: |-
