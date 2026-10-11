@@ -1796,6 +1796,7 @@ export const fr = {
         done_one: "Import annulé le {{date}} par {{name}} : 1 élève retiré.",
         done_other: "Import annulé le {{date}} par {{name}} : {{number}} élèves retirés.",
         doneReason: "Motif : {{reason}}",
+        tooLate: "Cet import ne s'annule plus : le délai a pris fin le {{date}}.",
       },
     },
     validation: {

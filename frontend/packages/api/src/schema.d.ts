@@ -7038,6 +7038,11 @@ export interface components {
             cancelled_by_name: string | null;
             /** Cancellation reason */
             readonly cancel_reason: string;
+            /**
+             * Format: date-time
+             * @description Fin du délai d'annulation (30 jours) ; vide si l'import n'est pas fini.
+             */
+            readonly cancellable_until: string | null;
         };
         StudentImportCreateRequest: {
             /**

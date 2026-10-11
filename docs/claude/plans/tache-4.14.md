@@ -19,4 +19,4 @@
 - **Pas de nouveau droit** : qui importe (`students.import`) annule ; un droit de plus serait donné aux mêmes rôles.
 - **Compte parent activé** = élève gardé (4e raison, ajoutée : on n'efface pas ce qu'un parent utilise).
 - **Dans la requête, pas en tâche de fond** : suppressions en masse (`_raw_delete`, sans signal par ligne), une dizaine de requêtes pour 800 élèves.
-- Non fait : limite de temps pour annuler (à décider) ; un import d'avant cette tâche n'a pas le lien et ne s'annule pas.
+- **Délai de 30 jours** après la fin de l'import (accord de l'utilisateur) : sans lui, un import de septembre annulé par erreur en mars effacerait tous les élèves sans paiement. Un import d'avant cette tâche n'a pas le lien et ne s'annule pas.
