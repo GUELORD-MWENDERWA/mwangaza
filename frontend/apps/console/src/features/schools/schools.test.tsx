@@ -241,6 +241,8 @@ describe("Écoles de la console", () => {
     await user.click(screen.getByRole("button", { name: "Remettre à zéro" }));
 
     expect(await screen.findByText(/Remise à zéro en cours/)).toBeTruthy();
-    expect(requests.findLast((r) => r.method === "POST")?.body).toEqual({ confirm: "vitrine" });
+    expect(requests.filter((r) => r.method === "POST").at(-1)?.body).toEqual({
+      confirm: "vitrine",
+    });
   }, 15_000);
 });
