@@ -7,7 +7,7 @@ from apps.audit.serializers import AuditLogSerializer
 from apps.finance import services as finance
 from apps.finance.serializers import BalanceSerializer
 from apps.schools.models import AcademicYear, ClassGroup, Track
-from apps.students import documents, imports, invitations
+from apps.students import documents, import_cancellation, imports, invitations
 from apps.students.models import (
     ContactChange,
     Enrollment,
@@ -404,6 +404,9 @@ class StudentImportSerializer(serializers.ModelSerializer):
     )
     classes = ImportClassSerializer(many=True, source="report.classes")
     importable_count = serializers.SerializerMethodField()
+    cancelled_by_name = serializers.CharField(
+        source="cancelled_by.__str__", default=None, allow_null=True
+    )
 
     class Meta:
         model = StudentImport
@@ -423,12 +426,64 @@ class StudentImportSerializer(serializers.ModelSerializer):
             "created_count",
             "created_at",
             "finished_at",
+            "cancelled_count",
+            "cancelled_at",
+            "cancelled_by_name",
+            "cancel_reason",
         ]
         read_only_fields = fields
 
     @extend_schema_field(serializers.IntegerField())
     def get_importable_count(self, imp: StudentImport) -> int:
         return imports.importable_count(imp)
+
+
+class StudentImportListSerializer(serializers.ModelSerializer):
+    """Un import fini dans « Imports précédents » : sans le fichier ni le rapport."""
+
+    academic_year_name = serializers.CharField(source="academic_year.name")
+    created_by_name = serializers.CharField(
+        source="created_by.__str__", default=None, allow_null=True
+    )
+
+    class Meta:
+        model = StudentImport
+        fields = [
+            "id",
+            "file_name",
+            "academic_year_name",
+            "status",
+            "created_count",
+            "cancelled_count",
+            "finished_at",
+            "created_by_name",
+        ]
+        read_only_fields = fields
+
+
+class ImportKeptStudentSerializer(serializers.ModelSerializer):
+    reasons = serializers.ListField(
+        child=serializers.ChoiceField(choices=import_cancellation.REASONS),
+        help_text="Ce qui garde l'élève : paiement ou crédit, réduction, échéancier particulier, "
+        "compte parent activé.",
+    )
+
+    class Meta:
+        model = Student
+        fields = ["id", "matricule", "last_name", "middle_name", "first_name", "reasons"]
+        read_only_fields = fields
+
+
+class ImportCancellationSerializer(serializers.Serializer):
+    removable_count = serializers.IntegerField(help_text="Élèves que l'annulation efface.")
+    kept_count = serializers.IntegerField(help_text="Élèves gardés : quelque chose les touche.")
+    kept = ImportKeptStudentSerializer(
+        many=True, help_text="Les 50 premiers élèves gardés, par nom."
+    )
+
+
+class ImportCancelSerializer(serializers.Serializer):
+    reason = serializers.CharField(max_length=255, help_text="Motif, gardé au journal.")
 
 
 class StudentImportCreateSerializer(serializers.Serializer):

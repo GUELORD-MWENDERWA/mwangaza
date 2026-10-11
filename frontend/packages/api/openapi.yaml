@@ -573,6 +573,8 @@ paths:
           - students.enrolled
           - students.enrollment_updated
           - students.student_imported
+          - students.import_cancelled
+          - students.student_removed
           - students.family_code_printed
           - students.family_code_renewed
           - students.family_invitation_printed
@@ -668,6 +670,8 @@ paths:
           * `students.enrolled` - Student enrolled
           * `students.enrollment_updated` - Enrollment changed
           * `students.student_imported` - Student imported from a file
+          * `students.import_cancelled` - Student import cancelled
+          * `students.student_removed` - Student removed (import cancelled)
           * `students.family_code_printed` - Family code printed on the registration form
           * `students.family_code_renewed` - New family code
           * `students.family_invitation_printed` - Portal invitation letter printed (family code)
@@ -930,6 +934,8 @@ paths:
           - students.enrolled
           - students.enrollment_updated
           - students.student_imported
+          - students.import_cancelled
+          - students.student_removed
           - students.family_code_printed
           - students.family_code_renewed
           - students.family_invitation_printed
@@ -1025,6 +1031,8 @@ paths:
           * `students.enrolled` - Student enrolled
           * `students.enrollment_updated` - Enrollment changed
           * `students.student_imported` - Student imported from a file
+          * `students.import_cancelled` - Student import cancelled
+          * `students.student_removed` - Student removed (import cancelled)
           * `students.family_code_printed` - Family code printed on the registration form
           * `students.family_code_renewed` - New family code
           * `students.family_invitation_printed` - Portal invitation letter printed (family code)
@@ -8412,11 +8420,48 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: ''
   /api/student-imports/:
+    get:
+      operationId: student_imports_list
+      description: |-
+        Import d'une liste d'élèves (D1) : envoi du fichier (vérifié aussitôt, rien n'est créé),
+        colonnes et classes choisies à la main, lignes vérifiées, puis import en tâche de fond.
+        Liste : les imports finis ou annulés, les plus récents d'abord. Un import fini s'annule (D6).
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStudentImportListList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
     post:
       operationId: student_imports_create
       description: |-
         Import d'une liste d'élèves (D1) : envoi du fichier (vérifié aussitôt, rien n'est créé),
         colonnes et classes choisies à la main, lignes vérifiées, puis import en tâche de fond.
+        Liste : les imports finis ou annulés, les plus récents d'abord. Un import fini s'annule (D6).
       tags:
       - students
       requestBody:
@@ -8464,6 +8509,7 @@ paths:
       description: |-
         Import d'une liste d'élèves (D1) : envoi du fichier (vérifié aussitôt, rien n'est créé),
         colonnes et classes choisies à la main, lignes vérifiées, puis import en tâche de fond.
+        Liste : les imports finis ou annulés, les plus récents d'abord. Un import fini s'annule (D6).
       parameters:
       - in: path
         name: id
@@ -8500,6 +8546,7 @@ paths:
       description: |-
         Import d'une liste d'élèves (D1) : envoi du fichier (vérifié aussitôt, rien n'est créé),
         colonnes et classes choisies à la main, lignes vérifiées, puis import en tâche de fond.
+        Liste : les imports finis ou annulés, les plus récents d'abord. Un import fini s'annule (D6).
       parameters:
       - in: path
         name: id
@@ -8541,6 +8588,104 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/student-imports/{id}/cancel/:
+    post:
+      operationId: student_imports_cancel_create
+      description: |-
+        Efface les élèves de l'import que rien ne touche, leurs inscriptions, leurs frais dus
+        et les familles restées sans élève. Motif obligatoire, journal.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this student import.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportCancelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ImportCancelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ImportCancelRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentImport'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/student-imports/{id}/cancellation/:
+    get:
+      operationId: student_imports_cancellation_retrieve
+      description: |-
+        Avant d'annuler : combien d'élèves partent, lesquels restent et pourquoi. Après :
+        les élèves gardés.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this student import.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportCancellation'
           description: ''
         '403':
           content:
@@ -10034,6 +10179,8 @@ components:
       - students.enrolled
       - students.enrollment_updated
       - students.student_imported
+      - students.import_cancelled
+      - students.student_removed
       - students.family_code_printed
       - students.family_code_renewed
       - students.family_invitation_printed
@@ -10128,6 +10275,8 @@ components:
         * `students.enrolled` - Student enrolled
         * `students.enrollment_updated` - Enrollment changed
         * `students.student_imported` - Student imported from a file
+        * `students.import_cancelled` - Student import cancelled
+        * `students.student_removed` - Student removed (import cancelled)
         * `students.family_code_printed` - Family code printed on the registration form
         * `students.family_code_renewed` - New family code
         * `students.family_invitation_printed` - Portal invitation letter printed (family code)
@@ -14079,6 +14228,34 @@ components:
         * `warning` - warning
         * `error` - error
         * `off` - off
+    ImportCancelRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          description: Motif, gardé au journal.
+          maxLength: 255
+      required:
+      - reason
+    ImportCancellation:
+      type: object
+      properties:
+        removable_count:
+          type: integer
+          description: Élèves que l'annulation efface.
+        kept_count:
+          type: integer
+          description: 'Élèves gardés : quelque chose les touche.'
+        kept:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImportKeptStudent'
+          description: Les 50 premiers élèves gardés, par nom.
+      required:
+      - removable_count
+      - kept_count
+      - kept
     ImportClass:
       type: object
       properties:
@@ -14130,6 +14307,39 @@ components:
       required:
       - code
       - line
+    ImportKeptStudent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        matricule:
+          type: string
+          readOnly: true
+          title: Student number
+        last_name:
+          type: string
+          readOnly: true
+        middle_name:
+          type: string
+          readOnly: true
+        first_name:
+          type: string
+          readOnly: true
+        reasons:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReasonsEnum'
+          description: 'Ce qui garde l''élève : paiement ou crédit, réduction, échéancier
+            particulier, compte parent activé.'
+      required:
+      - id
+      - matricule
+      - last_name
+      - middle_name
+      - first_name
+      - reasons
     ImportLine:
       type: object
       properties:
@@ -15539,6 +15749,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StudentHistory'
+    PaginatedStudentImportListList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentImportList'
     PaginatedStudentListList:
       type: object
       required:
@@ -16847,6 +17082,18 @@ components:
         * `scholarship` - Scholarship
         * `waiver` - Waiver from the head
         * `other` - Other
+    ReasonsEnum:
+      enum:
+      - payment
+      - discount
+      - schedule
+      - portal
+      type: string
+      description: |-
+        * `payment` - payment
+        * `discount` - discount
+        * `schedule` - schedule
+        * `portal` - portal
     ReceiptSettings:
       type: object
       description: 'Réglages du reçu (M5, `receipts.py`). Écriture partielle : les
@@ -18101,6 +18348,22 @@ components:
           format: date-time
           readOnly: true
           nullable: true
+        cancelled_count:
+          type: integer
+          readOnly: true
+          title: Students removed
+        cancelled_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        cancelled_by_name:
+          type: string
+          nullable: true
+        cancel_reason:
+          type: string
+          readOnly: true
+          title: Cancellation reason
       required:
       - id
       - academic_year
@@ -18117,6 +18380,10 @@ components:
       - created_count
       - created_at
       - finished_at
+      - cancelled_count
+      - cancelled_at
+      - cancelled_by_name
+      - cancel_reason
     StudentImportCreateRequest:
       type: object
       properties:
@@ -18130,18 +18397,63 @@ components:
           description: Année des classes du fichier ; l'année en cours si absente.
       required:
       - file
+    StudentImportList:
+      type: object
+      description: 'Un import fini dans « Imports précédents » : sans le fichier ni
+        le rapport.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        file_name:
+          type: string
+          readOnly: true
+        academic_year_name:
+          type: string
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StudentImportStatusEnum'
+          readOnly: true
+        created_count:
+          type: integer
+          readOnly: true
+          title: Students created
+        cancelled_count:
+          type: integer
+          readOnly: true
+          title: Students removed
+        finished_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_by_name:
+          type: string
+          nullable: true
+      required:
+      - id
+      - file_name
+      - academic_year_name
+      - status
+      - created_count
+      - cancelled_count
+      - finished_at
+      - created_by_name
     StudentImportStatusEnum:
       enum:
       - analysed
       - importing
       - done
       - failed
+      - cancelled
       type: string
       description: |-
         * `analysed` - Checked
         * `importing` - Importing
         * `done` - Imported
         * `failed` - Failed
+        * `cancelled` - Cancelled
     StudentList:
       type: object
       properties:

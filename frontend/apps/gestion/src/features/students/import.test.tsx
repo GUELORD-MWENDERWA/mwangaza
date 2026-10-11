@@ -49,6 +49,17 @@ const analysed = {
   created_count: 0,
   created_at: "2026-09-27T08:00:00Z",
   finished_at: null,
+  cancelled_count: 0,
+  cancelled_at: null,
+  cancelled_by_name: null,
+  cancel_reason: "",
+};
+const done = {
+  ...analysed,
+  status: "done",
+  counts: { rows: 4, ready: 4, warning: 0, error: 0 },
+  created_count: 4,
+  finished_at: "2026-09-27T08:05:00Z",
 };
 const values = (last: string, date: string, klass: string) => ({
   last_name: last,
@@ -90,6 +101,7 @@ function routes(role: Parameters<typeof me>[0]): Routes {
     "GET /api/tracks/": [],
     "GET /api/class-groups/": [group],
     "GET /api/students/": { count: 0, next: null, previous: null, results: [] },
+    "GET /api/student-imports/": { count: 0, next: null, previous: null, results: [] },
   };
 }
 
@@ -148,5 +160,76 @@ describe("importer des élèves (D1)", () => {
     const done = await screen.findByText("3 élèves importés et inscrits.", {}, { timeout: 4000 });
     expect(done).toBeTruthy();
     expect(within(done.closest("section")!).getByText(/1 ligne en erreur/)).toBeTruthy();
+  });
+
+  it("retrouve un import fini et l'annule avec un motif, en nommant les élèves gardés", async () => {
+    const cancelled = {
+      ...done,
+      status: "cancelled",
+      cancelled_count: 3,
+      cancelled_at: "2026-09-28T09:00:00Z",
+      cancelled_by_name: "Masika Furaha",
+      cancel_reason: "Mauvaise année",
+    };
+    const all: Routes = {
+      ...routes("head"),
+      "GET /api/student-imports/": {
+        count: 1,
+        next: null,
+        previous: null,
+        results: [
+          {
+            id: IMPORT,
+            file_name: "liste.xlsx",
+            academic_year_name: "2026-2027",
+            status: "done",
+            created_count: 4,
+            cancelled_count: 0,
+            finished_at: done.finished_at,
+            created_by_name: "Masika Furaha",
+          },
+        ],
+      },
+      [`GET /api/student-imports/${IMPORT}/`]: done,
+      [`GET /api/student-imports/${IMPORT}/cancellation/`]: {
+        removable_count: 3,
+        kept_count: 1,
+        kept: [
+          {
+            id: id(700),
+            matricule: "",
+            last_name: "Paluku",
+            middle_name: "Sivihwa",
+            first_name: "Daniel",
+            reasons: ["payment"],
+          },
+        ],
+      },
+      [`POST /api/student-imports/${IMPORT}/cancel/`]: () => {
+        all[`GET /api/student-imports/${IMPORT}/`] = cancelled;
+        return json(cancelled);
+      },
+    };
+    const requests = mockApi(all);
+    const { user } = renderApp("/students/import");
+
+    await user.click(await screen.findByRole("link", { name: "liste.xlsx" }));
+    await user.click(await screen.findByRole("button", { name: "Annuler cet import" }));
+    const dialog = await screen.findByRole("dialog");
+    expect(await within(dialog).findByText(/3 élèves seront retirés pour de bon/)).toBeTruthy();
+    expect(within(dialog).getByRole("link", { name: "PALUKU SIVIHWA Daniel" })).toBeTruthy();
+    expect(within(dialog).getByText(/— paiement/)).toBeTruthy();
+
+    // Sans motif, rien n'est envoyé.
+    await user.click(within(dialog).getByRole("button", { name: "Annuler l'import" }));
+    expect(requests.some((request) => request.path.endsWith("/cancel/"))).toBe(false);
+    await user.type(within(dialog).getByLabelText(/Motif/), "Mauvaise année");
+    await user.click(within(dialog).getByRole("button", { name: "Annuler l'import" }));
+
+    expect(await screen.findByText(/par Masika Furaha : 3 élèves retirés\./)).toBeTruthy();
+    expect(screen.getByText("Motif : Mauvaise année")).toBeTruthy();
+    const sent = requests.find((request) => request.path.endsWith("/cancel/"));
+    expect(sent?.body).toEqual({ reason: "Mauvaise année" });
+    expect(screen.queryByRole("button", { name: "Annuler cet import" })).toBeNull();
   });
 });

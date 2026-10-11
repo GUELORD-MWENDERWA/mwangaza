@@ -634,6 +634,7 @@ def run(imp: StudentImport, *, actor: User) -> None:
             pk=imp.school_id
         )
         sequence, _created = MatriculeSequence.objects.get_or_create(academic_year=year)
+        imp.matricule_start = sequence.last_number
         taken = set(Student.objects.exclude(matricule="").values_list("matricule", flat=True))
         students = []
         for row in rows:
@@ -651,7 +652,9 @@ def run(imp: StudentImport, *, actor: User) -> None:
                         break
             if fields["matricule"]:
                 taken.add(fields["matricule"])
-            students.append(Student(family=row.family, created_by=actor, **fields))
+            students.append(
+                Student(family=row.family, student_import=imp, created_by=actor, **fields)
+            )
         sequence.save(update_fields=["last_number", "updated_at"])
         Student.objects.bulk_create(students, batch_size=500)
         today = timezone.localdate()

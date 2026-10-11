@@ -1,7 +1,8 @@
 // Importer des élèves depuis Excel ou CSV (D1, maquette `gestion/eleves-import`) : fichier,
 // colonnes, vérification, import. L'import en cours est dans l'adresse (`/students/import/<id>`) :
 // un rechargement retrouve l'étape. Le serveur vérifie chaque ligne ; les lignes en erreur ne sont
-// pas importées, celles en avertissement le sont (à vérifier ensuite).
+// pas importées, celles en avertissement le sont (à vérifier ensuite). Un import fini se retrouve
+// sous l'étape « Fichier » et s'annule (`ImportCancellation`).
 import { useTranslation } from "@mwangaza/i18n";
 import {
   Banner,
@@ -45,6 +46,7 @@ import {
   useImportLines,
   useStudentImport,
 } from "./data";
+import { CancelImportDialog, CancelledImport, ImportHistory } from "./ImportCancellation";
 
 type Step = "file" | "columns" | "check" | "import";
 const STEPS: Step[] = ["file", "columns", "check", "import"];
@@ -70,7 +72,7 @@ export function ImportStudentsPage() {
           ? "columns"
           : "check";
   const position = STEPS.indexOf(current);
-  const finished = imp.data?.status === "done";
+  const finished = imp.data?.status === "done" || imp.data?.status === "cancelled";
   return (
     <>
       <PageHeader
@@ -104,7 +106,10 @@ export function ImportStudentsPage() {
         </CardContent>
       </Card>
       {!importId ? (
-        <FileStep />
+        <>
+          <FileStep />
+          <ImportHistory />
+        </>
       ) : imp.error ? (
         <LoadError error={imp.error} onRetry={() => void imp.refetch()} />
       ) : !imp.data ? (
@@ -503,6 +508,7 @@ function ImportStep({ imp }: { imp: StudentImport }) {
   const { t } = useTranslation();
   const number = useNumber();
   const queryClient = useQueryClient();
+  const [cancelling, setCancelling] = useState(false);
   const running = t("students.import.running", {
     count: imp.importable_count,
     number: number(imp.importable_count),
@@ -521,6 +527,8 @@ function ImportStep({ imp }: { imp: StudentImport }) {
           </>
         ) : imp.status === "failed" ? (
           <Banner tone="due">{t("students.import.failed")}</Banner>
+        ) : imp.status === "cancelled" ? (
+          <CancelledImport imp={imp} />
         ) : (
           <>
             <Banner tone="ok">
@@ -537,6 +545,11 @@ function ImportStep({ imp }: { imp: StudentImport }) {
       </CardContent>
       {imp.status !== "importing" && (
         <CardFooter className="flex-wrap justify-end gap-2.5">
+          {imp.status === "done" && imp.created_count > 0 && (
+            <Button variant="outline" className="mr-auto" onClick={() => setCancelling(true)}>
+              {t("students.import.cancel.action")}
+            </Button>
+          )}
           {imp.status === "done" && imp.counts.error > 0 && (
             <Button asChild variant="outline">
               <a href={importReportUrl(imp.id)} download>
@@ -547,13 +560,14 @@ function ImportStep({ imp }: { imp: StudentImport }) {
           <Button asChild variant="outline">
             <Link to="/students/import">{t("students.import.otherFile")}</Link>
           </Button>
-          {imp.status === "done" && (
+          {(imp.status === "done" || imp.status === "cancelled") && (
             <Button asChild>
               <Link to="/students">{t("students.import.seeStudents")}</Link>
             </Button>
           )}
         </CardFooter>
       )}
+      {cancelling && <CancelImportDialog imp={imp} onClose={() => setCancelling(false)} />}
     </Card>
   );
 }

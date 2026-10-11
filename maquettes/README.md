@@ -44,6 +44,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Fiche élève, onglet Historique | `gestion/eleve-fiche-historique.html` | V1.0 | I1 · M9 | à valider |
 | Inscrire un élève | `gestion/eleve-nouveau.html` | V1.0 | D3–D4 | fournie |
 | Import Excel | `gestion/eleves-import.html` | V1.0 | D1 | fournie — écart (4.13) : une colonne facultative non choisie affiche « Facultatif » (au lieu de « Non utilisé »), aussi sur téléphone |
+| Annuler un import | `gestion/eleves-import-annulation.html` | V1.0 | D6 | à valider — dessinée par Claude en 4.14 d'après `eleves-import` et `demande-annulation` ; écart : la carte « Imports précédents » n'apparaît que s'il y a au moins un import fini |
 | Fiche famille | `gestion/famille-fiche.html` | V1.0 | D4, H1 · M10 | à valider |
 | Fiche d'inscription (A4, code famille) | `gestion/fiche-inscription.html` | V1.0 | D5 · M11 | à valider |
 | Liste de classe (PDF, Excel) | `gestion/liste-classe.html` | V1.0 | D5 · M11 | à valider |
