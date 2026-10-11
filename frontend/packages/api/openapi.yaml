@@ -7507,6 +7507,11 @@ paths:
         description: A page number within the paginated result set.
         schema:
           type: integer
+      - in: query
+        name: unread
+        schema:
+          type: boolean
+        description: Seulement les non lues.
       tags:
       - portal
       security:
@@ -7517,6 +7522,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedPortalNotificationList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
   /api/portal/notifications/preferences/:
     get:
@@ -17845,6 +17856,9 @@ components:
         school_name:
           type: string
           readOnly: true
+        school_timezone:
+          type: string
+          readOnly: true
       required:
       - id
       - kind
@@ -17854,6 +17868,7 @@ components:
       - created_at
       - read_at
       - school_name
+      - school_timezone
     PortalProfile:
       type: object
       description: |-

@@ -182,7 +182,8 @@ class PortalNotificationSerializer(NotificationSerializer):
     """Notification du parent, avec son école : le centre du portail mêle toutes ses écoles."""
 
     school_name = serializers.CharField(source="school.name", read_only=True)
+    school_timezone = serializers.CharField(source="school.timezone", read_only=True)
 
     class Meta(NotificationSerializer.Meta):
-        fields = [*NotificationSerializer.Meta.fields, "school_name"]
+        fields = [*NotificationSerializer.Meta.fields, "school_name", "school_timezone"]
         read_only_fields = fields

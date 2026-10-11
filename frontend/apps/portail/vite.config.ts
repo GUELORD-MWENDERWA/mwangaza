@@ -26,6 +26,8 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,woff2,png,svg}"],
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/api\//, /^\/admin\//, /^\/static\//, /^\/media\//],
+        // Notifications sur l'écran (5.5.2) : `public/push-sw.js`, le même que la Gestion.
+        importScripts: ["push-sw.js"],
         runtimeCaching: [
           {
             urlPattern: /\/api\/portal\/(me|families|children\/[0-9a-f-]+|announcements)\/$/,

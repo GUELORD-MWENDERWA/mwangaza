@@ -3220,6 +3220,7 @@ export const en: Messages<typeof fr> = {
       benefits: {
         oneTap: "Opens in one tap, like an app",
         offline: "Shows your latest information even offline",
+        notifications: "Alerts you on screen, even with the app closed",
         light: "Very light: no Play Store",
       },
       install: "Install",
@@ -3231,6 +3232,13 @@ export const en: Messages<typeof fr> = {
         addToHome: "Choose “Add to Home Screen”",
         add: "Tap “Add”",
       },
+      iphoneNotifications:
+        "On iPhone, notifications only appear once the app is added to the Home Screen.",
+    },
+    notifications: {
+      subtitle:
+        "News from your children's schools. It also shows on this phone's screen, even with the app closed.",
+      older: "Older notifications",
     },
     nav: {
       label: "Portal navigation",

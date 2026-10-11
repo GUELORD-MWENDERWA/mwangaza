@@ -6792,6 +6792,7 @@ export interface components {
             /** Format: date-time */
             readonly read_at: string | null;
             readonly school_name: string;
+            readonly school_timezone: string;
         };
         /**
          * @description Coordonnées que le parent tient à jour : adresse (celle de ses enfants), e-mail (le
@@ -15523,6 +15524,8 @@ export interface operations {
             query?: {
                 /** @description A page number within the paginated result set. */
                 page?: number;
+                /** @description Seulement les non lues. */
+                unread?: boolean;
             };
             header?: never;
             path?: never;
@@ -15536,6 +15539,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PaginatedPortalNotificationList"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
         };

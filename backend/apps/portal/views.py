@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.utils.text import slugify
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiResponse, extend_schema
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import ListAPIView
@@ -282,6 +282,13 @@ class NotificationsView(ListAPIView):
 
     permission_classes = [PortalAddress, IsAuthenticated]
     serializer_class = PortalNotificationSerializer
+
+    @extend_schema(
+        parameters=[OpenApiParameter("unread", bool, description="Seulement les non lues.")],
+        responses={200: PortalNotificationSerializer(many=True), 403: ErrorSerializer},
+    )
+    def get(self, request: Request, *args, **kwargs) -> Response:
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         found = notifications.inbox(self.request.user)
