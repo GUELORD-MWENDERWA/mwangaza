@@ -296,6 +296,7 @@ export function sampleReceipt(
   return {
     id: "00000000-0000-7000-8000-000000000000",
     receipt_number: t("cash.receipt.sample.number"),
+    origin: "cash",
     enrollment: "",
     student: { id: "", full_name: t("cash.receipt.sample.student"), matricule: "0000" },
     class_group: t("cash.receipt.sample.classGroup"),

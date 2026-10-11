@@ -280,6 +280,7 @@ export function offlineReceipt(input: {
   return {
     id: input.id,
     receipt_number: input.number,
+    origin: "cash",
     enrollment: input.enrollment.id,
     student: { id: student.id, full_name: studentName(student), matricule: student.matricule },
     class_group: input.classGroup,
@@ -362,7 +363,8 @@ export function offlinePayload(receipt: Receipt): OfflinePayment {
       received_minor: line.received_minor,
     })),
     note: receipt.note,
-    cash_session: receipt.cash_session,
+    // Un reçu fait ici vient toujours d'une session ouverte sur l'appareil.
+    cash_session: receipt.cash_session ?? "",
     receipt_number: receipt.receipt_number,
     paid_at: receipt.paid_at,
   };

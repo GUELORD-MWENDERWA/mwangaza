@@ -19,6 +19,7 @@ import { DashboardPage } from "./features/dashboard/DashboardPage";
 import { DevicesPage } from "./features/devices/DevicesPage";
 import { FeesPage } from "./features/fees/FeesPage";
 import { OrganisationPage } from "./features/organisation/OrganisationPage";
+import { PriorPaymentsPage } from "./features/prior-payments/PriorPaymentsPage";
 import { RolesPage } from "./features/roles/RolesPage";
 import { SchoolChoicePage } from "./features/schools/SchoolChoicePage";
 import { SchoolSettingsPage } from "./features/settings/SchoolSettingsPage";
@@ -77,6 +78,11 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
     path: "students/new",
     item: { ...menuItem("students"), permissions: ["students.edit"] },
     element: <NewStudentPage />,
+  },
+  {
+    path: "fees/prior-payments",
+    item: { ...menuItem("fees"), permissions: ["finance.import_prior_payments"] },
+    element: <PriorPaymentsPage />,
   },
   {
     path: "students/import/:importId?",

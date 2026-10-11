@@ -166,7 +166,9 @@ function Payments({ child }: { child: ChildPayments }) {
             {payments.map((payment) => (
               <li key={payment.id} className="flex items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
-                  <b className="block text-[.92rem] break-all">{payment.receipt_number}</b>
+                  <b className="block text-[.92rem] break-all">
+                    {payment.origin === "prior" ? t("portal.child.prior") : payment.receipt_number}
+                  </b>
                   <span className="text-[.8rem] text-ink-3 tabular-nums">
                     {formatDate(payment.paid_at, language, child.school_timezone)} ·{" "}
                     {formatAmount(payment.received_amount_minor, payment.received_currency)}
@@ -174,7 +176,7 @@ function Payments({ child }: { child: ChildPayments }) {
                 </div>
                 {payment.cancelled ? (
                   <StatusPill tone="gray">{t("portal.child.cancelled")}</StatusPill>
-                ) : (
+                ) : payment.origin === "prior" ? null : (
                   <a
                     href={receiptUrl(payment.id)}
                     target="_blank"

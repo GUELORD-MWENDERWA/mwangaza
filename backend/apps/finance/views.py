@@ -666,9 +666,11 @@ class PaymentViewSet(
         payments = services.receipt_payments()
         if FINANCE_VIEW_REPORTS not in school_access(self.request).permissions:
             payments = payments.filter(cash_session__cashier=self.request.user)
-        if self.action != "list":
-            # Une reprise (E6) n'a pas de reçu : ni lecture ni réimpression.
+        if self.action == "reprint":
+            # Une reprise (E6) n'a pas de reçu : rien à réimprimer.
             return payments.filter(origin=Payment.Origin.CASH)
+        if self.action != "list":
+            return payments
         params = PaymentFilterSerializer(data=self.request.query_params)
         params.is_valid(raise_exception=True)
         filters = params.validated_data
@@ -676,6 +678,8 @@ class PaymentViewSet(
             payments = payments.filter(cash_session_id=filters["session"])
         if "enrollment" in filters:
             payments = payments.filter(enrollment_id=filters["enrollment"])
+        if "origin" in filters:
+            payments = payments.filter(origin=filters["origin"])
         if search := filters.get("search", "").strip():
             payments = payments.filter(
                 Q(receipt_number__icontains=search)

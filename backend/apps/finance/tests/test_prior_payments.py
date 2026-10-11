@@ -173,13 +173,12 @@ def test_the_preview_writes_nothing_then_the_file_is_recorded_outside_the_cash_d
     logged = entries(school, "finance.prior_payment_recorded")
     assert {(e.actor, e.entity_id) for e in logged} == {(accountant, usd.pk), (accountant, cdf.pk)}
     assert logged[0].after["file"] == "reprise.xlsx"
-    # Dans l'historique de l'élève, sans reçu : ni lecture, ni réimpression, ni vérification.
-    history = api(head).get("/api/payments/", enrollment=str(enrollment.pk)).json()
-    assert {(p["origin"], p["cash_register"]) for p in history["results"]} == {
-        ("prior", None),
-        ("cash", "C1"),
+    # Sur la fiche de l'élève, sans reçu : ni réimpression, ni vérification publique.
+    shown = api(head).get("/api/payments/", enrollment=str(enrollment.pk), origin="prior").json()
+    assert {(p["receipt_number"], p["cash_register"]) for p in shown["results"]} == {
+        (usd.receipt_number, ""),
+        (cdf.receipt_number, ""),
     }
-    assert api(head).get(f"/api/payments/{usd.pk}/").status_code == 404
     assert api(head).post(f"/api/payments/{usd.pk}/reprint/").status_code == 404
     assert page(api, usd.pk)[0].status_code == 404
 

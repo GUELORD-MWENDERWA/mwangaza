@@ -602,6 +602,7 @@ paths:
           - finance.cash_session_opened
           - finance.cash_session_closed
           - finance.payment_recorded
+          - finance.prior_payment_recorded
           - finance.payment_reprinted
           - finance.cancellation_requested
           - finance.payment_cancelled
@@ -700,6 +701,7 @@ paths:
           * `finance.cash_session_opened` - Cash session opened
           * `finance.cash_session_closed` - Cash session closed
           * `finance.payment_recorded` - Payment recorded
+          * `finance.prior_payment_recorded` - Earlier payment recorded (not at the cash desk)
           * `finance.payment_reprinted` - Receipt reprinted
           * `finance.cancellation_requested` - Payment cancellation requested
           * `finance.payment_cancelled` - Payment cancelled
@@ -965,6 +967,7 @@ paths:
           - finance.cash_session_opened
           - finance.cash_session_closed
           - finance.payment_recorded
+          - finance.prior_payment_recorded
           - finance.payment_reprinted
           - finance.cancellation_requested
           - finance.payment_cancelled
@@ -1063,6 +1066,7 @@ paths:
           * `finance.cash_session_opened` - Cash session opened
           * `finance.cash_session_closed` - Cash session closed
           * `finance.payment_recorded` - Payment recorded
+          * `finance.prior_payment_recorded` - Earlier payment recorded (not at the cash desk)
           * `finance.payment_reprinted` - Receipt reprinted
           * `finance.cancellation_requested` - Payment cancellation requested
           * `finance.payment_cancelled` - Payment cancelled
@@ -6750,6 +6754,19 @@ paths:
           type: string
           format: uuid
         description: Paiements d'une inscription.
+      - in: query
+        name: origin
+        schema:
+          enum:
+          - cash
+          - prior
+          type: string
+          minLength: 1
+        description: |-
+          `prior` : seulement les reprises en cours d'année (E6).
+
+          * `cash` - Collected at the cash desk
+          * `prior` - Paid before the school started here
       - name: page
         required: false
         in: query
@@ -7571,6 +7588,96 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: ''
         '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/prior-payments/:
+    post:
+      operationId: prior_payments_create
+      description: |-
+        Reprise en cours d'année (E6) : ce que chaque élève avait payé avant que l'école
+        n'utilise l'application, importé d'un fichier. Sans `expected` : aperçu (200), rien n'est
+        écrit. Avec les totaux de l'aperçu : enregistré (201) hors caisse et sans reçu, lignes en
+        erreur laissées ; 409 `preview_outdated` si le résultat n'est plus celui de l'aperçu.
+      tags:
+      - finance
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PriorPaymentUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriorPaymentPreview'
+          description: ''
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriorPaymentPreview'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/prior-payments/template/:
+    get:
+      operationId: prior_payments_template_retrieve
+      description: 'Modèle Excel de la reprise, déjà garni : les élèves de l''année
+        et leur reste à payer.'
+      tags:
+      - finance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: Classeur Excel.
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
           content:
             application/json:
               schema:
@@ -10520,6 +10627,7 @@ components:
       - finance.cash_session_opened
       - finance.cash_session_closed
       - finance.payment_recorded
+      - finance.prior_payment_recorded
       - finance.payment_reprinted
       - finance.cancellation_requested
       - finance.payment_cancelled
@@ -10617,6 +10725,7 @@ components:
         * `finance.cash_session_opened` - Cash session opened
         * `finance.cash_session_closed` - Cash session closed
         * `finance.payment_recorded` - Payment recorded
+        * `finance.prior_payment_recorded` - Earlier payment recorded (not at the cash desk)
         * `finance.payment_reprinted` - Receipt reprinted
         * `finance.cancellation_requested` - Payment cancellation requested
         * `finance.payment_cancelled` - Payment cancelled
@@ -11202,6 +11311,8 @@ components:
         receipt_number:
           type: string
           maxLength: 40
+        origin:
+          $ref: '#/components/schemas/PaymentOriginEnum'
         enrollment:
           type: string
           format: uuid
@@ -11215,10 +11326,12 @@ components:
         cash_register:
           type: string
           readOnly: true
+          description: Code ; vide pour une reprise.
         cash_session:
           type: string
           format: uuid
           readOnly: true
+          nullable: true
         cashier:
           allOf:
           - $ref: '#/components/schemas/Person'
@@ -11254,12 +11367,14 @@ components:
         cash_register_name:
           type: string
           readOnly: true
+          description: Vide pour une reprise.
         academic_year:
           type: string
           readOnly: true
       required:
       - id
       - receipt_number
+      - origin
       - enrollment
       - student
       - class_group
@@ -11772,6 +11887,14 @@ components:
         cancelled:
           type: boolean
           description: 'Annulé : ne compte plus, pas de reçu PDF.'
+        origin:
+          allOf:
+          - $ref: '#/components/schemas/PaymentOriginEnum'
+          description: |-
+            `prior` : payé avant que l'école n'utilise l'application, pas de reçu PDF.
+
+            * `cash` - Collected at the cash desk
+            * `prior` - Paid before the school started here
       required:
       - id
       - receipt_number
@@ -11779,6 +11902,7 @@ components:
       - received_amount_minor
       - received_currency
       - cancelled
+      - origin
     ChildPayments:
       type: object
       description: Paiements d'un enfant (H3), dans son école.
@@ -13182,6 +13306,14 @@ components:
       required:
       - currency
       - amount_minor
+    CreditOriginEnum:
+      enum:
+      - offline_surplus
+      - discount
+      type: string
+      description: |-
+        * `offline_surplus` - Paid twice offline
+        * `discount` - Discount granted
     CreditProposal:
       type: object
       properties:
@@ -15562,14 +15694,6 @@ components:
       required:
       - id
       - name
-    OriginEnum:
-      enum:
-      - offline_surplus
-      - discount
-      type: string
-      description: |-
-        * `offline_surplus` - Paid twice offline
-        * `discount` - Discount granted
     Outcome:
       type: object
       properties:
@@ -16689,6 +16813,8 @@ components:
         receipt_number:
           type: string
           maxLength: 40
+        origin:
+          $ref: '#/components/schemas/PaymentOriginEnum'
         enrollment:
           type: string
           format: uuid
@@ -16702,10 +16828,12 @@ components:
         cash_register:
           type: string
           readOnly: true
+          description: Code ; vide pour une reprise.
         cash_session:
           type: string
           format: uuid
           readOnly: true
+          nullable: true
         cashier:
           allOf:
           - $ref: '#/components/schemas/Person'
@@ -16753,6 +16881,7 @@ components:
       required:
       - id
       - receipt_number
+      - origin
       - enrollment
       - student
       - class_group
@@ -16865,6 +16994,14 @@ components:
       - enrollment
       - received_amount_minor
       - received_currency
+    PaymentOriginEnum:
+      enum:
+      - cash
+      - prior
+      type: string
+      description: |-
+        * `cash` - Collected at the cash desk
+        * `prior` - Paid before the school started here
     PaymentReceipt:
       type: object
       description: |-
@@ -16878,6 +17015,8 @@ components:
         receipt_number:
           type: string
           maxLength: 40
+        origin:
+          $ref: '#/components/schemas/PaymentOriginEnum'
         enrollment:
           type: string
           format: uuid
@@ -16891,10 +17030,12 @@ components:
         cash_register:
           type: string
           readOnly: true
+          description: Code ; vide pour une reprise.
         cash_session:
           type: string
           format: uuid
           readOnly: true
+          nullable: true
         cashier:
           allOf:
           - $ref: '#/components/schemas/Person'
@@ -16952,6 +17093,7 @@ components:
       required:
       - id
       - receipt_number
+      - origin
       - enrollment
       - student
       - class_group
@@ -17001,6 +17143,7 @@ components:
       - finance.approve_cancellation
       - finance.close_register
       - finance.view_reports
+      - finance.import_prior_payments
       - announcements.publish
       - audit.view
       type: string
@@ -17019,6 +17162,7 @@ components:
         * `finance.approve_cancellation` - Approve a payment cancellation
         * `finance.close_register` - Close a cash register
         * `finance.view_reports` - View financial reports
+        * `finance.import_prior_payments` - Record what students paid before the school started here
         * `announcements.publish` - Publish announcements
         * `audit.view` - View the audit log
     Person:
@@ -17419,6 +17563,144 @@ components:
         * `thermal_58` - thermal_58
         * `thermal_80` - thermal_80
         * `sheet` - sheet
+    PriorPaymentIssue:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/PriorPaymentIssueEnum'
+        due_minor:
+          type: integer
+          description: '`more_than_due` : ce que l''élève doit encore.'
+        currency:
+          type: string
+      required:
+      - code
+      - due_minor
+      - currency
+    PriorPaymentIssueEnum:
+      enum:
+      - missing_matricule
+      - unknown_student
+      - missing_currency
+      - unknown_currency
+      - invalid_amount
+      - unknown_fee
+      - already_recorded
+      - more_than_due
+      type: string
+      description: |-
+        * `missing_matricule` - missing_matricule
+        * `unknown_student` - unknown_student
+        * `missing_currency` - missing_currency
+        * `unknown_currency` - unknown_currency
+        * `invalid_amount` - invalid_amount
+        * `unknown_fee` - unknown_fee
+        * `already_recorded` - already_recorded
+        * `more_than_due` - more_than_due
+    PriorPaymentLine:
+      type: object
+      properties:
+        line:
+          type: integer
+          description: Numéro de la ligne du fichier.
+        matricule:
+          type: string
+        student:
+          type: string
+          nullable: true
+        class_group:
+          type: string
+          nullable: true
+        amount:
+          type: string
+          description: Montant tel qu'il est écrit dans le fichier.
+        amount_minor:
+          type: integer
+          nullable: true
+        currency:
+          type: string
+          description: Devise reconnue, sinon le texte du fichier.
+        fee:
+          type: string
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriorPaymentIssue'
+      required:
+      - line
+      - matricule
+      - student
+      - class_group
+      - amount
+      - amount_minor
+      - currency
+      - fee
+      - issues
+    PriorPaymentPreview:
+      type: object
+      description: Aperçu d'un fichier de reprise, ou son résultat une fois enregistré
+        (`recorded`).
+      properties:
+        recorded:
+          type: boolean
+        ready_count:
+          type: integer
+          description: Lignes prêtes (ou enregistrées).
+        error_count:
+          type: integer
+          description: 'Lignes en erreur : jamais enregistrées.'
+        empty_count:
+          type: integer
+          description: 'Lignes sans montant : ignorées.'
+        totals:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriorPaymentTotal'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriorPaymentLine'
+          description: Les 300 premières.
+        ready:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriorPaymentLine'
+          description: Les 20 premières.
+      required:
+      - recorded
+      - ready_count
+      - error_count
+      - empty_count
+      - totals
+      - errors
+      - ready
+    PriorPaymentTotal:
+      type: object
+      properties:
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        amount_minor:
+          type: integer
+          minimum: 1
+        count:
+          type: integer
+          minimum: 1
+      required:
+      - currency
+      - amount_minor
+      - count
+    PriorPaymentUploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Excel (.xlsx) ou CSV, 5 Mo au plus.
+        expected:
+          description: 'Totaux de l''aperçu (`totals`, en JSON) : présents, le fichier
+            est enregistré.'
+      required:
+      - file
     ProfileEnum:
       enum:
       - small
@@ -18501,7 +18783,7 @@ components:
           type: string
           readOnly: true
         origin:
-          $ref: '#/components/schemas/OriginEnum'
+          $ref: '#/components/schemas/CreditOriginEnum'
         amount_minor:
           type: integer
           maximum: 9223372036854775807
@@ -18594,7 +18876,7 @@ components:
           type: string
           readOnly: true
         origin:
-          $ref: '#/components/schemas/OriginEnum'
+          $ref: '#/components/schemas/CreditOriginEnum'
         amount_minor:
           type: integer
           maximum: 9223372036854775807

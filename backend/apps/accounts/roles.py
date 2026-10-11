@@ -158,3 +158,7 @@ def sorted_permissions(codes) -> list[str]:
     if unknown:
         raise ValueError(f"Codes de permission inconnus : {sorted(unknown)}")
     return [code for code in PERMISSIONS if code in wanted]
+
+
+# Codes des rôles système avec leur nom (choix de `Role.code`, nom de l'énumération OpenAPI).
+SYSTEM_ROLE_CHOICES = [(code, role.label) for code, role in SYSTEM_ROLES.items()]

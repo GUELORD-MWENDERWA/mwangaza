@@ -32,6 +32,7 @@ export const PERMISSIONS = {
     "finance.grant_discount",
     "finance.approve_cancellation",
     "finance.view_reports",
+    "finance.import_prior_payments",
     "announcements.publish",
     "audit.view",
   ],
@@ -54,6 +55,7 @@ export const PERMISSIONS = {
     "finance.approve_cancellation",
     "finance.close_register",
     "finance.view_reports",
+    "finance.import_prior_payments",
   ],
 } satisfies Record<string, Permission[]>;
 

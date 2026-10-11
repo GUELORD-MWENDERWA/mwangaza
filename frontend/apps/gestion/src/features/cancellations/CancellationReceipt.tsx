@@ -10,6 +10,7 @@ import type { ReactNode } from "react";
 import { fullName } from "../../lib/people";
 import type { School } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
+import { registerLabel } from "../prior-payments/data";
 import { QrCode } from "../auth/QrCode";
 import { amounts, ReceiptPages, usePrintArea } from "../cash/Receipt";
 import { headerLines } from "../settings/ReceiptCard";
@@ -88,7 +89,7 @@ function CancellationCopy({
         {t("cancellations.receipt.cancels", {
           number: payment.receipt_number,
           date: when(payment.paid_at),
-          register: payment.cash_register_name,
+          register: registerLabel(payment, t),
         })}
       </p>
       <dl className="receipt__rows">
@@ -128,7 +129,7 @@ function CancellationCopy({
         <p>
           {t("cancellations.receipt.requestedBy")}
           <br />
-          <b>{fullName(item.requested_by)}</b> · {payment.cash_register_name}
+          <b>{fullName(item.requested_by)}</b> · {registerLabel(payment, t)}
         </p>
         <p>
           {t("cancellations.receipt.approvedBy")}

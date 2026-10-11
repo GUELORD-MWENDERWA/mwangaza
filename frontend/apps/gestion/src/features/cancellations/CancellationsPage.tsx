@@ -33,6 +33,7 @@ import { fullName } from "../../lib/people";
 import { can } from "../../lib/permissions";
 import { keys, useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
+import { registerLabel } from "../prior-payments/data";
 import { Pagination } from "../shell/Pagination";
 import { LoadError } from "../status/StatusPages";
 import { type CancellationReceipt, useCancellationPrinter } from "./CancellationReceipt";
@@ -248,7 +249,7 @@ function RequestTable({
             </td>
             <td>
               {fullName(item.requested_by)}
-              <span className="block text-sm text-ink-3">{item.payment.cash_register_name}</span>
+              <span className="block text-sm text-ink-3">{registerLabel(item.payment, t)}</span>
             </td>
             <td className="text-sm">{item.reason}</td>
           </tr>

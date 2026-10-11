@@ -26,6 +26,7 @@ import { fullName } from "../../lib/people";
 import { useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { StudentCredits } from "../credits/StudentCredits";
+import { StudentPriorPayments } from "../prior-payments/StudentPriorPayments";
 import { LoadError } from "../status/StatusPages";
 import {
   type Balance,
@@ -285,6 +286,10 @@ export function StudentFinancesTab({
         )}
         <CardContent className="text-sm text-ink-3">{t("students.finances.later")}</CardContent>
       </Card>
+      <StudentPriorPayments
+        enrollment={can(me, ["finance.view_reports"]) ? enrollment.id : undefined}
+        canRequest={can(me, ["finance.request_cancellation"])}
+      />
       {granting && (
         <DiscountDialog
           student={student}

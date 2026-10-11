@@ -21,6 +21,7 @@ import {
 } from "@mwangaza/ui";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
+import { Link } from "react-router";
 
 import { errorMessage } from "../../lib/errors";
 import { can } from "../../lib/permissions";
@@ -78,6 +79,11 @@ export function FeesPage() {
                   </option>
                 ))}
               </Select>
+            )}
+            {can(me, ["finance.import_prior_payments"]) && (
+              <Button asChild variant="outline">
+                <Link to="/fees/prior-payments">{t("priorPayments.crumb")}</Link>
+              </Button>
             )}
             {canConfigure && (
               <Button variant="outline" onClick={() => setTypeDialog("new")}>
