@@ -8,7 +8,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | 4.19 (Reprise en cours d'année) — en cours depuis le 2026-10-11 |
+| Tâche en cours | aucune — 4.19 terminée, PR à relire et fusionner |
 | Prochaine tâche | 4.20 (Mise en route d'une école neuve) |
 | Issue GitHub | #162 pour 4.19 (bloc : #155 à #165, créées le 2026-10-10) |
 | Branche | `tache/4.19-reprise-paiements` ; dossier local : `~/Projets/mwangaza` |
@@ -23,8 +23,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.21, 4.7.1 ; 4.17 en deux) | 8 | 12 |
-| **V1.0** | **58** | **64** |
+| Lancement — version finie (4.12 à 4.21, 4.7.1 ; 4.17 en deux) | 9 | 12 |
+| **V1.0** | **59** | **64** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -56,6 +56,13 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-11 — Tâche 4.19 : Reprise en cours d'année (payé avant Mwangaza)
+
+- Fait : import Excel de ce que chaque élève avait déjà payé (`finance/prior_payments.py`, `POST /api/prior-payments/`, modèle déjà garni `…/template/`) ; aperçu (totaux par devise, erreurs ligne par ligne) puis enregistrement en une transaction ; écran Gestion `/app/fees/prior-payments` (lien depuis « Frais et barèmes ») ; reprises visibles sur la fiche élève (onglet Finances, avec « Demander l'annulation »), le relevé et le Portail (« Payé avant … », sans PDF) ; maquette `gestion/reprise-paiements` dessinée.
+- Décisions : pas de nouveau modèle — `Payment.origin=prior` sans session de caisse (contrainte en base), référence dans la série `RP` ; hors « encaissé », sessions et clôtures, sans reçu ; un élève déjà repris dans une devise n'est jamais repris deux fois ; ni table d'import ni tâche de fond (fichier renvoyé à la validation, refus si l'aperçu est périmé) ; permission `finance.import_prior_payments` (directeur, comptable ; pas le support) ; reprises envoyées aussi aux appareils des caissiers (solde des duplicatas hors ligne). `make demo` inchangé.
+- Tests : `finance/tests/test_prior_payments.py` (isolation, permission, hors caisse et sans reçu, erreurs, double envoi, aperçu périmé, annulation habituelle, audit), portail (sans reçu), Vitest de l'écran ; `make lint` ; suite complète : CI.
+- Suite : 4.20 (Mise en route d'une école neuve), qui mènera à cet écran.
 
 ### 2026-10-11 — Tâche 4.18 : Espaces d'essai et de démonstration reconnaissables
 

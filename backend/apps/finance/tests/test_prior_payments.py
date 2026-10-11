@@ -17,6 +17,7 @@ from apps.finance.models import Payment
 from apps.finance.tests.test_api import entries
 from apps.finance.tests.test_payments import lines, pay, school_with_fees
 from apps.finance.tests.test_verification import page
+from apps.sync import services as sync
 from apps.sync.models import ChangeLog
 from tests.factories import MembershipFactory
 
@@ -167,8 +168,12 @@ def test_the_preview_writes_nothing_then_the_file_is_recorded_outside_the_cash_d
         assert services.session_totals(services.open_session_of(cashier)) == [
             {"currency": "USD", "amount_minor": 1000, "count": 1}
         ]
-        # Les appareils reçoivent le nouveau solde de l'élève.
+        # Les appareils reçoivent le nouveau solde de l'élève ; celui de la caissière aussi la
+        # reprise, pour le solde de ses duplicatas hors ligne.
         assert ChangeLog.objects.filter(entity_id=enrollment.pk).exists()
+        reader = sync.Reader(user=cashier, finance=True, all_payments=False)
+        [item] = sync.enrollments(reader, ids=[enrollment.pk])
+        assert {p.pk for p in item.sync_payments} == {sold.pk, usd.pk, cdf.pk}
     assert lines(school, usd) == [("1re tranche", 11000, 11000), ("2e tranche", 4000, 4000)]
     logged = entries(school, "finance.prior_payment_recorded")
     assert {(e.actor, e.entity_id) for e in logged} == {(accountant, usd.pk), (accountant, cdf.pk)}

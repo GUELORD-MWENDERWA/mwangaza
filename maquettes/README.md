@@ -52,6 +52,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Lettre d'invitation au portail (2 par A4) | `gestion/lettre-invitation.html` | V1.0 | H7 | à valider — dessinée par Claude en 4.9 |
 | Frais, barèmes, taux | `gestion/frais-baremes.html` | V1.0 | E1–E5 | fournie |
 | Accorder une réduction | `gestion/eleve-reduction.html` | V1.0 | E3 · M12 | à valider |
+| Reprise en cours d'année | `gestion/reprise-paiements.html` | V1.0 | E6 | à valider — dessinée par Claude en 4.19 d'après `eleves-import` ; écran codé : les étapes « Fichier » et « Enregistré » reprennent la même page (carte du fichier, puis bandeau vert et mêmes tableaux) |
 | Échéancier particulier | `gestion/eleve-echeancier.html` | V1.0 | E4 · M12 | à valider |
 | Ouvrir une session de caisse | `gestion/caisse-ouverture.html` | V1.0 | F1 · M13 | à valider |
 | Caisse : paiements du jour, recherche et réimpression d'un reçu | `gestion/caisse-accueil.html` | V1.0 | F1, F6 · M13 | à valider |

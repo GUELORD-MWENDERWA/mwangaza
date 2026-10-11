@@ -73,6 +73,7 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 | Caisse | `CashRegister` |
 | Clôture de caisse | `CashClosing` |
 | Reçu | pas de modèle : vue imprimable d'un `Payment` (`receipt_number`) |
+| Reprise en cours d'année (payé avant Mwangaza) | pas de modèle : `Payment` avec `origin=prior`, sans `cash_session` ni reçu |
 | Option (humanités) | `Track` |
 | Section de classe (6e A) | `ClassGroup` |
 | Année scolaire | `AcademicYear` |

@@ -62,12 +62,12 @@ describe("reprise en cours d'année (E6)", () => {
 
     // Rien n'est encore enregistré : l'erreur dit ce que doit l'élève, le total est à valider.
     expect(await screen.findByText(/Plus que ce que doit l'élève \(360,00/)).toBeTruthy();
-    expect(String(posted()[0].body)).not.toContain('name="expected"');
+    expect(String(posted()[0]?.body)).not.toContain('name="expected"');
     all["POST /api/prior-payments/"] = json({ ...preview, recorded: true }, 201);
     await user.click(screen.getByRole("button", { name: "Enregistrer 1 paiement" }));
 
     expect(await screen.findByText(/1 paiement enregistré/)).toBeTruthy();
     expect(posted()).toHaveLength(2);
-    expect(String(posted()[1].body)).toContain(JSON.stringify(preview.totals));
+    expect(String(posted()[1]?.body)).toContain(JSON.stringify(preview.totals));
   });
 });

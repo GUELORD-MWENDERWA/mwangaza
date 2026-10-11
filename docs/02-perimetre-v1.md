@@ -107,7 +107,7 @@ Ce qu'il faut en plus pour qu'une vraie école démarre sans aide ; tâches 4.12
 - **C4** — Le directeur d'une école neuve suit une liste « Mise en route » qui le mène, étape par étape, jusqu'au premier encaissement.
 - **C5** — L'école choisit si les matricules sont attribués automatiquement (précise C3 et D3) ; sinon elle garde les siens ou n'en a pas.
 - **D6** — Le secrétariat importe ses élèves sans matricule et annule un import raté.
-- **E6** — Une école qui démarre en cours d'année importe ce que chaque élève a déjà payé avant Mwangaza, sans reçu ni effet sur la caisse du jour.
+- **E6** — Une école qui démarre en cours d'année importe ce que chaque élève a déjà payé avant Mwangaza, sans reçu ni effet sur la caisse du jour. (4.19 : fichier Excel d'après un modèle déjà garni, aperçu avec erreurs et totaux, une ligne par élève et par devise, frais facultatif ; visible sur la fiche élève, le relevé et le Portail ; corrigé par l'annulation habituelle.)
 - **H8** — Le parent reste connecté sur son téléphone, y compris quand le réseau est mauvais ; une session finie le ramène à la connexion avec un message clair.
 - **I4** (précisé) — Sauvegardes et restauration prêtes et essayées sur la machine avant l'achat du stockage ; branchées au vrai stockage à la mise en ligne.
 

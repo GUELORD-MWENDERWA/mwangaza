@@ -21,6 +21,7 @@ from cryptography.hazmat.primitives.serialization import load_der_public_key
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -289,7 +290,11 @@ def enrollments(reader: Reader, *, ids=None, after=None, limit=None) -> list[Enr
     charges = finance.charges_by_enrollment(keys)
     payments = finance.receipt_payments().filter(enrollment_id__in=keys)
     if not reader.all_payments:
-        payments = payments.filter(cash_session__cashier=reader.user)
+        # Ses encaissements, et les reprises (E6) : sans elles, le solde d'un duplicata refait
+        # sur l'appareil oublierait ce qui était payé avant.
+        payments = payments.filter(
+            Q(cash_session__cashier=reader.user) | Q(origin=Payment.Origin.PRIOR)
+        )
     by_enrollment: dict[UUID, list[Payment]] = defaultdict(list)
     for payment in payments:
         by_enrollment[payment.enrollment_id].append(payment)

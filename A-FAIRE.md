@@ -11,7 +11,7 @@ Dernière mise à jour : 2026-10-11 (tâche 4.17.1 : espaces de démonstration, 
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
-| 1 | **Relire et fusionner la PR « 4.17.1 — Espaces de démonstration : règles du serveur et make demo »** (lire « À valider » : découpage de la 4.17, numéros fictifs en `000…`, code à 6 chiffres gardé en développement), puis `git switch main && git pull && make demo` : `itig` et `volcans` passent sous l'onglet « Démonstration » de la console. Essai sur plusieurs appareils ou serveur en ligne déjà lancés : il n'y a plus de super-admin fictif `0000000000` hors développement — après `make reseau-demo` ou `make deploy-demo`, créer le tien avec `make reseau-superuser` ou `make deploy-superuser` | 15 min | [ ] |
+| 1 | **Relire et fusionner la PR « 4.19 — Reprise en cours d'année »** (lire « À valider » : paiement « hors caisse » sans nouveau modèle, une reprise par élève et par devise, maquette `gestion/reprise-paiements`), puis `git switch main && git pull && make migrate`. Essai sur plusieurs appareils ou serveur en ligne déjà lancés : il n'y a plus de super-admin fictif `0000000000` hors développement — après `make reseau-demo` ou `make deploy-demo`, créer le tien avec `make reseau-superuser` ou `make deploy-superuser` | 15 min | [ ] |
 | 2 | **Essayer le Portail sur ton vrai téléphone**, ce que je ne peux pas faire (navigateur, puis application installée ; Android et iPhone si possible) : [§ 9 bis](#9-bis-essai-sur-plusieurs-appareils-411) (`make reseau`), parent `0002000001`, quitter l'application, la rouvrir plus tard et le lendemain, couper le réseau. Me dire si une déconnexion revient (quand, sur quel téléphone), et **à quel moment l'import exige un matricule** (Q14, [`docs/06-suivi.md`](docs/06-suivi.md)) | 15 min | [ ] |
 | 3 | **Mettre le serveur de démonstration en ligne**, quand tu veux : [§ 9 ter](#9-ter-serveur-de-démonstration-en-ligne-462) (compte Oracle Cloud, serveur gratuit, adresse DuckDNS, `make deploy-setup`, `make deploy`) | 1 h | [ ] |
 | 4 | Juste après : garder une **copie de `infra/serveur/serveur.env`** en lieu sûr (clé USB, gestionnaire de mots de passe) | 2 min | [ ] |
@@ -220,6 +220,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | http://itig.localhost:5173/app/cash | Caisse : ouvrir sa session, encaisser, reçu, réimprimer, demander une annulation, clôturer (caissière `0000001005`) ; marche sans réseau sur un appareil mémorisé |
 | http://itig.localhost:5173/app/unpaid | Impayés : liste, export PDF et Excel, situations à imprimer (directeur, comptable) |
 | http://itig.localhost:5173/app/fees | Frais : types, barèmes, tranches, taux de l'année (comptable) |
+| http://itig.localhost:5173/app/fees/prior-payments | Reprise en cours d'année : importer ce que chaque élève avait payé avant Mwangaza (directeur, comptable) |
 | http://itig.localhost:5173/app/cancellations · …/app/cash-closings · …/app/credits | Annulations à valider ; clôtures de caisse ; crédits d'élèves (comptable) |
 | http://itig.localhost:5173/app/announcements | Annonces aux familles : rédiger, joindre un PDF, archiver, « lue par N familles » (directeur) |
 | http://itig.localhost:5173/app/parent-requests | Demandes des parents : coordonnées envoyées depuis le portail, à appliquer ou non (secrétaire) |

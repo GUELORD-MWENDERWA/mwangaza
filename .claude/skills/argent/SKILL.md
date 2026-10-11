@@ -41,6 +41,7 @@ Références : `docs/03-architecture-technique.md` § 6, `docs/04-modele-de-donn
 ## Annulation, surpaiement
 
 - Un paiement n'est jamais modifié ni supprimé. Annulation = `PaymentCancellation` (motif, demandeur, validateur, reçu d'annulation) ; ses allocations sortent du calcul du solde.
+- Reprise en cours d'année (E6, `finance/prior_payments.py`) : `Payment.origin=prior`, sans session de caisse ni reçu. Elle compte dans les soldes comme tout paiement, mais **jamais dans l'argent entré en caisse** : toute somme d'« encaissé » filtre `origin=cash` (`dashboard._payments`) ou passe par une session (clôtures). Montant d'un fichier : texte → `Money.from_major`, jamais `float` ; trois chiffres après le séparateur refusés (« 25,000 » est ambigu).
 - Deux caisses hors-ligne qui encaissent pour le même élève : les deux paiements sont valides ; le surplus devient un `StudentCredit` signalé au comptable. Jamais de rejet d'un paiement encaissé physiquement.
 
 ## Affichage
