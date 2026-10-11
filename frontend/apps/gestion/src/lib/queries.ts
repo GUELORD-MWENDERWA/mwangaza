@@ -38,6 +38,7 @@ export const keys = {
   credits: ["student-credits"],
   unpaid: ["unpaid"],
   dashboard: ["dashboard"],
+  setup: ["school-setup"],
   announcements: ["announcements"],
   platformNews: ["platform-news"],
   notifications: ["notifications"],

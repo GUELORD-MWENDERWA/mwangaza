@@ -31,6 +31,7 @@ import { can } from "../../lib/permissions";
 import { keys, useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { LoadError } from "../status/StatusPages";
+import { SetupChecklist } from "./SetupChecklist";
 
 type Dashboard = Schemas["Dashboard"];
 type Amount = { currency: string; amount_minor: number; count?: number };
@@ -109,6 +110,7 @@ export function DashboardPage() {
             : t("dashboard.subtitleNoYear")
         }
       />
+      <SetupChecklist />
       <Alerts alerts={data.alerts} open={open} />
       <div className="grid gap-4 min-[560px]:grid-cols-2 min-[1000px]:grid-cols-4">
         <Kpi

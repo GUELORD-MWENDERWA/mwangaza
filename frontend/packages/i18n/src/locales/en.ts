@@ -2286,6 +2286,54 @@ export const en: Messages<typeof fr> = {
       by: "By {{name}}, on {{date}}",
     },
   },
+  setup: {
+    title: "Getting started",
+    subtitle: "The steps to collect your first payment. Each one ticks itself.",
+    progress: "{{done}} / {{total}} steps",
+    optional: "Optional",
+    open: "Open",
+    see: "View",
+    openStep: "{{step}}: open the screen",
+    stateDone: "done",
+    stateTodo: "to do",
+    ready:
+      "Your school is ready to collect. Finish the setup to remove this list from the dashboard.",
+    finish: "Finish the setup",
+    steps: {
+      year: {
+        title: "Create the school year",
+        hint: "Dates of the year, terms and exams.",
+      },
+      classes: {
+        title: "Create the classes",
+        hint: "Levels, tracks, then the classes of the year.",
+      },
+      fees: {
+        title: "Set the fees and the rate",
+        hint: "Fee types, amounts per class and the exchange rate of the year.",
+      },
+      staff: {
+        title: "Create the staff accounts",
+        hint: "At least one account that can collect, for example a cashier.",
+      },
+      cash: {
+        title: "Prepare the cash desk and its device",
+        hint: "Create a cash desk, then the cashier signs in once on the device of the cash desk.",
+      },
+      students: {
+        title: "Enrol the students",
+        hint: "Import your Excel list or enrol them one by one.",
+      },
+      prior: {
+        title: "Bring in the payments already received",
+        hint: "If the year has already started: import what each student has paid so far.",
+      },
+      invitations: {
+        title: "Invite the parents",
+        hint: "Print the invitation letters to the portal, class by class.",
+      },
+    },
+  },
   dashboard: {
     title: "Dashboard",
     subtitle: "Overview of the school for the {{year}} year.",

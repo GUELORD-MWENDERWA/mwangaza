@@ -15,6 +15,7 @@ export const school: Schemas["CurrentSchool"] = {
   default_currency: "USD",
   auto_matricule: true,
   environment: "live",
+  setup_done: true,
   receipt: { printer: "thermal_80", sheet_size: "a6", copies: 1, header: "", footer: "" },
 };
 
