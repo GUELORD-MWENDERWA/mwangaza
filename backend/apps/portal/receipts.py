@@ -27,7 +27,7 @@ def find_payment(user: User, payment_id) -> Payment:
             cancellation__isnull=True,
             **linked_to(user, "enrollment__student__family"),
         )
-        .exclude(school__status=School.Status.SUSPENDED)
+        .exclude(school__status__in=School.CLOSED_STATUSES)
         .select_related("school")
         .first()
     )

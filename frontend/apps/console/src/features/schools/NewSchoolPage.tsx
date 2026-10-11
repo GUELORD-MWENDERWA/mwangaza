@@ -1,4 +1,5 @@
-// Nouvelle école (5.3, A1) : identité, devises, abonnement et premier directeur. Nouveau numéro :
+// Nouvelle école (5.3, A1) : type d'espace (4.15 : réel, essai ou démonstration, choisi une fois
+// pour toutes), identité, devises, abonnement et premier directeur. Nouveau numéro :
 // le serveur crée son compte et renvoie un mot de passe provisoire, affiché ici une seule fois
 // (pas de SMS en V1) ; numéro connu : le compte est ajouté, ses noms ne changent pas.
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,18 +18,20 @@ import {
   Field,
   Input,
   PageHeader,
+  Segmented,
   Select,
   buttonVariants,
 } from "@mwangaza/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { Link, useSearchParams } from "react-router";
 import { z } from "zod";
 
 import { keys } from "../../lib/queries";
 import {
   IdentityFields,
+  KINDS,
   SCHOOL_FIELDS,
   SubscriptionFields,
   schoolBody,
@@ -52,6 +55,7 @@ function useSchema() {
   const school = useSchoolSchema();
   return school
     .extend({
+      environment: z.enum(KINDS),
       enabled_currencies: z
         .array(z.enum(CURRENCIES))
         .min(1, t("console.schools.fields.noCurrency")),
@@ -75,9 +79,12 @@ export function NewSchoolPage() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [general, setGeneral] = useState<string | null>(null);
+  // Type de l'onglet d'où l'on vient (`?type=`) ; sinon un espace réel.
+  const asked = useSearchParams()[0].get("type");
   const form = useForm<Values>({
     resolver: zodResolver(useSchema()),
     defaultValues: {
+      environment: KINDS.find((kind) => kind === asked) ?? "live",
       name: "",
       official_name: "",
       code: "",
@@ -90,6 +97,7 @@ export function NewSchoolPage() {
       head: { phone: "", last_name: "", middle_name: "", first_name: "" },
     },
   });
+  const kind = useWatch({ control: form.control, name: "environment" });
   const create = useMutation({
     mutationFn: (values: Values) =>
       call(api.POST("/api/console/schools/", { body: { ...values, ...schoolBody(values) } })),
@@ -103,6 +111,7 @@ export function NewSchoolPage() {
           error,
           [
             ...SCHOOL_FIELDS,
+            "environment",
             "enabled_currencies",
             "default_currency",
             ...HEAD_FIELDS.map((name) => `head.${name}` as const),
@@ -159,6 +168,30 @@ export function NewSchoolPage() {
             <CardTitle>{t("console.schools.identityTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4">
+            <Field
+              id="school-environment"
+              label={t("console.schools.kindLabel")}
+              help={t(`console.schools.kindHelp.${kind}`)}
+              error={errors.environment?.message}
+            >
+              {() => (
+                <Controller
+                  control={form.control}
+                  name="environment"
+                  render={({ field }) => (
+                    <Segmented
+                      label={t("console.schools.kindLabel")}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      options={KINDS.map((value) => ({
+                        value,
+                        label: t(`console.schools.kind.${value}`),
+                      }))}
+                    />
+                  )}
+                />
+              )}
+            </Field>
             <IdentityFields form={form} codeHelp={t("console.schools.fields.codeHelp")} />
             <Field
               id="school-currencies"

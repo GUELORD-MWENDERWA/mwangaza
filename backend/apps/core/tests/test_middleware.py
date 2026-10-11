@@ -115,14 +115,15 @@ def test_unknown_school_is_refused(middleware, seen):
 
 
 @pytest.mark.django_db
-def test_suspended_school_is_refused(middleware, seen, school):
-    school.status = School.Status.SUSPENDED
+@pytest.mark.parametrize("status", ["suspended", "stopped"])
+def test_suspended_or_stopped_school_is_refused(middleware, seen, school, status):
+    school.status = status
     school.save()
 
     response = middleware(RequestFactory().get("/api/health/", HTTP_HOST="alpha.localhost"))
 
     assert response.status_code == 403
-    assert json.loads(response.content)["code"] == "school_suspended"
+    assert json.loads(response.content)["code"] == f"school_{status}"
     assert "school" not in seen
 
 

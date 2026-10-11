@@ -1,8 +1,8 @@
 """Écoles : création par le super-admin avec son premier directeur (A1), changements faits par le
-super-admin (console, 5.3) ou par l'école (paramètres, M5), suspension.
+super-admin (console, 5.3) ou par l'école (paramètres, M5), suspension, arrêt (4.15).
 
-Tout va dans le journal de l'école : création, identité (avant / après), logo, suspension et
-réactivation. L'abonnement (offre, dates, essai ↔ actif) n'y va pas : c'est l'affaire de la
+Tout va dans le journal de l'école : création, identité (avant / après), logo, suspension, arrêt
+et réactivation. L'abonnement (offre, dates, essai ↔ actif) n'y va pas : c'est l'affaire de la
 plateforme. Ce que fait le super-admin (identité et abonnement) va aussi dans le journal de la
 plateforme.
 """
@@ -31,8 +31,8 @@ IDENTITY_FIELDS = (
     "enabled_currencies",
     "default_currency",
 )
-# Ce que le journal de la plateforme garde en plus.
-SUBSCRIPTION_FIELDS = ("status", "plan", "trial_ends_on", "paid_until")
+# Ce que le journal de la plateforme garde en plus (`environment` : fixé à la création).
+SUBSCRIPTION_FIELDS = ("environment", "status", "plan", "trial_ends_on", "paid_until")
 
 
 @dataclass(frozen=True)
@@ -92,6 +92,9 @@ def save_school(school: School, *, actor) -> School:
     """Enregistre les changements faits sur `school` et les note dans son journal."""
     with transaction.atomic():
         old = School.objects.select_for_update().get(pk=school.pk)
+        if school.environment != old.environment:
+            # Pas de passage d'un type à l'autre (`03` § 4 bis) : on repart d'un espace neuf.
+            raise ValueError("Le type d'un espace ne change jamais.")
         school.save()
         with use_school(school):
             _record_changes(old, school, actor=actor)
@@ -113,10 +116,13 @@ def _record_changes(old: School, school: School, *, actor) -> None:
         if getattr(old, field).name != getattr(school, field).name:
             after = {field: bool(getattr(school, field))}
             audit.record(Action.SCHOOL_LOGO_CHANGED, school, actor=actor, after=after)
-    suspended = School.Status.SUSPENDED
-    if old.status != suspended and school.status == suspended:
+    if old.status == school.status:
+        return
+    if school.status == School.Status.SUSPENDED:
         audit.record(Action.SCHOOL_SUSPENDED, school, actor=actor)
-    elif old.status == suspended and school.status != suspended:
+    elif school.status == School.Status.STOPPED:
+        audit.record(Action.SCHOOL_STOPPED, school, actor=actor)
+    elif old.is_closed:
         audit.record(Action.SCHOOL_REACTIVATED, school, actor=actor)
 
 
@@ -159,7 +165,7 @@ def change_school(school: School, *, actor, **fields) -> School:
 
 def suspend(school: School, *, actor) -> School:
     """Plus personne ne se connecte à l'école ; rien n'est supprimé (A1)."""
-    if school.status == School.Status.SUSPENDED:
+    if school.is_closed:
         return school
     before = _platform_fields(school)
     with transaction.atomic():
@@ -168,9 +174,30 @@ def suspend(school: School, *, actor) -> School:
     return school
 
 
+def stop(school: School, *, actor, reason: str) -> School:
+    """Espace arrêté (4.15) : l'école a quitté la plateforme, l'essai ou la démonstration est
+    fini. Plus personne n'y entre, rien n'est supprimé ; le motif reste dans le journal de la
+    plateforme. Une erreur se rattrape par `reactivate`."""
+    if school.status == School.Status.STOPPED:
+        return school
+    before = _platform_fields(school)
+    with transaction.atomic():
+        update_school(school, actor=actor, status=School.Status.STOPPED)
+        before, after = audit.changes(before, _platform_fields(school))
+        audit.record_platform(
+            PlatformAction.SCHOOL_STOPPED,
+            school,
+            actor=actor,
+            before=before,
+            after={**after, "reason": reason},
+        )
+    return school
+
+
 def reactivate(school: School, *, actor) -> School:
-    """De nouveau ouverte : en essai si l'essai n'est pas fini, sinon active."""
-    if school.status != School.Status.SUSPENDED:
+    """Suspendue ou arrêtée, de nouveau ouverte : en essai gratuit s'il n'est pas fini, sinon
+    active."""
+    if not school.is_closed:
         return school
     trial = school.trial_ends_on is not None and school.trial_ends_on >= timezone.localdate()
     status = School.Status.TRIAL if trial else School.Status.ACTIVE

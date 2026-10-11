@@ -1,7 +1,8 @@
 """Écoles dans la console de la plateforme (5.3, A1 à A3) : super-admin seulement, à l'adresse de la
 console ; création avec le premier directeur, liste (élèves, dernière activité), modification de
-l'identité et de l'abonnement, suspension et réactivation, notées dans le journal de l'école et
-dans celui de la plateforme. Une école ne se supprime jamais."""
+l'identité et de l'abonnement, suspension, arrêt et réactivation, notées dans le journal de l'école
+et dans celui de la plateforme ; type d'espace (réel, essai, démonstration) fixé à la création
+(4.15). Une école ne se supprime jamais."""
 
 import pytest
 from django.utils import timezone
@@ -10,6 +11,7 @@ from apps.accounts.models import Membership, User
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog, PlatformAuditLog
 from apps.core.tenancy import use_school
+from apps.schools import services
 from apps.schools.models import School
 from tests.factories import MembershipFactory
 
@@ -54,6 +56,7 @@ def test_only_the_platform_admin_manages_schools_at_the_console(api, platform_ad
         ("get", detail, None),
         ("patch", detail, {"name": "Piratée"}),
         ("post", f"{detail}suspend/", None),
+        ("post", f"{detail}stop/", {"reason": "Piratage"}),
         ("post", f"{detail}reactivate/", None),
     ]
     for method, url, data in calls:
@@ -83,6 +86,8 @@ def test_create_a_school_with_its_head(api, platform_admin):
         "http://gamma.localhost:5173",
     )
     assert str(gamma.trial_ends_on) == "2026-12-15" and gamma.plan == "Essai"
+    # Sans type choisi : un espace réel (jamais supprimable).
+    assert gamma.environment == School.Environment.LIVE
     # Mot de passe provisoire renvoyé une seule fois, à transmettre au directeur.
     head = User.objects.get(phone="+243000003001")
     assert head.check_password(data["temporary_password"]) and head.must_change_password
@@ -211,6 +216,58 @@ def test_suspend_and_reactivate(api, platform_admin, school, other_school):
     assert journal(school) == [Action.SCHOOL_SUSPENDED, Action.SCHOOL_REACTIVATED]
     assert journal(other_school) == []
     assert platform_journal() == ["school.suspended", "school.reactivated"]
+
+
+def test_stop_closes_the_space_keeps_its_data_and_needs_a_reason(
+    api, platform_admin, school, other_school, head
+):
+    console = api(platform_admin, host=CONSOLE)
+    MembershipFactory(user=head, school=other_school, roles=["teacher"])
+    stop = f"{SCHOOLS}{school.pk}/stop/"
+
+    assert console.post(stop, {"reason": " "}).status_code == 400
+    assert api(head).get("/api/school/").status_code == 200
+
+    reason = "L'école a quitté la plateforme"
+    assert console.post(stop, {"reason": reason}).json()["status"] == "stopped"
+
+    # Plus personne n'y entre, ni à son adresse ni depuis une autre école ; rien n'est supprimé.
+    refused = api(head).get("/api/school/")
+    assert (refused.status_code, refused.json()["code"]) == (403, "school_stopped")
+    mine = api(head, host="beta.localhost").get("/api/me/").json()["schools"]
+    assert [item["code"] for item in mine] == ["beta"]
+    assert Membership.objects.filter(user=head, school=school, is_active=True).exists()
+    log = PlatformAuditLog.objects.get()
+    assert (log.action, log.actor) == ("school.stopped", platform_admin)
+    assert (log.before, log.after) == (
+        {"status": "active"},
+        {"status": "stopped", "reason": reason},
+    )
+    # Déjà fermé : « Suspendre » n'y change rien ; une erreur se rattrape en le relançant.
+    assert console.post(f"{SCHOOLS}{school.pk}/suspend/").json()["status"] == "stopped"
+    assert console.post(f"{SCHOOLS}{school.pk}/reactivate/").json()["status"] == "active"
+    assert journal(school) == [Action.SCHOOL_STOPPED, Action.SCHOOL_REACTIVATED]
+    assert platform_journal() == ["school.stopped", "school.reactivated"]
+
+
+def test_the_kind_of_space_is_chosen_at_creation_and_never_changes(api, platform_admin, school):
+    console = api(platform_admin, host=CONSOLE)
+
+    created = console.post(SCHOOLS, form(environment="test")).json()["school"]
+
+    assert created["environment"] == "test"
+    assert PlatformAuditLog.objects.get().after["environment"] == "test"
+    for kind, codes in (("live", ["alpha"]), ("test", ["gamma"]), ("demo", [])):
+        rows = console.get(SCHOOLS, environment=kind).json()["results"]
+        assert [row["code"] for row in rows] == codes
+    # Ignoré par la modification, refusé par le service : on repart d'un espace neuf.
+    detail = f"{SCHOOLS}{created['id']}/"
+    assert console.patch(detail, {"environment": "live"}).json()["environment"] == "test"
+    gamma = School.objects.get(code="gamma")
+    with pytest.raises(ValueError, match="type"):
+        services.update_school(gamma, actor=platform_admin, environment="live")
+    gamma.refresh_from_db()
+    assert gamma.environment == School.Environment.TEST
 
 
 def test_the_admin_only_shows_schools(admin_client, school):

@@ -118,7 +118,7 @@ def get_school_access(user, school: School | None) -> SchoolAccess | None:
     """Rôles et permissions du compte dans l'école ; None s'il n'y a pas d'appartenance active
     (compte désactivé, retiré de l'école, école suspendue, ou pas d'école). Le super-admin n'a
     aucun droit dans une école sans y avoir de rôle, hors session support (`support.py`)."""
-    if school is None or school.status == School.Status.SUSPENDED:
+    if school is None or school.is_closed:
         return None
     if not user.is_authenticated or not user.is_active:
         return None

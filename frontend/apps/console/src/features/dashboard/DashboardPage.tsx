@@ -28,7 +28,7 @@ const money = (amount: Amount) => formatAmount(amount.amount_minor, amount.curre
 
 const HEALTH_TONES = { ok: "ok", warning: "warn", error: "due", off: "gray" } as const;
 const DOTS = { ok: "bg-ok", warning: "bg-warn", error: "bg-due", off: "bg-ink-3" } as const;
-const SCHOOL_TONES = { active: "ok", trial: "info", suspended: "due" } as const;
+const SCHOOL_TONES = { active: "ok", trial: "info", suspended: "due", stopped: "gray" } as const;
 
 export function DashboardPage() {
   const { t, i18n } = useTranslation();

@@ -36,6 +36,7 @@ from apps.schools.console_serializers import (
     ConsoleSchoolCreateSerializer,
     ConsoleSchoolDetailSerializer,
     ConsoleSchoolSerializer,
+    SchoolStopSerializer,
 )
 from apps.schools.matricule import validate_matricule_format
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
@@ -540,6 +541,7 @@ CONSOLE_ERRORS = {400: ErrorSerializer, 403: ErrorSerializer, 404: ErrorSerializ
         parameters=[
             OpenApiParameter("search", str, description="Nom, nom officiel ou code."),
             OpenApiParameter("status", str, enum=School.Status.values),
+            OpenApiParameter("environment", str, enum=School.Environment.values),
         ],
         responses={200: ConsoleSchoolSerializer(many=True), **CONSOLE_ERRORS},
     ),
@@ -550,7 +552,7 @@ class ConsoleSchoolViewSet(
 ):
     """Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
     changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
-    Une école ne se supprime jamais : on la suspend."""
+    Un espace réel ne se supprime jamais : on le suspend ou on l'arrête."""
 
     permission_classes = [IsPlatformAdmin]
     http_method_names = ["get", "post", "patch", "head", "options"]
@@ -568,6 +570,8 @@ class ConsoleSchoolViewSet(
             )
         if (state := params.get("status")) in School.Status.values:
             schools = schools.filter(status=state)
+        if (kind := params.get("environment")) in School.Environment.values:
+            schools = schools.filter(environment=kind)
         return schools
 
     def get_serializer_class(self):
@@ -625,8 +629,21 @@ class ConsoleSchoolViewSet(
         """Plus personne ne se connecte à l'école ; rien n'est supprimé."""
         return self._detail(services.suspend(self.get_object(), actor=request.user))
 
+    @extend_schema(
+        request=SchoolStopSerializer,
+        responses={200: ConsoleSchoolDetailSerializer, **CONSOLE_ERRORS},
+    )
+    @action(detail=True, methods=["post"])
+    def stop(self, request: Request, pk=None) -> Response:
+        """Espace arrêté, avec un motif : plus personne n'y entre, les données restent."""
+        serializer = SchoolStopSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        school = services.stop(self.get_object(), actor=request.user, **serializer.validated_data)
+        return self._detail(school)
+
     @extend_schema(request=None, responses={200: ConsoleSchoolDetailSerializer, **CONSOLE_ERRORS})
     @action(detail=True, methods=["post"])
     def reactivate(self, request: Request, pk=None) -> Response:
-        """De nouveau ouverte : en essai si l'essai n'est pas fini, sinon active."""
+        """Suspendue ou arrêtée, de nouveau ouverte : en essai gratuit s'il n'est pas fini, sinon
+        active."""
         return self._detail(services.reactivate(self.get_object(), actor=request.user))

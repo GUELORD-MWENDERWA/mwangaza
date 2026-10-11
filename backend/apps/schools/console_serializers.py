@@ -26,13 +26,15 @@ class HeadAccountSerializer(serializers.ModelSerializer):
 class ConsoleSchoolSerializer(serializers.ModelSerializer):
     """Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
     marcher), ses noms et son abonnement ; couleur, fuseau, devises et logo sont réglés par
-    l'école (M5). Suspendre et réactiver passent par leurs actions."""
+    l'école (M5). Suspendre, arrêter et réactiver passent par leurs actions ; le type d'espace
+    (`environment`) est fixé à la création."""
 
     url = serializers.CharField(read_only=True, help_text="Adresse de l'école.")
+    environment = serializers.ChoiceField(choices=School.Environment.choices, read_only=True)
     status = serializers.ChoiceField(
         choices=School.Status.choices,
         required=False,
-        help_text="Essai ou active ; « suspendue » seulement par l'action `suspend`.",
+        help_text="Essai gratuit ou active ; « suspendue » et « arrêtée » par leurs actions.",
     )
     student_count = serializers.IntegerField(
         read_only=True, help_text="Inscriptions actives de l'année en cours."
@@ -51,6 +53,7 @@ class ConsoleSchoolSerializer(serializers.ModelSerializer):
             "name",
             "official_name",
             "url",
+            "environment",
             "status",
             "plan",
             "trial_ends_on",
@@ -64,10 +67,10 @@ class ConsoleSchoolSerializer(serializers.ModelSerializer):
         read_only_fields = ["enabled_currencies", "default_currency", "created_at"]
 
     def validate_status(self, status: str) -> str:
-        if status == School.Status.SUSPENDED:
-            message = _("Use « Suspend » to suspend a school.")
+        if status in School.CLOSED_STATUSES:
+            message = _("Use « Suspend » or « Stop » to close a school.")
             raise serializers.ValidationError(message, code="use_suspend")
-        if self.instance is not None and self.instance.status == School.Status.SUSPENDED:
+        if self.instance is not None and self.instance.is_closed:
             message = _("Reactivate the school first.")
             raise serializers.ValidationError(message, code="school_suspended")
         return status
@@ -128,11 +131,22 @@ class ConsoleSchoolCreateSerializer(ConsoleSchoolSerializer):
         help_text="Devises de l'école (au moins une).",
     )
     default_currency = serializers.ChoiceField(choices=Currency.choices)
+    environment = serializers.ChoiceField(
+        choices=School.Environment.choices,
+        default=School.Environment.LIVE,
+        help_text="Réel, essai ou démonstration : jamais changé ensuite.",
+    )
     head = SchoolHeadSerializer(write_only=True)
 
     class Meta(ConsoleSchoolSerializer.Meta):
         fields = [*ConsoleSchoolSerializer.Meta.fields, "head"]
         read_only_fields = ["created_at"]
+
+
+class SchoolStopSerializer(serializers.Serializer):
+    reason = serializers.CharField(
+        max_length=200, help_text="Motif, gardé dans le journal de la plateforme."
+    )
 
 
 class ConsoleSchoolCreatedSerializer(serializers.Serializer):

@@ -18,7 +18,6 @@ from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.core.http import client_ip
 from apps.core.tenancy import use_school
-from apps.schools.models import School
 from apps.students.models import Family, Guardian
 
 INVALID_FAMILY_CODE = ApiError("invalid_family_code", _("Wrong phone number or family code."), 400)
@@ -91,7 +90,7 @@ def _family(
     if not valid or _expected_phone(family) != phone:
         attempts.record_failure(key, ip)
         raise BusinessError(error)
-    if family.school.status == School.Status.SUSPENDED:
+    if family.school.is_closed:
         raise BusinessError(SCHOOL_UNAVAILABLE)
     if family.portal_suspended_at is not None:
         raise BusinessError(PORTAL_SUSPENDED)

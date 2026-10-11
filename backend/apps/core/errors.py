@@ -99,3 +99,4 @@ SCHOOL_NOT_FOUND = ApiError("school_not_found", _("There is no school at this ad
 SCHOOL_SUSPENDED = ApiError(
     "school_suspended", _("This school is suspended. Please contact the platform support."), 403
 )
+SCHOOL_STOPPED = ApiError("school_stopped", _("This space is stopped: it is no longer open."), 403)

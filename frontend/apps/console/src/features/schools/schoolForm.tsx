@@ -10,6 +10,14 @@ import { z } from "zod";
 
 export type School = Schemas["ConsoleSchool"];
 export type SchoolStatus = Schemas["SchoolStatusEnum"];
+export type SchoolKind = Schemas["SchoolEnvironmentEnum"];
+
+/** Types d'espace (4.15), dans l'ordre des onglets : réel, essai, démonstration. */
+export const KINDS = ["live", "test", "demo"] as const satisfies readonly SchoolKind[];
+
+/** Suspendue ou arrêtée : personne n'y entre, pas de session support. */
+export const isClosed = (school: Pick<School, "status">) =>
+  school.status === "suspended" || school.status === "stopped";
 
 export const SCHOOL_FIELDS = [
   "name",
@@ -89,13 +97,14 @@ export function IdentityFields<T extends SchoolValues>({
   );
 }
 
-/** Abonnement saisi à la main (sans facturation, 9.2) : essai ou active, offre, dates. */
+/** Abonnement saisi à la main (sans facturation, 9.2) : essai gratuit ou active, offre, dates.
+ *  `lockedHelp` : école suspendue ou arrêtée, l'état ne se change pas ici. */
 export function SubscriptionFields<T extends SchoolValues>({
   form,
-  suspended = false,
+  lockedHelp,
 }: {
   form: Form<T>;
-  suspended?: boolean;
+  lockedHelp?: string;
 }) {
   const { t } = useTranslation();
   const date = (name: "trial_ends_on" | "paid_until") => (
@@ -112,7 +121,7 @@ export function SubscriptionFields<T extends SchoolValues>({
       <Field
         id="school-status"
         label={t("console.schools.fields.status")}
-        help={suspended ? t("console.schools.fields.statusSuspended") : undefined}
+        help={lockedHelp}
         error={form.getFieldState("status" as Path<T>, form.formState).error?.message}
       >
         {() => (
@@ -124,7 +133,7 @@ export function SubscriptionFields<T extends SchoolValues>({
                 label={t("console.schools.fields.status")}
                 value={field.value as "trial" | "active"}
                 onValueChange={field.onChange}
-                disabled={suspended}
+                disabled={lockedHelp !== undefined}
                 options={(["trial", "active"] as const).map((value) => ({
                   value,
                   label: t(`console.schools.status.${value}`),
@@ -148,11 +157,14 @@ export function SubscriptionFields<T extends SchoolValues>({
   );
 }
 
-/** Étiquette de l'abonnement : suspendue, essai jusqu'au…, offre payée jusqu'au… (échéance
- *  dépassée en orange). */
+/** Étiquette de l'abonnement : arrêtée, suspendue, essai gratuit jusqu'au…, offre payée
+ *  jusqu'au… (échéance dépassée en orange). */
 export function SubscriptionPill({ school }: { school: School }) {
   const { t, i18n } = useTranslation();
   const day = (value: string) => formatDay(value, i18n.language);
+  if (school.status === "stopped") {
+    return <StatusPill tone="gray">{t("console.schools.status.stopped")}</StatusPill>;
+  }
   if (school.status === "suspended") {
     return <StatusPill tone="due">{t("console.schools.status.suspended")}</StatusPill>;
   }

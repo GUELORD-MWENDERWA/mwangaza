@@ -550,6 +550,7 @@ paths:
           - school.logo_changed
           - school.suspended
           - school.reactivated
+          - school.stopped
           - organisation.year_created
           - organisation.year_updated
           - organisation.year_deleted
@@ -647,6 +648,7 @@ paths:
           * `school.logo_changed` - School logo changed
           * `school.suspended` - School suspended
           * `school.reactivated` - School reactivated
+          * `school.stopped` - School stopped
           * `organisation.year_created` - School year created
           * `organisation.year_updated` - School year changed
           * `organisation.year_deleted` - School year deleted
@@ -911,6 +913,7 @@ paths:
           - school.logo_changed
           - school.suspended
           - school.reactivated
+          - school.stopped
           - organisation.year_created
           - organisation.year_updated
           - organisation.year_deleted
@@ -1008,6 +1011,7 @@ paths:
           * `school.logo_changed` - School logo changed
           * `school.suspended` - School suspended
           * `school.reactivated` - School reactivated
+          * `school.stopped` - School stopped
           * `organisation.year_created` - School year created
           * `organisation.year_updated` - School year changed
           * `organisation.year_deleted` - School year deleted
@@ -3557,8 +3561,16 @@ paths:
       description: |-
         Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
         changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
-        Une école ne se supprime jamais : on la suspend.
+        Un espace réel ne se supprime jamais : on le suspend ou on l'arrête.
       parameters:
+      - in: query
+        name: environment
+        schema:
+          type: string
+          enum:
+          - demo
+          - live
+          - test
       - name: page
         required: false
         in: query
@@ -3576,6 +3588,7 @@ paths:
           type: string
           enum:
           - active
+          - stopped
           - suspended
           - trial
       tags:
@@ -3660,7 +3673,7 @@ paths:
       description: |-
         Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
         changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
-        Une école ne se supprime jamais : on la suspend.
+        Un espace réel ne se supprime jamais : on le suspend ou on l'arrête.
       parameters:
       - in: path
         name: id
@@ -3752,8 +3765,9 @@ paths:
   /api/console/schools/{id}/reactivate/:
     post:
       operationId: console_schools_reactivate_create
-      description: 'De nouveau ouverte : en essai si l''essai n''est pas fini, sinon
-        active.'
+      description: |-
+        Suspendue ou arrêtée, de nouveau ouverte : en essai gratuit s'il n'est pas fini, sinon
+        active.
       parameters:
       - in: path
         name: id
@@ -3764,6 +3778,60 @@ paths:
         required: true
       tags:
       - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSchoolDetail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/schools/{id}/stop/:
+    post:
+      operationId: console_schools_stop_create
+      description: 'Espace arrêté, avec un motif : plus personne n''y entre, les données
+        restent.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this school.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolStopRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SchoolStopRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SchoolStopRequest'
+        required: true
       security:
       - cookieAuth: []
       responses:
@@ -10156,6 +10224,7 @@ components:
       - school.logo_changed
       - school.suspended
       - school.reactivated
+      - school.stopped
       - organisation.year_created
       - organisation.year_updated
       - organisation.year_deleted
@@ -10252,6 +10321,7 @@ components:
         * `school.logo_changed` - School logo changed
         * `school.suspended` - School suspended
         * `school.reactivated` - School reactivated
+        * `school.stopped` - School stopped
         * `organisation.year_created` - School year created
         * `organisation.year_updated` - School year changed
         * `organisation.year_deleted` - School year deleted
@@ -12251,7 +12321,8 @@ components:
       description: |-
         Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
         marcher), ses noms et son abonnement ; couleur, fuseau, devises et logo sont réglés par
-        l'école (M5). Suspendre et réactiver passent par leurs actions.
+        l'école (M5). Suspendre, arrêter et réactiver passent par leurs actions ; le type d'espace
+        (`environment`) est fixé à la création.
       properties:
         id:
           type: string
@@ -12273,15 +12344,20 @@ components:
           type: string
           readOnly: true
           description: Adresse de l'école.
+        environment:
+          allOf:
+          - $ref: '#/components/schemas/SchoolEnvironmentEnum'
+          readOnly: true
         status:
           allOf:
           - $ref: '#/components/schemas/SchoolStatusEnum'
           description: |-
-            Essai ou active ; « suspendue » seulement par l'action `suspend`.
+            Essai gratuit ou active ; « suspendue » et « arrêtée » par leurs actions.
 
-            * `trial` - Trial
+            * `trial` - Free trial
             * `active` - Active
             * `suspended` - Suspended
+            * `stopped` - Stopped
         plan:
           type: string
           description: e.g. Discovery, Standard.
@@ -12331,6 +12407,7 @@ components:
       - name
       - official_name
       - url
+      - environment
       - status
       - plan
       - trial_ends_on
@@ -12362,7 +12439,8 @@ components:
       description: |-
         Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
         marcher), ses noms et son abonnement ; couleur, fuseau, devises et logo sont réglés par
-        l'école (M5). Suspendre et réactiver passent par leurs actions.
+        l'école (M5). Suspendre, arrêter et réactiver passent par leurs actions ; le type d'espace
+        (`environment`) est fixé à la création.
       properties:
         code:
           type: string
@@ -12378,15 +12456,26 @@ components:
         official_name:
           type: string
           maxLength: 255
+        environment:
+          allOf:
+          - $ref: '#/components/schemas/SchoolEnvironmentEnum'
+          default: live
+          description: |-
+            Réel, essai ou démonstration : jamais changé ensuite.
+
+            * `live` - Live
+            * `test` - Sandbox
+            * `demo` - Demonstration
         status:
           allOf:
           - $ref: '#/components/schemas/SchoolStatusEnum'
           description: |-
-            Essai ou active ; « suspendue » seulement par l'action `suspend`.
+            Essai gratuit ou active ; « suspendue » et « arrêtée » par leurs actions.
 
-            * `trial` - Trial
+            * `trial` - Free trial
             * `active` - Active
             * `suspended` - Suspended
+            * `stopped` - Stopped
         plan:
           type: string
           description: e.g. Discovery, Standard.
@@ -12438,7 +12527,8 @@ components:
       description: |-
         Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
         marcher), ses noms et son abonnement ; couleur, fuseau, devises et logo sont réglés par
-        l'école (M5). Suspendre et réactiver passent par leurs actions.
+        l'école (M5). Suspendre, arrêter et réactiver passent par leurs actions ; le type d'espace
+        (`environment`) est fixé à la création.
       properties:
         id:
           type: string
@@ -12460,15 +12550,20 @@ components:
           type: string
           readOnly: true
           description: Adresse de l'école.
+        environment:
+          allOf:
+          - $ref: '#/components/schemas/SchoolEnvironmentEnum'
+          readOnly: true
         status:
           allOf:
           - $ref: '#/components/schemas/SchoolStatusEnum'
           description: |-
-            Essai ou active ; « suspendue » seulement par l'action `suspend`.
+            Essai gratuit ou active ; « suspendue » et « arrêtée » par leurs actions.
 
-            * `trial` - Trial
+            * `trial` - Free trial
             * `active` - Active
             * `suspended` - Suspended
+            * `stopped` - Stopped
         plan:
           type: string
           description: e.g. Discovery, Standard.
@@ -12525,6 +12620,7 @@ components:
       - name
       - official_name
       - url
+      - environment
       - status
       - plan
       - trial_ends_on
@@ -15969,7 +16065,8 @@ components:
       description: |-
         Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
         marcher), ses noms et son abonnement ; couleur, fuseau, devises et logo sont réglés par
-        l'école (M5). Suspendre et réactiver passent par leurs actions.
+        l'école (M5). Suspendre, arrêter et réactiver passent par leurs actions ; le type d'espace
+        (`environment`) est fixé à la création.
       properties:
         code:
           type: string
@@ -15989,11 +16086,12 @@ components:
           allOf:
           - $ref: '#/components/schemas/SchoolStatusEnum'
           description: |-
-            Essai ou active ; « suspendue » seulement par l'action `suspend`.
+            Essai gratuit ou active ; « suspendue » et « arrêtée » par leurs actions.
 
-            * `trial` - Trial
+            * `trial` - Free trial
             * `active` - Active
             * `suspended` - Suspended
+            * `stopped` - Stopped
         plan:
           type: string
           description: e.g. Discovery, Standard.
@@ -16675,6 +16773,7 @@ components:
       - school.updated
       - school.suspended
       - school.reactivated
+      - school.stopped
       - account.changed
       - account.deactivated
       - account.reactivated
@@ -16692,6 +16791,7 @@ components:
         * `school.updated` - School or subscription changed
         * `school.suspended` - School suspended
         * `school.reactivated` - School reactivated
+        * `school.stopped` - School stopped
         * `account.changed` - Names or phone changed by support
         * `account.deactivated` - Account deactivated by support
         * `account.reactivated` - Account reactivated by support
@@ -17407,6 +17507,16 @@ components:
       - is_current
       - kind
       - user_name
+    SchoolEnvironmentEnum:
+      enum:
+      - live
+      - test
+      - demo
+      type: string
+      description: |-
+        * `live` - Live
+        * `test` - Sandbox
+        * `demo` - Demonstration
     SchoolHeadRequest:
       type: object
       description: 'Premier directeur. Nouveau numéro : nom obligatoire ; numéro connu
@@ -17505,11 +17615,23 @@ components:
       - trial
       - active
       - suspended
+      - stopped
       type: string
       description: |-
-        * `trial` - Trial
+        * `trial` - Free trial
         * `active` - Active
         * `suspended` - Suspended
+        * `stopped` - Stopped
+    SchoolStopRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          description: Motif, gardé dans le journal de la plateforme.
+          maxLength: 200
+      required:
+      - reason
     ServerHealth:
       type: object
       properties:
