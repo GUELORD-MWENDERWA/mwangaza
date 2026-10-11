@@ -32,7 +32,7 @@ def form(**fields) -> dict:
         "plan": "Essai",
         "trial_ends_on": "2026-12-15",
         "paid_until": None,
-        "head": {"phone": "0000003001", "last_name": "Kasereka", "first_name": "Dieudonné"},
+        "head": {"phone": "0100003001", "last_name": "Kasereka", "first_name": "Dieudonné"},
         **fields,
     }
 
@@ -90,7 +90,7 @@ def test_create_a_school_with_its_head(api, platform_admin):
     # Sans type choisi : un espace réel (jamais supprimable).
     assert gamma.environment == School.Environment.LIVE
     # Mot de passe provisoire renvoyé une seule fois, à transmettre au directeur.
-    head = User.objects.get(phone="+243000003001")
+    head = User.objects.get(phone="+243100003001")
     assert head.check_password(data["temporary_password"]) and head.must_change_password
     assert data["head"]["last_name"] == "Kasereka"
     with use_school(gamma):
@@ -125,7 +125,7 @@ def test_head_with_an_existing_account_keeps_it(api, platform_admin, school):
 @pytest.mark.parametrize(
     ("fields", "error"),
     [
-        ({"head": {"phone": "0000003001", "last_name": ""}}, "head"),
+        ({"head": {"phone": "0100003001", "last_name": ""}}, "head"),
         ({"head": {"phone": "12", "last_name": "Kasereka"}}, "head"),
         ({"code": "admin"}, "code"),
         ({"code": "Gamma École"}, "code"),
@@ -141,7 +141,7 @@ def test_invalid_creation_creates_nothing(api, platform_admin, school, fields, e
     fields = response.json()["fields"]
     assert any(key.split(".")[0] == error for key in fields), fields
     assert School.objects.count() == 1
-    assert not User.objects.filter(phone="+243000003001").exists()
+    assert not User.objects.filter(phone="+243100003001").exists()
     assert not PlatformAuditLog.objects.exists()
 
 

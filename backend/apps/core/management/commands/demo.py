@@ -1,6 +1,7 @@
 """`make demo` : données fictives pour le développement et les démonstrations.
 
-Chaque tâche qui ajoute un modèle enrichit cette commande (`docs/07-a-fournir.md` § 4).
+Les deux écoles sont des espaces de démonstration, remplis par le même code que ceux de la
+console (`apps/core/demo.py`, où chaque tâche qui ajoute un modèle ajoute son étape).
 """
 
 from django.conf import settings
@@ -10,31 +11,15 @@ from django.db import transaction
 from apps.accounts.demo import (
     DEMO_TOTP_SECRET,
     PLATFORM_ADMIN_PHONE,
-    create_demo_accounts,
+    create_demo_admin,
+    demo_accounts,
     demo_password,
 )
 from apps.accounts.models import User
-from apps.core.demo import create_demo_platform
-from apps.finance.demo import (
-    create_demo_cancellations,
-    create_demo_charges,
-    create_demo_credits,
-    create_demo_discounts,
-    create_demo_fees,
-    create_demo_payments,
-)
-from apps.notifications.demo import (
-    create_demo_announcements,
-    create_demo_platform_announcements,
-)
-from apps.portal.demo import (
-    create_demo_activations,
-    create_demo_contact_changes,
-    create_demo_portal,
-)
-from apps.schools.demo import create_demo_organisation, create_demo_schools
-from apps.students.demo import create_demo_students
-from apps.sync.demo import create_demo_devices
+from apps.core.demo import create_demo_platform, fill
+from apps.notifications.demo import create_demo_platform_announcements
+from apps.portal.demo import demo_portal
+from apps.schools.demo import create_demo_schools
 
 
 def _local(phone: str) -> str:
@@ -51,59 +36,57 @@ class Command(BaseCommand):
                 "Données de démonstration refusées ici (seulement en développement et dans l'essai "
                 "sur plusieurs appareils : DEMO_DATA)."
             )
+        # Clé commune de double authentification : en développement seulement, jamais là où le
+        # mot de passe est propre au serveur.
+        shared_key = settings.DEBUG and not settings.DEMO_PASSWORD
         with transaction.atomic():
             create_demo_platform()
-            schools = create_demo_schools()
-            accounts = create_demo_accounts(schools)
-            create_demo_organisation(schools)
-            create_demo_fees(schools)
-            create_demo_students(schools)
-            create_demo_charges(schools)
-            create_demo_discounts(schools)
-            create_demo_payments(schools)
-            create_demo_credits(schools)
-            create_demo_cancellations(schools)
-            create_demo_devices(schools)
-            create_demo_announcements(schools)
-            create_demo_platform_announcements(schools)
-            portal = create_demo_portal(schools)
-            create_demo_contact_changes(schools["itig"])
-            for school in schools.values():
-                create_demo_activations(school)
-        for school in schools.values():
+            admin = create_demo_admin()
+            spaces = create_demo_schools(password=demo_password(), shared_totp_key=shared_key)
+            fill(spaces)
+            if admin is not None:
+                create_demo_platform_announcements(spaces)
+        for space in spaces:
+            school = space.school
             self.stdout.write(f"  {school.code:<8} {school.name} — {school.url}/app/")
         self.stdout.write(f"Comptes fictifs (mot de passe : {demo_password()}) :")
-        self.stdout.write(
-            f"  {_local(PLATFORM_ADMIN_PHONE)}  super-admin (administration Django : "
-            "http://localhost:8000/admin/) — code : make totp"
+        if admin is not None:
+            self.stdout.write(
+                f"  {_local(PLATFORM_ADMIN_PHONE)}  super-admin (console et administration "
+                "Django : http://localhost:8000/admin/) — code : make totp"
+            )
+        accounts = {a.phone: a for space in spaces for a in demo_accounts(space)}
+        with_code = set(
+            User.objects.filter(phone__in=accounts, totp_enabled_at__isnull=False).values_list(
+                "phone", flat=True
+            )
         )
-        users = {
-            user.phone: user for user in User.objects.filter(phone__in=[a.phone for a in accounts])
-        }
-        for account in accounts:
+        for account in accounts.values():
             schools_text = " + ".join(account.roles)
-            totp_text = ""
-            if users[account.phone].totp_enabled:
-                totp_text = " — code : make totp"
-            elif account.totp_to_enable:
-                totp_text = " — double authentification à activer"
+            totp_text = " — code : make totp" if account.phone in with_code else ""
             self.stdout.write(
                 f"  {_local(account.phone)}  {schools_text:<14} {account.description}{totp_text}"
             )
+        portal = demo_portal(spaces)
         if portal is not None:
             self.stdout.write(
                 f"  {_local(portal.phone)}  portail        parent (http://localhost:5174/) : "
                 f"enfants à l'ITIG ; ajouter ceux des Volcans avec le code {portal.code_to_add}"
             )
-        if settings.DEMO_PASSWORD:
-            self.stdout.write(
-                "Double authentification : chaque compte qui l'exige lie sa propre application "
-                "(Google Authenticator…) à la première connexion."
-            )
-        else:
+        if shared_key:
             key = " ".join(DEMO_TOTP_SECRET[i : i + 4] for i in range(0, len(DEMO_TOTP_SECRET), 4))
             self.stdout.write(
-                f"Double authentification (« code ») : clé {key} dans une application "
-                "(Google Authenticator, Aegis…), ou le code du moment avec `make totp`."
+                f"Code à 6 chiffres (directeur, comptable, caissière) : clé {key} dans une "
+                "application (Google Authenticator, Aegis…), ou le code du moment avec "
+                "`make totp`. Les autres comptes se connectent sans code, comme dans tout espace "
+                "de démonstration."
             )
-        self.stdout.write(self.style.SUCCESS(f"{len(schools)} écoles de démonstration prêtes."))
+        else:
+            self.stdout.write(
+                "Pas de double authentification : les espaces de démonstration ne la demandent pas."
+            )
+        if admin is None:
+            self.stdout.write(
+                "Pas de super-admin fictif hors développement : créer le vôtre (createsuperuser)."
+            )
+        self.stdout.write(self.style.SUCCESS(f"{len(spaces)} espaces de démonstration prêts."))

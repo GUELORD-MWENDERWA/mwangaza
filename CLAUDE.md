@@ -96,7 +96,7 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 | `make dev` · `make dev-local` · `make stop` | tout dans Docker (PostgreSQL hôte 5433, Redis, Django :8000, Celery, Gestion :5173, Portail :5174, Console :5175) ; ou Django et Vite sur la machine (valeurs de `.env`) ; arrêter |
 | `make services` · `make reset-db` | PostgreSQL et Redis seuls (démarrés d'office par la cible cachée `db-up`, sauf en CI) ; base de développement effacée puis `make migrate demo` |
 | `make migrate` · `make makemigrations app=<app> name=<nom>` | migrations |
-| `make demo` | données fictives, remises comme au départ : écoles `itig` (800 élèves) et `volcans` (150), un compte par rôle (téléphones `0000001001`…, super-admin `0000000000`, mot de passe `mwangaza-demo`, clé commune de double authentification sauf le promoteur de l'ITIG), parent du portail `0002000001` ; refusé sans le réglage `DEMO_DATA` ; contenu complet : `docs/claude/reference.md` |
+| `make demo` | données fictives, remises comme au départ : espaces de démonstration `itig` (800 élèves) et `volcans` (150), un compte par rôle (téléphones `0000001001`…, mot de passe `mwangaza-demo` ; en développement seulement : super-admin `0000000000`, et clé commune de double authentification pour directeur, comptable et caissière, les autres entrent sans code), parent du portail `0002000001` ; refusé sans le réglage `DEMO_DATA` ; contenu complet : `docs/claude/reference.md` |
 | `make totp` · `make totp key=<clé>` | code de double authentification du moment (comptes de `make demo`) ; refusé hors `DEBUG` |
 | `make demo-excel` | liste d'élèves fictive `eleves-fictifs.xlsx` (~800, erreurs glissées exprès) pour essayer l'import |
 | `make messages` | traductions du serveur (`makemessages` + `compilemessages`, `.po` et `.mo` dans Git) : texte source en anglais, **tout** traduit en français dans la même PR (test refuse vide, « fuzzy », `.mo` pas recompilé) |
@@ -104,7 +104,7 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 | `make lint` · `make format` | vérifier sans modifier (ruff ; ESLint + Prettier) ; corriger ce qui peut l'être |
 | `make api` · `make api-schema` | schéma OpenAPI → `frontend/packages/api/openapi.yaml`, puis types du client `src/schema.d.ts` (après tout changement d'API) ; `api-schema` : schéma seul (CI) |
 | `make build` · `make guide` | build des PWA ; guide de la version en PDF (`docs/guide/`, fin de chaque version) |
-| `make prod-local` · `make reseau…` | essai de la production sur la machine ; essai sur plusieurs appareils du même réseau (DuckDNS, `A-FAIRE.md` § 9 bis) |
+| `make prod-local` · `make reseau…` | essai de la production sur la machine ; essai sur plusieurs appareils du même réseau (DuckDNS, `A-FAIRE.md` § 9 bis ; `reseau-demo` : données fictives, `reseau-superuser` : ton compte super-admin) |
 | `make deploy-setup` · `make deploy` · `make deploy-demo` · `make deploy-superuser` · `make deploy-logs` · `make deploy-ssh` | serveur de démonstration en ligne (Oracle Cloud + DuckDNS, `A-FAIRE.md` § 9 ter, skill `/deployer`) : préparer une fois, mettre en ligne `main`, données fictives (mot de passe propre au serveur, chacun lie son application d'authentification), super-admin, journaux |
 | `make superuser` · `make shell` | compte super-admin ; console Django |
 | GitHub Actions | à chaque PR et sur `main` : lint + tests du serveur + schéma OpenAPI à jour ; types du client + lint + tests du front + build ; `make test-e2e`. Une PR ne lance que les contrôles concernés par ses fichiers (`.github/scripts/changes.sh` : documents et maquettes → rien ; `frontend/` → front + parcours ; `backend/` → serveur + parcours ; le reste → tout) ; `main` relance toujours tout |
@@ -155,7 +155,7 @@ Côté utilisateur, la marche à suivre est dans `A-FAIRE.md` § 10 « Comment r
 
 ## Données de démonstration
 
-On travaille avec des données **fictives et réalistes**, en développement, dans les essais et sur le serveur de démonstration en ligne (mot de passe propre au serveur, pas de clé commune de double authentification) : `make demo` recrée l'école `itig` (démo : ~800 élèves avec familles, fratries et paiements sur plusieurs mois), une seconde école fictive `volcans`, plus petite, pour prouver l'isolation, et un compte par rôle (détail : `docs/07-a-fournir.md` § 4). Les vraies données, c'est l'école qui les saisit. Chaque tâche qui ajoute un modèle enrichit cette commande. Jamais de vraie donnée personnelle dans les données de démonstration ni dans les tests.
+On travaille avec des données **fictives et réalistes**, en développement, dans les essais et sur le serveur de démonstration en ligne (mot de passe propre au serveur, ni double authentification ni super-admin fictif) : `make demo` recrée, comme espaces de démonstration (`03` § 4 bis), l'école `itig` (démo : ~800 élèves avec familles, fratries et paiements sur plusieurs mois), une seconde école fictive `volcans`, plus petite, pour prouver l'isolation, et un compte par rôle (détail : `docs/07-a-fournir.md` § 4). Les vraies données, c'est l'école qui les saisit. Chaque tâche qui ajoute un modèle enrichit cette commande. Jamais de vraie donnée personnelle dans les données de démonstration ni dans les tests.
 
 ## Suivi du projet (obligatoire)
 

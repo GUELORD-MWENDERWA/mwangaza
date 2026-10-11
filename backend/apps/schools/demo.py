@@ -1,6 +1,9 @@
-"""Écoles fictives de `make demo` (`docs/07-a-fournir.md` § 4).
+"""Espaces de démonstration (`docs/07-a-fournir.md` § 4, `03` § 4 bis) : ce qu'est un espace à
+remplir (`DemoSpace`), les deux écoles de `make demo` et leur organisation.
 
 L'ITIG n'est que l'école d'exemple : ce qui la décrit vient d'ici, jamais du code de l'application.
+Les données d'exemple sont rangées par **profil** (`itig` : grande école technique, ≈ 800 élèves ;
+`volcans` : petite, ≈ 150), pas par code d'école : la console en remplit d'autres espaces (4.17.2).
 """
 
 from dataclasses import dataclass
@@ -18,71 +21,134 @@ from apps.schools.organisation import YearTemplate, template_terms
 # Logo public de l'ITIG (site web), recadré : `docs/ecole-pilote/fiche-itig.md`.
 ITIG_LOGO = settings.BASE_DIR.parent / "docs/ecole-pilote/documents/2026-09-25-logo-itig-carre.png"
 DEMO_LOGOS = {"itig": ITIG_LOGO}
+PHONE_LENGTH = len("+243000001001")
 
 
-def _demo_schools() -> dict[str, dict]:
+@dataclass(frozen=True)
+class DemoNumbers:
+    """Numéros d'un espace, dans la plage réservée (`accounts/phone.py`) et tous en +243 00… :
+    tapés sans indicatif, ils commencent par `000`. `staff` est suivi des 4 derniers chiffres du
+    compte d'exemple (`1004` : comptable), `guardians` d'un compteur."""
+
+    staff: str
+    guardians: str
+
+    def of(self, example: str) -> str:
+        """Le compte de cet espace qui correspond au compte d'exemple `example`."""
+        return f"{self.staff}{example[-4:]}"
+
+    def guardian(self, number: int) -> str:
+        return f"{self.guardians}{number:0{PHONE_LENGTH - len(self.guardians)}d}"
+
+    @classmethod
+    def block(cls, number: int) -> "DemoNumbers":
+        """Bloc d'un espace créé depuis la console : +243 00 BB 0 xxxx pour le personnel,
+        +243 00 BB 1 xxxx pour les tuteurs. De 40 à 99 : en dessous, les numéros de `make demo`."""
+        if number not in BLOCKS:
+            raise ValueError(f"Bloc de numéros de démonstration hors de {BLOCKS} : {number}")
+        return cls(f"+24300{number}0", f"+24300{number}1")
+
+
+BLOCKS = range(40, 100)
+# Numéros historiques de `make demo` (écrits dans les documents et les parcours) : personnel des
+# deux écoles en +243 000 00x xxx, tuteurs en +243 002… et +243 003….
+MAKE_DEMO_NUMBERS = {
+    "itig": DemoNumbers("+24300000", "+2430020"),
+    "volcans": DemoNumbers("+24300000", "+2430030"),
+}
+
+
+@dataclass(frozen=True)
+class DemoSpace:
+    """Un espace de démonstration à remplir : son école, le profil des données d'exemple à y
+    écrire, ses numéros et le mot de passe de ses comptes."""
+
+    school: School
+    profile: str
+    numbers: DemoNumbers
+    password: str
+    # Développement seulement : clé commune de double authentification (`accounts/demo.py`).
+    shared_totp_key: bool = False
+
+
+def _make_demo_schools() -> dict[str, dict]:
     today = timezone.localdate()
     return {
         "itig": {
             "name": "ITIG Don Bosco Goma (démo)",
             "official_name": "Institut Technique Industriel de Goma — ITIG Don Bosco (démo)",
-            # Décision Q8 : couleur de l'ITIG de démonstration.
-            "primary_color": "#003C6C",
             "status": School.Status.TRIAL,
             "plan": "Essai",
             "trial_ends_on": today + timedelta(days=90),
             "paid_until": None,
-            # Reçus (M5) : en-tête et mention fictifs, thermique 80 mm.
-            "settings": {
-                "receipt": {
-                    "printer": "thermal_80",
-                    "sheet_size": "a6",
-                    "copies": 1,
-                    "header": "Institut Technique Industriel\nGoma · Nord-Kivu\n+243 000 000 000",
-                    "footer": "Conservez ce reçu. Aucun remboursement sans reçu.",
-                }
-            },
         },
         "volcans": {
             "name": "Complexe scolaire Les Volcans (fictif)",
             "official_name": "Complexe scolaire Les Volcans (fictif)",
-            "primary_color": "#7A3E00",
             "status": School.Status.ACTIVE,
             "plan": "Standard",
             "trial_ends_on": None,
             "paid_until": today + timedelta(days=60),
-            # Imprimante ordinaire : reçus A6, avec une souche pour l'école.
-            "settings": {
-                "receipt": {
-                    "printer": "sheet",
-                    "sheet_size": "a6",
-                    "copies": 2,
-                    "header": "Quartier Himbi, Goma\nvolcans@example.org",
-                    "footer": "Merci de payer à temps.",
-                }
-            },
         },
     }
 
 
-def create_demo_schools() -> dict[str, School]:
-    """Crée les écoles, ou les remet comme au départ (nom, couleur, abonnement, pas suspendues,
-    réglages du reçu, logo de démonstration, pas de logo noir et blanc)."""
-    schools = {}
-    for code, fields in _demo_schools().items():
-        existing = School.objects.filter(code=code).first()
-        for logo in (existing.logo, existing.logo_monochrome) if existing else ():
+# Couleur et réglages du reçu (M5) de chaque profil.
+DEMO_LOOKS = {
+    "itig": {
+        # Décision Q8 : couleur de l'ITIG de démonstration.
+        "primary_color": "#003C6C",
+        # En-tête et mention fictifs, thermique 80 mm.
+        "receipt": {
+            "printer": "thermal_80",
+            "sheet_size": "a6",
+            "copies": 1,
+            "header": "Institut Technique Industriel\nGoma · Nord-Kivu\n+243 000 000 000",
+            "footer": "Conservez ce reçu. Aucun remboursement sans reçu.",
+        },
+    },
+    "volcans": {
+        "primary_color": "#7A3E00",
+        # Imprimante ordinaire : reçus A6, avec une souche pour l'école.
+        "receipt": {
+            "printer": "sheet",
+            "sheet_size": "a6",
+            "copies": 2,
+            "header": "Quartier Himbi, Goma\nvolcans@example.org",
+            "footer": "Merci de payer à temps.",
+        },
+    },
+}
+
+
+def create_demo_schools(*, password: str, shared_totp_key: bool) -> list[DemoSpace]:
+    """Les deux espaces de `make demo`, créés ou remis comme au départ (nom, abonnement, pas
+    suspendus). De démonstration, y compris dans une base d'avant la 4.17 où ils étaient réels."""
+    spaces = []
+    for code, fields in _make_demo_schools().items():
+        school, _created = School.objects.update_or_create(
+            code=code, defaults={**fields, "environment": School.Environment.DEMO}
+        )
+        spaces.append(DemoSpace(school, code, MAKE_DEMO_NUMBERS[code], password, shared_totp_key))
+    return spaces
+
+
+def create_demo_look(spaces: list[DemoSpace]) -> None:
+    """Couleur, réglages du reçu et logo du profil, remis comme au départ ; pas de logo noir et
+    blanc."""
+    for space in spaces:
+        school, look = space.school, DEMO_LOOKS[space.profile]
+        for logo in (school.logo, school.logo_monochrome):
             if logo:
                 logo.delete(save=False)
-        school, _created = School.objects.update_or_create(
-            code=code, defaults={**fields, "logo": "", "logo_monochrome": ""}
-        )
-        logo = DEMO_LOGOS.get(code)
+        school.primary_color = look["primary_color"]
+        school.settings = {"receipt": look["receipt"]}
+        school.logo, school.logo_monochrome = "", ""
+        school.save()
+        logo = DEMO_LOGOS.get(space.profile)
         if logo is not None and logo.exists():
             with logo.open("rb") as file:
                 school.logo.save(logo.name, File(file))
-        schools[code] = school
-    return schools
 
 
 # Organisation scolaire (C1-C3) : structure publique de l'ITIG (`fiche-itig.md`), sections
@@ -109,7 +175,7 @@ ITIG_TERMS = [
         ],
     ),
 ]
-# L'enseignant de démonstration des deux écoles (`accounts/demo.py`).
+# L'enseignant de démonstration, titulaire d'une classe (compte d'exemple, `accounts/demo.py`).
 HOMEROOM_TEACHER_PHONE = "+243000001008"
 
 
@@ -198,13 +264,13 @@ def _demo_terms(year: AcademicYear, dates: list | None) -> None:
             order += 1
 
 
-def create_demo_organisation(schools: dict[str, School]) -> None:
+def create_demo_organisation(spaces: list[DemoSpace]) -> None:
     """Crée ou remet à jour l'année 2026-2027 (en cours), son découpage, les niveaux, options et
     classes de démonstration, et le format du matricule. Ce que l'utilisateur a ajouté en
     essayant l'application n'est pas effacé."""
-    teacher = User.objects.get(phone=HOMEROOM_TEACHER_PHONE)
-    for code, demo in DEMO_ORGANISATIONS.items():
-        school = schools[code]
+    for space in spaces:
+        school, demo = space.school, DEMO_ORGANISATIONS[space.profile]
+        teacher = User.objects.get(phone=space.numbers.of(HOMEROOM_TEACHER_PHONE))
         school.matricule_format = demo.matricule_format
         school.save(update_fields=["matricule_format", "updated_at"])
         with use_school(school):

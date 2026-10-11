@@ -23,7 +23,7 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.accounts import totp
 from apps.accounts.models import Membership, RecoveryCode, Role, User
-from apps.accounts.phone import normalize_phone
+from apps.accounts.phone import is_demo_phone, normalize_phone
 from apps.accounts.roles import ROLES_MANAGE, SYSTEM_ROLES, TOTP_PERMISSIONS, sorted_permissions
 from apps.audit import services as audit
 from apps.audit.actions import Action, PlatformAction
@@ -51,6 +51,19 @@ ROLE_NAME_REQUIRED = ApiError(
 )
 ALREADY_MEMBER = ApiError(
     "already_member", _("This phone number already has an account in this school."), 409
+)
+DEMO_NUMBER = ApiError(
+    "demo_number",
+    _("Numbers starting with 000 are kept for demonstration spaces."),
+    400,
+)
+DEMO_SPACE_NUMBERS = ApiError(
+    "demo_space_numbers",
+    _(
+        "A demonstration space only takes made-up numbers starting with 000 (for example "
+        "0001234567): never a real number."
+    ),
+    400,
 )
 NAMES_REQUIRED = ApiError(
     "names_required", _("This phone number has no account yet: enter the last name."), 400
@@ -240,6 +253,16 @@ def make_temporary_password() -> str:
     return "-".join(groups)
 
 
+def ensure_number_fits_space(phone: str, school: School) -> None:
+    """Pas de mélange entre fictif et réel (`03` § 4 bis) : un numéro de la plage réservée n'a de
+    rôle ou de famille que dans un espace de démonstration, et un tel espace n'accepte que ces
+    numéros. Le compte d'une vraie personne n'est donc jamais relié à des données fictives."""
+    if school.is_demo and not is_demo_phone(phone):
+        raise BusinessError(DEMO_SPACE_NUMBERS)
+    if is_demo_phone(phone) and not school.is_demo:
+        raise BusinessError(DEMO_NUMBER)
+
+
 def add_staff_member(
     *,
     actor: User,
@@ -256,6 +279,7 @@ def add_staff_member(
     nouveau mot de passe ni changement de ses noms, et sans rien dire de ses autres écoles (B3)."""
     school = require_current_school()
     phone = normalize_phone(phone)
+    ensure_number_fits_space(phone, school)
     roles = list(roles)
     with transaction.atomic():
         user = User.objects.filter(phone=phone).first()
@@ -377,6 +401,9 @@ def _update_account(user: User, **fields: str) -> None:
         fields["phone"] = normalize_phone(fields["phone"])
         if User.objects.filter(phone=fields["phone"]).exclude(pk=user.pk).exists():
             raise BusinessError(PHONE_TAKEN)
+        if is_demo_phone(fields["phone"]) != is_demo_phone(user.phone):
+            # Un compte ne sort pas de la plage réservée et n'y entre pas (`03` § 4 bis).
+            raise BusinessError(DEMO_SPACE_NUMBERS if is_demo_phone(user.phone) else DEMO_NUMBER)
     for field, value in fields.items():
         setattr(user, field, value.strip())
     user.save(update_fields=[*fields, "updated_at"])
@@ -427,12 +454,17 @@ def change_password(user: User, new_password: str, *, current_password: str | No
 def totp_required(user: User) -> bool:
     """Exigée pour un super-admin, et si, dans une école où il est actif, le compte a un rôle
     portant un droit sensible (`roles.TOTP_PERMISSIONS`). Le compte étant unique, elle le protège
-    alors partout."""
+    alors partout. Un espace de démonstration ne compte pas : ses comptes sont partagés entre
+    visiteurs et ses données fictives (`03` § 4 bis)."""
     if user.is_platform_admin:
         return True
-    return Membership.objects.filter(
-        user=user, is_active=True, roles__permissions__overlap=sorted(TOTP_PERMISSIONS)
-    ).exists()
+    return (
+        Membership.objects.filter(
+            user=user, is_active=True, roles__permissions__overlap=sorted(TOTP_PERMISSIONS)
+        )
+        .exclude(school__environment=School.Environment.DEMO)
+        .exists()
+    )
 
 
 _RECOVERY_SALT = "apps.accounts.recovery-code"

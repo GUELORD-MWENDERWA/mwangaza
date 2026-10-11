@@ -39,7 +39,12 @@ class HasSchoolPermission(BasePermission):
         access = school_access(request)
         if access is None:
             return False
-        if access.permissions & TOTP_PERMISSIONS and not request.session.get(MFA_SESSION_KEY):
+        # Sauf dans un espace de démonstration, où elle n'est pas demandée (`03` § 4 bis).
+        if (
+            access.permissions & TOTP_PERMISSIONS
+            and not request.school.is_demo
+            and not request.session.get(MFA_SESSION_KEY)
+        ):
             raise PermissionDenied(
                 _("Your roles in this school require two-factor authentication: log in again."),
                 code="totp_required",

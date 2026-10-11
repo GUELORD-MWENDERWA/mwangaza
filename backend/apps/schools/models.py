@@ -214,6 +214,12 @@ class School(BaseModel):
         return self.status in self.CLOSED_STATUSES
 
     @property
+    def is_demo(self) -> bool:
+        """Espace de démonstration : données fictives, comptes de la plage réservée, pas de
+        double authentification (`03` § 4 bis)."""
+        return self.environment == self.Environment.DEMO
+
+    @property
     def url(self) -> str:
         """Adresse de l'école : https://{code}.mwangaza.school (`SCHOOL_URL`)."""
         return settings.SCHOOL_URL.format(code=self.code)

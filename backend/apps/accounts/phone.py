@@ -18,6 +18,18 @@ NATIONAL_NUMBER_LENGTHS = {"243": 9, "250": 9, "256": 9, "257": 8}
 _SEPARATORS = re.compile(r"[\s.\-()/]")
 
 
+# Plage réservée aux comptes de démonstration (`03` § 4 bis) : en RDC, aucun vrai numéro ne
+# commence par 0 après l'indicatif, ces comptes ne peuvent donc être ceux de personne. Ceux qu'on
+# donne à taper commencent par `000` (+243 00…) : `0012…` serait lu comme un numéro international
+# (`normalize_phone`).
+DEMO_PHONE_PREFIX = "+2430"
+
+
+def is_demo_phone(phone: str) -> bool:
+    """`phone` (forme E.164) est-il dans la plage réservée aux espaces de démonstration ?"""
+    return phone.startswith(DEMO_PHONE_PREFIX)
+
+
 INVALID_PHONE_MESSAGE = _("Enter a valid phone number, for example 0971234567 or +243971234567.")
 
 

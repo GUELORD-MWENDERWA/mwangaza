@@ -79,10 +79,12 @@ def test_a_demo_school_is_deleted_entirely_and_the_other_school_keeps_every_row(
 ):
     """Hors transaction de test, comme sur le serveur : chaque paquet est validé à part, la base
     vérifie donc ses liens à chaque étape (ordre de `deletion.plan()`)."""
-    settings.DEMO_DATA = True
+    # Développement : le super-admin fictif de `make demo` est le compte `platform_admin`.
+    settings.DEMO_DATA = settings.DEBUG = True
     call_command("demo")
     platform_admin.refresh_from_db()  # `make demo` remet son mot de passe : session à refaire
-    School.objects.filter(code="volcans").update(environment=School.Environment.DEMO)
+    # L'ITIG joue ici l'espace réel, avec ses paiements : rien ne doit en partir.
+    School.objects.filter(code="itig").update(environment=School.Environment.LIVE)
     itig, volcans = School.objects.get(code="itig"), School.objects.get(code="volcans")
     kept, gone = rows_per_model(itig), rows_per_model(volcans)
     assert gone["finance.Payment"] and gone["accounts.Membership_roles"]

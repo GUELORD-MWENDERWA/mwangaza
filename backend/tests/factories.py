@@ -27,8 +27,9 @@ class UserFactory(factory.django.DjangoModelFactory):
         model = User
         skip_postgeneration_save = True
 
-    # +243 0… : jamais le numéro d'une vraie personne.
-    phone = factory.Sequence(lambda n: f"+24300009{n:04d}")
+    # +243 1… : jamais le numéro d'une vraie personne, et hors de la plage réservée aux espaces
+    # de démonstration (+243 0…, `accounts/phone.py`).
+    phone = factory.Sequence(lambda n: f"+24310009{n:04d}")
     last_name = factory.Sequence(lambda n: f"Nom{n}")
     first_name = "Prénom"
     password = factory.django.Password(TEST_PASSWORD)

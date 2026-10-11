@@ -500,11 +500,11 @@ def test_change_names_and_phone(api, head, school):
 
     response = api(head).patch(
         f"{URL}{member.id}/",
-        {"last_name": " Kavira ", "middle_name": "", "first_name": "Jeanne", "phone": "0000090555"},
+        {"last_name": " Kavira ", "middle_name": "", "first_name": "Jeanne", "phone": "0100090555"},
     )
 
     assert response.status_code == 200
-    assert response.json()["user"]["phone"] == "+243000090555"
+    assert response.json()["user"]["phone"] == "+243100090555"
     member.user.refresh_from_db()
     assert (member.user.last_name, member.user.first_name) == ("Kavira", "Jeanne")
 

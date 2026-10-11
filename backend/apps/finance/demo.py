@@ -42,6 +42,7 @@ from apps.finance.services import (
     current_rate,
     sync_charges,
 )
+from apps.schools.demo import DemoSpace
 from apps.schools.models import AcademicYear, Level, School, Track
 from apps.students.models import Enrollment
 
@@ -138,11 +139,12 @@ RULES = {
 RATES = {"itig": Decimal("2850"), "volcans": Decimal("2830")}
 
 
-def create_demo_fees(schools: dict[str, School]) -> None:
+def create_demo_fees(spaces: list[DemoSpace]) -> None:
     """Crée ou remet à jour les types de frais et les barèmes de démonstration de l'année en
     cours, et son taux s'il n'en a pas encore (un taux ne se modifie pas). Ce que l'utilisateur
     a ajouté en essayant l'application n'est pas effacé."""
-    for code, school in schools.items():
+    for space in spaces:
+        code, school = space.profile, space.school
         with use_school(school):
             year = AcademicYear.objects.get(is_current=True)
             types = {}
@@ -176,10 +178,11 @@ def create_demo_fees(schools: dict[str, School]) -> None:
                 ExchangeRate.objects.create(academic_year=year, rate=RATES[code])
 
 
-def create_demo_charges(schools: dict[str, School]) -> None:
+def create_demo_charges(spaces: list[DemoSpace]) -> None:
     """Frais dus des élèves inscrits cette année, d'après les barèmes de démonstration : ceux qui
     manquent sont ajoutés, ceux d'un barème remis à zéro reprennent son montant."""
-    for school in schools.values():
+    for space in spaces:
+        school = space.school
         with use_school(school):
             year = AcademicYear.objects.get(is_current=True)
             sync_charges(Enrollment.objects.filter(academic_year=year), actor=None)
@@ -193,10 +196,11 @@ DEMO_DISCOUNTS = [
 ]
 
 
-def create_demo_discounts(schools: dict[str, School]) -> None:
+def create_demo_discounts(spaces: list[DemoSpace]) -> None:
     """Quelques réductions (E3), une seule fois par école : enfants du personnel, fratries,
     bourses."""
-    for school in schools.values():
+    for space in spaces:
+        school = space.school
         with use_school(school):
             if Discount.objects.exists():
                 continue
@@ -227,20 +231,22 @@ REGISTERS = {
 }
 
 
-def create_demo_payments(schools: dict[str, School]) -> None:
+def create_demo_payments(spaces: list[DemoSpace]) -> None:
     """Caisses de démonstration, toutes fermées (une session laissée ouverte en essayant est
     close), puis, une seule fois par école, des paiements depuis deux semaines avant la rentrée
     jusqu'à hier : sur dix élèves (ordre des matricules), quatre ont payé ce qui est dû avant la
     1re tranche dans chaque devise, deux ont donné 60,00 $, un le dû du 30/09, trois rien encore.
     Répartis comme à la caisse (`allocate`), une session par caisse et par jour."""
-    for code, school in schools.items():
+    for space in spaces:
+        code, school = space.profile, space.school
         with use_school(school):
             registers = []
             for register_code, name, phone in REGISTERS[code]:
                 register, _created = CashRegister.objects.update_or_create(
                     code=register_code, defaults={"name": name, "is_active": True}
                 )
-                registers.append((register, User.objects.get(phone=phone)))
+                cashier = User.objects.get(phone=space.numbers.of(phone))
+                registers.append((register, cashier))
             # Caisses laissées ouvertes : clôturées, l'argent compté juste.
             for session in CashSession.objects.filter(closed_at__isnull=True).select_related(
                 "cashier"
@@ -361,11 +367,12 @@ def _demo_closings(school: School) -> None:
     CashClosing.objects.bulk_create(closings, batch_size=500)
 
 
-def create_demo_credits(schools: dict[str, School]) -> None:
+def create_demo_credits(spaces: list[DemoSpace]) -> None:
     """Une seule fois par école, deux crédits à traiter (M14) : une bourse de 25 % accordée
     après le paiement de la 1re tranche (crédit du trop-payé), et le minerval de l'année
     encaissé deux fois hors ligne, à la première et à la dernière caisse (crédit du second)."""
-    for school in schools.values():
+    for space in spaces:
+        school = space.school
         with use_school(school):
             if StudentCredit.objects.exists():
                 continue
@@ -450,20 +457,21 @@ CANCELLATION_REASONS = [
 ]
 
 
-def create_demo_cancellations(schools: dict[str, School]) -> None:
+def create_demo_cancellations(spaces: list[DemoSpace]) -> None:
     """Une seule fois par école, des demandes d'annulation (F7) sur les derniers paiements du
     caissier de la première caisse : une validée par le comptable (reçu d'annulation), une
     refusée, une en attente ; et une du comptable, s'il encaisse aussi, en attente (le directeur
     la valide)."""
-    for code, school in schools.items():
+    for space in spaces:
+        code, school = space.profile, space.school
         with use_school(school):
             if CancellationRequest.objects.exists():
                 continue
-            approver = User.objects.get(phone=APPROVERS[code])
+            approver = User.objects.get(phone=space.numbers.of(APPROVERS[code]))
             plain = Payment.objects.filter(
                 credits__isnull=True, enrollment__discounts__isnull=True
             ).order_by("-paid_at")
-            cashier = User.objects.get(phone=REGISTERS[code][0][2])
+            cashier = User.objects.get(phone=space.numbers.of(REGISTERS[code][0][2]))
             for payment, (reason, decision) in zip(
                 plain.filter(cashier=cashier), CANCELLATION_REASONS, strict=False
             ):

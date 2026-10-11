@@ -21,8 +21,13 @@ test("super-admin : console de la plateforme, mot de passe puis code, tableau de
   await enterCode(page);
   await expect(page.getByRole("heading", { name: "Tableau de bord" })).toBeVisible();
   await expect(page.getByText("Écoles actives")).toBeVisible();
-  await expect(page.getByText("ITIG Don Bosco Goma (démo)")).toBeVisible();
   await expect(page.getByText("Santé du serveur")).toBeVisible();
+  // Les écoles de `make demo` sont des espaces de démonstration : hors des chiffres du tableau de
+  // bord, rangées sous leur onglet.
+  await expect(page.getByText("ITIG Don Bosco Goma (démo)")).toHaveCount(0);
+  await page.getByRole("link", { name: "Écoles", exact: true }).first().click();
+  await page.getByRole("tab", { name: "Démonstration" }).click();
+  await expect(page.getByText("ITIG Don Bosco Goma (démo)")).toBeVisible();
   // Le parcours suivant du super-admin peut reprendre le même code.
   allowCodeAgain(ADMIN);
 });
