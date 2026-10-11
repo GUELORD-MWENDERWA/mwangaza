@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.22 terminée (PR ouverte, à fusionner) |
-| Prochaine tâche | 4.7.1 (sauvegardes prêtes, essayées sur la machine), puis 4.21 |
+| Tâche en cours | 4.7.1 — sauvegardes prêtes, essayées sur la machine (issue #164) |
+| Prochaine tâche | 4.21 (recette finale) |
 | Issue GitHub | #164 pour 4.7.1, #165 pour 4.21 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.22-make-demo-sur` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/4.7.1-sauvegardes` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement

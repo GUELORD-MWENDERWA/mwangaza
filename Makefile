@@ -19,13 +19,20 @@ ESSAI := cd backend && uv run python ../infra/reseau/essai.py
 # Serveur de démonstration en ligne (Oracle Cloud + DuckDNS), piloté par SSH : valeurs de
 # infra/serveur/serveur.env (hors Git), créé au premier lancement.
 DEPLOYER := infra/serveur/deployer.sh
+# Sauvegardes (4.7.1) : la pile du développement, ou les images du serveur avec pile=reseau ou
+# pile=essai. Un dossier par pile : on ne restaure pas la sauvegarde d'une pile dans une autre.
+pile ?= dev
+SAUVEGARDE_dev := COMPOSE='$(COMPOSE)' MEDIA_DIR=backend/media
+SAUVEGARDE_essai := COMPOSE='$(PROD_LOCAL)'
+SAUVEGARDE_reseau := COMPOSE='$(RESEAU)'
+SAUVEGARDE := $(SAUVEGARDE_$(pile)) BACKUP_DIR=sauvegardes/$(pile) infra/backup/sauvegarde.sh
 MANAGE := cd backend && uv run python manage.py
 
 .DEFAULT_GOAL := help
 .PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp messages superuser shell \
 	test test-back test-front test-e2e lint lint-back lint-front format api api-schema build \
 	prod-local prod-local-stop reseau reseau-ip reseau-demo reseau-superuser reseau-stop \
-	deploy-setup deploy deploy-demo deploy-superuser deploy-logs deploy-ssh
+	deploy-setup deploy deploy-demo deploy-superuser deploy-logs deploy-ssh backup restore
 
 help: ## Afficher les commandes
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  make %-15s %s\n", $$1, $$2}'
@@ -178,3 +185,12 @@ deploy-logs: ## Derniers journaux du serveur de démonstration ; make deploy-log
 
 deploy-ssh: ## Ouvrir une session sur le serveur de démonstration
 	$(DEPLOYER) ssh
+
+# Clé de la machine (données fictives) si `.env` n'en donne pas ; un vrai serveur a la sienne.
+backup restore: export BACKUP_PASSPHRASE ?= mwangaza-dev
+
+backup: $(if $(filter dev,$(pile)),db-up) ## Sauvegarde chiffrée de la base et des fichiers dans sauvegardes/ (sessions expirées purgées, rotation)
+	@$(SAUVEGARDE) backup
+
+restore: $(if $(filter dev,$(pile)),db-up) ## Essai de restauration dans une base à part ; make restore file=<sauvegarde> ; remplacer=oui : la remettre en service
+	@$(SAUVEGARDE) restore $(if $(remplacer),--remplacer) $(file)
