@@ -8,6 +8,7 @@ from apps.accounts.serializers import LoginSerializer, PhoneField
 from apps.core.money import Currency
 from apps.finance.serializers import BalanceSerializer, LastPaymentSerializer
 from apps.portal import children, families
+from apps.schools.models import School
 from apps.students.serializers import ContactDetailsSerializer
 
 _PASSWORD = {"max_length": 128, "trim_whitespace": False, "style": {"input_type": "password"}}
@@ -74,6 +75,11 @@ class LinkedFamilySerializer(serializers.Serializer):
     id = serializers.UUIDField(source="family.id")
     school_name = serializers.CharField(source="family.school.name")
     school_timezone = serializers.CharField(source="family.school.timezone")
+    school_environment = serializers.ChoiceField(
+        source="family.school.environment",
+        choices=School.Environment.choices,
+        help_text="Type de l'espace : le Portail affiche un bandeau hors espace réel.",
+    )
     status = serializers.ChoiceField(
         choices=[families.ACTIVE, families.SUSPENDED, families.SCHOOL_UNAVAILABLE]
     )

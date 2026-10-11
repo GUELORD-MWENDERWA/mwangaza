@@ -4586,6 +4586,8 @@ export interface components {
             primary_color: string;
             /** @description Couleur du texte posé sur `primary_color` : blanc ou encre. */
             readonly text_color: string;
+            /** Kind of space */
+            readonly environment: components["schemas"]["SchoolEnvironmentEnum"];
             /** @description Adresse du logo (`GET /api/school/logo/`, public) ; null sans logo. */
             readonly logo: string | null;
             /** @description Adresse du logo noir et blanc des reçus thermiques (public) ; null sans lui. */
@@ -5388,6 +5390,14 @@ export interface components {
             id: string;
             school_name: string;
             school_timezone: string;
+            /**
+             * @description Type de l'espace : le Portail affiche un bandeau hors espace réel.
+             *
+             *     * `live` - Live
+             *     * `test` - Sandbox
+             *     * `demo` - Demonstration
+             */
+            school_environment: components["schemas"]["SchoolEnvironmentEnum"];
             status: components["schemas"]["LinkedFamilyStatusEnum"];
             children: components["schemas"]["Child"][];
         };

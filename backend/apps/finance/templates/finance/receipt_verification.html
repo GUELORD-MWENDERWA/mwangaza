@@ -29,6 +29,7 @@ dl { margin: 12px 0 0; }
 dl div { display: flex; justify-content: space-between; gap: 10px; padding: 12px 0; border-bottom: 1px solid #EDF1F2; font-size: .85rem; }
 dl div:last-child { border-bottom: 0; }
 dt { color: var(--ink-3); }
+.space { margin: 0 0 12px; padding: 10px 12px; border-radius: 8px; background: var(--warn-50); color: var(--warn); font-weight: 700; font-size: .85rem; text-align: center; }
 dd { margin: 0; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
 </style>
 </head>
@@ -39,6 +40,7 @@ dd { margin: 0; font-weight: 700; text-align: right; font-variant-numeric: tabul
   <p>{% translate "Document verification" %}</p>
 </header>
 <main>
+{% if environment != "live" %}<p class="space" role="note">{% translate "Test receipt: this school space holds no real data, the receipt has no value." %}</p>{% endif %}
 {% block card %}<div class="card" data-state="{{ state }}">
   <div class="state">
     <div class="icon" aria-hidden="true">

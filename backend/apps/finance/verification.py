@@ -133,7 +133,11 @@ def verify_receipt(request: HttpRequest, payment_id: UUID) -> HttpResponse:
             state = FORGED
         else:
             state = CANCELLED if hasattr(payment, "cancellation") else VALID
-    context = {"school_name": request.school.name, "state": state}
+    context = {
+        "school_name": request.school.name,
+        "state": state,
+        "environment": request.school.environment,
+    }
     if state in (VALID, CANCELLED):
         context.update(
             cancelled_at=payment.cancellation.approved_at if state == CANCELLED else None,

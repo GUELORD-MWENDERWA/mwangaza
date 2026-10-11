@@ -28,6 +28,7 @@ import { PlatformNewsBanner } from "../platform-news/PlatformNewsBanner";
 import { PlatformNewsLink } from "../platform-news/PlatformNewsLink";
 import { SearchPalette } from "./SearchPalette";
 import { Nav, SchoolSwitcher, Sidebar } from "./Sidebar";
+import { SpaceBanner } from "./SpaceBanner";
 import { SupportBanner } from "./SupportBanner";
 import { StorageBanner, SyncMenu, useSyncSession } from "./SyncMenu";
 
@@ -46,6 +47,7 @@ export function AppShell() {
         <div className="flex min-w-0 flex-col">
           {/* Bandeau support et barre du haut restent visibles en faisant défiler. */}
           <div className="sticky top-0 z-30">
+            <SpaceBanner />
             {me.support && <SupportBanner support={me.support} />}
             <TopBar me={me} />
           </div>

@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { cleanup, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { ACCOUNT, ITIG } from "../../test/fixtures";
@@ -8,6 +8,7 @@ const VOLCANS = {
   id: "f2",
   school_name: "C.S. Les Volcans",
   school_timezone: "Africa/Lubumbashi",
+  school_environment: "live",
   status: "suspended",
   children: [],
 };
@@ -27,6 +28,21 @@ describe("accueil du portail", () => {
     expect(screen.getByText("0 FC sur 25 000 FC")).toBeTruthy();
     expect(screen.getByText("C.S. Les Volcans")).toBeTruthy();
     expect(screen.getByText(/L'école a suspendu l'accès au portail/)).toBeTruthy();
+  });
+
+  it("une école de démonstration ou d'essai affiche son bandeau, une école réelle non", async () => {
+    mockApi({ "GET /api/portal/me/": ACCOUNT, "GET /api/portal/families/": [ITIG] });
+    renderApp("/");
+    await screen.findByText("KASEREKA Muhindo Jean");
+    expect(screen.queryByText(/Démonstration|Essai —/)).toBeNull();
+    cleanup();
+
+    mockApi({
+      "GET /api/portal/me/": ACCOUNT,
+      "GET /api/portal/families/": [{ ...ITIG, school_environment: "demo" }],
+    });
+    renderApp("/");
+    expect(await screen.findByText("Démonstration — données fictives")).toBeTruthy();
   });
 
   it("ajouter une autre école : le code envoyé, l'erreur du serveur traduite", async () => {

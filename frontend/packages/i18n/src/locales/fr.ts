@@ -2483,6 +2483,11 @@ export const fr = {
       },
     },
   },
+  space: {
+    demo: "Démonstration — données fictives",
+    test: "Essai — pas de vraies données",
+    specimen: "SPÉCIMEN — sans valeur",
+  },
   platformNews: {
     title: "Annonces de {{platform}}",
     subtitle: "Messages de l'équipe de la plateforme à votre école.",
