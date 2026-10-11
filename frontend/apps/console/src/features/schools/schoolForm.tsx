@@ -15,9 +15,9 @@ export type SchoolKind = Schemas["SchoolEnvironmentEnum"];
 /** Types d'espace (4.15), dans l'ordre des onglets : réel, essai, démonstration. */
 export const KINDS = ["live", "test", "demo"] as const satisfies readonly SchoolKind[];
 
-/** Suspendue ou arrêtée : personne n'y entre, pas de session support. */
+/** Suspendue, arrêtée ou en cours de suppression : personne n'y entre, pas de session support. */
 export const isClosed = (school: Pick<School, "status">) =>
-  school.status === "suspended" || school.status === "stopped";
+  school.status === "suspended" || school.status === "stopped" || school.status === "deleting";
 
 export const SCHOOL_FIELDS = [
   "name",
@@ -162,8 +162,8 @@ export function SubscriptionFields<T extends SchoolValues>({
 export function SubscriptionPill({ school }: { school: School }) {
   const { t, i18n } = useTranslation();
   const day = (value: string) => formatDay(value, i18n.language);
-  if (school.status === "stopped") {
-    return <StatusPill tone="gray">{t("console.schools.status.stopped")}</StatusPill>;
+  if (school.status === "stopped" || school.status === "deleting") {
+    return <StatusPill tone="gray">{t(`console.schools.status.${school.status}`)}</StatusPill>;
   }
   if (school.status === "suspended") {
     return <StatusPill tone="due">{t("console.schools.status.suspended")}</StatusPill>;

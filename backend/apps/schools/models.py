@@ -64,9 +64,11 @@ class School(BaseModel):
         ACTIVE = "active", _("Active")
         SUSPENDED = "suspended", _("Suspended")
         STOPPED = "stopped", _("Stopped")
+        # Espace d'essai ou de démonstration que la tâche de fond est en train d'effacer (4.16).
+        DELETING = "deleting", _("Being deleted")
 
-    # Plus personne n'y entre ; les données restent.
-    CLOSED_STATUSES = (Status.SUSPENDED, Status.STOPPED)
+    # Plus personne n'y entre ; les données restent (sauf « suppression en cours »).
+    CLOSED_STATUSES = (Status.SUSPENDED, Status.STOPPED, Status.DELETING)
 
     code = models.CharField(
         _("code"),
@@ -207,7 +209,8 @@ class School(BaseModel):
 
     @property
     def is_closed(self) -> bool:
-        """Suspendue ou arrêtée : ni connexion, ni portail, ni session support."""
+        """Suspendue, arrêtée ou en cours de suppression : ni connexion, ni portail, ni session
+        support."""
         return self.status in self.CLOSED_STATUSES
 
     @property

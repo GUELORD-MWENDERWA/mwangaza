@@ -9,7 +9,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 
 ## Modèle
 
-- Vérifier dans `04` si l'entité est **[T]** (hérite de `TenantModel`, champ `school`), **[G]** (globale : `User`, `School`, `Membership`, `PushSubscription`, `SchoolNetwork` — `Student`, `Family`, `Guardian` sont **[T]** : une copie par école, décision Q10) ou **[I]** (immuable).
+- Vérifier dans `04` si l'entité est **[T]** (hérite de `TenantModel`, champ `school`), **[G]** (globale : `User`, `School`, `Membership`, `PushSubscription`, `SchoolNetwork` — `Student`, `Family`, `Guardian` sont **[T]** : une copie par école, décision Q10) ou **[I]** (immuable). Un modèle **[T]** part tout seul avec son école quand on supprime un espace d'essai ou de démonstration (`apps/schools/deletion.py`) ; un modèle **[G]** qui pointe vers une école ou vers une de ses données doit être ajouté à `GLOBAL_MODELS_OF_A_SCHOOL`, sinon `deletion.plan()` et son test échouent.
 - Hériter de `apps.core.models.TenantModel` ([T]) ou `BaseModel` ([G]) : clé primaire UUID v7 (`apps.core.ids.uuid7`), `created_at`, `updated_at`, `created_by` (rempli par le service avec `actor`).
 - Index composés **commençant par `school`** ; unicité portée par école (ex. `matricule`, `receipt_number`, `Device.prefix`) via `UniqueConstraint(fields=["school", …])`.
 - Argent : `*_minor` en `BigIntegerField` + `currency` (`CharField(3)`) ; taux en `DecimalField(…, decimal_places=6)`. Jamais `FloatField`. Voir skill `argent`.

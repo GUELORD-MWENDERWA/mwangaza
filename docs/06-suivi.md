@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.15 fusionnée (suite comprise) ; hors plan : contrôles GitHub selon les fichiers changés, PR à relire et fusionner |
-| Prochaine tâche | 4.16 (Supprimer un espace d'essai ou de démonstration) |
-| Issue GitHub | #159 pour 4.16 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `ci/controles-selon-fichiers` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.16 terminée, PR à relire et fusionner |
+| Prochaine tâche | 4.17 (Démonstration depuis la console) |
+| Issue GitHub | #160 pour 4.17 (bloc : #155 à #165, créées le 2026-10-10) |
+| Branche | `tache/4.16-supprimer-espace` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement
@@ -23,8 +23,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.21, 4.7.1) | 4 | 11 |
-| **V1.0** | **54** | **63** |
+| Lancement — version finie (4.12 à 4.21, 4.7.1) | 5 | 11 |
+| **V1.0** | **55** | **63** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -56,6 +56,12 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-11 — Tâche 4.16 : Supprimer un espace d'essai ou de démonstration
+- Fait : « Supprimer » sur la fiche d'un espace d'essai ou de démonstration (console), confirmé en retapant son code ; refusé par le serveur **et par la base** pour un espace réel. Dans la requête : espace fermé (état « suppression en cours », adresse « école introuvable »), comptes restés sans école désactivés, journal de la plateforme. En tâche de fond : `apps/schools/deletion.py` trouve seul tous les modèles d'une école, les ordonne et les vide par paquets de 2 000 lignes, fichiers compris ; rejouable (« Relancer la suppression »).
+- Tests : super-admin seul ; espace réel refusé et intact ; école `volcans` de `make demo` supprimée en entier hors transaction (comme sur le serveur) pendant que `itig` garde exactement ses lignes ; comptes désactivés seulement s'ils n'avaient que cet espace ; journal ; rien ne change dans un espace en cours de suppression. Vitest : confirmation par le code. Essai réel dans la console (vrai Celery), capture à 390 px.
+- Décisions : les déclencheurs d'immuabilité (paiements, répartitions, annulations, crédits, clôtures, taux, journal de l'école) laissent partir une ligne **seulement** si son école est un espace non réel en cours de suppression, jamais la modifier ; le journal de la plateforme reste immuable. Une suppression à la fois par un refus, pas par une file d'attente ; pas de motif ; comptes jamais supprimés.
+- Suite : 4.17 (démonstration depuis la console ; « Remettre à zéro » = `services.delete_space` puis recréer ; les comptes de démonstration désactivés par une suppression seront à réactiver).
 
 ### 2026-10-11 — Contrôles GitHub selon les fichiers changés (hors plan, demande de l'utilisateur)
 - Fait : un job « Fichiers changés » décide, pour chaque PR, des contrôles à lancer (`.github/scripts/changes.sh`) : documents, maquettes et skills → aucun ; `frontend/` → front + parcours ; `backend/` → serveur + parcours ; tout autre fichier → tout. `main` relance toujours tout après une fusion.

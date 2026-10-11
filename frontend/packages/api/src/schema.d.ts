@@ -1091,7 +1091,8 @@ export interface paths {
         /**
          * @description Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
          *     changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
-         *     Un espace réel ne se supprime jamais : on le suspend ou on l'arrête.
+         *     Un espace réel ne se supprime jamais : on le suspend ou on l'arrête ; un espace d'essai ou de
+         *     démonstration se supprime (4.16).
          */
         get: operations["console_schools_list"];
         put?: never;
@@ -1117,7 +1118,8 @@ export interface paths {
         /**
          * @description Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
          *     changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
-         *     Un espace réel ne se supprime jamais : on le suspend ou on l'arrête.
+         *     Un espace réel ne se supprime jamais : on le suspend ou on l'arrête ; un espace d'essai ou de
+         *     démonstration se supprime (4.16).
          */
         get: operations["console_schools_retrieve"];
         put?: never;
@@ -1127,6 +1129,27 @@ export interface paths {
         head?: never;
         /** @description Noms, adresse (l'ancienne cesse de marcher) et abonnement. */
         patch: operations["console_schools_partial_update"];
+        trace?: never;
+    };
+    "/api/console/schools/{id}/delete/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Espace d'essai ou de démonstration supprimé avec toutes ses données, en tâche de
+         *     fond ; refusé pour un espace réel. `confirm` : le code de l'espace. Déjà en cours : la
+         *     suppression est relancée.
+         */
+        post: operations["console_schools_delete_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/console/schools/{id}/reactivate/": {
@@ -4151,6 +4174,7 @@ export interface components {
              *     * `active` - Active
              *     * `suspended` - Suspended
              *     * `stopped` - Stopped
+             *     * `deleting` - Being deleted
              */
             status: components["schemas"]["SchoolStatusEnum"];
             /** @description e.g. Discovery, Standard. */
@@ -4216,6 +4240,7 @@ export interface components {
              *     * `active` - Active
              *     * `suspended` - Suspended
              *     * `stopped` - Stopped
+             *     * `deleting` - Being deleted
              */
             status?: components["schemas"]["SchoolStatusEnum"];
             /** @description e.g. Discovery, Standard. */
@@ -4261,6 +4286,7 @@ export interface components {
              *     * `active` - Active
              *     * `suspended` - Suspended
              *     * `stopped` - Stopped
+             *     * `deleting` - Being deleted
              */
             status: components["schemas"]["SchoolStatusEnum"];
             /** @description e.g. Discovery, Standard. */
@@ -5971,6 +5997,7 @@ export interface components {
              *     * `active` - Active
              *     * `suspended` - Suspended
              *     * `stopped` - Stopped
+             *     * `deleting` - Being deleted
              */
             status?: components["schemas"]["SchoolStatusEnum"];
             /** @description e.g. Discovery, Standard. */
@@ -6305,6 +6332,7 @@ export interface components {
          *     * `school.suspended` - School suspended
          *     * `school.reactivated` - School reactivated
          *     * `school.stopped` - School stopped
+         *     * `school.deleted` - Sandbox or demonstration space deleted
          *     * `account.changed` - Names or phone changed by support
          *     * `account.deactivated` - Account deactivated by support
          *     * `account.reactivated` - Account reactivated by support
@@ -6315,7 +6343,7 @@ export interface components {
          *     * `announcement.archived` - Announcement to schools archived
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived";
         /**
          * @description * `all_schools` - All schools
          *     * `schools` - Some schools
@@ -6642,6 +6670,10 @@ export interface components {
          * @enum {string}
          */
         ScheduleKindEnum: "installments" | "monthly" | "single";
+        SchoolDeleteRequest: {
+            /** @description Code de l'espace, retapé pour confirmer. */
+            confirm: string;
+        };
         /** @description Un appareil de l'école (« Appareils et synchro », `roles.manage`). */
         SchoolDevice: {
             /** Format: uuid */
@@ -6717,9 +6749,10 @@ export interface components {
          *     * `active` - Active
          *     * `suspended` - Suspended
          *     * `stopped` - Stopped
+         *     * `deleting` - Being deleted
          * @enum {string}
          */
-        SchoolStatusEnum: "trial" | "active" | "suspended" | "stopped";
+        SchoolStatusEnum: "trial" | "active" | "suspended" | "stopped" | "deleting";
         SchoolStopRequest: {
             /** @description Motif, gardé dans le journal de la plateforme. */
             reason: string;
@@ -10981,7 +11014,7 @@ export interface operations {
                 page?: number;
                 /** @description Nom, nom officiel ou code. */
                 search?: string;
-                status?: "active" | "stopped" | "suspended" | "trial";
+                status?: "active" | "deleting" | "stopped" | "suspended" | "trial";
             };
             header?: never;
             path?: never;
@@ -11161,6 +11194,65 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_schools_delete_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this school. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SchoolDeleteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SchoolDeleteRequest"];
+                "multipart/form-data": components["schemas"]["SchoolDeleteRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

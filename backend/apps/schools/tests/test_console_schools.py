@@ -2,7 +2,7 @@
 console ; création avec le premier directeur, liste (élèves, dernière activité), modification de
 l'identité et de l'abonnement, suspension, arrêt et réactivation, notées dans le journal de l'école
 et dans celui de la plateforme ; type d'espace (réel, essai, démonstration) fixé à la création
-(4.15). Une école ne se supprime jamais."""
+(4.15). Suppression d'un espace d'essai ou de démonstration : `test_deletion.py`."""
 
 import pytest
 from django.utils import timezone
@@ -58,6 +58,7 @@ def test_only_the_platform_admin_manages_schools_at_the_console(api, platform_ad
         ("post", f"{detail}suspend/", None),
         ("post", f"{detail}stop/", {"reason": "Piratage"}),
         ("post", f"{detail}reactivate/", None),
+        ("post", f"{detail}delete/", {"confirm": "alpha"}),
     ]
     for method, url, data in calls:
 
@@ -71,7 +72,7 @@ def test_only_the_platform_admin_manages_schools_at_the_console(api, platform_ad
     school.refresh_from_db()
     assert (school.name, school.status) == ("École Alpha (fictive)", School.Status.ACTIVE)
     assert not School.objects.filter(code="gamma").exists()
-    # Une école ne se supprime jamais : on la suspend.
+    # Un espace réel ne se supprime jamais (essai et démonstration : `test_deletion.py`).
     assert api(platform_admin, host=CONSOLE).delete(detail).status_code == 405
 
 

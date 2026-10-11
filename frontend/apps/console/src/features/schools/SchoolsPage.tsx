@@ -22,7 +22,7 @@ import {
 } from "@mwangaza/ui";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useDeferredValue, useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
 import { keys } from "../../lib/queries";
 import { KINDS, type School, type SchoolKind, SubscriptionPill, isClosed } from "./schoolForm";
@@ -49,7 +49,11 @@ export function SupportLink({ school, className }: { school: School; className?:
 
 export function SchoolsPage() {
   const { t, i18n } = useTranslation();
-  const [kind, setKind] = useState<SchoolKind>("live");
+  const [params] = useSearchParams();
+  // `?type=` : onglet d'arrivée (retour d'une fiche d'essai ou de démonstration supprimée).
+  const [kind, setKind] = useState<SchoolKind>(
+    KINDS.find((item) => item === params.get("type")) ?? "live",
+  );
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [page, setPage] = useState(1);
@@ -70,6 +74,9 @@ export function SchoolsPage() {
         }),
       ),
     placeholderData: keepPreviousData,
+    // Suppression en cours (4.16) : la liste se relit jusqu'à ce que l'espace ait disparu.
+    refetchInterval: (state) =>
+      state.state.data?.results.some((school) => school.status === "deleting") ? 3000 : false,
   });
   const dashboard = useQuery({
     queryKey: keys.dashboard,

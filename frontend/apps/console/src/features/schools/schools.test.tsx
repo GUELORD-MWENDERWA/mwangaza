@@ -144,6 +144,8 @@ describe("Écoles de la console", () => {
     await user.click(screen.getByRole("tab", { name: "Réels" }));
     await user.click(await screen.findByRole("link", { name: "Gérer" }));
     await user.click(await screen.findByRole("button", { name: "Arrêter" }));
+    // Un espace réel s'arrête, il ne se supprime pas.
+    expect(screen.queryByRole("button", { name: "Supprimer" })).toBeNull();
     // Sans motif : rien n'est envoyé.
     await user.click(await screen.findByRole("button", { name: "Arrêter" }));
     expect(await screen.findByText("Indiquez le motif.")).toBeTruthy();
@@ -160,5 +162,43 @@ describe("Écoles de la console", () => {
     expect(screen.getByRole("button", { name: "Relancer" })).toBeTruthy();
     expect(screen.queryByRole("link", { name: "Ouvrir en tant qu'école" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Arrêter" })).toBeNull();
+  });
+
+  it("ne supprime un espace d'essai qu'une fois son code retapé", async () => {
+    const ESSAI = { ...GAMMA, id: "s2", code: "kivu", name: "Essai Kivu", environment: "test" };
+    let deleting = false;
+    const requests = mockApi({
+      "GET /api/me/": ADMIN,
+      "GET /api/console/schools/": () => ({
+        count: 1,
+        next: null,
+        previous: null,
+        results: [{ ...ESSAI, status: deleting ? "deleting" : "active" }],
+      }),
+      "GET /api/console/schools/s2/": ESSAI,
+      "POST /api/console/schools/s2/delete/": () => {
+        deleting = true;
+        return new Response(null, { status: 204 });
+      },
+    });
+    const { user } = renderApp("/schools/s2");
+
+    await user.click(await screen.findByRole("button", { name: "Supprimer" }));
+    const code = await screen.findByLabelText(/tapez le code de l'espace : kivu/);
+    // Mauvais code : rien n'est envoyé.
+    await user.type(code, "gamma");
+    await user.click(screen.getByRole("button", { name: "Supprimer" }));
+    expect(await screen.findByText("Ce n'est pas le code de cet espace.")).toBeTruthy();
+    expect(requests.some((r) => r.method === "POST")).toBe(false);
+
+    await user.clear(code);
+    await user.type(code, "Kivu");
+    await user.click(screen.getByRole("button", { name: "Supprimer" }));
+
+    // Retour à l'onglet « Essai », où l'espace attend la fin de la suppression.
+    expect(await screen.findByText("Suppression en cours")).toBeTruthy();
+    expect(requests.find((r) => r.method === "POST")?.body).toEqual({ confirm: "kivu" });
+    expect(requests.some((r) => r.search.includes("environment=test"))).toBe(true);
+    expect(screen.queryByRole("link", { name: "Ouvrir en tant qu'école" })).toBeNull();
   });
 });

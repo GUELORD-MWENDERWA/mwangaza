@@ -1,7 +1,7 @@
 // Fiche d'une école dans la console (5.3) : noms, adresse et abonnement ; suspendre (après
-// confirmation) ou réactiver ; arrêter avec un motif, relancer (4.15) ; type d'espace, fixé à la
-// création ; derniers changements (journal de la plateforme). Couleur, fuseau, devises et logo
-// sont réglés par l'école elle-même (M5).
+// confirmation) ou réactiver ; arrêter avec un motif, relancer (4.15) ; supprimer un espace
+// d'essai ou de démonstration (4.16) ; type d'espace, fixé à la création ; derniers changements
+// (journal de la plateforme). Couleur, fuseau, devises et logo sont réglés par l'école (M5).
 import { zodResolver } from "@hookform/resolvers/zod";
 import { api, call, type Schemas } from "@mwangaza/api";
 import {
@@ -32,6 +32,7 @@ import { useParams } from "react-router";
 
 import { keys } from "../../lib/queries";
 import { Differences, History } from "../shell/History";
+import { DeleteSpace, DeletingSpace } from "./DeleteSpace";
 import { SupportLink } from "./SchoolsPage";
 import {
   IdentityFields,
@@ -77,6 +78,7 @@ export function SchoolPage() {
       </>
     );
   }
+  if (school.data.status === "deleting") return <DeletingSpace school={school.data} />;
   return <SchoolForm key={school.data.id} school={school.data} />;
 }
 
@@ -170,6 +172,7 @@ function SchoolForm({ school }: { school: Detail }) {
                 {t("console.schools.stop")}
               </Button>
             )}
+            {school.environment !== "live" && <DeleteSpace school={school} />}
           </div>
         }
       />

@@ -62,7 +62,8 @@ class TenantMiddleware:
         code = school_code_from_host(request.get_host())
         if code is not None and not request.path.startswith(PLATFORM_PATH):
             school = School.objects.filter(code=code).first()
-            if school is None:
+            # En cours de suppression (4.16) : pour tout le monde, l'espace n'existe déjà plus.
+            if school is None or school.status == School.Status.DELETING:
                 return _error_response(SCHOOL_NOT_FOUND)
             if school.status == School.Status.STOPPED:
                 return _error_response(SCHOOL_STOPPED)
