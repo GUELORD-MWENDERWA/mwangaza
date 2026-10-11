@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.20.2 terminée, PR à relire et fusionner |
-| Prochaine tâche | 4.7.1 (sauvegardes prêtes, essayées sur la machine) |
-| Issue GitHub | #179 pour 4.20.2 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.20.2-ecole-neuve` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 4.20.2 fusionnée (contrôles verts) |
+| Prochaine tâche | 4.7.1 (sauvegardes prêtes, essayées sur la machine), puis 4.22 (`make demo` sans danger pour les vraies écoles), puis 4.21 |
+| Issue GitHub | #164 pour 4.7.1, #182 pour 4.22, #165 pour 4.21 (bloc : #155 à #165, créées le 2026-10-10) |
+| Branche | `docs/plan-4.22-make-demo` (plan seulement) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-11 |
 
 ## Avancement
@@ -23,8 +23,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.21, 4.7.1 ; 4.17 et 4.20 en deux) | 11 | 13 |
-| **V1.0** | **61** | **65** |
+| Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 11 | 14 |
+| **V1.0** | **61** | **66** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -56,6 +56,14 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-11 — Proposition « version finie » examinée : tâche 4.22 ajoutée
+
+- Reçu : un texte de l'utilisateur en cinq points (préserver `make reseau`, double authentification « hybride », premier super-admin, connexion à l'espace réel, étanchéité entre démonstration et réel), écrit pour un autre plan (« tâches 1.1 à 1.5 », Hetzner, Supabase). Chaque point vérifié dans le code.
+- Déjà en place : clé TOTP chiffrée, `otpauth://` et QR code, activation obligatoire à la première connexion d'un rôle sensible, super-admin avec double authentification (console et administration Django), aucune donnée sans `Membership`, numéros de démonstration à part.
+- Écarté : la clé TOTP gardée dans le navigateur (ce ne serait plus une double authentification) ; le refus de connexion sans rôle dans l'école (casse le choix de l'école, M2).
+- Retenu : **4.22** (#182) — `make demo` peut aujourd'hui, si `DEMO_DATA` est activé là où vivent de vraies écoles, remettre à zéro l'identité de la plateforme et changer en démonstration un espace réel nommé `itig` ; et `make reseau` vérifié à la recette (4.21). Détail : `05`, « Proposition examinée le 2026-10-11 ».
+- 4.20.2 : PR fusionnée, contrôles verts (les deux parcours qui échouaient sur ma machine passent sur une base neuve).
 
 ### 2026-10-11 — Tâche 4.20.2 : École neuve — états vides et parcours de bout en bout
 
