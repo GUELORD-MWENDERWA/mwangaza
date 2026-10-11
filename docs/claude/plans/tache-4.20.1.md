@@ -9,14 +9,12 @@ Issue #163 · branche `tache/4.20.1-mise-en-route`. La 4.20 est découpée : ét
 - Espaces de démonstration (`make demo`, console) : créés déjà finis.
 
 ## Front (`features/dashboard/SetupChecklist.tsx`)
-- Carte en haut du tableau de bord si `!school.setup_done` et `school.configure` ; chaque étape mène à son écran ; « Terminer la mise en route » quand l'école peut encaisser.
-- Maquette `gestion/mise-en-route.html` (dessinée d'après `tableau-de-bord`).
+- Carte en haut du tableau de bord si `!school.setup_done` et `school.configure` ; chaque étape mène à son écran ; « Terminer la mise en route » quand l'école peut encaisser. Maquette `gestion/mise-en-route.html` (d'après `tableau-de-bord`).
 
 ## Tests
 - `schools/tests/test_setup.py` : isolation (les données d'une autre école ne cochent rien), 403 sans `school.configure`, étapes cochées une à une, fin refusée puis gardée, plus aucun calcul ensuite.
 - Vitest : la carte, cachée quand c'est fini ou sans la permission.
 
 ## Regard senior
-- Pas d'écriture pendant une lecture : la liste ne se ferme pas seule, le directeur la termine (une écriture dans la vie de l'école).
-- Reprise et invitations facultatives : une école qui démarre à la rentrée n'a rien à reprendre ; sinon la liste ne finirait jamais.
+- Pas d'écriture pendant une lecture : le directeur termine la liste (une écriture dans la vie de l'école). Reprise et invitations facultatives : sinon la liste d'une école qui démarre à la rentrée ne finirait jamais.
 - Pas de journal d'audit : ni argent, ni rôles. Pas de nouveau modèle, rien dans la synchronisation.

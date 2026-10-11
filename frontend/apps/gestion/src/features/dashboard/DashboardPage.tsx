@@ -62,12 +62,12 @@ const BAR_COLORS = { ok: "bg-ok", warn: "bg-warn", due: "bg-due" } as const;
 
 function Bar({ percent, className }: { percent: number; className?: string }) {
   return (
-    <div className={cn("h-2 overflow-hidden rounded-full bg-gray-50", className)}>
-      <div
-        className={cn("h-full rounded-full", BAR_COLORS[tone(percent)])}
+    <span className={cn("block h-2 overflow-hidden rounded-full bg-gray-50", className)}>
+      <span
+        className={cn("block h-full rounded-full", BAR_COLORS[tone(percent)])}
         style={{ width: `${percent}%` }}
       />
-    </div>
+    </span>
   );
 }
 
