@@ -2,7 +2,7 @@ import { mkdirSync } from "node:fs";
 
 import { expect, test, type Page } from "@playwright/test";
 
-import { allowCodeAgain, manage, totp, unpaidStudent } from "../e2e/django";
+import { allowCodeAgain, manage, unpaidStudent } from "../e2e/django";
 import { enterCode, ITIG, PASSWORD, skipGuide } from "../e2e/helpers";
 
 // Version du guide et nom de la plateforme, écrits dans la page (`data-guide`) et dans le nom du
@@ -78,21 +78,14 @@ test("directeur", async ({ page }) => {
 });
 
 test("promoteur", async ({ page }) => {
-  await page.goto(ITIG);
-  await page.getByLabel("Numéro de téléphone").fill("0000001007");
-  await page.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
-  await page.getByLabel("Se souvenir de cet appareil").uncheck();
-  await page.getByRole("button", { name: "Se connecter" }).click();
-  // Première connexion : double authentification à activer (étape obligatoire), au format
-  // téléphone pour la colonne du guide.
+  await login(page, "0000001007");
+  // Double authentification : étape obligatoire à la première connexion d'un rôle sensible dans
+  // un espace réel. Un espace de démonstration ne la demande pas : on la montre depuis « Mon
+  // compte », au format téléphone pour la colonne du guide.
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.getByText("Étape obligatoire")).toBeVisible();
-  const key = (await page.getByText(/^([A-Z2-7]{4} ?)+$/).innerText()).replace(/\s/g, "");
+  await page.goto(`${ITIG}account/two-factor`);
+  await settle(page);
   await shot(page, "double-authentification");
-  await page.getByLabel("Code à 6 chiffres").fill(await totp(key));
-  await page.getByRole("button", { name: "Vérifier et activer" }).click();
-  await page.getByText("J'ai imprimé ou recopié mes 8 codes de secours").click();
-  await page.getByRole("button", { name: "Terminer" }).click();
   await page.setViewportSize({ width: 1280, height: 720 });
   await open(page, "unpaid", "promoteur-impayes");
   await open(page, "audit", "promoteur-audit");
