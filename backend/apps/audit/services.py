@@ -73,11 +73,14 @@ def record(
     return entry
 
 
-def record_many(action: str, entries: list[tuple[models.Model, dict]], *, actor) -> None:
+def record_many(
+    action: str, entries: list[tuple[models.Model, dict]], *, actor, removed: bool = False
+) -> None:
     """Une entrée `(objet, après)` par objet, écrites d'un seul envoi (import de centaines
-    d'élèves) ; mêmes règles que `record`."""
+    d'élèves) ; mêmes règles que `record`. `removed` : objets effacés, `(objet, avant)`."""
+    field = "before" if removed else "after"
     AuditLog.objects.bulk_create(
-        [_entry(action, entity, actor=actor, after=after) for entity, after in entries],
+        [_entry(action, entity, actor=actor, **{field: data}) for entity, data in entries],
         batch_size=500,
     )
 

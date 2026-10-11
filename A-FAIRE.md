@@ -5,13 +5,13 @@ Claude ne peut pas : installer avec `sudo`, fusionner une PR, parler à l'ITIG, 
 
 Ce qui manque en détail (maquettes, informations ITIG, décisions) : [`docs/07-a-fournir.md`](docs/07-a-fournir.md). Ici : **quoi faire, dans quel ordre, avec quelles commandes**.
 
-Dernière mise à jour : 2026-10-10 (tâche 4.12 : connexion du Portail).
+Dernière mise à jour : 2026-10-11 (tâche 4.14 : annuler un import).
 
 ## Maintenant
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
-| 1 | **Relire et fusionner la PR de la tâche 4.12** (Portail — connexion fiable), puis `git switch main && git pull` | 15 min | [ ] |
+| 1 | **Relire et fusionner la PR de la tâche 4.14** (Annuler un import), puis `git switch main && git pull && make migrate` | 15 min | [ ] |
 | 2 | **Essayer le Portail sur ton vrai téléphone**, ce que je ne peux pas faire (navigateur, puis application installée ; Android et iPhone si possible) : [§ 9 bis](#9-bis-essai-sur-plusieurs-appareils-411) (`make reseau`), parent `0002000001`, quitter l'application, la rouvrir plus tard et le lendemain, couper le réseau. Me dire si une déconnexion revient (quand, sur quel téléphone), et **à quel moment l'import exige un matricule** (Q14, [`docs/06-suivi.md`](docs/06-suivi.md)) | 15 min | [ ] |
 | 3 | **Mettre le serveur de démonstration en ligne**, quand tu veux : [§ 9 ter](#9-ter-serveur-de-démonstration-en-ligne-462) (compte Oracle Cloud, serveur gratuit, adresse DuckDNS, `make deploy-setup`, `make deploy`) | 1 h | [ ] |
 | 4 | Juste après : garder une **copie de `infra/serveur/serveur.env`** en lieu sûr (clé USB, gestionnaire de mots de passe) | 2 min | [ ] |
@@ -215,7 +215,7 @@ Le nom exact est fixé pendant la tâche ; ce tableau est mis à jour à ce mome
 | http://itig.localhost:5173/app/staff · …/app/roles | Comptes du personnel ; Rôles et permissions (directeur) |
 | http://itig.localhost:5173/app/audit | Journal d'audit : qui a fait quoi, quand (directeur, promoteur) |
 | http://itig.localhost:5173/app/dashboard | Tableau de bord : encaissé, recouvrement, alertes (directeur `0000001001`, comptable `0000001004`) |
-| http://itig.localhost:5173/app/students | Élèves : liste, fiche (identité, famille, finances, historique), nouvel élève, import Excel, liste de classe, fiche d'inscription, situation financière, invitations au portail par classe (`/app/students/invitations` : lettres, message WhatsApp ou SMS, familles pas encore inscrites) (secrétaire `0000001006`, directeur) |
+| http://itig.localhost:5173/app/students | Élèves : liste, fiche (identité, famille, finances, historique), nouvel élève, import Excel (`/app/students/import` : « Imports précédents », puis « Annuler cet import » sur un import fini), liste de classe, fiche d'inscription, situation financière, invitations au portail par classe (`/app/students/invitations` : lettres, message WhatsApp ou SMS, familles pas encore inscrites) (secrétaire `0000001006`, directeur) |
 | http://itig.localhost:5173/app/cash | Caisse : ouvrir sa session, encaisser, reçu, réimprimer, demander une annulation, clôturer (caissière `0000001005`) ; marche sans réseau sur un appareil mémorisé |
 | http://itig.localhost:5173/app/unpaid | Impayés : liste, export PDF et Excel, situations à imprimer (directeur, comptable) |
 | http://itig.localhost:5173/app/fees | Frais : types, barèmes, tranches, taux de l'année (comptable) |

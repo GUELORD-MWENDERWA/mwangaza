@@ -208,6 +208,7 @@ SPECTACULAR_SETTINGS = {
         "SchoolStatusEnum": "apps.schools.models.School.Status",
         "YearStatusEnum": "apps.schools.models.AcademicYear.Status",
         "EnrollmentStatusEnum": "apps.students.models.Enrollment.Status",
+        "StudentImportStatusEnum": "apps.students.models.StudentImport.Status",
         "FeeCategoryEnum": "apps.finance.models.FeeType.Category",
         "DiscountKindEnum": "apps.finance.models.Discount.Kind",
         "TermKindEnum": "apps.schools.models.Term.Kind",

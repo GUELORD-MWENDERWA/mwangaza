@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | Lancement — version finie (passe devant la suite de la V1.1) |
 | Lot | V1.0 |
-| Tâche en cours | aucune — 4.13 terminée, PR à relire et fusionner |
-| Prochaine tâche | 4.14 (Annuler un import) |
-| Issue GitHub | #157 pour 4.14 (bloc : #155 à #165, créées le 2026-10-10) |
-| Branche | `tache/4.13-import-matricule` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-10 |
+| Tâche en cours | aucune — 4.14 terminée, PR à relire et fusionner |
+| Prochaine tâche | 4.15 (Type d'espace et arrêt, serveur et console) |
+| Issue GitHub | #158 pour 4.15 (bloc : #155 à #165, créées le 2026-10-10) |
+| Branche | `tache/4.14-annuler-import` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-11 |
 
 ## Avancement
 
@@ -23,8 +23,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2, avec la mise en ligne) | 16 | 18 |
-| Lancement — version finie (4.12 à 4.21, 4.7.1) | 2 | 11 |
-| **V1.0** | **52** | **63** |
+| Lancement — version finie (4.12 à 4.21, 4.7.1) | 3 | 11 |
+| **V1.0** | **53** | **63** |
 | V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -56,6 +56,13 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-11 — Tâche 4.14 : Annuler un import
+- Fait : chaque élève garde le lien vers son import (`Student.student_import`) ; « Imports précédents » sous l'étape « Fichier », puis « Annuler cet import » (nombres, élèves gardés nommés, motif obligatoire). L'annulation efface élèves, inscriptions, frais dus jamais payés et familles restées sans élève ; les appareils les retirent à la synchronisation ; les numéros de matricule sont repris ; le même fichier se ré-importe. Maquette `gestion/eleves-import-annulation` dessinée.
+- Tests : élève gardé par un paiement, une réduction, un échéancier particulier ou un compte parent ; paiement et répartition intacts ; motif obligatoire ; une seule annulation ; journal (une ligne par élève, une pour l'import) ; `ChangeLog` `delete` ; isolation (l'école B n'annule ni ne lit l'import de A) ; 403 sans `students.import` ; 800 élèves annulés en moins de 30 requêtes ; Vitest : fenêtre et motif.
+- Décisions (`03`) : annulation par élève et non tout ou rien ; effacement réel ; pas de nouveau droit ; compte parent activé = élève gardé ; dans la requête, sans tâche de fond.
+- À décider par l'utilisateur : une limite de temps pour annuler (aucune aujourd'hui). Un import fait avant cette tâche n'a pas le lien : il ne s'annule pas.
+- Suite : fusion de la PR, puis 4.15.
 
 ### 2026-10-10 — Tâche 4.13 : Import, matricule jamais imposé
 - Q14 tranchée en reproduisant : la colonne était bien facultative ; le blocage venait d'une colonne « Matricule » remplie de « - », « 0 » ou « néant », refusée dès la 2e ligne (« Matricule répété »). Ces valeurs veulent maintenant dire « pas de matricule ».

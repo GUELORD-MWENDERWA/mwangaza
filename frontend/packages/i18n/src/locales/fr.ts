@@ -1070,6 +1070,8 @@ export const fr = {
         student_created: "Élève créé",
         student_updated: "Élève modifié",
         student_imported: "Élève importé d'un fichier",
+        import_cancelled: "Import d'élèves annulé",
+        student_removed: "Élève retiré (import annulé)",
         enrolled: "Élève inscrit",
         enrollment_updated: "Inscription modifiée",
         family_code_printed: "Code famille imprimé",
@@ -1191,6 +1193,9 @@ export const fr = {
       guardians: "Tuteurs",
       school_year: "Année",
       class: "Classe",
+      file: "Fichier",
+      students_removed: "Élèves retirés",
+      students_kept: "Élèves gardés",
       status: "Statut",
       left_on: "Parti le",
     },
@@ -1749,6 +1754,49 @@ export const fr = {
       notImported_other:
         "{{count}} lignes en erreur n'ont pas été importées : téléchargez le rapport, corrigez-les et importez-les de nouveau.",
       seeStudents: "Voir la liste des élèves",
+      history: {
+        title: "Imports précédents",
+        columns: {
+          file: "Fichier",
+          year: "Année",
+          date: "Date",
+          by: "Par",
+          students: "Élèves",
+          status: "État",
+        },
+        status: { done: "Importé", cancelled: "Annulé" },
+        removed_one: "1 retiré",
+        removed_other: "{{number}} retirés",
+      },
+      cancel: {
+        action: "Annuler cet import",
+        title: "Annuler cet import ?",
+        removes_one:
+          "1 élève sera retiré pour de bon, avec son inscription, ses frais dus et sa famille si elle reste sans élève.",
+        removes_other:
+          "{{number}} élèves seront retirés pour de bon, avec leurs inscriptions, leurs frais dus et les familles restées sans élève.",
+        nothing:
+          "Aucun élève de cet import ne peut être retiré : un paiement, une réduction, un échéancier particulier ou un compte parent les touche tous.",
+        kept_one: "1 élève reste dans l'école : quelque chose le touche déjà.",
+        kept_other: "{{number}} élèves restent dans l'école : quelque chose les touche déjà.",
+        more_one: "et 1 autre",
+        more_other: "et {{number}} autres",
+        reasons: {
+          payment: "paiement",
+          discount: "réduction",
+          schedule: "échéancier particulier",
+          portal: "compte parent activé",
+        },
+        offline:
+          "Synchronisez d'abord les caisses : un paiement encaissé hors ligne pour l'un de ces élèves serait refusé à l'envoi.",
+        reason: "Motif",
+        reasonHelp: "Gardé au journal de l'école.",
+        keep: "Garder l'import",
+        confirm: "Annuler l'import",
+        done_one: "Import annulé le {{date}} par {{name}} : 1 élève retiré.",
+        done_other: "Import annulé le {{date}} par {{name}} : {{number}} élèves retirés.",
+        doneReason: "Motif : {{reason}}",
+      },
     },
     validation: {
       middleNameRequired: "Saisissez le post-nom.",

@@ -1062,6 +1062,8 @@ export const en: Messages<typeof fr> = {
         student_created: "Student created",
         student_updated: "Student changed",
         student_imported: "Student imported from a file",
+        import_cancelled: "Student import cancelled",
+        student_removed: "Student removed (import cancelled)",
         enrolled: "Student enrolled",
         enrollment_updated: "Enrolment changed",
         family_code_printed: "Family code printed",
@@ -1183,6 +1185,9 @@ export const en: Messages<typeof fr> = {
       guardians: "Guardians",
       school_year: "Year",
       class: "Class",
+      file: "File",
+      students_removed: "Students removed",
+      students_kept: "Students kept",
       status: "Status",
       left_on: "Left on",
     },
@@ -1740,6 +1745,49 @@ export const en: Messages<typeof fr> = {
       notImported_other:
         "{{count}} rows with errors were not imported: download the report, fix them and import them again.",
       seeStudents: "See the student list",
+      history: {
+        title: "Previous imports",
+        columns: {
+          file: "File",
+          year: "Year",
+          date: "Date",
+          by: "By",
+          students: "Students",
+          status: "Status",
+        },
+        status: { done: "Imported", cancelled: "Cancelled" },
+        removed_one: "1 removed",
+        removed_other: "{{number}} removed",
+      },
+      cancel: {
+        action: "Cancel this import",
+        title: "Cancel this import?",
+        removes_one:
+          "1 student will be removed for good, with their enrollment, their charges and their family if it has no other student.",
+        removes_other:
+          "{{number}} students will be removed for good, with their enrollments, their charges and the families left without a student.",
+        nothing:
+          "No student of this import can be removed: a payment, a discount, a custom schedule or a parent account touches each of them.",
+        kept_one: "1 student stays in the school: something already touches them.",
+        kept_other: "{{number}} students stay in the school: something already touches them.",
+        more_one: "and 1 more",
+        more_other: "and {{number}} more",
+        reasons: {
+          payment: "payment",
+          discount: "discount",
+          schedule: "custom schedule",
+          portal: "parent account activated",
+        },
+        offline:
+          "Synchronise the cash registers first: a payment collected offline for one of these students would be refused when sent.",
+        reason: "Reason",
+        reasonHelp: "Kept in the school's audit log.",
+        keep: "Keep the import",
+        confirm: "Cancel the import",
+        done_one: "Import cancelled on {{date}} by {{name}}: 1 student removed.",
+        done_other: "Import cancelled on {{date}} by {{name}}: {{number}} students removed.",
+        doneReason: "Reason: {{reason}}",
+      },
     },
     validation: {
       middleNameRequired: "Enter the middle name.",

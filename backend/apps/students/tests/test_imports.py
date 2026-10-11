@@ -1,23 +1,31 @@
 """Import d'une liste d'élèves (D1) : vérification ligne par ligne, import sans doublon avec
-fratries et matricules, isolation entre écoles, droit `students.import`, fichier réaliste."""
+fratries et matricules, isolation entre écoles, droit `students.import`, fichier réaliste.
+Annulation (D6) : élèves retirés, élèves gardés (paiement, réduction, échéancier particulier,
+compte parent), paiements intacts, journal, appareils prévenus."""
 
 import io
+import uuid
 from datetime import date, datetime
+from decimal import Decimal
 
 import openpyxl
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.utils import timezone
 
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.tenancy import use_school
 from apps.finance import services as finance
-from apps.finance.models import StudentCharge
+from apps.finance.models import Payment, PaymentAllocation, StudentCharge
+from apps.finance.tests.test_payments import pay
 from apps.schools.models import School
-from apps.students import imports
+from apps.students import import_cancellation, imports, services
 from apps.students.demo import import_rows, import_workbook
-from apps.students.models import Enrollment, Family, Student, StudentImport
+from apps.students.models import Enrollment, Family, Guardian, Student, StudentImport
 from apps.students.tests.conftest import new_student
+from apps.sync.models import ChangeLog
+from tests.factories import UserFactory
 
 IMPORTS = "/api/student-imports/"
 HEADERS = [
@@ -187,6 +195,10 @@ def test_import_needs_its_permission(api, alpha, cashier):
     client = api(cashier)
     assert upload(client, xlsx()).status_code == 403
     assert client.get(f"{IMPORTS}template/").status_code == 403
+    assert client.get(IMPORTS).status_code == 403
+    path = f"{IMPORTS}{uuid.uuid4()}/"
+    assert client.get(f"{path}cancellation/").status_code == 403
+    assert client.post(f"{path}cancel/", {"reason": "Mauvaise année"}).status_code == 403
 
 
 def test_template_and_report_are_read_back_by_the_import(api, head, alpha):
@@ -248,3 +260,169 @@ def test_realistic_file_of_800_students_is_imported_in_a_few_queries(
         assert Family.objects.count() < imp.created_count  # fratries regroupées
         assert Student.objects.values("matricule").distinct().count() == imp.created_count
         assert StudentCharge.objects.count() == 2 * imp.created_count
+        # Annulé d'un seul envoi, lui aussi.
+        with django_assert_max_num_queries(30):
+            import_cancellation.cancel(imp, actor=head, reason="Mauvaise année")
+        assert not Student.objects.exists() and not StudentCharge.objects.exists()
+        assert not Enrollment.objects.exists() and not Family.objects.exists()
+
+
+# Annulation d'un import (D6)
+
+# Deux enfants de la même famille que rien ne touche, puis un élève par raison de le garder.
+CANCEL_ROWS = [
+    ["KAMBALE", "MUHINDO", "Josué", "M", "03/05/2010", "3E ELEC A", "Kambale Paluku", "0971234567"],
+    ["KAMBALE", "KAVIRA", "Neema", "F", "21/11/2011", "3E ELEC A", "Kambale Paluku", "0971234567"],
+    ["PALUKU", "SIVIHWA", "Daniel", "M", "12/02/2008", "3E ELEC A", "", ""],
+    ["KAVIRA", "NZIAVAKE", "Esther", "F", "05/06/2011", "3E ELEC A", "", ""],
+    ["BAHATI", "AMANI", "Christian", "M", "17/01/2010", "3E ELEC A", "", ""],
+    ["SIKULI", "", "Grâce", "F", "17/03/2010", "3E ELEC A", "Sikuli Jeanne", "0991234567"],
+]  # fmt: skip
+
+
+def minerval(actor, year):
+    """Minerval de 240,00 $ en deux tranches pour toute l'école (école courante)."""
+    fee_type = finance.create_fee_type(actor=actor, name="Minerval", category="tuition")
+    finance.create_fee_rule(
+        actor=actor,
+        academic_year=year,
+        fee_type=fee_type,
+        currency="USD",
+        total_amount_minor=24000,
+        schedule_kind="installments",
+        installments=[
+            finance.Installment("1re tranche", 12000, date(2026, 10, 15)),
+            finance.Installment("2e tranche", 12000, date(2027, 1, 15)),
+        ],
+    )
+    return fee_type
+
+
+def imported(school, actor, year, rows=CANCEL_ROWS) -> StudentImport:
+    """Import fait jusqu'au bout."""
+    with use_school(school):
+        imp = imports.create_import(actor=actor, file=xlsx(rows, HEADERS[:8]), academic_year=year)
+        StudentImport.objects.filter(pk=imp.pk).update(status=StudentImport.Status.IMPORTING)
+        imports.run(imp, actor=actor)
+        imp.refresh_from_db()
+    return imp
+
+
+def test_cancelling_an_import_removes_untouched_students_and_never_touches_money(
+    api, school, head, cashier, alpha
+):
+    with use_school(school):
+        fee_type = minerval(head, alpha["year"])
+        finance.set_exchange_rate(actor=head, academic_year=alpha["year"], rate=Decimal("2850"))
+        finance.create_cash_register(actor=head, name="Caisse 1", code="C1")
+    before = new_student(school, head, last_name="Mumbere", birth_date=date(2009, 4, 2))
+    imp = imported(school, head, alpha["year"])
+    assert imp.created_count == 6
+    with use_school(school):
+        enrollment = {e.student.first_name: e for e in Enrollment.objects.select_related("student")}
+        finance.grant_discount(
+            enrollment["Esther"],
+            actor=head,
+            fee_type=fee_type,
+            kind="percent",
+            percent=25,
+            reason_code="scholarship",
+            reason="Bourse de la paroisse",
+        )
+        finance.reschedule_charges(
+            enrollment["Christian"],
+            actor=head,
+            fee_type=fee_type,
+            installments=[
+                finance.Installment("Versement 1", 4000, date(2026, 11, 1)),
+                finance.Installment("Versement 2", 20000, date(2027, 2, 1)),
+            ],
+            reason="Arrangement avec la famille",
+            parent_signed=True,
+        )
+        Family.objects.filter(students__first_name="Grâce").update(
+            primary_user=UserFactory(), activated_at=timezone.now()
+        )
+        removed = {enrollment[name].pk for name in ("Josué", "Neema")}
+        gone = {enrollment[name].student_id for name in ("Josué", "Neema")}
+    payment = pay(school, cashier, enrollment["Daniel"], 5000, "USD")
+
+    client = api(head)
+    path = f"{IMPORTS}{imp.pk}/"
+    preview = client.get(f"{path}cancellation/").json()
+    assert (preview["removable_count"], preview["kept_count"]) == (2, 4)
+    assert {student["first_name"]: student["reasons"] for student in preview["kept"]} == {
+        "Daniel": ["payment"],
+        "Esther": ["discount"],
+        "Christian": ["schedule"],
+        "Grâce": ["portal"],
+    }
+    response = client.post(f"{path}cancel/", {"reason": " "})
+    assert response.status_code == 400 and "reason" in response.json()["fields"]
+    with use_school(school):
+        assert Student.objects.count() == 7
+
+    response = client.post(f"{path}cancel/", {"reason": "Fichier importé dans la mauvaise classe"})
+    assert response.status_code == 200, response.json()
+    done = response.json()
+    assert (done["status"], done["cancelled_count"]) == ("cancelled", 2)
+    assert done["cancelled_by_name"] == str(head)
+
+    with use_school(school):
+        left = {student.first_name: student for student in Student.objects.all()}
+        assert set(left) == {"Jean", "Daniel", "Esther", "Christian", "Grâce"}
+        assert left["Jean"].pk == before.pk
+        assert {s.student_import_id for s in left.values() if s.pk != before.pk} == {imp.pk}
+        # La famille des deux enfants retirés part avec son tuteur ; les autres restent.
+        assert not Guardian.objects.filter(full_name="Kambale Paluku").exists()
+        assert Family.objects.count() == 5
+        assert not Enrollment.objects.filter(pk__in=removed).exists()
+        assert not StudentCharge.objects.filter(enrollment_id__in=removed).exists()
+        # L'argent n'a pas bougé : le paiement, sa répartition, ce que doivent les élèves gardés.
+        assert Payment.objects.get().pk == payment.pk
+        assert PaymentAllocation.objects.filter(payment=payment).count() == 1
+        allocations = PaymentAllocation.objects.filter(payment=payment)
+        assert sum(allocations.values_list("amount_minor", flat=True)) == 5000
+        assert StudentCharge.objects.filter(enrollment=enrollment["Daniel"]).count() == 2
+        # Les appareils retirent les deux inscriptions à leur prochaine synchronisation.
+        deleted = ChangeLog.objects.filter(operation=ChangeLog.Operation.DELETE)
+        assert {row.entity_id for row in deleted} == removed
+        logs = AuditLog.objects.filter(action=Action.STUDENTS_STUDENT_REMOVED)
+        assert {log.entity_id for log in logs} == gone
+        assert {log.before["reason"] for log in logs} == {"Fichier importé dans la mauvaise classe"}
+        log = AuditLog.objects.get(action=Action.STUDENTS_IMPORT_CANCELLED)
+        assert (log.actor_id, log.entity_id) == (head.pk, imp.pk)
+        assert (log.after["students_removed"], log.after["students_kept"]) == (2, 4)
+        # Les numéros de matricule rendus servent de nouveau.
+        assert services.next_matricule_number(alpha["year"]) == 1
+
+    # Une seule annulation par import ; le même fichier se ré-importe, sans les élèves gardés.
+    response = client.post(f"{path}cancel/", {"reason": "Encore"})
+    assert response.status_code == 409 and response.json()["code"] == "import_not_cancellable"
+    again = upload(client, xlsx(CANCEL_ROWS, HEADERS[:8])).json()
+    assert again["importable_count"] == 2
+    listed = client.get(IMPORTS).json()["results"]
+    assert [(row["id"], row["status"], row["cancelled_count"]) for row in listed] == [
+        (str(imp.pk), "cancelled", 2)
+    ]
+
+
+def test_import_of_one_school_is_not_cancelled_by_another(
+    api, school, head, alpha, other_school, other_head, beta
+):
+    imp = imported(school, head, alpha["year"])
+    theirs = imported(other_school, other_head, beta["year"])
+    other = api(other_head, host="beta.localhost")
+    path = f"{IMPORTS}{imp.pk}/"
+    assert other.get(f"{path}cancellation/").status_code == 404
+    assert other.post(f"{path}cancel/", {"reason": "Erreur"}).status_code == 404
+    assert [row["id"] for row in other.get(IMPORTS).json()["results"]] == [str(theirs.pk)]
+    # L'autre école annule le sien : rien ne bouge dans la première.
+    response = other.post(f"{IMPORTS}{theirs.pk}/cancel/", {"reason": "Erreur"})
+    assert response.json()["cancelled_count"] == 6
+    with use_school(other_school):
+        assert not Student.objects.exists() and not Family.objects.exists()
+    with use_school(school):
+        assert Student.objects.count() == 6 and Enrollment.objects.count() == 6
+        assert StudentImport.objects.get().status == StudentImport.Status.DONE
+        assert not AuditLog.objects.filter(action=Action.STUDENTS_IMPORT_CANCELLED).exists()

@@ -80,6 +80,8 @@ class Action(models.TextChoices):
     STUDENTS_ENROLLED = "students.enrolled", _("Student enrolled")
     STUDENTS_ENROLLMENT_UPDATED = "students.enrollment_updated", _("Enrollment changed")
     STUDENTS_STUDENT_IMPORTED = "students.student_imported", _("Student imported from a file")
+    STUDENTS_IMPORT_CANCELLED = "students.import_cancelled", _("Student import cancelled")
+    STUDENTS_STUDENT_REMOVED = "students.student_removed", _("Student removed (import cancelled)")
     STUDENTS_FAMILY_CODE_PRINTED = (
         "students.family_code_printed",
         _("Family code printed on the registration form"),

@@ -144,6 +144,8 @@ export function useStudentSearch(search: string) {
 
 export type StudentImport = Schemas["StudentImport"];
 export type ImportLine = Schemas["ImportLine"];
+export type ImportSummary = Schemas["StudentImportList"];
+export type ImportCancellation = Schemas["ImportCancellation"];
 export type ImportField = keyof Schemas["ImportMapping"];
 
 export const IMPORT_FIELDS: ImportField[] = [
@@ -199,6 +201,31 @@ export function updateImport(id: string, body: Schemas["PatchedStudentImportUpda
 
 export function confirmImport(id: string) {
   return call(api.POST("/api/student-imports/{id}/confirm/", { params: { path: { id } } }));
+}
+
+/** Imports finis ou annulés, les plus récents d'abord (« Imports précédents »). */
+export function useImportHistory(page: number) {
+  return useQuery({
+    queryKey: [...keys.studentImports, "history", page],
+    queryFn: () =>
+      call(api.GET("/api/student-imports/", { params: { query: page > 1 ? { page } : {} } })),
+    placeholderData: keepPreviousData,
+  });
+}
+
+/** Avant d'annuler un import : élèves à retirer, élèves gardés et pourquoi ; après : les gardés. */
+export function useImportCancellation(id: string) {
+  return useQuery({
+    queryKey: [...keys.studentImports, id, "cancellation"],
+    queryFn: () =>
+      call(api.GET("/api/student-imports/{id}/cancellation/", { params: { path: { id } } })),
+  });
+}
+
+export function cancelImport(id: string, reason: string) {
+  return call(
+    api.POST("/api/student-imports/{id}/cancel/", { params: { path: { id } }, body: { reason } }),
+  );
 }
 
 export const importTemplateUrl = "/api/student-imports/template/";

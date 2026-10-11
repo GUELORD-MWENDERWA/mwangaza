@@ -109,6 +109,16 @@ class Student(TenantModel):
     photo = models.FileField(_("photo"), upload_to=photo_path, blank=True)
     photo_consent = models.BooleanField(_("photo consent"), default=False)
     previous_school = models.CharField(_("previous school"), max_length=200, blank=True)
+    # Import qui a créé l'élève : sert à l'annuler (4.14). Vide pour un élève saisi à la main.
+    student_import = models.ForeignKey(
+        "StudentImport",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        editable=False,
+        related_name="students",
+        verbose_name=_("import"),
+    )
 
     class Meta:
         ordering = ["last_name", "middle_name", "first_name"]
@@ -212,6 +222,7 @@ class StudentImport(TenantModel):
         IMPORTING = "importing", _("Importing")
         DONE = "done", _("Imported")
         FAILED = "failed", _("Failed")
+        CANCELLED = "cancelled", _("Cancelled")
 
     academic_year = models.ForeignKey(
         AcademicYear, on_delete=models.CASCADE, related_name="+", verbose_name=_("school year")
@@ -231,6 +242,22 @@ class StudentImport(TenantModel):
     report = models.JSONField(_("report"), default=dict, blank=True)
     created_count = models.PositiveIntegerField(_("students created"), default=0)
     finished_at = models.DateTimeField(_("finished at"), null=True, blank=True)
+    # Dernier numéro de matricule de l'année avant l'import : repris si l'import est annulé.
+    matricule_start = models.PositiveIntegerField(
+        _("last student number before the import"), null=True, blank=True, editable=False
+    )
+    # Annulation (`import_cancellation.py`) : les élèves que rien ne touche sont effacés.
+    cancelled_count = models.PositiveIntegerField(_("students removed"), default=0)
+    cancelled_at = models.DateTimeField(_("cancelled at"), null=True, blank=True)
+    cancelled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("cancelled by"),
+    )
+    cancel_reason = models.CharField(_("cancellation reason"), max_length=255, blank=True)
 
     class Meta:
         ordering = ["-created_at"]

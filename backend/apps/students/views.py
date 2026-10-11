@@ -30,7 +30,14 @@ from apps.core.errors import ApiError, ErrorSerializer
 from apps.finance import services as finance
 from apps.schools.models import ClassGroup
 from apps.schools.organisation import current_year
-from apps.students import contact_changes, documents, imports, invitations, services
+from apps.students import (
+    contact_changes,
+    documents,
+    import_cancellation,
+    imports,
+    invitations,
+    services,
+)
 from apps.students.models import (
     ContactChange,
     Enrollment,
@@ -51,6 +58,8 @@ from apps.students.serializers import (
     FamilyDetailSerializer,
     FamilyFilterSerializer,
     FamilyWriteSerializer,
+    ImportCancellationSerializer,
+    ImportCancelSerializer,
     ImportLineFilterSerializer,
     ImportLineSerializer,
     InvitationLetterQuerySerializer,
@@ -62,6 +71,7 @@ from apps.students.serializers import (
     StudentFilterSerializer,
     StudentHistorySerializer,
     StudentImportCreateSerializer,
+    StudentImportListSerializer,
     StudentImportSerializer,
     StudentImportUpdateSerializer,
     StudentListSerializer,
@@ -545,6 +555,7 @@ NO_CURRENT_YEAR = _("No current school year: choose one.")
 
 
 @extend_schema_view(
+    list=extend_schema(responses={200: StudentImportListSerializer(many=True), **ERRORS}),
     retrieve=extend_schema(responses={200: StudentImportSerializer, **ERRORS}),
     create=extend_schema(
         request={"multipart/form-data": StudentImportCreateSerializer},
@@ -556,9 +567,10 @@ NO_CURRENT_YEAR = _("No current school year: choose one.")
     ),
 )
 @extend_schema(tags=["students"])
-class StudentImportViewSet(mixins.RetrieveModelMixin, SchoolViewSet):
+class StudentImportViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolViewSet):
     """Import d'une liste d'élèves (D1) : envoi du fichier (vérifié aussitôt, rien n'est créé),
-    colonnes et classes choisies à la main, lignes vérifiées, puis import en tâche de fond."""
+    colonnes et classes choisies à la main, lignes vérifiées, puis import en tâche de fond.
+    Liste : les imports finis ou annulés, les plus récents d'abord. Un import fini s'annule (D6)."""
 
     required_permission = STUDENTS_IMPORT
     http_method_names = ["get", "post", "patch", "head", "options"]
@@ -569,10 +581,26 @@ class StudentImportViewSet(mixins.RetrieveModelMixin, SchoolViewSet):
         if getattr(self, "swagger_fake_view", False):
             return StudentImport.all_schools.none()
         queryset = StudentImport.objects.all()
+        if self.action == "list":
+            # Ni le fichier ni le rapport.
+            finished = [StudentImport.Status.DONE, StudentImport.Status.CANCELLED]
+            return (
+                queryset.filter(status__in=finished)
+                .select_related("academic_year", "created_by")
+                .defer("rows", "report", "headers", "mapping", "class_mapping")
+                .order_by("-finished_at")
+            )
         # Les lignes du fichier ne servent qu'à vérifier de nouveau et au rapport.
-        if self.action in {"retrieve", "lines", "confirm"}:
+        if self.action in {"retrieve", "lines", "confirm", "cancel"}:
             queryset = queryset.defer("rows")
+        if self.action in {"retrieve", "cancel"}:
+            queryset = queryset.select_related("cancelled_by")
+        if self.action == "cancellation":
+            queryset = queryset.only("status")
         return queryset
+
+    def get_serializer_class(self):
+        return StudentImportListSerializer if self.action == "list" else StudentImportSerializer
 
     def create(self, request: Request) -> Response:
         serializer = StudentImportCreateSerializer(data=request.data)
@@ -615,6 +643,28 @@ class StudentImportViewSet(mixins.RetrieveModelMixin, SchoolViewSet):
         imp = imports.confirm(self.get_object(), actor=request.user)
         imp.refresh_from_db()
         return Response(StudentImportSerializer(imp).data, status=status.HTTP_202_ACCEPTED)
+
+    @extend_schema(responses={200: ImportCancellationSerializer, **ERRORS})
+    @action(detail=True)
+    def cancellation(self, request: Request, pk=None) -> Response:
+        """Avant d'annuler : combien d'élèves partent, lesquels restent et pourquoi. Après :
+        les élèves gardés."""
+        result = import_cancellation.cancellation(self.get_object())
+        return Response(ImportCancellationSerializer(result).data)
+
+    @extend_schema(
+        request=ImportCancelSerializer, responses={200: StudentImportSerializer, **WRITE_ERRORS}
+    )
+    @action(detail=True, methods=["post"])
+    def cancel(self, request: Request, pk=None) -> Response:
+        """Efface les élèves de l'import que rien ne touche, leurs inscriptions, leurs frais dus
+        et les familles restées sans élève. Motif obligatoire, journal."""
+        serializer = ImportCancelSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        imp = import_cancellation.cancel(
+            self.get_object(), actor=request.user, reason=serializer.validated_data["reason"]
+        )
+        return Response(StudentImportSerializer(imp).data)
 
     @extend_schema(responses={**XLSX_RESPONSE, **ERRORS})
     @action(detail=True)

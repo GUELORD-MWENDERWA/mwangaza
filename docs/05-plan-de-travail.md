@@ -117,7 +117,7 @@ Ajouté le 2026-10-10 (demande de l'utilisateur) : **avant toute nouvelle foncti
 **Import et élèves**
 
 - [x] **4.13** Import — matricule jamais imposé. D'abord reproduire le blocage signalé (Q14) : dans le code, la colonne est déjà facultative. Correctif au plus simple : colonne marquée « facultatif », message corrigé si c'est lui qui bloque ; **un seul interrupteur** dans les paramètres de l'école, « Attribuer un matricule automatiquement » (oui pour les écoles existantes) : sur non, ni l'import ni l'inscription n'en créent, et un matricule vide ne laisse aucun libellé vide sur les listes, fiches et reçus
-- [ ] **4.14** Annuler un import : élèves, familles et inscriptions créés par un fichier (lien gardé sur chaque élève), tant qu'aucun paiement, réduction ni échéancier particulier ne les touche ; motif, permission, journal. Aujourd'hui, un fichier importé dans la mauvaise année ou les mauvaises classes ne se rattrape pas
+- [x] **4.14** Annuler un import : élèves, familles et inscriptions créés par un fichier (lien gardé sur chaque élève), tant qu'aucun paiement, réduction ni échéancier particulier ne les touche ; motif, permission, journal. Aujourd'hui, un fichier importé dans la mauvaise année ou les mauvaises classes ne se rattrape pas
 
 **Espaces : réel, essai, démonstration** (une seule plateforme, une seule console qui les gère)
 
