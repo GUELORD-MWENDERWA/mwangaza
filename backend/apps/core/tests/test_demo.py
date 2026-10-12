@@ -356,8 +356,14 @@ def test_demo_organisation_of_the_itig(demo):
     assert tracks == {"ELEC", "ELO", "MG", "MA"}
     assert len(groups) == 23
     assert [group.name for group in groups[:3]] == ["7e EB A", "7e EB B", "7e EB C"]
-    [titular] = [group for group in groups if group.homeroom_teacher]
-    assert (titular.name, titular.homeroom_teacher.phone) == ("3e Électricité A", "+243000001008")
+    titulars = {
+        group.name: group.homeroom_teacher.phone for group in groups if group.homeroom_teacher
+    }
+    assert titulars["3e Électricité A"] == "+243000001008"
+    # 5.7 : la classe de l'enfant du compte du portail a aussi un titulaire (le portail le
+    # montre), l'enseignant de démonstration faute d'autre.
+    assert set(titulars.values()) == {"+243000001008"}
+    assert len(titulars) <= 2
     assert [term.kind for term in terms] == ["semester", "period", "period", "exam"] * 2
     assert all(term.starts_on for term in terms)
     assert demo["itig"].matricule_format == "ITIG-{AAAA}-{0000}"
