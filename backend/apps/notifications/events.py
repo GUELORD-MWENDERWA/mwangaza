@@ -1,6 +1,7 @@
 """Notifications des événements de l'école (5.6.1), écrites au moment de l'action, dans sa
-transaction : paiement reçu et annonce pour le parent (Portail), écart de caisse et annulation à
-valider pour le personnel qui en a le droit (Gestion). Le texte est écrit dans la langue de chaque
+transaction : paiement reçu, annonce et convocation (5.7) pour le parent (Portail), écart de caisse
+et annulation à valider pour le personnel qui en a le droit, annonce de l'école pour tout son
+personnel (Gestion). Le texte est écrit dans la langue de chaque
 destinataire ; l'envoi sur l'écran suit la validation (`push.notify`).
 
 Appelées depuis les services, dans l'école courante. Les envois à heure fixe (échéance proche,
@@ -11,6 +12,7 @@ from collections.abc import Callable, Iterable
 
 from django.db.models import QuerySet
 from django.utils import timezone, translation
+from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 
 from apps.accounts.models import User
@@ -18,7 +20,7 @@ from apps.core.money import format_amount
 from apps.core.tenancy import require_current_school
 from apps.finance.models import CancellationRequest, CashClosing, CashSession, Payment
 from apps.notifications import push
-from apps.notifications.models import Announcement, Notification
+from apps.notifications.models import Announcement, Notification, Summons
 from apps.students.models import Family
 
 App = Notification.App
@@ -89,6 +91,35 @@ def announcement_published(announcement: Announcement, families: QuerySet[Family
         kind=Kind.ANNOUNCEMENT,
         url="/announcements",
         text=lambda: (announcement.title, announcement.body),
+    )
+
+
+def staff_announcement_published(announcement: Announcement, members: QuerySet[User]) -> None:
+    """Annonce de l'école à son personnel (5.7) : à tous les comptes actifs, sauf l'auteur."""
+    send(
+        members,
+        app=App.GESTION,
+        kind=Kind.STAFF_ANNOUNCEMENT,
+        url="/staff-news",
+        text=lambda: (announcement.title, announcement.body),
+    )
+
+
+def summons_issued(summons: Summons) -> None:
+    """Convocation (5.7) : le parent la voit sur son téléphone et ouvre le calendrier du portail,
+    où sont le jour, l'heure, la personne à voir et le motif."""
+    student = summons.student
+    when = timezone.localtime(summons.meeting_at)
+    send(
+        _parents(Family.objects.filter(pk=student.family_id)),
+        app=App.PORTAIL,
+        kind=Kind.SUMMONS,
+        url="/calendar",
+        text=lambda: (
+            _("Summons: %(student)s") % {"student": student},
+            _("You are expected at the school on %(date)s at %(time)s.")
+            % {"date": date_format(when, "j F Y"), "time": date_format(when, "H:i")},
+        ),
     )
 
 

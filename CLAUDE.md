@@ -80,6 +80,9 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 | Période (P1, P2…) | `Term` |
 | Inscription annuelle | `Enrollment` |
 | Famille / tuteur | `Family` / `Guardian` |
+| Événement du calendrier de l'école | `SchoolEvent` |
+| Convocation des parents | `Summons` |
+| Circulaire | pas de modèle : vue imprimable d'une `Announcement` |
 | Prime / motivation enseignants | `TeacherBonus` |
 
 - Backend : une app Django par domaine (`core`, `accounts`, `schools`, `students`, `finance`, `payroll`, `portal`, `notifications`, `sync`, `audit`). Logique métier dans `services.py`, pas dans les vues.

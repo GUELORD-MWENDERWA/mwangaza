@@ -316,8 +316,9 @@ paths:
     get:
       operationId: announcements_list
       description: |-
-        Annonces de l'école aux familles (H4), les plus récentes d'abord : publiées tout de suite,
-        jamais modifiées, seulement archivées (retirées du portail).
+        Annonces de l'école aux familles (H4) ou à son personnel (5.7), les plus récentes d'abord :
+        publiées tout de suite, jamais modifiées, seulement archivées (retirées du portail ou de la
+        Gestion).
       parameters:
       - name: page
         required: false
@@ -351,8 +352,9 @@ paths:
     post:
       operationId: announcements_create
       description: |-
-        Annonces de l'école aux familles (H4), les plus récentes d'abord : publiées tout de suite,
-        jamais modifiées, seulement archivées (retirées du portail).
+        Annonces de l'école aux familles (H4) ou à son personnel (5.7), les plus récentes d'abord :
+        publiées tout de suite, jamais modifiées, seulement archivées (retirées du portail ou de la
+        Gestion).
       tags:
       - announcements
       requestBody:
@@ -459,11 +461,73 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/announcements/{id}/circular/:
+    get:
+      operationId: announcements_circular_retrieve
+      description: |-
+        L'annonce en lettre circulaire à l'en-tête de l'école (5.7), à imprimer pour les
+        familles qui n'ont pas le portail.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this announcement.
+        required: true
+      - in: query
+        name: output
+        schema:
+          enum:
+          - pdf
+          - html
+          type: string
+          default: pdf
+          minLength: 1
+        description: |-
+          `html` : aperçu ; `pdf` : à imprimer.
+
+          * `pdf` - pdf
+          * `html` - html
+      tags:
+      - announcements
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Document PDF (`output=pdf`).
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/announcements/recipients/:
     get:
       operationId: announcements_recipients_retrieve
-      description: Nombre de familles qu'une annonce toucherait (« Publier pour 156
-        familles »).
+      description: |-
+        Nombre de familles, ou de personnes de l'école, qu'une annonce toucherait (« Publier
+        pour 156 familles »).
       parameters:
       - in: query
         name: audience
@@ -471,11 +535,13 @@ paths:
           enum:
           - all_families
           - class_groups
+          - staff
           type: string
           minLength: 1
         description: |-
           * `all_families` - All families
           * `class_groups` - Some classes
+          * `staff` - Staff
         required: true
       - in: query
         name: class_groups
@@ -615,6 +681,8 @@ paths:
           - finance.statement_printed
           - announcements.published
           - announcements.archived
+          - announcements.summons_issued
+          - announcements.summons_cancelled
           - devices.registered
           - devices.revoked
           - audit.exported
@@ -714,6 +782,8 @@ paths:
           * `finance.statement_printed` - Financial statement printed
           * `announcements.published` - Announcement published
           * `announcements.archived` - Announcement archived
+          * `announcements.summons_issued` - Parents summoned
+          * `announcements.summons_cancelled` - Summons cancelled
           * `devices.registered` - Device remembered
           * `devices.revoked` - Device disconnected
           * `audit.exported` - Audit log exported
@@ -980,6 +1050,8 @@ paths:
           - finance.statement_printed
           - announcements.published
           - announcements.archived
+          - announcements.summons_issued
+          - announcements.summons_cancelled
           - devices.registered
           - devices.revoked
           - audit.exported
@@ -1079,6 +1151,8 @@ paths:
           * `finance.statement_printed` - Financial statement printed
           * `announcements.published` - Announcement published
           * `announcements.archived` - Announcement archived
+          * `announcements.summons_issued` - Parents summoned
+          * `announcements.summons_cancelled` - Summons cancelled
           * `devices.registered` - Device remembered
           * `devices.revoked` - Device disconnected
           * `audit.exported` - Audit log exported
@@ -1662,6 +1736,180 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: ''
         '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/calendar-events/:
+    get:
+      operationId: calendar_events_list
+      description: |-
+        Calendrier de l'école (5.7) : tout le personnel le lit (événements à venir, les plus
+        proches d'abord) ; l'écrire demande le droit de publier les annonces.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: past
+        schema:
+          type: boolean
+          default: false
+        description: Événements finis, les plus récents d'abord.
+      tags:
+      - communication
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSchoolEventList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: calendar_events_create
+      description: |-
+        Calendrier de l'école (5.7) : tout le personnel le lit (événements à venir, les plus
+        proches d'abord) ; l'écrire demande le droit de publier les annonces.
+      tags:
+      - communication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolEventRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SchoolEventRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SchoolEventRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolEvent'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/calendar-events/{id}/:
+    patch:
+      operationId: calendar_events_partial_update
+      description: |-
+        Calendrier de l'école (5.7) : tout le personnel le lit (événements à venir, les plus
+        proches d'abord) ; l'écrire demande le droit de publier les annonces.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this calendar event.
+        required: true
+      tags:
+      - communication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSchoolEventRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSchoolEventRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSchoolEventRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolEvent'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: calendar_events_destroy
+      description: |-
+        Calendrier de l'école (5.7) : tout le personnel le lit (événements à venir, les plus
+        proches d'abord) ; l'écrire demande le droit de publier les annonces.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this calendar event.
+        required: true
+      tags:
+      - communication
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
           content:
             application/json:
               schema:
@@ -7308,6 +7556,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/portal/calendar/:
+    get:
+      operationId: portal_calendar_list
+      description: 'Calendrier des écoles des enfants (5.7) : événements à venir,
+        les plus proches d''abord.'
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPortalEventList'
+          description: ''
   /api/portal/children/{id}/:
     get:
       operationId: portal_children_retrieve
@@ -7782,6 +8053,60 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: ''
         '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/summons/:
+    get:
+      operationId: portal_summons_list
+      description: |-
+        Convocations des parents pour les enfants du compte (5.7), la plus proche d'abord ; une
+        convocation annulée n'y est plus.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPortalSummonsList'
+          description: ''
+  /api/portal/summons/seen/:
+    post:
+      operationId: portal_summons_seen_create
+      description: Note les convocations affichées comme vues (« vue le » dans la
+        Gestion).
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SummonsSeenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SummonsSeenRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SummonsSeenRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
           content:
             application/json:
               schema:
@@ -8457,6 +8782,66 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/staff-announcements/:
+    get:
+      operationId: staff_announcements_list
+      description: |-
+        Annonces de l'école à son personnel (5.7), les plus récentes d'abord : tout compte de
+        l'école les lit, quel que soit son rôle ; une annonce archivée n'y est plus.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - announcements
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStaffAnnouncementList'
+          description: ''
+  /api/staff-announcements/{id}/attachment/:
+    get:
+      operationId: staff_announcements_attachment_retrieve
+      description: PDF joint à l'annonce, jamais public.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this announcement.
+        required: true
+      tags:
+      - announcements
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: PDF.
         '403':
           content:
             application/json:
@@ -9941,6 +10326,194 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/summons/:
+    get:
+      operationId: summons_list
+      description: |-
+        Convocations des parents (5.7), les plus récentes d'abord : jamais modifiées, seulement
+        annulées ; lettre PDF à remettre à l'élève, et le parent la voit dans le portail.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Nom ou matricule.
+      - in: query
+        name: student
+        schema:
+          type: string
+          format: uuid
+        description: Convocations d'un seul élève.
+      tags:
+      - communication
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSummonsList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: summons_create
+      description: |-
+        Convocations des parents (5.7), les plus récentes d'abord : jamais modifiées, seulement
+        annulées ; lettre PDF à remettre à l'élève, et le parent la voit dans le portail.
+      tags:
+      - communication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SummonsCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SummonsCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SummonsCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Summons'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/summons/{id}/cancel/:
+    post:
+      operationId: summons_cancel_create
+      description: 'Annule la convocation : elle quitte le portail du parent.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this summons.
+        required: true
+      tags:
+      - communication
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Summons'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/summons/{id}/letter/:
+    get:
+      operationId: summons_letter_retrieve
+      description: Lettre de convocation à l'en-tête de l'école, avec le coupon à
+        renvoyer signé.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this summons.
+        required: true
+      - in: query
+        name: output
+        schema:
+          enum:
+          - pdf
+          - html
+          type: string
+          default: pdf
+          minLength: 1
+        description: |-
+          `html` : aperçu ; `pdf` : à imprimer.
+
+          * `pdf` - pdf
+          * `html` - html
+      tags:
+      - communication
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Document PDF (`output=pdf`).
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/support/:
     get:
       operationId: support_retrieve
@@ -10899,6 +11472,8 @@ components:
       - finance.statement_printed
       - announcements.published
       - announcements.archived
+      - announcements.summons_issued
+      - announcements.summons_cancelled
       - devices.registered
       - devices.revoked
       - audit.exported
@@ -10997,6 +11572,8 @@ components:
         * `finance.statement_printed` - Financial statement printed
         * `announcements.published` - Announcement published
         * `announcements.archived` - Announcement archived
+        * `announcements.summons_issued` - Parents summoned
+        * `announcements.summons_cancelled` - Summons cancelled
         * `devices.registered` - Device remembered
         * `devices.revoked` - Device disconnected
         * `audit.exported` - Audit log exported
@@ -11206,10 +11783,12 @@ components:
       enum:
       - all_families
       - class_groups
+      - staff
       type: string
       description: |-
         * `all_families` - All families
         * `class_groups` - Some classes
+        * `staff` - Staff
     AuditActor:
       type: object
       properties:
@@ -12183,6 +12762,11 @@ components:
           type: string
           nullable: true
           description: Adresse de la photo, seulement avec le consentement du parent.
+        homeroom_teacher:
+          allOf:
+          - $ref: '#/components/schemas/HomeroomTeacher'
+          nullable: true
+          description: Titulaire de sa classe ; null si l'école ne l'a pas désigné.
         balance:
           $ref: '#/components/schemas/Balance'
         fees:
@@ -12202,6 +12786,7 @@ components:
       - school_name
       - school_timezone
       - photo
+      - homeroom_teacher
       - balance
       - fees
       - payments
@@ -14450,6 +15035,28 @@ components:
       required:
       - code
       - detail
+    EventAudienceEnum:
+      enum:
+      - everyone
+      - staff
+      type: string
+      description: |-
+        * `everyone` - Families and staff
+        * `staff` - Staff only
+    EventKindEnum:
+      enum:
+      - holiday
+      - exam
+      - meeting
+      - activity
+      - other
+      type: string
+      description: |-
+        * `holiday` - Holiday
+        * `exam` - Exams
+        * `meeting` - Meeting
+        * `activity` - Activity
+        * `other` - Other
     ExchangeRate:
       type: object
       properties:
@@ -15050,6 +15657,19 @@ components:
         * `warning` - warning
         * `error` - error
         * `off` - off
+    HomeroomTeacher:
+      type: object
+      description: Titulaire de la classe de l'enfant (5.7).
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+          nullable: true
+          description: Seulement si l'école a choisi de le montrer aux parents.
+      required:
+      - name
+      - phone
     ImportCancelRequest:
       type: object
       properties:
@@ -15898,6 +16518,8 @@ components:
       - payment_due
       - payment_overdue
       - register_open
+      - staff_announcement
+      - summons
       type: string
       description: |-
         * `test` - Test notification
@@ -15909,6 +16531,8 @@ components:
         * `payment_due` - Payment due soon
         * `payment_overdue` - Late payment
         * `register_open` - Register still open
+        * `staff_announcement` - Announcement to the staff
+        * `summons` - Summons
     NotificationPreferences:
       type: object
       properties:
@@ -16482,6 +17106,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PortalAnnouncement'
+    PaginatedPortalEventList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalEvent'
     PaginatedPortalNotificationList:
       type: object
       required:
@@ -16507,6 +17156,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PortalNotification'
+    PaginatedPortalSummonsList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalSummons'
     PaginatedRoleList:
       type: object
       required:
@@ -16557,6 +17231,56 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SchoolDevice'
+    PaginatedSchoolEventList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolEvent'
+    PaginatedStaffAnnouncementList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffAnnouncement'
     PaginatedStaffList:
       type: object
       required:
@@ -16682,6 +17406,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StudentList'
+    PaginatedSummonsList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Summons'
     PaginatedUnpaidStudentList:
       type: object
       required:
@@ -16970,6 +17719,37 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PermissionsEnum'
+    PatchedSchoolEventRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+        description:
+          type: string
+          title: Details
+          maxLength: 1000
+        kind:
+          $ref: '#/components/schemas/EventKindEnum'
+        audience:
+          allOf:
+          - $ref: '#/components/schemas/EventAudienceEnum'
+          title: Shown to
+        starts_on:
+          type: string
+          format: date
+          title: Start
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+          description: 'Vide : une seule journée.'
+        start_time:
+          type: string
+          format: time
+          nullable: true
+          title: Time
     PatchedSchoolSettingsRequest:
       type: object
       description: Paramètres de l'école (M5). Le code (adresse) ne change que par
@@ -17014,6 +17794,8 @@ components:
           $ref: '#/components/schemas/AlertSettingsRequest'
         reminders:
           $ref: '#/components/schemas/ReminderSettingsRequest'
+        portal:
+          $ref: '#/components/schemas/PortalSettingsRequest'
     PatchedStaffUpdateRequest:
       type: object
       description: Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`.
@@ -17798,6 +18580,40 @@ components:
       - attachment
       - published_at
       - read
+    PortalEvent:
+      type: object
+      description: Événement du calendrier d'une école du compte (5.7).
+      properties:
+        id:
+          type: string
+          format: uuid
+        school_name:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        kind:
+          $ref: '#/components/schemas/EventKindEnum'
+        starts_on:
+          type: string
+          format: date
+        ends_on:
+          type: string
+          format: date
+        start_time:
+          type: string
+          format: time
+          nullable: true
+      required:
+      - id
+      - school_name
+      - title
+      - description
+      - kind
+      - starts_on
+      - ends_on
+      - start_time
     PortalLoginRequest:
       type: object
       properties:
@@ -17914,6 +18730,26 @@ components:
       - email
       - emergency_contact
       - pending_schools
+    PortalSettings:
+      type: object
+      description: Ce que le portail montre aux parents (`portal.py`, 5.7).
+      properties:
+        teacher_phone:
+          type: boolean
+          description: Montrer aux parents le téléphone du titulaire de la classe
+            de leur enfant.
+      required:
+      - teacher_phone
+    PortalSettingsRequest:
+      type: object
+      description: Ce que le portail montre aux parents (`portal.py`, 5.7).
+      properties:
+        teacher_phone:
+          type: boolean
+          description: Montrer aux parents le téléphone du titulaire de la classe
+            de leur enfant.
+      required:
+      - teacher_phone
     PortalStatusEnum:
       enum:
       - pending
@@ -17928,6 +18764,46 @@ components:
         * `no_phone` - no_phone
         * `code_expired` - code_expired
         * `suspended` - suspended
+    PortalSummons:
+      type: object
+      description: Convocation des parents d'un enfant du compte (5.7).
+      properties:
+        id:
+          type: string
+          format: uuid
+        school_name:
+          type: string
+        school_timezone:
+          type: string
+        student_id:
+          type: string
+          format: uuid
+        student_name:
+          type: string
+        class_name:
+          type: string
+        reason:
+          type: string
+        meeting_at:
+          type: string
+          format: date-time
+        meet_with:
+          type: string
+        seen:
+          type: boolean
+          readOnly: true
+          description: Déjà vue par le parent.
+      required:
+      - id
+      - school_name
+      - school_timezone
+      - student_id
+      - student_name
+      - class_name
+      - reason
+      - meeting_at
+      - meet_with
+      - seen
     PrinterEnum:
       enum:
       - thermal_58
@@ -18299,8 +19175,12 @@ components:
         families:
           type: integer
           description: Familles qui recevront l'annonce (une fratrie compte une fois).
+        staff:
+          type: integer
+          description: Comptes du personnel qui la liront (annonce au personnel).
       required:
       - families
+      - staff
     RecoveryCodes:
       type: object
       properties:
@@ -18580,6 +19460,83 @@ components:
         * `live` - Live
         * `test` - Sandbox
         * `demo` - Demonstration
+    SchoolEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 120
+        description:
+          type: string
+          title: Details
+          maxLength: 1000
+        kind:
+          $ref: '#/components/schemas/EventKindEnum'
+        audience:
+          allOf:
+          - $ref: '#/components/schemas/EventAudienceEnum'
+          title: Shown to
+        starts_on:
+          type: string
+          format: date
+          title: Start
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+          description: 'Vide : une seule journée.'
+        start_time:
+          type: string
+          format: time
+          nullable: true
+          title: Time
+      required:
+      - id
+      - title
+      - description
+      - kind
+      - audience
+      - starts_on
+      - ends_on
+      - start_time
+    SchoolEventRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+        description:
+          type: string
+          title: Details
+          maxLength: 1000
+        kind:
+          $ref: '#/components/schemas/EventKindEnum'
+        audience:
+          allOf:
+          - $ref: '#/components/schemas/EventAudienceEnum'
+          title: Shown to
+        starts_on:
+          type: string
+          format: date
+          title: Start
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+          description: 'Vide : une seule journée.'
+        start_time:
+          type: string
+          format: time
+          nullable: true
+          title: Time
+      required:
+      - starts_on
+      - title
     SchoolHeadRequest:
       type: object
       description: 'Premier directeur. Nouveau numéro : nom obligatoire ; numéro connu
@@ -18662,6 +19619,8 @@ components:
           $ref: '#/components/schemas/AlertSettings'
         reminders:
           $ref: '#/components/schemas/ReminderSettings'
+        portal:
+          $ref: '#/components/schemas/PortalSettings'
       required:
       - code
       - name
@@ -18676,6 +19635,7 @@ components:
       - receipt
       - alerts
       - reminders
+      - portal
     SchoolStatusEnum:
       enum:
       - trial
@@ -18902,6 +19862,43 @@ components:
       - last_login_at
       - account_managed_here
       - created_at
+    StaffAnnouncement:
+      type: object
+      description: Annonce de l'école à son personnel (5.7), telle que tout le personnel
+        la lit.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        body:
+          type: string
+          readOnly: true
+          title: Message
+        attachment:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Adresse du PDF joint ; null sans pièce jointe.
+        published_at:
+          type: string
+          format: date-time
+          readOnly: true
+        published_by:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+          nullable: true
+      required:
+      - id
+      - title
+      - body
+      - attachment
+      - published_at
+      - published_by
     StaffCreateRequest:
       type: object
       description: 'Nouveau numéro : `last_name` obligatoire. Numéro déjà connu :
@@ -19818,6 +20815,118 @@ components:
       required:
       - last_name
       - sex
+    Summons:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        student:
+          allOf:
+          - $ref: '#/components/schemas/SummonsStudent'
+          readOnly: true
+        class_name:
+          type: string
+          readOnly: true
+          title: Class
+        reason:
+          type: string
+          readOnly: true
+        meeting_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Date and time
+        meet_with:
+          type: string
+          readOnly: true
+          title: Person to see
+        seen_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Seen by the parent at
+        cancelled_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        issued_by:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - student
+      - class_name
+      - reason
+      - meeting_at
+      - meet_with
+      - seen_at
+      - cancelled_at
+      - issued_by
+      - created_at
+    SummonsCreateRequest:
+      type: object
+      properties:
+        student:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+        meeting_at:
+          type: string
+          format: date-time
+          description: Jour et heure où se présenter.
+        meet_with:
+          type: string
+          minLength: 1
+          description: 'Personne ou bureau : « Préfet des études ».'
+          maxLength: 120
+      required:
+      - meet_with
+      - meeting_at
+      - reason
+      - student
+    SummonsSeenRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Convocations affichées ; celles d'un autre compte sont ignorées.
+          maxItems: 100
+      required:
+      - ids
+    SummonsStudent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        matricule:
+          type: string
+          title: Student number
+          maxLength: 60
+      required:
+      - id
+      - full_name
+      - matricule
     SupportSession:
       type: object
       description: 'Session support en cours (A3) : l''interface affiche un bandeau

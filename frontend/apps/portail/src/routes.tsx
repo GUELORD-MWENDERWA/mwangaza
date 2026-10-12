@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Navigate, Outlet, type RouteObject, useLocation } from "react-router";
 
 import { AnnouncementsPage } from "./features/announcements/AnnouncementsPage";
+import { CalendarPage } from "./features/calendar/CalendarPage";
 import { ActivatePage } from "./features/auth/ActivatePage";
 import { ForgotPasswordPage } from "./features/auth/ForgotPasswordPage";
 import { LoginPage } from "./features/auth/LoginPage";
@@ -66,6 +67,7 @@ export const routes: RouteObject[] = [
       { path: "guide", element: <GuidePage /> },
       { path: "children/:id", element: <ChildPage /> },
       { path: "announcements", element: <AnnouncementsPage /> },
+      { path: "calendar", element: <CalendarPage /> },
       { path: "notifications", element: <NotificationsPage /> },
       { path: "profile", element: <ProfilePage /> },
     ],

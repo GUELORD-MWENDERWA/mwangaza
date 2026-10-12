@@ -132,7 +132,9 @@ test("enseignant dans deux écoles : changer d'école (M2)", async ({ page }) =>
   await page.goto(ITIG);
   await enterPassword(page, "0000001008");
 
-  await expect(page.getByText(/ne donne encore accès à aucun écran/)).toBeVisible();
+  // Sans aucun droit, il lit ce que tout le personnel lit (5.7) : annonces de l'école, calendrier.
+  await page.getByRole("link", { name: "Annonces au personnel" }).click();
+  await expect(page.getByText("Conseil des enseignants de fin de période")).toBeVisible();
   await page.getByRole("button", { name: /Changer d'école/ }).click();
   await expect(
     page.getByRole("menuitem", { name: "Complexe scolaire Les Volcans (fictif)" }),

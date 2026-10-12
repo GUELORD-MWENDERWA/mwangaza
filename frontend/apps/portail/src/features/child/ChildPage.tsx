@@ -1,4 +1,11 @@
-import { errorMessage, formatDate, formatDay, Trans, useTranslation } from "@mwangaza/i18n";
+import {
+  errorMessage,
+  formatDate,
+  formatDay,
+  formatPhone,
+  Trans,
+  useTranslation,
+} from "@mwangaza/i18n";
 import { formatAmount } from "@mwangaza/money";
 import {
   Banner,
@@ -154,6 +161,25 @@ function Payments({ child }: { child: ChildPayments }) {
           </ul>
         </CardContent>
       </Card>
+      {child.homeroom_teacher && (
+        <Card>
+          <CardContent className="flex flex-wrap items-center justify-between gap-2 py-3.5">
+            <div className="min-w-0">
+              <span className="block text-[.8rem] text-ink-3">{t("portal.child.teacher")}</span>
+              <b>{child.homeroom_teacher.name}</b>
+            </div>
+            {child.homeroom_teacher.phone && (
+              <a
+                href={`tel:${child.homeroom_teacher.phone}`}
+                className={buttonVariants({ variant: "outline", size: "sm" })}
+              >
+                <Icon name="phone" size={16} />
+                {formatPhone(child.homeroom_teacher.phone)}
+              </a>
+            )}
+          </CardContent>
+        </Card>
+      )}
       <Card>
         <CardHeader>
           <CardTitle>{t("portal.child.receipts")}</CardTitle>

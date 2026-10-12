@@ -111,6 +111,14 @@ class AlertSettingsSerializer(serializers.Serializer):
         return value
 
 
+class PortalSettingsSerializer(serializers.Serializer):
+    """Ce que le portail montre aux parents (`portal.py`, 5.7)."""
+
+    teacher_phone = serializers.BooleanField(
+        help_text="Montrer aux parents le téléphone du titulaire de la classe de leur enfant."
+    )
+
+
 class ReminderSettingsSerializer(serializers.Serializer):
     """Relances aux parents (`reminders.py`, 5.6.2). Écriture partielle : les autres restent."""
 
@@ -189,6 +197,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
     receipt = ReceiptSettingsSerializer(required=False)
     alerts = AlertSettingsSerializer(required=False)
     reminders = ReminderSettingsSerializer(required=False)
+    portal = PortalSettingsSerializer(required=False)
 
     class Meta:
         model = School
@@ -206,6 +215,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
             "receipt",
             "alerts",
             "reminders",
+            "portal",
         ]
         read_only_fields = ["code"]
 
@@ -218,7 +228,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
         # l'école, couleur écrite `#RRGGBB`.
         school = copy(self.instance)
         for field, value in data.items():
-            if field not in ("receipt", "alerts", "reminders"):
+            if field not in ("receipt", "alerts", "reminders", "portal"):
                 setattr(school, field, value)
         try:
             school.clean()

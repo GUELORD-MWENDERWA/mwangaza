@@ -38,10 +38,11 @@ STAFF_KINDS = {
 }
 # Sortes qu'un compte peut couper, par application ; la notification d'essai part toujours.
 PREFERENCE_KINDS = {
-    App.GESTION: [Kind.PLATFORM_NEWS, *STAFF_KINDS],
+    App.GESTION: [Kind.PLATFORM_NEWS, Kind.STAFF_ANNOUNCEMENT, *STAFF_KINDS],
     App.PORTAIL: [
         Kind.PAYMENT_RECEIVED,
         Kind.ANNOUNCEMENT,
+        Kind.SUMMONS,
         Kind.PAYMENT_DUE,
         Kind.PAYMENT_OVERDUE,
     ],

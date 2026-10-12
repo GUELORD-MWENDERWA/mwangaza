@@ -65,6 +65,8 @@ def test_head_reads_the_settings(api, school, head):
         },
         # Relances aux parents : rien ne part tant que l'école ne les a pas activées.
         "reminders": {"enabled": False, "days_before": 3, "overdue_every_days": 7},
+        # Téléphone du titulaire : caché aux parents tant que l'école ne l'a pas choisi.
+        "portal": {"teacher_phone": False},
     }
 
 

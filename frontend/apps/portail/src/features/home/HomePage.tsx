@@ -8,6 +8,7 @@ import type { Account } from "../../lib/account";
 import { type Child, type LinkedFamily, useFamilies } from "../../lib/families";
 import { shouldOfferInstall } from "../../lib/install";
 import { LanguageLinks } from "../auth/AuthFrame";
+import { useSummons } from "../calendar/data";
 import { ChildAvatar } from "../child/ChildAvatar";
 import { PortalFrame } from "./PortalFrame";
 
@@ -30,6 +31,7 @@ export function HomePage() {
           </Link>
         </Banner>
       )}
+      <SummonsBanner />
       <h2 className="text-[1.25rem]">{t("portal.home.children")}</h2>
       {families.isPending && <Skeleton label={t("common.loading")} />}
       {families.isError && (
@@ -49,6 +51,22 @@ export function HomePage() {
       </Link>
       <LanguageLinks />
     </PortalFrame>
+  );
+}
+
+/** Convocation à venir (5.7) : le parent la voit dès l'accueil, même sans notification. */
+function SummonsBanner() {
+  const { t } = useTranslation();
+  const summons = useSummons().data?.results ?? [];
+  const [next] = summons.filter((item) => new Date(item.meeting_at) >= new Date());
+  if (!next) return null;
+  return (
+    <Banner tone="warn" icon="calendar" className="items-center">
+      <span className="flex-1">{t("portal.home.summons", { name: next.student_name })}</span>
+      <Link to="/calendar" className={buttonVariants({ variant: "outline", size: "sm" })}>
+        {t("portal.home.summonsAction")}
+      </Link>
+    </Banner>
   );
 }
 

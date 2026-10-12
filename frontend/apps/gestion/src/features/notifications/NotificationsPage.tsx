@@ -51,6 +51,8 @@ const KIND_ICONS: Record<NotificationKind, IconName> = {
   payment_due: "calendar",
   payment_overdue: "clock",
   register_open: "clock",
+  staff_announcement: "megaphone",
+  summons: "file",
 };
 
 export function NotificationsPage() {

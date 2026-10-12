@@ -86,14 +86,16 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Annonces de l'école aux familles (H4), les plus récentes d'abord : publiées tout de suite,
-         *     jamais modifiées, seulement archivées (retirées du portail).
+         * @description Annonces de l'école aux familles (H4) ou à son personnel (5.7), les plus récentes d'abord :
+         *     publiées tout de suite, jamais modifiées, seulement archivées (retirées du portail ou de la
+         *     Gestion).
          */
         get: operations["announcements_list"];
         put?: never;
         /**
-         * @description Annonces de l'école aux familles (H4), les plus récentes d'abord : publiées tout de suite,
-         *     jamais modifiées, seulement archivées (retirées du portail).
+         * @description Annonces de l'école aux familles (H4) ou à son personnel (5.7), les plus récentes d'abord :
+         *     publiées tout de suite, jamais modifiées, seulement archivées (retirées du portail ou de la
+         *     Gestion).
          */
         post: operations["announcements_create"];
         delete?: never;
@@ -136,6 +138,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/announcements/{id}/circular/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description L'annonce en lettre circulaire à l'en-tête de l'école (5.7), à imprimer pour les
+         *     familles qui n'ont pas le portail.
+         */
+        get: operations["announcements_circular_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/announcements/recipients/": {
         parameters: {
             query?: never;
@@ -143,7 +165,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Nombre de familles qu'une annonce toucherait (« Publier pour 156 familles »). */
+        /**
+         * @description Nombre de familles, ou de personnes de l'école, qu'une annonce toucherait (« Publier
+         *     pour 156 familles »).
+         */
         get: operations["announcements_recipients_retrieve"];
         put?: never;
         post?: never;
@@ -414,6 +439,54 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/calendar-events/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Calendrier de l'école (5.7) : tout le personnel le lit (événements à venir, les plus
+         *     proches d'abord) ; l'écrire demande le droit de publier les annonces.
+         */
+        get: operations["calendar_events_list"];
+        put?: never;
+        /**
+         * @description Calendrier de l'école (5.7) : tout le personnel le lit (événements à venir, les plus
+         *     proches d'abord) ; l'écrire demande le droit de publier les annonces.
+         */
+        post: operations["calendar_events_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calendar-events/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * @description Calendrier de l'école (5.7) : tout le personnel le lit (événements à venir, les plus
+         *     proches d'abord) ; l'écrire demande le droit de publier les annonces.
+         */
+        delete: operations["calendar_events_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Calendrier de l'école (5.7) : tout le personnel le lit (événements à venir, les plus
+         *     proches d'abord) ; l'écrire demande le droit de publier les annonces.
+         */
+        patch: operations["calendar_events_partial_update"];
         trace?: never;
     };
     "/api/cancellations/": {
@@ -2315,6 +2388,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/portal/calendar/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Calendrier des écoles des enfants (5.7) : événements à venir, les plus proches d'abord. */
+        get: operations["portal_calendar_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/portal/children/{id}/": {
         parameters: {
             query?: never;
@@ -2553,6 +2643,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/portal/summons/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Convocations des parents pour les enfants du compte (5.7), la plus proche d'abord ; une
+         *     convocation annulée n'y est plus.
+         */
+        get: operations["portal_summons_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/summons/seen/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Note les convocations affichées comme vues (« vue le » dans la Gestion). */
+        post: operations["portal_summons_seen_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/prior-payments/": {
         parameters: {
             query?: never;
@@ -2783,6 +2910,43 @@ export interface paths {
         put?: never;
         /** @description Comptes du personnel de l'école (M3). On ne supprime pas un compte : on le désactive. */
         post: operations["staff_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff-announcements/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Annonces de l'école à son personnel (5.7), les plus récentes d'abord : tout compte de
+         *     l'école les lit, quel que soit son rôle ; une annonce archivée n'y est plus.
+         */
+        get: operations["staff_announcements_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff-announcements/{id}/attachment/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description PDF joint à l'annonce, jamais public. */
+        get: operations["staff_announcements_attachment_retrieve"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3282,6 +3446,64 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/summons/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Convocations des parents (5.7), les plus récentes d'abord : jamais modifiées, seulement
+         *     annulées ; lettre PDF à remettre à l'élève, et le parent la voit dans le portail.
+         */
+        get: operations["summons_list"];
+        put?: never;
+        /**
+         * @description Convocations des parents (5.7), les plus récentes d'abord : jamais modifiées, seulement
+         *     annulées ; lettre PDF à remettre à l'élève, et le parent la voit dans le portail.
+         */
+        post: operations["summons_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/summons/{id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Annule la convocation : elle quitte le portail du parent. */
+        post: operations["summons_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/summons/{id}/letter/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lettre de convocation à l'en-tête de l'école, avec le coupon à renvoyer signé. */
+        get: operations["summons_letter_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/support/": {
         parameters: {
             query?: never;
@@ -3590,6 +3812,8 @@ export interface components {
          *     * `finance.statement_printed` - Financial statement printed
          *     * `announcements.published` - Announcement published
          *     * `announcements.archived` - Announcement archived
+         *     * `announcements.summons_issued` - Parents summoned
+         *     * `announcements.summons_cancelled` - Summons cancelled
          *     * `devices.registered` - Device remembered
          *     * `devices.revoked` - Device disconnected
          *     * `audit.exported` - Audit log exported
@@ -3597,7 +3821,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         /** @description Comptes du portail activés (H7) : école, puis chaque classe de l'année en cours. */
         ActivationSummary: {
             families: number;
@@ -3682,9 +3906,10 @@ export interface components {
         /**
          * @description * `all_families` - All families
          *     * `class_groups` - Some classes
+         *     * `staff` - Staff
          * @enum {string}
          */
-        AudienceEnum: "all_families" | "class_groups";
+        AudienceEnum: "all_families" | "class_groups" | "staff";
         AuditActor: {
             /** Format: uuid */
             readonly id: string;
@@ -4103,6 +4328,8 @@ export interface components {
             school_timezone: string;
             /** @description Adresse de la photo, seulement avec le consentement du parent. */
             photo: string | null;
+            /** @description Titulaire de sa classe ; null si l'école ne l'a pas désigné. */
+            homeroom_teacher: components["schemas"]["HomeroomTeacher"] | null;
             balance: components["schemas"]["Balance"];
             fees: components["schemas"]["ChildFee"][];
             /** @description Les plus récents d'abord. */
@@ -5123,6 +5350,21 @@ export interface components {
                 [key: string]: components["schemas"]["FieldError"][];
             };
         };
+        /**
+         * @description * `everyone` - Families and staff
+         *     * `staff` - Staff only
+         * @enum {string}
+         */
+        EventAudienceEnum: "everyone" | "staff";
+        /**
+         * @description * `holiday` - Holiday
+         *     * `exam` - Exams
+         *     * `meeting` - Meeting
+         *     * `activity` - Activity
+         *     * `other` - Other
+         * @enum {string}
+         */
+        EventKindEnum: "holiday" | "exam" | "meeting" | "activity" | "other";
         ExchangeRate: {
             /** Format: uuid */
             readonly id: string;
@@ -5397,6 +5639,12 @@ export interface components {
          * @enum {string}
          */
         HealthStatusEnum: "ok" | "warning" | "error" | "off";
+        /** @description Titulaire de la classe de l'enfant (5.7). */
+        HomeroomTeacher: {
+            name: string;
+            /** @description Seulement si l'école a choisi de le montrer aux parents. */
+            phone: string | null;
+        };
         ImportCancelRequest: {
             /** @description Motif, gardé au journal. */
             reason: string;
@@ -5776,9 +6024,11 @@ export interface components {
          *     * `payment_due` - Payment due soon
          *     * `payment_overdue` - Late payment
          *     * `register_open` - Register still open
+         *     * `staff_announcement` - Announcement to the staff
+         *     * `summons` - Summons
          * @enum {string}
          */
-        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "payment_due" | "payment_overdue" | "register_open";
+        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons";
         NotificationPreferences: {
             /** @description Clé publique Web Push ; vide : envoi sur l'écran indisponible. */
             readonly vapid_public_key: string;
@@ -6110,6 +6360,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["PortalAnnouncement"][];
         };
+        PaginatedPortalEventList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["PortalEvent"][];
+        };
         PaginatedPortalNotificationList: {
             /** @example 123 */
             count: number;
@@ -6124,6 +6389,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["PortalNotification"][];
+        };
+        PaginatedPortalSummonsList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["PortalSummons"][];
         };
         PaginatedRoleList: {
             /** @example 123 */
@@ -6154,6 +6434,36 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["SchoolDevice"][];
+        };
+        PaginatedSchoolEventList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["SchoolEvent"][];
+        };
+        PaginatedStaffAnnouncementList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["StaffAnnouncement"][];
         };
         PaginatedStaffList: {
             /** @example 123 */
@@ -6229,6 +6539,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["StudentList"][];
+        };
+        PaginatedSummonsList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Summons"][];
         };
         PaginatedUnpaidStudentList: {
             /** @example 123 */
@@ -6392,6 +6717,29 @@ export interface components {
             name?: string;
             permissions?: components["schemas"]["PermissionsEnum"][];
         };
+        PatchedSchoolEventRequest: {
+            title?: string;
+            /** Details */
+            description?: string;
+            kind?: components["schemas"]["EventKindEnum"];
+            /** Shown to */
+            audience?: components["schemas"]["EventAudienceEnum"];
+            /**
+             * Start
+             * Format: date
+             */
+            starts_on?: string;
+            /**
+             * Format: date
+             * @description Vide : une seule journée.
+             */
+            ends_on?: string | null;
+            /**
+             * Time
+             * Format: time
+             */
+            start_time?: string | null;
+        };
         /** @description Paramètres de l'école (M5). Le code (adresse) ne change que par le support Mwangaza. */
         PatchedSchoolSettingsRequest: {
             name?: string;
@@ -6419,6 +6767,7 @@ export interface components {
             receipt?: components["schemas"]["ReceiptSettingsRequest"];
             alerts?: components["schemas"]["AlertSettingsRequest"];
             reminders?: components["schemas"]["ReminderSettingsRequest"];
+            portal?: components["schemas"]["PortalSettingsRequest"];
         };
         /** @description Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`. */
         PatchedStaffUpdateRequest: {
@@ -6773,6 +7122,21 @@ export interface components {
             /** @description Déjà lue par la famille. */
             read: boolean;
         };
+        /** @description Événement du calendrier d'une école du compte (5.7). */
+        PortalEvent: {
+            /** Format: uuid */
+            id: string;
+            school_name: string;
+            title: string;
+            description: string;
+            kind: components["schemas"]["EventKindEnum"];
+            /** Format: date */
+            starts_on: string;
+            /** Format: date */
+            ends_on: string;
+            /** Format: time */
+            start_time: string | null;
+        };
         PortalLoginRequest: {
             /** @description Ex. 0971234567 ou +243971234567. */
             phone: string;
@@ -6819,6 +7183,16 @@ export interface components {
             /** @description Écoles qui n'ont pas encore traité les coordonnées envoyées. */
             readonly pending_schools: string[];
         };
+        /** @description Ce que le portail montre aux parents (`portal.py`, 5.7). */
+        PortalSettings: {
+            /** @description Montrer aux parents le téléphone du titulaire de la classe de leur enfant. */
+            teacher_phone: boolean;
+        };
+        /** @description Ce que le portail montre aux parents (`portal.py`, 5.7). */
+        PortalSettingsRequest: {
+            /** @description Montrer aux parents le téléphone du titulaire de la classe de leur enfant. */
+            teacher_phone: boolean;
+        };
         /**
          * @description * `pending` - pending
          *     * `activated` - activated
@@ -6828,6 +7202,23 @@ export interface components {
          * @enum {string}
          */
         PortalStatusEnum: "pending" | "activated" | "no_phone" | "code_expired" | "suspended";
+        /** @description Convocation des parents d'un enfant du compte (5.7). */
+        PortalSummons: {
+            /** Format: uuid */
+            id: string;
+            school_name: string;
+            school_timezone: string;
+            /** Format: uuid */
+            student_id: string;
+            student_name: string;
+            class_name: string;
+            reason: string;
+            /** Format: date-time */
+            meeting_at: string;
+            meet_with: string;
+            /** @description Déjà vue par le parent. */
+            readonly seen: boolean;
+        };
         /**
          * @description * `thermal_58` - thermal_58
          *     * `thermal_80` - thermal_80
@@ -7016,6 +7407,8 @@ export interface components {
         Recipients: {
             /** @description Familles qui recevront l'annonce (une fratrie compte une fois). */
             families: number;
+            /** @description Comptes du personnel qui la liront (annonce au personnel). */
+            staff: number;
         };
         RecoveryCodes: {
             /** @description Affichés une seule fois : à imprimer. */
@@ -7157,6 +7550,54 @@ export interface components {
          * @enum {string}
          */
         SchoolEnvironmentEnum: "live" | "test" | "demo";
+        SchoolEvent: {
+            /** Format: uuid */
+            readonly id: string;
+            title: string;
+            /** Details */
+            description: string;
+            kind: components["schemas"]["EventKindEnum"];
+            /** Shown to */
+            audience: components["schemas"]["EventAudienceEnum"];
+            /**
+             * Start
+             * Format: date
+             */
+            starts_on: string;
+            /**
+             * Format: date
+             * @description Vide : une seule journée.
+             */
+            ends_on: string | null;
+            /**
+             * Time
+             * Format: time
+             */
+            start_time: string | null;
+        };
+        SchoolEventRequest: {
+            title: string;
+            /** Details */
+            description?: string;
+            kind?: components["schemas"]["EventKindEnum"];
+            /** Shown to */
+            audience?: components["schemas"]["EventAudienceEnum"];
+            /**
+             * Start
+             * Format: date
+             */
+            starts_on: string;
+            /**
+             * Format: date
+             * @description Vide : une seule journée.
+             */
+            ends_on?: string | null;
+            /**
+             * Time
+             * Format: time
+             */
+            start_time?: string | null;
+        };
         /** @description Premier directeur. Nouveau numéro : nom obligatoire ; numéro connu : noms ignorés (B3). */
         SchoolHeadRequest: {
             /** @description Ex. 0971234567 ou +243971234567. */
@@ -7200,6 +7641,7 @@ export interface components {
             receipt: components["schemas"]["ReceiptSettings"];
             alerts: components["schemas"]["AlertSettings"];
             reminders: components["schemas"]["ReminderSettings"];
+            portal: components["schemas"]["PortalSettings"];
         };
         /**
          * @description * `trial` - Free trial
@@ -7308,6 +7750,19 @@ export interface components {
             readonly account_managed_here: boolean;
             /** Format: date-time */
             readonly created_at: string;
+        };
+        /** @description Annonce de l'école à son personnel (5.7), telle que tout le personnel la lit. */
+        StaffAnnouncement: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly title: string;
+            /** Message */
+            readonly body: string;
+            /** @description Adresse du PDF joint ; null sans pièce jointe. */
+            readonly attachment: string | null;
+            /** Format: date-time */
+            readonly published_at: string;
+            readonly published_by: components["schemas"]["Person"] | null;
         };
         /** @description Nouveau numéro : `last_name` obligatoire. Numéro déjà connu : noms ignorés. */
         StaffCreateRequest: {
@@ -7698,6 +8153,54 @@ export interface components {
              * @default false
              */
             allow_duplicate: boolean;
+        };
+        Summons: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly student: components["schemas"]["SummonsStudent"];
+            /** Class */
+            readonly class_name: string;
+            readonly reason: string;
+            /**
+             * Date and time
+             * Format: date-time
+             */
+            readonly meeting_at: string;
+            /** Person to see */
+            readonly meet_with: string;
+            /**
+             * Seen by the parent at
+             * Format: date-time
+             */
+            readonly seen_at: string | null;
+            /** Format: date-time */
+            readonly cancelled_at: string | null;
+            readonly issued_by: components["schemas"]["Person"] | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        SummonsCreateRequest: {
+            /** Format: uuid */
+            student: string;
+            reason: string;
+            /**
+             * Format: date-time
+             * @description Jour et heure où se présenter.
+             */
+            meeting_at: string;
+            /** @description Personne ou bureau : « Préfet des études ». */
+            meet_with: string;
+        };
+        SummonsSeenRequest: {
+            /** @description Convocations affichées ; celles d'un autre compte sont ignorées. */
+            ids: string[];
+        };
+        SummonsStudent: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly full_name: string;
+            /** Student number */
+            matricule: string;
         };
         /** @description Session support en cours (A3) : l'interface affiche un bandeau rouge permanent. */
         SupportSession: {
@@ -8515,14 +9018,71 @@ export interface operations {
             };
         };
     };
+    announcements_circular_retrieve: {
+        parameters: {
+            query?: {
+                /**
+                 * @description `html` : aperçu ; `pdf` : à imprimer.
+                 *
+                 *     * `pdf` - pdf
+                 *     * `html` - html
+                 */
+                output?: "pdf" | "html";
+            };
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this announcement. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document PDF (`output=pdf`). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                    "text/html": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     announcements_recipients_retrieve: {
         parameters: {
             query: {
                 /**
                  * @description * `all_families` - All families
                  *     * `class_groups` - Some classes
+                 *     * `staff` - Staff
                  */
-                audience: "all_families" | "class_groups";
+                audience: "all_families" | "class_groups" | "staff";
                 /** @description Classes de l'année en cours (pour `class_groups`). */
                 class_groups?: string[];
             };
@@ -8661,13 +9221,15 @@ export interface operations {
                  *     * `finance.statement_printed` - Financial statement printed
                  *     * `announcements.published` - Announcement published
                  *     * `announcements.archived` - Announcement archived
+                 *     * `announcements.summons_issued` - Parents summoned
+                 *     * `announcements.summons_cancelled` - Summons cancelled
                  *     * `devices.registered` - Device remembered
                  *     * `devices.revoked` - Device disconnected
                  *     * `audit.exported` - Audit log exported
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -8897,13 +9459,15 @@ export interface operations {
                  *     * `finance.statement_printed` - Financial statement printed
                  *     * `announcements.published` - Announcement published
                  *     * `announcements.archived` - Announcement archived
+                 *     * `announcements.summons_issued` - Parents summoned
+                 *     * `announcements.summons_cancelled` - Summons cancelled
                  *     * `devices.registered` - Device remembered
                  *     * `devices.revoked` - Device disconnected
                  *     * `audit.exported` - Audit log exported
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -9500,6 +10064,184 @@ export interface operations {
                 };
             };
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    calendar_events_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Événements finis, les plus récents d'abord. */
+                past?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedSchoolEventList"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    calendar_events_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SchoolEventRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SchoolEventRequest"];
+                "multipart/form-data": components["schemas"]["SchoolEventRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchoolEvent"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    calendar_events_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this calendar event. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    calendar_events_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this calendar event. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedSchoolEventRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedSchoolEventRequest"];
+                "multipart/form-data": components["schemas"]["PatchedSchoolEventRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchoolEvent"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -15342,6 +16084,28 @@ export interface operations {
             };
         };
     };
+    portal_calendar_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPortalEventList"];
+                };
+            };
+        };
+    };
     portal_children_retrieve: {
         parameters: {
             query?: never;
@@ -15856,6 +16620,60 @@ export interface operations {
                 };
             };
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    portal_summons_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPortalSummonsList"];
+                };
+            };
+        };
+    };
+    portal_summons_seen_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SummonsSeenRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SummonsSeenRequest"];
+                "multipart/form-data": components["schemas"]["SummonsSeenRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -16615,6 +17433,67 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    staff_announcements_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedStaffAnnouncementList"];
+                };
+            };
+        };
+    };
+    staff_announcements_attachment_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this announcement. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description PDF. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -18066,6 +18945,191 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Student"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    summons_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Nom ou matricule. */
+                search?: string;
+                /** @description Convocations d'un seul élève. */
+                student?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedSummonsList"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    summons_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SummonsCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SummonsCreateRequest"];
+                "multipart/form-data": components["schemas"]["SummonsCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Summons"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    summons_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this summons. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Summons"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    summons_letter_retrieve: {
+        parameters: {
+            query?: {
+                /**
+                 * @description `html` : aperçu ; `pdf` : à imprimer.
+                 *
+                 *     * `pdf` - pdf
+                 *     * `html` - html
+                 */
+                output?: "pdf" | "html";
+            };
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this summons. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document PDF (`output=pdf`). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                    "text/html": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             403: {

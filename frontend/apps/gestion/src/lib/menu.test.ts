@@ -16,7 +16,10 @@ describe("menu selon les permissions (04 § 8)", () => {
       "cancellations",
       "closings",
       "credits",
+      "staffNews",
+      "calendar",
       "announcements",
+      "summons",
       "parentRequests",
       "schoolSettings",
       "organisation",
@@ -27,8 +30,15 @@ describe("menu selon les permissions (04 § 8)", () => {
     ]);
   });
 
-  it("caissière : élèves, caisse, annulations et son appareil seulement", () => {
-    expect(keysOf(me("cashier"))).toEqual(["students", "cash", "cancellations", "devices"]);
+  it("caissière : élèves, caisse, annulations, son appareil ; annonces et calendrier lus par tous", () => {
+    expect(keysOf(me("cashier"))).toEqual([
+      "students",
+      "cash",
+      "cancellations",
+      "staffNews",
+      "calendar",
+      "devices",
+    ]);
   });
 
   it("promoteur : lecture des finances et du journal", () => {
@@ -38,13 +48,16 @@ describe("menu selon les permissions (04 § 8)", () => {
       "unpaid",
       "closings",
       "credits",
+      "staffNews",
+      "calendar",
       "devices",
       "audit",
     ]);
   });
 
-  it("enseignant (aucun droit en V1.0) : aucune entrée, aucune section vide", () => {
-    expect(visibleMenu(me("teacher"))).toEqual([]);
+  it("enseignant (aucun droit) : seulement ce que tout le personnel lit (5.7)", () => {
+    expect(keysOf(me("teacher"))).toEqual(["staffNews", "calendar"]);
+    expect(visibleMenu(me("teacher")).map(({ section }) => section)).toEqual(["communication"]);
   });
 
   it("session support : droits de l'école sauf la caisse", () => {
@@ -66,9 +79,10 @@ describe("menu selon les permissions (04 § 8)", () => {
     expect(keysOf(account)).not.toContain("cancellations");
   });
 
-  it("chaque entrée a une adresse unique et au moins un droit", () => {
+  it("chaque entrée a une adresse unique ; sans droit : seulement ce que tout le personnel lit", () => {
     const paths = MENU_ITEMS.map((item) => item.path);
     expect(new Set(paths).size).toBe(paths.length);
-    for (const item of MENU_ITEMS) expect(item.permissions.length, item.key).toBeGreaterThan(0);
+    const open = MENU_ITEMS.filter((item) => item.permissions.length === 0);
+    expect(open.map((item) => item.key)).toEqual(["staffNews", "calendar"]);
   });
 });

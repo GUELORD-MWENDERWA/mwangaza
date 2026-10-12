@@ -163,6 +163,9 @@ class Action(models.TextChoices):
     # Annonces aux familles (H4) : publiées puis jamais modifiées, seulement archivées.
     ANNOUNCEMENTS_PUBLISHED = "announcements.published", _("Announcement published")
     ANNOUNCEMENTS_ARCHIVED = "announcements.archived", _("Announcement archived")
+    # Convocations des parents (5.7) : jamais modifiées, seulement annulées.
+    SUMMONS_ISSUED = "announcements.summons_issued", _("Parents summoned")
+    SUMMONS_CANCELLED = "announcements.summons_cancelled", _("Summons cancelled")
 
     # Appareils (« Se souvenir de cet appareil », M4).
     DEVICES_REGISTERED = "devices.registered", _("Device remembered")

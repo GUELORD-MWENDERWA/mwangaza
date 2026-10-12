@@ -23,6 +23,7 @@ const settings = {
     closing_time: "18:00",
   },
   reminders: { enabled: false, days_before: 3, overdue_every_days: 7 },
+  portal: { teacher_phone: false },
 };
 
 function routes(extra: Routes = {}): Routes {
@@ -94,6 +95,7 @@ describe("Paramètres de l'école (M5)", () => {
         closing_time: "18:00",
       },
       reminders: { enabled: true, days_before: 5, overdue_every_days: 7 },
+      portal: { teacher_phone: false },
     });
     // Le nom de l'école (menu, connexion) est relu.
     await waitFor(() =>

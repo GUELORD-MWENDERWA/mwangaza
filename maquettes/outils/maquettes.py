@@ -104,7 +104,10 @@ MENU = [
         ("paie.html", "Personnel et paie", "card", "V1.1"),
     ]),
     ("Communication", [
+        ("annonces-personnel.html", "Annonces au personnel", "bell", None),
+        ("calendrier.html", "Calendrier", "calendar", None),
         ("annonces.html", "Annonces", "megaphone", None),
+        ("convocations.html", "Convocations", "file", None),
         ("changements-coordonnees.html", "Demandes des parents", "inbox", 4),
     ]),
     ("Paramètres", [
@@ -243,7 +246,8 @@ def page_auth(title: str, content: str, school: bool = True, width: int = 440) -
 PNAV = [
     ("accueil.html", "Accueil", "home"),
     ("enfant-paiements.html", "Paiements", "card"),
-    ("annonces.html", "Annonces", "bell"),
+    ("annonces.html", "Annonces", "megaphone"),
+    ("calendrier.html", "Calendrier", "calendar"),
     ("profil.html", "Profil", "user"),
 ]
 
@@ -312,6 +316,9 @@ GESTION = [
     ("impayes-export", "Export des impayés (PDF, Excel)", "V1.0", "Impression · G1 · M17", True),
     ("annonces", "Annonces", "V1.0", "Communication · H4", False),
     ("changements-coordonnees", "Demandes des parents", "V1.0", "Communication · H5 · M18", True),
+    ("annonces-personnel", "Annonces au personnel", "V1.1", "Communication · 5.7", True),
+    ("calendrier", "Calendrier de l'école", "V1.1", "Communication · 5.7", True),
+    ("convocations", "Convocations des parents", "V1.1", "Communication · 5.7", True),
     ("parametres-ecole", "Paramètres de l'école", "V1.0", "Paramètres · A1 · M5", True),
     ("organisation-scolaire", "Organisation scolaire", "V1.0", "Paramètres · C1–C3", False),
     ("personnel-comptes", "Comptes du personnel", "V1.0", "Paramètres · B1–B3 · M3", True),
@@ -337,6 +344,7 @@ PORTAIL = [
     ("accueil", "Accueil — mes enfants", "V1.0", "H2", False),
     ("enfant-paiements", "Paiements d'un enfant", "V1.0", "H3", False),
     ("annonces", "Annonces", "V1.0", "H4", False),
+    ("calendrier", "Calendrier et convocations", "V1.1", "5.7", True),
     ("profil", "Profil et coordonnées", "V1.0", "H5", False),
     ("verification-recu", "Vérification publique d'un reçu", "V1.0", "F4", False),
     ("enfant-scolarite", "Scolarité d'un enfant", "V1.2", "6.8", False),

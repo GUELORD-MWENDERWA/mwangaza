@@ -64,11 +64,22 @@ def photo_url(student: Student) -> str | None:
     return f"/api/portal/children/{student.pk}/photo/?v={photo_version(student)}"
 
 
+def homeroom_teacher(school: School, enrollment: Enrollment) -> dict | None:
+    """Titulaire de la classe (5.7) : son nom ; son téléphone seulement si l'école a choisi de
+    le montrer aux parents (`schools/portal.py`)."""
+    teacher = enrollment.class_group.homeroom_teacher
+    if teacher is None or not teacher.is_active:
+        return None
+    phone = teacher.phone if school.portal["teacher_phone"] else None
+    return {"name": teacher.get_full_name(), "phone": phone}
+
+
 @dataclass
 class ChildPayments:
     school: School
     enrollment: Enrollment
     photo: str | None
+    homeroom_teacher: dict | None
     balance: finance.Balance
     fees: list[StudentCharge]
     payments: list[Payment]
@@ -94,7 +105,13 @@ def child_payments(user: User, student_id) -> ChildPayments:
                 academic_year__is_current=True,
                 status=Enrollment.Status.ACTIVE,
             )
-            .select_related("student", "academic_year", "class_group__level", "class_group__track")
+            .select_related(
+                "student",
+                "academic_year",
+                "class_group__level",
+                "class_group__track",
+                "class_group__homeroom_teacher",
+            )
             .first()
         )
         if enrollment is None:
@@ -112,5 +129,11 @@ def child_payments(user: User, student_id) -> ChildPayments:
             .order_by("-paid_at", "-id")
         )
         return ChildPayments(
-            student.school, enrollment, photo_url(student), finance.balance(charges), fees, payments
+            student.school,
+            enrollment,
+            photo_url(student),
+            homeroom_teacher(student.school, enrollment),
+            finance.balance(charges),
+            fees,
+            payments,
         )

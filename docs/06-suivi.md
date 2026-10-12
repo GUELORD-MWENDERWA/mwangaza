@@ -6,12 +6,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | V1.0 finie (recette du 2026-10-12), en attente de la mise en ligne ; la V1.1 reprend |
-| Lot | V1.0 (mise en ligne), puis V1.1 |
-| Tâche en cours | aucune — 5.6.2 terminée (PR ouverte) |
-| Prochaine tâche | 5.7 (communication : annonces au personnel, messages à une classe, calendrier, circulaires, convocations — à découper avant de coder) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #44 pour 5.7 ; #186 pour 4.23 |
-| Branche | `tache/5.6.2-notifications-heure-fixe` ; dossier local : `~/Projets/mwangaza` |
+| Phase | V1.0 finie (recette du 2026-10-12), en attente de la mise en ligne ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`) |
+| Lot | V1.0 (mise en ligne), puis V1.2 |
+| Tâche en cours | aucune — 5.7 terminée (PR ouverte) |
+| Prochaine tâche | 6.1 (V1.2 — carte de l'élève et du personnel) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #41 pour 6.1 ; #186 pour 4.23 |
+| Branche | `tache/5.7-communication` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-12 |
 
 ## Avancement
@@ -25,7 +25,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2 et 4.23, avec la mise en ligne) | 16 | 19 |
 | Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 14 | 14 |
 | **V1.0** | **64** | **67** |
-| V1.1 — plateforme, notifications, communication | 11 | 12 |
+| V1.1 — plateforme, notifications, communication | 12 | 12 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
 | V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
@@ -56,6 +56,13 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-12 — Tâche 5.7 : communication (fin de la V1.1)
+
+- Fait, d'un coup à la demande de l'utilisateur : annonce au **personnel** (lue par tout compte de l'école dans « Annonces au personnel », notification) ; **circulaire** PDF de chaque annonce ; **calendrier** de l'école (`SchoolEvent`, lu par tous, « personnel seulement » ou « pour tous ») ; **convocations** des parents (`Summons` : lettre PDF avec coupon, portail, « vue par le parent », annulation, journal) ; Portail : écran « Calendrier » (convocations puis événements), bandeau à l'accueil, titulaire de la classe (téléphone seulement si l'école l'a choisi, carte « Portail des parents » des paramètres). Menu : deux entrées lues par tous les rôles, enseignant compris. `make demo` enrichi ; 4 maquettes dessinées ; guide de la version 1.1.
+- Tests : 4 serveur Gestion (droits, isolation entre deux écoles, audit, annonce au personnel), 2 Portail (convocation d'un autre parent invisible, événement du personnel et annonce au personnel jamais montrés, téléphone du titulaire caché par défaut), 4 écrans ; parcours Playwright de l'enseignant adapté.
+- Décisions (regard senior) : pas de nouveau droit (`announcements.publish` couvre calendrier et convocations) ; « messages à une classe » = annonce « Certaines classes » ; pas de « lu par » pour le personnel ni de notification par événement du calendrier ; téléphone du titulaire caché par défaut ; captures des maquettes refaites pour les seuls écrans nouveaux.
+- Suite : V1.2, tâche 6.1 (carte de l'élève et du personnel) ; mise en ligne (4.6.3, 4.7.2, 4.23) dès les achats.
 
 ### 2026-10-12 — Tâche 5.6.2 : notifications à heure fixe
 

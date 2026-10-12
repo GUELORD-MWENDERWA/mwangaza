@@ -6,6 +6,9 @@ import type { RouteObject } from "react-router";
 import { AccountPage } from "./features/account/AccountPage";
 import { AccountTwoFactorPage } from "./features/account/AccountTwoFactorPage";
 import { AnnouncementsPage } from "./features/announcements/AnnouncementsPage";
+import { CalendarPage } from "./features/calendar/CalendarPage";
+import { StaffNewsPage } from "./features/staff-news/StaffNewsPage";
+import { SummonsPage } from "./features/summons/SummonsPage";
 import { NotificationsPage } from "./features/notifications/NotificationsPage";
 import { PlatformNewsPage } from "./features/platform-news/PlatformNewsPage";
 import { AuditPage } from "./features/audit/AuditPage";
@@ -67,6 +70,9 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   devices: <DevicesPage />,
   audit: <AuditPage />,
   announcements: <AnnouncementsPage />,
+  staffNews: <StaffNewsPage />,
+  calendar: <CalendarPage />,
+  summons: <SummonsPage />,
   parentRequests: <ParentRequestsPage />,
 };
 

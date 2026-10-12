@@ -5,17 +5,19 @@ from django.utils.translation import gettext_lazy as _
 from apps.core.models import BaseModel, TenantModel
 from apps.notifications.attachments import attachment_path
 from apps.schools.models import ClassGroup, School
-from apps.students.models import Family
+from apps.students.models import Family, Student
 
 
 class Announcement(TenantModel):
-    """Annonce de l'école aux familles (H4), lue dans le portail. Publiée dès sa création et
-    jamais modifiée ensuite (des familles l'ont peut-être lue) : on l'archive et on en publie une
-    autre. Une annonce archivée ne s'affiche plus dans le portail."""
+    """Annonce de l'école aux familles (H4), lue dans le portail, ou à son personnel (5.7), lue
+    dans la Gestion. Publiée dès sa création et jamais modifiée ensuite (elle a peut-être été
+    lue) : on l'archive et on en publie une autre. Une annonce archivée ne s'affiche plus."""
 
     class Audience(models.TextChoices):
         ALL_FAMILIES = "all_families", _("All families")
         CLASS_GROUPS = "class_groups", _("Some classes")
+        # Tout le personnel de l'école ; jamais montrée dans le portail (5.7).
+        STAFF = "staff", _("Staff")
 
     title = models.CharField(_("title"), max_length=120)
     body = models.TextField(_("message"), max_length=4000)
@@ -67,6 +69,90 @@ class AnnouncementRead(TenantModel):
                 fields=["announcement", "family"], name="announcement_read_once"
             )
         ]
+
+
+class SchoolEvent(TenantModel):
+    """Événement du calendrier de l'école (5.7) : congé, examens, réunion de parents, activité.
+    Lu par tout le personnel dans la Gestion et, s'il est pour tous, par les familles dans le
+    portail. Une journée : `ends_on` = `starts_on`. Corrigeable et supprimable (ce n'est ni de
+    l'argent ni une note)."""
+
+    class Kind(models.TextChoices):
+        HOLIDAY = "holiday", _("Holiday")
+        EXAM = "exam", _("Exams")
+        MEETING = "meeting", _("Meeting")
+        ACTIVITY = "activity", _("Activity")
+        OTHER = "other", _("Other")
+
+    class Audience(models.TextChoices):
+        EVERYONE = "everyone", _("Families and staff")
+        STAFF = "staff", _("Staff only")
+
+    title = models.CharField(_("title"), max_length=120)
+    description = models.TextField(_("details"), max_length=1000, blank=True)
+    kind = models.CharField(_("kind"), max_length=10, choices=Kind.choices, default=Kind.OTHER)
+    audience = models.CharField(
+        _("shown to"), max_length=10, choices=Audience.choices, default=Audience.EVERYONE
+    )
+    starts_on = models.DateField(_("start"))
+    ends_on = models.DateField(_("end"))
+    # Heure de début (réunion à 9 h) ; vide : toute la journée.
+    start_time = models.TimeField(_("time"), null=True, blank=True)
+
+    class Meta:
+        ordering = ["starts_on", "start_time", "id"]
+        verbose_name = _("calendar event")
+        verbose_name_plural = _("calendar events")
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(starts_on__lte=models.F("ends_on")),
+                name="school_event_starts_first",
+            )
+        ]
+        indexes = [models.Index(fields=["school", "ends_on"], name="school_event_school_end")]
+
+    def __str__(self) -> str:
+        return self.title
+
+
+class Summons(TenantModel):
+    """Convocation des parents d'un élève (5.7) : motif, jour et heure, personne à voir. Lettre
+    PDF à remettre à l'élève ; le parent la voit aussi dans le portail (`seen_at`). Jamais
+    modifiée (elle est peut-être imprimée ou lue) : on l'annule et on en fait une autre."""
+
+    # Part avec l'élève : seule l'annulation d'un import (D6) efface un élève, et sa convocation
+    # ne doit pas la bloquer (le journal d'audit, lui, la garde).
+    student = models.ForeignKey(
+        Student, on_delete=models.CASCADE, related_name="summons", verbose_name=_("student")
+    )
+    # Classe de l'élève le jour de la convocation (« 3e Électricité A »), telle qu'imprimée.
+    class_name = models.CharField(_("class"), max_length=120)
+    reason = models.TextField(_("reason"), max_length=500)
+    meeting_at = models.DateTimeField(_("date and time"))
+    # Personne ou bureau où se présenter : « Préfet des études », « Direction ».
+    meet_with = models.CharField(_("person to see"), max_length=120)
+    seen_at = models.DateTimeField(_("seen by the parent at"), null=True, blank=True)
+    cancelled_at = models.DateTimeField(_("cancelled at"), null=True, blank=True)
+    cancelled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("cancelled by"),
+    )
+
+    class Meta:
+        ordering = ["-meeting_at", "-id"]
+        verbose_name = _("summons")
+        verbose_name_plural = _("summonses")
+        indexes = [
+            models.Index(fields=["school", "-meeting_at"], name="summons_school_date"),
+            models.Index(fields=["student", "-meeting_at"], name="summons_student_date"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.student} — {self.meeting_at:%d/%m/%Y}"
 
 
 class PlatformAnnouncement(BaseModel):
@@ -155,6 +241,9 @@ class Notification(TenantModel):
         PAYMENT_DUE = "payment_due", _("Payment due soon")
         PAYMENT_OVERDUE = "payment_overdue", _("Late payment")
         REGISTER_OPEN = "register_open", _("Register still open")
+        # Communication (5.7) : annonce de l'école à son personnel, convocation au parent.
+        STAFF_ANNOUNCEMENT = "staff_announcement", _("Announcement to the staff")
+        SUMMONS = "summons", _("Summons")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

@@ -1,8 +1,7 @@
 import { useTranslation } from "@mwangaza/i18n";
 import type { ReactNode } from "react";
 
-import type { MenuItem } from "../../lib/menu";
-import { can } from "../../lib/permissions";
+import { canOpen, type MenuItem } from "../../lib/menu";
 import { useCurrentMe } from "../../lib/queries";
 import { ComingSoon, Forbidden } from "../status/StatusPages";
 
@@ -13,6 +12,6 @@ export function MenuScreen({ item, children }: { item: MenuItem; children?: Reac
   const { t } = useTranslation();
   const me = useCurrentMe();
   const page = t(`shell.menu.${item.key}`);
-  if (!can(me, item.permissions)) return <Forbidden page={page} />;
+  if (!canOpen(me, item)) return <Forbidden page={page} />;
   return children ?? <ComingSoon page={page} />;
 }
