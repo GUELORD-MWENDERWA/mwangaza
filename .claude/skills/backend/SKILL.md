@@ -45,6 +45,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
   - action du super-admin sur la plateforme, hors de toute école (console : identité, écoles, comptes, appareils ; écran « Journal » de la console) : `audit.record_platform(PlatformAction.X, objet, actor=…, before=…, after=…)` → `PlatformAuditLog` (journal de la plateforme, mêmes règles) ; identité de la plateforme : `apps.core.services.update_platform`.
 - Entité descendue sur les appareils (élèves, classes, frais, échéances, soldes) : écrire une ligne `ChangeLog` (voir skill `hors-ligne`).
 - Entité créable hors-ligne : accepter l'UUID fourni par le client, opération idempotente par `op_id`.
+- Prévenir quelqu'un d'un événement (5.6.1) : une fonction dans `notifications/events.py`, appelée par le service **dans sa transaction** (pas de signal) ; elle choisit les destinataires (compte du portail de la famille, ou personnel qui a le droit lié à la sorte dans `push.STAFF_KINDS`, jamais l'auteur), écrit le texte dans la langue de chacun (`_send`) et laisse `push.notify` envoyer après validation. Nouvelle sorte : `Notification.Kind` (migration), `push.PREFERENCE_KINDS`, libellés `notifications.kinds.*` et `kindHelp.*` (fr, en), icône dans `KIND_ICONS` (Gestion), `make api`, `make messages`.
 
 ## Endpoint
 

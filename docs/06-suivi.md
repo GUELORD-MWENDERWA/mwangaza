@@ -8,8 +8,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 finie (recette du 2026-10-12), en attente de la mise en ligne ; la V1.1 reprend |
 | Lot | V1.0 (mise en ligne), puis V1.1 |
-| Tâche en cours | **5.6.1** (notifications — événements immédiats), commencée le 2026-10-12 ; 5.6 découpée en 5.6.1 et 5.6.2 |
-| Prochaine tâche | 5.6.2 (notifications à heure fixe, relances) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
+| Tâche en cours | aucune — 5.6.1 terminée (PR ouverte) |
+| Prochaine tâche | 5.6.2 (notifications à heure fixe : échéance proche, retard, caisse non clôturée, relances réglées par l'école, purge) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
 | Issue GitHub | #136 pour 5.6 (fermée par la PR de la 5.6.2) ; #186 pour 4.23 |
 | Branche | `tache/5.6.1-notifications-evenements` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-12 |
@@ -25,7 +25,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2 et 4.23, avec la mise en ligne) | 16 | 19 |
 | Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 14 | 14 |
 | **V1.0** | **64** | **67** |
-| V1.1 — plateforme, notifications, communication | 9 | 11 |
+| V1.1 — plateforme, notifications, communication | 10 | 12 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
 | V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
@@ -56,6 +56,14 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-12 — Tâche 5.6.1 : notifications des événements immédiats
+
+- Découpage : 5.6 → 5.6.1 (ce qui part au moment de l'action) et 5.6.2 (envois à heure fixe, qui demandent un planificateur, un écran de réglages des relances et une purge).
+- Fait : `notifications/events.py`, appelé par l'encaissement, la publication d'une annonce, la clôture et la demande d'annulation — parent : « Paiement reçu » (ouvre la page de l'enfant et son reçu) et « Annonces de l'école » ; personnel : « Annulation à valider » (ceux qui valident ; dit le dépassement du seuil du jour) et « Écart de caisse » (ceux qui lisent les rapports, au-delà du seuil de l'école). Texte dans la langue du destinataire ; envoi sur l'écran par paquets de 200. Préférences : bloc « Que recevoir sur l'écran » dans le Portail ; dans la Gestion, seulement les sortes que les droits du compte font recevoir dans l'école. `make demo` : notifications du parent fictif et annulations en attente. Maquettes `portail/notifications` et `gestion/notifications` mises à jour ; capture à 390 px conforme.
+- Tests : 5 serveur (l'autre école ne reçoit rien, destinataires selon les droits, seuils, rejeu sans doublon, portail suspendu, préférences selon les droits), 1 écran étendu (couper une sorte dans le Portail) ; modules touchés verts.
+- Retiré (regard senior) : « annonce au personnel » (l'annonce de l'école au personnel n'existe qu'en 5.7) ; ouverture directe du PDF du reçu (la page de l'enfant montre aussi le solde).
+- Suite : 5.6.2.
 
 ### 2026-10-12 — Tâche 5.5.2 : notifications dans le Portail
 
