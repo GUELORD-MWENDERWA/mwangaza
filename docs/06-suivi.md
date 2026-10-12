@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 finie (recette du 2026-10-12), en attente de la mise en ligne ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`, guide de présentation `docs/guide/presentation-v1.1.pdf`) |
 | Lot | V1.0 (mise en ligne), puis V1.2 |
-| Tâche en cours | aucune — 5.7 et guide de présentation fusionnés ; correction du message d'un refus du serveur (hors plan, PR ouverte) |
+| Tâche en cours | aucune — corrections après l'essai de l'utilisateur sur ses appareils (tableaux, version affichée, restes « V1.1 » ; hors plan, PR ouverte) |
 | Prochaine tâche | 6.1 (V1.2 — carte de l'élève et du personnel) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
 | Issue GitHub | #41 pour 6.1 ; #186 pour 4.23 |
-| Branche | `fix/message-refus-serveur` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `fix/tableaux-version` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-12 |
 
 ## Avancement
@@ -56,6 +56,14 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-12 — Corrections après l'essai sur plusieurs appareils (hors plan)
+
+- Constats de l'utilisateur : « Version 1.0 » encore affichée, données décalées dans les tableaux, éléments qu'on ne peut pas cliquer.
+- Fait : pied du menu en **1.1.0** (`apps/gestion/package.json`, que `make guide` lit maintenant : un seul endroit à changer par version) ; **titres des colonnes de montants alignés à droite** comme leurs valeurs (le composant `Table` écrasait le `text-right` de 40 titres) ; Impayés : filtres en grille (ils prenaient chacun toute la largeur et repoussaient le tableau sous l'écran), bouton grisé « Envoyer une relance · V1.1 » retiré ; fiche élève : textes « avec la caisse » et « avec la V1.2 » corrigés. Capture des impayés reprise, guides réimprimés.
+- Vérification : contrôle automatique des 19 écrans de la Gestion (titre et valeur de chaque colonne, éléments recouverts) en 1366 px et 390 px, puis capture des impayés. Aucun élément recouvert trouvé.
+- Décision (à valider) : pas de relance manuelle depuis les impayés — les relances sont automatiques depuis 5.6.2 (paramètres de l'école) ; par SMS : 9.4.
+- Reste à savoir : sur téléphone, les tableaux larges défilent de côté (élèves, impayés, clôtures, journal, comptes) ; à voir avec l'utilisateur si c'est ce qu'il appelle « on ne peut pas cliquer ».
 
 ### 2026-10-12 — Guide de présentation (demande de l'utilisateur, hors plan)
 

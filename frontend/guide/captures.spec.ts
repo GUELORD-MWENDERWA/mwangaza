@@ -6,8 +6,13 @@ import { allowCodeAgain, manage, unpaidStudent } from "../e2e/django";
 import { enterCode, ITIG, PASSWORD, skipGuide } from "../e2e/helpers";
 
 // Version du guide et nom de la plateforme, écrits dans la page (`data-guide`) et dans le nom du
-// PDF. Le nom viendra des paramètres de la plateforme (5.1) ; ici seulement, pas dans le texte.
-const VERSION = "1.1";
+// PDF. La version est celle de la Gestion (`apps/gestion/package.json`, affichée au pied de son
+// menu) : un seul endroit à changer à la fin d'une version. Le nom vient des paramètres de la
+// plateforme (5.1) ; ici seulement, pas dans le texte.
+const { version: appVersion } = JSON.parse(
+  readFileSync(new URL("../apps/gestion/package.json", import.meta.url), "utf8"),
+) as { version: string };
+const VERSION = appVersion.split(".").slice(0, 2).join(".");
 
 const CAPTURES = new URL("captures/", import.meta.url).pathname;
 // Deux documents, mêmes captures : le guide de la version (pour les écoles) et le guide de

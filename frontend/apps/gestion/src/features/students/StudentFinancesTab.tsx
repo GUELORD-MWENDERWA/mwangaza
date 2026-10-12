@@ -284,7 +284,6 @@ export function StudentFinancesTab({
             </tbody>
           </Table>
         )}
-        <CardContent className="text-sm text-ink-3">{t("students.finances.later")}</CardContent>
       </Card>
       <StudentPriorPayments
         enrollment={can(me, ["finance.view_reports"]) ? enrollment.id : undefined}
