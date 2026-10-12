@@ -21,6 +21,7 @@ from django.utils import formats, timezone, translation
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
+from apps.accounts.models import User
 from apps.core.money import Currency, format_amount
 from apps.core.tenancy import use_school
 from apps.finance import services as finance
@@ -30,7 +31,7 @@ from apps.notifications.models import Notification, ScheduledRun
 from apps.portal.children import fee_label
 from apps.schools import alerts
 from apps.schools.models import School
-from apps.students.models import Enrollment, Student
+from apps.students.models import Enrollment
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +47,8 @@ def tick(now: datetime | None = None, *, force: bool = False) -> dict[str, int]:
     """Un passage : notifications créées par code d'école. Deux requêtes quand rien n'est à
     faire. `force` : sans attendre l'heure (`make relances`, pour un essai)."""
     now = now or timezone.now()
+    # Tâche de fond, sans école courante : les marques de toutes les écoles en une requête, puis
+    # chaque école est servie dans la sienne (`run`).
     done = set(
         ScheduledRun.all_schools.filter(day__gte=now.date() - timedelta(days=1)).values_list(
             "school_id", "job", "day"
@@ -157,31 +160,27 @@ def _reminders(school: School, day: date) -> int:
             elif charge.state == finance.UPCOMING and charge.due_on == due_on:
                 soon[parent].append(charge)
 
-    drafts = []
-    for kind, by_parent, text in (
-        (Kind.PAYMENT_DUE, soon, _due_text),
-        (Kind.PAYMENT_OVERDUE, late, _late_text),
-    ):
-        for parent, items in by_parent.items():
-            children: dict[object, Student] = {
-                charge.enrollment_id: students[charge.enrollment_id] for charge in items
-            }
-            names = ", ".join(str(student) for student in children.values())
-            # Un seul enfant : sa page (solde et reçus) ; plusieurs : l'accueil du portail.
-            [child, *others] = children.values()
-            with translation.override(parent.language):
-                title, body = text(items, names)
-            drafts.append(
-                push.draft(
-                    parent,
-                    app=App.PORTAIL,
-                    kind=kind,
-                    title=title,
-                    body=body,
-                    url="/" if others else f"/children/{child.pk}",
-                )
-            )
+    drafts = [
+        reminder(kind, parent, items, students)
+        for kind, by_parent in ((Kind.PAYMENT_DUE, soon), (Kind.PAYMENT_OVERDUE, late))
+        for parent, items in by_parent.items()
+    ]
     return len(push.create(school, drafts))
+
+
+def reminder(kind: str, parent: User, charges: list[StudentCharge], students: dict) -> Notification:
+    """Relance d'un parent, pas encore enregistrée : tous ses enfants concernés réunis
+    (`students` : l'élève de chaque inscription), dans sa langue. Un seul enfant : elle ouvre sa
+    page (solde et reçus) ; plusieurs : l'accueil du portail."""
+    children = {charge.enrollment_id: students[charge.enrollment_id] for charge in charges}
+    [child, *others] = children.values()
+    with translation.override(parent.language):
+        title, body = TEXTS[kind](charges, ", ".join(str(student) for student in children.values()))
+    url = "/" if others else f"/children/{child.pk}"
+    return push.draft(parent, app=App.PORTAIL, kind=kind, title=title, body=body, url=url)
+
+
+TEXTS = {Kind.PAYMENT_DUE: _due_text, Kind.PAYMENT_OVERDUE: _late_text}
 
 
 # Alerte au personnel

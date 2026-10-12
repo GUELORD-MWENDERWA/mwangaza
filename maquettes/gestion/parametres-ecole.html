@@ -51,8 +51,14 @@
    <div><span>Annulations par caissier et par jour</span><span class="inp" style="min-height:32px;padding:4px 8px;width:60px;justify-content:flex-end">3</span></div>
    <div><span>Caisse non clôturée à</span><span class="inp" style="min-height:32px;padding:4px 8px;width:80px">18:00</span></div>
   </div></div>
+  <div class="card"><div class="hd"><h2>Relances aux parents</h2></div><div class="bd list small">
+   <div><div><b>Envoyer les relances</b><br><span class="muted">À activer quand les paiements déjà reçus sont tous saisis</span></div><span class="toggle on"></span></div>
+   <div><span>Échéance proche : jours avant la date limite</span><span class="inp" style="min-height:32px;padding:4px 8px;width:60px;justify-content:flex-end">3</span></div>
+   <div><span>Retard : un rappel tous les (jours)</span><span class="inp" style="min-height:32px;padding:4px 8px;width:60px;justify-content:flex-end">7</span></div>
+  </div></div>
  </div>
 </div>
 <div class="note"><b>M5 · A1, cahier § 8.1 (tâches 1.5, 1.7, 3.2) :</b> permission <code>school.configure</code> ; chaque changement est inscrit dans l'audit (avant / après). Le code (sous-domaine) ne change que par le super-admin. Une devise ne peut pas être désactivée si un frais ou un paiement l'utilise. Nom officiel, logos et lignes d'en-tête alimentent les reçus, la fiche d'inscription, les listes et, plus tard, les bulletins. Seuils d'alerte : valeurs par défaut ci-dessus (<code>School.settings</code>). Onglets « Reçus et documents », « Devises » et « Alertes » : mêmes cartes, en plein écran.</div>
+<div class="note"><b>5.6.2 · Relances aux parents :</b> notifications envoyées le matin (08:00, heure de l'école) aux familles qui ont un compte du portail — « Échéance proche » tant de jours avant la date limite pour ce qui reste dû, « Retard de paiement » au plus une fois par intervalle et par parent ; une notification par parent, tous ses enfants réunis, montants par devise. <b>Désactivées par défaut</b> : de faux retards partiraient tant que les paiements d'avant ne sont pas saisis. « Caisse non clôturée à » envoie aussi, à cette heure, « Caisse encore ouverte » à ceux qui lisent les rapports.</div>
 <div class="note"><b>À obtenir de l'ITIG (I12) :</b> logo en haute qualité (vectoriel si possible) et version noir et blanc, nom officiel exact, cachet, en-tête utilisé aujourd'hui.</div>
 </main></div></div></body></html>

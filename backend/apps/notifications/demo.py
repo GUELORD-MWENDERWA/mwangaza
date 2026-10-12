@@ -14,6 +14,7 @@ from django.utils import timezone
 from apps.accounts.demo import PLATFORM_ADMIN_PHONE
 from apps.accounts.models import User
 from apps.core.tenancy import use_school
+from apps.finance import services as finance
 from apps.finance.models import CancellationRequest, Payment
 from apps.notifications import events, platform, push, scheduled, services
 from apps.notifications.models import (
@@ -26,7 +27,7 @@ from apps.notifications.models import (
 )
 from apps.schools.demo import DemoSpace
 from apps.schools.models import ClassGroup, School
-from apps.students.models import Family
+from apps.students.models import Enrollment, Family
 
 PUBLISHERS = {"itig": "+243000001001", "volcans": "+243000002001"}
 # Titre, message, jours depuis la publication, classes visées, archivée.
@@ -149,7 +150,8 @@ def create_demo_event_notifications(spaces: list[DemoSpace]) -> None:
     portail pour les parents, annulations en attente pour ceux qui les valident (sur une base
     neuve, `finance.demo` les a déjà demandées). Relances aux parents (5.6.2) : activées dans
     l'école, et celles du jour envoyées aux familles qui ont un compte (une fois par jour, comme
-    le planificateur). Non lues à chaque `make demo`."""
+    le planificateur) ; le compte du portail, à jour, reçoit dès maintenant le rappel de sa
+    prochaine échéance. Non lues à chaque `make demo`."""
     kind = Notification.Kind
     for space in spaces:
         school = space.school
@@ -157,6 +159,9 @@ def create_demo_event_notifications(spaces: list[DemoSpace]) -> None:
         school.save(update_fields=["settings"])
         scheduled.run(school, ScheduledRun.Job.REMINDERS, timezone.now())
         with use_school(space.school):
+            _remind_portal_account(school)
+            # Remise au départ : `make relances` signale de nouveau une caisse encore ouverte.
+            ScheduledRun.objects.filter(job=ScheduledRun.Job.OPEN_REGISTERS).delete()
             if not Notification.objects.filter(app=Notification.App.PORTAIL).exists():
                 _notify_parents()
             if not Notification.objects.filter(kind=kind.CANCELLATION_REQUEST).exists():
@@ -166,6 +171,38 @@ def create_demo_event_notifications(spaces: list[DemoSpace]) -> None:
                 for request in pending:
                     events.cancellation_requested(request)
             Notification.objects.exclude(kind=kind.PLATFORM_NEWS).update(read_at=None)
+
+
+def _portal_family() -> Family | None:
+    """Famille du compte de démonstration du portail (`portal.demo`), sinon la première reliée."""
+    return Family.objects.filter(primary_user__isnull=False).order_by("created_at", "id").first()
+
+
+def _remind_portal_account(school: School) -> None:
+    """« Échéance proche » de la prochaine échéance de la famille du portail, sans attendre les
+    jours choisis par l'école : la démonstration montre une relance dès le premier jour."""
+    kind, family = Notification.Kind.PAYMENT_DUE, _portal_family()
+    if family is None or Notification.objects.filter(user=family.primary_user, kind=kind).exists():
+        return
+    students = {
+        enrollment.pk: enrollment.student
+        for enrollment in Enrollment.objects.filter(
+            student__family=family,
+            academic_year__is_current=True,
+            status=Enrollment.Status.ACTIVE,
+        ).select_related("student")
+    }
+    upcoming = [
+        charge
+        for charges in finance.charges_by_enrollment(list(students), light=True).values()
+        for charge in charges
+        if charge.state == finance.UPCOMING
+    ]
+    if upcoming:
+        first = min(charge.due_on for charge in upcoming)
+        charges = [charge for charge in upcoming if charge.due_on == first]
+        reminder = scheduled.reminder(kind, family.primary_user, charges, students)
+        push.create(school, [reminder])
 
 
 def _notify_parents() -> None:
@@ -180,7 +217,7 @@ def _notify_parents() -> None:
         Notification.objects.filter(kind=kind.ANNOUNCEMENT, title=announcement.title).update(
             created_at=announcement.published_at
         )
-    family = Family.objects.filter(primary_user__isnull=False).order_by("created_at", "id").first()
+    family = _portal_family()
     payment = (
         Payment.objects.filter(
             enrollment__student__family=family,

@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 finie (recette du 2026-10-12), en attente de la mise en ligne ; la V1.1 reprend |
 | Lot | V1.0 (mise en ligne), puis V1.1 |
-| Tâche en cours | aucune — 5.6.1 terminée (PR ouverte) |
-| Prochaine tâche | 5.6.2 (notifications à heure fixe : échéance proche, retard, caisse non clôturée, relances réglées par l'école, purge) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #136 pour 5.6 (fermée par la PR de la 5.6.2) ; #186 pour 4.23 |
-| Branche | `tache/5.6.1-notifications-evenements` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 5.6.2 terminée (PR ouverte) |
+| Prochaine tâche | 5.7 (communication : annonces au personnel, messages à une classe, calendrier, circulaires, convocations — à découper avant de coder) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #44 pour 5.7 ; #186 pour 4.23 |
+| Branche | `tache/5.6.2-notifications-heure-fixe` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-12 |
 
 ## Avancement
@@ -25,7 +25,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2 et 4.23, avec la mise en ligne) | 16 | 19 |
 | Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 14 | 14 |
 | **V1.0** | **64** | **67** |
-| V1.1 — plateforme, notifications, communication | 10 | 12 |
+| V1.1 — plateforme, notifications, communication | 11 | 12 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
 | V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
@@ -56,6 +56,13 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-12 — Tâche 5.6.2 : notifications à heure fixe
+
+- Fait : planificateur (Celery beat **dans le worker**, un passage toutes les 15 minutes, purge chaque nuit) et `notifications/scheduled.py` — chaque école est servie une fois par jour et par sorte, à son heure et dans son fuseau (`ScheduledRun`). Parent : « Échéance proche » et « Retard de paiement » (une notification par parent, enfants réunis, montants par devise) ; directeur et comptable : « Caisse encore ouverte » à l'heure de clôture. Réglages de l'école : carte « Relances aux parents » des paramètres (activer, jours avant l'échéance, intervalle des rappels). Purge à 90 jours. `make relances` ; `make demo` : relances activées et envoyées, exemple chez le parent fictif.
+- Tests : 4 serveur (l'autre école ne reçoit ni ne déclenche rien, un seul envoi par jour et par intervalle, montants restants, caisse ouverte selon le droit et l'heure, purge), 1 réglages (fusion, journal), 1 écran étendu ; modules touchés verts.
+- Décisions (regard senior) : relances **désactivées par défaut** (de faux retards partiraient tant que les paiements d'avant ne sont pas saisis) ; pas de notification de retard par échéance (une seule, résumée) ; pas de conteneur ni de crontab en plus ; pas d'heure d'envoi réglable.
+- Suite : 5.7, à découper avant de coder.
 
 ### 2026-10-12 — Tâche 5.6.1 : notifications des événements immédiats
 

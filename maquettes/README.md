@@ -35,7 +35,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Tableau de bord directeur | `gestion/tableau-de-bord.html` | V1.0 | G3 | fournie — codé en 4.2 sans sélecteur de période ni export (hors G3) |
 | Mise en route d'une école neuve | `gestion/mise-en-route.html` | V1.0 | C4 | à valider — dessinée par Claude en 4.20.1 d'après `tableau-de-bord` ; codée en 4.20.1 (carte en haut du tableau de bord ; « Terminer la mise en route » dans le pied de la carte quand l'école peut encaisser) ; la même carte est aussi sur l'accueil d'après connexion (4.20.2, sans maquette propre) |
 | Menu sur téléphone et tablette | `gestion/menu-mobile.html` | V1.0 | § 9.4 · M7 | à valider |
-| Notifications : centre et réglages (cloche de la barre du haut) | `gestion/notifications.html` | V1.1 | 5.5 | dessinée par Claude en 5.5.1 d'après `console/annonces` et `mon-compte` (à valider) ; codée en 5.5.1 : `/app/notifications`, réglages sur la même page (pas dans « Mon compte »), aperçu du téléphone non reproduit (c'est le système qui l'affiche) ; 5.6.1 : alertes « Annulation à valider » et « Écart de caisse », offertes selon les droits |
+| Notifications : centre et réglages (cloche de la barre du haut) | `gestion/notifications.html` | V1.1 | 5.5 | dessinée par Claude en 5.5.1 d'après `console/annonces` et `mon-compte` (à valider) ; codée en 5.5.1 : `/app/notifications`, réglages sur la même page (pas dans « Mon compte »), aperçu du téléphone non reproduit (c'est le système qui l'affiche) ; 5.6.1 : alertes « Annulation à valider » et « Écart de caisse », offertes selon les droits ; 5.6.2 : « Caisse encore ouverte » |
 | Pages d'état et d'erreur (Gestion et Portail) | `gestion/pages-etat.html` | V1.0 | M8 | à valider |
 | Guide de première connexion (caissier, comptable) | `gestion/guide-premiere-connexion.html` | V1.0 | I3 · M20 | à valider — codé en 4.5.1 : « Guide du caissier » (pas de féminin fixe) ; 1re étape du comptable « Vérifiez le taux de change » (taux fixe pour l'année, `04`) ; élément absent (ex. montant avant le choix d'un élève) : carte en bas, sans assombrir ; croix = fermé jusqu'à la prochaine ouverture |
 | Liste des élèves | `gestion/eleves-liste.html` | V1.0 | D2 | fournie |
@@ -70,7 +70,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Export des impayés (PDF par classe, Excel) | `gestion/impayes-export.html` | V1.0 | G1 · M17 | à valider |
 | Annonces | `gestion/annonces.html` | V1.0 | H4 | fournie |
 | Demandes des parents (changements de coordonnées) | `gestion/changements-coordonnees.html` | V1.0 | H5 · M18 | à valider — codée en 4.4.5 : le secrétariat **applique** la demande (rien ne change sans lui, `02` H5 et `04` priment sur la note « déjà enregistré ») |
-| Paramètres de l'école | `gestion/parametres-ecole.html` | V1.0 | A1, § 8.1 · M5 | à valider |
+| Paramètres de l'école | `gestion/parametres-ecole.html` | V1.0 | A1, § 8.1 · M5 | à valider ; 5.6.2 : carte « Relances aux parents » dessinée par Claude d'après « Alertes au directeur » et codée |
 | Organisation scolaire | `gestion/organisation-scolaire.html` | V1.0 | C1–C3 | fournie — écart (4.13) : interrupteur « Attribuer un matricule automatiquement » en haut de la carte « Format du matricule » ; sur non, le modèle est grisé |
 | Comptes du personnel | `gestion/personnel-comptes.html` | V1.0 | B1–B3 · M3 | à valider |
 | Rôles et permissions | `gestion/roles-permissions.html` | V1.0 | B1–B2 | fournie |
@@ -101,7 +101,7 @@ Bulletins : structure et maxima repris des formulaires officiels trouvés en lig
 | Accueil — mes enfants (multi-écoles) | `portail/accueil.html` | V1.0 | H2 | fournie |
 | Paiements d'un enfant | `portail/enfant-paiements.html` | V1.0 | H3 | fournie |
 | Annonces | `portail/annonces.html` | V1.0 | H4 | fournie |
-| Notifications (cloche de l'en-tête) | `portail/notifications.html` | V1.1 | 5.5.2 | dessinée par Claude en 5.5.2 d'après `gestion/notifications` et `portail/annonces` (à valider) ; codée en 5.5.2 : `/notifications`. Écart : dans la barre du bas, « Annonces » prend le porte-voix (la cloche est celle des notifications) — les autres maquettes du portail montrent encore une cloche ; 5.6.1 : bloc « Que recevoir sur l'écran » en bas (paiement reçu, annonces de l'école) |
+| Notifications (cloche de l'en-tête) | `portail/notifications.html` | V1.1 | 5.5.2 | dessinée par Claude en 5.5.2 d'après `gestion/notifications` et `portail/annonces` (à valider) ; codée en 5.5.2 : `/notifications`. Écart : dans la barre du bas, « Annonces » prend le porte-voix (la cloche est celle des notifications) — les autres maquettes du portail montrent encore une cloche ; 5.6.1 : bloc « Que recevoir sur l'écran » en bas (paiement reçu, annonces de l'école) ; 5.6.2 : « Échéance proche » et « Retard de paiement » |
 | Profil et coordonnées | `portail/profil.html` | V1.0 | H5 | fournie — codé en 4.4.5 avec le contact d'urgence à la place du « Téléphone secondaire » (pas de champ au modèle) |
 | Vérification publique d'un reçu (`/v/{id}`) | `portail/verification-recu.html` | V1.0 | F4 | fournie |
 | Scolarité d'un enfant | `portail/enfant-scolarite.html` | V1.4 | 8.8 | fournie |
