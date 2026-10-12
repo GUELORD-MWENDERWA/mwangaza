@@ -1,4 +1,4 @@
-import { mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
 
 import { expect, test, type Page } from "@playwright/test";
 
@@ -10,7 +10,14 @@ import { enterCode, ITIG, PASSWORD, skipGuide } from "../e2e/helpers";
 const VERSION = "1.1";
 
 const CAPTURES = new URL("captures/", import.meta.url).pathname;
-const PDF = new URL(`../../docs/guide/guide-v${VERSION}.pdf`, import.meta.url).pathname;
+// Deux documents, mêmes captures : le guide de la version (pour les écoles) et le guide de
+// présentation (pour la personne qui montre la plateforme : commandes, comptes, déroulé).
+const DOCUMENTS = [
+  { html: "guide.html", pdf: "guide", title: "guide de la version" },
+  { html: "presentation.html", pdf: "presentation", title: "guide de présentation, version" },
+];
+// Adresse de l'essai sur plusieurs appareils (`make reseau`), écrite dans le guide de présentation.
+const RESEAU_ENV = new URL("../../infra/reseau/reseau.env", import.meta.url).pathname;
 const PORTAL = "http://localhost:5174/";
 const CONSOLE = "http://admin.localhost:5175/";
 
@@ -191,6 +198,8 @@ test.describe("parent", () => {
     await page.getByLabel("Numéro de téléphone").fill("0002000001");
     await page.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
     await page.getByRole("button", { name: "Se connecter" }).click();
+    // Connexion finie avant la capture : sinon c'est l'écran de connexion qui est pris.
+    await page.waitForURL((url) => !url.pathname.includes("/login"));
     await page.waitForLoadState("networkidle");
     const skip = page.getByRole("button", { name: "Passer le guide" });
     if (await skip.isVisible()) await skip.click();
@@ -245,29 +254,33 @@ test("PDF", async ({ page, request }) => {
   const { name: platform } = (await (
     await request.get("http://localhost:8000/api/platform/")
   ).json()) as { name: string };
-  await page.goto(new URL("guide.html", import.meta.url).href);
   const today = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(new Date());
-  await page.evaluate(
-    (values) => {
-      for (const node of document.querySelectorAll<HTMLElement>("[data-guide]"))
-        node.textContent = values[node.dataset.guide as keyof typeof values];
-      document.title = `${values.platform} — guide de la version ${values.version}`;
-    },
-    { version: VERSION, platform, date: today },
-  );
-  await page.evaluate(() => document.fonts.ready);
-  // Toutes les captures présentes.
-  const missing = await page.$$eval("img", (images) =>
-    images.filter((image) => !image.naturalWidth).map((image) => image.getAttribute("src")),
-  );
-  expect(missing).toEqual([]);
-  await page.pdf({
-    path: PDF,
-    format: "A4",
-    printBackground: true,
-    displayHeaderFooter: true,
-    headerTemplate: "<span></span>",
-    footerTemplate: `<div style="width:100%;font-size:8px;color:#77818f;padding:0 14mm;display:flex;justify-content:space-between"><span>${platform} — guide de la version ${VERSION}</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`,
-    margin: { top: "14mm", bottom: "16mm", left: "14mm", right: "14mm" },
-  });
+  const env = existsSync(RESEAU_ENV) ? readFileSync(RESEAU_ENV, "utf8") : "";
+  const domain = /^MWANGAZA_DOMAIN=(\S+)/m.exec(env)?.[1] ?? "<ton-adresse>.duckdns.org";
+  for (const { html, pdf, title } of DOCUMENTS) {
+    await page.goto(new URL(html, import.meta.url).href);
+    await page.evaluate(
+      (values) => {
+        for (const node of document.querySelectorAll<HTMLElement>("[data-guide]"))
+          node.textContent = values[node.dataset.guide as keyof typeof values];
+        document.title = `${values.platform} — ${values.title} ${values.version}`;
+      },
+      { version: VERSION, platform, date: today, domain, title },
+    );
+    await page.evaluate(() => document.fonts.ready);
+    // Toutes les captures présentes.
+    const missing = await page.$$eval("img", (images) =>
+      images.filter((image) => !image.naturalWidth).map((image) => image.getAttribute("src")),
+    );
+    expect(missing).toEqual([]);
+    await page.pdf({
+      path: new URL(`../../docs/guide/${pdf}-v${VERSION}.pdf`, import.meta.url).pathname,
+      format: "A4",
+      printBackground: true,
+      displayHeaderFooter: true,
+      headerTemplate: "<span></span>",
+      footerTemplate: `<div style="width:100%;font-size:8px;color:#77818f;padding:0 14mm;display:flex;justify-content:space-between"><span>${platform} — ${title} ${VERSION}</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`,
+      margin: { top: "14mm", bottom: "16mm", left: "14mm", right: "14mm" },
+    });
+  }
 });

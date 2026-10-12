@@ -1,0 +1,631 @@
+<!doctype html>
+<!--
+  Guide de présentation : ce que la personne qui montre la plateforme à une école prépare, montre
+  et dit (commandes de l'essai sur plusieurs appareils, comptes fictifs, déroulé écran par écran,
+  questions de la fin). Imprimé en PDF par `make guide` avec le guide de la version, mêmes
+  captures et mêmes éléments `data-guide` (plus `domain` : l'adresse de l'essai).
+  À mettre à jour à la fin de chaque version (nouveaux écrans à montrer, commandes, comptes,
+  suite), puis `make guide`.
+-->
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Guide de présentation</title>
+    <link rel="stylesheet" href="guide.css" />
+  </head>
+  <body>
+    <div class="cover">
+      <div class="brand"><span class="lamp"></span><span data-guide="platform"></span></div>
+      <h1>Guide de présentation, version <span data-guide="version"></span></h1>
+      <div class="subtitle">Ce qu'il faut préparer, montrer et dire devant une école</div>
+      <ol class="contents">
+        <li>Avant la présentation</li>
+        <li>Adresses et comptes de test</li>
+        <li>Le déroulé en 20 minutes</li>
+        <li>Encaisser et remettre un reçu</li>
+        <li>Encaisser sans internet</li>
+        <li>Ce que voit la direction</li>
+        <li>Ce que voit le parent</li>
+        <li>Démarrer une école, convoquer un parent</li>
+        <li>Plusieurs écoles, une plateforme</li>
+        <li>À la fin : questions, suite, participation</li>
+      </ol>
+      <div class="foot">
+        Pour la personne qui présente, pas pour les écoles (elles reçoivent le guide de la version).
+        Mis à jour le <span data-guide="date"></span>. Tout ce qui est montré est fictif : écoles,
+        élèves, familles et montants sont inventés.
+      </div>
+    </div>
+
+    <section>
+      <h1>1. Avant la présentation</h1>
+      <p class="lead">
+        Tu montres l'application construite, sur ton ordinateur et sur les téléphones de la salle,
+        avec l'essai sur plusieurs appareils. Ton ordinateur est le serveur.
+      </p>
+      <h2>Les commandes</h2>
+      <table>
+        <tr>
+          <th>Commande</th>
+          <th>Ce qu'elle fait</th>
+        </tr>
+        <tr>
+          <td><code>make reseau</code></td>
+          <td>
+            <strong>Démarrer.</strong> Construit l'application et affiche les adresses (5 à 15
+            minutes la première fois, puis une minute).
+          </td>
+        </tr>
+        <tr>
+          <td><code>make reseau-ip</code></td>
+          <td>
+            <strong>Réseau changé</strong> (autre wifi, autre partage de connexion) : remet
+            l'adresse de ta machine. Elle ne démarre rien.
+          </td>
+        </tr>
+        <tr>
+          <td><code>make reseau-demo</code></td>
+          <td>
+            <strong>Remettre les données fictives comme au départ</strong> : après une répétition,
+            et juste avant la présentation.
+          </td>
+        </tr>
+        <tr>
+          <td><code>make reseau-superuser</code></td>
+          <td>
+            Ton compte super-admin, pour la console. Une seule fois ; à refaire après une base
+            neuve.
+          </td>
+        </tr>
+        <tr>
+          <td><code>make reseau-stop</code></td>
+          <td><strong>Arrêter.</strong> Données et certificat sont gardés.</td>
+        </tr>
+      </table>
+      <h2>La veille</h2>
+      <ol class="steps">
+        <li>
+          Prendre la dernière version : <code>git switch main &amp;&amp; git pull</code>, puis
+          <code>make reseau</code>.
+        </li>
+        <li>
+          Allumer le <strong>partage de connexion</strong> de ton téléphone, avec des données
+          mobiles : c'est le réseau de la salle. Y relier ton ordinateur, puis
+          <code>make reseau-ip</code>.
+        </li>
+        <li>
+          Jouer tout le déroulé une fois, avec deux ou trois téléphones reliés au même partage de
+          connexion.
+        </li>
+      </ol>
+      <h2>Le jour même, dans cet ordre</h2>
+      <ol class="steps">
+        <li>
+          Partage de connexion allumé, ordinateur relié et branché au courant :
+          <code>make reseau</code>, <code>make reseau-ip</code>, puis <code>make reseau-demo</code>.
+        </li>
+        <li>
+          Sur le téléphone ou la tablette qui servira de <strong>caisse</strong> : se connecter en
+          caissière en laissant « Se souvenir de cet appareil » coché, et ouvrir la caisse. Sans
+          cela, la caisse ne marche pas hors ligne.
+        </li>
+        <li>
+          Sur ton ordinateur : ouvrir la page d'accueil (les QR codes) et te connecter en directeur
+          dans un autre onglet.
+        </li>
+      </ol>
+      <div class="note warn">
+        <strong>Ne coupe jamais le wifi de ton ordinateur</strong>
+        Il sert tout le monde : sans lui, plus personne n'ouvre rien. Empêche aussi sa mise en
+        veille. Pour montrer le hors-ligne, mets en mode avion le téléphone de la caisse, lui seul.
+      </div>
+      <div class="note">
+        <strong>Sans ta machine</strong>
+        Pour qu'une école continue l'essai chez elle, il faut le serveur de démonstration en ligne :
+        <code>make deploy</code>, puis <code>make deploy-demo</code>, qui affiche le mot de passe
+        des comptes fictifs de ce serveur.
+      </div>
+    </section>
+
+    <section>
+      <h1>2. Adresses et comptes de test</h1>
+      <p class="lead">
+        La page d'accueil montre un QR code par application : les téléphones les scannent avec leur
+        appareil photo.
+      </p>
+      <table>
+        <tr>
+          <th>Application</th>
+          <th>Adresse</th>
+        </tr>
+        <tr>
+          <td>Page d'accueil (QR codes)</td>
+          <td>https://www.<span data-guide="domain"></span>/</td>
+        </tr>
+        <tr>
+          <td>Gestion, première école</td>
+          <td>https://itig.<span data-guide="domain"></span>/app/</td>
+        </tr>
+        <tr>
+          <td>Gestion, seconde école</td>
+          <td>https://volcans.<span data-guide="domain"></span>/app/</td>
+        </tr>
+        <tr>
+          <td>Portail des parents</td>
+          <td>https://parents.<span data-guide="domain"></span>/</td>
+        </tr>
+        <tr>
+          <td>Console de la plateforme</td>
+          <td>https://admin.<span data-guide="domain"></span>/</td>
+        </tr>
+      </table>
+      <h2>Comptes fictifs</h2>
+      <p>
+        Mot de passe de tous ces comptes : <code>mwangaza-demo</code>. Aucun code à 6 chiffres n'est
+        demandé dans un espace de démonstration.
+      </p>
+      <table>
+        <tr>
+          <th>Rôle</th>
+          <th>Numéro</th>
+          <th>Où</th>
+        </tr>
+        <tr>
+          <td>Directeur</td>
+          <td><code>0000001001</code></td>
+          <td>Gestion, première école</td>
+        </tr>
+        <tr>
+          <td>Directeur des études</td>
+          <td><code>0000001002</code></td>
+          <td>Gestion, première école</td>
+        </tr>
+        <tr>
+          <td>Directeur de discipline</td>
+          <td><code>0000001003</code></td>
+          <td>Gestion, première école</td>
+        </tr>
+        <tr>
+          <td>Comptable</td>
+          <td><code>0000001004</code></td>
+          <td>Gestion, première école</td>
+        </tr>
+        <tr>
+          <td>Caissière</td>
+          <td><code>0000001005</code></td>
+          <td>Gestion, première école</td>
+        </tr>
+        <tr>
+          <td>Secrétaire</td>
+          <td><code>0000001006</code></td>
+          <td>Gestion, première école</td>
+        </tr>
+        <tr>
+          <td>Promoteur</td>
+          <td><code>0000001007</code></td>
+          <td>Gestion, première école</td>
+        </tr>
+        <tr>
+          <td>Enseignant</td>
+          <td><code>0000001008</code></td>
+          <td>Gestion, les deux écoles</td>
+        </tr>
+        <tr>
+          <td>Directeur, comptable, caissière</td>
+          <td><code>0000002001</code>, <code>0000002004</code>, <code>0000002005</code></td>
+          <td>Gestion, seconde école</td>
+        </tr>
+        <tr>
+          <td>Parent</td>
+          <td><code>0002000001</code></td>
+          <td>Portail des parents</td>
+        </tr>
+        <tr>
+          <td>Super-admin</td>
+          <td>ton numéro</td>
+          <td>Console (<code>make reseau-superuser</code>)</td>
+        </tr>
+      </table>
+      <div class="note">
+        <strong>Plusieurs personnes, un même compte</strong>
+        Toute la salle peut entrer en même temps avec le compte du parent ou celui du directeur. Ne
+        saisis jamais un vrai numéro ni un vrai nom dans ces deux écoles : elles sont remises à
+        zéro.
+      </div>
+    </section>
+
+    <section>
+      <h1>3. Le déroulé en 20 minutes</h1>
+      <p class="lead">
+        L'argent d'abord : c'est ce qui décide une école. Chaque étape a sa page dans ce guide.
+      </p>
+      <table>
+        <tr>
+          <th>Étape</th>
+          <th>Durée</th>
+          <th>Compte</th>
+          <th>Appareil</th>
+          <th>Ce qu'ils doivent retenir</th>
+        </tr>
+        <tr>
+          <td>Le problème</td>
+          <td>1 min</td>
+          <td>aucun</td>
+          <td>sans écran</td>
+          <td>Tu connais leur quotidien</td>
+        </tr>
+        <tr>
+          <td>Encaisser, reçu</td>
+          <td>4 min</td>
+          <td>caissière</td>
+          <td>téléphone de la caisse</td>
+          <td>Dollars ou francs, reçu numéroté tout de suite</td>
+        </tr>
+        <tr>
+          <td>Sans internet</td>
+          <td>3 min</td>
+          <td>caissière</td>
+          <td>le même, en mode avion</td>
+          <td>La caisse ne s'arrête pas, rien n'est perdu</td>
+        </tr>
+        <tr>
+          <td>La direction</td>
+          <td>4 min</td>
+          <td>directeur</td>
+          <td>ton ordinateur</td>
+          <td>Chaque soir : ce qui est entré, qui doit quoi</td>
+        </tr>
+        <tr>
+          <td>Le parent</td>
+          <td>3 min</td>
+          <td>parent</td>
+          <td>leurs téléphones</td>
+          <td>Le parent suit tout sans se déplacer</td>
+        </tr>
+        <tr>
+          <td>Démarrer, convoquer</td>
+          <td>3 min</td>
+          <td>secrétaire, discipline</td>
+          <td>ton ordinateur</td>
+          <td>Une école démarre avec sa liste Excel</td>
+        </tr>
+        <tr>
+          <td>Plusieurs écoles</td>
+          <td>2 min</td>
+          <td>seconde école, toi</td>
+          <td>ton ordinateur</td>
+          <td>Chaque école ne voit que ses données</td>
+        </tr>
+        <tr>
+          <td>La suite, leur avis</td>
+          <td>le reste</td>
+          <td>aucun</td>
+          <td>sans écran</td>
+          <td>Ils peuvent essayer et peser sur la suite</td>
+        </tr>
+      </table>
+      <h2>Le problème, en une minute</h2>
+      <ul>
+        <li>Les reçus au carnet se perdent, se recopient et se discutent.</li>
+        <li>On découvre les impayés à la fin du trimestre, trop tard pour relancer.</li>
+        <li>Le courant et l'internet coupent : un logiciel en ligne s'arrête avec eux.</li>
+        <li>Le parent doit venir à l'école pour savoir ce qu'il doit.</li>
+      </ul>
+      <div class="note">
+        <strong>Trois règles pendant la démonstration</strong>
+        Laisse-les tenir les téléphones. Montre lentement, un écran à la fois. Quand une fonction
+        n'existe pas encore, dis-le et dis dans quelle version elle arrive (section 10).
+      </div>
+    </section>
+
+    <section>
+      <span class="who">Caissière 0000001005 · téléphone ou tablette de la caisse</span>
+      <h1>4. Encaisser et remettre un reçu</h1>
+      <ol class="steps">
+        <li>Menu <strong>Caisse</strong> : la caisse est déjà ouverte (préparation du matin).</li>
+        <li>
+          <strong>Chercher un élève</strong> par son nom : ce qu'il doit s'affiche par frais et par
+          tranche, en dollars et en francs.
+        </li>
+        <li>
+          <strong>Saisir un montant partiel</strong>, par exemple la moitié d'une tranche : il se
+          répartit sur les échéances les plus anciennes.
+        </li>
+        <li>
+          <strong>Valider</strong> : le reçu sort tout de suite, avec son numéro, le montant en
+          lettres, le reste à payer et un QR code de vérification.
+        </li>
+      </ol>
+      <div class="note">
+        <strong>À dire</strong>
+        « Un paiement enregistré ne se modifie plus et ne s'efface plus. Une erreur se corrige par
+        une annulation, demandée par la caissière avec un motif et validée par une autre personne. »
+        Le mot « SPÉCIMEN » barre le reçu parce que l'école est fictive.
+      </div>
+      <div class="side">
+        <figure>
+          <img src="captures/caisse-encaissement.jpg" alt="" />
+          <figcaption>Encaisser : ce que doit l'élève, montant reçu, répartition.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/caisse-recu.jpg" alt="" />
+          <figcaption>Le reçu, au format choisi par l'école.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <span class="who">Caissière 0000001005 · le même appareil, en mode avion</span>
+      <h1>5. Encaisser sans internet</h1>
+      <p class="lead">Le moment fort : fais-le toi-même, lentement, en disant ce que tu fais.</p>
+      <ol class="steps">
+        <li>
+          Mettre <strong>ce téléphone</strong> en mode avion : la mention « Hors ligne » s'affiche.
+        </li>
+        <li>
+          <strong>Encaisser un autre élève</strong> : le reçu sort comme d'habitude, avec son
+          numéro.
+        </li>
+        <li>Montrer la mention « Hors ligne · 1 en attente ».</li>
+        <li>
+          <strong>Enlever le mode avion</strong> : le paiement part tout seul, la mention disparaît.
+        </li>
+        <li>Sur ton ordinateur, en directeur : le paiement est arrivé.</li>
+      </ol>
+      <div class="note">
+        <strong>À dire</strong>
+        « Le numéro du reçu est donné par l'appareil, sans attendre le serveur, et deux appareils ne
+        donnent jamais le même. La caisse peut travailler une journée entière sans réseau. »
+      </div>
+      <figure>
+        <img src="captures/caisse-hors-ligne.jpg" alt="" />
+        <figcaption>
+          Sans internet : « Hors ligne · 1 en attente ». Le paiement part au retour du réseau.
+        </figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <span class="who">Directeur 0000001001 · ton ordinateur</span>
+      <h1>6. Ce que voit la direction</h1>
+      <ol class="steps">
+        <li>
+          <strong>Tableau de bord</strong> : encaissé aujourd'hui et ce mois par devise, taux de
+          recouvrement, alertes.
+        </li>
+        <li>
+          <strong>Impayés</strong> : filtrer une classe, montrer l'export Excel et PDF par classe.
+        </li>
+        <li>
+          <strong>Annulations</strong> : ouvrir la demande en attente, lire son motif, la valider.
+        </li>
+        <li><strong>Journal</strong> : qui a fait quoi, et quand ; rien ne s'y efface.</li>
+      </ol>
+      <div class="note">
+        <strong>À dire</strong>
+        « Vous savez chaque soir ce qui est entré et qui doit quoi, sans attendre un rapport. Et
+        personne, pas même le directeur, ne peut faire disparaître un paiement. »
+      </div>
+      <figure>
+        <img src="captures/directeur-tableau-de-bord.jpg" alt="" />
+        <figcaption>Tableau de bord du directeur.</figcaption>
+      </figure>
+      <div class="grid">
+        <figure>
+          <img src="captures/promoteur-impayes.jpg" alt="" />
+          <figcaption>Impayés, filtrés par classe, frais, tranche ou retard.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/comptable-annulations.jpg" alt="" />
+          <figcaption>Annulations : la demande et son motif.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <span class="who">Parent 0002000001 · leurs téléphones</span>
+      <h1>7. Ce que voit le parent</h1>
+      <ol class="steps">
+        <li>
+          Leur faire <strong>scanner le QR code du Portail</strong> sur la page d'accueil, puis
+          entrer le numéro et le mot de passe du parent.
+        </li>
+        <li><strong>Mes enfants</strong> : un seul compte pour tous les enfants de la famille.</li>
+        <li>
+          <strong>Paiements</strong> d'un enfant : payé, reste, retard, prochaines échéances, reçus
+          en PDF.
+        </li>
+        <li>
+          <strong>Calendrier</strong> : la convocation s'affiche en tête, puis les réunions, les
+          examens et les congés.
+        </li>
+        <li>
+          Si tu as le temps : encaisser à la caisse pour un de ces enfants, puis leur faire rouvrir
+          « Paiements ».
+        </li>
+      </ol>
+      <div class="note">
+        <strong>À dire</strong>
+        « Le parent n'installe rien d'obligatoire et ne paie rien. Il reçoit aussi les annonces, les
+        rappels d'échéance et l'avis de chaque paiement sur son téléphone. »
+      </div>
+      <div class="phones">
+        <figure>
+          <img src="captures/parent-enfants.jpg" alt="" />
+          <figcaption>Mes enfants.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/parent-paiements.jpg" alt="" />
+          <figcaption>Paiements d'un enfant.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/parent-calendrier.jpg" alt="" />
+          <figcaption>Calendrier et convocation.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <span class="who"
+        >Secrétaire 0000001006, directeur de discipline 0000001003 · ordinateur</span
+      >
+      <h1>8. Démarrer une école, convoquer un parent</h1>
+      <ol class="steps">
+        <li>
+          En secrétaire, <strong>Élèves</strong>, import Excel : choisir un fichier, voir les
+          erreurs ligne par ligne, importer sans doublon. Un fichier d'essai avec des erreurs
+          glissées exprès : <code>make demo-excel</code>.
+        </li>
+        <li>
+          En directeur de discipline, <strong>Convocations</strong> : choisir un élève, le jour,
+          l'heure et le motif ; la lettre s'imprime, et le parent la voit dans son portail.
+        </li>
+      </ol>
+      <div class="note">
+        <strong>À dire</strong>
+        « Vous ne ressaisissez pas vos élèves : vous importez la liste que vous avez déjà. Les
+        classes, les frais, les tranches et le format des reçus, c'est vous qui les réglez. »
+      </div>
+      <div class="grid">
+        <figure>
+          <img src="captures/secretaire-import.jpg" alt="" />
+          <figcaption>Import des élèves depuis Excel, en 4 étapes.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/communication-convocations.jpg" alt="" />
+          <figcaption>Convocations : lettre à imprimer, « vue par le parent ».</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <span class="who"
+        >Directeur de la seconde école 0000002001, puis ton compte · ordinateur</span
+      >
+      <h1>9. Plusieurs écoles, une plateforme</h1>
+      <ol class="steps">
+        <li>
+          Ouvrir la <strong>seconde école</strong> : autre nom, autre couleur, autres élèves, autres
+          frais. Le directeur de la première n'y entre pas.
+        </li>
+        <li>
+          Ouvrir la <strong>console</strong> avec ton compte : la liste des écoles et leur état.
+        </li>
+        <li>
+          Si une école veut essayer : <strong>Nouvelle école</strong>, type « Essai ». Elle reçoit
+          un espace vide à son nom, où elle saisit ses classes et ses frais.
+        </li>
+      </ol>
+      <div class="note">
+        <strong>À dire</strong>
+        « Chaque école a son adresse, ses couleurs et ses données. Aucune école ne voit celles d'une
+        autre, ni dans les listes, ni dans les exports, ni dans le portail des parents. »
+      </div>
+      <div class="grid">
+        <figure>
+          <img src="captures/console-ecoles.jpg" alt="" />
+          <figcaption>Console : les écoles de la plateforme.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/console-nouvelle-ecole.jpg" alt="" />
+          <figcaption>Nouvelle école : espace réel, d'essai ou de démonstration.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section>
+      <h1>10. À la fin : questions, suite, participation</h1>
+      <h2>Ce qui vient ensuite</h2>
+      <table class="versions">
+        <tr>
+          <th>Version</th>
+          <th>Contenu</th>
+        </tr>
+        <tr>
+          <td>1.2</td>
+          <td>Carte de l'élève et du personnel (puce et QR code), présences.</td>
+        </tr>
+        <tr>
+          <td>1.3</td>
+          <td>Personnel, paie, dépenses.</td>
+        </tr>
+        <tr>
+          <td>1.4</td>
+          <td>Notes, bulletins, délibération, discipline.</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Paiement par Mobile Money, SMS et WhatsApp, applications dans les stores.</td>
+        </tr>
+      </table>
+      <p>Le plan ne fixe pas de date : donne l'ordre, ne promets pas de date.</p>
+      <h2>Les questions qu'ils poseront</h2>
+      <table>
+        <tr>
+          <th>Question</th>
+          <th>Réponse</th>
+        </tr>
+        <tr>
+          <td>Combien ça coûte ?</td>
+          <td>
+            Le prix n'est pas encore fixé. Principe prévu : un tarif par élève et par an, facturé
+            par trimestre, avec un trimestre d'essai gratuit. Demande-leur ce qui leur paraît juste.
+          </td>
+        </tr>
+        <tr>
+          <td>Et les bulletins ?</td>
+          <td>
+            Pas encore : version 1.4. La version d'aujourd'hui traite l'argent et les familles.
+          </td>
+        </tr>
+        <tr>
+          <td>Peut-on payer par téléphone ?</td>
+          <td>
+            Pas encore : version 2. L'argent ira directement sur le compte de l'école, jamais sur
+            celui de la plateforme.
+          </td>
+        </tr>
+        <tr>
+          <td>Nos données sont-elles en sécurité ?</td>
+          <td>
+            Chaque école est séparée ; double authentification pour le directeur, le comptable et le
+            caissier ; journal de tout ce qui touche à l'argent ; sauvegarde chiffrée chaque nuit.
+          </td>
+        </tr>
+        <tr>
+          <td>Et si le courant coupe ?</td>
+          <td>La caisse marche sur un téléphone ou une tablette, sur batterie et sans réseau.</td>
+        </tr>
+        <tr>
+          <td>Quand peut-on commencer ?</td>
+          <td>
+            L'essai : tout de suite. Avec de vraies données : dès la mise en ligne de la plateforme
+            sur son adresse définitive.
+          </td>
+        </tr>
+      </table>
+      <h2>Comment ils participent</h2>
+      <ol class="steps">
+        <li><strong>Essayer</strong> avec les comptes fictifs, un par rôle.</li>
+        <li>
+          <strong>Recevoir un espace d'essai</strong> vide à leur nom, pour y saisir leurs classes
+          et leurs frais. Pas de vraies données tant que la plateforme n'est pas en ligne pour de
+          bon.
+        </li>
+        <li>
+          <strong>Devenir une des premières écoles</strong> : leur liste d'élèves importée depuis
+          Excel.
+        </li>
+        <li>
+          <strong>Donner leur avis</strong> : le prix acceptable, ce qui presse le plus (présences,
+          paie ou bulletins), et pour une école primaire, le découpage de son année.
+        </li>
+      </ol>
+      <div class="note">
+        <strong>Ce que tu veux obtenir</strong>
+        Une ou deux écoles qui acceptent d'essayer, un nom et un numéro à rappeler, et leurs
+        réponses sur le prix, sur ce qui presse et sur l'année du primaire. Note-les le jour même.
+      </div>
+    </section>
+  </body>
+</html>
