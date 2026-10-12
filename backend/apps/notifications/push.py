@@ -34,11 +34,17 @@ Kind = Notification.Kind
 STAFF_KINDS = {
     Kind.CANCELLATION_REQUEST: FINANCE_APPROVE_CANCELLATION,
     Kind.CASH_DIFFERENCE: FINANCE_VIEW_REPORTS,
+    Kind.REGISTER_OPEN: FINANCE_VIEW_REPORTS,
 }
 # Sortes qu'un compte peut couper, par application ; la notification d'essai part toujours.
 PREFERENCE_KINDS = {
     App.GESTION: [Kind.PLATFORM_NEWS, *STAFF_KINDS],
-    App.PORTAIL: [Kind.PAYMENT_RECEIVED, Kind.ANNOUNCEMENT],
+    App.PORTAIL: [
+        Kind.PAYMENT_RECEIVED,
+        Kind.ANNOUNCEMENT,
+        Kind.PAYMENT_DUE,
+        Kind.PAYMENT_OVERDUE,
+    ],
 }
 # Notifications par tâche d'envoi : une annonce à mille familles ne retient pas un worker.
 DELIVERY_BATCH = 200
@@ -52,6 +58,20 @@ def is_configured() -> bool:
     return bool(settings.WEBPUSH_VAPID_PUBLIC_KEY and settings.WEBPUSH_VAPID_PRIVATE_KEY)
 
 
+def draft(
+    user: User, *, app: str, kind: str, title: str, body: str = "", url: str = ""
+) -> Notification:
+    """Notification pas encore enregistrée, texte coupé à la taille du centre et de l'envoi."""
+    return Notification(
+        user=user,
+        app=app,
+        kind=kind,
+        title=Truncator(title).chars(120),
+        body=Truncator(body).chars(BODY_LENGTH),
+        url=url,
+    )
+
+
 def notify(
     users: Iterable[User],
     *,
@@ -62,20 +82,16 @@ def notify(
     body: str = "",
     url: str = "",
 ) -> list[Notification]:
-    """Ajoute la notification au centre de chaque compte, puis l'envoie sur leurs écrans une fois
+    """La même notification pour chaque compte (`create`)."""
+    drafts = (draft(user, app=app, kind=kind, title=title, body=body, url=url) for user in users)
+    return create(school, drafts)
+
+
+def create(school: School, drafts: Iterable[Notification]) -> list[Notification]:
+    """Ajoute les notifications au centre de leur compte, puis les envoie sur les écrans une fois
     la transaction validée (rien n'est envoyé pour une action annulée)."""
     with use_school(school):
-        notifications = Notification.objects.bulk_create(
-            Notification(
-                user=user,
-                app=app,
-                kind=kind,
-                title=Truncator(title).chars(120),
-                body=Truncator(body).chars(BODY_LENGTH),
-                url=url,
-            )
-            for user in users
-        )
+        notifications = Notification.objects.bulk_create(drafts)
     if notifications and is_configured():
         from apps.notifications.tasks import deliver
 

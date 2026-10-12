@@ -39,8 +39,8 @@ import {
 } from "./data";
 import { disablePush, enablePush, pushState, type PushState } from "../../lib/push";
 
-// Les deux premières du parent ne viennent jamais dans la Gestion : là pour que chaque sorte ait
-// son icône.
+// Celles du parent (paiement, annonce, échéance, retard) ne viennent jamais dans la Gestion : là
+// pour que chaque sorte ait son icône.
 const KIND_ICONS: Record<NotificationKind, IconName> = {
   test: "bell",
   platform_news: "megaphone",
@@ -48,6 +48,9 @@ const KIND_ICONS: Record<NotificationKind, IconName> = {
   announcement: "megaphone",
   cancellation_request: "undo",
   cash_difference: "alert",
+  payment_due: "calendar",
+  payment_overdue: "clock",
+  register_open: "clock",
 };
 
 export function NotificationsPage() {

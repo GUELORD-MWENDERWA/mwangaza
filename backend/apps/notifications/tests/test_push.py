@@ -125,7 +125,7 @@ def test_muted_kind_stays_in_the_center_and_expired_browser_is_dropped(
     # La notification d'essai ne se coupe pas.
     assert response.json() == {
         "vapid_public_key": "public-key",
-        "kinds": ["platform_news", "cancellation_request", "cash_difference"],
+        "kinds": ["platform_news", "cancellation_request", "cash_difference", "register_open"],
         "muted": ["platform_news"],
     }
     with django_capture_on_commit_callbacks(execute=True):

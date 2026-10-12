@@ -5773,9 +5773,12 @@ export interface components {
          *     * `announcement` - School announcement
          *     * `cancellation_request` - Cancellation to approve
          *     * `cash_difference` - Cash difference
+         *     * `payment_due` - Payment due soon
+         *     * `payment_overdue` - Late payment
+         *     * `register_open` - Register still open
          * @enum {string}
          */
-        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference";
+        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "payment_due" | "payment_overdue" | "register_open";
         NotificationPreferences: {
             /** @description Clé publique Web Push ; vide : envoi sur l'écran indisponible. */
             readonly vapid_public_key: string;
@@ -6415,6 +6418,7 @@ export interface components {
             default_currency?: components["schemas"]["CurrencyEnum"];
             receipt?: components["schemas"]["ReceiptSettingsRequest"];
             alerts?: components["schemas"]["AlertSettingsRequest"];
+            reminders?: components["schemas"]["ReminderSettingsRequest"];
         };
         /** @description Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`. */
         PatchedStaffUpdateRequest: {
@@ -7027,6 +7031,24 @@ export interface components {
          * @enum {string}
          */
         RelationshipEnum: "father" | "mother" | "guardian" | "grandparent" | "sibling" | "other";
+        /** @description Relances aux parents (`reminders.py`, 5.6.2). Écriture partielle : les autres restent. */
+        ReminderSettings: {
+            /** @description Envoyer aux parents les notifications d'échéance proche et de retard. */
+            enabled: boolean;
+            /** @description Jours avant la date limite où part « Échéance proche ». */
+            days_before: number;
+            /** @description Jours entre deux rappels d'un retard au même parent. */
+            overdue_every_days: number;
+        };
+        /** @description Relances aux parents (`reminders.py`, 5.6.2). Écriture partielle : les autres restent. */
+        ReminderSettingsRequest: {
+            /** @description Envoyer aux parents les notifications d'échéance proche et de retard. */
+            enabled: boolean;
+            /** @description Jours avant la date limite où part « Échéance proche ». */
+            days_before: number;
+            /** @description Jours entre deux rappels d'un retard au même parent. */
+            overdue_every_days: number;
+        };
         /** @description Échéancier particulier (E4) : les versements remplacent ce qui reste dû pour ce frais. */
         RescheduleRequest: {
             /** Format: uuid */
@@ -7177,6 +7199,7 @@ export interface components {
             default_currency: components["schemas"]["CurrencyEnum"];
             receipt: components["schemas"]["ReceiptSettings"];
             alerts: components["schemas"]["AlertSettings"];
+            reminders: components["schemas"]["ReminderSettings"];
         };
         /**
          * @description * `trial` - Free trial

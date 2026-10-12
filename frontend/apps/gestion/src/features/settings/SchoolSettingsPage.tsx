@@ -35,6 +35,7 @@ import { LoadError } from "../status/StatusPages";
 import { AlertsCard } from "./AlertsCard";
 import { CashRegistersCard } from "./CashRegistersCard";
 import { HEADER_MAX_LINES, headerLines, ReceiptCard } from "./ReceiptCard";
+import { RemindersCard } from "./RemindersCard";
 
 type Settings = Schemas["SchoolSettings"];
 type Currency = Schemas["CurrencyEnum"];
@@ -53,6 +54,8 @@ const FIELDS = [
   "receipt.footer",
   "alerts.cancellations_per_day",
   "alerts.closing_time",
+  "reminders.days_before",
+  "reminders.overdue_every_days",
 ] as const;
 
 function otherZones(current: string): string[] {
@@ -78,6 +81,15 @@ function useSchema() {
           t("settings.alerts.invalidAmount"),
         )
         .transform((value) => parseAmount(value, currency) ?? 0);
+    // Nombre de jours des relances, de 1 à `max`.
+    const days = (max: number) =>
+      z
+        .string()
+        .trim()
+        .refine(
+          (value) => /^\d{1,2}$/.test(value) && Number(value) >= 1 && Number(value) <= max,
+          t("settings.reminders.invalidDays", { max }),
+        );
     return z
       .object({
         name: z.string().trim().min(1, t("validation.nameRequired")).max(200),
@@ -113,14 +125,24 @@ function useSchema() {
             .refine((value) => Number(value) <= 100, t("settings.alerts.invalidCount")),
           closing_time: z.string().regex(/^\d{2}:\d{2}$/, t("settings.alerts.invalidTime")),
         }),
+        reminders: z.object({
+          enabled: z.boolean(),
+          days_before: days(30),
+          overdue_every_days: days(60),
+        }),
       })
-      .transform(({ alerts, ...values }) => ({
+      .transform(({ alerts, reminders, ...values }) => ({
         ...values,
         primary_color: normalizeColor(values.primary_color) ?? values.primary_color,
         alerts: {
           difference_minor: alerts.difference,
           cancellations_per_day: Number(alerts.cancellations_per_day),
           closing_time: alerts.closing_time,
+        },
+        reminders: {
+          enabled: reminders.enabled,
+          days_before: Number(reminders.days_before),
+          overdue_every_days: Number(reminders.overdue_every_days),
         },
       }));
   }, [t]);
@@ -170,6 +192,11 @@ function SettingsForm({ settings }: { settings: Settings }) {
         cancellations_per_day: String(settings.alerts.cancellations_per_day),
         closing_time: settings.alerts.closing_time,
       },
+      reminders: {
+        enabled: settings.reminders.enabled,
+        days_before: String(settings.reminders.days_before),
+        overdue_every_days: String(settings.reminders.overdue_every_days),
+      },
     },
   });
   const save = useMutation({
@@ -218,6 +245,7 @@ function SettingsForm({ settings }: { settings: Settings }) {
           <ReceiptCard form={form} />
           <CurrenciesCard form={form} />
           <AlertsCard form={form} />
+          <RemindersCard form={form} />
         </div>
       </div>
     </form>

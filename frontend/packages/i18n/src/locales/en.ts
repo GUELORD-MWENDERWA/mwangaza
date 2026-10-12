@@ -523,6 +523,18 @@ export const en: Messages<typeof fr> = {
       invalidCount: "A number between 0 and 100.",
       invalidTime: "A time (HH:MM).",
     },
+    reminders: {
+      title: "Reminders to parents",
+      intro: "Notifications sent in the morning to families with a portal account.",
+      enabled: "Send reminders",
+      enabledHelp:
+        "Turn on once all payments already received are recorded: otherwise false late notices would go out.",
+      daysBefore: "Due soon: days before the due date",
+      daysBeforeHelp: "Between 1 and 30.",
+      overdueEvery: "Late: one reminder every (days)",
+      overdueEveryHelp: "A parent gets at most one reminder in this interval. Between 1 and 60.",
+      invalidDays: "A number between 1 and {{max}}.",
+    },
     receipt: {
       title: "Receipts",
       preview: "header preview",
@@ -2631,6 +2643,9 @@ export const en: Messages<typeof fr> = {
       announcement: "School announcements",
       cancellation_request: "Cancellation to approve",
       cash_difference: "Cash difference",
+      payment_due: "Payment due soon",
+      payment_overdue: "Late payment",
+      register_open: "Register still open",
     },
     kindHelp: {
       test: "To check that this device receives them.",
@@ -2639,6 +2654,9 @@ export const en: Messages<typeof fr> = {
       announcement: "As soon as the school publishes an announcement for your family",
       cancellation_request: "A cashier asks to cancel a payment",
       cash_difference: "A register is closed with a difference beyond the school's threshold",
+      payment_due: "A few days before a payment is due",
+      payment_overdue: "When a payment is late, then as a reminder",
+      register_open: "A register is still open at the school's closing time",
     },
     kindsTitle: "What to receive on screen",
     kindsHelp: "Applies to all your schools. A muted kind stays in the list.",

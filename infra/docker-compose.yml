@@ -91,7 +91,7 @@ services:
 
   celery:
     <<: *backend
-    command: celery -A config worker --loglevel=info --concurrency=2
+    command: celery -A config worker -B -s /tmp/celerybeat-schedule --loglevel=info --concurrency=2
 
   db:
     image: postgres:16

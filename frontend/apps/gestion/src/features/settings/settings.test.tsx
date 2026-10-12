@@ -22,6 +22,7 @@ const settings = {
     cancellations_per_day: 3,
     closing_time: "18:00",
   },
+  reminders: { enabled: false, days_before: 3, overdue_every_days: 7 },
 };
 
 function routes(extra: Routes = {}): Routes {
@@ -63,6 +64,12 @@ describe("Paramètres de l'école (M5)", () => {
     const usd = alerts.getByLabelText(/\$/);
     await user.clear(usd);
     await user.type(usd, "12,50");
+    // Relances aux parents : désactivées tant que l'école ne les active pas.
+    const reminders = await card("Relances aux parents");
+    await user.click(reminders.getByRole("switch", { name: /Envoyer les relances/ }));
+    const before = reminders.getByLabelText(/Échéance proche/);
+    await user.clear(before);
+    await user.type(before, "5");
     all["PATCH /api/school/settings/"] = { ...settings, name: "Institut Alpha" };
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
 
@@ -86,6 +93,7 @@ describe("Paramètres de l'école (M5)", () => {
         cancellations_per_day: 3,
         closing_time: "18:00",
       },
+      reminders: { enabled: true, days_before: 5, overdue_every_days: 7 },
     });
     // Le nom de l'école (menu, connexion) est relu.
     await waitFor(() =>

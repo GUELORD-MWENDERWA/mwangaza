@@ -29,7 +29,7 @@ SAUVEGARDE := $(SAUVEGARDE_$(pile)) BACKUP_DIR=sauvegardes/$(pile) infra/backup/
 MANAGE := cd backend && uv run python manage.py
 
 .DEFAULT_GOAL := help
-.PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp messages superuser shell \
+.PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp relances messages superuser shell \
 	test test-back test-front test-e2e lint lint-back lint-front format api api-schema build \
 	prod-local prod-local-stop reseau reseau-ip reseau-demo reseau-superuser reseau-stop \
 	deploy-setup deploy deploy-demo deploy-superuser deploy-logs deploy-ssh backup restore
@@ -93,6 +93,9 @@ demo-excel: ## Liste d'élèves fictive (eleves-fictifs.xlsx, ~800 élèves) pou
 
 totp: ## Code de double authentification du moment : comptes fictifs, ou make totp key=<clé>
 	@$(MANAGE) totp $(if $(key),--key "$(key)")
+
+relances: db-up ## Envoyer maintenant les notifications à heure fixe du jour (relances aux parents, caisses encore ouvertes)
+	@$(MANAGE) scheduled_notifications
 
 messages: ## Traductions du serveur (backend/locale) : extraire les textes, puis compiler (demande gettext)
 	$(MANAGE) makemessages -l fr --no-obsolete

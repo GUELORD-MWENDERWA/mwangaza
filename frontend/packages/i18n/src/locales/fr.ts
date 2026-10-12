@@ -525,6 +525,18 @@ export const fr = {
       invalidCount: "Un nombre entre 0 et 100.",
       invalidTime: "Une heure (HH:MM).",
     },
+    reminders: {
+      title: "Relances aux parents",
+      intro: "Notifications envoyées le matin aux familles qui ont un compte du portail.",
+      enabled: "Envoyer les relances",
+      enabledHelp:
+        "À activer quand les paiements déjà reçus sont tous saisis : sinon de faux retards partiraient.",
+      daysBefore: "Échéance proche : jours avant la date limite",
+      daysBeforeHelp: "Entre 1 et 30.",
+      overdueEvery: "Retard : un rappel tous les (jours)",
+      overdueEveryHelp: "Un parent reçoit au plus un rappel dans cet intervalle. Entre 1 et 60.",
+      invalidDays: "Un nombre entre 1 et {{max}}.",
+    },
     receipt: {
       title: "Reçus",
       preview: "aperçu de l'en-tête",
@@ -2644,6 +2656,9 @@ export const fr = {
       announcement: "Annonces de l'école",
       cancellation_request: "Annulation à valider",
       cash_difference: "Écart de caisse",
+      payment_due: "Échéance proche",
+      payment_overdue: "Retard de paiement",
+      register_open: "Caisse encore ouverte",
     },
     kindHelp: {
       test: "Pour vérifier que cet appareil les reçoit.",
@@ -2652,6 +2667,9 @@ export const fr = {
       announcement: "Dès que l'école publie une annonce pour votre famille",
       cancellation_request: "Un caissier demande d'annuler un paiement",
       cash_difference: "Une caisse est clôturée avec un écart au-delà du seuil de l'école",
+      payment_due: "Quelques jours avant la date limite d'un paiement",
+      payment_overdue: "Quand un paiement est en retard, puis en rappel",
+      register_open: "Une caisse est encore ouverte à l'heure de clôture de l'école",
     },
     kindsTitle: "Que recevoir sur l'écran",
     kindsHelp: "Vaut pour toutes vos écoles. Une sorte coupée reste dans la liste.",

@@ -4,7 +4,7 @@ valider pour le personnel qui en a le droit (Gestion). Le texte est écrit dans 
 destinataire ; l'envoi sur l'écran suit la validation (`push.notify`).
 
 Appelées depuis les services, dans l'école courante. Les envois à heure fixe (échéance proche,
-retard, caisse non clôturée, relances) : 5.6.2."""
+retard, caisse encore ouverte) : `scheduled.py` (5.6.2)."""
 
 from collections import defaultdict
 from collections.abc import Callable, Iterable
@@ -25,16 +25,21 @@ App = Notification.App
 Kind = Notification.Kind
 
 
-def _send(users: Iterable[User], *, app: str, kind: str, url: str, text: Callable) -> None:
-    """`text()` rend (titre, message) ; appelée une fois par langue des destinataires."""
+def send(users: Iterable[User], *, app: str, kind: str, url: str, text: Callable) -> int:
+    """`text()` rend (titre, message) ; appelée une fois par langue des destinataires. Rend le
+    nombre de notifications créées."""
     by_language = defaultdict(list)
     for user in users:
         by_language[user.language].append(user)
     school = require_current_school()
+    created = 0
     for language, group in by_language.items():
         with translation.override(language):
             title, body = text()
-        push.notify(group, school=school, app=app, kind=kind, title=title, body=body, url=url)
+        created += len(
+            push.notify(group, school=school, app=app, kind=kind, title=title, body=body, url=url)
+        )
+    return created
 
 
 def _parents(families: QuerySet[Family]) -> QuerySet[User]:
@@ -44,19 +49,16 @@ def _parents(families: QuerySet[Family]) -> QuerySet[User]:
     return User.objects.filter(is_active=True, pk__in=with_access.values("primary_user"))
 
 
-def _staff(kind: str, *, but: User) -> QuerySet[User]:
+def staff(kind: str, *, but: User | None = None) -> QuerySet[User]:
     """Personnel actif de l'école qui a le droit de recevoir cette sorte, sauf l'auteur de
     l'action (il le sait déjà)."""
-    return (
-        User.objects.filter(
-            is_active=True,
-            memberships__school=require_current_school(),
-            memberships__is_active=True,
-            memberships__roles__permissions__contains=[push.STAFF_KINDS[kind]],
-        )
-        .exclude(pk=but.pk)
-        .distinct()
+    users = User.objects.filter(
+        is_active=True,
+        memberships__school=require_current_school(),
+        memberships__is_active=True,
+        memberships__roles__permissions__contains=[push.STAFF_KINDS[kind]],
     )
+    return (users.exclude(pk=but.pk) if but else users).distinct()
 
 
 def payment_received(payment: Payment) -> None:
@@ -65,7 +67,7 @@ def payment_received(payment: Payment) -> None:
     student = payment.enrollment.student
     parents = _parents(Family.objects.filter(pk=student.family_id))
     amount = format_amount(payment.received_amount_minor, payment.received_currency)
-    _send(
+    send(
         parents,
         app=App.PORTAIL,
         kind=Kind.PAYMENT_RECEIVED,
@@ -81,7 +83,7 @@ def payment_received(payment: Payment) -> None:
 def announcement_published(announcement: Announcement, families: QuerySet[Family]) -> None:
     """Annonce de l'école : aux familles visées qui ont un compte. Le texte est celui de l'école,
     tel qu'elle l'a écrit."""
-    _send(
+    send(
         _parents(families),
         app=App.PORTAIL,
         kind=Kind.ANNOUNCEMENT,
@@ -105,8 +107,8 @@ def cash_difference(session: CashSession, closings: list[CashClosing], *, actor:
         for line in beyond
     )
     register = str(session.cash_register)
-    _send(
-        _staff(Kind.CASH_DIFFERENCE, but=actor),
+    send(
+        staff(Kind.CASH_DIFFERENCE, but=actor),
         app=App.GESTION,
         kind=Kind.CASH_DIFFERENCE,
         url="/cash-closings",
@@ -142,8 +144,8 @@ def cancellation_requested(request: CancellationRequest) -> None:
         title = _("Cancellation to approve: %(number)s") % {"number": payment.receipt_number}
         return title, body % values
 
-    _send(
-        _staff(Kind.CANCELLATION_REQUEST, but=cashier),
+    send(
+        staff(Kind.CANCELLATION_REQUEST, but=cashier),
         app=App.GESTION,
         kind=Kind.CANCELLATION_REQUEST,
         url="/cancellations",
