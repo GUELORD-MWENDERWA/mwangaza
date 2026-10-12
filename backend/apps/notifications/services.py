@@ -10,6 +10,7 @@ from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.ids import uuid7
+from apps.notifications import events
 from apps.notifications.models import Announcement
 from apps.schools.models import ClassGroup
 from apps.students.models import Enrollment, Family
@@ -63,6 +64,7 @@ def publish(
         "families": recipient_families(audience, class_groups).count(),
     }
     audit.record(Action.ANNOUNCEMENTS_PUBLISHED, announcement, actor=actor, after=after)
+    events.announcement_published(announcement, recipient_families(audience, class_groups))
     return announcement
 
 

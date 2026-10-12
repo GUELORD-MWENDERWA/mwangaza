@@ -39,7 +39,16 @@ import {
 } from "./data";
 import { disablePush, enablePush, pushState, type PushState } from "../../lib/push";
 
-const KIND_ICONS: Record<NotificationKind, IconName> = { test: "bell", platform_news: "megaphone" };
+// Les deux premières du parent ne viennent jamais dans la Gestion : là pour que chaque sorte ait
+// son icône.
+const KIND_ICONS: Record<NotificationKind, IconName> = {
+  test: "bell",
+  platform_news: "megaphone",
+  payment_received: "cash",
+  announcement: "megaphone",
+  cancellation_request: "undo",
+  cash_difference: "alert",
+};
 
 export function NotificationsPage() {
   const { t } = useTranslation();

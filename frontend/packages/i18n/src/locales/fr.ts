@@ -2640,10 +2640,18 @@ export const fr = {
     kinds: {
       test: "Notification d'essai",
       platform_news: "Annonces de {{platform}}",
+      payment_received: "Paiement reçu",
+      announcement: "Annonces de l'école",
+      cancellation_request: "Annulation à valider",
+      cash_difference: "Écart de caisse",
     },
     kindHelp: {
       test: "Pour vérifier que cet appareil les reçoit.",
       platform_news: "Messages de l'équipe de la plateforme à votre école",
+      payment_received: "Dès que l'école encaisse un paiement pour un de vos enfants",
+      announcement: "Dès que l'école publie une annonce pour votre famille",
+      cancellation_request: "Un caissier demande d'annuler un paiement",
+      cash_difference: "Une caisse est clôturée avec un écart au-delà du seuil de l'école",
     },
     kindsTitle: "Que recevoir sur l'écran",
     kindsHelp: "Vaut pour toutes vos écoles. Une sorte coupée reste dans la liste.",

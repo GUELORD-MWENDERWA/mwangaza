@@ -100,17 +100,24 @@ def test_the_browser_subscribes_without_a_school_and_alone_gets_the_portal(
     activate(client, family.code)
     parent = reloaded(family).primary_user
     preferences = client.get(f"{NOTIFICATIONS}preferences/").json()
-    assert preferences == {"vapid_public_key": "public-key", "kinds": [], "muted": []}
+    assert preferences == {
+        "vapid_public_key": "public-key",
+        "kinds": ["payment_received", "announcement"],
+        "muted": [],
+    }
     # Le même compte travaille aussi à l'école : ce qu'il a coupé dans la Gestion ne se règle
     # pas depuis le portail, et y enregistrer ses préférences n'y touche pas.
-    push.set_muted_kinds(parent, App.GESTION, [Kind.PLATFORM_NEWS])
+    push.set_muted_kinds(parent, push.offered_kinds(App.GESTION), [Kind.PLATFORM_NEWS])
     saved = client.put(
         f"{NOTIFICATIONS}preferences/",
-        {"muted": ["platform_news"]},
+        {"muted": ["platform_news", "announcement"]},
         content_type="application/json",
     )
-    assert saved.json()["muted"] == []
-    assert NotificationPreference.objects.get(user=parent).muted == ["platform_news"]
+    assert saved.json()["muted"] == ["announcement"]
+    assert NotificationPreference.objects.get(user=parent).muted == [
+        "announcement",
+        "platform_news",
+    ]
 
     phone = {"endpoint": "https://push.example/telephone", "keys": {"p256dh": "k", "auth": "a"}}
     assert post(client, "notifications/subscribe/", **phone).status_code == 204

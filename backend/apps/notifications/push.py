@@ -14,6 +14,7 @@ from django.utils.text import Truncator
 from pywebpush import WebPushException, webpush
 
 from apps.accounts.models import Membership, User
+from apps.accounts.roles import FINANCE_APPROVE_CANCELLATION, FINANCE_VIEW_REPORTS
 from apps.core.models import PlatformSettings
 from apps.core.tenancy import use_school
 from apps.notifications.models import (
@@ -29,8 +30,18 @@ logger = logging.getLogger(__name__)
 App = Notification.App
 Kind = Notification.Kind
 
+# Alertes du personnel : le droit qu'il faut, dans l'école, pour en recevoir (5.6.1).
+STAFF_KINDS = {
+    Kind.CANCELLATION_REQUEST: FINANCE_APPROVE_CANCELLATION,
+    Kind.CASH_DIFFERENCE: FINANCE_VIEW_REPORTS,
+}
 # Sortes qu'un compte peut couper, par application ; la notification d'essai part toujours.
-PREFERENCE_KINDS = {App.GESTION: [Kind.PLATFORM_NEWS], App.PORTAIL: []}
+PREFERENCE_KINDS = {
+    App.GESTION: [Kind.PLATFORM_NEWS, *STAFF_KINDS],
+    App.PORTAIL: [Kind.PAYMENT_RECEIVED, Kind.ANNOUNCEMENT],
+}
+# Notifications par tâche d'envoi : une annonce à mille familles ne retient pas un worker.
+DELIVERY_BATCH = 200
 # Un appareil éteint plus longtemps ne la reçoit pas sur l'écran ; elle reste au centre.
 TTL = 24 * 60 * 60
 # Le service de notifications refuse un message chiffré de plus de 4 Ko.
@@ -69,7 +80,9 @@ def notify(
         from apps.notifications.tasks import deliver
 
         ids = [str(notification.pk) for notification in notifications]
-        transaction.on_commit(lambda: deliver.delay(ids))
+        for start in range(0, len(ids), DELIVERY_BATCH):
+            batch = ids[start : start + DELIVERY_BATCH]
+            transaction.on_commit(lambda batch=batch: deliver.delay(batch))
     return notifications
 
 
@@ -110,22 +123,28 @@ def mark_read(user: User, app: str, ids: list | None) -> None:
     unread.update(read_at=timezone.now())
 
 
-def muted_kinds(user: User, app: str) -> list[str]:
-    """Sortes coupées par le compte, parmi celles que règle cette application."""
+def offered_kinds(app: str, permissions: Iterable[str] = ()) -> list[str]:
+    """Sortes que le compte règle dans cette application : dans la Gestion, une alerte du
+    personnel seulement s'il a, dans l'école de l'adresse, le droit d'en recevoir."""
+    return [
+        kind
+        for kind in PREFERENCE_KINDS[app]
+        if kind not in STAFF_KINDS or STAFF_KINDS[kind] in permissions
+    ]
+
+
+def muted_kinds(user: User, kinds: list[str]) -> list[str]:
+    """Sortes coupées par le compte, parmi celles qu'il règle ici (`offered_kinds`)."""
     preference = NotificationPreference.objects.filter(user=user).first()
     stored = preference.muted if preference else []
-    return [kind for kind in stored if kind in PREFERENCE_KINDS[app]]
+    return [kind for kind in stored if kind in kinds]
 
 
-def set_muted_kinds(user: User, app: str, muted: list[str]) -> list[str]:
-    """Remplace les sortes coupées de cette application ; celles que règle l'autre application
-    (compte à la fois du personnel et parent) ne bougent pas."""
+def set_muted_kinds(user: User, kinds: list[str], muted: list[str]) -> list[str]:
+    """Remplace les sortes coupées parmi celles qu'il règle ici ; les autres (l'autre
+    application, ou une alerte reçue dans une autre école avec d'autres droits) ne bougent pas."""
     preference = NotificationPreference.objects.filter(user=user).first()
-    others = [
-        kind
-        for kind in (preference.muted if preference else [])
-        if kind not in PREFERENCE_KINDS[app]
-    ]
+    others = [kind for kind in (preference.muted if preference else []) if kind not in kinds]
     NotificationPreference.objects.update_or_create(
         user=user, defaults={"muted": sorted({*others, *muted})}
     )

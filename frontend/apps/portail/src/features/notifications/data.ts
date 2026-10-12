@@ -4,6 +4,7 @@ import { api, call, type Schemas } from "@mwangaza/api";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export type PortalNotification = Schemas["PortalNotification"];
+export type NotificationKind = Schemas["NotificationKindEnum"];
 export const notificationsKey = ["portal", "notifications"] as const;
 
 /** Non lues du compte, toutes écoles mêlées. Lues à l'ouverture, puis seulement quand une
@@ -42,11 +43,23 @@ export function useMarkRead() {
   });
 }
 
-/** Clé publique pour abonner ce téléphone (vide : le serveur n'envoie pas sur l'écran). */
+const preferencesKey = [...notificationsKey, "preferences"] as const;
+
+/** Clé publique pour abonner ce téléphone (vide : le serveur n'envoie pas sur l'écran), sortes
+ *  que le parent règle et celles qu'il a coupées. */
 export function usePreferences() {
   return useQuery({
-    queryKey: [...notificationsKey, "preferences"],
+    queryKey: preferencesKey,
     queryFn: () => call(api.GET("/api/portal/notifications/preferences/")),
+  });
+}
+
+export function useSavePreferences() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (muted: NotificationKind[]) =>
+      call(api.PUT("/api/portal/notifications/preferences/", { body: { muted } })),
+    onSuccess: (data) => queryClient.setQueryData(preferencesKey, data),
   });
 }
 
