@@ -18,7 +18,6 @@ import {
   Skeleton,
   StatusPill,
   Table,
-  Tag,
 } from "@mwangaza/ui";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -133,10 +132,6 @@ export function UnpaidPage() {
                 {t("unpaid.pdf")}
               </Link>
             </Button>
-            <Button variant="outline" disabled>
-              <Icon name="bell" size={16} />
-              {t("unpaid.reminder")} <Tag lot>V1.1</Tag>
-            </Button>
           </div>
         }
       />
@@ -165,7 +160,7 @@ export function UnpaidPage() {
         />
       </div>
       <Card>
-        <CardContent className="flex flex-wrap gap-2.5">
+        <CardContent className="grid grid-cols-2 gap-2.5 min-[700px]:grid-cols-3 min-[1500px]:grid-cols-6">
           {choose(
             "class_group",
             t("unpaid.filters.class"),
@@ -222,6 +217,7 @@ export function UnpaidPage() {
           )}
           <Button
             variant="ghost"
+            className="justify-self-start"
             disabled={!filtered}
             onClick={() => {
               setParams(new URLSearchParams(), { replace: true });

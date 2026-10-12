@@ -1474,7 +1474,6 @@ export const fr = {
       schedule: "Échéancier particulier",
       notEnrolled: "L'élève n'est pas inscrit cette année : aucun frais dû.",
       empty: "Aucun frais dû : aucun barème de l'année ne concerne sa classe.",
-      later: "Les paiements s'afficheront avec la caisse.",
       custom: "échéancier particulier",
       columns: {
         fee: "Frais",
@@ -1659,7 +1658,7 @@ export const fr = {
       columns: { year: "Année", class: "Classe", status: "Statut" },
       noPath: "Aucune inscription.",
       later:
-        "Les paiements s'ajouteront ici avec la caisse ; les notes, bulletins et décisions de délibération avec la V1.2.",
+        "Les notes, les bulletins et les décisions de délibération s'ajouteront ici dans une prochaine version.",
     },
     invitations: {
       title: "Invitations au portail",
@@ -2533,7 +2532,6 @@ export const fr = {
     subtitle: "Élèves ayant au moins une échéance dépassée non soldée, au {{date}}.",
     excel: "Excel",
     pdf: "PDF par classe",
-    reminder: "Envoyer une relance",
     select: "Sélectionner {{name}}",
     selectPage: "Sélectionner toute la page",
     selected_one: "{{count}} sélectionné",

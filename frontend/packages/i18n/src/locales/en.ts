@@ -1466,7 +1466,6 @@ export const en: Messages<typeof fr> = {
       schedule: "Custom schedule",
       notEnrolled: "The student is not enrolled this year: no fees due.",
       empty: "No fees due: no fee rule of the year applies to their class.",
-      later: "Payments will appear with the cash desk.",
       custom: "custom schedule",
       columns: {
         fee: "Fee",
@@ -1652,7 +1651,7 @@ export const en: Messages<typeof fr> = {
       columns: { year: "Year", class: "Class", status: "Status" },
       noPath: "No enrolment.",
       later:
-        "Payments will be added here with the cash desk; marks, report cards and deliberation decisions with V1.2.",
+        "Marks, report cards and deliberation decisions will be added here in a later version.",
     },
     invitations: {
       title: "Portal invitations",
@@ -2515,7 +2514,6 @@ export const en: Messages<typeof fr> = {
     subtitle: "Students with at least one past due date not fully paid, on {{date}}.",
     excel: "Excel",
     pdf: "PDF by class",
-    reminder: "Send a reminder",
     select: "Select {{name}}",
     selectPage: "Select the whole page",
     selected_one: "{{count}} selected",
