@@ -8,6 +8,7 @@ from apps.accounts.serializers import LoginSerializer, PhoneField
 from apps.core.money import Currency
 from apps.finance.models import Payment
 from apps.finance.serializers import BalanceSerializer, LastPaymentSerializer
+from apps.notifications.models import SchoolEvent
 from apps.notifications.serializers import NotificationSerializer
 from apps.portal import children, families
 from apps.schools.models import School
@@ -117,6 +118,15 @@ class ChildPaymentSerializer(serializers.Serializer):
     )
 
 
+class HomeroomTeacherSerializer(serializers.Serializer):
+    """Titulaire de la classe de l'enfant (5.7)."""
+
+    name = serializers.CharField()
+    phone = serializers.CharField(
+        allow_null=True, help_text="Seulement si l'école a choisi de le montrer aux parents."
+    )
+
+
 class ChildPaymentsSerializer(serializers.Serializer):
     """Paiements d'un enfant (H3), dans son école."""
 
@@ -128,6 +138,9 @@ class ChildPaymentsSerializer(serializers.Serializer):
     school_timezone = serializers.CharField(source="school.timezone")
     photo = serializers.CharField(
         allow_null=True, help_text="Adresse de la photo, seulement avec le consentement du parent."
+    )
+    homeroom_teacher = HomeroomTeacherSerializer(
+        allow_null=True, help_text="Titulaire de sa classe ; null si l'école ne l'a pas désigné."
     )
     balance = BalanceSerializer()
     fees = ChildFeeSerializer(many=True)
@@ -167,6 +180,45 @@ class ReadSerializer(serializers.Serializer):
         child=serializers.UUIDField(),
         max_length=100,
         help_text="Annonces affichées ; celles qui ne visent pas la famille sont ignorées.",
+    )
+
+
+class PortalEventSerializer(serializers.Serializer):
+    """Événement du calendrier d'une école du compte (5.7)."""
+
+    id = serializers.UUIDField()
+    school_name = serializers.CharField(source="school.name")
+    title = serializers.CharField()
+    description = serializers.CharField()
+    kind = serializers.ChoiceField(choices=SchoolEvent.Kind.choices)
+    starts_on = serializers.DateField()
+    ends_on = serializers.DateField()
+    start_time = serializers.TimeField(allow_null=True)
+
+
+class PortalSummonsSerializer(serializers.Serializer):
+    """Convocation des parents d'un enfant du compte (5.7)."""
+
+    id = serializers.UUIDField()
+    school_name = serializers.CharField(source="school.name")
+    school_timezone = serializers.CharField(source="school.timezone")
+    student_id = serializers.UUIDField()
+    student_name = serializers.CharField(source="student.full_name")
+    class_name = serializers.CharField()
+    reason = serializers.CharField()
+    meeting_at = serializers.DateTimeField()
+    meet_with = serializers.CharField()
+    seen = serializers.SerializerMethodField(help_text="Déjà vue par le parent.")
+
+    def get_seen(self, summons) -> bool:
+        return summons.seen_at is not None
+
+
+class SummonsSeenSerializer(serializers.Serializer):
+    ids = serializers.ListField(
+        child=serializers.UUIDField(),
+        max_length=100,
+        help_text="Convocations affichées ; celles d'un autre compte sont ignorées.",
     )
 
 

@@ -63,9 +63,10 @@ def test_publish_for_some_classes_counts_each_family_once_and_is_audited(
     client = api(head)
     recipients = f"{ANNOUNCEMENTS}recipients/"
     group = classes["group"]
-    assert client.get(recipients, audience="all_families").json() == {"families": 2}
+    assert client.get(recipients, audience="all_families").json() == {"families": 2, "staff": 0}
     assert client.get(recipients, audience="class_groups", class_groups=[group.pk]).json() == {
-        "families": 1
+        "families": 1,
+        "staff": 0,
     }
 
     response = publish(client, audience="class_groups", class_groups=[group], content=PDF)
@@ -135,7 +136,8 @@ def test_another_school_neither_reads_nor_archives_nor_targets_the_classes(
     )
     assert recipients.status_code == 400
     assert other.get(f"{ANNOUNCEMENTS}recipients/", audience="all_families").json() == {
-        "families": 0
+        "families": 0,
+        "staff": 0,
     }
     with use_school(school):
         assert AuditLog.objects.filter(action=Action.ANNOUNCEMENTS_ARCHIVED).count() == 0

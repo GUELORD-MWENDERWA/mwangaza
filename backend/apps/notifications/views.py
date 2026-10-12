@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.db.models import Count, Prefetch
+from django.http import HttpResponse
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
@@ -11,19 +13,28 @@ from drf_spectacular.utils import (
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
+from rest_framework.permissions import SAFE_METHODS
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.accounts.permissions import HasSchoolAccess, IsPlatformAdmin, school_access
 from apps.accounts.roles import ANNOUNCEMENTS_PUBLISH
 from apps.accounts.views import SchoolViewSet
+from apps.core.documents import PRINT_RESPONSE, render
 from apps.core.errors import ApiError, BusinessError, ErrorSerializer
-from apps.notifications import platform, push, services
+from apps.notifications import communication, platform, push, services
 from apps.notifications.attachments import attachment_response
-from apps.notifications.models import Announcement, Notification, PlatformAnnouncement
+from apps.notifications.models import (
+    Announcement,
+    Notification,
+    PlatformAnnouncement,
+    SchoolEvent,
+    Summons,
+)
 from apps.notifications.serializers import (
     AnnouncementCreateSerializer,
     AnnouncementSerializer,
+    CalendarQuerySerializer,
     ConsolePlatformAnnouncementCreateSerializer,
     ConsolePlatformAnnouncementSerializer,
     NotificationPreferencesSerializer,
@@ -31,10 +42,16 @@ from apps.notifications.serializers import (
     NotificationSerializer,
     PlatformNewsReadSerializer,
     PlatformNewsSerializer,
+    PrintQuerySerializer,
     PushSubscriptionSerializer,
     PushUnsubscribeSerializer,
     RecipientsQuerySerializer,
     RecipientsSerializer,
+    SchoolEventSerializer,
+    StaffAnnouncementSerializer,
+    SummonsCreateSerializer,
+    SummonsQuerySerializer,
+    SummonsSerializer,
 )
 from apps.schools.models import ClassGroup, School
 
@@ -52,8 +69,9 @@ NO_ATTACHMENT = ApiError("no_attachment", _("This announcement has no attachment
 )
 @extend_schema(tags=["announcements"])
 class AnnouncementViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, SchoolViewSet):
-    """Annonces de l'école aux familles (H4), les plus récentes d'abord : publiées tout de suite,
-    jamais modifiées, seulement archivées (retirées du portail)."""
+    """Annonces de l'école aux familles (H4) ou à son personnel (5.7), les plus récentes d'abord :
+    publiées tout de suite, jamais modifiées, seulement archivées (retirées du portail ou de la
+    Gestion)."""
 
     required_permission = ANNOUNCEMENTS_PUBLISH
     serializer_class = AnnouncementSerializer
@@ -113,13 +131,175 @@ class AnnouncementViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, School
     )
     @action(detail=False, methods=["get"])
     def recipients(self, request: Request) -> Response:
-        """Nombre de familles qu'une annonce toucherait (« Publier pour 156 familles »)."""
+        """Nombre de familles, ou de personnes de l'école, qu'une annonce toucherait (« Publier
+        pour 156 familles »)."""
         query = RecipientsQuerySerializer(data=request.query_params)
         query.is_valid(raise_exception=True)
+        audience = query.validated_data["audience"]
         families = services.recipient_families(
-            query.validated_data["audience"], query.validated_data.get("class_groups", [])
+            audience, query.validated_data.get("class_groups", [])
         )
-        return Response(RecipientsSerializer({"families": families.count()}).data)
+        to_staff = audience == Announcement.Audience.STAFF
+        counts = {
+            "families": families.count(),
+            "staff": services.staff_members().count() if to_staff else 0,
+        }
+        return Response(RecipientsSerializer(counts).data)
+
+    @extend_schema(
+        parameters=[PrintQuerySerializer],
+        responses={**PRINT_RESPONSE, **ERRORS, 400: ErrorSerializer},
+    )
+    @action(detail=True, methods=["get"])
+    def circular(self, request: Request, pk=None) -> HttpResponse:
+        """L'annonce en lettre circulaire à l'en-tête de l'école (5.7), à imprimer pour les
+        familles qui n'ont pas le portail."""
+        params = PrintQuerySerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        announcement = self.get_object()
+        name = f"circulaire-{slugify(announcement.title)[:60] or 'annonce'}.pdf"
+        context = communication.circular_context(announcement)
+        return render("notifications/circular.html", context, params.validated_data["output"], name)
+
+
+@extend_schema(tags=["announcements"])
+class StaffAnnouncementViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """Annonces de l'école à son personnel (5.7), les plus récentes d'abord : tout compte de
+    l'école les lit, quel que soit son rôle ; une annonce archivée n'y est plus."""
+
+    permission_classes = [HasSchoolAccess]
+    serializer_class = StaffAnnouncementSerializer
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Announcement.all_schools.none()
+        return Announcement.objects.filter(
+            audience=Announcement.Audience.STAFF, archived_at__isnull=True
+        ).select_related("created_by")
+
+    @extend_schema(
+        responses={
+            (200, "application/pdf"): OpenApiResponse(OpenApiTypes.BINARY, description="PDF."),
+            **ERRORS,
+        },
+    )
+    @action(detail=True, methods=["get"])
+    def attachment(self, request: Request, pk=None):
+        """PDF joint à l'annonce, jamais public."""
+        response = attachment_response(self.get_object())
+        if response is None:
+            return Response(NO_ATTACHMENT.body(), status=NO_ATTACHMENT.status)
+        return response
+
+
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[CalendarQuerySerializer],
+        responses={200: SchoolEventSerializer(many=True), **ERRORS},
+    ),
+    create=extend_schema(responses={201: SchoolEventSerializer, 400: ErrorSerializer, **ERRORS}),
+    partial_update=extend_schema(
+        responses={200: SchoolEventSerializer, 400: ErrorSerializer, **ERRORS}
+    ),
+    destroy=extend_schema(responses={204: None, **ERRORS}),
+)
+@extend_schema(tags=["communication"])
+class SchoolEventViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    SchoolViewSet,
+):
+    """Calendrier de l'école (5.7) : tout le personnel le lit (événements à venir, les plus
+    proches d'abord) ; l'écrire demande le droit de publier les annonces."""
+
+    required_permission = ANNOUNCEMENTS_PUBLISH
+    serializer_class = SchoolEventSerializer
+    http_method_names = ["get", "post", "patch", "delete", "head", "options"]
+
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS:
+            return [HasSchoolAccess()]
+        return super().get_permissions()
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return SchoolEvent.all_schools.none()
+        if self.action != "list":
+            return SchoolEvent.objects.all()
+        query = CalendarQuerySerializer(data=self.request.query_params)
+        query.is_valid(raise_exception=True)
+        return communication.calendar(past=query.validated_data["past"])
+
+    def perform_create(self, serializer) -> None:
+        serializer.instance = communication.save_event(
+            actor=self.request.user, **serializer.validated_data
+        )
+
+    def perform_update(self, serializer) -> None:
+        serializer.instance = communication.save_event(
+            serializer.instance, actor=self.request.user, **serializer.validated_data
+        )
+
+
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[SummonsQuerySerializer],
+        responses={200: SummonsSerializer(many=True), **ERRORS},
+    ),
+    create=extend_schema(
+        request=SummonsCreateSerializer,
+        responses={201: SummonsSerializer, 400: ErrorSerializer, **ERRORS},
+    ),
+)
+@extend_schema(tags=["communication"])
+class SummonsViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, SchoolViewSet):
+    """Convocations des parents (5.7), les plus récentes d'abord : jamais modifiées, seulement
+    annulées ; lettre PDF à remettre à l'élève, et le parent la voit dans le portail."""
+
+    required_permission = ANNOUNCEMENTS_PUBLISH
+    serializer_class = SummonsSerializer
+    http_method_names = ["get", "post", "head", "options"]
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Summons.all_schools.none()
+        summons = Summons.objects.select_related("student", "created_by")
+        if self.action != "list":
+            return summons
+        query = SummonsQuerySerializer(data=self.request.query_params)
+        query.is_valid(raise_exception=True)
+        if student := query.validated_data.get("student"):
+            summons = summons.filter(student=student)
+        return communication.search_summons(summons, query.validated_data.get("search", ""))
+
+    def create(self, request: Request) -> Response:
+        serializer = SummonsCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        summons = communication.issue_summons(actor=request.user, **serializer.validated_data)
+        return Response(SummonsSerializer(summons).data, status=status.HTTP_201_CREATED)
+
+    @extend_schema(request=None, responses={200: SummonsSerializer, **ERRORS})
+    @action(detail=True, methods=["post"])
+    def cancel(self, request: Request, pk=None) -> Response:
+        """Annule la convocation : elle quitte le portail du parent."""
+        summons = communication.cancel_summons(self.get_object(), actor=request.user)
+        return Response(SummonsSerializer(summons).data)
+
+    @extend_schema(
+        parameters=[PrintQuerySerializer],
+        responses={**PRINT_RESPONSE, **ERRORS, 400: ErrorSerializer},
+    )
+    @action(detail=True, methods=["get"])
+    def letter(self, request: Request, pk=None) -> HttpResponse:
+        """Lettre de convocation à l'en-tête de l'école, avec le coupon à renvoyer signé."""
+        params = PrintQuerySerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        summons = self.get_object()
+        name = f"convocation-{slugify(summons.student.full_name)}.pdf"
+        context = communication.summons_context(summons)
+        return render("notifications/summons.html", context, params.validated_data["output"], name)
 
 
 CONSOLE_ERRORS = {400: ErrorSerializer, **ERRORS}

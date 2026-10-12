@@ -1,0 +1,25 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{{ announcement.title }}{% endblock %}
+{% block style %}
+body { font-size: 11pt; }
+h1 { margin: 1.4em 0 .6em; font-size: 1.4em; }
+.contact { white-space: pre-line; }
+.body { white-space: pre-line; text-align: justify; margin-top: 1em; }
+.signature { margin-top: 3em; text-align: right; }
+{% endblock %}
+{% block content %}
+<div class="row between">
+  <div class="row">
+    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% else %}<div class="logo-text">{{ school_name|slice:":4"|upper }}</div>{% endif %}
+    <div><b>{{ school_name|upper }}</b>{% if contact %}<div class="small contact">{{ contact }}</div>{% endif %}</div>
+  </div>
+  <div class="small">{{ announcement.published_at|date:"d/m/Y" }}</div>
+</div>
+<h1>{{ announcement.title|upper }}</h1>
+<p><b>{% if to_staff %}{% translate "To the staff of the school" %}{% elif classes %}{% blocktranslate %}To the parents of the students of: {{ classes }}{% endblocktranslate %}{% else %}{% translate "To all the parents" %}{% endif %}</b></p>
+<div class="body">{{ announcement.body }}</div>
+<div class="signature">
+  <p>{% translate "For the school," %}</p>
+  <p style="margin-top:2.5em"><b>{{ signed_by }}</b></p>
+</div>
+{% endblock %}

@@ -16,7 +16,7 @@ from apps.accounts.models import User
 from apps.core.tenancy import use_school
 from apps.finance import services as finance
 from apps.finance.models import CancellationRequest, Payment
-from apps.notifications import events, platform, push, scheduled, services
+from apps.notifications import communication, events, platform, push, scheduled, services
 from apps.notifications.models import (
     Announcement,
     AnnouncementRead,
@@ -24,6 +24,8 @@ from apps.notifications.models import (
     PlatformAnnouncement,
     PlatformAnnouncementRead,
     ScheduledRun,
+    SchoolEvent,
+    Summons,
 )
 from apps.schools.demo import DemoSpace
 from apps.schools.models import ClassGroup, School
@@ -142,6 +144,105 @@ def _create_reads() -> None:
             for family in list(families)[::2]
         ]
         AnnouncementRead.objects.bulk_create(rows)
+
+
+STAFF_ANNOUNCEMENT = (
+    "Conseil des enseignants de fin de période",
+    "Chers collègues, le conseil de fin de période se tient vendredi à 14 h dans la salle des "
+    "professeurs. Les fiches de cotes sont à remettre à la direction des études la veille.",
+)
+# Titre, détails, sorte, jours depuis aujourd'hui, durée en jours, heure, pour le personnel seul.
+EVENTS = [
+    ("Remise des fiches de cotes", "À la direction des études.", "other", 3, 1, None, True),
+    ("Conseil des enseignants", "Salle des professeurs.", "meeting", 4, 1, "14:00", True),
+    (
+        "Réunion des parents",
+        "Grande salle. Bilan de la période et paiement des frais.",
+        "meeting",
+        6,
+        1,
+        "09:00",
+        False,
+    ),
+    ("Examens de la période", "Aucune absence n'est admise.", "exam", 12, 5, None, False),
+    ("Journée sportive et culturelle", "Tenue de sport exigée.", "activity", 20, 1, "08:00", False),
+    ("Congé de détente", "Reprise des cours le lundi suivant.", "holiday", 26, 4, None, False),
+]
+SUMMONS_REASONS = [
+    "Résultats de la période : point avec le titulaire sur le travail à la maison.",
+    "Absences répétées depuis deux semaines.",
+]
+# Espaces où l'école montre aux parents le téléphone du titulaire (réglage du portail).
+TEACHER_PHONE_SHOWN = {"itig"}
+
+
+def create_demo_communication(spaces: list[DemoSpace]) -> None:
+    """Communication (5.7), remise au départ à chaque `make demo` : une annonce au personnel
+    (une fois), le calendrier des semaines à venir (réécrit, daté d'aujourd'hui), deux
+    convocations à venir (réémises quand les précédentes sont passées, jamais « vues »), dont
+    une pour un enfant du compte du portail ; sa classe a un titulaire, et l'ITIG montre son
+    téléphone aux parents (les Volcans non)."""
+    for space in spaces:
+        school = space.school
+        shown = space.profile in TEACHER_PHONE_SHOWN
+        school.settings = {**school.settings, "portal": {"teacher_phone": shown}}
+        school.save(update_fields=["settings"])
+        with use_school(school):
+            publisher = User.objects.get(phone=space.numbers.of(PUBLISHERS[space.profile]))
+            if not Announcement.objects.filter(audience=Announcement.Audience.STAFF).exists():
+                title, body = STAFF_ANNOUNCEMENT
+                services.publish(actor=publisher, title=title, body=body, audience="staff")
+            _plan_events(publisher)
+            _summon_parents(publisher)
+            kinds = [Notification.Kind.STAFF_ANNOUNCEMENT, Notification.Kind.SUMMONS]
+            Notification.objects.filter(kind__in=kinds).update(read_at=None)
+
+
+def _plan_events(publisher: User) -> None:
+    today = timezone.localdate()
+    SchoolEvent.objects.all().delete()
+    for title, description, kind, days, length, time, staff_only in EVENTS:
+        start = today + timedelta(days=days)
+        communication.save_event(
+            actor=publisher,
+            title=title,
+            description=description,
+            kind=kind,
+            audience="staff" if staff_only else "everyone",
+            starts_on=start,
+            ends_on=start + timedelta(days=length - 1),
+            start_time=time,
+        )
+
+
+def _summon_parents(publisher: User) -> None:
+    enrolled = Enrollment.objects.filter(
+        academic_year__is_current=True, status=Enrollment.Status.ACTIVE
+    ).select_related("student", "class_group")
+    family = _portal_family()
+    first = enrolled.filter(student__family=family).order_by("student__created_at").first()
+    if first is None:
+        return
+    # La classe de l'enfant du portail a un titulaire : celui de la démonstration, faute d'autre.
+    group = first.class_group
+    teacher = ClassGroup.objects.filter(homeroom_teacher__isnull=False).first()
+    if group.homeroom_teacher_id is None and teacher is not None:
+        group.homeroom_teacher = teacher.homeroom_teacher
+        group.save(update_fields=["homeroom_teacher", "updated_at"])
+    Summons.objects.update(seen_at=None)
+    if Summons.objects.filter(cancelled_at__isnull=True, meeting_at__gt=timezone.now()).exists():
+        return
+    other = enrolled.exclude(student__family=family).order_by("-student__created_at").first()
+    students = [first.student] + ([other.student] if other else [])
+    now = timezone.localtime().replace(hour=10, minute=0, second=0, microsecond=0)
+    for days, student, reason in zip((2, 5), students, SUMMONS_REASONS, strict=False):
+        communication.issue_summons(
+            actor=publisher,
+            student=student,
+            reason=reason,
+            meeting_at=now + timedelta(days=days),
+            meet_with="Direction des études",
+        )
 
 
 def create_demo_event_notifications(spaces: list[DemoSpace]) -> None:

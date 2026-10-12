@@ -1,4 +1,5 @@
-"""Annonces de l'école aux familles (H4) : publication, archivage, familles touchées."""
+"""Annonces de l'école aux familles (H4) ou à son personnel (5.7) : publication, archivage,
+familles ou personnes touchées."""
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -6,10 +7,11 @@ from django.db.models import Q, QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from apps.accounts.models import User
+from apps.accounts.models import Membership, User
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.ids import uuid7
+from apps.core.tenancy import require_current_school
 from apps.notifications import events
 from apps.notifications.models import Announcement
 from apps.schools.models import ClassGroup
@@ -18,7 +20,10 @@ from apps.students.models import Enrollment, Family
 
 def recipient_families(audience: str, class_groups=()) -> QuerySet[Family]:
     """Familles qui ont au moins un enfant inscrit (actif) cette année, dans les classes choisies
-    si l'annonce ne va pas à toutes ; une fratrie ne compte qu'une fois."""
+    si l'annonce ne va pas à toutes ; une fratrie ne compte qu'une fois. Aucune pour une annonce
+    au personnel."""
+    if audience == Announcement.Audience.STAFF:
+        return Family.objects.none()
     enrolled = Q(
         students__enrollments__status=Enrollment.Status.ACTIVE,
         students__enrollments__academic_year__is_current=True,
@@ -26,6 +31,14 @@ def recipient_families(audience: str, class_groups=()) -> QuerySet[Family]:
     if audience == Announcement.Audience.CLASS_GROUPS:
         enrolled &= Q(students__enrollments__class_group__in=list(class_groups))
     return Family.objects.filter(enrolled).distinct()
+
+
+def staff_members() -> QuerySet[User]:
+    """Personnel actif de l'école courante (tous rôles)."""
+    members = Membership.objects.filter(
+        school=require_current_school(), is_active=True, user__is_active=True
+    )
+    return User.objects.filter(pk__in=members.values("user"))
 
 
 @transaction.atomic
@@ -41,7 +54,8 @@ def publish(
     """Publie tout de suite. `class_groups` : classes de l'année en cours, déjà vérifiées ;
     `attachment` : PDF déjà vérifié (`attachments.validate_attachment`)."""
     class_groups = class_groups or []
-    if audience == Announcement.Audience.ALL_FAMILIES:
+    to_staff = audience == Announcement.Audience.STAFF
+    if audience != Announcement.Audience.CLASS_GROUPS:
         class_groups = []
     elif not class_groups:
         message = _("Choose at least one class.")
@@ -61,10 +75,16 @@ def publish(
         "audience": audience,
         "class_groups": sorted(group.name for group in class_groups),
         "attachment": bool(announcement.attachment),
-        "families": recipient_families(audience, class_groups).count(),
     }
+    if to_staff:
+        after["staff"] = staff_members().count()
+    else:
+        after["families"] = recipient_families(audience, class_groups).count()
     audit.record(Action.ANNOUNCEMENTS_PUBLISHED, announcement, actor=actor, after=after)
-    events.announcement_published(announcement, recipient_families(audience, class_groups))
+    if to_staff:
+        events.staff_announcement_published(announcement, staff_members().exclude(pk=actor.pk))
+    else:
+        events.announcement_published(announcement, recipient_families(audience, class_groups))
     return announcement
 
 

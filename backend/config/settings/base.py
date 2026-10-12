@@ -229,6 +229,8 @@ SPECTACULAR_SETTINGS = {
         "HealthStatusEnum": "apps.core.health.STATUSES",
         "DeviceKindEnum": "apps.sync.models.Device.Kind",
         "NotificationKindEnum": "apps.notifications.models.Notification.Kind",
+        "EventKindEnum": "apps.notifications.models.SchoolEvent.Kind",
+        "EventAudienceEnum": "apps.notifications.models.SchoolEvent.Audience",
         "SupportSessionStateEnum": "apps.accounts.support.SESSION_STATES",
         "AudienceEnum": "apps.notifications.models.Announcement.Audience",
         "PlatformAudienceEnum": "apps.notifications.models.PlatformAnnouncement.Audience",

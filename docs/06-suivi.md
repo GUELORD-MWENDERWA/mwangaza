@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 finie (recette du 2026-10-12), en attente de la mise en ligne ; la V1.1 reprend |
 | Lot | V1.0 (mise en ligne), puis V1.1 |
-| Tâche en cours | aucune — 5.6.2 terminée (PR ouverte) |
+| Tâche en cours | 5.7 — communication (annonces au personnel, calendrier, circulaires, convocations, portail), faite d'un coup |
 | Prochaine tâche | 5.7 (communication : annonces au personnel, messages à une classe, calendrier, circulaires, convocations — à découper avant de coder) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
 | Issue GitHub | #44 pour 5.7 ; #186 pour 4.23 |
-| Branche | `tache/5.6.2-notifications-heure-fixe` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/5.7-communication` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-12 |
 
 ## Avancement

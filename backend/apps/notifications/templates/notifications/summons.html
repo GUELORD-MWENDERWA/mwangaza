@@ -1,0 +1,41 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% translate "Summons" %} — {{ student.full_name }}{% endblock %}
+{% block style %}
+body { font-size: 11pt; }
+h1 { margin: 1.2em 0 .6em; font-size: 1.4em; }
+.contact { white-space: pre-line; }
+td.label { width: 28%; background: #eee; }
+.reason { white-space: pre-line; }
+.signature { margin-top: 2em; text-align: right; }
+.slip { margin-top: 2.5em; padding-top: 1em; border-top: 1px dashed #888; break-inside: avoid; }
+.line { display: inline-block; min-width: 55mm; border-bottom: 1px solid #111; }
+.cancelled { border: 2px solid #111; padding: .4em .8em; text-align: center; font-weight: 700; }
+{% endblock %}
+{% block content %}
+<div class="row between">
+  <div class="row">
+    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% else %}<div class="logo-text">{{ school_name|slice:":4"|upper }}</div>{% endif %}
+    <div><b>{{ school_name|upper }}</b>{% if contact %}<div class="small contact">{{ contact }}</div>{% endif %}</div>
+  </div>
+  <div class="small">{{ summons.created_at|date:"d/m/Y" }}</div>
+</div>
+<h1>{% translate "SUMMONS OF THE PARENTS" %}</h1>
+{% if summons.cancelled_at %}<p class="cancelled">{% translate "CANCELLED" %}</p>{% endif %}
+<p>{% blocktranslate with name=student.full_name class_name=summons.class_name %}The parents or guardian of the student <b>{{ name }}</b>, class <b>{{ class_name }}</b>, are asked to come to the school:{% endblocktranslate %}</p>
+<table>
+  <tr><td class="label">{% translate "Date" %}</td><td><b>{{ meeting_at|date:"l j F Y" }}</b></td></tr>
+  <tr><td class="label">{% translate "Time" %}</td><td><b>{{ meeting_at|date:"H:i" }}</b></td></tr>
+  <tr><td class="label">{% translate "Person to see" %}</td><td>{{ summons.meet_with }}</td></tr>
+  <tr><td class="label">{% translate "Reason" %}</td><td class="reason">{{ summons.reason }}</td></tr>
+</table>
+<p>{% translate "Your presence is necessary. If you cannot come, please tell the school before that day." %}</p>
+<div class="signature">
+  <p>{% translate "For the school," %}</p>
+  <p style="margin-top:2.5em"><b>{{ signed_by }}</b></p>
+</div>
+<div class="slip">
+  <p><b>{% translate "SLIP TO RETURN TO THE SCHOOL" %}</b> — {{ student.full_name }} ({{ summons.class_name }})</p>
+  <p>{% blocktranslate with date=meeting_at|date:"d/m/Y" %}I have received the summons for {{ date }}.{% endblocktranslate %}</p>
+  <p>{% translate "Name:" %} <span class="line">&nbsp;</span> &nbsp; {% translate "Signature:" %} <span class="line">&nbsp;</span></p>
+</div>
+{% endblock %}

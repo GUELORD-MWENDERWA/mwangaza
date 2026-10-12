@@ -22,7 +22,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action, PlatformAction
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import use_school
-from apps.schools import alerts, deletion, receipts, reminders, tasks
+from apps.schools import alerts, deletion, portal, receipts, reminders, tasks
 from apps.schools.models import Demonstration, School
 
 LIVE_SPACE = ApiError("live_space", _("A live space is never deleted: stop it instead."), 409)
@@ -167,6 +167,7 @@ def _settings_fields(settings: dict) -> dict:
         **receipts.journal_fields(settings),
         **alerts.journal_fields(settings),
         **reminders.journal_fields(settings),
+        **portal.journal_fields(settings),
     }
 
 
@@ -175,8 +176,8 @@ LOGO_FIELDS = ("logo", "logo_monochrome")
 
 def update_school(school: School, *, actor, **fields) -> School:
     """Paramètres de l'école (M5) ou administration : champs déjà vérifiés. `logo=None` retire
-    le logo ; `receipt`, `alerts`, `reminders` : réglages du reçu, seuils d'alerte ou relances
-    aux parents à changer, les autres restent."""
+    le logo ; `receipt`, `alerts`, `reminders`, `portal` : réglages du reçu, seuils d'alerte,
+    relances aux parents ou portail à changer, les autres restent."""
     if (receipt := fields.pop("receipt", None)) is not None:
         school.settings = {**school.settings, "receipt": {**school.receipt, **receipt}}
     if (changed := fields.pop("alerts", None)) is not None:
@@ -190,6 +191,8 @@ def update_school(school: School, *, actor, **fields) -> School:
         }
     if (changed := fields.pop("reminders", None)) is not None:
         school.settings = {**school.settings, "reminders": {**school.reminders, **changed}}
+    if (changed := fields.pop("portal", None)) is not None:
+        school.settings = {**school.settings, "portal": {**school.portal, **changed}}
     for field, value in fields.items():
         setattr(school, field, "" if field in LOGO_FIELDS and value is None else value)
     return save_school(school, actor=actor)

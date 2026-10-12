@@ -17,7 +17,11 @@ from apps.finance.demo import (
     create_demo_fees,
     create_demo_payments,
 )
-from apps.notifications.demo import create_demo_announcements, create_demo_event_notifications
+from apps.notifications.demo import (
+    create_demo_announcements,
+    create_demo_communication,
+    create_demo_event_notifications,
+)
 from apps.portal.demo import (
     create_demo_activations,
     create_demo_contact_changes,
@@ -46,6 +50,7 @@ STEPS: list[Callable[[list[DemoSpace]], None]] = [
     create_demo_contact_changes,
     create_demo_activations,
     create_demo_event_notifications,
+    create_demo_communication,
 ]
 
 

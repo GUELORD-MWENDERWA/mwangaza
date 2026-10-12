@@ -22,7 +22,15 @@ from apps.notifications.serializers import (
     PushSubscriptionSerializer,
     PushUnsubscribeSerializer,
 )
-from apps.portal import announcements, children, families, notifications, receipts, services
+from apps.portal import (
+    announcements,
+    calendar,
+    children,
+    families,
+    notifications,
+    receipts,
+    services,
+)
 from apps.portal.serializers import (
     AnnouncementsQuerySerializer,
     ChildPaymentsSerializer,
@@ -30,11 +38,14 @@ from apps.portal.serializers import (
     LinkedFamilySerializer,
     LinkSerializer,
     PortalAnnouncementSerializer,
+    PortalEventSerializer,
     PortalLoginSerializer,
     PortalMeSerializer,
     PortalNotificationSerializer,
     PortalProfileSerializer,
+    PortalSummonsSerializer,
     ReadSerializer,
+    SummonsSeenSerializer,
 )
 from apps.students import contact_changes
 from apps.students.photos import photo_response
@@ -253,6 +264,43 @@ class AnnouncementsReadView(APIView):
         serializer = ReadSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         announcements.mark_read(request.user, serializer.validated_data["ids"])
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@extend_schema(tags=["portal"])
+class CalendarView(ListAPIView):
+    """Calendrier des écoles des enfants (5.7) : événements à venir, les plus proches d'abord."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+    serializer_class = PortalEventSerializer
+
+    def get_queryset(self):
+        return calendar.events(self.request.user)
+
+
+@extend_schema(tags=["portal"])
+class SummonsView(ListAPIView):
+    """Convocations des parents pour les enfants du compte (5.7), la plus proche d'abord ; une
+    convocation annulée n'y est plus."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+    serializer_class = PortalSummonsSerializer
+
+    def get_queryset(self):
+        return calendar.summons(self.request.user)
+
+
+@extend_schema(tags=["portal"])
+class SummonsSeenView(APIView):
+    """Note les convocations affichées comme vues (« vue le » dans la Gestion)."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(request=SummonsSeenSerializer, responses={204: None, 400: ErrorSerializer})
+    def post(self, request: Request) -> Response:
+        serializer = SummonsSeenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        calendar.mark_seen(request.user, serializer.validated_data["ids"])
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
