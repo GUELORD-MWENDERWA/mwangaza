@@ -136,7 +136,8 @@ class Notification(TenantModel):
     """Notification d'un compte dans une école (5.5) : gardée au centre de notifications de son
     application (Gestion ou Portail) et, sauf sorte coupée dans ses préférences, montrée sur
     l'écran de ses navigateurs abonnés (Web Push), même application fermée. Texte écrit à la
-    création, dans la langue de la requête qui l'a créée."""
+    création : dans la langue du destinataire pour les événements de l'école (`events.py`), dans
+    celle de la requête pour la notification d'essai."""
 
     class App(models.TextChoices):
         GESTION = "gestion", _("Management app")
@@ -145,6 +146,11 @@ class Notification(TenantModel):
     class Kind(models.TextChoices):
         TEST = "test", _("Test notification")
         PLATFORM_NEWS = "platform_news", _("Platform announcement")
+        # Événements de l'école (5.6.1) : parent, puis personnel selon ses droits.
+        PAYMENT_RECEIVED = "payment_received", _("Payment received")
+        ANNOUNCEMENT = "announcement", _("School announcement")
+        CANCELLATION_REQUEST = "cancellation_request", _("Cancellation to approve")
+        CASH_DIFFERENCE = "cash_difference", _("Cash difference")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

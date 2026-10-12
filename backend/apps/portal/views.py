@@ -331,7 +331,7 @@ class NotificationPreferencesView(APIView):
     """Préférences du compte (sortes coupées sur l'écran) et clé publique pour s'abonner."""
 
     permission_classes = [PortalAddress, IsAuthenticated]
-    kinds = push.PREFERENCE_KINDS[notifications.APP]
+    kinds = push.offered_kinds(notifications.APP)
 
     def _response(self, muted: list[str]) -> Response:
         key = settings.WEBPUSH_VAPID_PUBLIC_KEY if push.is_configured() else ""
@@ -339,7 +339,7 @@ class NotificationPreferencesView(APIView):
 
     @extend_schema(request=None, responses={200: NotificationPreferencesSerializer})
     def get(self, request: Request) -> Response:
-        return self._response(push.muted_kinds(request.user, notifications.APP))
+        return self._response(push.muted_kinds(request.user, self.kinds))
 
     @extend_schema(
         request=NotificationPreferencesSerializer,
@@ -350,9 +350,7 @@ class NotificationPreferencesView(APIView):
             data=request.data, context={"kinds": self.kinds}
         )
         serializer.is_valid(raise_exception=True)
-        muted = push.set_muted_kinds(
-            request.user, notifications.APP, serializer.validated_data["muted"]
-        )
+        muted = push.set_muted_kinds(request.user, self.kinds, serializer.validated_data["muted"])
         return self._response(muted)
 
 

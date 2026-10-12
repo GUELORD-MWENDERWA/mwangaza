@@ -2003,9 +2003,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Préférences du compte (toutes ses écoles) et clé publique pour s'abonner. */
+        /**
+         * @description Préférences du compte (toutes ses écoles) et clé publique pour s'abonner. Sortes
+         *     offertes : celles qu'il peut recevoir avec ses droits dans cette école.
+         */
         get: operations["notifications_preferences_retrieve"];
-        /** @description Préférences du compte (toutes ses écoles) et clé publique pour s'abonner. */
+        /**
+         * @description Préférences du compte (toutes ses écoles) et clé publique pour s'abonner. Sortes
+         *     offertes : celles qu'il peut recevoir avec ses droits dans cette école.
+         */
         put: operations["notifications_preferences_update"];
         post?: never;
         delete?: never;
@@ -5763,9 +5769,13 @@ export interface components {
         /**
          * @description * `test` - Test notification
          *     * `platform_news` - Platform announcement
+         *     * `payment_received` - Payment received
+         *     * `announcement` - School announcement
+         *     * `cancellation_request` - Cancellation to approve
+         *     * `cash_difference` - Cash difference
          * @enum {string}
          */
-        NotificationKindEnum: "test" | "platform_news";
+        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference";
         NotificationPreferences: {
             /** @description Clé publique Web Push ; vide : envoi sur l'écran indisponible. */
             readonly vapid_public_key: string;

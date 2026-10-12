@@ -1,6 +1,6 @@
 // Centre de notifications du parent (5.5.2, maquette `portail/notifications`) : celles de toutes
 // ses écoles, les plus récentes d'abord, et les notifications sur l'écran de ce téléphone (Web
-// Push). Les sortes à recevoir s'ajouteront ici avec les premières notifications des écoles (5.6).
+// Push), puis les sortes à recevoir sur l'écran (5.6.1 : paiement reçu, annonces de l'école).
 import { errorMessage, formatDateTime, useTranslation } from "@mwangaza/i18n";
 import {
   Banner,
@@ -13,6 +13,7 @@ import {
   Icon,
   Skeleton,
   StatusPill,
+  Switch,
   usePlatform,
 } from "@mwangaza/ui";
 import { useEffect, useState } from "react";
@@ -25,6 +26,7 @@ import {
   useMarkRead,
   useNotifications,
   usePreferences,
+  useSavePreferences,
   useSendTest,
   useUnreadNotifications,
 } from "./data";
@@ -73,7 +75,55 @@ export function NotificationsPage() {
           {t("portal.notifications.older")}
         </Button>
       )}
+      <KindsCard />
     </PortalFrame>
+  );
+}
+
+/** Sortes que le parent reçoit sur l'écran ; une sorte coupée reste dans la liste. */
+function KindsCard() {
+  const { t } = useTranslation();
+  const preferences = usePreferences();
+  const save = useSavePreferences();
+  const kinds = preferences.data?.kinds ?? [];
+  const muted = preferences.data?.muted ?? [];
+  if (kinds.length === 0) return null;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("notifications.kindsTitle")}</CardTitle>
+      </CardHeader>
+      {kinds.map((kind) => {
+        const label = t(`notifications.kinds.${kind}`);
+        return (
+          <label
+            key={kind}
+            className="flex cursor-pointer items-center justify-between gap-3 border-t border-line px-4 py-3.5"
+          >
+            <span className="flex flex-col">
+              <b>{label}</b>
+              <span className="text-sm text-ink-3">{t(`notifications.kindHelp.${kind}`)}</span>
+            </span>
+            <Switch
+              aria-label={label}
+              checked={!muted.includes(kind)}
+              disabled={save.isPending}
+              onCheckedChange={(on) =>
+                save.mutate(on ? muted.filter((other) => other !== kind) : [...muted, kind])
+              }
+            />
+          </label>
+        );
+      })}
+      {save.isError && (
+        <div className="px-4 pb-3">
+          <Banner tone="due">{errorMessage(save.error, t)}</Banner>
+        </div>
+      )}
+      <CardFooter>
+        <span className="text-sm text-ink-3">{t("notifications.kindsHelp")}</span>
+      </CardFooter>
+    </Card>
   );
 }
 

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-12 01:40+0200\n"
+"POT-Creation-Date: 2026-10-12 02:15+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -215,8 +215,8 @@ msgstr "double authentification activée le"
 
 #: apps/accounts/models.py:93 apps/accounts/models.py:198
 #: apps/accounts/models.py:234 apps/notifications/models.py:122
-#: apps/notifications/models.py:153 apps/notifications/models.py:184
-#: apps/notifications/models.py:223 apps/sync/models.py:22
+#: apps/notifications/models.py:159 apps/notifications/models.py:190
+#: apps/notifications/models.py:229 apps/sync/models.py:22
 msgid "account"
 msgstr "compte"
 
@@ -242,7 +242,7 @@ msgid "role"
 msgstr "rôle"
 
 #: apps/accounts/models.py:201 apps/core/models.py:52
-#: apps/notifications/models.py:193 apps/schools/admin.py:59
+#: apps/notifications/models.py:199 apps/schools/admin.py:59
 #: apps/schools/models.py:173 apps/schools/models.py:265
 msgid "school"
 msgstr "école"
@@ -1032,7 +1032,7 @@ msgid "after"
 msgstr "après"
 
 #: apps/audit/models.py:71 apps/audit/models.py:137
-#: apps/notifications/models.py:198 apps/sync/models.py:17
+#: apps/notifications/models.py:204 apps/sync/models.py:17
 msgid "browser"
 msgstr "navigateur"
 
@@ -1595,7 +1595,7 @@ msgstr "Bourse"
 msgid "Waiver from the head"
 msgstr "Exonération de la direction"
 
-#: apps/finance/models.py:247 apps/notifications/models.py:156
+#: apps/finance/models.py:247 apps/notifications/models.py:162
 #: apps/schools/models.py:348 apps/sync/models.py:26
 msgid "kind"
 msgstr "type"
@@ -1919,208 +1919,208 @@ msgstr "Chaque devise une seule fois."
 msgid "Unknown enrollment."
 msgstr "Inscription inconnue."
 
-#: apps/finance/services.py:69
+#: apps/finance/services.py:70
 msgid "The school already has a fee type with this name."
 msgstr "L'école a déjà un type de frais de ce nom."
 
-#: apps/finance/services.py:73
+#: apps/finance/services.py:74
 msgid ""
 "This fee type has fee rules or students who owe it: deactivate it instead."
 msgstr ""
 "Ce type de frais a des barèmes ou des élèves qui le doivent : désactivez-le "
 "plutôt."
 
-#: apps/finance/services.py:77
+#: apps/finance/services.py:78
 msgid "This fee already has a fee rule for this scope this school year."
 msgstr "Ce frais a déjà un barème pour cette portée cette année scolaire."
 
-#: apps/finance/services.py:79
+#: apps/finance/services.py:80
 msgid "This discount was already revoked."
 msgstr "Cette réduction a déjà été retirée."
 
-#: apps/finance/services.py:82
+#: apps/finance/services.py:83
 msgid "The school already has a cash register with this name or code."
 msgstr "L'école a déjà une caisse avec ce nom ou ce code."
 
-#: apps/finance/services.py:86
+#: apps/finance/services.py:87
 msgid "This cash register is deactivated."
 msgstr "Cette caisse est désactivée."
 
-#: apps/finance/services.py:89
+#: apps/finance/services.py:90
 msgid "Another cashier already has this cash register open."
 msgstr "Un autre caissier a déjà ouvert cette caisse."
 
-#: apps/finance/services.py:92
+#: apps/finance/services.py:93
 msgid "You already have a cash register open: close it first."
 msgstr "Vous avez déjà une caisse ouverte : clôturez-la d'abord."
 
-#: apps/finance/services.py:95
+#: apps/finance/services.py:96
 msgid "Open a cash register before collecting payments."
 msgstr "Ouvrez une caisse avant d'encaisser."
 
-#: apps/finance/services.py:97
+#: apps/finance/services.py:98
 msgid "This cash session is already closed."
 msgstr "Cette séance de caisse est déjà clôturée."
 
-#: apps/finance/services.py:99
+#: apps/finance/services.py:100
 msgid "Only the cashier of this session can close it."
 msgstr "Seul le caissier de cette séance peut la clôturer."
 
-#: apps/finance/services.py:102
+#: apps/finance/services.py:103
 msgid "The accountant must first set the exchange rate of the year."
 msgstr "Le comptable doit d'abord saisir le taux de change de l'année."
 
-#: apps/finance/services.py:105
+#: apps/finance/services.py:106
 msgid "Another payment already has this identifier."
 msgstr "Un autre paiement a déjà cet identifiant."
 
-#: apps/finance/services.py:108
+#: apps/finance/services.py:109
 msgid "This payment was cancelled: its receipt is no longer valid."
 msgstr "Ce paiement est annulé : son reçu n'a plus de valeur."
 
-#: apps/finance/services.py:110
+#: apps/finance/services.py:111
 msgid "This credit was already used."
 msgstr "Ce crédit a déjà été utilisé."
 
-#: apps/finance/services.py:112
+#: apps/finance/services.py:113
 msgid "This credit was voided: its discount was revoked."
 msgstr "Ce crédit est annulé : sa réduction a été retirée."
 
-#: apps/finance/services.py:116
+#: apps/finance/services.py:117
 msgid "A cancellation of this payment is already waiting for approval."
 msgstr "Une annulation de ce paiement attend déjà d'être validée."
 
-#: apps/finance/services.py:120
+#: apps/finance/services.py:121
 msgid "This cancellation request was already decided."
 msgstr "Cette demande d'annulation a déjà été traitée."
 
-#: apps/finance/services.py:123
+#: apps/finance/services.py:124
 msgid "Someone else must approve your own cancellation request."
 msgstr "Quelqu'un d'autre doit valider votre propre demande d'annulation."
 
-#: apps/finance/services.py:126
+#: apps/finance/services.py:127
 msgid "This identifier belongs to another request."
 msgstr "Cet identifiant appartient à une autre demande."
 
-#: apps/finance/services.py:129
+#: apps/finance/services.py:130
 msgid "The student owes nothing more in the currency of this credit."
 msgstr "L'élève ne doit plus rien dans la devise de ce crédit."
 
-#: apps/finance/services.py:224 apps/finance/services.py:236
+#: apps/finance/services.py:225 apps/finance/services.py:237
 msgid "Whole school"
 msgstr "Toute l'école"
 
-#: apps/finance/services.py:249
+#: apps/finance/services.py:250
 msgid "Choose a level, a track or a class, not several."
 msgstr "Choisissez un niveau, une option ou une classe, pas plusieurs."
 
-#: apps/finance/services.py:251
+#: apps/finance/services.py:252
 msgid "This class belongs to another school year."
 msgstr "Cette classe appartient à une autre année scolaire."
 
-#: apps/finance/services.py:254
+#: apps/finance/services.py:255
 msgid "This currency is not one of the school's currencies."
 msgstr "Cette devise ne fait pas partie des devises de l'école."
 
-#: apps/finance/services.py:257 apps/finance/services.py:641
+#: apps/finance/services.py:258 apps/finance/services.py:642
 msgid "Add at least one installment."
 msgstr "Ajoutez au moins une tranche."
 
-#: apps/finance/services.py:259
+#: apps/finance/services.py:260
 msgid "A single payment has exactly one installment."
 msgstr "Un paiement unique a exactement une tranche."
 
-#: apps/finance/services.py:266
+#: apps/finance/services.py:267
 msgid "The installments must add up to the total."
 msgstr "La somme des tranches doit être égale au total."
 
-#: apps/finance/services.py:639 apps/finance/services.py:778
-#: apps/finance/services.py:842 apps/finance/services.py:1823
+#: apps/finance/services.py:640 apps/finance/services.py:779
+#: apps/finance/services.py:843 apps/finance/services.py:1825
 msgid "This field may not be blank."
 msgstr "Ce champ ne peut pas être vide."
 
-#: apps/finance/services.py:649
+#: apps/finance/services.py:650
 msgid "Only a student enrolled this year can get a custom schedule."
 msgstr ""
 "Seul un élève inscrit cette année peut avoir un échéancier particulier."
 
-#: apps/finance/services.py:657
+#: apps/finance/services.py:658
 msgid "The student owes nothing unpaid for this fee."
 msgstr "L'élève n'a plus rien d'impayé pour ce frais."
 
-#: apps/finance/services.py:661
+#: apps/finance/services.py:662
 msgid "This fee is owed in several currencies: it cannot be rescheduled."
 msgstr ""
 "Ce frais est dû en plusieurs devises : son échéancier ne peut pas être "
 "modifié."
 
-#: apps/finance/services.py:668
+#: apps/finance/services.py:669
 msgid "The installments must add up to what is left to reschedule."
 msgstr "La somme des tranches doit être égale au reste à rééchelonner."
 
-#: apps/finance/services.py:786
+#: apps/finance/services.py:787
 msgid "Only a student enrolled this year can get a discount."
 msgstr "Seul un élève inscrit cette année peut recevoir une réduction."
 
-#: apps/finance/services.py:795
+#: apps/finance/services.py:796
 msgid "The student owes nothing for this fee."
 msgstr "L'élève ne doit rien pour ce frais."
 
-#: apps/finance/services.py:801
+#: apps/finance/services.py:802
 msgid "An amount applies to one fee, in its currency."
 msgstr "Un montant s'applique à un seul frais, dans sa devise."
 
-#: apps/finance/services.py:804
+#: apps/finance/services.py:805
 msgid "A discount cannot be more than the fee."
 msgstr "Une réduction ne peut pas dépasser le frais."
 
-#: apps/finance/services.py:1109
+#: apps/finance/services.py:1110
 msgid "Give the reason for the correction."
 msgstr "Donnez le motif de la correction."
 
-#: apps/finance/services.py:1112
+#: apps/finance/services.py:1113
 msgid "This is already the rate of the year."
 msgstr "C'est déjà le taux de l'année."
 
-#: apps/finance/services.py:1142
+#: apps/finance/services.py:1143
 msgid "This code is kept for cancellations and for earlier payments."
 msgstr ""
 "Ce code est réservé aux annulations et aux paiements d'avant l'application."
 
-#: apps/finance/services.py:1326
+#: apps/finance/services.py:1327
 msgid "The student does not owe this fee, or it appears twice."
 msgstr "L'élève ne doit pas ce frais, ou il apparaît deux fois."
 
-#: apps/finance/services.py:1332
+#: apps/finance/services.py:1333
 msgid "This part is more than what is left to pay on this fee, or too small."
 msgstr ""
 "Cette part dépasse le reste à payer de ce frais, ou elle est trop petite."
 
-#: apps/finance/services.py:1336
+#: apps/finance/services.py:1337
 msgid "The parts must add up to the amount received."
 msgstr "La somme des parts doit être égale au montant reçu."
 
-#: apps/finance/services.py:1396
+#: apps/finance/services.py:1397
 msgid "This receipt number was not given by this device."
 msgstr "Ce numéro de reçu n'a pas été donné par cet appareil."
 
-#: apps/finance/services.py:1399
+#: apps/finance/services.py:1400
 msgid "Another payment already has this receipt number."
 msgstr "Un autre paiement a déjà ce numéro de reçu."
 
-#: apps/finance/services.py:1450
+#: apps/finance/services.py:1451
 msgid "The school does not use this currency."
 msgstr "L'école n'utilise pas cette devise."
 
-#: apps/finance/services.py:1474
+#: apps/finance/services.py:1475
 msgid "This is more than what the student owes: give back the change."
 msgstr "C'est plus que ce que doit l'élève : rendez la monnaie."
 
-#: apps/finance/services.py:2149
+#: apps/finance/services.py:2152
 msgid "Count the money of each currency."
 msgstr "Comptez l'argent de chaque devise."
 
-#: apps/finance/services.py:2157
+#: apps/finance/services.py:2160
 msgid "Explain the difference: the accountant will see it."
 msgstr "Expliquez l'écart : le comptable le verra."
 
@@ -2438,6 +2438,41 @@ msgstr "Le fichier ne doit pas dépasser 5 Mo."
 msgid "The file must be a PDF."
 msgstr "Le fichier doit être un PDF."
 
+#: apps/notifications/events.py:74
+#, python-format
+msgid "Payment received: %(amount)s"
+msgstr "Paiement reçu : %(amount)s"
+
+#: apps/notifications/events.py:75
+#, python-format
+msgid "%(student)s · receipt %(number)s"
+msgstr "%(student)s · reçu %(number)s"
+
+#: apps/notifications/events.py:116
+#, python-format
+msgid "Cash difference: %(register)s"
+msgstr "Écart de caisse : %(register)s"
+
+#: apps/notifications/events.py:117
+#, python-format
+msgid "%(cashier)s closed the register with a difference of %(amounts)s."
+msgstr "%(cashier)s a clôturé la caisse avec un écart de %(amounts)s."
+
+#: apps/notifications/events.py:142
+#, python-format
+msgid "%(cashier)s: request no. %(count)s of the day · %(amount)s · %(reason)s"
+msgstr "%(cashier)s : %(count)se demande du jour · %(amount)s · %(reason)s"
+
+#: apps/notifications/events.py:144
+#, python-format
+msgid "%(cashier)s · %(amount)s · %(reason)s"
+msgstr "%(cashier)s · %(amount)s · %(reason)s"
+
+#: apps/notifications/events.py:146
+#, python-format
+msgid "Cancellation to approve: %(number)s"
+msgstr "Annulation à valider : %(number)s"
+
 #: apps/notifications/models.py:17
 msgid "All families"
 msgstr "Toutes les familles"
@@ -2447,12 +2482,12 @@ msgid "Some classes"
 msgstr "Certaines classes"
 
 #: apps/notifications/models.py:20 apps/notifications/models.py:81
-#: apps/notifications/models.py:157
+#: apps/notifications/models.py:163
 msgid "title"
 msgstr "titre"
 
 #: apps/notifications/models.py:21 apps/notifications/models.py:82
-#: apps/notifications/models.py:158
+#: apps/notifications/models.py:164
 msgid "message"
 msgstr "message"
 
@@ -2531,59 +2566,75 @@ msgstr "lecture d'annonce de la plateforme"
 msgid "platform announcements read"
 msgstr "lectures d'annonces de la plateforme"
 
-#: apps/notifications/models.py:142
+#: apps/notifications/models.py:143
 msgid "Management app"
 msgstr "Application de gestion"
 
-#: apps/notifications/models.py:143 apps/portal/apps.py:10
+#: apps/notifications/models.py:144 apps/portal/apps.py:10
 msgid "Parent portal"
 msgstr "Portail des parents"
 
-#: apps/notifications/models.py:146
+#: apps/notifications/models.py:147
 msgid "Test notification"
 msgstr "Notification d'essai"
 
-#: apps/notifications/models.py:147
+#: apps/notifications/models.py:148
 msgid "Platform announcement"
 msgstr "Annonce de la plateforme"
 
-#: apps/notifications/models.py:155 apps/notifications/models.py:186
+#: apps/notifications/models.py:150
+msgid "Payment received"
+msgstr "Paiement reçu"
+
+#: apps/notifications/models.py:151
+msgid "School announcement"
+msgstr "Annonce de l'école"
+
+#: apps/notifications/models.py:152
+msgid "Cancellation to approve"
+msgstr "Annulation à valider"
+
+#: apps/notifications/models.py:153
+msgid "Cash difference"
+msgstr "Écart de caisse"
+
+#: apps/notifications/models.py:161 apps/notifications/models.py:192
 msgid "app"
 msgstr "application"
 
-#: apps/notifications/models.py:160
+#: apps/notifications/models.py:166
 msgid "link"
 msgstr "lien"
 
-#: apps/notifications/models.py:161
+#: apps/notifications/models.py:167
 msgid "read at"
 msgstr "lue le"
 
-#: apps/notifications/models.py:165
+#: apps/notifications/models.py:171
 msgid "notification"
 msgstr "notification"
 
-#: apps/notifications/models.py:166
+#: apps/notifications/models.py:172
 msgid "notifications"
 msgstr "notifications"
 
-#: apps/notifications/models.py:195
+#: apps/notifications/models.py:201
 msgid "endpoint"
 msgstr "adresse d'envoi"
 
-#: apps/notifications/models.py:201
+#: apps/notifications/models.py:207
 msgid "push subscription"
 msgstr "abonnement aux notifications"
 
-#: apps/notifications/models.py:202
+#: apps/notifications/models.py:208
 msgid "push subscriptions"
 msgstr "abonnements aux notifications"
 
-#: apps/notifications/models.py:225
+#: apps/notifications/models.py:231
 msgid "muted kinds"
 msgstr "sortes coupées"
 
-#: apps/notifications/models.py:228 apps/notifications/models.py:229
+#: apps/notifications/models.py:234 apps/notifications/models.py:235
 msgid "notification preferences"
 msgstr "préférences de notification"
 
@@ -2591,7 +2642,7 @@ msgstr "préférences de notification"
 msgid "Choose at least one school."
 msgstr "Choisissez au moins une école."
 
-#: apps/notifications/services.py:46
+#: apps/notifications/services.py:47
 msgid "Choose at least one class."
 msgstr "Choisissez au moins une classe."
 

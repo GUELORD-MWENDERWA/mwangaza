@@ -59,6 +59,7 @@ from apps.finance.models import (
     StudentCharge,
     StudentCredit,
 )
+from apps.notifications import events
 from apps.schools import organisation
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment
@@ -1529,6 +1530,7 @@ def record_payment(
             _create_credit(
                 enrollment, actor=actor, amount=Money(surplus, received_currency), source=payment
             )
+        events.payment_received(payment)
     return payment, True
 
 
@@ -1855,6 +1857,7 @@ def request_cancellation(
             label=_request_label(payment),
             after={**_payment_data(payment), "reason": reason},
         )
+        events.cancellation_requested(request)
     return request, True
 
 
@@ -2192,6 +2195,7 @@ def close_cash_session(
                 **({"note": note} if note else {}),
             },
         )
+        events.cash_difference(session, closings, actor=actor)
     return closings
 
 

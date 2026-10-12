@@ -14,7 +14,8 @@ from django.utils import timezone
 from apps.accounts.demo import PLATFORM_ADMIN_PHONE
 from apps.accounts.models import User
 from apps.core.tenancy import use_school
-from apps.notifications import platform, push, services
+from apps.finance.models import CancellationRequest, Payment
+from apps.notifications import events, platform, push, services
 from apps.notifications.models import (
     Announcement,
     AnnouncementRead,
@@ -139,6 +140,53 @@ def _create_reads() -> None:
             for family in list(families)[::2]
         ]
         AnnouncementRead.objects.bulk_create(rows)
+
+
+def create_demo_event_notifications(spaces: list[DemoSpace]) -> None:
+    """Notifications des événements (5.6.1). Écrites une fois (base neuve ou d'avant la 5.6.1),
+    datées de l'événement : annonces en cours et dernier paiement de la famille du compte du
+    portail pour les parents, annulations en attente pour ceux qui les valident (sur une base
+    neuve, `finance.demo` les a déjà demandées). Non lues à chaque `make demo`."""
+    kind = Notification.Kind
+    for space in spaces:
+        with use_school(space.school):
+            if not Notification.objects.filter(app=Notification.App.PORTAIL).exists():
+                _notify_parents()
+            if not Notification.objects.filter(kind=kind.CANCELLATION_REQUEST).exists():
+                pending = CancellationRequest.objects.filter(
+                    status=CancellationRequest.Status.PENDING
+                ).select_related("payment", "requested_by")
+                for request in pending:
+                    events.cancellation_requested(request)
+            Notification.objects.exclude(kind=kind.PLATFORM_NEWS).update(read_at=None)
+
+
+def _notify_parents() -> None:
+    kind = Notification.Kind
+    for announcement in Announcement.objects.filter(archived_at__isnull=True).prefetch_related(
+        "class_groups"
+    ):
+        families = services.recipient_families(
+            announcement.audience, announcement.class_groups.all()
+        )
+        events.announcement_published(announcement, families)
+        Notification.objects.filter(kind=kind.ANNOUNCEMENT, title=announcement.title).update(
+            created_at=announcement.published_at
+        )
+    family = Family.objects.filter(primary_user__isnull=False).order_by("created_at", "id").first()
+    payment = (
+        Payment.objects.filter(
+            enrollment__student__family=family,
+            origin=Payment.Origin.CASH,
+            cancellation__isnull=True,
+        )
+        .select_related("enrollment__student")
+        .order_by("-paid_at")
+        .first()
+    )
+    if payment is not None:
+        events.payment_received(payment)
+        Notification.objects.filter(kind=kind.PAYMENT_RECEIVED).update(created_at=payment.paid_at)
 
 
 def create_demo_platform_announcements(spaces: list[DemoSpace]) -> None:

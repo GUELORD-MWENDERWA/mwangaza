@@ -6531,8 +6531,9 @@ paths:
   /api/notifications/preferences/:
     get:
       operationId: notifications_preferences_retrieve
-      description: Préférences du compte (toutes ses écoles) et clé publique pour
-        s'abonner.
+      description: |-
+        Préférences du compte (toutes ses écoles) et clé publique pour s'abonner. Sortes
+        offertes : celles qu'il peut recevoir avec ses droits dans cette école.
       tags:
       - notifications
       security:
@@ -6558,8 +6559,9 @@ paths:
           description: ''
     put:
       operationId: notifications_preferences_update
-      description: Préférences du compte (toutes ses écoles) et clé publique pour
-        s'abonner.
+      description: |-
+        Préférences du compte (toutes ses écoles) et clé publique pour s'abonner. Sortes
+        offertes : celles qu'il peut recevoir avec ses droits dans cette école.
       tags:
       - notifications
       requestBody:
@@ -15889,10 +15891,18 @@ components:
       enum:
       - test
       - platform_news
+      - payment_received
+      - announcement
+      - cancellation_request
+      - cash_difference
       type: string
       description: |-
         * `test` - Test notification
         * `platform_news` - Platform announcement
+        * `payment_received` - Payment received
+        * `announcement` - School announcement
+        * `cancellation_request` - Cancellation to approve
+        * `cash_difference` - Cash difference
     NotificationPreferences:
       type: object
       properties:

@@ -261,13 +261,13 @@ class NotificationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         )
         return Response(NotificationSerializer(notification).data, status=status.HTTP_201_CREATED)
 
-    def _preferences(self, request: Request, muted: list[str]) -> Response:
+    def _preferences(self, kinds: list[str], muted: list[str]) -> Response:
         return Response(
             {
                 "vapid_public_key": settings.WEBPUSH_VAPID_PUBLIC_KEY
                 if push.is_configured()
                 else "",
-                "kinds": push.PREFERENCE_KINDS[self.app],
+                "kinds": kinds,
                 "muted": muted,
             }
         )
@@ -282,16 +282,16 @@ class NotificationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     )
     @action(detail=False, methods=["get", "put"])
     def preferences(self, request: Request) -> Response:
-        """Préférences du compte (toutes ses écoles) et clé publique pour s'abonner."""
+        """Préférences du compte (toutes ses écoles) et clé publique pour s'abonner. Sortes
+        offertes : celles qu'il peut recevoir avec ses droits dans cette école."""
+        kinds = push.offered_kinds(self.app, school_access(request).permissions)
         if request.method == "GET":
-            return self._preferences(request, push.muted_kinds(request.user, self.app))
+            return self._preferences(kinds, push.muted_kinds(request.user, kinds))
         self._member_only()
-        serializer = NotificationPreferencesSerializer(
-            data=request.data, context={"kinds": push.PREFERENCE_KINDS[self.app]}
-        )
+        serializer = NotificationPreferencesSerializer(data=request.data, context={"kinds": kinds})
         serializer.is_valid(raise_exception=True)
-        muted = push.set_muted_kinds(request.user, self.app, serializer.validated_data["muted"])
-        return self._preferences(request, muted)
+        muted = push.set_muted_kinds(request.user, kinds, serializer.validated_data["muted"])
+        return self._preferences(kinds, muted)
 
     @extend_schema(
         request=PushSubscriptionSerializer, responses={204: None, 400: ErrorSerializer, **ERRORS}

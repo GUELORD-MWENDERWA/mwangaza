@@ -2627,10 +2627,18 @@ export const en: Messages<typeof fr> = {
     kinds: {
       test: "Test notification",
       platform_news: "{{platform}} announcements",
+      payment_received: "Payment received",
+      announcement: "School announcements",
+      cancellation_request: "Cancellation to approve",
+      cash_difference: "Cash difference",
     },
     kindHelp: {
       test: "To check that this device receives them.",
       platform_news: "Messages from the platform team to your school",
+      payment_received: "As soon as the school collects a payment for one of your children",
+      announcement: "As soon as the school publishes an announcement for your family",
+      cancellation_request: "A cashier asks to cancel a payment",
+      cash_difference: "A register is closed with a difference beyond the school's threshold",
     },
     kindsTitle: "What to receive on screen",
     kindsHelp: "Applies to all your schools. A muted kind stays in the list.",

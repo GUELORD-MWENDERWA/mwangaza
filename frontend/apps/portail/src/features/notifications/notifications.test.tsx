@@ -25,7 +25,7 @@ const notification = (id: string, title: string, school_name: string) => ({
 });
 
 describe("Notifications du portail", () => {
-  it("montre celles de toutes les écoles, compte les non lues, active ce téléphone et marque lue", async () => {
+  it("montre celles de toutes les écoles, compte les non lues, active ce téléphone, marque lue et coupe une sorte", async () => {
     const results = [
       notification("n2", "Essai du matin", "Les Volcans"),
       notification("n1", "Essai de la veille", "ITIG Don Bosco Goma"),
@@ -36,8 +36,13 @@ describe("Notifications du portail", () => {
       "GET /api/portal/notifications/": { count: 2, next: null, previous: null, results },
       "GET /api/portal/notifications/preferences/": {
         vapid_public_key: "cle-publique",
-        kinds: [],
+        kinds: ["payment_received", "announcement"],
         muted: [],
+      },
+      "PUT /api/portal/notifications/preferences/": {
+        vapid_public_key: "cle-publique",
+        kinds: ["payment_received", "announcement"],
+        muted: ["announcement"],
       },
       "POST /api/portal/notifications/read/": new Response(null, { status: 204 }),
     });
@@ -57,6 +62,16 @@ describe("Notifications du portail", () => {
       expect(requests.filter((r) => r.method === "POST").map((r) => r.body)).toContainEqual({
         ids: ["n2"],
       }),
+    );
+
+    // Le parent ne veut plus les annonces sur l'écran ; les paiements restent.
+    await user.click(screen.getByRole("switch", { name: "Annonces de l'école" }));
+    await waitFor(() =>
+      expect(requests.find((r) => r.method === "PUT")?.body).toEqual({ muted: ["announcement"] }),
+    );
+    expect(screen.getByRole("switch", { name: "Paiement reçu" })).toHaveProperty(
+      "ariaChecked",
+      "true",
     );
   });
 });
