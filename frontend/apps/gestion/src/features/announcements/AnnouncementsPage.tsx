@@ -1,7 +1,9 @@
-// Annonces aux familles (H4, maquette `annonces`) : à gauche la nouvelle annonce (toutes les
-// familles ou certaines classes de l'année en cours, PDF joint), publiée tout de suite pour le
-// nombre de familles que le serveur annonce ; à droite les annonces publiées. Une annonce n'est
-// jamais modifiée (des familles l'ont peut-être lue) : on l'archive, elle quitte le portail.
+// Annonces aux familles (H4, maquette `annonces`) ou au personnel (5.7) : à gauche la nouvelle
+// annonce (toutes les familles, certaines classes de l'année en cours ou le personnel, PDF
+// joint), publiée tout de suite pour le nombre de familles ou de personnes que le serveur
+// annonce ; à droite les annonces publiées, chacune avec sa circulaire à imprimer (lettre PDF à
+// l'en-tête de l'école, pour les familles sans téléphone). Une annonce n'est jamais modifiée
+// (elle a peut-être été lue) : on l'archive, elle quitte le portail ou la Gestion.
 // Droit `announcements.publish` (vérifié par le serveur).
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formatDate, useTranslation } from "@mwangaza/i18n";
@@ -116,7 +118,7 @@ function NewAnnouncementCard() {
     .object({
       title: z.string().trim().min(1, required),
       body: z.string().trim().min(1, required),
-      audience: z.enum(["all_families", "class_groups"]),
+      audience: z.enum(["all_families", "class_groups", "staff"]),
       class_groups: z.array(z.string()),
       attachment: z.custom<File | null>(),
     })
@@ -142,7 +144,7 @@ function NewAnnouncementCard() {
     });
   const form = useForm<NewAnnouncement>({ resolver: zodResolver(schema), defaultValues: EMPTY });
   const [general, setGeneral] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState<Audience | null>(null);
   const [preview, setPreview] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
   const years = useYears();
@@ -163,11 +165,11 @@ function NewAnnouncementCard() {
     form.setValue("attachment", file, { shouldValidate: true });
   const onSubmit = form.handleSubmit((value) => {
     setGeneral(null);
-    setDone(false);
+    setDone(null);
     publish.mutate(value, {
       onSuccess: () => {
         form.reset(EMPTY);
-        setDone(true);
+        setDone(value.audience);
       },
       onError: (error) =>
         setGeneral(
@@ -182,7 +184,8 @@ function NewAnnouncementCard() {
   });
   const names = new Map((classes.data ?? []).map((group) => [group.id, group.name]));
   const remaining = (classes.data ?? []).filter((group) => !chosen.includes(group.id));
-  const families = recipients.data?.families;
+  const toStaff = audience === "staff";
+  const reached = toStaff ? recipients.data?.staff : recipients.data?.families;
 
   return (
     <Card>
@@ -191,7 +194,11 @@ function NewAnnouncementCard() {
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-4" onSubmit={(event) => void onSubmit(event)} noValidate>
-          {done && <Banner tone="ok">{t("announcements.published")}</Banner>}
+          {done && (
+            <Banner tone="ok">
+              {t(done === "staff" ? "announcements.publishedStaff" : "announcements.published")}
+            </Banner>
+          )}
           {general && <Banner tone="due">{general}</Banner>}
           <Field
             id="announcement-title"
@@ -223,6 +230,7 @@ function NewAnnouncementCard() {
               options={[
                 { value: "all_families", label: t("announcements.audiences.all_families") },
                 { value: "class_groups", label: t("announcements.audiences.class_groups") },
+                { value: "staff", label: t("announcements.audiences.staff") },
               ]}
             />
             {audience === "class_groups" && (
@@ -310,9 +318,11 @@ function NewAnnouncementCard() {
               {t("announcements.preview")}
             </Button>
             <Button type="submit" className="flex-1" disabled={publish.isPending}>
-              {families === undefined || (audience === "class_groups" && chosen.length === 0)
+              {reached === undefined || (audience === "class_groups" && chosen.length === 0)
                 ? t("announcements.publish")
-                : t("announcements.publishFor", { count: families })}
+                : t(toStaff ? "announcements.publishForStaff" : "announcements.publishFor", {
+                    count: reached,
+                  })}
             </Button>
           </div>
         </form>
@@ -366,32 +376,43 @@ function PublishedItem({ announcement }: { announcement: Announcement }) {
   const archive = useArchive();
   const [confirm, setConfirm] = useState(false);
   const archived = announcement.archived_at !== null;
+  const toStaff = announcement.audience === "staff";
   const recipients =
-    announcement.audience === "all_families"
-      ? t("announcements.audiences.all_families")
-      : announcement.class_groups.map((group) => group.name).join(", ");
+    announcement.audience === "class_groups"
+      ? announcement.class_groups.map((group) => group.name).join(", ")
+      : t(`announcements.audiences.${announcement.audience}`);
   const details = [
     recipients,
     formatDate(announcement.published_at, i18n.language, school.timezone),
     announcement.published_by &&
       t("announcements.by", { name: fullName(announcement.published_by) }),
-    t("announcements.readBy", { count: announcement.read_by }),
+    !toStaff && t("announcements.readBy", { count: announcement.read_by }),
   ].filter(Boolean);
   return (
     <div>
       <div className="min-w-0">
         <b>{announcement.title}</b>
         <div className="text-sm text-ink-3">{details.join(" · ")}</div>
-        {announcement.attachment && (
+        <div className="flex flex-wrap gap-x-4">
+          {announcement.attachment && (
+            <a
+              className="text-sm font-bold text-lake underline"
+              href={announcement.attachment}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {t("announcements.pdf")}
+            </a>
+          )}
           <a
             className="text-sm font-bold text-lake underline"
-            href={announcement.attachment}
+            href={`/api/announcements/${announcement.id}/circular/`}
             target="_blank"
             rel="noreferrer"
           >
-            {t("announcements.pdf")}
+            {t("announcements.circular")}
           </a>
-        )}
+        </div>
         {archive.error && <div className="text-sm text-due">{errorMessage(archive.error, t)}</div>}
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1.5">

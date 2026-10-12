@@ -62,16 +62,16 @@ describe("coquille et menu (M7)", () => {
     expect(await mainMenu()).toBeTruthy();
   });
 
-  it("aucun écran permis (enseignant en V1.0) : message, menu vide", async () => {
+  it("enseignant (aucun droit) : seulement ce que tout le personnel lit", async () => {
     mockApi(loggedIn(me("teacher")));
     renderApp("/");
 
-    expect(await screen.findByText(/ne donne encore accès à aucun écran/)).toBeTruthy();
+    const menu = (await screen.findAllByRole("navigation", { name: "Menu principal" }))[0]!;
     expect(
-      within(
-        (await screen.findAllByRole("navigation", { name: "Menu principal" }))[0]!,
-      ).queryAllByRole("link"),
-    ).toEqual([]);
+      within(menu)
+        .getAllByRole("link")
+        .map((link) => link.textContent),
+    ).toEqual(["Annonces au personnel", "Calendrier"]);
   });
 
   it("hors ligne : indiqué en haut", async () => {

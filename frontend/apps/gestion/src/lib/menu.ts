@@ -14,6 +14,7 @@ export type MenuItem = {
   key: MenuKey;
   path: string;
   icon: IconName;
+  /** Vide : tout le personnel de l'école (annonces au personnel, calendrier). */
   permissions: readonly Permission[];
   /** Tâche du plan qui construit l'écran. */
   task: string;
@@ -98,12 +99,21 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
   {
     section: "communication",
     items: [
+      { key: "staffNews", path: "staff-news", icon: "bell", permissions: [], task: "5.7" },
+      { key: "calendar", path: "calendar", icon: "calendar", permissions: [], task: "5.7" },
       {
         key: "announcements",
         path: "announcements",
         icon: "megaphone",
         permissions: ["announcements.publish"],
         task: "4.3",
+      },
+      {
+        key: "summons",
+        path: "summons",
+        icon: "file",
+        permissions: ["announcements.publish"],
+        task: "5.7",
       },
       {
         key: "parentRequests",
@@ -166,10 +176,15 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
 
 export const MENU_ITEMS = MENU.flatMap(({ items }) => items);
 
+/** L'entrée est-elle permise au compte ? Sans droit demandé : à tout le personnel. */
+export function canOpen(me: Me, item: MenuItem): boolean {
+  return item.permissions.length === 0 || can(me, item.permissions);
+}
+
 /** Sections du menu et leurs entrées permises au compte (une section vide n'apparaît pas). */
 export function visibleMenu(me: Me) {
   return MENU.map(({ section, items }) => ({
     section,
-    items: items.filter((item) => can(me, item.permissions)),
+    items: items.filter((item) => canOpen(me, item)),
   })).filter(({ items }) => items.length > 0);
 }

@@ -30,7 +30,8 @@ export default defineConfig({
         importScripts: ["push-sw.js"],
         runtimeCaching: [
           {
-            urlPattern: /\/api\/portal\/(me|families|children\/[0-9a-f-]+|announcements)\/$/,
+            urlPattern:
+              /\/api\/portal\/(me|families|children\/[0-9a-f-]+|announcements|calendar|summons)\/$/,
             handler: "NetworkFirst",
             options: { cacheName: "portal-data", networkTimeoutSeconds: 10 },
           },

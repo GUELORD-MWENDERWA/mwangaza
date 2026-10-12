@@ -127,6 +127,7 @@ function PortalNav({ childId }: { childId?: string }) {
   }
   // La cloche est celle des notifications (en-tête) : les annonces ont le porte-voix.
   items.push({ to: "/announcements", icon: "megaphone", label: t("portal.nav.announcements") });
+  items.push({ to: "/calendar", icon: "calendar", label: t("portal.nav.calendar") });
   items.push({ to: "/profile", icon: "user", label: t("portal.nav.profile") });
 
   return (

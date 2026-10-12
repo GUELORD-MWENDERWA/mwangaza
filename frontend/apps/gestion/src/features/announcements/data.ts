@@ -18,7 +18,7 @@ export function useAnnouncements(page: number) {
 
 /** Familles qu'une annonce toucherait : « Publier pour 156 familles ». */
 export function useRecipients(audience: Audience, classGroups: string[]) {
-  const enabled = audience === "all_families" || classGroups.length > 0;
+  const enabled = audience !== "class_groups" || classGroups.length > 0;
   return useQuery({
     queryKey: [...keys.announcements, "recipients", audience, classGroups],
     queryFn: () =>

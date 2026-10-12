@@ -35,6 +35,7 @@ import { LoadError } from "../status/StatusPages";
 import { AlertsCard } from "./AlertsCard";
 import { CashRegistersCard } from "./CashRegistersCard";
 import { HEADER_MAX_LINES, headerLines, ReceiptCard } from "./ReceiptCard";
+import { PortalCard } from "./PortalCard";
 import { RemindersCard } from "./RemindersCard";
 
 type Settings = Schemas["SchoolSettings"];
@@ -130,6 +131,7 @@ function useSchema() {
           days_before: days(30),
           overdue_every_days: days(60),
         }),
+        portal: z.object({ teacher_phone: z.boolean() }),
       })
       .transform(({ alerts, reminders, ...values }) => ({
         ...values,
@@ -197,6 +199,7 @@ function SettingsForm({ settings }: { settings: Settings }) {
         days_before: String(settings.reminders.days_before),
         overdue_every_days: String(settings.reminders.overdue_every_days),
       },
+      portal: settings.portal,
     },
   });
   const save = useMutation({
@@ -246,6 +249,7 @@ function SettingsForm({ settings }: { settings: Settings }) {
           <CurrenciesCard form={form} />
           <AlertsCard form={form} />
           <RemindersCard form={form} />
+          <PortalCard form={form} />
         </div>
       </div>
     </form>

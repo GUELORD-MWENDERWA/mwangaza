@@ -681,8 +681,8 @@ paths:
           - finance.statement_printed
           - announcements.published
           - announcements.archived
-          - summons.issued
-          - summons.cancelled
+          - announcements.summons_issued
+          - announcements.summons_cancelled
           - devices.registered
           - devices.revoked
           - audit.exported
@@ -782,8 +782,8 @@ paths:
           * `finance.statement_printed` - Financial statement printed
           * `announcements.published` - Announcement published
           * `announcements.archived` - Announcement archived
-          * `summons.issued` - Parents summoned
-          * `summons.cancelled` - Summons cancelled
+          * `announcements.summons_issued` - Parents summoned
+          * `announcements.summons_cancelled` - Summons cancelled
           * `devices.registered` - Device remembered
           * `devices.revoked` - Device disconnected
           * `audit.exported` - Audit log exported
@@ -811,7 +811,6 @@ paths:
           - school
           - staff
           - students
-          - summons
           - support
           type: string
           minLength: 1
@@ -828,7 +827,6 @@ paths:
           * `school` - school
           * `staff` - staff
           * `students` - students
-          * `summons` - summons
           * `support` - support
       - in: query
         name: entity
@@ -1052,8 +1050,8 @@ paths:
           - finance.statement_printed
           - announcements.published
           - announcements.archived
-          - summons.issued
-          - summons.cancelled
+          - announcements.summons_issued
+          - announcements.summons_cancelled
           - devices.registered
           - devices.revoked
           - audit.exported
@@ -1153,8 +1151,8 @@ paths:
           * `finance.statement_printed` - Financial statement printed
           * `announcements.published` - Announcement published
           * `announcements.archived` - Announcement archived
-          * `summons.issued` - Parents summoned
-          * `summons.cancelled` - Summons cancelled
+          * `announcements.summons_issued` - Parents summoned
+          * `announcements.summons_cancelled` - Summons cancelled
           * `devices.registered` - Device remembered
           * `devices.revoked` - Device disconnected
           * `audit.exported` - Audit log exported
@@ -1182,7 +1180,6 @@ paths:
           - school
           - staff
           - students
-          - summons
           - support
           type: string
           minLength: 1
@@ -1199,7 +1196,6 @@ paths:
           * `school` - school
           * `staff` - staff
           * `students` - students
-          * `summons` - summons
           * `support` - support
       - in: query
         name: entity
@@ -11476,8 +11472,8 @@ components:
       - finance.statement_printed
       - announcements.published
       - announcements.archived
-      - summons.issued
-      - summons.cancelled
+      - announcements.summons_issued
+      - announcements.summons_cancelled
       - devices.registered
       - devices.revoked
       - audit.exported
@@ -11576,8 +11572,8 @@ components:
         * `finance.statement_printed` - Financial statement printed
         * `announcements.published` - Announcement published
         * `announcements.archived` - Announcement archived
-        * `summons.issued` - Parents summoned
-        * `summons.cancelled` - Summons cancelled
+        * `announcements.summons_issued` - Parents summoned
+        * `announcements.summons_cancelled` - Summons cancelled
         * `devices.registered` - Device remembered
         * `devices.revoked` - Device disconnected
         * `audit.exported` - Audit log exported
@@ -14889,7 +14885,6 @@ components:
       - school
       - staff
       - students
-      - summons
       - support
       type: string
     EmailChange:
