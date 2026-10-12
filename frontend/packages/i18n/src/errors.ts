@@ -13,13 +13,17 @@ function isErrorKey(code: string): code is ErrorKey {
   return code in fr.errors;
 }
 
-/** Message d'une erreur pour l'utilisateur ; jamais le texte anglais du serveur. */
+/** Message d'une erreur pour l'utilisateur : par son code ; à défaut, la phrase du serveur, qui
+ *  répond dans la langue de l'interface (cookie `django_language`). */
 export function errorMessage(error: unknown, t: TFunction): string {
   if (!(error instanceof ApiError)) return t("errors.unknown", { code: "js" });
   if (error.code === "too_many_attempts") {
     return t("errors.too_many_attempts", { count: Math.ceil((error.retryAfter ?? 900) / 60) });
   }
   if (isErrorKey(error.code)) return t(`errors.${error.code}`);
+  // Refus métier sans message ici : son explication vaut mieux qu'un code. Une panne (réponse
+  // sans `code`, libellé HTTP en anglais) garde le message général.
+  if (typeof error.body.code === "string" && error.message) return error.message;
   return t("errors.unknown", { code: error.code });
 }
 

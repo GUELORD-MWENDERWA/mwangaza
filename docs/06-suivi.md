@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 finie (recette du 2026-10-12), en attente de la mise en ligne ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`, guide de présentation `docs/guide/presentation-v1.1.pdf`) |
 | Lot | V1.0 (mise en ligne), puis V1.2 |
-| Tâche en cours | aucune — 5.7 fusionnée ; guide de présentation (hors plan, demande de l'utilisateur, PR ouverte) |
+| Tâche en cours | aucune — 5.7 et guide de présentation fusionnés ; correction du message d'un refus du serveur (hors plan, PR ouverte) |
 | Prochaine tâche | 6.1 (V1.2 — carte de l'élève et du personnel) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
 | Issue GitHub | #41 pour 6.1 ; #186 pour 4.23 |
-| Branche | `docs/guide-presentation` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `fix/message-refus-serveur` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-12 |
 
 ## Avancement
@@ -61,6 +61,7 @@ Entrée la plus récente en haut. Format : date — titre, puis fait / tests / d
 
 - Fait : l'utilisateur va présenter la plateforme à des écoles. `make guide` imprime maintenant un second PDF, `docs/guide/presentation-v1.1.pdf` (11 pages, pour celui qui présente) : commandes de l'essai sur plusieurs appareils, adresses, comptes de test, déroulé en 20 minutes écran par écran avec « à dire », questions de la fin, suite, façons de participer. Styles du guide sortis dans `guide.css`, communs aux deux documents.
 - Corrigé au passage : la capture « Mes enfants » du Portail montrait l'écran de connexion (prise avant la fin de la connexion), dans le guide de la version 1.1 aussi : les deux PDF sont réimprimés.
+- Corrigé aussi (constat de l'utilisateur en ajoutant un chef d'atelier avec un vrai numéro dans `itig`) : l'écran affichait « Une erreur est survenue (demo_space_numbers) » au lieu de l'explication. 24 refus du serveur n'avaient pas de message à l'écran : `errorMessage` affiche maintenant la phrase du serveur, qui répond dans la langue de l'interface ; une panne garde le message général. 1 test.
 - Essai sur plusieurs appareils remis à neuf par l'utilisateur (`A-FAIRE.md` 1 bis coché) : dernière version, `itig` et `volcans` en espaces de démonstration.
 - Décisions : les deux guides sont mis à jour à la fin de chaque version ; l'adresse écrite dans le guide de présentation est lue dans `infra/reseau/reseau.env`. Pas de test : document.
 - Suite : V1.2, tâche 6.1.
