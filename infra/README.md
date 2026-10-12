@@ -23,4 +23,6 @@ Essayer sur plusieurs appareils du même réseau (téléphones, iPhone, autre PC
 
 Serveur de démonstration en ligne, gratuit (Oracle Cloud « Always Free » + DuckDNS), données fictives seulement : `make deploy-setup` une fois, puis `make deploy` (pas à pas dans `A-FAIRE.md` § 9 ter ; skill `/deployer`). Les vraies écoles attendent le vrai domaine (`Caddyfile`, Cloudflare, 4.6.3) et les sauvegardes (4.7).
 
+Vrai serveur (AWS Lightsail, 4.6.3) : `MODE=production` dans `serveur/serveur.env` (créé par `make deploy-init`) ; `docker-compose.production.yml` + `production/Caddyfile` (certificat joker par DNS Cloudflare, IP réelle du visiteur lue par Caddy) ; mêmes commandes `make deploy…`, `make deploy-check` ; `make reseau` n'est pas touché (`A-FAIRE.md` § 9 quinquies).
+
 Voir `docs/03-architecture-technique.md` § 2 et § 9.

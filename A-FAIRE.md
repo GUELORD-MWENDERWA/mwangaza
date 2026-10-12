@@ -122,6 +122,10 @@ Limites : Oracle peut arrêter un serveur gratuit peu utilisé (sauf compte *Pay
 
 ---
 
+## 9 quinquies. Vrai serveur AWS Lightsail (préparé le 2026-10-12, rien lancé)
+
+`make deploy-init` a créé `infra/serveur/serveur.env` (MODE=production, `ubuntu@15.237.26.123`, clé `~/.ssh/LightsailDefaultKey-eu-west-3.pem`, secrets neufs). **À remplir** : `ACME_EMAIL` et `CLOUDFLARE_API_TOKEN` (Cloudflare : ajouter `mwangazaschool.com`, remplacer les serveurs de noms chez LWS par ceux de Cloudflare, jeton « Edit zone DNS » limité à cette zone ; enregistrements `A` `@` et `*` vers 15.237.26.123, en **DNS seulement** — nuage gris). Dans Lightsail › Mise en réseau : ouvrir HTTP 80 et HTTPS 443. **Garder une copie de `serveur.env`** (clé de sauvegarde et clé Django comprises). Quand le DNS répond : dis-le à Claude, puis `make deploy-setup`, `make deploy`, `make deploy-check`, `make deploy-superuser`. Les mêmes commandes servent à `make deploy-*` ; `make reseau` n'est pas touché.
+
 ## 9 quater. Le jour du lancement (première vraie école)
 
 Après la recette finale (4.21), il ne manque que les achats et la mise en ligne. Dans l'ordre, sans sauter d'étape :
@@ -211,6 +215,7 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make reseau-superuser` | crée ton compte super-administrateur dans cet essai (ton numéro, un mot de passe) | une fois, pour ouvrir la console |
 | `make reseau-ip` | remet l'adresse de la machine dans DuckDNS (`make reseau-ip ip=192.168.…` pour la choisir) | quand le partage de connexion a changé |
 | `make reseau-stop` | arrête cet essai ; données et certificat gardés | après l'essai |
+| `make deploy-init` · `make deploy-check` | vrai serveur AWS (§ 9 quinquies) : créer `serveur.env` de production ; vérifier HTTPS et la santé de l'API | une fois / après chaque mise en ligne |
 | `make deploy-setup` | serveur de démonstration en ligne (§ 9 ter) : prépare le serveur (mises à jour automatiques, Docker, pare-feu, SSH par clé) ; la première fois, crée `infra/serveur/serveur.env` à remplir | une seule fois |
 | `make deploy` | met en ligne la dernière version de `main` sur le serveur de démonstration : met son adresse dans DuckDNS, envoie le code, construit l'application sur le serveur et la relance (`make deploy ref=origin/<branche>` pour une autre branche) | après une PR fusionnée que tu veux montrer |
 | `make deploy-demo` | données fictives sur le serveur de démonstration, avec le mot de passe propre au serveur (affiché à la fin) ; chacun lie son application d'authentification à la première connexion | la première fois, ou pour remettre la démo à zéro |

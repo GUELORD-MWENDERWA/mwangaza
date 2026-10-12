@@ -8,7 +8,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 finie (recette du 2026-10-12), en attente de la mise en ligne ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`, guide de présentation `docs/guide/presentation-v1.1.pdf`) |
 | Lot | V1.0 (mise en ligne), puis V1.2 |
-| Tâche en cours | aucune — corrections après l'essai de l'utilisateur sur ses appareils (tableaux, version affichée, restes « V1.1 » ; hors plan, PR ouverte) |
+| Tâche en cours | 4.6.3 (préparation locale du vrai serveur AWS, branche `feat/infra-production-aws`, rien lancé sur le serveur) ; sinon aucune — corrections après l'essai de l'utilisateur sur ses appareils (tableaux, version affichée, restes « V1.1 » ; hors plan, PR ouverte) |
 | Prochaine tâche | 6.1 (V1.2 — carte de l'élève et du personnel) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
 | Issue GitHub | #41 pour 6.1 ; #186 pour 4.23 |
 | Branche | `fix/tableaux-version` ; dossier local : `~/Projets/mwangaza` |
