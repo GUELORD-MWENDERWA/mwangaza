@@ -31,7 +31,7 @@ Dans Claude Code : `/etat`. Sur GitHub : onglet **Milestones** (une barre de pro
 │   ├── 05-plan-de-travail.md      tâches ordonnées à cocher
 │   ├── 06-suivi.md                état actuel et journal
 │   ├── 07-a-fournir.md            maquettes, informations et décisions encore manquantes
-│   ├── guide/                     guide de chaque version en PDF, à envoyer aux écoles (`make guide`)
+│   ├── guide/                     guide de chaque version (à envoyer aux écoles) et guide de présentation, en PDF (`make guide`)
 │   ├── ecole-pilote/              ITIG : fiche-itig.md, depot/ (tes fichiers, hors Git),
 │   │                              documents/ (rangés), prive/ (données personnelles, hors Git)
 │   └── claude/                    espace de travail de Claude : reference.md (adresses, détail de make demo),

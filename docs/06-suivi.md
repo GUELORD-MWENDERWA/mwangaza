@@ -6,12 +6,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | V1.0 finie (recette du 2026-10-12), en attente de la mise en ligne ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`) |
+| Phase | V1.0 finie (recette du 2026-10-12), en attente de la mise en ligne ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`, guide de présentation `docs/guide/presentation-v1.1.pdf`) |
 | Lot | V1.0 (mise en ligne), puis V1.2 |
-| Tâche en cours | aucune — 5.7 terminée (PR ouverte) |
+| Tâche en cours | aucune — 5.7 fusionnée ; guide de présentation (hors plan, demande de l'utilisateur, PR ouverte) |
 | Prochaine tâche | 6.1 (V1.2 — carte de l'élève et du personnel) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
 | Issue GitHub | #41 pour 6.1 ; #186 pour 4.23 |
-| Branche | `tache/5.7-communication` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `docs/guide-presentation` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-12 |
 
 ## Avancement
@@ -56,6 +56,14 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-12 — Guide de présentation (demande de l'utilisateur, hors plan)
+
+- Fait : l'utilisateur va présenter la plateforme à des écoles. `make guide` imprime maintenant un second PDF, `docs/guide/presentation-v1.1.pdf` (11 pages, pour celui qui présente) : commandes de l'essai sur plusieurs appareils, adresses, comptes de test, déroulé en 20 minutes écran par écran avec « à dire », questions de la fin, suite, façons de participer. Styles du guide sortis dans `guide.css`, communs aux deux documents.
+- Corrigé au passage : la capture « Mes enfants » du Portail montrait l'écran de connexion (prise avant la fin de la connexion), dans le guide de la version 1.1 aussi : les deux PDF sont réimprimés.
+- Essai sur plusieurs appareils remis à neuf par l'utilisateur (`A-FAIRE.md` 1 bis coché) : dernière version, `itig` et `volcans` en espaces de démonstration.
+- Décisions : les deux guides sont mis à jour à la fin de chaque version ; l'adresse écrite dans le guide de présentation est lue dans `infra/reseau/reseau.env`. Pas de test : document.
+- Suite : V1.2, tâche 6.1.
 
 ### 2026-10-12 — Tâche 5.7 : communication (fin de la V1.1)
 
