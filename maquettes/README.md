@@ -69,6 +69,9 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Situation financière imprimable | `gestion/situation-financiere.html` | V1.0 | G2 · M17 | à valider |
 | Export des impayés (PDF par classe, Excel) | `gestion/impayes-export.html` | V1.0 | G1 · M17 | à valider |
 | Annonces | `gestion/annonces.html` | V1.0 | H4 | fournie |
+| Annonces au personnel | `gestion/annonces-personnel.html` | V1.1 | 5.7 | dessinée par Claude en 5.7 d'après `console/annonces` (à valider) ; codée en 5.7 |
+| Calendrier de l'école | `gestion/calendrier.html` | V1.1 | 5.7 | dessinée par Claude en 5.7 d'après `gestion/annonces` (à valider) ; codée en 5.7 — écart : le formulaire s'ouvre dans une fenêtre, pas dans une colonne |
+| Convocations des parents | `gestion/convocations.html` | V1.1 | 5.7 | dessinée par Claude en 5.7 d'après `gestion/annonces` (à valider) ; codée en 5.7 |
 | Demandes des parents (changements de coordonnées) | `gestion/changements-coordonnees.html` | V1.0 | H5 · M18 | à valider — codée en 4.4.5 : le secrétariat **applique** la demande (rien ne change sans lui, `02` H5 et `04` priment sur la note « déjà enregistré ») |
 | Paramètres de l'école | `gestion/parametres-ecole.html` | V1.0 | A1, § 8.1 · M5 | à valider ; 5.6.2 : carte « Relances aux parents » dessinée par Claude d'après « Alertes au directeur » et codée |
 | Organisation scolaire | `gestion/organisation-scolaire.html` | V1.0 | C1–C3 | fournie — écart (4.13) : interrupteur « Attribuer un matricule automatiquement » en haut de la carte « Format du matricule » ; sur non, le modèle est grisé |
@@ -101,6 +104,7 @@ Bulletins : structure et maxima repris des formulaires officiels trouvés en lig
 | Accueil — mes enfants (multi-écoles) | `portail/accueil.html` | V1.0 | H2 | fournie |
 | Paiements d'un enfant | `portail/enfant-paiements.html` | V1.0 | H3 | fournie |
 | Annonces | `portail/annonces.html` | V1.0 | H4 | fournie |
+| Calendrier et convocations | `portail/calendrier.html` | V1.1 | 5.7 | dessinée par Claude en 5.7 d'après `portail/annonces` (à valider) ; codée en 5.7 ; la barre du bas a cinq entrées (Calendrier) |
 | Notifications (cloche de l'en-tête) | `portail/notifications.html` | V1.1 | 5.5.2 | dessinée par Claude en 5.5.2 d'après `gestion/notifications` et `portail/annonces` (à valider) ; codée en 5.5.2 : `/notifications`. Écart : dans la barre du bas, « Annonces » prend le porte-voix (la cloche est celle des notifications) — les autres maquettes du portail montrent encore une cloche ; 5.6.1 : bloc « Que recevoir sur l'écran » en bas (paiement reçu, annonces de l'école) ; 5.6.2 : « Échéance proche » et « Retard de paiement » |
 | Profil et coordonnées | `portail/profil.html` | V1.0 | H5 | fournie — codé en 4.4.5 avec le contact d'urgence à la place du « Téléphone secondaire » (pas de champ au modèle) |
 | Vérification publique d'un reçu (`/v/{id}`) | `portail/verification-recu.html` | V1.0 | F4 | fournie |
@@ -122,7 +126,7 @@ Pas de menu latéral comme la Gestion : barre du haut en basalte (marque, pastil
 
 ### Menu de la Gestion
 
-Depuis le 2026-09-26, le menu latéral compte 5 entrées de plus, pour les nouveaux écrans : **Crédits d'élèves** (Finances), **Demandes des parents** (Communication), **Paramètres de l'école**, **Comptes du personnel** et **Journal d'audit** (Paramètres). Le menu est identique sur toutes les maquettes (voir « Outils »). Le super-admin garde son propre menu.
+Depuis le 2026-10-12 (5.7), la section Communication du menu compte trois entrées de plus (**Annonces au personnel**, **Calendrier**, **Convocations**) et la barre du portail une (**Calendrier**) ; `gestion/annonces` a le destinataire « Personnel » et « Circulaire à imprimer ». Le HTML de toutes les maquettes est à jour ; les captures PNG n'ont été refaites que pour les écrans nouveaux ou changés (les autres gardent l'ancien menu jusqu'à un passage complet de `node maquettes/outils/captures.mjs`). Depuis le 2026-09-26, le menu latéral compte 5 entrées de plus, pour les nouveaux écrans : **Crédits d'élèves** (Finances), **Demandes des parents** (Communication), **Paramètres de l'école**, **Comptes du personnel** et **Journal d'audit** (Paramètres). Le menu est identique sur toutes les maquettes (voir « Outils »). Le super-admin garde son propre menu.
 
 ## Outils (`maquettes/outils/`)
 

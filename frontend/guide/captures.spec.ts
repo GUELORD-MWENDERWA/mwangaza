@@ -7,7 +7,7 @@ import { enterCode, ITIG, PASSWORD, skipGuide } from "../e2e/helpers";
 
 // Version du guide et nom de la plateforme, écrits dans la page (`data-guide`) et dans le nom du
 // PDF. Le nom viendra des paramètres de la plateforme (5.1) ; ici seulement, pas dans le texte.
-const VERSION = "1.0";
+const VERSION = "1.1";
 
 const CAPTURES = new URL("captures/", import.meta.url).pathname;
 const PDF = new URL(`../../docs/guide/guide-v${VERSION}.pdf`, import.meta.url).pathname;
@@ -174,6 +174,8 @@ test("directrice des études", async ({ page }) => {
 test("directeur de discipline", async ({ page }) => {
   await login(page, "0000001003");
   await open(page, "announcements", "discipline-annonces");
+  await open(page, "calendar", "communication-calendrier");
+  await open(page, "summons", "communication-convocations");
 });
 
 test("enseignant dans deux écoles", async ({ page }) => {
@@ -201,6 +203,10 @@ test.describe("parent", () => {
     await page.goto(`${PORTAL}announcements`);
     await settle(page);
     await shot(page, "parent-annonces");
+    await page.goto(`${PORTAL}calendar`);
+    await expect(page.getByText(/L'école vous attend pour/)).toBeVisible();
+    await settle(page);
+    await shot(page, "parent-calendrier");
   });
 });
 

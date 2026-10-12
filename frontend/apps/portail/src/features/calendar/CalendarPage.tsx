@@ -87,7 +87,7 @@ export function CalendarPage() {
 function SummonsCard({ summons }: { summons: PortalSummons }) {
   const { t, i18n } = useTranslation();
   return (
-    <Card className="border-[#f3d9a4] bg-warn-50">
+    <Card className="border-warn/30 bg-warn-50">
       <CardContent className="flex flex-col gap-2 py-4">
         <div className="flex items-center justify-between gap-2">
           <Tag className="min-w-0">{summons.school_name}</Tag>

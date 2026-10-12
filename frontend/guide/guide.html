@@ -69,6 +69,8 @@
         font-size: 14pt;
         color: var(--lake-700);
         margin: 16px 0 6px;
+        /* Jamais seul en bas de page, loin de ce qu'il annonce. */
+        break-after: avoid;
       }
       h3 {
         font-size: 11pt;
@@ -264,7 +266,9 @@
     <div class="cover">
       <div class="brand"><span class="lamp"></span><span data-guide="platform"></span></div>
       <h1>Guide de la version <span data-guide="version"></span></h1>
-      <div class="subtitle">Finances, caisse et portail des familles</div>
+      <div class="subtitle">
+        Finances, caisse, portail des familles, notifications et communication
+      </div>
       <ol class="contents">
         <li>La version en bref</li>
         <li>Se connecter</li>
@@ -276,6 +280,7 @@
         <li>Directeur des études, de discipline, enseignant</li>
         <li>Parent (portail des familles)</li>
         <li>Plateforme (super-admin)</li>
+        <li>Communication et notifications</li>
         <li>Hors ligne et contrôle de l'argent</li>
         <li>Ce qui n'est pas encore là, et la suite</li>
       </ol>
@@ -292,6 +297,13 @@
         Avec cette version, une école encaisse ses frais scolaires, même sans internet, et les
         parents suivent les paiements de leurs enfants sur leur téléphone.
       </p>
+      <div class="note">
+        <strong>Nouveau dans la version 1.1</strong>
+        Notifications sur l'écran du téléphone, même application fermée ; relances de paiement aux
+        parents, réglées par l'école ; annonces au personnel, calendrier de l'école, convocations
+        des parents et circulaires à imprimer ; console de la plateforme avec l'identité de la
+        plateforme (nom, logo, couleurs). Détail au chapitre 11.
+      </div>
       <h2>Trois applications</h2>
       <ul>
         <li>
@@ -301,8 +313,8 @@
         </li>
         <li>
           <strong>Le Portail des familles</strong>, pour les parents
-          (<em>parents.&lt;domaine&gt;</em>) : enfants, paiements, reçus, annonces. Il s'installe
-          sur l'écran d'accueil du téléphone.
+          (<em>parents.&lt;domaine&gt;</em>) : enfants, paiements, reçus, annonces, calendrier,
+          convocations, notifications. Il s'installe sur l'écran d'accueil du téléphone.
         </li>
         <li>
           <strong>La Console de la plateforme</strong>, pour l'équipe qui héberge le service
@@ -345,7 +357,8 @@
             <td>Directeur</td>
             <td>
               Tableau de bord, paramètres et organisation de l'école, personnel et rôles, frais,
-              réductions, validation des annulations, journal d'audit, annonces.
+              réductions, validation des annulations, journal d'audit, annonces, calendrier,
+              convocations.
             </td>
           </tr>
           <tr>
@@ -370,26 +383,34 @@
             <td>Secrétaire</td>
             <td>
               Élèves, familles et inscriptions, import Excel, fiches et listes de classe,
-              invitations au portail, demandes des parents, annonces.
+              invitations au portail, demandes des parents, annonces, calendrier, convocations.
             </td>
           </tr>
           <tr>
             <td>Directeur des études</td>
-            <td>Organisation scolaire (années, niveaux, options, classes), élèves, annonces.</td>
+            <td>
+              Organisation scolaire (années, niveaux, options, classes), élèves, annonces,
+              calendrier, convocations.
+            </td>
           </tr>
           <tr>
             <td>Directeur de discipline</td>
-            <td>Consulte les élèves, publie des annonces.</td>
+            <td>
+              Consulte les élèves, publie des annonces, tient le calendrier, convoque des parents.
+            </td>
           </tr>
           <tr>
             <td>Enseignant</td>
-            <td>Compte prêt ; ses fonctions arrivent avec les versions 1.3 et 1.4.</td>
+            <td>
+              Lit les annonces au personnel et le calendrier de l'école ; ses autres fonctions
+              arrivent avec les versions 1.3 et 1.4.
+            </td>
           </tr>
           <tr>
             <td>Parent</td>
             <td>
               Portail : enfants (même dans plusieurs écoles), paiements, reçus, échéances, annonces,
-              coordonnées.
+              calendrier, convocations, titulaire de la classe, notifications, coordonnées.
             </td>
           </tr>
           <tr>
@@ -759,13 +780,14 @@
         <div>
           <h2>Directeur de discipline</h2>
           <p>
-            Il consulte les élèves et publie des annonces aux familles. Le suivi de la discipline
-            arrive avec la version 1.4.
+            Il consulte les élèves, publie des annonces, tient le calendrier et convoque les parents
+            (chapitre 11). Le suivi de la discipline arrive avec la version 1.4.
           </p>
           <h2>Enseignant</h2>
           <p>
-            Son compte existe déjà (un seul compte même s'il enseigne dans plusieurs écoles). Son
-            espace (horaire, fiche de paie) arrive avec la version 1.3, les notes avec la 1.4.
+            Un seul compte, même s'il enseigne dans plusieurs écoles. Il lit les annonces au
+            personnel et le calendrier de chaque école. Son espace (horaire, fiche de paie) arrive
+            avec la version 1.3, les notes avec la 1.4.
           </p>
           <h2>Rôle propre à l'école</h2>
           <p>
@@ -803,6 +825,20 @@
           <strong>Annonces</strong> de l'école ; <strong>Profil</strong> : adresse et contacts,
           envoyés au secrétariat de chaque école.
         </li>
+        <li>
+          <strong>Calendrier</strong> : réunions, examens, congés et activités des écoles de ses
+          enfants. Une <strong>convocation</strong> s'affiche en tête, avec le jour, l'heure, la
+          personne à voir et le motif ; un bandeau la rappelle dès l'accueil.
+        </li>
+        <li>
+          <strong>Titulaire</strong> de la classe sur la page de l'enfant ; son téléphone seulement
+          si l'école a choisi de le montrer.
+        </li>
+        <li>
+          <strong>Notifications</strong> sur l'écran du téléphone, même portail fermé : paiement
+          reçu, annonce, convocation, échéance proche, retard. Le parent les active sur son
+          téléphone (cloche) et choisit ce qu'il reçoit.
+        </li>
       </ol>
       <div class="phones">
         <figure>
@@ -814,8 +850,8 @@
           <figcaption>Paiements d'un enfant.</figcaption>
         </figure>
         <figure>
-          <img src="captures/parent-annonces.jpg" alt="" />
-          <figcaption>Annonces.</figcaption>
+          <img src="captures/parent-calendrier.jpg" alt="" />
+          <figcaption>Calendrier et convocation.</figcaption>
         </figure>
       </div>
       <div class="note">
@@ -879,7 +915,81 @@
     </section>
 
     <section>
-      <h1>11. Hors ligne et contrôle de l'argent</h1>
+      <span class="who">Rôles : directeur, études, discipline, secrétaire ; lu par tous</span>
+      <h1>11. Communication et notifications</h1>
+      <h2>Annonces</h2>
+      <p>
+        Une annonce part à <strong>toutes les familles</strong>, à
+        <strong>certaines classes</strong> ou au <strong>personnel</strong>, avec un PDF joint si
+        besoin. Les familles la lisent dans le portail ; le personnel, quel que soit son rôle, dans
+        « Annonces au personnel ». Elle ne se modifie pas : on l'archive et on en publie une autre.
+        <strong>Circulaire à imprimer</strong> : chaque annonce existe aussi en lettre PDF à
+        l'en-tête de l'école, pour les familles qui n'ont pas de téléphone.
+      </p>
+      <div class="grid">
+        <div>
+          <h2>Calendrier de l'école</h2>
+          <p>
+            Réunions, examens, congés, activités : tout le personnel le lit. Un événement « pour
+            tous » s'affiche aussi dans le portail des familles ; « personnel seulement » reste dans
+            la Gestion.
+          </p>
+          <h2>Convocations</h2>
+          <p>
+            Choisir l'élève, le jour, l'heure, la personne à voir et le motif. L'école imprime la
+            lettre (avec un coupon à renvoyer signé) ; le parent qui a le portail reçoit une
+            notification et l'école voit quand il l'a ouverte. Une convocation ne se modifie pas :
+            on l'annule et on en fait une autre. Tout est noté au journal d'audit.
+          </p>
+        </div>
+        <figure>
+          <img src="captures/communication-calendrier.jpg" alt="" />
+          <figcaption>Calendrier : événements à venir, par mois.</figcaption>
+        </figure>
+      </div>
+      <figure>
+        <img src="captures/communication-convocations.jpg" alt="" />
+        <figcaption>
+          Convocations : nouvelle convocation, lettres à imprimer, « vue par le parent ».
+        </figcaption>
+      </figure>
+      <h2>Notifications sur l'écran</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Pour qui</th>
+            <th>Ce qui est annoncé</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Parent</td>
+            <td>
+              Paiement reçu, annonce de l'école, convocation, échéance proche et retard de paiement
+              (relances).
+            </td>
+          </tr>
+          <tr>
+            <td>Personnel</td>
+            <td>
+              Annonce de l'école à son personnel, annonce de la plateforme ; selon les droits :
+              annulation à valider, écart de caisse, caisse encore ouverte à l'heure de clôture.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="note">
+        <strong>Chacun choisit, l'école règle</strong>
+        Chaque personne active les notifications sur son appareil (cloche) et coupe les sortes
+        qu'elle ne veut pas ; elles restent lisibles dans l'application. Les relances de paiement ne
+        partent que si l'école les a activées dans ses paramètres (jours avant l'échéance,
+        intervalle des rappels). Sur iPhone, le portail doit d'abord être ajouté à l'écran
+        d'accueil.
+      </div>
+    </section>
+
+    <section>
+      <h1>12. Hors ligne et contrôle de l'argent</h1>
       <h2>Quand internet coupe</h2>
       <ul>
         <li>
@@ -928,7 +1038,7 @@
     </section>
 
     <section>
-      <h1>12. Ce qui n'est pas encore là, et la suite</h1>
+      <h1>13. Ce qui n'est pas encore là, et la suite</h1>
       <h2>Pas dans cette version</h2>
       <p>
         Paie et dépenses, notes et bulletins, présences, discipline, messagerie, portail des élèves,
@@ -945,14 +1055,6 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1.1</td>
-            <td>
-              <strong>Notifications, communication</strong> : notifications sur l'écran du téléphone
-              même application fermée, pour les parents (paiement reçu, annonce, échéance proche) et
-              pour le personnel ; relances ; annonces au personnel.
-            </td>
-          </tr>
           <tr>
             <td>1.2</td>
             <td>

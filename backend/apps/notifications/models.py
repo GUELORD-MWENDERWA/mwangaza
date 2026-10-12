@@ -120,8 +120,10 @@ class Summons(TenantModel):
     PDF à remettre à l'élève ; le parent la voit aussi dans le portail (`seen_at`). Jamais
     modifiée (elle est peut-être imprimée ou lue) : on l'annule et on en fait une autre."""
 
+    # Part avec l'élève : seule l'annulation d'un import (D6) efface un élève, et sa convocation
+    # ne doit pas la bloquer (le journal d'audit, lui, la garde).
     student = models.ForeignKey(
-        Student, on_delete=models.PROTECT, related_name="summons", verbose_name=_("student")
+        Student, on_delete=models.CASCADE, related_name="summons", verbose_name=_("student")
     )
     # Classe de l'élève le jour de la convocation (« 3e Électricité A »), telle qu'imprimée.
     class_name = models.CharField(_("class"), max_length=120)

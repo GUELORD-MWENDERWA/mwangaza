@@ -11,6 +11,7 @@ effacerait une année d'élèves qui n'ont pas encore payé.
 
 Tout nouveau modèle lié à un élève ou à une inscription s'ajoute ici : aux raisons de garder
 l'élève (`_touches`) ou à ce qui part avec lui (`cancel`). Sinon la base refuse l'annulation.
+Une convocation des parents (5.7) part avec l'élève, par cascade (`Summons.student`).
 """
 
 import logging
