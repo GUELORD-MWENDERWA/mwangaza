@@ -3244,6 +3244,7 @@ export const fr = {
       benefits: {
         oneTap: "S'ouvre d'un geste, comme une application",
         offline: "Affiche vos dernières informations même sans connexion",
+        notifications: "Vous prévient sur l'écran, même application fermée",
         light: "Très léger : pas de Play Store",
       },
       install: "Installer",
@@ -3256,6 +3257,13 @@ export const fr = {
         addToHome: "Choisissez « Sur l'écran d'accueil »",
         add: "Touchez « Ajouter »",
       },
+      iphoneNotifications:
+        "Sur iPhone, les notifications ne s'affichent qu'une fois l'application ajoutée à l'écran d'accueil.",
+    },
+    notifications: {
+      subtitle:
+        "Les nouvelles des écoles de vos enfants. Elles s'affichent aussi sur l'écran de ce téléphone, même application fermée.",
+      older: "Notifications plus anciennes",
     },
     nav: {
       label: "Navigation du portail",

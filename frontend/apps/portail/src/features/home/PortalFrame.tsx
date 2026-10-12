@@ -7,6 +7,8 @@ import { Link, NavLink } from "react-router";
 
 import { accountKey, forgetFamilyData, forgetLastSession } from "../../lib/account";
 import { useFamilies } from "../../lib/families";
+import { disablePush } from "../../lib/push";
+import { NotificationBell } from "../notifications/NotificationBell";
 
 /** Pages du compte (maquettes `accueil`, `enfant-paiements`, `annonces`) : en-tête sombre avec
  *  la marque et la déconnexion, ou, sur la page d'un enfant (`title`), le retour à l'accueil et
@@ -45,23 +47,29 @@ export function PortalFrame({
       <header className="bg-basalt px-4 py-4 text-basalt-ink">
         <div className="mx-auto flex max-w-[640px] items-center justify-between gap-3">
           {heading !== undefined ? (
-            <div className="flex items-center gap-2.5">
-              <PlatformMark className="h-[26px] min-w-[26px]" />
-              <h1 className="text-[1.1rem] text-basalt-ink">{heading}</h1>
-            </div>
+            <>
+              <div className="flex items-center gap-2.5">
+                <PlatformMark className="h-[26px] min-w-[26px]" />
+                <h1 className="text-[1.1rem] text-basalt-ink">{heading}</h1>
+              </div>
+              <NotificationBell />
+            </>
           ) : title === undefined ? (
             <>
               <Brand />
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-basalt-ink"
-                disabled={logout.isPending}
-                onClick={() => logout.mutate()}
-              >
-                <Icon name="logout" size={16} />
-                {t("portal.home.logout")}
-              </Button>
+              <div className="flex items-center gap-1">
+                <NotificationBell />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-basalt-ink"
+                  disabled={logout.isPending}
+                  onClick={() => logout.mutate()}
+                >
+                  <Icon name="logout" size={16} />
+                  {t("portal.home.logout")}
+                </Button>
+              </div>
             </>
           ) : (
             <>
@@ -86,11 +94,16 @@ export function PortalFrame({
   );
 }
 
-/** Déconnexion : rien de cette famille ne reste sur le téléphone, ni ses données ni son numéro. */
+/** Déconnexion : rien de cette famille ne reste sur le téléphone, ni ses données ni son numéro,
+ *  et ses notifications ne s'y affichent plus (téléphone prêté ou partagé). */
 export function useLogout() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => call(api.POST("/api/auth/logout/")),
+    mutationFn: async () => {
+      // Avant la fin de la session : le serveur doit encore reconnaître le compte.
+      await disablePush().catch(() => undefined);
+      return call(api.POST("/api/auth/logout/"));
+    },
     onSuccess: async () => {
       forgetLastSession();
       await forgetFamilyData(queryClient);
@@ -112,7 +125,8 @@ function PortalNav({ childId }: { childId?: string }) {
   if (payments) {
     items.push({ to: `/children/${payments}`, icon: "card", label: t("portal.nav.payments") });
   }
-  items.push({ to: "/announcements", icon: "bell", label: t("portal.nav.announcements") });
+  // La cloche est celle des notifications (en-tête) : les annonces ont le porte-voix.
+  items.push({ to: "/announcements", icon: "megaphone", label: t("portal.nav.announcements") });
   items.push({ to: "/profile", icon: "user", label: t("portal.nav.profile") });
 
   return (

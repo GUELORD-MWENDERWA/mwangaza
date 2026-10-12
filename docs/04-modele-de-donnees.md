@@ -141,7 +141,7 @@ Règles :
 
 **PushSubscription [G]** — `user`, `app`, `school` (Gestion : l'école de l'adresse, chaque adresse ayant son service worker ; Portail : vide), `endpoint` (unique), `p256dh`, `auth`, `user_agent`. Le même navigateur repris par un autre compte passe à ce compte ; supprimé quand le service de notifications répond 404 / 410, ou à la déconnexion.
 
-**NotificationPreference [G]** (5.5) — `user` (unique), `muted` (sortes coupées sur l'écran, pour toutes les écoles du compte ; elles restent au centre de notifications ; la notification d'essai part toujours).
+**NotificationPreference [G]** (5.5) — `user` (unique), `muted` (sortes coupées sur l'écran, pour toutes les écoles du compte ; elles restent au centre de notifications ; la notification d'essai part toujours ; Gestion et Portail ne remplacent chacun que les sortes qu'ils règlent, 5.5.2).
 
 ## 6. Synchronisation
 

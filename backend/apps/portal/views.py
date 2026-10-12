@@ -1,6 +1,7 @@
+from django.conf import settings
 from django.utils.text import slugify
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiResponse, extend_schema
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import ListAPIView
@@ -13,8 +14,15 @@ from apps.accounts import login
 from apps.accounts.views import AuthView
 from apps.core.documents import PDF, render
 from apps.core.errors import ErrorSerializer
+from apps.notifications import push
 from apps.notifications.attachments import attachment_response
-from apps.portal import announcements, children, families, receipts, services
+from apps.notifications.serializers import (
+    NotificationPreferencesSerializer,
+    NotificationReadSerializer,
+    PushSubscriptionSerializer,
+    PushUnsubscribeSerializer,
+)
+from apps.portal import announcements, children, families, notifications, receipts, services
 from apps.portal.serializers import (
     AnnouncementsQuerySerializer,
     ChildPaymentsSerializer,
@@ -24,6 +32,7 @@ from apps.portal.serializers import (
     PortalAnnouncementSerializer,
     PortalLoginSerializer,
     PortalMeSerializer,
+    PortalNotificationSerializer,
     PortalProfileSerializer,
     ReadSerializer,
 )
@@ -264,3 +273,126 @@ class AnnouncementAttachmentView(APIView):
         if response is None:
             raise NotFound
         return response
+
+
+@extend_schema(tags=["portal"])
+class NotificationsView(ListAPIView):
+    """Centre de notifications du parent (5.5.2), toutes ses écoles mêlées, les plus récentes
+    d'abord ; `unread` : seulement les non lues (leur nombre : `count`)."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+    serializer_class = PortalNotificationSerializer
+
+    @extend_schema(
+        parameters=[OpenApiParameter("unread", bool, description="Seulement les non lues.")],
+        responses={200: PortalNotificationSerializer(many=True), 403: ErrorSerializer},
+    )
+    def get(self, request: Request, *args, **kwargs) -> Response:
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        found = notifications.inbox(self.request.user)
+        if self.request.query_params.get("unread") in ("1", "true"):
+            found = found.filter(read_at__isnull=True)
+        return found
+
+
+@extend_schema(tags=["portal"])
+class NotificationsReadView(APIView):
+    """Noter comme lues celles données, ou toutes."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(request=NotificationReadSerializer, responses={204: None, 400: ErrorSerializer})
+    def post(self, request: Request) -> Response:
+        serializer = NotificationReadSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        notifications.mark_read(request.user, serializer.validated_data.get("ids"))
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@extend_schema(tags=["portal"])
+class NotificationsTestView(APIView):
+    """Notification d'essai, envoyée sur les écrans abonnés de ce compte."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(
+        request=None, responses={201: PortalNotificationSerializer, 409: ErrorSerializer}
+    )
+    def post(self, request: Request) -> Response:
+        notification = notifications.send_test(request.user)
+        data = PortalNotificationSerializer(notification).data
+        return Response(data, status=status.HTTP_201_CREATED)
+
+
+@extend_schema(tags=["portal"])
+class NotificationPreferencesView(APIView):
+    """Préférences du compte (sortes coupées sur l'écran) et clé publique pour s'abonner."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+    kinds = push.PREFERENCE_KINDS[notifications.APP]
+
+    def _response(self, muted: list[str]) -> Response:
+        key = settings.WEBPUSH_VAPID_PUBLIC_KEY if push.is_configured() else ""
+        return Response({"vapid_public_key": key, "kinds": self.kinds, "muted": muted})
+
+    @extend_schema(request=None, responses={200: NotificationPreferencesSerializer})
+    def get(self, request: Request) -> Response:
+        return self._response(push.muted_kinds(request.user, notifications.APP))
+
+    @extend_schema(
+        request=NotificationPreferencesSerializer,
+        responses={200: NotificationPreferencesSerializer, 400: ErrorSerializer},
+    )
+    def put(self, request: Request) -> Response:
+        serializer = NotificationPreferencesSerializer(
+            data=request.data, context={"kinds": self.kinds}
+        )
+        serializer.is_valid(raise_exception=True)
+        muted = push.set_muted_kinds(
+            request.user, notifications.APP, serializer.validated_data["muted"]
+        )
+        return self._response(muted)
+
+
+@extend_schema(tags=["portal"])
+class PushSubscribeView(APIView):
+    """Abonner ce navigateur aux notifications sur l'écran de ce compte (Web Push)."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(request=PushSubscriptionSerializer, responses={204: None, 400: ErrorSerializer})
+    def post(self, request: Request) -> Response:
+        serializer = PushSubscriptionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        push.subscribe(
+            request.user,
+            app=notifications.APP,
+            school=None,
+            endpoint=data["endpoint"],
+            p256dh=data["keys"]["p256dh"],
+            auth=data["keys"]["auth"],
+            ua=request.headers.get("User-Agent", ""),
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@extend_schema(tags=["portal"])
+class PushUnsubscribeView(APIView):
+    """Ce navigateur ne reçoit plus rien sur l'écran (désactivation, déconnexion)."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(request=PushUnsubscribeSerializer, responses={204: None, 400: ErrorSerializer})
+    def post(self, request: Request) -> Response:
+        serializer = PushUnsubscribeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        push.unsubscribe(
+            request.user,
+            app=notifications.APP,
+            school=None,
+            endpoint=serializer.validated_data["endpoint"],
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)

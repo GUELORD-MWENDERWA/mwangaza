@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 finie (recette du 2026-10-12), en attente de la mise en ligne ; la V1.1 reprend |
 | Lot | V1.0 (mise en ligne), puis V1.1 |
-| Tâche en cours | aucune — 4.21 terminée (PR ouverte, à fusionner) : **la V1.0 est finie**, il reste la mise en ligne |
-| Prochaine tâche | 5.5.2 (la V1.1 reprend) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #165 pour 4.21 ; #186 pour 4.23 (ajoutée à la recette) |
-| Branche | `tache/4.21-recette-finale` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune — 5.5.2 terminée (PR ouverte) ; **ordre de fusion : d'abord la PR 4.21 (#187), puis celle de la 5.5.2**, posée dessus |
+| Prochaine tâche | 5.6 (notifications — événements) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #40 pour 5.5 (fermée par la PR de la 5.5.2) ; #165 pour 4.21 ; #186 pour 4.23 |
+| Branche | `tache/5.5.2-portail-notifications` (posée sur `tache/4.21-recette-finale`) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-12 |
 
 ## Avancement
@@ -25,7 +25,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 4 — Rapports, portail, production (reste : 4.6.3, 4.7.2 et 4.23, avec la mise en ligne) | 16 | 19 |
 | Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 14 | 14 |
 | **V1.0** | **64** | **67** |
-| V1.1 — plateforme, notifications, communication (en pause) | 8 | 11 |
+| V1.1 — plateforme, notifications, communication | 9 | 11 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
 | V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
@@ -56,6 +56,14 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
+
+### 2026-10-12 — Tâche 5.5.2 : notifications dans le Portail
+
+- Fait : `/api/portal/notifications/…` (liste du parent toutes écoles mêlées, « lue », essai, préférences, abonnement et désabonnement sans école) ; Portail : écran `/notifications`, cloche de l'en-tête, `push-sw.js` chargé par son service worker, désabonnement à la déconnexion, `/install` (iPhone). Aucun modèle nouveau ; abonnement du navigateur mis en commun (`@mwangaza/ui`, `createPush`). Maquette `portail/notifications` dessinée ; capture à 390 px conforme.
+- Tests : 3 serveur (un parent ne lit ni ne marque que ses notifications du Portail, écoles encore ouvertes au compte ; routes refusées sans session et à l'adresse d'une école ; abonnement sans école, envoi au seul navigateur du Portail), 1 écran ; tests du Portail et des notifications de la Gestion verts.
+- Corrigé au passage : enregistrer ses préférences dans une application effaçait les sortes coupées dans l'autre (compte à la fois du personnel et parent).
+- Pas essayé : une vraie notification sur un téléphone (il faut l'application construite, `make reseau`, et un téléphone) — étape de « À tester toi-même ».
+- PR posée sur la branche de la 4.21 (travail de nuit en autonomie, demandé par l'utilisateur le 2026-10-12) : fusionner la #187 d'abord. Décisions : `03`. Suite : 5.6.
 
 ### 2026-10-12 — Tâche 4.21 : recette finale, la V1.0 est finie
 

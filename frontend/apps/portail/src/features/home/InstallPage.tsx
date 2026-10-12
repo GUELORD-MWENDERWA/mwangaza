@@ -14,7 +14,7 @@ import { useNavigate } from "react-router";
 
 import { installLater, useInstallPrompt } from "../../lib/install";
 
-const BENEFITS = ["oneTap", "offline", "light"] as const;
+const BENEFITS = ["oneTap", "offline", "notifications", "light"] as const;
 const IPHONE_STEPS = ["share", "addToHome", "add"] as const;
 
 /** « Installer » (maquette `installer`, H6, M19) : proposé une fois après l'activation, puis par
@@ -93,6 +93,9 @@ export function InstallPage() {
                 </li>
               ))}
             </ol>
+            <p className="mt-3 text-[.88rem] text-ink-3">
+              {t("portal.install.iphoneNotifications")}
+            </p>
           </CardContent>
         </Card>
       </main>

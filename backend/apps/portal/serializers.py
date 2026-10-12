@@ -8,6 +8,7 @@ from apps.accounts.serializers import LoginSerializer, PhoneField
 from apps.core.money import Currency
 from apps.finance.models import Payment
 from apps.finance.serializers import BalanceSerializer, LastPaymentSerializer
+from apps.notifications.serializers import NotificationSerializer
 from apps.portal import children, families
 from apps.schools.models import School
 from apps.students.serializers import ContactDetailsSerializer
@@ -175,3 +176,14 @@ class PortalProfileSerializer(ContactDetailsSerializer):
         read_only=True,
         help_text="Écoles qui n'ont pas encore traité les coordonnées envoyées.",
     )
+
+
+class PortalNotificationSerializer(NotificationSerializer):
+    """Notification du parent, avec son école : le centre du portail mêle toutes ses écoles."""
+
+    school_name = serializers.CharField(source="school.name", read_only=True)
+    school_timezone = serializers.CharField(source="school.timezone", read_only=True)
+
+    class Meta(NotificationSerializer.Meta):
+        fields = [*NotificationSerializer.Meta.fields, "school_name", "school_timezone"]
+        read_only_fields = fields

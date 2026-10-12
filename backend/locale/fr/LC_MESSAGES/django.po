@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 19:31+0200\n"
+"POT-Creation-Date: 2026-10-12 01:40+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -2034,8 +2034,8 @@ msgstr "Un paiement unique a exactement une tranche."
 msgid "The installments must add up to the total."
 msgstr "La somme des tranches doit être égale au total."
 
-#: apps/finance/services.py:639 apps/finance/services.py:775
-#: apps/finance/services.py:839 apps/finance/services.py:1811
+#: apps/finance/services.py:639 apps/finance/services.py:778
+#: apps/finance/services.py:842 apps/finance/services.py:1823
 msgid "This field may not be blank."
 msgstr "Ce champ ne peut pas être vide."
 
@@ -2058,69 +2058,69 @@ msgstr ""
 msgid "The installments must add up to what is left to reschedule."
 msgstr "La somme des tranches doit être égale au reste à rééchelonner."
 
-#: apps/finance/services.py:783
+#: apps/finance/services.py:786
 msgid "Only a student enrolled this year can get a discount."
 msgstr "Seul un élève inscrit cette année peut recevoir une réduction."
 
-#: apps/finance/services.py:792
+#: apps/finance/services.py:795
 msgid "The student owes nothing for this fee."
 msgstr "L'élève ne doit rien pour ce frais."
 
-#: apps/finance/services.py:798
+#: apps/finance/services.py:801
 msgid "An amount applies to one fee, in its currency."
 msgstr "Un montant s'applique à un seul frais, dans sa devise."
 
-#: apps/finance/services.py:801
+#: apps/finance/services.py:804
 msgid "A discount cannot be more than the fee."
 msgstr "Une réduction ne peut pas dépasser le frais."
 
-#: apps/finance/services.py:1097
+#: apps/finance/services.py:1109
 msgid "Give the reason for the correction."
 msgstr "Donnez le motif de la correction."
 
-#: apps/finance/services.py:1100
+#: apps/finance/services.py:1112
 msgid "This is already the rate of the year."
 msgstr "C'est déjà le taux de l'année."
 
-#: apps/finance/services.py:1130
+#: apps/finance/services.py:1142
 msgid "This code is kept for cancellations and for earlier payments."
 msgstr ""
 "Ce code est réservé aux annulations et aux paiements d'avant l'application."
 
-#: apps/finance/services.py:1314
+#: apps/finance/services.py:1326
 msgid "The student does not owe this fee, or it appears twice."
 msgstr "L'élève ne doit pas ce frais, ou il apparaît deux fois."
 
-#: apps/finance/services.py:1320
+#: apps/finance/services.py:1332
 msgid "This part is more than what is left to pay on this fee, or too small."
 msgstr ""
 "Cette part dépasse le reste à payer de ce frais, ou elle est trop petite."
 
-#: apps/finance/services.py:1324
+#: apps/finance/services.py:1336
 msgid "The parts must add up to the amount received."
 msgstr "La somme des parts doit être égale au montant reçu."
 
-#: apps/finance/services.py:1384
+#: apps/finance/services.py:1396
 msgid "This receipt number was not given by this device."
 msgstr "Ce numéro de reçu n'a pas été donné par cet appareil."
 
-#: apps/finance/services.py:1387
+#: apps/finance/services.py:1399
 msgid "Another payment already has this receipt number."
 msgstr "Un autre paiement a déjà ce numéro de reçu."
 
-#: apps/finance/services.py:1438
+#: apps/finance/services.py:1450
 msgid "The school does not use this currency."
 msgstr "L'école n'utilise pas cette devise."
 
-#: apps/finance/services.py:1462
+#: apps/finance/services.py:1474
 msgid "This is more than what the student owes: give back the change."
 msgstr "C'est plus que ce que doit l'élève : rendez la monnaie."
 
-#: apps/finance/services.py:2137
+#: apps/finance/services.py:2149
 msgid "Count the money of each currency."
 msgstr "Comptez l'argent de chaque devise."
 
-#: apps/finance/services.py:2145
+#: apps/finance/services.py:2157
 msgid "Explain the difference: the accountant will see it."
 msgstr "Expliquez l'écart : le comptable le verra."
 
@@ -2603,7 +2603,7 @@ msgstr "Indisponible pendant une session support."
 msgid "This announcement has no attachment."
 msgstr "Cette annonce n'a pas de pièce jointe."
 
-#: apps/notifications/views.py:257
+#: apps/notifications/views.py:257 apps/portal/notifications.py:59
 msgid "Notifications are working"
 msgstr "Les notifications fonctionnent"
 
@@ -2613,6 +2613,17 @@ msgid ""
 "Notifications from %(school)s will appear here, even with the app closed."
 msgstr ""
 "Les notifications de %(school)s s'afficheront ici, même application fermée."
+
+#: apps/portal/notifications.py:22
+msgid "No school is linked to this account."
+msgstr "Aucune école n'est reliée à ce compte."
+
+#: apps/portal/notifications.py:60
+msgid ""
+"News from your children's schools will appear here, even with the app closed."
+msgstr ""
+"Les nouvelles des écoles de vos enfants s'afficheront ici, même application "
+"fermée."
 
 #: apps/portal/receipts.py:57
 msgid "nothing"

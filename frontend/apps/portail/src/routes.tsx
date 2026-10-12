@@ -10,6 +10,7 @@ import { LoginPage } from "./features/auth/LoginPage";
 import { ChildPage } from "./features/child/ChildPage";
 import { AddSchoolPage } from "./features/home/AddSchoolPage";
 import { HomePage } from "./features/home/HomePage";
+import { NotificationsPage } from "./features/notifications/NotificationsPage";
 import { GuidePage } from "./features/home/GuidePage";
 import { InstallPage } from "./features/home/InstallPage";
 import { ProfilePage } from "./features/profile/ProfilePage";
@@ -65,6 +66,7 @@ export const routes: RouteObject[] = [
       { path: "guide", element: <GuidePage /> },
       { path: "children/:id", element: <ChildPage /> },
       { path: "announcements", element: <AnnouncementsPage /> },
+      { path: "notifications", element: <NotificationsPage /> },
       { path: "profile", element: <ProfilePage /> },
     ],
   },
