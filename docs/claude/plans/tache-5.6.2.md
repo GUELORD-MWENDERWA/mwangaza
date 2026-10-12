@@ -19,4 +19,4 @@
 `notifications/tests/test_scheduled.py` : isolation (l'autre école ne reçoit ni ne déclenche rien), montants (payé, partiel, deux devises), un seul envoi par jour et par intervalle, caisse ouverte selon le droit et l'heure, purge ; `schools` : réglages (droit, journal). Front : carte des relances dans le formulaire.
 
 ## Coût serveur
-Passage : 2 requêtes. Par école et par jour : 5 requêtes limitées aux familles qui ont un compte, 2 lignes `ScheduledRun` (purgées à 90 jours).
+Passage : 2 requêtes. Par école et par jour : 6 requêtes simples (familles, puis leurs inscriptions — jamais cinq tables d'un coup) limitées aux familles qui ont un compte, 2 lignes `ScheduledRun` (purgées à 90 jours).

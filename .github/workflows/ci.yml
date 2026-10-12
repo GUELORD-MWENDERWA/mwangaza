@@ -51,6 +51,9 @@ jobs:
     needs: changes
     if: needs.changes.outputs.backend != 'false'
     runs-on: ubuntu-24.04
+    # Un contrôle dure environ 5 minutes : bloqué (requête sans fin…), il échoue vite au lieu de
+    # tourner jusqu'à 6 heures.
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:16
@@ -93,6 +96,9 @@ jobs:
     needs: changes
     if: needs.changes.outputs.frontend != 'false'
     runs-on: ubuntu-24.04
+    # Un contrôle dure environ 5 minutes : bloqué (requête sans fin…), il échoue vite au lieu de
+    # tourner jusqu'à 6 heures.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6.1.0
@@ -123,6 +129,9 @@ jobs:
     needs: changes
     if: needs.changes.outputs.e2e != 'false'
     runs-on: ubuntu-24.04
+    # Un contrôle dure environ 5 minutes : bloqué (requête sans fin…), il échoue vite au lieu de
+    # tourner jusqu'à 6 heures.
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:16

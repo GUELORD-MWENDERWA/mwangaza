@@ -31,7 +31,7 @@ from apps.notifications.models import Notification, ScheduledRun
 from apps.portal.children import fee_label
 from apps.schools import alerts
 from apps.schools.models import School
-from apps.students.models import Enrollment
+from apps.students.models import Enrollment, Family
 
 logger = logging.getLogger(__name__)
 
@@ -126,18 +126,26 @@ def _reminders(school: School, day: date) -> int:
     """Relances du jour aux parents qui ont un compte du portail (actif, accès non suspendu par
     l'école) : échéances qui tombent dans `days_before` jours et reste > 0 ; retards, sauf pour
     un parent déjà rappelé depuis moins de `overdue_every_days` jours (sa dernière notification
-    de retard fait foi). Cinq requêtes quelle que soit la taille de l'école, limitées aux enfants
-    de ces familles ; même calcul que le solde (`finance.charges_by_enrollment`)."""
+    de retard fait foi). Six requêtes quelle que soit la taille de l'école, limitées aux enfants
+    de ces familles ; même calcul que le solde (`finance.charges_by_enrollment`).
+
+    Familles d'abord, puis leurs inscriptions : une seule requête sur les cinq tables (inscription,
+    élève, famille, compte, année) ne finit jamais quand PostgreSQL croit les tables vides (base
+    juste remplie : `make demo`, import)."""
     settings = school.reminders
-    enrollments = Enrollment.objects.filter(
-        academic_year__is_current=True,
-        status=Enrollment.Status.ACTIVE,
-        student__family__primary_user__is_active=True,
-        student__family__portal_suspended_at__isnull=True,
-    )
-    students: dict = {
+    parents = {
+        family.pk: family.primary_user
+        for family in Family.objects.filter(
+            primary_user__is_active=True, portal_suspended_at__isnull=True
+        ).select_related("primary_user")
+    }
+    students = {
         enrollment.pk: enrollment.student
-        for enrollment in enrollments.select_related("student__family__primary_user")
+        for enrollment in Enrollment.objects.filter(
+            academic_year__is_current=True,
+            status=Enrollment.Status.ACTIVE,
+            student__family__in=list(parents),
+        ).select_related("student")
     }
     if not students:
         return 0
@@ -151,9 +159,9 @@ def _reminders(school: School, day: date) -> int:
     )
     due_on = day + timedelta(days=settings["days_before"])
     soon, late = defaultdict(list), defaultdict(list)
-    charges = finance.charges_by_enrollment(enrollments.values("pk"), light=True)
+    charges = finance.charges_by_enrollment(list(students), light=True)
     for enrollment_id, items in charges.items():
-        parent = students[enrollment_id].family.primary_user
+        parent = parents[students[enrollment_id].family_id]
         for charge in items:
             if charge.state == finance.OVERDUE and parent.pk not in reminded:
                 late[parent].append(charge)
