@@ -58,11 +58,11 @@ export function SummonsPage() {
       <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-4 min-[1100px]:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
         <NewSummonsCard />
         <Card>
-          <CardHeader>
+          <CardHeader className="flex-wrap gap-2">
             <CardTitle>{t("summons.list")}</CardTitle>
             <Input
               type="search"
-              className="max-w-64"
+              className="w-full min-[520px]:max-w-64"
               aria-label={t("summons.search")}
               placeholder={t("summons.search")}
               value={search}
