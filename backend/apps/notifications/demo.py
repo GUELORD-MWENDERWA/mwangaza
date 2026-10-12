@@ -15,13 +15,14 @@ from apps.accounts.demo import PLATFORM_ADMIN_PHONE
 from apps.accounts.models import User
 from apps.core.tenancy import use_school
 from apps.finance.models import CancellationRequest, Payment
-from apps.notifications import events, platform, push, services
+from apps.notifications import events, platform, push, scheduled, services
 from apps.notifications.models import (
     Announcement,
     AnnouncementRead,
     Notification,
     PlatformAnnouncement,
     PlatformAnnouncementRead,
+    ScheduledRun,
 )
 from apps.schools.demo import DemoSpace
 from apps.schools.models import ClassGroup, School
@@ -146,9 +147,15 @@ def create_demo_event_notifications(spaces: list[DemoSpace]) -> None:
     """Notifications des événements (5.6.1). Écrites une fois (base neuve ou d'avant la 5.6.1),
     datées de l'événement : annonces en cours et dernier paiement de la famille du compte du
     portail pour les parents, annulations en attente pour ceux qui les valident (sur une base
-    neuve, `finance.demo` les a déjà demandées). Non lues à chaque `make demo`."""
+    neuve, `finance.demo` les a déjà demandées). Relances aux parents (5.6.2) : activées dans
+    l'école, et celles du jour envoyées aux familles qui ont un compte (une fois par jour, comme
+    le planificateur). Non lues à chaque `make demo`."""
     kind = Notification.Kind
     for space in spaces:
+        school = space.school
+        school.settings = {**school.settings, "reminders": {"enabled": True}}
+        school.save(update_fields=["settings"])
+        scheduled.run(school, ScheduledRun.Job.REMINDERS, timezone.now())
         with use_school(space.school):
             if not Notification.objects.filter(app=Notification.App.PORTAIL).exists():
                 _notify_parents()

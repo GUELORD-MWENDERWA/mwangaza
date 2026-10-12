@@ -111,6 +111,24 @@ class AlertSettingsSerializer(serializers.Serializer):
         return value
 
 
+class ReminderSettingsSerializer(serializers.Serializer):
+    """Relances aux parents (`reminders.py`, 5.6.2). Écriture partielle : les autres restent."""
+
+    enabled = serializers.BooleanField(
+        help_text="Envoyer aux parents les notifications d'échéance proche et de retard."
+    )
+    days_before = serializers.IntegerField(
+        min_value=1,
+        max_value=30,
+        help_text="Jours avant la date limite où part « Échéance proche ».",
+    )
+    overdue_every_days = serializers.IntegerField(
+        min_value=1,
+        max_value=60,
+        help_text="Jours entre deux rappels d'un retard au même parent.",
+    )
+
+
 class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
     """Informations publiques de l'école : écran de connexion (nom, couleur, logo) ; fuseau et
     devises pour les écrans (dates, montants)."""
@@ -170,6 +188,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
     )
     receipt = ReceiptSettingsSerializer(required=False)
     alerts = AlertSettingsSerializer(required=False)
+    reminders = ReminderSettingsSerializer(required=False)
 
     class Meta:
         model = School
@@ -186,6 +205,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
             "default_currency",
             "receipt",
             "alerts",
+            "reminders",
         ]
         read_only_fields = ["code"]
 
@@ -198,7 +218,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
         # l'école, couleur écrite `#RRGGBB`.
         school = copy(self.instance)
         for field, value in data.items():
-            if field not in ("receipt", "alerts"):
+            if field not in ("receipt", "alerts", "reminders"):
                 setattr(school, field, value)
         try:
             school.clean()

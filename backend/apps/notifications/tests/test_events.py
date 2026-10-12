@@ -158,6 +158,7 @@ def test_each_account_only_sets_the_kinds_it_can_receive_in_that_school(
         "platform_news",
         "cancellation_request",
         "cash_difference",
+        "register_open",
     ]
     assert at_beta.get(preferences).json()["kinds"] == ["platform_news"]
     at_alpha.put(preferences, {"muted": ["cash_difference"]})

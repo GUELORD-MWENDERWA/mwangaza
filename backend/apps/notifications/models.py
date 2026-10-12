@@ -151,6 +151,10 @@ class Notification(TenantModel):
         ANNOUNCEMENT = "announcement", _("School announcement")
         CANCELLATION_REQUEST = "cancellation_request", _("Cancellation to approve")
         CASH_DIFFERENCE = "cash_difference", _("Cash difference")
+        # À heure fixe (5.6.2, `scheduled.py`) : relances au parent, alerte au personnel.
+        PAYMENT_DUE = "payment_due", _("Payment due soon")
+        PAYMENT_OVERDUE = "payment_overdue", _("Late payment")
+        REGISTER_OPEN = "register_open", _("Register still open")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -176,6 +180,33 @@ class Notification(TenantModel):
 
     def __str__(self) -> str:
         return self.title
+
+
+class ScheduledRun(TenantModel):
+    """Passage du planificateur fait pour une école (5.6.2, `scheduled.py`) : une ligne par
+    sorte de travail et par jour de l'école, écrite dans la transaction de ses notifications —
+    rien ne part deux fois le même jour, même si un passage est rejoué. Purgée avec les vieilles
+    notifications."""
+
+    class Job(models.TextChoices):
+        REMINDERS = "reminders", _("Reminders to parents")
+        OPEN_REGISTERS = "open_registers", _("Registers still open")
+
+    job = models.CharField(_("job"), max_length=20, choices=Job.choices)
+    day = models.DateField(_("day"))
+
+    class Meta:
+        verbose_name = _("scheduled run")
+        verbose_name_plural = _("scheduled runs")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["school", "job", "day"], name="scheduled_run_once_a_day"
+            )
+        ]
+        indexes = [models.Index(fields=["day"], name="scheduled_run_day")]
+
+    def __str__(self) -> str:
+        return f"{self.job} {self.day}"
 
 
 class PushSubscription(BaseModel):

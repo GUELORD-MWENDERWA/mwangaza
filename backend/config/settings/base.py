@@ -6,6 +6,8 @@ Les valeurs propres à une machine viennent des variables d'environnement (voir 
 import os
 from pathlib import Path
 
+from celery.schedules import crontab
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
@@ -237,6 +239,19 @@ CELERY_BROKER_URL = env("REDIS_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = None
 CELERY_TASK_ALWAYS_EAGER = env_bool("CELERY_TASK_ALWAYS_EAGER", False)
 CELERY_TIMEZONE = TIME_ZONE
+# Planificateur (beat, lancé dans le worker : `celery worker -B`). Les heures propres à chaque
+# école (relances, clôture) sont décidées dans le passage, pas ici (`notifications/scheduled.py`).
+CELERY_BEAT_SCHEDULE = {
+    "notifications-tick": {
+        "task": "apps.notifications.tasks.tick",
+        "schedule": crontab(minute="*/15"),
+        "options": {"expires": 10 * 60},
+    },
+    "notifications-purge": {
+        "task": "apps.notifications.tasks.purge",
+        "schedule": crontab(hour=3, minute=30),
+    },
+}
 
 LOGGING = {
     "version": 1,

@@ -63,6 +63,8 @@ def test_head_reads_the_settings(api, school, head):
             "cancellations_per_day": 3,
             "closing_time": "18:00",
         },
+        # Relances aux parents : rien ne part tant que l'école ne les a pas activées.
+        "reminders": {"enabled": False, "days_before": 3, "overdue_every_days": 7},
     }
 
 
@@ -129,6 +131,7 @@ def test_other_settings(api, school, head):
         ({"alerts": {"difference_minor": {"EUR": 500}}}, "alerts"),
         ({"alerts": {"difference_minor": {"USD": -1}}}, "alerts"),
         ({"alerts": {"closing_time": "25:00"}}, "alerts"),
+        ({"reminders": {"overdue_every_days": 0}}, "reminders"),
     ],
 )
 def test_invalid_settings_are_refused(api, school, head, data, field):
@@ -169,6 +172,22 @@ def test_receipt_settings_are_merged_and_journaled(api, school, head):
             {"receipt_copies": 1, "receipt_header": ""},
             {"receipt_copies": 2, "receipt_header": "Av. du Lac 1\n+243 000 000 000"},
         ),
+    ]
+
+
+def test_reminders_to_parents_are_merged_and_journaled(api, school, head):
+    api(head).patch(SETTINGS, {"reminders": {"days_before": 5}})
+    response = api(head).patch(SETTINGS, {"reminders": {"enabled": True}})
+
+    assert response.status_code == 200, response.content
+    reminders = {"enabled": True, "days_before": 5, "overdue_every_days": 7}
+    assert response.json()["reminders"] == reminders
+    school.refresh_from_db()
+    assert school.settings["reminders"] == reminders
+    updates = [log for log in journal(school) if log.action == Action.SCHOOL_UPDATED]
+    assert [(log.before, log.after) for log in updates] == [
+        ({"reminder_days_before": 3}, {"reminder_days_before": 5}),
+        ({"reminder_enabled": False}, {"reminder_enabled": True}),
     ]
 
 
