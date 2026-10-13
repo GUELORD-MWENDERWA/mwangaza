@@ -31,8 +31,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Sécurité (S.1 à S.9) | 2 | 9 |
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1–8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 0 | 9 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
-| V1.4 — emploi du temps et IA (EDT.1–4, IA.1–4) | 0 | 8 |
-| V1.5 — carte et présences | 0 | 6 |
+| V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
+| V1.5 — carte et présences (avec A.5) | 0 | 7 |
 | V1.6 — bibliothèque et ateliers (INV, BIB, ATL) | 0 | 7 |
 | V1.7 — sites des écoles, personnel, vie scolaire | 0 | 10 |
 | V2 | 0 | 13 |
@@ -61,6 +61,11 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-13 — Plan révisé : IA pilotée par la console, P3 planifié
+- Demande de l'utilisateur : les fonctions « si une école la demande » seront développées (P3 = fait en dernier, plus un abandon ; A.5 placée en V1.5 avec les cartes) ; l'IA dépend de l'abonnement, se contrôle dans la console et ne dépense pas de jetons pour rien.
+- `05` § 6.5 réécrit : usages IA déclarés et affectés école par école, crédits du mois et plafond de la plateforme vérifiés avant chaque appel, coût en entiers, appels en tâche de fond, console « IA » ; IA.1 découpée (IA.1.1 serveur, IA.1.2 console), nouvelle IA.5 (grille de cours d'une section depuis un bulletin en PDF) ; ABO.1 porte l'allocation IA de l'offre.
+- Écarté, avec la raison dans `05` : réglage de l'IA par l'école, modèle de bulletin en HTML écrit par l'IA, appels automatiques, assistant général dans la console. À décider avec ABO.1 : crédits par offre, prix d'une recharge, crédits perdus en fin de mois.
 
 ### 2026-10-13 — Tâche M.3.1 : rôles, droits déduits des permissions
 - Plus aucune décision d'après un code de rôle : le premier directeur reçoit le premier rôle de départ qui a `roles.manage` ; le guide de première connexion suit les droits (comptable : règle les frais sans régler l'école ; caisse : encaisse) ; la note « parent » de l'écran des rôles devient une note pour tout rôle sans permission.
