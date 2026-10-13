@@ -3040,6 +3040,16 @@ export const en: Messages<typeof fr> = {
       stopReasonHelp: "Kept in the platform journal.",
       stopReasonRequired: "Enter the reason.",
       stopReasonShown: "Reason: {{reason}}",
+      modulesTitle: "School features",
+      modulesHelp:
+        "The features the platform gives this school. Removing a module closes its screens and permissions without deleting anything; the core (login, settings, accounts, journal, classes) always stays on.",
+      modules: {
+        students: "Students, families and enrolments",
+        finance: "Fees, cash desk and payments",
+        communication: "Announcements",
+      },
+      modulesNone: "No module: the school only has the core.",
+      modulesSaved: "Modules saved.",
       stoppedBanner: "Stopped space: nobody can log in; the data is kept.",
       delete: "Delete",
       deleteTitle: "Delete {{name}}?",

@@ -13578,6 +13578,12 @@ components:
           type: string
           description: e.g. Discovery, Standard.
           maxLength: 50
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModulesEnum'
+          description: Fonctions données à l'école (M.1) ; le socle est toujours actif.
+            Retirer un module ne supprime aucune donnée.
         trial_ends_on:
           type: string
           format: date
@@ -13626,6 +13632,7 @@ components:
       - environment
       - status
       - plan
+      - modules
       - trial_ends_on
       - paid_until
       - enabled_currencies
@@ -13704,6 +13711,12 @@ components:
           type: string
           description: e.g. Discovery, Standard.
           maxLength: 50
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModulesEnum'
+          description: Fonctions données à l'école (M.1) ; le socle est toujours actif.
+            Retirer un module ne supprime aucune donnée.
         trial_ends_on:
           type: string
           format: date
@@ -13793,6 +13806,12 @@ components:
           type: string
           description: e.g. Discovery, Standard.
           maxLength: 50
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModulesEnum'
+          description: Fonctions données à l'école (M.1) ; le socle est toujours actif.
+            Retirer un module ne supprime aucune donnée.
         trial_ends_on:
           type: string
           format: date
@@ -13854,6 +13873,7 @@ components:
       - environment
       - status
       - plan
+      - modules
       - trial_ends_on
       - paid_until
       - enabled_currencies
@@ -16457,6 +16477,16 @@ components:
         * `matricule` - matricule
         * `guardian_name` - guardian_name
         * `guardian_phone` - guardian_phone
+    ModulesEnum:
+      enum:
+      - students
+      - finance
+      - communication
+      type: string
+      description: |-
+        * `students` - Students, families and enrolments
+        * `finance` - Fees, cash desk and payments
+        * `communication` - Announcements
     MySchool:
       type: object
       properties:
@@ -17640,6 +17670,12 @@ components:
           type: string
           description: e.g. Discovery, Standard.
           maxLength: 50
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModulesEnum'
+          description: Fonctions données à l'école (M.1) ; le socle est toujours actif.
+            Retirer un module ne supprime aucune donnée.
         trial_ends_on:
           type: string
           format: date

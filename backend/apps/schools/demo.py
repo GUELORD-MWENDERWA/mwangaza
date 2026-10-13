@@ -14,6 +14,7 @@ from django.core.files import File
 from django.utils import timezone
 
 from apps.accounts.models import User
+from apps.accounts.modules import ALL_MODULES
 from apps.core.tenancy import use_school
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Term, Track
 from apps.schools.organisation import YearTemplate, template_terms
@@ -150,7 +151,7 @@ def create_demo_schools(*, password: str, shared_totp_key: bool) -> list[DemoSpa
         school, _created = School.objects.update_or_create(
             code=code,
             environment=School.Environment.DEMO,
-            defaults={**fields, "setup_completed_at": timezone.now()},
+            defaults={**fields, "setup_completed_at": timezone.now(), "modules": ALL_MODULES},
         )
         numbers = MAKE_DEMO_NUMBERS[code]
         spaces.append(DemoSpace(school, code, numbers, password, shared_totp_key, with_logo=True))

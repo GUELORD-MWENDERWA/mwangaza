@@ -3062,6 +3062,16 @@ export const fr = {
       stopReasonHelp: "Gardé dans le journal de la plateforme.",
       stopReasonRequired: "Indiquez le motif.",
       stopReasonShown: "Motif : {{reason}}",
+      modulesTitle: "Fonctions de l'école",
+      modulesHelp:
+        "Les fonctions que la plateforme donne à cette école. Retirer un module ferme ses écrans et ses droits sans rien supprimer ; le socle (connexion, paramètres, comptes, journal, classes) reste toujours actif.",
+      modules: {
+        students: "Élèves, familles et inscriptions",
+        finance: "Frais, caisse et paiements",
+        communication: "Annonces",
+      },
+      modulesNone: "Aucun module : l'école n'a que le socle.",
+      modulesSaved: "Modules enregistrés.",
       stoppedBanner: "Espace arrêté : personne ne peut s'y connecter ; les données sont gardées.",
       delete: "Supprimer",
       deleteTitle: "Supprimer {{name}} ?",

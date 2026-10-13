@@ -31,6 +31,7 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from apps.accounts import modules
 from apps.accounts.login import MFA_SESSION_KEY
 from apps.accounts.roles import PERMISSIONS
 from apps.accounts.services import SchoolAccess
@@ -108,9 +109,11 @@ def current(request) -> SupportSession | None:
 
 def access(request) -> SchoolAccess | None:
     """Droits dans l'école pendant la session support : tous, sauf la caisse."""
-    if current(request) is None:
+    session = current(request)
+    if session is None:
         return None
-    return SchoolAccess(membership=None, roles=(), permissions=SUPPORT_PERMISSIONS)
+    permissions = SUPPORT_PERMISSIONS & modules.permissions_of(session.school.modules)
+    return SchoolAccess(membership=None, roles=(), permissions=permissions)
 
 
 def start(request, reason: str) -> SupportSession:

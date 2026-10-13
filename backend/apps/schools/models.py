@@ -125,6 +125,13 @@ class School(BaseModel):
         verbose_name=_("currencies"),
         default=default_currencies,
     )
+    # Fonctions données par la plateforme (`accounts/modules.py`, M.1) ; socle toujours actif.
+    modules = ArrayField(
+        models.CharField(max_length=30),
+        verbose_name=_("modules"),
+        default=list,
+        blank=True,
+    )
     default_currency = models.CharField(
         _("main currency"),
         max_length=3,

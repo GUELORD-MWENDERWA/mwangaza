@@ -24,6 +24,7 @@ const GAMMA = {
   plan: "Standard",
   trial_ends_on: null,
   paid_until: "2027-06-30",
+  modules: ["students"],
   enabled_currencies: ["USD", "CDF"],
   default_currency: "USD",
   student_count: 0,
@@ -82,6 +83,22 @@ describe("Écoles de la console", () => {
     await user.click(screen.getByRole("button", { name: "Créer l'école" }));
     expect(await screen.findByText("kivu-lac-42")).toBeTruthy();
     expect(screen.getByText(/Affiché une seule fois/)).toBeTruthy();
+  });
+
+  it("donne un module à l'école et n'envoie que les modules", async () => {
+    const requests = mockApi({
+      "GET /api/me/": ADMIN,
+      "GET /api/console/schools/s1/": GAMMA,
+      "PATCH /api/console/schools/s1/": { ...GAMMA, modules: ["students", "finance"] },
+    });
+    const { user } = renderApp("/schools/s1");
+
+    await user.click(await screen.findByRole("checkbox", { name: "Frais, caisse et paiements" }));
+    await user.click(screen.getAllByRole("button", { name: "Enregistrer" }).at(-1)!);
+
+    expect(await screen.findByText("Modules enregistrés.")).toBeTruthy();
+    const patch = requests.find((r) => r.method === "PATCH");
+    expect(patch?.body).toEqual({ modules: ["students", "finance"] });
   });
 
   it("ne suspend une école qu'après confirmation", async () => {
