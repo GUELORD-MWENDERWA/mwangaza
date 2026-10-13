@@ -66,7 +66,7 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 
 - Fait par l'utilisateur : `serveur.env` rempli (Cloudflare, B2 `mwangaza-sauvegardes-2026`, Healthchecks, Sentry).
 - Vérifié : `make deploy-check` vert (3 adresses, santé ok) ; `make deploy-backup` : « Copie hors du serveur : b2:… (2 sauvegardes) ».
-- Non vérifié ici : moniteur UptimeRobot, copie des clés hors du serveur (👤).
+- UptimeRobot et copie des clés hors du serveur : déjà faits, confirmé par l'utilisateur.
 - Suite : L.2 (restauration réelle depuis B2).
 
 ### 2026-10-13 — Tâche S.2 : dépendances et secrets surveillés
