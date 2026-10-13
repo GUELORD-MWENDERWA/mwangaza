@@ -8,6 +8,20 @@
 	}
 }
 
+# En-têtes de sécurité des applications construites (S.1). La CSP part d'abord en
+# `Content-Security-Policy-Report-Only` (le navigateur signale dans sa console sans bloquer) ;
+# après une semaine sans signalement, mettre `CSP_HEADER=Content-Security-Policy` dans l'environnement
+# de Caddy pour l'imposer. Ni `unsafe-eval` ni script en ligne ; `unsafe-inline` seulement pour les
+# styles (Radix et Tailwind en posent). Caméra à ouvrir ici le jour du scan QR (`02`).
+(securite) {
+	header {
+		Strict-Transport-Security "max-age=2592000; includeSubDomains"
+		X-Frame-Options DENY
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+		{$CSP_HEADER:Content-Security-Policy-Report-Only} "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-src 'self' blob:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+	}
+}
+
 # Application construite : fichiers à empreinte gardés un an ; le reste (index.html, service
 # worker, manifeste) revalidé à chaque visite, sinon un appareil garderait l'ancienne version.
 (pwa) {
@@ -16,6 +30,7 @@
 	@other not path /assets/*
 	header @hashed Cache-Control "public, max-age=31536000, immutable"
 	header @other Cache-Control "no-cache"
+	import securite
 	header {
 		X-Content-Type-Options nosniff
 		Referrer-Policy same-origin

@@ -66,8 +66,9 @@ services:
     environment:
       MWANGAZA_DOMAIN: ${MWANGAZA_DOMAIN}
       CADDY_TLS: ${CADDY_TLS:?CADDY_TLS manque dans infra/.env}
+      CSP_HEADER: ${CSP_HEADER:-Content-Security-Policy-Report-Only}
     volumes:
-      # Certificat d'origine Cloudflare (`origin.pem`, `origin.key`), jamais dans Git.
+      # Dossier des certificats de l'essai local (`make prod-local`), jamais dans Git ; le vrai serveur obtient son certificat joker lui-même (`production/Caddyfile`).
       - ./certs:/etc/caddy/certs:ro
       - caddy-data:/data
       - caddy-config:/config

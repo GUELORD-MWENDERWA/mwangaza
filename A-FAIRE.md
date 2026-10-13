@@ -17,6 +17,7 @@ Dernière mise à jour : 2026-10-13 (tâche 4.7.2 : sauvegardes hors du serveur,
 | 4 | **Lire le guide de la version 1.1** (`docs/guide/guide-v1.1.pdf`) et préparer ta présentation (`docs/guide/presentation-v1.1.pdf`) : elle se fait maintenant sur le vrai serveur, dans un espace de démonstration créé depuis la console | 1 h | [ ] |
 | 5 | **Avant la première vraie école** : étapes du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) (tâche 4.7.2) | 1 h | [ ] |
 | 6 | **GitHub › Settings › Code security** du dépôt : activer « Secret scanning » et « Push protection » (tâche S.2 : une clé poussée par erreur est bloquée) | 5 min | [ ] |
+| 6 bis | **CSP : après une semaine de `make deploy` sans message « Content-Security-Policy » dans la console du navigateur** (F12, sur les trois adresses), ajouter la ligne `CSP_HEADER=Content-Security-Policy` dans `infra/serveur/serveur.env` puis `make deploy` ; **Cloudflare en nuage orange** (DNS › les enregistrements `*`, `admin`, `parents` et la racine) : à faire avec Claude, pas seul | 15 min | [ ] |
 | 7 | **Un vrai bulletin EPST rempli** (ou le modèle officiel), photo ou scan, déposé dans `depot/` : il sert au gabarit du bulletin (8.3, V1.2) | 15 min | [ ] |
 | 8 | **Démarches Mobile Money et SMS** : contacter un agrégateur (M-Pesa, Airtel Money, Orange Money) et un fournisseur SMS / WhatsApp ; les contrats sont longs à obtenir (9.3 et 9.4, V2) | à ton rythme | [ ] |
 
