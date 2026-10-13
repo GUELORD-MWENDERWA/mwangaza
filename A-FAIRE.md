@@ -12,7 +12,7 @@ Dernière mise à jour : 2026-10-13 (tâche 4.7.2 : sauvegardes hors du serveur,
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
 | 1 | **Relire et fusionner la PR « L.0 — plan révisé »** (attendre les coches vertes) : la nouvelle file des tâches dans `docs/05-plan-de-travail.md`, à lire en entier une fois ; marche à suivre : [§ 10](#10-comment-relire-et-fusionner-une-pr) | 20 min | [ ] |
-| 2 | **Brancher les sauvegardes hors du serveur, les alertes et le suivi d'erreurs** : les 7 étapes du [§ 9 bis](#9-bis-brancher-les-sauvegardes-hors-du-serveur-472) (Backblaze B2, Healthchecks, Sentry, UptimeRobot) ; la phrase secrète `BACKUP_PASSPHRASE` est déjà dans `serveur.env`, **la noter aussi hors du serveur** | 45 min | [ ] |
+| 2 | ~~Sauvegardes hors du serveur, alertes, suivi d'erreurs (UptimeRobot, copie des clés)~~ : fait (L.1, vérifié le 2026-10-13) | | [x] |
 | 3 | **Garder une copie de `infra/serveur/serveur.env`** en lieu sûr (gestionnaire de mots de passe) ; changement de chaque clé : [§ 9 septies](#9-septies-garder-et-changer-les-clés-du-serveur-s2) | 2 min | [ ] |
 | 4 | **Lire le guide de la version 1.1** (`docs/guide/guide-v1.1.pdf`) et préparer ta présentation (`docs/guide/presentation-v1.1.pdf`) : elle se fait maintenant sur le vrai serveur, dans un espace de démonstration créé depuis la console | 1 h | [ ] |
 | 5 | **Avant la première vraie école** : étapes du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) (tâche 4.7.2) | 1 h | [ ] |

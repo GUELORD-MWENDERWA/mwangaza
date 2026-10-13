@@ -35,7 +35,7 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 |---|---|---|---|---|
 | | **Lancement** (§ 3, § 4, § 4 bis) | | | |
 | 1 | ~~**L.0**~~ ✓ Installer ce plan et remettre les documents d'aplomb | P0 | S | 🤖 |
-| 2 | **L.1** Clés du serveur (`serveur.env`) : B2, Healthchecks, Sentry, UptimeRobot | P0 | S | 👤 |
+| 2 | ~~**L.1**~~ ✓ Clés du serveur (`serveur.env`) : B2, Healthchecks, Sentry, UptimeRobot | P0 | S | 👤 |
 | 3 | **S.1** En-têtes de sécurité et CSP des trois applications (ex-L.3) | P0 | S | 🤖 |
 | 4 | **S.2** Dépendances et secrets surveillés (Dependabot, audit en CI, fuite de secrets) | P0 | S | 🤖 + 👤 |
 | 5 | **M.2.1** Modules : serveur et tâches de fond | P0 | M | 🤖 |
@@ -80,7 +80,7 @@ La V1.0 et la V1.1 sont faites (annexe). Il reste à fermer ce qui touche la sé
    - Mettre à jour les fichiers listés au § 9 (domaine, état, a-fournir, CLAUDE.md, skill `/tache`).
    - Une seule PR, aucun code applicatif touché.
 
-- [ ] **L.1** Clés du serveur *(P0, S, 👤)* — `A-FAIRE.md` § 9 : créer les comptes Backblaze B2, Healthchecks, Sentry, UptimeRobot et mettre les clés dans `serveur.env`. Puis `make deploy-check` doit être vert et la première copie de nuit doit arriver dans B2. *Rien de réel ne doit entrer sur le serveur avant.*
+- [x] **L.1** Clés du serveur *(P0, S, 👤)* — `A-FAIRE.md` § 9 : créer les comptes Backblaze B2, Healthchecks, Sentry, UptimeRobot et mettre les clés dans `serveur.env`. Puis `make deploy-check` doit être vert et la première copie de nuit doit arriver dans B2. *Rien de réel ne doit entrer sur le serveur avant.*
 
 - [ ] **L.2** Restauration réelle depuis B2 *(P0, S, 🤖 + 👤)* — la 4.7.1 a essayé la restauration sur la machine, jamais depuis la copie hors serveur. **Vérifié** : les commandes existent déjà (`make deploy-backup cmd=fetch` rapatrie la copie du stockage objet, `cmd=restore` l'essaie) ; il reste à les lancer pour de vrai une fois L.1 faite. Vérifier le nombre d'écoles, d'élèves, de paiements et les fichiers (logos, photos) ; noter la durée et la procédure exacte dans `A-FAIRE.md` (« Si le serveur est perdu »). Vérifier aussi que la clé de chiffrement des sauvegardes est gardée **ailleurs que sur le serveur** (👤 : gestionnaire de mots de passe). Une sauvegarde jamais restaurée n'est pas une sauvegarde.
 
