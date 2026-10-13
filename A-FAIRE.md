@@ -76,6 +76,12 @@ Partout : activer la double authentification et garder les codes de secours. Les
 
 `make deploy-init` a créé `infra/serveur/serveur.env` (MODE=production, `ubuntu@15.237.26.123`, clé `~/.ssh/LightsailDefaultKey-eu-west-3.pem`, secrets neufs). **À remplir** : `ACME_EMAIL` et `CLOUDFLARE_API_TOKEN` (Cloudflare : ajouter `mwangazaschool.com`, remplacer les serveurs de noms chez LWS par ceux de Cloudflare, jeton « Edit zone DNS » limité à cette zone ; enregistrements `A` `@` et `*` vers 15.237.26.123, en **DNS seulement** — nuage gris). Dans Lightsail › Mise en réseau : ouvrir HTTP 80 et HTTPS 443. **Garder une copie de `serveur.env`** (clé de sauvegarde et clé Django comprises). Quand le DNS répond : dis-le à Claude, puis `make deploy-setup`, `make deploy`, `make deploy-check`, `make deploy-superuser`. Les mêmes commandes servent à `make deploy-*` ; `make reseau` n'est pas touché.
 
+**Après la panne du 2026-10-13 (serveur figé pendant la construction)** — à faire une fois dans la console Lightsail :
+- **IP statique** : onglet *Mise en réseau* → *Créer une IP statique* → l'attacher à `mwangaza-vps-prod`. Sans elle, un arrêt puis démarrage (pas un simple redémarrage) change l'adresse et casse le DNS et `SERVEUR`. Si l'adresse change, mets-la à jour dans `serveur.env` et dans les enregistrements `A` de Cloudflare (`@` et `*`).
+- **HTTPS en IPv6** : dans le pare-feu, la règle HTTPS 443 doit être cochée **aussi pour IPv6** (comme 22 et 80).
+- **Alarmes** : onglet *Metrics* de l'instance → *Add alarm* : « Status check failed (instance) » et « CPU utilization » > 90 % pendant 15 min, notification par e-mail. Avec le moniteur UptimeRobot (§ 9 bis, étape 5), tu es prévenu en quelques minutes d'un serveur muet.
+- **Mémoire** : `make deploy-setup` pose maintenant 2 Go de swap et protège SSH (sans danger si relancé) ; `make deploy` refuse de construire sans swap. Les conteneurs ont des limites de mémoire : un conteneur qui déborde est relancé seul, la machine ne se fige plus.
+
 ## 9 sexies. Guide de démarrage du personnel : installer la Gestion (4.24)
 
 À la première ouverture de `https://<école>.mwangazaschool.com/app/` dans un navigateur, un écran demande d'installer l'application ; il faut le faire **avant** la connexion. Donne ces étapes au personnel :
@@ -313,5 +319,7 @@ Rien pour l'instant.
 | `git commit` : `uv: not found` ou `frontend/node_modules/.bin/eslint: not found` | outils pas installés, ou `uv` absent du `PATH` du programme qui commite | `make install` ; commiter depuis le terminal de VS Code |
 | `make deploy…` : `Permission denied (publickey)` | la clé SSH de Lightsail (`SSH_KEY`) n'est pas la bonne de cette machine, ou `SERVEUR` n'est pas `ubuntu@…` | vérifier `SERVEUR` dans `infra/serveur/serveur.env` ; `ssh ubuntu@<IP>` doit ouvrir une session |
 | `make deploy…` : `REMOTE HOST IDENTIFICATION HAS CHANGED` | serveur recréé à la même adresse IP | `ssh-keygen -R <IP>`, puis relancer |
+| `make deploy…` : SSH « Connection timed out » alors que l'instance est « Running » et les ports ouverts | machine figée (mémoire saturée pendant une construction, serveur sans swap) | console Lightsail : *Metrics* (CPU à 100 % puis plat, contrôle d'état en échec), SSH du navigateur ; s'il expire aussi : *Reboot* (pas Stop/Start) ; ensuite `make deploy-setup` (swap, SSH protégé), `make deploy-check`. Détail : skill `/deployer`, ligne « injoignable » |
+| `make deploy…` : « Pas de swap sur le serveur » | serveur préparé avant le 2026-10-13 | `make deploy-setup`, puis relancer |
 | `make deploy…` : délai dépassé, ou le site ne répond plus | serveur arrêté, ou ports 80 et 443 fermés (onglet « Mise en réseau » de Lightsail) | § 9 ter ; dans Claude Code : `/deployer panne` |
 | une PR a une croix rouge ✘ (CI) | un contrôle échoue sur GitHub | `gh pr checks <numéro>` puis ouvrir le lien ; ou dire à Claude le numéro de la PR |

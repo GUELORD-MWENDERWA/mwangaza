@@ -2,11 +2,22 @@
 # Pas de données fictives.
 # Démarrage au boot et relance après un plantage : Docker (service activé par `preparer.sh`) +
 # `restart: unless-stopped` de chaque service ; pas de service systemd en plus.
+# Limites de mémoire (serveur de 2 Go, 2 Go de swap, `preparer.sh`) : un conteneur qui déborde est
+# arrêté et relancé seul, au lieu de figer toute la machine (SSH compris).
 services:
   caddy:
+    mem_limit: 192m
     build:
       target: caddy-production
     image: mwangaza-caddy-production
     environment:
       CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN manque dans serveur.env}
       ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL manque dans serveur.env}
+  django:
+    mem_limit: 768m
+  celery:
+    mem_limit: 512m
+  db:
+    mem_limit: 512m
+  redis:
+    mem_limit: 96m

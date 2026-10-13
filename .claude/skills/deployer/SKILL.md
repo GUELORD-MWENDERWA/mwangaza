@@ -33,6 +33,7 @@ Tâche 4.6.3. Pas à pas pour l'utilisateur : `A-FAIRE.md` § 9 ter ; commandes 
 | SSH marche, pas le site | ports fermés | onglet « Mise en réseau » de Lightsail (80, 443) ; `make deploy-ssh` puis `sudo iptables -L INPUT -n \| grep -E 'dpt:(80\|443)'` ; relancer `make deploy-setup` |
 | Erreur de certificat | jeton Cloudflare faux, ou trop de demandes à Let's Encrypt | `make deploy-logs service=caddy` ; corriger `CLOUDFLARE_API_TOKEN` puis `make deploy` ; limite atteinte : attendre, ne pas relancer en boucle |
 | Page blanche ou 502 | Django pas prêt (migration, réglage) | `make deploy-logs service=django` |
+| Tout injoignable (HTTPS et SSH en délai dépassé), instance « Running » | machine figée : mémoire saturée (construction sans swap) | console Lightsail : *Metrics*, SSH du navigateur ; `free -h`, `swapon --show`, `sudo journalctl -k \| grep -iE 'oom\|killed process'`, `sudo iptables -S INPUT` (règle `--dport 22`) ; navigateur muet : *Reboot* (jamais Stop/Start sans IP statique) ; puis `make deploy-setup` (swap 2 Go, SSH protégé) |
 | Alerte « sauvegarde manquante » (Healthchecks) | clé B2 fausse, bucket plein, `rclone` absent (`make deploy-setup` le pose) | `make deploy-backup` : l'erreur s'affiche ; journal de la nuit : `make deploy-ssh` puis `journalctl -t mwangaza` ; serveur perdu : `make deploy-backup cmd=fetch` |
 | Disque plein | anciennes images | `make deploy-ssh` puis `docker system df` et `docker builder prune -f` |
 

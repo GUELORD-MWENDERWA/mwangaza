@@ -11,7 +11,11 @@ FROM node:22-slim AS front
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
     CI=true \
     pnpm_config_store_dir=/pnpm-store \
-    pnpm_config_fetch_timeout=300000
+    pnpm_config_fetch_timeout=300000 \
+    pnpm_config_workspace_concurrency=1 \
+    NODE_OPTIONS=--max-old-space-size=1024
+# Une application à la fois (tsc + Vite) et 1 Go de mémoire pour Node : sur le serveur de 2 Go,
+# les trois ensemble saturaient la mémoire et figeaient la machine (2026-10-13).
 RUN corepack enable
 WORKDIR /front
 # Paquets téléchargés d'après le seul fichier de verrouillage : refait seulement s'il change.
@@ -67,6 +71,10 @@ COPY --from=backend /app/staticfiles /srv/static
 
 # --- Vrai serveur : Caddy avec le module Cloudflare (certificat joker par DNS)
 FROM caddy:2-builder AS caddy-production-builder
+# La compilation Go ne démarre qu'après la construction du front : jamais les deux en même temps
+# (mémoire du serveur de 2 Go) ; ce fichier n'existe que pour créer cet ordre.
+COPY --from=front /front/pnpm-workspace.yaml /tmp/ordre
+ENV GOMAXPROCS=1 GOMEMLIMIT=700MiB
 RUN xcaddy build --with github.com/caddy-dns/cloudflare@v0.2.4
 
 FROM caddy AS caddy-production
