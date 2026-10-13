@@ -8,7 +8,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (L.1 faite) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Tâche en cours | **L.2** (branche tache/L.2-restauration-b2) ; vrai serveur : https://admin.mwangazaschool.com/ |
 | Prochaine tâche | L.2 (restauration réelle depuis B2), M.2.1 — voir la file (`05` § 2) |
 | Issue GitHub | aucune |
 | Branche | `tache/L.1-cles-serveur` ; dossier local : `~/Projets/mwangaza` |

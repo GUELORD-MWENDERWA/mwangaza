@@ -13,7 +13,7 @@ Dernière mise à jour : 2026-10-13 (tâche 4.7.2 : sauvegardes hors du serveur,
 |:-:|---|---|:-:|
 | 1 | **Relire et fusionner la PR « L.0 — plan révisé »** (attendre les coches vertes) : la nouvelle file des tâches dans `docs/05-plan-de-travail.md`, à lire en entier une fois ; marche à suivre : [§ 10](#10-comment-relire-et-fusionner-une-pr) | 20 min | [ ] |
 | 2 | ~~Sauvegardes hors du serveur, alertes, suivi d'erreurs (UptimeRobot, copie des clés)~~ : fait (L.1, vérifié le 2026-10-13) | | [x] |
-| 3 | **Garder une copie de `infra/serveur/serveur.env`** en lieu sûr (gestionnaire de mots de passe) ; changement de chaque clé : [§ 9 septies](#9-septies-garder-et-changer-les-clés-du-serveur-s2) | 2 min | [ ] |
+| 3 | **Urgent (L.2) : garder hors du serveur `BACKUP_PASSPHRASE` (sans elle, les sauvegardes B2 sont illisibles) et une copie de `infra/serveur/serveur.env`** dans un gestionnaire de mots de passe ; changement de chaque clé : [§ 9 septies](#9-septies-garder-et-changer-les-clés-du-serveur-s2) | 2 min | [ ] |
 | 4 | **Lire le guide de la version 1.1** (`docs/guide/guide-v1.1.pdf`) et préparer ta présentation (`docs/guide/presentation-v1.1.pdf`) : elle se fait maintenant sur le vrai serveur, dans un espace de démonstration créé depuis la console | 1 h | [ ] |
 | 5 | **Avant la première vraie école** : étapes du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) (tâche 4.7.2) | 1 h | [ ] |
 | 6 | **GitHub › Settings › Code security** du dépôt : activer « Secret scanning » et « Push protection » (tâche S.2 : une clé poussée par erreur est bloquée) ; puis **Dependabot** : Settings › Code security › « Dependabot alerts » activé | 5 min | [ ] |
@@ -131,6 +131,8 @@ Tout est prêt côté code. Ces sept étapes sont des comptes à créer ; les cl
 | 7 | Vérifier | `make deploy-backup` : doit afficher « Copie hors du serveur : b2:… » ; le fichier est dans le bucket ; Healthchecks passe au vert. Puis `make deploy-backup cmd=restore` : « Essai réussi » |
 
 **Garder aussi hors du serveur** : `BACKUP_PASSPHRASE`, `DJANGO_SECRET_KEY` et les clés B2 (gestionnaire de mots de passe). Serveur perdu : `make deploy-setup`, `make deploy`, `make deploy-backup cmd=fetch`, puis `make deploy-backup cmd="restore --remplacer"` (remet la sauvegarde en service après confirmation).
+
+**Essai réel du 2026-10-13 (L.2)** : `cmd=fetch` rapatrie la base et les fichiers depuis B2 en ≈ 7 s, `cmd=restore` les déchiffre et les restaure dans une base à part en ≈ 8 s (60 tables, 364 lignes, identique à la base en service table par table ; archive de fichiers vide : aucun logo ni photo encore). Même chose avec une base plus grosse : compter plus long, la durée suit la taille de la sauvegarde. Remplacer la base en service (`--remplacer`) n'a pas été fait sur le vrai serveur : seulement l'essai.
 
 ---
 
