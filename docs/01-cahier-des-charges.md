@@ -109,7 +109,7 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
 - Accès du personnel par sous-domaine : `{code-ecole}.mwangazaschool.com`.
 - Portail familles sur une adresse unique : `parents.mwangazaschool.com` (un parent peut avoir des enfants dans plusieurs écoles).
 - Personnalisation par école : logo, nom, couleurs, en-têtes de reçus et bulletins, frais, barèmes et maxima, rôles.
-- Transfert d'un élève d'une école à une autre de la plateforme avec son dossier (V1.4).
+- Transfert d'un élève d'une école à une autre de la plateforme avec son dossier (V1.7).
 - Identité de la plateforme (nom, logo, couleurs, contact) dans ses paramètres, jamais écrite en dur : on peut la changer sans code (V1.1).
 - Console de la plateforme pour le super-admin, avec son propre design : écoles, abonnements, comptes, appareils, journal, santé (V1.1) ; l'administration Django ne sert qu'au dépannage.
 
@@ -118,17 +118,17 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
 - Identifiant + mot de passe.
 - Double authentification (application TOTP) obligatoire pour les rôles financiers et la direction.
 - Code PIN pour déverrouiller rapidement l'application sur un appareil déjà connecté (et hors-ligne).
-- Connexion Google (V1.3).
+- Connexion Google (V1.7).
 - Création du compte famille : l'école génère un **code famille** imprimé sur le reçu ou la fiche d'inscription ; le parent l'active avec son numéro de téléphone et choisit un mot de passe. Pas de SMS nécessaire. Vérification par SMS en option plus tard.
 
 ### 8.3 Élèves et inscriptions
 
-- Fiche élève — V1.0 : nom, post-nom, prénom, sexe, date et lieu de naissance, nationalité, province et territoire d'origine, adresse, photo, école de provenance, tuteurs avec contacts, contact d'urgence. V1.3 : groupe sanguin, allergies, besoins particuliers, religion, identifiant officiel EPST / Exetat.
+- Fiche élève — V1.0 : nom, post-nom, prénom, sexe, date et lieu de naissance, nationalité, province et territoire d'origine, adresse, photo, école de provenance, tuteurs avec contacts, contact d'urgence. V1.7 : groupe sanguin, allergies, besoins particuliers, religion, identifiant officiel EPST / Exetat.
 - Matricule généré automatiquement, format configurable par école. Chaque école a sa propre fiche de l'élève : pas d'identité partagée entre écoles.
 - Import Excel / CSV des élèves existants — V1.0. Migration depuis d'autres logiciels — Plus tard.
-- Inscription au secrétariat — V1.0 ; validation de l'inscription liée au paiement — V1.3 ; pré-inscription en ligne par les parents, test d'admission, liste d'attente — V2.
-- Documents téléversés (acte de naissance, bulletins antérieurs, certificats, photos, autres) — V1.3.
-- Documents générés : fiche d'inscription et listes de classe (V1.0) ; carte unique de l'élève : puce NFC + QR code + photo (V1.2) ; attestation de fréquentation, certificat de scolarité, lettre de transfert (V1.4).
+- Inscription au secrétariat — V1.0 ; validation de l'inscription liée au paiement — V1.7 ; pré-inscription en ligne par les parents, test d'admission, liste d'attente — V2.
+- Documents téléversés (acte de naissance, bulletins antérieurs, certificats, photos, autres) — V1.7.
+- Documents générés : fiche d'inscription et listes de classe (V1.0) ; carte unique de l'élève : puce NFC + QR code + photo (V1.5) ; attestation de fréquentation, certificat de scolarité, lettre de transfert (V1.7).
 - Consentement des parents pour la photo — V1.0.
 
 ### 8.4 Finances
@@ -145,7 +145,7 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
 **Échéanciers — V1.0**
 - Par tranches (1re, 2e, 3e…) ou mensuel, avec dates limites.
 - Échéancier propre à un élève (arrangement particulier).
-- Pénalités de retard configurables — V1.3.
+- Pénalités de retard configurables — V1.7.
 
 **Réductions — V1.0**
 - Réduction générique en montant ou en pourcentage, avec motif et auteur. Modèles prédéfinis : enfants du personnel, fratrie, bourse, exonération de la direction.
@@ -162,21 +162,21 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
 - Liste des élèves en retard, filtrable par classe, frais et tranche.
 - Situation financière d'un élève imprimable.
 - Relances automatiques par notification (V1.1) ; par SMS / WhatsApp avec crédits (V2).
-- Blocage de l'accès aux bulletins ou aux examens en cas de dette : option configurable par l'école, désactivée par défaut (V1.4).
+- Blocage de l'accès aux bulletins ou aux examens en cas de dette : option configurable par l'école, désactivée par défaut (V1.7).
 
 **Dépenses et comptabilité**
-- V1.3 : dépenses par catégorie, entrées / sorties, rapports journaliers, mensuels et annuels.
+- V1.2 : dépenses par catégorie, entrées / sorties, rapports journaliers, mensuels et annuels.
 - Les catégories sont reliées dès le départ au plan de comptes **SYSCOHADA**, pour pouvoir activer plus tard la vraie comptabilité (journal, grand livre, budget prévisionnel, rapprochement bancaire — V2) sans reprendre les données.
 
-### 8.5 Paie et ressources humaines — V1.3
+### 8.5 Paie et ressources humaines — V1.7
 
 - Dossier de l'employé : identité, fonction, diplômes et qualifications, contrats, matricule SECOPE / statut (mécanisé, non payé).
 - Paie mensuelle : salaire de base, primes, prime / motivation enseignants (liée aux frais correspondants), avances sur salaire, retenues (absences, avances).
 - Fiche de paie PDF, consultable par l'employé dans son espace.
-- Congés et permissions — V1.3. Évaluation des enseignants — V2.
-- Présence du personnel reliée au module présences (V1.2).
+- Congés et permissions — V1.7. Évaluation des enseignants — V2.
+- Présence du personnel reliée au module présences (V1.5).
 
-### 8.6 Enseignement, notes et bulletins — V1.4
+### 8.6 Enseignement, notes et bulletins — V1.2
 
 - Cours par classe avec maxima (sur 10, 20, 40, 80…), pondération ou heures, domaines / branches, attribution enseignant–cours–classe, programme officiel pré-rempli quand disponible.
 - Évaluations : interrogations, devoirs, travaux pratiques, examens, repêchage / seconde session, épreuves spéciales (ENAFEP, TENAFEP, Exetat blanc). Pour les écoles techniques : **évaluations d'atelier** (V2).
@@ -184,17 +184,17 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
 - Contrôle : date limite de verrouillage, validation par le directeur des études, historique de toute modification, publication aux parents après validation seulement.
 - Bulletins : format officiel EPST, calcul automatique des totaux, pourcentages et places, mentions et appréciations automatiques, conduite, taux de présence, QR code d'authenticité, signature électronique du chef d'établissement, PDF téléchargeable par le parent. Deux modes d'impression : bulletin complet, ou notes seules sur le formulaire officiel pré-imprimé.
 - Délibération : tableau par classe, règles de réussite configurables, décisions (admis, ajourné, repêchage, réorienté, exclu), palmarès imprimable, statistiques de réussite par classe et par cours.
-- Emploi du temps : génération automatique sans conflit, modifiable à la main (V2).
+- Emploi du temps : génération automatique sans conflit, modifiable à la main (V1.4, avec l'aide de l'IA).
 - Devoirs publiés pour les élèves (V2).
 
 ### 8.7 Présences
 
-- V1.2 : **une seule carte** par élève et par membre du personnel : puce sans contact (NFC) + QR code + photo et informations. Liaison carte ↔ personne en une seconde sur un appareil enregistré (scanner le QR imprimé, poser la carte).
-- V1.2 : pointage de deux façons, hors ligne compris : par la **puce**, avec un téléphone Android enregistré (NFC) ou un lecteur **ESP32** au portail (fabrication maison, mémoire tampon en cas de coupure) ; par le **QR code**, avec la caméra de n'importe quel téléphone ou tablette enregistrés (iPhone compris). Pointage des élèves, des enseignants et du personnel.
+- V1.5 : **une seule carte** par élève et par membre du personnel : puce sans contact (NFC) + QR code + photo et informations. Liaison carte ↔ personne en une seconde sur un appareil enregistré (scanner le QR imprimé, poser la carte).
+- V1.5 : pointage de deux façons, hors ligne compris : par la **puce**, avec un téléphone Android enregistré (NFC) ou un lecteur **ESP32** au portail (fabrication maison, mémoire tampon en cas de coupure) ; par le **QR code**, avec la caméra de n'importe quel téléphone ou tablette enregistrés (iPhone compris). Pointage des élèves, des enseignants et du personnel.
 - Notifications au parent : absence, retard ; alerte après X absences ; justification d'absence envoyée par le parent ; taux de présence sur le bulletin.
 - La carte contient un jeton aléatoire, pas le matricule.
 
-### 8.8 Discipline — V1.4
+### 8.8 Discipline — V1.7
 
 Cote de conduite, sanctions (avertissement, renvoi temporaire, exclusion), convocation des parents, mérites et récompenses, visibles par les parents.
 
@@ -202,7 +202,7 @@ Cote de conduite, sanctions (avertissement, renvoi temporaire, exclusion), convo
 
 - V1.0 : annonces de l'école visibles dans le portail.
 - V1.1 : notifications push (reçu de paiement, échéance proche, annonce), messages à une classe, calendrier des événements, circulaires PDF, convocations.
-- V1.4 : messagerie parent ↔ titulaire et administration (les parents ne peuvent écrire qu'au titulaire et à l'administration), demande de rendez-vous, sondages.
+- V1.7 : messagerie parent ↔ titulaire et administration (les parents ne peuvent écrire qu'au titulaire et à l'administration), demande de rendez-vous, sondages.
 - V2 : SMS et WhatsApp avec crédits achetés par l'école.
 
 ### 8.10 Portail parents
@@ -210,31 +210,40 @@ Cote de conduite, sanctions (avertissement, renvoi temporaire, exclusion), convo
 - Forme : application web installable (PWA) dès V1.0 ; applications Android et iPhone publiées dans les stores en V2 (même code, empaqueté).
 - V1.0 : enfants (toutes écoles), profil de l'enfant, situation des paiements, reçus, échéances à venir, annonces, mise à jour des coordonnées.
 - V1.1 : notifications sur l'écran du téléphone, même application fermée ; calendrier, titulaire et enseignants avec contacts.
-- V1.2 : présences en direct.
-- V1.4 : notes, bulletins (téléchargement PDF), discipline, emploi du temps, documents (attestations), demande de rendez-vous, messages.
+- V1.5 : présences en direct.
+- V1.2 à V1.7 : notes, bulletins (téléchargement PDF), discipline, emploi du temps, documents (attestations), demande de rendez-vous, messages.
 - V2 : devoirs, menu de cantine et transport.
 
-### 8.11 Portail élèves — V1.4
+### 8.11 Portail élèves — V1.7
 
 Compte à partir d'un niveau configuré par l'école. L'élève voit : notes et bulletins, présences, emploi du temps, devoirs et cours, place dans la classe, enseignants, situation financière, annonces, livres empruntés.
 
 ### 8.12 Espace enseignant et titulaire
 
-- V1.3 : voir son horaire, sa fiche de paie, demander un congé.
-- V1.4 : ses classes et élèves, prise des présences, saisie des notes, écrire aux parents, demander un congé ; pour le titulaire : vue complète de sa classe (notes, présences, paiements), préparation et vérification des bulletins, cote de conduite, rapport de classe, convocation des parents.
+- V1.7 : voir son horaire, sa fiche de paie, demander un congé.
+- V1.2 à V1.7 : ses classes et élèves, prise des présences, saisie des notes, écrire aux parents, demander un congé ; pour le titulaire : vue complète de sa classe (notes, présences, paiements), préparation et vérification des bulletins, cote de conduite, rapport de classe, convocation des parents.
 - V2 : publier devoirs et cours.
 
 ### 8.13 Tableaux de bord et rapports
 
 - V1.0 : encaissements du jour et du mois par devise, impayés, effectifs par classe, sexe et âge.
-- V1.2 : taux de présence. V1.4 : résultats scolaires.
+- V1.5 : taux de présence. V1.2 : résultats scolaires.
 - V2 : comparaison entre années ; tableau consolidé promoteur / coordination.
 - Exports PDF, Excel, CSV et impression directe (V1.0 pour les listes financières).
 - Rapports officiels EPST : statistiques de fin d'année, listes des candidats ENAFEP / Exetat, palmarès (V2).
 
-### 8.14 Modules supplémentaires — V2 et plus tard
+### 8.14 Modules supplémentaires
 
-Bibliothèque, cantine, transport (itinéraires, suivi GPS), internat, inventaire et matériel, **ateliers** (écoles techniques : équipements, matières d'œuvre, TP d'atelier), boutique (uniformes, fournitures), orientation scolaire, anciens élèves, site vitrine généré pour chaque école, paiement en ligne Mobile Money, intelligence artificielle (non prévue au début).
+Précisés le 2026-10-13 (détail et découpage : `05` § 6) :
+
+- **Finances de l'école — V1.2** : dépenses avec justificatif et validation, sorties de caisse comprises dans les clôtures, budget prévu et réalisé, entrées / sorties, trésorerie par devise.
+- **Abonnements par module — V1.3** : la plateforme vend des modules (prix par module, par élève, par période), facture l'école, la passe en lecture seule si elle ne paie pas.
+- **Sites web** : site de la plateforme (V1.3) ; site de chaque école, rempli par elle, à `{code}.mwangazaschool.com/` (V1.7).
+- **Emploi du temps — V1.4** : grille horaire, salles, volumes horaires, charges et disponibilités des enseignants, contraintes ; calcul sans conflit par un solveur, retouches à la main, publication (PDF, Portail, enseignants).
+- **Intelligence artificielle — V1.4** : Claude aide à l'emploi du temps (contraintes en phrases, explication des conflits), répond aux questions sur les données, rédige des brouillons ; il ne voit que ce que la personne peut voir et ne décide jamais seul.
+- **Bibliothèque — V1.6** : catalogue, exemplaires étiquetés, prêt avec bon et date de retour, parent prévenu, rappels, livre perdu ou abîmé facturé à l'élève.
+- **Ateliers — V1.6** (écoles techniques) : stock de matières d'œuvre et d'outillage, demande de matériel → validation → achat → réception → retrait à l'atelier, outils prêtés aux élèves ; évaluations d'atelier en V2.
+- **V2 et plus tard** : cantine, transport (itinéraires, suivi GPS), internat, boutique (uniformes, fournitures), orientation scolaire, anciens élèves, paiement en ligne Mobile Money.
 
 ## 9. Exigences non fonctionnelles
 

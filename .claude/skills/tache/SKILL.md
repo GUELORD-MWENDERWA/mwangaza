@@ -11,7 +11,7 @@ Suivre les étapes dans l'ordre, en appliquant **« Économie de tokens » de `C
 ## 1. Préparer
 
 1. `docs/06-suivi.md` : lire seulement « État actuel » et « Bloquants » (`grep -n`). Si une autre tâche est « en cours », demander s'il faut la terminer d'abord.
-2. Trouver la tâche dans `docs/05-plan-de-travail.md` ; vérifier que ses dépendances sont cochées.
+2. Trouver la tâche dans `docs/05-plan-de-travail.md` ; vérifier que ses dépendances sont cochées. **Sans numéro** (« /tache » seul, « la suivante ») : prendre la première ligne non faite de la file (`05` § 2), sauf celles marquées 👤 (à rappeler à l'utilisateur).
 3. Relire seulement les passages utiles (`grep -n` sur les références A1, F5…, le nom des modèles) de `02-perimetre-v1.md`, `01`, `03`, `04`. Pas de lecture intégrale d'un document déjà connu.
 4. Périmètre : ce qui relève d'une version suivante (`05`, `02` § 1) → le signaler, ne pas le coder.
 5. **Regard senior** (`CLAUDE.md`, « Façon de travailler ») : chaque point de la tâche est-il vraiment utile, faisable, sans coût caché pour le serveur ? Retirer ou simplifier, noter la raison dans le plan (étape 2.4) et dans « À valider » de la PR.
@@ -24,7 +24,7 @@ Suivre les étapes dans l'ordre, en appliquant **« Économie de tokens » de `C
 1. Issue : `gh issue list --state open --search "\"$ARGUMENTS —\" in:title" --json number,title` → `#n`.
 2. Branche **partie de `main` à jour** : `git switch main && git pull && git switch -c tache/<numéro>-<mot-clé>`. Branche déjà créée : `git switch` dessus puis `git merge main`. Si la tâche a besoin d'une PR pas encore fusionnée : le dire et attendre.
 3. `docs/06-suivi.md` → « État actuel » : tâche en cours, branche, issue, date.
-4. Plan dans `docs/claude/plans/tache-<numéro>.md`, **20 lignes maximum** (fichiers, tests prévus, décisions, risques) ; le résumer en 3 lignes. Continuer sauf décision non couverte par les documents.
+4. Plan dans `docs/claude/plans/tache-<numéro>.md`, **20 lignes maximum**, toujours avec ces rubriques (`05` § 8.1) : But · Hors périmètre · Critères d'acceptation · Tests obligatoires · Documents à mettre à jour · Risques / à vérifier dans le code ; le résumer en 3 lignes. Continuer sauf décision non couverte par les documents.
 5. `gh issue comment <n> --body "Démarrée — branche tache/…, plan : docs/claude/plans/tache-<numéro>.md"`.
 
 ## 3. Construire
@@ -41,6 +41,7 @@ Tout ce qui est fait pendant la tâche va sur cette branche, dans la PR de la t�
 
 ## 4. Vérifier
 
+0. Passer la **définition de « fini »** (`05` § 8.2), sécurité comprise : une case non remplie = tâche pas finie.
 1. **Une seule fois à la fin** : `make lint` (sortie filtrée avec `tail`) ; les tests des modules touchés sont déjà verts. **Pas de `make test` en local** (≈ 9 min) : la CI lance la suite complète (≈ 5 min, en parallèle). `make test-e2e` en local seulement si un parcours Playwright a changé (sinon la CI le fait). Un échec → corriger.
 2. Skill `verifier` : résultat en quelques lignes, mis dans la PR.
 3. Nouvel écran : une seule capture, à 390 px, comparée à la maquette. Pas de rejeu des étapes « À tester toi-même ».

@@ -1,230 +1,402 @@
-# Plan de travail
+# Plan de travail — Mwangaza
 
-Chaque tâche est faite dans une branche, avec tests, puis cochée ici. Les références (A1, F5…) renvoient à `02-perimetre-v1.md`.
+Révisé et validé le 2026-10-13 (tâche L.0), après vérification dans le code (les constats sont marqués **Vérifié**). L'ancien plan, avec tout l'historique « ajouté le… », est archivé dans `archives/05-plan-de-travail-2026-10-13.md` : ne pas le relire à chaque tâche.
 
-Pour lancer une tâche dans Claude Code : `/tache 2.3` (ou « Fais la tâche 2.3 du plan de travail. »). Claude relit `CLAUDE.md` et les documents liés.
+Pour lancer une tâche dans Claude Code : `/tache M.2.1` (ou « Fais la tâche M.2.1 du plan de travail. »). **Toujours prendre la première tâche non cochée de la file (§ 2)**, sauf demande contraire. État, tâche en cours et journal : `06-suivi.md` (`/etat`). Ce qui manque encore : `07-a-fournir.md`. Les références (A1, F5…) renvoient à `02-perimetre-v1.md`.
 
-État actuel, tâche en cours, bloquants et journal de chaque étape : `06-suivi.md` (`/etat` dans Claude Code). Ce qui manque encore (maquettes, informations, décisions) : `07-a-fournir.md`.
+Sur GitHub : chaque version est un jalon, chaque tâche une issue « X.Y — titre » ; la PR ferme son issue (`Closes #n`). Les numéros des tâches ne changent jamais (même quand l'ordre change), pour ne pas casser les issues.
 
-Données de démonstration : `make demo` est créée en 1.1 (avancée, prévue en 1.5) et chaque tâche qui ajoute des modèles l'enrichit (données fictives et réalistes ; en production, chaque école saisit ses vraies données).
+---
 
-Sur GitHub, chaque version est un **jalon** (milestone) et chaque tâche une **issue** portant son numéro (ex. « 1.1 — App core… »). La PR d'une tâche ferme son issue (`Closes #n`). Ce fichier reste la référence ; GitHub montre la progression de chaque version.
+## 1. Légende
 
-## Avant de coder (toi, cette semaine)
+**Priorité**
 
-- [x] ~~Récupérer auprès de l'ITIG les éléments listés au § 11 du cahier des charges (surtout : grille des frais, liste des élèves en Excel, modèle de reçu actuel)~~ — plus un préalable (2026-09-26) : Claude crée des données fictives réalistes ; les documents de l'ITIG servent quand ils arrivent (`07-a-fournir.md` § 2)
-- [x] Choisir le nom définitif, vérifier le domaine, l'acheter — **fait** : domaine `mwangazaschool.com` acheté (2026-10-13) ; nom et domaine choisis le 2026-09-26 : **Mwangaza**, `mwangaza.school` ; à acheter **avant les vraies données d'une école** (4.6.3) ; ne bloque pas le développement (2026-10-02)
-- [ ] Créer les comptes : hébergeur, stockage objet (GitHub : fait) — hébergeur (AWS Lightsail) et Cloudflare : fait ; stockage objet : avec 4.7.2
-- [x] ~~Noter le modèle de l'imprimante thermique de l'ITIG~~ — plus nécessaire (2026-09-26) : formats standards gérés (58 mm, 80 mm, A4)
+| Code | Sens |
+|---|---|
+| **P0** | Bloquant : à faire avant les vraies données d'une première école |
+| **P1** | Prioritaire : la prochaine chose utile pour une école qui utilise Mwangaza |
+| **P2** | Utile, pas prioritaire : vient après les P1 de sa version |
+| **P3** | Seulement si une école le demande |
 
-## Semaine 1 — Socle
+**Taille** (pour découper avant de coder) : **S** = une PR courte, un module serveur ; **M** = un module serveur + un ou deux écrans ; **L** = à découper en X.Y.1, X.Y.2… avant de commencer (règle : plus d'un module serveur ou plus de deux écrans → découpage).
 
-- [x] **0.1** Créer le monorepo selon `03-architecture-technique.md` § 3 ; Docker Compose de développement (postgres, redis, django, front) ; compléter la section « Commandes » de `CLAUDE.md`
-- [x] **0.2** Qualité : ruff, pytest, ESLint, Prettier, Vitest, pre-commit, GitHub Actions (lint + tests)
-- [x] **1.1** App `core` : `TenantModel`, `TenantManager` qui lève une erreur sans école, `TenantMiddleware` par sous-domaine, UUID v7, classe `Money` + tests
-- [x] **1.2** App `accounts` : `User` (téléphone comme identifiant), `Membership`, `Role`, codes de permissions, 9 rôles système copiés à la création d'une école (B1–B3, `04` § 8) ; API des rôles et des comptes du personnel, `GET /api/me/`
-- [x] **1.3** Connexion par session, TOTP pour les rôles sensibles, limitation des tentatives (B4) ; API de « Mon compte » (mot de passe, double authentification, langue) et, pour l'école, nouveau mot de passe, réinitialisation de la double authentification, noms et téléphone d'un compte qui ne sert que chez elle
-- [x] **1.4** App `audit` : `AuditLog` + utilitaire d'enregistrement (I1) ; API du journal (`/api/audit/`) ; audit des rôles, des comptes du personnel, de Mon compte et de la connexion (1.2, 1.3)
-- [x] **1.5** Super-admin : création / suspension d'école, liste des écoles, connexion « en tant qu'école » tracée (A1–A3) ; couleur de l'école choisie dans ses paramètres, contraste vérifié (Q8) ; double authentification du super-admin dans l'administration Django *(ajoutée le 2026-09-26, 1.3)* ; « en tant qu'école » dans le journal d'audit (`impersonated_by`), modifications d'un compte par le support dans l'administration Django (téléphone, noms, mot de passe, désactivation) notées dans le journal de chaque école de la personne *(ajouté le 2026-09-26, 1.4)* ; API des paramètres de l'école (nom, couleur, logo, fuseau, devises)
-- [x] **1.6** Front `gestion` : squelette React + Vite + PWA + Tailwind + shadcn/ui + i18next ; écran de connexion ; mise en page avec menu selon permissions ; écrans de la connexion en étapes (code, nouveau mot de passe, activation M1) et « Mon compte » (M4) sur l'API de la 1.3 *(ajoutés le 2026-09-26 : aucune tâche ne prévoyait M4)* ; session support « en tant qu'école » : ouverture avec le motif et bandeau rouge permanent (fin, bouton « Quitter »), lien « Ouvrir en tant qu'école » de l'administration vers cet écran ; nom, couleur et logo de l'école sur l'écran de connexion *(ajoutés le 2026-09-26, 1.5)*
-- [x] **1.7** App `schools` : année scolaire depuis modèle, périodes, niveaux, options, classes, format de matricule + écrans (C1–C3) ; écrans « Comptes du personnel » (M3) et « Rôles et permissions » sur l'API de la 1.2 *(ajoutés le 2026-09-26 : aucune tâche ne les prévoyait)* ; écran « Journal d'audit » (M6) sur l'API de la 1.4 *(ajouté le 2026-09-26)* ; écran « Paramètres de l'école » (M5 : identité, logo, couleur, fuseau, devises) sur l'API de la 1.5 *(ajouté le 2026-09-26)*
+**Qui** : 🤖 Claude Code · 👤 toi (achat, compte, clé, essai sur un vrai téléphone, décision).
 
-## Semaine 2 — Élèves et frais
+`[x]` fait · `[ ]` à faire · ~~barré~~ retiré.
 
-- [x] **2.1** App `students` : `Student`, `Family`, `Guardian`, `Enrollment`, génération du matricule et du code famille ; nombre d'élèves dans la liste des écoles de l'administration (A2) *(ajouté le 2026-09-26, 1.5)* ; matricule donné selon le format de l'école (1.7 : format, rendu, aperçu) avec une séquence par école et par année, « Prochain matricule » réel ; effectifs dans l'écran « Organisation scolaire » (colonne « Effectif / capacité ») ; une classe qui a des élèves ne se supprime plus (protégée par les inscriptions) *(ajoutés le 2026-09-27, 1.7)*
-- [x] **2.2** Écrans élèves (D2–D4), découpée le 2026-09-27 :
-   - [x] **2.2.1** Liste des élèves (recherche rapide, filtres année et classe) et « Inscrire un élève » (création, inscription, famille nouvelle ou existante) ; lecture des années et des classes avec `students.view` (filtres de la liste, inscription) *(ajouté le 2026-09-27, 1.7 : ces listes demandent aujourd'hui `classes.manage`)*
-   - [x] **2.2.2** Fiche élève (onglets Identité modifiable avec photo, Famille, Historique ; Finances vide jusqu'à la 2.7) et fiche famille (tuteurs, contacts, enfants, liaison famille) ; ouvrir la fiche depuis la liste et après l'inscription ; recherche `Ctrl K` de l'en-tête ; lien vers la fiche existante quand un doublon est signalé
-- [x] **2.3** Import Excel : téléversement, correspondance des colonnes, aperçu, rapport d'erreurs, import en tâche Celery (D1). Tester avec un fichier fictif réaliste (~800 élèves), puis avec le vrai fichier de l'ITIG quand il arrive
-- [x] **2.4** Impressions : fiche d'inscription avec code famille, liste de classe PDF / Excel (D5) ; export Excel du journal d'audit, limité à la période filtrée, l'export lui-même noté dans le journal (M6) *(ajouté le 2026-09-26, 1.4 : même bibliothèque Excel)* ; sélection de plusieurs élèves dans la liste pour la même impression : pas planifiée, à ajouter si une école la demande
-- [x] **2.5** App `finance` — configuration, découpée le 2026-09-27 :
-   - [x] **2.5.1** `FeeType`, `FeeRule`, `InstallmentTemplate`, `ExchangeRate` + écran « Frais et barèmes » (E1, E2, E5) ; devise au choix pour chaque barème ; taux de l'année corrigeable avec historique ; une devise utilisée par un frais ou un paiement ne peut plus être retirée des devises de l'école (M5) *(ajouté le 2026-09-26, 1.5)* ; nouvelle année créée en reprenant aussi les barèmes d'une autre (C1 : les classes sont reprises depuis la 1.7) *(ajouté le 2026-09-27)*
-   - [x] **2.5.2** `Discount` + écran « Accorder une réduction » depuis la fiche élève (E3), avec l'effet sur ce que doit l'élève — **à faire juste après la 2.6** (a besoin des `StudentCharge`)
-- [x] **2.6** Frais dus des élèves, découpée le 2026-09-27 :
-   - [x] **2.6.1** Génération des `StudentCharge` à l'inscription (import compris) et quand un barème change ; sur la fiche élève : changer de classe (frais recalculés, sauf ceux déjà payés), enregistrer un départ (abandon, transfert, exclusion, avec date), inscrire pour l'année un élève déjà connu *(ajouté le 2026-09-27, 2.2.2 : service et API faits en 2.1)*
-   - [x] **2.6.2** Échéancier particulier (E4) : service, API et écran (maquette `eleve-echeancier`) ; puis la 2.5.2
-- [x] **2.7** Calcul du solde et des retards d'un élève (service + tests couvrant réductions, devises, annulations) ; frais de l'année (après réductions, par devise) sur la fiche d'inscription et colonne « situation des paiements » de la liste de classe, avec `finance.view_reports` *(ajouté le 2026-09-27, 2.4)*
+---
 
-## Semaine 3 — Caisse et hors-ligne
+## 2. La file : l'ordre de travail
 
-- [x] **3.1** Caisses et paiements en ligne, découpée le 2026-09-28 :
-   - [x] **3.1.1** Serveur : `CashRegister`, `CashSession`, `Payment`, `PaymentAllocation` ; ouverture de session (une par caisse, une par caissier) ; encaissement avec répartition automatique + ajustement, conversion au taux de l'année, numéro de reçu donné par le serveur avec le code de la caisse en attendant les appareils (3.3) (F1–F2) ; solde : allocations des paiements non annulés dans `finance.services._settle` (payé, situation « partielle »), avec un test d'annulation *(ajouté le 2026-09-28, 2.7)* ; `finance.services.sync_charges` laisse intacts les frais dus déjà payés, même en partie (changement de classe, barème modifié) *(ajouté le 2026-09-27, 2.6.1)* ; `reschedule_charges` et l'écran « Échéancier particulier » ne proposent que les échéances pas encore payées, même en partie *(ajouté le 2026-09-28, 2.6.2)* ; démo : caisses et paiements sur plusieurs mois
-   - [x] **3.1.2** Écrans de caisse en ligne : ouverture de session (`caisse-ouverture`), accueil avec paiements du jour et recherche (`caisse-accueil`, réimpression en 3.2), encaissement (`caisse-encaissement`) ; carte « Caisses » des paramètres de l'école (nom, code, active) *(décidé le 2026-09-28 : pas de maquette)*
-- [x] **3.2** Reçus, découpée le 2026-09-28 :
-   - [x] **3.2.1** Paramètres des reçus : `School.settings.receipt` (imprimante thermique 58 / 80 mm ou feuille A4 avec reçus A6, A5 ou petit format ; 1 ou 2 exemplaires ; lignes d'en-tête avec adresse, téléphone et e-mail ; mention) et logo noir et blanc (`logo_monochrome`) ; carte « Reçus et documents » des paramètres de l'école (M5) *(ajoutée le 2026-09-27, 1.7)*
-   - [x] **3.2.2** Reçu dans le navigateur au format choisi par l'école (thermique 58 / 80 mm ; A6, A5 ou petit format sur A4 avec traits de découpe ; 1 ou 2 exemplaires), montant en lettres (français), zone signature / cachet, QR code vers `/v/{id}` (bibliothèque `uqr`, acceptée le 2026-09-28 ; signature par l'appareil : 3.3) ; design des reçus proposé par Claude ; « Encaisser et imprimer » et « Réimprimer » (DUPLICATA, audit) (F3, F6) ; bouton « Test » de l'imprimante
-   - [x] **3.2.3** Page publique de vérification `/v/{id}` (F4, maquette `portail/verification-recu`) ; QR code du portail sur la fiche d'inscription *(ajouté le 2026-09-27, 2.4)*
-- [x] **3.3** App `sync`, découpée le 2026-09-28 :
-   - [x] **3.3.1** Appareils : `Device` (préfixe, clé publique de signature des reçus, caisse, révocation), case « Se souvenir de cet appareil » de l'écran de connexion et « Appareils connectés » de Mon compte (M4) *(reportés de la 1.6)* ; `AuditLog.device` et heure de l'appareil pour les actions faites hors ligne (M6) *(ajouté le 2026-09-26, 1.4)*
-   - [x] **3.3.2** Synchronisation serveur : `SyncOperation`, `ChangeLog`, endpoints `snapshot`, `pull`, `push` idempotents ; appareil révoqué refusé
-- [x] **3.4** Front : base Dexie, instantané initial, file d'opérations, synchronisation automatique, indicateur d'état, stockage persistant ; indicateur complet (opérations en attente, dernière synchronisation : la 1.6 ne montre qu'en ligne / hors ligne) ; nouvelle version installée seulement file vide (M8) *(précisé en 1.6)*
-- [x] **3.5** Caisse hors-ligne complète, découpée le 2026-09-29 :
-   - [x] **3.5.1** Encaisser hors ligne : recherche élève, solde et frais dus lus sur l'appareil avec les paiements en attente, encaissement par la file d'opérations avec numérotation locale (F5) — **toujours par la file sur un appareil mémorisé**, avec ou sans réseau *(décidé le 2026-09-29)* —, reçu imprimé sans serveur, paiements de la session « en attente » / « refusé » ; page bloquante « stockage refusé » (M8) sur la caisse *(ajoutée le 2026-09-29, 3.4)*. Tests Playwright : couper le réseau, encaisser deux fois, reconnecter, vérifier aucun doublon
-   - [x] **3.5.2** Ouverture de caisse et réimpression hors ligne (opérations de synchronisation, maquettes `caisse-ouverture` et `caisse-accueil`) ; QR code du reçu signé par l'appareil et vérification de la signature sur `/v/…` (F4) *(déplacé de la 3.3 le 2026-09-28)*
-- [x] **3.6** Crédit élève, découpée le 2026-09-29 :
-   - [x] **3.6.1** Crédit côté serveur : surplus d'un paiement hors ligne arrivé après un autre (3.3.2), réduction sur une échéance déjà payée (M14) ; retrait de la réduction → crédit annulé ; utilisation par le comptable sur les échéances les plus anciennes, sans nouveau paiement (justificatif imprimable) *(décidé le 2026-09-29)* ; écran « Crédits d'élèves » (maquette `credits-eleves`) ; colonnes « Déjà payé » / « Effet » du dialogue « Accorder une réduction » *(ajouté le 2026-09-28, 2.5.2)*
-   - [x] **3.6.2** Crédit proposé et utilisé à la caisse au prochain paiement de l'élève, en ligne et hors ligne (crédit sur l'appareil, opération de synchronisation) ; crédit à traiter visible sur la fiche élève (Finances) *(ajouté le 2026-09-29, 3.6.1)*
-- [x] **3.7** PIN hors-ligne et appareils (B5), découpée le 2026-09-29 :
-   - [x] **3.7.1** PIN de déverrouillage : carte « Code PIN » de Mon compte (M4) *(reportée de la 1.6)*, empreinte PBKDF2 gardée sur l'appareil ; démarrage sans réseau (`/api/me/` indisponible) sur l'écran de déverrouillage (maquette `deverrouillage-pin`) ; 5 PIN faux ou dernière connexion complète il y a plus de 7 jours → connexion complète exigée. Test Playwright : démarrer sans réseau, déverrouiller, encaisser
-   - [x] **3.7.2** Appareils de l'école : liste et révocation par un responsable (`roles.manage`) ; écran « Appareils et synchro » (maquette `appareils-synchro` : appareils de l'école, révocation, carte « Cet appareil » avec la file d'attente) ; données locales effacées à la révocation *(ajoutés le 2026-09-29, 3.4)*
-- [x] **3.8** Annulation et clôture de caisse, découpée le 2026-09-29 :
-   - [x] **3.8.1** Annulation d'un paiement (F7) : demande avec motif, en ligne et hors ligne (opération `cancellation.request`, maquette `demande-annulation` faite par Claude) ; validation ou refus par un autre compte (`finance.approve_cancellation`), écran « Annulations » (maquette `annulations`) ; reçu d'annulation dans une série propre (maquette `recu-annulation`, M15) ; annulation d'un paiement qui a donné un crédit (surplus hors ligne, ou tranche payée puis réduite) : annuler aussi ce crédit *(ajouté le 2026-09-29, 3.6.1)* ; appareil : garder la date d'annulation des paiements pour un duplicata exact *(ajouté le 2026-09-29, 3.5.2)*
-   - [x] **3.8.2** Clôture de caisse par le caissier (F8, maquette `caisse-cloture`) : `CashClosing` par devise, en ligne et hors ligne (opération `cash_session.close`), bordereau imprimé ; un paiement hors ligne d'une session déjà close est refusé (`no_open_session`) : décider quoi en faire *(ajouté le 2026-09-29, 3.3.2)* ; de même pour une ouverture de caisse hors ligne refusée (caisse prise entre-temps) et ses encaissements *(découpée le 2026-09-30)*
-   - [x] **3.8.3** Clôtures de caisse vues par le comptable (M16, maquette `clotures-caisse`) : liste, écarts, sessions non clôturées, paiements arrivés après la clôture, détail, bordereau, Excel (l'alerte au directeur au-delà du seuil : 4.2) ; duplicata fait sur l'appareil : compter aussi les crédits utilisés avant le paiement (l'appareil ne reçoit que les crédits à traiter) *(ajouté le 2026-09-29, 3.6.2)*
+C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Validée le 2026-10-13** par l'utilisateur (journal de `06`) : ordre, Cloudflare en proxy, lecture seule si abonnement impayé, dépendances `pip-audit`, OR-Tools et `anthropic` acceptées, IA sur `claude-opus-5-5` par défaut.
 
-## Semaine 4 — Rapports, portail parents, mise en production
+| # | Tâche | Prio | Taille | Qui |
+|---|---|---|---|---|
+| | **Lancement** (§ 3, § 4, § 4 bis) | | | |
+| 1 | ~~**L.0**~~ ✓ Installer ce plan et remettre les documents d'aplomb | P0 | S | 🤖 |
+| 2 | **L.1** Clés du serveur (`serveur.env`) : B2, Healthchecks, Sentry, UptimeRobot | P0 | S | 👤 |
+| 3 | **S.1** En-têtes de sécurité et CSP des trois applications (ex-L.3) | P0 | S | 🤖 |
+| 4 | **S.2** Dépendances et secrets surveillés (Dependabot, audit en CI, fuite de secrets) | P0 | S | 🤖 + 👤 |
+| 5 | **M.2.1** Modules : serveur et tâches de fond | P0 | M | 🤖 |
+| 6 | **M.2.2** Modules : écrans | P0 | S à M | 🤖 |
+| 7 | **L.2** Restauration réelle depuis B2 | P0 | S | 🤖 + 👤 |
+| 8 | **S.3** Comptes à privilèges : alertes et limites | P0 | S | 🤖 |
+| 9 | **S.4** Fichiers envoyés : logos sans SVG, limites de taille | P0 | S | 🤖 |
+| 10 | **M.3.1** Rôles : codes de rôle remplacés par des permissions | P0 | M | 🤖 |
+| 11 | **M.3.2** Rôles entièrement libres | P0 | M | 🤖 |
+| 12 | **S.5** Base de données : droits minimaux, paiements non effaçables | P0 | S | 🤖 |
+| 13 | **L.4** Essai sur de vrais téléphones et imprimantes | P0 | S | 👤 |
+| 14 | **L.5** Guide régénéré, version déclarée prête | P0 | S | 🤖 |
+| 15 | **🚀 Premier espace réel** (`A-FAIRE.md`, « Le jour du lancement ») | — | — | 👤 |
+| | **V1.2 — Notes, bulletins et finances de l'école** (§ 7) | | | |
+| 16 | **A.2** Purge de `ChangeLog` et `SyncOperation` | P1 | S | 🤖 |
+| 17 | **S.6** Row Level Security PostgreSQL (ex-9.15, avancée) | P1 | L | 🤖 |
+| 18 | **8.1** Cours, volumes horaires et charges des enseignants | P1 | M | 🤖 |
+| 19 | **8.2 → 8.4, 8.8** Notes, bulletins EPST, délibération, Portail | P1 | L | 🤖 |
+| 20 | **FIN.1 → FIN.3** Dépenses, sorties de caisse, budget | P1 | M | 🤖 |
+| | **V1.3 — Plateforme commerciale** | | | |
+| 21 | **ABO.1 → ABO.3** Abonnements par module, factures, échéances | P1 | L | 🤖 |
+| 22 | **WEB.1** Site de la plateforme | P1 | S | 🤖 |
+| 23 | **S.7 → S.9** Protection des données, détection, revue ASVS | P1 | M | 🤖 |
+| | **V1.4 — Emploi du temps et intelligence artificielle** | | | |
+| 24 | **EDT.1 → EDT.4** Emploi du temps (données, éditeur, génération, publication) | P1 | L | 🤖 |
+| 25 | **IA.1 → IA.4** Socle IA, aide à l'emploi du temps, assistant, rédaction | P1 / P2 | L | 🤖 |
+| | **V1.5 — Carte et présences** (QR d'abord) | P1 / P2 | L | 🤖 |
+| | **V1.6 — Bibliothèque et ateliers** (moteur commun INV) | P2 | L | 🤖 |
+| | **V1.7 — Sites des écoles, personnel et paie, vie scolaire** | P2 | L | 🤖 |
+| | **V2** (§ 7) | P2 / P3 | — | 🤖 |
 
-- [x] **4.1** Impayés et situation financière, découpée le 2026-09-30 :
-   - [x] **4.1.1** Impayés (G1, maquettes `impayes` et `impayes-export`) : liste filtrable (classe, frais, tranche, retard, devise), chiffres clés, export Excel (une ligne par frais en retard) et PDF par classe, exports tracés
-   - [x] **4.1.2** Situation financière imprimable (G2, maquette `situation-financiere`) depuis la fiche élève et groupée depuis les Impayés (sélection) ; colonnes « Échu non payé » et « Paiements » et filtre « Paiement » de la liste des élèves (maquette `eleves-liste`) *(ajouté le 2026-09-28, 2.7)*
-- [x] **4.2** Tableau de bord directeur (G3) ; seuils d'alerte de l'école (M5 : écart de caisse, annulations par caissier et par jour, caisse non clôturée) *(ajouté le 2026-09-26, 1.5)*
-- [x] **4.3** Annonces côté école (H4)
-- [x] **4.4** Front `portail` : activation par téléphone + code famille, liste des enfants multi-écoles, paiements, reçus PDF, échéances, annonces, mise à jour des coordonnées, installable (H1–H6) ; école suspendue : « service temporairement indisponible » (A1) *(ajouté le 2026-09-26, 1.5)* ; annonce marquée lue par la famille et « lue par N familles » dans la liste des annonces de la Gestion *(ajouté le 2026-10-01, 4.3)*, découpée le 2026-10-02 :
-   - [x] **4.4.1** Accès au portail (H1, A1, M19) : app `portal`, activation par téléphone + code famille + mot de passe, connexion, mot de passe oublié (nouveau code à usage unique depuis la fiche famille, « Nouveau code »), école suspendue ; coquille du Portail (en-tête, i18n, client API)
-   - [x] **4.4.2** Enfants et installable (H2, H6) : accueil multi-écoles (une carte par enfant, situation des paiements résumée), « Ajouter un enfant d'une autre école » ; « Suspendre l'accès » de la fiche famille, affiché sur la carte ; installable (PWA, écran « Installer », bandeau de l'accueil) *(découpée le 2026-10-02)*
-   - [x] **4.4.3** Paiements et reçus (H3) : paiements d'un enfant (payé, reste, en retard, échéances, détail des frais), photo (si consentement), reçus PDF ; barre de navigation du Portail
-   - [x] **4.4.4** Annonces (H4) : annonces des écoles reliées, pièce jointe, marquée lue ; « lue par N familles » dans la Gestion
-   - [x] **4.4.5** Coordonnées (H5, M18) : profil du portail ; écran « Demandes des parents » de la Gestion
-- [x] **4.5** Guides de première connexion : caissier, comptable, parent (I3) ; traduction anglaise (I2) ; traduction française des textes du serveur (administration Django, messages) *(ajoutée le 2026-09-26, 1.5)*, découpée le 2026-10-02 :
-   - [x] **4.5.1** Guides de première connexion (I3, M20) : caissier et comptable dans la Gestion (étapes sur les vrais écrans, reprise, « Passer le guide », « Aide et guide ») ; parent dans le Portail (après l'activation, « Revoir le guide » du profil)
-   - [x] **4.5.2** Traductions (I2) : textes du serveur en français (administration Django, messages, PDF, Excel) ; relecture de la traduction anglaise des deux applications
-- [x] **4.6** Infra de production : VPS, Caddy, wildcard Cloudflare, variables d'environnement, déploiement en une commande ; adresse IP réelle du visiteur transmise par Caddy et Cloudflare (limitation des tentatives, 1.3) ; Caddy envoie `/v/*` de l'adresse de l'école à Django (vérification d'un reçu) *(ajouté le 2026-09-28, 3.2.3)*, découpée le 2026-10-02 (domaine, Cloudflare et VPS pas encore achetés) :
-   - [x] **4.6.1** Production prête, essayée sur la machine : images Docker (front construit, Django + gunicorn, Caddy), `infra/docker-compose.yml`, Caddyfile (sous-domaines, `/v/*`, compression, cache des PWA), variables d'environnement, adresse IP réelle du visiteur ; `make prod-local`
-   - [x] ~~**4.6.2** Serveur de démonstration gratuit (Oracle Cloud + DuckDNS)~~ — retirée le 2026-10-13 : remplacée par le vrai serveur AWS (4.6.3) ; les démonstrations se font dans la console (4.17.2)
-   - [x] **4.6.3** *(fait le 2026-10-13 : domaine `mwangazaschool.com`, AWS Lightsail Paris, DNS Cloudflare « DNS seulement » — pas de proxy ni de certificat d'origine ; Docker Compose, pas de systemd ; `make deploy-init`, `deploy-check` ; reste le stockage objet des sauvegardes : 4.7.2)* Passage au vrai domaine, **avant les vraies données d'une école** : `mwangaza.school` acheté, Cloudflare (DNS, joker, certificat d'origine, pare-feu limité à Cloudflare), même serveur ou VPS ; avec les sauvegardes (4.7). Changer d'adresse après de vraies données obligerait à réinstaller les applications et rendrait invérifiables les QR des reçus imprimés
-- [ ] **4.7** Sauvegardes continues + dump quotidien + **test de restauration** (I4) ; suivi d'erreurs ; sonde de disponibilité, découpée le 2026-10-10 (le stockage objet n'est pas encore acheté) :
-   - [x] **4.7.1** Sauvegardes prêtes, essayées sur la machine — dans le bloc « Lancement — version finie » ci-dessous
-   - [x] **4.7.2** *(fait le 2026-10-13 : copie chiffrée chaque nuit vers Backblaze B2 par `rclone`, rotation distante, `make deploy-backup`, signal d'échec Healthchecks, Sentry sans donnée personnelle ; sonde UptimeRobot = réglage du service ; sauvegarde continue WAL-G retirée. **Reste à toi : créer les comptes et mettre les clés dans `serveur.env`**, `A-FAIRE.md` § 9)* Avec la mise en ligne : sauvegardes branchées au vrai stockage objet, suivi d'erreurs, sonde de disponibilité
-- [x] **4.23** Tableau de bord et impayés : mesure sur le vrai serveur *(ajoutée à la recette, 2026-10-11)*. Avec la mise en ligne (4.6.3) : mesurer sur le serveur le tableau de bord et les impayés d'une école de 800 à 1 200 élèves (sur la machine, après 4.21 : 1,3 s et 1,2 s, plus 1,4 s pour le résumé des impayés ; presque tout est le calcul des soldes en Python, 14 000 frais dus pour 800 élèves, pas la base). Si c'est lent (plus de 2 s) : un seul calcul pour la liste des impayés et son résumé (deux aujourd'hui, un de plus à chaque page), puis soldes lus sans créer un objet Django par frais dû. Pas de cache de montants. Pas avant : optimiser pour un serveur pas encore mesuré, c'est deviner *Fait le 2026-10-13 : mesuré sur le vrai serveur (Lightsail 2 Go, 2 cœurs), espace de démonstration de 800 élèves : tableau de bord 0,6 s, impayés 0,7 s, résumé 0,75 s (premier appel du tableau de bord 1 s) ; sous 2 s, donc aucune optimisation (règle de la tâche). Espace supprimé ensuite.*
-- [x] **4.24** Installation obligatoire de la Gestion *(ajoutée le 2026-10-13, demande de l'utilisateur ; plan : `docs/claude/plans/tache-4.24.md`)* : écran plein page « Installe l'application » avant la connexion (bouton du navigateur, étapes iPhone, menu du navigateur), message « ouvre l'icône » une fois installée, issue de secours (2 refus, iPhone, navigateur sans invite) valable pour la session ; production seulement ; logique d'installation partagée avec le Portail
-- [x] **4.25** Santé de la plateforme dans la console *(ajoutée le 2026-10-13, après la panne du serveur ; à faire après 4.23)* : une carte pour le super-admin — dernière sauvegarde et dernière copie B2, dernier passage du planificateur Celery et taille de sa file, mémoire / swap / disque (lus dans `/proc`, sans dépendance), dernière synchronisation de chaque école. Quelques écritures par jour, aucune par requête. **Pas de graphes ni d'historique** (Sentry, Healthchecks, UptimeRobot et les alarmes Lightsail le font) ; `/api/health/` reste léger (sonde toutes les 5 minutes). Ne remplace pas la surveillance extérieure : une page sur le serveur tombe avec lui
-- [x] ~~**4.8** Mise en place à l'ITIG~~ — retirée le 2026-10-02 : on n'attend rien de l'ITIG ; comme toute école, elle saisit ou importe elle-même ses données (import Excel, écrans de la V1.0), quand elle veut
-- [x] **4.9** Invitation des familles au portail (H7) : lettre PDF par famille (adresse du portail avec QR, code famille, 3 étapes, aide), imprimable pour une classe ou depuis la fiche famille ; message prêt à partager (WhatsApp, SMS) ; suivi des comptes activés par classe (« pas encore activé ») ; code remis noté au journal *(ajoutée le 2026-10-02)*
-- [x] **4.10** Guide de la V1.0 en PDF (I5) : ce que fait la version et comment, rôle par rôle (directeur, promoteur, comptable, caissier, secrétaire, directeur des études et de discipline, enseignant, parent, super-admin), avec captures des écrans sur les données de démonstration ; ce qu'elle ne fait pas encore et ce qu'apportent les versions suivantes ; dans le système de design, régénéré à chaque version (`make guide`) *(ajoutée le 2026-10-02)*
-- [x] ~~**4.11** Essai sur plusieurs appareils du même réseau (`make reseau`, DuckDNS)~~ — retirée le 2026-10-13 : on essaie et on montre l'application sur le vrai serveur (espace de démonstration de la console)
+> **Pourquoi cet ordre** : d'abord ce qui protège les vraies données (P0), puis ce qu'une école utilise chaque trimestre (notes, bulletins), puis ce qui te fait vivre (abonnements, site de la plateforme), puis l'emploi du temps, qui a besoin des cours et des charges de la 8.1, et l'IA, qui a besoin d'un socle sûr. La bibliothèque et les ateliers partagent un même moteur de prêts et de stock : ils se font ensemble.
 
-Découpage revu le 2026-10-02 (demande de l'utilisateur) : la V1.0 est mise de côté une fois 4.9 et 4.10 faites (la mise en ligne vient quand tu le décides), puis V1.1 → V1.4 dans l'ordre. Plus de semaines : le rythme réel (la V1.0 en une semaine) les rendait trompeuses. Chaque tâche trop grosse est redécoupée (X.Y.1, X.Y.2…) au moment de la commencer. **À la fin de chaque version** (avec sa dernière tâche) : texte du guide mis à jour (`frontend/guide/guide.html`, version dans `captures.spec.ts`), puis `make guide` → `docs/guide/guide-v<version>.pdf`.
+---
 
-## Lancement — version finie
+## 3. Lancement : ce qui manque pour une vraie école (P0)
 
-Ajouté le 2026-10-10 (demande de l'utilisateur) : **avant toute nouvelle fonction**, la version doit marcher de bout en bout pour une vraie école. Ce bloc passe devant le reste de la V1.1 (5.5.2, 5.6, 5.7, en pause). Quand il est fini, il ne manque plus que les achats et la mise en ligne (4.6.3, 4.7.2). Décisions : `03` § 4 bis ; fonctions ajoutées au périmètre : `02` § 2 bis. Jalon GitHub : V1.0. Les tâches sont dans l'ordre où les faire.
+La V1.0 et la V1.1 sont faites (annexe). Il reste à fermer ce qui touche la sécurité des vraies données.
 
-**Revu le même jour en développeur senior** (vraiment utile ? faisable ? quel coût pour le serveur plus tard ?) : 13 tâches ramenées à 11 (13 depuis les découpages de la 4.17 et de la 4.20, 14 avec la 4.22 ajoutée le 2026-10-11), liste « Retiré ou simplifié » en bas du bloc.
+- [x] **L.0** Installer ce plan *(P0, S, 🤖)*
+   - Remplacer `docs/05-plan-de-travail.md` par ce fichier ; l'ancien va dans `docs/archives/05-plan-de-travail-2026-10-13.md` (garder l'historique, ne plus le relire à chaque tâche).
+   - Mettre à jour les fichiers listés au § 9 (domaine, état, a-fournir, CLAUDE.md, skill `/tache`).
+   - Une seule PR, aucun code applicatif touché.
 
-**Garde-fous de performance du bloc** (serveur de 2 cœurs, partagé par toutes les écoles) : aucune écriture en base ajoutée à chaque requête ; tout ce qui est lourd (remplir ou supprimer un espace, reprise) en tâche de fond, par paquets, une à la fois ; rien d'ajouté à la première synchronisation des appareils ; pas de nouveau processus sur le serveur (pas de planificateur Celery : purge et sauvegardes passent par une seule tâche planifiée du système) ; temps de réponse mesurés à la recette (4.21).
+- [ ] **L.1** Clés du serveur *(P0, S, 👤)* — `A-FAIRE.md` § 9 : créer les comptes Backblaze B2, Healthchecks, Sentry, UptimeRobot et mettre les clés dans `serveur.env`. Puis `make deploy-check` doit être vert et la première copie de nuit doit arriver dans B2. *Rien de réel ne doit entrer sur le serveur avant.*
 
-**Portail parents**
+- [ ] **L.2** Restauration réelle depuis B2 *(P0, S, 🤖 + 👤)* — la 4.7.1 a essayé la restauration sur la machine, jamais depuis la copie hors serveur. **Vérifié** : les commandes existent déjà (`make deploy-backup cmd=fetch` rapatrie la copie du stockage objet, `cmd=restore` l'essaie) ; il reste à les lancer pour de vrai une fois L.1 faite. Vérifier le nombre d'écoles, d'élèves, de paiements et les fichiers (logos, photos) ; noter la durée et la procédure exacte dans `A-FAIRE.md` (« Si le serveur est perdu »). Vérifier aussi que la clé de chiffrement des sauvegardes est gardée **ailleurs que sur le serveur** (👤 : gestionnaire de mots de passe). Une sauvegarde jamais restaurée n'est pas une sauvegarde.
 
-- [x] **4.12** Portail — connexion fiable. D'abord reproduire les déconnexions sur un téléphone (navigateur et application installée, Android et iPhone ; Q13). Puis : session prolongée quand le parent revient (90 jours après la dernière visite, au lieu de 30 jours après la connexion), avec **au plus une écriture par jour et par appareil**, jamais à chaque requête ; « Rester connecté » décoché dure 12 heures (aujourd'hui : perdu dès qu'on quitte l'application installée) ; réseau lent ou coupé : jamais renvoyé à la connexion (« pas de réseau » distingué de « session finie »), dernières données affichées ; session finie : écran de connexion avec le numéro déjà rempli, message clair, retour à la page demandée ; déconnexion : données gardées dans le téléphone effacées (autre parent sur le même téléphone) ; parcours d'accès vérifiés de bout en bout sur téléphone (activation, mot de passe oublié jusqu'au nouveau code remis par l'école, application installée). Limite de tentatives par adresse IP : changée seulement si un blocage est reproduit. Les autres écrans du Portail sont revus à la recette (4.21)
+- ~~**L.3**~~ Compléments de sécurité : remplacée par **S.1** et **S.2** (§ 4 bis). Ce qui est déjà en place y est listé.
 
-**Import et élèves**
+- [ ] **L.4** Essai sur de vrais téléphones *(P0, S, 👤)* — ce que la recette 4.21 n'a pas pu faire : sur le vrai serveur, un Android et un iPhone ; installation obligatoire de la Gestion (4.24) ; caisse hors ligne (couper le réseau, encaisser, reconnecter) ; impression sur une vraie imprimante thermique 58 / 80 mm et en A4 ; Portail installé, notifications sur iPhone ; scan du QR d'un reçu imprimé. Chaque défaut trouvé devient une tâche L.4.x en tête de file.
 
-- [x] **4.13** Import — matricule jamais imposé. D'abord reproduire le blocage signalé (Q14) : dans le code, la colonne est déjà facultative. Correctif au plus simple : colonne marquée « facultatif », message corrigé si c'est lui qui bloque ; **un seul interrupteur** dans les paramètres de l'école, « Attribuer un matricule automatiquement » (oui pour les écoles existantes) : sur non, ni l'import ni l'inscription n'en créent, et un matricule vide ne laisse aucun libellé vide sur les listes, fiches et reçus
-- [x] **4.14** Annuler un import : élèves, familles et inscriptions créés par un fichier (lien gardé sur chaque élève), tant qu'aucun paiement, réduction ni échéancier particulier ne les touche ; motif, permission, journal. Aujourd'hui, un fichier importé dans la mauvaise année ou les mauvaises classes ne se rattrape pas
+- [ ] **L.5** Clôture de la version *(P0, S, 🤖)* — après M.3 : texte du guide mis à jour (modules, rôles libres), `make guide` → `docs/guide/guide-v1.1.pdf`, « Le jour du lancement » de `A-FAIRE.md` relu avec le vrai domaine `mwangazaschool.com`.
 
-**Espaces : réel, essai, démonstration** (une seule plateforme, une seule console qui les gère)
+---
 
-- [x] **4.15** Type d'espace et arrêt, serveur et console (maquette `console/ecoles` mise à jour) : chaque école est un espace **réel** (vide, rien d'inventé), **d'essai** (bac à sable vide, pour l'utilisateur et les personnes intéressées) ou **de démonstration** (données fictives), type choisi à la création et jamais changé ; état « arrêté » ajouté (plus d'accès, données gardées ; « essai gratuit », « actif » et « suspendu » restent comme aujourd'hui) ; console : onglets Réels · Essai · Démonstration, type choisi à la création, « Arrêter » avec motif et journal de la plateforme ; chiffres du tableau de bord de la console : espaces réels seulement
-- [x] **4.16** Supprimer un espace d'essai ou de démonstration : un seul service, en tâche de fond et par paquets, qui parcourt tous les modèles d'une école (un nouveau modèle est couvert sans y penser) ; confirmé en tapant le code de l'espace ; **refusé par le serveur pour un espace réel** ; seule exception à la règle « paiements immuables » ; comptes restés sans école désactivés ; journal de la plateforme
-- [x] **4.17.1** Espaces de démonstration, règles du serveur et `make demo` (4.17 découpée le 2026-10-11 : sept modules de données fictives à généraliser, une tâche de fond, deux écrans et un PDF ne tiennent pas dans une PR) : comptes dans une plage de numéros réservée (`+243 0…`, où aucun vrai numéro n'existe ; ceux qu'on donne à taper commencent par `000`), jamais admis dans un espace réel ou d'essai, et un espace de démonstration n'accepte qu'eux (personnel, changement de numéro, portail) ; pas de double authentification dans un espace de démonstration ; données fictives rangées par profil (`itig` grande école ≈ 800 élèves, `volcans` petite ≈ 150) et écrites par un seul code, `core.demo.fill`, étape par étape, dans n'importe quel espace avec ses propres numéros et son mot de passe ; `make demo` : `itig` et `volcans` deviennent des espaces de démonstration ; plus aucun super-admin de démonstration hors développement
-- [x] **4.17.2** Démonstration depuis la console : créer un espace de démonstration (petite ou grande école, `core.demo.fill`) en tâche de fond avec l'avancement, une à la fois, nombre d'espaces de démonstration limité par un réglage, bloc de numéros propre à chaque espace (`DemoNumbers.block`) ; **fiche d'accès** (écran et PDF) : adresses, un compte par rôle (numéro, mot de passe), parents du portail avec leur code famille ; mot de passe propre à chaque espace ; « Remettre à zéro » = supprimer (4.16) puis recréer (comptes désactivés par la suppression réactivés, activations du portail refaites) ; tranché : un compte d'une fiche d'accès ne change ni de mot de passe ni de double authentification, et la remise à zéro donne un nouveau mot de passe
-- [x] **4.18** Espaces d'essai et de démonstration reconnaissables : bandeau permanent dans la Gestion et le Portail (« Démonstration — données fictives », « Essai — pas de vraies données ») ; reçu marqué « SPÉCIMEN — sans valeur » ; page publique de vérification d'un reçu : « reçu d'essai »
+## 4. Modules et rôles libres (P0 : avant le premier espace réel)
 
-**Démarrage d'une vraie école**
+Décidé le 2026-10-13 : chaque fonction est un module donné par la plateforme (socle toujours actif ; école neuve = aucun module ; écoles existantes et démonstrations = tous), puis plus aucun rôle imposé.
 
-- [x] **4.19** Reprise en cours d'année : une école qui démarre après la rentrée importe un fichier Excel de ce que chaque élève a déjà payé avant Mwangaza (aperçu, erreurs ligne par ligne et totaux avant de valider) ; enregistré comme « payé avant Mwangaza » : hors caisse du jour, clôtures et « encaissé ce mois », sans reçu, visible dans l'historique et le Portail, permission dédiée, journal ; une erreur se corrige par l'annulation habituelle. Sans cela, tous les élèves paraissent en retard le premier jour
-- [x] **4.20.1** Mise en route d'une école neuve — la liste (4.20 découpée le 2026-10-11 : une liste calculée par le serveur avec sa carte, une revue de tous les écrans vides et un long parcours Playwright ne tiennent pas dans une PR) : liste sur le tableau de bord du directeur d'un espace vide (année → classes → frais et taux → comptes du personnel → caisse et appareil → élèves, puis facultatives : reprise → invitations des parents), chaque étape mène à son écran et se coche seule ; calculée par un seul appel tant qu'elle n'est pas finie, puis plus jamais (le directeur la termine quand l'école peut encaisser, date de fin gardée sur l'école) ; un espace de démonstration naît fini
-- [x] **4.20.2** École neuve — états vides et parcours : états vides des écrans vérifiés dans un espace vide (corrigés là où un écran vide ne dit pas quoi faire) ; scénario Playwright « école neuve de bout en bout » (espace créé dans la console → mise en route → inscription → encaissement et reçu → clôture → le parent voit le reçu)
-
-**Prêt pour la mise en ligne**
-
-- [x] **4.7.1** Sauvegardes prêtes, essayées sur la machine : dump chiffré de la base et des fichiers (logos, photos, pièces jointes), rotation, `make backup` et `make restore`, **restauration essayée** dans une base à part ; dans la même tâche planifiée, purge des sessions expirées (rien ne les efface aujourd'hui : la table grossit sans fin). *Fait : `infra/backup/sauvegarde.sh` ; chaque nuit par le crontab du compte, installé par `make deploy` ; remise en service par renommage, l'ancienne base gardée. Reste pour la 4.7.2 : copie hors du serveur, sauvegarde continue, alerte si la tâche échoue.*
-- [x] **4.22** `make demo` sans danger pour une plateforme qui a de vraies écoles *(ajoutée le 2026-10-11, revue d'une proposition de l'utilisateur : seul vrai manque trouvé)* : aujourd'hui seul le réglage `DEMO_DATA` l'empêche de remettre à zéro l'identité de la plateforme (nom, logo, support, mentions légales), de retirer ses droits à un super-admin et de **changer en démonstration** un espace réel ou d'essai qui porterait le code `itig` ou `volcans` — donc de le rendre supprimable, avec ses paiements. Côté serveur seulement : `make demo` (donc `make deploy-demo` et `make reseau-demo`) refuse net dès qu'un espace réel existe, quel que soit le réglage, et renvoie vers l'onglet « Démonstration » de la console ; il ne change jamais le type d'un espace existant (code pris par un espace qui n'est pas de démonstration → refus) ; test : une école réelle avec un paiement, puis `make demo` → refus, et rien n'a bougé (type de l'espace, données, identité de la plateforme, super-admin) ; base de développement d'avant la 4.17 : `make reset-db`
-- [x] **4.21** Recette finale : revue rôle par rôle des trois applications sur le serveur de démonstration et sur téléphone (français et anglais, caisse hors ligne, mise à jour de l'application pendant qu'une caisse a des opérations en attente, tous les écrans du Portail) ; **mesure** des écrans lourds avec plusieurs écoles remplies (tableau de bord, impayés, recherche de la caisse, première synchronisation) et correction de ce qui est lent ; guide de la version régénéré (`make guide`) avec les espaces ; `make reseau` relancé une fois avec la version finale (l'essai sur plusieurs appareils marche toujours, même adresse DuckDNS) ; « Le jour du lancement » dans `A-FAIRE.md` (domaine acheté → 4.6.3 → 4.7.2 → premier espace réel créé). La version est déclarée finie. *Fait le 2026-10-12 : revue automatique à 390 px, en français et en anglais, des trois applications (8 rôles de la Gestion, parent du Portail, super-admin de la console) — un défaut, corrigé (onglet « Famille » de la fiche élève) ; mesure sur 12 écoles (6 350 élèves) et deux corrections du calcul des soldes ; guide régénéré ; `make reseau` relancé ; `A-FAIRE.md` § 9 quater. Pas fait par Claude : le vrai téléphone et le serveur en ligne (pas encore créé). Suite de la mesure : 4.23*
-
-**Retiré ou simplifié à la revue** (repris seulement si une école le demande) : revue du Portail à part (fusionnée dans 4.12 et 4.21) ; matricule à trois modes et attribution en masse (un interrupteur suffit, et le défaut n'est pas encore reproduit) ; « créer les classes manquantes » et second fichier qui complète les élèves (confort, règles de fusion risquées) ; état « en préparation » et essai gratuit sorti des états (migration sans gain : créer un espace, c'est le lancer) ; date de fin d'un essai avec suspension automatique (demanderait un planificateur ; on suspend à la main) ; « Vider » un espace (liste de tables à tenir à jour à chaque nouveau modèle : supprimer puis recréer suffit) ; « SPÉCIMEN » sur tous les documents et exports (le reçu et sa page de vérification suffisent) ; annonces de la plateforme par type ; reprise saisie élève par élève (le fichier Excel suffit) ; export des données d'un espace depuis la console (fait à la main par le support le jour où une école part)
-
-**Proposition examinée le 2026-10-11** (texte apporté par l'utilisateur, écrit pour un autre plan : « tâches 1.1 à 1.5 », Hetzner, Supabase). *Déjà en place, rien à ajouter* : clé TOTP chiffrée par une clé dérivée de `SECRET_KEY` (`core/crypto.py`) ; adresse `otpauth://` et QR code à l'activation ; activation obligatoire dès la première connexion pour un rôle sensible (prouvée par le parcours `ecole-neuve`) ; super-admin créé par `make superuser` (`is_platform_admin`), double authentification exigée à la console et à l'administration Django ; connexion par l'adresse de l'école, aucune donnée sans `Membership` actif ; comptes et espaces de démonstration à part (`03` § 4 bis). *Écarté* : garder la clé TOTP dans le navigateur pour que l'application calcule le code toute seule (le second facteur serait rangé à côté du premier, lisible par qui tient l'appareil et le mot de passe : ce n'est plus une double authentification ; « ne plus demander sur cet appareil pendant 7 jours » donne déjà le confort) ; refuser la connexion d'un compte sans rôle dans l'école de l'adresse (il doit pouvoir choisir son école, M2 ; il n'y voit aucune donnée) ; une commande à part pour le premier super-admin (`createsuperuser` le fait déjà) ; double authentification imposée à la secrétaire (pas de droit sensible : elle peut l'activer, l'école peut l'imposer en changeant le rôle). *Retenu* : 4.22, et `make reseau` vérifié à la recette (4.21).
-
-## V1.1 — Plateforme, notifications et communication
-
-- [x] **5.1** Identité de la plateforme : nom, nom court, logo, icône des applications, couleurs, contact du support, mentions légales, dans les paramètres de la plateforme (plus rien d'écrit en dur : changer le nom ou le logo ne demande pas de code) ; lue par la Gestion, le Portail, la console, les PDF, l'administration et les manifestes des applications (servis par le serveur) ; test qui refuse le nom de la plateforme écrit en dur dans les textes
-- [x] **5.2** Console de la plateforme — socle *(découpée le 2026-10-02 : une application, une connexion, deux écrans et leurs API dépassent une tâche)*
-   - [x] **5.2.1** Troisième application (`frontend/apps/console`, `admin.<domaine>`) avec son propre design (maquette `console/tableau-de-bord`) ; connexion du super-admin (mot de passe + double authentification ; refusée à tout autre compte) ; tableau de bord (écoles, élèves, encaissements du jour, écoles les plus actives, santé du serveur) ; développement (port 5175) et production (Caddy)
-   - [x] **5.2.2** Écran « Identité de la plateforme » (5.1) : API d'écriture réservée au super-admin, logo et icône, journal ; l'administration Django ne sert plus qu'au dépannage
-- [x] **5.3** Console — écoles (maquette `superadmin-ecoles`) : cartes et liste, créer une école avec son directeur, paramètres, suspendre / réactiver, abonnement (offre, essai, échéance ; sans facturation), « Ouvrir en tant qu'école » (session support)
-- [x] **5.4** Console — comptes, appareils et journal *(découpée le 2026-10-03 : quatre écrans de la console et un bandeau dans la Gestion dépassent une tâche)*
-   - [x] **5.4.1** Comptes : chercher un compte dans toutes les écoles (personnel et parents), fiche (écoles et rôles, familles, double authentification, dernières connexions), noms et téléphone, mot de passe provisoire, réinitialiser la double authentification, désactiver / réactiver ; chaque action au journal de la plateforme
-   - [x] **5.4.2** Appareils enregistrés de toutes les écoles (déconnecter), sessions support (ouvertes et passées), écran du journal de la plateforme (filtres)
-   - [x] **5.4.3** Annonces de la plateforme aux écoles : rédaction dans la console, lecture dans la Gestion (bandeau, liste)
-- [x] **5.5** Notifications sur l'écran — socle *(découpée le 2026-10-03 : serveur, envoi, deux service workers et quatre écrans dépassent une tâche)*
-   - [x] **5.5.1** Serveur et Gestion : notifications système (Web Push, VAPID, `pywebpush`) qui s'affichent même application fermée ; abonnement de chaque navigateur, préférences par compte, centre de notifications dans la Gestion (cloche, liste), notification d'essai ; envoi par Celery ; première sorte : annonce de la plateforme publiée → personnel des écoles visées
-   - [x] **5.5.2** Portail : abonnement des parents, centre de notifications et préférences dans le Portail ; iPhone : application installée sur l'écran d'accueil (explication dans `/install`). *Fait le 2026-10-12 : centre du parent toutes écoles mêlées, cloche, activation de ce téléphone et essai ; pas d'écran de préférences à part tant qu'aucune sorte ne vise les parents (5.6 : l'API est prête, le bloc s'ajoutera sur le même écran)*
-- [x] **5.6** Notifications — événements *(découpée le 2026-10-12 : les envois immédiats et les envois à heure fixe, qui demandent un planificateur et un écran de réglages, dépassent une tâche)*
-   - [x] **5.6.1** Événements immédiats : parent (paiement reçu, avec le chemin vers son reçu ; annonce de l'école), personnel (alertes du directeur : écart de caisse à la clôture, annulation à valider avec dépassement du seuil du jour) ; texte dans la langue du destinataire ; préférences dans le Portail et, selon les droits, dans la Gestion
-   - [x] **5.6.2** Événements à heure fixe : planificateur quotidien, échéance proche et retard de paiement (parent), caisse non clôturée (directeur), relances automatiques d'impayés réglées par l'école (écran de réglages), purge des vieilles notifications. *Fait le 2026-10-12 : planificateur dans le worker Celery (un passage toutes les 15 minutes), relances désactivées tant que l'école ne les active pas, une notification par parent (enfants réunis), `make relances` pour un passage à la main*
-- [x] **5.7** Communication : annonces au personnel (destinataire « Personnel » de 4.3, écran où le personnel les lit), messages à une classe, calendrier des événements, circulaires PDF, convocations ; portail : calendrier, titulaire et enseignants avec contacts (cahier § 8.9, 8.10). *Fait le 2026-10-12, d'un coup à la demande de l'utilisateur : annonce au personnel lue par tous les rôles, calendrier (lu par tous, écrit avec `announcements.publish`), convocations (lettre PDF, portail, « vue », journal), circulaire PDF de chaque annonce, calendrier et titulaire dans le portail ; « messages à une classe » = annonce « Certaines classes » de la 4.3 ; enseignants par cours : avec la V1.4 ; guide de la version 1.1 (`make guide`)*
-
-## Modules et rôles libres (M.1 à M.3)
-
-Décidé le 2026-10-13, avant la V1.2 : chaque fonction est un module que la plateforme donne à une école (socle toujours actif ; école neuve = aucun module, écoles existantes = tous), puis plus aucun rôle imposé.
+**Pourquoi P0** : depuis M.1, le serveur refuse (403) les droits d'un module absent, mais les écrans et les tâches de fond ne le savent pas encore : une école neuve verrait des menus qui échouent. Et changer le modèle des rôles est bien plus sûr **avant** d'avoir de vraies écoles à migrer. Enfin, chaque nouveau module (§ 6) se branchera sur ce système : il doit être fini avant.
 
 - [x] **M.1** Modules : catalogue (`accounts/modules.py`), `School.modules`, droits d'un module absent retirés côté serveur (403, `/me`), carte « Fonctions de l'école » dans la console
-- [ ] **M.2** Modules côté écrans et tâches de fond : menu de Gestion et du Portail piloté par `/me`, message « Aucun module activé », portail, synchronisation, relances et notifications qui ignorent les écoles sans le module ; modules `portal`, `notifications`, `offline` ; modules choisis à la création d'une école
-- [ ] **M.3** Rôles entièrement libres : plus de rôle système ni de code de rôle, un rôle de départ modifiable à la création d'une école, droits déduits des permissions et non des noms, `make demo` avec des rôles nommés librement
 
-## V1.2 — Carte unique et présences
+- [ ] **M.2.1** Modules — serveur et tâches de fond *(P0, M)*
+   - Modules `portal`, `notifications`, `offline` ajoutés au catalogue.
+   - **Vérifié** : le catalogue (`accounts/modules.py`) a trois modules, `students`, `finance` et `communication`, sans aucune dépendance entre eux. Une école peut donc avoir `finance` sans `students`, ce qui n'a pas de sens.
+   - **Dépendances entre modules** dans le catalogue (`finance` → `students` ; relances → `notifications` ; `portal` → `students`) : activer un module active ce dont il dépend ; désactiver refuse tant qu'un module actif en dépend. Tranché une fois dans le catalogue, pas dans chaque écran.
+   - Désactiver un module **ne supprime aucune donnée** : elles sont cachées et reviennent à la réactivation (à écrire dans `docs/03`).
+   - Tâches de fond qui ignorent les écoles sans le module : relances, notifications à heure fixe, purge, envoi des annonces. Une requête filtrée par module, pas une boucle qui teste chaque école.
+   - Portail : connexion refusée proprement (message « non proposé par l'école ») si l'école n'a pas `portal` ; un parent avec des enfants dans plusieurs écoles ne voit que celles qui l'ont.
+   - Synchronisation : sans `offline`, pas d'instantané ni de file sur l'appareil ; l'instantané n'emporte que les données des modules actifs (rien d'ajouté à la première synchronisation).
+   - Création d'une école (console) : modules choisis à la création.
+   - Tests : une école sans chaque module → 403 côté API, tâche de fond qui la saute, isolation entre écoles.
 
-Une seule carte par élève et par membre du personnel : **puce sans contact (NFC) + QR code + photo et informations**. Pointage de deux façons : la puce (téléphone Android enregistré ou lecteur ESP32) ou le QR (caméra de n'importe quel téléphone ou tablette enregistrés, iPhone compris).
+- [ ] **M.2.2** Modules — écrans *(P0, S à M)*
+   - **Vérifié** : les droits d'un module absent sont déjà retirés de `/me` (`get_school_access`), et le menu de la Gestion suit les permissions depuis la 1.6. Le menu cache donc probablement déjà ces écrans (à confirmer par un test), ce qui rend la tâche plus petite que prévu.
+   - Menu de la Gestion et du Portail piloté par `/me` (modules et droits), jamais par le nom du rôle.
+   - Message « Aucun module activé — contactez le support » pour une école neuve sans module ; liste de mise en route (4.20.1) limitée aux modules actifs.
+   - Console : cases des modules à la création, dépendances expliquées.
+   - Parcours Playwright « école neuve » : créé avec un choix de modules, vérifier qu'un module absent n'apparaît nulle part.
 
-- [ ] **6.1** Carte de l'élève et du personnel : modèle de carte réglé par l'école (couleurs, champs, recto / verso) ; PDF au format carte bancaire (imprimante à cartes) et planche A4 ; jeton secret dans la puce et le QR (pas le matricule), révocable ; carte perdue remplacée, l'ancienne refusée partout ; cartes conseillées : NTAG215 / 216 (lues par tous les téléphones NFC et par l'ESP32)
-- [ ] **6.2** Liaison des cartes : poste d'encodage sur un appareil enregistré (téléphone Android avec NFC, ou lecteur ESP32 en mode encodage) ; classe par classe, scanner le QR imprimé puis poser la carte : la puce reçoit le jeton, est liée à la personne et protégée en écriture, en une seconde ; carte déjà liée, doublon ou carte d'une autre école refusés ; suivi « à lier / liées »
-- [ ] **6.3** Pointage par téléphone ou tablette enregistrés : mode borne plein écran, puce (Android) et / ou caméra QR (tout appareil) ; entrée / sortie, retard selon l'horaire de l'école ; photo affichée pour contrôle ; hors ligne (file d'opérations, idempotent)
-- [ ] **6.4** Lecteurs ESP32 (`firmware/`) : PN532 + écran + buzzer, enregistrés comme appareils de l'école, pointages gardés en mémoire si le réseau coupe, API de pointage idempotente ; guide de montage
-- [ ] **6.5** Suivi des présences : listes du jour par classe, absents, retards, correction manuelle (journal), présences du personnel ; rapports et export ; tableau de bord : taux de présence
-- [ ] **6.6** Présences et parents : notification d'arrivée, d'absence et de retard (5.5), justification par le parent dans le Portail, présences en direct dans le Portail ; alerte après X absences
+- [ ] **M.3.1** Rôles — droits déduits des permissions *(P0, M)*
+   - **Vérifié, inventaire** de ce qui lit un code de rôle aujourd'hui :
+     - `schools/services.py:95` : le directeur d'une école créée reçoit le rôle `head` (code).
+     - `gestion/src/features/guide/guides.ts:62` : le guide de première connexion est choisi par les codes `cashier` / `accountant`.
+     - `gestion/src/features/roles/RolesPage.tsx:189` : note affichée pour le rôle `parent`.
+     - `gestion/src/lib/people.ts:16` : nom du rôle traduit depuis son code.
+     - `audit/serializers.py:97`, `audit/views.py:144` : filtre du journal par rôle système.
+     - `accounts/services.py:122, 244` et `accounts/models.py:139, 167, 180` : rôles système, contrainte sur `code`, rôle système non supprimable.
+     - `accounts/demo.py:126` et `sync/demo.py:37` : données de démonstration par code.
+     - Déjà correct : les notifications au personnel visent une permission (`notifications/events.py:61`), pas un rôle.
+   - Remplacer chaque usage par une permission (guide choisi selon les permissions détenues, filtre du journal par rôle de l'école, rôle du directeur pris dans le modèle de départ).
+   - Aucun changement visible pour les écoles existantes : tests avant / après.
 
-## V1.3 — Personnel, paie et dépenses
+- [ ] **M.3.2** Rôles entièrement libres *(P0, M)*
+   - Plus de rôle système ni de code de rôle ; un **modèle de départ** modifiable proposé à la création d'une école (les 9 rôles actuels comme suggestion).
+   - Garde-fou : on ne peut pas retirer à tous les comptes la permission `roles.manage` (l'école se bloquerait).
+   - Migration des écoles existantes et des démonstrations ; `make demo` avec des rôles nommés librement ; fiche d'accès des démonstrations par rôle de l'espace.
 
-- [ ] **7.1** Dépenses par catégorie, rapports entrées / sorties
-- [ ] **7.2** RH : dossier employé, contrats, qualifications, statut SECOPE ; carte du personnel sans compte (6.1)
-- [ ] **7.3** Paie : périodes, lignes, primes, motivation enseignants liée aux frais, avances, retenues (absences pointées, en option), fiche de paie PDF
-- [ ] **7.4** Espace enseignant : fiche de paie et horaire ; congés et permissions du personnel (cahier § 8.5, 8.12)
-- [ ] **7.5** Pénalités de retard, validation d'inscription liée au paiement, documents téléversés
-- [ ] **7.6** Connexion Google, champs complémentaires de la fiche élève
+---
 
-## V1.4 — Notes, bulletins et vie scolaire
+## 4 bis. Sécurité renforcée (bloc S)
 
-- [ ] **8.1** Cours, maxima, domaines, attribution enseignants
-- [ ] **8.2** Saisie des notes (y compris hors-ligne), verrouillage, validation, historique
-- [ ] **8.3** Bulletin EPST PDF avec QR d'authenticité, calcul des totaux, places, mentions ; deux modes d'impression : bulletin complet, ou notes seules sur le formulaire pré-imprimé (Q11) ; régime et code de l'école (EPST, 7 chiffres) dans les paramètres de l'école (M5) *(ajouté le 2026-09-27, 1.7)*
-- [ ] **8.4** Délibération, décisions, palmarès, passage de classe
-- [ ] **8.5** Discipline ; messagerie parent ↔ titulaire / administration ; rendez-vous
-- [ ] **8.6** Portail élèves ; espace enseignant et titulaire
-- [ ] **8.7** Transfert d'élève entre écoles de la plateforme (copie du dossier vers l'école d'arrivée) ; attestations et certificats
-- [ ] **8.8** Portail parents : notes, bulletins PDF, discipline, documents ; tableau de bord : résultats scolaires (cahier § 8.10, 8.13)
-- [ ] **8.9** Sondages ; option de blocage des bulletins / examens en cas de dette (désactivée par défaut) (cahier § 8.4, 8.9)
+Demande du 2026-10-13 : « la partie sécurité est à renforcer au maximum ». Point de départ **vérifié dans le code** : la base est déjà solide (isolation testée par école, permissions côté serveur, double authentification avec codes de secours, limitation des tentatives à la connexion et à l'activation du Portail, clé TOTP chiffrée avec rotation par `SECRET_KEY_FALLBACKS`, PDF qui ne chargent que des `data:` (pas de requête vers l'extérieur), SVG servis avec une CSP `sandbox`, pare-feu, SSH par clé, cookies sécurisés, HSTS côté Django). Le bloc S ferme ce qui reste, du plus urgent au plus profond.
 
-## V2 — après la V1.4 (proposition : ordre et découpage à valider avant de commencer)
+**P0 — avant les vraies données**
 
-Chaque tâche V2 sera redécoupée en sous-tâches (9.1.1, 9.1.2…) au moment de la commencer.
+- [ ] **S.1** En-têtes et CSP *(P0, S)* — remplace L.3. Dans `infra/routes.caddy`, pour les fichiers des trois applications : HSTS (comme Django), `X-Frame-Options: DENY` et `frame-ancestors 'none'`, `Permissions-Policy` (caméra seulement là où le scan QR viendra), CSP stricte (`default-src 'self'`, pas de `unsafe-eval`, `connect-src 'self'`, `img-src 'self' data: blob:`), d'abord en `Content-Security-Policy-Report-Only` une semaine, puis imposée. Retirer le commentaire périmé sur le certificat d'origine (`infra/docker-compose.yml`). Test : chaque réponse porte les en-têtes.
+- [ ] **S.2** Dépendances et secrets surveillés *(P0, S)* — **vérifié** : `03` § 8 annonce « Dependabot » mais le dépôt n'a pas de `.github/dependabot.yml`. `.github/dependabot.yml` (pip, npm, Docker, Actions ; un fichier, aucune dépendance) ; `pip-audit` et `pnpm audit --prod` dans la CI, bloquants sur les failles hautes (`pip-audit` accepté le 2026-10-13) ; 👤 activer dans GitHub « Secret scanning » et « Push protection » ; 👤 copie chiffrée de `serveur.env` hors du serveur et de la machine (gestionnaire de mots de passe), procédure de changement de chaque clé dans `A-FAIRE.md`.
+- [ ] **S.3** Comptes à privilèges *(P0, S)* — notification au super-admin (push et journal) à chaque connexion à la console, à chaque ouverture « en tant qu'école » et à chaque échec de double authentification ; session de la console courte (2 h sans activité) ; liste d'adresses IP autorisées pour la console en réglage facultatif (vide = tout le monde). Côté école : notification au directeur quand un compte reçoit `roles.manage` ou une permission financière.
+- [ ] **S.4** Fichiers envoyés *(P0, S)* — le logo accepte aujourd'hui le SVG filtré par une liste noire (`schools/logos.py`) : un filtre par liste noire finit toujours par laisser passer quelque chose. Écoles : PNG et JPEG seulement (les SVG existants restent servis en `sandbox`) ; SVG gardé pour l'identité de la plateforme seulement (super-admin). Toutes les images : taille maximale, dimensions maximales, ré-encodées à l'envoi (métadonnées et position GPS des photos retirées). Pièces jointes : types autorisés, taille maximale, téléchargées en `attachment`.
+- [ ] **S.5** Base de données *(P0, S)* — **vérifié** : le journal d'audit est déjà protégé par un déclencheur PostgreSQL (`UPDATE` et `DELETE` refusés même en SQL direct, `03` § 8). Reste : Django se connecte avec un compte PostgreSQL qui n'est ni superutilisateur ni propriétaire des tables (les migrations passent par un autre compte) ; même déclencheur pour les paiements et les annulations : `DELETE` refusé (et `UPDATE` des champs qui ne changent jamais, à vérifier). Seule exception : la suppression d'un espace d'essai ou de démonstration (4.16), par un chemin réservé à cette tâche. Prépare S.6.
 
-- [ ] **9.1** Réseau : tableau consolidé promoteur / coordination confessionnelle, comparaison entre années (cahier § 6.1, 8.13)
-- [ ] **9.2** Plateforme : abonnements et facturation des écoles (tarif par élève, offres Découverte / Standard / Réseau, essai), revendeurs, statistiques globales (§ 5, 6.1) ; la console elle-même arrive en V1.1 (5.2–5.4)
-- [ ] **9.3** Paiement en ligne Mobile Money via agrégateur, argent versé directement sur le compte de l'école (§ 5, 8.14)
-- [ ] **9.4** SMS et WhatsApp avec crédits achetés par l'école ; relances d'impayés par SMS (§ 8.4, 8.9)
-- [ ] **9.5** Applications Android et iPhone (Capacitor) publiées dans les stores ; lecture de la puce de la carte sur iPhone (§ 8.10)
-- [ ] **9.6** Pré-inscription en ligne, test d'admission, liste d'attente (§ 8.3)
-- [ ] **9.7** Comptabilité SYSCOHADA complète : journal, grand livre, budget prévisionnel, rapprochement bancaire (§ 8.4)
-- [ ] **9.8** Emploi du temps automatique sans conflit ; devoirs et cours publiés (enseignant, élève, parent) (§ 8.6, 8.10–8.12)
-- [ ] **9.9** Évaluations d'atelier (écoles techniques) ; évaluation des enseignants (§ 8.5, 8.6)
-- [ ] **9.10** Rapports officiels EPST : statistiques de fin d'année, listes ENAFEP / Exetat, palmarès officiel (§ 8.13)
-- [ ] **9.11** Enseignement supérieur LMD : semestres, unités d'enseignement, crédits, sessions (§ 7)
-- [ ] **9.12** Vie scolaire : bibliothèque, cantine (menu dans le portail), transport (itinéraires, suivi GPS), internat (§ 8.10, 8.14)
-- [ ] **9.13** Gestion matérielle : inventaire, ateliers (équipements, matières d'œuvre, TP), boutique (uniformes, fournitures) (§ 8.14)
-- [ ] **9.14** Orientation scolaire, anciens élèves, site vitrine généré pour chaque école (`{ecole}.mwangaza.school/`) (§ 8.14, architecture § 2)
-- [ ] **9.15** Sécurité en profondeur : Row Level Security PostgreSQL (architecture § 4)
+**Décision (prise)** : remettre Cloudflare en mode proxy (nuage orange) devant le serveur ? Gain : adresse du serveur cachée, protection contre les attaques par saturation et pare-feu applicatif gratuits ; pare-feu du serveur limité aux adresses de Cloudflare. Coût : reprendre `trusted_proxies` et `CF-Connecting-IP` (déjà écrits dans `infra/Caddyfile`), et le joker `*.mwangazaschool.com` doit rester en proxy. **Décidé le 2026-10-13 : oui**, avant le premier espace réel (à faire avec S.1).
 
-## Plus tard (non planifié)
+**P1 — avec les premières écoles réelles**
 
-Migration depuis d'autres logiciels ; rapports transmis aux sous-divisions EPST ; maternelle ; intelligence artificielle (non prévue au départ).
+- [ ] **S.6** Row Level Security PostgreSQL *(P1, L)* — ex-9.15, avancée de la V2 : chaque table d'une école refuse, dans la base elle-même, toute ligne d'une autre école (variable de session posée par le `TenantMiddleware`, et par chaque tâche Celery pour son école). Deuxième barrière si un jour un `filter` est oublié. À découper (S.6.1 socle et tables de finance, S.6.2 le reste) ; tâches de la plateforme (console, sauvegarde) sous un compte à part.
+- [ ] **S.7** Protection des données *(P1, M)* — politique de confidentialité et registre des traitements (quelles données, pourquoi, combien de temps) publiés dans le Portail et le site de la plateforme ; durées de conservation appliquées (élève parti depuis N années : données réduites au minimum légal) ; export des données d'une famille sur demande ; règles des données envoyées à l'IA (§ 6, IA.1). 👤 faire relire par un juriste au fait du droit congolais.
+- [ ] **S.8** Détection *(P1, S)* — alertes au super-admin : rafale de connexions ratées, export inhabituel (beaucoup de données d'un coup), nombre d'annulations hors norme, appareil révoqué qui insiste ; carte « Sécurité » dans la santé de la plateforme (4.25). Pas de nouvel outil : Sentry et le journal suffisent.
+- [ ] **S.9** Revue complète *(P1, M)* — revue des trois applications selon OWASP ASVS niveau 2 (accès, sessions, entrées, erreurs, journal), tests automatiques ajoutés pour chaque défaut trouvé ; 👤 test d'intrusion par une personne extérieure quand les revenus le permettent.
+
+**Pour toutes les tâches** : la définition de « fini » (§ 8.2) gagne une ligne sécurité (aucune donnée d'une autre école, permission vérifiée côté serveur, entrée de l'utilisateur jamais affichée comme du HTML, envoi de fichier contrôlé, point public limité en nombre d'essais).
+
+---
+
+## 5. Améliorations des modules existants
+
+Trouvées à la relecture. Chacune est marquée « à vérifier » quand elle repose sur une supposition sur le code : la vérifier d'abord, la retirer si elle est déjà faite.
+
+| # | Amélioration | Prio | Taille | Quand |
+|---|---|---|---|---|
+| ~~A.1~~ | ~~Mémoire du serveur~~ : **vérifié, déjà fait** après la panne du 2026-10-13 (swap de 2 Go, limites de mémoire par conteneur dans `docker-compose.production.yml`, construction en série). Rien à ajouter. | — | — | — |
+| **A.2** | **Tables qui grossissent sans fin.** **Vérifié** : les notifications sont purgées à 90 jours et les sessions chaque nuit, mais `ChangeLog` et `SyncOperation` n'ont **aucune purge**. Chaque paiement et chaque modification y ajoute des lignes pour toujours. Il faut une purge dans le planificateur existant, au-delà d'un délai sûr (tout ce que les appareils actifs ont déjà tiré ; un appareil trop en retard refait un instantané). Le journal d'audit est gardé. | P1 | S | après le lancement, avant la fin du premier trimestre réel |
+| **A.3** | **Dépendances serveur et front à jour** : une passe par version (Django 5.2 LTS, paquets du front), sans en ajouter. | P2 | S | fin de chaque version |
+| **A.4** | **Export des données d'une école** (aujourd'hui « à la main par le support » ; **vérifié** : aucune commande `make` ne le fait) : une commande `make export-ecole CODE=…` (Excel + fichiers), pas d'écran. Utile le jour où une école part ou demande ses données. | P2 | S | quand une école le demande, au plus tard V2 |
+| **A.5** | **Sélection de plusieurs élèves pour une impression** (2.4) | P3 | S | si une école la demande |
+
+---
+
+## 6. Nouveaux modules (demandés le 2026-10-13)
+
+Chaque nouveau module suit la même règle, pour aller vite sans rien faire à moitié :
+
+1. Entrée dans le catalogue des modules (M.2), avec ses dépendances et ses permissions ; vendable seul (ABO).
+2. Modèles en `TenantModel`, logique dans `services.py`, permissions vérifiées côté serveur, audit si argent, notes, paie ou rôles ; tout montant passe par les règles de l'argent (`/argent`).
+3. Menu piloté par `/me` ; textes fr / en ; données de démonstration dans `core.demo.fill`.
+4. Si hors ligne : opérations idempotentes (UUID v7) dans la file existante.
+5. Section ajoutée au guide de la version.
+
+### 6.1 Finances de l'école (FIN) — P1, V1.2
+
+Ce qui manque aujourd'hui : l'argent qui **sort**. La caisse ne connaît que les entrées.
+
+- [ ] **FIN.1** Dépenses (ex-7.1) *(M)* : catégories réglées par l'école, bénéficiaire, devise, justificatif (photo ou PDF), validation au-delà d'un seuil (permission `finance.approve_expense`), annulation comme un paiement (jamais effacée) ; audit.
+- [ ] **FIN.2** Sorties de caisse *(M)* : une dépense payée en espèces sort d'une session de caisse, en ligne et hors ligne ; le bordereau et les écarts de la clôture (3.8.2, M16) en tiennent compte ; bon de sortie imprimé.
+- [ ] **FIN.3** Budget et rapports *(M)* : budget prévu par catégorie et par année, réalisé contre prévu, entrées / sorties par mois et par devise, trésorerie (caisse, banque, Mobile Money comme « comptes » de l'école), export Excel. La comptabilité SYSCOHADA complète reste en V2 (9.7) ; la paie (7.3) alimentera les dépenses.
+
+### 6.2 Abonnements par module (ABO) — P1, V1.3
+
+L'argent de la plateforme. M.1 et M.2 donnent déjà les modules ; il manque le contrat et la facture. Remplace la 9.2.
+
+- [ ] **ABO.1** Offres et contrats *(M)* : prix par module, par élève inscrit et par période (trimestre ou année scolaire), devise ; offres groupées (ex. « Essentiel » = élèves + frais + caisse) ; contrat d'une école = modules + prix + période + essai ; les modules actifs suivent le contrat. Console seulement.
+- [ ] **ABO.2** Factures et paiements de l'école à la plateforme *(M)* : facture PDF numérotée, immuable (annulation = avoir), paiement enregistré par le super-admin (espèces, banque, Mobile Money à la main ; en ligne avec 9.3) ; l'école voit ses factures dans ses paramètres ; audit de la plateforme.
+- [ ] **ABO.3** Échéances *(S)* : rappels avant échéance (planificateur existant) ; après le délai de grâce, **lecture seule** plutôt que coupure (l'école garde ses reçus et ses données, la caisse se ferme) — **décidé le 2026-10-13** ; chiffre d'affaires dans le tableau de bord de la console.
+
+### 6.3 Sites web (WEB) — P1 pour la plateforme, P2 pour les écoles
+
+- [ ] **WEB.1** Site de la plateforme *(S, V1.3)* : `mwangazaschool.com` (aujourd'hui redirigé vers le Portail) : présentation, modules et prix (lus dans le catalogue et les offres, rien en dur), demande de démonstration (formulaire → console, limité contre le spam sans dépendance), mentions légales et confidentialité (S.7), français et anglais. Pages rendues par Django, mises en cache, sans JavaScript obligatoire.
+- [ ] **WEB.2** Site de chaque école *(L, V1.7)* : à la racine de `{code}.mwangazaschool.com/` (la Gestion reste à `/app/`). L'école remplit elle-même son contenu depuis la Gestion : présentation, options et sections, admissions, actualités (annonces marquées « publiques »), galerie, contact, frais affichés seulement si elle le choisit ; publié ou non. **Sécurité** : modèles de pages fixes, texte en Markdown limité et nettoyé, aucun HTML ni script fourni par l'école, images ré-encodées (S.4), formulaire de contact limité. Domaine propre à une école : P3 (certificats à la demande, risque d'abus).
+
+### 6.4 Emploi du temps (EDT) — P1, V1.4
+
+Faisable, et utile à toutes les écoles. **Avis de développeur senior** : un emploi du temps sans conflit est un problème de contraintes ; une IA seule ne garantit pas zéro conflit (elle peut placer un enseignant dans deux classes à la même heure sans le voir). Donc : un **solveur** calcule, et l'**IA aide** autour (IA.2). Solveur proposé : OR-Tools CP-SAT (Google, licence Apache 2.0, utilisé partout pour ce problème) — **dépendance acceptée le 2026-10-13**.
+
+- [ ] **EDT.1** Données *(M)* — après la 8.1 : grille horaire de l'école (jours, heures, récréations, demi-journées), salles et ateliers (type, capacité), volume horaire hebdomadaire de chaque cours par classe, enseignants (charge maximale, jours et heures où ils sont disponibles, cours qu'ils peuvent donner, enseignant partagé avec une autre école), contraintes (au plus N heures du même cours par jour, heures doubles pour les travaux pratiques d'atelier, cours à ne pas mettre en dernière heure…).
+- [ ] **EDT.2** Éditeur et contrôle des conflits *(M)* : grille par classe, par enseignant et par salle ; déplacer une heure à la main ; chaque conflit montré tout de suite (enseignant, salle, classe, charge dépassée) ; versions (brouillon, publiée), l'ancienne gardée.
+- [ ] **EDT.3** Génération automatique *(L)* : le solveur place tout en respectant les contraintes obligatoires et au mieux les souhaits ; en tâche de fond, une à la fois, temps limité (le serveur est partagé) ; s'il n'y a pas de solution, il dit **quelle contrainte bloque** ; on peut verrouiller des heures avant de relancer.
+- [ ] **EDT.4** Publication *(S)* : PDF par classe, par enseignant, par salle ; emploi du temps dans le Portail (parents) et pour chaque enseignant ; changement après publication notifié (5.6). Plus tard : heures prestées pour la paie (7.3), appel en classe (V1.5).
+
+### 6.5 Intelligence artificielle dans l'application (IA) — P1 / P2, V1.4
+
+Intégration de **Claude** (API d'Anthropic) côté serveur. « Comme Claude Code » : l'IA lit, explique, prépare ; **la personne valide**. Elle n'écrit jamais seule dans l'argent, les notes ou les rôles.
+
+- [ ] **IA.1** Socle *(M, P1)* — tout le reste en dépend :
+   - module `ai` du catalogue, activé par école (ABO : module payant, la plateforme paie l'API) ; interrupteur général de la plateforme pour tout couper ;
+   - clé de l'API seulement sur le serveur (`serveur.env`), jamais dans une application ;
+   - l'IA ne reçoit que ce que la personne a le droit de voir : ses « outils » appellent les services existants **avec les permissions de la personne**, jamais une requête directe à la base ; aucune donnée d'une autre école ;
+   - **minimisation** : pas de téléphones, pas de photos, pas d'adresses ; élèves désignés par un identifiant interne quand le nom n'est pas utile ;
+   - **injection de consignes** : un texte écrit par un parent ou une annonce peut contenir « ignore tes règles… » ; donc outils en lecture seule, et toute action proposée passe par l'écran normal, avec confirmation et audit ;
+   - chaque appel noté (qui, quoi, combien de jetons, coût) ; quota mensuel par école ; mise en cache des consignes fixes pour réduire le coût ;
+   - modèle par défaut : `claude-opus-5-5` ; un modèle moins cher (`claude-sonnet-5-5`, `claude-haiku-5-5`) pour certaines tâches seulement si le coût mesuré l'exige (**décidé le 2026-10-13 : seulement si le coût mesuré l'exige**) ;
+   - 👤 conditions de conservation des données chez Anthropic à vérifier (rétention, zéro rétention sur demande) et à écrire dans la politique de confidentialité (S.7) ;
+   - nouvelle dépendance `anthropic` (SDK officiel) : **acceptée le 2026-10-13**.
+- [ ] **IA.2** Aide à l'emploi du temps *(M, P1)* : la direction décrit ses contraintes en phrases (« M. Kambale ne vient pas le vendredi, la 4e mécanique a l'atelier le mardi matin ») → l'IA les traduit en contraintes que la personne relit et valide → le solveur (EDT.3) calcule → l'IA explique les conflits et propose des assouplissements.
+- [ ] **IA.3** Assistant de questions *(M, P2)* : « combien d'élèves de 5e A sont en retard de paiement ? », « quelles classes ont le plus d'absents ce mois ? » ; réponses tirées des données, avec le lien vers l'écran d'où elles viennent ; lecture seule.
+- [ ] **IA.4** Aide à la rédaction *(S, P2)* : brouillons d'annonces, de convocations, de lettres de relance, d'appréciations de bulletin ; toujours un brouillon que la personne modifie et publie elle-même.
+
+### 6.6 Bibliothèque et ateliers (INV, BIB, ATL) — P2, V1.6
+
+Les deux reposent sur la même mécanique : des **objets** (livres, outils, matières), des **exemplaires** étiquetés, des **mouvements** (prêt, retour, entrée, sortie, perte) et des **personnes** (élève ou personnel). On la construit une fois.
+
+- [ ] **INV.1** Moteur commun *(M)* : articles, exemplaires avec étiquette QR (lue par la caméra comme la carte, V1.5), stock par lieu (bibliothèque, chaque atelier), mouvements immuables (une erreur se corrige par un mouvement inverse), inventaire annuel avec écarts ; audit.
+- [ ] **BIB.1** Catalogue *(S)* : titre, auteur, ISBN, catégorie, niveau ; exemplaires et état ; import Excel ; étiquettes imprimables.
+- [ ] **BIB.2** Prêts et retours *(M)* : prêt à un élève ou un membre du personnel avec date de retour prévue ; **bon de prêt** PDF signé ; **parent prévenu** dans le Portail et par notification (5.6), avec la date de retour ; retour avec l'état du livre ; prolongation ; nombre maximal de livres par élève.
+- [ ] **BIB.3** Retards et pertes *(M)* : rappels automatiques (planificateur existant) à l'élève, au parent et au bibliothécaire ; pénalité de retard facultative ; **livre perdu ou abîmé** : constat, puis frais de remplacement **ajoutés à ce que doit l'élève** (un `StudentCharge`, payé à la caisse avec un reçu normal, règles de l'argent) ; le livre est retiré du catalogue ; rapports (livres les plus lus, retards).
+- [ ] **ATL.1** Stock des ateliers *(M)* : matières d'œuvre et outillage par atelier, seuil d'alerte de stock bas.
+- [ ] **ATL.2** Commandes de matériel *(M)* : le chef d'atelier ou l'enseignant **demande** → la direction **valide** → l'achat devient une dépense (FIN.1) → la **réception** fait l'entrée en stock → l'enseignant **retire** le matériel à l'atelier (bon de sortie signé, lié à la classe et au travail pratique).
+- [ ] **ATL.3** Outils prêtés aux élèves *(S)* : même prêt que la bibliothèque ; casse ou perte → frais à l'élève comme BIB.3.
+
+Les évaluations d'atelier (9.9) restent en V2.
+
+---
+
+## 7. Versions (validées le 2026-10-13)
+
+Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est redécoupée au moment de la commencer.
+
+### V1.2 — Notes, bulletins et finances de l'école
+
+- [ ] **A.2** Purge de `ChangeLog` et `SyncOperation` *(P1, S)*
+- [ ] **S.6** Row Level Security *(P1, L)*
+- [ ] **8.1** Cours, maxima, domaines, attribution des enseignants **avec leur charge horaire** (servira à l'emploi du temps) *(P1, M)*
+- [ ] **8.2** Saisie des notes (y compris hors ligne), verrouillage, validation, historique *(P1, L)*
+- [ ] **8.3** Bulletin EPST PDF avec QR d'authenticité, totaux, places, mentions ; bulletin complet ou notes seules sur le formulaire pré-imprimé (Q11) ; régime et code EPST de l'école (M5) *(P1, L)* — 👤 fournir un vrai bulletin EPST rempli ou le modèle officiel.
+- [ ] **8.4** Délibération, décisions, palmarès, passage de classe *(P1, M)*
+- [ ] **8.8** Portail parents : notes, bulletins PDF ; tableau de bord : résultats *(P1, M)*
+- [ ] **FIN.1 → FIN.3** Dépenses, sorties de caisse, budget (§ 6.1) *(P1)*
+
+### V1.3 — Plateforme commerciale
+
+- [ ] **ABO.1 → ABO.3** Abonnements par module (§ 6.2) *(P1)*
+- [ ] **WEB.1** Site de la plateforme (§ 6.3) *(P1)*
+- [ ] **S.7 → S.9** Protection des données, détection, revue ASVS (§ 4 bis) *(P1)*
+
+### V1.4 — Emploi du temps et IA
+
+- [ ] **EDT.1 → EDT.4** (§ 6.4) *(P1)*
+- [ ] **IA.1, IA.2** (§ 6.5) *(P1)* ; **IA.3, IA.4** *(P2)*
+
+### V1.5 — Carte et présences (QR d'abord, NFC en option)
+
+- [ ] **6.1** Carte de l'élève et du personnel : modèle réglé par l'école, PDF carte et planche A4, jeton secret dans le QR, révocable, carte perdue remplacée *(P1, M)*
+- [ ] **6.3** Pointage par téléphone ou tablette enregistrés, caméra QR, mode borne, hors ligne *(P1, M)*
+- [ ] **6.5** Suivi des présences, corrections au journal, rapports, taux au tableau de bord *(P1, M)*
+- [ ] **6.6** Présences et parents : notifications, justification dans le Portail, alerte après X absences *(P1, M)*
+- [ ] **6.2** Liaison des cartes NFC (NTAG215 / 216) *(P2, M)* — 👤 commander quelques cartes d'essai
+- [ ] **6.4** Lecteurs ESP32 (`firmware/`) *(P2, L)* — 👤 matériel
+
+### V1.6 — Bibliothèque et ateliers
+
+- [ ] **INV.1**, **BIB.1 → BIB.3**, **ATL.1 → ATL.3** (§ 6.6) *(P2)*
+
+### V1.7 — Sites des écoles, personnel, paie, vie scolaire
+
+- [ ] **WEB.2** Site de chaque école (§ 6.3) *(P2, L)*
+- [ ] **7.2** RH : dossier employé, contrats, qualifications, statut SECOPE *(P2, M)*
+- [ ] **7.3** Paie : périodes, primes, motivation liée aux frais, avances, retenues, fiche de paie PDF ; la paie devient une dépense (FIN.1) *(P2, L)*
+- [ ] **7.4** Espace enseignant : fiche de paie, emploi du temps (EDT.4), congés *(P2, M)*
+- [ ] **7.5** Pénalités de retard des frais, inscription validée par le paiement, documents téléversés *(P2, M)*
+- [ ] **8.5** Discipline ; messagerie parent ↔ titulaire / administration ; rendez-vous *(P2, L)*
+- [ ] **8.6** Portail élèves ; espace titulaire *(P2, L)*
+- [ ] **8.7** Transfert d'élève entre écoles de la plateforme ; attestations *(P2, M)*
+- [ ] **8.9** Sondages ; blocage des bulletins en cas de dette (désactivé par défaut) *(P2, S)*
+- [ ] **7.6** Connexion Google, champs complémentaires de la fiche élève *(P3, S)*
+
+### V2 — après la V1.7 (ordre à valider avant de commencer)
+
+**À préparer par toi dès maintenant (👤)** : 9.3 et 9.4 dépendent de contrats longs à obtenir (agrégateur Mobile Money : M-Pesa, Airtel Money, Orange Money ; fournisseur SMS / WhatsApp).
+
+| # | Tâche | Prio |
+|---|---|---|
+| 9.3 | Paiement Mobile Money via agrégateur (frais des parents vers l'école ; abonnements des écoles vers la plateforme) | P1 de la V2 |
+| 9.4 | SMS et WhatsApp avec crédits achetés par l'école ; relances par SMS | P1 de la V2 |
+| 9.10 | Rapports officiels EPST : statistiques, listes ENAFEP / Exetat, palmarès officiel | P1 de la V2 |
+| 9.1 | Réseau : tableau consolidé promoteur / coordination, comparaison entre années | P2 |
+| 9.6 | Pré-inscription en ligne (depuis le site de l'école, WEB.2), test d'admission, liste d'attente | P2 |
+| 9.5 | Applications Android et iPhone (Capacitor) ; puce de la carte sur iPhone | P2 |
+| 9.7 | Comptabilité SYSCOHADA complète (sur FIN) | P2 |
+| 9.8 | Devoirs et cours publiés (l'emploi du temps est passé en V1.4) | P2 |
+| 9.9 | Évaluations d'atelier ; évaluation des enseignants | P2 |
+| 9.11 | Enseignement supérieur LMD | P3 |
+| 9.12 | Cantine, transport, internat (la bibliothèque est passée en V1.6) | P3 |
+| 9.13 | Boutique (uniformes, fournitures) (inventaire et ateliers passés en V1.6) | P3 |
+| 9.14 | Orientation, anciens élèves (le site des écoles est passé en V1.7) | P3 |
+| ~~9.2~~ | ~~Abonnements~~ → ABO (V1.3) | — |
+| ~~9.15~~ | ~~Row Level Security~~ → S.6 (V1.2) | — |
+
+### Plus tard (non planifié)
+
+Migration depuis d'autres logiciels ; rapports transmis aux sous-divisions EPST ; maternelle ; domaine propre à une école.
+
+---
+
+## 8. Méthode de travail (pour aller vite sans rien bâcler)
+
+### 8.1 Une tâche, du début à la fin
+
+1. **Lire l'état** : `docs/06-suivi.md`, puis **seulement** la section de ce plan et les passages utiles de `01` à `04`. Ne pas relire l'archive du plan.
+2. **Regard de développeur senior** : utile ? faisable ? coût pour le serveur (écritures par requête, tâches de fond, taille des tables) ? Retirer ou simplifier ce qui ne sert pas, et le dire. Taille L → proposer le découpage avant de coder.
+3. **Fiche de la tâche** dans `docs/claude/plans/tache-X.Y.md`, 20 lignes au plus, toujours avec ces rubriques :
+   - **But** (une phrase, pour l'école) · **Hors périmètre** · **Critères d'acceptation** (vérifiables) · **Tests obligatoires** · **Documents à mettre à jour** · **Risques / à vérifier dans le code**.
+4. **Démarrer** : issue « X.Y — titre », branche `tache/X.Y-mot-clé` depuis `main` à jour.
+5. **Construire** : tests utiles d'abord (isolation entre écoles, permissions, argent, audit, vraies règles métier), puis le code (logique dans `services.py`, pas de N+1, listes paginées, textes i18n, rien en dur). Lancer seulement les tests du module touché ; la suite complète tourne dans la CI.
+6. **Vérifier** : `make lint` + la **définition de « fini »** (§ 8.2).
+7. **Clôturer** : cocher la tâche ici, mettre à jour `06-suivi.md` et tous les `.md` que le changement rend faux. Un seul push, une seule PR (base `main`), jamais fusionnée par Claude.
+8. **PR** en français simple : ce qui change, tests, « À valider », « À tester toi-même », « Après la fusion », `Closes #n`. Surveiller la CI et corriger dans la même PR. Finir par : « Fusionne la PR, puis /clear et /tache <suivante de la file> ».
+
+### 8.2 Définition de « fini » (rien de superficiel)
+
+Une tâche n'est cochée que si **tout** est vrai :
+
+- [ ] Les critères d'acceptation de la fiche sont tous vérifiés.
+- [ ] Les 9 règles non négociables (§ 8.4) sont respectées ; un test d'isolation entre écoles existe pour chaque nouveau modèle.
+- [ ] Les permissions sont vérifiées côté serveur et le module est déclaré dans le catalogue (depuis M.2).
+- [ ] Les écrans ont un état vide qui dit quoi faire, un état d'erreur, et marchent à 390 px en français et en anglais.
+- [ ] Les données de démonstration couvrent la nouveauté (`core.demo.fill`).
+- [ ] Aucune écriture en base ajoutée à chaque requête ; tout ce qui est lourd en tâche de fond, par paquets.
+- [ ] Les documents rendus faux sont corrigés dans la même PR.
+- [ ] Sécurité : aucune donnée d'une autre école, permission vérifiée côté serveur, entrée de l'utilisateur jamais affichée comme du HTML, envoi de fichier contrôlé (S.4), point public limité en nombre d'essais.
+- [ ] La CI est verte.
+
+### 8.3 Pour aller plus vite
+
+- **Ce plan reste court** : une tâche faite devient une ligne dans l'annexe ; le détail et l'historique vont dans `06-suivi.md` (journal) et dans l'archive. Plus de mentions « ajouté le… » dans le texte des tâches à faire : Claude Code relit moins et se trompe moins.
+- **Découper tôt, pas tard** : une PR = une chose qu'on peut tester seule.
+- **Regrouper les petites corrections** (moins d'une heure chacune, même module) dans une seule tâche « X.Y — corrections », au lieu d'une PR chacune.
+- **Une seule source par décision** : les décisions vont dans `docs/03` § décisions, le plan y renvoie.
+- **Mesurer avant d'optimiser** (comme la 4.23) : pas d'optimisation sans chiffre.
+
+### 8.4 Règles non négociables
+
+Isolation des écoles (TenantModel + test) · argent en entiers + devise + taux · paiements immuables (annulation = nouvel enregistrement ; seule exception : suppression d'un espace d'essai ou de démonstration) · UUID v7 client + écritures idempotentes · audit des finances / notes / paie / rôles · permissions vérifiées côté serveur · i18n fr / en · pas de dépendance sans accord · rien en dur pour une école ni pour la plateforme.
+
+### 8.5 Garde-fous de performance (serveur de 2 cœurs, 2 Go, partagé)
+
+Aucune écriture en base ajoutée à chaque requête · tout ce qui est lourd en tâche de fond, par paquets, une à la fois · rien d'ajouté à la première synchronisation des appareils · pas de nouveau processus sans raison mesurée · temps de réponse mesurés sur le vrai serveur pour tout écran qui parcourt tous les élèves (seuil : 2 s pour 1 200 élèves).
+
+---
+
+## 9. Installation de ce plan (L.0, faite)
+
+L.0 a mis à jour, dans la même PR : `06-suivi.md`, `07-a-fournir.md`, `01`, `02`, `03` (journal des décisions et sécurité), `04`, `A-FAIRE.md`, `CLAUDE.md`, `README.md`, `maquettes/README.md`, `firmware/README.md` et les skills `tache`, `etat`, `ecran`, `design` et `document-ecole` (numéros de version). Domaine dans le code : en production il vient de `MWANGAZA_DOMAIN` ; seuls des défauts de `backend/config/settings/base.py` et des commentaires gardent `mwangaza.school` (décidé le 2026-10-13, sans effet).
+
+**Incohérences de l'ancien plan corrigées ici** : la 4.7 restait non cochée alors que 4.7.1 et 4.7.2 sont faites (le reste est une action de ta part : L.1) ; la 4.6.3 décrivait encore `mwangaza.school`, le certificat d'origine et le pare-feu Cloudflare, abandonnés ; la 4.21 et la 4.22 citaient `make reseau` / DuckDNS, retirés avec la 4.11 (**vérifié** : ces cibles n'existent plus dans le `Makefile`) ; la 9.14 citait l'ancien domaine ; « Créer les comptes » restait ouvert alors que seul le stockage objet manquait (désormais L.1).
+
+---
+
+## Annexe — Fait (une ligne par tâche ; détail dans l'archive et `06-suivi.md`)
+
+**Socle** : 0.1 monorepo et Docker · 0.2 qualité et CI · 1.1 `core` (TenantModel, UUID v7, Money) · 1.2 comptes, rôles, permissions · 1.3 connexion, TOTP, Mon compte · 1.4 audit · 1.5 super-admin et paramètres de l'école · 1.6 front Gestion · 1.7 organisation scolaire et écrans d'administration.
+
+**Élèves et frais** : 2.1 élèves, familles, inscriptions, matricule · 2.2 écrans élèves · 2.3 import Excel · 2.4 impressions · 2.5 frais, barèmes, réductions · 2.6 frais dus, échéancier particulier · 2.7 solde et retards.
+
+**Caisse et hors ligne** : 3.1 caisses et paiements · 3.2 reçus et vérification `/v/` · 3.3 appareils et synchronisation serveur · 3.4 base locale et file · 3.5 caisse hors ligne · 3.6 crédit élève · 3.7 PIN et appareils · 3.8 annulation et clôtures.
+
+**Rapports, portail, production** : 4.1 impayés et situation financière · 4.2 tableau de bord directeur · 4.3 annonces · 4.4 Portail parents · 4.5 guides et traductions · 4.6 production (4.6.1, 4.6.3 : `mwangazaschool.com`, Lightsail Paris) · 4.7 sauvegardes (4.7.1, 4.7.2 : B2, Healthchecks, Sentry ; clés : L.1) · 4.9 invitations des familles · 4.10 guide PDF · 4.12 connexion fiable du Portail · 4.13 matricule facultatif · 4.14 annuler un import · 4.15–4.18 espaces réel / essai / démonstration · 4.19 reprise en cours d'année · 4.20 mise en route d'une école neuve · 4.21 recette · 4.22 `make demo` sans danger · 4.23 mesure sur le vrai serveur (0,6–0,75 s) · 4.24 installation obligatoire de la Gestion · 4.25 santé de la plateforme.
+
+**V1.1** : 5.1 identité de la plateforme · 5.2 console · 5.3 console écoles · 5.4 comptes, appareils, journal, annonces de la plateforme · 5.5 notifications (Gestion, Portail) · 5.6 événements immédiats et à heure fixe · 5.7 communication (annonces au personnel, calendrier, convocations, circulaires).
+
+**Modules** : M.1 catalogue et droits côté serveur.
+
+**Retirées** : ~~4.6.2~~ serveur gratuit Oracle / DuckDNS · ~~4.8~~ mise en place à l'ITIG · ~~4.11~~ essai sur le même réseau · récupération des documents de l'ITIG et modèle d'imprimante (plus des préalables).

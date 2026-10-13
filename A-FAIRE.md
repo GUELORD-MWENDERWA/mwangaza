@@ -11,11 +11,14 @@ Dernière mise à jour : 2026-10-13 (tâche 4.7.2 : sauvegardes hors du serveur,
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
-| 1 | **Relire et fusionner la PR « Nettoyage du plan »** (attendre les coches vertes) : Oracle et DuckDNS retirés, plan remis à jour ; marche à suivre : [§ 10](#10-comment-relire-et-fusionner-une-pr) | 10 min | [ ] |
+| 1 | **Relire et fusionner la PR « L.0 — plan révisé »** (attendre les coches vertes) : la nouvelle file des tâches dans `docs/05-plan-de-travail.md`, à lire en entier une fois ; marche à suivre : [§ 10](#10-comment-relire-et-fusionner-une-pr) | 20 min | [ ] |
 | 2 | **Brancher les sauvegardes hors du serveur, les alertes et le suivi d'erreurs** : les 7 étapes du [§ 9 bis](#9-bis-brancher-les-sauvegardes-hors-du-serveur-472) (Backblaze B2, Healthchecks, Sentry, UptimeRobot) ; la phrase secrète `BACKUP_PASSPHRASE` est déjà dans `serveur.env`, **la noter aussi hors du serveur** | 45 min | [ ] |
 | 3 | **Garder une copie de `infra/serveur/serveur.env`** en lieu sûr (gestionnaire de mots de passe) | 2 min | [ ] |
 | 4 | **Lire le guide de la version 1.1** (`docs/guide/guide-v1.1.pdf`) et préparer ta présentation (`docs/guide/presentation-v1.1.pdf`) : elle se fait maintenant sur le vrai serveur, dans un espace de démonstration créé depuis la console | 1 h | [ ] |
 | 5 | **Avant la première vraie école** : étapes du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) (tâche 4.7.2) | 1 h | [ ] |
+| 6 | **GitHub › Settings › Code security** du dépôt : activer « Secret scanning » et « Push protection » (tâche S.2 : une clé poussée par erreur est bloquée) | 5 min | [ ] |
+| 7 | **Un vrai bulletin EPST rempli** (ou le modèle officiel), photo ou scan, déposé dans `depot/` : il sert au gabarit du bulletin (8.3, V1.2) | 15 min | [ ] |
+| 8 | **Démarches Mobile Money et SMS** : contacter un agrégateur (M-Pesa, Airtel Money, Orange Money) et un fournisseur SMS / WhatsApp ; les contrats sont longs à obtenir (9.3 et 9.4, V2) | à ton rythme | [ ] |
 
 Déjà fait : installation de la machine (Docker, `.env`, gettext), décisions (nom, domaine, Q1 à Q11), PR des tâches 0.1 à 4.22, 4.24 et 5.1 à 5.7 ; historique complet : [`docs/06-suivi.md`](docs/06-suivi.md). À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). [Rien à demander à l'ITIG](#8-litig--rien-à-demander).
 
@@ -101,6 +104,7 @@ Après la recette finale (4.21), il ne manque que les achats et la mise en ligne
 | 3 | **Sauvegardes hors du serveur, alertes** | code fait (4.7.2) ; reste le [§ 9 bis](#9-bis-brancher-les-sauvegardes-hors-du-serveur-472), puis `make deploy-backup` : « Copie hors du serveur » s'affiche et le fichier est dans le bucket | [ ] |
 | 4 | **Mesure sur le vrai serveur** | fait le 2026-10-13 (4.23) : tableau de bord 0,6 s, impayés 0,7 s pour 800 élèves, rien à corriger | [x] |
 | 5 | **Ton compte super-admin** | créé le 2026-10-13 (`make deploy-superuser`) ; reste : double authentification liée à ton téléphone, codes de secours rangés | [ ] |
+| 5 bis | **Sécurité et modules avant les vraies données** | PR des tâches P0 de la file fusionnées et mises en ligne (`make deploy`) : modules et rôles libres (M.2, M.3), sécurité S.1 à S.5, restauration réelle depuis B2 (L.2), **Cloudflare en proxy** (nuage orange : Claude te guide pendant S.1), essai sur vrais téléphones (L.4) | [ ] |
 | 6 | **Identité de la plateforme** | console (`https://admin.mwangazaschool.com/`) → Identité : nom, logo, contact du support, mentions légales — les vraies valeurs | [ ] |
 | 7 | **Premier espace réel** | console → Écoles → Nouvelle école → type **Réel** : nom, code (c'est son adresse, `code.mwangazaschool.com` : il ne change plus), premier directeur avec son vrai numéro. Lui remettre l'adresse et son mot de passe provisoire | [ ] |
 | 8 | **L'école se met en route** | le directeur suit la liste « Mise en route » de son tableau de bord : année, classes, frais et taux, comptes du personnel, caisse et appareil, élèves (import Excel). Rentrée déjà passée : « Reprise » (ce que chaque élève a déjà payé) | [ ] |
