@@ -19,7 +19,7 @@ x-backend: &backend
   image: mwangaza-backend
   restart: unless-stopped
   logging: *logging
-  environment:
+  environment: &backend-env
     MWANGAZA_DOMAIN: ${MWANGAZA_DOMAIN:?MWANGAZA_DOMAIN manque dans infra/.env}
     DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?DJANGO_SECRET_KEY manque dans infra/.env}
     DJANGO_SECRET_KEY_FALLBACKS: ${DJANGO_SECRET_KEY_FALLBACKS:-}
@@ -32,8 +32,10 @@ x-backend: &backend
     SENTRY_DSN: ${SENTRY_DSN:-}
     GUNICORN_WORKERS: ${GUNICORN_WORKERS:-3}
     POSTGRES_DB: mwangaza
-    POSTGRES_USER: mwangaza
-    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD manque dans infra/.env}
+    # Compte de l'application (S.5) : ni superutilisateur ni propriétaire des tables, des lignes
+    # seulement. Le mot de passe du propriétaire (`POSTGRES_PASSWORD`) n'est que dans `migrate`.
+    POSTGRES_USER: mwangaza_app
+    POSTGRES_PASSWORD: ${POSTGRES_APP_PASSWORD:?POSTGRES_APP_PASSWORD manque dans infra/.env}
     POSTGRES_HOST: db
     POSTGRES_PORT: "5432"
     REDIS_URL: redis://redis:6379/0
@@ -52,6 +54,8 @@ x-backend: &backend
       condition: service_healthy
     redis:
       condition: service_started
+    migrate:
+      condition: service_completed_successfully
 
 services:
   caddy:
@@ -95,6 +99,22 @@ services:
   celery:
     <<: *backend
     command: celery -A config worker -B -s /tmp/celerybeat-schedule --loglevel=info --concurrency=2
+
+  # Migrations (un seul serveur), puis droits du compte de l'application : seul conteneur qui a le
+  # compte propriétaire des tables. Il tourne à chaque `up`, avant `django` et `celery`, et s'arrête.
+  migrate:
+    <<: *backend
+    restart: "no"
+    command: sh -c "python manage.py migrate --noinput && python manage.py setup_app_role"
+    environment:
+      <<: *backend-env
+      POSTGRES_USER: mwangaza
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD manque dans infra/.env}
+      POSTGRES_APP_USER: mwangaza_app
+      POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:16

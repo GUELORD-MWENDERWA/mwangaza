@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (S.4 faite, PR de la branche `tache/S.4-fichiers-envoyes`) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | S.5, puis L.4 (toi) et L.5 (`05` § 2) |
-| Issue GitHub | #234 |
-| Branche | `tache/S.4-fichiers-envoyes` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune (S.5 faite, PR de la branche `tache/S.5-base-droits-minimaux`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | L.4 (toi) et L.5 (`05` § 2) |
+| Issue GitHub | #236 |
+| Branche | `tache/S.5-base-droits-minimaux` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-13 |
 
 ## Avancement
@@ -28,7 +28,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
 | Lancement (L.0 à L.5 ; L.3 remplacée par S.1 et S.2) | 3 | 5 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
-| Sécurité (S.1 à S.9 ; S.3 en deux) | 5 | 10 |
+| Sécurité (S.1 à S.9 ; S.3 en deux) | 6 | 10 |
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1–8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 0 | 9 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
@@ -61,6 +61,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-13 — Tâche S.5 : base de données, droits minimaux
+- Fait : en production, Django et Celery se connectent à PostgreSQL avec le compte `mwangaza_app` (ni superutilisateur, ni propriétaire des tables : lire et écrire des lignes, rien d'autre). Les migrations tournent avant, dans un conteneur `migrate` qui s'arrête ensuite, seul à avoir le compte propriétaire ; il lance `manage.py setup_app_role` (compte, mot de passe, droits ; rejouable). `make deploy-init` ajoute `POSTGRES_APP_PASSWORD` à un `serveur.env` existant ; une restauration redonne les droits.
+- Regard senior : les déclencheurs demandés existaient déjà sur les 8 tables immuables (`UPDATE` et `DELETE` refusés) : rien ajouté. Ce qui manquait : l'application, superutilisateur, pouvait les désactiver ou vider une table.
+- Tests : avec le compte réduit, encaissement et suppression d'un espace d'essai passent ; `TRUNCATE`, déclencheur désactivé ou remplacé, `DROP`, `CREATE TABLE`, `session_replication_role` refusés ; paiement d'un espace réel ni modifié ni effacé. Essai réel (`make prod-local`) : base ancienne mise à niveau, serveur neuf, démonstration de 150 élèves créée puis supprimée, restauration avec remise en service.
+- Décisions (`03`) : un seul compte en développement et dans les tests ; droits sur toutes les tables, pas table par table (les déclencheurs font la règle). Suite : L.4 (toi), L.5. À faire par toi après la fusion : `make deploy-init`, puis `make deploy`.
 
 ### 2026-10-13 — Tâche S.4 : fichiers envoyés
 - Fait : `core/images.py` — toute image envoyée (logo et logo noir et blanc d'une école, photo d'élève, logo et icône de la plateforme) est un PNG ou un JPEG de 1 Mo et 2 048 px de côté au plus, décodé puis **ré-encodé** : seuls les pixels sont gardés (ni EXIF, ni position GPS, ni octets cachés ; orientation de l'appareil appliquée). Logo d'école : SVG refusé, les anciens restent servis en `sandbox` ; SVG filtré gardé pour le logo de la plateforme. Pièces jointes des annonces téléchargées (`attachment`), liens du front en `download`. Caddy : 10 Mo au plus par requête.

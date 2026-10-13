@@ -58,8 +58,9 @@ RUN DJANGO_SECRET_KEY=collectstatic-seulement python manage.py collectstatic --n
     && mkdir -p media && chown app media
 USER app
 EXPOSE 8000
-# Migrations à chaque démarrage (un seul serveur), puis gunicorn.
-CMD ["sh", "-c", "python manage.py migrate --noinput && exec gunicorn config.wsgi --bind 0.0.0.0:8000 --workers ${GUNICORN_WORKERS:-3} --timeout 120"]
+# Les migrations tournent avant, dans le service `migrate` (`docker-compose.yml`) : ce conteneur-ci
+# n'a que le compte PostgreSQL à droits réduits (S.5).
+CMD ["sh", "-c", "exec gunicorn config.wsgi --bind 0.0.0.0:8000 --workers ${GUNICORN_WORKERS:-3} --timeout 120"]
 
 # --- Caddy : HTTPS, PWA et fichiers statiques
 FROM caddy:2-alpine AS caddy

@@ -1,5 +1,6 @@
 """Crée `infra/serveur/serveur.env` du vrai serveur (AWS Lightsail, 4.6.3) avec des secrets neufs,
-puis vérifie qu'il est rempli (`make deploy-init`). Hors Git. Ne réécrit jamais un fichier existant.
+puis vérifie qu'il est rempli (`make deploy-init`). Hors Git. Ne réécrit jamais un fichier
+existant : il y ajoute seulement, à la fin, un secret apparu depuis sa création (`ADDED_LATER`).
 
 Lancé depuis `backend/` par `uv run` : la création des clés Web Push vient du projet.
 """
@@ -31,6 +32,7 @@ CLOUDFLARE_API_TOKEN=
 CADDY_TLS=unused
 DJANGO_SECRET_KEY={secret}
 POSTGRES_PASSWORD={password}
+POSTGRES_APP_PASSWORD={app_password}
 BACKUP_PASSPHRASE={backup}
 # Copie des sauvegardes hors du serveur (Backblaze B2, 4.7.2) : bucket privé et clé limitée à ce
 # bucket. Vide : sauvegardes gardées sur le serveur seulement.
@@ -49,6 +51,9 @@ DJANGO_LOG_LEVEL=INFO
 """
 
 REQUIRED = ("SERVEUR", "SSH_KEY", "MWANGAZA_DOMAIN", "ACME_EMAIL", "CLOUDFLARE_API_TOKEN")
+# Secrets apparus après la création des premiers `serveur.env`. `POSTGRES_APP_PASSWORD` (S.5) :
+# compte PostgreSQL de l'application, remis à cette valeur à chaque mise en ligne.
+ADDED_LATER = ("POSTGRES_APP_PASSWORD",)
 
 
 def read_env() -> dict[str, str]:
@@ -67,6 +72,7 @@ def init() -> None:
             TEMPLATE.format(
                 secret=secrets.token_urlsafe(50),
                 password=secrets.token_urlsafe(24),
+                app_password=secrets.token_urlsafe(24),
                 backup=secrets.token_urlsafe(32),
                 public=public,
                 private=private,
@@ -74,6 +80,11 @@ def init() -> None:
         )
         ENV_FILE.chmod(0o600)
     values = read_env()
+    for key in ADDED_LATER:
+        if key not in values:
+            text = ENV_FILE.read_text()
+            ENV_FILE.write_text(f"{text.rstrip()}\n{key}={secrets.token_urlsafe(24)}\n")
+            print(f"{key} ajouté à infra/serveur/serveur.env : mets à jour ta copie en lieu sûr.")
     missing = [key for key in REQUIRED if not values.get(key)]
     if missing:
         sys.exit(f"Remplis {', '.join(missing)} dans infra/serveur/serveur.env.")
