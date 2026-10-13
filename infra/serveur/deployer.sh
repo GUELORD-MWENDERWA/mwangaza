@@ -65,7 +65,7 @@ case "${1:-}" in
     tar -c -C infra/serveur serveur.env $([ -z "$PROD" ] && echo accueil) |
       "${SSH[@]}" "tar -x -C mwangaza/nouveau/infra/serveur"
     # Mise à jour sur place : les dossiers montés dans les conteneurs restent les mêmes.
-    "${SSH[@]}" "set -e; cd mwangaza && mkdir -p code \
+    "${SSH[@]}" "set -e; cd mwangaza && chmod 700 . && mkdir -p code \
       && rsync -a --delete --exclude /infra/certs nouveau/ code/ && rm -rf nouveau \
       && cd code && echo $commit >VERSION && chmod 600 infra/serveur/serveur.env \
       && mkdir -p infra/certs && $COMPOSE build && $COMPOSE up --detach --wait --remove-orphans \
