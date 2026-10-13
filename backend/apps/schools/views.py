@@ -143,7 +143,8 @@ class SchoolSettingsView(_SchoolSettingsBase):
 
 @extend_schema(tags=["schools"])
 class SchoolLogoView(_SchoolSettingsBase):
-    """Logo de l'école (M5) : PNG, JPEG ou SVG, 1 Mo au plus."""
+    """Logo de l'école (M5) : PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus, ré-encodé à
+    l'envoi (S.4)."""
 
     parser_classes = [MultiPartParser, FormParser]
     serializer_class = LogoUploadSerializer

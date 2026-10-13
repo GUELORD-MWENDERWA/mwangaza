@@ -96,7 +96,7 @@ class School(BaseModel):
         upload_to=logo_path,
         blank=True,
         validators=[validate_logo],
-        help_text=_("PNG, JPEG or SVG, 1 MB at most."),
+        help_text=_("PNG or JPEG, 1 MB at most."),
     )
     # Reçus thermiques (M5) ; sans lui, le logo s'imprime en niveaux de gris.
     logo_monochrome = models.FileField(
@@ -104,7 +104,7 @@ class School(BaseModel):
         upload_to=monochrome_logo_path,
         blank=True,
         validators=[validate_logo],
-        help_text=_("For thermal receipts. PNG, JPEG or SVG, 1 MB at most."),
+        help_text=_("For thermal receipts. PNG or JPEG, 1 MB at most."),
     )
     # Q8 : choisie par l'école ; texte blanc ou encre choisi pour rester lisible (`colors.py`).
     primary_color = models.CharField(

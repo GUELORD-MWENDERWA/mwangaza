@@ -1,20 +1,16 @@
-"""Logo de l'école : PNG, JPEG ou SVG, 1 Mo au plus (maquette M5), reconnu à ses premiers octets
-et non à son nom. Pas de dépendance (Pillow n'est pas installé) : le logo n'est ni redimensionné
-ni converti.
-
-Un SVG peut contenir du code : il est refusé s'il porte un script, un gestionnaire d'événement ou
-une entité XML, et servi avec une politique qui empêche tout script (`views.school_logo`).
+"""Logo de l'école : PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus, ré-encodé à l'envoi
+(`core.images`, S.4). Le SVG n'est plus accepté pour une école : un fichier qui peut porter du
+code ne se filtre pas par une liste de ce qui est interdit. Ceux enregistrés avant restent lus
+(`logo_kind`) et servis avec une politique qui empêche tout script (`core.http.serve_image`) ; le
+SVG reste permis pour le logo de la plateforme, envoyé par le super-admin (`core.platform`).
 """
 
 import re
 from pathlib import Path
 
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
-
 from apps.core.ids import uuid7
+from apps.core.images import MAX_SIZE, clean_image
 
-LOGO_MAX_SIZE = 1024 * 1024
 CONTENT_TYPES = {"png": "image/png", "jpg": "image/jpeg", "svg": "image/svg+xml"}
 
 _SVG_ROOT = re.compile(rb"<svg[\s>]", re.IGNORECASE)
@@ -23,13 +19,13 @@ _SVG_DANGER = re.compile(rb"<!entity|<script|javascript:|\son[a-z]+\s*=", re.IGN
 
 def _read(file) -> bytes:
     file.seek(0)
-    content = file.read(LOGO_MAX_SIZE + 1)
+    content = file.read(MAX_SIZE + 1)
     file.seek(0)
     return content
 
 
 def logo_kind(file) -> str | None:
-    """`png`, `jpg` ou `svg` d'après le contenu ; None pour tout autre fichier."""
+    """`png`, `jpg` ou `svg` (sans script) d'après le contenu ; None pour tout autre fichier."""
     content = _read(file)
     if content.startswith(b"\x89PNG\r\n\x1a\n"):
         return "png"
@@ -41,16 +37,10 @@ def logo_kind(file) -> str | None:
 
 
 def validate_logo(file) -> None:
-    # Un logo déjà enregistré n'est pas relu à chaque enregistrement de l'école.
-    if getattr(file, "_committed", False):
-        return
-    if file.size > LOGO_MAX_SIZE:
-        raise ValidationError(_("The logo must not exceed 1 MB."), code="logo_too_large")
-    if logo_kind(file) is None:
-        raise ValidationError(
-            _("The logo must be a PNG, JPEG or SVG image (SVG without scripts)."),
-            code="logo_type",
-        )
+    """Administration Django (dépannage) : mêmes refus qu'à l'API, qui, elle, enregistre l'image
+    ré-encodée (`serializers.LogoUploadSerializer`). Un logo déjà enregistré n'est pas relu."""
+    if not getattr(file, "_committed", False):
+        clean_image(file)
 
 
 # Début du nom des fichiers : `logo-…` ou `logo-bw-…` (noir et blanc).

@@ -1167,13 +1167,13 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * @description Icône des applications (écran d'accueil, onglet) : PNG carré d'au moins 512 x 512 pixels,
-         *     1 Mo au plus ; sans elle, l'icône de la lampe.
+         * @description Icône des applications (écran d'accueil, onglet) : PNG carré de 512 à 2 048 pixels de
+         *     côté, 1 Mo au plus ; sans elle, l'icône de la lampe.
          */
         post: operations["console_platform_icon_create"];
         /**
-         * @description Icône des applications (écran d'accueil, onglet) : PNG carré d'au moins 512 x 512 pixels,
-         *     1 Mo au plus ; sans elle, l'icône de la lampe.
+         * @description Icône des applications (écran d'accueil, onglet) : PNG carré de 512 à 2 048 pixels de
+         *     côté, 1 Mo au plus ; sans elle, l'icône de la lampe.
          */
         delete: operations["console_platform_icon_destroy"];
         options?: never;
@@ -1191,13 +1191,13 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * @description Logo de la plateforme : PNG, JPEG ou SVG (sans script), 1 Mo au plus ; sans lui, la
-         *     lampe.
+         * @description Logo de la plateforme : PNG ou JPEG (ré-encodé), ou SVG sans script, 1 Mo au plus ; sans
+         *     lui, la lampe.
          */
         post: operations["console_platform_logo_create"];
         /**
-         * @description Logo de la plateforme : PNG, JPEG ou SVG (sans script), 1 Mo au plus ; sans lui, la
-         *     lampe.
+         * @description Logo de la plateforme : PNG ou JPEG (ré-encodé), ou SVG sans script, 1 Mo au plus ; sans
+         *     lui, la lampe.
          */
         delete: operations["console_platform_logo_destroy"];
         options?: never;
@@ -2875,9 +2875,15 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Logo de l'école (M5) : PNG, JPEG ou SVG, 1 Mo au plus. */
+        /**
+         * @description Logo de l'école (M5) : PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus, ré-encodé à
+         *     l'envoi (S.4).
+         */
         post: operations["school_settings_logo_create"];
-        /** @description Logo de l'école (M5) : PNG, JPEG ou SVG, 1 Mo au plus. */
+        /**
+         * @description Logo de l'école (M5) : PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus, ré-encodé à
+         *     l'envoi (S.4).
+         */
         delete: operations["school_settings_logo_destroy"];
         options?: never;
         head?: never;
@@ -4064,6 +4070,7 @@ export interface components {
             readonly requested_at: string;
             /** @description Demandée hors ligne. */
             readonly offline: boolean;
+            /** @default pending */
             readonly status: components["schemas"]["CancellationStatusEnum"];
             readonly decided_by: components["schemas"]["Person"] | null;
             /** Format: date-time */
@@ -4083,6 +4090,7 @@ export interface components {
             readonly requested_at: string;
             /** @description Demandée hors ligne. */
             readonly offline: boolean;
+            /** @default pending */
             readonly status: components["schemas"]["CancellationStatusEnum"];
             readonly decided_by: components["schemas"]["Person"] | null;
             /** Format: date-time */
@@ -4931,6 +4939,7 @@ export interface components {
             readonly id: string;
             family: components["schemas"]["ContactChangeFamily"];
             changes: components["schemas"]["Changes"];
+            /** @default pending */
             status: components["schemas"]["ContactChangeStatusEnum"];
             /** Format: date-time */
             readonly created_at: string;
@@ -5961,7 +5970,7 @@ export interface components {
         LogoUploadRequest: {
             /**
              * Format: binary
-             * @description PNG, JPEG ou SVG (sans script), 1 Mo au plus.
+             * @description PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus.
              */
             logo: string;
         };
@@ -7062,7 +7071,7 @@ export interface components {
         PhotoUploadRequest: {
             /**
              * Format: binary
-             * @description PNG ou JPEG, 1 Mo au plus.
+             * @description PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus.
              */
             photo: string;
         };
@@ -7146,7 +7155,7 @@ export interface components {
         PlatformIconUploadRequest: {
             /**
              * Format: binary
-             * @description PNG carré d'au moins 512 x 512 pixels, 1 Mo au plus.
+             * @description PNG carré de 512 à 2 048 pixels de côté, 1 Mo au plus.
              */
             icon: string;
         };
@@ -7166,6 +7175,13 @@ export interface components {
             readonly entity_label: string;
             readonly before: unknown;
             readonly after: unknown;
+        };
+        PlatformLogoUploadRequest: {
+            /**
+             * Format: binary
+             * @description PNG ou JPEG (1 Mo et 2 048 pixels de côté au plus), ou SVG sans script.
+             */
+            logo: string;
         };
         PlatformNews: {
             /** Format: uuid */
@@ -12326,7 +12342,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "multipart/form-data": components["schemas"]["LogoUploadRequest"];
+                "multipart/form-data": components["schemas"]["PlatformLogoUploadRequest"];
             };
         };
         responses: {

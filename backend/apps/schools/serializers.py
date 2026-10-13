@@ -11,9 +11,9 @@ from rest_framework.fields import get_error_detail
 
 from apps.accounts.models import User
 from apps.core import health
+from apps.core.images import CleanedFileField
 from apps.core.money import Currency
 from apps.schools import organisation, receipts
-from apps.schools.logos import validate_logo
 from apps.schools.matricule import MAX_LENGTH as MAX_MATRICULE_LENGTH
 from apps.schools.models import (
     TRACK_CODE_PATTERN,
@@ -241,9 +241,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
 
 
 class LogoUploadSerializer(serializers.Serializer):
-    logo = serializers.FileField(
-        validators=[validate_logo], help_text="PNG, JPEG ou SVG (sans script), 1 Mo au plus."
-    )
+    logo = CleanedFileField(help_text="PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus.")
 
 
 # Organisation scolaire (C1-C3)

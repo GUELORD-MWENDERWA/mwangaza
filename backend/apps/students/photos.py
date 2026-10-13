@@ -1,15 +1,13 @@
-"""Photo de l'élève : PNG ou JPEG, 1 Mo au plus, reconnue à ses premiers octets et non à son nom.
-Pas de Pillow : la Gestion la réduit dans le navigateur avant l'envoi. Jamais publique : servie
-par l'API aux comptes de l'école qui ont `students.view` (`views.StudentViewSet.photo`) et, avec
-le consentement du parent, à sa famille sur le portail (H3)."""
+"""Photo de l'élève : PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus, ré-encodée à l'envoi
+(`core.images`, S.4 : ni position GPS ni autre métadonnée du téléphone) ; la Gestion la réduit
+déjà dans le navigateur. Jamais publique : servie par l'API aux comptes de l'école qui ont
+`students.view` (`views.StudentViewSet.photo`) et, avec le consentement du parent, à sa famille
+sur le portail (H3)."""
 
 from pathlib import Path
 
-from django.core.exceptions import ValidationError
 from django.http import FileResponse
-from django.utils.translation import gettext_lazy as _
 
-PHOTO_MAX_SIZE = 1024 * 1024
 CONTENT_TYPES = {"png": "image/png", "jpg": "image/jpeg"}
 
 
@@ -23,13 +21,6 @@ def photo_kind(file) -> str | None:
     if start.startswith(b"\xff\xd8\xff"):
         return "jpg"
     return None
-
-
-def validate_photo(file) -> None:
-    if file.size > PHOTO_MAX_SIZE:
-        raise ValidationError(_("The photo must not exceed 1 MB."), code="photo_too_large")
-    if photo_kind(file) is None:
-        raise ValidationError(_("The photo must be a PNG or JPEG image."), code="photo_type")
 
 
 def photo_path(student, filename: str) -> str:

@@ -3772,8 +3772,8 @@ paths:
     post:
       operationId: console_platform_icon_create
       description: |-
-        Icône des applications (écran d'accueil, onglet) : PNG carré d'au moins 512 x 512 pixels,
-        1 Mo au plus ; sans elle, l'icône de la lampe.
+        Icône des applications (écran d'accueil, onglet) : PNG carré de 512 à 2 048 pixels de
+        côté, 1 Mo au plus ; sans elle, l'icône de la lampe.
       tags:
       - console
       requestBody:
@@ -3812,8 +3812,8 @@ paths:
     delete:
       operationId: console_platform_icon_destroy
       description: |-
-        Icône des applications (écran d'accueil, onglet) : PNG carré d'au moins 512 x 512 pixels,
-        1 Mo au plus ; sans elle, l'icône de la lampe.
+        Icône des applications (écran d'accueil, onglet) : PNG carré de 512 à 2 048 pixels de
+        côté, 1 Mo au plus ; sans elle, l'icône de la lampe.
       tags:
       - console
       security:
@@ -3847,15 +3847,15 @@ paths:
     post:
       operationId: console_platform_logo_create
       description: |-
-        Logo de la plateforme : PNG, JPEG ou SVG (sans script), 1 Mo au plus ; sans lui, la
-        lampe.
+        Logo de la plateforme : PNG ou JPEG (ré-encodé), ou SVG sans script, 1 Mo au plus ; sans
+        lui, la lampe.
       tags:
       - console
       requestBody:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/LogoUploadRequest'
+              $ref: '#/components/schemas/PlatformLogoUploadRequest'
         required: true
       security:
       - cookieAuth: []
@@ -3887,8 +3887,8 @@ paths:
     delete:
       operationId: console_platform_logo_destroy
       description: |-
-        Logo de la plateforme : PNG, JPEG ou SVG (sans script), 1 Mo au plus ; sans lui, la
-        lampe.
+        Logo de la plateforme : PNG ou JPEG (ré-encodé), ou SVG sans script, 1 Mo au plus ; sans
+        lui, la lampe.
       tags:
       - console
       security:
@@ -8616,7 +8616,9 @@ paths:
   /api/school/settings/logo/:
     post:
       operationId: school_settings_logo_create
-      description: 'Logo de l''école (M5) : PNG, JPEG ou SVG, 1 Mo au plus.'
+      description: |-
+        Logo de l'école (M5) : PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus, ré-encodé à
+        l'envoi (S.4).
       tags:
       - schools
       requestBody:
@@ -8648,7 +8650,9 @@ paths:
           description: ''
     delete:
       operationId: school_settings_logo_destroy
-      description: 'Logo de l''école (M5) : PNG, JPEG ou SVG, 1 Mo au plus.'
+      description: |-
+        Logo de l'école (M5) : PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus, ré-encodé à
+        l'envoi (S.4).
       tags:
       - schools
       security:
@@ -12132,6 +12136,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/CancellationStatusEnum'
           readOnly: true
+          default: pending
         decided_by:
           allOf:
           - $ref: '#/components/schemas/Person'
@@ -12198,6 +12203,7 @@ components:
           allOf:
           - $ref: '#/components/schemas/CancellationStatusEnum'
           readOnly: true
+          default: pending
         decided_by:
           allOf:
           - $ref: '#/components/schemas/Person'
@@ -14114,7 +14120,9 @@ components:
         changes:
           $ref: '#/components/schemas/Changes'
         status:
-          $ref: '#/components/schemas/ContactChangeStatusEnum'
+          allOf:
+          - $ref: '#/components/schemas/ContactChangeStatusEnum'
+          default: pending
         created_at:
           type: string
           format: date-time
@@ -16394,7 +16402,7 @@ components:
         logo:
           type: string
           format: binary
-          description: PNG, JPEG ou SVG (sans script), 1 Mo au plus.
+          description: PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus.
       required:
       - logo
     MatriculeFormat:
@@ -18452,7 +18460,7 @@ components:
         photo:
           type: string
           format: binary
-          description: PNG ou JPEG, 1 Mo au plus.
+          description: PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus.
       required:
       - photo
     Platform:
@@ -18633,7 +18641,7 @@ components:
         icon:
           type: string
           format: binary
-          description: PNG carré d'au moins 512 x 512 pixels, 1 Mo au plus.
+          description: PNG carré de 512 à 2 048 pixels de côté, 1 Mo au plus.
       required:
       - icon
     PlatformLog:
@@ -18685,6 +18693,16 @@ components:
       - entity_label
       - before
       - after
+    PlatformLogoUploadRequest:
+      type: object
+      properties:
+        logo:
+          type: string
+          format: binary
+          description: PNG ou JPEG (1 Mo et 2 048 pixels de côté au plus), ou SVG
+            sans script.
+      required:
+      - logo
     PlatformNews:
       type: object
       properties:

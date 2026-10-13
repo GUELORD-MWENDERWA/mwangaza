@@ -5,8 +5,9 @@ from apps.accounts.serializers import PhoneField
 from apps.audit.actions import PlatformAction
 from apps.audit.models import PlatformAuditLog
 from apps.audit.serializers import AuditActorSerializer
+from apps.core.images import CleanedFileField
 from apps.core.models import PlatformSettings
-from apps.core.platform import validate_icon
+from apps.core.platform import clean_icon, clean_logo
 
 PUBLIC_FIELDS = [
     "name",
@@ -76,7 +77,14 @@ class ConsolePlatformSerializer(PlatformSerializer):
         return PlatformChangeSerializer(changes, many=True).data
 
 
+class PlatformLogoUploadSerializer(serializers.Serializer):
+    logo = CleanedFileField(
+        clean=clean_logo,
+        help_text="PNG ou JPEG (1 Mo et 2 048 pixels de côté au plus), ou SVG sans script.",
+    )
+
+
 class PlatformIconUploadSerializer(serializers.Serializer):
-    icon = serializers.FileField(
-        validators=[validate_icon], help_text="PNG carré d'au moins 512 x 512 pixels, 1 Mo au plus."
+    icon = CleanedFileField(
+        clean=clean_icon, help_text="PNG carré de 512 à 2 048 pixels de côté, 1 Mo au plus."
     )

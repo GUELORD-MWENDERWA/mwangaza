@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (S.3.2 faite, PR de la branche `tache/S.3.2-alertes-console`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Tâche en cours | **S.4** Fichiers envoyés (démarrée le 2026-10-13) ; vrai serveur : https://admin.mwangazaschool.com/ |
 | Prochaine tâche | S.4, puis S.5 (`05` § 2) |
-| Issue GitHub | #232 |
-| Branche | `tache/S.3.2-alertes-console` ; dossier local : `~/Projets/mwangaza` |
+| Issue GitHub | #234 |
+| Branche | `tache/S.4-fichiers-envoyes` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-13 |
 
 ## Avancement

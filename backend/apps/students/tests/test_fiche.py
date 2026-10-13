@@ -14,11 +14,12 @@ from apps.students import services
 from apps.students.models import Family, Student
 from apps.students.tests.conftest import GUARDIAN, enrolled, new_student
 from tests.factories import MembershipFactory
+from tests.images import image_bytes
 
 pytestmark = pytest.mark.django_db
 
 STUDENTS = "/api/students/"
-JPEG = b"\xff\xd8\xff\xe0\x00\x10JFIF\x00" + b"\x00" * 64
+JPEG = image_bytes("JPEG", comment=b"prise a la maison")
 
 
 def photo_path(student) -> str:
@@ -48,7 +49,9 @@ def test_photo_is_served_only_to_the_school_and_replaced_cleanly(
     assert detail["photo"].startswith(photo_path(student))
     image = api(cashier).get(photo_path(student))
     assert (image.status_code, image["Content-Type"]) == (200, "image/jpeg")
-    assert b"".join(image.streaming_content) == JPEG
+    # Ré-encodée à l'envoi : une image JPEG, sans ce que le téléphone y avait ajouté.
+    served = b"".join(image.streaming_content)
+    assert served.startswith(b"\xff\xd8\xff") and b"prise a la maison" not in served
     # Lire n'est pas changer ; l'autre école ne voit ni ne change rien.
     assert upload(api(cashier), student).status_code == 403
     beta = api(other_head, host="beta.localhost")
