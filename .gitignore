@@ -28,12 +28,8 @@ sauvegardes/
 
 # Production : certificat d'origine (infra/certs/origin.pem et .key)
 infra/certs/
-# Essai sur plusieurs appareils : secrets et jeton DuckDNS, page d'accueil générée
-infra/reseau/reseau.env
-infra/reseau/accueil/
-# Serveur de démonstration en ligne (4.6.2) : secrets et page des QR codes
+# Vrai serveur : secrets
 infra/serveur/serveur.env
-infra/serveur/accueil/
 
 # Node
 node_modules/

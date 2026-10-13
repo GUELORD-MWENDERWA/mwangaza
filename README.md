@@ -9,7 +9,7 @@ Trois applications sur un même serveur :
 - **Portail** (`parents.mwangazaschool.com`) — les familles consultent paiements, reçus, échéances et annonces.
 - **Console** (`admin.mwangazaschool.com`) — le super-admin gère les écoles, les comptes et la plateforme.
 
-En attendant le vrai domaine : serveur de démonstration gratuit (Oracle Cloud + DuckDNS, `make deploy`), données fictives seulement.
+Serveur en ligne : AWS Lightsail, `mwangazaschool.com` (`make deploy`). Les démonstrations se créent dans la console (données fictives, espace à part).
 
 ## Où en est le projet ?
 
@@ -45,7 +45,7 @@ Dans Claude Code : `/etat`. Sur GitHub : onglet **Milestones** (une barre de pro
 └── .claude/skills/            skills Claude Code du projet
 ```
 
-Code (tâche 0.1, voir `docs/03-architecture-technique.md` § 3) : `backend/` (Django), `frontend/` (workspace pnpm : `apps/gestion`, `apps/portail`, `apps/console` (console de la plateforme, super-admin), `packages/api|ui|i18n|money` ; `e2e/` parcours Playwright, `guide/` guide PDF de la version), `infra/` (Docker Compose, Caddy ; `reseau/` essai sur plusieurs appareils, `serveur/` serveur de démonstration en ligne), `firmware/` (V1.2), `Makefile`.
+Code (tâche 0.1, voir `docs/03-architecture-technique.md` § 3) : `backend/` (Django), `frontend/` (workspace pnpm : `apps/gestion`, `apps/portail`, `apps/console` (console de la plateforme, super-admin), `packages/api|ui|i18n|money` ; `e2e/` parcours Playwright, `guide/` guide PDF de la version), `infra/` (Docker Compose, Caddy ; `serveur/` vrai serveur en ligne), `firmware/` (V1.2), `Makefile`.
 
 ## Travailler avec Claude Code
 

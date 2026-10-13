@@ -1,6 +1,5 @@
-# Vrai serveur (AWS Lightsail, 4.6.3), ajouté à `docker-compose.yml` par `make deploy` quand
-# `serveur.env` contient MODE=production. Sans DuckDNS, sans données fictives, sans `make reseau`
-# (`docker-compose.reseau.yml` n'est jamais chargé avec ce fichier).
+# Vrai serveur (AWS Lightsail, 4.6.3), ajouté à `docker-compose.yml` par `make deploy`.
+# Pas de données fictives.
 # Démarrage au boot et relance après un plantage : Docker (service activé par `preparer.sh`) +
 # `restart: unless-stopped` de chaque service ; pas de service systemd en plus.
 services:

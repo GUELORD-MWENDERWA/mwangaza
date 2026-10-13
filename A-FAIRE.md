@@ -11,16 +11,13 @@ Dernière mise à jour : 2026-10-12 (tâche 5.7 : communication, fin de la V1.1,
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
-| 1 | **Relire et fusionner la PR « 5.7 — Communication »** (attendre les coches vertes) : annonces au personnel, calendrier, convocations, circulaire, calendrier et titulaire dans le portail. Essai : `make migrate demo`, puis les étapes « À tester toi-même » de la PR ; marche à suivre : [§ 10](#10-comment-relire-et-fusionner-une-pr) | 20 min | [ ] |
-| 1 a | **Lire le guide de la version 1.1** : `docs/guide/guide-v1.1.pdf` (tout ce que l'application fait, rôle par rôle, avec les captures), puis l'essayer comme une école sur tes appareils : [§ 9 bis](#9-bis-essai-sur-plusieurs-appareils-411) (`make reseau` après la fusion) | 30 min | [ ] |
-| 1 ter | **Préparer ta présentation aux écoles** : lire `docs/guide/presentation-v1.1.pdf` (11 pages : commandes, adresses, comptes de test, déroulé en 20 minutes avec les écrans à montrer, questions de la fin), puis le répéter la veille sur deux ou trois téléphones reliés au partage de connexion du tien ; ne jamais couper le wifi du PC, c'est lui le serveur | 45 min | [ ] |
-| 1 bis | **Essai sur plusieurs appareils : repartir d'une base neuve**, quand tu veux (constat de la recette) : dans ton essai, `itig` et `volcans` ont été créées avant les espaces et y sont restées « réelles » — pas de bandeau « Démonstration », reçus sans « SPÉCIMEN », et `make reseau-demo` refuse. Je n'y ai pas touché (ton compte super-admin et 5 appareils y sont). Commandes : [§ 12](#12-dépannage), ligne « Cette plateforme a un espace réel » | 10 min | [x] |
-| 2 | **Essayer le Portail sur ton vrai téléphone**, ce que je ne peux pas faire (navigateur, puis application installée ; Android et iPhone si possible) : [§ 9 bis](#9-bis-essai-sur-plusieurs-appareils-411) (`make reseau`), parent `0002000001`, quitter l'application, la rouvrir plus tard et le lendemain, couper le réseau. Me dire si une déconnexion revient (quand, sur quel téléphone), et **à quel moment l'import exige un matricule** (Q14, [`docs/06-suivi.md`](docs/06-suivi.md)) | 15 min | [ ] |
-| 3 | **Mettre le serveur de démonstration en ligne**, quand tu veux : [§ 9 ter](#9-ter-serveur-de-démonstration-en-ligne-462) (compte Oracle Cloud, serveur gratuit, adresse DuckDNS, `make deploy-setup`, `make deploy`) | 1 h | [ ] |
-| 4 | Juste après : garder une **copie de `infra/serveur/serveur.env`** en lieu sûr (clé USB, gestionnaire de mots de passe) | 2 min | [ ] |
-| 5 | **Avant la première vraie école** : achats du [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats), puis les étapes du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) (tâches 4.6.3, 4.7.2 et 4.23) | 1 h | [ ] |
+| 1 | **Relire et fusionner la PR « Nettoyage du plan »** (attendre les coches vertes) : Oracle et DuckDNS retirés, plan remis à jour ; marche à suivre : [§ 10](#10-comment-relire-et-fusionner-une-pr) | 10 min | [ ] |
+| 2 | **Créer le stockage objet des sauvegardes** (tâche 4.7.2, [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats)) et mettre `BACKUP_PASSPHRASE` dans `infra/serveur/serveur.env`, noté **aussi hors du serveur** ; Claude dira quelles clés créer | 30 min | [ ] |
+| 3 | **Garder une copie de `infra/serveur/serveur.env`** en lieu sûr (gestionnaire de mots de passe) | 2 min | [ ] |
+| 4 | **Lire le guide de la version 1.1** (`docs/guide/guide-v1.1.pdf`) et préparer ta présentation (`docs/guide/presentation-v1.1.pdf`) : elle se fait maintenant sur le vrai serveur, dans un espace de démonstration créé depuis la console | 1 h | [ ] |
+| 5 | **Avant la première vraie école** : étapes du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) (tâches 4.7.2 et 4.23) | 1 h | [ ] |
 
-Déjà fait : installation de la machine (Docker, `.env`, gettext), décisions (nom, domaine, Q1 à Q11), PR des tâches 0.1 à 4.22 et 5.1 à 5.6.2 ; historique complet : [`docs/06-suivi.md`](docs/06-suivi.md). À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). [Rien à demander à l'ITIG](#8-litig--rien-à-demander).
+Déjà fait : installation de la machine (Docker, `.env`, gettext), décisions (nom, domaine, Q1 à Q11), PR des tâches 0.1 à 4.22, 4.24 et 5.1 à 5.7 ; historique complet : [`docs/06-suivi.md`](docs/06-suivi.md). À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). [Rien à demander à l'ITIG](#8-litig--rien-à-demander).
 
 ---
 
@@ -58,14 +55,14 @@ Si un document arrive quand même :
 
 ## 9. Vraie mise en ligne (4.6.3, 4.7) : comptes et achats
 
-À faire **avant** qu'une école saisisse ses vraies données : changer d'adresse ensuite obligerait à réinstaller les applications et rendrait invérifiables les QR des reçus déjà imprimés. Le serveur Oracle du § 9 ter peut servir aussi pour la vraie mise en ligne au début ; il lui manque le vrai domaine et la copie des sauvegardes hors du serveur (4.7.2).
+À faire **avant** qu'une école saisisse ses vraies données : changer d'adresse ensuite obligerait à réinstaller les applications et rendrait invérifiables les QR des reçus déjà imprimés. Le serveur est en ligne (§ 9 ter) ; il lui manque la copie des sauvegardes hors du serveur (4.7.2).
 
 | Quoi | Comment | Fait |
 |---|---|:-:|
-| Domaine **`mwangazaschool.com`** (choisi le 2026-09-26) | vérifier qu'il est libre, l'acheter chez un registrar qui vend le `.school` ; activer le renouvellement automatique | [ ] |
-| Cloudflare (gratuit) | créer le compte, ajouter le domaine, remplacer les serveurs DNS chez le registrar par ceux que Cloudflare indique | [ ] |
-| Serveur | celui du § 9 ter (gratuit), ou un VPS payant (2 vCPU, 4 Go, Ubuntu 24.04, moins de 20 $ / mois) si une école l'exige | [ ] |
-| Stockage objet (sauvegardes, photos) | gratuit : Oracle Object Storage (20 Go, même compte) ou Backblaze B2 (10 Go) ; Claude dira quelles clés créer (4.7.2) | [ ] |
+| Domaine **`mwangazaschool.com`** | acheté ; renouvellement automatique | [x] |
+| Cloudflare (gratuit) | DNS « DNS seulement » : fait | [x] |
+| Serveur | AWS Lightsail (§ 9 ter) | [x] |
+| Stockage objet (sauvegardes, photos) | gratuit : Backblaze B2 (10 Go) ou un compartiment AWS S3 (même compte que le serveur) ; Claude dira quelles clés créer (4.7.2) | [ ] |
 | Clé des sauvegardes (4.7.2) | une phrase secrète `BACKUP_PASSPHRASE` dans le fichier de valeurs du serveur : dès qu'elle y est, la sauvegarde de chaque nuit se fait. **La noter aussi hors du serveur** (gestionnaire de mots de passe), avec `DJANGO_SECRET_KEY` : sans ces deux clés, une sauvegarde ne se relit pas | [ ] |
 | Suivi d'erreurs et sonde de disponibilité | Sentry (offre gratuite) ou GlitchTip ; UptimeRobot (gratuit) | [ ] |
 | Documents (T5, avant les vraies données d'une école) | conditions d'utilisation, confidentialité, contrat avec chaque école : Claude peut rédiger un brouillon, à faire relire | [ ] |
@@ -75,54 +72,7 @@ Partout : activer la double authentification et garder les codes de secours. Les
 
 ---
 
-## 9 bis. Essai sur plusieurs appareils (4.11)
-
-Pour essayer l'application **construite** (installable, notifications, hors-ligne) sur tes téléphones, un autre PC ou un iPhone, et la **montrer à des clients**, sans toucher à la version en développement. Tous les appareils sont sur le même réseau que ta machine (ton partage de connexion) ; la machine reste allumée. Adresse gratuite DuckDNS et vrai certificat : **rien à installer sur les appareils**.
-
-Une seule fois :
-
-1. Sur https://www.duckdns.org, te connecter (Google, GitHub…), écrire un nom (ex. `mwangaza-demo`) puis **add domain**. Noter le **token** affiché en haut de la page : il ne se donne à personne (ni dans Git, ni dans une conversation).
-2. Ouvrir les ports de la machine aux autres appareils : `sudo ufw status` ; si la réponse est « active », `sudo ufw allow 80,443/tcp`.
-3. `make reseau` : la première fois, il crée `infra/reseau/reseau.env` (hors Git, avec des secrets neufs) et s'arrête. Dans ce fichier, remplir `MWANGAZA_DOMAIN=mwangaza-demo.duckdns.org` (ton nom) et `DUCKDNS_TOKEN=` (le token).
-
-À chaque essai :
-
-4. `make reseau` : met l'adresse de ta machine dans DuckDNS, construit l'application (5 à 15 min la première fois), demande le certificat (1 à 2 min la première fois, gardé ensuite) et affiche les adresses. Si `make prod-local` tournait, il est arrêté (mêmes ports). `make dev` peut continuer à tourner.
-5. La première fois (et pour tout remettre à zéro) : `make reseau-demo`, les données fictives (mêmes comptes qu'en développement, § 11, mais **sans code à 6 chiffres** : un espace de démonstration ne le demande pas), puis `make reseau-superuser` pour ouvrir la console : ton propre compte super-admin, avec ton numéro (il n'y a pas de super-admin fictif hors développement).
-6. Sur la machine, ouvrir `https://www.mwangaza-demo.duckdns.org/` : la page montre un QR code par application (Gestion des deux écoles, Portail des parents, console). Les téléphones les scannent avec leur appareil photo. iPhone : ouvrir dans Safari, puis Partager → « Sur l'écran d'accueil » (sans cela, pas de notifications).
-7. Réseau changé (autre partage de connexion, téléphone redémarré) : `make reseau-ip`, puis recharger la page sur les appareils (une minute au plus). Fin de l'essai : `make reseau-stop` (données et certificat gardés).
-
-Limites : appareils sur le même réseau que la machine ; les notifications passent par internet (serveurs de Google, Apple, Mozilla). Un appareil qui n'ouvre pas l'adresse : vérifier qu'il est sur ce réseau, puis `make reseau-ip`. Les données de cet essai sont à part (ni celles du développement, ni celles de `make prod-local`) ; tout effacer : `make reseau-stop`, puis `docker volume rm $(docker volume ls -q --filter name=mwangaza-reseau)`.
-
----
-
-## 9 ter. Serveur de démonstration en ligne (4.6.2)
-
-L'application construite, **en ligne 24 h/24**, joignable depuis n'importe quel réseau (clients, écoles intéressées), même ta machine éteinte, pour **0 $** : serveur gratuit à vie d'Oracle Cloud (« Always Free » : processeur ARM, 2 cœurs, 12 Go de mémoire) et adresse gratuite DuckDNS, avec un vrai certificat. **Données fictives seulement** (pas de sauvegarde, adresse provisoire).
-
-Une seule fois :
-
-1. **Compte Oracle Cloud** : https://signup.cloud.oracle.com → « Start for free ». Une carte Visa ou Mastercard est demandée pour vérifier ton identité : rien n'est prélevé (une petite autorisation peut apparaître puis disparaître). **Région d'origine** : la plus proche de Goma est Johannesburg ; sinon une région d'Europe ; elle ne se change plus. Conseillé ensuite : *Billing → Upgrade to Pay As You Go* : ça reste à 0 $ tant que tu ne crées que des ressources marquées « Always Free », et Oracle n'arrête plus le serveur quand il est peu utilisé.
-2. **Clé SSH** sur ta machine : `ls ~/.ssh/id_ed25519.pub || ssh-keygen -t ed25519` (Entrée à chaque question), puis `cat ~/.ssh/id_ed25519.pub` pour l'afficher.
-3. **Le serveur** : *Compute → Instances → Create instance*. Image : **Canonical Ubuntu 24.04** ; *Shape* : **Ampere → VM.Standard.A1.Flex, 2 OCPU, 12 Go** (le maximum gratuit) ; réseau : nouveau réseau avec sous-réseau public, « Assign a public IPv4 address » coché ; *SSH keys* : « Paste public keys », coller la ligne de l'étape 2. *Create*. Si Oracle répond « Out of capacity » : réessayer plus tard ou choisir un autre *availability domain*. Noter l'**adresse IP publique** du serveur.
-4. **Ouvrir les ports 80 et 443** : sur la page du serveur, cliquer le *subnet*, puis sa *Default Security List* → *Add Ingress Rules* : *Source CIDR* `0.0.0.0/0`, protocole TCP, *Destination port range* `80,443`.
-5. **Une adresse DuckDNS à part** : sur https://www.duckdns.org, un autre nom que celui de l'essai du § 9 bis (ex. `mwangaza-goma`) → *add domain*. Même *token* que pour le § 9 bis.
-6. `make deploy-setup` : la première fois, il crée `infra/serveur/serveur.env` (hors Git, avec des secrets neufs) et s'arrête. Y remplir `SERVEUR=ubuntu@<adresse IP de l'étape 3>`, `MWANGAZA_DOMAIN=mwangaza-goma.duckdns.org` et `DUCKDNS_TOKEN=`. Relancer `make deploy-setup` (≈ 5 min : mises à jour automatiques, Docker, pare-feu, SSH par clé seulement). Puis **copier `serveur.env` en lieu sûr** : sans lui, chacun devrait relier son application d'authentification.
-7. `make deploy` (≈ 15 min la première fois : l'application est construite sur le serveur), puis `make deploy-demo` : les données fictives ; le mot de passe des comptes fictifs s'affiche (c'est `DJANGO_DEMO_PASSWORD` de `serveur.env`, propre à ce serveur ; ne le donner qu'à ceux à qui tu montres l'application). Pour un visiteur précis, préfère un espace à lui : console → Écoles → « Nouvelle école », type Démonstration, puis sa fiche d'accès (PDF) ; « Remettre à zéro » avant le visiteur suivant.
-8. Ouvrir `https://www.mwangaza-goma.duckdns.org/` : un QR code par application. Les comptes fictifs (directeur `0000001001`, caissière `0000001005`…) entrent avec le mot de passe seul : un espace de démonstration ne demande pas de code à 6 chiffres. Console (`https://admin.mwangaza-goma.duckdns.org/`) : avec **ton** compte super-admin, créé par `make deploy-superuser` (il n'y a pas de compte `0000000000` hors développement) ; sa première connexion se termine dans l'administration, où il lie Google Authenticator (QR code) ; garder les codes de secours.
-
-Ensuite :
-
-- **Mettre à jour** après une PR fusionnée : `git switch main && git pull && make deploy` (l'ancienne version reste en ligne pendant la construction).
-- **Remettre la démo à zéro** : `make deploy-demo` (les applications d'authentification déjà liées sont gardées). Un client a lié son téléphone à un compte : console → Comptes → « Réinitialiser la double authentification ».
-- **Ton propre compte super-admin** (ton numéro), nécessaire pour la console : `make deploy-superuser`.
-- **Un problème** : `make deploy-logs` (journaux ; `make deploy-logs service=caddy` pour le certificat), ou dans Claude Code : `/deployer panne`.
-
-Limites : Oracle peut arrêter un serveur gratuit peu utilisé (sauf compte *Pay As You Go*) : le redémarrer sur le site d'Oracle ; si son adresse IP a changé, corriger `SERVEUR` puis `make deploy`. Pas de sauvegarde : jamais de vraies données ici (§ 9).
-
----
-
-## 9 quinquies. Vrai serveur AWS Lightsail (préparé le 2026-10-12, rien lancé)
+## 9 ter. Le vrai serveur AWS Lightsail (en ligne depuis le 2026-10-13)
 
 `make deploy-init` a créé `infra/serveur/serveur.env` (MODE=production, `ubuntu@15.237.26.123`, clé `~/.ssh/LightsailDefaultKey-eu-west-3.pem`, secrets neufs). **À remplir** : `ACME_EMAIL` et `CLOUDFLARE_API_TOKEN` (Cloudflare : ajouter `mwangazaschool.com`, remplacer les serveurs de noms chez LWS par ceux de Cloudflare, jeton « Edit zone DNS » limité à cette zone ; enregistrements `A` `@` et `*` vers 15.237.26.123, en **DNS seulement** — nuage gris). Dans Lightsail › Mise en réseau : ouvrir HTTP 80 et HTTPS 443. **Garder une copie de `serveur.env`** (clé de sauvegarde et clé Django comprises). Quand le DNS répond : dis-le à Claude, puis `make deploy-setup`, `make deploy`, `make deploy-check`, `make deploy-superuser`. Les mêmes commandes servent à `make deploy-*` ; `make reseau` n'est pas touché.
 
@@ -151,7 +101,7 @@ Après la recette finale (4.21), il ne manque que les achats et la mise en ligne
 | 9 | **Premier encaissement** | un vrai paiement : reçu imprimé, QR vérifié avec un téléphone ; le soir, clôture de caisse ; le parent voit le reçu sur le Portail | [ ] |
 | 10 | **Le lendemain** | la sauvegarde de la nuit existe ; aucune alerte | [ ] |
 
-À ne plus faire une fois l'étape 7 passée : `make demo`, `make deploy-demo` et `make reseau-demo` sur cette plateforme (refusés d'office dès qu'un espace réel existe) ; changer de domaine ; saisir de vraies données dans un espace d'essai ou de démonstration (ils se suppriment). Montrer l'application à une autre école : console → Écoles → onglet « Démonstration », sa fiche d'accès à imprimer.
+À ne plus faire une fois l'étape 7 passée : `make demo` sur cette plateforme (refusés d'office dès qu'un espace réel existe) ; changer de domaine ; saisir de vraies données dans un espace d'essai ou de démonstration (ils se suppriment). Montrer l'application à une autre école : console → Écoles → onglet « Démonstration », sa fiche d'accès à imprimer.
 
 ---
 
@@ -218,16 +168,10 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make guide` | écrit deux PDF : le guide de la version, `docs/guide/guide-v1.1.pdf` (le guide de la V1.0 reste à côté ; ce qu'elle fait, rôle par rôle, avec des captures des écrans sur les données fictives ; ce qu'elle ne fait pas encore ; la suite), et le **guide de présentation**, `docs/guide/presentation-v1.1.pdf` (pour toi, quand tu montres la plateforme à une école : commandes de l'essai sur plusieurs appareils, adresses, comptes de test, déroulé en 20 minutes écran par écran, questions de la fin) : se connecte avec chaque compte fictif, prend les captures, puis imprime le guide ; **remet les données de `make demo` à zéro, avant et après** ; lance Django, la Gestion et le Portail, ou réutilise ceux de `make dev` / `make dev-local` (≈ 3 min) | à la fin de chaque version (Claude met le texte des deux à jour) ; les PDF sont dans Git : le guide de la version est prêt à envoyer, le guide de présentation reste pour toi |
 | `make prod-local` | essaie la production sur ta machine : construit les mêmes images que le serveur (Gestion et Portail construits, Django avec gunicorn, Caddy en HTTPS) et les lance ; puis https://itig.localhost/app/, https://parents.localhost/, https://admin.localhost/ (console ; administration de dépannage à `/admin/`) (certificat local : accepter l'avertissement du navigateur). Base vide : `make demo` y est refusé | pour voir la production avant la mise en ligne ; la première fois ≈ 10 min (téléchargements) |
 | `make prod-local-stop` | arrête cet essai ; ses données sont gardées (`docker compose -p mwangaza-essai down --volumes` pour tout effacer) | après l'essai |
-| `make reseau` | essai sur plusieurs appareils du même réseau (§ 9 bis) : met l'adresse de la machine dans DuckDNS, écrit la page des QR codes, construit et lance l'application avec un vrai certificat ; la première fois, crée `infra/reseau/reseau.env` à remplir | pour essayer sur des téléphones ou montrer l'application |
-| `make reseau-demo` | données fictives dans cet essai (comme `make demo`, sans code à 6 chiffres ni super-admin fictif) | la première fois, ou pour tout remettre comme au départ |
-| `make reseau-superuser` | crée ton compte super-administrateur dans cet essai (ton numéro, un mot de passe) | une fois, pour ouvrir la console |
-| `make reseau-ip` | remet l'adresse de la machine dans DuckDNS (`make reseau-ip ip=192.168.…` pour la choisir) | quand le partage de connexion a changé |
-| `make reseau-stop` | arrête cet essai ; données et certificat gardés | après l'essai |
-| `make deploy-init` · `make deploy-check` | vrai serveur AWS (§ 9 quinquies) : créer `serveur.env` de production ; vérifier HTTPS et la santé de l'API | une fois / après chaque mise en ligne |
-| `make deploy-setup` | serveur de démonstration en ligne (§ 9 ter) : prépare le serveur (mises à jour automatiques, Docker, pare-feu, SSH par clé) ; la première fois, crée `infra/serveur/serveur.env` à remplir | une seule fois |
-| `make deploy` | met en ligne la dernière version de `main` sur le serveur de démonstration : met son adresse dans DuckDNS, envoie le code, construit l'application sur le serveur et la relance (`make deploy ref=origin/<branche>` pour une autre branche) | après une PR fusionnée que tu veux montrer |
-| `make deploy-demo` | données fictives sur le serveur de démonstration, avec le mot de passe propre au serveur (affiché à la fin) ; chacun lie son application d'authentification à la première connexion | la première fois, ou pour remettre la démo à zéro |
-| `make deploy-superuser` | crée un compte super-administrateur sur le serveur de démonstration | pour ton propre compte |
+| `make deploy-init` · `make deploy-check` | vrai serveur AWS (§ 9 ter) : créer `serveur.env` de production ; vérifier HTTPS et la santé de l'API | une fois / après chaque mise en ligne |
+| `make deploy-setup` | prépare le serveur (mises à jour automatiques, Docker, pare-feu, SSH par clé) | une seule fois |
+| `make deploy` | met en ligne la dernière version de `main` sur le vrai serveur : envoie le code, construit l'application sur le serveur et la relance (`make deploy ref=origin/<branche>` pour une autre branche) | après une PR fusionnée que tu veux montrer |
+| `make deploy-superuser` | crée un compte super-administrateur sur le vrai serveur | pour ton propre compte |
 | `make deploy-logs` | derniers journaux du serveur et version en ligne (`make deploy-logs service=django`, `caddy`…) | quand quelque chose ne marche pas |
 | `make deploy-ssh` | ouvre une session sur le serveur | dépannage |
 | `make backup` | sauvegarde ta base et tes fichiers (logos, photos, pièces jointes) dans `sauvegardes/dev/`, chiffrés ; efface aussi les sessions expirées et les vieilles sauvegardes (base : 30 jours, fichiers : 7) | pour essayer ; sur le serveur, c'est fait chaque nuit tout seul |
@@ -289,8 +233,6 @@ Rien pour l'instant.
 | http://admin.localhost:5175/ | **Console de la plateforme** (super-admin `0000000000`, mot de passe `mwangaza-demo`, puis le code de `make totp`) : tableau de bord des écoles réelles (les espaces d'essai et de démonstration n'y comptent pas ; écoles par statut, élèves, paiements et encaissé du jour par devise, écoles les plus actives, santé du serveur) ; **Identité de la plateforme** (http://admin.localhost:5175/identity : nom, logo, icône, couleurs avec aperçu, support, mentions légales ; changer le nom ne demande pas de code ; les 5 dernières modifications) ; **Écoles** (http://admin.localhost:5175/schools : un onglet par type d'espace — Réels, Essai, Démonstration —, chiffres des espaces réels, recherche, filtre par état, élèves, abonnement, dernière activité, « Ouvrir en tant qu'école » ; « Nouvelle école » http://admin.localhost:5175/schools/new avec son type d'espace (choisi une fois pour toutes) et son premier directeur — mot de passe provisoire affiché une seule fois ; type **Démonstration** : seulement un nom, un code et « Petite école » (≈ 150 élèves) ou « Grande école » (≈ 800) — l'espace se remplit seul de données fictives en moins d'une minute, puis sa fiche donne la **fiche d'accès** à remettre au visiteur (adresses, mot de passe, un numéro par rôle, parents du portail ; « Télécharger le PDF ») et « Remettre à zéro » (même adresse, mêmes numéros, nouveau mot de passe) ; au plus 5 espaces de démonstration sur la plateforme (`DJANGO_DEMO_SPACES_MAX`), un seul se crée ou se supprime à la fois ; fiche `/schools/<id>` : type d'espace, noms, adresse, abonnement, suspendre / réactiver, arrêter avec un motif / relancer, derniers changements ; pour un espace d'essai ou de démonstration seulement : « Supprimer », en retapant son code — tout est effacé pour de bon en quelques secondes, l'espace reste « Suppression en cours » puis disparaît de la liste) ; **Comptes** (http://admin.localhost:5175/accounts : chercher une personne par son nom ou son numéro dans toutes les écoles, ses écoles et rôles, ses familles du portail ; fiche : noms et téléphone, mot de passe provisoire affiché une seule fois — pas pour un parent seul, son école lui donne un nouveau code famille —, double authentification réinitialisée si le téléphone est perdu, désactiver / réactiver, derniers changements ; un compte super-admin ne se change que dans l'administration) ; **Annonces** (http://admin.localhost:5175/announcements : écrire un message à toutes les écoles ou à certaines, publié tout de suite dans la Gestion de leur personnel ; « lue par N personnes » ; archiver pour le retirer — une annonce ne se modifie pas) ; **Appareils** (http://admin.localhost:5175/devices : appareils mémorisés de toutes les écoles, recherche, en service ou déconnectés, « Déconnecter » après confirmation — noté au journal de l'école et de la plateforme) ; **Journal** (http://admin.localhost:5175/journal : ce que le support a fait dans la console, filtres par type, période et objet ; onglet « Sessions support » http://admin.localhost:5175/journal/support : sessions ouvertes, fermées ou expirées, motif, nombre d'actions) ; tout autre compte y est refusé ; menu du compte : « Administration de dépannage », « Se déconnecter » |
 | http://localhost:8000/admin/ | administration Django, pour le dépannage (aussi à http://admin.localhost:5175/admin/, même session que la console) : super-admin `0000000000`, mot de passe `mwangaza-demo`, puis le code de `make totp` ; comptes, journal ; écoles (avec « Ouvrir en tant qu'école »), identité de la plateforme et journal de la plateforme en lecture seule (ils se modifient dans la console) |
 | https://itig.localhost/app/ · https://parents.localhost/ · https://admin.localhost/ | essai de la production (`make prod-local`) : Gestion, Portail, console et administration (`/admin/`) servis par Caddy comme sur le serveur ; base vide : la Gestion affiche « Aucune école à cette adresse » tant qu'aucune école n'est créée ; santé de l'API : https://admin.localhost/api/health/ |
-| https://www.mwangaza-demo.duckdns.org/ (ton nom DuckDNS) | essai sur plusieurs appareils (`make reseau`, § 9 bis) : page avec les QR codes ; puis `https://itig.…/app/`, `https://volcans.…/app/`, `https://parents.…/`, `https://admin.…/`, depuis tout appareil du même réseau, vrai certificat |
-| https://www.mwangaza-goma.duckdns.org/ (ton second nom DuckDNS) | serveur de démonstration en ligne (`make deploy`, § 9 ter) : mêmes applications, depuis n'importe quel réseau ; comptes fictifs avec le mot de passe du serveur (`DJANGO_DEMO_PASSWORD` de `infra/serveur/serveur.env`) ; santé de l'API : `https://admin.….duckdns.org/api/health/` |
 
 ### Git et GitHub
 
@@ -328,7 +270,7 @@ Rien pour l'instant.
 | `permission denied … docker.sock` | pas encore reconnecté après `usermod` | se déconnecter / reconnecter (ou `newgrp docker` dans ce terminal) |
 | `port is already allocated` (5433, 6379, 8000, 5173 ; 80 et 443 avec `make prod-local`) | un autre programme utilise le port | `ss -ltnp \| grep 6379` pour le trouver ; par ex. `sudo systemctl stop redis-server` |
 | `InconsistentMigrationHistory: Migration admin.0001_initial is applied before its dependency accounts.0001_initial` (`make migrate`, `make test`, `make dev`) | base de développement créée avant la tâche 1.2 (nouveau modèle de compte) | `make reset-db` une fois |
-| `make demo`, `make reseau-demo`, `make deploy-demo` ou `make test-e2e` : « Cette plateforme a un espace réel. […] refusé, rien n'a été modifié » (ou « Code pris par un espace qui n'est pas de démonstration ») | depuis la tâche 4.22, les données fictives ne s'écrivent plus sur une plateforme qui a une vraie école, ni par-dessus un espace d'essai nommé `itig` ou `volcans` | sur ta machine : `make reset-db` (efface la base de développement et la recrée) ; essai sur plusieurs appareils ou serveur : créer la démonstration dans la console, Écoles, onglet « Démonstration ». Essai dont `itig` et `volcans` datent d'avant les espaces (ils y sont « réels » : pas de bandeau, pas de « SPÉCIMEN ») : repartir d'une base neuve — `make reseau-stop`, `docker volume rm mwangaza-reseau_db-data mwangaza-reseau_media`, puis `make reseau`, `make reseau-demo`, `make reseau-superuser` (certificat et adresse gardés ; chaque appareil se reconnecte) |
+| `make demo` ou `make test-e2e` : « Cette plateforme a un espace réel. […] refusé, rien n'a été modifié » (ou « Code pris par un espace qui n'est pas de démonstration ») | depuis la tâche 4.22, les données fictives ne s'écrivent plus sur une plateforme qui a une vraie école, ni par-dessus un espace d'essai nommé `itig` ou `volcans` | sur ta machine : `make reset-db` (efface la base de développement et la recrée) ; essai sur plusieurs appareils ou serveur : créer la démonstration dans la console, Écoles, onglet « Démonstration ». Essai dont `itig` et `volcans` datent d'avant les espaces (ils y sont « réels » : pas de bandeau, pas de « SPÉCIMEN ») : repartir d'une base neuve — `make reseau-stop`, `docker volume rm mwangaza-reseau_db-data mwangaza-reseau_media`, puis `make reseau`, `make reseau-demo`, `make reseau-superuser` (certificat et adresse gardés ; chaque appareil se reconnecte) |
 | `"code": "too_many_attempts"` à la connexion | 5 essais ratés pour ce numéro en 15 minutes (ou 30 depuis ta machine) | attendre 15 minutes, ou `make demo` (débloque tout en développement) |
 | `"code": "totp_required"` sur une page de l'école | session ouverte sans double authentification, alors qu'un rôle l'exige (ex. rôle donné pendant la session) | se déconnecter (`…/api/auth/logout/`) et se reconnecter |
 | `"code": "invalid_code"` avec le code de `make totp` | code déjà utilisé (un code ne sert qu'une fois) | attendre le code suivant (30 secondes) et refaire `make totp` |
@@ -350,7 +292,7 @@ Rien pour l'instant.
 | `git commit` échoue avec `ruff … Failed` ou `Prettier … Failed` et « files were modified by this hook » | le contrôle avant commit a corrigé le format | `git add` les fichiers corrigés, puis refaire le `git commit` |
 | `git commit` échoue avec `ESLint … Failed` ou `ruff (lint Python) … Failed` | une vraie erreur dans le code (variable inutilisée, hook React mal placé…) | corriger l'erreur affichée, puis refaire le commit |
 | `git commit` : `uv: not found` ou `frontend/node_modules/.bin/eslint: not found` | outils pas installés, ou `uv` absent du `PATH` du programme qui commite | `make install` ; commiter depuis le terminal de VS Code |
-| `make deploy…` : `Permission denied (publickey)` | la clé SSH donnée à Oracle n'est pas celle de cette machine, ou `SERVEUR` n'est pas `ubuntu@…` | vérifier `SERVEUR` dans `infra/serveur/serveur.env` ; `ssh ubuntu@<IP>` doit ouvrir une session |
+| `make deploy…` : `Permission denied (publickey)` | la clé SSH de Lightsail (`SSH_KEY`) n'est pas la bonne de cette machine, ou `SERVEUR` n'est pas `ubuntu@…` | vérifier `SERVEUR` dans `infra/serveur/serveur.env` ; `ssh ubuntu@<IP>` doit ouvrir une session |
 | `make deploy…` : `REMOTE HOST IDENTIFICATION HAS CHANGED` | serveur recréé à la même adresse IP | `ssh-keygen -R <IP>`, puis relancer |
-| `make deploy…` : délai dépassé, ou le site ne répond plus | serveur arrêté par Oracle, ou ports 80 et 443 fermés | § 9 ter, « Limites » et étape 4 ; dans Claude Code : `/deployer panne` |
+| `make deploy…` : délai dépassé, ou le site ne répond plus | serveur arrêté, ou ports 80 et 443 fermés (onglet « Mise en réseau » de Lightsail) | § 9 ter ; dans Claude Code : `/deployer panne` |
 | une PR a une croix rouge ✘ (CI) | un contrôle échoue sur GitHub | `gh pr checks <numéro>` puis ouvrir le lien ; ou dire à Claude le numéro de la PR |

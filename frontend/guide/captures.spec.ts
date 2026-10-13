@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 
 import { expect, test, type Page } from "@playwright/test";
 
@@ -21,8 +21,8 @@ const DOCUMENTS = [
   { html: "guide.html", pdf: "guide", title: "guide de la version" },
   { html: "presentation.html", pdf: "presentation", title: "guide de présentation, version" },
 ];
-// Adresse de l'essai sur plusieurs appareils (`make reseau`), écrite dans le guide de présentation.
-const RESEAU_ENV = new URL("../../infra/reseau/reseau.env", import.meta.url).pathname;
+// Domaine du vrai serveur, écrit dans le guide de présentation.
+const DOMAIN = "mwangazaschool.com";
 const PORTAL = "http://localhost:5174/";
 const CONSOLE = "http://admin.localhost:5175/";
 
@@ -260,8 +260,7 @@ test("PDF", async ({ page, request }) => {
     await request.get("http://localhost:8000/api/platform/")
   ).json()) as { name: string };
   const today = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(new Date());
-  const env = existsSync(RESEAU_ENV) ? readFileSync(RESEAU_ENV, "utf8") : "";
-  const domain = /^MWANGAZA_DOMAIN=(\S+)/m.exec(env)?.[1] ?? "<ton-adresse>.duckdns.org";
+  const domain = DOMAIN;
   for (const { html, pdf, title } of DOCUMENTS) {
     await page.goto(new URL(html, import.meta.url).href);
     await page.evaluate(

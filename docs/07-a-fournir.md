@@ -99,16 +99,16 @@ Déjà dessinés le 2026-09-26 d'après les **formulaires officiels** trouvés e
 
 | # | Sujet | Quand | Fait |
 |---|---|---|:-:|
-| T1 | **Nom et domaine** (Q9) — **tranché le 2026-09-26 : Mwangaza, `mwangazaschool.com`** ; reste à vérifier la disponibilité et acheter le domaine avant les vraies données d'une école, 4.6.3 (`A-FAIRE.md` § 9 ; le serveur de démonstration s'en passe : DuckDNS, 4.6.2) | domaine acheté avant 4.6.3 | [x] |
+| T1 | **Nom et domaine** (Q9) — **tranché le 2026-09-26 : Mwangaza, `mwangazaschool.com`** ; reste à vérifier la disponibilité et acheter le domaine avant les vraies données d'une école, 4.6.3 (fait : acheté, `A-FAIRE.md` § 9) | domaine acheté avant 4.6.3 | [x] |
 | T2 | Valider les propositions Q1 à Q11 de `06-suivi.md` — **tranché le 2026-09-26** (journal de `06-suivi.md`) | avant 1.2 | [x] |
 | T3 | Maquettes : les fournir, ou laisser Claude les dessiner (défaut) — **tranché le 2026-09-26 : Claude dessine** ; reste à valider les maquettes dessinées (PR) | maintenant | [x] |
-| T4 | Comptes : hébergeur (**tranché le 2026-10-04 : Oracle Cloud « Always Free »**, gratuit, + DuckDNS pour la démonstration ; `A-FAIRE.md` § 9 ter), Cloudflare, stockage objet, suivi d'erreurs (Sentry ou GlitchTip) | Oracle et DuckDNS quand tu mets la démonstration en ligne ; Cloudflare avant 4.6.3 ; le reste avant 4.7 | [ ] |
-| T5 | Conditions d'utilisation, politique de confidentialité, contrat de traitement des données avec chaque école (Claude peut rédiger un brouillon) | avant les vraies données d'une école (4.6.2) | [ ] |
+| T4 | Comptes : hébergeur (**AWS Lightsail**, fait), Cloudflare (fait), stockage objet, suivi d'erreurs (Sentry ou GlitchTip) | stockage objet et suivi d'erreurs avec 4.7.2 | [ ] |
+| T5 | Conditions d'utilisation, politique de confidentialité, contrat de traitement des données avec chaque école (Claude peut rédiger un brouillon) | avant les vraies données d'une école (4.6.3) | [ ] |
 | T6 | Tarif des écoles (essai gratuit ?) | avant les abonnements (9.2) | [ ] |
 
 ## 4. Données de démonstration
 
-Commande `make demo` (créée en 1.1, enrichie à chaque tâche qui ajoute un modèle ; détail ci-dessous) : elle efface et recrée des données **entièrement fictives et réalistes**, pour le développement et les démonstrations. En production, chaque école saisit ses vraies données (`make demo` y est refusé ; seul l'essai sur plusieurs appareils, `make reseau-demo`, le permet, 4.11). Dès qu'un espace réel existe, la commande est refusée partout, quel que soit le réglage (4.22) : les démonstrations se créent alors dans la console. Rien de propre à l'ITIG n'est écrit dans le code : tout passe par les paramètres de l'école de démonstration.
+Commande `make demo` (créée en 1.1, enrichie à chaque tâche qui ajoute un modèle ; détail ci-dessous) : elle efface et recrée des données **entièrement fictives et réalistes**, pour le développement et les démonstrations. En production, chaque école saisit ses vraies données (`make demo` y est refusé ; les démonstrations se créent dans la console, 4.17.2). Dès qu'un espace réel existe, la commande est refusée partout, quel que soit le réglage (4.22) : les démonstrations se créent alors dans la console. Rien de propre à l'ITIG n'est écrit dans le code : tout passe par les paramètres de l'école de démonstration.
 
 - **École `itig`** « ITIG Don Bosco Goma (démo) » : structure publique réelle (7e–8e EB, 1re–4e, 4 options), couleur `#003C6C`, logo du site web et sa version noir et blanc ; environ **800 élèves** aux noms inventés, avec leurs familles (fratries comprises) ; grille de frais fictive réaliste (frais en USD et en FC) ; taux de l'année 1 $ = 2 850 FC ; 2 caisses ; paiements de septembre à aujourd'hui pour le tableau de bord et les impayés ; un rôle personnalisé « chef d'atelier ».
 - **École `volcans`** « Complexe scolaire Les Volcans (fictif) » : petite école (≈ 150 élèves) pour prouver l'isolation entre écoles, avec une famille qui a des enfants dans les deux écoles (deux fiches famille, deux codes, un seul compte parent).

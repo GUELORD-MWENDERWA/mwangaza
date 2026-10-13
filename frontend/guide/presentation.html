@@ -40,107 +40,49 @@
     <section>
       <h1>1. Avant la présentation</h1>
       <p class="lead">
-        Tu montres l'application construite, sur ton ordinateur et sur les téléphones de la salle,
-        avec l'essai sur plusieurs appareils. Ton ordinateur est le serveur.
+        Tu montres l'application en ligne, sur <strong>mwangazaschool.com</strong>, dans un espace
+        de démonstration : données fictives, séparées de toute vraie école. Les téléphones de la
+        salle n'ont besoin que d'internet.
       </p>
-      <h2>Les commandes</h2>
-      <table>
-        <tr>
-          <th>Commande</th>
-          <th>Ce qu'elle fait</th>
-        </tr>
-        <tr>
-          <td><code>make reseau</code></td>
-          <td>
-            <strong>Démarrer.</strong> Construit l'application et affiche les adresses (5 à 15
-            minutes la première fois, puis une minute).
-          </td>
-        </tr>
-        <tr>
-          <td><code>make reseau-ip</code></td>
-          <td>
-            <strong>Réseau changé</strong> (autre wifi, autre partage de connexion) : remet
-            l'adresse de ta machine. Elle ne démarre rien.
-          </td>
-        </tr>
-        <tr>
-          <td><code>make reseau-demo</code></td>
-          <td>
-            <strong>Remettre les données fictives comme au départ</strong> : après une répétition,
-            et juste avant la présentation.
-          </td>
-        </tr>
-        <tr>
-          <td><code>make reseau-superuser</code></td>
-          <td>
-            Ton compte super-admin, pour la console. Une seule fois ; à refaire après une base
-            neuve.
-          </td>
-        </tr>
-        <tr>
-          <td><code>make reseau-stop</code></td>
-          <td><strong>Arrêter.</strong> Données et certificat sont gardés.</td>
-        </tr>
-      </table>
       <h2>La veille</h2>
       <ol class="steps">
         <li>
-          Prendre la dernière version : <code>git switch main &amp;&amp; git pull</code>, puis
-          <code>make reseau</code>.
+          Mettre la dernière version en ligne : <code>git switch main &amp;&amp; git pull</code>,
+          puis <code>make deploy</code> et <code>make deploy-check</code>.
         </li>
         <li>
-          Allumer le <strong>partage de connexion</strong> de ton téléphone, avec des données
-          mobiles : c'est le réseau de la salle. Y relier ton ordinateur, puis
-          <code>make reseau-ip</code>.
+          Dans la console (<code>https://admin.mwangazaschool.com/</code>), créer un espace de
+          démonstration (petite ou grande école) ou remettre à zéro celui qui existe : la fiche
+          d'accès donne l'adresse, les comptes et le mot de passe commun.
         </li>
-        <li>
-          Jouer tout le déroulé une fois, avec deux ou trois téléphones reliés au même partage de
-          connexion.
-        </li>
+        <li>Jouer tout le déroulé une fois, avec deux ou trois téléphones.</li>
       </ol>
       <h2>Le jour même, dans cet ordre</h2>
       <ol class="steps">
-        <li>
-          Partage de connexion allumé, ordinateur relié et branché au courant :
-          <code>make reseau</code>, <code>make reseau-ip</code>, puis <code>make reseau-demo</code>.
-        </li>
+        <li>Remettre l'espace de démonstration à zéro depuis la console, juste avant.</li>
         <li>
           Sur le téléphone ou la tablette qui servira de <strong>caisse</strong> : se connecter en
           caissière en laissant « Se souvenir de cet appareil » coché, et ouvrir la caisse. Sans
           cela, la caisse ne marche pas hors ligne.
         </li>
-        <li>
-          Sur ton ordinateur : ouvrir la page d'accueil (les QR codes) et te connecter en directeur
-          dans un autre onglet.
-        </li>
+        <li>Sur ton ordinateur : te connecter en directeur dans un autre onglet.</li>
       </ol>
       <div class="note warn">
-        <strong>Ne coupe jamais le wifi de ton ordinateur</strong>
-        Il sert tout le monde : sans lui, plus personne n'ouvre rien. Empêche aussi sa mise en
-        veille. Pour montrer le hors-ligne, mets en mode avion le téléphone de la caisse, lui seul.
-      </div>
-      <div class="note">
-        <strong>Sans ta machine</strong>
-        Pour qu'une école continue l'essai chez elle, il faut le serveur de démonstration en ligne :
-        <code>make deploy</code>, puis <code>make deploy-demo</code>, qui affiche le mot de passe
-        des comptes fictifs de ce serveur.
+        <strong>Hors-ligne</strong>
+        Pour le montrer, mets en mode avion le téléphone de la caisse, lui seul.
       </div>
     </section>
 
     <section>
       <h1>2. Adresses et comptes de test</h1>
       <p class="lead">
-        La page d'accueil montre un QR code par application : les téléphones les scannent avec leur
-        appareil photo.
+        Adresses de l'espace de démonstration ; les comptes ci-dessous sont ceux de la fiche d'accès
+        (numéros et mot de passe propres à l'espace).
       </p>
       <table>
         <tr>
           <th>Application</th>
           <th>Adresse</th>
-        </tr>
-        <tr>
-          <td>Page d'accueil (QR codes)</td>
-          <td>https://www.<span data-guide="domain"></span>/</td>
         </tr>
         <tr>
           <td>Gestion, première école</td>
@@ -223,7 +165,7 @@
         <tr>
           <td>Super-admin</td>
           <td>ton numéro</td>
-          <td>Console (<code>make reseau-superuser</code>)</td>
+          <td>Console (<code>make deploy-superuser</code>)</td>
         </tr>
       </table>
       <div class="note">

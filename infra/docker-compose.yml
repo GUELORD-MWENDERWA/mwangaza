@@ -1,7 +1,6 @@
 # Production (`docs/03-architecture-technique.md` § 9) : Caddy (HTTPS) devant Django (gunicorn),
 # Celery, Redis, PostgreSQL. Seul Caddy est ouvert sur l'extérieur (ports 80 et 443).
-# Vrai serveur : valeurs dans `infra/.env` (copié de `infra/.env.example`), vrai domaine en 4.6.3 ;
-# serveur de démonstration (DuckDNS) : `make deploy`, avec `docker-compose.reseau.yml`.
+# Valeurs de l'essai : `infra/local.env` (`make prod-local`) ; vrai serveur : `make deploy`, avec `docker-compose.production.yml`.
 # Sur la machine : `make prod-local` (valeurs de `infra/local.env`).
 name: mwangaza
 
