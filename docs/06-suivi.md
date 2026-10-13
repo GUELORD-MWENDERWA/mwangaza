@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (M.2.2 faite, PR de la branche `tache/M.2.2-modules-ecrans`, issue #217) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | M.3.1 — voir la file (`05` § 2) |
-| Issue GitHub | #217 |
-| Branche | `tache/M.2.2-modules-ecrans` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | **M.3.1** — rôles : droits déduits des permissions (plan : `claude/plans/tache-M.3.1.md`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | M.3.2 — voir la file (`05` § 2) |
+| Issue GitHub | #219 |
+| Branche | `tache/M.3.1-roles-permissions` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-13 |
 
 ## Avancement

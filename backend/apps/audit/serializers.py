@@ -3,7 +3,6 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.accounts.models import Role, User
-from apps.accounts.roles import SYSTEM_ROLES
 from apps.audit.actions import DOMAINS, PLATFORM_DOMAINS, Action, PlatformAction, domain_of
 from apps.audit.models import AuditLog, PlatformAuditLog
 from apps.sync.models import Device
@@ -38,13 +37,9 @@ class AuditLogSerializer(serializers.ModelSerializer):
     by_support = serializers.SerializerMethodField(
         help_text="Action du support de la plateforme : l'interface affiche « Support {nom} »."
     )
-    entity_label = serializers.CharField(
-        read_only=True,
-        help_text="Nom de l'objet au moment de l'action. Vide pour un rôle système sans nom "
-        "propre : l'interface affiche le nom traduit de `role_code`.",
-    )
-    role_code = serializers.SerializerMethodField(
-        help_text="Code du rôle système quand l'objet est un rôle sans nom propre ; sinon null."
+    entity_label = serializers.SerializerMethodField(
+        help_text="Nom de l'objet au moment de l'action. Rôle noté sans nom (l'école ne l'avait "
+        "pas renommé) : son nom d'aujourd'hui dans l'école."
     )
 
     device = AuditDeviceSerializer(
@@ -69,7 +64,6 @@ class AuditLogSerializer(serializers.ModelSerializer):
             "entity_type",
             "entity_id",
             "entity_label",
-            "role_code",
             "before",
             "after",
             "ip",
@@ -94,17 +88,17 @@ class AuditLogSerializer(serializers.ModelSerializer):
     def get_by_support(self, log: AuditLog) -> bool:
         return _by_support(log)
 
-    @extend_schema_field(serializers.ChoiceField(choices=list(SYSTEM_ROLES), allow_null=True))
-    def get_role_code(self, log: AuditLog) -> str | None:
-        if log.entity_type != "accounts.role" or log.entity_label or log.entity_id is None:
-            return None
-        # Un rôle supprimé n'est plus là : seul un rôle de l'école (avec un nom) se supprime.
-        codes = self.context.setdefault("role_codes", {})
-        if log.entity_id not in codes:
-            codes[log.entity_id] = (
-                Role.objects.filter(pk=log.entity_id).values_list("code", flat=True).first()
-            )
-        return codes[log.entity_id] or None
+    @extend_schema_field(serializers.CharField())
+    def get_entity_label(self, log: AuditLog) -> str:
+        if log.entity_label or log.entity_type != "accounts.role" or log.entity_id is None:
+            return log.entity_label
+        # Les rôles de l'école (quelques lignes), lus une fois pour la page ou l'export. Un rôle
+        # supprimé n'est plus là : il avait un nom, noté dans ses entrées.
+        names = self.context.get("role_names")
+        if names is None:
+            names = {role.pk: str(role.display_name) for role in Role.objects.all()}
+            self.context["role_names"] = names
+        return names.get(log.entity_id, "")
 
 
 class AuditLogFilterSerializer(serializers.Serializer):

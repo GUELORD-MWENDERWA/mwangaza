@@ -228,9 +228,7 @@ function Who({ log }: { log: Log }) {
 }
 
 function subject(log: Log, t: TFunction) {
-  if (log.entity_label) return log.entity_label;
-  if (log.role_code) return t(`roles.${log.role_code}`);
-  return t("common.none");
+  return log.entity_label || t("common.none");
 }
 
 function LogTable({

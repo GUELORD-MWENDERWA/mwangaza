@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from apps.accounts.models import User
 from apps.accounts.permissions import IsPlatformAdmin
-from apps.accounts.roles import AUDIT_VIEW, SYSTEM_ROLES
+from apps.accounts.roles import AUDIT_VIEW
 from apps.accounts.views import CONSOLE_ERRORS, ERRORS, SchoolViewSet
 from apps.audit import services as audit
 from apps.audit.actions import Action
@@ -132,21 +132,19 @@ def _changes(values: dict | None) -> str:
 
 
 def _export_row(log: AuditLog, serializer: AuditLogSerializer, support: str) -> list:
-    """Une ligne, dite comme à l'écran : le support n'est pas nommé, un rôle système a son nom."""
+    """Une ligne, dite comme à l'écran : le support n'est pas nommé, un rôle noté sans nom a
+    celui de l'école."""
     if serializer.get_by_support(log):
         person = support
     elif log.actor:
         person = log.actor.get_full_name() or log.actor.phone
     else:
         person = gettext("System")
-    label = log.entity_label
-    if not label and (code := serializer.get_role_code(log)):
-        label = str(SYSTEM_ROLES[code].label)
     return [
         timezone.localtime(log.created_at).replace(tzinfo=None),
         person,
         str(Action(log.action).label),
-        label,
+        serializer.get_entity_label(log),
         _changes(log.before),
         _changes(log.after),
         log.ip or "",

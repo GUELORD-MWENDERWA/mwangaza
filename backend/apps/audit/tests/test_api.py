@@ -7,6 +7,8 @@ from zoneinfo import ZoneInfo
 
 import openpyxl
 import pytest
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 
 from apps.accounts.models import Role
 from apps.audit.actions import Action
@@ -142,7 +144,6 @@ def test_an_entry_says_who_did_what_on_what(api, school, head):
         "entity_type": "accounts.role",
         "entity_id": str(role_id),
         "entity_label": "Chef d'atelier",
-        "role_code": None,
         "before": {"permissions": ["students.view"]},
         "after": {"permissions": ["students.view", "students.edit"]},
         "ip": "41.243.12.7",
@@ -260,17 +261,34 @@ def test_actors_need_audit_view(api, cashier):
     assert api(cashier).get(f"{AUDIT}actors/").status_code == 403
 
 
-def test_a_system_role_without_its_own_name_comes_with_its_code(api, school, head):
+def test_a_role_logged_without_a_name_gets_its_name_in_the_school(api, school, other_school, head):
     with use_school(school):
         cashier = Role.objects.get(code="cashier")
-        workshop = Role.objects.create(name="Chef d'atelier")
+        secretary = Role.objects.get(code="secretary")
+        secretary.name = "Secrétaire de direction"
+        secretary.save()
+    with use_school(other_school):
+        elsewhere = Role.objects.create(name="Rôle d'une autre école")
     entry(school, entity_id=cashier.id, entity_label="")
-    entry(school, entity_id=workshop.id, entity_label="Chef d'atelier")
+    entry(school, entity_id=secretary.id, entity_label="")
+    # Jamais le rôle d'une autre école, même si une entrée portait son identifiant.
+    entry(school, entity_id=elsewhere.id, entity_label="")
     entry(school, action=Action.STAFF_ADDED, entity_type="accounts.membership", entity_label="")
+    client = api(head)
 
-    results = api(head).get(AUDIT).json()["results"]
+    with CaptureQueriesContext(connection) as queries:
+        results = client.get(AUDIT).json()["results"]
+    # Hors droits du compte : les rôles de l'école sont lus une seule fois pour toute la page.
+    reads = [query["sql"] for query in queries if 'FROM "accounts_role"' in query["sql"]]
+    today = str(datetime.now(GOMA).date())
+    export = client.get(f"{AUDIT}export/", since=today, until=today)
+    sheet = openpyxl.load_workbook(io.BytesIO(export.content)).active
 
-    assert [item["role_code"] for item in results] == [None, None, "cashier"]
+    names = ["", "", "Secrétaire de direction", "Caissier"]
+    assert [item["entity_label"] for item in results] == names
+    assert "role_code" not in results[0]
+    assert [row[3] or "" for row in sheet.iter_rows(min_row=2, values_only=True)] == names
+    assert len([sql for sql in reads if "membership" not in sql]) == 1
 
 
 def test_export_gives_the_filtered_period_of_the_school_and_is_itself_logged(

@@ -18,7 +18,7 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.accounts import modules
 from apps.accounts import services as accounts
-from apps.accounts.models import Membership, Role
+from apps.accounts.models import Membership
 from apps.audit import services as audit
 from apps.audit.actions import Action, PlatformAction
 from apps.core.errors import ApiError, BusinessError
@@ -83,16 +83,16 @@ def _record_platform(action: str, school: School, *, actor, before: dict | None 
 
 
 def create_school(school: School, *, actor, director: Director) -> tuple[Membership, str | None]:
-    """Nouvelle école (`school`, pas encore enregistrée) : rôles système copiés, premier
-    directeur avec le rôle `head`. Nouveau numéro : mot de passe provisoire renvoyé une seule
-    fois, à transmettre au directeur (pas de SMS en V1)."""
+    """Nouvelle école (`school`, pas encore enregistrée) : rôles de départ copiés, premier
+    directeur avec celui qui gère les comptes. Nouveau numéro : mot de passe provisoire renvoyé une
+    seule fois, à transmettre au directeur (pas de SMS en V1)."""
     with transaction.atomic():
         open_space(school, actor=actor)
         with use_school(school):
             return accounts.add_staff_member(
                 actor=actor,
                 phone=director.phone,
-                roles=[Role.objects.get(code="head")],
+                roles=[accounts.first_manager_role()],
                 last_name=director.last_name,
                 middle_name=director.middle_name,
                 first_name=director.first_name,

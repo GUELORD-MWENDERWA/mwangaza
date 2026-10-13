@@ -47,6 +47,7 @@ PLATFORM_ADMIN_PHONE = "+243000000000"
 
 # Rôle propre au profil `itig` (Q7) : un rôle créé par l'école, pas un rôle du code.
 WORKSHOP_HEAD = "Chef d'atelier"
+CASH_DESK_PC = "PC Caisse · Windows · Edge"
 CUSTOM_ROLES = {"itig": {WORKSHOP_HEAD: ["students.view"]}}
 
 
@@ -62,6 +63,8 @@ class DemoAccount:
     # Développement : pas de clé commune pour ce compte, il se connecte sans code, comme dans un
     # espace créé depuis la console.
     no_code: bool = False
+    # Poste fictif du compte dans « Appareils connectés » (`sync/demo.py`).
+    device: str = ""
 
 
 DEMO_ACCOUNTS = [
@@ -83,8 +86,24 @@ DEMO_ACCOUNTS = [
         "directeur de discipline",
     ),
     DemoAccount("+243000001004", "Mbusa", "Kitsa", "Didier", {"itig": "accountant"}, "comptable"),
-    DemoAccount("+243000001005", "Kahindo", "Sivira", "Grâce", {"itig": "cashier"}, "caissière"),
-    DemoAccount("+243000001006", "Nzigire", "Bora", "Solange", {"itig": "secretary"}, "secrétaire"),
+    DemoAccount(
+        "+243000001005",
+        "Kahindo",
+        "Sivira",
+        "Grâce",
+        {"itig": "cashier"},
+        "caissière",
+        device=CASH_DESK_PC,
+    ),
+    DemoAccount(
+        "+243000001006",
+        "Nzigire",
+        "Bora",
+        "Solange",
+        {"itig": "secretary"},
+        "secrétaire",
+        device="PC Secrétariat · Windows",
+    ),
     DemoAccount(
         "+243000001007",
         "Musubao",
@@ -111,7 +130,13 @@ DEMO_ACCOUNTS = [
         "+243000002004", "Byamungu", "Nabintu", "Pascal", {"volcans": "accountant"}, "comptable"
     ),
     DemoAccount(
-        "+243000002005", "Cishugi", "Mulume", "Espérance", {"volcans": "cashier"}, "caissière"
+        "+243000002005",
+        "Cishugi",
+        "Mulume",
+        "Espérance",
+        {"volcans": "cashier"},
+        "caissière",
+        device=CASH_DESK_PC,
     ),
 ]
 

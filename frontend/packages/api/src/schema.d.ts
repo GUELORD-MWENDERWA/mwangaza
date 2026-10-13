@@ -3944,10 +3944,8 @@ export interface components {
              * Format: uuid
              */
             readonly entity_id: string | null;
-            /** @description Nom de l'objet au moment de l'action. Vide pour un rôle système sans nom propre : l'interface affiche le nom traduit de `role_code`. */
+            /** @description Nom de l'objet au moment de l'action. Rôle noté sans nom (l'école ne l'avait pas renommé) : son nom d'aujourd'hui dans l'école. */
             readonly entity_label: string;
-            /** @description Code du rôle système quand l'objet est un rôle sans nom propre ; sinon null. */
-            readonly role_code: (components["schemas"]["RoleCodeEnum"] | components["schemas"]["NullEnum"]) | null;
             readonly before: unknown;
             readonly after: unknown;
             /** IP address */
@@ -7535,8 +7533,6 @@ export interface components {
             /** @description Comptes actifs qui ont ce rôle dans l'école. */
             readonly member_count: number;
         };
-        /** @enum {string} */
-        RoleCodeEnum: "head" | "study_director" | "discipline_master" | "accountant" | "cashier" | "secretary" | "promoter" | "teacher" | "parent";
         /**
          * @description Rôle de l'école. `name` vide pour un rôle système : l'interface affiche le nom traduit de
          *     son `code`.
@@ -8052,10 +8048,8 @@ export interface components {
              * Format: uuid
              */
             readonly entity_id: string | null;
-            /** @description Nom de l'objet au moment de l'action. Vide pour un rôle système sans nom propre : l'interface affiche le nom traduit de `role_code`. */
+            /** @description Nom de l'objet au moment de l'action. Rôle noté sans nom (l'école ne l'avait pas renommé) : son nom d'aujourd'hui dans l'école. */
             readonly entity_label: string;
-            /** @description Code du rôle système quand l'objet est un rôle sans nom propre ; sinon null. */
-            readonly role_code: (components["schemas"]["RoleCodeEnum"] | components["schemas"]["NullEnum"]) | null;
             readonly before: unknown;
             readonly after: unknown;
             /** @description Appareil enregistré de la session, s'il y en a. */

@@ -11875,16 +11875,8 @@ components:
         entity_label:
           type: string
           readOnly: true
-          description: 'Nom de l''objet au moment de l''action. Vide pour un rôle
-            système sans nom propre : l''interface affiche le nom traduit de `role_code`.'
-        role_code:
-          description: Code du rôle système quand l'objet est un rôle sans nom propre
-            ; sinon null.
-          nullable: true
-          readOnly: true
-          oneOf:
-          - $ref: '#/components/schemas/RoleCodeEnum'
-          - $ref: '#/components/schemas/NullEnum'
+          description: 'Nom de l''objet au moment de l''action. Rôle noté sans nom
+            (l''école ne l''avait pas renommé) : son nom d''aujourd''hui dans l''école.'
         before:
           readOnly: true
           nullable: true
@@ -11923,7 +11915,6 @@ components:
       - entity_type
       - entity_id
       - entity_label
-      - role_code
       - before
       - after
       - ip
@@ -19462,18 +19453,6 @@ components:
       - is_system
       - permissions
       - member_count
-    RoleCodeEnum:
-      enum:
-      - head
-      - study_director
-      - discipline_master
-      - accountant
-      - cashier
-      - secretary
-      - promoter
-      - teacher
-      - parent
-      type: string
     RoleRequest:
       type: object
       description: |-
@@ -20596,16 +20575,8 @@ components:
         entity_label:
           type: string
           readOnly: true
-          description: 'Nom de l''objet au moment de l''action. Vide pour un rôle
-            système sans nom propre : l''interface affiche le nom traduit de `role_code`.'
-        role_code:
-          description: Code du rôle système quand l'objet est un rôle sans nom propre
-            ; sinon null.
-          nullable: true
-          readOnly: true
-          oneOf:
-          - $ref: '#/components/schemas/RoleCodeEnum'
-          - $ref: '#/components/schemas/NullEnum'
+          description: 'Nom de l''objet au moment de l''action. Rôle noté sans nom
+            (l''école ne l''avait pas renommé) : son nom d''aujourd''hui dans l''école.'
         before:
           readOnly: true
           nullable: true
@@ -20635,7 +20606,6 @@ components:
       - entity_type
       - entity_id
       - entity_label
-      - role_code
       - before
       - after
       - device

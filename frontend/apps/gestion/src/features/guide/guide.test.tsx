@@ -1,9 +1,13 @@
 import { screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import type { Schemas } from "@mwangaza/api";
+
+import type { Permission } from "../../lib/permissions";
 import { mockApi } from "../../test/api";
 import { me, PERMISSIONS, school } from "../../test/fixtures";
 import { renderApp } from "../../test/render";
+import { guideFor } from "./guides";
 
 const loggedIn = (account: ReturnType<typeof me>) => ({
   "GET /api/school/": school,
@@ -13,6 +17,29 @@ const loggedIn = (account: ReturnType<typeof me>) => ({
 const coach = async () => within(await screen.findByRole("dialog"));
 
 describe("guide de première connexion (M20)", () => {
+  it("choisi par les droits, jamais par le nom du rôle", () => {
+    const withRights = (permissions: Permission[], roles = me("teacher").school!.roles) =>
+      me("teacher", { school: { ...me("teacher").school!, roles, permissions } });
+    const codes = Object.keys(PERMISSIONS) as (keyof typeof PERMISSIONS)[];
+
+    // Rôles de départ : le même guide qu'avec les codes de rôle.
+    expect(Object.fromEntries(codes.map((code) => [code, guideFor(me(code))]))).toEqual({
+      head: null,
+      cashier: "cashier",
+      promoter: null,
+      study_director: null,
+      teacher: null,
+      accountant: "accountant",
+    });
+    // Rôle propre à l'école, sans code : guidé comme quiconque a ces droits.
+    const counter = [{ id: "00000000-0000-7000-8000-000000000009", code: "", name: "Guichet" }];
+    expect(guideFor(withRights(PERMISSIONS.cashier, counter as Schemas["RoleSummary"][]))).toBe(
+      "cashier",
+    );
+    // Directeur qui tient aussi la caisse : il encaisse, donc le guide de la caisse.
+    expect(guideFor(withRights([...PERMISSIONS.head, ...PERMISSIONS.cashier]))).toBe("cashier");
+  });
+
   it("caissier : mène à la caisse, reprend à la même étape sans changer de page, « Passer » le termine, « Aide et guide » le relance", async () => {
     mockApi(loggedIn(me("cashier")));
     const first = renderApp("/", { guide: true });

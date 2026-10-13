@@ -1,4 +1,4 @@
-"""Appareils de démonstration : un poste pour chaque caissier et secrétaire fictif, pour voir
+"""Appareils de démonstration : le poste de chaque compte fictif qui en a un (`device`), pour voir
 « Appareils connectés » (Mon compte). Leur clé privée n'est gardée nulle part : ils ne signent
 rien."""
 
@@ -16,8 +16,6 @@ from apps.schools.demo import DemoSpace
 from apps.sync.models import Device
 from apps.sync.services import _next_prefix
 
-DEMO_DEVICES = {"cashier": "PC Caisse · Windows · Edge", "secretary": "PC Secrétariat · Windows"}
-
 
 def _public_key() -> str:
     key = ec.generate_private_key(ec.SECP256R1()).public_key()
@@ -30,24 +28,26 @@ def create_demo_devices(spaces: list[DemoSpace]) -> None:
     Ceux que les comptes fictifs ont enregistrés en essayant sont déconnectés."""
     for space in spaces:
         school = space.school
-        phones = [space.numbers.of(account.phone) for account in demo_accounts(space)]
+        accounts = demo_accounts(space)
+        phones = [space.numbers.of(account.phone) for account in accounts]
+        labels = {
+            space.numbers.of(account.phone): account.device
+            for account in accounts
+            if account.device
+        }
         members = (
-            Membership.objects.filter(
-                school=school,
-                roles__code__in=DEMO_DEVICES,
-                user__phone__in=phones,
-            )
-            .values_list("user", "roles__code")
-            .distinct()
+            Membership.objects.filter(school=school, user__phone__in=labels)
+            .order_by("user__phone")
+            .values_list("user", "user__phone")
         )
         with use_school(school):
             kept = []
-            for index, (user_id, role) in enumerate(members):
-                device = Device.objects.filter(user_id=user_id, label=DEMO_DEVICES[role]).first()
+            for index, (user_id, phone) in enumerate(members):
+                device = Device.objects.filter(user_id=user_id, label=labels[phone]).first()
                 if device is None:
                     device = Device(
                         user_id=user_id,
-                        label=DEMO_DEVICES[role],
+                        label=labels[phone],
                         prefix=_next_prefix(),
                         public_key=_public_key(),
                     )

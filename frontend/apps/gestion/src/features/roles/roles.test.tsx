@@ -169,12 +169,12 @@ describe("Rôles et permissions (B1-B2)", () => {
     ).toBeNull();
   });
 
-  it("parent : rien dans la Gestion", async () => {
+  it("rôle sans aucune permission : rien dans la Gestion", async () => {
     mockApi(routes());
     const { user } = renderApp("/roles");
 
     await user.click(await screen.findByRole("button", { name: /Parent/ }));
-    expect(await screen.findByText(/Les parents utilisent le portail des familles/)).toBeTruthy();
+    expect(await screen.findByText(/n'ouvre aucun écran de la Gestion/)).toBeTruthy();
   });
 
   it("sans le droit : page refusée", async () => {

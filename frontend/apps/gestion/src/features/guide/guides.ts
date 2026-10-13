@@ -1,5 +1,5 @@
-// Guides de première connexion (I3, maquette `guide-premiere-connexion`, M20) : un par rôle
-// système concerné. Chaque étape ouvre un écran et y met en valeur un vrai élément, repéré par
+// Guides de première connexion (I3, maquette `guide-premiere-connexion`, M20) : la caisse et la
+// comptabilité, donnés d'après les droits du compte. Chaque étape ouvre un écran et y met en valeur un vrai élément, repéré par
 // `data-guide="…"` ; elle ne fait rien à la place de l'utilisateur.
 import { can, type Permission } from "../../lib/permissions";
 import type { Me } from "../../lib/queries";
@@ -11,7 +11,7 @@ export interface GuideStep {
   key: string;
   path: string;
   target: string;
-  /** Étape montrée si l'utilisateur a l'un de ces droits (rôle modifié par l'école). */
+  /** Étape montrée si l'utilisateur a l'un de ces droits. */
   permissions: readonly Permission[];
 }
 
@@ -55,13 +55,13 @@ export const GUIDES: Record<GuideKey, readonly GuideStep[]> = {
   ],
 };
 
-/** Guide du compte dans l'école : rôle système caissier, sinon comptable ; aucun pendant une
- *  session support. */
+/** Guide du compte dans l'école, choisi par ses droits, jamais par le nom de son rôle : celui du
+ *  comptable s'il règle les frais sans régler l'école (qui la règle a la liste « Mise en route »),
+ *  sinon celui de la caisse s'il encaisse ; aucun pendant une session support. */
 export function guideFor(me: Me): GuideKey | null {
   if (me.support) return null;
-  const codes = (me.school?.roles ?? []).map((role) => role.code);
-  if (codes.includes("cashier")) return "cashier";
-  if (codes.includes("accountant")) return "accountant";
+  if (can(me, ["finance.configure_fees"]) && !can(me, ["school.configure"])) return "accountant";
+  if (can(me, ["finance.collect_payment"])) return "cashier";
   return null;
 }
 

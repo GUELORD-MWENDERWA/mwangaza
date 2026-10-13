@@ -8,6 +8,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 
 from apps.accounts.models import Membership, Role, User
+from apps.accounts.roles import ROLES_MANAGE, SYSTEM_ROLES, SystemRole
+from apps.accounts.services import get_school_access
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.errors import BusinessError
@@ -61,6 +63,24 @@ def test_create_a_school_with_a_new_director(platform_admin, school):
     assert added.actor == platform_admin
     assert added.after["new_account"] is True
     assert journal(school) == []
+
+
+def test_the_director_gets_the_starting_role_that_manages_accounts(platform_admin, monkeypatch):
+    # Le rôle est choisi par sa permission, pas par son code : sans elle l'école ne pourrait
+    # donner aucun droit à personne.
+    promoter = SYSTEM_ROLES["promoter"]
+    monkeypatch.setitem(SYSTEM_ROLES, "head", SystemRole(SYSTEM_ROLES["head"].label, ()))
+    monkeypatch.setitem(
+        SYSTEM_ROLES, "promoter", SystemRole(promoter.label, (*promoter.permissions, ROLES_MANAGE))
+    )
+
+    membership, _password = services.create_school(
+        new_school(), actor=platform_admin, director=Director("0100003001", last_name="Kasereka")
+    )
+
+    with use_school(membership.school):
+        assert [role.code for role in membership.roles.all()] == ["promoter"]
+    assert ROLES_MANAGE in get_school_access(membership.user, membership.school).permissions
 
 
 def test_create_a_school_whose_director_already_has_an_account(platform_admin, school):
