@@ -398,8 +398,7 @@ function PublishedItem({ announcement }: { announcement: Announcement }) {
             <a
               className="text-sm font-bold text-lake underline"
               href={announcement.attachment}
-              target="_blank"
-              rel="noreferrer"
+              download
             >
               {t("announcements.pdf")}
             </a>

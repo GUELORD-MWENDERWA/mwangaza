@@ -6,7 +6,7 @@
 | `Dockerfile` | images de production : front construit (pnpm), Django + gunicorn (aussi pour Celery), Caddy avec la Gestion, le Portail, la console et les fichiers statiques de Django | 4.6.1 |
 | `docker-compose.yml` | production : Caddy (seul ouvert, 80 et 443), Django, Celery (worker et planificateur des notifications à heure fixe, `-B`), Redis, PostgreSQL ; journaux limités | 4.6.1 |
 | `Caddyfile` | HTTPS, `{ecole}.mwangazaschool.com`, `parents.mwangazaschool.com`, `admin.mwangazaschool.com`, compression, adresse IP réelle du visiteur (Cloudflare) | 4.6.1 |
-| `routes.caddy` | routes de chaque adresse, communes aux adresses du serveur : école (`/app`, `/api`, `/v`), portail, console (`/api`, `/admin` vers Django), cache des PWA | 4.6.1 |
+| `routes.caddy` | routes de chaque adresse, communes aux adresses du serveur : école (`/app`, `/api`, `/v`), portail, console (`/api`, `/admin` vers Django), cache des PWA ; requêtes vers Django limitées à 10 Mo (S.4) | 4.6.1 |
 | `serveur/preparer.sh` | vrai serveur, une fois, en root par SSH (`make deploy-setup`) : mises à jour automatiques, Docker, ports 80 et 443, SSH par clé seulement | 4.6.3 |
 | `serveur/deployer.sh` · `serveur/init.py` | vrai serveur piloté depuis la machine (`make deploy…`) : `init` (crée `serveur.env`, hors Git, secrets neufs), `git archive` envoyé par SSH dans `~/mwangaza/code` (mise à jour sur place), images construites sur le serveur, `up --wait`, `check`, super-admin, journaux | 4.6.3 |
 | `.env.example` | modèle de `infra/.env` sur le serveur (domaine, certificat, secrets, clés des notifications Web Push : `manage.py webpush_keys`) | 4.6.1, 5.5.1 |

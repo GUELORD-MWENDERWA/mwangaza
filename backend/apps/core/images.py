@@ -63,7 +63,10 @@ def clean_image(file, *, formats: dict[str, str] = FORMATS) -> ContentFile:
         raise _wrong_type() from None
     if max(image.size) > MAX_SIDE:
         raise _too_big()
-    kind = formats[image.format]
+    # Certains téléphones rangent plusieurs vues dans un JPEG (« MPO ») : la première est la photo.
+    kind = formats.get("JPEG" if image.format == "MPO" else image.format)
+    if kind is None:
+        raise _wrong_type()
     try:
         pixels = ImageOps.exif_transpose(image).convert(_mode(image))
     except Exception:  # image tronquée ou abîmée

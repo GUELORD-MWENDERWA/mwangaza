@@ -35,6 +35,6 @@ Tâche 4.6.3. Pas à pas pour l'utilisateur : `A-FAIRE.md` § 9 ter ; commandes 
 | Page blanche ou 502 | Django pas prêt (migration, réglage) | `make deploy-logs service=django` |
 | Tout injoignable (HTTPS et SSH en délai dépassé), instance « Running » | machine figée : mémoire saturée (construction sans swap) | console Lightsail : *Metrics*, SSH du navigateur ; `free -h`, `swapon --show`, `sudo journalctl -k \| grep -iE 'oom\|killed process'`, `sudo iptables -S INPUT` (règle `--dport 22`) ; navigateur muet : *Reboot* (jamais Stop/Start sans IP statique) ; puis `make deploy-setup` (swap 2 Go, SSH protégé) |
 | Alerte « sauvegarde manquante » (Healthchecks) | clé B2 fausse, bucket plein, `rclone` absent (`make deploy-setup` le pose) | `make deploy-backup` : l'erreur s'affiche ; journal de la nuit : `make deploy-ssh` puis `journalctl -t mwangaza` ; serveur perdu : `make deploy-backup cmd=fetch` |
-| Disque plein | anciennes images | `make deploy-ssh` puis `docker system df` et `docker builder prune -f` |
+| Disque plein | cache de construction (ramené à 2 Go par chaque `make deploy` depuis S.4) | `make deploy-ssh` puis `docker system df` ; tout le cache : `docker builder prune -f` (la construction suivante sera plus longue) |
 
 Après une mise en ligne ou une panne réglée : `/noter` (journal de `docs/06-suivi.md`) et `A-FAIRE.md` si l'utilisateur a quelque chose à faire.

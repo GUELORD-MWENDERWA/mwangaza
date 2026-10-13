@@ -37,6 +37,17 @@ def test_a_phone_photo_loses_its_position_and_keeps_its_orientation():
         assert trace not in result
 
 
+def test_a_phone_file_holding_several_pictures_keeps_the_photo():
+    output = io.BytesIO()
+    photo, depth_map = Image.new("RGB", (40, 20), (120, 20, 20)), Image.new("RGB", (40, 20))
+    photo.save(output, "MPO", save_all=True, append_images=[depth_map])
+    assert Image.open(io.BytesIO(output.getvalue())).format == "MPO"
+
+    image = Image.open(io.BytesIO(cleaned(output.getvalue())))
+
+    assert image.format == "JPEG" and image.size == (40, 20)
+
+
 def test_a_png_keeps_its_transparency_and_loses_its_text():
     text = PngInfo()
     text.add_text("Author", "Parent fictif")
