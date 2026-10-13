@@ -41,6 +41,9 @@ STAFF_ACCOUNT = ApiError(
 SCHOOL_UNAVAILABLE = ApiError(
     "school_unavailable", _("This school's service is temporarily unavailable."), 403
 )
+PORTAL_NOT_OFFERED = ApiError(
+    "portal_not_offered", _("The parent portal is not offered by this school."), 403
+)
 PORTAL_SUSPENDED = ApiError(
     "portal_suspended",
     _("The school has suspended portal access for this family: contact its office."),
@@ -93,6 +96,8 @@ def _family(
         raise BusinessError(error)
     if family.school.is_closed:
         raise BusinessError(SCHOOL_UNAVAILABLE)
+    if not family.school.has_module("portal"):
+        raise BusinessError(PORTAL_NOT_OFFERED)
     # Numéro et code justes : rien à deviner, on peut dire pourquoi ce compte n'entre pas ici.
     ensure_number_fits_space(phone, family.school)
     if family.portal_suspended_at is not None:

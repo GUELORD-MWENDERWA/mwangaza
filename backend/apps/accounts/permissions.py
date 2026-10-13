@@ -22,6 +22,14 @@ def school_access(request) -> SchoolAccess | None:
     return request._school_access
 
 
+def ensure_module(school, view) -> None:
+    """Vue réservée à un module (`required_module`) que l'école n'a pas : 403 `module_missing`,
+    sans toucher aux données."""
+    module = getattr(view, "required_module", None)
+    if module and not school.has_module(module):
+        raise PermissionDenied(_("This school does not have this feature."), code="module_missing")
+
+
 class HasSchoolPermission(BasePermission):
     """Accès seulement depuis l'adresse d'une école, avec un compte actif qui y a une appartenance
     active et un rôle portant le code `required_permission` de la vue (ex. `roles.manage`), ou un
@@ -49,6 +57,7 @@ class HasSchoolPermission(BasePermission):
                 _("Your roles in this school require two-factor authentication: log in again."),
                 code="totp_required",
             )
+        ensure_module(request.school, view)
         required = view.required_permission
         if isinstance(required, str):
             return required in access.permissions

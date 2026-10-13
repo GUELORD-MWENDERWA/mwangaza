@@ -43,7 +43,7 @@ def linked_to(user: User, path: str) -> dict:
 def find_student(user: User, student_id) -> Student:
     student = (
         Student.all_schools.filter(pk=student_id, **linked_to(user, "family"))
-        .exclude(school__status__in=School.CLOSED_STATUSES)
+        .exclude(School.portal_closed("school__"))
         .select_related("school")
         .first()
     )

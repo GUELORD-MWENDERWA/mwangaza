@@ -3,6 +3,9 @@
 fois par jour et par sorte de travail. La marque du passage (`ScheduledRun`) est écrite dans la
 transaction des notifications : un passage rejoué, ou deux en même temps, n'envoie rien deux fois.
 
+Une école sans le module `notifications` est ignorée ; les relances demandent aussi `finance` et
+`portal`, l'alerte des caisses `finance` (M.2.1).
+
 - Relances aux parents, à `REMINDERS_TIME`, si l'école les a activées (`schools/reminders.py`) :
   échéance proche et retard de paiement — une notification par parent, tous ses enfants réunis,
   montants par devise (jamais additionnés), dans sa langue.
@@ -55,10 +58,16 @@ def tick(now: datetime | None = None, *, force: bool = False) -> dict[str, int]:
         )
     )
     created = defaultdict(int)
-    for school in School.objects.exclude(status__in=School.CLOSED_STATUSES):
+    # Seulement les écoles qui ont le module `notifications` (une requête, pas un test par école).
+    schools = School.objects.exclude(status__in=School.CLOSED_STATUSES).filter(
+        modules__contains=["notifications"]
+    )
+    for school in schools:
         local = now.astimezone(ZoneInfo(school.timezone))
-        hours = {Job.OPEN_REGISTERS: alerts.closing_time(school.settings)}
-        if school.reminders["enabled"]:
+        hours = {}
+        if school.has_module("finance"):
+            hours[Job.OPEN_REGISTERS] = alerts.closing_time(school.settings)
+        if school.reminders["enabled"] and {"finance", "portal"} <= set(school.modules):
             hours[Job.REMINDERS] = REMINDERS_TIME
         for job, hour in hours.items():
             if (school.pk, job, local.date()) in done or not (force or local.time() >= hour):

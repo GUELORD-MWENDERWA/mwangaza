@@ -83,6 +83,8 @@ def linked_families(user: User) -> list[LinkedFamily]:
     """Les familles de ce compte, dans l'ordre où il les a reliées."""
     families = (
         Family.all_schools.filter(primary_user=user)
+        # Une école sans portail n'apparaît pas : ses familles ne voient rien d'elle ici.
+        .filter(school__modules__contains=["portal"])
         .select_related("school")
         .order_by("activated_at", "id")
     )

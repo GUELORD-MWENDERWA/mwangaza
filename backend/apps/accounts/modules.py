@@ -22,6 +22,17 @@ MODULES: dict[str, tuple[Promise, tuple[str, ...]]] = {
         tuple(code for code in PERMISSIONS if code.startswith("finance.")),
     ),
     "communication": (_("Announcements"), ("announcements.publish",)),
+    # Sans permission : ils ouvrent des fonctions (portail des parents, notifications à l'écran,
+    # travail hors-ligne), pas des droits du personnel.
+    "portal": (_("Parent portal"), ()),
+    "notifications": (_("Notifications and reminders"), ()),
+    "offline": (_("Offline work and synchronisation"), ()),
+}
+# Un module a besoin de ceux-ci : les activer ensemble, ne pas retirer le second tant que le
+# premier est actif. Rien n'est supprimé en désactivant (les données reviennent à la réactivation).
+DEPENDENCIES: dict[str, tuple[str, ...]] = {
+    "finance": ("students",),
+    "portal": ("students",),
 }
 MODULE_CHOICES = [(code, label) for code, (label, _permissions) in MODULES.items()]
 ALL_MODULES = list(MODULES)
@@ -30,3 +41,20 @@ ALL_MODULES = list(MODULES)
 def permissions_of(modules) -> frozenset[str]:
     """Permissions que donnent ces modules, socle compris."""
     return CORE_PERMISSIONS.union(*(MODULES[code][1] for code in modules if code in MODULES))
+
+
+def resolve(wanted, current=()) -> list[str]:
+    """Liste des modules après un changement de `current` vers `wanted` : ajoute ce dont dépend
+    un module activé ; refuse (`ValueError`, texte pour l'utilisateur) de retirer un module dont
+    un module actif dépend. Résultat dans l'ordre du catalogue."""
+    chosen = set(wanted)
+    for code in wanted:
+        for needed in DEPENDENCIES.get(code, ()):
+            if needed in current and needed not in chosen:
+                message = _("%(module)s is still needed by %(by)s.") % {
+                    "module": MODULES[needed][0],
+                    "by": MODULES[code][0],
+                }
+                raise ValueError(str(message))
+            chosen.add(needed)
+    return [code for code in ALL_MODULES if code in chosen]

@@ -17,7 +17,14 @@ import { useState } from "react";
 type Detail = Schemas["ConsoleSchoolDetail"];
 type Module = Detail["modules"][number];
 
-export const MODULES: Module[] = ["students", "finance", "communication"];
+export const MODULES: Module[] = [
+  "students",
+  "finance",
+  "communication",
+  "portal",
+  "notifications",
+  "offline",
+];
 
 export function ModulesCard({ school, onSaved }: { school: Detail; onSaved: (d: Detail) => void }) {
   const { t } = useTranslation();
