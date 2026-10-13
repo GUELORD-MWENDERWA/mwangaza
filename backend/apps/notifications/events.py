@@ -1,8 +1,9 @@
 """Notifications des événements de l'école (5.6.1), écrites au moment de l'action, dans sa
 transaction : paiement reçu, annonce et convocation (5.7) pour le parent (Portail), écart de caisse
 et annulation à valider pour le personnel qui en a le droit, annonce de l'école pour tout son
-personnel (Gestion). Le texte est écrit dans la langue de chaque
-destinataire ; l'envoi sur l'écran suit la validation (`push.notify`).
+personnel (Gestion), droit sensible donné à un compte pour ceux qui gèrent les rôles (S.3.1). Le
+texte est écrit dans la langue de chaque destinataire ; l'envoi sur l'écran suit la validation
+(`push.notify`).
 
 Appelées depuis les services, dans l'école courante. Les envois à heure fixe (échéance proche,
 retard, caisse encore ouverte) : `scheduled.py` (5.6.2)."""
@@ -15,7 +16,9 @@ from django.utils import timezone, translation
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 
-from apps.accounts.models import User
+from apps.accounts.models import Role, User
+from apps.accounts.roles import PERMISSIONS, sorted_permissions
+from apps.core.models import PlatformSettings
 from apps.core.money import format_amount
 from apps.core.tenancy import require_current_school
 from apps.finance.models import CancellationRequest, CashClosing, CashSession, Payment
@@ -54,8 +57,8 @@ def _parents(families: QuerySet[Family]) -> QuerySet[User]:
 
 
 def staff(kind: str, *, but: User | None = None) -> QuerySet[User]:
-    """Personnel actif de l'école qui a le droit de recevoir cette sorte, sauf l'auteur de
-    l'action (il le sait déjà)."""
+    """Personnel actif de l'école qui a le droit de recevoir cette sorte, sauf `but` : l'auteur
+    de l'action (il le sait déjà) ou, pour une alerte de sécurité, l'intéressé."""
     users = User.objects.filter(
         is_active=True,
         memberships__school=require_current_school(),
@@ -183,4 +186,60 @@ def cancellation_requested(request: CancellationRequest) -> None:
         kind=Kind.CANCELLATION_REQUEST,
         url="/cancellations",
         text=text,
+    )
+
+
+# Sécurité : droits sensibles (S.3.1)
+
+
+def _by(actor: User) -> str:
+    """Qui a fait l'action. Comme dans le journal de l'école, le support n'est jamais nommé."""
+    if actor.is_platform_admin:
+        return _("%(platform)s support") % {"platform": PlatformSettings.load().name}
+    return str(actor)
+
+
+def _rights(permissions: Iterable[str]) -> str:
+    return ", ".join(str(PERMISSIONS[code]) for code in sorted_permissions(permissions))
+
+
+def sensitive_rights_given(member: User, permissions: set[str], *, actor: User) -> None:
+    """Un compte reçoit le droit de gérer les rôles ou un droit sur l'argent (rôle donné, compte
+    réactivé) : à tous ceux qui gèrent les rôles de l'école, **auteur compris**, sauf
+    l'intéressé. Le directeur dont le compte a été pris par quelqu'un d'autre le voit ainsi sur
+    son téléphone, même s'il est seul à gérer les rôles."""
+    if not permissions:
+        return
+    send(
+        staff(Kind.SENSITIVE_RIGHTS, but=member),
+        app=App.GESTION,
+        kind=Kind.SENSITIVE_RIGHTS,
+        url="/staff",
+        text=lambda: (
+            _("Sensitive rights: %(person)s") % {"person": member},
+            _("Given by %(actor)s: %(rights)s")
+            % {"actor": _by(actor), "rights": _rights(permissions)},
+        ),
+    )
+
+
+def role_rights_added(role: Role, permissions: set[str], *, actor: User) -> None:
+    """Un rôle reçoit un droit sensible : tous les comptes qui l'ont le reçoivent d'un coup. Une
+    seule notification à ceux qui gèrent les rôles (auteur compris), avec leur nombre ; rien pour
+    un rôle que personne n'a encore."""
+    if not permissions:
+        return
+    holders = role.memberships.filter(is_active=True, user__is_active=True).count()
+    if not holders:
+        return
+    send(
+        staff(Kind.SENSITIVE_RIGHTS),
+        app=App.GESTION,
+        kind=Kind.SENSITIVE_RIGHTS,
+        url="/roles",
+        text=lambda: (
+            _("Sensitive rights: role %(role)s") % {"role": role.name},
+            _("Added by %(actor)s · accounts with this role: %(count)s · %(rights)s")
+            % {"actor": _by(actor), "count": holders, "rights": _rights(permissions)},
+        ),
     )

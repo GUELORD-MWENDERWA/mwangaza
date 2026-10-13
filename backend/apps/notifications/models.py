@@ -244,6 +244,9 @@ class Notification(TenantModel):
         # Communication (5.7) : annonce de l'école à son personnel, convocation au parent.
         STAFF_ANNOUNCEMENT = "staff_announcement", _("Announcement to the staff")
         SUMMONS = "summons", _("Summons")
+        # Sécurité (S.3.1) : un compte reçoit le droit de gérer les rôles ou un droit sur
+        # l'argent ; à ceux qui gèrent les rôles de l'école.
+        SENSITIVE_RIGHTS = "sensitive_rights", _("Sensitive rights given")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

@@ -53,6 +53,7 @@ const KIND_ICONS: Record<NotificationKind, IconName> = {
   register_open: "clock",
   staff_announcement: "megaphone",
   summons: "file",
+  sensitive_rights: "shield",
 };
 
 export function NotificationsPage() {

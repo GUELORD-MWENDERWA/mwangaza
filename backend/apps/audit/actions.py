@@ -214,6 +214,14 @@ class PlatformAction(models.TextChoices):
     # Annonces de la plateforme aux écoles (5.4.3).
     ANNOUNCEMENT_PUBLISHED = "announcement.published", _("Announcement to schools published")
     ANNOUNCEMENT_ARCHIVED = "announcement.archived", _("Announcement to schools archived")
+    # Accès d'un compte super-admin (S.3.1), où qu'il se connecte : console, administration
+    # Django, adresse d'une école avant une session support.
+    ACCESS_LOGIN = "access.login", _("Platform account logged in")
+    ACCESS_CODE_REFUSED = "access.code_refused", _("Two-factor code refused on a platform account")
+    ACCESS_ADDRESS_REFUSED = (
+        "access.address_refused",
+        _("Platform account refused from an unauthorised address"),
+    )
 
 
 PLATFORM_DOMAINS = sorted({domain_of(action) for action in PlatformAction.values})

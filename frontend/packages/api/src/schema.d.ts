@@ -6034,9 +6034,10 @@ export interface components {
          *     * `register_open` - Register still open
          *     * `staff_announcement` - Announcement to the staff
          *     * `summons` - Summons
+         *     * `sensitive_rights` - Sensitive rights given
          * @enum {string}
          */
-        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons";
+        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "sensitive_rights";
         NotificationPreferences: {
             /** @description Clé publique Web Push ; vide : envoi sur l'écran indisponible. */
             readonly vapid_public_key: string;
@@ -7051,9 +7052,12 @@ export interface components {
          *     * `device.revoked` - Device disconnected by support
          *     * `announcement.published` - Announcement to schools published
          *     * `announcement.archived` - Announcement to schools archived
+         *     * `access.login` - Platform account logged in
+         *     * `access.code_refused` - Two-factor code refused on a platform account
+         *     * `access.address_refused` - Platform account refused from an unauthorised address
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused";
         /**
          * @description * `all_schools` - All schools
          *     * `schools` - Some schools
@@ -11758,13 +11762,14 @@ export interface operations {
         parameters: {
             query?: {
                 /**
-                 * @description * `account` - account
+                 * @description * `access` - access
+                 *     * `account` - account
                  *     * `announcement` - announcement
                  *     * `device` - device
                  *     * `platform` - platform
                  *     * `school` - school
                  */
-                domain?: "account" | "announcement" | "device" | "platform" | "school";
+                domain?: "access" | "account" | "announcement" | "device" | "platform" | "school";
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Dans le nom de l'objet. */

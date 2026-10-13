@@ -42,6 +42,8 @@ x-backend: &backend
     WEBPUSH_VAPID_PRIVATE_KEY: ${WEBPUSH_VAPID_PRIVATE_KEY:-}
     # Espaces de démonstration créés depuis la console (4.17.2) ; vide : 5.
     DJANGO_DEMO_SPACES_MAX: ${DJANGO_DEMO_SPACES_MAX:-}
+    # Adresses d'où le compte super-admin peut être utilisé (S.3.1) ; vide : toutes.
+    DJANGO_CONSOLE_ALLOWED_IPS: ${DJANGO_CONSOLE_ALLOWED_IPS:-}
   # Logos, photos, pièces jointes : sur le disque jusqu'au stockage objet (4.7).
   volumes:
     - media:/app/media

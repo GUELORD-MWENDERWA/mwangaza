@@ -37,6 +37,9 @@ ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS")
 # En-tête où le proxy (Caddy) écrit l'adresse du visiteur, ex. `HTTP_X_REAL_IP` ; vide : la
 # connexion elle-même (`REMOTE_ADDR`). Seulement si Django n'est joignable que par ce proxy.
 CLIENT_IP_HEADER = env("DJANGO_CLIENT_IP_HEADER")
+# Adresses IP ou réseaux d'où un compte super-admin peut être utilisé (S.3.1,
+# `apps/accounts/privileged.py`) ; vide : toutes.
+CONSOLE_ALLOWED_IPS = env_list("DJANGO_CONSOLE_ALLOWED_IPS")
 
 INSTALLED_APPS = [
     # Administration Django du super-admin, avec la double authentification.
@@ -70,6 +73,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     # Adresse IP et navigateur de la requête pour le journal d'audit.
     "apps.audit.middleware.AuditMiddleware",
+    # Compte super-admin : adresses autorisées et session courte (S.3.1).
+    "apps.accounts.privileged.PrivilegedAccountMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]

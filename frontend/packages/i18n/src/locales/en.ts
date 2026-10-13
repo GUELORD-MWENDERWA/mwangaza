@@ -2739,6 +2739,7 @@ export const en: Messages<typeof fr> = {
       register_open: "Register still open",
       staff_announcement: "Staff announcements",
       summons: "Summons",
+      sensitive_rights: "Sensitive rights",
     },
     kindHelp: {
       test: "To check that this device receives them.",
@@ -2752,6 +2753,7 @@ export const en: Messages<typeof fr> = {
       register_open: "A register is still open at the school's closing time",
       staff_announcement: "As soon as the school publishes an announcement for its staff",
       summons: "As soon as the school summons you about one of your children",
+      sensitive_rights: "An account is given the right to manage roles or a right over money",
     },
     kindsTitle: "What to receive on screen",
     kindsHelp: "Applies to all your schools. A muted kind stays in the list.",
@@ -3209,6 +3211,7 @@ export const en: Messages<typeof fr> = {
         account: "Accounts",
         device: "Devices",
         announcement: "Announcements",
+        access: "Super-admin access",
       },
       since: "From",
       until: "To",
@@ -3250,6 +3253,9 @@ export const en: Messages<typeof fr> = {
       "device.revoked": "Device disconnected by support",
       "announcement.published": "Announcement to schools published",
       "announcement.archived": "Announcement to schools archived",
+      "access.login": "Super-admin logged in",
+      "access.code_refused": "Two-factor code refused",
+      "access.address_refused": "Refused: unauthorised address",
     },
   },
   installGate: {

@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (M.3.2 faite, PR de la branche `tache/M.3.2-roles-libres`, issue #224) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | L.2, puis S.3 et S.4 (`05` § 2) |
-| Issue GitHub | #224 |
-| Branche | `tache/M.3.2-roles-libres` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune (S.3.1 faite, PR de la branche `tache/S.3.1-comptes-privileges`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | S.3.2, puis S.4 et S.5 (`05` § 2) |
+| Issue GitHub | #228 |
+| Branche | `tache/S.3.1-comptes-privileges` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-13 |
 
 ## Avancement
@@ -28,7 +28,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
 | Lancement (L.0 à L.5 ; L.3 remplacée par S.1 et S.2) | 3 | 5 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
-| Sécurité (S.1 à S.9) | 2 | 9 |
+| Sécurité (S.1 à S.9 ; S.3 en deux) | 3 | 10 |
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1–8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 0 | 9 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
@@ -62,11 +62,21 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 
 ## Journal
 
+### 2026-10-13 — PR de Dependabot en échec, mémoire du serveur
+- #223 (serveur) : Django 5.2 → 6.1 glissé dans le groupe, un test de finance rouge (nombre de caisses du résumé des clôtures) et 27 961 avertissements. #226 (front) : TypeScript 7 à la racine, `openapi-typescript` plante ; `vite-plugin-pwa` 2 dans le même groupe. #221 et #222 : Python 3.14 dans l'image, vert sans avoir été essayé. À ne pas fusionner ; #225 (Actions) est verte.
+- Corrigé dans la PR de S.3.1 : `.github/dependabot.yml` écarte les versions majeures (`03` § 11). À faire le jour de Django 6.2 LTS : `from_db(…, fetch_mode)` dans `TenantModel` et `.order_by()` avant `values("cash_register").distinct()` (`finance/services.py`).
+- Serveur mesuré par SSH (lecture seule, 20 h 21 UTC, 6 h après la mise en ligne) : charge 0,02 ; 640 Mo disponibles sur 1 905 ; Django 320 Mo (3 processus), Celery 256 Mo (4), PostgreSQL 74 Mo, Docker 169 Mo ; swap 144 Mo sur 2 047. C'est le poids fixe des programmes, pas une charge : rien à changer.
+
+### 2026-10-13 — Tâche S.3.1 : comptes à privilèges (serveur)
+- `/tache L.2` demandée par erreur du suivi : L.2 était déjà fusionnée (essai réel du 2026-10-13) ; file de `05` § 2 corrigée, tâche suivante prise. S.3 coupée en deux : le push au super-admin demande un service worker dans la console → S.3.2.
+- Fait : journal de la plateforme `access.login`, `access.code_refused`, `access.address_refused` (qui, adresse IP, site) ; session d'un super-admin fermée après 2 h sans activité (réécrite au plus toutes les 5 minutes) ; réglage `DJANGO_CONSOLE_ALLOWED_IPS` (vide = toutes ; hors liste : réponse d'un mauvais mot de passe, session existante refusée) ; notification « Droits sensibles » (`sensitive_rights`) à ceux qui gèrent les rôles quand un compte reçoit `roles.manage` ou un droit `finance.*`, non désactivable ; un exemple dans `make demo`.
+- Tests : 5 (journal écrit pour le super-admin et pas pour une école, session courte, liste d'adresses, alerte dans la bonne école seulement, rôle élargi et support jamais nommé). Décisions : `03` § 11. Suite : S.3.2, S.4, S.5.
+
 ### 2026-10-13 — Tâche M.3.2 : rôles entièrement libres
 - Plus de rôle système ni de code de rôle : un rôle est un nom (obligatoire, unique dans l'école) et des permissions ; tous se renomment, se modifient et se suppriment s'ils ne sont donnés à personne. L'écran des rôles ne distingue plus « prédéfini » et « personnalisé ».
 - Modèle de départ (les 9 rôles) copié une fois à la création d'une école, nommé en français ; migration en deux temps (noms, puis retrait du code), essayée sur la base de développement. `make demo` : « Préfet des études » à l'ITIG fictif, « Caissière » aux Volcans.
 - Journal : une ancienne entrée notait un rôle par son code, sans nom ; le serveur donne son nom d'aujourd'hui, « Rôle supprimé » sinon. Garde-fou « garder un gestionnaire des rôles » : déjà là, un test de plus.
-- Tests : modèle de départ comparé à `04` § 8, calcul des noms de la migration, API des rôles, journal, `make demo`. Écarté : éditeur du modèle de départ dans la console. Suite : L.2, S.3, S.4.
+- Tests : modèle de départ comparé à `04` § 8, calcul des noms de la migration, API des rôles, journal, `make demo`. Écarté : éditeur du modèle de départ dans la console. Suite : S.3, S.4 (L.2 était déjà faite : pointeur corrigé avec S.3.1).
 
 ### 2026-10-13 — Plan révisé : IA pilotée par la console, P3 planifié
 - Demande de l'utilisateur : les fonctions « si une école la demande » seront développées (P3 = fait en dernier, plus un abandon ; A.5 placée en V1.5 avec les cartes) ; l'IA dépend de l'abonnement, se contrôle dans la console et ne dépense pas de jetons pour rien.

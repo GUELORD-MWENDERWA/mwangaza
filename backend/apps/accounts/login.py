@@ -28,10 +28,10 @@ from django.utils.crypto import constant_time_compare, salted_hmac
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import NotAuthenticated
 
-from apps.accounts import attempts, services
+from apps.accounts import attempts, privileged, services
 from apps.accounts.models import Membership, User
 from apps.audit import services as audit
-from apps.audit.actions import Action
+from apps.audit.actions import Action, PlatformAction
 from apps.core.crypto import decrypt, encrypt
 from apps.core.errors import ApiError, BusinessError
 from apps.core.http import client_ip
@@ -83,6 +83,12 @@ def log_in(request, phone: str, password: str, *, admin_only: bool = False) -> S
     attempts.ensure_allowed(attempts.phone_key(phone), client_ip(request))
     user = authenticate(request, phone=phone, password=password)
     if user is None or (admin_only and not user.is_platform_admin):
+        raise BusinessError(INVALID_CREDENTIALS)
+    if user.is_platform_admin and not privileged.address_allowed(request):
+        # Bon mot de passe, mais hors des adresses autorisées : même réponse qu'un mauvais mot
+        # de passe, comptée comme un échec (au plus 5 entrées au journal avant le blocage).
+        attempts.record_failure(user.phone, client_ip(request))
+        privileged.record(PlatformAction.ACCESS_ADDRESS_REFUSED, user, request)
         raise BusinessError(INVALID_CREDENTIALS)
     if request.user.is_authenticated:
         logout(request)
@@ -169,6 +175,14 @@ def _finish(request, user: User, pending: dict) -> None:
     login(request, user, backend=settings.AUTHENTICATION_BACKENDS[0])
     request.session[MFA_SESSION_KEY] = pending["second_factor_ok"]
     attempts.clear_failures(user.phone)
+    if user.is_platform_admin:
+        privileged.keep_short(request)
+        privileged.record(
+            PlatformAction.ACCESS_LOGIN,
+            user,
+            request,
+            second_factor=pending.get("second_factor"),
+        )
     if request.school is None:
         return
     Membership.objects.filter(user=user, school=request.school).update(last_login_at=timezone.now())
@@ -198,6 +212,9 @@ def counting_failures(request, user: User) -> Iterator[None]:
     except BusinessError as exc:
         if exc.error in (services.INVALID_CODE, services.WRONG_PASSWORD):
             attempts.record_failure(phone, ip)
+        if exc.error == services.INVALID_CODE and user.is_platform_admin:
+            # Le mot de passe était bon et le code faux : signe d'un mot de passe volé.
+            privileged.record(PlatformAction.ACCESS_CODE_REFUSED, user, request)
         raise
 
 

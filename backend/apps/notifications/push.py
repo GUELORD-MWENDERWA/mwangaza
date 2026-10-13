@@ -14,7 +14,11 @@ from django.utils.text import Truncator
 from pywebpush import WebPushException, webpush
 
 from apps.accounts.models import Membership, User
-from apps.accounts.roles import FINANCE_APPROVE_CANCELLATION, FINANCE_VIEW_REPORTS
+from apps.accounts.roles import (
+    FINANCE_APPROVE_CANCELLATION,
+    FINANCE_VIEW_REPORTS,
+    ROLES_MANAGE,
+)
 from apps.core.models import PlatformSettings
 from apps.core.tenancy import use_school
 from apps.notifications.models import (
@@ -35,10 +39,17 @@ STAFF_KINDS = {
     Kind.CANCELLATION_REQUEST: FINANCE_APPROVE_CANCELLATION,
     Kind.CASH_DIFFERENCE: FINANCE_VIEW_REPORTS,
     Kind.REGISTER_OPEN: FINANCE_VIEW_REPORTS,
+    Kind.SENSITIVE_RIGHTS: ROLES_MANAGE,
 }
+# Alertes de sécurité : aucun compte ne peut les couper.
+ALWAYS_SENT = frozenset({Kind.SENSITIVE_RIGHTS})
 # Sortes qu'un compte peut couper, par application ; la notification d'essai part toujours.
 PREFERENCE_KINDS = {
-    App.GESTION: [Kind.PLATFORM_NEWS, Kind.STAFF_ANNOUNCEMENT, *STAFF_KINDS],
+    App.GESTION: [
+        Kind.PLATFORM_NEWS,
+        Kind.STAFF_ANNOUNCEMENT,
+        *(kind for kind in STAFF_KINDS if kind not in ALWAYS_SENT),
+    ],
     App.PORTAIL: [
         Kind.PAYMENT_RECEIVED,
         Kind.ANNOUNCEMENT,

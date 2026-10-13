@@ -1,5 +1,10 @@
 # Mises à jour proposées par Dependabot : une PR groupée par outil et par semaine (lundi), pour
 # ne pas noyer les vraies tâches. Les failles connues sont aussi vérifiées par `audit.yml`.
+#
+# Les versions majeures ne sont jamais proposées ici (Django 6, TypeScript 7 à la racine du front,
+# vite-plugin-pwa 2, Python 3.14…) : chacune est une décision ou une tâche à part, avec ses essais
+# (`docs/03` § 11). Mélangée au groupe, une seule casse la PR et bloque avec elle les correctifs
+# sans risque des autres paquets.
 version: 2
 updates:
   - package-ecosystem: uv
@@ -8,16 +13,29 @@ updates:
     open-pull-requests-limit: 3
     groups:
       backend: { patterns: ["*"] }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: npm # pnpm est lu par cet écosystème
     directory: /frontend
     schedule: { interval: weekly, day: monday }
     open-pull-requests-limit: 3
     groups:
       frontend: { patterns: ["*"] }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: docker
     directories: [/infra, /backend]
     schedule: { interval: weekly, day: monday }
     open-pull-requests-limit: 2
+    ignore:
+      # Python de l'image : version de la stack (3.12), que la CI n'essaie pas dans l'image elle-même.
+      # Seuls ses correctifs sont proposés ; un changement se fait avec `make prod-local`.
+      - dependency-name: "python"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly, day: monday }

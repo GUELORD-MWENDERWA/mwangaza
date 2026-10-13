@@ -3384,6 +3384,7 @@ paths:
         name: domain
         schema:
           enum:
+          - access
           - account
           - announcement
           - device
@@ -3392,6 +3393,7 @@ paths:
           type: string
           minLength: 1
         description: |-
+          * `access` - access
           * `account` - account
           * `announcement` - announcement
           * `device` - device
@@ -16546,6 +16548,7 @@ components:
       - register_open
       - staff_announcement
       - summons
+      - sensitive_rights
       type: string
       description: |-
         * `test` - Test notification
@@ -16559,6 +16562,7 @@ components:
         * `register_open` - Register still open
         * `staff_announcement` - Announcement to the staff
         * `summons` - Summons
+        * `sensitive_rights` - Sensitive rights given
     NotificationPreferences:
       type: object
       properties:
@@ -18405,6 +18409,9 @@ components:
       - device.revoked
       - announcement.published
       - announcement.archived
+      - access.login
+      - access.code_refused
+      - access.address_refused
       type: string
       description: |-
         * `platform.updated` - Platform identity changed
@@ -18424,6 +18431,9 @@ components:
         * `device.revoked` - Device disconnected by support
         * `announcement.published` - Announcement to schools published
         * `announcement.archived` - Announcement to schools archived
+        * `access.login` - Platform account logged in
+        * `access.code_refused` - Two-factor code refused on a platform account
+        * `access.address_refused` - Platform account refused from an unauthorised address
     PlatformAudienceEnum:
       enum:
       - all_schools

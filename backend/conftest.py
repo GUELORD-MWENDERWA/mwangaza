@@ -1,9 +1,12 @@
 """Fixtures communes : deux écoles fictives pour prouver l'isolation dans chaque test, des comptes
 avec un rôle, et des appels de l'API sur l'adresse d'une école."""
 
+import time
+
 import pytest
 from django.test import Client
 
+from apps.accounts import privileged
 from apps.accounts.login import MFA_SESSION_KEY
 from apps.accounts.models import User
 from apps.core.tenancy import get_current_school
@@ -61,6 +64,17 @@ class Api:
         return self.client.delete(path, HTTP_HOST=self.host)
 
 
+def _open_session(client: Client, user, *, mfa: bool) -> None:
+    client.force_login(user)
+    session = client.session
+    session[MFA_SESSION_KEY] = mfa
+    if user.is_platform_admin:
+        # Comme à la connexion (`privileged.keep_short`) : session courte, déjà datée.
+        session.set_expiry(privileged.IDLE_SECONDS)
+        session[privileged.SEEN_SESSION_KEY] = time.time()
+    session.save()
+
+
 @pytest.fixture
 def api():
     """`api(user)` : session connectée comme après toutes les étapes de la connexion, double
@@ -69,10 +83,7 @@ def api():
     def make(user=None, host="alpha.localhost", *, mfa=True) -> Api:
         client = Client()
         if user is not None:
-            client.force_login(user)
-            session = client.session
-            session[MFA_SESSION_KEY] = mfa
-            session.save()
+            _open_session(client, user, mfa=mfa)
         return Api(client, host)
 
     return make
@@ -105,8 +116,5 @@ def platform_admin(db):
 def admin_client(platform_admin):
     """Super-admin connecté à l'administration Django, double authentification comprise."""
     client = Client(HTTP_HOST="localhost")
-    client.force_login(platform_admin)
-    session = client.session
-    session[MFA_SESSION_KEY] = True
-    session.save()
+    _open_session(client, platform_admin, mfa=True)
     return client
