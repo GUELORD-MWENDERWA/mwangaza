@@ -5,7 +5,7 @@
 | `docker-compose.dev.yml` | développement : PostgreSQL 16, Redis 7, Django, Celery (worker et planificateur, 5.6.2), Vite (Gestion + Portail) | 0.1 |
 | `Dockerfile` | images de production : front construit (pnpm), Django + gunicorn (aussi pour Celery), Caddy avec la Gestion, le Portail, la console et les fichiers statiques de Django | 4.6.1 |
 | `docker-compose.yml` | production : Caddy (seul ouvert, 80 et 443), Django, Celery (worker et planificateur des notifications à heure fixe, `-B`), Redis, PostgreSQL ; journaux limités | 4.6.1 |
-| `Caddyfile` | HTTPS, `{ecole}.mwangaza.school`, `parents.mwangaza.school`, `admin.mwangaza.school`, compression, adresse IP réelle du visiteur (Cloudflare) | 4.6.1 |
+| `Caddyfile` | HTTPS, `{ecole}.mwangazaschool.com`, `parents.mwangazaschool.com`, `admin.mwangazaschool.com`, compression, adresse IP réelle du visiteur (Cloudflare) | 4.6.1 |
 | `routes.caddy` | routes de chaque adresse, communes au serveur et à l'essai sur plusieurs appareils : école (`/app`, `/api`, `/v`), portail, console (`/api`, `/admin` vers Django), cache des PWA | 4.6.1, 4.11 |
 | `Caddyfile.reseau` | adresse DuckDNS (essai sur plusieurs appareils, serveur de démonstration en ligne) : un seul certificat Let's Encrypt joker obtenu par DNS chez DuckDNS (module `caddy-dns/duckdns`, image `caddy-reseau` du `Dockerfile`), page d'accueil à `www.` | 4.11 |
 | `docker-compose.reseau.yml` | ajouté à `docker-compose.yml` pour l'essai sur plusieurs appareils et le serveur de démonstration en ligne : Caddy DuckDNS, page d'accueil (`ACCUEIL`), logos de démonstration, données fictives permises (`DJANGO_DEMO_DATA`), mot de passe des comptes fictifs propre au serveur (`DJANGO_DEMO_PASSWORD`) | 4.11, 4.6.2 |

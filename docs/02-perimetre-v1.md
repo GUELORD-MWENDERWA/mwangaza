@@ -26,7 +26,7 @@ Le **hors-ligne** est conçu dès le premier jour (identifiants, synchronisation
 ### A. Plateforme et super-admin
 
 - **A1** — En tant que super-admin, je crée une école (nom, code sous-domaine, logo, devises, fuseau horaire) et son premier compte directeur.
-  - L'école est accessible à `{code}.mwangaza.school/app`.
+  - L'école est accessible à `{code}.mwangazaschool.com/app`.
   - Je peux suspendre une école : ses utilisateurs ne peuvent plus se connecter, les données restent.
 - **A2** — Je vois la liste des écoles avec nombre d'élèves, date de dernière activité, statut d'abonnement (saisi à la main en V1.0).
 - **A3** — Je peux me connecter en tant qu'une école pour le support ; l'action est inscrite dans l'audit et un bandeau l'indique à l'écran.
@@ -80,7 +80,7 @@ Le **hors-ligne** est conçu dès le premier jour (identifiants, synchronisation
 
 ### H. Portail parents
 
-- **H1** — Le parent ouvre `parents.mwangaza.school`, saisit son numéro de téléphone et le code famille imprimé, choisit un mot de passe.
+- **H1** — Le parent ouvre `parents.mwangazaschool.com`, saisit son numéro de téléphone et le code famille imprimé, choisit un mot de passe.
 - **H2** — Il voit la liste de ses enfants, même dans des écoles différentes : chaque école garde sa propre fiche de l'enfant et de la famille ; le parent ajoute une autre école à son compte avec le code famille qu'elle lui a remis.
 - **H3** — Pour chaque enfant : classe, école, photo (si consentement), situation des paiements, reçus (PDF), prochaines échéances.
 - **H4** — Il voit les annonces de l'école.

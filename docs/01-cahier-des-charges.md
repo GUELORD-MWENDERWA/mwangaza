@@ -47,7 +47,7 @@ Le nom doit venir de chez nous, être court, facile à dire au téléphone et é
 | Nyota | étoile | Réussite, excellence. Très court. |
 | Kivu Elimu | l'éducation du Kivu | Ancré localement, mais limite l'expansion nationale. |
 
-**Choisi le 2026-09-26 : Mwangaza**, domaine `mwangaza.school` (`mwangaza.cd`, `.com` et `.app` n'étaient pas disponibles ; « Shule Yetu » est déjà une plateforme scolaire).
+**Choisi le 2026-09-26 : Mwangaza**, domaine `mwangazaschool.com` (`mwangaza.cd`, `.com` et `.app` n'étaient pas disponibles ; « Shule Yetu » est déjà une plateforme scolaire).
 
 ## 4. Cibles
 
@@ -106,8 +106,8 @@ Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des 
 
 ### 8.1 Plateforme multi-écoles — V1.0
 
-- Accès du personnel par sous-domaine : `{code-ecole}.mwangaza.school`.
-- Portail familles sur une adresse unique : `parents.mwangaza.school` (un parent peut avoir des enfants dans plusieurs écoles).
+- Accès du personnel par sous-domaine : `{code-ecole}.mwangazaschool.com`.
+- Portail familles sur une adresse unique : `parents.mwangazaschool.com` (un parent peut avoir des enfants dans plusieurs écoles).
 - Personnalisation par école : logo, nom, couleurs, en-têtes de reçus et bulletins, frais, barèmes et maxima, rôles.
 - Transfert d'un élève d'une école à une autre de la plateforme avec son dossier (V1.4).
 - Identité de la plateforme (nom, logo, couleurs, contact) dans ses paramètres, jamais écrite en dur : on peut la changer sans code (V1.1).

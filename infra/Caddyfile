@@ -1,5 +1,5 @@
 # Production (`docs/03-architecture-technique.md` § 2 et § 9), derrière Cloudflare.
-# Variables (`docker-compose.yml`) : MWANGAZA_DOMAIN (ex. mwangaza.school) et CADDY_TLS
+# Variables (`docker-compose.yml`) : MWANGAZA_DOMAIN (ex. mwangazaschool.com) et CADDY_TLS
 # (certificat d'origine Cloudflare sur le serveur ; `internal` pour l'essai sur la machine).
 {
 	servers {

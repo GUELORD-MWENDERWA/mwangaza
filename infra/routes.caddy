@@ -24,7 +24,7 @@
 	file_server
 }
 
-# Une école : {code}.mwangaza.school (le code est lu par Django dans le nom d'hôte).
+# Une école : {code}.mwangazaschool.com (le code est lu par Django dans le nom d'hôte).
 (ecole) {
 	handle /api/* {
 		import django
@@ -55,6 +55,8 @@
 # Super-admin : console de la plateforme (5.2) ; l'administration Django, pour le dépannage, à la
 # même adresse (même session).
 (admin) {
+	# `/admin` sans barre finale irait à la console (404) : on ajoute la barre.
+	redir /admin /admin/
 	handle /static/* {
 		root * /srv
 		header Cache-Control "public, max-age=86400"

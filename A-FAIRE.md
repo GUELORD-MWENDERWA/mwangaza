@@ -62,7 +62,7 @@ Si un document arrive quand même :
 
 | Quoi | Comment | Fait |
 |---|---|:-:|
-| Domaine **`mwangaza.school`** (choisi le 2026-09-26) | vérifier qu'il est libre, l'acheter chez un registrar qui vend le `.school` ; activer le renouvellement automatique | [ ] |
+| Domaine **`mwangazaschool.com`** (choisi le 2026-09-26) | vérifier qu'il est libre, l'acheter chez un registrar qui vend le `.school` ; activer le renouvellement automatique | [ ] |
 | Cloudflare (gratuit) | créer le compte, ajouter le domaine, remplacer les serveurs DNS chez le registrar par ceux que Cloudflare indique | [ ] |
 | Serveur | celui du § 9 ter (gratuit), ou un VPS payant (2 vCPU, 4 Go, Ubuntu 24.04, moins de 20 $ / mois) si une école l'exige | [ ] |
 | Stockage objet (sauvegardes, photos) | gratuit : Oracle Object Storage (20 Go, même compte) ou Backblaze B2 (10 Go) ; Claude dira quelles clés créer (4.7.2) | [ ] |
@@ -132,13 +132,13 @@ Après la recette finale (4.21), il ne manque que les achats et la mise en ligne
 
 | # | Étape | Comment | Fait |
 |:-:|---|---|:-:|
-| 1 | **Achats et comptes** | [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats) : domaine `mwangaza.school`, Cloudflare, serveur, stockage objet, phrase secrète des sauvegardes notée **hors du serveur** | [ ] |
-| 2 | **Vrai domaine** | dans Claude Code : `/tache 4.6.3` — Claude te dit quelles valeurs remplir dans le fichier du serveur, puis met en ligne | [ ] |
+| 1 | **Achats et comptes** | [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats) : domaine `mwangazaschool.com`, Cloudflare, serveur, stockage objet, phrase secrète des sauvegardes notée **hors du serveur** | [ ] |
+| 2 | **Vrai domaine** | fait le 2026-10-13 (4.6.3) : `mwangazaschool.com`, AWS Lightsail, `make deploy-check` | [x] |
 | 3 | **Sauvegardes hors du serveur, alertes** | `/tache 4.7.2` ; à la fin, vérifier qu'une sauvegarde de la nuit existe dans le stockage objet et que `make restore` la relit | [ ] |
 | 4 | **Mesure sur le vrai serveur** | `/tache 4.23` : temps du tableau de bord et des impayés sur le serveur, correction si c'est lent (sur ta machine : 1,3 s et 1,2 s pour 800 élèves) | [ ] |
-| 5 | **Ton compte super-admin** | `make deploy-superuser` (ton vrai numéro), double authentification liée à ton téléphone, codes de secours rangés | [ ] |
-| 6 | **Identité de la plateforme** | console (`https://admin.mwangaza.school/`) → Identité : nom, logo, contact du support, mentions légales — les vraies valeurs | [ ] |
-| 7 | **Premier espace réel** | console → Écoles → Nouvelle école → type **Réel** : nom, code (c'est son adresse, `code.mwangaza.school` : il ne change plus), premier directeur avec son vrai numéro. Lui remettre l'adresse et son mot de passe provisoire | [ ] |
+| 5 | **Ton compte super-admin** | créé le 2026-10-13 (`make deploy-superuser`) ; reste : double authentification liée à ton téléphone, codes de secours rangés | [ ] |
+| 6 | **Identité de la plateforme** | console (`https://admin.mwangazaschool.com/`) → Identité : nom, logo, contact du support, mentions légales — les vraies valeurs | [ ] |
+| 7 | **Premier espace réel** | console → Écoles → Nouvelle école → type **Réel** : nom, code (c'est son adresse, `code.mwangazaschool.com` : il ne change plus), premier directeur avec son vrai numéro. Lui remettre l'adresse et son mot de passe provisoire | [ ] |
 | 8 | **L'école se met en route** | le directeur suit la liste « Mise en route » de son tableau de bord : année, classes, frais et taux, comptes du personnel, caisse et appareil, élèves (import Excel). Rentrée déjà passée : « Reprise » (ce que chaque élève a déjà payé) | [ ] |
 | 9 | **Premier encaissement** | un vrai paiement : reçu imprimé, QR vérifié avec un téléphone ; le soir, clôture de caisse ; le parent voit le reçu sur le Portail | [ ] |
 | 10 | **Le lendemain** | la sauvegarde de la nuit existe ; aucune alerte | [ ] |

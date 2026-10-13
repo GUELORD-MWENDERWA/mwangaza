@@ -56,7 +56,7 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 ### 2026-10-13 — 4.6.3 Vrai serveur en ligne (AWS Lightsail)
-Fait : `mwangazaschool.com` sur Lightsail Paris, Caddy avec certificat joker par DNS Cloudflare (nuage gris), `make deploy-init`/`deploy-check`, mode `MODE=production` de `deployer.sh`. Vérifié : HTTPS valide, `/api/health/` ok, droits (PostgreSQL 700, `~/mwangaza` 700, `serveur.env` 600), sauvegarde chiffrée + restauration identique table par table, super-admin créé. Décisions : `03` (journal). Suite : 4.7.2 (stockage objet) ; première école réelle ; essai de `X-Forwarded-For` falsifié non fait.
+Fait : `mwangazaschool.com` sur Lightsail Paris, Caddy avec certificat joker par DNS Cloudflare (nuage gris), `make deploy-init`/`deploy-check`, mode `MODE=production` de `deployer.sh`. Vérifié : HTTPS valide, `/api/health/` ok, droits (PostgreSQL 700, `~/mwangaza` 700, `serveur.env` 600), sauvegarde chiffrée + restauration identique table par table, super-admin créé. Décisions : `03` (journal). Domaine final `mwangazaschool.com` (docs corrigés) ; redirection `/admin` → `/admin/`. Suite : 4.7.2 (stockage objet) ; première école réelle ; essai de `X-Forwarded-For` falsifié non fait.
 
 Entrée la plus récente en haut. Format : date — titre, puis fait / tests / décisions / suite.
 
