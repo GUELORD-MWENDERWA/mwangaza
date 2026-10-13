@@ -13,10 +13,10 @@ Dernière mise à jour : 2026-10-13 (tâche 4.7.2 : sauvegardes hors du serveur,
 |:-:|---|---|:-:|
 | 1 | **Relire et fusionner la PR « L.0 — plan révisé »** (attendre les coches vertes) : la nouvelle file des tâches dans `docs/05-plan-de-travail.md`, à lire en entier une fois ; marche à suivre : [§ 10](#10-comment-relire-et-fusionner-une-pr) | 20 min | [ ] |
 | 2 | **Brancher les sauvegardes hors du serveur, les alertes et le suivi d'erreurs** : les 7 étapes du [§ 9 bis](#9-bis-brancher-les-sauvegardes-hors-du-serveur-472) (Backblaze B2, Healthchecks, Sentry, UptimeRobot) ; la phrase secrète `BACKUP_PASSPHRASE` est déjà dans `serveur.env`, **la noter aussi hors du serveur** | 45 min | [ ] |
-| 3 | **Garder une copie de `infra/serveur/serveur.env`** en lieu sûr (gestionnaire de mots de passe) | 2 min | [ ] |
+| 3 | **Garder une copie de `infra/serveur/serveur.env`** en lieu sûr (gestionnaire de mots de passe) ; changement de chaque clé : [§ 9 septies](#9-septies-garder-et-changer-les-clés-du-serveur-s2) | 2 min | [ ] |
 | 4 | **Lire le guide de la version 1.1** (`docs/guide/guide-v1.1.pdf`) et préparer ta présentation (`docs/guide/presentation-v1.1.pdf`) : elle se fait maintenant sur le vrai serveur, dans un espace de démonstration créé depuis la console | 1 h | [ ] |
 | 5 | **Avant la première vraie école** : étapes du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) (tâche 4.7.2) | 1 h | [ ] |
-| 6 | **GitHub › Settings › Code security** du dépôt : activer « Secret scanning » et « Push protection » (tâche S.2 : une clé poussée par erreur est bloquée) | 5 min | [ ] |
+| 6 | **GitHub › Settings › Code security** du dépôt : activer « Secret scanning » et « Push protection » (tâche S.2 : une clé poussée par erreur est bloquée) ; puis **Dependabot** : Settings › Code security › « Dependabot alerts » activé | 5 min | [ ] |
 | 6 bis | **CSP : après une semaine de `make deploy` sans message « Content-Security-Policy » dans la console du navigateur** (F12, sur les trois adresses), ajouter la ligne `CSP_HEADER=Content-Security-Policy` dans `infra/serveur/serveur.env` puis `make deploy` ; **Cloudflare en nuage orange** (DNS › les enregistrements `*`, `admin`, `parents` et la racine) : à faire avec Claude, pas seul | 15 min | [ ] |
 | 7 | **Un vrai bulletin EPST rempli** (ou le modèle officiel), photo ou scan, déposé dans `depot/` : il sert au gabarit du bulletin (8.3, V1.2) | 15 min | [ ] |
 | 8 | **Démarches Mobile Money et SMS** : contacter un agrégateur (M-Pesa, Airtel Money, Orange Money) et un fournisseur SMS / WhatsApp ; les contrats sont longs à obtenir (9.3 et 9.4, V2) | à ton rythme | [ ] |
@@ -131,6 +131,23 @@ Tout est prêt côté code. Ces sept étapes sont des comptes à créer ; les cl
 | 7 | Vérifier | `make deploy-backup` : doit afficher « Copie hors du serveur : b2:… » ; le fichier est dans le bucket ; Healthchecks passe au vert. Puis `make deploy-backup cmd=restore` : « Essai réussi » |
 
 **Garder aussi hors du serveur** : `BACKUP_PASSPHRASE`, `DJANGO_SECRET_KEY` et les clés B2 (gestionnaire de mots de passe). Serveur perdu : `make deploy-setup`, `make deploy`, `make deploy-backup cmd=fetch`, puis `make deploy-backup cmd="restore --remplacer"` (remet la sauvegarde en service après confirmation).
+
+---
+
+## 9 septies. Garder et changer les clés du serveur (S.2)
+
+**Copie** : `infra/serveur/serveur.env` contient toutes les clés. Garde-en une copie dans un gestionnaire de mots de passe (pas sur la même machine ni dans le dépôt) ; sans `DJANGO_SECRET_KEY` et `BACKUP_PASSPHRASE`, une sauvegarde ne se relit pas. Une clé a fuité (poussée par erreur, message envoyé) : la changer **tout de suite**, puis `make deploy`. Clé nouvelle : `openssl rand -base64 48`.
+
+| Clé | Changer |
+|---|---|
+| `DJANGO_SECRET_KEY` | Mettre l'**ancienne** dans `DJANGO_SECRET_KEY_FALLBACKS` (virgules), la nouvelle dans `DJANGO_SECRET_KEY`, `make deploy`. Sans cela, chacun doit réactiver sa double authentification. |
+| `POSTGRES_PASSWORD` | `make deploy-ssh`, puis dans le dossier du serveur : `docker compose exec db psql -U mwangaza -c "ALTER USER mwangaza PASSWORD '<nouveau>'"` ; mettre le même dans `serveur.env`, `make deploy`. |
+| `BACKUP_PASSPHRASE` | Les anciennes sauvegardes gardent l'ancienne phrase : la noter avec leur date avant de changer. Nouvelle phrase dans `serveur.env`, `make deploy`, puis `make deploy-backup` et `make deploy-backup cmd=restore`. |
+| `BACKUP_B2_KEY` | Backblaze › *Application Keys* : créer une nouvelle clé limitée au bucket, la coller (avec `BACKUP_B2_ACCOUNT`), `make deploy`, `make deploy-backup`, puis supprimer l'ancienne clé. |
+| `SENTRY_DSN`, `BACKUP_PING_URL` | Régénérer dans Sentry / Healthchecks, coller, `make deploy`. |
+| `WEBPUSH_VAPID_*` | **Ne pas changer** : tous les appareils abonnés devraient se réabonner. |
+
+**GitHub** : « Secret scanning » et « Push protection » (Settings › Code security) bloquent le `git push` qui contient une clé connue. Les mises à jour de dépendances arrivent chaque lundi en PR « Bump… » (groupées) ; l'audit des failles (`audit.yml`) tourne le lundi et sur `main`.
 
 ---
 
