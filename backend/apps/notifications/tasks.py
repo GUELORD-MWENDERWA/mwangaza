@@ -3,6 +3,7 @@
 
 from celery import shared_task
 
+from apps.core import health
 from apps.notifications import push, scheduled
 
 
@@ -14,6 +15,7 @@ def deliver(notification_ids: list[str]) -> None:
 @shared_task(ignore_result=True)
 def tick() -> None:
     scheduled.tick()
+    health.heartbeat()
 
 
 @shared_task(ignore_result=True)

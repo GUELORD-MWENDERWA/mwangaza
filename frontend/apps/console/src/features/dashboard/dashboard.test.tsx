@@ -42,7 +42,19 @@ const DASHBOARD = {
       { name: "redis", status: "error", value: null },
       { name: "workers", status: "off", value: null },
       { name: "disk", status: "warning", value: 18 },
+      { name: "memory", status: "ok", value: 40 },
+      { name: "swap", status: "warning", value: 62 },
     ],
+  },
+  platform: {
+    scheduler: { status: "ok", last_tick_at: "2026-10-13T10:00:00Z", queue_size: 2 },
+    backup: {
+      status: "error",
+      done_at: null,
+      copied_status: "off",
+      copied_at: null,
+    },
+    syncs: [{ id: "s1", code: "itig", name: "ITIG Don Bosco Goma", last_sync_at: null }],
   },
 };
 
@@ -61,6 +73,12 @@ describe("console : tableau de bord", () => {
     const redis = screen.getByText("Redis (file des tâches)").closest("li")!;
     expect(within(redis).getByText("en panne")).toBeTruthy();
     expect(screen.getByText("18 % libre")).toBeTruthy();
+    expect(screen.getByText("62 % utilisé")).toBeTruthy();
+    // Une sauvegarde jamais notée se voit : jamais « bonne » sans preuve.
+    const backup = screen.getByText("Dernière sauvegarde").closest("li")!;
+    expect(within(backup).getByText("jamais notée")).toBeTruthy();
+    // … et l'école qui ne s'est jamais synchronisée aussi.
+    expect(screen.getAllByText("jamais notée")).toHaveLength(2);
   });
 
   it("renvoie vers la connexion sans session, puis demande le code", async () => {

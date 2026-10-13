@@ -13242,6 +13242,8 @@ components:
             $ref: '#/components/schemas/ConsoleActiveSchool'
         health:
           $ref: '#/components/schemas/ServerHealth'
+        platform:
+          $ref: '#/components/schemas/PlatformHealth'
       required:
       - day
       - schools
@@ -13250,6 +13252,7 @@ components:
       - payments_today
       - active_schools
       - health
+      - platform
     ConsoleDevice:
       type: object
       description: Un appareil enregistré dans une école (console de la plateforme,
@@ -15639,12 +15642,16 @@ components:
       - redis
       - workers
       - disk
+      - memory
+      - swap
       type: string
       description: |-
         * `database` - database
         * `redis` - redis
         * `workers` - workers
         * `disk` - disk
+        * `memory` - memory
+        * `swap` - swap
     HealthStatusEnum:
       enum:
       - ok
@@ -18402,6 +18409,26 @@ components:
       description: |-
         * `all_schools` - All schools
         * `schools` - Some schools
+    PlatformBackup:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/HealthStatusEnum'
+        done_at:
+          type: string
+          format: date-time
+          nullable: true
+        copied_status:
+          $ref: '#/components/schemas/HealthStatusEnum'
+        copied_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - status
+      - done_at
+      - copied_status
+      - copied_at
     PlatformChange:
       type: object
       description: Une modification de l'identité, dans le journal de la plateforme.
@@ -18434,6 +18461,21 @@ components:
       - actor
       - before
       - after
+    PlatformHealth:
+      type: object
+      properties:
+        scheduler:
+          $ref: '#/components/schemas/PlatformScheduler'
+        backup:
+          $ref: '#/components/schemas/PlatformBackup'
+        syncs:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformSync'
+      required:
+      - scheduler
+      - backup
+      - syncs
     PlatformIconUploadRequest:
       type: object
       properties:
@@ -18531,6 +18573,41 @@ components:
           maxItems: 100
       required:
       - ids
+    PlatformScheduler:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/HealthStatusEnum'
+        last_tick_at:
+          type: string
+          format: date-time
+          nullable: true
+        queue_size:
+          type: integer
+          nullable: true
+      required:
+      - status
+      - last_tick_at
+      - queue_size
+    PlatformSync:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        last_sync_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - code
+      - name
+      - last_sync_at
     PortalAccessRequest:
       type: object
       properties:

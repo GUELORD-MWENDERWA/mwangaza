@@ -4528,6 +4528,7 @@ export interface components {
             payments_today: number;
             active_schools: components["schemas"]["ConsoleActiveSchool"][];
             health: components["schemas"]["ServerHealth"];
+            platform: components["schemas"]["PlatformHealth"];
         };
         /** @description Un appareil enregistré dans une école (console de la plateforme, 5.4.2). */
         ConsoleDevice: {
@@ -5628,9 +5629,11 @@ export interface components {
          *     * `redis` - redis
          *     * `workers` - workers
          *     * `disk` - disk
+         *     * `memory` - memory
+         *     * `swap` - swap
          * @enum {string}
          */
-        HealthCheckEnum: "database" | "redis" | "workers" | "disk";
+        HealthCheckEnum: "database" | "redis" | "workers" | "disk" | "memory" | "swap";
         /**
          * @description * `ok` - ok
          *     * `warning` - warning
@@ -7053,6 +7056,14 @@ export interface components {
          * @enum {string}
          */
         PlatformAudienceEnum: "all_schools" | "schools";
+        PlatformBackup: {
+            status: components["schemas"]["HealthStatusEnum"];
+            /** Format: date-time */
+            done_at: string | null;
+            copied_status: components["schemas"]["HealthStatusEnum"];
+            /** Format: date-time */
+            copied_at: string | null;
+        };
         /** @description Une modification de l'identité, dans le journal de la plateforme. */
         PlatformChange: {
             /** Format: uuid */
@@ -7063,6 +7074,11 @@ export interface components {
             readonly actor: components["schemas"]["AuditActor"] | null;
             before: unknown;
             after: unknown;
+        };
+        PlatformHealth: {
+            scheduler: components["schemas"]["PlatformScheduler"];
+            backup: components["schemas"]["PlatformBackup"];
+            syncs: components["schemas"]["PlatformSync"][];
         };
         PlatformIconUploadRequest: {
             /**
@@ -7101,6 +7117,20 @@ export interface components {
         };
         PlatformNewsReadRequest: {
             ids: string[];
+        };
+        PlatformScheduler: {
+            status: components["schemas"]["HealthStatusEnum"];
+            /** Format: date-time */
+            last_tick_at: string | null;
+            queue_size: number | null;
+        };
+        PlatformSync: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            /** Format: date-time */
+            last_sync_at: string | null;
         };
         PortalAccessRequest: {
             /** @description `true` : suspendre ; `false` : rétablir. */

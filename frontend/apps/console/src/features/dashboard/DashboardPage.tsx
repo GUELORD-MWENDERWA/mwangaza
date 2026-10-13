@@ -2,7 +2,13 @@
 // le serveur, pour toutes les écoles (super-admin seulement : il vérifie). Montants par devise,
 // jamais additionnés : les dollars en grand, les autres devises dessous.
 import { api, call, type Schemas } from "@mwangaza/api";
-import { errorMessage, formatDay, type TFunction, useTranslation } from "@mwangaza/i18n";
+import {
+  errorMessage,
+  formatDateTime,
+  formatDay,
+  type TFunction,
+  useTranslation,
+} from "@mwangaza/i18n";
 import { type Currency, formatAmount } from "@mwangaza/money";
 import {
   Banner,
@@ -22,6 +28,7 @@ import { useQuery } from "@tanstack/react-query";
 import { keys } from "../../lib/queries";
 
 type HealthCheck = Schemas["HealthCheck"];
+type Platform = Schemas["PlatformHealth"];
 type Amount = { currency: string; amount_minor: number };
 
 const money = (amount: Amount) => formatAmount(amount.amount_minor, amount.currency as Currency);
@@ -175,7 +182,84 @@ export function DashboardPage() {
           </ul>
         </Card>
       </div>
+      <PlatformCard platform={data.platform} />
     </>
+  );
+}
+
+// Sauvegardes, planificateur et dernière synchronisation de chaque école (4.25) : l'état, pas
+// l'historique. Une page sur le serveur tombe avec lui : la surveillance extérieure reste.
+function PlatformCard({ platform }: { platform: Platform }) {
+  const { t, i18n } = useTranslation();
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const when = (value: string | null) =>
+    value ? formatDateTime(value, i18n.language, timeZone) : t("console.platform.never");
+  const rows = [
+    {
+      key: "backup",
+      status: platform.backup.status,
+      value: when(platform.backup.done_at),
+    },
+    {
+      key: "copy",
+      status: platform.backup.copied_status,
+      value:
+        platform.backup.copied_status === "off"
+          ? t("console.platform.noCopy")
+          : when(platform.backup.copied_at),
+    },
+    {
+      key: "scheduler",
+      status: platform.scheduler.status,
+      value:
+        platform.scheduler.status === "off"
+          ? t("console.health.off")
+          : t("console.platform.tick", {
+              at: when(platform.scheduler.last_tick_at),
+              queue: platform.scheduler.queue_size ?? "?",
+            }),
+    },
+  ] as const;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("console.platform.title")}</CardTitle>
+      </CardHeader>
+      <ul>
+        {rows.map((row) => (
+          <li
+            key={row.key}
+            className="flex items-center justify-between gap-3 border-t border-line px-4 py-2.5 text-[.92rem] first:border-t-0"
+          >
+            <span className="flex items-center gap-2">
+              <i aria-hidden="true" className={cn("size-2 rounded-full", DOTS[row.status])} />
+              {t(`console.platform.${row.key}`)}
+            </span>
+            <span className="text-ink-3">{row.value}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="border-t border-line px-4 py-2.5 text-sm font-semibold">
+        {t("console.platform.syncs")}
+      </p>
+      {platform.syncs.length === 0 ? (
+        <p className="px-4 pb-4 text-ink-3">{t("console.platform.noSchool")}</p>
+      ) : (
+        <ul>
+          {platform.syncs.map((school) => (
+            <li
+              key={school.id}
+              className="flex items-center justify-between gap-3 border-t border-line px-4 py-2.5 text-[.92rem]"
+            >
+              <span>
+                {school.name} <span className="text-sm text-ink-3">{school.code}</span>
+              </span>
+              <span className="text-ink-3">{when(school.last_sync_at)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
   );
 }
 
@@ -183,6 +267,9 @@ function healthValue(check: HealthCheck, t: TFunction): string {
   if (check.status === "off") return t("console.health.off");
   if (check.value === null) return t("console.health.down");
   if (check.name === "workers") return t("console.health.workers", { count: check.value });
-  if (check.name === "disk") return t("console.health.disk", { value: check.value });
+  if (check.name === "disk" || check.name === "memory") {
+    return t("console.health.free", { value: check.value });
+  }
+  if (check.name === "swap") return t("console.health.swapUsed", { value: check.value });
   return t("console.health.ms", { value: check.value });
 }

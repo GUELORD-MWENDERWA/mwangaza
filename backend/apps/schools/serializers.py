@@ -548,6 +548,32 @@ class ServerHealthSerializer(serializers.Serializer):
     checks = HealthCheckSerializer(many=True)
 
 
+class PlatformSchedulerSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=health.STATUSES)
+    last_tick_at = serializers.DateTimeField(allow_null=True)
+    queue_size = serializers.IntegerField(allow_null=True)
+
+
+class PlatformBackupSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=health.STATUSES)
+    done_at = serializers.DateTimeField(allow_null=True)
+    copied_status = serializers.ChoiceField(choices=health.STATUSES)
+    copied_at = serializers.DateTimeField(allow_null=True)
+
+
+class PlatformSyncSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    code = serializers.CharField()
+    name = serializers.CharField()
+    last_sync_at = serializers.DateTimeField(allow_null=True)
+
+
+class PlatformHealthSerializer(serializers.Serializer):
+    scheduler = PlatformSchedulerSerializer()
+    backup = PlatformBackupSerializer()
+    syncs = PlatformSyncSerializer(many=True)
+
+
 class ConsoleDashboardSerializer(serializers.Serializer):
     day = serializers.DateField()
     schools = ConsoleSchoolCountsSerializer()
@@ -556,6 +582,7 @@ class ConsoleDashboardSerializer(serializers.Serializer):
     payments_today = serializers.IntegerField()
     active_schools = ConsoleActiveSchoolSerializer(many=True)
     health = ServerHealthSerializer()
+    platform = PlatformHealthSerializer()
 
 
 class SetupStepSerializer(serializers.Serializer):

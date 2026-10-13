@@ -11,7 +11,7 @@ actives du jour et santé du serveur."""
 from collections import defaultdict
 from datetime import datetime, time, timedelta
 
-from django.db.models import Count, OuterRef, QuerySet, Subquery, Sum
+from django.db.models import Count, F, OuterRef, QuerySet, Subquery, Sum
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -21,6 +21,7 @@ from apps.core.money import Currency
 from apps.finance.models import Payment
 from apps.schools.models import School
 from apps.students.models import Enrollment
+from apps.sync.models import Device
 
 # Un essai qui finit dans ces jours est signalé.
 TRIAL_ENDING_DAYS = 30
@@ -110,6 +111,28 @@ def _today_payments(day) -> tuple[list[dict], list[dict]]:
     return today, active
 
 
+SYNC_SCHOOLS = 10
+
+
+def _last_syncs() -> list[dict]:
+    """Dernière activité d'un appareil non révoqué, par école réelle ouverte : les dix plus
+    anciennes d'abord (une école muette depuis des jours est celle qu'on appelle). Une requête."""
+    seen = (
+        Device.all_schools.filter(school=OuterRef("pk"), revoked_at__isnull=True)
+        .order_by("-last_seen_at")
+        .values("last_seen_at")[:1]
+    )
+    rows = (
+        School.objects.filter(environment=LIVE)
+        .exclude(status__in=School.CLOSED_STATUSES)
+        .annotate(last_sync_at=Subquery(seen))
+        .order_by(F("last_sync_at").asc(nulls_first=True), "name")[:SYNC_SCHOOLS]
+    )
+    return [
+        {"id": s.id, "code": s.code, "name": s.name, "last_sync_at": s.last_sync_at} for s in rows
+    ]
+
+
 def dashboard() -> dict:
     day = timezone.localdate()
     today, active = _today_payments(day)
@@ -123,4 +146,5 @@ def dashboard() -> dict:
         "payments_today": sum(row["count"] for row in today),
         "active_schools": active,
         "health": health.report(),
+        "platform": {**health.platform(), "syncs": _last_syncs()},
     }
