@@ -1,6 +1,7 @@
 """Pièce jointe d'une annonce : un PDF de 5 Mo au plus, reconnu à ses premiers octets et non à son
 nom. Jamais publique : servie par l'API aux comptes de l'école qui publient les annonces, puis
-aux familles destinataires dans le portail (4.4)."""
+aux familles destinataires dans le portail (4.4). Toujours **téléchargée** (`attachment`, S.4) :
+un fichier venu d'une école ne s'ouvre jamais dans une page à l'adresse de l'application."""
 
 from django.core.exceptions import ValidationError
 from django.http import FileResponse
@@ -30,7 +31,7 @@ def attachment_path(announcement, filename: str) -> str:
 
 
 def attachment_response(announcement) -> FileResponse | None:
-    """Le PDF ouvert dans le navigateur, nommé d'après le titre ; None sans pièce jointe."""
+    """Le PDF à télécharger, nommé d'après le titre ; None sans pièce jointe."""
     if not announcement.attachment:
         return None
     try:
@@ -38,9 +39,8 @@ def attachment_response(announcement) -> FileResponse | None:
     except FileNotFoundError:
         return None
     filename = f"{slugify(announcement.title)[:60] or 'annonce'}.pdf"
-    response = FileResponse(file, content_type="application/pdf", filename=filename)
-    response["Content-Disposition"] = response["Content-Disposition"].replace(
-        "attachment", "inline", 1
+    response = FileResponse(
+        file, content_type="application/pdf", as_attachment=True, filename=filename
     )
     response["X-Content-Type-Options"] = "nosniff"
     response["Cache-Control"] = "private, max-age=86400"

@@ -151,7 +151,7 @@ describe("Paramètres de l'école (M5)", () => {
   it("logo envoyé aussitôt ; refus traduit", async () => {
     const all = routes({
       "POST /api/school/settings/logo/": apiError("invalid", 400, {
-        fields: { logo: [{ code: "logo_too_large", detail: "Too large." }] },
+        fields: { logo: [{ code: "image_too_large", detail: "Too large." }] },
       }),
     });
     const requests = mockApi(all);
@@ -164,7 +164,7 @@ describe("Paramètres de l'école (M5)", () => {
     const file = Object.assign(blob, { name: "logo.png" }) as unknown as File;
     const logo = await card("Logo et couleur");
     await user.upload(logo.getByLabelText("Changer", { selector: "input" }), file);
-    expect(await logo.findByText("Le logo dépasse 1 Mo.")).toBeTruthy();
+    expect(await logo.findByText("L'image dépasse 1 Mo.")).toBeTruthy();
 
     all["POST /api/school/settings/logo/"] = { ...settings, logo: "/api/school/logo/?v=1" };
     await user.upload(logo.getByLabelText("Changer", { selector: "input" }), file);

@@ -3,13 +3,16 @@ logos (couleur et noir et blanc) et leurs adresses publiques `/api/school/logo/`
 `/api/school/logo-monochrome/`."""
 
 import pytest
+from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import SimpleUploadedFile
+from PIL.PngImagePlugin import PngInfo
 
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.tenancy import use_school
 from apps.schools.models import School
 from tests.factories import MembershipFactory
+from tests.images import PNG, image_bytes
 
 pytestmark = pytest.mark.django_db
 
@@ -18,7 +21,6 @@ LOGO = "/api/school/settings/logo/"
 PUBLIC_LOGO = "/api/school/logo/"
 MONOCHROME_LOGO = "/api/school/settings/logo-monochrome/"
 PUBLIC_MONOCHROME_LOGO = "/api/school/logo-monochrome/"
-PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 64
 SVG = b'<?xml version="1.0"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"/>'
 
 
@@ -278,7 +280,7 @@ def test_each_address_serves_its_own_logo(api, client, school, other_school, hea
     beta = client.get(PUBLIC_LOGO, HTTP_HOST="beta.localhost")
 
     assert alpha.status_code == 200
-    assert b"".join(alpha.streaming_content) == PNG
+    assert b"".join(alpha.streaming_content).startswith(b"\x89PNG")
     assert beta.status_code == 404
     assert beta.json()["code"] == "no_logo"
 
@@ -287,7 +289,9 @@ def test_each_address_serves_its_own_logo(api, client, school, other_school, hea
 
 
 def test_head_uploads_a_logo(api, client, school, head):
-    response = upload(api(head), PNG)
+    text = PngInfo()
+    text.add_text("Author", "Graphiste fictif")
+    response = upload(api(head), image_bytes("PNG", pnginfo=text))
 
     assert response.status_code == 200, response.content
     logo = response.json()["logo"]
@@ -297,16 +301,23 @@ def test_head_uploads_a_logo(api, client, school, head):
     assert public["Content-Type"] == "image/png"
     assert public["X-Content-Type-Options"] == "nosniff"
     assert "sandbox" in public["Content-Security-Policy"]
+    # Ré-encodé à l'envoi : ce qui est servi n'a plus les métadonnées du fichier envoyé.
+    assert b"Graphiste fictif" not in b"".join(public.streaming_content)
     assert client.get("/api/school/", HTTP_HOST="alpha.localhost").json()["logo"] == logo
     assert journal(school)[-1].action == Action.SCHOOL_LOGO_CHANGED
 
 
-def test_svg_logo(api, client, school, head):
-    assert upload(api(head), SVG, "logo.svg").status_code == 200
-
+def test_svg_is_refused_and_one_sent_before_stays_served_without_scripts(api, client, school, head):
+    # Avant S.4, une école pouvait envoyer un SVG : il reste affiché, sans rien pouvoir exécuter.
+    school.logo.save("logo.svg", ContentFile(SVG), save=True)
     public = client.get(PUBLIC_LOGO, HTTP_HOST="alpha.localhost")
-
     assert public["Content-Type"] == "image/svg+xml"
+    assert "sandbox" in public["Content-Security-Policy"]
+
+    for url in (LOGO, MONOCHROME_LOGO):
+        response = upload(api(head), SVG, "logo.svg", url=url)
+        assert response.status_code == 400
+        assert response.json()["fields"]["logo"][0]["code"] == "image_type"
 
 
 def test_the_content_decides_not_the_name(api, client, school, head):
@@ -319,14 +330,12 @@ def test_the_content_decides_not_the_name(api, client, school, head):
 @pytest.mark.parametrize(
     "content",
     [
-        b"GIF89a" + b"\x00" * 20,
+        image_bytes("GIF"),
         b"%PDF-1.7",
         b"<html><body>logo</body></html>",
-        b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
-        b'<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"/>',
-        b'<!DOCTYPE svg [<!ENTITY a "aaaa">]><svg xmlns="http://www.w3.org/2000/svg">&a;</svg>',
-        b'<svg xmlns="http://www.w3.org/2000/svg"><a href="javascript:alert(1)"/></svg>',
-        b"\x89PNG\r\n\x1a\n" + b"\x00" * (1024 * 1024),
+        PNG[:40],
+        PNG + bytes(1024 * 1024),
+        image_bytes("PNG", (2049, 16)),
     ],
 )
 def test_other_files_are_refused(api, school, head, content):
@@ -349,14 +358,14 @@ def test_head_removes_the_logo(api, client, school, head):
 
 
 def test_black_and_white_logo(api, client, school, head):
-    response = upload(api(head), SVG, "logo.svg", url=MONOCHROME_LOGO)
+    response = upload(api(head), PNG, url=MONOCHROME_LOGO)
 
     assert response.status_code == 200, response.content
     address = response.json()["logo_monochrome"]
     assert address.startswith(f"{PUBLIC_MONOCHROME_LOGO}?v=")
     assert response.json()["logo"] is None
     public = client.get(address, HTTP_HOST="alpha.localhost")
-    assert public["Content-Type"] == "image/svg+xml"
+    assert public["Content-Type"] == "image/png"
     assert "sandbox" in public["Content-Security-Policy"]
     # Seulement à l'adresse de son école.
     assert client.get(PUBLIC_MONOCHROME_LOGO, HTTP_HOST="beta.localhost").status_code == 404

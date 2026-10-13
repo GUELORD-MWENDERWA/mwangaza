@@ -57,11 +57,15 @@ case "${1:-}" in
     tar -c -C infra/serveur serveur.env |
       "${SSH[@]}" "tar -x -C mwangaza/nouveau/infra/serveur"
     # Mise à jour sur place : les dossiers montés dans les conteneurs restent les mêmes.
+    # Après : anciennes images supprimées, cache de construction ramené à 2 Go (il grossissait à
+    # chaque mise en ligne : 8 Go mesurés le 2026-10-13, assez pour la construction suivante).
     "${SSH[@]}" "set -e; cd mwangaza && chmod 700 . && mkdir -p code \
       && rsync -a --delete --exclude /infra/certs nouveau/ code/ && rm -rf nouveau \
       && cd code && echo $commit >VERSION && chmod 600 infra/serveur/serveur.env \
       && mkdir -p infra/certs && COMPOSE_PARALLEL_LIMIT=1 nice -n 10 $COMPOSE build && $COMPOSE up --detach --wait --remove-orphans \
-      && docker image prune --force >/dev/null"
+      && docker image prune --force >/dev/null \
+      && { docker builder prune --force --reserved-space 2GB >/dev/null \
+        || echo 'Cache de construction non purgé (option de docker builder prune à revoir).'; }"
     # Crontab du compte, remis à chaque mise en ligne (pas de planificateur Celery).
     "${SSH[@]}" "(crontab -l 2>/dev/null | grep -v sauvegarde.sh; echo \"$CRON\") | crontab -"
     echo "Vérification : make deploy-check"

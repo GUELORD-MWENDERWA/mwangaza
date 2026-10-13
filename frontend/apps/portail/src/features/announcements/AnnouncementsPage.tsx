@@ -126,8 +126,7 @@ function AnnouncementCard({ announcement }: { announcement: PortalAnnouncement }
           <a
             className="flex items-center gap-1.5 text-sm font-bold text-lake underline"
             href={announcement.attachment}
-            target="_blank"
-            rel="noreferrer"
+            download
           >
             <Icon name="file" size={16} />
             {t("portal.announcements.attachment")}

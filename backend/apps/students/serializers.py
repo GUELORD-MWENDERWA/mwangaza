@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from apps.accounts.serializers import PhoneField
 from apps.audit.serializers import AuditLogSerializer
+from apps.core.images import CleanedFileField
 from apps.finance import services as finance
 from apps.finance.serializers import BalanceSerializer
 from apps.schools.models import AcademicYear, ClassGroup, Track
@@ -16,7 +17,7 @@ from apps.students.models import (
     Student,
     StudentImport,
 )
-from apps.students.photos import photo_version, validate_photo
+from apps.students.photos import photo_version
 
 
 class AddressSerializer(serializers.Serializer):
@@ -266,9 +267,7 @@ class StudentSerializer(_StudentFields):
 
 
 class PhotoUploadSerializer(serializers.Serializer):
-    photo = serializers.FileField(
-        validators=[validate_photo], help_text="PNG ou JPEG, 1 Mo au plus."
-    )
+    photo = CleanedFileField(help_text="PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus.")
 
 
 class StudentHistorySerializer(AuditLogSerializer):

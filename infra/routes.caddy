@@ -2,6 +2,12 @@
 # `make prod-local` (`Caddyfile`) : seul le certificat change.
 
 (django) {
+	# Le plus gros fichier accepté pèse 5 Mo (import Excel, pièce jointe) : au-delà de 10 Mo, Caddy
+	# refuse (413) sans rien passer à Django, qui écrirait le fichier sur le disque avant de le
+	# peser (S.4).
+	request_body {
+		max_size 10MB
+	}
 	reverse_proxy django:8000 {
 		# Lu par Django (`CLIENT_IP_HEADER`) ; remplace tout X-Real-IP envoyé par le visiteur.
 		header_up X-Real-IP {client_ip}

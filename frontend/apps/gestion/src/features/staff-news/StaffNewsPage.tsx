@@ -54,8 +54,7 @@ export function StaffNewsPage() {
                 <a
                   className="self-start text-sm font-bold text-lake underline"
                   href={news.attachment}
-                  target="_blank"
-                  rel="noreferrer"
+                  download
                 >
                   {t("staffNews.pdf")}
                 </a>

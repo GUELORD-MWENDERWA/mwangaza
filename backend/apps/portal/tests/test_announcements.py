@@ -146,6 +146,9 @@ def test_read_once_per_family_counted_in_the_school_and_attachment_for_recipient
 
     response = attachment(client, meeting_pdf)
     assert response.status_code == 200 and b"".join(response.streaming_content) == PDF
+    # Téléchargée, jamais ouverte dans une page à l'adresse de l'application (S.4).
+    assert response["Content-Disposition"].startswith("attachment;")
+    assert response["X-Content-Type-Options"] == "nosniff"
     # Famille sans enfant dans la classe, autre école, annonce sans pièce jointe : 404.
     assert attachment(stranger, meeting_pdf).status_code == 404
     assert attachment(client, beta_news).status_code == 404

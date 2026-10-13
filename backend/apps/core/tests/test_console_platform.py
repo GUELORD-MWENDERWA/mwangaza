@@ -75,8 +75,17 @@ def test_unreadable_colour_and_wrong_files_are_refused_without_change(api, platf
     assert refused.status_code == 400
     assert set(refused.json()["fields"]) == {"accent_color"}
     assert upload(console, ICON, "icon", png(600, 500)).status_code == 400
-    script = b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'
-    assert upload(console, LOGO, "logo", SimpleUploadedFile("logo.svg", script)).status_code == 400
+    assert upload(console, ICON, "icon", png(4096, 4096)).status_code == 400
+    # SVG : permis au super-admin seulement, et jamais avec de quoi exécuter du code.
+    for svg in (
+        b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+        b'<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"/>',
+        b'<!DOCTYPE svg [<!ENTITY a "aaaa">]><svg xmlns="http://www.w3.org/2000/svg">&a;</svg>',
+        b'<svg xmlns="http://www.w3.org/2000/svg"><a href="javascript:alert(1)"/></svg>',
+    ):
+        refused = upload(console, LOGO, "logo", SimpleUploadedFile("logo.svg", svg))
+        assert refused.status_code == 400
+        assert refused.json()["fields"]["logo"][0]["code"] == "logo_type"
 
     platform = PlatformSettings.load()
     assert (platform.name, platform.icon.name, platform.logo.name) == (INITIAL_NAME, "", "")

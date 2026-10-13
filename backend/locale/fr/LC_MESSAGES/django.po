@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 22:44+0200\n"
+"POT-Creation-Date: 2026-10-13 23:15+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -224,7 +224,7 @@ msgstr "compte"
 msgid "accounts"
 msgstr "comptes"
 
-#: apps/accounts/models.py:134 apps/core/models.py:130
+#: apps/accounts/models.py:134 apps/core/models.py:129
 #: apps/finance/models.py:35 apps/finance/models.py:371
 #: apps/schools/models.py:91 apps/schools/models.py:331
 #: apps/schools/models.py:389 apps/schools/models.py:428
@@ -236,7 +236,7 @@ msgstr "nom"
 msgid "role"
 msgstr "rôle"
 
-#: apps/accounts/models.py:172 apps/core/models.py:52
+#: apps/accounts/models.py:172 apps/core/models.py:51
 #: apps/notifications/models.py:328 apps/schools/admin.py:59
 #: apps/schools/models.py:181 apps/schools/models.py:295
 msgid "school"
@@ -1190,73 +1190,86 @@ msgstr "Cette école est suspendue. Contactez le support de la plateforme."
 msgid "This space is stopped: it is no longer open."
 msgstr "Cet espace est arrêté : il n'est plus ouvert."
 
-#: apps/core/models.py:23
+#: apps/core/images.py:23
+msgid "The image must not exceed 1 MB."
+msgstr "L'image ne doit pas dépasser 1 Mo."
+
+#: apps/core/images.py:27
+msgid "The image must be a PNG or JPEG image."
+msgstr "L'image doit être au format PNG ou JPEG."
+
+#: apps/core/images.py:32
+#, python-format
+msgid "The image must not exceed %(side)s pixels on its longest side."
+msgstr "L'image ne doit pas dépasser %(side)s pixels de côté."
+
+#: apps/core/models.py:22
 msgid "created at"
 msgstr "créé le"
 
-#: apps/core/models.py:24 apps/core/models.py:168
+#: apps/core/models.py:23 apps/core/models.py:167
 msgid "updated at"
 msgstr "modifié le"
 
-#: apps/core/models.py:34
+#: apps/core/models.py:33
 msgid "created by"
 msgstr "créé par"
 
-#: apps/core/models.py:132
+#: apps/core/models.py:131
 msgid "short name"
 msgstr "nom court"
 
-#: apps/core/models.py:135
+#: apps/core/models.py:134
 msgid "Under the application icon on the home screen (12 characters is best)."
 msgstr ""
 "Sous l'icône de l'application sur l'écran d'accueil (12 caractères au mieux)."
 
-#: apps/core/models.py:138 apps/schools/models.py:95
+#: apps/core/models.py:137 apps/schools/models.py:95
 msgid "logo"
 msgstr "logo"
 
-#: apps/core/models.py:142
+#: apps/core/models.py:141
 msgid "PNG, JPEG or SVG, 1 MB at most. Without it: the lamp."
 msgstr "PNG, JPEG ou SVG, 1 Mo au plus. Sans lui : la lampe."
 
-#: apps/core/models.py:145
+#: apps/core/models.py:144
 msgid "application icon"
 msgstr "icône des applications"
 
-#: apps/core/models.py:149
+#: apps/core/models.py:148
 msgid "Square PNG of at least 512 x 512 pixels. Without it: the lamp icon."
 msgstr ""
 "PNG carré d'au moins 512 x 512 pixels. Sans elle : l'icône de la lampe."
 
-#: apps/core/models.py:152
+#: apps/core/models.py:151
 msgid "main colour"
 msgstr "couleur principale"
 
-#: apps/core/models.py:156
+#: apps/core/models.py:155
 msgid "Buttons and links of the interface."
 msgstr "Boutons et liens de l'interface."
 
-#: apps/core/models.py:159
+#: apps/core/models.py:158
 msgid "accent colour"
 msgstr "couleur d'accent"
 
-#: apps/core/models.py:163
+#: apps/core/models.py:162
 msgid "Mark and highlights on the dark menu."
 msgstr "Marque et repères sur le menu sombre."
 
-#: apps/core/models.py:165
+#: apps/core/models.py:164
 msgid "support phone"
 msgstr "téléphone du support"
 
-#: apps/core/models.py:166
+#: apps/core/models.py:165
 msgid "support email"
 msgstr "e-mail du support"
 
-#: apps/core/models.py:167
+#: apps/core/models.py:166
 msgid "legal notice"
 msgstr "mentions légales"
 
-#: apps/core/models.py:171 apps/core/models.py:172
+#: apps/core/models.py:170 apps/core/models.py:171
 msgid "platform identity"
 msgstr "identité de la plateforme"
 
@@ -1268,19 +1281,19 @@ msgstr "Dollar américain"
 msgid "Congolese franc"
 msgstr "Franc congolais"
 
-#: apps/core/platform.py:43
-msgid "The icon must not exceed 1 MB."
-msgstr "L'icône ne doit pas dépasser 1 Mo."
+#: apps/core/platform.py:51
+msgid "The logo must be a PNG, JPEG or SVG image (SVG without scripts)."
+msgstr "Le logo doit être une image PNG, JPEG ou SVG (SVG sans script)."
 
-#: apps/core/platform.py:47
+#: apps/core/platform.py:60
 msgid "The icon must be a square PNG image of at least 512 x 512 pixels."
 msgstr "L'icône doit être une image PNG carrée d'au moins 512 x 512 pixels."
 
-#: apps/core/platform.py:57 apps/schools/colors.py:82
+#: apps/core/platform.py:85 apps/schools/colors.py:82
 msgid "Enter a colour as #RRGGBB, e.g. #0E5C6B."
 msgstr "Saisissez une couleur au format #RRGGBB, ex. #0E5C6B."
 
-#: apps/core/platform.py:73
+#: apps/core/platform.py:101
 msgid ""
 "This colour is too light: white text on it, or the colour on a light "
 "background, is not readable."
@@ -1288,7 +1301,7 @@ msgstr ""
 "Cette couleur est trop claire : un texte blanc posé dessus, ou la couleur "
 "sur un fond clair, n'est pas lisible."
 
-#: apps/core/platform.py:83
+#: apps/core/platform.py:111
 msgid "This colour is too dark: it is not readable on the dark menu."
 msgstr ""
 "Cette couleur est trop sombre : elle n'est pas lisible sur le menu sombre."
@@ -2483,11 +2496,11 @@ msgstr ""
 "devise sont présentés séparément, jamais convertis ni additionnés. Document "
 "interne."
 
-#: apps/notifications/attachments.py:22
+#: apps/notifications/attachments.py:23
 msgid "The file must not exceed 5 MB."
 msgstr "Le fichier ne doit pas dépasser 5 Mo."
 
-#: apps/notifications/attachments.py:24
+#: apps/notifications/attachments.py:25
 msgid "The file must be a PDF."
 msgstr "Le fichier doit être un PDF."
 
@@ -2990,19 +3003,19 @@ msgstr "Nom :"
 msgid "Signature:"
 msgstr "Signature :"
 
-#: apps/notifications/views.py:61
+#: apps/notifications/views.py:62
 msgid "Not available during a support session."
 msgstr "Indisponible pendant une session support."
 
-#: apps/notifications/views.py:62
+#: apps/notifications/views.py:63
 msgid "This announcement has no attachment."
 msgstr "Cette annonce n'a pas de pièce jointe."
 
-#: apps/notifications/views.py:488 apps/portal/notifications.py:57
+#: apps/notifications/views.py:489 apps/portal/notifications.py:57
 msgid "Notifications are working"
 msgstr "Les notifications fonctionnent"
 
-#: apps/notifications/views.py:489
+#: apps/notifications/views.py:490
 #, python-format
 msgid ""
 "Notifications from %(school)s will appear here, even with the app closed."
@@ -3197,14 +3210,6 @@ msgstr ""
 msgid "This demonstration space is not ready yet."
 msgstr "Cet espace de démonstration n'est pas encore prêt."
 
-#: apps/schools/logos.py:48
-msgid "The logo must not exceed 1 MB."
-msgstr "Le logo ne doit pas dépasser 1 Mo."
-
-#: apps/schools/logos.py:51
-msgid "The logo must be a PNG, JPEG or SVG image (SVG without scripts)."
-msgstr "Le logo doit être une image PNG, JPEG ou SVG (SVG sans script)."
-
 #: apps/schools/matricule.py:39
 msgid "A brace is not closed."
 msgstr "Une accolade n'est pas fermée."
@@ -3297,16 +3302,16 @@ msgid "official name"
 msgstr "nom officiel"
 
 #: apps/schools/models.py:99
-msgid "PNG, JPEG or SVG, 1 MB at most."
-msgstr "PNG, JPEG ou SVG, 1 Mo au plus."
+msgid "PNG or JPEG, 1 MB at most."
+msgstr "PNG ou JPEG, 1 Mo au plus."
 
 #: apps/schools/models.py:103
 msgid "black and white logo"
 msgstr "logo noir et blanc"
 
 #: apps/schools/models.py:107
-msgid "For thermal receipts. PNG, JPEG or SVG, 1 MB at most."
-msgstr "Pour les reçus thermiques. PNG, JPEG ou SVG, 1 Mo au plus."
+msgid "For thermal receipts. PNG or JPEG, 1 MB at most."
+msgstr "Pour les reçus thermiques. PNG ou JPEG, 1 Mo au plus."
 
 #: apps/schools/models.py:111
 msgid "colour"
@@ -3527,7 +3532,7 @@ msgstr "niveau"
 msgid "levels"
 msgstr "niveaux"
 
-#: apps/schools/models.py:458 apps/schools/serializers.py:404
+#: apps/schools/models.py:458 apps/schools/serializers.py:402
 msgid "1 to 10 capital letters or digits."
 msgstr "1 à 10 lettres majuscules ou chiffres."
 
@@ -3668,7 +3673,7 @@ msgstr "Au plus %(count)d lignes d'en-tête."
 msgid "Unknown currency: %(codes)s."
 msgstr "Devise inconnue : %(codes)s."
 
-#: apps/schools/serializers.py:326
+#: apps/schools/serializers.py:324
 msgid "Choose the school year to copy from."
 msgstr "Choisissez l'année scolaire à reprendre."
 
@@ -4299,19 +4304,11 @@ msgstr "changement de coordonnées"
 msgid "contact details changes"
 msgstr "changements de coordonnées"
 
-#: apps/students/photos.py:30
-msgid "The photo must not exceed 1 MB."
-msgstr "La photo ne doit pas dépasser 1 Mo."
-
-#: apps/students/photos.py:32
-msgid "The photo must be a PNG or JPEG image."
-msgstr "La photo doit être une image PNG ou JPEG."
-
-#: apps/students/serializers.py:328
+#: apps/students/serializers.py:327
 msgid "Either an existing family or new guardians, not both."
 msgstr "Soit une famille existante, soit de nouveaux tuteurs, pas les deux."
 
-#: apps/students/serializers.py:608
+#: apps/students/serializers.py:607
 msgid "Give the name and the phone number."
 msgstr "Donnez le nom et le numéro de téléphone."
 

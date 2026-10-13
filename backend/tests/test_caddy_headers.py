@@ -37,3 +37,8 @@ def test_applications_servies_avec_les_en_tetes_de_securite():
         assert rule in directives
     assert "unsafe-eval" not in directives
     assert "unsafe-inline" not in re.search(r"script-src[^;]*", directives).group(0)
+
+
+def test_un_envoi_trop_lourd_est_arrete_avant_django():
+    """Le plus gros fichier accepté pèse 5 Mo (S.4) : au-delà de 10 Mo, Caddy répond lui-même."""
+    assert re.search(r"request_body \{\s+max_size 10MB\s+\}", _block(ROUTES.read_text(), "django"))

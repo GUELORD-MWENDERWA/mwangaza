@@ -19,6 +19,7 @@ Dernière mise à jour : 2026-10-13 (tâche 4.7.2 : sauvegardes hors du serveur,
 | 6 | **GitHub › Settings › Code security** du dépôt : activer « Secret scanning » et « Push protection » (tâche S.2 : une clé poussée par erreur est bloquée) ; puis **Dependabot** : Settings › Code security › « Dependabot alerts » activé | 5 min | [ ] |
 | 6 ter | **PR de Dependabot du 2026-10-13**, après la fusion de S.3.1 : fusionner **#225** (Actions, verte) ; **fermer #223, #226, #221 et #222** si Dependabot ne les a pas fermées lui-même (bouton « Close pull request ») — Django 6.1, TypeScript 7 et Python 3.14 ne se prennent pas ainsi. Il rouvrira des PR propres, sans versions majeures | 5 min | [ ] |
 | 6 quater | **Alertes du super-admin sur tes appareils** (S.3.2), après la fusion et `make deploy` : sur chaque appareil (ordinateur, téléphone), ouvrir https://admin.mwangazaschool.com/journal, cliquer « Recevoir les alertes sur cet appareil » et accepter la demande du navigateur. Sur iPhone : d'abord Partager → « Sur l'écran d'accueil », puis ouvrir la console depuis cette icône. Essai : te déconnecter puis te reconnecter → une alerte « Connexion d'un compte de la plateforme » s'affiche sur chaque appareil abonné | 5 min | [ ] |
+| 6 quinquies | **Après la fusion de S.4 : `make deploy`** puis `make deploy-check` — la limite de 10 Mo par envoi et la purge du cache de construction (environ 6 Go libérés la première fois) n'existent qu'une fois en ligne. Une école qui avait un logo SVG le garde ; pour le changer, elle envoie un PNG ou un JPEG | 15 min | [ ] |
 | 6 bis | **CSP : après une semaine de `make deploy` sans message « Content-Security-Policy » dans la console du navigateur** (F12, sur les trois adresses), ajouter la ligne `CSP_HEADER=Content-Security-Policy` dans `infra/serveur/serveur.env` puis `make deploy` ; **Cloudflare en nuage orange** (DNS › les enregistrements `*`, `admin`, `parents` et la racine) : à faire avec Claude, pas seul | 15 min | [ ] |
 | 7 | **Un vrai bulletin EPST rempli** (ou le modèle officiel), photo ou scan, déposé dans `depot/` : il sert au gabarit du bulletin (8.3, V1.2) | 15 min | [ ] |
 | 8 | **Démarches Mobile Money et SMS** : contacter un agrégateur (M-Pesa, Airtel Money, Orange Money) et un fournisseur SMS / WhatsApp ; les contrats sont longs à obtenir (9.3 et 9.4, V2) | à ton rythme | [ ] |
@@ -87,6 +88,7 @@ Partout : activer la double authentification et garder les codes de secours. Les
 - **HTTPS en IPv6** : dans le pare-feu, la règle HTTPS 443 doit être cochée **aussi pour IPv6** (comme 22 et 80).
 - **Alarmes** : onglet *Metrics* de l'instance → *Add alarm* : « Status check failed (instance) » et « CPU utilization » > 90 % pendant 15 min, notification par e-mail. Avec le moniteur UptimeRobot (§ 9 bis, étape 5), tu es prévenu en quelques minutes d'un serveur muet.
 - **Mémoire** : `make deploy-setup` pose maintenant 2 Go de swap et protège SSH (sans danger si relancé) ; `make deploy` refuse de construire sans swap. Les conteneurs ont des limites de mémoire : un conteneur qui déborde est relancé seul, la machine ne se fige plus.
+- **Disque** : `make deploy` supprime les anciennes images et ramène le cache de construction à 2 Go (S.4 ; il avait atteint 8 Go). Pour voir où va la place : `make deploy-ssh` puis `docker system df`.
 
 ## 9 sexies. Guide de démarrage du personnel : installer la Gestion (4.24)
 
@@ -320,6 +322,7 @@ Rien pour l'instant.
 
 | Message | Cause | Solution |
 |---|---|---|
+| « Image en PNG ou JPEG », « L'image dépasse 1 Mo » ou « … 2 048 pixels de côté » en envoyant un logo ou une photo | depuis S.4, une école n'envoie plus de SVG, et toute image est limitée en poids et en dimensions puis ré-encodée | exporter le logo en PNG (fond transparent gardé) ou en JPEG, 2 048 px de côté au plus ; une photo prise au téléphone est réduite toute seule par la Gestion |
 | `permission denied … docker.sock` | pas encore reconnecté après `usermod` | se déconnecter / reconnecter (ou `newgrp docker` dans ce terminal) |
 | `port is already allocated` (5433, 6379, 8000, 5173 ; 80 et 443 avec `make prod-local`) | un autre programme utilise le port | `ss -ltnp \| grep 6379` pour le trouver ; par ex. `sudo systemctl stop redis-server` |
 | `InconsistentMigrationHistory: Migration admin.0001_initial is applied before its dependency accounts.0001_initial` (`make migrate`, `make test`, `make dev`) | base de développement créée avant la tâche 1.2 (nouveau modèle de compte) | `make reset-db` une fois |

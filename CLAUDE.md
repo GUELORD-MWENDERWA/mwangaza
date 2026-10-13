@@ -32,7 +32,7 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 
 ## Stack (décidée — ne pas changer sans accord)
 
-- Backend : Python 3.12+, Django 5.2 LTS, Django REST Framework, drf-spectacular (OpenAPI), PostgreSQL 16+, Celery + Redis, WeasyPrint (PDF)
+- Backend : Python 3.12+, Django 5.2 LTS, Django REST Framework, drf-spectacular (OpenAPI), PostgreSQL 16+, Celery + Redis, WeasyPrint (PDF), Pillow (images envoyées, ré-encodées)
 - Frontend : TypeScript, React, Vite, vite-plugin-pwa (Workbox), Dexie.js (IndexedDB), TanStack Query, React Router, Tailwind CSS + shadcn/ui, react-hook-form + zod, i18next
 - Applications front : `frontend/apps/gestion` (personnel de l'école, **hors-ligne d'abord**), `frontend/apps/portail` (parents et élèves, en ligne, léger) et, à partir de la V1.1 (5.2), `frontend/apps/console` (console de la plateforme pour le super-admin, à `admin.<domaine>` ; l'administration Django ne sert plus qu'au dépannage)
 - Infra : Docker Compose, Caddy, un VPS, Cloudflare (DNS + wildcard), sauvegardes PostgreSQL vers stockage objet

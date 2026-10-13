@@ -487,7 +487,7 @@ function LogoField({ settings, kind }: { settings: Settings; kind: "logo" | "log
         <input
           ref={input}
           type="file"
-          accept="image/png,image/jpeg,image/svg+xml"
+          accept="image/png,image/jpeg"
           className="hidden"
           aria-label={t(monochrome ? "settings.logo.changeMonochrome" : "settings.logo.change")}
           onChange={(event) => {

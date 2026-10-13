@@ -1,8 +1,9 @@
 """Identité de la plateforme (5.1) : contrôles de ses fichiers et de ses couleurs, adresses.
 
-Le logo suit les règles du logo d'une école (`schools.logos`). L'icône des applications
-(écran d'accueil, onglet) est un PNG carré d'au moins 512 px, lu à ses premiers octets : pas de
-dépendance (Pillow n'est pas installé), elle n'est donc ni redimensionnée ni convertie.
+Fichiers envoyés par le super-admin seulement. Le logo est un PNG ou un JPEG ré-encodé
+(`core.images`), ou un SVG sans script : permis ici, plus pour une école (S.4). L'icône des
+applications (écran d'accueil, onglet) est un PNG carré de 512 à 2 048 px, ré-encodé lui aussi ;
+elle n'est pas redimensionnée.
 
 Les couleurs remplacent celles de l'interface (`lake`, `lamp` du design) : la couleur principale
 porte du texte blanc (boutons) et s'écrit sur fond clair (liens), l'accent se pose sur le fond
@@ -15,10 +16,10 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.ids import uuid7
+from apps.core.images import check_size, clean_image
 from apps.schools.colors import contrast, normalize
 from apps.schools.logos import logo_kind
 
-ICON_MAX_SIZE = 1024 * 1024
 ICON_MIN_SIDE = 512
 BASALT = "#2B2724"  # fond du menu (design), sous l'accent
 MIN_CONTRAST = 4.5
@@ -36,17 +37,44 @@ def png_size(file) -> tuple[int, int] | None:
     return int.from_bytes(head[16:20], "big"), int.from_bytes(head[20:24], "big")
 
 
-def validate_icon(file) -> None:
-    if getattr(file, "_committed", False):
-        return
-    if file.size > ICON_MAX_SIZE:
-        raise ValidationError(_("The icon must not exceed 1 MB."), code="icon_too_large")
+def clean_logo(file):
+    """Le logo à enregistrer : PNG ou JPEG ré-encodé, ou SVG sans script, gardé tel quel."""
+    if logo_kind(file) == "svg":
+        check_size(file)
+        return file
+    try:
+        return clean_image(file)
+    except ValidationError as error:
+        if error.code != "image_type":
+            raise
+        raise ValidationError(
+            _("The logo must be a PNG, JPEG or SVG image (SVG without scripts)."),
+            code="logo_type",
+        ) from None
+
+
+def clean_icon(file):
     size = png_size(file)
     if size is None or size[0] != size[1] or size[0] < ICON_MIN_SIDE:
         raise ValidationError(
             _("The icon must be a square PNG image of at least 512 x 512 pixels."),
             code="icon_format",
         )
+    return clean_image(file, formats={"PNG": "png"})
+
+
+# Administration Django (dépannage) : mêmes refus qu'à l'API de la console, qui, elle, enregistre
+# le fichier nettoyé. Un fichier déjà enregistré n'est pas relu.
+
+
+def validate_logo(file) -> None:
+    if not getattr(file, "_committed", False):
+        clean_logo(file)
+
+
+def validate_icon(file) -> None:
+    if not getattr(file, "_committed", False):
+        clean_icon(file)
 
 
 def _color(value: str) -> str:

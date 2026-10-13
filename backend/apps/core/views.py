@@ -22,9 +22,9 @@ from apps.core.platform import png_size
 from apps.core.serializers import (
     ConsolePlatformSerializer,
     PlatformIconUploadSerializer,
+    PlatformLogoUploadSerializer,
     PlatformSerializer,
 )
-from apps.schools.serializers import LogoUploadSerializer
 
 # Application installable : adresse de départ, portée et icônes par défaut (lampe, dans son build).
 APPS = {
@@ -146,16 +146,16 @@ class ConsolePlatformView(APIView):
 
 @extend_schema(tags=["console"])
 class ConsolePlatformLogoView(APIView):
-    """Logo de la plateforme : PNG, JPEG ou SVG (sans script), 1 Mo au plus ; sans lui, la
-    lampe."""
+    """Logo de la plateforme : PNG ou JPEG (ré-encodé), ou SVG sans script, 1 Mo au plus ; sans
+    lui, la lampe."""
 
     permission_classes = [IsPlatformAdmin]
     parser_classes = [MultiPartParser, FormParser]
-    serializer_class = LogoUploadSerializer
+    serializer_class = PlatformLogoUploadSerializer
     field = "logo"
 
     @extend_schema(
-        request={"multipart/form-data": LogoUploadSerializer},
+        request={"multipart/form-data": PlatformLogoUploadSerializer},
         responses={200: ConsolePlatformSerializer, **CONSOLE_ERRORS},
     )
     def post(self, request: Request) -> Response:
@@ -172,8 +172,8 @@ class ConsolePlatformLogoView(APIView):
 
 @extend_schema(tags=["console"])
 class ConsolePlatformIconView(ConsolePlatformLogoView):
-    """Icône des applications (écran d'accueil, onglet) : PNG carré d'au moins 512 x 512 pixels,
-    1 Mo au plus ; sans elle, l'icône de la lampe."""
+    """Icône des applications (écran d'accueil, onglet) : PNG carré de 512 à 2 048 pixels de
+    côté, 1 Mo au plus ; sans elle, l'icône de la lampe."""
 
     serializer_class = PlatformIconUploadSerializer
     field = "icon"

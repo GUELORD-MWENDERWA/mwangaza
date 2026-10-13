@@ -15,7 +15,6 @@ from apps.core.tenancy import (
     TenantManager,
     get_current_school,
 )
-from apps.schools.logos import validate_logo
 
 
 class BaseModel(models.Model):
@@ -138,7 +137,7 @@ class PlatformSettings(models.Model):
         _("logo"),
         upload_to=platform.logo_path,
         blank=True,
-        validators=[validate_logo],
+        validators=[platform.validate_logo],
         help_text=_("PNG, JPEG or SVG, 1 MB at most. Without it: the lamp."),
     )
     icon = models.FileField(

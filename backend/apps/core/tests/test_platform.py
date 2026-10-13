@@ -12,15 +12,13 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from apps.accounts import totp
 from apps.core.models import PlatformSettings
 from apps.schools.models import School
+from tests.images import image_bytes
 
 INITIAL_NAME = PlatformSettings._meta.get_field("name").default
 
 
 def png(width: int, height: int) -> SimpleUploadedFile:
-    """En-tête d'un PNG (seul lu par le contrôle de l'icône)."""
-    header = b"\x89PNG\r\n\x1a\n" + (13).to_bytes(4, "big") + b"IHDR"
-    size = width.to_bytes(4, "big") + height.to_bytes(4, "big")
-    return SimpleUploadedFile("icone.png", header + size + b"\x08\x06\x00\x00\x00" + bytes(64))
+    return SimpleUploadedFile("icone.png", image_bytes("PNG", (width, height), "RGBA"))
 
 
 def test_identity_is_public_at_every_address(client, school):
