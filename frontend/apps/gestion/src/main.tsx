@@ -1,6 +1,7 @@
 import "./index.css";
 
 import { setupI18n } from "@mwangaza/i18n";
+import { listenForInstallPrompt } from "@mwangaza/ui";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
@@ -14,6 +15,7 @@ import { routes } from "./routes";
 
 setupI18n();
 startPlatform();
+listenForInstallPrompt();
 const queryClient = createQueryClient();
 const router = createBrowserRouter(routes, { basename: "/app" });
 

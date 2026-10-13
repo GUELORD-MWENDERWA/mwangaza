@@ -51,3 +51,10 @@ export {
   usePlatform,
 } from "./platform";
 export { createPush, type PushKeys, type PushState } from "./push";
+export {
+  isInstalled,
+  isIos,
+  listenForInstallPrompt,
+  useInstallPrompt,
+  useJustInstalled,
+} from "./install";

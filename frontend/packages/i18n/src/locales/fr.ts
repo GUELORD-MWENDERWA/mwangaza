@@ -3259,6 +3259,33 @@ export const fr = {
       "announcement.archived": "Annonce aux écoles archivée",
     },
   },
+  installGate: {
+    title: "Installez {{platform}} pour continuer",
+    intro:
+      "{{platform}} fonctionne dans l'application installée sur cet appareil : elle s'ouvre d'un geste, garde la caisse en marche sans connexion et vous prévient sur l'écran.",
+    benefits: {
+      offline: "La caisse continue sans connexion",
+      fast: "S'ouvre plus vite, sans passer par le navigateur",
+      notifications: "Vous prévient sur l'écran, même application fermée",
+      icon: "Une icône sur le bureau ou l'écran d'accueil",
+    },
+    install: "Installer l'application",
+    browserMenu:
+      "Dans le menu du navigateur (⋮ ou ⋯), choisissez « Installer l'application » ou « Ajouter à l'écran d'accueil ».",
+    iosSteps: {
+      share: "Touchez « Partager » dans Safari",
+      addToHome: "Choisissez « Sur l'écran d'accueil »",
+      add: "Touchez « Ajouter », puis ouvrez l'icône",
+    },
+    alreadyInstalled:
+      "Déjà installée ? Fermez cet onglet et ouvrez {{platform}} depuis son icône (bureau, écran d'accueil ou menu des applications).",
+    doneTitle: "{{platform}} est installée",
+    openIcon:
+      "Ouvrez maintenant {{platform}} depuis son icône : sur le bureau, l'écran d'accueil ou le menu des applications. Le guide de démarrage s'y lance à la première connexion.",
+    closeTab: "Vous pouvez fermer cet onglet du navigateur.",
+    skip: "Continuer dans le navigateur (cette fois seulement)",
+  },
+
   portal: {
     languages: "Langue",
     login: {

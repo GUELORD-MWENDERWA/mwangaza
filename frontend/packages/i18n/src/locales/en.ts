@@ -3233,6 +3233,32 @@ export const en: Messages<typeof fr> = {
       "announcement.archived": "Announcement to schools archived",
     },
   },
+  installGate: {
+    title: "Install {{platform}} to continue",
+    intro:
+      "{{platform}} works in the app installed on this device: it opens in one tap, keeps the cash desk running offline and notifies you on screen.",
+    benefits: {
+      offline: "The cash desk keeps working without a connection",
+      fast: "Opens faster, without going through the browser",
+      notifications: "Notifies you on screen, even when the app is closed",
+      icon: "An icon on the desktop or home screen",
+    },
+    install: "Install the app",
+    browserMenu: "In the browser menu (⋮ or ⋯), choose “Install app” or “Add to home screen”.",
+    iosSteps: {
+      share: "Tap “Share” in Safari",
+      addToHome: "Choose “Add to Home Screen”",
+      add: "Tap “Add”, then open the icon",
+    },
+    alreadyInstalled:
+      "Already installed? Close this tab and open {{platform}} from its icon (desktop, home screen or app menu).",
+    doneTitle: "{{platform}} is installed",
+    openIcon:
+      "Now open {{platform}} from its icon: on the desktop, the home screen or the app menu. The getting-started guide starts there at first sign-in.",
+    closeTab: "You can close this browser tab.",
+    skip: "Continue in the browser (this time only)",
+  },
+
   portal: {
     languages: "Language",
     login: {
