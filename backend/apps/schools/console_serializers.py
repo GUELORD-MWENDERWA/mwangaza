@@ -10,7 +10,8 @@ from rest_framework import serializers
 from rest_framework.fields import get_error_detail
 
 from apps.accounts.models import User
-from apps.accounts.modules import ALL_MODULES, MODULE_CHOICES
+from apps.accounts.modules import MODULE_CHOICES
+from apps.accounts.modules import resolve as resolve_modules
 from apps.accounts.serializers import PhoneField
 from apps.audit.models import PlatformAuditLog
 from apps.core.money import Currency
@@ -94,7 +95,13 @@ class ConsoleSchoolSerializer(serializers.ModelSerializer):
         except DjangoValidationError as exc:
             raise serializers.ValidationError(get_error_detail(exc)) from None
         if "modules" in data:
-            data["modules"] = [code for code in ALL_MODULES if code in data["modules"]]
+            current = self.instance.modules if self.instance is not None else ()
+            try:
+                data["modules"] = resolve_modules(data["modules"], current)
+            except ValueError as exc:
+                raise serializers.ValidationError(
+                    {"modules": str(exc)}, code="module_required"
+                ) from None
         if "enabled_currencies" in data:
             data["enabled_currencies"] = school.enabled_currencies
         return data

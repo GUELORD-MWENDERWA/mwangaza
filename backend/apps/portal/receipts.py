@@ -29,7 +29,7 @@ def find_payment(user: User, payment_id) -> Payment:
             origin=Payment.Origin.CASH,
             **linked_to(user, "enrollment__student__family"),
         )
-        .exclude(school__status__in=School.CLOSED_STATUSES)
+        .exclude(School.portal_closed("school__"))
         .select_related("school")
         .first()
     )

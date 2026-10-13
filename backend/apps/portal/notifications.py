@@ -25,9 +25,7 @@ NO_SCHOOL = ApiError("no_school", _("No school is linked to this account."), 409
 def schools(user: User) -> QuerySet[School]:
     """Écoles où une famille du compte a accès au portail."""
     families = Family.all_schools.filter(primary_user=user, portal_suspended_at__isnull=True)
-    return School.objects.filter(pk__in=families.values("school")).exclude(
-        status__in=School.CLOSED_STATUSES
-    )
+    return School.objects.filter(pk__in=families.values("school")).exclude(School.portal_closed())
 
 
 def inbox(user: User) -> QuerySet[Notification]:

@@ -7,6 +7,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
+from django.db.models import Q
 from django.db.models.functions import Lower
 from django.utils.translation import gettext_lazy as _
 
@@ -223,6 +224,18 @@ class School(BaseModel):
         """Suspendue, arrêtée ou en cours de suppression : ni connexion, ni portail, ni session
         support."""
         return self.status in self.CLOSED_STATUSES
+
+    def has_module(self, code: str) -> bool:
+        """L'école a ce module (`accounts/modules.py`) ; le socle est toujours actif."""
+        return code in self.modules
+
+    @staticmethod
+    def portal_closed(prefix: str = "") -> Q:
+        """Écoles que le portail ne sert pas : fermées, ou sans le module `portal`. `prefix` :
+        chemin vers l'école (`school__`), à passer à `.exclude(...)`."""
+        return Q(**{f"{prefix}status__in": School.CLOSED_STATUSES}) | ~Q(
+            **{f"{prefix}modules__contains": ["portal"]}
+        )
 
     @property
     def is_demo(self) -> bool:

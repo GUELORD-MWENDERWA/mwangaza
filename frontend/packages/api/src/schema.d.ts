@@ -6007,9 +6007,12 @@ export interface components {
          * @description * `students` - Students, families and enrolments
          *     * `finance` - Fees, cash desk and payments
          *     * `communication` - Announcements
+         *     * `portal` - Parent portal
+         *     * `notifications` - Notifications and reminders
+         *     * `offline` - Offline work and synchronisation
          * @enum {string}
          */
-        ModulesEnum: "students" | "finance" | "communication";
+        ModulesEnum: "students" | "finance" | "communication" | "portal" | "notifications" | "offline";
         MySchool: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
             code: string;

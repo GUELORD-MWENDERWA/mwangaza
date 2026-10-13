@@ -100,7 +100,7 @@ Décidé le 2026-10-13 : chaque fonction est un module donné par la plateforme 
 
 - [x] **M.1** Modules : catalogue (`accounts/modules.py`), `School.modules`, droits d'un module absent retirés côté serveur (403, `/me`), carte « Fonctions de l'école » dans la console
 
-- [ ] **M.2.1** Modules — serveur et tâches de fond *(P0, M)*
+- [x] **M.2.1** Modules — serveur et tâches de fond *(P0, M)*
    - Modules `portal`, `notifications`, `offline` ajoutés au catalogue.
    - **Vérifié** : le catalogue (`accounts/modules.py`) a trois modules, `students`, `finance` et `communication`, sans aucune dépendance entre eux. Une école peut donc avoir `finance` sans `students`, ce qui n'a pas de sens.
    - **Dépendances entre modules** dans le catalogue (`finance` → `students` ; relances → `notifications` ; `portal` → `students`) : activer un module active ce dont il dépend ; désactiver refuse tant qu'un module actif en dépend. Tranché une fois dans le catalogue, pas dans chaque écran.

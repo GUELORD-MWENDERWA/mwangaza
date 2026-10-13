@@ -42,7 +42,7 @@ def summons(user: User) -> QuerySet[Summons]:
             meeting_at__gte=timezone.now() - SUMMONS_KEPT,
             **linked_to(user, "student__family"),
         )
-        .exclude(school__status__in=School.CLOSED_STATUSES)
+        .exclude(School.portal_closed("school__"))
         .select_related("student", "school")
         .order_by("meeting_at", "id")
     )

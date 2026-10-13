@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (L.2 faite) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | M.2.1 — voir la file (`05` § 2) |
-| Issue GitHub | aucune |
-| Branche | `tache/L.2-restauration-b2` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune (M.2.1 faite, PR de la branche `tache/M.2.1-modules-serveur`, issue #215) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | M.2.2 — voir la file (`05` § 2) |
+| Issue GitHub | #215 |
+| Branche | `tache/M.2.1-modules-serveur` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-13 |
 
 ## Avancement
@@ -27,7 +27,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | **V1.0** | **67** | **67** |
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
 | Lancement (L.0 à L.5 ; L.3 remplacée par S.1 et S.2) | 3 | 5 |
-| Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 1 | 5 |
+| Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 2 | 5 |
 | Sécurité (S.1 à S.9) | 2 | 9 |
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1–8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 0 | 9 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
@@ -61,6 +61,11 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-13 — Tâche M.2.1 : modules, serveur et tâches de fond
+- Catalogue à six modules (`portal`, `notifications`, `offline` ajoutés) ; dépendances `finance` et `portal` → `students` : la console active ce qui manque et refuse de retirer un module encore nécessaire (création comprise). Migration 0013 : les écoles qui avaient tous les modules d'alors gardent les trois nouveaux.
+- Planificateur : une requête filtrée par `notifications` ; relances = `finance` + `portal`, caisses ouvertes = `finance` ; événements (`events.send`, annonces comprises) muets sans `notifications`. Portail : `School.portal_closed` remplace les 7 exclusions de statut, activation refusée (`portal_not_offered`), école sans portail absente de la liste ; synchro et appareils : 403 `module_missing` sans `offline`.
+- Tests : dépendances, `offline`, planificateur qui saute une école (l'autre est servie), portail ; 459 tests du serveur des modules touchés. Console : trois libellés et cases ajoutés (l'explication des dépendances = M.2.2). Suite : M.2.2.
 
 ### 2026-10-13 — Tâche L.2 : restauration réelle depuis B2
 

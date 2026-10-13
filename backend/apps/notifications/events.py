@@ -29,11 +29,13 @@ Kind = Notification.Kind
 
 def send(users: Iterable[User], *, app: str, kind: str, url: str, text: Callable) -> int:
     """`text()` rend (titre, message) ; appelée une fois par langue des destinataires. Rend le
-    nombre de notifications créées."""
+    nombre de notifications créées (aucune dans une école sans le module `notifications`)."""
+    school = require_current_school()
+    if not school.has_module("notifications"):
+        return 0
     by_language = defaultdict(list)
     for user in users:
         by_language[user.language].append(user)
-    school = require_current_school()
     created = 0
     for language, group in by_language.items():
         with translation.override(language):

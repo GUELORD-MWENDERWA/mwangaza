@@ -233,3 +233,23 @@ def test_portal_endpoints_do_not_exist_at_a_school_address(school, head):
     login = post(at_school, "auth/login/", phone=head.phone, password=TEST_PASSWORD)
     assert login.status_code == 404
     assert reloaded(family).primary_user is None
+
+
+def test_a_school_without_the_portal_module_does_not_activate_and_is_not_listed(
+    school, other_school, head, other_head
+):
+    family = new_family(school, head)
+    client = portal()
+    other = activate(client, new_family(other_school, other_head).code)
+    assert other.status_code == 200
+
+    school.modules = ["students", "finance"]
+    school.save()
+    refused = activate(portal(), family.code)
+
+    assert (refused.status_code, refused.json()["code"]) == (403, "portal_not_offered")
+    assert reloaded(family).primary_user is None
+    # Sa famille liée dans une école sans portail disparaît de la liste (l'autre reste).
+    other_school.modules = ["students"]
+    other_school.save()
+    assert client.get("/api/portal/families/").json() == []

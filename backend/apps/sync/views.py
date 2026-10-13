@@ -9,7 +9,12 @@ from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.accounts.permissions import HasSchoolPermission, IsPlatformAdmin, school_access
+from apps.accounts.permissions import (
+    HasSchoolPermission,
+    IsPlatformAdmin,
+    ensure_module,
+    school_access,
+)
 from apps.accounts.roles import FINANCE_COLLECT_PAYMENT, ROLES_MANAGE, STUDENTS_VIEW
 from apps.accounts.views import CONSOLE_ERRORS, SchoolViewSet
 from apps.core.errors import SCHOOL_NOT_FOUND, ErrorSerializer
@@ -48,6 +53,7 @@ class MyDeviceViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """Mes appareils dans cette école (M4) : enregistrer, reprendre à la connexion, déconnecter."""
 
     permission_classes = [IsSchoolMember]
+    required_module = "offline"
     serializer_class = DeviceSerializer
 
     def get_queryset(self):
@@ -68,6 +74,7 @@ class MyDeviceViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def create(self, request: Request) -> Response:
         """« Se souvenir de cet appareil » : la paire de clés est créée dans le navigateur, seule
         la clé publique est envoyée."""
+        ensure_module(request.school, self)
         serializer = DeviceRegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         device = services.register_device(
@@ -197,6 +204,7 @@ class SyncViewSet(viewsets.ViewSet):
 
     permission_classes = [HasSchoolPermission]
     required_permission = (STUDENTS_VIEW, FINANCE_COLLECT_PAYMENT)
+    required_module = "offline"
 
     @extend_schema(
         parameters=[SnapshotQuerySerializer],

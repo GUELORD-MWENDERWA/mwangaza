@@ -16482,11 +16482,17 @@ components:
       - students
       - finance
       - communication
+      - portal
+      - notifications
+      - offline
       type: string
       description: |-
         * `students` - Students, families and enrolments
         * `finance` - Fees, cash desk and payments
         * `communication` - Announcements
+        * `portal` - Parent portal
+        * `notifications` - Notifications and reminders
+        * `offline` - Offline work and synchronisation
     MySchool:
       type: object
       properties:
