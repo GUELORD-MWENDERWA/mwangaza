@@ -39,7 +39,7 @@ import { Link } from "react-router";
 import { z } from "zod";
 
 import { applyServerErrors, errorMessage } from "../../lib/errors";
-import { formatPhone, fullName, roleName } from "../../lib/people";
+import { formatPhone, fullName } from "../../lib/people";
 import { keys, useRoles } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { useSettled } from "../../lib/settled";
@@ -132,7 +132,7 @@ export function StaffPage() {
             <option value="">{t("staff.allRoles")}</option>
             {(roles.data ?? []).map((item) => (
               <option key={item.id} value={item.id}>
-                {roleName(item, t)}
+                {item.name}
               </option>
             ))}
           </Select>
@@ -268,7 +268,7 @@ function StaffTable({
               <div className="flex flex-wrap gap-1">
                 {person.roles.map((id) => {
                   const role = rolesById.get(id);
-                  return role ? <Tag key={id}>{roleName(role, t)}</Tag> : null;
+                  return role ? <Tag key={id}>{role.name}</Tag> : null;
                 })}
               </div>
             </td>
@@ -303,22 +303,13 @@ function RoleCheckboxes({
   onChange: (value: string[]) => void;
   idPrefix: string;
 }) {
-  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-2">
       {roles.map((role) => (
         <CheckboxField
           key={role.id}
           id={`${idPrefix}-${role.id}`}
-          label={
-            role.is_system ? (
-              roleName(role, t)
-            ) : (
-              <>
-                {role.name} <span className="text-ink-3">({t("staff.detail.schoolRole")})</span>
-              </>
-            )
-          }
+          label={role.name}
           checked={value.includes(role.id)}
           onCheckedChange={(checked) =>
             onChange(checked ? [...value, role.id] : value.filter((id) => id !== role.id))

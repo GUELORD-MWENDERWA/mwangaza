@@ -155,9 +155,9 @@ class ReadOnlyAdmin(admin.ModelAdmin):
 
 @admin.register(Role)
 class RoleAdmin(ReadOnlyAdmin):
-    list_display = ["__str__", "school", "code", "permission_count"]
+    list_display = ["__str__", "school", "permission_count"]
     list_filter = ["school"]
-    fields = ["id", "school", "code", "name", "permissions", "created_at", "updated_at"]
+    fields = ["id", "school", "name", "permissions", "created_at", "updated_at"]
 
     def get_queryset(self, request):
         # Super-admin : toutes les écoles (pas d'école courante dans l'administration).

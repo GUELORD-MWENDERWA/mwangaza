@@ -3,14 +3,20 @@
 import pytest
 from django.contrib.auth import authenticate, get_user_model
 from django.db import IntegrityError, transaction
-from django.utils import translation
 
 from apps.accounts import services
 from apps.accounts.models import LoginFailure, Membership, RecoveryCode, Role, User
 from apps.core.crypto import decrypt
 from apps.core.ids import is_uuid7
 from apps.core.tenancy import CrossSchoolError, SchoolNotSetError, use_school
-from tests.factories import TEST_PASSWORD, MembershipFactory, UserFactory, enable_totp, totp_code
+from tests.factories import (
+    TEST_PASSWORD,
+    MembershipFactory,
+    UserFactory,
+    enable_totp,
+    starter_role,
+    totp_code,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -108,30 +114,9 @@ def test_role_names_are_unique_per_school_ignoring_case(school, other_school):
         Role.objects.create(name="CHEF D'ATELIER")
 
 
-def test_custom_role_needs_a_name(school):
+def test_role_needs_a_name(school):
     with use_school(school), pytest.raises(IntegrityError):
         Role.objects.create(name="")
-
-
-def test_role_code_must_be_a_system_role(school):
-    with use_school(school), pytest.raises(IntegrityError):
-        Role.objects.create(code="hacker", name="Pirate")
-
-
-def test_system_role_code_is_unique_per_school(school):
-    with use_school(school), pytest.raises(IntegrityError):
-        Role.objects.create(code="head")
-
-
-def test_display_name(school):
-    with use_school(school), translation.override("en"):
-        head = Role.objects.get(code="head")
-        custom = Role.objects.create(name="Chef d'atelier")
-        assert head.is_system and not custom.is_system
-        assert str(head) == "Head of school"
-        assert str(custom) == "Chef d'atelier"
-        head.name = "Préfet des études"
-        assert str(head) == "Préfet des études"
 
 
 # Appartenance
@@ -156,13 +141,12 @@ def test_several_roles_in_one_school(school):
     membership = MembershipFactory(school=school, roles=["teacher", "secretary"])
 
     with use_school(school):
-        assert {role.code for role in membership.roles.all()} == {"teacher", "secretary"}
+        assert {role.name for role in membership.roles.all()} == {"Enseignant", "Secrétaire"}
 
 
 def test_role_of_another_school_is_refused(school, other_school):
     membership = MembershipFactory(school=other_school)
-    with use_school(school):
-        alpha_head = Role.objects.get(code="head")
+    alpha_head = starter_role(school, "head")
 
     # Le refus annule la transaction en cours : chaque essai dans la sienne.
     with use_school(other_school), pytest.raises(CrossSchoolError), transaction.atomic():

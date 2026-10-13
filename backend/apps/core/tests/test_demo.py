@@ -11,7 +11,7 @@ from apps.accounts import attempts, services, totp
 from apps.accounts.demo import DEMO_PASSWORD, DEMO_TOTP_SECRET
 from apps.accounts.models import Membership, Role, User
 from apps.accounts.phone import is_demo_phone
-from apps.accounts.roles import SYSTEM_ROLES
+from apps.accounts.roles import STARTER_ROLES
 from apps.audit.models import AuditLog
 from apps.core.crypto import decrypt
 from apps.core.demo import STEPS, fill
@@ -39,7 +39,7 @@ def demo(settings):
 def roles_of(phone: str, school: School) -> set[str]:
     membership = Membership.objects.get(user__phone=phone, school=school)
     with use_school(school):
-        return {str(role.code or role.name) for role in membership.roles.all()}
+        return {role.name for role in membership.roles.all()}
 
 
 def test_demo_creates_the_two_demo_schools(demo):
@@ -86,15 +86,21 @@ def test_demo_puts_back_a_suspended_school(demo):
     assert volcans.primary_color == "#7A3E00"
 
 
-def test_demo_creates_one_account_per_system_role_at_itig(demo):
-    itig = demo["itig"]
-    codes = [
+def test_demo_creates_one_account_per_role_named_by_each_school(demo):
+    itig, volcans = demo["itig"], demo["volcans"]
+    names = [
         role
         for membership in Membership.objects.filter(school=itig)
         for role in roles_of(membership.user.phone, itig)
     ]
 
-    assert sorted(codes) == sorted([*SYSTEM_ROLES, "Chef d'atelier"])
+    # Chaque école fictive nomme ses rôles à sa façon : pas de « Directeur » à l'ITIG.
+    with use_school(itig):
+        assert sorted(names) == sorted(Role.objects.values_list("name", flat=True))
+    assert {"Préfet des études", "Caissier", "Chef d'atelier"} <= set(names)
+    assert "Directeur" not in names
+    assert roles_of("+243000002001", volcans) == {"Directeur"}
+    assert roles_of("+243000002005", volcans) == {"Caissière"}
     assert Membership.objects.filter(school=demo["volcans"]).count() == 4
 
 
@@ -102,7 +108,7 @@ def test_demo_accounts_log_in_with_the_local_number(demo):
     head = authenticate(username="0000001001", password=DEMO_PASSWORD)
 
     assert head is not None
-    assert roles_of(head.phone, demo["itig"]) == {"head"}
+    assert roles_of(head.phone, demo["itig"]) == {"Préfet des études"}
     assert authenticate(username="0000000000", password=DEMO_PASSWORD).is_platform_admin
 
 
@@ -110,7 +116,7 @@ def test_one_demo_teacher_works_in_both_schools(demo):
     teacher = User.objects.get(phone="+243000001008")
 
     assert {m.school.code for m in teacher.memberships.all()} == {"itig", "volcans"}
-    assert roles_of(teacher.phone, demo["volcans"]) == {"teacher"}
+    assert roles_of(teacher.phone, demo["volcans"]) == {"Enseignant"}
 
 
 def test_workshop_head_is_a_role_of_the_itig_demo_only(demo):
@@ -123,8 +129,7 @@ def test_workshop_head_is_a_role_of_the_itig_demo_only(demo):
 def test_demo_can_run_twice_and_resets_the_demo(demo):
     itig = demo["itig"]
     with use_school(itig):
-        cashier = Role.objects.get(code="cashier")
-        cashier.name = "Caissier principal"
+        cashier = Role.objects.get(name="Caissier")
         cashier.permissions = []
         cashier.save()
     head = User.objects.get(phone="+243000001001")
@@ -144,8 +149,8 @@ def test_demo_can_run_twice_and_resets_the_demo(demo):
     assert Membership.objects.filter(school=itig).count() == 10
     with use_school(itig):
         assert Role.objects.count() == 10
-        cashier = Role.objects.get(code="cashier")
-    assert (cashier.name, cashier.permissions) == ("", list(SYSTEM_ROLES["cashier"].permissions))
+        cashier = Role.objects.get(name="Caissier")
+    assert cashier.permissions == list(STARTER_ROLES["cashier"].permissions)
     assert authenticate(username="0000001001", password=DEMO_PASSWORD) == head
     # Mot de passe déjà le bon : hachage gardé, `make demo` ne ferme pas les sessions ouvertes.
     assert User.objects.get(phone="+243000001002").password == kept
@@ -284,7 +289,7 @@ def test_another_demo_space_gets_the_same_data_in_its_own_numbers(db):
     staff = set(Membership.objects.filter(school=school).values_list("user__phone", flat=True))
     assert staff == {"+243004002001", "+243004002004", "+243004002005", "+243004001008"}
     head = authenticate(username="0004002001", password="mot-de-passe-vitrine")
-    assert roles_of(head.phone, school) == {"head"}
+    assert roles_of(head.phone, school) == {"Directeur"}
     assert not head.totp_enabled and not services.totp_required(head)
     with use_school(school):
         assert Student.objects.count() == 150

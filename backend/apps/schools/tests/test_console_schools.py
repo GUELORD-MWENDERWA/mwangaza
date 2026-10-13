@@ -98,7 +98,7 @@ def test_create_a_school_with_its_head(api, platform_admin):
     assert data["head"]["last_name"] == "Kasereka"
     with use_school(gamma):
         roles = Membership.objects.get(user=head, school=gamma).roles.all()
-        assert [role.code for role in roles] == ["head"]
+        assert [role.name for role in roles] == ["Directeur"]
     assert journal(gamma) == [Action.SCHOOL_CREATED, Action.STAFF_ADDED]
     log = PlatformAuditLog.objects.get()
     assert (log.action, log.actor, log.entity_label) == (

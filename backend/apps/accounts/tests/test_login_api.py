@@ -454,7 +454,7 @@ def test_session_without_second_factor_is_stopped_after_a_promotion(api, school,
     client = api()
     step(log_in(client, teacher))
     with use_school(school):
-        Membership.objects.get(user=teacher).roles.add(Role.objects.get(code="head"))
+        Membership.objects.get(user=teacher).roles.add(Role.objects.get(name="Directeur"))
 
     assert client.get(ROLES).json()["code"] == "totp_required"
     assert step(log_in(client, teacher)) == "totp_setup"

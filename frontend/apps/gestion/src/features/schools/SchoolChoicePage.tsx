@@ -3,7 +3,7 @@ import { Banner, Button, Card, Icon, SchoolBadge, StatusPill, Tag, cn } from "@m
 import { Link } from "react-router";
 
 import { errorMessage } from "../../lib/errors";
-import { displayName, roleName } from "../../lib/people";
+import { displayName } from "../../lib/people";
 import { useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { useLogout } from "../../lib/session";
@@ -54,7 +54,7 @@ export function SchoolChoicePage() {
                 <span className="text-sm text-ink-3">{new URL(item.url).host}</span>
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {item.roles.map((role) => (
-                    <Tag key={role.id}>{roleName(role, t)}</Tag>
+                    <Tag key={role.id}>{role.name}</Tag>
                   ))}
                 </div>
               </div>

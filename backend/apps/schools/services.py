@@ -107,7 +107,7 @@ def open_space(school: School, *, actor) -> School:
             # Déjà rempli : pas de liste « Mise en route » (`setup.py`).
             school.setup_completed_at = timezone.now()
             school.modules = modules.ALL_MODULES
-        school.save()  # rôles système copiés (`accounts/signals.py`)
+        school.save()  # modèle de départ des rôles copié (`accounts/signals.py`)
         _record_platform(PlatformAction.SCHOOL_CREATED, school, actor=actor)
         with use_school(school):
             audit.record(Action.SCHOOL_CREATED, school, actor=actor, after=_identity(school))

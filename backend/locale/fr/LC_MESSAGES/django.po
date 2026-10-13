@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 17:28+0200\n"
+"POT-Creation-Date: 2026-10-13 21:01+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -45,12 +45,12 @@ msgid ""
 msgstr ""
 "Double authentification réinitialisée : à réactiver à la prochaine connexion."
 
-#: apps/accounts/admin.py:166 apps/accounts/models.py:144
+#: apps/accounts/admin.py:166 apps/accounts/models.py:137
 msgid "permissions"
 msgstr "droits"
 
-#: apps/accounts/admin.py:181 apps/accounts/models.py:153
-#: apps/accounts/models.py:204
+#: apps/accounts/admin.py:181 apps/accounts/models.py:147
+#: apps/accounts/models.py:175
 msgid "roles"
 msgstr "rôles"
 
@@ -160,7 +160,7 @@ msgid "Replace your temporary password at your school's address first."
 msgstr ""
 "Remplacez d'abord votre mot de passe provisoire à l'adresse de votre école."
 
-#: apps/accounts/models.py:59 apps/accounts/models.py:251
+#: apps/accounts/models.py:59 apps/accounts/models.py:222
 #: apps/students/models.py:70
 msgid "phone"
 msgstr "téléphone"
@@ -185,7 +185,7 @@ msgstr "prénom"
 msgid "language"
 msgstr "langue"
 
-#: apps/accounts/models.py:70 apps/accounts/models.py:207
+#: apps/accounts/models.py:70 apps/accounts/models.py:178
 #: apps/finance/models.py:40 apps/finance/models.py:377
 msgid "active"
 msgstr "actif"
@@ -213,8 +213,8 @@ msgstr "clé TOTP"
 msgid "two-factor authentication enabled on"
 msgstr "double authentification activée le"
 
-#: apps/accounts/models.py:93 apps/accounts/models.py:198
-#: apps/accounts/models.py:234 apps/notifications/models.py:208
+#: apps/accounts/models.py:93 apps/accounts/models.py:169
+#: apps/accounts/models.py:205 apps/notifications/models.py:208
 #: apps/notifications/models.py:252 apps/notifications/models.py:310
 #: apps/notifications/models.py:349 apps/sync/models.py:22
 msgid "account"
@@ -224,63 +224,58 @@ msgstr "compte"
 msgid "accounts"
 msgstr "comptes"
 
-#: apps/accounts/models.py:135 apps/finance/models.py:373
-#: apps/schools/models.py:75 apps/schools/models.py:454
-msgid "code"
-msgstr "code"
-
-#: apps/accounts/models.py:141 apps/core/models.py:130
+#: apps/accounts/models.py:134 apps/core/models.py:130
 #: apps/finance/models.py:35 apps/finance/models.py:371
 #: apps/schools/models.py:91 apps/schools/models.py:331
-#: apps/schools/models.py:389 apps/schools/models.py:428
-#: apps/schools/models.py:452 apps/sync/models.py:27
+#: apps/schools/models.py:388 apps/schools/models.py:427
+#: apps/schools/models.py:451 apps/sync/models.py:27
 msgid "name"
 msgstr "nom"
 
-#: apps/accounts/models.py:152
+#: apps/accounts/models.py:146
 msgid "role"
 msgstr "rôle"
 
-#: apps/accounts/models.py:201 apps/core/models.py:52
+#: apps/accounts/models.py:172 apps/core/models.py:52
 #: apps/notifications/models.py:319 apps/schools/admin.py:59
 #: apps/schools/models.py:181 apps/schools/models.py:295
 msgid "school"
 msgstr "école"
 
-#: apps/accounts/models.py:209
+#: apps/accounts/models.py:180
 msgid "last login"
 msgstr "dernière connexion"
 
-#: apps/accounts/models.py:213
+#: apps/accounts/models.py:184
 msgid "membership"
 msgstr "appartenance"
 
-#: apps/accounts/models.py:214
+#: apps/accounts/models.py:185
 msgid "memberships"
 msgstr "appartenances"
 
-#: apps/accounts/models.py:237
+#: apps/accounts/models.py:208
 msgid "used on"
 msgstr "utilisé le"
 
-#: apps/accounts/models.py:241
+#: apps/accounts/models.py:212
 msgid "recovery code"
 msgstr "code de secours"
 
-#: apps/accounts/models.py:242
+#: apps/accounts/models.py:213
 msgid "recovery codes"
 msgstr "codes de secours"
 
-#: apps/accounts/models.py:252 apps/audit/models.py:70 apps/audit/models.py:136
+#: apps/accounts/models.py:223 apps/audit/models.py:70 apps/audit/models.py:136
 #: apps/audit/views.py:112
 msgid "IP address"
 msgstr "Adresse IP"
 
-#: apps/accounts/models.py:256
+#: apps/accounts/models.py:227
 msgid "failed login"
 msgstr "connexion ratée"
 
-#: apps/accounts/models.py:257
+#: apps/accounts/models.py:228
 msgid "failed logins"
 msgstr "connexions ratées"
 
@@ -331,117 +326,117 @@ msgstr ""
 "Saisissez un numéro de téléphone valide, par exemple 0971234567 ou "
 "+243971234567."
 
-#: apps/accounts/roles.py:17
+#: apps/accounts/roles.py:21
 msgid "Configure the school (name, logo, colour, currencies, receipts)"
 msgstr "Paramétrer l'école (nom, logo, couleur, devises, reçus)"
 
-#: apps/accounts/roles.py:18
+#: apps/accounts/roles.py:22
 msgid "Manage years, terms, levels, tracks, classes and student numbers"
 msgstr "Gérer les années, périodes, niveaux, options, classes et matricules"
 
-#: apps/accounts/roles.py:19
+#: apps/accounts/roles.py:23
 msgid "Manage staff accounts and roles"
 msgstr "Gérer les comptes du personnel et les rôles"
 
-#: apps/accounts/roles.py:20
+#: apps/accounts/roles.py:24
 msgid "View students"
 msgstr "Voir les élèves"
 
-#: apps/accounts/roles.py:21
+#: apps/accounts/roles.py:25
 msgid "Edit students"
 msgstr "Modifier les élèves"
 
-#: apps/accounts/roles.py:22
+#: apps/accounts/roles.py:26
 msgid "Import students from Excel"
 msgstr "Importer des élèves depuis Excel"
 
-#: apps/accounts/roles.py:23
+#: apps/accounts/roles.py:27
 msgid "Configure fees"
 msgstr "Paramétrer les frais"
 
-#: apps/accounts/roles.py:24
+#: apps/accounts/roles.py:28
 msgid "Set the exchange rate"
 msgstr "Saisir le taux de change"
 
-#: apps/accounts/roles.py:25
+#: apps/accounts/roles.py:29
 msgid "Grant discounts"
 msgstr "Accorder des réductions"
 
-#: apps/accounts/roles.py:26
+#: apps/accounts/roles.py:30
 msgid "Collect payments"
 msgstr "Encaisser des paiements"
 
-#: apps/accounts/roles.py:27
+#: apps/accounts/roles.py:31
 msgid "Request a payment cancellation"
 msgstr "Demander l'annulation d'un paiement"
 
-#: apps/accounts/roles.py:28
+#: apps/accounts/roles.py:32
 msgid "Approve a payment cancellation"
 msgstr "Valider l'annulation d'un paiement"
 
-#: apps/accounts/roles.py:29
+#: apps/accounts/roles.py:33
 msgid "Close a cash register"
 msgstr "Clôturer une caisse"
 
-#: apps/accounts/roles.py:30
+#: apps/accounts/roles.py:34
 msgid "View financial reports"
 msgstr "Voir les rapports financiers"
 
-#: apps/accounts/roles.py:31
+#: apps/accounts/roles.py:35
 msgid "Record what students paid before the school started here"
 msgstr ""
 "Enregistrer ce que les élèves avaient payé avant l'application (reprise)"
 
-#: apps/accounts/roles.py:32
+#: apps/accounts/roles.py:36
 msgid "Publish announcements"
 msgstr "Publier des annonces"
 
-#: apps/accounts/roles.py:33
+#: apps/accounts/roles.py:37
 msgid "View the audit log"
 msgstr "Voir le journal d'audit"
 
-#: apps/accounts/roles.py:92
+#: apps/accounts/roles.py:99
 msgid "Head of school"
-msgstr "Préfet des études"
+msgstr "Directeur"
 
-#: apps/accounts/roles.py:111
+#: apps/accounts/roles.py:118
 msgid "Director of studies"
 msgstr "Directeur des études"
 
-#: apps/accounts/roles.py:115
+#: apps/accounts/roles.py:122
 msgid "Discipline master"
 msgstr "Directeur de discipline"
 
-#: apps/accounts/roles.py:118
+#: apps/accounts/roles.py:125
 msgid "Accountant"
 msgstr "Comptable"
 
-#: apps/accounts/roles.py:133 apps/finance/documents.py:68
+#: apps/accounts/roles.py:140 apps/finance/documents.py:68
 msgid "Cashier"
 msgstr "Caissier"
 
-#: apps/accounts/roles.py:142
+#: apps/accounts/roles.py:149
 msgid "Secretary"
 msgstr "Secrétaire"
 
-#: apps/accounts/roles.py:145
+#: apps/accounts/roles.py:152
 msgid "Promoter"
 msgstr "Promoteur"
 
-#: apps/accounts/roles.py:148
+#: apps/accounts/roles.py:155
 msgid "Teacher"
 msgstr "Enseignant"
 
-#: apps/accounts/roles.py:149
+#: apps/accounts/roles.py:156
 #: apps/schools/templates/schools/access_sheet.html:36
 msgid "Parent"
 msgstr "Parent"
 
-#: apps/accounts/serializers.py:347
+#: apps/accounts/serializers.py:339
 msgid "Choose a password different from the current one."
 msgstr "Choisissez un mot de passe différent de l'actuel."
 
-#: apps/accounts/services.py:39
+#: apps/accounts/services.py:45
 msgid ""
 "This change would leave the school without an active account that can manage "
 "roles."
@@ -449,33 +444,29 @@ msgstr ""
 "Ce changement laisserait l'école sans compte actif capable de gérer les "
 "rôles."
 
-#: apps/accounts/services.py:42
-msgid "A system role cannot be deleted."
-msgstr "Un rôle système ne peut pas être supprimé."
-
-#: apps/accounts/services.py:44
+#: apps/accounts/services.py:49
 msgid "This role is still given to accounts: remove it from them first."
 msgstr "Ce rôle est encore attribué à des comptes : retirez-le-leur d'abord."
 
-#: apps/accounts/services.py:47
+#: apps/accounts/services.py:52
 msgid "The school already has a role with this name."
 msgstr "L'école a déjà un rôle de ce nom."
 
-#: apps/accounts/services.py:50
-msgid "A role created by the school needs a name."
-msgstr "Un rôle créé par l'école doit avoir un nom."
+#: apps/accounts/services.py:54
+msgid "A role needs a name."
+msgstr "Un rôle doit avoir un nom."
 
-#: apps/accounts/services.py:53
+#: apps/accounts/services.py:56
 msgid "This phone number already has an account in this school."
 msgstr "Ce numéro de téléphone a déjà un compte dans cette école."
 
-#: apps/accounts/services.py:57
+#: apps/accounts/services.py:60
 msgid "Numbers starting with 000 are kept for demonstration spaces."
 msgstr ""
 "Les numéros qui commencent par 000 sont réservés aux espaces de "
 "démonstration."
 
-#: apps/accounts/services.py:63
+#: apps/accounts/services.py:66
 msgid ""
 "A demonstration space only takes made-up numbers starting with 000 (for "
 "example 0001234567): never a real number."
@@ -483,11 +474,11 @@ msgstr ""
 "Un espace de démonstration n'accepte que des numéros fictifs commençant par "
 "000 (par exemple 0001234567) : jamais un vrai numéro."
 
-#: apps/accounts/services.py:69
+#: apps/accounts/services.py:72
 msgid "This phone number has no account yet: enter the last name."
 msgstr "Ce numéro de téléphone n'a pas encore de compte : saisissez le nom."
 
-#: apps/accounts/services.py:73
+#: apps/accounts/services.py:76
 msgid ""
 "This account is also used outside this school: only the platform support can "
 "change it."
@@ -495,11 +486,11 @@ msgstr ""
 "Ce compte sert aussi en dehors de cette école : seul le support de la "
 "plateforme peut le modifier."
 
-#: apps/accounts/services.py:76
+#: apps/accounts/services.py:79
 msgid "This phone number already has an account."
 msgstr "Ce numéro de téléphone a déjà un compte."
 
-#: apps/accounts/services.py:79
+#: apps/accounts/services.py:82
 msgid ""
 "A platform administrator account is changed in the Django administration "
 "only."
@@ -507,7 +498,7 @@ msgstr ""
 "Un compte de super-administrateur ne se modifie que dans l'administration "
 "Django."
 
-#: apps/accounts/services.py:85
+#: apps/accounts/services.py:88
 msgid ""
 "This account is only used for the parent portal: its school gives the parent "
 "a new family code instead."
@@ -515,15 +506,15 @@ msgstr ""
 "Ce compte ne sert qu'au portail des parents : son école donne plutôt au "
 "parent un nouveau code famille."
 
-#: apps/accounts/services.py:91
+#: apps/accounts/services.py:94
 msgid "This code is not valid, or it has already been used."
 msgstr "Ce code n'est pas valide, ou il a déjà été utilisé."
 
-#: apps/accounts/services.py:93
+#: apps/accounts/services.py:96
 msgid "The current password is not correct."
 msgstr "Le mot de passe actuel n'est pas correct."
 
-#: apps/accounts/services.py:97
+#: apps/accounts/services.py:100
 msgid ""
 "This demonstration account is shared between visitors: its password and its "
 "two-step verification do not change."
@@ -531,7 +522,7 @@ msgstr ""
 "Ce compte de démonstration est partagé entre les visiteurs : son mot de "
 "passe et sa double authentification ne se changent pas."
 
-#: apps/accounts/services.py:104
+#: apps/accounts/services.py:107
 msgid ""
 "One of your roles requires two-factor authentication: it cannot be turned "
 "off."
@@ -1104,11 +1095,11 @@ msgstr "entrée du journal de la plateforme"
 msgid "platform log"
 msgstr "journal de la plateforme"
 
-#: apps/audit/serializers.py:126
+#: apps/audit/serializers.py:141
 msgid "The end date is before the start date."
 msgstr "La date de fin est avant la date de début."
 
-#: apps/audit/serializers.py:180
+#: apps/audit/serializers.py:195
 msgid "Export at most one year at a time."
 msgstr "Exportez au plus une année à la fois."
 
@@ -1155,7 +1146,7 @@ msgstr "Heure de l'appareil"
 msgid "Audit log"
 msgstr "Journal d'audit"
 
-#: apps/audit/views.py:141
+#: apps/audit/views.py:142
 msgid "System"
 msgstr "Système"
 
@@ -1559,8 +1550,8 @@ msgstr "montant"
 msgid "due date"
 msgstr "échéance"
 
-#: apps/finance/models.py:130 apps/schools/models.py:388
-#: apps/schools/models.py:430
+#: apps/finance/models.py:130 apps/schools/models.py:387
+#: apps/schools/models.py:429
 msgid "order"
 msgstr "ordre"
 
@@ -1639,7 +1630,7 @@ msgid "Waiver from the head"
 msgstr "Exonération de la direction"
 
 #: apps/finance/models.py:247 apps/notifications/models.py:93
-#: apps/notifications/models.py:255 apps/schools/models.py:378
+#: apps/notifications/models.py:255 apps/schools/models.py:377
 #: apps/sync/models.py:26
 msgid "kind"
 msgstr "type"
@@ -1689,6 +1680,11 @@ msgstr "taux de change"
 #: apps/finance/models.py:343
 msgid "exchange rates"
 msgstr "taux de change"
+
+#: apps/finance/models.py:373 apps/schools/models.py:75
+#: apps/schools/models.py:453
+msgid "code"
+msgstr "code"
 
 #: apps/finance/models.py:375
 msgid "Capital letters and digits only."
@@ -2562,7 +2558,7 @@ msgstr "message"
 msgid "recipients"
 msgstr "destinataires"
 
-#: apps/notifications/models.py:27 apps/schools/models.py:521
+#: apps/notifications/models.py:27 apps/schools/models.py:520
 msgid "classes"
 msgstr "classes"
 
@@ -2609,7 +2605,7 @@ msgstr "lectures d'annonces"
 msgid "Holiday"
 msgstr "Congé"
 
-#: apps/notifications/models.py:82 apps/schools/models.py:370
+#: apps/notifications/models.py:82 apps/schools/models.py:369
 msgid "Exams"
 msgstr "Examens"
 
@@ -2638,12 +2634,12 @@ msgid "shown to"
 msgstr "montré à"
 
 #: apps/notifications/models.py:97 apps/schools/models.py:332
-#: apps/schools/models.py:390
+#: apps/schools/models.py:389
 msgid "start"
 msgstr "début"
 
 #: apps/notifications/models.py:98 apps/schools/models.py:333
-#: apps/schools/models.py:391
+#: apps/schools/models.py:390
 msgid "end"
 msgstr "fin"
 
@@ -2664,7 +2660,7 @@ msgstr "événements du calendrier"
 msgid "student"
 msgstr "élève"
 
-#: apps/notifications/models.py:129 apps/schools/models.py:520
+#: apps/notifications/models.py:129 apps/schools/models.py:519
 #: apps/students/models.py:170
 msgid "class"
 msgstr "classe"
@@ -3412,8 +3408,8 @@ msgstr "Clôturée"
 msgid "current year"
 msgstr "année en cours"
 
-#: apps/schools/models.py:341 apps/schools/models.py:376
-#: apps/schools/models.py:491 apps/students/models.py:167
+#: apps/schools/models.py:341 apps/schools/models.py:375
+#: apps/schools/models.py:490 apps/students/models.py:167
 #: apps/students/models.py:202 apps/students/models.py:228
 msgid "school year"
 msgstr "année scolaire"
@@ -3422,92 +3418,92 @@ msgstr "année scolaire"
 msgid "school years"
 msgstr "années scolaires"
 
-#: apps/schools/models.py:367
+#: apps/schools/models.py:366
 msgid "Semester"
 msgstr "Semestre"
 
-#: apps/schools/models.py:368
+#: apps/schools/models.py:367
 msgid "Term (trimester)"
 msgstr "Trimestre"
 
-#: apps/schools/models.py:369
+#: apps/schools/models.py:368
 msgid "Period"
 msgstr "Période"
 
-#: apps/schools/models.py:385
+#: apps/schools/models.py:384
 msgid "semester or term"
 msgstr "semestre ou trimestre"
 
-#: apps/schools/models.py:395
+#: apps/schools/models.py:394
 msgid "term"
 msgstr "période"
 
-#: apps/schools/models.py:396
+#: apps/schools/models.py:395
 msgid "terms"
 msgstr "périodes"
 
-#: apps/schools/models.py:421
+#: apps/schools/models.py:420
 msgid "Primary"
 msgstr "Primaire"
 
-#: apps/schools/models.py:422
+#: apps/schools/models.py:421
 msgid "Basic education (7th-8th)"
 msgstr "Éducation de base (7e-8e)"
 
-#: apps/schools/models.py:423
+#: apps/schools/models.py:422
 msgid "General secondary"
 msgstr "Humanités générales"
 
-#: apps/schools/models.py:424
+#: apps/schools/models.py:423
 msgid "Technical and vocational secondary"
 msgstr "Humanités techniques et professionnelles"
 
-#: apps/schools/models.py:425
+#: apps/schools/models.py:424
 msgid "Higher education"
 msgstr "Supérieur"
 
-#: apps/schools/models.py:426
+#: apps/schools/models.py:425
 msgid "Short vocational training"
 msgstr "Formation professionnelle courte"
 
-#: apps/schools/models.py:429
+#: apps/schools/models.py:428
 msgid "cycle"
 msgstr "cycle"
 
-#: apps/schools/models.py:434 apps/schools/models.py:494
+#: apps/schools/models.py:433 apps/schools/models.py:493
 msgid "level"
 msgstr "niveau"
 
-#: apps/schools/models.py:435
+#: apps/schools/models.py:434
 msgid "levels"
 msgstr "niveaux"
 
-#: apps/schools/models.py:458 apps/schools/serializers.py:404
+#: apps/schools/models.py:457 apps/schools/serializers.py:404
 msgid "1 to 10 capital letters or digits."
 msgstr "1 à 10 lettres majuscules ou chiffres."
 
-#: apps/schools/models.py:461
+#: apps/schools/models.py:460
 #, python-brace-format
 msgid "Used in the student number ({OPT}), e.g. ELEC."
 msgstr "Sert dans le matricule ({OPT}), ex. ELEC."
 
-#: apps/schools/models.py:466 apps/schools/models.py:502
+#: apps/schools/models.py:465 apps/schools/models.py:501
 msgid "track"
 msgstr "option"
 
-#: apps/schools/models.py:467
+#: apps/schools/models.py:466
 msgid "tracks"
 msgstr "options"
 
-#: apps/schools/models.py:504
+#: apps/schools/models.py:503
 msgid "section"
 msgstr "section"
 
-#: apps/schools/models.py:506
+#: apps/schools/models.py:505
 msgid "capacity"
 msgstr "capacité"
 
-#: apps/schools/models.py:515
+#: apps/schools/models.py:514
 msgid "homeroom teacher"
 msgstr "titulaire"
 

@@ -31,8 +31,8 @@ describe("guide de première connexion (M20)", () => {
       teacher: null,
       accountant: "accountant",
     });
-    // Rôle propre à l'école, sans code : guidé comme quiconque a ces droits.
-    const counter = [{ id: "00000000-0000-7000-8000-000000000009", code: "", name: "Guichet" }];
+    // Rôle créé par l'école : guidé comme quiconque a ces droits.
+    const counter = [{ id: "00000000-0000-7000-8000-000000000009", name: "Guichet" }];
     expect(guideFor(withRights(PERMISSIONS.cashier, counter as Schemas["RoleSummary"][]))).toBe(
       "cashier",
     );

@@ -6,20 +6,18 @@ import { me, PERMISSIONS, school } from "../../test/fixtures";
 import { renderApp } from "../../test/render";
 
 const id = (n: number) => `00000000-0000-7000-8000-${String(n).padStart(12, "0")}`;
-const role = (n: number, code: string, permissions: string[], extra = {}) => ({
+const role = (n: number, name: string, permissions: string[], extra = {}) => ({
   id: id(n),
-  code,
-  name: "",
-  is_system: code !== "",
+  name,
   permissions,
   member_count: 2,
   ...extra,
 });
 const roles = [
-  role(1, "head", PERMISSIONS.head, { member_count: 1 }),
-  role(2, "cashier", PERMISSIONS.cashier),
-  role(3, "parent", [], { member_count: 0 }),
-  role(4, "", ["finance.view_reports"], { name: "Surveillant de caisse", member_count: 0 }),
+  role(1, "Directeur", PERMISSIONS.head, { member_count: 1 }),
+  role(2, "Caissier", PERMISSIONS.cashier),
+  role(3, "Parent", [], { member_count: 0 }),
+  role(4, "Surveillant de caisse", ["finance.view_reports"], { member_count: 0 }),
 ];
 const person = (n: number, last: string, first: string, roleIds: string[]) => ({
   id: id(100 + n),
@@ -68,10 +66,8 @@ describe("Rôles et permissions (B1-B2)", () => {
     const { user } = renderApp("/roles");
 
     const nav = within(await screen.findByRole("navigation", { name: "Rôles et permissions" }));
-    expect(nav.getByRole("button", { name: /Caissier.*2 utilisateurs · prédéfini/ })).toBeTruthy();
-    expect(
-      nav.getByRole("button", { name: /Surveillant de caisse.*0 utilisateur · personnalisé/ }),
-    ).toBeTruthy();
+    expect(nav.getByRole("button", { name: /Caissier.*2 utilisateurs/ })).toBeTruthy();
+    expect(nav.getByRole("button", { name: /Surveillant de caisse.*0 utilisateur/ })).toBeTruthy();
     await user.click(nav.getByRole("button", { name: /Caissier/ }));
 
     const cashier = await editor("Caissier");
@@ -90,12 +86,12 @@ describe("Rôles et permissions (B1-B2)", () => {
 
     expect(await cashier.findByText("Rôle enregistré.")).toBeTruthy();
     expect(requests.find((r) => r.method === "PATCH")?.body).toEqual({
-      name: "",
+      name: "Caissier",
       permissions: ["students.view"],
     });
   });
 
-  it("renommer un rôle prédéfini ; nom déjà pris : refus traduit", async () => {
+  it("renommer un rôle ; nom déjà pris : refus traduit", async () => {
     mockApi(
       routes({
         "PATCH /api/roles/00000000-0000-7000-8000-000000000001/": apiError("role_name_taken", 409),
@@ -104,8 +100,8 @@ describe("Rôles et permissions (B1-B2)", () => {
     const { user } = renderApp("/roles");
 
     const head = await editor("Directeur");
-    expect(head.getByText("Vide : « Directeur ».")).toBeTruthy();
-    await user.type(head.getByLabelText("Nom du rôle"), "Préfet des études");
+    await user.clear(head.getByLabelText(/Nom du rôle/));
+    await user.type(head.getByLabelText(/Nom du rôle/), "Préfet des études");
     expect(head.getByRole("heading", { name: "Préfet des études" })).toBeTruthy();
     await user.click(head.getByRole("button", { name: "Enregistrer" }));
     expect(await head.findByText("L'école a déjà un rôle de ce nom.")).toBeTruthy();
@@ -137,7 +133,7 @@ describe("Rôles et permissions (B1-B2)", () => {
   });
 
   it("nouveau rôle, puis supprimé ; un rôle donné ne se supprime pas", async () => {
-    const created = role(5, "", [], { name: "Chef d'atelier", member_count: 0 });
+    const created = role(5, "Chef d'atelier", [], { member_count: 0 });
     const all = routes({
       "POST /api/roles/": created,
       "DELETE /api/roles/00000000-0000-7000-8000-000000000005/": () =>
@@ -164,9 +160,9 @@ describe("Rôles et permissions (B1-B2)", () => {
     await waitFor(() => expect(requests.some((r) => r.method === "DELETE")).toBe(true));
 
     await user.click(screen.getByRole("button", { name: /Caissier/ }));
-    expect(
-      (await editor("Caissier")).queryByRole("button", { name: "Supprimer le rôle" }),
-    ).toBeNull();
+    // Un rôle du modèle de départ se supprime comme un autre, sauf s'il est encore donné.
+    const remove = (await editor("Caissier")).getByRole("button", { name: "Supprimer le rôle" });
+    expect((remove as HTMLButtonElement).disabled).toBe(true);
   });
 
   it("rôle sans aucune permission : rien dans la Gestion", async () => {

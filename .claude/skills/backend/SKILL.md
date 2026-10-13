@@ -62,8 +62,9 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 ## Migrations
 
 - `makemigrations <app> --name <description>` ; ne jamais modifier une migration déjà appliquée ailleurs.
-- **Jamais de décision d'après un rôle** (`Role.code`, nom du rôle) : toujours une permission de `04` § 8 (M.3.1 ; les rôles deviennent libres en M.3.2).
-- Données de référence (rôles système, modèles d'année) : migration de données ou service appelé à la création de l'école.
+- **Jamais de décision d'après un rôle** (son nom) : toujours une permission de `04` § 8 (M.3.1 ; rôles libres, sans code, depuis M.3.2).
+- Champ ou modèle renommé ou retiré : chercher l'ancien nom **hors des `.py` aussi** — les parcours Playwright lancent du Python (`shell(...)` dans `frontend/e2e/*.ts`), et `frontend/guide/` le cite ; un `grep --include=*.py` ne les voit pas (M.3.2 : parcours rouge en CI).
+- Données de référence (modèle de départ des rôles, modèles d'année) : migration de données ou service appelé à la création de l'école. Un rôle n'a pas de code : dans un test, `MembershipFactory(roles=["cashier"])` ou `starter_role(school, "cashier")` (`tests/factories.py`) retrouvent un rôle de départ par son nom ; une migration qui donne une nouvelle permission vise les rôles qui ont déjà un droit voisin, jamais un nom.
 
 ## Tests (factory_boy, pytest-django) — obligatoires
 

@@ -94,7 +94,7 @@ def test_search_finds_accounts_in_every_school_with_their_roles_and_families(
         assert [row["id"] for row in rows] == [str(both.pk)]
     row = rows[0]
     assert {(m["school"]["code"], tuple(m["roles"])) for m in row["memberships"]} == {
-        (school.code, ("Préfet des études",)),
+        (school.code, ("Directeur",)),
         (other_school.code, ("Enseignant",)),
     }
     assert [(f["code"], f["school"]["code"]) for f in row["families"]] == [

@@ -10,7 +10,7 @@ from apps.accounts.login import Step
 from apps.accounts.models import Membership, Role, User
 from apps.accounts.modules import MODULE_CHOICES
 from apps.accounts.phone import INVALID_PHONE_MESSAGE, InvalidPhoneError, normalize_phone
-from apps.accounts.roles import PERMISSION_CHOICES, SYSTEM_ROLES, TOTP_PERMISSIONS
+from apps.accounts.roles import PERMISSION_CHOICES, TOTP_PERMISSIONS
 from apps.schools.models import School
 from apps.schools.serializers import logo_url
 
@@ -19,21 +19,9 @@ class PermissionListField(serializers.ListField):
     child = serializers.ChoiceField(choices=PERMISSION_CHOICES)
 
 
-def role_code_field() -> serializers.ChoiceField:
-    return serializers.ChoiceField(
-        choices=[(code, role.label) for code, role in SYSTEM_ROLES.items()],
-        allow_blank=True,
-        read_only=True,
-        help_text="Code du rôle système ; vide pour un rôle créé par l'école.",
-    )
-
-
 class RoleSerializer(serializers.ModelSerializer):
-    """Rôle de l'école. `name` vide pour un rôle système : l'interface affiche le nom traduit de
-    son `code`."""
+    """Rôle de l'école : un nom et des permissions."""
 
-    code = role_code_field()
-    is_system = serializers.BooleanField(read_only=True)
     permissions = PermissionListField(required=False)
     member_count = serializers.SerializerMethodField(
         help_text="Comptes actifs qui ont ce rôle dans l'école."
@@ -41,8 +29,9 @@ class RoleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Role
-        fields = ["id", "code", "name", "is_system", "permissions", "member_count"]
-        read_only_fields = ["id", "code"]
+        fields = ["id", "name", "permissions", "member_count"]
+        read_only_fields = ["id"]
+        # Nom manquant ou vide : refusé par le service (`role_name_required`).
         extra_kwargs = {"name": {"required": False, "allow_blank": True}}
 
     @extend_schema_field(serializers.IntegerField())
@@ -53,11 +42,9 @@ class RoleSerializer(serializers.ModelSerializer):
 
 
 class RoleSummarySerializer(serializers.ModelSerializer):
-    code = role_code_field()
-
     class Meta:
         model = Role
-        fields = ["id", "code", "name"]
+        fields = ["id", "name"]
 
 
 class StaffUserSerializer(serializers.ModelSerializer):

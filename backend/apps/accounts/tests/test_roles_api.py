@@ -3,9 +3,9 @@
 import pytest
 
 from apps.accounts.models import Role
-from apps.accounts.roles import SYSTEM_ROLES
+from apps.accounts.roles import STARTER_ROLES
 from apps.core.tenancy import use_school
-from tests.factories import MembershipFactory
+from tests.factories import MembershipFactory, starter_role
 
 pytestmark = pytest.mark.django_db
 
@@ -25,7 +25,7 @@ def custom_role(school, name="Chef d'atelier", permissions=("students.view",)) -
 # Lecture
 
 
-def test_list_system_roles_then_school_roles_with_member_counts(api, head, school):
+def test_list_roles_in_creation_order_with_member_counts(api, head, school):
     custom_role(school)
     MembershipFactory(school=school, roles=["cashier"])
     MembershipFactory(school=school, roles=["cashier"])
@@ -33,30 +33,18 @@ def test_list_system_roles_then_school_roles_with_member_counts(api, head, schoo
 
     results = api(head).get(URL).json()["results"]
 
-    assert [r["code"] for r in results] == [*SYSTEM_ROLES, ""]
-    by_code = {r["code"]: r for r in results}
-    assert by_code["cashier"]["member_count"] == 2
-    assert by_code["head"]["member_count"] == 1
-    assert by_code["cashier"]["is_system"] is True
-    assert by_code["cashier"]["name"] == ""
-    assert by_code["cashier"]["permissions"] == list(SYSTEM_ROLES["cashier"].permissions)
-    assert by_code[""] | {"id": None} == {
+    assert len(results) == len(STARTER_ROLES) + 1
+    by_name = {r["name"]: r for r in results}
+    assert by_name["Caissier"]["member_count"] == 2
+    assert by_name["Directeur"]["member_count"] == 1
+    assert by_name["Caissier"]["permissions"] == list(STARTER_ROLES["cashier"].permissions)
+    # Rien ne distingue un rôle du modèle de départ d'un rôle créé par l'école.
+    assert results[-1] | {"id": None} == {
         "id": None,
-        "code": "",
         "name": "Chef d'atelier",
-        "is_system": False,
         "permissions": ["students.view"],
         "member_count": 0,
     }
-
-
-def test_retrieve(api, head, school):
-    cashier = role(school, code="cashier")
-
-    data = api(head).get(f"{URL}{cashier.id}/").json()
-
-    assert data["code"] == "cashier"
-    assert data["member_count"] == 0
 
 
 # Création (B2)
@@ -74,19 +62,10 @@ def test_create_school_role(api, head, school):
     assert response.status_code == 201, response.content
     data = response.json()
     assert data["name"] == "Surveillant de caisse"
-    assert data["code"] == ""
-    assert data["is_system"] is False
     assert data["permissions"] == ["students.view", "finance.view_reports"]
     assert data["member_count"] == 0
     created = role(school, pk=data["id"])
     assert created.created_by == head
-
-
-def test_create_ignores_a_code(api, head, school):
-    response = api(head).post(URL, {"name": "Faux directeur", "code": "head"})
-
-    assert response.status_code == 201
-    assert response.json()["code"] == ""
 
 
 def test_create_needs_a_name(api, head):
@@ -115,50 +94,44 @@ def test_create_refuses_an_unknown_permission(api, head):
 # Modification
 
 
-def test_rename_a_system_role_then_go_back_to_its_translated_name(api, head, school):
-    head_role = role(school, code="head")
+def test_rename_a_starter_role(api, head, school):
+    head_role = starter_role(school, "head")
 
     renamed = api(head).patch(f"{URL}{head_role.id}/", {"name": "Préfet des études"})
-    cleared = api(head).patch(f"{URL}{head_role.id}/", {"name": ""})
+    taken = api(head).patch(f"{URL}{head_role.id}/", {"name": "caissier"})
 
     assert renamed.status_code == 200
     assert renamed.json()["name"] == "Préfet des études"
-    assert cleared.json()["name"] == ""
-    assert role(school, code="head").name == ""
+    assert (taken.status_code, taken.json()["code"]) == (409, "role_name_taken")
+    assert role(school, pk=head_role.pk).name == "Préfet des études"
 
 
-def test_school_role_keeps_a_name(api, head, school):
-    custom = custom_role(school)
+@pytest.mark.parametrize("key", ["cashier", None])
+def test_every_role_keeps_a_name(api, head, school, key):
+    # Un rôle du modèle de départ comme un rôle créé par l'école.
+    target = starter_role(school, key) if key else custom_role(school)
 
-    response = api(head).patch(f"{URL}{custom.id}/", {"name": " "})
+    response = api(head).patch(f"{URL}{target.id}/", {"name": " "})
 
     assert response.status_code == 400
     assert response.json()["code"] == "role_name_required"
-    assert role(school, pk=custom.pk).name == "Chef d'atelier"
+    assert role(school, pk=target.pk).name == target.name
 
 
-def test_change_permissions_of_a_system_role(api, head, school):
-    cashier = role(school, code="cashier")
+def test_change_permissions_of_a_role(api, head, school):
+    cashier = starter_role(school, "cashier")
 
     response = api(head).patch(
         f"{URL}{cashier.id}/", {"permissions": ["finance.close_register", "students.view"]}
     )
 
     assert response.status_code == 200
-    assert role(school, code="cashier").permissions == ["students.view", "finance.close_register"]
-
-
-def test_code_cannot_be_changed(api, head, school):
-    custom = custom_role(school)
-
-    api(head).patch(f"{URL}{custom.id}/", {"code": "head"})
-
-    assert role(school, pk=custom.pk).code == ""
+    assert role(school, pk=cashier.pk).permissions == ["students.view", "finance.close_register"]
 
 
 def test_put_is_not_allowed(api, head, school):
     response = api(head).client.put(
-        f"{URL}{role(school, code='cashier').id}/",
+        f"{URL}{starter_role(school, 'cashier').id}/",
         {"name": "x"},
         content_type="application/json",
         HTTP_HOST="alpha.localhost",
@@ -172,19 +145,19 @@ def test_put_is_not_allowed(api, head, school):
 
 
 def test_cannot_remove_roles_manage_from_the_only_managers(api, head, school):
-    head_role = role(school, code="head")
+    head_role = starter_role(school, "head")
 
     response = api(head).patch(f"{URL}{head_role.id}/", {"permissions": ["students.view"]})
 
     assert response.status_code == 409
     assert response.json()["code"] == "last_role_manager"
-    assert "roles.manage" in role(school, code="head").permissions
+    assert "roles.manage" in role(school, pk=head_role.pk).permissions
 
 
 def test_can_remove_roles_manage_when_another_role_keeps_it(api, head, school):
     manager = custom_role(school, name="Gestionnaire", permissions=["roles.manage"])
     MembershipFactory(school=school, roles=[manager])
-    head_role = role(school, code="head")
+    head_role = starter_role(school, "head")
 
     response = api(head).patch(f"{URL}{head_role.id}/", {"permissions": ["students.view"]})
 
@@ -194,14 +167,16 @@ def test_can_remove_roles_manage_when_another_role_keeps_it(api, head, school):
 # Suppression
 
 
-def test_delete_an_unused_school_role(api, head, school):
-    custom = custom_role(school)
+@pytest.mark.parametrize("key", ["teacher", None])
+def test_delete_an_unused_role(api, head, school, key):
+    # Plus de rôle protégé : celui du modèle de départ se supprime comme un autre.
+    target = starter_role(school, key) if key else custom_role(school)
 
-    response = api(head).delete(f"{URL}{custom.id}/")
+    response = api(head).delete(f"{URL}{target.id}/")
 
     assert response.status_code == 204
     with use_school(school):
-        assert not Role.objects.filter(pk=custom.pk).exists()
+        assert not Role.objects.filter(pk=target.pk).exists()
 
 
 def test_cannot_delete_a_role_still_given(api, head, school):
@@ -214,11 +189,15 @@ def test_cannot_delete_a_role_still_given(api, head, school):
     assert response.json()["code"] == "role_in_use"
 
 
-def test_cannot_delete_a_system_role(api, head, school):
-    response = api(head).delete(f"{URL}{role(school, code='teacher').id}/")
+def test_the_role_of_the_last_role_manager_cannot_be_deleted(api, head, school):
+    # Garde-fou : ce rôle est donné à quelqu'un, et le dernier gestionnaire ne peut pas se le
+    # retirer (`test_staff_api`) ; l'école garde donc toujours un compte qui gère les rôles.
+    head_role = starter_role(school, "head")
 
-    assert response.status_code == 409
-    assert response.json()["code"] == "system_role"
+    response = api(head).delete(f"{URL}{head_role.id}/")
+
+    assert (response.status_code, response.json()["code"]) == (409, "role_in_use")
+    assert role(school, pk=head_role.pk).permissions == list(STARTER_ROLES["head"].permissions)
 
 
 # Permission et isolation
@@ -226,7 +205,7 @@ def test_cannot_delete_a_system_role(api, head, school):
 
 @pytest.mark.parametrize("method", ["get", "post", "patch", "delete"])
 def test_without_roles_manage_everything_is_refused(api, cashier, school, method):
-    target = role(school, code="teacher")
+    target = starter_role(school, "teacher")
     path = URL if method == "post" else f"{URL}{target.id}/"
 
     response = getattr(api(cashier), method)(path)

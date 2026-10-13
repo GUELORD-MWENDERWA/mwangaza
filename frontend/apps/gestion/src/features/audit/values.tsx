@@ -5,7 +5,6 @@ import { formatDateTime, formatDay, fr, type TFunction } from "@mwangaza/i18n";
 import { type Currency, formatAmount } from "@mwangaza/money";
 import type { ReactNode } from "react";
 
-import { roleName } from "../../lib/people";
 import { snapshotTree, termLabels, type TermKind } from "../../lib/terms";
 
 type Log = Schemas["AuditLog"];
@@ -92,7 +91,10 @@ export function renderValue(
         )
         .join(", ");
     case "roles":
-      return (value as Schemas["RoleSummary"][]).map((role) => roleName(role, t)).join(", ");
+      // Nom vide : rôle noté sans nom avant M.3.2, et supprimé depuis.
+      return (value as Schemas["RoleSummary"][])
+        .map((role) => role.name || t("roles.deleted"))
+        .join(", ");
     case "second_factor":
       return String(value) in fr.audit.values
         ? t(`audit.values.${value as "totp"}`)

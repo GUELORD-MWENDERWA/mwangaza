@@ -102,7 +102,7 @@ def test_school_rights_except_the_cash(in_support):
 
 def test_each_action_of_the_session_is_marked(in_support, school, platform_admin):
     with use_school(school):
-        role = Role.objects.get(code="teacher")
+        role = Role.objects.get(name="Enseignant")
 
     response = in_support.patch(f"/api/roles/{role.id}/", {"name": "Professeur"})
 

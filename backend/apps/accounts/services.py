@@ -24,7 +24,13 @@ from django.utils.translation import gettext_lazy as _
 from apps.accounts import modules, totp
 from apps.accounts.models import Membership, RecoveryCode, Role, User
 from apps.accounts.phone import demo_block, is_demo_phone, normalize_phone
-from apps.accounts.roles import ROLES_MANAGE, SYSTEM_ROLES, TOTP_PERMISSIONS, sorted_permissions
+from apps.accounts.roles import (
+    ROLES_MANAGE,
+    STARTER_ROLES,
+    TOTP_PERMISSIONS,
+    sorted_permissions,
+    starter_role_name,
+)
 from apps.audit import services as audit
 from apps.audit.actions import Action, PlatformAction
 from apps.core.crypto import DecryptionError, decrypt, encrypt
@@ -39,16 +45,13 @@ LAST_ROLE_MANAGER = ApiError(
     _("This change would leave the school without an active account that can manage roles."),
     409,
 )
-SYSTEM_ROLE = ApiError("system_role", _("A system role cannot be deleted."), 409)
 ROLE_IN_USE = ApiError(
     "role_in_use", _("This role is still given to accounts: remove it from them first."), 409
 )
 ROLE_NAME_TAKEN = ApiError(
     "role_name_taken", _("The school already has a role with this name."), 409
 )
-ROLE_NAME_REQUIRED = ApiError(
-    "role_name_required", _("A role created by the school needs a name."), 400
-)
+ROLE_NAME_REQUIRED = ApiError("role_name_required", _("A role needs a name."), 400)
 ALREADY_MEMBER = ApiError(
     "already_member", _("This phone number already has an account in this school."), 409
 )
@@ -109,18 +112,16 @@ TOTP_STILL_REQUIRED = ApiError(
 _PASSWORD_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"
 
 
-# Rôles système
+# Modèle de départ
 
 
-def create_system_roles(school: School) -> list[Role]:
-    """Copie dans l'école les rôles système qui lui manquent, avec leurs permissions par défaut
-    (`docs/04` § 8). Relançable : un rôle déjà là n'est pas touché."""
+def create_starter_roles(school: School) -> list[Role]:
+    """Copie le modèle de départ (`docs/04` § 8) dans une école neuve : des rôles ordinaires,
+    qu'elle renomme, modifie et supprime ensuite. Une seule fois, à sa création."""
     with use_school(school):
-        existing = set(Role.objects.exclude(code="").values_list("code", flat=True))
         return Role.objects.bulk_create(
-            Role(code=code, permissions=list(role.permissions))
-            for code, role in SYSTEM_ROLES.items()
-            if code not in existing
+            Role(name=starter_role_name(key), permissions=list(role.permissions))
+            for key, role in STARTER_ROLES.items()
         )
 
 
@@ -186,11 +187,9 @@ def _keeping_a_role_manager(school: School) -> Iterator[None]:
 # Rôles
 
 
-def _check_role_name(name: str, *, is_system: bool, role_id=None) -> None:
+def _check_role_name(name: str, *, role_id=None) -> None:
     if not name:
-        if not is_system:
-            raise BusinessError(ROLE_NAME_REQUIRED)
-        return
+        raise BusinessError(ROLE_NAME_REQUIRED)
     if Role.objects.filter(name__iexact=name).exclude(pk=role_id).exists():
         raise BusinessError(ROLE_NAME_TAKEN)
 
@@ -200,8 +199,7 @@ def _role_data(role: Role) -> dict:
 
 
 def _role_summary(role: Role) -> dict:
-    # Nom vide pour un rôle système : l'interface traduit son code.
-    return {"id": str(role.pk), "code": role.code, "name": role.name}
+    return {"id": str(role.pk), "name": role.name}
 
 
 def _role_summaries(roles: Iterable[Role]) -> list[dict]:
@@ -209,11 +207,11 @@ def _role_summaries(roles: Iterable[Role]) -> list[dict]:
 
 
 def create_role(*, actor: User, name: str, permissions: Iterable[str]) -> Role:
-    """Rôle propre à l'école courante (B2), ex. « Chef d'atelier »."""
+    """Nouveau rôle de l'école courante (B2), ex. « Chef d'atelier »."""
     require_current_school()
     name = name.strip()
     with transaction.atomic():
-        _check_role_name(name, is_system=False)
+        _check_role_name(name)
         role = Role.objects.create(
             name=name, permissions=sorted_permissions(permissions), created_by=actor
         )
@@ -226,14 +224,13 @@ def create_role(*, actor: User, name: str, permissions: Iterable[str]) -> Role:
 def update_role(
     role: Role, *, actor: User, name: str | None = None, permissions: Iterable[str] | None = None
 ) -> Role:
-    """Renommer un rôle (nom vide pour un rôle système = son nom traduit) ou changer ses
-    permissions."""
+    """Renommer un rôle ou changer ses permissions."""
     with transaction.atomic(), _keeping_a_role_manager(role.school):
         before = _role_data(role)
         fields = ["updated_at"]
         if name is not None:
             role.name = name.strip()
-            _check_role_name(role.name, is_system=role.is_system, role_id=role.pk)
+            _check_role_name(role.name, role_id=role.pk)
             fields.append("name")
         if permissions is not None:
             role.permissions = sorted_permissions(permissions)
@@ -248,9 +245,8 @@ def update_role(
 
 
 def delete_role(role: Role, *, actor: User) -> None:
-    """Supprimer un rôle créé par l'école, s'il n'est plus donné à personne."""
-    if role.is_system:
-        raise BusinessError(SYSTEM_ROLE)
+    """Supprimer un rôle, s'il n'est plus donné à personne : l'école garde donc toujours celui
+    de son dernier gestionnaire des rôles."""
     with transaction.atomic():
         if role.memberships.exists():
             raise BusinessError(ROLE_IN_USE)

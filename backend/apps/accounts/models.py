@@ -15,7 +15,7 @@ from django.db.models.functions import Lower
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.phone import InvalidPhoneError, PhoneNumberField, normalize_phone
-from apps.accounts.roles import PERMISSION_CHOICES, SYSTEM_ROLE_CODES, SYSTEM_ROLES
+from apps.accounts.roles import PERMISSION_CHOICES
 from apps.core.models import BaseModel, TenantModel
 
 
@@ -125,20 +125,13 @@ class User(BaseModel, AbstractBaseUser):
 
 
 class Role(TenantModel):
-    """Rôle d'une école [T] : un ensemble de codes de permissions.
+    """Rôle d'une école [T] : un nom et un ensemble de codes de permissions.
 
-    Rôle système : `code` (`head`, `cashier`…), nom vide = l'interface affiche le nom traduit ;
-    l'école peut le renommer et changer ses permissions, pas le supprimer. Rôle de l'école
-    (ex. « Chef d'atelier ») : sans code, avec un nom."""
+    Tous les rôles sont ceux de l'école : elle les renomme, change leurs permissions et les
+    supprime (s'ils ne sont donnés à personne). Une école neuve reçoit le modèle de départ
+    (`roles.STARTER_ROLES`), rien de plus : aucun rôle n'a de code ni de statut à part."""
 
-    code = models.CharField(
-        _("code"),
-        max_length=30,
-        blank=True,
-        editable=False,
-        choices=[(code, role.label) for code, role in SYSTEM_ROLES.items()],
-    )
-    name = models.CharField(_("name"), max_length=80, blank=True)
+    name = models.CharField(_("name"), max_length=80)
     permissions = ArrayField(
         models.CharField(max_length=50, choices=PERMISSION_CHOICES),
         verbose_name=_("permissions"),
@@ -147,42 +140,20 @@ class Role(TenantModel):
     )
 
     class Meta:
-        # UUID v7 croissants : rôles système dans l'ordre de `docs/04` § 8, puis ceux de l'école.
+        # UUID v7 croissants : rôles du modèle de départ dans l'ordre de `docs/04` § 8, puis ceux
+        # que l'école a créés.
         ordering = ["id"]
         verbose_name = _("role")
         verbose_name_plural = _("roles")
         constraints = [
             models.UniqueConstraint(
-                fields=["school", "code"],
-                condition=~models.Q(code=""),
-                name="role_code_unique_per_school",
+                models.F("school"), Lower("name"), name="role_name_unique_per_school"
             ),
-            models.UniqueConstraint(
-                models.F("school"),
-                Lower("name"),
-                condition=~models.Q(name=""),
-                name="role_name_unique_per_school",
-            ),
-            models.CheckConstraint(
-                condition=models.Q(code="") | models.Q(code__in=SYSTEM_ROLE_CODES),
-                name="role_code_is_a_system_role",
-            ),
-            models.CheckConstraint(
-                condition=~models.Q(code="") | ~models.Q(name=""),
-                name="role_has_code_or_name",
-            ),
+            models.CheckConstraint(condition=~models.Q(name=""), name="role_has_a_name"),
         ]
 
     def __str__(self) -> str:
-        return str(self.display_name)
-
-    @property
-    def is_system(self) -> bool:
-        return bool(self.code)
-
-    @property
-    def display_name(self):
-        return self.name or SYSTEM_ROLES[self.code].label
+        return self.name
 
 
 class Membership(BaseModel):

@@ -82,7 +82,7 @@ def test_permission_comes_from_the_roles_of_the_school(api, school):
     # Rôle créé par l'école avec `roles.manage` : accès ; directeur privé du code : refus.
     with use_school(school):
         manager = Role.objects.create(name="Gestionnaire", permissions=["roles.manage"])
-        head_role = Role.objects.get(code="head")
+        head_role = Role.objects.get(name="Directeur")
     custom = MembershipFactory(school=school, roles=[manager]).user
     head = MembershipFactory(school=school, roles=["head"]).user
     with use_school(school):
@@ -143,7 +143,7 @@ def test_role_given_during_the_session_asks_for_it(api, school):
     membership = MembershipFactory(school=school, roles=["teacher"])
     client = api(membership.user, mfa=False)
     with use_school(school):
-        membership.roles.set([Role.objects.get(code="head")])
+        membership.roles.set([Role.objects.get(name="Directeur")])
 
     assert client.get(URL).json()["code"] == "totp_required"
 

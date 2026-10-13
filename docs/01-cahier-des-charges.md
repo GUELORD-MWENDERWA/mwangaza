@@ -79,7 +79,7 @@ Le nom doit venir de chez nous, être court, facile à dire au téléphone et é
 
 ### 6.2 École
 
-Rôles prédéfinis : promoteur, préfet des études / directeur, directeur des études, directeur de discipline, secrétaire, comptable, caissier, économe / intendant, titulaire, enseignant, surveillant, bibliothécaire, infirmier, chauffeur / responsable transport.
+Rôles proposés au départ (un modèle : l'école les renomme, les modifie et les supprime) : promoteur, préfet des études / directeur, directeur des études, directeur de discipline, secrétaire, comptable, caissier, économe / intendant, titulaire, enseignant, surveillant, bibliothécaire, infirmier, chauffeur / responsable transport.
 
 - Chaque école peut créer ses propres rôles en cochant des permissions.
 - Une personne peut cumuler plusieurs rôles (ex : enseignant + titulaire + parent).

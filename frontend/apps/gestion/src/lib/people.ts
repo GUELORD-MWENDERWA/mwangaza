@@ -10,14 +10,9 @@ export function displayName(me: Pick<Me, "first_name" | "middle_name" | "last_na
   return [me.first_name || me.middle_name, me.last_name].filter(Boolean).join(" ");
 }
 
-/** Nom d'un rôle : celui donné par l'école, sinon le nom traduit du rôle système. */
-export function roleName(role: Role, t: TFunction): string {
-  if (role.name) return role.name;
-  return role.code ? t(`roles.${role.code}`) : "";
-}
-
+/** Rôles d'une personne, sous le nom que l'école leur donne. */
 export function rolesLabel(roles: Role[], t: TFunction): string {
-  return roles.length ? roles.map((role) => roleName(role, t)).join(", ") : t("roles.none");
+  return roles.length ? roles.map((role) => role.name).join(", ") : t("roles.none");
 }
 
 // Partagé avec le Portail.

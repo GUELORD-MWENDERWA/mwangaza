@@ -8,7 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 
 from apps.accounts.models import Membership, Role, User
-from apps.accounts.roles import ROLES_MANAGE, SYSTEM_ROLES, SystemRole
+from apps.accounts.roles import ROLES_MANAGE, STARTER_ROLES, StarterRole
 from apps.accounts.services import get_school_access
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
@@ -53,7 +53,7 @@ def test_create_a_school_with_a_new_director(platform_admin, school):
     assert membership.user.check_password(password)
     with use_school(gamma):
         assert Role.objects.count() == 9
-        assert list(membership.roles.values_list("code", flat=True)) == ["head"]
+        assert list(membership.roles.values_list("name", flat=True)) == ["Directeur"]
     created, added = journal(gamma)
     assert created.action == Action.SCHOOL_CREATED
     assert created.actor == platform_admin
@@ -66,12 +66,14 @@ def test_create_a_school_with_a_new_director(platform_admin, school):
 
 
 def test_the_director_gets_the_starting_role_that_manages_accounts(platform_admin, monkeypatch):
-    # Le rôle est choisi par sa permission, pas par son code : sans elle l'école ne pourrait
-    # donner aucun droit à personne.
-    promoter = SYSTEM_ROLES["promoter"]
-    monkeypatch.setitem(SYSTEM_ROLES, "head", SystemRole(SYSTEM_ROLES["head"].label, ()))
+    # Le rôle est choisi par sa permission, pas par sa place ni son nom : sans elle l'école ne
+    # pourrait donner aucun droit à personne.
+    promoter = STARTER_ROLES["promoter"]
+    monkeypatch.setitem(STARTER_ROLES, "head", StarterRole(STARTER_ROLES["head"].label, ()))
     monkeypatch.setitem(
-        SYSTEM_ROLES, "promoter", SystemRole(promoter.label, (*promoter.permissions, ROLES_MANAGE))
+        STARTER_ROLES,
+        "promoter",
+        StarterRole(promoter.label, (*promoter.permissions, ROLES_MANAGE)),
     )
 
     membership, _password = services.create_school(
@@ -79,7 +81,7 @@ def test_the_director_gets_the_starting_role_that_manages_accounts(platform_admi
     )
 
     with use_school(membership.school):
-        assert [role.code for role in membership.roles.all()] == ["promoter"]
+        assert [role.name for role in membership.roles.all()] == ["Promoteur"]
     assert ROLES_MANAGE in get_school_access(membership.user, membership.school).permissions
 
 

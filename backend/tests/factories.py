@@ -6,6 +6,7 @@ from django.utils import timezone
 from apps.accounts import totp
 from apps.accounts.models import Membership, Role, User
 from apps.accounts.modules import ALL_MODULES
+from apps.accounts.roles import starter_role_name
 from apps.core.crypto import encrypt
 from apps.core.tenancy import use_school
 from apps.schools.models import School
@@ -37,8 +38,15 @@ class UserFactory(factory.django.DjangoModelFactory):
     password = factory.django.Password(TEST_PASSWORD)
 
 
+def starter_role(school, key: str) -> Role:
+    """Le rôle du modèle de départ `key` (`"head"`, `"cashier"`…) dans `school`, retrouvé par le
+    nom qu'il reçoit à la création de l'école : un rôle n'a pas de code."""
+    with use_school(school):
+        return Role.objects.get(name=starter_role_name(key))
+
+
 class MembershipFactory(factory.django.DjangoModelFactory):
-    """`roles` : codes de rôles système (`"head"`) ou objets `Role` de la même école."""
+    """`roles` : clés du modèle de départ (`"head"`) ou objets `Role` de la même école."""
 
     class Meta:
         model = Membership
@@ -53,7 +61,8 @@ class MembershipFactory(factory.django.DjangoModelFactory):
             return
         with use_school(self.school):
             self.roles.set(
-                Role.objects.get(code=role) if isinstance(role, str) else role for role in extracted
+                starter_role(self.school, role) if isinstance(role, str) else role
+                for role in extracted
             )
 
 

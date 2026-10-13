@@ -6,6 +6,7 @@ import pytest
 
 from apps.accounts import services
 from apps.accounts.models import Membership, RecoveryCode, Role, User
+from apps.accounts.roles import starter_role_name
 from apps.core.tenancy import use_school
 from tests.factories import (
     TEST_PASSWORD,
@@ -22,12 +23,12 @@ URL = "/api/staff/"
 
 def role_id(school, code) -> str:
     with use_school(school):
-        return str(Role.objects.get(code=code).id)
+        return str(Role.objects.get(name=starter_role_name(code)).id)
 
 
-def role_codes(membership) -> set[str]:
+def role_names(membership) -> set[str]:
     with use_school(membership.school):
-        return {role.code for role in membership.roles.all()}
+        return {role.name for role in membership.roles.all()}
 
 
 # Liste
@@ -129,7 +130,7 @@ def test_add_a_new_person(api, head, school):
     assert user.created_by == head
     membership = Membership.objects.get(pk=data["id"])
     assert (membership.school, membership.created_by) == (school, head)
-    assert role_codes(membership) == {"cashier"}
+    assert role_names(membership) == {"Caissier"}
 
 
 def test_temporary_password_is_shown_only_once(api, head, school):
@@ -175,7 +176,7 @@ def test_add_a_person_who_already_has_an_account_elsewhere(api, head, school, ot
     assert (user.last_name, user.first_name) == ("Ombeni", "Baraka")
     assert user.check_password(TEST_PASSWORD)
     assert "beta" not in response.content.decode().lower()
-    assert role_codes(Membership.objects.get(user=user, school=other_school)) == {"head"}
+    assert role_names(Membership.objects.get(user=user, school=other_school)) == {"Directeur"}
 
 
 def test_cannot_add_someone_twice(api, head, school):
@@ -239,7 +240,7 @@ def test_change_roles(api, head, school):
         role_id(school, "accountant"),
         role_id(school, "teacher"),
     }
-    assert role_codes(member) == {"accountant", "teacher"}
+    assert role_names(member) == {"Comptable", "Enseignant"}
 
 
 def test_deactivate_then_reactivate(api, head, school):
@@ -273,7 +274,7 @@ def test_role_of_another_school_is_refused_on_update(api, head, school, other_sc
     response = api(head).patch(f"{URL}{member.id}/", {"roles": [role_id(other_school, "head")]})
 
     assert response.status_code == 400
-    assert role_codes(member) == {"cashier"}
+    assert role_names(member) == {"Caissier"}
 
 
 def test_cannot_delete_an_account(api, head, school):
@@ -296,7 +297,7 @@ def test_last_head_cannot_remove_their_own_head_role(api, head, school):
 
     assert response.status_code == 409
     assert response.json()["code"] == "last_role_manager"
-    assert role_codes(membership) == {"head"}
+    assert role_names(membership) == {"Directeur"}
 
 
 def test_last_head_cannot_deactivate_themself(api, head, school):
@@ -353,7 +354,7 @@ def test_other_school_member_is_not_found(api, other_head, school, other_school,
     assert response.status_code == 404
     alpha_member.refresh_from_db()
     assert alpha_member.is_active
-    assert role_codes(alpha_member) == {"cashier"}
+    assert role_names(alpha_member) == {"Caissier"}
 
 
 def test_other_school_head_cannot_give_roles_here(api, other_head, school):
@@ -539,7 +540,7 @@ def test_names_of_an_account_used_elsewhere_are_refused(api, head, school, other
     member.user.refresh_from_db()
     assert member.user.last_name == "Kambale"
     # Tout est refusé : les rôles non plus ne changent pas.
-    assert role_codes(member) == {"teacher"}
+    assert role_names(member) == {"Enseignant"}
 
 
 @pytest.mark.parametrize("action", ["new-password", "reset-totp"])

@@ -241,7 +241,7 @@ def access_sheet(school: School) -> dict:
         )
         accounts = [
             {
-                "role": ", ".join(str(role.display_name) for role in member.roles.all()),
+                "role": ", ".join(role.name for role in member.roles.all()),
                 "name": member.user.get_full_name(),
                 "phone": typed(member.user.phone),
             }

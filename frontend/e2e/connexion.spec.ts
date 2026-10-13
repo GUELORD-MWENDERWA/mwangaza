@@ -83,6 +83,7 @@ test("démonstration : pas de code ; espace d'essai : double authentification ob
   // Le même rôle dans un espace d'essai (créé ici, hors de la plage de numéros réservée).
   shell(`from apps.accounts import services
 from apps.accounts.models import Membership, Role, User
+from apps.accounts.roles import starter_role_name
 from apps.core.tenancy import use_school
 from apps.schools.models import School
 school, _ = School.objects.get_or_create(
@@ -96,7 +97,7 @@ user.save()
 services.reset_totp(user)
 membership, _ = Membership.objects.get_or_create(user=user, school=school)
 with use_school(school):
-    membership.roles.set([Role.objects.get(code="promoter")])
+    membership.roles.set([Role.objects.get(name=starter_role_name("promoter"))])
 `);
   await page.goto("http://essaie2e.localhost:5173/app/");
   await enterPassword(page, "0100001007");

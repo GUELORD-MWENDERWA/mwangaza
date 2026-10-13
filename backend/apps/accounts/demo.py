@@ -16,8 +16,7 @@ from django.utils import timezone
 
 from apps.accounts import services
 from apps.accounts.models import LoginFailure, Membership, Role, User
-from apps.accounts.roles import SYSTEM_ROLES, TOTP_PERMISSIONS
-from apps.accounts.services import create_system_roles
+from apps.accounts.roles import STARTER_ROLES, TOTP_PERMISSIONS, starter_role_name
 from apps.core.crypto import encrypt
 from apps.core.tenancy import use_school
 from apps.schools.demo import DemoSpace
@@ -45,10 +44,12 @@ def set_demo_password(user: User, password: str) -> None:
 
 PLATFORM_ADMIN_PHONE = "+243000000000"
 
-# Rôle propre au profil `itig` (Q7) : un rôle créé par l'école, pas un rôle du code.
+# Chaque école fictive nomme ses rôles à sa façon : ceux du modèle de départ qu'elle a renommés
+# (clé du modèle → son nom), et ceux qu'elle a créés (Q7 : nom → permissions).
+ROLE_NAMES = {"itig": {"head": "Préfet des études"}, "volcans": {"cashier": "Caissière"}}
 WORKSHOP_HEAD = "Chef d'atelier"
-CASH_DESK_PC = "PC Caisse · Windows · Edge"
 CUSTOM_ROLES = {"itig": {WORKSHOP_HEAD: ["students.view"]}}
+CASH_DESK_PC = "PC Caisse · Windows · Edge"
 
 
 @dataclass(frozen=True)
@@ -57,7 +58,7 @@ class DemoAccount:
     last_name: str
     middle_name: str
     first_name: str
-    # Profil → rôle : code d'un rôle système, ou nom d'un rôle de l'école.
+    # Profil → rôle : clé du modèle de départ, ou nom d'un rôle créé par l'école.
     roles: dict[str, str]
     description: str
     # Développement : pas de clé commune pour ce compte, il se connecte sans code, comme dans un
@@ -142,19 +143,26 @@ DEMO_ACCOUNTS = [
 
 
 def _reset_roles(space: DemoSpace) -> dict[str, Role]:
-    """Rôles système remis à leurs permissions par défaut, rôles de démonstration du profil."""
-    create_system_roles(space.school)
+    """Rôles du profil : ceux du modèle de départ, sous le nom que l'école fictive leur donne et
+    avec leurs permissions de départ, puis ceux qu'elle a créés. Un rôle que le visiteur a renommé
+    n'est pas retrouvé : il reste tel quel, et celui de la démonstration est recréé."""
+    renamed = ROLE_NAMES.get(space.profile, {})
     roles = {}
     with use_school(space.school):
-        for role in Role.objects.exclude(code=""):
-            role.name = ""
-            role.permissions = list(SYSTEM_ROLES[role.code].permissions)
+        # Sans casse, comme l'unicité du nom dans l'école.
+        existing = {role.name.lower(): role for role in Role.objects.all()}
+        for key, starter in STARTER_ROLES.items():
+            default = starter_role_name(key)
+            name = renamed.get(key, default)
+            role = existing.get(name.lower()) or existing.get(default.lower()) or Role()
+            role.name, role.permissions = name, list(starter.permissions)
             role.save()
-            roles[role.code] = role
+            roles[key] = role
         for name, permissions in CUSTOM_ROLES.get(space.profile, {}).items():
-            roles[name], _created = Role.objects.update_or_create(
-                name=name, defaults={"permissions": permissions}
-            )
+            role = existing.get(name.lower()) or Role()
+            role.name, role.permissions = name, permissions
+            role.save()
+            roles[name] = role
     return roles
 
 

@@ -76,7 +76,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Paramètres de l'école | `gestion/parametres-ecole.html` | V1.0 | A1, § 8.1 · M5 | à valider ; 5.6.2 : carte « Relances aux parents » dessinée par Claude d'après « Alertes au directeur » et codée |
 | Organisation scolaire | `gestion/organisation-scolaire.html` | V1.0 | C1–C3 | fournie — écart (4.13) : interrupteur « Attribuer un matricule automatiquement » en haut de la carte « Format du matricule » ; sur non, le modèle est grisé |
 | Comptes du personnel | `gestion/personnel-comptes.html` | V1.0 | B1–B3 · M3 | à valider |
-| Rôles et permissions | `gestion/roles-permissions.html` | V1.0 | B1–B2 | fournie — écart (M.3.1) : note d'information sur tout rôle sans aucune permission cochée |
+| Rôles et permissions | `gestion/roles-permissions.html` | V1.0 | B1–B2 | fournie — écarts : note d'information sur tout rôle sans aucune permission cochée (M.3.1) ; plus de mention « prédéfini / personnalisé », nom obligatoire et bouton « Supprimer » pour tous les rôles (M.3.2) |
 | Appareils et synchronisation | `gestion/appareils-synchro.html` | V1.0 | F5, B5 | fournie |
 | Journal d'audit | `gestion/journal-audit.html` | V1.0 | I1 · M6 | à valider |
 | Super-admin — écoles (`admin.mwangaza.school`) | `gestion/superadmin-ecoles.html` | V1.0 (fonctions dans l'administration Django, 1.5) ; remplacée par `console/ecoles` (5.3) | A1–A3 | fournie |

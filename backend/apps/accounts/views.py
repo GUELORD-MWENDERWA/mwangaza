@@ -149,8 +149,8 @@ class RoleViewSet(
     mixins.DestroyModelMixin,
     SchoolViewSet,
 ):
-    """Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
-    l'école (B1 à B2)."""
+    """Rôles de l'école (B1 à B2) : ceux du modèle de départ et ceux qu'elle a créés, tous
+    renommables, modifiables et supprimables (s'ils ne sont donnés à personne)."""
 
     serializer_class = RoleSerializer
     required_permission = ROLES_MANAGE

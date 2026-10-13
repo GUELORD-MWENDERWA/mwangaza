@@ -4,7 +4,7 @@ authentification ; la personne change sa langue."""
 import pytest
 
 from apps.accounts.models import Role
-from apps.accounts.roles import SYSTEM_ROLES
+from apps.accounts.roles import STARTER_ROLES
 from apps.core.tenancy import use_school
 from tests.factories import MembershipFactory, UserFactory
 
@@ -24,7 +24,7 @@ def test_head_sees_their_roles_and_permissions(api, school):
     user = UserFactory(last_name="Kambale", middle_name="Muhindo", first_name="Patrice")
     MembershipFactory(user=user, school=school, roles=["head"])
     with use_school(school):
-        head_role = Role.objects.get(code="head")
+        head_role = Role.objects.get(name="Directeur")
 
     data = api(user).get(URL).json()
 
@@ -50,14 +50,14 @@ def test_head_sees_their_roles_and_permissions(api, school):
             "primary_color": "#0E5C6B",
             "text_color": "#FFFFFF",
             "logo": None,
-            "roles": [{"id": str(head_role.id), "code": "head", "name": ""}],
+            "roles": [{"id": str(head_role.id), "name": "Directeur"}],
             "last_login_at": None,
         }
     ]
     school_data = data["school"]
     assert (school_data["code"], school_data["name"]) == ("alpha", "École Alpha (fictive)")
-    assert school_data["roles"] == [{"id": str(head_role.id), "code": "head", "name": ""}]
-    assert school_data["permissions"] == list(SYSTEM_ROLES["head"].permissions)
+    assert school_data["roles"] == [{"id": str(head_role.id), "name": "Directeur"}]
+    assert school_data["permissions"] == list(STARTER_ROLES["head"].permissions)
 
 
 def test_one_account_in_two_schools(api, school, other_school):
@@ -70,9 +70,9 @@ def test_one_account_in_two_schools(api, school, other_school):
     at_platform = api(user, host="localhost").get(URL).json()
 
     assert [s["code"] for s in at_alpha["schools"]] == ["alpha", "beta"]
-    assert [r["code"] for r in at_alpha["school"]["roles"]] == ["head"]
+    assert [r["name"] for r in at_alpha["school"]["roles"]] == ["Directeur"]
     # Dans chaque école, seulement les rôles et permissions de cette école.
-    assert [r["code"] for r in at_beta["school"]["roles"]] == ["teacher"]
+    assert [r["name"] for r in at_beta["school"]["roles"]] == ["Enseignant"]
     assert at_beta["school"]["permissions"] == []
     # Adresse générale : choix de l'école (M2), aucun droit.
     assert at_platform["school"] is None
@@ -96,8 +96,8 @@ def test_each_school_with_its_own_roles_colour_and_last_visit(api, school, other
     schools = {s["code"]: s for s in api(user).get(URL).json()["schools"]}
 
     beta = schools["beta"]
-    assert sorted(r["code"] for r in beta["roles"]) == ["secretary", "teacher"]
-    assert [r["code"] for r in schools["alpha"]["roles"]] == ["head"]
+    assert sorted(r["name"] for r in beta["roles"]) == ["Enseignant", "Secrétaire"]
+    assert [r["name"] for r in schools["alpha"]["roles"]] == ["Directeur"]
     assert beta["url"] == "http://beta.localhost:5173"
     assert (beta["primary_color"], beta["text_color"]) == ("#F2C94C", "#1A2233")
     assert beta["logo"].startswith("http://beta.localhost:5173/api/school/logo/?v=")
@@ -119,7 +119,7 @@ def test_roles_of_another_person_are_never_listed(api, school, other_school, hea
     data = api(head).get(URL).json()
 
     assert [s["code"] for s in data["schools"]] == ["alpha"]
-    assert [r["code"] for r in data["schools"][0]["roles"]] == ["head"]
+    assert [r["name"] for r in data["schools"][0]["roles"]] == ["Directeur"]
 
 
 def test_no_access_to_a_school_where_the_account_has_no_role(api, head, other_school):
@@ -154,7 +154,7 @@ def test_role_that_requires_it_in_another_school_counts(api, school, other_schoo
     data = api(user).get(URL).json()
 
     assert data["totp_required"] is True
-    assert [r["code"] for r in data["school"]["roles"]] == ["teacher"]
+    assert [r["name"] for r in data["school"]["roles"]] == ["Enseignant"]
 
 
 def test_language_can_be_changed(api, school):

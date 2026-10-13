@@ -8206,8 +8206,8 @@ paths:
     get:
       operationId: roles_list
       description: |-
-        Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
-        l'école (B1 à B2).
+        Rôles de l'école (B1 à B2) : ceux du modèle de départ et ceux qu'elle a créés, tous
+        renommables, modifiables et supprimables (s'ils ne sont donnés à personne).
       parameters:
       - name: page
         required: false
@@ -8241,8 +8241,8 @@ paths:
     post:
       operationId: roles_create
       description: |-
-        Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
-        l'école (B1 à B2).
+        Rôles de l'école (B1 à B2) : ceux du modèle de départ et ceux qu'elle a créés, tous
+        renommables, modifiables et supprimables (s'ils ne sont donnés à personne).
       tags:
       - accounts
       requestBody:
@@ -8287,8 +8287,8 @@ paths:
     get:
       operationId: roles_retrieve
       description: |-
-        Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
-        l'école (B1 à B2).
+        Rôles de l'école (B1 à B2) : ceux du modèle de départ et ceux qu'elle a créés, tous
+        renommables, modifiables et supprimables (s'ils ne sont donnés à personne).
       parameters:
       - in: path
         name: id
@@ -8323,8 +8323,8 @@ paths:
     patch:
       operationId: roles_partial_update
       description: |-
-        Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
-        l'école (B1 à B2).
+        Rôles de l'école (B1 à B2) : ceux du modèle de départ et ceux qu'elle a créés, tous
+        renommables, modifiables et supprimables (s'ils ne sont donnés à personne).
       parameters:
       - in: path
         name: id
@@ -8376,8 +8376,8 @@ paths:
     delete:
       operationId: roles_destroy
       description: |-
-        Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
-        l'école (B1 à B2).
+        Rôles de l'école (B1 à B2) : ceux du modèle de départ et ceux qu'elle a créés, tous
+        renommables, modifiables et supprimables (s'ils ne sont donnés à personne).
       parameters:
       - in: path
         name: id
@@ -12987,28 +12987,6 @@ components:
       - differences
       - registers
       - unclosed
-    CodeEnum:
-      enum:
-      - head
-      - study_director
-      - discipline_master
-      - accountant
-      - cashier
-      - secretary
-      - promoter
-      - teacher
-      - parent
-      type: string
-      description: |-
-        * `head` - Head of school
-        * `study_director` - Director of studies
-        * `discipline_master` - Discipline master
-        * `accountant` - Accountant
-        * `cashier` - Cashier
-        * `secretary` - Secretary
-        * `promoter` - Promoter
-        * `teacher` - Teacher
-        * `parent` - Parent
     CodeRequest:
       type: object
       properties:
@@ -17762,9 +17740,7 @@ components:
           $ref: '#/components/schemas/LanguageEnum'
     PatchedRoleRequest:
       type: object
-      description: |-
-        Rôle de l'école. `name` vide pour un rôle système : l'interface affiche le nom traduit de
-        son `code`.
+      description: 'Rôle de l''école : un nom et des permissions.'
       properties:
         name:
           type: string
@@ -19407,37 +19383,15 @@ components:
       - reason
     Role:
       type: object
-      description: |-
-        Rôle de l'école. `name` vide pour un rôle système : l'interface affiche le nom traduit de
-        son `code`.
+      description: 'Rôle de l''école : un nom et des permissions.'
       properties:
         id:
           type: string
           format: uuid
           readOnly: true
-        code:
-          readOnly: true
-          description: |-
-            Code du rôle système ; vide pour un rôle créé par l'école.
-
-            * `head` - Head of school
-            * `study_director` - Director of studies
-            * `discipline_master` - Discipline master
-            * `accountant` - Accountant
-            * `cashier` - Cashier
-            * `secretary` - Secretary
-            * `promoter` - Promoter
-            * `teacher` - Teacher
-            * `parent` - Parent
-          oneOf:
-          - $ref: '#/components/schemas/CodeEnum'
-          - $ref: '#/components/schemas/BlankEnum'
         name:
           type: string
           maxLength: 80
-        is_system:
-          type: boolean
-          readOnly: true
         permissions:
           type: array
           items:
@@ -19448,16 +19402,12 @@ components:
           description: Comptes actifs qui ont ce rôle dans l'école.
       required:
       - id
-      - code
       - name
-      - is_system
       - permissions
       - member_count
     RoleRequest:
       type: object
-      description: |-
-        Rôle de l'école. `name` vide pour un rôle système : l'interface affiche le nom traduit de
-        son `code`.
+      description: 'Rôle de l''école : un nom et des permissions.'
       properties:
         name:
           type: string
@@ -19473,29 +19423,11 @@ components:
           type: string
           format: uuid
           readOnly: true
-        code:
-          readOnly: true
-          description: |-
-            Code du rôle système ; vide pour un rôle créé par l'école.
-
-            * `head` - Head of school
-            * `study_director` - Director of studies
-            * `discipline_master` - Discipline master
-            * `accountant` - Accountant
-            * `cashier` - Cashier
-            * `secretary` - Secretary
-            * `promoter` - Promoter
-            * `teacher` - Teacher
-            * `parent` - Parent
-          oneOf:
-          - $ref: '#/components/schemas/CodeEnum'
-          - $ref: '#/components/schemas/BlankEnum'
         name:
           type: string
           maxLength: 80
       required:
       - id
-      - code
       - name
     ScheduleKindEnum:
       enum:

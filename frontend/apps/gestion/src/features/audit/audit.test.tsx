@@ -40,11 +40,11 @@ const logs = [
   log(3, "staff.roles_changed", {
     entity_type: "accounts.membership",
     entity_label: "Jeanne Kavira",
-    before: { roles: [{ id: id(9), code: "cashier", name: "" }] },
+    before: { roles: [{ id: id(9), name: "Caissier" }] },
     after: {
       roles: [
-        { id: id(9), code: "cashier", name: "" },
-        { id: id(8), code: "", name: "Chef d'atelier" },
+        { id: id(9), name: "Caissier" },
+        { id: id(8), name: "Chef d'atelier" },
       ],
     },
   }),
