@@ -79,6 +79,7 @@ Partout : activer la double authentification et garder les codes de secours. Les
 **Après la panne du 2026-10-13 (serveur figé pendant la construction)** — à faire une fois dans la console Lightsail :
 - **IP statique** : onglet *Mise en réseau* → *Créer une IP statique* → l'attacher à `mwangaza-vps-prod`. Sans elle, un arrêt puis démarrage (pas un simple redémarrage) change l'adresse et casse le DNS et `SERVEUR`. Si l'adresse change, mets-la à jour dans `serveur.env` et dans les enregistrements `A` de Cloudflare (`@` et `*`).
 - **HTTPS en IPv6** : dans le pare-feu, la règle HTTPS 443 doit être cochée **aussi pour IPv6** (comme 22 et 80).
+- **Alarmes** : onglet *Metrics* de l'instance → *Add alarm* : « Status check failed (instance) » et « CPU utilization » > 90 % pendant 15 min, notification par e-mail. Avec le moniteur UptimeRobot (§ 9 bis, étape 5), tu es prévenu en quelques minutes d'un serveur muet.
 - **Mémoire** : `make deploy-setup` pose maintenant 2 Go de swap et protège SSH (sans danger si relancé) ; `make deploy` refuse de construire sans swap. Les conteneurs ont des limites de mémoire : un conteneur qui déborde est relancé seul, la machine ne se fige plus.
 
 ## 9 sexies. Guide de démarrage du personnel : installer la Gestion (4.24)

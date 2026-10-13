@@ -56,7 +56,7 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 
 ### 2026-10-13 — Panne urgente : serveur injoignable après la mise en ligne (PR séparée, demande de l'utilisateur)
 Fait : cause probable = construction des images (3 applications `tsc` + Vite en parallèle, puis compilation Go de Caddy) sur 2 Go de RAM **sans swap** : machine figée, SSH compris. Corrigé : swap 2 Go et `sshd` protégé (`preparer.sh`), construction en série (Dockerfile, `COMPOSE_PARALLEL_LIMIT=1`, `nice`), limites de mémoire des conteneurs, `make deploy` refuse sans swap. Documenté : IP statique, 443 en IPv6, conduite à tenir (`A-FAIRE.md` § 9 ter et 12, skill `deployer`).
-Pas vérifié : le serveur lui-même (injoignable) ; la cause exacte attend les sorties de `free -h` et du journal du noyau. Suite : redémarrer l'instance, `make deploy-setup`, `make deploy`.
+Cause **confirmée** par le journal du noyau (`journalctl -k -b -1`) : `tsc invoked oom-killer` à 07:44, `Out of memory: Killed process (celery)` à 07:32 et 07:44 ; machine au ralenti jusqu'au redémarrage de 09:17. Suite : redémarrer l'instance, `make deploy-setup`, `make deploy`.
 
 ### 2026-10-13 — Tâche 4.7.2 : sauvegardes hors du serveur, erreurs, sonde
 Fait : après chaque sauvegarde, copie chiffrée vers Backblaze B2 par `rclone` (variables `BACKUP_B2_*` de `serveur.env`, rotation distante 30 / 7 jours), ping d'alerte Healthchecks (`/fail` si une étape échoue), `fetch` pour rapatrier la dernière copie, `make deploy-backup` ; `rclone` installé par `preparer.sh` ; Sentry (`sentry-sdk`, `config/sentry.py`, sans donnée personnelle) si `SENTRY_DSN`.
