@@ -2,9 +2,7 @@
 # Contexte : la racine du dépôt, filtrée par `.dockerignore` (jamais `prive/`, `depot/` ni `.env`).
 #   backend : Django (gunicorn) et Celery
 #   caddy   : HTTPS, les deux PWA construites et les fichiers statiques de Django
-#   caddy-reseau : la même, avec le module DuckDNS, pour l'essai sur plusieurs appareils
 #   caddy-production : la même, avec le module Cloudflare, pour le vrai serveur (4.6.3)
-#                  (`make reseau`, `docker-compose.reseau.yml`) ; jamais sur le serveur
 
 # --- Front : Gestion et Portail construits (vérification des types comprise)
 FROM node:22-slim AS front
@@ -66,14 +64,6 @@ COPY --from=front /front/apps/gestion/dist /srv/gestion
 COPY --from=front /front/apps/portail/dist /srv/portail
 COPY --from=front /front/apps/console/dist /srv/console
 COPY --from=backend /app/staticfiles /srv/static
-
-# --- Essai sur plusieurs appareils : Caddy avec le module DuckDNS (certificat par DNS)
-FROM caddy:2-builder AS caddy-builder
-RUN xcaddy build --with github.com/caddy-dns/duckdns@v0.5.0
-
-FROM caddy AS caddy-reseau
-COPY --from=caddy-builder /usr/bin/caddy /usr/bin/caddy
-COPY infra/Caddyfile.reseau /etc/caddy/Caddyfile
 
 # --- Vrai serveur : Caddy avec le module Cloudflare (certificat joker par DNS)
 FROM caddy:2-builder AS caddy-production-builder

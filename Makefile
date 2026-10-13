@@ -12,27 +12,21 @@ WITHOUT_DEV_ENV := env $(addprefix -u ,$(DEV_VARS))
 COMPOSE := docker compose -f infra/docker-compose.dev.yml
 # Essai de la production sur la machine : mêmes images que le serveur, valeurs de infra/local.env.
 PROD_LOCAL := $(WITHOUT_DEV_ENV) docker compose -f infra/docker-compose.yml --env-file infra/local.env -p mwangaza-essai
-# Essai sur plusieurs appareils du même réseau (adresse DuckDNS, vrai certificat) : valeurs de
-# infra/reseau/reseau.env (hors Git), créé par `make reseau`.
-RESEAU := $(WITHOUT_DEV_ENV) docker compose -f infra/docker-compose.yml -f infra/docker-compose.reseau.yml --env-file infra/reseau/reseau.env -p mwangaza-reseau
-ESSAI := cd backend && uv run python ../infra/reseau/essai.py
-# Serveur de démonstration en ligne (Oracle Cloud + DuckDNS), piloté par SSH : valeurs de
+# Vrai serveur (AWS Lightsail), piloté par SSH : valeurs de
 # infra/serveur/serveur.env (hors Git), créé au premier lancement.
 DEPLOYER := infra/serveur/deployer.sh
-# Sauvegardes (4.7.1) : la pile du développement, ou les images du serveur avec pile=reseau ou
-# pile=essai. Un dossier par pile : on ne restaure pas la sauvegarde d'une pile dans une autre.
+# Sauvegardes (4.7.1) : la pile du développement, ou les images du serveur avec pile=essai. Un dossier par pile : on ne restaure pas la sauvegarde d'une pile dans une autre.
 pile ?= dev
 SAUVEGARDE_dev := COMPOSE='$(COMPOSE)' MEDIA_DIR=backend/media
 SAUVEGARDE_essai := COMPOSE='$(PROD_LOCAL)'
-SAUVEGARDE_reseau := COMPOSE='$(RESEAU)'
 SAUVEGARDE := $(SAUVEGARDE_$(pile)) BACKUP_DIR=sauvegardes/$(pile) infra/backup/sauvegarde.sh
 MANAGE := cd backend && uv run python manage.py
 
 .DEFAULT_GOAL := help
 .PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp relances messages superuser shell \
 	test test-back test-front test-e2e lint lint-back lint-front format api api-schema build \
-	prod-local prod-local-stop reseau reseau-ip reseau-demo reseau-superuser reseau-stop \
-	deploy-setup deploy deploy-demo deploy-superuser deploy-logs deploy-ssh backup restore
+	prod-local prod-local-stop \
+	deploy-init deploy-check deploy-setup deploy deploy-superuser deploy-logs deploy-ssh backup restore
 
 help: ## Afficher les commandes
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  make %-15s %s\n", $$1, $$2}'
@@ -150,49 +144,25 @@ prod-local: ## Essayer la production sur la machine (images du serveur, Caddy) :
 prod-local-stop: ## Arrêter l'essai de la production (données gardées ; tout effacer : ajouter --volumes à la commande)
 	$(PROD_LOCAL) down
 
-reseau: ## Essai sur plusieurs appareils du même réseau, vrai certificat (A-FAIRE.md § 9 bis) : https://www.<adresse>.duckdns.org/
-	$(ESSAI) init
-	$(ESSAI) ip
-	$(ESSAI) accueil
-	mkdir -p infra/certs
-	$(PROD_LOCAL) down
-	$(RESEAU) up --build --detach --wait
-	@$(ESSAI) adresses
-
-reseau-ip: ## Remettre l'adresse de la machine dans DuckDNS (réseau changé) ; make reseau-ip ip=… pour la choisir
-	$(ESSAI) ip $(ip)
-
-reseau-demo: ## Données fictives dans l'essai sur plusieurs appareils (espaces de démonstration, sans code)
-	$(RESEAU) exec django python manage.py demo
-
-reseau-superuser: ## Créer un compte super-admin dans l'essai sur plusieurs appareils (console)
-	$(RESEAU) exec django python manage.py createsuperuser
-
-reseau-stop: ## Arrêter l'essai sur plusieurs appareils (données et certificat gardés)
-	$(RESEAU) down
-
 deploy-init: ## Vrai serveur AWS (4.6.3) : créer infra/serveur/serveur.env (MODE=production, secrets neufs) à remplir
 	$(DEPLOYER) init
 
 deploy-check: ## Vrai serveur : HTTPS, certificat et santé de l'API depuis cette machine
 	$(DEPLOYER) check
 
-deploy-setup: ## Serveur de démonstration en ligne : le préparer, une seule fois (A-FAIRE.md § 9 ter)
+deploy-setup: ## Vrai serveur : le préparer, une seule fois
 	$(DEPLOYER) setup
 
-deploy: ## Mettre en ligne main sur le serveur de démonstration ; make deploy ref=origin/<branche> pour une autre
+deploy: ## Mettre en ligne main sur le vrai serveur ; make deploy ref=origin/<branche> pour une autre
 	$(DEPLOYER) deploy $(ref)
 
-deploy-demo: ## Données fictives sur le serveur de démonstration (mot de passe propre au serveur, dans serveur.env)
-	$(DEPLOYER) demo
-
-deploy-superuser: ## Créer un compte super-admin sur le serveur de démonstration
+deploy-superuser: ## Créer un compte super-admin sur le vrai serveur
 	$(DEPLOYER) superuser
 
-deploy-logs: ## Derniers journaux du serveur de démonstration ; make deploy-logs service=django
+deploy-logs: ## Derniers journaux du vrai serveur ; make deploy-logs service=django
 	$(DEPLOYER) logs $(service)
 
-deploy-ssh: ## Ouvrir une session sur le serveur de démonstration
+deploy-ssh: ## Ouvrir une session sur le vrai serveur
 	$(DEPLOYER) ssh
 
 # Clé de la machine (données fictives) si `.env` n'en donne pas ; un vrai serveur a la sienne.

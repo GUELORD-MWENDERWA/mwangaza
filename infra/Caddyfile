@@ -11,7 +11,7 @@
 	}
 }
 
-# Routes de chaque adresse (`routes.caddy`), communes avec l'essai sur plusieurs appareils.
+# Routes de chaque adresse (`routes.caddy`).
 import routes.caddy
 
 (site) {

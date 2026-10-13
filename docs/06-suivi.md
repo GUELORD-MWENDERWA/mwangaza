@@ -6,10 +6,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | V1.0 finie (recette du 2026-10-12), en attente de la mise en ligne ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`, guide de présentation `docs/guide/presentation-v1.1.pdf`) |
-| Lot | V1.0 (mise en ligne), puis V1.2 |
-| Tâche en cours | aucune — 4.24 faite (installation obligatoire de la Gestion ; PR ouverte, branche `feat/installation-pwa`) ; vrai serveur en ligne : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | 4.7.2 (sauvegardes hors du serveur, dès que le stockage objet est créé), 4.23 ; puis 6.1 (V1.2 — carte de l'élève et du personnel) |
+| Phase | V1.0 en ligne (2026-10-13) ; reste 4.7.2 et 4.23 ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`, guide de présentation `docs/guide/presentation-v1.1.pdf`) |
+| Lot | V1.0 (fin : 4.7.2, 4.23), puis modules et rôles libres (M.1 à M.3, voir le journal du 2026-10-13), puis V1.2 |
+| Tâche en cours | nettoyage du plan (Oracle/DuckDNS retirés, cases remises à jour) — branche `docs/nettoyage-plan` ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | 4.7.2 (sauvegardes hors du serveur, dès que le stockage objet est créé), 4.23 ; puis modules (M.1 à M.3) ; V1.2 repoussée |
 | Issue GitHub | #41 pour 6.1 ; #186 pour 4.23 |
 | Branche | `fix/tableaux-version` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-12 |
@@ -22,9 +22,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production (reste : 4.7.2 et 4.23) | 18 | 20 |
+| Semaine 4 — Rapports, portail, production (reste : 4.7.2 et 4.23) | 16 | 18 |
 | Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 14 | 14 |
-| **V1.0** | **66** | **68** |
+| **V1.0** | **64** | **66** |
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -39,8 +39,7 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 
 | Sujet | Attendu de | Bloque |
 |---|---|---|
-| Serveur de démonstration : compte Oracle Cloud, VM, adresse DuckDNS (`A-FAIRE.md` § 9 ter) — **quand tu veux** | toi | rien : la démo en ligne seulement |
-| Vrai domaine, Cloudflare, stockage objet — **avant la première vraie école** | toi | 4.6.3, 4.7 seulement |
+| Stockage objet et phrase secrète des sauvegardes — **avant la première vraie école** | toi | 4.7.2 |
 
 ## Questions ouvertes
 
@@ -54,6 +53,10 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-13 — Nettoyage du plan (demande de l'utilisateur)
+Fait : **Oracle Cloud, DuckDNS et l'essai sur plusieurs appareils retirés** (4.6.2 et 4.11 barrées dans `05`) : `Caddyfile.reseau`, `docker-compose.reseau.yml`, `infra/reseau/`, `make reseau*` et `make deploy-demo` supprimés ; `deployer.sh` ne sert plus que le vrai serveur AWS (`infra/serveur/init.py` remplace `essai.py init`) ; skill `deployer`, `A-FAIRE.md` (§ 9 bis et 9 ter supprimés, tableau « Maintenant » refait), `CLAUDE.md`, `README.md`, `infra/README.md`, `docs/03`, `07`, `claude/reference.md`, guide de présentation (se fait maintenant sur le vrai serveur) à jour. Cases cochées : 4.6, domaine acheté. Compteurs recomptés (V1.0 : 64 sur 66). Reste en retard : 4.7.2, 4.23. L'ancien nom `mwangaza.school` reste dans des exemples du code (sans effet).
+Décidé, **à faire ensuite** (plans discutés avec l'utilisateur, tâches M.1 à M.3 à inscrire dans `05` avant V1.2) : (1) **modules** : chaque fonction est un module que la plateforme donne à une école (socle toujours actif : connexion, paramètres, rôles et comptes, journal) ; école neuve = 0 module ; écoles actuelles = tous ; (2) **rôles entièrement libres** : plus de rôle système ni de nom imposé, un seul rôle de départ modifiable à la création d'une école. Plan : `~/.claude/plans/vu-que-on-as-vivid-biscuit.md`. Le reste (V1.2 → V2) est à rediscuter après.
 
 ### 2026-10-13 — 4.24 Installation obligatoire de la Gestion (demande de l'utilisateur)
 Fait : écran plein page « Installez Mwangaza pour continuer » avant la connexion, tant que la Gestion est ouverte dans un onglet (application construite seulement ; développement et Playwright intacts) : bouton du navigateur, étapes iPhone, menu du navigateur ; une fois installée, « ouvrez l'icône ». Issue de secours pour la session : 2 refus, iPhone ou 3 s sans invite. Logique d'installation déplacée dans `packages/ui` (partagée avec le Portail, inchangé : invitation douce). Tests : décision d'afficher l'écran, issue de secours, session ; capture à 390 px. Limites dites : un navigateur ne peut ni se fermer ni lancer l'application installée. Natif (Electron/Tauri) refusé pour l'instant. Suite : 4.7.2, 4.23, 6.1.

@@ -1,5 +1,5 @@
-# Routes de chaque adresse, communes au serveur (`Caddyfile`, aussi `make prod-local`) et à
-# l'essai sur plusieurs appareils (`Caddyfile.reseau`, `make reseau`) : seul le certificat change.
+# Routes de chaque adresse, communes au vrai serveur (`production/Caddyfile`) et à l'essai
+# `make prod-local` (`Caddyfile`) : seul le certificat change.
 
 (django) {
 	reverse_proxy django:8000 {
