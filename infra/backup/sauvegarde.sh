@@ -6,6 +6,8 @@
 #   backup                         purge des sessions expirées, puis dump de la base et archive
 #                                  des fichiers (logos, photos, pièces jointes), chiffrés, puis
 #                                  rotation
+#   fetch                          rapatrie du stockage objet la dernière sauvegarde (base et
+#                                  fichiers) dans BACKUP_DIR, pour un serveur neuf ; puis `restore`
 #   restore [FICHIER]              essai : la sauvegarde (la dernière par défaut) est restaurée
 #                                  dans une base à part, comparée table par table à la base en
 #                                  service, puis la base à part est effacée
@@ -16,6 +18,10 @@
 # de chiffrement, sinon lue dans le fichier VALEURS ; vide : purge seulement) ; BACKUP_DIR
 # (dossier des sauvegardes) ; BACKUP_KEEP_DAYS (base, 30) et BACKUP_KEEP_FILES_DAYS (fichiers,
 # 7) ; MEDIA_DIR (fichiers sur la machine, en développement ; vide : conteneur `django`).
+# Copie hors du serveur (4.7.2), lue aussi dans VALEURS : BACKUP_B2_BUCKET, BACKUP_B2_ACCOUNT et
+# BACKUP_B2_KEY (Backblaze B2, via `rclone` ; bucket vide : pas de copie) ; BACKUP_PING_URL
+# (adresse de supervision de type Healthchecks.io : appelée après chaque sauvegarde réussie, et
+# avec /fail à la fin si elle échoue ; l'alerte part quand elle ne reçoit rien).
 set -euo pipefail
 umask 077
 cd "$(dirname "$0")/../.."
@@ -23,9 +29,11 @@ cd "$(dirname "$0")/../.."
 : "${COMPOSE:?COMPOSE manque : lancer par make backup, make restore ou la tâche planifiée}"
 BACKUP_DIR=${BACKUP_DIR:-sauvegardes}
 RESTAUREE=mwangaza_restauration
-if [ -z "${BACKUP_PASSPHRASE:-}" ] && [ -n "${VALEURS:-}" ]; then
-  BACKUP_PASSPHRASE=$(sed -n 's/^BACKUP_PASSPHRASE=//p' "$VALEURS")
-fi
+for nom in BACKUP_PASSPHRASE BACKUP_B2_BUCKET BACKUP_B2_ACCOUNT BACKUP_B2_KEY BACKUP_PING_URL; do
+  if [ -z "${!nom:-}" ] && [ -n "${VALEURS:-}" ]; then
+    printf -v "$nom" %s "$(sed -n "s/^$nom=//p" "$VALEURS")"
+  fi
+done
 
 # Dans le conteneur de la base : `pg_dump` et `pg_restore` de la même version que PostgreSQL.
 # db COMMANDE [ARGUMENTS] — les arguments sont $1, $2… de la commande. `exec` lit l'entrée : les
@@ -75,6 +83,44 @@ derniere() {
   [ -e "${trouvees[-1]}" ] && echo "${trouvees[-1]}"
 }
 
+# rclone sur le stockage objet, configuré par variables (rien n'est écrit sur le disque).
+# distant ARGUMENTS… — les chemins distants commencent par « b2:$BACKUP_B2_BUCKET/ ».
+distant() {
+  : "${BACKUP_B2_BUCKET:?BACKUP_B2_BUCKET manque : le bucket Backblaze des sauvegardes}"
+  RCLONE_CONFIG=/dev/null RCLONE_CONFIG_B2_TYPE=b2 RCLONE_CONFIG_B2_ACCOUNT=$BACKUP_B2_ACCOUNT \
+    RCLONE_CONFIG_B2_KEY=$BACKUP_B2_KEY rclone "$@"
+}
+
+# Copie des deux fichiers du jour (contrôlés par somme de contrôle à l'envoi), puis rotation
+# distante aux mêmes durées qu'ici. Une erreur arrête tout : le signal d'échec part.
+envoyer() {
+  local fichier
+  for fichier in "$@"; do
+    distant copyto "$fichier" "b2:$BACKUP_B2_BUCKET/$(basename "$fichier")"
+  done
+  distant delete "b2:$BACKUP_B2_BUCKET" --include '*.base.dump.gpg' --min-age "${BACKUP_KEEP_DAYS:-30}d"
+  distant delete "b2:$BACKUP_B2_BUCKET" --include '*.fichiers.tar.gz.gpg' --min-age "${BACKUP_KEEP_FILES_DAYS:-7}d"
+  echo "Copie hors du serveur : b2:$BACKUP_B2_BUCKET ($(distant lsf "b2:$BACKUP_B2_BUCKET" --include '*.base.dump.gpg' | wc -l) sauvegarde(s) de la base)"
+}
+
+# fetch : la dernière sauvegarde de la base et la dernière archive de fichiers du stockage objet.
+rapatrier() {
+  local nom fichier
+  mkdir -p "$BACKUP_DIR"
+  for nom in base.dump.gpg fichiers.tar.gz.gpg; do
+    fichier=$(distant lsf "b2:$BACKUP_B2_BUCKET" --include "*.$nom" | sort | tail -1)
+    [ -n "$fichier" ] || { echo "Rien à rapatrier ($nom) dans b2:$BACKUP_B2_BUCKET." >&2; exit 1; }
+    distant copyto "b2:$BACKUP_B2_BUCKET/$fichier" "$BACKUP_DIR/$fichier"
+    echo "Rapatrié : $BACKUP_DIR/$fichier"
+  done
+}
+
+# Signal de supervision : sans appel de réussite à l'heure, le service d'alerte écrit à l'utilisateur.
+signaler() {
+  [ -n "${BACKUP_PING_URL:-}" ] || return 0
+  curl -fsS -m 15 --retry 3 -o /dev/null "$BACKUP_PING_URL$1" || echo "Signal de supervision non envoyé ($BACKUP_PING_URL$1)." >&2
+}
+
 sauvegarder() {
   local nom effacees
   # D'abord la purge : rien d'autre n'efface les sessions finies, et le dump ne les emporte pas.
@@ -101,6 +147,13 @@ sauvegarder() {
   find "$BACKUP_DIR" -name 'mwangaza-*.fichiers.tar.gz.gpg' -mtime "+${BACKUP_KEEP_FILES_DAYS:-7}" -delete
   find "$BACKUP_DIR" -name 'mwangaza-*.partiel' -mtime +1 -delete
   echo "Gardées dans $BACKUP_DIR : $(find "$BACKUP_DIR" -name '*.base.dump.gpg' | wc -l) sauvegarde(s) de la base, $(du -sh "$BACKUP_DIR" | cut -f1) en tout"
+
+  if [ -n "${BACKUP_B2_BUCKET:-}" ]; then
+    envoyer "$nom.base.dump.gpg" "$nom.fichiers.tar.gz.gpg"
+  else
+    echo "Pas de BACKUP_B2_BUCKET : sauvegarde gardée sur ce serveur seulement."
+  fi
+  signaler ""
 }
 
 restaurer() {
@@ -170,10 +223,15 @@ restaurer() {
 
 BASE=$(db 'echo "$POSTGRES_DB"' </dev/null)
 case "${1:-}" in
-  backup) sauvegarder ;;
+  backup)
+    # Toute étape qui échoue arrête le script (set -e) : le signal d'échec part à la sortie.
+    trap '[ $? -eq 0 ] || signaler /fail' EXIT
+    sauvegarder
+    ;;
+  fetch) rapatrier ;;
   restore) restaurer "${@:2}" ;;
   *)
-    sed -n '2,13p' "$0"
+    sed -n '2,15p' "$0"
     exit 1
     ;;
 esac

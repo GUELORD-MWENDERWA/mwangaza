@@ -9,6 +9,8 @@
 #                    temps), migrations au démarrage de Django ; tâche de chaque nuit installée
 #   superuser        créer un compte super-admin (questions posées sur le serveur)
 #   logs [SERVICE]   derniers journaux (caddy, django, celery, db, redis)
+#   backup [ARGS]    sauvegarde.sh sur le serveur : `backup` (sauvegarde du jour, copie hors du
+#                    serveur comprise), `fetch` (rapatrier la dernière copie), `restore` (essai)
 #   ssh              ouvrir une session sur le serveur
 #   check            HTTPS, certificat et santé de l'API, depuis cette machine
 #
@@ -82,11 +84,16 @@ case "${1:-}" in
   logs)
     "${SSH[@]}" "cd mwangaza/code && cat VERSION && $COMPOSE logs --tail 80 ${2:-}"
     ;;
+  backup)
+    shift
+    ssh -t "${SSH_OPTS[@]}" "$SERVEUR" "cd mwangaza/code && COMPOSE='$COMPOSE' \
+VALEURS=infra/serveur/serveur.env BACKUP_DIR=\$HOME/mwangaza/sauvegardes infra/backup/sauvegarde.sh ${*:-backup}"
+    ;;
   ssh)
     ssh "${SSH_OPTS[@]}" "$SERVEUR"
     ;;
   *)
-    sed -n '2,20p' "$0"
+    sed -n '2,22p' "$0"
     exit 1
     ;;
 esac

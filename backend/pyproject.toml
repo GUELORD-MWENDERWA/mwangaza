@@ -16,6 +16,7 @@ dependencies = [
     "pywebpush>=2.5.0",
     "redis>=8.1.0",
     "segno>=1.6",
+    "sentry-sdk>=2.72.0",
     "weasyprint>=70.0",
 ]
 

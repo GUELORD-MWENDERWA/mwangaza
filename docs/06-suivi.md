@@ -6,13 +6,13 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | V1.0 en ligne (2026-10-13) ; reste 4.7.2 et 4.23 ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`, guide de présentation `docs/guide/presentation-v1.1.pdf`) |
-| Lot | V1.0 (fin : 4.7.2, 4.23), puis modules et rôles libres (M.1 à M.3, voir le journal du 2026-10-13), puis V1.2 |
-| Tâche en cours | nettoyage du plan (Oracle/DuckDNS retirés, cases remises à jour) — branche `docs/nettoyage-plan` ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | 4.7.2 (sauvegardes hors du serveur, dès que le stockage objet est créé), 4.23 ; puis modules (M.1 à M.3) ; V1.2 repoussée |
+| Phase | V1.0 en ligne (2026-10-13) ; reste 4.23 (et les comptes de `A-FAIRE.md` § 9 bis pour 4.7.2) ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`, guide de présentation `docs/guide/presentation-v1.1.pdf`) |
+| Lot | V1.0 (fin : 4.23), puis modules et rôles libres (M.1 à M.3, voir le journal du 2026-10-13), puis V1.2 |
+| Tâche en cours | aucune (4.7.2 en relecture, branche `tache/4.7.2-sauvegardes-hors-serveur`, issue #198) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | 4.23 ; puis modules (M.1 à M.3) ; V1.2 repoussée |
 | Issue GitHub | #41 pour 6.1 ; #186 pour 4.23 |
-| Branche | `fix/tableaux-version` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-12 |
+| Branche | `tache/4.7.2-sauvegardes-hors-serveur` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-13 |
 
 ## Avancement
 
@@ -22,9 +22,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production (reste : 4.7.2 et 4.23) | 16 | 18 |
+| Semaine 4 — Rapports, portail, production (reste : 4.23) | 17 | 18 |
 | Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 14 | 14 |
-| **V1.0** | **64** | **66** |
+| **V1.0** | **65** | **66** |
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -39,7 +39,7 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 
 | Sujet | Attendu de | Bloque |
 |---|---|---|
-| Stockage objet et phrase secrète des sauvegardes — **avant la première vraie école** | toi | 4.7.2 |
+| Comptes Backblaze B2, Healthchecks, Sentry, UptimeRobot et leurs clés dans `serveur.env` (`A-FAIRE.md` § 9 bis) — **avant la première vraie école** | toi | premier espace réel |
 
 ## Questions ouvertes
 
@@ -53,6 +53,11 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-13 — Tâche 4.7.2 : sauvegardes hors du serveur, erreurs, sonde
+Fait : après chaque sauvegarde, copie chiffrée vers Backblaze B2 par `rclone` (variables `BACKUP_B2_*` de `serveur.env`, rotation distante 30 / 7 jours), ping d'alerte Healthchecks (`/fail` si une étape échoue), `fetch` pour rapatrier la dernière copie, `make deploy-backup` ; `rclone` installé par `preparer.sh` ; Sentry (`sentry-sdk`, `config/sentry.py`, sans donnée personnelle) si `SENTRY_DSN`.
+Tests : `tests/test_sentry.py` ; script essayé à la main avec un faux `rclone` / `curl` (succès : copie, rotation, ping ; échec : `/fail`, code ≠ 0). Pas essayé contre le vrai B2 (pas encore de compte).
+Décidé : Backblaze (compte séparé d'AWS), `rclone`, Sentry (choix de l'utilisateur) ; sauvegarde continue WAL-G retirée (`03`). Sonde UptimeRobot = réglage du service. Suite : l'utilisateur suit `A-FAIRE.md` § 9 bis ; puis 4.23.
 
 ### 2026-10-13 — Nettoyage du plan (demande de l'utilisateur)
 Fait : **Oracle Cloud, DuckDNS et l'essai sur plusieurs appareils retirés** (4.6.2 et 4.11 barrées dans `05`) : `Caddyfile.reseau`, `docker-compose.reseau.yml`, `infra/reseau/`, `make reseau*` et `make deploy-demo` supprimés ; `deployer.sh` ne sert plus que le vrai serveur AWS (`infra/serveur/init.py` remplace `essai.py init`) ; skill `deployer`, `A-FAIRE.md` (§ 9 bis et 9 ter supprimés, tableau « Maintenant » refait), `CLAUDE.md`, `README.md`, `infra/README.md`, `docs/03`, `07`, `claude/reference.md`, guide de présentation (se fait maintenant sur le vrai serveur) à jour. Cases cochées : 4.6, domaine acheté. Compteurs recomptés (V1.0 : 64 sur 66). Reste en retard : 4.7.2, 4.23. L'ancien nom `mwangaza.school` reste dans des exemples du code (sans effet).
