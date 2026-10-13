@@ -1,0 +1,26 @@
+# Mises à jour proposées par Dependabot : une PR groupée par outil et par semaine (lundi), pour
+# ne pas noyer les vraies tâches. Les failles connues sont aussi vérifiées par `audit.yml`.
+version: 2
+updates:
+  - package-ecosystem: uv
+    directory: /backend
+    schedule: { interval: weekly, day: monday }
+    open-pull-requests-limit: 3
+    groups:
+      backend: { patterns: ["*"] }
+  - package-ecosystem: npm # pnpm est lu par cet écosystème
+    directory: /frontend
+    schedule: { interval: weekly, day: monday }
+    open-pull-requests-limit: 3
+    groups:
+      frontend: { patterns: ["*"] }
+  - package-ecosystem: docker
+    directories: [/infra, /backend]
+    schedule: { interval: weekly, day: monday }
+    open-pull-requests-limit: 2
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly, day: monday }
+    open-pull-requests-limit: 2
+    groups:
+      actions: { patterns: ["*"] }
