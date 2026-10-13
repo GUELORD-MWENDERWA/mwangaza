@@ -62,6 +62,11 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 
 ## Journal
 
+### 2026-10-13 — PR de Dependabot en échec, mémoire du serveur
+- #223 (serveur) : Django 5.2 → 6.1 glissé dans le groupe, un test de finance rouge (nombre de caisses du résumé des clôtures) et 27 961 avertissements. #226 (front) : TypeScript 7 à la racine, `openapi-typescript` plante ; `vite-plugin-pwa` 2 dans le même groupe. #221 et #222 : Python 3.14 dans l'image, vert sans avoir été essayé. À ne pas fusionner ; #225 (Actions) est verte.
+- Corrigé dans la PR de S.3.1 : `.github/dependabot.yml` écarte les versions majeures (`03` § 11). À faire le jour de Django 6.2 LTS : `from_db(…, fetch_mode)` dans `TenantModel` et `.order_by()` avant `values("cash_register").distinct()` (`finance/services.py`).
+- Serveur mesuré par SSH (lecture seule, 20 h 21 UTC, 6 h après la mise en ligne) : charge 0,02 ; 640 Mo disponibles sur 1 905 ; Django 320 Mo (3 processus), Celery 256 Mo (4), PostgreSQL 74 Mo, Docker 169 Mo ; swap 144 Mo sur 2 047. C'est le poids fixe des programmes, pas une charge : rien à changer.
+
 ### 2026-10-13 — Tâche S.3.1 : comptes à privilèges (serveur)
 - `/tache L.2` demandée par erreur du suivi : L.2 était déjà fusionnée (essai réel du 2026-10-13) ; file de `05` § 2 corrigée, tâche suivante prise. S.3 coupée en deux : le push au super-admin demande un service worker dans la console → S.3.2.
 - Fait : journal de la plateforme `access.login`, `access.code_refused`, `access.address_refused` (qui, adresse IP, site) ; session d'un super-admin fermée après 2 h sans activité (réécrite au plus toutes les 5 minutes) ; réglage `DJANGO_CONSOLE_ALLOWED_IPS` (vide = toutes ; hors liste : réponse d'un mauvais mot de passe, session existante refusée) ; notification « Droits sensibles » (`sensitive_rights`) à ceux qui gèrent les rôles quand un compte reçoit `roles.manage` ou un droit `finance.*`, non désactivable ; un exemple dans `make demo`.
