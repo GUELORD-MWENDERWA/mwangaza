@@ -15,7 +15,7 @@ Lire `docs/06-suivi.md` (état actuel, tâche en cours, bloquants) avant toute a
 2. `docs/02-perimetre-v1.md` — **ce qu'on construit maintenant** et ce qu'on ne construit PAS encore
 3. `docs/03-architecture-technique.md` — stack, multi-écoles, hors-ligne, sécurité, hébergement
 4. `docs/04-modele-de-donnees.md` — entités et règles métier
-5. `docs/05-plan-de-travail.md` — tâches ordonnées, cocher au fur et à mesure
+5. `docs/05-plan-de-travail.md` — **la file** (§ 2 : l'ordre de travail, priorités P0 à P3), le détail de chaque tâche et la **définition de « fini »** (§ 8.2) ; cocher au fur et à mesure (ancien plan : `docs/archives/`, ne pas le relire)
 6. `docs/06-suivi.md` — état actuel du projet et journal de chaque étape
 7. `docs/07-a-fournir.md` — maquettes, informations et décisions encore manquantes (et ce qu'on utilise en attendant)
 8. `maquettes/README.md` — système de design et inventaire des écrans ; captures dans `maquettes/captures/`, structure et libellés dans `maquettes/gestion/*.html` et `maquettes/portail/*.html`
@@ -24,7 +24,7 @@ Lire `docs/06-suivi.md` (état actuel, tâche en cours, bloquants) avant toute a
 
 Espace de travail de Claude : `docs/claude/` — `reference.md` (commandes en détail, contenu de `make demo`, chaque écran et chaque API en développement), `plans/` (plan de chaque tâche avant de coder), `recherches/` (notes avec sources). Le résultat de `/verifier` va dans la PR.
 
-GitHub (dépôt privé `GUELORD-MWENDERWA/mwangaza`) : un jalon par version (V1.0, V1.1, V1.2, V1.3, V1.4, V2 ; découpage du 2026-10-02 dans `05`), une issue par tâche titrée « <numéro> — … » ; la PR de la tâche contient `Closes #<n>`. Règles des PR : section « Travail avec GitHub ».
+GitHub (dépôt privé `GUELORD-MWENDERWA/mwangaza`) : un jalon par version (V1.0, V1.1, Lancement, V1.2 à V1.7, V2 ; découpage du 2026-10-13 dans `05`), une issue par tâche titrée « <numéro> — … » ; la PR de la tâche contient `Closes #<n>`. Règles des PR : section « Travail avec GitHub ».
 
 Si une demande sort du périmètre de `02-perimetre-v1.md`, le signaler avant de coder.
 

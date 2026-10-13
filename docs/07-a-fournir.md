@@ -47,21 +47,37 @@ Plus rien à dessiner pour ce bloc. Sans maquette propre : bandeau d'essai et de
 
 Dessinées par Claude (à valider) : console de la plateforme, tableau de bord et coquille propre à la console (`console/tableau-de-bord`, 5.2.1) ; identité de la plateforme (`console/identite-plateforme`, 5.2.2) ; écoles (`console/ecoles`, 5.3, redessinée d'après `gestion/superadmin-ecoles` ; mise à jour en 4.15 : onglets Réels · Essai · Démonstration, type à la création, état « Arrêtée », « Arrêter » avec motif) ; comptes (`console/comptes`, 5.4.1) ; appareils (`console/appareils`) et journal avec les sessions support (`console/journal`, 5.4.2) ; annonces aux écoles, avec le bandeau et la liste de la Gestion (`console/annonces`, 5.4.3) ; centre de notifications et réglages de la Gestion (`gestion/notifications`, 5.5.1) ; centre de notifications du Portail (`portail/notifications`, 5.5.2 ; bloc « Que recevoir sur l'écran » et exemples de vraies notifications ajoutés en 5.6.1, comme les deux alertes dans `gestion/notifications`). Dessinés en 5.7 (à valider) : annonces au personnel (`gestion/annonces-personnel`), calendrier (`gestion/calendrier`), convocations (`gestion/convocations`), calendrier et convocations du portail (`portail/calendrier`) ; `gestion/annonces` mise à jour (destinataire « Personnel », « Circulaire à imprimer ») ; pas de maquette à part pour les messages à une classe (c'est l'annonce « Certaines classes ») ni pour les lettres PDF (circulaire, convocation : même en-tête que la fiche d'inscription). Ajoutés en 5.6.2 : carte « Relances aux parents » de `gestion/parametres-ecole`, sortes nouvelles dans les deux maquettes des notifications.
 
-### V1.2 — carte unique et présences
+### Lancement — modules, rôles, sécurité (plan du 2026-10-13)
+
+À dessiner ou mettre à jour : message « Aucun module activé » et cases des modules à la création d'une école (M.2.2) ; rôle de départ modifiable à la création d'une école (M.3.2). La carte « Fonctions de l'école » de `console/ecoles` est déjà dessinée.
+
+### V1.2 — notes, bulletins, finances de l'école
+
+Déjà dessinés le 2026-09-26 d'après les **formulaires officiels** trouvés en ligne : cours et maxima (`gestion/cours-maxima`, 8.1), bulletin des humanités techniques (`gestion/bulletin`, formulaire IGE/P.S/100) et bulletin 7e–8e (`gestion/bulletin-education-de-base`, IGE/P.S/005) — voir `docs/claude/recherches/2026-09-26-bulletins-rdc.md`. Reste à dessiner : attribution des enseignants (8.1) · délibération et palmarès (8.4) · portail parents complet (8.8) ; et pour la V1.7 : discipline, messagerie, rendez-vous (8.5) · portail élève et espace titulaire (8.6) · transfert et attestations (8.7) · sondages (8.9). Existent déjà : saisie des notes, scolarité d'un enfant. Finances de l'école à dessiner : dépenses avec justificatif et validation (FIN.1), sortie de caisse et bordereau de clôture (FIN.2), budget et entrées / sorties (FIN.3) (l'ancienne 7.1, jamais dessinée). **À fournir (toi)** : un vrai bulletin EPST rempli, ou le modèle officiel (8.3).
+
+### V1.3 — plateforme commerciale
+
+À dessiner : offres et contrat d'une école, factures (`console`, ABO.1–ABO.2), factures vues par l'école (paramètres), bandeau « lecture seule » (ABO.3) ; site de la plateforme (WEB.1).
+
+### V1.4 — emploi du temps et IA
+
+À dessiner : grille horaire, salles et disponibilités (EDT.1), éditeur avec conflits par classe, enseignant et salle (EDT.2), génération et contrainte qui bloque (EDT.3), PDF et Portail (EDT.4) ; fenêtre de l'assistant IA et brouillons (IA.2 à IA.4).
+
+### V1.5 — carte et présences
 
 À dessiner : carte (recto / verso, format carte bancaire et planche A4) et son modèle réglé par l'école (6.1) · poste de liaison des cartes (6.2) · borne de pointage puce / QR (6.3) · suivi des présences et du personnel (6.5) · absences et justification par le parent (6.6). Existe déjà : `gestion/presences-pointage-qr` (6.3), à compléter avec la puce.
 
-### V1.3 — personnel, paie, dépenses
+### V1.6 — bibliothèque et ateliers
 
-À dessiner : dépenses et rapports entrées / sorties (7.1) · dossier employé et contrats (7.2) · fiche de paie PDF (7.3) · espace enseignant, congés (7.4) · pénalités, validation d'inscription, documents téléversés (7.5). Existe déjà : paie.
+À dessiner : catalogue et étiquettes (BIB.1), prêt et bon de prêt, retour (BIB.2), retards et pertes (BIB.3), stock d'un atelier, demande de matériel et bon de sortie (ATL.1–ATL.3).
 
-### V1.4 — notes, bulletins, vie scolaire
+### V1.7 — sites des écoles, personnel, vie scolaire
 
-Déjà dessinés le 2026-09-26 d'après les **formulaires officiels** trouvés en ligne : cours et maxima (`gestion/cours-maxima`, 8.1), bulletin des humanités techniques (`gestion/bulletin`, formulaire IGE/P.S/100) et bulletin 7e–8e (`gestion/bulletin-education-de-base`, IGE/P.S/005) — voir `docs/claude/recherches/2026-09-26-bulletins-rdc.md`. Reste à dessiner : attribution des enseignants (8.1) · délibération et palmarès (8.4) · discipline, messagerie, rendez-vous (8.5) · portail élève et espace titulaire (8.6) · transfert et attestations (8.7) · portail parents complet (8.8) · sondages (8.9). Existent déjà : saisie des notes, scolarité d'un enfant.
+À dessiner : éditeur du site de l'école et ses pages (WEB.2). Personnel et paie : dossier employé et contrats (7.2) · fiche de paie PDF (7.3) · espace enseignant, congés (7.4) · pénalités, validation d'inscription, documents téléversés (7.5). Existe déjà : paie.
 
 ### V2
 
-À dessiner tâche par tâche (9.1 à 9.15) au moment de les commencer.
+À dessiner tâche par tâche au moment de les commencer (9.2 et 9.15 sont passées en V1.3 et V1.2).
 
 ## 2. Exemples de données d'une école (l'ITIG)
 

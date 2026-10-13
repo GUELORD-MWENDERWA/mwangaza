@@ -8,14 +8,18 @@ Objectif demandé : une première version utilisable en **un mois**, développé
 |---|---|
 | **V1.0** — finances, caisse, portail parents | Une école encaisse ses frais, même sans internet, et les parents voient les paiements. **Faite**, guide PDF compris (4.10 : `docs/guide/guide-v1.0.pdf`), puis mise de côté ; mise en ligne quand l'utilisateur le décide. |
 | **V1.1** — plateforme, notifications, communication | Identité de la plateforme configurable (nom, logo…), console de la plateforme avec son propre design (au lieu de l'administration Django), notifications sur l'écran même application fermée, communication de l'école. **Faite** le 2026-10-12 (5.7), guide `docs/guide/guide-v1.1.pdf`. |
-| **V1.2** — carte unique et présences | Une carte par élève et par membre du personnel (puce NFC + QR + photo), liée en une seconde ; pointage par la puce (téléphone Android enregistré, lecteur ESP32) ou par le QR (n'importe quel appareil enregistré) ; présences suivies et signalées aux parents. |
-| **V1.3** — personnel, paie, dépenses | Dossiers du personnel, paie, dépenses, espace enseignant, congés, pénalités de retard. |
-| **V1.4** — notes, bulletins, vie scolaire | Notes, bulletins EPST, délibération, discipline, messagerie, portail élèves, transferts. |
-| **V2** | Voir cahier des charges et `05` (abonnements, Mobile Money, SMS / WhatsApp, applications dans les stores…). |
+| **Lancement** — modules, rôles libres, sécurité | Modules et rôles libres (M.2, M.3), sécurité avant les vraies données (bloc S, P0), restauration réelle des sauvegardes, essai sur vrais téléphones ; puis le premier espace réel. |
+| **V1.2** — notes, bulletins, finances de l'école | Cours et charges horaires des enseignants, notes (hors ligne compris), bulletins EPST, délibération ; dépenses, sorties de caisse, budget (FIN) ; Row Level Security (S.6). |
+| **V1.3** — plateforme commerciale | Abonnements par module, factures de la plateforme aux écoles, lecture seule si impayé (ABO) ; site de la plateforme (WEB.1) ; protection des données, détection, revue de sécurité. |
+| **V1.4** — emploi du temps et IA | Emploi du temps calculé par un solveur sans conflit, éditeur, publication (EDT) ; IA (Claude) qui aide sans jamais décider seule : contraintes en phrases, assistant, rédaction (IA). |
+| **V1.5** — carte et présences | Carte avec QR d'abord (NFC et ESP32 en option), pointage, suivi des présences, parents prévenus. |
+| **V1.6** — bibliothèque et ateliers | Moteur commun de prêts et de stock (INV) ; prêts de livres, bon de prêt, parents prévenus, pertes facturées (BIB) ; stock et commandes de matériel des ateliers (ATL). |
+| **V1.7** — sites des écoles, personnel, vie scolaire | Site de chaque école rempli par elle (WEB.2), dossiers du personnel, paie, espace enseignant, discipline, messagerie, portail élèves, transferts. |
+| **V2** | Voir cahier des charges et `05` (Mobile Money, SMS / WhatsApp, rapports EPST, applications dans les stores…). |
 
-Découpage revu le 2026-10-02 à la demande de l'utilisateur : la plateforme et les notifications d'abord (elles servent à toutes les fonctions suivantes), puis la carte et les présences (les présences du personnel nourrissent la paie), puis la paie, puis les notes. **On n'attend rien de l'ITIG** : c'est l'école d'exemple ; comme toute école, elle saisit ses données elle-même.
+Découpage revu le 2026-10-02 à la demande de l'utilisateur, puis **le 2026-10-13** (plan révisé et validé, tâche L.0) : la sécurité et les modules avant les vraies données, les notes et bulletins avant la carte (chaque école sort des bulletins chaque période ; la carte NFC demande du matériel), les abonnements ensuite, puis l'emploi du temps et l'IA, la bibliothèque et les ateliers. **On n'attend rien de l'ITIG** : c'est l'école d'exemple ; comme toute école, elle saisit ses données elle-même.
 
-Pourquoi les finances d'abord : la rentrée a eu lieu le 1er septembre, les écoles encaissent maintenant, et la caisse est l'endroit où l'argent et la confiance se jouent. Pourquoi la paie en V1.1 : la première paie se fait en fin de mois, elle peut arriver quelques semaines après la caisse. Bulletins : V1.4 ; une école qui les veut plus tôt les fait sur papier en attendant (la décision Q6 du 2026-09-26, « à partir de la P2 », est remplacée par le découpage du 2026-10-02).
+Pourquoi les finances d'abord : la rentrée a eu lieu le 1er septembre, les écoles encaissent maintenant, et la caisse est l'endroit où l'argent et la confiance se jouent. Pourquoi la paie en V1.1 : la première paie se fait en fin de mois, elle peut arriver quelques semaines après la caisse. Bulletins : V1.2 depuis le 2026-10-13 (la décision Q6 du 2026-09-26, « à partir de la P2 », reste remplacée).
 
 Deux modules non cochés sont **indispensables** au portail parents et à la caisse, donc inclus en V1.0 : élèves / inscriptions et classes.
 
@@ -34,7 +38,7 @@ Le **hors-ligne** est conçu dès le premier jour (identifiants, synchronisation
 ### B. Comptes, rôles, connexion
 
 - **B1** — Rôles prédéfinis (9) : directeur, directeur des études, directeur de discipline / surveillant, comptable, caissier, secrétaire, promoteur, enseignant (sans fonctions en V1.0), parent. Plusieurs personnes peuvent avoir le même rôle. Permissions : `04-modele-de-donnees.md` § 8.
-- **B2** — L'école crée un rôle personnalisé en cochant des permissions (ex : « chef d'atelier » à l'ITIG, en attendant le module ateliers de la V2).
+- **B2** — L'école crée un rôle personnalisé en cochant des permissions (ex : « chef d'atelier » à l'ITIG, en attendant le module ateliers de la V1.6).
 - **B3** — Un utilisateur peut avoir plusieurs rôles et appartenir à plusieurs écoles avec un seul compte.
 - **B4** — Connexion identifiant + mot de passe ; TOTP obligatoire pour directeur, comptable, caissier, promoteur.
 - **B5** — Sur un appareil déjà connecté, un code PIN déverrouille l'application, y compris hors-ligne. Après 5 PIN faux, reconnexion complète exigée.
@@ -115,7 +119,7 @@ Ce qu'il faut en plus pour qu'une vraie école démarre sans aide ; tâches 4.12
 
 Version de chaque fonction : `05-plan-de-travail.md`.
 
-Paie, RH, dépenses, notes, bulletins, délibération, présences, discipline, messagerie, portail élèves, paiement en ligne, SMS / WhatsApp, applications dans les stores, connexion Google, pré-inscription en ligne, bibliothèque, cantine, transport, ateliers, IA, rapports EPST, comptabilité SYSCOHADA complète.
+Paie, RH, dépenses, notes, bulletins, délibération, présences, discipline, messagerie, portail élèves, abonnements, emploi du temps, IA, sites web, bibliothèque, ateliers (versions V1.2 à V1.7) ; paiement en ligne, SMS / WhatsApp, applications dans les stores, pré-inscription en ligne, cantine, transport, rapports EPST, comptabilité SYSCOHADA complète (V2).
 
 ## 4. Critères de réussite d'une école qui démarre
 

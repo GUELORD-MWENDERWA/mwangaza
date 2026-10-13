@@ -11,7 +11,7 @@ Lecture seule : ne modifie aucun fichier, sauf si l'utilisateur le demande ou si
 
 1. Lire `docs/06-suivi.md` en entier.
 2. Compter les cases de `docs/05-plan-de-travail.md` par bloc :
-   `grep -c '^- \[x\]'` et `grep -c '^- \[ \]'` section par section (Avant de coder, Semaine 1 à 4, V1.1 à V1.4, V2).
+   `grep -c '^- \[x\]'` et `grep -c '^- \[ \]'` section par section du plan (§ 3 Lancement, § 4 Modules, § 4 bis Sécurité, § 7 V1.2 à V1.7, V2 ; les tâches faites avant le 2026-10-13 sont dans l'annexe et l'archive).
 3. État Git : `git branch --show-current`, `git status --short | head`, `git log --oneline -5`.
    GitHub : progression des jalons `gh api repos/{owner}/{repo}/milestones --jq '.[] | "\(.title) \(.closed_issues)/\(.open_issues+.closed_issues)"'`, PR ouvertes `gh pr list`.
 4. Vérifier la cohérence entre les trois sources :
@@ -20,13 +20,13 @@ Lecture seule : ne modifie aucun fichier, sauf si l'utilisateur le demande ou si
    - une tâche cochée a une entrée dans le « Journal » ;
    - une tâche cochée a son issue GitHub fermée (et inversement).
    Signaler tout écart et proposer la correction.
-5. Déterminer la prochaine tâche : première case non cochée de `05` dont les prérequis (tâches précédentes du même bloc) sont faits, en tenant compte des bloquants de `06-suivi.md`.
+5. Déterminer la prochaine tâche : première ligne non faite de **la file** (`05` § 2), en sautant celles marquées 👤 (à faire par l'utilisateur, à lui rappeler) et en tenant compte des bloquants de `06-suivi.md`.
 
 ## Réponse (courte, en français)
 
 ```
-📍 Phase : … · Lot : … · Semaine : …
-✅ Fait : X / 32 tâches V1.0 (détail par semaine sur une ligne)
+📍 Phase : … · Lot : …
+✅ Fait : X / Y tâches du lot en cours (détail sur une ligne)
 🔨 En cours : tâche … (branche …) — ou « aucune »
 ➡️ Prochaine : tâche … — une phrase sur son contenu
 ⛔ Bloquants : … (seulement ceux qui touchent les 2 prochaines tâches)

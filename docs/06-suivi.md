@@ -6,12 +6,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | V1.0 en ligne (2026-10-13) ; reste les comptes de `A-FAIRE.md` § 9 bis pour 4.7.2 ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`, guide de présentation `docs/guide/presentation-v1.1.pdf`) |
-| Lot | V1.0 (fin : 4.25), puis modules et rôles libres (M.1 à M.3, voir le journal du 2026-10-13), puis V1.2 |
-| Tâche en cours | aucune (M.1 terminée, en relecture) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | M.2 (modules : écrans et tâches de fond), puis M.3 ; V1.2 repoussée ; mise en ligne de 4.25 : `make deploy` |
-| Issue GitHub | #204 pour M.1 |
-| Branche | `tache/M.1-modules` ; dossier local : `~/Projets/mwangaza` |
+| Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
+| Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
+| Tâche en cours | aucune (L.0 terminée, en relecture) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | L.1 (👤 clés du serveur), S.1, S.2, M.2.1 — voir la file (`05` § 2) |
+| Issue GitHub | #207 pour L.0 |
+| Branche | `tache/L.0-plan` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-13 |
 
 ## Avancement
@@ -26,13 +26,18 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 14 | 14 |
 | **V1.0** | **67** | **67** |
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
-| Modules et rôles libres (M.1 à M.3) | 1 | 3 |
-| V1.2 — carte unique et présences | 0 | 6 |
-| V1.3 — personnel, paie, dépenses | 0 | 6 |
-| V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
-| V2 | 0 | 15 |
+| Lancement (L.0 à L.5 ; L.3 remplacée par S.1 et S.2) | 1 | 5 |
+| Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 1 | 5 |
+| Sécurité (S.1 à S.9) | 0 | 9 |
+| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1–8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 0 | 9 |
+| V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
+| V1.4 — emploi du temps et IA (EDT.1–4, IA.1–4) | 0 | 8 |
+| V1.5 — carte et présences | 0 | 6 |
+| V1.6 — bibliothèque et ateliers (INV, BIB, ATL) | 0 | 7 |
+| V1.7 — sites des écoles, personnel, vie scolaire | 0 | 10 |
+| V2 | 0 | 13 |
 
-Sur GitHub : onglet *Milestones* — un jalon par version (V1.0 à V1.4, V2), une issue par tâche (renumérotées le 2026-10-02).
+Sur GitHub : onglet *Milestones* — un jalon par version (V1.0, V1.1, puis Lancement, V1.2 à V1.7, V2 selon le plan du 2026-10-13), une issue par tâche.
 
 ## Bloquants et en attente
 
@@ -41,6 +46,8 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 | Sujet | Attendu de | Bloque |
 |---|---|---|
 | Comptes Backblaze B2, Healthchecks, Sentry, UptimeRobot et leurs clés dans `serveur.env` (`A-FAIRE.md` § 9 bis) — **avant la première vraie école** | toi | premier espace réel |
+| Cloudflare en proxy (nuage orange) et pare-feu du serveur limité à Cloudflare — décidé le 2026-10-13, fait avec S.1 | toi (réglage Cloudflare) + Claude | premier espace réel |
+| Un vrai bulletin EPST rempli, ou le modèle officiel | toi | 8.3 |
 
 ## Questions ouvertes
 
@@ -54,6 +61,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-13 — Tâche L.0 : plan révisé et validé
+- Fait : plan revu avec l'utilisateur et vérifié dans le code, puis installé dans `05` (l'ancien dans `docs/archives/`) : une seule file ordonnée avec priorités P0 à P3 et tailles, définition de « fini », bloc sécurité S (S.1 à S.5 avant les vraies données, Row Level Security avancée en V1.2), nouveaux modules demandés (FIN finances de l'école, ABO abonnements par module, WEB sites, EDT emploi du temps, IA Claude, INV/BIB/ATL bibliothèque et ateliers).
+- Décisions de l'utilisateur (tout accepté) : notes et bulletins (V1.2) avant la carte (V1.5) ; Cloudflare en proxy avant le premier espace réel ; école qui ne paie pas = lecture seule ; dépendances `pip-audit`, OR-Tools (solveur de l'emploi du temps) et `anthropic` (SDK de l'IA) acceptées ; IA sur `claude-opus-5-5` par défaut, l'IA ne décide jamais seule.
+- Vérifié dans le code : `ChangeLog` et `SyncOperation` sans purge (A.2) ; catalogue des modules sans dépendances (M.2.1) ; usages des codes de rôle listés (M.3.1) ; logos SVG filtrés par liste noire (S.4).
+- Suite : L.1 (👤 clés), S.1, S.2, M.2.1. Jalons et issues des nouvelles versions à créer sur GitHub.
 
 ### 2026-10-13 — Tâche M.1 : modules d'une école
 - Fait : catalogue `accounts/modules.py` (élèves, finance, communication ; socle toujours actif), `School.modules` (migration 0012 : écoles existantes = tous), droits d'un module absent retirés au seul point `get_school_access` (donc 403 partout et `/me`), carte « Fonctions de l'école » sur la fiche école de la console (journal de la plateforme).

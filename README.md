@@ -28,7 +28,7 @@ Dans Claude Code : `/etat`. Sur GitHub : onglet **Milestones** (une barre de pro
 │   ├── 02-perimetre-v1.md         ce qu'on construit maintenant, et ce qu'on ne construit pas
 │   ├── 03-architecture-technique.md  stack, multi-écoles, hors-ligne, sécurité, journal des décisions
 │   ├── 04-modele-de-donnees.md    entités, règles métier, permissions
-│   ├── 05-plan-de-travail.md      tâches ordonnées à cocher
+│   ├── 05-plan-de-travail.md      la file des tâches (priorités), à cocher
 │   ├── 06-suivi.md                état actuel et journal
 │   ├── 07-a-fournir.md            maquettes, informations et décisions encore manquantes
 │   ├── guide/                     guide de chaque version (à envoyer aux écoles) et guide de présentation, en PDF (`make guide`)
@@ -45,7 +45,7 @@ Dans Claude Code : `/etat`. Sur GitHub : onglet **Milestones** (une barre de pro
 └── .claude/skills/            skills Claude Code du projet
 ```
 
-Code (tâche 0.1, voir `docs/03-architecture-technique.md` § 3) : `backend/` (Django), `frontend/` (workspace pnpm : `apps/gestion`, `apps/portail`, `apps/console` (console de la plateforme, super-admin), `packages/api|ui|i18n|money` ; `e2e/` parcours Playwright, `guide/` guide PDF de la version), `infra/` (Docker Compose, Caddy ; `serveur/` vrai serveur en ligne), `firmware/` (V1.2), `Makefile`.
+Code (tâche 0.1, voir `docs/03-architecture-technique.md` § 3) : `backend/` (Django), `frontend/` (workspace pnpm : `apps/gestion`, `apps/portail`, `apps/console` (console de la plateforme, super-admin), `packages/api|ui|i18n|money` ; `e2e/` parcours Playwright, `guide/` guide PDF de la version), `infra/` (Docker Compose, Caddy ; `serveur/` vrai serveur en ligne), `firmware/` (V1.5), `Makefile`.
 
 ## Travailler avec Claude Code
 

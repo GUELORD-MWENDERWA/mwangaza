@@ -81,12 +81,12 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Journal d'audit | `gestion/journal-audit.html` | V1.0 | I1 · M6 | à valider |
 | Super-admin — écoles (`admin.mwangaza.school`) | `gestion/superadmin-ecoles.html` | V1.0 (fonctions dans l'administration Django, 1.5) ; remplacée par `console/ecoles` (5.3) | A1–A3 | fournie |
 | Session support « en tant qu'école » (ouverture avec le motif, bandeau rouge) | `gestion/session-support.html` | V1.0 | A3 | validée par l'utilisateur le 2026-09-26 (dessinée pour la tâche 1.6) |
-| Paie | `gestion/paie.html` | V1.3 | 7.3 | fournie |
-| Pointage QR (carte unique : puce ou QR) | `gestion/presences-pointage-qr.html` | V1.2 | 6.3 | fournie |
-| Saisie des notes | `gestion/notes-saisie.html` | V1.4 | 8.2 | fournie |
-| Cours et maxima par classe | `gestion/cours-maxima.html` | V1.4 | 8.1 | à valider |
-| Bulletin officiel — humanités techniques (formulaire IGE/P.S/100) | `gestion/bulletin.html` | V1.4 | 8.3 | à valider (remplace le gabarit provisoire) |
-| Bulletin officiel — 7e–8e EB (formulaire IGE/P.S/005) | `gestion/bulletin-education-de-base.html` | V1.4 | 8.3 | à valider |
+| Paie | `gestion/paie.html` | V1.7 | 7.3 | fournie |
+| Pointage QR (carte unique : puce ou QR) | `gestion/presences-pointage-qr.html` | V1.5 | 6.3 | fournie |
+| Saisie des notes | `gestion/notes-saisie.html` | V1.2 | 8.2 | fournie |
+| Cours et maxima par classe | `gestion/cours-maxima.html` | V1.2 | 8.1 | à valider |
+| Bulletin officiel — humanités techniques (formulaire IGE/P.S/100) | `gestion/bulletin.html` | V1.2 | 8.3 | à valider (remplace le gabarit provisoire) |
+| Bulletin officiel — 7e–8e EB (formulaire IGE/P.S/005) | `gestion/bulletin-education-de-base.html` | V1.2 | 8.3 | à valider |
 
 Captures mobiles aussi fournies pour : caisse (encaissement, ouverture), pointage, saisie des notes, menu mobile, guide de première connexion (la Gestion doit rester utilisable sur tablette et téléphone Android).
 
@@ -108,7 +108,7 @@ Bulletins : structure et maxima repris des formulaires officiels trouvés en lig
 | Notifications (cloche de l'en-tête) | `portail/notifications.html` | V1.1 | 5.5.2 | dessinée par Claude en 5.5.2 d'après `gestion/notifications` et `portail/annonces` (à valider) ; codée en 5.5.2 : `/notifications`. Écart : dans la barre du bas, « Annonces » prend le porte-voix (la cloche est celle des notifications) — les autres maquettes du portail montrent encore une cloche ; 5.6.1 : bloc « Que recevoir sur l'écran » en bas (paiement reçu, annonces de l'école) ; 5.6.2 : « Échéance proche » et « Retard de paiement » |
 | Profil et coordonnées | `portail/profil.html` | V1.0 | H5 | fournie — codé en 4.4.5 avec le contact d'urgence à la place du « Téléphone secondaire » (pas de champ au modèle) |
 | Vérification publique d'un reçu (`/v/{id}`) | `portail/verification-recu.html` | V1.0 | F4 | fournie |
-| Scolarité d'un enfant | `portail/enfant-scolarite.html` | V1.4 | 8.8 | fournie |
+| Scolarité d'un enfant | `portail/enfant-scolarite.html` | V1.2 | 8.8 | fournie |
 
 ### Console de la plateforme — `admin.mwangaza.school` (super-admin, son propre design)
 
