@@ -171,6 +171,12 @@ reseau-superuser: ## Créer un compte super-admin dans l'essai sur plusieurs app
 reseau-stop: ## Arrêter l'essai sur plusieurs appareils (données et certificat gardés)
 	$(RESEAU) down
 
+deploy-init: ## Vrai serveur AWS (4.6.3) : créer infra/serveur/serveur.env (MODE=production, secrets neufs) à remplir
+	$(DEPLOYER) init
+
+deploy-check: ## Vrai serveur : HTTPS, certificat et santé de l'API depuis cette machine
+	$(DEPLOYER) check
+
 deploy-setup: ## Serveur de démonstration en ligne : le préparer, une seule fois (A-FAIRE.md § 9 ter)
 	$(DEPLOYER) setup
 

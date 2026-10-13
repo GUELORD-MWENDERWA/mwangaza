@@ -24,8 +24,11 @@ from pathlib import Path
 import segno
 
 HERE = Path(__file__).resolve().parent
-SERVEUR = "--serveur" in sys.argv
-if SERVEUR:
+PRODUCTION = "--production" in sys.argv
+if PRODUCTION:
+    sys.argv.remove("--production")
+SERVEUR = "--serveur" in sys.argv or PRODUCTION
+if "--serveur" in sys.argv:
     sys.argv.remove("--serveur")
 ENV_FILE = HERE.parent / "serveur" / "serveur.env" if SERVEUR else HERE / "reseau.env"
 PAGE = ENV_FILE.parent / "accueil" / "index.html"
@@ -49,6 +52,31 @@ WEBPUSH_VAPID_PUBLIC_KEY={public}
 WEBPUSH_VAPID_PRIVATE_KEY={private}
 DJANGO_HSTS_SECONDS=0
 GUNICORN_WORKERS=2
+"""
+
+TEMPLATE_PRODUCTION = """\
+# Vrai serveur (AWS Lightsail, 4.6.3) : jamais dans Git. Copié sur le serveur à chaque
+# `make deploy`. En garder une copie en lieu sûr (gestionnaire de mots de passe) : sans
+# DJANGO_SECRET_KEY, chacun devrait relier son application d'authentification ; sans
+# BACKUP_PASSPHRASE, les sauvegardes chiffrées sont illisibles ; sans les clés Web Push, il faut
+# réabonner chaque appareil. Changer l'un de ces secrets après de vraies données : ne pas le faire.
+MODE=production
+# À remplir
+SERVEUR=ubuntu@15.237.26.123
+SSH_KEY=~/.ssh/LightsailDefaultKey-eu-west-3.pem
+MWANGAZA_DOMAIN=mwangazaschool.com
+ACME_EMAIL=
+CLOUDFLARE_API_TOKEN=
+# La suite est remplie toute seule.
+CADDY_TLS=unused
+DJANGO_SECRET_KEY={secret}
+POSTGRES_PASSWORD={password}
+BACKUP_PASSPHRASE={backup}
+WEBPUSH_VAPID_PUBLIC_KEY={public}
+WEBPUSH_VAPID_PRIVATE_KEY={private}
+GUNICORN_WORKERS=3
+DJANGO_HSTS_SECONDS=2592000
+DJANGO_LOG_LEVEL=INFO
 """
 
 TEMPLATE_SERVEUR = """\
@@ -130,15 +158,28 @@ def init() -> None:
         public, private = vapid_keys()
         ENV_FILE.parent.mkdir(exist_ok=True)
         ENV_FILE.write_text(
-            (TEMPLATE_SERVEUR if SERVEUR else TEMPLATE).format(
+            (
+                TEMPLATE_PRODUCTION if PRODUCTION else TEMPLATE_SERVEUR if SERVEUR else TEMPLATE
+            ).format(
                 secret=secrets.token_urlsafe(50),
                 password=secrets.token_urlsafe(24),
                 demo_password=secrets.token_urlsafe(9),
+                backup=secrets.token_urlsafe(32),
                 public=public,
                 private=private,
             )
         )
         ENV_FILE.chmod(0o600)
+    if PRODUCTION:
+        values = read_env()
+        missing = [
+            k
+            for k in ("SERVEUR", "SSH_KEY", "MWANGAZA_DOMAIN", "ACME_EMAIL", "CLOUDFLARE_API_TOKEN")
+            if not values.get(k)
+        ]
+        if missing:
+            sys.exit(f"Remplis {', '.join(missing)} dans infra/serveur/serveur.env.")
+        return
     settings()
 
 

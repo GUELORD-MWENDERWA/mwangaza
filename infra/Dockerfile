@@ -3,6 +3,7 @@
 #   backend : Django (gunicorn) et Celery
 #   caddy   : HTTPS, les deux PWA construites et les fichiers statiques de Django
 #   caddy-reseau : la même, avec le module DuckDNS, pour l'essai sur plusieurs appareils
+#   caddy-production : la même, avec le module Cloudflare, pour le vrai serveur (4.6.3)
 #                  (`make reseau`, `docker-compose.reseau.yml`) ; jamais sur le serveur
 
 # --- Front : Gestion et Portail construits (vérification des types comprise)
@@ -73,3 +74,11 @@ RUN xcaddy build --with github.com/caddy-dns/duckdns@v0.5.0
 FROM caddy AS caddy-reseau
 COPY --from=caddy-builder /usr/bin/caddy /usr/bin/caddy
 COPY infra/Caddyfile.reseau /etc/caddy/Caddyfile
+
+# --- Vrai serveur : Caddy avec le module Cloudflare (certificat joker par DNS)
+FROM caddy:2-builder AS caddy-production-builder
+RUN xcaddy build --with github.com/caddy-dns/cloudflare@v0.2.4
+
+FROM caddy AS caddy-production
+COPY --from=caddy-production-builder /usr/bin/caddy /usr/bin/caddy
+COPY infra/production/Caddyfile /etc/caddy/Caddyfile

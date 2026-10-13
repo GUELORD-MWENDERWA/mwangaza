@@ -34,7 +34,8 @@ usermod -aG docker "$ACCOUNT"
 systemctl enable --now docker
 
 echo "3/4 Pare-feu : ports 80 et 443 ouverts (les images d'Oracle n'ouvrent que SSH)"
-# Aussi à ouvrir dans la liste de sécurité du réseau, sur le site d'Oracle (A-FAIRE.md § 9 ter).
+# Aussi à ouvrir côté hébergeur : liste de sécurité d'Oracle (A-FAIRE.md § 9 ter) ou onglet
+# « Mise en réseau » de Lightsail (HTTP 80 et HTTPS 443 ; SSH 22 y est déjà).
 # Règle ajoutée au fichier relu au démarrage, sans y enregistrer celles de Docker.
 for port in 80 443; do
   rule="-A INPUT -p tcp -m state --state NEW -m tcp --dport $port -j ACCEPT"
@@ -45,12 +46,19 @@ for port in 80 443; do
     iptables -I INPUT -p tcp -m state --state NEW -m tcp --dport "$port" -j ACCEPT
 done
 
-echo "4/4 SSH : clé seulement, jamais root"
-cat >/etc/ssh/sshd_config.d/60-mwangaza.conf <<'EOF'
+echo "4/4 SSH : clé seulement, jamais root (l'accès de $ACCOUNT par clé reste ouvert)"
+# Garde-fou : sans clé enregistrée pour ce compte, couper les mots de passe fermerait la porte.
+if [ ! -s "/home/$ACCOUNT/.ssh/authorized_keys" ]; then
+  echo "Aucune clé dans /home/$ACCOUNT/.ssh/authorized_keys : SSH laissé tel quel." >&2
+  exit 1
+fi
+# Le premier réglage lu l'emporte : « 00- » passe avant 50-cloud-init.conf (images Ubuntu).
+rm -f /etc/ssh/sshd_config.d/60-mwangaza.conf
+cat >/etc/ssh/sshd_config.d/00-mwangaza.conf <<'EOF'
 PasswordAuthentication no
 KbdInteractiveAuthentication no
 PermitRootLogin no
 EOF
-systemctl reload ssh
+sshd -t && systemctl reload ssh
 
 echo "Serveur prêt. Suite : make deploy"

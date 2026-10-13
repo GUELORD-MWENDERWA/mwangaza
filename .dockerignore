@@ -6,6 +6,7 @@
 !infra/Caddyfile
 !infra/Caddyfile.reseau
 !infra/routes.caddy
+!infra/production/Caddyfile
 **/node_modules
 **/__pycache__
 **/.venv

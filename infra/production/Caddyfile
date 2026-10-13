@@ -1,0 +1,45 @@
+# Vrai serveur (AWS Lightsail, 4.6.3) : Caddy est le seul point d'entrée, directement sur Internet
+# (DNS Cloudflare en « DNS seulement », nuage gris : pas de proxy). Valeurs : `serveur.env`.
+#
+# Adresse du visiteur : Caddy la lit sur la connexion elle-même. Aucun `trusted_proxies` ici :
+# un X-Forwarded-For ou X-Real-IP envoyé par le visiteur est donc ignoré, et `routes.caddy`
+# transmet à Django `X-Real-IP {client_ip}` (lu par `CLIENT_IP_HEADER`, limitation des tentatives
+# de connexion, `LoginFailure`) ; `reverse_proxy` pose aussi X-Forwarded-For avec cette adresse.
+# Si un jour Cloudflare passe devant (nuage orange) : reprendre `trusted_proxies` et
+# `client_ip_headers CF-Connecting-IP` de `infra/Caddyfile`.
+{
+	email {$ACME_EMAIL}
+}
+
+import routes.caddy
+
+# Certificat joker unique (*.domaine, domaine nu, parents. et admin. couverts) par défi DNS :
+# Caddy écrit lui-même l'enregistrement TXT _acme-challenge chez Cloudflare. Autre hébergeur
+# DNS : changer la ligne `dns …` et le module compilé dans `infra/Dockerfile` (caddy-production).
+(site) {
+	tls {
+		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+	}
+	encode zstd gzip
+}
+
+*.{$MWANGAZA_DOMAIN} {
+	import site
+	import ecole
+}
+
+parents.{$MWANGAZA_DOMAIN} {
+	import site
+	import parents
+}
+
+admin.{$MWANGAZA_DOMAIN} {
+	import site
+	import admin
+}
+
+# Domaine nu et www : vers le portail des familles, en attendant un site de présentation.
+{$MWANGAZA_DOMAIN}, www.{$MWANGAZA_DOMAIN} {
+	import site
+	redir https://parents.{$MWANGAZA_DOMAIN}{uri}
+}

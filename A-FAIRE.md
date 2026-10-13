@@ -62,7 +62,7 @@ Si un document arrive quand même :
 
 | Quoi | Comment | Fait |
 |---|---|:-:|
-| Domaine **`mwangaza.school`** (choisi le 2026-09-26) | vérifier qu'il est libre, l'acheter chez un registrar qui vend le `.school` ; activer le renouvellement automatique | [ ] |
+| Domaine **`mwangazaschool.com`** (choisi le 2026-09-26) | vérifier qu'il est libre, l'acheter chez un registrar qui vend le `.school` ; activer le renouvellement automatique | [ ] |
 | Cloudflare (gratuit) | créer le compte, ajouter le domaine, remplacer les serveurs DNS chez le registrar par ceux que Cloudflare indique | [ ] |
 | Serveur | celui du § 9 ter (gratuit), ou un VPS payant (2 vCPU, 4 Go, Ubuntu 24.04, moins de 20 $ / mois) si une école l'exige | [ ] |
 | Stockage objet (sauvegardes, photos) | gratuit : Oracle Object Storage (20 Go, même compte) ou Backblaze B2 (10 Go) ; Claude dira quelles clés créer (4.7.2) | [ ] |
@@ -122,19 +122,23 @@ Limites : Oracle peut arrêter un serveur gratuit peu utilisé (sauf compte *Pay
 
 ---
 
+## 9 quinquies. Vrai serveur AWS Lightsail (préparé le 2026-10-12, rien lancé)
+
+`make deploy-init` a créé `infra/serveur/serveur.env` (MODE=production, `ubuntu@15.237.26.123`, clé `~/.ssh/LightsailDefaultKey-eu-west-3.pem`, secrets neufs). **À remplir** : `ACME_EMAIL` et `CLOUDFLARE_API_TOKEN` (Cloudflare : ajouter `mwangazaschool.com`, remplacer les serveurs de noms chez LWS par ceux de Cloudflare, jeton « Edit zone DNS » limité à cette zone ; enregistrements `A` `@` et `*` vers 15.237.26.123, en **DNS seulement** — nuage gris). Dans Lightsail › Mise en réseau : ouvrir HTTP 80 et HTTPS 443. **Garder une copie de `serveur.env`** (clé de sauvegarde et clé Django comprises). Quand le DNS répond : dis-le à Claude, puis `make deploy-setup`, `make deploy`, `make deploy-check`, `make deploy-superuser`. Les mêmes commandes servent à `make deploy-*` ; `make reseau` n'est pas touché.
+
 ## 9 quater. Le jour du lancement (première vraie école)
 
 Après la recette finale (4.21), il ne manque que les achats et la mise en ligne. Dans l'ordre, sans sauter d'étape :
 
 | # | Étape | Comment | Fait |
 |:-:|---|---|:-:|
-| 1 | **Achats et comptes** | [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats) : domaine `mwangaza.school`, Cloudflare, serveur, stockage objet, phrase secrète des sauvegardes notée **hors du serveur** | [ ] |
-| 2 | **Vrai domaine** | dans Claude Code : `/tache 4.6.3` — Claude te dit quelles valeurs remplir dans le fichier du serveur, puis met en ligne | [ ] |
+| 1 | **Achats et comptes** | [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats) : domaine `mwangazaschool.com`, Cloudflare, serveur, stockage objet, phrase secrète des sauvegardes notée **hors du serveur** | [ ] |
+| 2 | **Vrai domaine** | fait le 2026-10-13 (4.6.3) : `mwangazaschool.com`, AWS Lightsail, `make deploy-check` | [x] |
 | 3 | **Sauvegardes hors du serveur, alertes** | `/tache 4.7.2` ; à la fin, vérifier qu'une sauvegarde de la nuit existe dans le stockage objet et que `make restore` la relit | [ ] |
 | 4 | **Mesure sur le vrai serveur** | `/tache 4.23` : temps du tableau de bord et des impayés sur le serveur, correction si c'est lent (sur ta machine : 1,3 s et 1,2 s pour 800 élèves) | [ ] |
-| 5 | **Ton compte super-admin** | `make deploy-superuser` (ton vrai numéro), double authentification liée à ton téléphone, codes de secours rangés | [ ] |
-| 6 | **Identité de la plateforme** | console (`https://admin.mwangaza.school/`) → Identité : nom, logo, contact du support, mentions légales — les vraies valeurs | [ ] |
-| 7 | **Premier espace réel** | console → Écoles → Nouvelle école → type **Réel** : nom, code (c'est son adresse, `code.mwangaza.school` : il ne change plus), premier directeur avec son vrai numéro. Lui remettre l'adresse et son mot de passe provisoire | [ ] |
+| 5 | **Ton compte super-admin** | créé le 2026-10-13 (`make deploy-superuser`) ; reste : double authentification liée à ton téléphone, codes de secours rangés | [ ] |
+| 6 | **Identité de la plateforme** | console (`https://admin.mwangazaschool.com/`) → Identité : nom, logo, contact du support, mentions légales — les vraies valeurs | [ ] |
+| 7 | **Premier espace réel** | console → Écoles → Nouvelle école → type **Réel** : nom, code (c'est son adresse, `code.mwangazaschool.com` : il ne change plus), premier directeur avec son vrai numéro. Lui remettre l'adresse et son mot de passe provisoire | [ ] |
 | 8 | **L'école se met en route** | le directeur suit la liste « Mise en route » de son tableau de bord : année, classes, frais et taux, comptes du personnel, caisse et appareil, élèves (import Excel). Rentrée déjà passée : « Reprise » (ce que chaque élève a déjà payé) | [ ] |
 | 9 | **Premier encaissement** | un vrai paiement : reçu imprimé, QR vérifié avec un téléphone ; le soir, clôture de caisse ; le parent voit le reçu sur le Portail | [ ] |
 | 10 | **Le lendemain** | la sauvegarde de la nuit existe ; aucune alerte | [ ] |
@@ -211,6 +215,7 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make reseau-superuser` | crée ton compte super-administrateur dans cet essai (ton numéro, un mot de passe) | une fois, pour ouvrir la console |
 | `make reseau-ip` | remet l'adresse de la machine dans DuckDNS (`make reseau-ip ip=192.168.…` pour la choisir) | quand le partage de connexion a changé |
 | `make reseau-stop` | arrête cet essai ; données et certificat gardés | après l'essai |
+| `make deploy-init` · `make deploy-check` | vrai serveur AWS (§ 9 quinquies) : créer `serveur.env` de production ; vérifier HTTPS et la santé de l'API | une fois / après chaque mise en ligne |
 | `make deploy-setup` | serveur de démonstration en ligne (§ 9 ter) : prépare le serveur (mises à jour automatiques, Docker, pare-feu, SSH par clé) ; la première fois, crée `infra/serveur/serveur.env` à remplir | une seule fois |
 | `make deploy` | met en ligne la dernière version de `main` sur le serveur de démonstration : met son adresse dans DuckDNS, envoie le code, construit l'application sur le serveur et la relance (`make deploy ref=origin/<branche>` pour une autre branche) | après une PR fusionnée que tu veux montrer |
 | `make deploy-demo` | données fictives sur le serveur de démonstration, avec le mot de passe propre au serveur (affiché à la fin) ; chacun lie son application d'authentification à la première connexion | la première fois, ou pour remettre la démo à zéro |
