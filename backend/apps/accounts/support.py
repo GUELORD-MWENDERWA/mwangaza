@@ -39,6 +39,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.errors import SCHOOL_NOT_FOUND, ApiError, BusinessError
+from apps.notifications import console
 from apps.schools.models import School
 
 SUPPORT_SESSION_KEY = "accounts.support"
@@ -135,13 +136,15 @@ def start(request, reason: str) -> SupportSession:
         "expires": now + SUPPORT_DURATION,
     }
     session = current(request)
-    audit.record(
+    entry = audit.record(
         Action.SUPPORT_STARTED,
         school,
         actor=user,
         impersonated_by=user,
         after={"reason": reason, "expires_at": session.expires_at},
     )
+    # Sur l'écran des super-admin abonnés dans la console (S.3.2).
+    console.alert(Action.SUPPORT_STARTED, entry.pk, " · ".join([str(user), school.name, reason]))
     return session
 
 

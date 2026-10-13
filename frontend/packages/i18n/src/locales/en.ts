@@ -3221,6 +3221,24 @@ export const en: Messages<typeof fr> = {
       object: "Object",
       by: "By",
       none: "No entry.",
+      alerts: {
+        title: "Alerts on this device",
+        intro:
+          "Every login of a super-admin account, every refused code and every support session opened shows on this device's screen, even with the console closed and after logging out.",
+        states: {
+          on: "On",
+          off: "Off",
+          denied: "Blocked",
+          unsupported: "Unavailable",
+        },
+        enable: "Receive alerts on this device",
+        disable: "Stop receiving",
+        unsupported:
+          'This browser cannot show alerts on screen. On iPhone: first add the console to the home screen (Share → "Add to Home Screen"), then open it from that icon.',
+        denied:
+          "Notifications are blocked for this address. Allow them in the site settings (the padlock left of the address), then reload the page.",
+        notConfigured: "The server does not send on-screen notifications yet.",
+      },
       sessions: {
         search: "School…",
         school: "School",

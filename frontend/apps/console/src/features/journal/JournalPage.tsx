@@ -1,6 +1,7 @@
 // Journal de la plateforme (5.4.2, maquette `console/journal`) : actions du support dans la
 // console, filtres par type, période et objet ; l'objet mène à sa fiche, où « Derniers
-// changements » montre l'avant → après. Onglet voisin : sessions support.
+// changements » montre l'avant → après. Onglet voisin : sessions support. Au-dessus des onglets :
+// alertes sur l'écran de cet appareil (S.3.2), le journal tenant lieu de centre de notifications.
 import { api, call, type Schemas } from "@mwangaza/api";
 import { errorMessage, formatDateTime, useTranslation } from "@mwangaza/i18n";
 import { Banner, Button, Card, Input, PageHeader, Select, Skeleton, Table } from "@mwangaza/ui";
@@ -10,10 +11,11 @@ import { Link, NavLink } from "react-router";
 
 import { keys } from "../../lib/queries";
 import { Pager } from "../shell/Pager";
+import { AlertsCard } from "./AlertsCard";
 
 type Entry = Schemas["PlatformLog"];
-type Domain = "platform" | "school" | "account" | "device";
-const DOMAINS: Domain[] = ["platform", "school", "account", "device"];
+type Domain = "platform" | "school" | "account" | "device" | "announcement" | "access";
+const DOMAINS: Domain[] = ["platform", "school", "account", "device", "announcement", "access"];
 
 /** Page de l'objet d'une entrée dans la console ; un appareil n'en a pas. */
 function objectPage(entry: Entry): string | null {
@@ -33,6 +35,7 @@ export function JournalLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <PageHeader title={t("console.journal.title")} subtitle={t("console.journal.subtitle")} />
+      <AlertsCard />
       <nav className="flex gap-1 overflow-x-auto border-b border-line">
         <NavLink to="/journal" end className={tab}>
           {t("console.journal.tabs.log")}

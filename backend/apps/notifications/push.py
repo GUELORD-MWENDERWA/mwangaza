@@ -219,28 +219,29 @@ def deliver(notification_ids: list[str]) -> None:
     for subscription in PushSubscription.objects.filter(user_id__in=user_ids, user__is_active=True):
         key = (subscription.user_id, subscription.app, subscription.school_id)
         subscriptions[key].append(subscription)
-    subject = _vapid_subject()
+    subject = vapid_subject()
     for notification in notifications:
         if notification.kind in muted.get(notification.user_id, ()):
             continue
+        payload = {
+            "id": str(notification.pk),
+            "title": notification.title,
+            "body": notification.body,
+            "url": notification.url,
+        }
         school_id = notification.school_id if notification.app == App.GESTION else None
         for subscription in subscriptions[(notification.user_id, notification.app, school_id)]:
-            _send(subscription, notification, subject)
+            send(subscription, payload, subject)
 
 
-def _vapid_subject() -> str:
+def vapid_subject() -> str:
     """Contact de la plateforme donné aux services de notifications (Google, Apple, Mozilla)."""
     email = PlatformSettings.load().support_email
     return f"mailto:{email}" if email else settings.PORTAL_URL
 
 
-def _send(subscription: PushSubscription, notification: Notification, subject: str) -> None:
-    payload = {
-        "id": str(notification.pk),
-        "title": notification.title,
-        "body": notification.body,
-        "url": notification.url,
-    }
+def send(subscription: PushSubscription, payload: dict, subject: str) -> None:
+    """Un message (`id`, `title`, `body`, `url`) à un navigateur ; lu par `push-sw.js`."""
     try:
         webpush(
             subscription_info={

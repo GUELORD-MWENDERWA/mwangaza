@@ -3,6 +3,7 @@ from django.db.models import Count, Prefetch
 from django.http import HttpResponse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.helpers import forced_singular_serializer
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     OpenApiParameter,
@@ -28,6 +29,7 @@ from apps.notifications.models import (
     Announcement,
     Notification,
     PlatformAnnouncement,
+    PushSubscription,
     SchoolEvent,
     Summons,
 )
@@ -35,6 +37,7 @@ from apps.notifications.serializers import (
     AnnouncementCreateSerializer,
     AnnouncementSerializer,
     CalendarQuerySerializer,
+    ConsoleAlertsSerializer,
     ConsolePlatformAnnouncementCreateSerializer,
     ConsolePlatformAnnouncementSerializer,
     NotificationPreferencesSerializer,
@@ -384,6 +387,55 @@ class PlatformNewsViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
         if school_access(request).membership is not None:
             platform.mark_read(request.school, request.user, serializer.validated_data["ids"])
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@extend_schema(tags=["console"])
+class ConsoleAlertViewSet(viewsets.GenericViewSet):
+    """Alertes sur l'écran du super-admin (S.3.2) : ce navigateur s'abonne, dans la console, aux
+    alertes sur l'usage des comptes super-admin et sur les sessions support ouvertes. Super-admin
+    seulement, à l'adresse de la console."""
+
+    permission_classes = [IsPlatformAdmin]
+    serializer_class = ConsoleAlertsSerializer
+    pagination_class = None
+
+    @extend_schema(responses={200: forced_singular_serializer(ConsoleAlertsSerializer), **ERRORS})
+    def list(self, request: Request) -> Response:
+        """Clé publique pour abonner ce navigateur."""
+        key = settings.WEBPUSH_VAPID_PUBLIC_KEY if push.is_configured() else ""
+        return Response({"vapid_public_key": key})
+
+    @extend_schema(request=PushSubscriptionSerializer, responses={204: None, **CONSOLE_ERRORS})
+    @action(detail=False, methods=["post"])
+    def subscribe(self, request: Request) -> Response:
+        """Abonner ce navigateur aux alertes de ce compte."""
+        serializer = PushSubscriptionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        push.subscribe(
+            request.user,
+            app=PushSubscription.CONSOLE,
+            school=None,
+            endpoint=data["endpoint"],
+            p256dh=data["keys"]["p256dh"],
+            auth=data["keys"]["auth"],
+            ua=request.headers.get("User-Agent", ""),
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @extend_schema(request=PushUnsubscribeSerializer, responses={204: None, **CONSOLE_ERRORS})
+    @action(detail=False, methods=["post"])
+    def unsubscribe(self, request: Request) -> Response:
+        """Ce navigateur ne reçoit plus les alertes."""
+        serializer = PushUnsubscribeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        push.unsubscribe(
+            request.user,
+            app=PushSubscription.CONSOLE,
+            school=None,
+            endpoint=serializer.validated_data["endpoint"],
+        )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

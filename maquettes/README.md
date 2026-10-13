@@ -122,7 +122,7 @@ Pas de menu latéral comme la Gestion : barre du haut en basalte (marque, pastil
 | Comptes | `console/comptes.html` | V1.1 | 5.4.1 | dessinée par Claude en 5.4.1 d'après `console/ecoles` (à valider) ; codée en 5.4.1 en deux écrans (liste `/accounts`, fiche `/accounts/<id>`) ; les familles du portail ont leur propre carte au lieu de partager celle des écoles |
 | Annonces aux écoles (et bandeau, liste dans la Gestion) | `console/annonces.html` | V1.1 | 5.4.3 | dessinée par Claude en 5.4.3 d'après `gestion/annonces` (à valider) ; codée en 5.4.3 : console `/announcements`, Gestion bandeau en haut du contenu et liste `/app/platform-news` (lien en bas du menu) ; pas de bouton « Aperçu » dans la console (le bandeau de la Gestion reprend le titre et la première ligne) ; choix des écoles par une recherche au lieu d'une liste |
 | Appareils | `console/appareils.html` | V1.1 | 5.4.2 | dessinée par Claude en 5.4.2 d'après `console/comptes` (à valider) ; codée en 5.4.2 (`/devices`) ; sans compteur d'appareils sous la liste |
-| Journal et sessions support | `console/journal.html` | V1.1 | 5.4.2 | dessinée par Claude en 5.4.2 (à valider) ; codée en 5.4.2 en deux onglets (`/journal`, `/journal/support`) ; sans compteur d'entrées sous la liste |
+| Journal et sessions support | `console/journal.html` | V1.1 | 5.4.2 | dessinée par Claude en 5.4.2 (à valider) ; codée en 5.4.2 en deux onglets (`/journal`, `/journal/support`) ; sans compteur d'entrées sous la liste ; S.3.2 : carte « Alertes sur cet appareil » ajoutée au-dessus des onglets (pas dans la maquette), filtre « Type » complété (« Annonces », « Accès du super-admin ») |
 
 ### Menu de la Gestion
 

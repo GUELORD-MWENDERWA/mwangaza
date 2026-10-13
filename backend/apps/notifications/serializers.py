@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -270,9 +271,22 @@ class PushSubscriptionSerializer(serializers.Serializer):
     endpoint = serializers.URLField(max_length=1000)
     keys = PushKeysSerializer()
 
+    def validate_endpoint(self, value: str) -> str:
+        # Le serveur écrira à cette adresse : celle d'un service de notifications, toujours en
+        # https, jamais un service interne (`http://redis:6379/`).
+        if not value.startswith("https://"):
+            raise serializers.ValidationError(_("The address must start with https://."))
+        return value
+
 
 class PushUnsubscribeSerializer(serializers.Serializer):
     endpoint = serializers.URLField(max_length=1000)
+
+
+class ConsoleAlertsSerializer(serializers.Serializer):
+    vapid_public_key = serializers.CharField(
+        read_only=True, help_text="Clé publique Web Push ; vide : envoi sur l'écran indisponible."
+    )
 
 
 class NotificationPreferencesSerializer(serializers.Serializer):
