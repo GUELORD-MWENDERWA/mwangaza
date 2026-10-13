@@ -48,6 +48,9 @@ case "${1:-}" in
     ref=${2:-origin/main}
     git fetch --quiet origin
     commit=$(git rev-parse --short "$ref")
+    # Garde-fou : sans swap, la construction (2 Go de RAM) peut figer le serveur, SSH compris.
+    "${SSH[@]}" "swapon --show --noheadings | grep -q ." ||
+      { echo "Pas de swap sur le serveur : make deploy-setup d'abord (relançable sans danger)."; exit 1; }
     echo "Mise en ligne de $ref ($commit) sur $SERVEUR"
     git archive --format=tar "$ref" |
       "${SSH[@]}" "rm -rf mwangaza/nouveau && mkdir -p mwangaza/nouveau && tar -x -C mwangaza/nouveau"
@@ -57,7 +60,7 @@ case "${1:-}" in
     "${SSH[@]}" "set -e; cd mwangaza && chmod 700 . && mkdir -p code \
       && rsync -a --delete --exclude /infra/certs nouveau/ code/ && rm -rf nouveau \
       && cd code && echo $commit >VERSION && chmod 600 infra/serveur/serveur.env \
-      && mkdir -p infra/certs && $COMPOSE build && $COMPOSE up --detach --wait --remove-orphans \
+      && mkdir -p infra/certs && COMPOSE_PARALLEL_LIMIT=1 nice -n 10 $COMPOSE build && $COMPOSE up --detach --wait --remove-orphans \
       && docker image prune --force >/dev/null"
     # Crontab du compte, remis à chaque mise en ligne (pas de planificateur Celery).
     "${SSH[@]}" "(crontab -l 2>/dev/null | grep -v sauvegarde.sh; echo \"$CRON\") | crontab -"
