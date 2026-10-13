@@ -6,7 +6,8 @@
 #   setup            une seule fois : préparer le serveur (`preparer.sh`, en root)
 #   deploy [REF]     mettre en ligne REF (origin/main par défaut) : code envoyé par SSH, images
 #                    construites sur le serveur (l'ancienne version reste en ligne pendant ce
-#                    temps), migrations au démarrage de Django ; tâche de chaque nuit installée
+#                    temps), migrations et droits du compte PostgreSQL de l'application par le
+#                    conteneur `migrate`, avant Django ; tâche de chaque nuit installée
 #   superuser        créer un compte super-admin (questions posées sur le serveur)
 #   logs [SERVICE]   derniers journaux (caddy, django, celery, db, redis)
 #   backup [ARGS]    sauvegarde.sh sur le serveur : `backup` (sauvegarde du jour, copie hors du
@@ -46,6 +47,9 @@ case "${1:-}" in
     ;;
   deploy)
     ref=${2:-origin/main}
+    # Compte PostgreSQL de l'application (S.5) : un serveur.env d'avant ne l'a pas.
+    grep -q '^POSTGRES_APP_PASSWORD=.' "$ENV_FILE" ||
+      { echo "POSTGRES_APP_PASSWORD manque dans serveur.env : make deploy-init l'ajoute."; exit 1; }
     git fetch --quiet origin
     commit=$(git rev-parse --short "$ref")
     # Garde-fou : sans swap, la construction (2 Go de RAM) peut figer le serveur, SSH compris.

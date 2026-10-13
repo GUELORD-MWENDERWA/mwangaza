@@ -120,6 +120,11 @@ DATABASES = {
         "OPTIONS": {"options": "-c jit=off"},
     }
 }
+# Production (S.5) : `POSTGRES_USER` est un compte à droits réduits, que le compte des migrations
+# crée et tient à jour avec `manage.py setup_app_role` (service `migrate`). Vides ailleurs :
+# développement et tests gardent un seul compte.
+DATABASE_APP_USER = env("POSTGRES_APP_USER", "")
+DATABASE_APP_PASSWORD = env("POSTGRES_APP_PASSWORD", "")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

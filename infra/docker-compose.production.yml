@@ -17,6 +17,8 @@ services:
     mem_limit: 768m
   celery:
     mem_limit: 512m
+  migrate:
+    mem_limit: 512m
   db:
     mem_limit: 512m
   redis:

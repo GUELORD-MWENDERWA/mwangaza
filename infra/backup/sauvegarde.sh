@@ -12,7 +12,9 @@
 #                                  dans une base à part, comparée table par table à la base en
 #                                  service, puis la base à part est effacée
 #   restore --remplacer [FICHIER]  remettre la sauvegarde en service : la base en service est
-#                                  renommée (gardée, rien n'est effacé), les fichiers sont remis
+#                                  renommée (gardée, rien n'est effacé), les fichiers sont remis,
+#                                  le service `migrate` (s'il existe) redonne ses droits au
+#                                  compte de l'application
 #
 # Variables : COMPOSE (commande docker compose de la pile, obligatoire) ; BACKUP_PASSPHRASE (clé
 # de chiffrement, sinon lue dans le fichier VALEURS ; vide : purge seulement) ; BACKUP_DIR
@@ -186,7 +188,9 @@ restaurer() {
   db "$EFFACER"' && createdb -U "$POSTGRES_USER" "$1"' "$RESTAUREE" </dev/null
   # La base à part ne reste jamais derrière un essai ou un échec : une copie de vraies données.
   trap 'db "$EFFACER" "$RESTAUREE" </dev/null' EXIT
-  dechiffrer "$fichier" | db 'pg_restore -U "$POSTGRES_USER" -d "$1" --no-owner --exit-on-error' "$RESTAUREE"
+  # Sans les droits notés dans la sauvegarde : le compte de l'application (S.5) peut manquer ici
+  # (autre machine, serveur neuf), et la restauration s'arrêterait sur lui.
+  dechiffrer "$fichier" | db 'pg_restore -U "$POSTGRES_USER" -d "$1" --no-owner --no-privileges --exit-on-error' "$RESTAUREE"
 
   apres=$(lignes "$RESTAUREE")
   avant=$(lignes "$BASE")
@@ -226,6 +230,11 @@ restaurer() {
     ALTER DATABASE \"$RESTAUREE\" RENAME TO \"$BASE\";" >/dev/null
   trap - EXIT
   [ ! -f "$archive" ] || dechiffrer "$archive" | fichiers -x
+  # Pile de production : migrations de la version en place, puis droits du compte de
+  # l'application sur la base remise (sans eux, l'application ne lit plus rien).
+  if $COMPOSE config --services 2>/dev/null | grep -qx migrate; then
+    $COMPOSE run --rm -T migrate </dev/null
+  fi
   echo "Sauvegarde remise en service. Relancer l'application (make deploy sur le serveur, make dev sur la machine)."
   echo "Ancienne base gardée : « $ancienne » (à effacer à la main quand elle ne sert plus)."
 }
