@@ -99,7 +99,7 @@ Bulletins : structure et maxima repris des formulaires officiels trouvés en lig
 | Activation du compte famille | `portail/activation.html` | V1.0 | H1 | fournie |
 | Se connecter | `portail/connexion.html` | V1.0 | H1 · M19 | à valider — écart (4.12) : après une session finie, bandeau « Votre session est terminée » au-dessus du numéro, déjà rempli |
 | Mot de passe oublié (nouveau code famille) | `portail/mot-de-passe-oublie.html` | V1.0 | H1 · M19 | à valider |
-| Installer l'application | `portail/installer.html` | V1.0 | H6 · M19 | à valider |
+| Installer l'application | `portail/installer.html` | V1.0 | H6 · M19 | à valider (la Gestion a un écran d'installation obligatoire sans maquette, 4.24, dessiné d'après `StandaloneStatus` ; capture 390 px non gardée) |
 | Guide de première connexion (parent) | `portail/guide.html` | V1.0 | I3 · M20 | à valider — codé en 4.5.1 avec des exemples neutres (pas de numéro de reçu d'une école) ; relancé : « L'essentiel du portail en 3 étapes » au lieu de « compte activé » |
 | Accueil — mes enfants (multi-écoles) | `portail/accueil.html` | V1.0 | H2 | fournie |
 | Paiements d'un enfant | `portail/enfant-paiements.html` | V1.0 | H3 | fournie |

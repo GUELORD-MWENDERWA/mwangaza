@@ -7,6 +7,7 @@ import { Outlet } from "react-router";
 import { hasCode, useSchool } from "../../lib/queries";
 import { SchoolContext } from "../../lib/school";
 import { ErrorState, NoSchool, StandaloneStatus, Stopped, Suspended } from "../status/StatusPages";
+import { InstallGate } from "../install/InstallGate";
 import { OfflineStart } from "./PinUnlock";
 
 /** L'école de l'adresse, lue avant tout écran (nom, couleur, logo, fuseau). École suspendue ou
@@ -52,7 +53,9 @@ export function SchoolGate() {
   }
   return (
     <SchoolContext value={school.data}>
-      <Outlet />
+      <InstallGate>
+        <Outlet />
+      </InstallGate>
     </SchoolContext>
   );
 }

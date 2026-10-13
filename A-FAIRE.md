@@ -126,6 +126,14 @@ Limites : Oracle peut arrêter un serveur gratuit peu utilisé (sauf compte *Pay
 
 `make deploy-init` a créé `infra/serveur/serveur.env` (MODE=production, `ubuntu@15.237.26.123`, clé `~/.ssh/LightsailDefaultKey-eu-west-3.pem`, secrets neufs). **À remplir** : `ACME_EMAIL` et `CLOUDFLARE_API_TOKEN` (Cloudflare : ajouter `mwangazaschool.com`, remplacer les serveurs de noms chez LWS par ceux de Cloudflare, jeton « Edit zone DNS » limité à cette zone ; enregistrements `A` `@` et `*` vers 15.237.26.123, en **DNS seulement** — nuage gris). Dans Lightsail › Mise en réseau : ouvrir HTTP 80 et HTTPS 443. **Garder une copie de `serveur.env`** (clé de sauvegarde et clé Django comprises). Quand le DNS répond : dis-le à Claude, puis `make deploy-setup`, `make deploy`, `make deploy-check`, `make deploy-superuser`. Les mêmes commandes servent à `make deploy-*` ; `make reseau` n'est pas touché.
 
+## 9 sexies. Guide de démarrage du personnel : installer la Gestion (4.24)
+
+À la première ouverture de `https://<école>.mwangazaschool.com/app/` dans un navigateur, un écran demande d'installer l'application ; il faut le faire **avant** la connexion. Donne ces étapes au personnel :
+1. **Android ou ordinateur (Chrome, Edge)** : touche **« Installer l'application »** ; si le bouton manque, menu du navigateur → « Installer l'application ».
+2. **iPhone (Safari seulement)** : Partager → « Sur l'écran d'accueil » → Ajouter.
+3. Quand l'écran dit « installée », **ferme l'onglet** et ouvre **Mwangaza depuis son icône** (bureau, écran d'accueil ou menu des applications). Le guide de la caisse ou de la comptabilité s'y lance à la première connexion.
+4. Appareil qui ne sait pas installer : « Continuer dans le navigateur » apparaît (après 2 refus, sur iPhone, ou sans invite) ; l'écran revient à la prochaine ouverture du navigateur. Les caisses doivent rester sur l'application installée (hors-ligne).
+
 ## 9 quater. Le jour du lancement (première vraie école)
 
 Après la recette finale (4.21), il ne manque que les achats et la mise en ligne. Dans l'ordre, sans sauter d'étape :

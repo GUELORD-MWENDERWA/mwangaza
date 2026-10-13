@@ -8,8 +8,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 finie (recette du 2026-10-12), en attente de la mise en ligne ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`, guide de présentation `docs/guide/presentation-v1.1.pdf`) |
 | Lot | V1.0 (mise en ligne), puis V1.2 |
-| Tâche en cours | aucune — 4.6.3 faite (PR ouverte, branche `feat/infra-production-aws`) ; vrai serveur en ligne : https://admin.mwangazaschool.com/ — corrections après l'essai de l'utilisateur sur ses appareils (tableaux, version affichée, restes « V1.1 » ; hors plan, PR ouverte) |
-| Prochaine tâche | 6.1 (V1.2 — carte de l'élève et du personnel) ; 4.6.3, 4.7.2 et 4.23 dès que le domaine et le stockage sont achetés (`A-FAIRE.md` § 9 quater) |
+| Tâche en cours | aucune — 4.24 faite (installation obligatoire de la Gestion ; PR ouverte, branche `feat/installation-pwa`) ; vrai serveur en ligne : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | 4.7.2 (sauvegardes hors du serveur, dès que le stockage objet est créé), 4.23 ; puis 6.1 (V1.2 — carte de l'élève et du personnel) |
 | Issue GitHub | #41 pour 6.1 ; #186 pour 4.23 |
 | Branche | `fix/tableaux-version` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-12 |
@@ -22,9 +22,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production (reste : 4.7.2 et 4.23) | 17 | 19 |
+| Semaine 4 — Rapports, portail, production (reste : 4.7.2 et 4.23) | 18 | 20 |
 | Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 14 | 14 |
-| **V1.0** | **65** | **67** |
+| **V1.0** | **66** | **68** |
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -54,6 +54,9 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-13 — 4.24 Installation obligatoire de la Gestion (demande de l'utilisateur)
+Fait : écran plein page « Installez Mwangaza pour continuer » avant la connexion, tant que la Gestion est ouverte dans un onglet (application construite seulement ; développement et Playwright intacts) : bouton du navigateur, étapes iPhone, menu du navigateur ; une fois installée, « ouvrez l'icône ». Issue de secours pour la session : 2 refus, iPhone ou 3 s sans invite. Logique d'installation déplacée dans `packages/ui` (partagée avec le Portail, inchangé : invitation douce). Tests : décision d'afficher l'écran, issue de secours, session ; capture à 390 px. Limites dites : un navigateur ne peut ni se fermer ni lancer l'application installée. Natif (Electron/Tauri) refusé pour l'instant. Suite : 4.7.2, 4.23, 6.1.
 
 ### 2026-10-13 — 4.6.3 Vrai serveur en ligne (AWS Lightsail)
 Fait : `mwangazaschool.com` sur Lightsail Paris, Caddy avec certificat joker par DNS Cloudflare (nuage gris), `make deploy-init`/`deploy-check`, mode `MODE=production` de `deployer.sh`. Vérifié : HTTPS valide, `/api/health/` ok, droits (PostgreSQL 700, `~/mwangaza` 700, `serveur.env` 600), sauvegarde chiffrée + restauration identique table par table, super-admin créé. Décisions : `03` (journal). Domaine final `mwangazaschool.com` (docs corrigés) ; redirection `/admin` → `/admin/`. Suite : 4.7.2 (stockage objet) ; première école réelle ; essai de `X-Forwarded-For` falsifié non fait.
