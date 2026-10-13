@@ -27,7 +27,7 @@ RUN --mount=type=cache,id=mwangaza-pnpm,target=/pnpm-store \
 
 # --- Backend : Django, gunicorn, Celery
 # FORWARDED_ALLOW_IPS : seul Caddy joint gunicorn (réseau interne), ses en-têtes X-Forwarded-* sont crus.
-FROM python:3.12-slim AS backend
+FROM python:3.14-slim AS backend
 COPY --from=ghcr.io/astral-sh/uv:0.12.19 /uv /uvx /bin/
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
