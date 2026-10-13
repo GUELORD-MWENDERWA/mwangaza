@@ -1,22 +1,22 @@
 # Mwangaza
 
-Plateforme de gestion scolaire multi-écoles pour la République démocratique du Congo, pensée pour les écoles de Goma.
+A multi-school management platform for the Democratic Republic of the Congo, designed for schools in Goma.
 
-> Projet en cours de construction. Ce README sera complété plus tard.
+> Work in progress. This README will be completed later.
 
-## Ce que c'est
+## What it is
 
-Trois applications sur un même serveur :
+Three applications running on one server:
 
-- **Gestion** : le personnel de l'école gère les élèves, les frais, la caisse et les reçus, y compris sans connexion internet.
-- **Portail** : les familles consultent les paiements, les reçus, les échéances et les annonces.
-- **Console** : l'équipe de la plateforme gère les écoles et les comptes.
+- **Management**: school staff manage students, fees, the cash desk and receipts, even without an internet connection.
+- **Portal**: families check payments, receipts, due dates and announcements.
+- **Console**: the platform team manages schools and accounts.
 
 ## Technologies
 
-- Serveur : Python, Django, PostgreSQL
-- Interface : TypeScript, React, Tailwind CSS (applications installables, PWA)
+- Server: Python, Django, PostgreSQL
+- Interface: TypeScript, React, Tailwind CSS (installable apps, PWA)
 
-## Licence
+## License
 
-Aucune licence n'est accordée pour l'instant : tous droits réservés.
+No license is granted for now: all rights reserved.
