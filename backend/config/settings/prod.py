@@ -2,6 +2,8 @@
 
 from django.core.exceptions import ImproperlyConfigured
 
+from config.sentry import init_sentry
+
 from .base import *  # noqa: F403
 from .base import SECRET_KEY, env, env_bool
 
@@ -24,3 +26,6 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 DEMO_DATA = env_bool("DJANGO_DEMO_DATA", False)
 DEMO_PASSWORD = env("DJANGO_DEMO_PASSWORD", "")
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Suivi d'erreurs : vide, rien n'est envoyé (`config/sentry.py`).
+init_sentry(env("SENTRY_DSN"))

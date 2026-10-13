@@ -5,14 +5,14 @@ Claude ne peut pas : installer avec `sudo`, fusionner une PR, parler à l'ITIG, 
 
 Ce qui manque en détail (maquettes, informations ITIG, décisions) : [`docs/07-a-fournir.md`](docs/07-a-fournir.md). Ici : **quoi faire, dans quel ordre, avec quelles commandes**.
 
-Dernière mise à jour : 2026-10-12 (tâche 5.7 : communication, fin de la V1.1, guide de la version 1.1).
+Dernière mise à jour : 2026-10-13 (tâche 4.7.2 : sauvegardes hors du serveur, suivi d'erreurs, sonde).
 
 ## Maintenant
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
 | 1 | **Relire et fusionner la PR « Nettoyage du plan »** (attendre les coches vertes) : Oracle et DuckDNS retirés, plan remis à jour ; marche à suivre : [§ 10](#10-comment-relire-et-fusionner-une-pr) | 10 min | [ ] |
-| 2 | **Créer le stockage objet des sauvegardes** (tâche 4.7.2, [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats)) et mettre `BACKUP_PASSPHRASE` dans `infra/serveur/serveur.env`, noté **aussi hors du serveur** ; Claude dira quelles clés créer | 30 min | [ ] |
+| 2 | **Brancher les sauvegardes hors du serveur, les alertes et le suivi d'erreurs** : les 7 étapes du [§ 9 bis](#9-bis-brancher-les-sauvegardes-hors-du-serveur-472) (Backblaze B2, Healthchecks, Sentry, UptimeRobot) ; la phrase secrète `BACKUP_PASSPHRASE` est déjà dans `serveur.env`, **la noter aussi hors du serveur** | 45 min | [ ] |
 | 3 | **Garder une copie de `infra/serveur/serveur.env`** en lieu sûr (gestionnaire de mots de passe) | 2 min | [ ] |
 | 4 | **Lire le guide de la version 1.1** (`docs/guide/guide-v1.1.pdf`) et préparer ta présentation (`docs/guide/presentation-v1.1.pdf`) : elle se fait maintenant sur le vrai serveur, dans un espace de démonstration créé depuis la console | 1 h | [ ] |
 | 5 | **Avant la première vraie école** : étapes du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) (tâches 4.7.2 et 4.23) | 1 h | [ ] |
@@ -55,16 +55,16 @@ Si un document arrive quand même :
 
 ## 9. Vraie mise en ligne (4.6.3, 4.7) : comptes et achats
 
-À faire **avant** qu'une école saisisse ses vraies données : changer d'adresse ensuite obligerait à réinstaller les applications et rendrait invérifiables les QR des reçus déjà imprimés. Le serveur est en ligne (§ 9 ter) ; il lui manque la copie des sauvegardes hors du serveur (4.7.2).
+À faire **avant** qu'une école saisisse ses vraies données : changer d'adresse ensuite obligerait à réinstaller les applications et rendrait invérifiables les QR des reçus déjà imprimés. Le serveur est en ligne (§ 9 ter) ; la copie des sauvegardes hors du serveur est prête côté code (4.7.2) ; il reste à créer les comptes (§ 9 bis).
 
 | Quoi | Comment | Fait |
 |---|---|:-:|
 | Domaine **`mwangazaschool.com`** | acheté ; renouvellement automatique | [x] |
 | Cloudflare (gratuit) | DNS « DNS seulement » : fait | [x] |
 | Serveur | AWS Lightsail (§ 9 ter) | [x] |
-| Stockage objet (sauvegardes, photos) | gratuit : Backblaze B2 (10 Go) ou un compartiment AWS S3 (même compte que le serveur) ; Claude dira quelles clés créer (4.7.2) | [ ] |
+| Stockage objet des sauvegardes | **Backblaze B2** (10 Go gratuits, compte séparé d'AWS) : § 9 bis, étapes 1 et 2 | [ ] |
 | Clé des sauvegardes (4.7.2) | une phrase secrète `BACKUP_PASSPHRASE` dans le fichier de valeurs du serveur : dès qu'elle y est, la sauvegarde de chaque nuit se fait. **La noter aussi hors du serveur** (gestionnaire de mots de passe), avec `DJANGO_SECRET_KEY` : sans ces deux clés, une sauvegarde ne se relit pas | [ ] |
-| Suivi d'erreurs et sonde de disponibilité | Sentry (offre gratuite) ou GlitchTip ; UptimeRobot (gratuit) | [ ] |
+| Alerte de sauvegarde, suivi d'erreurs, sonde de disponibilité | Healthchecks.io, Sentry, UptimeRobot (tous gratuits) : § 9 bis, étapes 3 à 5 | [ ] |
 | Documents (T5, avant les vraies données d'une école) | conditions d'utilisation, confidentialité, contrat avec chaque école : Claude peut rédiger un brouillon, à faire relire | [ ] |
 | Tarif des écoles (T6, avant les abonnements, 9.2) | décider : essai gratuit ? prix par élève ? | [ ] |
 
@@ -92,7 +92,7 @@ Après la recette finale (4.21), il ne manque que les achats et la mise en ligne
 |:-:|---|---|:-:|
 | 1 | **Achats et comptes** | [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats) : domaine `mwangazaschool.com`, Cloudflare, serveur, stockage objet, phrase secrète des sauvegardes notée **hors du serveur** | [ ] |
 | 2 | **Vrai domaine** | fait le 2026-10-13 (4.6.3) : `mwangazaschool.com`, AWS Lightsail, `make deploy-check` | [x] |
-| 3 | **Sauvegardes hors du serveur, alertes** | `/tache 4.7.2` ; à la fin, vérifier qu'une sauvegarde de la nuit existe dans le stockage objet et que `make restore` la relit | [ ] |
+| 3 | **Sauvegardes hors du serveur, alertes** | code fait (4.7.2) ; reste le [§ 9 bis](#9-bis-brancher-les-sauvegardes-hors-du-serveur-472), puis `make deploy-backup` : « Copie hors du serveur » s'affiche et le fichier est dans le bucket | [ ] |
 | 4 | **Mesure sur le vrai serveur** | `/tache 4.23` : temps du tableau de bord et des impayés sur le serveur, correction si c'est lent (sur ta machine : 1,3 s et 1,2 s pour 800 élèves) | [ ] |
 | 5 | **Ton compte super-admin** | créé le 2026-10-13 (`make deploy-superuser`) ; reste : double authentification liée à ton téléphone, codes de secours rangés | [ ] |
 | 6 | **Identité de la plateforme** | console (`https://admin.mwangazaschool.com/`) → Identité : nom, logo, contact du support, mentions légales — les vraies valeurs | [ ] |
@@ -102,6 +102,24 @@ Après la recette finale (4.21), il ne manque que les achats et la mise en ligne
 | 10 | **Le lendemain** | la sauvegarde de la nuit existe ; aucune alerte | [ ] |
 
 À ne plus faire une fois l'étape 7 passée : `make demo` sur cette plateforme (refusés d'office dès qu'un espace réel existe) ; changer de domaine ; saisir de vraies données dans un espace d'essai ou de démonstration (ils se suppriment). Montrer l'application à une autre école : console → Écoles → onglet « Démonstration », sa fiche d'accès à imprimer.
+
+---
+
+## 9 bis. Brancher les sauvegardes hors du serveur (4.7.2)
+
+Tout est prêt côté code. Ces sept étapes sont des comptes à créer ; les clés vont dans `infra/serveur/serveur.env` (lignes déjà présentes pour un nouveau fichier ; **à ajouter à la main** dans le tien : `BACKUP_B2_BUCKET`, `BACKUP_B2_ACCOUNT`, `BACKUP_B2_KEY`, `BACKUP_PING_URL`, `SENTRY_DSN`, modèle : `infra/.env.example`). Aucune n'est obligatoire pour que l'application marche, **toutes le sont avant la première vraie école**.
+
+| # | Quoi | Comment |
+|:-:|---|---|
+| 1 | Bucket B2 | `backblaze.com` → compte B2 → *Buckets* → créer `mwangaza-sauvegardes`, **Private** ; *Lifecycle* : « Keep only the last version of the file ». Le nom va dans `BACKUP_B2_BUCKET` |
+| 2 | Clé B2 | *Application Keys* → nouvelle clé **limitée à ce bucket**, lecture et écriture. `keyID` → `BACKUP_B2_ACCOUNT`, `applicationKey` → `BACKUP_B2_KEY` (affichée une seule fois) |
+| 3 | Alerte de sauvegarde | `healthchecks.io` → nouveau contrôle, période 1 jour, délai de grâce 2 h, ton e-mail ; son adresse de ping (`https://hc-ping.com/…`, **sans** `/fail`) → `BACKUP_PING_URL` |
+| 4 | Suivi d'erreurs | `sentry.io` → projet **Django** → adresse « DSN » → `SENTRY_DSN` |
+| 5 | Sonde de disponibilité | `uptimerobot.com` → moniteur HTTP(s) sur `https://admin.mwangazaschool.com/api/health/`, toutes les 5 minutes, alerte par e-mail |
+| 6 | Mettre en route | `make deploy-setup` (installe `rclone`, sans danger si déjà fait), puis `make deploy` |
+| 7 | Vérifier | `make deploy-backup` : doit afficher « Copie hors du serveur : b2:… » ; le fichier est dans le bucket ; Healthchecks passe au vert. Puis `make deploy-backup cmd=restore` : « Essai réussi » |
+
+**Garder aussi hors du serveur** : `BACKUP_PASSPHRASE`, `DJANGO_SECRET_KEY` et les clés B2 (gestionnaire de mots de passe). Serveur perdu : `make deploy-setup`, `make deploy`, `make deploy-backup cmd=fetch`, puis `make deploy-backup cmd="restore --remplacer"` (remet la sauvegarde en service après confirmation).
 
 ---
 
@@ -173,6 +191,7 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make deploy` | met en ligne la dernière version de `main` sur le vrai serveur : envoie le code, construit l'application sur le serveur et la relance (`make deploy ref=origin/<branche>` pour une autre branche) | après une PR fusionnée que tu veux montrer |
 | `make deploy-superuser` | crée un compte super-administrateur sur le vrai serveur | pour ton propre compte |
 | `make deploy-logs` | derniers journaux du serveur et version en ligne (`make deploy-logs service=django`, `caddy`…) | quand quelque chose ne marche pas |
+| `make deploy-backup` | lance la sauvegarde **maintenant** sur le serveur, copie vers Backblaze comprise (celle de la nuit fait la même chose) ; `cmd=fetch` rapatrie la dernière copie du bucket (serveur neuf), `cmd=restore` essaie de la relire | après avoir rempli § 9 bis ; une fois par mois pour l'essai |
 | `make deploy-ssh` | ouvre une session sur le serveur | dépannage |
 | `make backup` | sauvegarde ta base et tes fichiers (logos, photos, pièces jointes) dans `sauvegardes/dev/`, chiffrés ; efface aussi les sessions expirées et les vieilles sauvegardes (base : 30 jours, fichiers : 7) | pour essayer ; sur le serveur, c'est fait chaque nuit tout seul |
 | `make restore` | essai de restauration : la dernière sauvegarde est relue dans une base à part et comparée à la base en service, puis la base à part est effacée (rien ne change). `make restore file=sauvegardes/dev/<fichier>` pour une autre ; `make restore remplacer=oui` la remet en service (il faut taper REMPLACER ; l'ancienne base est gardée) | une fois par mois sur le serveur ; `remplacer=oui` seulement après une panne |

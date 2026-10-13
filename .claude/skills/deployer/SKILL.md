@@ -33,6 +33,7 @@ Tâche 4.6.3. Pas à pas pour l'utilisateur : `A-FAIRE.md` § 9 ter ; commandes 
 | SSH marche, pas le site | ports fermés | onglet « Mise en réseau » de Lightsail (80, 443) ; `make deploy-ssh` puis `sudo iptables -L INPUT -n \| grep -E 'dpt:(80\|443)'` ; relancer `make deploy-setup` |
 | Erreur de certificat | jeton Cloudflare faux, ou trop de demandes à Let's Encrypt | `make deploy-logs service=caddy` ; corriger `CLOUDFLARE_API_TOKEN` puis `make deploy` ; limite atteinte : attendre, ne pas relancer en boucle |
 | Page blanche ou 502 | Django pas prêt (migration, réglage) | `make deploy-logs service=django` |
+| Alerte « sauvegarde manquante » (Healthchecks) | clé B2 fausse, bucket plein, `rclone` absent (`make deploy-setup` le pose) | `make deploy-backup` : l'erreur s'affiche ; journal de la nuit : `make deploy-ssh` puis `journalctl -t mwangaza` ; serveur perdu : `make deploy-backup cmd=fetch` |
 | Disque plein | anciennes images | `make deploy-ssh` puis `docker system df` et `docker builder prune -f` |
 
 Après une mise en ligne ou une panne réglée : `/noter` (journal de `docs/06-suivi.md`) et `A-FAIRE.md` si l'utilisateur a quelque chose à faire.

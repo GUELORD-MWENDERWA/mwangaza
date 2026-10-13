@@ -9,8 +9,9 @@ ACCOUNT="${SUDO_USER:-ubuntu}"
 echo "1/4 Mises à jour, puis mises à jour de sécurité automatiques (redémarrage à 4 h si besoin)"
 apt-get update -q
 apt-get upgrade -yq
-# cron et gnupg : tâche de chaque nuit (purge des sessions, sauvegardes chiffrées).
-apt-get install -yq unattended-upgrades ca-certificates curl rsync cron gnupg
+# cron, gnupg et rclone : tâche de chaque nuit (purge des sessions, sauvegardes chiffrées, copie
+# vers le stockage objet).
+apt-get install -yq unattended-upgrades ca-certificates curl rsync cron gnupg rclone
 cat >/etc/apt/apt.conf.d/20auto-upgrades <<'EOF'
 APT::Periodic::Update-Package-Lists "1";
 APT::Periodic::Unattended-Upgrade "1";

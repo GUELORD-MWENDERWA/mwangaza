@@ -32,6 +32,15 @@ CADDY_TLS=unused
 DJANGO_SECRET_KEY={secret}
 POSTGRES_PASSWORD={password}
 BACKUP_PASSPHRASE={backup}
+# Copie des sauvegardes hors du serveur (Backblaze B2, 4.7.2) : bucket privé et clé limitée à ce
+# bucket. Vide : sauvegardes gardées sur le serveur seulement.
+BACKUP_B2_BUCKET=
+BACKUP_B2_ACCOUNT=
+BACKUP_B2_KEY=
+# Alerte si la sauvegarde de la nuit manque ou échoue (adresse de ping Healthchecks.io). Facultatif.
+BACKUP_PING_URL=
+# Suivi d'erreurs (Sentry, adresse « DSN » du projet). Facultatif.
+SENTRY_DSN=
 WEBPUSH_VAPID_PUBLIC_KEY={public}
 WEBPUSH_VAPID_PRIVATE_KEY={private}
 GUNICORN_WORKERS=3
