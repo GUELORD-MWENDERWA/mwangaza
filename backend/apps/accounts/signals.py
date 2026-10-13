@@ -1,19 +1,20 @@
-"""Rôles système copiés à la création de chaque école ; rôles d'une autre école refusés."""
+"""Modèle de départ des rôles copié à la création de chaque école ; rôles d'une autre école
+refusés."""
 
 from django.db.models.signals import m2m_changed, post_save
 from django.dispatch import receiver
 
 from apps.accounts.models import Membership, Role
-from apps.accounts.services import create_system_roles
+from apps.accounts.services import create_starter_roles
 from apps.core.tenancy import CrossSchoolError
 from apps.schools.models import School
 
 
-@receiver(post_save, sender=School, dispatch_uid="accounts_create_system_roles")
-def _copy_system_roles(sender, instance: School, created: bool, raw: bool = False, **kwargs):
+@receiver(post_save, sender=School, dispatch_uid="accounts_create_starter_roles")
+def _copy_starter_roles(sender, instance: School, created: bool, raw: bool = False, **kwargs):
     # Quelle que soit la façon de créer l'école : administration, super-admin (1.5), `make demo`.
     if created and not raw:
-        create_system_roles(instance)
+        create_starter_roles(instance)
 
 
 @receiver(m2m_changed, sender=Membership.roles.through, dispatch_uid="accounts_same_school_roles")

@@ -88,17 +88,38 @@ class AuditLogSerializer(serializers.ModelSerializer):
     def get_by_support(self, log: AuditLog) -> bool:
         return _by_support(log)
 
+    def _role_names(self) -> dict:
+        # Les rôles de l'école (quelques lignes), lus une fois pour la page ou l'export.
+        names = self.context.get("role_names")
+        if names is None:
+            names = {str(role.pk): role.name for role in Role.objects.all()}
+            self.context["role_names"] = names
+        return names
+
     @extend_schema_field(serializers.CharField())
     def get_entity_label(self, log: AuditLog) -> str:
         if log.entity_label or log.entity_type != "accounts.role" or log.entity_id is None:
             return log.entity_label
-        # Les rôles de l'école (quelques lignes), lus une fois pour la page ou l'export. Un rôle
-        # supprimé n'est plus là : il avait un nom, noté dans ses entrées.
-        names = self.context.get("role_names")
-        if names is None:
-            names = {role.pk: str(role.display_name) for role in Role.objects.all()}
-            self.context["role_names"] = names
-        return names.get(log.entity_id, "")
+        # Entrée d'avant M.3.2 sur un rôle sans nom propre : son nom d'aujourd'hui. Un rôle
+        # supprimé n'est plus là : son nom est noté dans l'entrée de sa suppression.
+        return self._role_names().get(str(log.entity_id), "")
+
+    def to_representation(self, log: AuditLog) -> dict:
+        data = super().to_representation(log)
+        for side in ("before", "after"):
+            roles = (data[side] or {}).get("roles")
+            # Rôles d'une personne notés sans nom avant M.3.2 (le journal ne se réécrit pas) :
+            # nom d'aujourd'hui, vide si le rôle a été supprimé depuis.
+            if roles and any(not role.get("name") for role in roles):
+                names = self._role_names()
+                data[side] = {
+                    **data[side],
+                    "roles": [
+                        {"id": role["id"], "name": role.get("name") or names.get(role["id"], "")}
+                        for role in roles
+                    ],
+                }
+        return data
 
 
 class AuditLogFilterSerializer(serializers.Serializer):

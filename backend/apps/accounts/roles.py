@@ -1,15 +1,19 @@
-"""Codes de permissions et rôles système (`docs/04-modele-de-donnees.md` § 8).
+"""Codes de permissions et modèle de départ des rôles (`docs/04-modele-de-donnees.md` § 8).
 
-Les rôles système sont copiés dans chaque école à sa création ; l'école peut ensuite changer leurs
-permissions, les renommer et créer ses propres rôles (B2). L'interface affiche ses propres libellés
-traduits à partir des codes ; ceux d'ici servent à l'administration Django et à la doc de l'API.
+Un rôle est un nom et des permissions, propres à l'école : aucun rôle n'est imposé par le code.
+Le modèle de départ (`STARTER_ROLES`) est copié dans une école à sa création ; elle renomme,
+modifie et supprime ensuite ces rôles, et crée les siens (B2). L'interface traduit les codes de
+permission ; les libellés d'ici servent à l'administration Django et à la doc de l'API.
 
-Nouveau code de permission : l'ajouter ici, aux rôles système qui doivent l'avoir, et aux rôles
-système des écoles existantes par une migration de données.
+Nouveau code de permission : l'ajouter ici, aux rôles du modèle de départ qui doivent l'avoir,
+et, par une migration de données, aux rôles des écoles existantes qui ont déjà un droit voisin
+(jamais d'après le nom d'un rôle : l'école l'a peut-être changé).
 """
 
 from dataclasses import dataclass
 
+from django.conf import settings
+from django.utils import translation
 from django.utils.functional import Promise
 from django.utils.translation import gettext_lazy as _
 
@@ -82,13 +86,16 @@ TOTP_PERMISSIONS = frozenset(
 
 
 @dataclass(frozen=True)
-class SystemRole:
+class StarterRole:
     label: Promise
     permissions: tuple[str, ...]
 
 
-SYSTEM_ROLES: dict[str, SystemRole] = {
-    "head": SystemRole(
+# Modèle de départ (`docs/04` § 8) : rôles copiés une fois dans une école neuve, qui les renomme,
+# les modifie et les supprime ensuite comme tout autre rôle. La clé ne sert qu'ici, aux données de
+# démonstration et aux tests : un rôle n'a ni code en base ni dans l'API.
+STARTER_ROLES: dict[str, StarterRole] = {
+    "head": StarterRole(
         _("Head of school"),
         (
             "school.configure",
@@ -107,14 +114,14 @@ SYSTEM_ROLES: dict[str, SystemRole] = {
             "audit.view",
         ),
     ),
-    "study_director": SystemRole(
+    "study_director": StarterRole(
         _("Director of studies"),
         ("classes.manage", "students.view", "students.edit", "announcements.publish"),
     ),
-    "discipline_master": SystemRole(
+    "discipline_master": StarterRole(
         _("Discipline master"), ("students.view", "announcements.publish")
     ),
-    "accountant": SystemRole(
+    "accountant": StarterRole(
         _("Accountant"),
         (
             "students.view",
@@ -129,7 +136,7 @@ SYSTEM_ROLES: dict[str, SystemRole] = {
             "finance.import_prior_payments",
         ),
     ),
-    "cashier": SystemRole(
+    "cashier": StarterRole(
         _("Cashier"),
         (
             "students.view",
@@ -138,17 +145,23 @@ SYSTEM_ROLES: dict[str, SystemRole] = {
             "finance.close_register",
         ),
     ),
-    "secretary": SystemRole(
+    "secretary": StarterRole(
         _("Secretary"),
         ("students.view", "students.edit", "students.import", "announcements.publish"),
     ),
-    "promoter": SystemRole(_("Promoter"), ("students.view", "finance.view_reports", "audit.view")),
+    "promoter": StarterRole(_("Promoter"), ("students.view", "finance.view_reports", "audit.view")),
     # Enseignant : aucune fonction en V1.0 (B1). Parent : rien dans la Gestion, le portail lui
     # montre ses enfants.
-    "teacher": SystemRole(_("Teacher"), ()),
-    "parent": SystemRole(_("Parent"), ()),
+    "teacher": StarterRole(_("Teacher"), ()),
+    "parent": StarterRole(_("Parent"), ()),
 }
-SYSTEM_ROLE_CODES = tuple(SYSTEM_ROLES)
+
+
+def starter_role_name(key: str) -> str:
+    """Nom donné au rôle de départ `key` dans une école neuve : celui de la langue par défaut de
+    la plateforme, quelle que soit la langue de qui crée l'école."""
+    with translation.override(settings.LANGUAGE_CODE):
+        return str(STARTER_ROLES[key].label)
 
 
 def sorted_permissions(codes) -> list[str]:
@@ -158,7 +171,3 @@ def sorted_permissions(codes) -> list[str]:
     if unknown:
         raise ValueError(f"Codes de permission inconnus : {sorted(unknown)}")
     return [code for code in PERMISSIONS if code in wanted]
-
-
-# Codes des rôles système avec leur nom (choix de `Role.code`, nom de l'énumération OpenAPI).
-SYSTEM_ROLE_CHOICES = [(code, role.label) for code, role in SYSTEM_ROLES.items()]

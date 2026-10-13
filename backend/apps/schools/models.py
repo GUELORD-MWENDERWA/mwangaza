@@ -360,8 +360,8 @@ class Term(TenantModel):
     """Découpage de l'année [T] : semestres ou trimestres, et leurs périodes et examens.
 
     `name` vide : l'interface affiche le nom traduit d'après le genre et la place (« 1re
-    période », « Examens du 1er semestre »), comme pour les rôles système ; l'école peut le
-    renommer. Dates vides tant que l'école ne les a pas saisies."""
+    période », « Examens du 1er semestre ») ; l'école peut le renommer. Dates vides tant que
+    l'école ne les a pas saisies."""
 
     class Kind(models.TextChoices):
         SEMESTER = "semester", _("Semester")

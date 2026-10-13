@@ -1,12 +1,20 @@
-"""Les 9 rôles système de `docs/04-modele-de-donnees.md` § 8, copiés dans chaque école."""
+"""Le modèle de départ des rôles (`docs/04-modele-de-donnees.md` § 8), copié dans chaque école
+neuve, et la migration des anciens rôles système (M.3.2)."""
+
+from importlib import import_module
 
 import pytest
 
 from apps.accounts.models import Role
-from apps.accounts.roles import PERMISSIONS, SYSTEM_ROLES, TOTP_PERMISSIONS, sorted_permissions
-from apps.accounts.services import create_system_roles
+from apps.accounts.roles import (
+    PERMISSIONS,
+    ROLES_MANAGE,
+    STARTER_ROLES,
+    TOTP_PERMISSIONS,
+    sorted_permissions,
+)
 from apps.core.tenancy import use_school
-from tests.factories import SchoolFactory
+from tests.factories import SchoolFactory, starter_role
 
 pytestmark = pytest.mark.django_db
 
@@ -56,60 +64,40 @@ def test_permission_codes_match_the_document():
     assert list(PERMISSIONS) == list(TABLE)
 
 
-def test_system_roles_match_the_document():
-    assert {code: set(role.permissions) for code, role in SYSTEM_ROLES.items()} == (
+def test_starter_roles_match_the_document():
+    assert {key: set(role.permissions) for key, role in STARTER_ROLES.items()} == (
         expected_permissions()
     )
 
 
-def test_a_new_school_gets_the_nine_system_roles(school):
+def test_a_new_school_gets_the_starter_roles_as_ordinary_named_roles(school, other_school):
     with use_school(school):
         roles = list(Role.objects.all())
 
-    assert [role.code for role in roles] == list(SYSTEM_ROLES)
-    assert {role.code: set(role.permissions) for role in roles} == expected_permissions()
-    assert all(role.name == "" for role in roles)
-
-
-def test_teacher_and_parent_have_no_permission_in_v1_0(school):
+    # Dans l'ordre du modèle, en français quelle que soit la langue de qui crée l'école.
+    assert [role.name for role in roles] == [
+        "Directeur",
+        "Directeur des études",
+        "Directeur de discipline",
+        "Comptable",
+        "Caissier",
+        "Secrétaire",
+        "Promoteur",
+        "Enseignant",
+        "Parent",
+    ]
+    assert [set(role.permissions) for role in roles] == list(expected_permissions().values())
+    # Chaque école a sa copie : changer l'une ne change pas l'autre.
     with use_school(school):
-        assert Role.objects.get(code="teacher").permissions == []
-        assert Role.objects.get(code="parent").permissions == []
+        Role.objects.filter(name="Caissier").update(permissions=[])
+    assert starter_role(other_school, "cashier").permissions == list(
+        STARTER_ROLES["cashier"].permissions
+    )
 
 
-def test_creating_system_roles_again_changes_nothing(school):
-    with use_school(school):
-        cashier = Role.objects.get(code="cashier")
-        cashier.permissions = ["students.view"]
-        cashier.save()
-
-    assert create_system_roles(school) == []
-
-    with use_school(school):
-        assert Role.objects.count() == 9
-        assert Role.objects.get(code="cashier").permissions == ["students.view"]
-
-
-def test_missing_system_roles_are_added(school):
-    with use_school(school):
-        Role.objects.get(code="parent").delete()
-
-    created = create_system_roles(school)
-
-    assert [role.code for role in created] == ["parent"]
-
-
-def test_each_school_has_its_own_copy(school, other_school):
-    with use_school(school):
-        cashier = Role.objects.get(code="cashier")
-        cashier.permissions = []
-        cashier.save()
-
-    with use_school(other_school):
-        assert Role.objects.get(code="cashier").permissions == list(
-            SYSTEM_ROLES["cashier"].permissions
-        )
-        assert Role.objects.count() == 9
+def test_the_starter_roles_let_the_school_manage_its_roles():
+    # Sans cela, le premier compte d'une école neuve ne pourrait donner de droit à personne.
+    assert any(ROLES_MANAGE in role.permissions for role in STARTER_ROLES.values())
 
 
 def test_school_created_inside_another_school_context(school):
@@ -118,6 +106,22 @@ def test_school_created_inside_another_school_context(school):
         new_school = SchoolFactory(code="gamma")
     with use_school(new_school):
         assert Role.objects.count() == 9
+    with use_school(school):
+        assert Role.objects.count() == 9
+
+
+def test_former_system_roles_are_named_as_the_school_saw_them():
+    # Migration 0007 : rôles d'avant M.3.2, avec un code et un nom vide sauf renommage.
+    migration = import_module("apps.accounts.migrations.0007_role_names")
+    roles = [
+        (1, "alpha", "head", "Préfet des études"),  # déjà renommé par l'école : gardé
+        (2, "alpha", "cashier", ""),
+        (3, "alpha", "accountant", ""),
+        (4, "alpha", "", "COMPTABLE"),  # créé par l'école, même nom sans la casse
+        (5, "beta", "accountant", ""),
+    ]
+
+    assert migration.names_to_give(roles) == {2: "Caissier", 3: "Comptable (2)", 5: "Comptable"}
 
 
 def test_sorted_permissions():
@@ -132,7 +136,7 @@ def test_sorted_permissions():
 def test_default_roles_that_require_two_factor_authentication():
     # B4 : directeur, comptable, caissier, promoteur.
     requiring = {
-        code for code, role in SYSTEM_ROLES.items() if set(role.permissions) & TOTP_PERMISSIONS
+        key for key, role in STARTER_ROLES.items() if set(role.permissions) & TOTP_PERMISSIONS
     }
 
     assert requiring == {"head", "accountant", "cashier", "promoter"}

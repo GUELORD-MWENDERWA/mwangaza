@@ -27,7 +27,7 @@ def demo_head(demo_school):
 
 def add(client, school, phone):
     with use_school(school):
-        role = str(Role.objects.get(code="cashier").pk)
+        role = str(Role.objects.get(name="Caissier").pk)
     return client.post(STAFF, {"phone": phone, "last_name": "Kavira", "roles": [role]})
 
 

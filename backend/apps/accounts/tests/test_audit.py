@@ -10,6 +10,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from apps.accounts import services
 from apps.accounts.models import Membership, Role
+from apps.accounts.roles import starter_role_name
 from apps.audit.models import AuditLog
 from apps.core.tenancy import use_school
 from tests.factories import (
@@ -54,11 +55,11 @@ def last_login(school) -> AuditLog:
 
 def role_of(school, code) -> Role:
     with use_school(school):
-        return Role.objects.get(code=code)
+        return Role.objects.get(name=starter_role_name(code))
 
 
 def summary(role) -> dict:
-    return {"id": str(role.id), "code": role.code, "name": role.name}
+    return {"id": str(role.id), "name": role.name}
 
 
 def ok(response):
@@ -100,8 +101,7 @@ def test_role_changed_keeps_what_it_was_and_what_it_is(api, school, head):
     log = only(school, "roles.updated")
     assert log.before == {"permissions": permissions_before}
     assert log.after == {"permissions": cashier.permissions}
-    # Rôle système sans nom propre : l'interface affiche le nom traduit de son code.
-    assert (log.entity_id, log.entity_label) == (cashier.id, "")
+    assert (log.entity_id, log.entity_label) == (cashier.id, "Caissier")
 
 
 def test_role_renamed(api, school, head):
@@ -110,14 +110,15 @@ def test_role_renamed(api, school, head):
     ok(api(head).patch(f"{ROLES}{head_role.id}/", {"name": "Préfet des études"}))
 
     log = only(school, "roles.updated")
-    assert (log.before, log.after) == ({"name": ""}, {"name": "Préfet des études"})
+    assert (log.before, log.after) == ({"name": "Directeur"}, {"name": "Préfet des études"})
     assert log.entity_label == "Préfet des études"
 
 
 def test_nothing_changed_nothing_written(api, school, head):
     cashier = role_of(school, "cashier")
+    unchanged = {"name": cashier.name, "permissions": cashier.permissions}
 
-    ok(api(head).patch(f"{ROLES}{cashier.id}/", {"name": "", "permissions": cashier.permissions}))
+    ok(api(head).patch(f"{ROLES}{cashier.id}/", unchanged))
 
     assert actions(school) == []
 

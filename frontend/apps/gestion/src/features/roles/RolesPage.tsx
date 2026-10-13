@@ -31,7 +31,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { errorMessage } from "../../lib/errors";
-import { fullName, roleName } from "../../lib/people";
+import { fullName } from "../../lib/people";
 import type { Permission } from "../../lib/permissions";
 import { keys, useRoles } from "../../lib/queries";
 import { LoadError } from "../status/StatusPages";
@@ -112,10 +112,9 @@ export function RolesPage() {
                   role.id === current?.id && "border-[#c5dde1] bg-lake-50",
                 )}
               >
-                <b className="block">{roleName(role, t)}</b>
+                <b className="block">{role.name}</b>
                 <span className="text-[.8rem] text-ink-3">
-                  {t("rolesPage.members", { count: role.member_count })} ·{" "}
-                  {role.is_system ? t("rolesPage.system") : t("rolesPage.custom")}
+                  {t("rolesPage.members", { count: role.member_count })}
                 </span>
               </button>
             ))}
@@ -166,7 +165,7 @@ function RoleEditor({ role, onDeleted }: { role: Role; onDeleted: () => void }) 
     },
   });
   const totp = requiresTotp(permissions);
-  const title = name.trim() || roleName({ ...role, name: "" }, t);
+  const title = name.trim() || role.name;
   const toggle = (code: string, on: boolean) => {
     save.reset();
     setPermissions((list) => (on ? [...list, code] : list.filter((item) => item !== code)));
@@ -175,33 +174,18 @@ function RoleEditor({ role, onDeleted }: { role: Role; onDeleted: () => void }) 
   return (
     <Card>
       <CardHeader className="flex-wrap">
-        <div>
-          <CardTitle>{title}</CardTitle>
-          <p className="text-[.82rem] text-ink-3">
-            {role.is_system ? t("rolesPage.systemRole") : t("rolesPage.customRole")}
-          </p>
-        </div>
+        <CardTitle>{title}</CardTitle>
         <StatusPill tone={totp ? "info" : "gray"} title={t("rolesPage.totpHelp")}>
           {totp ? t("rolesPage.totpRequired") : t("rolesPage.totpNotRequired")}
         </StatusPill>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {permissions.length === 0 && <Banner tone="info">{t("rolesPage.noPermissionNote")}</Banner>}
-        <Field
-          id="role-name"
-          label={t("rolesPage.name")}
-          required={!role.is_system}
-          help={
-            role.is_system
-              ? t("rolesPage.nameHelp", { name: roleName({ ...role, name: "" }, t) })
-              : undefined
-          }
-        >
+        <Field id="role-name" label={t("rolesPage.name")} required>
           {(control) => (
             <Input
               {...control}
               value={name}
-              placeholder={role.is_system ? roleName({ ...role, name: "" }, t) : undefined}
               onChange={(event) => {
                 save.reset();
                 setName(event.target.value);
@@ -239,24 +223,20 @@ function RoleEditor({ role, onDeleted }: { role: Role; onDeleted: () => void }) 
         )}
       </CardContent>
       <CardFooter>
-        {!role.is_system ? (
-          <div className="flex flex-col gap-1">
-            <Button
-              variant="destructive-outline"
-              size="sm"
-              className="self-start"
-              disabled={role.member_count > 0}
-              onClick={() => setDeleting(true)}
-            >
-              {t("rolesPage.delete")}
-            </Button>
-            {role.member_count > 0 && (
-              <span className="text-[.8rem] text-ink-3">{t("rolesPage.deleteHelp")}</span>
-            )}
-          </div>
-        ) : (
-          <span />
-        )}
+        <div className="flex flex-col gap-1">
+          <Button
+            variant="destructive-outline"
+            size="sm"
+            className="self-start"
+            disabled={role.member_count > 0}
+            onClick={() => setDeleting(true)}
+          >
+            {t("rolesPage.delete")}
+          </Button>
+          {role.member_count > 0 && (
+            <span className="text-[.8rem] text-ink-3">{t("rolesPage.deleteHelp")}</span>
+          )}
+        </div>
         <Button disabled={save.isPending} onClick={() => save.mutate()}>
           {t("rolesPage.save")}
         </Button>

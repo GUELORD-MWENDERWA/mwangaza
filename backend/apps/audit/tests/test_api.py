@@ -262,9 +262,11 @@ def test_actors_need_audit_view(api, cashier):
 
 
 def test_a_role_logged_without_a_name_gets_its_name_in_the_school(api, school, other_school, head):
+    # Entrées d'avant M.3.2 : un rôle système y est noté par son code, sans nom, et le journal ne
+    # se réécrit pas.
     with use_school(school):
-        cashier = Role.objects.get(code="cashier")
-        secretary = Role.objects.get(code="secretary")
+        cashier = Role.objects.get(name="Caissier")
+        secretary = Role.objects.get(name="Secrétaire")
         secretary.name = "Secrétaire de direction"
         secretary.save()
     with use_school(other_school):
@@ -273,7 +275,17 @@ def test_a_role_logged_without_a_name_gets_its_name_in_the_school(api, school, o
     entry(school, entity_id=secretary.id, entity_label="")
     # Jamais le rôle d'une autre école, même si une entrée portait son identifiant.
     entry(school, entity_id=elsewhere.id, entity_label="")
-    entry(school, action=Action.STAFF_ADDED, entity_type="accounts.membership", entity_label="")
+    old_roles = [
+        {"id": str(cashier.id), "code": "cashier", "name": ""},
+        {"id": str(elsewhere.id), "code": "teacher", "name": ""},  # supprimé depuis, ou d'ailleurs
+    ]
+    entry(
+        school,
+        action=Action.STAFF_ADDED,
+        entity_type="accounts.membership",
+        entity_label="",
+        after={"roles": old_roles},
+    )
     client = api(head)
 
     with CaptureQueriesContext(connection) as queries:
@@ -286,7 +298,10 @@ def test_a_role_logged_without_a_name_gets_its_name_in_the_school(api, school, o
 
     names = ["", "", "Secrétaire de direction", "Caissier"]
     assert [item["entity_label"] for item in results] == names
-    assert "role_code" not in results[0]
+    assert results[0]["after"]["roles"] == [
+        {"id": str(cashier.id), "name": "Caissier"},
+        {"id": str(elsewhere.id), "name": ""},
+    ]
     assert [row[3] or "" for row in sheet.iter_rows(min_row=2, values_only=True)] == names
     assert len([sql for sql in reads if "membership" not in sql]) == 1
 

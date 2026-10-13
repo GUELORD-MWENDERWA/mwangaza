@@ -28,7 +28,7 @@ export const school: Schemas["CurrentSchool"] = {
   receipt: { printer: "thermal_80", sheet_size: "a6", copies: 1, header: "", footer: "" },
 };
 
-// Droits des rôles système (copie de `backend/apps/accounts/roles.py`, `04` § 8).
+// Droits des rôles du modèle de départ (copie de `backend/apps/accounts/roles.py`, `04` § 8).
 export const PERMISSIONS = {
   head: [
     "school.configure",
@@ -71,11 +71,20 @@ export const PERMISSIONS = {
 
 type Role = keyof typeof PERMISSIONS;
 
-function role(code: Role): Schemas["RoleSummary"] {
+// Nom que l'école de test donne à chacun : un rôle n'a pas de code.
+const ROLE_NAMES: Record<Role, string> = {
+  head: "Directeur",
+  cashier: "Caissier",
+  promoter: "Promoteur",
+  study_director: "Directeur des études",
+  teacher: "Enseignant",
+  accountant: "Comptable",
+};
+
+function role(key: Role): Schemas["RoleSummary"] {
   return {
-    id: `00000000-0000-7000-8000-00000000000${Object.keys(PERMISSIONS).indexOf(code)}`,
-    code,
-    name: "",
+    id: `00000000-0000-7000-8000-00000000000${Object.keys(PERMISSIONS).indexOf(key)}`,
+    name: ROLE_NAMES[key],
   };
 }
 

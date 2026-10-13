@@ -6,19 +6,17 @@ import { me, school } from "../../test/fixtures";
 import { renderApp } from "../../test/render";
 
 const id = (n: number) => `00000000-0000-7000-8000-${String(n).padStart(12, "0")}`;
-const role = (n: number, code: string, name = "", permissions: string[] = []) => ({
+const role = (n: number, name: string, permissions: string[] = []) => ({
   id: id(n),
-  code,
   name,
-  is_system: code !== "",
   permissions,
   member_count: 1,
 });
 const roles = [
-  role(1, "head", "", ["roles.manage"]),
-  role(2, "cashier", "", ["finance.collect_payment"]),
-  role(3, "teacher"),
-  role(4, "", "Chef d'atelier", ["students.view"]),
+  role(1, "Directeur", ["roles.manage"]),
+  role(2, "Caissier", ["finance.collect_payment"]),
+  role(3, "Enseignant"),
+  role(4, "Chef d'atelier", ["students.view"]),
 ];
 const person = (n: number, last: string, first: string, extra = {}) => ({
   id: id(100 + n),

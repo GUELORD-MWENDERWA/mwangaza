@@ -224,7 +224,6 @@ SPECTACULAR_SETTINGS = {
         "PaymentOriginEnum": "apps.finance.models.Payment.Origin",
         "CreditOriginEnum": "apps.finance.models.StudentCredit.Origin",
         "PriorPaymentIssueEnum": "apps.finance.serializers.PRIOR_PAYMENT_ISSUES",
-        "CodeEnum": "apps.accounts.roles.SYSTEM_ROLE_CHOICES",
         "ClosingStateEnum": "apps.finance.serializers.CLOSING_STATES",
         "HealthCheckEnum": "apps.core.health.CHECKS",
         "HealthStatusEnum": "apps.core.health.STATUSES",

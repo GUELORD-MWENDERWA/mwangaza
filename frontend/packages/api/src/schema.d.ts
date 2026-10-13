@@ -2727,14 +2727,14 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
-         *     l'école (B1 à B2).
+         * @description Rôles de l'école (B1 à B2) : ceux du modèle de départ et ceux qu'elle a créés, tous
+         *     renommables, modifiables et supprimables (s'ils ne sont donnés à personne).
          */
         get: operations["roles_list"];
         put?: never;
         /**
-         * @description Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
-         *     l'école (B1 à B2).
+         * @description Rôles de l'école (B1 à B2) : ceux du modèle de départ et ceux qu'elle a créés, tous
+         *     renommables, modifiables et supprimables (s'ils ne sont donnés à personne).
          */
         post: operations["roles_create"];
         delete?: never;
@@ -2751,22 +2751,22 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
-         *     l'école (B1 à B2).
+         * @description Rôles de l'école (B1 à B2) : ceux du modèle de départ et ceux qu'elle a créés, tous
+         *     renommables, modifiables et supprimables (s'ils ne sont donnés à personne).
          */
         get: operations["roles_retrieve"];
         put?: never;
         post?: never;
         /**
-         * @description Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
-         *     l'école (B1 à B2).
+         * @description Rôles de l'école (B1 à B2) : ceux du modèle de départ et ceux qu'elle a créés, tous
+         *     renommables, modifiables et supprimables (s'ils ne sont donnés à personne).
          */
         delete: operations["roles_destroy"];
         options?: never;
         head?: never;
         /**
-         * @description Rôles de l'école : rôles système (renommables, permissions modifiables) et rôles créés par
-         *     l'école (B1 à B2).
+         * @description Rôles de l'école (B1 à B2) : ceux du modèle de départ et ceux qu'elle a créés, tous
+         *     renommables, modifiables et supprimables (s'ils ne sont donnés à personne).
          */
         patch: operations["roles_partial_update"];
         trace?: never;
@@ -4426,19 +4426,6 @@ export interface components {
             /** @description Pas clôturées, ouvertes avant aujourd'hui, quel que soit le mois. */
             unclosed: components["schemas"]["CashSession"][];
         };
-        /**
-         * @description * `head` - Head of school
-         *     * `study_director` - Director of studies
-         *     * `discipline_master` - Discipline master
-         *     * `accountant` - Accountant
-         *     * `cashier` - Cashier
-         *     * `secretary` - Secretary
-         *     * `promoter` - Promoter
-         *     * `teacher` - Teacher
-         *     * `parent` - Parent
-         * @enum {string}
-         */
-        CodeEnum: "head" | "study_director" | "discipline_master" | "accountant" | "cashier" | "secretary" | "promoter" | "teacher" | "parent";
         CodeRequest: {
             /** @description Code à 6 chiffres de l'application, ou code de secours (ex. 7KQ4-M2XP). */
             code: string;
@@ -6732,10 +6719,7 @@ export interface components {
         PatchedMeUpdateRequest: {
             language?: components["schemas"]["LanguageEnum"];
         };
-        /**
-         * @description Rôle de l'école. `name` vide pour un rôle système : l'interface affiche le nom traduit de
-         *     son `code`.
-         */
+        /** @description Rôle de l'école : un nom et des permissions. */
         PatchedRoleRequest: {
             name?: string;
             permissions?: components["schemas"]["PermissionsEnum"][];
@@ -7506,37 +7490,16 @@ export interface components {
             parent_signed: boolean;
             installments: components["schemas"]["InstallmentRequest"][];
         };
-        /**
-         * @description Rôle de l'école. `name` vide pour un rôle système : l'interface affiche le nom traduit de
-         *     son `code`.
-         */
+        /** @description Rôle de l'école : un nom et des permissions. */
         Role: {
             /** Format: uuid */
             readonly id: string;
-            /**
-             * @description Code du rôle système ; vide pour un rôle créé par l'école.
-             *
-             *     * `head` - Head of school
-             *     * `study_director` - Director of studies
-             *     * `discipline_master` - Discipline master
-             *     * `accountant` - Accountant
-             *     * `cashier` - Cashier
-             *     * `secretary` - Secretary
-             *     * `promoter` - Promoter
-             *     * `teacher` - Teacher
-             *     * `parent` - Parent
-             */
-            readonly code: components["schemas"]["CodeEnum"] | components["schemas"]["BlankEnum"];
             name: string;
-            readonly is_system: boolean;
             permissions: components["schemas"]["PermissionsEnum"][];
             /** @description Comptes actifs qui ont ce rôle dans l'école. */
             readonly member_count: number;
         };
-        /**
-         * @description Rôle de l'école. `name` vide pour un rôle système : l'interface affiche le nom traduit de
-         *     son `code`.
-         */
+        /** @description Rôle de l'école : un nom et des permissions. */
         RoleRequest: {
             name?: string;
             permissions?: components["schemas"]["PermissionsEnum"][];
@@ -7544,20 +7507,6 @@ export interface components {
         RoleSummary: {
             /** Format: uuid */
             readonly id: string;
-            /**
-             * @description Code du rôle système ; vide pour un rôle créé par l'école.
-             *
-             *     * `head` - Head of school
-             *     * `study_director` - Director of studies
-             *     * `discipline_master` - Discipline master
-             *     * `accountant` - Accountant
-             *     * `cashier` - Cashier
-             *     * `secretary` - Secretary
-             *     * `promoter` - Promoter
-             *     * `teacher` - Teacher
-             *     * `parent` - Parent
-             */
-            readonly code: components["schemas"]["CodeEnum"] | components["schemas"]["BlankEnum"];
             name: string;
         };
         /**
