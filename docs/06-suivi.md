@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (M.2.1 faite, PR de la branche `tache/M.2.1-modules-serveur`, issue #215) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | M.2.2 — voir la file (`05` § 2) |
-| Issue GitHub | #215 |
-| Branche | `tache/M.2.1-modules-serveur` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune (M.2.2 faite, PR de la branche `tache/M.2.2-modules-ecrans`, issue #217) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | M.3.1 — voir la file (`05` § 2) |
+| Issue GitHub | #217 |
+| Branche | `tache/M.2.2-modules-ecrans` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-13 |
 
 ## Avancement
@@ -27,7 +27,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | **V1.0** | **67** | **67** |
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
 | Lancement (L.0 à L.5 ; L.3 remplacée par S.1 et S.2) | 3 | 5 |
-| Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 2 | 5 |
+| Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 3 | 5 |
 | Sécurité (S.1 à S.9) | 2 | 9 |
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1–8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 0 | 9 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
@@ -61,6 +61,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-13 — Tâche M.2.2 : modules, écrans
+- Menu de la Gestion : déjà piloté par les permissions de `/me` (modules absents exclus), prouvé par un test ; `/me` rend aussi `modules` : message « Aucun module activé » à l'accueil, mise en route limitée aux modules actifs (`setup.py`).
+- Console : six modules cochés d'office à la création, dépendances cochées ensemble (« Nécessite … ») ; Portail : « Paiements » et « Annonces » cachés si aucune école de la famille n'a le module.
+- Tests : `/me` et mise en route (serveur), console, portail, accueil sans module ; parcours « école neuve » : annonces retirées à la création, absentes du menu du directeur.
+- Hors tâche : le serveur du portail ne ferme pas encore paiements et annonces sans module (noté au journal des décisions). Suite : M.3.1.
 
 ### 2026-10-13 — Tâche M.2.1 : modules, serveur et tâches de fond
 - Catalogue à six modules (`portal`, `notifications`, `offline` ajoutés) ; dépendances `finance` et `portal` → `students` : la console active ce qui manque et refuse de retirer un module encore nécessaire (création comprise). Migration 0013 : les écoles qui avaient tous les modules d'alors gardent les trois nouveaux.

@@ -163,6 +163,7 @@ export const en: Messages<typeof fr> = {
       none: "No student found.",
     },
     home: {
+      noModule: "No module is turned on for this school: contact the platform support.",
       title: "Hello {{name}}",
       subtitle: "Choose a screen in the menu.",
     },
@@ -3051,6 +3052,9 @@ export const en: Messages<typeof fr> = {
         notifications: "Notifications and reminders",
         offline: "Offline work and synchronisation",
       },
+      modulesNeeds: "Needs: {{modules}}.",
+      modulesCreateHelp:
+        "Choose what the school can use from day one; you can add or remove modules later on its page.",
       modulesNone: "No module: the school only has the core.",
       modulesSaved: "Modules saved.",
       stoppedBanner: "Stopped space: nobody can log in; the data is kept.",

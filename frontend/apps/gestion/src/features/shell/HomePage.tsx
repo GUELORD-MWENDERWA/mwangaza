@@ -1,5 +1,5 @@
 import { useTranslation } from "@mwangaza/i18n";
-import { PageHeader } from "@mwangaza/ui";
+import { Banner, PageHeader } from "@mwangaza/ui";
 
 import { displayName } from "../../lib/people";
 import { useCurrentMe } from "../../lib/queries";
@@ -16,6 +16,7 @@ export function HomePage() {
         title={t("shell.home.title", { name: displayName(me) })}
         subtitle={t("shell.home.subtitle")}
       />
+      {me.school?.modules.length === 0 && <Banner tone="info">{t("shell.home.noModule")}</Banner>}
       <SetupChecklist />
     </>
   );

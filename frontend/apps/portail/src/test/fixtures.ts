@@ -14,6 +14,7 @@ export const currency = (code: string, total: number, paid: number, overdue: num
 export const ITIG = {
   id: "f1",
   school_name: "ITIG Don Bosco Goma",
+  school_modules: ["students", "finance", "communication", "portal"],
   school_timezone: "Africa/Lubumbashi",
   status: "active",
   children: [

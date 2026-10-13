@@ -104,6 +104,7 @@ class MeView(APIView):
                 "name": request.school.name,
                 "roles": access.roles,
                 "permissions": sorted_permissions(access.permissions),
+                "modules": request.school.modules,
             }
         me = {
             "id": user.id,

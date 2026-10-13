@@ -1,6 +1,7 @@
 import { screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { ITIG } from "../../test/fixtures";
 import { apiError, mockApi, renderApp } from "../../test/render";
 import { codeFromLink } from "./ActivatePage";
 
@@ -39,7 +40,7 @@ describe("accès au portail", () => {
       "GET /api/portal/me/": guarded(ACCOUNT),
       "GET /api/auth/csrf/": {},
       "POST /api/portal/auth/login/": () => ((session = true), ACCOUNT),
-      "GET /api/portal/families/": guarded([]),
+      "GET /api/portal/families/": guarded([ITIG]),
       "GET /api/portal/announcements/": guarded({
         count: 0,
         next: null,
@@ -59,7 +60,7 @@ describe("accès au portail", () => {
     await screen.findByRole("heading", { name: "Mes enfants" });
 
     session = false; // le serveur ne reconnaît plus le compte
-    await user.click(screen.getByRole("link", { name: "Annonces" }));
+    await user.click(await screen.findByRole("link", { name: "Annonces" }));
     await screen.findByText("Votre session est terminée. Reconnectez-vous pour continuer.");
     expect(phone().value).toBe(ACCOUNT.phone);
     await logIn();

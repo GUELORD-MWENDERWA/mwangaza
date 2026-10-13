@@ -72,7 +72,13 @@ describe("menu selon les permissions (04 § 8)", () => {
         ].includes(permission),
     );
     const account = me("head", {
-      school: { code: "alpha", name: "École Alpha (fictive)", roles: [], permissions: support },
+      school: {
+        code: "alpha",
+        name: "École Alpha (fictive)",
+        roles: [],
+        permissions: support,
+        modules: [],
+      },
     });
 
     expect(keysOf(account)).not.toContain("cash");

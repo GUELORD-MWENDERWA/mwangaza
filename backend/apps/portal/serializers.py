@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.fields import get_error_detail
 
 from apps.accounts.models import User
+from apps.accounts.modules import MODULE_CHOICES
 from apps.accounts.serializers import LoginSerializer, PhoneField
 from apps.core.money import Currency
 from apps.finance.models import Payment
@@ -82,6 +83,11 @@ class LinkedFamilySerializer(serializers.Serializer):
         source="family.school.environment",
         choices=School.Environment.choices,
         help_text="Type de l'espace : le Portail affiche un bandeau hors espace réel.",
+    )
+    school_modules = serializers.ListField(
+        source="family.school.modules",
+        child=serializers.ChoiceField(choices=MODULE_CHOICES),
+        help_text="Fonctions de l'école : le Portail cache celles qu'elle n'a pas.",
     )
     status = serializers.ChoiceField(
         choices=[families.ACTIVE, families.SUSPENDED, families.SCHOOL_UNAVAILABLE]

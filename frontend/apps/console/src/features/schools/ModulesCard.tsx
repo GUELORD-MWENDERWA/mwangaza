@@ -26,6 +26,62 @@ export const MODULES: Module[] = [
   "offline",
 ];
 
+// Même catalogue que `accounts/modules.py` ; le serveur reste maître (il ajoute ce qui manque et
+// refuse le reste), ici on évite seulement un aller-retour d'erreur.
+const NEEDS: Partial<Record<Module, Module[]>> = {
+  finance: ["students"],
+  portal: ["students"],
+};
+
+/** Cases des modules avec leurs dépendances : cocher un module coche ce dont il a besoin,
+ *  décocher un module décoche ceux qui en ont besoin. */
+export function ModuleChoices({
+  chosen,
+  onChange,
+}: {
+  chosen: Module[];
+  onChange: (modules: Module[]) => void;
+}) {
+  const { t } = useTranslation();
+  const toggle = (code: Module, on: boolean) => {
+    const next = new Set(chosen);
+    if (on) {
+      next.add(code);
+      NEEDS[code]?.forEach((needed) => next.add(needed));
+    } else {
+      next.delete(code);
+      MODULES.forEach((other) => {
+        if (NEEDS[other]?.includes(code)) next.delete(other);
+      });
+    }
+    onChange(MODULES.filter((m) => next.has(m)));
+  };
+  return (
+    <>
+      {MODULES.map((code) => (
+        <div key={code}>
+          <CheckboxField
+            id={`module-${code}`}
+            label={t(`console.schools.modules.${code}`)}
+            checked={chosen.includes(code)}
+            onCheckedChange={(on) => toggle(code, on === true)}
+          />
+          {NEEDS[code] && (
+            <p className="pl-7 text-[.85rem] text-ink-3">
+              {t("console.schools.modulesNeeds", {
+                modules: NEEDS[code].map((m) => t(`console.schools.modules.${m}`)).join(", "),
+              })}
+            </p>
+          )}
+        </div>
+      ))}
+      {chosen.length === 0 && (
+        <p className="text-[.9rem] text-ink-3">{t("console.schools.modulesNone")}</p>
+      )}
+    </>
+  );
+}
+
 export function ModulesCard({ school, onSaved }: { school: Detail; onSaved: (d: Detail) => void }) {
   const { t } = useTranslation();
   const [chosen, setChosen] = useState<Module[]>(school.modules);
@@ -54,21 +110,13 @@ export function ModulesCard({ school, onSaved }: { school: Detail; onSaved: (d: 
       </CardHeader>
       <CardContent className="grid gap-3">
         <p className="text-[.9rem] text-ink-3">{t("console.schools.modulesHelp")}</p>
-        {MODULES.map((code) => (
-          <CheckboxField
-            key={code}
-            id={`module-${code}`}
-            label={t(`console.schools.modules.${code}`)}
-            checked={chosen.includes(code)}
-            onCheckedChange={(on) => {
-              setSaved(false);
-              setChosen(on === true ? [...chosen, code] : chosen.filter((c) => c !== code));
-            }}
-          />
-        ))}
-        {chosen.length === 0 && (
-          <p className="text-[.9rem] text-ink-3">{t("console.schools.modulesNone")}</p>
-        )}
+        <ModuleChoices
+          chosen={chosen}
+          onChange={(modules) => {
+            setSaved(false);
+            setChosen(modules);
+          }}
+        />
         {save.isError && <Banner tone="due">{errorMessage(save.error, t)}</Banner>}
         {saved && !changed && (
           <Banner tone="ok" role="status">

@@ -27,6 +27,16 @@ SETUP_INCOMPLETE = ApiError(
 # Facultatives : une école qui commence à la rentrée n'a rien à reprendre, et les parents
 # s'invitent quand elle veut. Elles ne retiennent pas la fin de la liste.
 OPTIONAL = ("prior", "invitations")
+# Module qui porte chaque étape : une école sans lui ne la voit pas et elle ne retient pas la fin
+# de la liste (M.2.2). Sans entrée : socle, toujours là.
+STEP_MODULES = {
+    "fees": ("finance",),
+    "staff": ("finance",),
+    "cash": ("finance",),
+    "students": ("students",),
+    "prior": ("finance",),
+    "invitations": ("students", "portal"),
+}
 INVITED = (Action.STUDENTS_FAMILY_INVITATION_PRINTED, Action.STUDENTS_FAMILY_INVITATION_SHARED)
 
 
@@ -74,7 +84,11 @@ def status(school: School) -> Setup:
     """La liste de l'école courante ; vide, sans rien lire, une fois terminée."""
     if school.setup_completed_at:
         return Setup(steps=[], ready=True, finished_at=school.setup_completed_at)
-    steps = [Step(key, done, key in OPTIONAL) for key, done in _steps(school).items()]
+    steps = [
+        Step(key, done, key in OPTIONAL)
+        for key, done in _steps(school).items()
+        if all(school.has_module(code) for code in STEP_MODULES.get(key, ()))
+    ]
     ready = all(step.done for step in steps if not step.optional)
     return Setup(steps=steps, ready=ready, finished_at=None)
 

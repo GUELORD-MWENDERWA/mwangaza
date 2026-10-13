@@ -121,3 +121,21 @@ def _head_of(school):
     from tests.factories import MembershipFactory
 
     return MembershipFactory(school=school, roles=["head"]).user
+
+
+def test_me_gives_the_modules_and_the_setup_list_follows_them(api, school, head):
+    assert set(api(head).get(ME).json()["school"]["modules"]) == set(school.modules)
+    school.modules = ["students"]
+    school.save()
+
+    assert api(head).get(ME).json()["school"]["modules"] == ["students"]
+    steps = api(head).get("/api/school/setup/").json()["steps"]
+    # Sans `finance` ni `portal` : ni frais, ni caisse, ni reprise, ni invitations.
+    assert [step["key"] for step in steps] == ["year", "classes", "students"]
+    # Sans module, seul le socle reste ; la fin de la liste n'attend plus ni caisse ni élève.
+    school.modules = []
+    school.save()
+    assert [s["key"] for s in api(head).get("/api/school/setup/").json()["steps"]] == [
+        "year",
+        "classes",
+    ]

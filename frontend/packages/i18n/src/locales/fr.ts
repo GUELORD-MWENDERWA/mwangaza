@@ -161,6 +161,7 @@ export const fr = {
       none: "Aucun élève trouvé.",
     },
     home: {
+      noModule: "Aucun module activé pour cette école : contactez le support de la plateforme.",
       title: "Bonjour {{name}}",
       subtitle: "Choisissez un écran dans le menu.",
     },
@@ -3073,6 +3074,9 @@ export const fr = {
         notifications: "Notifications et relances",
         offline: "Travail hors-ligne et synchronisation",
       },
+      modulesNeeds: "Nécessite : {{modules}}.",
+      modulesCreateHelp:
+        "Choisissez ce que l'école peut utiliser dès l'ouverture ; vous pourrez en ajouter ou en retirer ensuite sur sa fiche.",
       modulesNone: "Aucun module : l'école n'a que le socle.",
       modulesSaved: "Modules enregistrés.",
       stoppedBanner: "Espace arrêté : personne ne peut s'y connecter ; les données sont gardées.",

@@ -5060,6 +5060,8 @@ export interface components {
             name: string;
             roles: components["schemas"]["RoleSummary"][];
             permissions: components["schemas"]["PermissionsEnum"][];
+            /** @description Fonctions que la plateforme a données à l'école (M.1) ; vide : aucune. */
+            modules: components["schemas"]["ModulesEnum"][];
         };
         /**
          * @description * `primary` - Primary
@@ -5878,6 +5880,8 @@ export interface components {
              *     * `demo` - Demonstration
              */
             school_environment: components["schemas"]["SchoolEnvironmentEnum"];
+            /** @description Fonctions de l'école : le Portail cache celles qu'elle n'a pas. */
+            school_modules: components["schemas"]["ModulesEnum"][];
             status: components["schemas"]["LinkedFamilyStatusEnum"];
             children: components["schemas"]["Child"][];
         };

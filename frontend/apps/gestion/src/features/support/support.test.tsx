@@ -19,6 +19,7 @@ const inSession = platformAdmin({
     name: school.name,
     roles: [],
     permissions: PERMISSIONS.head,
+    modules: ["students", "finance", "communication"],
   },
   support: session,
 });
