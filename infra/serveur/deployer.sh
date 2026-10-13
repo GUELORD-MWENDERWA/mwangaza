@@ -76,11 +76,19 @@ case "${1:-}" in
     ;;
   check)
     [ -n "$PROD" ] || { echo "check : vrai serveur seulement (MODE=production)"; exit 1; }
+    ok=1
     for host in "admin.$DOMAIN" "parents.$DOMAIN" "itig.$DOMAIN"; do
       printf '%s : ' "$host"
-      curl -fsS --max-time 15 -o /dev/null -w '%{http_code} certificat vérifié\n' "https://$host/" || true
+      # Pas de -k : le certificat doit être valide. Code 000 = connexion ou certificat refusé.
+      if code=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "https://$host/") && [ "$code" != 000 ]; then
+        echo "HTTP $code, certificat valide"
+      else
+        echo "ÉCHEC (connexion ou certificat)"; ok=
+      fi
     done
-    curl -fsS --max-time 15 "https://admin.$DOMAIN/api/health/" && echo
+    printf 'santé : '
+    curl -fsS --max-time 15 "https://admin.$DOMAIN/api/health/" && echo || ok=
+    [ -n "$ok" ] || { echo "Vérification en échec."; exit 1; }
     ;;
   demo)
     [ -z "$PROD" ] || { echo "Pas de données fictives sur le vrai serveur : crée l'espace de démonstration depuis la console."; exit 1; }
