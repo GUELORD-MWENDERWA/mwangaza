@@ -17,7 +17,7 @@ Sur GitHub : chaque version est un jalon, chaque tâche une issue « X.Y — tit
 | **P0** | Bloquant : à faire avant les vraies données d'une première école |
 | **P1** | Prioritaire : la prochaine chose utile pour une école qui utilise Mwangaza |
 | **P2** | Utile, pas prioritaire : vient après les P1 de sa version |
-| **P3** | Seulement si une école le demande |
+| **P3** | Planifié, fait en dernier dans sa version ; une école qui le demande le fait avancer |
 
 **Taille** (pour découper avant de coder) : **S** = une PR courte, un module serveur ; **M** = un module serveur + un ou deux écrans ; **L** = à découper en X.Y.1, X.Y.2… avant de commencer (règle : plus d'un module serveur ou plus de deux écrans → découpage).
 
@@ -36,14 +36,14 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | | **Lancement** (§ 3, § 4, § 4 bis) | | | |
 | 1 | ~~**L.0**~~ ✓ Installer ce plan et remettre les documents d'aplomb | P0 | S | 🤖 |
 | 2 | ~~**L.1**~~ ✓ Clés du serveur (`serveur.env`) : B2, Healthchecks, Sentry, UptimeRobot | P0 | S | 👤 |
-| 3 | **S.1** En-têtes de sécurité et CSP des trois applications (ex-L.3) | P0 | S | 🤖 |
-| 4 | **S.2** Dépendances et secrets surveillés (Dependabot, audit en CI, fuite de secrets) | P0 | S | 🤖 + 👤 |
-| 5 | **M.2.1** Modules : serveur et tâches de fond | P0 | M | 🤖 |
-| 6 | **M.2.2** Modules : écrans | P0 | S à M | 🤖 |
+| 3 | ~~**S.1**~~ ✓ En-têtes de sécurité et CSP des trois applications (ex-L.3) | P0 | S | 🤖 |
+| 4 | ~~**S.2**~~ ✓ Dépendances et secrets surveillés (Dependabot, audit en CI, fuite de secrets) | P0 | S | 🤖 + 👤 |
+| 5 | ~~**M.2.1**~~ ✓ Modules : serveur et tâches de fond | P0 | M | 🤖 |
+| 6 | ~~**M.2.2**~~ ✓ Modules : écrans | P0 | S à M | 🤖 |
 | 7 | **L.2** Restauration réelle depuis B2 | P0 | S | 🤖 + 👤 |
 | 8 | **S.3** Comptes à privilèges : alertes et limites | P0 | S | 🤖 |
 | 9 | **S.4** Fichiers envoyés : logos sans SVG, limites de taille | P0 | S | 🤖 |
-| 10 | **M.3.1** Rôles : codes de rôle remplacés par des permissions | P0 | M | 🤖 |
+| 10 | ~~**M.3.1**~~ ✓ Rôles : codes de rôle remplacés par des permissions | P0 | M | 🤖 |
 | 11 | **M.3.2** Rôles entièrement libres | P0 | M | 🤖 |
 | 12 | **S.5** Base de données : droits minimaux, paiements non effaçables | P0 | S | 🤖 |
 | 13 | **L.4** Essai sur de vrais téléphones et imprimantes | P0 | S | 👤 |
@@ -61,7 +61,7 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 23 | **S.7 → S.9** Protection des données, détection, revue ASVS | P1 | M | 🤖 |
 | | **V1.4 — Emploi du temps et intelligence artificielle** | | | |
 | 24 | **EDT.1 → EDT.4** Emploi du temps (données, éditeur, génération, publication) | P1 | L | 🤖 |
-| 25 | **IA.1 → IA.4** Socle IA, aide à l'emploi du temps, assistant, rédaction | P1 / P2 | L | 🤖 |
+| 25 | **IA.1 → IA.5** Socle IA piloté par la console (usages, crédits), grille de cours depuis un PDF, aide à l'emploi du temps, assistant, rédaction | P1 / P2 | L | 🤖 |
 | | **V1.5 — Carte et présences** (QR d'abord) | P1 / P2 | L | 🤖 |
 | | **V1.6 — Bibliothèque et ateliers** (moteur commun INV) | P2 | L | 🤖 |
 | | **V1.7 — Sites des écoles, personnel et paie, vie scolaire** | P2 | L | 🤖 |
@@ -118,7 +118,7 @@ Décidé le 2026-10-13 : chaque fonction est un module donné par la plateforme 
    - Console : cases des modules à la création, dépendances expliquées.
    - Parcours Playwright « école neuve » : créé avec un choix de modules, vérifier qu'un module absent n'apparaît nulle part.
 
-- [ ] **M.3.1** Rôles — droits déduits des permissions *(P0, M)*
+- [x] **M.3.1** Rôles — droits déduits des permissions *(P0, M)*
    - **Vérifié, inventaire** de ce qui lit un code de rôle aujourd'hui :
      - `schools/services.py:95` : le directeur d'une école créée reçoit le rôle `head` (code).
      - `gestion/src/features/guide/guides.ts:62` : le guide de première connexion est choisi par les codes `cashier` / `accountant`.
@@ -130,6 +130,7 @@ Décidé le 2026-10-13 : chaque fonction est un module donné par la plateforme 
      - Déjà correct : les notifications au personnel visent une permission (`notifications/events.py:61`), pas un rôle.
    - Remplacer chaque usage par une permission (guide choisi selon les permissions détenues, filtre du journal par rôle de l'école, rôle du directeur pris dans le modèle de départ).
    - Aucun changement visible pour les écoles existantes : tests avant / après.
+   - **Fait** : premier directeur = premier rôle de départ qui a `roles.manage` ; guide et note de l'écran des rôles d'après les droits ; journal : nom du rôle de l'école donné par le serveur (`role_code` retiré de l'API) ; appareils fictifs portés par le compte fictif. **Reste pour M.3.2** (le code ne sert plus qu'à cela) : `Role.code`, `is_system` et leurs contraintes, nom traduit depuis le code (`gestion/src/lib/people.ts`), rôles système remis à zéro par `make demo` (`accounts/demo.py`).
 
 - [ ] **M.3.2** Rôles entièrement libres *(P0, M)*
    - Plus de rôle système ni de code de rôle ; un **modèle de départ** modifiable proposé à la création d'une école (les 9 rôles actuels comme suggestion).
@@ -173,7 +174,7 @@ Trouvées à la relecture. Chacune est marquée « à vérifier » quand elle re
 | **A.2** | **Tables qui grossissent sans fin.** **Vérifié** : les notifications sont purgées à 90 jours et les sessions chaque nuit, mais `ChangeLog` et `SyncOperation` n'ont **aucune purge**. Chaque paiement et chaque modification y ajoute des lignes pour toujours. Il faut une purge dans le planificateur existant, au-delà d'un délai sûr (tout ce que les appareils actifs ont déjà tiré ; un appareil trop en retard refait un instantané). Le journal d'audit est gardé. | P1 | S | après le lancement, avant la fin du premier trimestre réel |
 | **A.3** | **Dépendances serveur et front à jour** : une passe par version (Django 5.2 LTS, paquets du front), sans en ajouter. | P2 | S | fin de chaque version |
 | **A.4** | **Export des données d'une école** (aujourd'hui « à la main par le support » ; **vérifié** : aucune commande `make` ne le fait) : une commande `make export-ecole CODE=…` (Excel + fichiers), pas d'écran. Utile le jour où une école part ou demande ses données. | P2 | S | quand une école le demande, au plus tard V2 |
-| **A.5** | **Sélection de plusieurs élèves pour une impression** (2.4) | P3 | S | si une école la demande |
+| **A.5** | **Sélection de plusieurs élèves pour une impression** (2.4) | P3 | S | V1.5, avec la planche de cartes (6.1 : même sélection) |
 
 ---
 
@@ -199,7 +200,7 @@ Ce qui manque aujourd'hui : l'argent qui **sort**. La caisse ne connaît que les
 
 L'argent de la plateforme. M.1 et M.2 donnent déjà les modules ; il manque le contrat et la facture. Remplace la 9.2.
 
-- [ ] **ABO.1** Offres et contrats *(M)* : prix par module, par élève inscrit et par période (trimestre ou année scolaire), devise ; offres groupées (ex. « Essentiel » = élèves + frais + caisse) ; contrat d'une école = modules + prix + période + essai ; les modules actifs suivent le contrat. Console seulement.
+- [ ] **ABO.1** Offres et contrats *(M)* : prix par module, par élève inscrit et par période (trimestre ou année scolaire), devise ; offres groupées (ex. « Essentiel » = élèves + frais + caisse) ; contrat d'une école = modules + prix + période + essai ; les modules actifs suivent le contrat ; **allocation IA** de l'offre : usages IA compris et crédits par mois (§ 6.5), une recharge de crédits = une ligne de facture (ABO.2). Console seulement.
 - [ ] **ABO.2** Factures et paiements de l'école à la plateforme *(M)* : facture PDF numérotée, immuable (annulation = avoir), paiement enregistré par le super-admin (espèces, banque, Mobile Money à la main ; en ligne avec 9.3) ; l'école voit ses factures dans ses paramètres ; audit de la plateforme.
 - [ ] **ABO.3** Échéances *(S)* : rappels avant échéance (planificateur existant) ; après le délai de grâce, **lecture seule** plutôt que coupure (l'école garde ses reçus et ses données, la caisse se ferme) — **décidé le 2026-10-13** ; chiffre d'affaires dans le tableau de bord de la console.
 
@@ -221,19 +222,37 @@ Faisable, et utile à toutes les écoles. **Avis de développeur senior** : un e
 
 Intégration de **Claude** (API d'Anthropic) côté serveur. « Comme Claude Code » : l'IA lit, explique, prépare ; **la personne valide**. Elle n'écrit jamais seule dans l'argent, les notes ou les rôles.
 
-- [ ] **IA.1** Socle *(M, P1)* — tout le reste en dépend :
-   - module `ai` du catalogue, activé par école (ABO : module payant, la plateforme paie l'API) ; interrupteur général de la plateforme pour tout couper ;
+**Révisé le 2026-10-13 (demande de l'utilisateur) : l'IA se vend avec l'abonnement et se pilote depuis la console.** La plateforme paie l'API : sans compteur, une seule école peut manger la marge. Le mécanisme tient en quatre règles.
+
+1. **Des usages déclarés, pas une IA « libre ».** Catalogue `ai/uses.py`, sur le modèle de celui des modules : chaque usage (`course_grid_from_pdf`, `timetable_constraints`, `assistant`, `drafting`…) déclare son module hôte, la permission exigée dans l'école, son modèle, la taille maximale de l'entrée et de la réponse. Un usage ne marche que si l'école a aussi le module hôte.
+2. **La console décide, l'école utilise.** Seul le super-admin (double authentification, journal de la plateforme) règle : les usages affectés à une école d'après son contrat (ABO.1), ses crédits du mois, une recharge, la pause d'une école, le modèle et les limites d'un usage, les prix par modèle, le plafond mensuel de la plateforme, l'interrupteur général. L'école ne règle rien : elle donne la permission `ai.use` à ses rôles (`roles.manage`, déjà au journal) et voit ses crédits restants en lecture seule.
+3. **Cinq verrous avant chaque appel**, dans un seul service (`ai.services.authorize`), et un seul fichier qui parle à l'API (`ai/client.py`) : interrupteur et plafond de la plateforme → module `ai` et usage affecté à l'école → `ai.use` **et** permission de l'écran hôte → crédits restants ≥ coût maximal de l'appel → limite par personne (appels par heure). Un refus ne coûte rien et dit pourquoi.
+4. **Compté en crédits, pas en jetons bruts.** Un jeton n'a pas le même prix selon le modèle ni le sens (entrée, sortie, cache). Chaque réponse de l'API donne ses jetons ; le serveur les note et calcule le coût en **entiers** (micro-dollars : un appel coûte moins d'un centime) avec la table des prix de la console. 1 crédit = un millième de dollar de coût d'API ; le prix de vente du crédit, donc la marge, se règle dans l'offre (ABO.1). L'école voit ses crédits restants ; la console voit jetons, coût et marge.
+
+**Rien dépensé pour rien** : jamais d'appel automatique ni planifié (toujours le clic d'une personne) ; le travail exact reste au code (le solveur calcule l'emploi du temps, WeasyPrint dessine le bulletin : zéro jeton par bulletin) ; un résultat gardé devient une donnée normale, jamais régénérée à l'affichage ; une même demande envoyée deux fois = un seul appel (identifiant de demande, UUID v7) ; consignes fixes mises en cache ; chaque appel finit « gardé » ou « abandonné » selon ce que la personne en fait : la console montre, par usage, les crédits dépensés et la part des résultats gardés (un usage qui coûte sans servir se voit et se coupe).
+
+**Coût pour le serveur** (§ 8.5) : un appel dure de quelques secondes à une minute, donc jamais dans une requête web : tâche Celery dans une file `ai` limitée à 2 appels à la fois, l'écran attend le résultat. Une ligne par appel (`AiCall`, purgée à 90 jours) et un cumul par école, mois et usage (`AiUsageMonth`, gardé pour la facturation) : le contrôle des crédits lit une ligne, pas une somme.
+
+- [ ] **IA.1.1** Socle serveur *(M, P1)* — tout le reste en dépend :
+   - module `ai` du catalogue ; catalogue des usages ; `authorize` (les cinq verrous) ; `client.py` ; `AiCall` [T] immuable (qui, usage, modèle, jetons d'entrée, de sortie et de cache, coût, état : fait, refusé, erreur, gardé, abandonné ; **jamais le texte** de la demande ni de la réponse) ; `AiUsageMonth` [T] ; réglages de la plateforme ; alerte au super-admin à 80 % et 100 % du plafond, à l'école à 80 % de ses crédits (notifications existantes) ; purge dans le planificateur ;
+   - session support « en tant qu'école » : l'appel est compté sur le compte de la plateforme, pas sur les crédits de l'école (mise en route faite par le support) ;
    - clé de l'API seulement sur le serveur (`serveur.env`), jamais dans une application ;
    - l'IA ne reçoit que ce que la personne a le droit de voir : ses « outils » appellent les services existants **avec les permissions de la personne**, jamais une requête directe à la base ; aucune donnée d'une autre école ;
    - **minimisation** : pas de téléphones, pas de photos, pas d'adresses ; élèves désignés par un identifiant interne quand le nom n'est pas utile ;
-   - **injection de consignes** : un texte écrit par un parent ou une annonce peut contenir « ignore tes règles… » ; donc outils en lecture seule, et toute action proposée passe par l'écran normal, avec confirmation et audit ;
-   - chaque appel noté (qui, quoi, combien de jetons, coût) ; quota mensuel par école ; mise en cache des consignes fixes pour réduire le coût ;
-   - modèle par défaut : `claude-opus-5-5` ; un modèle moins cher (`claude-sonnet-5-5`, `claude-haiku-5-5`) pour certaines tâches seulement si le coût mesuré l'exige (**décidé le 2026-10-13 : seulement si le coût mesuré l'exige**) ;
+   - **injection de consignes** : un texte écrit par un parent, une annonce ou un PDF peut contenir « ignore tes règles… » ; donc outils en lecture seule, et toute action proposée passe par l'écran normal, avec confirmation et audit ;
+   - modèle par défaut : `claude-opus-5-5`, réglable par usage dans la console ; un modèle moins cher (`claude-sonnet-5-5`, `claude-haiku-5-5`) pour certaines tâches seulement si le coût mesuré l'exige (**décidé le 2026-10-13**) ; prix, limites et champs de l'API à relire au début de la tâche (skill `claude-api`) ;
    - 👤 conditions de conservation des données chez Anthropic à vérifier (rétention, zéro rétention sur demande) et à écrire dans la politique de confidentialité (S.7) ;
-   - nouvelle dépendance `anthropic` (SDK officiel) : **acceptée le 2026-10-13**.
+   - nouvelle dépendance `anthropic` (SDK officiel) : **acceptée le 2026-10-13** ;
+   - tests : crédits et appels d'une autre école jamais lus ni débités ; 403 sans `ai.use` ou sans la permission hôte ; crédits épuisés ou plafond atteint → refus **sans appel à l'API** ; cumul exact en entiers ; même demande deux fois = un appel ; usage refusé sans son module hôte.
+- [ ] **IA.1.2** Console et crédits *(M, P1)* : page « IA » de la console (interrupteur, plafond et dépense du mois, par école et par usage, part des résultats gardés, alertes) ; carte « IA » de la fiche d'une école (usages affectés, rangés par module ; crédits du mois, consommés, restants ; derniers appels ; pause ; recharge) ; réglages (modèle, limites, prix) ; chaque changement au journal de la plateforme. Gestion : carte « Crédits IA » en lecture seule dans les paramètres ; bouton IA caché sans droit, grisé avec la raison sans crédit.
+- [ ] **IA.5** Grille de cours d'une section à partir d'un bulletin en PDF *(M, P1)* — exemple donné le 2026-10-13 : l'école envoie le PDF ou la photo d'un bulletin (fichier contrôlé comme en S.4, 3 pages au plus) → l'IA propose les cours, domaines et maxima de la section (données de 8.1) et les options du bulletin (8.3) → la personne corrige dans l'écran normal et enregistre. **L'IA produit des données vérifiées par un schéma, jamais du HTML ni un modèle exécuté** : le bulletin reste dessiné par notre code (document officiel, mise en page EPST, aucune injection possible). Un appel par section, puis plus aucun jeton. Dépend de 8.1 et 8.3.
 - [ ] **IA.2** Aide à l'emploi du temps *(M, P1)* : la direction décrit ses contraintes en phrases (« M. Kambale ne vient pas le vendredi, la 4e mécanique a l'atelier le mardi matin ») → l'IA les traduit en contraintes que la personne relit et valide → le solveur (EDT.3) calcule → l'IA explique les conflits et propose des assouplissements.
-- [ ] **IA.3** Assistant de questions *(M, P2)* : « combien d'élèves de 5e A sont en retard de paiement ? », « quelles classes ont le plus d'absents ce mois ? » ; réponses tirées des données, avec le lien vers l'écran d'où elles viennent ; lecture seule.
+- [ ] **IA.3** Assistant de questions *(M, P2)* : « combien d'élèves de 5e A sont en retard de paiement ? », « quelles classes ont le plus d'absents ce mois ? » ; réponses tirées des données, avec le lien vers l'écran d'où elles viennent ; lecture seule. Usage le plus cher (conversation ouverte) : longueur d'une conversation et questions par jour limitées, réglées dans la console.
 - [ ] **IA.4** Aide à la rédaction *(S, P2)* : brouillons d'annonces, de convocations, de lettres de relance, d'appréciations de bulletin ; toujours un brouillon que la personne modifie et publie elle-même.
+
+**Pas maintenant** : un assistant général dans la console pour l'équipe de la plateforme — aucun besoin précis, donc aucun retour mesurable ; il se déclarera comme un usage de plus le jour où ce besoin existe.
+
+**À décider par toi (👤) avec ABO.1** : usages et crédits compris dans chaque offre ; prix d'une recharge ; crédits non utilisés perdus en fin de mois (recommandé : oui, plus simple à expliquer et à facturer).
 
 ### 6.6 Bibliothèque et ateliers (INV, BIB, ATL) — P2, V1.6
 
@@ -255,11 +274,13 @@ Les évaluations d'atelier (9.9) restent en V2.
 
 Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est redécoupée au moment de la commencer.
 
+**Décidé le 2026-10-13** : les tâches P3 seront développées (elles sont dans la V1.5, la V1.7 et la V2) ; P3 fixe l'ordre, pas l'abandon. Chacune est un module que l'école active ou non, donc sans poids pour celles qui ne s'en servent pas. Seule réserve : 9.11 (supérieur LMD) demande les règles d'un vrai institut avant d'être découpée.
+
 ### V1.2 — Notes, bulletins et finances de l'école
 
 - [ ] **A.2** Purge de `ChangeLog` et `SyncOperation` *(P1, S)*
 - [ ] **S.6** Row Level Security *(P1, L)*
-- [ ] **8.1** Cours, maxima, domaines, attribution des enseignants **avec leur charge horaire** (servira à l'emploi du temps) *(P1, M)*
+- [ ] **8.1** Cours, maxima, domaines, attribution des enseignants **avec leur charge horaire** (servira à l'emploi du temps) ; la grille de cours d'une section s'enregistre d'un seul bloc par un service (IA.5 la proposera depuis un PDF) *(P1, M)*
 - [ ] **8.2** Saisie des notes (y compris hors ligne), verrouillage, validation, historique *(P1, L)*
 - [ ] **8.3** Bulletin EPST PDF avec QR d'authenticité, totaux, places, mentions ; bulletin complet ou notes seules sur le formulaire pré-imprimé (Q11) ; régime et code EPST de l'école (M5) *(P1, L)* — 👤 fournir un vrai bulletin EPST rempli ou le modèle officiel.
 - [ ] **8.4** Délibération, décisions, palmarès, passage de classe *(P1, M)*
@@ -275,7 +296,7 @@ Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est 
 ### V1.4 — Emploi du temps et IA
 
 - [ ] **EDT.1 → EDT.4** (§ 6.4) *(P1)*
-- [ ] **IA.1, IA.2** (§ 6.5) *(P1)* ; **IA.3, IA.4** *(P2)*
+- [ ] **IA.1.1, IA.1.2, IA.5, IA.2** (§ 6.5) *(P1)* ; **IA.3, IA.4** *(P2)*
 
 ### V1.5 — Carte et présences (QR d'abord, NFC en option)
 
@@ -285,6 +306,7 @@ Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est 
 - [ ] **6.6** Présences et parents : notifications, justification dans le Portail, alerte après X absences *(P1, M)*
 - [ ] **6.2** Liaison des cartes NFC (NTAG215 / 216) *(P2, M)* — 👤 commander quelques cartes d'essai
 - [ ] **6.4** Lecteurs ESP32 (`firmware/`) *(P2, L)* — 👤 matériel
+- [ ] **A.5** Sélection de plusieurs élèves pour une impression (§ 5) *(P3, S)* — avec 6.1
 
 ### V1.6 — Bibliothèque et ateliers
 

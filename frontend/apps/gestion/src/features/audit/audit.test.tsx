@@ -18,7 +18,6 @@ const log = (n: number, action: string, extra = {}) => ({
   entity_type: "accounts.role",
   entity_id: id(200 + n),
   entity_label: "",
-  role_code: null,
   before: null,
   after: null,
   ip: "41.243.12.7",
@@ -27,7 +26,7 @@ const log = (n: number, action: string, extra = {}) => ({
 });
 const logs = [
   log(1, "roles.updated", {
-    role_code: "cashier",
+    entity_label: "Caissier",
     before: { permissions: ["students.view"] },
     after: { permissions: ["students.view", "finance.collect_payment"] },
   }),

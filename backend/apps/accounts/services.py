@@ -124,6 +124,14 @@ def create_system_roles(school: School) -> list[Role]:
         )
 
 
+def first_manager_role() -> Role:
+    """Rôle du premier compte de l'école courante : le premier du modèle de départ qui gère les
+    comptes et les rôles (`roles.manage`). Choisi par ce droit, pas par son code : sans lui,
+    l'école ne pourrait donner de droit à personne."""
+    require_current_school()
+    return Role.objects.filter(permissions__contains=[ROLES_MANAGE]).earliest("id")
+
+
 # Droits dans une école
 
 

@@ -1039,7 +1039,8 @@ export const en: Messages<typeof fr> = {
     create: "Create the role",
     newTitle: "New role",
     newText: "Then tick its permissions.",
-    parentNote: "Parents use the family portal: this role gives nothing in the management app.",
+    noPermissionNote:
+      "No permission ticked: this role opens no screen in the management app. Parents use the family portal instead.",
   },
   audit: {
     title: "Audit log",

@@ -62,6 +62,7 @@ Références : `docs/04-modele-de-donnees.md` (entités, [T] / [G] / [I], permis
 ## Migrations
 
 - `makemigrations <app> --name <description>` ; ne jamais modifier une migration déjà appliquée ailleurs.
+- **Jamais de décision d'après un rôle** (`Role.code`, nom du rôle) : toujours une permission de `04` § 8 (M.3.1 ; les rôles deviennent libres en M.3.2).
 - Données de référence (rôles système, modèles d'année) : migration de données ou service appelé à la création de l'école.
 
 ## Tests (factory_boy, pytest-django) — obligatoires

@@ -186,7 +186,7 @@ function RoleEditor({ role, onDeleted }: { role: Role; onDeleted: () => void }) 
         </StatusPill>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        {role.code === "parent" && <Banner tone="info">{t("rolesPage.parentNote")}</Banner>}
+        {permissions.length === 0 && <Banner tone="info">{t("rolesPage.noPermissionNote")}</Banner>}
         <Field
           id="role-name"
           label={t("rolesPage.name")}

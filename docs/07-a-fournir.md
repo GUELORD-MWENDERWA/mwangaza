@@ -61,7 +61,7 @@ Déjà dessinés le 2026-09-26 d'après les **formulaires officiels** trouvés e
 
 ### V1.4 — emploi du temps et IA
 
-À dessiner : grille horaire, salles et disponibilités (EDT.1), éditeur avec conflits par classe, enseignant et salle (EDT.2), génération et contrainte qui bloque (EDT.3), PDF et Portail (EDT.4) ; fenêtre de l'assistant IA et brouillons (IA.2 à IA.4).
+À dessiner : grille horaire, salles et disponibilités (EDT.1), éditeur avec conflits par classe, enseignant et salle (EDT.2), génération et contrainte qui bloque (EDT.3), PDF et Portail (EDT.4) ; fenêtre de l'assistant IA et brouillons (IA.2 à IA.4) ; console : page « IA » et carte « IA » d'une école, carte « Crédits IA » de la Gestion (IA.1.2) ; envoi d'un bulletin en PDF et relecture de la grille proposée (IA.5).
 
 ### V1.5 — carte et présences
 

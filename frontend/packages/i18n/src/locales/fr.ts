@@ -1045,8 +1045,8 @@ export const fr = {
     create: "Créer le rôle",
     newTitle: "Nouveau rôle",
     newText: "Cochez ensuite ses permissions.",
-    parentNote:
-      "Les parents utilisent le portail des familles : ce rôle ne donne rien dans la Gestion.",
+    noPermissionNote:
+      "Aucune permission cochée : ce rôle n'ouvre aucun écran de la Gestion. Les parents, eux, utilisent le portail des familles.",
   },
   audit: {
     title: "Journal d'audit",
