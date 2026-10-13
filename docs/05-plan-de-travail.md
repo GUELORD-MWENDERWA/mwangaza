@@ -165,6 +165,14 @@ Ajouté le 2026-10-10 (demande de l'utilisateur) : **avant toute nouvelle foncti
    - [x] **5.6.2** Événements à heure fixe : planificateur quotidien, échéance proche et retard de paiement (parent), caisse non clôturée (directeur), relances automatiques d'impayés réglées par l'école (écran de réglages), purge des vieilles notifications. *Fait le 2026-10-12 : planificateur dans le worker Celery (un passage toutes les 15 minutes), relances désactivées tant que l'école ne les active pas, une notification par parent (enfants réunis), `make relances` pour un passage à la main*
 - [x] **5.7** Communication : annonces au personnel (destinataire « Personnel » de 4.3, écran où le personnel les lit), messages à une classe, calendrier des événements, circulaires PDF, convocations ; portail : calendrier, titulaire et enseignants avec contacts (cahier § 8.9, 8.10). *Fait le 2026-10-12, d'un coup à la demande de l'utilisateur : annonce au personnel lue par tous les rôles, calendrier (lu par tous, écrit avec `announcements.publish`), convocations (lettre PDF, portail, « vue », journal), circulaire PDF de chaque annonce, calendrier et titulaire dans le portail ; « messages à une classe » = annonce « Certaines classes » de la 4.3 ; enseignants par cours : avec la V1.4 ; guide de la version 1.1 (`make guide`)*
 
+## Modules et rôles libres (M.1 à M.3)
+
+Décidé le 2026-10-13, avant la V1.2 : chaque fonction est un module que la plateforme donne à une école (socle toujours actif ; école neuve = aucun module, écoles existantes = tous), puis plus aucun rôle imposé.
+
+- [x] **M.1** Modules : catalogue (`accounts/modules.py`), `School.modules`, droits d'un module absent retirés côté serveur (403, `/me`), carte « Fonctions de l'école » dans la console
+- [ ] **M.2** Modules côté écrans et tâches de fond : menu de Gestion et du Portail piloté par `/me`, message « Aucun module activé », portail, synchronisation, relances et notifications qui ignorent les écoles sans le module ; modules `portal`, `notifications`, `offline` ; modules choisis à la création d'une école
+- [ ] **M.3** Rôles entièrement libres : plus de rôle système ni de code de rôle, un rôle de départ modifiable à la création d'une école, droits déduits des permissions et non des noms, `make demo` avec des rôles nommés librement
+
 ## V1.2 — Carte unique et présences
 
 Une seule carte par élève et par membre du personnel : **puce sans contact (NFC) + QR code + photo et informations**. Pointage de deux façons : la puce (téléphone Android enregistré ou lecteur ESP32) ou le QR (caméra de n'importe quel téléphone ou tablette enregistrés, iPhone compris).

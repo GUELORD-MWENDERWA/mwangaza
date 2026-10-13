@@ -21,7 +21,7 @@ from django.utils import timezone
 from django.utils.crypto import salted_hmac
 from django.utils.translation import gettext_lazy as _
 
-from apps.accounts import totp
+from apps.accounts import modules, totp
 from apps.accounts.models import Membership, RecoveryCode, Role, User
 from apps.accounts.phone import demo_block, is_demo_phone, normalize_phone
 from apps.accounts.roles import ROLES_MANAGE, SYSTEM_ROLES, TOTP_PERMISSIONS, sorted_permissions
@@ -148,8 +148,8 @@ def get_school_access(user, school: School | None) -> SchoolAccess | None:
         return None
     with use_school(school):
         roles = tuple(Role.objects.filter(memberships=membership))
-    permissions = frozenset(code for role in roles for code in role.permissions)
-    return SchoolAccess(membership, roles, permissions)
+    granted = frozenset(code for role in roles for code in role.permissions)
+    return SchoolAccess(membership, roles, granted & modules.permissions_of(school.modules))
 
 
 def _has_role_manager(school: School) -> bool:

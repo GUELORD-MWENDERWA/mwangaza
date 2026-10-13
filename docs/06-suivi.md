@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; reste les comptes de `A-FAIRE.md` § 9 bis pour 4.7.2 ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`, guide de présentation `docs/guide/presentation-v1.1.pdf`) |
 | Lot | V1.0 (fin : 4.25), puis modules et rôles libres (M.1 à M.3, voir le journal du 2026-10-13), puis V1.2 |
-| Tâche en cours | aucune (4.25 terminée, en relecture) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | modules (M.1 à M.3) ; V1.2 repoussée ; mise en ligne de 4.25 : `make deploy` |
-| Issue GitHub | #41 pour 6.1 ; #186 pour 4.23 |
-| Branche | `tache/4.25-sante-plateforme` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune (M.1 terminée, en relecture) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | M.2 (modules : écrans et tâches de fond), puis M.3 ; V1.2 repoussée ; mise en ligne de 4.25 : `make deploy` |
+| Issue GitHub | #204 pour M.1 |
+| Branche | `tache/M.1-modules` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-13 |
 
 ## Avancement
@@ -26,6 +26,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 14 | 14 |
 | **V1.0** | **67** | **67** |
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
+| Modules et rôles libres (M.1 à M.3) | 1 | 3 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
 | V1.4 — notes, bulletins, vie scolaire | 0 | 9 |
@@ -53,6 +54,13 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-13 — Tâche M.1 : modules d'une école
+- Fait : catalogue `accounts/modules.py` (élèves, finance, communication ; socle toujours actif), `School.modules` (migration 0012 : écoles existantes = tous), droits d'un module absent retirés au seul point `get_school_access` (donc 403 partout et `/me`), carte « Fonctions de l'école » sur la fiche école de la console (journal de la plateforme).
+- Tests : 3 serveur (module absent = 403 puis retour sans rien perdre, seul le super-admin les donne, école voisine intacte, journal), 1 écran ; accounts et schools verts (563).
+- Décisions : école neuve = 0 module, démonstrations = tous ; `portal`, `notifications`, `offline` viennent avec M.2 (ils n'ont pas de permission).
+- Corrigé dans la PR (remarque de l'utilisateur) : les comptes fictifs d'un espace de démonstration effacé restaient « Désactivé » dans la liste des comptes ; ils sont maintenant supprimés avec l'espace (+ migration `accounts` 0006 pour ceux déjà là).
+- Suite : M.2, puis M.3. En ligne : `make deploy` (la migration donne tous les modules aux écoles réelles).
 
 ### 2026-10-13 — Tâche 4.25 : santé de la plateforme dans la console
 - Fait : mémoire et swap (`/proc/meminfo`), passage du planificateur et file, dernière sauvegarde et copie B2 (notés dans Redis par `tick` et `sauvegarde.sh`), dernière synchronisation des 10 écoles réelles les plus silencieuses : une carte « Plateforme » dans le tableau de bord.

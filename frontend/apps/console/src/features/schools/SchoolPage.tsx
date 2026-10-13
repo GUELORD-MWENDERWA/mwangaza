@@ -35,6 +35,7 @@ import { keys } from "../../lib/queries";
 import { Differences, History } from "../shell/History";
 import { DeleteSpace, DeletingSpace } from "./DeleteSpace";
 import { DemoCard, DemoProgress, isWorking } from "./Demonstration";
+import { ModulesCard } from "./ModulesCard";
 import { SupportLink } from "./SchoolsPage";
 import {
   IdentityFields,
@@ -243,6 +244,7 @@ function SchoolForm({ school }: { school: Detail }) {
           {school.demonstration && (
             <DemoCard school={{ ...school, demonstration: school.demonstration }} />
           )}
+          <ModulesCard school={school} onSaved={saved} />
           <Card>
             <CardHeader>
               <CardTitle>{t("console.schools.summaryTitle")}</CardTitle>

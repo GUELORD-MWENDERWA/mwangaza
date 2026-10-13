@@ -4672,6 +4672,8 @@ export interface components {
             status: components["schemas"]["SchoolStatusEnum"];
             /** @description e.g. Discovery, Standard. */
             plan: string;
+            /** @description Fonctions données à l'école (M.1) ; le socle est toujours actif. Retirer un module ne supprime aucune donnée. */
+            modules: components["schemas"]["ModulesEnum"][];
             /**
              * End of the trial
              * Format: date
@@ -4743,6 +4745,8 @@ export interface components {
             status?: components["schemas"]["SchoolStatusEnum"];
             /** @description e.g. Discovery, Standard. */
             plan?: string;
+            /** @description Fonctions données à l'école (M.1) ; le socle est toujours actif. Retirer un module ne supprime aucune donnée. */
+            modules?: components["schemas"]["ModulesEnum"][];
             /**
              * End of the trial
              * Format: date
@@ -4789,6 +4793,8 @@ export interface components {
             status: components["schemas"]["SchoolStatusEnum"];
             /** @description e.g. Discovery, Standard. */
             plan: string;
+            /** @description Fonctions données à l'école (M.1) ; le socle est toujours actif. Retirer un module ne supprime aucune donnée. */
+            modules: components["schemas"]["ModulesEnum"][];
             /**
              * End of the trial
              * Format: date
@@ -5997,6 +6003,13 @@ export interface components {
          * @enum {string}
          */
         MissingFieldsEnum: "last_name" | "middle_name" | "first_name" | "sex" | "birth_date" | "birth_place" | "class_name" | "matricule" | "guardian_name" | "guardian_phone";
+        /**
+         * @description * `students` - Students, families and enrolments
+         *     * `finance` - Fees, cash desk and payments
+         *     * `communication` - Announcements
+         * @enum {string}
+         */
+        ModulesEnum: "students" | "finance" | "communication";
         MySchool: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
             code: string;
@@ -6672,6 +6685,8 @@ export interface components {
             status?: components["schemas"]["SchoolStatusEnum"];
             /** @description e.g. Discovery, Standard. */
             plan?: string;
+            /** @description Fonctions données à l'école (M.1) ; le socle est toujours actif. Retirer un module ne supprime aucune donnée. */
+            modules?: components["schemas"]["ModulesEnum"][];
             /**
              * End of the trial
              * Format: date

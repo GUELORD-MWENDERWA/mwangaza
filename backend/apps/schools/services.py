@@ -16,6 +16,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from apps.accounts import modules
 from apps.accounts import services as accounts
 from apps.accounts.models import Membership, Role
 from apps.audit import services as audit
@@ -45,7 +46,7 @@ IDENTITY_FIELDS = (
     "default_currency",
 )
 # Ce que le journal de la plateforme garde en plus (`environment` : fixé à la création).
-SUBSCRIPTION_FIELDS = ("environment", "status", "plan", "trial_ends_on", "paid_until")
+SUBSCRIPTION_FIELDS = ("environment", "status", "plan", "trial_ends_on", "paid_until", "modules")
 
 
 @dataclass(frozen=True)
@@ -105,6 +106,7 @@ def open_space(school: School, *, actor) -> School:
         if school.environment == School.Environment.DEMO:
             # Déjà rempli : pas de liste « Mise en route » (`setup.py`).
             school.setup_completed_at = timezone.now()
+            school.modules = modules.ALL_MODULES
         school.save()  # rôles système copiés (`accounts/signals.py`)
         _record_platform(PlatformAction.SCHOOL_CREATED, school, actor=actor)
         with use_school(school):

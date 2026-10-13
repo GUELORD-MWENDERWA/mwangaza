@@ -10,6 +10,7 @@ from rest_framework import serializers
 from rest_framework.fields import get_error_detail
 
 from apps.accounts.models import User
+from apps.accounts.modules import ALL_MODULES, MODULE_CHOICES
 from apps.accounts.serializers import PhoneField
 from apps.audit.models import PlatformAuditLog
 from apps.core.money import Currency
@@ -36,6 +37,12 @@ class ConsoleSchoolSerializer(serializers.ModelSerializer):
         required=False,
         help_text="Essai gratuit ou active ; « suspendue » et « arrêtée » par leurs actions.",
     )
+    modules = serializers.ListField(
+        child=serializers.ChoiceField(choices=MODULE_CHOICES),
+        required=False,
+        help_text="Fonctions données à l'école (M.1) ; le socle est toujours actif. Retirer un "
+        "module ne supprime aucune donnée.",
+    )
     student_count = serializers.IntegerField(
         read_only=True, help_text="Inscriptions actives de l'année en cours."
     )
@@ -56,6 +63,7 @@ class ConsoleSchoolSerializer(serializers.ModelSerializer):
             "environment",
             "status",
             "plan",
+            "modules",
             "trial_ends_on",
             "paid_until",
             "enabled_currencies",
@@ -85,6 +93,8 @@ class ConsoleSchoolSerializer(serializers.ModelSerializer):
             school.clean()
         except DjangoValidationError as exc:
             raise serializers.ValidationError(get_error_detail(exc)) from None
+        if "modules" in data:
+            data["modules"] = [code for code in ALL_MODULES if code in data["modules"]]
         if "enabled_currencies" in data:
             data["enabled_currencies"] = school.enabled_currencies
         return data

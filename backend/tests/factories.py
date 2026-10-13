@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from apps.accounts import totp
 from apps.accounts.models import Membership, Role, User
+from apps.accounts.modules import ALL_MODULES
 from apps.core.crypto import encrypt
 from apps.core.tenancy import use_school
 from apps.schools.models import School
@@ -20,6 +21,7 @@ class SchoolFactory(factory.django.DjangoModelFactory):
     code = factory.Sequence(lambda n: f"ecole{n}")
     name = factory.Sequence(lambda n: f"École fictive n° {n}")
     status = School.Status.ACTIVE
+    modules = ALL_MODULES
 
 
 class UserFactory(factory.django.DjangoModelFactory):

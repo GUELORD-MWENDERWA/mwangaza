@@ -107,7 +107,7 @@ def test_a_demonstration_space_is_filled_shown_on_its_sheet_and_reset_without_th
     assert vitrine.primary_color == "#7A3E00"
     with use_school(vitrine):
         assert Student.objects.count() == 150
-        # Comptes désactivés par la suppression : de nouveau utilisables, portail compris.
+        # Comptes recréés avec l'espace : utilisables, portail compris.
         activated = Family.objects.filter(activated_at__isnull=False)
         assert activated.count() > 10
         assert not activated.filter(primary_user__is_active=False).exists()
@@ -115,7 +115,8 @@ def test_a_demonstration_space_is_filled_shown_on_its_sheet_and_reset_without_th
     new_password = demonstrations.access_sheet(vitrine)["password"]
     assert new_password != password and new_password in sheet(console, school_id)
     assert authenticate(username="0004002001", password=password) is None
-    assert authenticate(username="0004002001", password=new_password) == head
+    # Comptes effacés avec l'espace puis recréés : même numéro, autre compte.
+    assert authenticate(username="0004002001", password=new_password).phone == head.phone
     journal = PlatformAuditLog.objects.filter(entity_id=school_id).order_by("created_at", "id")
     assert [log.action for log in journal] == ["school.created", "school.deleted", "school.created"]
 
