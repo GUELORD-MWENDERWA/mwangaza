@@ -6,12 +6,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | V1.0 en ligne (2026-10-13) ; reste 4.23 (et les comptes de `A-FAIRE.md` § 9 bis pour 4.7.2) ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`, guide de présentation `docs/guide/presentation-v1.1.pdf`) |
-| Lot | V1.0 (fin : 4.23), puis modules et rôles libres (M.1 à M.3, voir le journal du 2026-10-13), puis V1.2 |
-| Tâche en cours | aucune (4.7.2 en relecture, branche `tache/4.7.2-sauvegardes-hors-serveur`, issue #198) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | 4.23, puis 4.25 (santé de la plateforme) ; puis modules (M.1 à M.3) ; V1.2 repoussée |
+| Phase | V1.0 en ligne (2026-10-13) ; reste 4.25 (et les comptes de `A-FAIRE.md` § 9 bis pour 4.7.2) ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`, guide de présentation `docs/guide/presentation-v1.1.pdf`) |
+| Lot | V1.0 (fin : 4.25), puis modules et rôles libres (M.1 à M.3, voir le journal du 2026-10-13), puis V1.2 |
+| Tâche en cours | aucune (4.23 terminée, en relecture) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | 4.25 (santé de la plateforme) ; puis modules (M.1 à M.3) ; V1.2 repoussée |
 | Issue GitHub | #41 pour 6.1 ; #186 pour 4.23 |
-| Branche | `tache/4.7.2-sauvegardes-hors-serveur` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/4.23-mesure-serveur` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-13 |
 
 ## Avancement
@@ -22,9 +22,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production (reste : 4.23, 4.25) | 17 | 19 |
+| Semaine 4 — Rapports, portail, production (reste : 4.25) | 18 | 19 |
 | Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 14 | 14 |
-| **V1.0** | **65** | **67** |
+| **V1.0** | **66** | **67** |
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -53,6 +53,10 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-13 — Tâche 4.23 : mesure sur le vrai serveur
+Fait : espace de démonstration « large » (800 élèves) créé puis supprimé sur `mwangazaschool.com` (aucune école avant ni après). Mesure par le client d'API du serveur, 3 appels chacun : tableau de bord 0,58 à 0,99 s, impayés 0,66 à 0,79 s, résumé 0,70 à 0,90 s.
+Décision : sous 2 s (plus rapide que sur la machine de développement), donc pas d'optimisation, pas de cache ; aucun code changé. Suite : 4.25.
 
 ### 2026-10-13 — Panne urgente : serveur injoignable après la mise en ligne (PR séparée, demande de l'utilisateur)
 Fait : cause probable = construction des images (3 applications `tsc` + Vite en parallèle, puis compilation Go de Caddy) sur 2 Go de RAM **sans swap** : machine figée, SSH compris. Corrigé : swap 2 Go et `sshd` protégé (`preparer.sh`), construction en série (Dockerfile, `COMPOSE_PARALLEL_LIMIT=1`, `nice`), limites de mémoire des conteneurs, `make deploy` refuse sans swap. Documenté : IP statique, 443 en IPv6, conduite à tenir (`A-FAIRE.md` § 9 ter et 12, skill `deployer`).

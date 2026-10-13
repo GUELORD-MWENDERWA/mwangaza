@@ -15,7 +15,7 @@ Dernière mise à jour : 2026-10-13 (tâche 4.7.2 : sauvegardes hors du serveur,
 | 2 | **Brancher les sauvegardes hors du serveur, les alertes et le suivi d'erreurs** : les 7 étapes du [§ 9 bis](#9-bis-brancher-les-sauvegardes-hors-du-serveur-472) (Backblaze B2, Healthchecks, Sentry, UptimeRobot) ; la phrase secrète `BACKUP_PASSPHRASE` est déjà dans `serveur.env`, **la noter aussi hors du serveur** | 45 min | [ ] |
 | 3 | **Garder une copie de `infra/serveur/serveur.env`** en lieu sûr (gestionnaire de mots de passe) | 2 min | [ ] |
 | 4 | **Lire le guide de la version 1.1** (`docs/guide/guide-v1.1.pdf`) et préparer ta présentation (`docs/guide/presentation-v1.1.pdf`) : elle se fait maintenant sur le vrai serveur, dans un espace de démonstration créé depuis la console | 1 h | [ ] |
-| 5 | **Avant la première vraie école** : étapes du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) (tâches 4.7.2 et 4.23) | 1 h | [ ] |
+| 5 | **Avant la première vraie école** : étapes du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) (tâche 4.7.2) | 1 h | [ ] |
 
 Déjà fait : installation de la machine (Docker, `.env`, gettext), décisions (nom, domaine, Q1 à Q11), PR des tâches 0.1 à 4.22, 4.24 et 5.1 à 5.7 ; historique complet : [`docs/06-suivi.md`](docs/06-suivi.md). À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). [Rien à demander à l'ITIG](#8-litig--rien-à-demander).
 
@@ -99,7 +99,7 @@ Après la recette finale (4.21), il ne manque que les achats et la mise en ligne
 | 1 | **Achats et comptes** | [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats) : domaine `mwangazaschool.com`, Cloudflare, serveur, stockage objet, phrase secrète des sauvegardes notée **hors du serveur** | [ ] |
 | 2 | **Vrai domaine** | fait le 2026-10-13 (4.6.3) : `mwangazaschool.com`, AWS Lightsail, `make deploy-check` | [x] |
 | 3 | **Sauvegardes hors du serveur, alertes** | code fait (4.7.2) ; reste le [§ 9 bis](#9-bis-brancher-les-sauvegardes-hors-du-serveur-472), puis `make deploy-backup` : « Copie hors du serveur » s'affiche et le fichier est dans le bucket | [ ] |
-| 4 | **Mesure sur le vrai serveur** | `/tache 4.23` : temps du tableau de bord et des impayés sur le serveur, correction si c'est lent (sur ta machine : 1,3 s et 1,2 s pour 800 élèves) | [ ] |
+| 4 | **Mesure sur le vrai serveur** | fait le 2026-10-13 (4.23) : tableau de bord 0,6 s, impayés 0,7 s pour 800 élèves, rien à corriger | [x] |
 | 5 | **Ton compte super-admin** | créé le 2026-10-13 (`make deploy-superuser`) ; reste : double authentification liée à ton téléphone, codes de secours rangés | [ ] |
 | 6 | **Identité de la plateforme** | console (`https://admin.mwangazaschool.com/`) → Identité : nom, logo, contact du support, mentions légales — les vraies valeurs | [ ] |
 | 7 | **Premier espace réel** | console → Écoles → Nouvelle école → type **Réel** : nom, code (c'est son adresse, `code.mwangazaschool.com` : il ne change plus), premier directeur avec son vrai numéro. Lui remettre l'adresse et son mot de passe provisoire | [ ] |
