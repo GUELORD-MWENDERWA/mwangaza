@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 21:57+0200\n"
+"POT-Creation-Date: 2026-10-13 22:44+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -215,8 +215,8 @@ msgstr "double authentification activée le"
 
 #: apps/accounts/models.py:93 apps/accounts/models.py:169
 #: apps/accounts/models.py:205 apps/notifications/models.py:208
-#: apps/notifications/models.py:255 apps/notifications/models.py:313
-#: apps/notifications/models.py:352 apps/sync/models.py:22
+#: apps/notifications/models.py:255 apps/notifications/models.py:319
+#: apps/notifications/models.py:358 apps/sync/models.py:22
 msgid "account"
 msgstr "compte"
 
@@ -237,7 +237,7 @@ msgid "role"
 msgstr "rôle"
 
 #: apps/accounts/models.py:172 apps/core/models.py:52
-#: apps/notifications/models.py:322 apps/schools/admin.py:59
+#: apps/notifications/models.py:328 apps/schools/admin.py:59
 #: apps/schools/models.py:181 apps/schools/models.py:295
 msgid "school"
 msgstr "école"
@@ -326,7 +326,7 @@ msgstr ""
 "Saisissez un numéro de téléphone valide, par exemple 0971234567 ou "
 "+243971234567."
 
-#: apps/accounts/privileged.py:37
+#: apps/accounts/privileged.py:39
 msgid "This account cannot be used from this network."
 msgstr "Ce compte ne peut pas être utilisé depuis ce réseau."
 
@@ -534,15 +534,15 @@ msgstr ""
 "Un de vos rôles exige la double authentification : elle ne peut pas être "
 "désactivée."
 
-#: apps/accounts/support.py:59
+#: apps/accounts/support.py:60
 msgid "Only the platform support can open a support session."
 msgstr "Seul le support de la plateforme peut ouvrir une session support."
 
-#: apps/accounts/support.py:62
+#: apps/accounts/support.py:63
 msgid "Log in again with two-factor authentication."
 msgstr "Reconnectez-vous avec la double authentification."
 
-#: apps/accounts/support.py:65
+#: apps/accounts/support.py:66
 msgid "No support session is open in this school."
 msgstr "Aucune session support n'est ouverte dans cette école."
 
@@ -1081,7 +1081,7 @@ msgid "after"
 msgstr "après"
 
 #: apps/audit/models.py:71 apps/audit/models.py:137
-#: apps/notifications/models.py:327 apps/sync/models.py:17
+#: apps/notifications/models.py:333 apps/sync/models.py:17
 msgid "browser"
 msgstr "navigateur"
 
@@ -2548,22 +2548,22 @@ msgstr "%(cashier)s · %(amount)s · %(reason)s"
 msgid "Cancellation to approve: %(number)s"
 msgstr "Annulation à valider : %(number)s"
 
-#: apps/notifications/events.py:218
+#: apps/notifications/events.py:219
 #, python-format
 msgid "Sensitive rights: %(person)s"
 msgstr "Droits sensibles : %(person)s"
 
-#: apps/notifications/events.py:219
+#: apps/notifications/events.py:220
 #, python-format
 msgid "Given by %(actor)s: %(rights)s"
 msgstr "Donnés par %(actor)s : %(rights)s"
 
-#: apps/notifications/events.py:239
+#: apps/notifications/events.py:241
 #, python-format
 msgid "Sensitive rights: role %(role)s"
 msgstr "Droits sensibles : rôle %(role)s"
 
-#: apps/notifications/events.py:240
+#: apps/notifications/events.py:242
 #, python-format
 msgid "Added by %(actor)s · accounts with this role: %(count)s · %(rights)s"
 msgstr ""
@@ -2811,7 +2811,7 @@ msgstr "Convocation"
 msgid "Sensitive rights given"
 msgstr "Droits sensibles donnés"
 
-#: apps/notifications/models.py:257 apps/notifications/models.py:315
+#: apps/notifications/models.py:257 apps/notifications/models.py:321
 msgid "app"
 msgstr "application"
 
@@ -2855,23 +2855,27 @@ msgstr "passage du planificateur"
 msgid "scheduled runs"
 msgstr "passages du planificateur"
 
-#: apps/notifications/models.py:324
+#: apps/notifications/models.py:313
+msgid "Platform console"
+msgstr "Console de la plateforme"
+
+#: apps/notifications/models.py:330
 msgid "endpoint"
 msgstr "adresse d'envoi"
 
-#: apps/notifications/models.py:330
+#: apps/notifications/models.py:336
 msgid "push subscription"
 msgstr "abonnement aux notifications"
 
-#: apps/notifications/models.py:331
+#: apps/notifications/models.py:337
 msgid "push subscriptions"
 msgstr "abonnements aux notifications"
 
-#: apps/notifications/models.py:354
+#: apps/notifications/models.py:360
 msgid "muted kinds"
 msgstr "sortes coupées"
 
-#: apps/notifications/models.py:357 apps/notifications/models.py:358
+#: apps/notifications/models.py:363 apps/notifications/models.py:364
 msgid "notification preferences"
 msgstr "préférences de notification"
 
@@ -2905,6 +2909,10 @@ msgid "%(count)d register still open"
 msgid_plural "%(count)d registers still open"
 msgstr[0] "%(count)d caisse encore ouverte"
 msgstr[1] "%(count)d caisses encore ouvertes"
+
+#: apps/notifications/serializers.py:278
+msgid "The address must start with https://."
+msgstr "L'adresse doit commencer par https://."
 
 #: apps/notifications/services.py:61
 msgid "Choose at least one class."
@@ -2982,19 +2990,19 @@ msgstr "Nom :"
 msgid "Signature:"
 msgstr "Signature :"
 
-#: apps/notifications/views.py:59
+#: apps/notifications/views.py:61
 msgid "Not available during a support session."
 msgstr "Indisponible pendant une session support."
 
-#: apps/notifications/views.py:60
+#: apps/notifications/views.py:62
 msgid "This announcement has no attachment."
 msgstr "Cette annonce n'a pas de pièce jointe."
 
-#: apps/notifications/views.py:437 apps/portal/notifications.py:57
+#: apps/notifications/views.py:488 apps/portal/notifications.py:57
 msgid "Notifications are working"
 msgstr "Les notifications fonctionnent"
 
-#: apps/notifications/views.py:438
+#: apps/notifications/views.py:489
 #, python-format
 msgid ""
 "Notifications from %(school)s will appear here, even with the app closed."

@@ -2,6 +2,7 @@ from rest_framework.routers import SimpleRouter
 
 from apps.notifications.views import (
     AnnouncementViewSet,
+    ConsoleAlertViewSet,
     ConsolePlatformAnnouncementViewSet,
     NotificationViewSet,
     PlatformNewsViewSet,
@@ -15,6 +16,7 @@ router.register("announcements", AnnouncementViewSet, basename="announcement")
 router.register(
     "console/announcements", ConsolePlatformAnnouncementViewSet, basename="console-announcement"
 )
+router.register("console/alerts", ConsoleAlertViewSet, basename="console-alert")
 router.register("calendar-events", SchoolEventViewSet, basename="calendar-event")
 router.register("staff-announcements", StaffAnnouncementViewSet, basename="staff-announcement")
 router.register("summons", SummonsViewSet, basename="summons")

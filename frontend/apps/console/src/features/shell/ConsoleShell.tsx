@@ -13,6 +13,7 @@ import { NavLink, Outlet } from "react-router";
 
 import { useMe } from "../../lib/queries";
 import { useLogout } from "../auth/useGoToStep";
+import { useAlertMessages } from "../journal/AlertsCard";
 import { ConsoleTag } from "./ConsoleTag";
 
 // Entrées du menu, ajoutées avec leur tâche.
@@ -32,6 +33,7 @@ export function ConsoleShell() {
   const { t } = useTranslation();
   const { data: me } = useMe();
   const logout = useLogout();
+  useAlertMessages();
   const name = me ? [me.first_name, me.last_name].filter(Boolean).join(" ") : "";
 
   return (

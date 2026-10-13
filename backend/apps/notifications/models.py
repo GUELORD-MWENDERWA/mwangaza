@@ -303,8 +303,14 @@ class ScheduledRun(TenantModel):
 
 class PushSubscription(BaseModel):
     """Navigateur abonné aux notifications sur l'écran d'un compte [G] (Web Push). Gestion :
-    chaque adresse d'école a son service worker, donc son abonnement (`school`) ; Portail : une
-    seule adresse, sans école. Supprimé quand le service de notifications le dit expiré."""
+    chaque adresse d'école a son service worker, donc son abonnement (`school`) ; Portail et
+    console de la plateforme : une seule adresse, sans école. Supprimé quand le service de
+    notifications le dit expiré."""
+
+    # Console (S.3.2) : alertes du super-admin. Pas de centre de notifications, donc pas dans
+    # `Notification.App` : l'alerte renvoie au journal de la console (`console.py`).
+    CONSOLE = "console"
+    APPS = [*Notification.App.choices, (CONSOLE, _("Platform console"))]
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -312,7 +318,7 @@ class PushSubscription(BaseModel):
         related_name="push_subscriptions",
         verbose_name=_("account"),
     )
-    app = models.CharField(_("app"), max_length=10, choices=Notification.App.choices)
+    app = models.CharField(_("app"), max_length=10, choices=APPS)
     school = models.ForeignKey(
         School,
         on_delete=models.CASCADE,
@@ -332,7 +338,7 @@ class PushSubscription(BaseModel):
         constraints = [
             models.CheckConstraint(
                 condition=models.Q(app="gestion", school__isnull=False)
-                | models.Q(app="portail", school__isnull=True),
+                | models.Q(app__in=["portail", "console"], school__isnull=True),
                 name="push_subscription_school_for_gestion",
             )
         ]

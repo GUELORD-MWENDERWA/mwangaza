@@ -3246,6 +3246,24 @@ export const fr = {
       object: "Objet",
       by: "Par",
       none: "Aucune entrée.",
+      alerts: {
+        title: "Alertes sur cet appareil",
+        intro:
+          "Chaque connexion d'un compte super-admin, chaque code refusé et chaque session support ouverte s'affichent sur l'écran de cet appareil, même console fermée et après la déconnexion.",
+        states: {
+          on: "Activées",
+          off: "Désactivées",
+          denied: "Bloquées",
+          unsupported: "Indisponibles",
+        },
+        enable: "Recevoir les alertes sur cet appareil",
+        disable: "Ne plus recevoir",
+        unsupported:
+          "Ce navigateur ne peut pas afficher d'alertes sur l'écran. Sur iPhone : ajoutez d'abord la console à l'écran d'accueil (Partager → « Sur l'écran d'accueil »), puis ouvrez-la depuis cette icône.",
+        denied:
+          "Les notifications sont bloquées pour cette adresse. Autorisez-les dans les réglages du site (le cadenas à gauche de l'adresse), puis rechargez la page.",
+        notConfigured: "Le serveur n'envoie pas encore de notifications sur l'écran.",
+      },
       sessions: {
         search: "École…",
         school: "École",

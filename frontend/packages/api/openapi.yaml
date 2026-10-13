@@ -3248,6 +3248,115 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/console/alerts/:
+    get:
+      operationId: console_alerts_list
+      description: Clé publique pour abonner ce navigateur.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleAlerts'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/alerts/subscribe/:
+    post:
+      operationId: console_alerts_subscribe_create
+      description: Abonner ce navigateur aux alertes de ce compte.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushSubscriptionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PushSubscriptionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PushSubscriptionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/alerts/unsubscribe/:
+    post:
+      operationId: console_alerts_unsubscribe_create
+      description: Ce navigateur ne reçoit plus les alertes.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushUnsubscribeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PushUnsubscribeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PushUnsubscribeRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/console/announcements/:
     get:
       operationId: console_announcements_list
@@ -13168,6 +13277,15 @@ components:
       - status
       - payments
       - today
+    ConsoleAlerts:
+      type: object
+      properties:
+        vapid_public_key:
+          type: string
+          readOnly: true
+          description: 'Clé publique Web Push ; vide : envoi sur l''écran indisponible.'
+      required:
+      - vapid_public_key
     ConsoleAmount:
       type: object
       properties:

@@ -7,7 +7,8 @@ Django, adresse d'une école avant une session support.
   pas dans la console : celui qui a pris le compte ne peut pas l'élargir.
 - **Session courte** : fermée après 2 heures sans activité.
 
-Connexions et refus sont écrits au journal de la plateforme, avec l'adresse IP et le site."""
+Connexions et refus sont écrits au journal de la plateforme, avec l'adresse IP et le site, et
+montrés sur l'écran des super-admin abonnés dans la console (S.3.2, `notifications/console.py`)."""
 
 import ipaddress
 import logging
@@ -23,6 +24,7 @@ from apps.audit import services as audit
 from apps.audit.actions import PlatformAction
 from apps.core.errors import ApiError
 from apps.core.http import client_ip
+from apps.notifications import console
 
 logger = logging.getLogger(__name__)
 
@@ -63,9 +65,10 @@ def address_allowed(request) -> bool:
 
 def record(action: str, user: User, request, **after) -> None:
     """Entrée du journal de la plateforme sur l'usage du compte : qui, depuis quelle adresse IP,
-    sur quel site (console, administration, adresse d'une école)."""
+    sur quel site (console, administration, adresse d'une école) ; alerte aux super-admin."""
     label = " · ".join([str(user), client_ip(request) or "?", request.get_host()])
-    audit.record_platform(action, user, actor=user, after=after or None, label=label)
+    entry = audit.record_platform(action, user, actor=user, after=after or None, label=label)
+    console.alert(action, entry.pk, label)
 
 
 def keep_short(request) -> None:
