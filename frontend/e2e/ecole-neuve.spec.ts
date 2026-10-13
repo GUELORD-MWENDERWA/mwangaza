@@ -123,7 +123,7 @@ test("école neuve de bout en bout : espace créé dans la console, mise en rout
     await expect(mainMenu(head).getByRole("link", { name: "Annonces", exact: true })).toHaveCount(
       0,
     );
-    await expect(mainMenu(head).getByRole("link", { name: "Élèves" })).toBeVisible();
+    await expect(mainMenu(head).getByRole("link", { name: "Élèves", exact: true })).toBeVisible();
 
     // 1 et 2. Année, niveau et classe.
     await setup.getByRole("link", { name: "Créer l'année scolaire : ouvrir l'écran" }).click();
