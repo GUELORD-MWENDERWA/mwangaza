@@ -3584,7 +3584,6 @@ export const en: Messages<typeof fr> = {
     class_in_use: "This class has students: it cannot be deleted.",
     term_in_use: "A removed period is already used.",
     last_role_manager: "This change would leave the school with nobody to manage roles.",
-    system_role: "A predefined role cannot be deleted.",
     role_in_use: "This role is still given to people: remove it from them first.",
     role_name_taken: "The school already has a role with this name.",
     role_name_required: "Give the role a name.",

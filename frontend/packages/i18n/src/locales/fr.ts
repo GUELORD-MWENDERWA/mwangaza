@@ -3619,7 +3619,6 @@ export const fr = {
     class_in_use: "Cette classe a des élèves : elle ne peut pas être supprimée.",
     term_in_use: "Une période retirée est déjà utilisée.",
     last_role_manager: "Ce changement laisserait l'école sans personne pour gérer les rôles.",
-    system_role: "Un rôle prédéfini ne peut pas être supprimé.",
     role_in_use: "Ce rôle est encore donné à des personnes : retirez-le-leur d'abord.",
     role_name_taken: "L'école a déjà un rôle de ce nom.",
     role_name_required: "Donnez un nom au rôle.",
