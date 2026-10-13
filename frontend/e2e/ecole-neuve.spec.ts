@@ -104,6 +104,17 @@ test("école neuve de bout en bout : espace créé dans la console, mise en rout
     await page.getByRole("button", { name: "Créer l'école" }).click();
     await expect(page.getByRole("heading", { name: `École créée : ${SCHOOL}` })).toBeVisible();
     const temporary = await page.locator("code").innerText();
+    // Une école neuve n'a aucun module (M.1) : la plateforme lui donne les trois.
+    await page.getByRole("link", { name: "Voir la fiche" }).click();
+    for (const name of [
+      "Élèves, familles et inscriptions",
+      "Frais, caisse et paiements",
+      "Annonces",
+    ]) {
+      await page.getByRole("checkbox", { name }).check();
+    }
+    await page.getByRole("button", { name: "Enregistrer" }).last().click();
+    await expect(page.getByText("Modules enregistrés.")).toBeVisible();
     allowCodeAgain(ADMIN);
 
     // Directeur : mot de passe provisoire remplacé, double authentification obligatoire, et la
