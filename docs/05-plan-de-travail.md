@@ -36,14 +36,14 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | | **Lancement** (§ 3, § 4, § 4 bis) | | | |
 | 1 | ~~**L.0**~~ ✓ Installer ce plan et remettre les documents d'aplomb | P0 | S | 🤖 |
 | 2 | ~~**L.1**~~ ✓ Clés du serveur (`serveur.env`) : B2, Healthchecks, Sentry, UptimeRobot | P0 | S | 👤 |
-| 3 | **S.1** En-têtes de sécurité et CSP des trois applications (ex-L.3) | P0 | S | 🤖 |
-| 4 | **S.2** Dépendances et secrets surveillés (Dependabot, audit en CI, fuite de secrets) | P0 | S | 🤖 + 👤 |
-| 5 | **M.2.1** Modules : serveur et tâches de fond | P0 | M | 🤖 |
-| 6 | **M.2.2** Modules : écrans | P0 | S à M | 🤖 |
+| 3 | ~~**S.1**~~ ✓ En-têtes de sécurité et CSP des trois applications (ex-L.3) | P0 | S | 🤖 |
+| 4 | ~~**S.2**~~ ✓ Dépendances et secrets surveillés (Dependabot, audit en CI, fuite de secrets) | P0 | S | 🤖 + 👤 |
+| 5 | ~~**M.2.1**~~ ✓ Modules : serveur et tâches de fond | P0 | M | 🤖 |
+| 6 | ~~**M.2.2**~~ ✓ Modules : écrans | P0 | S à M | 🤖 |
 | 7 | **L.2** Restauration réelle depuis B2 | P0 | S | 🤖 + 👤 |
 | 8 | **S.3** Comptes à privilèges : alertes et limites | P0 | S | 🤖 |
 | 9 | **S.4** Fichiers envoyés : logos sans SVG, limites de taille | P0 | S | 🤖 |
-| 10 | **M.3.1** Rôles : codes de rôle remplacés par des permissions | P0 | M | 🤖 |
+| 10 | ~~**M.3.1**~~ ✓ Rôles : codes de rôle remplacés par des permissions | P0 | M | 🤖 |
 | 11 | **M.3.2** Rôles entièrement libres | P0 | M | 🤖 |
 | 12 | **S.5** Base de données : droits minimaux, paiements non effaçables | P0 | S | 🤖 |
 | 13 | **L.4** Essai sur de vrais téléphones et imprimantes | P0 | S | 👤 |
@@ -118,7 +118,7 @@ Décidé le 2026-10-13 : chaque fonction est un module donné par la plateforme 
    - Console : cases des modules à la création, dépendances expliquées.
    - Parcours Playwright « école neuve » : créé avec un choix de modules, vérifier qu'un module absent n'apparaît nulle part.
 
-- [ ] **M.3.1** Rôles — droits déduits des permissions *(P0, M)*
+- [x] **M.3.1** Rôles — droits déduits des permissions *(P0, M)*
    - **Vérifié, inventaire** de ce qui lit un code de rôle aujourd'hui :
      - `schools/services.py:95` : le directeur d'une école créée reçoit le rôle `head` (code).
      - `gestion/src/features/guide/guides.ts:62` : le guide de première connexion est choisi par les codes `cashier` / `accountant`.
@@ -130,6 +130,7 @@ Décidé le 2026-10-13 : chaque fonction est un module donné par la plateforme 
      - Déjà correct : les notifications au personnel visent une permission (`notifications/events.py:61`), pas un rôle.
    - Remplacer chaque usage par une permission (guide choisi selon les permissions détenues, filtre du journal par rôle de l'école, rôle du directeur pris dans le modèle de départ).
    - Aucun changement visible pour les écoles existantes : tests avant / après.
+   - **Fait** : premier directeur = premier rôle de départ qui a `roles.manage` ; guide et note de l'écran des rôles d'après les droits ; journal : nom du rôle de l'école donné par le serveur (`role_code` retiré de l'API) ; appareils fictifs portés par le compte fictif. **Reste pour M.3.2** (le code ne sert plus qu'à cela) : `Role.code`, `is_system` et leurs contraintes, nom traduit depuis le code (`gestion/src/lib/people.ts`), rôles système remis à zéro par `make demo` (`accounts/demo.py`).
 
 - [ ] **M.3.2** Rôles entièrement libres *(P0, M)*
    - Plus de rôle système ni de code de rôle ; un **modèle de départ** modifiable proposé à la création d'une école (les 9 rôles actuels comme suggestion).

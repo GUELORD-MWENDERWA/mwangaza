@@ -8,8 +8,8 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | **M.3.1** — rôles : droits déduits des permissions (plan : `claude/plans/tache-M.3.1.md`) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | M.3.2 — voir la file (`05` § 2) |
+| Tâche en cours | aucune (M.3.1 faite, PR de la branche `tache/M.3.1-roles-permissions`, issue #219) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | M.3.2 (suite directe des rôles) ; restent aussi L.2, S.3 et S.4 avant elle dans la file (`05` § 2) |
 | Issue GitHub | #219 |
 | Branche | `tache/M.3.1-roles-permissions` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-13 |
@@ -27,7 +27,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | **V1.0** | **67** | **67** |
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
 | Lancement (L.0 à L.5 ; L.3 remplacée par S.1 et S.2) | 3 | 5 |
-| Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 3 | 5 |
+| Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 4 | 5 |
 | Sécurité (S.1 à S.9) | 2 | 9 |
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1–8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 0 | 9 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
@@ -61,6 +61,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-13 — Tâche M.3.1 : rôles, droits déduits des permissions
+- Plus aucune décision d'après un code de rôle : le premier directeur reçoit le premier rôle de départ qui a `roles.manage` ; le guide de première connexion suit les droits (comptable : règle les frais sans régler l'école ; caisse : encaisse) ; la note « parent » de l'écran des rôles devient une note pour tout rôle sans permission.
+- Journal : le serveur donne le nom du rôle de l'école quand l'entrée n'en a pas (une lecture des rôles par page) ; `role_code` retiré de l'API. Appareils fictifs portés par le compte fictif (`DemoAccount.device`).
+- Tests : directeur choisi par la permission (modèle de départ modifié), guide identique pour les rôles de départ et donné à un rôle propre à l'école, nom du rôle jamais pris dans une autre école, appareils fictifs sans doublon.
+- Écarts assumés : un compte à la fois directeur et comptable voit le guide de la caisse ; une ancienne entrée du journal d'un rôle renommé depuis montre son nom d'aujourd'hui. Suite : M.3.2 (retirer `Role.code` et les rôles système).
 
 ### 2026-10-13 — Tâche M.2.2 : modules, écrans
 - Menu de la Gestion : déjà piloté par les permissions de `/me` (modules absents exclus), prouvé par un test ; `/me` rend aussi `modules` : message « Aucun module activé » à l'accueil, mise en route limitée aux modules actifs (`setup.py`).
