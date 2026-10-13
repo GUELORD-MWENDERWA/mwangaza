@@ -103,22 +103,21 @@ def test_a_demo_school_is_deleted_entirely_and_the_other_school_keeps_every_row(
     School.objects.filter(pk=itig.pk).update(status=School.Status.DELETING)
     assert refused_by_the_database(DELETE_PAYMENTS, itig)
     assert Payment.all_schools.filter(school=itig).count() == kept["finance.Payment"]
-    # Les comptes restent (auteurs du journal) ; désactivés s'ils n'avaient que cet espace.
-    assert User.objects.count() == users
-    for user in (teacher, volcans_head, platform_admin):
+    # Les comptes fictifs qui n'avaient que cet espace sont supprimés avec lui : rien ne reste à
+    # côté des vraies données. Ceux d'un autre espace et le super-admin restent.
+    assert not User.objects.filter(pk=volcans_head.pk).exists()
+    assert not User.objects.filter(is_active=False).exists()
+    assert User.objects.count() < users
+    for user in (teacher, platform_admin):
         user.refresh_from_db()
-    assert (teacher.is_active, volcans_head.is_active, platform_admin.is_active) == (
-        True,
-        False,
-        True,
-    )
+        assert user.is_active
     log = PlatformAuditLog.objects.get(action="school.deleted")
     assert (log.actor, log.entity_id, log.before["code"]) == (
         platform_admin,
         str(volcans.pk),
         "volcans",
     )
-    assert log.after == {"accounts_deactivated": User.objects.filter(is_active=False).count()}
+    assert log.after["accounts_deactivated"] > 0
 
 
 def test_a_space_being_deleted_is_closed_and_cannot_be_changed_but_the_deletion_can_be_relaunched(

@@ -18,6 +18,7 @@ from django.db.models import Q, QuerySet
 from django.utils import timezone
 
 from apps.accounts.models import Membership, User
+from apps.accounts.phone import DEMO_PHONE_PREFIX
 from apps.core.models import TenantModel
 from apps.notifications.models import PushSubscription
 from apps.schools.models import Demonstration, School
@@ -155,9 +156,10 @@ def only_one(*, wait: bool = False) -> Iterator[bool]:
 
 
 def deactivate_accounts_left_without_school(school: School) -> int:
-    """Personnel et parents qui n'avaient que cet espace : comptes désactivés, jamais supprimés
-    (ils restent les auteurs du journal de la plateforme). Un super-admin garde le sien. Avant
-    d'effacer quoi que ce soit : rien à rejouer après une panne."""
+    """Personnel et parents qui n'avaient que cet espace : comptes désactivés (les vrais comptes
+    ne sont jamais supprimés : ils restent les auteurs du journal ; les comptes fictifs d'une
+    démonstration, eux, sont effacés ensuite par `purge_orphan_demo_accounts`). Un super-admin
+    garde le sien. Avant d'effacer quoi que ce soit : rien à rejouer après une panne."""
     staff = Membership.objects.filter(school=school).values("user")
     parents = Family.all_schools.filter(school=school, primary_user__isnull=False)
     staff_elsewhere = Membership.objects.exclude(school=school).values("user")
@@ -172,6 +174,33 @@ def deactivate_accounts_left_without_school(school: School) -> int:
         .exclude(pk__in=parents_elsewhere.values("primary_user"))
         .update(is_active=False, updated_at=timezone.now())
     )
+
+
+def purge_orphan_demo_accounts() -> int:
+    """Supprime les comptes fictifs (numéros `+243 0…`, plage réservée aux démonstrations) que plus
+    aucune école n'emploie : un espace de démonstration effacé ne laisse rien à côté des vraies
+    données. Un compte que la base protège encore (auteur d'une ligne gardée) reste désactivé."""
+    left = (
+        User.objects.filter(
+            phone__startswith=DEMO_PHONE_PREFIX,
+            is_active=False,
+            is_platform_admin=False,
+            memberships__isnull=True,
+        )
+        .exclude(
+            pk__in=Family.all_schools.filter(primary_user__isnull=False).values("primary_user")
+        )
+        .distinct()
+    )
+    deleted = 0
+    for user in left:
+        try:
+            with transaction.atomic():
+                user.delete()
+        except models.ProtectedError:
+            continue
+        deleted += 1
+    return deleted
 
 
 def run(school_id: str, *, then: Callable[[School], None] | None = None) -> None:
@@ -201,6 +230,7 @@ def run(school_id: str, *, then: Callable[[School], None] | None = None) -> None
             # Par Django cette fois : `PROTECT` refuse si une ligne de l'école avait échappé au
             # plan.
             mine.delete()
+            purge_orphan_demo_accounts()
             if then is not None:
                 then(school)
         logger.info("Espace %s supprimé : %d lignes", school.code, total)

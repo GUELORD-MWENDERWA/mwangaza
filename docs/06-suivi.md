@@ -59,6 +59,7 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 - Fait : catalogue `accounts/modules.py` (élèves, finance, communication ; socle toujours actif), `School.modules` (migration 0012 : écoles existantes = tous), droits d'un module absent retirés au seul point `get_school_access` (donc 403 partout et `/me`), carte « Fonctions de l'école » sur la fiche école de la console (journal de la plateforme).
 - Tests : 3 serveur (module absent = 403 puis retour sans rien perdre, seul le super-admin les donne, école voisine intacte, journal), 1 écran ; accounts et schools verts (563).
 - Décisions : école neuve = 0 module, démonstrations = tous ; `portal`, `notifications`, `offline` viennent avec M.2 (ils n'ont pas de permission).
+- Corrigé dans la PR (remarque de l'utilisateur) : les comptes fictifs d'un espace de démonstration effacé restaient « Désactivé » dans la liste des comptes ; ils sont maintenant supprimés avec l'espace (+ migration `accounts` 0006 pour ceux déjà là).
 - Suite : M.2, puis M.3. En ligne : `make deploy` (la migration donne tous les modules aux écoles réelles).
 
 ### 2026-10-13 — Tâche 4.25 : santé de la plateforme dans la console
