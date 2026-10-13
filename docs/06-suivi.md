@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (S.2 terminée, en relecture) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | L.1 (👤 clés du serveur), M.2.1 — voir la file (`05` § 2) |
-| Issue GitHub | #211 pour S.2 |
-| Branche | `tache/S.2-dependances` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune (L.1 faite) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | L.2 (restauration réelle depuis B2), M.2.1 — voir la file (`05` § 2) |
+| Issue GitHub | aucune |
+| Branche | `tache/L.1-cles-serveur` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-13 |
 
 ## Avancement
@@ -26,7 +26,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 14 | 14 |
 | **V1.0** | **67** | **67** |
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
-| Lancement (L.0 à L.5 ; L.3 remplacée par S.1 et S.2) | 1 | 5 |
+| Lancement (L.0 à L.5 ; L.3 remplacée par S.1 et S.2) | 2 | 5 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 1 | 5 |
 | Sécurité (S.1 à S.9) | 2 | 9 |
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1–8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 0 | 9 |
@@ -61,6 +61,13 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-13 — Tâche L.1 : clés du serveur
+
+- Fait par l'utilisateur : `serveur.env` rempli (Cloudflare, B2 `mwangaza-sauvegardes-2026`, Healthchecks, Sentry).
+- Vérifié : `make deploy-check` vert (3 adresses, santé ok) ; `make deploy-backup` : « Copie hors du serveur : b2:… (2 sauvegardes) ».
+- Non vérifié ici : moniteur UptimeRobot, copie des clés hors du serveur (👤).
+- Suite : L.2 (restauration réelle depuis B2).
 
 ### 2026-10-13 — Tâche S.2 : dépendances et secrets surveillés
 - Fait : `.github/dependabot.yml` (uv, pnpm, Docker, Actions ; PR groupées chaque lundi) ; `.github/workflows/audit.yml` (`pip-audit` par `uvx`, `pnpm audit --prod --audit-level high`) ; `A-FAIRE.md` § 9 septies : copie de `serveur.env` et changement de chaque clé.
