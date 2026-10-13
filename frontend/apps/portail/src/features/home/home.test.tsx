@@ -9,6 +9,7 @@ const VOLCANS = {
   school_name: "C.S. Les Volcans",
   school_timezone: "Africa/Lubumbashi",
   school_environment: "live",
+  school_modules: ["students", "finance", "communication", "portal"],
   status: "suspended",
   children: [],
 };
@@ -43,6 +44,18 @@ describe("accueil du portail", () => {
     });
     renderApp("/");
     expect(await screen.findByText("Démonstration — données fictives")).toBeTruthy();
+  });
+
+  it("le menu ne propose que ce que l'école a : sans frais ni annonces, ni Paiements ni Annonces", async () => {
+    mockApi({
+      "GET /api/portal/me/": ACCOUNT,
+      "GET /api/portal/families/": [{ ...ITIG, school_modules: ["students", "portal"] }],
+    });
+    renderApp("/");
+    await screen.findByText("KASEREKA Muhindo Jean");
+    expect(screen.getByRole("link", { name: "Calendrier" })).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "Paiements" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Annonces" })).toBeNull();
   });
 
   it("ajouter une autre école : le code envoyé, l'erreur du serveur traduite", async () => {

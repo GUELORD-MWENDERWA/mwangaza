@@ -119,14 +119,21 @@ function PortalNav({ childId }: { childId?: string }) {
   const families = useFamilies();
   const first = families.data?.find((family) => family.status === "active")?.children[0];
   const payments = childId ?? first?.id;
+  // Une entrée n'apparaît que si une école de la famille a le module (M.2.2).
+  const offered = (module: "finance" | "communication") =>
+    families.data?.some(
+      (family) => family.status === "active" && family.school_modules.includes(module),
+    ) ?? false;
   const items: { to: string; icon: IconName; label: string }[] = [
     { to: "/", icon: "home", label: t("portal.nav.home") },
   ];
-  if (payments) {
+  if (payments && offered("finance")) {
     items.push({ to: `/children/${payments}`, icon: "card", label: t("portal.nav.payments") });
   }
   // La cloche est celle des notifications (en-tête) : les annonces ont le porte-voix.
-  items.push({ to: "/announcements", icon: "megaphone", label: t("portal.nav.announcements") });
+  if (offered("communication")) {
+    items.push({ to: "/announcements", icon: "megaphone", label: t("portal.nav.announcements") });
+  }
   items.push({ to: "/calendar", icon: "calendar", label: t("portal.nav.calendar") });
   items.push({ to: "/profile", icon: "user", label: t("portal.nav.profile") });
 

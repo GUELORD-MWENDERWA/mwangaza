@@ -62,6 +62,8 @@ describe("Écoles de la console", () => {
     await user.type(screen.getByLabelText("Code (adresse)"), "admin");
     await user.type(screen.getByLabelText("Téléphone"), "0000003001");
     await user.type(headName!, "Kasereka");
+    // Les six modules sont cochés d'office ; retirer les élèves retire ce qui en dépend.
+    await user.click(screen.getByRole("checkbox", { name: "Élèves, familles et inscriptions" }));
     await user.click(screen.getByRole("button", { name: "Créer l'école" }));
 
     // Refus du serveur placé sous le champ.
@@ -73,6 +75,7 @@ describe("Écoles de la console", () => {
       status: "trial",
       paid_until: null,
       enabled_currencies: ["USD", "CDF"],
+      modules: ["communication", "notifications", "offline"],
       head: { phone: "0000003001", last_name: "Kasereka" },
     });
 

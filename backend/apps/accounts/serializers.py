@@ -8,6 +8,7 @@ from rest_framework.fields import get_error_detail
 from apps.accounts import services
 from apps.accounts.login import Step
 from apps.accounts.models import Membership, Role, User
+from apps.accounts.modules import MODULE_CHOICES
 from apps.accounts.phone import INVALID_PHONE_MESSAGE, InvalidPhoneError, normalize_phone
 from apps.accounts.roles import PERMISSION_CHOICES, SYSTEM_ROLES, TOTP_PERMISSIONS
 from apps.schools.models import School
@@ -218,6 +219,10 @@ class CurrentSchoolAccessSerializer(serializers.Serializer):
     name = serializers.CharField()
     roles = RoleSummarySerializer(many=True)
     permissions = serializers.ListField(child=serializers.ChoiceField(choices=PERMISSION_CHOICES))
+    modules = serializers.ListField(
+        child=serializers.ChoiceField(choices=MODULE_CHOICES),
+        help_text="Fonctions que la plateforme a données à l'école (M.1) ; vide : aucune.",
+    )
 
 
 class SupportSessionSerializer(serializers.Serializer):

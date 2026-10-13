@@ -101,23 +101,12 @@ test("école neuve de bout en bout : espace créé dans la console, mise en rout
     await page.locator("#head-phone").fill(HEAD);
     await page.locator("#head-last_name").fill("Bahati");
     await page.locator("#head-first_name").fill("Espérance");
+    // Les modules se choisissent à la création (M.2.2) : les six sont cochés d'office, on retire
+    // les annonces pour vérifier qu'un module absent n'apparaît nulle part (menu du directeur).
+    await page.getByRole("checkbox", { name: "Annonces" }).uncheck();
     await page.getByRole("button", { name: "Créer l'école" }).click();
     await expect(page.getByRole("heading", { name: `École créée : ${SCHOOL}` })).toBeVisible();
     const temporary = await page.locator("code").innerText();
-    // Une école neuve n'a aucun module (M.1) : la plateforme lui donne les six (M.2.1).
-    await page.getByRole("link", { name: "Voir la fiche" }).click();
-    for (const name of [
-      "Élèves, familles et inscriptions",
-      "Frais, caisse et paiements",
-      "Annonces",
-      "Portail des parents",
-      "Notifications et relances",
-      "Travail hors-ligne et synchronisation",
-    ]) {
-      await page.getByRole("checkbox", { name }).check();
-    }
-    await page.getByRole("button", { name: "Enregistrer" }).last().click();
-    await expect(page.getByText("Modules enregistrés.")).toBeVisible();
     allowCodeAgain(ADMIN);
 
     // Directeur : mot de passe provisoire remplacé, double authentification obligatoire, et la
@@ -131,6 +120,10 @@ test("école neuve de bout en bout : espace créé dans la console, mise en rout
       has: head.getByRole("heading", { name: "Mise en route" }),
     });
     await expect(setup.getByText("0 / 6 étapes")).toBeVisible();
+    await expect(mainMenu(head).getByRole("link", { name: "Annonces", exact: true })).toHaveCount(
+      0,
+    );
+    await expect(mainMenu(head).getByRole("link", { name: "Élèves", exact: true })).toBeVisible();
 
     // 1 et 2. Année, niveau et classe.
     await setup.getByRole("link", { name: "Créer l'année scolaire : ouvrir l'écran" }).click();

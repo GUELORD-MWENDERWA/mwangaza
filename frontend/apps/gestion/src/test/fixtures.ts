@@ -3,6 +3,15 @@ import type { Schemas } from "@mwangaza/api";
 
 import type { Permission } from "../lib/permissions";
 
+const ALL_MODULES: Schemas["ModulesEnum"][] = [
+  "students",
+  "finance",
+  "communication",
+  "portal",
+  "notifications",
+  "offline",
+];
+
 export const school: Schemas["CurrentSchool"] = {
   code: "alpha",
   name: "École Alpha (fictive)",
@@ -105,6 +114,7 @@ export function me(code: Role = "head", overrides: Partial<Schemas["Me"]> = {}):
       name: school.name,
       roles: [role(code)],
       permissions: PERMISSIONS[code],
+      modules: ALL_MODULES,
     },
     support: null,
     ...overrides,

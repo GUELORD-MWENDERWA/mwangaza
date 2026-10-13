@@ -14392,11 +14392,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PermissionsEnum'
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModulesEnum'
+          description: 'Fonctions que la plateforme a données à l''école (M.1) ; vide
+            : aucune.'
       required:
       - code
       - name
       - roles
       - permissions
+      - modules
     CycleEnum:
       enum:
       - primary
@@ -16216,6 +16223,12 @@ components:
             * `live` - Live
             * `test` - Sandbox
             * `demo` - Demonstration
+        school_modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModulesEnum'
+          description: 'Fonctions de l''école : le Portail cache celles qu''elle n''a
+            pas.'
         status:
           $ref: '#/components/schemas/LinkedFamilyStatusEnum'
         children:
@@ -16227,6 +16240,7 @@ components:
       - school_name
       - school_timezone
       - school_environment
+      - school_modules
       - status
       - children
     LinkedFamilyStatusEnum:

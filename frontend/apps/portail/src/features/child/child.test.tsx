@@ -30,6 +30,7 @@ const CHILD = {
   school_name: "ITIG Don Bosco Goma",
   school_timezone: "Africa/Lubumbashi",
   school_environment: "live",
+  school_modules: ["students", "finance", "communication", "portal"],
   photo: null,
   balance: {
     situation: "partial",

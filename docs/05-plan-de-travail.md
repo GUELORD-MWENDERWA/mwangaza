@@ -111,7 +111,7 @@ Décidé le 2026-10-13 : chaque fonction est un module donné par la plateforme 
    - Création d'une école (console) : modules choisis à la création.
    - Tests : une école sans chaque module → 403 côté API, tâche de fond qui la saute, isolation entre écoles.
 
-- [ ] **M.2.2** Modules — écrans *(P0, S à M)*
+- [x] **M.2.2** Modules — écrans *(P0, S à M)*
    - **Vérifié** : les droits d'un module absent sont déjà retirés de `/me` (`get_school_access`), et le menu de la Gestion suit les permissions depuis la 1.6. Le menu cache donc probablement déjà ces écrans (à confirmer par un test), ce qui rend la tâche plus petite que prévu.
    - Menu de la Gestion et du Portail piloté par `/me` (modules et droits), jamais par le nom du rôle.
    - Message « Aucun module activé — contactez le support » pour une école neuve sans module ; liste de mise en route (4.20.1) limitée aux modules actifs.

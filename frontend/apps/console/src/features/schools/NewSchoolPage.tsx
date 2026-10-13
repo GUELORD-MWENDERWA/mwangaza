@@ -31,6 +31,7 @@ import { z } from "zod";
 
 import { keys } from "../../lib/queries";
 import { NewDemoSpace } from "./Demonstration";
+import { MODULES, ModuleChoices } from "./ModulesCard";
 import {
   IdentityFields,
   KINDS,
@@ -62,6 +63,7 @@ function useSchema() {
         .array(z.enum(CURRENCIES))
         .min(1, t("console.schools.fields.noCurrency")),
       default_currency: z.enum(CURRENCIES),
+      modules: z.array(z.enum(MODULES)),
       head: z.object({
         phone: z.string().trim().min(1, t("fieldErrors.required")),
         last_name: z.string().trim().max(100),
@@ -96,6 +98,7 @@ export function NewSchoolPage() {
       paid_until: "",
       enabled_currencies: [...CURRENCIES],
       default_currency: CURRENCIES[0],
+      modules: [...MODULES],
       head: { phone: "", last_name: "", middle_name: "", first_name: "" },
     },
   });
@@ -121,6 +124,7 @@ export function NewSchoolPage() {
             "environment",
             "enabled_currencies",
             "default_currency",
+            "modules",
             ...HEAD_FIELDS.map((name) => `head.${name}` as const),
           ],
           form.setError,
@@ -263,6 +267,21 @@ export function NewSchoolPage() {
               {head("last_name", t("console.schools.head.lastNameHelp"))}
               {head("middle_name")}
               {head("first_name")}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("console.schools.modulesTitle")}</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-3">
+              <p className="text-[.9rem] text-ink-3">{t("console.schools.modulesCreateHelp")}</p>
+              <Controller
+                control={form.control}
+                name="modules"
+                render={({ field }) => (
+                  <ModuleChoices chosen={field.value} onChange={field.onChange} />
+                )}
+              />
             </CardContent>
           </Card>
           <Card>

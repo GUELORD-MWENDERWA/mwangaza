@@ -14,6 +14,24 @@ const mainMenu = async () =>
   within((await screen.findAllByRole("navigation", { name: "Menu principal" }))[0]!);
 
 describe("coquille et menu (M7)", () => {
+  it("école sans module : message d'accueil, et aucune entrée d'un module absent (M.2.2)", async () => {
+    const head = me("head");
+    mockApi(
+      loggedIn({
+        ...head,
+        school: { ...head.school!, permissions: ["school.configure"], modules: [] },
+      }),
+    );
+    renderApp("/");
+
+    expect(await screen.findByText(/Aucun module activé/)).toBeTruthy();
+    const menu = await mainMenu();
+    expect(menu.getByRole("link", { name: "Paramètres de l'école" })).toBeTruthy();
+    for (const name of ["Élèves", "Caisse", "Annonces"]) {
+      expect(menu.queryByRole("link", { name })).toBeNull();
+    }
+  });
+
   it("menu filtré par les droits du compte dans l'école", async () => {
     mockApi(loggedIn(me("cashier")));
     renderApp("/");
