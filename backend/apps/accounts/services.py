@@ -26,6 +26,7 @@ from apps.accounts.models import Membership, RecoveryCode, Role, User
 from apps.accounts.phone import demo_block, is_demo_phone, normalize_phone
 from apps.accounts.roles import (
     ROLES_MANAGE,
+    SENSITIVE_PERMISSIONS,
     STARTER_ROLES,
     TOTP_PERMISSIONS,
     sorted_permissions,
@@ -36,6 +37,7 @@ from apps.audit.actions import Action, PlatformAction
 from apps.core.crypto import DecryptionError, decrypt, encrypt
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import CrossSchoolError, require_current_school, use_school
+from apps.notifications import events
 from apps.schools.models import Demonstration, School
 
 logger = logging.getLogger(__name__)
@@ -206,6 +208,16 @@ def _role_summaries(roles: Iterable[Role]) -> list[dict]:
     return [_role_summary(role) for role in sorted(roles, key=lambda role: role.pk)]
 
 
+def _sensitive(roles: Iterable[Role]) -> set[str]:
+    return {code for role in roles for code in role.permissions} & SENSITIVE_PERMISSIONS
+
+
+def _sensitive_rights(membership: Membership) -> set[str]:
+    """Droits sensibles que la personne a vraiment dans l'école : aucun si elle y est
+    désactivée."""
+    return _sensitive(membership.roles.all()) if membership.is_active else set()
+
+
 def create_role(*, actor: User, name: str, permissions: Iterable[str]) -> Role:
     """Nouveau rôle de l'école courante (B2), ex. « Chef d'atelier »."""
     require_current_school()
@@ -241,6 +253,8 @@ def update_role(
             audit.record(
                 Action.ROLES_UPDATED, role, actor=actor, before=old, after=new, label=role.name
             )
+            added = set(new.get("permissions", ())) - set(before["permissions"])
+            events.role_rights_added(role, added & SENSITIVE_PERMISSIONS, actor=actor)
     return role
 
 
@@ -319,6 +333,7 @@ def add_staff_member(
             actor=actor,
             after={"roles": _role_summaries(roles), "new_account": temporary_password is not None},
         )
+        events.sensitive_rights_given(user, _sensitive(roles), actor=actor)
     return membership, temporary_password
 
 
@@ -373,6 +388,7 @@ def update_staff_member(
     if membership.school_id != school.pk:
         raise CrossSchoolError("Appartenance d'une autre école que l'école courante.")
     with transaction.atomic(), _keeping_a_role_manager(school):
+        had = _sensitive_rights(membership)
         if account:
             user = _account_of(membership)
             before = {field: getattr(user, field) for field in account}
@@ -399,6 +415,8 @@ def update_staff_member(
             membership.save(update_fields=["is_active", "updated_at"])
             action = Action.STAFF_REACTIVATED if is_active else Action.STAFF_DEACTIVATED
             _audit_staff(action, membership, actor=actor)
+        gained = _sensitive_rights(membership) - had
+        events.sensitive_rights_given(membership.user, gained, actor=actor)
     return membership
 
 

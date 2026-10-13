@@ -2757,6 +2757,7 @@ export const fr = {
       register_open: "Caisse encore ouverte",
       staff_announcement: "Annonces au personnel",
       summons: "Convocation",
+      sensitive_rights: "Droits sensibles",
     },
     kindHelp: {
       test: "Pour vérifier que cet appareil les reçoit.",
@@ -2770,6 +2771,7 @@ export const fr = {
       register_open: "Une caisse est encore ouverte à l'heure de clôture de l'école",
       staff_announcement: "Dès que l'école publie une annonce pour son personnel",
       summons: "Dès que l'école vous convoque pour un de vos enfants",
+      sensitive_rights: "Un compte reçoit le droit de gérer les rôles ou un droit sur l'argent",
     },
     kindsTitle: "Que recevoir sur l'écran",
     kindsHelp: "Vaut pour toutes vos écoles. Une sorte coupée reste dans la liste.",
@@ -3234,6 +3236,7 @@ export const fr = {
         account: "Comptes",
         device: "Appareils",
         announcement: "Annonces",
+        access: "Accès du super-admin",
       },
       since: "Du",
       until: "Au",
@@ -3275,6 +3278,9 @@ export const fr = {
       "device.revoked": "Appareil déconnecté par le support",
       "announcement.published": "Annonce aux écoles publiée",
       "announcement.archived": "Annonce aux écoles archivée",
+      "access.login": "Connexion du super-admin",
+      "access.code_refused": "Code de double authentification refusé",
+      "access.address_refused": "Refusé : adresse non autorisée",
     },
   },
   installGate: {

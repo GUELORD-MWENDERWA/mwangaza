@@ -37,6 +37,11 @@ PERMISSIONS: dict[str, Promise] = {
     "audit.view": _("View the audit log"),
 }
 PERMISSION_CHOICES = list(PERMISSIONS.items())
+# Droits sensibles (S.3.1) : les rôles et l'argent. L'école est prévenue quand un compte en reçoit
+# un (`notifications/events.py`).
+SENSITIVE_PERMISSIONS = frozenset(
+    code for code in PERMISSIONS if code == "roles.manage" or code.startswith("finance.")
+)
 
 # Paramètres de l'école : nom, logo, couleur, devises, fuseau (M5).
 SCHOOL_CONFIGURE = "school.configure"
