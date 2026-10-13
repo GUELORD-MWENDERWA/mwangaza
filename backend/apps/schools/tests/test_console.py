@@ -7,6 +7,7 @@ from datetime import timedelta
 
 import pytest
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
 from apps.accounts.login import TRUSTED_DEVICE_COOKIE
 from apps.core import health
@@ -14,6 +15,7 @@ from apps.core.tenancy import use_school
 from apps.finance import services
 from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.schools.models import School
+from apps.sync.models import Device
 from tests.factories import TEST_PASSWORD, MembershipFactory, enable_totp, totp_code
 
 pytestmark = pytest.mark.django_db
@@ -40,6 +42,8 @@ def test_dashboard_counts_every_school_and_today_payments_by_currency(
     # Redis et le disque de la machine de test ne comptent pas (CI : disque presque plein).
     monkeypatch.setattr(health, "_redis_latency", lambda: 1)
     monkeypatch.setattr(health, "_disk_free_percent", lambda: 50)
+    monkeypatch.setattr(health, "_memory_free_percent", lambda: 50)
+    monkeypatch.setattr(health, "_swap_used_percent", lambda: 0)
     alpha = school_with_fees(school, head)
     beta = school_with_fees(other_school, other_head)
     beta_cashier = MembershipFactory(school=other_school, roles=["cashier"]).user
@@ -80,6 +84,8 @@ def test_dashboard_leaves_out_sandbox_and_demonstration_spaces(
 ):
     monkeypatch.setattr(health, "_redis_latency", lambda: 1)
     monkeypatch.setattr(health, "_disk_free_percent", lambda: 50)
+    monkeypatch.setattr(health, "_memory_free_percent", lambda: 50)
+    monkeypatch.setattr(health, "_swap_used_percent", lambda: 0)
     beta = school_with_fees(other_school, other_head)
     beta_cashier = MembershipFactory(school=other_school, roles=["cashier"]).user
     pay(other_school, beta_cashier, beta["enrollment"], 5000, "USD")
@@ -124,3 +130,82 @@ def test_health_reports_a_broken_redis(monkeypatch):
 
     assert report["status"] == "error"
     assert {c["name"]: c["status"] for c in report["checks"]}["redis"] == "error"
+
+
+@pytest.mark.parametrize(
+    ("free", "swap_used", "memory", "swap"),
+    [(50, 0, "ok", "ok"), (14, 60, "warning", "warning"), (6, 90, "error", "error")],
+    ids=["ok", "low", "critical"],
+)
+def test_health_judges_available_memory_and_swap(monkeypatch, free, swap_used, memory, swap):
+    monkeypatch.setattr(health, "_memory_free_percent", lambda: free)
+    monkeypatch.setattr(health, "_swap_used_percent", lambda: swap_used)
+    checks = {c["name"]: c["status"] for c in health.report()["checks"]}
+
+    assert (checks["memory"], checks["swap"]) == (memory, swap)
+
+
+def test_platform_health_never_calls_a_missing_backup_good(monkeypatch, settings):
+    settings.CELERY_TASK_ALWAYS_EAGER = False
+    now = timezone.now()
+    marks = {}
+    monkeypatch.setattr(health, "_redis", lambda: FakeRedis(marks))
+
+    nothing = health.platform(now)
+    assert (nothing["backup"]["status"], nothing["backup"]["copied_status"]) == ("error", "off")
+    assert nothing["scheduler"]["status"] == "error"
+
+    marks[health.TICK_KEY] = str(int((now - timedelta(minutes=10)).timestamp()))
+    marks[health.BACKUP_KEYS["done_at"]] = str(int((now - timedelta(hours=8)).timestamp()))
+    marks[health.BACKUP_KEYS["copied_at"]] = str(int((now - timedelta(hours=40)).timestamp()))
+    fresh = health.platform(now)
+    assert fresh["scheduler"] == {
+        "status": "ok",
+        "last_tick_at": fresh["scheduler"]["last_tick_at"],
+        "queue_size": 3,
+    }
+    assert (fresh["backup"]["status"], fresh["backup"]["copied_status"]) == ("ok", "warning")
+
+
+class FakeRedis:
+    def __init__(self, marks):
+        self.marks = marks
+
+    def get(self, key):
+        return self.marks.get(key)
+
+    def llen(self, key):
+        return 3
+
+    def close(self):
+        pass
+
+
+def test_dashboard_lists_last_sync_of_real_schools_only(
+    api, platform_admin, school, other_school, head, other_head, monkeypatch
+):
+    monkeypatch.setattr(health, "_redis", lambda: FakeRedis({}))
+    now = timezone.now()
+    School.objects.filter(pk=other_school.pk).update(environment=School.Environment.DEMO)
+    with use_school(school):
+        Device.objects.create(user=head, label="PC", prefix="P1", public_key="x", last_seen_at=now)
+        Device.objects.create(
+            user=head,
+            label="Vieux",
+            prefix="P2",
+            public_key="x",
+            last_seen_at=now + timedelta(days=1),
+            revoked_at=now,
+        )
+    with use_school(other_school):
+        Device.objects.create(
+            user=other_head, label="PC", prefix="P1", public_key="x", last_seen_at=now
+        )
+
+    syncs = api(platform_admin, host=CONSOLE).get(DASHBOARD).json()["platform"]["syncs"]
+
+    # L'espace de démonstration n'y est pas ; l'appareil révoqué ne compte pas.
+    assert [(row["code"], row["last_sync_at"] is not None) for row in syncs] == [
+        (school.code, True)
+    ]
+    assert parse_datetime(syncs[0]["last_sync_at"]) == now

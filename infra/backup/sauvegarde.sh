@@ -115,6 +115,13 @@ rapatrier() {
   done
 }
 
+# Heure de la dernière sauvegarde (done) et de la dernière copie hors du serveur (copied), notée
+# dans Redis pour la console de la plateforme (4.25). Sans effet sur la sauvegarde si Redis manque.
+noter() {
+  $COMPOSE exec -T redis redis-cli SET "mwangaza:backup:$1" "$(date +%s)" </dev/null >/dev/null ||
+    echo "Heure de la sauvegarde non notée dans Redis (la console ne la verra pas)." >&2
+}
+
 # Signal de supervision : sans appel de réussite à l'heure, le service d'alerte écrit à l'utilisateur.
 signaler() {
   [ -n "${BACKUP_PING_URL:-}" ] || return 0
@@ -148,8 +155,10 @@ sauvegarder() {
   find "$BACKUP_DIR" -name 'mwangaza-*.partiel' -mtime +1 -delete
   echo "Gardées dans $BACKUP_DIR : $(find "$BACKUP_DIR" -name '*.base.dump.gpg' | wc -l) sauvegarde(s) de la base, $(du -sh "$BACKUP_DIR" | cut -f1) en tout"
 
+  noter done
   if [ -n "${BACKUP_B2_BUCKET:-}" ]; then
     envoyer "$nom.base.dump.gpg" "$nom.fichiers.tar.gz.gpg"
+    noter copied
   else
     echo "Pas de BACKUP_B2_BUCKET : sauvegarde gardée sur ce serveur seulement."
   fi

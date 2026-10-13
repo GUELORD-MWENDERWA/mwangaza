@@ -6,12 +6,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 
 | | |
 |---|---|
-| Phase | V1.0 en ligne (2026-10-13) ; reste 4.25 (et les comptes de `A-FAIRE.md` § 9 bis pour 4.7.2) ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`, guide de présentation `docs/guide/presentation-v1.1.pdf`) |
+| Phase | V1.0 en ligne (2026-10-13) ; reste les comptes de `A-FAIRE.md` § 9 bis pour 4.7.2 ; **V1.1 finie** (2026-10-12, guide `docs/guide/guide-v1.1.pdf`, guide de présentation `docs/guide/presentation-v1.1.pdf`) |
 | Lot | V1.0 (fin : 4.25), puis modules et rôles libres (M.1 à M.3, voir le journal du 2026-10-13), puis V1.2 |
-| Tâche en cours | aucune (4.23 terminée, en relecture) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | 4.25 (santé de la plateforme) ; puis modules (M.1 à M.3) ; V1.2 repoussée |
+| Tâche en cours | aucune (4.25 terminée, en relecture) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | modules (M.1 à M.3) ; V1.2 repoussée ; mise en ligne de 4.25 : `make deploy` |
 | Issue GitHub | #41 pour 6.1 ; #186 pour 4.23 |
-| Branche | `tache/4.23-mesure-serveur` ; dossier local : `~/Projets/mwangaza` |
+| Branche | `tache/4.25-sante-plateforme` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-13 |
 
 ## Avancement
@@ -22,9 +22,9 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Semaine 1 — Socle | 9 | 9 |
 | Semaine 2 — Élèves et frais | 9 | 9 |
 | Semaine 3 — Caisse et hors-ligne | 17 | 17 |
-| Semaine 4 — Rapports, portail, production (reste : 4.25) | 18 | 19 |
+| Semaine 4 — Rapports, portail, production | 19 | 19 |
 | Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 14 | 14 |
-| **V1.0** | **66** | **67** |
+| **V1.0** | **67** | **67** |
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
 | V1.2 — carte unique et présences | 0 | 6 |
 | V1.3 — personnel, paie, dépenses | 0 | 6 |
@@ -53,6 +53,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-13 — Tâche 4.25 : santé de la plateforme dans la console
+- Fait : mémoire et swap (`/proc/meminfo`), passage du planificateur et file, dernière sauvegarde et copie B2 (notés dans Redis par `tick` et `sauvegarde.sh`), dernière synchronisation des 10 écoles réelles les plus silencieuses : une carte « Plateforme » dans le tableau de bord.
+- Tests : seuils mémoire/swap, sauvegarde jamais notée = rouge, écoles de démonstration et appareils révoqués exclus ; Vitest du tableau de bord.
+- Décisions : écritures en mémoire seulement, pas de graphes ni d'historique (03, journal du 2026-10-13). Pour voir les sauvegardes : `make deploy`, puis attendre la sauvegarde de la nuit (ou `make deploy-backup`).
+- Suite : modules (M.1 à M.3).
 
 ### 2026-10-13 — Tâche 4.23 : mesure sur le vrai serveur
 Fait : espace de démonstration « large » (800 élèves) créé puis supprimé sur `mwangazaschool.com` (aucune école avant ni après). Mesure par le client d'API du serveur, 3 appels chacun : tableau de bord 0,58 à 0,99 s, impayés 0,66 à 0,79 s, résumé 0,70 à 0,90 s.
