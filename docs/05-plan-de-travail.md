@@ -44,7 +44,7 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 8 | **S.3** Comptes à privilèges : alertes et limites | P0 | S | 🤖 |
 | 9 | **S.4** Fichiers envoyés : logos sans SVG, limites de taille | P0 | S | 🤖 |
 | 10 | ~~**M.3.1**~~ ✓ Rôles : codes de rôle remplacés par des permissions | P0 | M | 🤖 |
-| 11 | **M.3.2** Rôles entièrement libres | P0 | M | 🤖 |
+| 11 | ~~**M.3.2**~~ ✓ Rôles entièrement libres | P0 | M | 🤖 |
 | 12 | **S.5** Base de données : droits minimaux, paiements non effaçables | P0 | S | 🤖 |
 | 13 | **L.4** Essai sur de vrais téléphones et imprimantes | P0 | S | 👤 |
 | 14 | **L.5** Guide régénéré, version déclarée prête | P0 | S | 🤖 |
@@ -132,10 +132,11 @@ Décidé le 2026-10-13 : chaque fonction est un module donné par la plateforme 
    - Aucun changement visible pour les écoles existantes : tests avant / après.
    - **Fait** : premier directeur = premier rôle de départ qui a `roles.manage` ; guide et note de l'écran des rôles d'après les droits ; journal : nom du rôle de l'école donné par le serveur (`role_code` retiré de l'API) ; appareils fictifs portés par le compte fictif. **Reste pour M.3.2** (le code ne sert plus qu'à cela) : `Role.code`, `is_system` et leurs contraintes, nom traduit depuis le code (`gestion/src/lib/people.ts`), rôles système remis à zéro par `make demo` (`accounts/demo.py`).
 
-- [ ] **M.3.2** Rôles entièrement libres *(P0, M)*
+- [x] **M.3.2** Rôles entièrement libres *(P0, M)*
    - Plus de rôle système ni de code de rôle ; un **modèle de départ** modifiable proposé à la création d'une école (les 9 rôles actuels comme suggestion).
    - Garde-fou : on ne peut pas retirer à tous les comptes la permission `roles.manage` (l'école se bloquerait).
    - Migration des écoles existantes et des démonstrations ; `make demo` avec des rôles nommés librement ; fiche d'accès des démonstrations par rôle de l'espace.
+   - **Fait** : `Role.code` et « rôle système » retirés (base, API, écrans) ; un rôle = un nom obligatoire et des permissions, tous renommables et supprimables s'ils ne sont donnés à personne. Modèle de départ : les 9 rôles, dans le code (`accounts/roles.py`), copiés une fois à la création de l'école, nommés en français. Migration : chaque ancien rôle système prend le nom que l'école voyait. Garde-fou : déjà en place, vérifié par un test. **Écarté** (regard senior) : éditeur du modèle de départ dans la console et choix des rôles à la création d'une école — neuf lignes que l'école ajuste elle-même en deux minutes.
 
 ---
 

@@ -37,7 +37,7 @@ Le **hors-ligne** est conçu dès le premier jour (identifiants, synchronisation
 
 ### B. Comptes, rôles, connexion
 
-- **B1** — Rôles prédéfinis (9) : directeur, directeur des études, directeur de discipline / surveillant, comptable, caissier, secrétaire, promoteur, enseignant (sans fonctions en V1.0), parent. Plusieurs personnes peuvent avoir le même rôle. Permissions : `04-modele-de-donnees.md` § 8.
+- **B1** — Rôles de départ (9), copiés dans chaque école neuve : directeur, directeur des études, directeur de discipline / surveillant, comptable, caissier, secrétaire, promoteur, enseignant (sans fonctions en V1.0), parent. Ce sont des rôles ordinaires : l'école les renomme, change leurs permissions et les supprime (M.3.2). Plusieurs personnes peuvent avoir le même rôle. Permissions : `04-modele-de-donnees.md` § 8.
 - **B2** — L'école crée un rôle personnalisé en cochant des permissions (ex : « chef d'atelier » à l'ITIG, en attendant le module ateliers de la V1.6).
 - **B3** — Un utilisateur peut avoir plusieurs rôles et appartenir à plusieurs écoles avec un seul compte.
 - **B4** — Connexion identifiant + mot de passe ; TOTP obligatoire pour directeur, comptable, caissier, promoteur.
