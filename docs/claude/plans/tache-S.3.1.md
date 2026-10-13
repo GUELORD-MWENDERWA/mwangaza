@@ -10,9 +10,9 @@
 1. Journal de la plateforme : connexion d'un compte super-admin (`access.login`, avec l'adresse et le second facteur), code de double authentification refusé (`access.code_refused`), tentative depuis une adresse non autorisée (`access.address_refused`).
 2. Session d'un super-admin fermée après 2 h sans activité, où qu'il soit connecté ; au plus une écriture toutes les 5 minutes.
 3. `DJANGO_CONSOLE_ALLOWED_IPS` (adresses ou réseaux, vide = toutes) : hors liste, connexion refusée comme un mauvais mot de passe et session existante refusée (403).
-4. École : notification `sensitive_rights` aux comptes qui ont `roles.manage` (sauf l'auteur et l'intéressé) quand un compte reçoit `roles.manage` ou un droit `finance.*` (rôle donné, compte réactivé, rôle élargi) ; elle ne se coupe pas dans les préférences.
+4. École : notification `sensitive_rights` aux comptes qui ont `roles.manage` (auteur compris : son compte a pu être pris ; sauf l'intéressé) quand un compte reçoit `roles.manage` ou un droit `finance.*` (rôle donné, compte réactivé, rôle élargi) ; elle ne se coupe pas dans les préférences.
 
-**Tests obligatoires.** Journal écrit pour le super-admin et pas pour le personnel d'une école ; session 2 h et prolongation ; liste d'adresses (vide, dedans, dehors, réseau) ; alerte : bonne école seulement (isolation), pas l'auteur, rien sans droit sensible, rôle élargi.
+**Tests obligatoires.** Journal écrit pour le super-admin et pas pour le personnel d'une école ; session 2 h et prolongation ; liste d'adresses (vide, dedans, dehors, réseau) ; alerte : bonne école seulement (isolation), auteur prévenu, rien sans droit sensible, rôle élargi, support jamais nommé.
 
 **Documents.** `05` (découpage, L.2 barrée dans la file), `06`, `03` (décisions), `04` (sortes de notification), `reference.md`, `A-FAIRE.md` § 9 et § 11, `infra/.env.example`.
 

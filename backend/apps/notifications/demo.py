@@ -12,7 +12,12 @@ from datetime import timedelta
 from django.utils import timezone
 
 from apps.accounts.demo import PLATFORM_ADMIN_PHONE
-from apps.accounts.models import User
+from apps.accounts.models import Membership, User
+from apps.accounts.roles import (
+    FINANCE_COLLECT_PAYMENT,
+    ROLES_MANAGE,
+    SENSITIVE_PERMISSIONS,
+)
 from apps.core.tenancy import use_school
 from apps.finance import services as finance
 from apps.finance.models import CancellationRequest, Payment
@@ -271,7 +276,38 @@ def create_demo_event_notifications(spaces: list[DemoSpace]) -> None:
                 ).select_related("payment", "requested_by")
                 for request in pending:
                     events.cancellation_requested(request)
+            if not Notification.objects.filter(kind=kind.SENSITIVE_RIGHTS).exists():
+                _alert_sensitive_rights(school)
             Notification.objects.exclude(kind=kind.PLATFORM_NEWS).update(read_at=None)
+
+
+def _alert_sensitive_rights(school: School) -> None:
+    """Alerte de sécurité (S.3.1) : le directeur a donné la caisse à la caissière, il le voit
+    dans son centre de notifications."""
+    members = list(
+        Membership.objects.filter(school=school, is_active=True)
+        .select_related("user")
+        .prefetch_related("roles")
+        .order_by("user__phone")
+    )
+    rights = {
+        member.pk: {code for role in member.roles.all() for code in role.permissions}
+        & SENSITIVE_PERMISSIONS
+        for member in members
+    }
+    manager = next((m for m in members if ROLES_MANAGE in rights[m.pk]), None)
+    # Parmi ceux qui encaissent sans gérer les rôles, celui qui a le moins de droits : la caisse.
+    cashier = min(
+        (
+            m
+            for m in members
+            if FINANCE_COLLECT_PAYMENT in rights[m.pk] and ROLES_MANAGE not in rights[m.pk]
+        ),
+        key=lambda m: len(rights[m.pk]),
+        default=None,
+    )
+    if manager and cashier:
+        events.sensitive_rights_given(cashier.user, rights[cashier.pk], actor=manager.user)
 
 
 def _portal_family() -> Family | None:

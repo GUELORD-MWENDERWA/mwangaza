@@ -57,8 +57,8 @@ def _parents(families: QuerySet[Family]) -> QuerySet[User]:
 
 
 def staff(kind: str, *, but: User | None = None) -> QuerySet[User]:
-    """Personnel actif de l'école qui a le droit de recevoir cette sorte, sauf l'auteur de
-    l'action (il le sait déjà)."""
+    """Personnel actif de l'école qui a le droit de recevoir cette sorte, sauf `but` : l'auteur
+    de l'action (il le sait déjà) ou, pour une alerte de sécurité, l'intéressé."""
     users = User.objects.filter(
         is_active=True,
         memberships__school=require_current_school(),
@@ -205,12 +205,13 @@ def _rights(permissions: Iterable[str]) -> str:
 
 def sensitive_rights_given(member: User, permissions: set[str], *, actor: User) -> None:
     """Un compte reçoit le droit de gérer les rôles ou un droit sur l'argent (rôle donné, compte
-    réactivé) : à ceux qui gèrent les rôles de l'école, sauf l'auteur et l'intéressé. Quelqu'un
-    qui a pris un compte et sert un complice est ainsi vu des autres responsables."""
+    réactivé) : à tous ceux qui gèrent les rôles de l'école, **auteur compris**, sauf
+    l'intéressé. Le directeur dont le compte a été pris par quelqu'un d'autre le voit ainsi sur
+    son téléphone, même s'il est seul à gérer les rôles."""
     if not permissions:
         return
     send(
-        staff(Kind.SENSITIVE_RIGHTS, but=actor).exclude(pk=member.pk),
+        staff(Kind.SENSITIVE_RIGHTS, but=member),
         app=App.GESTION,
         kind=Kind.SENSITIVE_RIGHTS,
         url="/staff",
@@ -224,14 +225,15 @@ def sensitive_rights_given(member: User, permissions: set[str], *, actor: User) 
 
 def role_rights_added(role: Role, permissions: set[str], *, actor: User) -> None:
     """Un rôle reçoit un droit sensible : tous les comptes qui l'ont le reçoivent d'un coup. Une
-    seule notification, avec leur nombre ; rien pour un rôle que personne n'a encore."""
+    seule notification à ceux qui gèrent les rôles (auteur compris), avec leur nombre ; rien pour
+    un rôle que personne n'a encore."""
     if not permissions:
         return
     holders = role.memberships.filter(is_active=True, user__is_active=True).count()
     if not holders:
         return
     send(
-        staff(Kind.SENSITIVE_RIGHTS, but=actor),
+        staff(Kind.SENSITIVE_RIGHTS),
         app=App.GESTION,
         kind=Kind.SENSITIVE_RIGHTS,
         url="/roles",
