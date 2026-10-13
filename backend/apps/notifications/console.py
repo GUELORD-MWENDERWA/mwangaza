@@ -6,6 +6,9 @@ Pas de centre de notifications ni de ligne `Notification` : l'alerte renvoie au 
 console, qui garde tout. L'abonnement survit à la déconnexion et à la fin de la session (2 heures) :
 c'est console fermée que l'alerte sert."""
 
+import logging
+
+from celery.exceptions import OperationalError
 from django.db import transaction
 from django.db.models import QuerySet
 from django.utils import translation
@@ -14,6 +17,8 @@ from django.utils.text import Truncator
 from apps.audit.actions import Action, PlatformAction
 from apps.notifications import push
 from apps.notifications.models import PushSubscription
+
+logger = logging.getLogger(__name__)
 
 CONSOLE = PushSubscription.CONSOLE
 # Action du journal → écran de la console ouvert par un clic sur l'alerte. Le titre de l'alerte
@@ -31,9 +36,18 @@ def alert(action: str, entry_id, detail: str) -> None:
     """Prévient les super-admin d'une entrée du journal, une fois sa transaction validée."""
     if not push.is_configured():
         return
+    transaction.on_commit(lambda: _enqueue(str(action), str(entry_id), detail))
+
+
+def _enqueue(action: str, entry_id: str, detail: str) -> None:
     from apps.notifications.tasks import alert_console
 
-    transaction.on_commit(lambda: alert_console.delay(str(action), str(entry_id), detail))
+    try:
+        alert_console.delay(action, entry_id, detail)
+    except OperationalError:
+        # File de tâches injoignable (Redis arrêté) : l'alerte est perdue, pas la connexion du
+        # super-admin, qui doit pouvoir ouvrir la console pour le voir. L'entrée reste au journal.
+        logger.exception("Alerte du super-admin non envoyée : file de tâches injoignable.")
 
 
 def subscriptions() -> QuerySet[PushSubscription]:

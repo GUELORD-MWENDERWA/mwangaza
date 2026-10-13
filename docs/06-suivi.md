@@ -8,7 +8,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | **S.3.2** — alertes sur l'écran du super-admin (push dans la console) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Tâche en cours | aucune (S.3.2 faite, PR de la branche `tache/S.3.2-alertes-console`) ; vrai serveur : https://admin.mwangazaschool.com/ |
 | Prochaine tâche | S.4, puis S.5 (`05` § 2) |
 | Issue GitHub | #232 |
 | Branche | `tache/S.3.2-alertes-console` ; dossier local : `~/Projets/mwangaza` |
@@ -28,7 +28,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
 | Lancement (L.0 à L.5 ; L.3 remplacée par S.1 et S.2) | 3 | 5 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
-| Sécurité (S.1 à S.9 ; S.3 en deux) | 3 | 10 |
+| Sécurité (S.1 à S.9 ; S.3 en deux) | 4 | 10 |
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1–8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 0 | 9 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
@@ -61,6 +61,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-13 — Tâche S.3.2 : alertes sur l'écran du super-admin
+- Fait : la console a son service worker (`public/push-sw.js` : réception et clic, aucun cache) ; carte « Alertes sur cet appareil » en haut du « Journal » (bouton « Recevoir les alertes sur cet appareil ») ; API `/api/console/alerts/` ; envoi par Celery à chaque `access.*` et à chaque session support ouverte, à tous les super-admin abonnés (celui qui agit compris), titre dans la langue de chacun, clic → journal. Aucune ligne `Notification` : le journal reste le centre.
+- Au passage : adresse d'abonnement en `https` seulement (les trois applications) ; le filtre « Type » du journal propose aussi « Annonces » et « Accès du super-admin ».
+- Tests : permissions (403, 404 hors console, sans double authentification), destinataires (jamais l'abonnement Gestion ou Portail du même compte, ni un ancien super-admin), une alerte par entrée et par session support, abonnement expiré supprimé. Capture à 390 px ; service worker vérifié à `admin.localhost`.
+- Décisions (`03`) : l'abonnement survit à la déconnexion ; pas de bouton d'essai. Suite : S.4. À faire par toi après la mise en ligne : activer les alertes sur chaque appareil (`A-FAIRE.md` « Maintenant »).
 
 ### 2026-10-13 — PR de Dependabot en échec, mémoire du serveur
 - #223 (serveur) : Django 5.2 → 6.1 glissé dans le groupe, un test de finance rouge (nombre de caisses du résumé des clôtures) et 27 961 avertissements. #226 (front) : TypeScript 7 à la racine, `openapi-typescript` plante ; `vite-plugin-pwa` 2 dans le même groupe. #221 et #222 : Python 3.14 dans l'image, vert sans avoir été essayé. À ne pas fusionner ; #225 (Actions) est verte.

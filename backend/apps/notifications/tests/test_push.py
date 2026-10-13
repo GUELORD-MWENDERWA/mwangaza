@@ -8,6 +8,7 @@ import json
 from unittest import mock
 
 import pytest
+from celery.exceptions import OperationalError
 from django.utils import translation
 from pywebpush import WebPushException
 
@@ -255,6 +256,13 @@ def test_a_support_session_alerts_the_console_and_an_expired_browser_is_dropped(
     payload = json.loads(sent.call_args.kwargs["data"])
     assert payload["url"] == "/journal/support"
     assert payload["body"] == f"{platform_admin} · {school.name} · Aide à la clôture"
+
+    # File de tâches injoignable : l'alerte est perdue, jamais l'action du super-admin.
+    unreachable = mock.patch(
+        "apps.notifications.tasks.alert_console.delay", side_effect=OperationalError
+    )
+    with unreachable, django_capture_on_commit_callbacks(execute=True):
+        assert client.post("/api/support/", {"reason": "Sans Redis"}).status_code == 201
 
     sent.side_effect = WebPushException("Gone", response=mock.Mock(status_code=410))
     with django_capture_on_commit_callbacks(execute=True):
