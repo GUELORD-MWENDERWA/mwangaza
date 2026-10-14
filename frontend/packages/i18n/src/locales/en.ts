@@ -1422,6 +1422,8 @@ export const en: Messages<typeof fr> = {
       range: "{{from}} – {{to}} of {{count}}",
     },
     filters: {
+      toggle: "Filters",
+      toggleCount: "Filters ({{count}})",
       year: "Year",
       yearOption: "Year: {{name}}",
       class: "Class",

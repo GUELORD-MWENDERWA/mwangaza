@@ -373,3 +373,15 @@ label.f .req{color:var(--due)}
   .pagehead>.row{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
   .pagehead>.row>*{justify-content:center}.pagehead>.row>*:last-child:nth-child(odd){grid-column:span 2}
 }
+
+/* ---------- Tableau empilé au téléphone (2026-10-14) : grandes listes (élèves, impayés) ---------- */
+@media (max-width:599px){
+  .tbl.stack,.tbl.stack tbody,.tbl.stack tr,.tbl.stack td{display:block;width:100%}
+  .tbl.stack tr:first-child:has(th){display:none}.tbl.stack thead{display:none}
+  .tbl.stack tr{padding:12px 16px;border-bottom:1px solid var(--line-soft)}
+  .tbl.stack td{border:0!important;padding:3px 0!important;white-space:normal!important;text-align:left!important}
+  .tbl.stack td:first-child{padding-bottom:8px!important}
+  .tbl.stack td[data-label]{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:right!important}
+  .tbl.stack td[data-label]::before{content:attr(data-label);color:var(--ink-3);font-size:.85rem;text-align:left}
+  .tbl.stack td.check{float:left;width:auto;margin-right:10px}
+}

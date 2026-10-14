@@ -10,6 +10,8 @@ Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, compt
 
 30 maquettes ont été fournies. Le 2026-09-26, à la demande de l'utilisateur (T3), Claude a dessiné dans le même système de design les écrans qui manquaient pour la V1.0, plus les bulletins officiels et les cours / maxima (V1.2) : **61 maquettes** au total (`maquettes/index.html`). **Valider** = fusionner la PR des maquettes ; une remarque sur un écran = commentaire de PR, Claude corrige avant de coder l'écran. Pour les lots suivants, même règle : si une maquette n'est pas fournie avant sa tâche, Claude la dessine, code avec elle sans attendre l'accord et la signale dans « À valider » de la PR (décision du 2026-09-29). **Documents imprimables** (reçus, listes, rapports, bulletins…) : même règle, Claude propose le design dans le système de design, état « à valider » (décision du 2026-09-26).
 
+**Refonte du design du 2026-10-14** (demande de l'utilisateur, à valider avec la PR #247) : toutes les maquettes passées à la nouvelle identité (bleu Kivu, nuit, lumière, lignes de relief, Atkinson Hyperlegible Next) et recapturées ; **portail dessiné aussi pour l'ordinateur** (barre du haut, colonnes : `portail/accueil`, `portail/enfant-paiements`, pages de lecture ; connexions en deux panneaux) et capturé à 1440 px comme les autres applications ; tableau empilé au téléphone pour `gestion/eleves-liste` et `gestion/impayes`. Désormais : jamais d'écran sans maquette, et une maquette commence par regarder les grands logiciels (skill `design`, « Méthode »).
+
 ### V1.0
 
 | # | Écran | App | Réf. | Tâche | Maquette (dessinée le 2026-09-26) | Validée |

@@ -1428,6 +1428,8 @@ export const fr = {
       range: "{{from}} – {{to}} sur {{count}}",
     },
     filters: {
+      toggle: "Filtres",
+      toggleCount: "Filtres ({{count}})",
       year: "Année",
       yearOption: "Année : {{name}}",
       class: "Classe",

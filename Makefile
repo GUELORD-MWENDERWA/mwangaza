@@ -24,7 +24,7 @@ MANAGE := cd backend && uv run python manage.py
 
 .DEFAULT_GOAL := help
 .PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp relances messages superuser shell \
-	test test-back test-front test-e2e lint lint-back lint-front format api api-schema build \
+	test test-back test-front test-e2e apercu lint lint-back lint-front format api api-schema build \
 	prod-local prod-local-stop \
 	deploy-init deploy-check deploy-setup deploy deploy-superuser deploy-logs deploy-backup deploy-ssh backup restore
 
@@ -111,6 +111,9 @@ test-front: ## Tests front : vérification des types puis Vitest
 
 test-e2e: db-up ## Parcours dans Chromium (Playwright) : Django + Gestion ; remet les données de make demo à zéro
 	cd frontend && pnpm exec playwright test
+
+apercu: db-up ## Aperçu de tous les écrans à 390, 820 et 1440 px (frontend/apercu/captures/), avec les débordements ; ecran=gestion/dashboard pour un seul
+	cd frontend && APERCU=$(ecran) pnpm exec playwright test -c apercu/playwright.config.ts
 
 guide: db-up ## Guide de la version en PDF (docs/guide/) : captures des écrans de chaque rôle sur make demo
 	cd frontend && pnpm exec playwright test -c guide/playwright.config.ts

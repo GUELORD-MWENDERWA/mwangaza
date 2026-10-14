@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (8.1 faite, PR de la branche `tache/8.1-cours-charges`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Tâche en cours | aucune (8.1 faite, puis refonte du design demandée pendant sa PR, même branche `tache/8.1-cours-charges`) ; vrai serveur : https://admin.mwangazaschool.com/ |
 | Prochaine tâche | L.4 (toi : vrais téléphones et imprimantes), puis le premier espace réel (`A-FAIRE.md` § 9 quater) ; côté Claude : 8.2 Saisie des notes |
 | Issue GitHub | #46 |
 | Branche | `tache/8.1-cours-charges` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-14 (8.1 faite) |
+| Dernière mise à jour | 2026-10-14 (refonte du design) |
 
 ## Avancement
 
@@ -61,6 +61,13 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-14 — Refonte du design (demande de l'utilisateur, dans la PR de la 8.1)
+
+- Demande : palette qui « ressemble à l'IA », portail pas adapté à l'ordinateur, pages faites sans maquette, site public non demandé et mal signé ; tout revoir d'après les grands logiciels. Recherche : `docs/claude/recherches/2026-10-14-refonte-design.md`.
+- Fait : identité bleu Kivu / nuit / lumière, lignes de relief, Atkinson Hyperlegible Next ; composants, coquilles, connexions, tableaux de bord et graphiques, documents PDF redessinés ; portail sur ordinateur (barre du haut, deux colonnes) ; listes empilées et filtres repliés au téléphone ; couleurs par défaut migrées ; site public signé « © DTMS. Tous droits réservés. » (auteur en meta seulement) ; toutes les maquettes recapturées (portail aussi à 1440 px) ; outil `make apercu` (chaque écran à 390, 820, 1440 px).
+- Tests : front 270 verts, serveur des parties touchées verts ; aucun débordement (`make apercu`, maquettes). Skills `design`, `ecran`, `verifier` et règle de `CLAUDE.md` mises à jour ; WEB.1 et WEB.2 : maquette et vrai design marketing d'abord.
+- Suite : relecture de l'utilisateur, puis 8.2.
 
 ### 2026-10-14 — Tâche 8.1 : cours, maxima, enseignants et charges horaires
 

@@ -9,11 +9,19 @@ import { cn } from "../lib/cn";
 // texte long la laisse passer à la ligne.
 // Titre d'une colonne de montants (`th.num` des maquettes) : `className="text-right"` sur le `th`,
 // rendu plus fort que l'alignement à gauche par défaut, sinon le titre se décale de ses valeurs.
-export function Table({ className, ...props }: ComponentProps<"table">) {
+export function Table({
+  className,
+  stacked,
+  ...props
+}: ComponentProps<"table"> & {
+  /** Téléphone : une carte par ligne (cellules `data-label`), au lieu de défiler de côté. */
+  stacked?: boolean;
+}) {
   return (
     <div className="overflow-x-auto">
       <table
         className={cn(
+          stacked && "tbl-stacked",
           "tbl w-full border-collapse text-md [&_td]:border-b [&_td]:border-line-soft [&_td]:px-4 [&_td]:py-3 [&_td]:align-middle [&_th]:border-b [&_th]:border-line [&_th]:bg-table-head [&_th]:px-4 [&_th]:py-2.5 [&_th]:text-left [&_th.text-right]:text-right [&_th]:text-xs [&_th]:font-semibold [&_th]:whitespace-nowrap [&_th]:text-ink-3 [&_tbody_tr]:transition-colors [&_tbody_tr:hover_td]:bg-table-head [&_tr:last-child_td]:border-b-0 [&_tfoot_td]:border-t [&_tfoot_td]:border-line [&_tr[aria-selected=true]_td]:bg-lake-50 [&_tr[data-tone=due]_td]:bg-due-50 [&_tr[data-tone=warn]_td]:bg-warn-50",
           className,
         )}

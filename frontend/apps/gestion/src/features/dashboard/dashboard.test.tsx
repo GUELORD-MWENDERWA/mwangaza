@@ -86,7 +86,7 @@ describe("Tableau de bord (G3)", () => {
   it("montants par devise jamais additionnés, alertes de l'école, classe vers ses impayés", async () => {
     const requests = render("head");
 
-    const today = (await screen.findByText("Encaissé aujourd'hui")).parentElement!;
+    const today = (await screen.findByText("Encaissé aujourd'hui")).closest("section")!;
     // Mise en route terminée : la liste n'est plus jamais demandée.
     expect(asked(requests, "/api/school/setup/")).toBe(0);
     within(today).getByText("2 845,00 $");

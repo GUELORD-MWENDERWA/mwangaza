@@ -104,6 +104,11 @@
   --color-warn-900: #683d00;
   --color-lamp-200: #f6dc8f;
   --color-lamp-900: #5c4300;
+  /* Graphiques (skill `dataviz`, validés : daltonisme, luminosité, contraste ≥ 3:1) : série 1 =
+     lac, série 2 = ambre (la lampe est trop claire pour une surface de donnée). */
+  --color-chart-1: var(--color-lake);
+  --color-chart-2: #c47f00;
+  --color-chart-grid: #e2e8f0;
   /* En-tête et pied de tableau ; voile sous un tiroir ou une fenêtre. */
   --color-table-head: #f7f9fc;
   --color-scrim: rgba(11, 28, 53, 0.55);
@@ -210,6 +215,60 @@
   @media screen and (width < 900px) {
     .tbl td:not([data-wrap]) {
       white-space: nowrap;
+    }
+  }
+}
+
+/* Tableau « empilé » au téléphone (`<Table stacked>`, grandes listes consultées au téléphone :
+   élèves, impayés) : chaque ligne devient une carte ; la 1re cellule en est le titre ; une cellule
+   `data-label` montre son libellé à gauche et sa valeur à droite. */
+@layer components {
+  @media screen and (width < 600px) {
+    .tbl-stacked thead {
+      display: none;
+    }
+    .tbl-stacked,
+    .tbl-stacked tbody,
+    .tbl-stacked tr,
+    .tbl-stacked td {
+      display: block;
+      width: 100%;
+    }
+    .tbl-stacked tr {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-line-soft);
+    }
+    .tbl-stacked td {
+      border: 0 !important;
+      padding: 3px 0 !important;
+      white-space: normal !important;
+      text-align: left !important;
+    }
+    .tbl-stacked td:first-child {
+      padding-bottom: 8px !important;
+    }
+    .tbl-stacked td[data-label] {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      text-align: right !important;
+    }
+    .tbl-stacked td[data-label]::before {
+      content: attr(data-label);
+      color: var(--color-ink-3);
+      font-size: var(--text-sm);
+      text-align: left;
+    }
+    .tbl-stacked td:empty {
+      display: none;
+    }
+    /* Case à cocher d'une ligne : à gauche du titre. */
+    .tbl-stacked td.stack-check {
+      float: left;
+      width: auto;
+      margin-right: 10px;
+      padding-top: 2px !important;
     }
   }
 }
