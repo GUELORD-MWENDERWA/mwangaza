@@ -36,7 +36,12 @@ from apps.audit import services as audit
 from apps.audit.actions import Action, PlatformAction
 from apps.core.crypto import DecryptionError, decrypt, encrypt
 from apps.core.errors import ApiError, BusinessError
-from apps.core.tenancy import CrossSchoolError, require_current_school, use_school
+from apps.core.tenancy import (
+    CrossSchoolError,
+    require_current_school,
+    use_all_schools,
+    use_school,
+)
 from apps.notifications import events
 from apps.schools.models import Demonstration, School
 
@@ -500,13 +505,15 @@ def totp_required(user: User) -> bool:
     visiteurs et ses données fictives (`03` § 4 bis)."""
     if user.is_platform_admin:
         return True
-    return (
-        Membership.objects.filter(
-            user=user, is_active=True, roles__permissions__overlap=sorted(TOTP_PERMISSIONS)
+    # Rôles de toutes ses écoles, pas seulement celle de l'adresse (S.6) : pour ce compte seul.
+    with use_all_schools():
+        return (
+            Membership.objects.filter(
+                user=user, is_active=True, roles__permissions__overlap=sorted(TOTP_PERMISSIONS)
+            )
+            .exclude(school__environment=School.Environment.DEMO)
+            .exists()
         )
-        .exclude(school__environment=School.Environment.DEMO)
-        .exists()
-    )
 
 
 _RECOVERY_SALT = "apps.accounts.recovery-code"

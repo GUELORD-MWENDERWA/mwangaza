@@ -6,7 +6,7 @@ from celery import shared_task
 
 from apps.accounts.models import User
 from apps.audit.context import RequestInfo, use_request_info
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.students import imports
 from apps.students.models import StudentImport
 
@@ -17,7 +17,8 @@ logger = logging.getLogger(__name__)
 def run_student_import(import_id: str, actor_id: str, request: dict) -> None:
     """Import confirmé par `actor_id`. Le journal garde l'adresse, le navigateur et la session
     support de la requête qui l'a lancé (`imports.confirm`)."""
-    imp = StudentImport.all_schools.select_related("school").get(pk=import_id)
+    with use_all_schools():
+        imp = StudentImport.all_schools.select_related("school").get(pk=import_id)
     actor = User.objects.get(pk=actor_id)
     impersonated_by = request.get("impersonated_by")
     info = RequestInfo(

@@ -4,7 +4,7 @@ famille."""
 
 import pytest
 
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.finance.tests.test_balance import at
 from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.portal.tests.test_access import (
@@ -78,7 +78,8 @@ def test_adding_another_school_needs_its_code_and_the_accounts_phone(
     account = activate(client, new_family(school, head).code).json()
     other_phone = new_family(other_school, other_head, phone="+243990000001")
     taken = new_family(other_school, other_head)
-    Family.all_schools.filter(pk=taken.pk).update(primary_user=UserFactory())
+    with use_all_schools():
+        Family.all_schools.filter(pk=taken.pk).update(primary_user=UserFactory())
 
     refused = [link(client, code) for code in ("ABCD-EFGH", other_phone.code, taken.code)]
 

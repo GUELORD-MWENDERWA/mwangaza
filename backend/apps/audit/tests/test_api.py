@@ -14,7 +14,7 @@ from apps.accounts.models import Role
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.ids import uuid7
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.sync.models import Device
 from tests.factories import MembershipFactory, UserFactory
 
@@ -103,7 +103,8 @@ def test_the_journal_cannot_be_written_through_the_api(api, school, head):
     assert client.post(AUDIT, {"action": "roles.created"}).status_code == 405
     assert client.patch(f"{AUDIT}{log.id}/", {"entity_label": "x"}).status_code == 405
     assert client.delete(f"{AUDIT}{log.id}/").status_code == 405
-    assert AuditLog.all_schools.get().entity_label == "Chef d'atelier"
+    with use_all_schools():
+        assert AuditLog.all_schools.get().entity_label == "Chef d'atelier"
 
 
 # Contenu d'une entrée

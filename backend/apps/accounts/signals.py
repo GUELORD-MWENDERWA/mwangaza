@@ -25,10 +25,13 @@ def _refuse_roles_of_another_school(sender, instance, action, reverse, pk_set, *
     if action != "pre_add" or not pk_set:
         return
     if reverse:
-        other_school = Membership.objects.filter(pk__in=pk_set).exclude(
-            school_id=instance.school_id
+        refused = (
+            Membership.objects.filter(pk__in=pk_set).exclude(school_id=instance.school_id).exists()
         )
     else:
-        other_school = Role.all_schools.filter(pk__in=pk_set).exclude(school_id=instance.school_id)
-    if other_school.exists():
+        # Compter ceux de l'école, pas chercher ceux d'ailleurs : la base cache les rôles des
+        # autres écoles (S.6), la clé étrangère de la table de liaison, non.
+        same_school = Role.all_schools.filter(pk__in=pk_set, school_id=instance.school_id)
+        refused = same_school.count() != len(pk_set)
+    if refused:
         raise CrossSchoolError("Un rôle ne peut être donné que dans son école.")

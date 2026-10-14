@@ -123,7 +123,17 @@ def test_every_table_of_a_school_in_scope_has_its_rule_installed_once():
         )
         installed = sorted(name for (name,) in cursor.fetchall())
     assert installed == row_security.tables()
-    assert "finance_payment" in installed and "finance_cashclosing" in installed
+    # Une table de chaque application d'école (S.6.2), pas seulement la finance (S.6.1).
+    assert {
+        "finance_payment",
+        "students_student",
+        "students_family",
+        "schools_classgroup",
+        "accounts_role",
+        "notifications_notification",
+        "sync_syncoperation",
+        "audit_auditlog",
+    } <= set(installed)
 
 
 def test_a_payment_of_another_school_is_neither_seen_nor_counted(

@@ -6,6 +6,7 @@ from django.test import Client
 
 from apps.accounts.models import Role, User
 from apps.audit.models import AuditLog
+from apps.core.tenancy import use_all_schools
 from tests.factories import MembershipFactory, enable_totp
 
 pytestmark = pytest.mark.django_db
@@ -13,7 +14,8 @@ pytestmark = pytest.mark.django_db
 
 def test_pages_open_for_the_platform_admin(admin_client, school, other_school):
     membership = MembershipFactory(school=school, roles=["head", "teacher"])
-    role = Role.all_schools.filter(school=other_school).first()
+    with use_all_schools():
+        role = Role.all_schools.filter(school=other_school).first()
 
     for path in [
         "/admin/",
@@ -108,7 +110,8 @@ def test_support_resets_two_factor_authentication(admin_client, school, other_sc
     assert not member.user.totp_enabled
     # Noté dans le journal de chaque école de la personne, au nom du support.
     for each in (school, other_school):
-        log = AuditLog.all_schools.get(school=each)
+        with use_all_schools():
+            log = AuditLog.all_schools.get(school=each)
         assert log.action == "account.totp_reset"
         assert log.actor.is_platform_admin
         assert log.entity_label == str(member.user)
@@ -141,7 +144,8 @@ def change(admin_client, user, **fields):
 
 
 def entries(action) -> list[AuditLog]:
-    return list(AuditLog.all_schools.filter(action=action).select_related("school"))
+    with use_all_schools():
+        return list(AuditLog.all_schools.filter(action=action).select_related("school"))
 
 
 def test_support_changes_names_and_phone(admin_client, member, school, other_school):
@@ -161,7 +165,8 @@ def test_support_changes_names_and_phone(admin_client, member, school, other_sch
 def test_nothing_changed_nothing_noted(admin_client, member):
     assert change(admin_client, member).status_code == 302
 
-    assert not AuditLog.all_schools.exists()
+    with use_all_schools():
+        assert not AuditLog.all_schools.exists()
 
 
 def test_support_deactivates_then_reactivates_an_account(
@@ -181,7 +186,8 @@ def test_support_gives_a_temporary_password(admin_client, member, school, other_
     page = f"/admin/accounts/user/{member.pk}/password/"
     # Afficher la page ne change rien.
     assert admin_client.get(page).status_code == 200
-    assert not AuditLog.all_schools.exists()
+    with use_all_schools():
+        assert not AuditLog.all_schools.exists()
 
     response = admin_client.post(page)
 
@@ -192,4 +198,5 @@ def test_support_gives_a_temporary_password(admin_client, member, school, other_
     assert not member.check_password("mot-de-passe-de-test")
     assert member.must_change_password
     assert {log.school for log in entries("account.password_reset")} == {school, other_school}
-    assert not any("password" in (log.after or {}) for log in AuditLog.all_schools.all())
+    with use_all_schools():
+        assert not any("password" in (log.after or {}) for log in AuditLog.all_schools.all())

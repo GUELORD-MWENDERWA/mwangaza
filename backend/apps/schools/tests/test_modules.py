@@ -4,6 +4,7 @@
 import pytest
 
 from apps.audit.models import PlatformAuditLog
+from apps.core.tenancy import use_all_schools
 from apps.schools.models import School
 from tests.factories import SchoolFactory
 
@@ -106,9 +107,10 @@ def test_the_scheduler_skips_a_school_without_notifications_and_serves_the_other
 
     scheduled.tick(now)
 
-    assert set(ScheduledRun.all_schools.values_list("school__code", flat=True)) == {
-        other_school.code
-    }
+    with use_all_schools():
+        assert set(ScheduledRun.all_schools.values_list("school__code", flat=True)) == {
+            other_school.code
+        }
 
 
 def test_the_school_cannot_give_itself_modules(api, head, school):

@@ -16,7 +16,7 @@ from django.utils import timezone
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.ids import uuid7
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.finance import services as finance
 from apps.finance.models import (
     CancellationRequest,
@@ -531,16 +531,18 @@ def test_old_applied_operations_are_purged_in_every_school_and_a_late_resend_pay
             op_id=uuid7(), device=Device.objects.get(), type="payment.reprint", status="applied"
         )
     old = timezone.now() - timedelta(days=operations.KEEP_DAYS + 1)
-    SyncOperation.all_schools.exclude(op_id=recent["op_id"]).update(created_at=old)
+    with use_all_schools():
+        SyncOperation.all_schools.exclude(op_id=recent["op_id"]).update(created_at=old)
 
     # Les deux écoles en une requête, sans charger les lignes ; refusée gardée (la vérification
     # d'un reçu s'en sert).
     with django_assert_num_queries(1):
         assert operations.purge() == 2
-    assert set(SyncOperation.all_schools.values_list("op_id", flat=True)) == {
-        UUID(refused["op_id"]),
-        UUID(recent["op_id"]),
-    }
+    with use_all_schools():
+        assert set(SyncOperation.all_schools.values_list("op_id", flat=True)) == {
+            UUID(refused["op_id"]),
+            UUID(recent["op_id"]),
+        }
     # Réponse perdue, appareil revenu après la purge : l'encaissement garde son identifiant.
     again = client.post(PUSH, {"operations": [paid]}).json()["results"][0]
     assert (again["status"], again["result"]["payment"]) == ("applied", paid["payload"]["id"])
