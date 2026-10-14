@@ -75,7 +75,7 @@ function InstallScreen({ onSkip }: { onSkip: () => void }) {
             {installed ? (
               <>
                 <p>{t("installGate.openIcon", { platform })}</p>
-                <p className="text-[.88rem] text-ink-3">{t("installGate.closeTab")}</p>
+                <p className="text-sm text-ink-3">{t("installGate.closeTab")}</p>
               </>
             ) : (
               <>
@@ -103,7 +103,7 @@ function InstallScreen({ onSkip }: { onSkip: () => void }) {
                   <ol className="flex flex-col gap-2.5">
                     {IOS_STEPS.map((key, index) => (
                       <li key={key} className="flex items-center gap-2.5">
-                        <span className="grid size-6 shrink-0 place-items-center rounded-full bg-gray-50 text-[.8rem] font-bold">
+                        <span className="grid size-6 shrink-0 place-items-center rounded-full bg-gray-50 text-xs font-bold">
                           {index + 1}
                         </span>
                         {t(`installGate.iosSteps.${key}`)}
@@ -111,9 +111,9 @@ function InstallScreen({ onSkip }: { onSkip: () => void }) {
                     ))}
                   </ol>
                 ) : (
-                  <p className="text-[.88rem] text-ink-3">{t("installGate.browserMenu")}</p>
+                  <p className="text-sm text-ink-3">{t("installGate.browserMenu")}</p>
                 )}
-                <p className="text-[.88rem] text-ink-3">{t("installGate.alreadyInstalled")}</p>
+                <p className="text-sm text-ink-3">{t("installGate.alreadyInstalled")}</p>
               </>
             )}
             {skippable && (

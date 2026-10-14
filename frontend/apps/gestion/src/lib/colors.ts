@@ -2,7 +2,7 @@
 // (`backend/apps/schools/colors.py`), qui reste seul juge à l'enregistrement. Texte blanc ou encre,
 // le plus lisible des deux, avec un contraste d'au moins 4,5 : 1 ; sinon, teinte voisine proposée.
 export const WHITE = "#FFFFFF";
-export const INK = "#1A2233";
+export const INK = "#211D1A";
 export const MIN_CONTRAST = 4.5;
 
 const HEX = /^#([0-9A-F]{3}|[0-9A-F]{6})$/;

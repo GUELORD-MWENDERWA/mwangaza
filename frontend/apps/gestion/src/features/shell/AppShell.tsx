@@ -75,11 +75,11 @@ function TopBar({ me }: { me: Me }) {
     <header className="flex h-14 items-center gap-2.5 border-b border-line bg-card px-3 min-[900px]:h-[60px] min-[900px]:gap-4 min-[900px]:px-6">
       <MobileMenu me={me} />
       {can(me, ["students.view"]) && <SearchPalette />}
-      <SyncMenu className="max-[899px]:px-[9px] max-[899px]:py-[5px] max-[899px]:text-[.78rem]" />
+      <SyncMenu className="max-[899px]:px-[9px] max-[899px]:py-[5px] max-[899px]:text-xs" />
       <NotificationBell />
       <Link
         to="/account"
-        className="flex items-center gap-2.5 text-[.88rem] text-ink no-underline"
+        className="flex items-center gap-2.5 text-sm text-ink no-underline"
         aria-label={`${displayName(me)} — ${t("shell.account")}`}
       >
         <span className="hidden text-right min-[900px]:block">
@@ -131,7 +131,7 @@ function MobileMenu({ me }: { me: Me }) {
             >
               <Avatar
                 text={initials(me.last_name, me.first_name, me.middle_name)}
-                className="size-[30px] text-[.72rem]"
+                className="size-[30px] text-xs"
               />
               <span className="min-w-0">
                 <b className="block truncate">{displayName(me)}</b>

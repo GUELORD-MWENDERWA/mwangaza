@@ -258,7 +258,7 @@ function StaffTable({
                 />
                 <span>
                   <b className="block">{fullName(person.user)}</b>
-                  <span className="text-[.8rem] whitespace-nowrap text-ink-3 tabular-nums">
+                  <span className="text-xs whitespace-nowrap text-ink-3 tabular-nums">
                     {formatPhone(person.user.phone)}
                   </span>
                 </span>
@@ -396,9 +396,7 @@ function PersonCard({ person, roles }: { person: Staff; roles: Role[] }) {
           </div>
         </List>
         <fieldset className="flex flex-col gap-2">
-          <legend className="mb-2 text-[.87rem] font-bold text-ink-2">
-            {t("staff.detail.roles")}
-          </legend>
+          <legend className="mb-2 text-sm font-bold text-ink-2">{t("staff.detail.roles")}</legend>
           <RoleCheckboxes
             roles={roles}
             value={chosen}
@@ -459,9 +457,7 @@ function PersonCard({ person, roles }: { person: Staff; roles: Role[] }) {
             {t("staff.detail.reactivate")}
           </Button>
         )}
-        {!managed && (
-          <p className="w-full text-[.8rem] text-ink-3">{t("staff.detail.elsewhere")}</p>
-        )}
+        {!managed && <p className="w-full text-xs text-ink-3">{t("staff.detail.elsewhere")}</p>}
       </CardFooter>
       <PasswordDialog name={name} password={password} onClose={() => setPassword(null)} />
       <ConfirmDialog
@@ -718,7 +714,7 @@ function NewAccountCard({
             )}
           </Field>
           <Banner tone="info">{t("staff.create.known")}</Banner>
-          <p className="text-[.8rem] text-ink-3">{t("staff.create.unknown")}</p>
+          <p className="text-xs text-ink-3">{t("staff.create.unknown")}</p>
           <div className="grid gap-3 min-[600px]:grid-cols-3 min-[1200px]:grid-cols-1">
             <Field
               id="new-last-name"
@@ -743,9 +739,7 @@ function NewAccountCard({
             </Field>
           </div>
           <fieldset>
-            <legend className="mb-2 text-[.87rem] font-bold text-ink-2">
-              {t("staff.create.roles")}
-            </legend>
+            <legend className="mb-2 text-sm font-bold text-ink-2">{t("staff.create.roles")}</legend>
             <Controller
               control={form.control}
               name="roles"
@@ -759,7 +753,7 @@ function NewAccountCard({
               )}
             />
             {errors.roles && (
-              <p role="alert" className="mt-1.5 text-[.8rem] text-due">
+              <p role="alert" className="mt-1.5 text-xs text-due">
                 {errors.roles.message}
               </p>
             )}

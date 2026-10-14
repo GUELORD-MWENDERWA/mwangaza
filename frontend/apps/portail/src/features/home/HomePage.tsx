@@ -32,7 +32,7 @@ export function HomePage() {
         </Banner>
       )}
       <SummonsBanner />
-      <h2 className="text-[1.25rem]">{t("portal.home.children")}</h2>
+      <h2 className="text-xl">{t("portal.home.children")}</h2>
       {families.isPending && <Skeleton label={t("common.loading")} />}
       {families.isError && (
         <div className="flex flex-col gap-3">
@@ -101,14 +101,10 @@ function ChildCard({ child, family }: { child: Child; family: LinkedFamily }) {
       <Card>
         <CardContent className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
-            <ChildAvatar
-              name={child.full_name}
-              photo={child.photo}
-              className="size-14 text-[1.1rem]"
-            />
+            <ChildAvatar name={child.full_name} photo={child.photo} className="size-14 text-lg" />
             <div className="min-w-0 flex-1">
               <b className="block">{child.full_name}</b>
-              <span className="text-[.88rem] text-ink-3">
+              <span className="text-sm text-ink-3">
                 {family.school_name} · {child.class_name}
               </span>
             </div>
@@ -137,7 +133,7 @@ function ChildCard({ child, family }: { child: Child; family: LinkedFamily }) {
           {balance.currencies.map((line) => {
             const percent = line.total_minor ? (line.paid_minor * 100) / line.total_minor : 100;
             return (
-              <div key={line.currency} className="text-[.88rem]">
+              <div key={line.currency} className="text-sm">
                 <div className="flex justify-between gap-3">
                   <span>{t("portal.home.paidThisYear")}</span>
                   <b className="tabular-nums">
@@ -154,7 +150,7 @@ function ChildCard({ child, family }: { child: Child; family: LinkedFamily }) {
             );
           })}
           {last && (
-            <div className="flex justify-between gap-3 text-[.88rem]">
+            <div className="flex justify-between gap-3 text-sm">
               <span className="text-ink-3">{t("portal.home.lastPayment")}</span>
               <span className="tabular-nums">
                 {formatAmount(last.received_amount_minor, last.received_currency)} ·{" "}

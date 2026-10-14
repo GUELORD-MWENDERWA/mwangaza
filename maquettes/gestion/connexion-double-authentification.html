@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Double authentification — Mwangaza (maquette)</title>
 <link rel="stylesheet" href="../assets/styles.css"></head>
-<body><div style="display:grid;grid-template-columns:1fr 1fr;min-height:100vh"><div style="background:var(--basalt);color:var(--basalt-ink);padding:48px;display:flex;flex-direction:column;justify-content:space-between">
+<body><div class="authgrid"><div class="authside">
   <div class="brand" style="padding:0"><span class="mark"></span><b style="font-size:1.3rem">Mwangaza</b></div>
   <div class="stack" style="max-width:420px">
     <div style="width:72px;height:72px;border-radius:14px;background:#fff;color:var(--basalt);display:grid;place-items:center;font-weight:700">ITIG</div>
@@ -10,11 +10,11 @@
     <p style="color:#CFC7BF">Espace du personnel. Encaissez, suivez les élèves et informez les familles, même quand internet est coupé.</p>
   </div>
   <p class="small" style="color:#A8A09A">itig.mwangaza.cd · Français | English</p>
-</div><div style="display:grid;place-items:center;padding:32px;background:#fff"><div style="width:100%;max-width:400px" class="col">
+</div><div class="authmain"><div style="width:100%;max-width:400px" class="col">
   <a class="small" href="connexion.html"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg> Retour</a>
   <h1>Code de vérification</h1>
   <p class="muted">Votre rôle (caisse) exige une double vérification. Ouvrez votre application d'authentification (Google Authenticator, Aegis…) et saisissez le code à 6 chiffres.</p>
-  <div class="row" style="gap:8px"><span class="inp big" style="width:52px;justify-content:center;">4</span><span class="inp big" style="width:52px;justify-content:center;">8</span><span class="inp big" style="width:52px;justify-content:center;">1</span><span class="inp big" style="width:52px;justify-content:center;">9</span><span class="inp big" style="width:52px;justify-content:center;border-color:var(--lake);box-shadow:0 0 0 3px var(--lake-50)"></span><span class="inp big" style="width:52px;justify-content:center;"></span></div>
+  <div class="row" style="gap:8px"><span class="inp big" style="width:min(52px,12vw);justify-content:center;">4</span><span class="inp big" style="width:min(52px,12vw);justify-content:center;">8</span><span class="inp big" style="width:min(52px,12vw);justify-content:center;">1</span><span class="inp big" style="width:min(52px,12vw);justify-content:center;">9</span><span class="inp big" style="width:min(52px,12vw);justify-content:center;border-color:var(--lake);box-shadow:0 0 0 3px var(--lake-50)"></span><span class="inp big" style="width:min(52px,12vw);justify-content:center;"></span></div>
   <span class="check"><span class="box on"></span>Ne plus demander sur cet appareil pendant 7 jours</span>
   <a class="btn primary lg" href="tableau-de-bord.html">Vérifier</a>
   <a class="small" href="#">Je n'ai plus accès à mon application → utiliser un code de secours</a>

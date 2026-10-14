@@ -391,7 +391,7 @@ export function FamilyCard({
     .join(" ; ");
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-line p-3.5">
-      <div className="text-[.92rem]">
+      <div className="text-md">
         <b>{main ? main.full_name : t("students.new.familyCode", { code: family.code })}</b>
         {main && (
           <>
@@ -430,7 +430,7 @@ function NewFamily({ form }: { form: Form }) {
     <div className="flex flex-col gap-4">
       {guardians.fields.map((row, index) => (
         <fieldset key={row.id} className="grid gap-3 min-[700px]:grid-cols-[1.4fr_1fr_1fr_auto]">
-          <legend className="mb-2 text-[.87rem] font-bold text-ink-2">
+          <legend className="mb-2 text-sm font-bold text-ink-2">
             {index === 0 ? t("students.new.primaryGuardian") : t("students.new.otherContact")}
           </legend>
           <Field

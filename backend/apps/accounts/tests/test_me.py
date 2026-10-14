@@ -99,7 +99,7 @@ def test_each_school_with_its_own_roles_colour_and_last_visit(api, school, other
     assert sorted(r["name"] for r in beta["roles"]) == ["Enseignant", "Secrétaire"]
     assert [r["name"] for r in schools["alpha"]["roles"]] == ["Directeur"]
     assert beta["url"] == "http://beta.localhost:5173"
-    assert (beta["primary_color"], beta["text_color"]) == ("#F2C94C", "#1A2233")
+    assert (beta["primary_color"], beta["text_color"]) == ("#F2C94C", "#211D1A")
     assert beta["logo"].startswith("http://beta.localhost:5173/api/school/logo/?v=")
     assert beta["last_login_at"] is not None
     assert schools["alpha"]["logo"] is None

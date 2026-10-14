@@ -67,7 +67,7 @@ export function ModuleChoices({
             onCheckedChange={(on) => toggle(code, on === true)}
           />
           {NEEDS[code] && (
-            <p className="pl-7 text-[.85rem] text-ink-3">
+            <p className="pl-7 text-sm text-ink-3">
               {t("console.schools.modulesNeeds", {
                 modules: NEEDS[code].map((m) => t(`console.schools.modules.${m}`)).join(", "),
               })}
@@ -76,7 +76,7 @@ export function ModuleChoices({
         </div>
       ))}
       {chosen.length === 0 && (
-        <p className="text-[.9rem] text-ink-3">{t("console.schools.modulesNone")}</p>
+        <p className="text-md text-ink-3">{t("console.schools.modulesNone")}</p>
       )}
     </>
   );
@@ -109,7 +109,7 @@ export function ModulesCard({ school, onSaved }: { school: Detail; onSaved: (d: 
         <CardTitle>{t("console.schools.modulesTitle")}</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-3">
-        <p className="text-[.9rem] text-ink-3">{t("console.schools.modulesHelp")}</p>
+        <p className="text-md text-ink-3">{t("console.schools.modulesHelp")}</p>
         <ModuleChoices
           chosen={chosen}
           onChange={(modules) => {

@@ -21,11 +21,9 @@ export function Kpi({
 }) {
   return (
     <Card className={cn("px-[18px] py-4", className)}>
-      <p className="text-[.85rem] text-ink-2">{label}</p>
-      <p className={cn("mt-1 text-[1.65rem] font-bold tabular-nums", tone && tones[tone])}>
-        {value}
-      </p>
-      {sub && <p className="mt-0.5 text-[.82rem] break-words text-ink-3">{sub}</p>}
+      <p className="text-sm text-ink-2">{label}</p>
+      <p className={cn("mt-1 text-2xl font-bold tabular-nums", tone && tones[tone])}>{value}</p>
+      {sub && <p className="mt-0.5 text-sm break-words text-ink-3">{sub}</p>}
     </Card>
   );
 }

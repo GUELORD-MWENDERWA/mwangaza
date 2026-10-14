@@ -74,8 +74,8 @@ export function ConsoleShell() {
                 end={item.end}
                 className={({ isActive }) =>
                   isActive
-                    ? "border-b-[3px] border-lamp px-3 py-2.5 text-[.92rem] font-bold whitespace-nowrap text-white"
-                    : "border-b-[3px] border-transparent px-3 py-2.5 text-[.92rem] whitespace-nowrap text-basalt-soft hover:text-white"
+                    ? "border-b-[3px] border-lamp px-3 py-2.5 text-md font-bold whitespace-nowrap text-white"
+                    : "border-b-[3px] border-transparent px-3 py-2.5 text-md whitespace-nowrap text-basalt-soft hover:text-white"
                 }
               >
                 {t(`console.menu.${item.key}`)}

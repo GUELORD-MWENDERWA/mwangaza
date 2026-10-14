@@ -29,7 +29,7 @@ export function CodeInput({
           key={index}
           aria-hidden="true"
           className={cn(
-            "grid h-16 w-[52px] place-items-center rounded-field border border-field bg-card text-[1.9rem] font-bold tabular-nums",
+            "grid h-16 w-[52px] place-items-center rounded-field border border-field bg-card text-3xl font-bold tabular-nums",
             focused && index === current && "border-lake ring-3 ring-lake-50",
             props["aria-invalid"] && "border-due",
             disabled && "bg-surface",

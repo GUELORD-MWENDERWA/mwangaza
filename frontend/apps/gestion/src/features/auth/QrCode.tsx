@@ -42,7 +42,7 @@ export function QrCode({
         height={count + 2 * margin}
         fill="#fff"
       />
-      <path d={path} fill="#1A2233" />
+      <path d={path} fill="#211D1A" />
     </svg>
   );
 }

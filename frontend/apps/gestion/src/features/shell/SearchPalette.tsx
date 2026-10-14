@@ -37,7 +37,7 @@ export function SearchPalette() {
       >
         <Icon name="search" size={18} />
         <span className="hidden truncate min-[900px]:inline">{t("shell.search.open")}</span>
-        <kbd className="ml-auto hidden rounded-[5px] border border-b-2 border-line bg-card px-1.5 text-[.72rem] text-ink-2 min-[900px]:inline">
+        <kbd className="ml-auto hidden rounded-[5px] border border-b-2 border-line bg-card px-1.5 text-xs text-ink-2 min-[900px]:inline">
           {t("shell.search.shortcut")}
         </kbd>
       </button>

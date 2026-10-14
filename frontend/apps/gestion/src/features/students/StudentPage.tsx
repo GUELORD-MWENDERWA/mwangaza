@@ -95,7 +95,7 @@ export function StudentPage({ schedule = false }: { schedule?: boolean }) {
             className="size-16 text-xl"
           />
           <div className="min-w-[220px] flex-1">
-            <h1 className="text-[1.5rem] font-bold">{studentName(data)}</h1>
+            <h1 className="text-2xl font-bold">{studentName(data)}</h1>
             <div className="mt-1.5 flex flex-wrap items-center gap-2 text-sm">
               {data.matricule && <Tag className="tabular-nums">{data.matricule}</Tag>}
               {enrollment && <Tag>{enrollment.class_group_name}</Tag>}
@@ -168,7 +168,7 @@ type Enrollment = Student["enrollments"][number];
 function Info({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
-      <div className="text-[.78rem] text-ink-3">{label}</div>
+      <div className="text-xs text-ink-3">{label}</div>
       <div className="mt-0.5">{children}</div>
     </div>
   );

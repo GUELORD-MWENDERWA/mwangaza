@@ -132,7 +132,7 @@ export function YearCard({ year, onDeleted }: { year: Year; onDeleted: () => voi
             </Field>
           </div>
           {!year.is_current && (
-            <p className="text-[.8rem] text-ink-3">{t("organisation.year.currentHelp")}</p>
+            <p className="text-xs text-ink-3">{t("organisation.year.currentHelp")}</p>
           )}
         </CardContent>
         <CardFooter>

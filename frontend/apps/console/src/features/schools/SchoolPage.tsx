@@ -249,7 +249,7 @@ function SchoolForm({ school }: { school: Detail }) {
             <CardHeader>
               <CardTitle>{t("console.schools.summaryTitle")}</CardTitle>
             </CardHeader>
-            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 px-4 pt-3 pb-4 text-[.9rem] [&_dt]:text-ink-3">
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 px-4 pt-3 pb-4 text-md [&_dt]:text-ink-3">
               <dt>{t("console.schools.kindLabel")}</dt>
               <dd>{t(`console.schools.kind.${school.environment}`)}</dd>
               <dt>{t("console.schools.subscription")}</dt>
@@ -274,7 +274,7 @@ function SchoolForm({ school }: { school: Detail }) {
             changes={school.history}
             details={(change) =>
               change.action === "school.stopped" ? (
-                <span className="text-[.85rem] break-words">
+                <span className="text-sm break-words">
                   {t("console.schools.stopReasonShown", {
                     reason: String((change.after as { reason?: unknown } | null)?.reason ?? ""),
                   })}

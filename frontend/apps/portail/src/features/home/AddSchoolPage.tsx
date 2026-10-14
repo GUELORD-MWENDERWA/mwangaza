@@ -46,7 +46,7 @@ export function AddSchoolPage() {
             className="flex flex-col gap-4"
             onSubmit={form.handleSubmit((values) => link.mutate(values))}
           >
-            <h1 className="text-[1.4rem]">{t("portal.addSchool.title")}</h1>
+            <h1 className="text-xl">{t("portal.addSchool.title")}</h1>
             <p className="text-ink-2">{t("portal.addSchool.help")}</p>
             {general && <Banner tone="due">{general}</Banner>}
             <Field

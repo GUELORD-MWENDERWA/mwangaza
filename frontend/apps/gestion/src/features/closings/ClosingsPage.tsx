@@ -320,7 +320,7 @@ function SessionTable({
                   {t(`closings.states.${session.state}`)}
                 </StatusPill>
                 {late > 0 && (
-                  <span className="mt-1 block text-[.82rem] text-warn">
+                  <span className="mt-1 block text-sm text-warn">
                     {t("closings.lateShort", { count: late })}
                   </span>
                 )}

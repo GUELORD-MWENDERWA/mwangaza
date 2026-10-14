@@ -38,7 +38,7 @@ export function Segmented<T extends string>({
         <ToggleGroup.Item
           key={option.value}
           value={option.value}
-          className="min-h-10 cursor-pointer px-4 py-2 text-[.9rem] font-bold text-ink-2 focus-visible:relative focus-visible:ring-3 focus-visible:ring-lake-50 focus-visible:outline-none disabled:cursor-not-allowed data-[state=on]:bg-lake data-[state=on]:text-white"
+          className="min-h-10 cursor-pointer px-4 py-2 text-md font-bold text-ink-2 focus-visible:relative focus-visible:ring-3 focus-visible:ring-lake-50 focus-visible:outline-none disabled:cursor-not-allowed data-[state=on]:bg-lake data-[state=on]:text-white"
         >
           {option.label}
         </ToggleGroup.Item>

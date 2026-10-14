@@ -1,16 +1,33 @@
 import { usePlatform } from "../platform";
 import { cn } from "../lib/cn";
 
-/** Lampe des maquettes (`.brand .mark`) : marque de la plateforme sans logo. */
+/**
+ * Lampe-tempête (`maquettes/assets/logo/`) : marque de la plateforme sans logo.
+ * Le cadre prend la couleur du texte autour (clair sur basalte, sombre sur fond clair) ;
+ * le verre suit `lamp`, que la couleur d'accent de la plateforme remplace.
+ */
 export function BrandMark({ className }: { className?: string }) {
   return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        "inline-block size-[30px] shrink-0 rounded-full bg-basalt-2 bg-[radial-gradient(circle_at_50%_55%,var(--color-lamp)_0_38%,transparent_40%)] shadow-[inset_0_0_0_2px_var(--color-lamp)]",
-        className,
-      )}
-    />
+    <svg aria-hidden="true" viewBox="0 0 64 64" className={cn("size-[30px] shrink-0", className)}>
+      <path
+        d="M23 14C23 5 41 5 41 14"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="4.5"
+        strokeLinecap="round"
+      />
+      <path d="M18.5 14.5H45.5L41.5 21H22.5Z" fill="currentColor" />
+      <path
+        d="M22.5 21H41.5C48.5 27.5 48.5 43.5 41.5 50H22.5C15.5 43.5 15.5 27.5 22.5 21Z"
+        fill="var(--color-lamp)"
+      />
+      <path
+        d="M32 27C35.6 32 37 35.3 37 38.8A5 5 0 0 1 27 38.8C27 35.3 28.4 32 32 27Z"
+        fill="white"
+        fillOpacity="0.9"
+      />
+      <path d="M16.5 50H47.5L45 58H19Z" fill="currentColor" />
+    </svg>
   );
 }
 
@@ -33,7 +50,7 @@ export function Brand({ className, large }: { className?: string; large?: boolea
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <PlatformMark />
-      <b className={cn("tracking-[.01em]", large ? "text-xl" : "text-[1.1rem]")}>{name}</b>
+      <b className={cn("tracking-[.01em]", large ? "text-xl" : "text-lg")}>{name}</b>
     </div>
   );
 }

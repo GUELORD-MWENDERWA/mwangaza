@@ -293,7 +293,7 @@ function DailyChart({ days, main }: { days: Dashboard["daily"]; main: string }) 
             ),
           })}
         >
-          <p className="text-right text-[.78rem] text-ink-3 tabular-nums">
+          <p className="text-right text-xs text-ink-3 tabular-nums">
             {formatAmount(max, currency)}
           </p>
           {/* Aujourd'hui en couleur lampe ; le montant de chaque jour au survol. */}
@@ -313,7 +313,7 @@ function DailyChart({ days, main }: { days: Dashboard["daily"]; main: string }) 
               />
             ))}
           </div>
-          <div className="mt-1.5 flex justify-between text-[.78rem] text-ink-3 tabular-nums">
+          <div className="mt-1.5 flex justify-between text-xs text-ink-3 tabular-nums">
             <span>{day(0)}</span>
             <span>{day(Math.floor(days.length / 2))}</span>
             <span>{day(days.length - 1)}</span>
@@ -344,10 +344,10 @@ function Enrollment({ data }: { data: Dashboard }) {
       <CardContent className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-[1.65rem] font-bold tabular-nums">
+            <p className="text-2xl font-bold tabular-nums">
               {data.enrolled.toLocaleString(i18n.language)}
             </p>
-            <p className="text-[.82rem] text-ink-3">{t("dashboard.enrollment.enrolled")}</p>
+            <p className="text-sm text-ink-3">{t("dashboard.enrollment.enrolled")}</p>
           </div>
           <svg
             viewBox="0 0 42 42"

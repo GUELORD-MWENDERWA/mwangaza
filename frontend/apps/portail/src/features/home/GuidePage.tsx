@@ -34,7 +34,7 @@ export function GuidePage() {
       <header className="bg-basalt px-5 pt-7 pb-8 text-basalt-ink">
         <div className="mx-auto max-w-[640px]">
           <Brand />
-          <h1 className="mt-5 text-[1.5rem]">{t("portal.guide.title", { name: account.name })}</h1>
+          <h1 className="mt-5 text-2xl">{t("portal.guide.title", { name: account.name })}</h1>
           <p className="mt-1.5 text-basalt-muted">
             {t(first ? "portal.guide.activated" : "portal.guide.again")}
           </p>
@@ -53,12 +53,12 @@ export function GuidePage() {
               move(end < start ? 1 : -1);
             }}
           >
-            <span className="text-[.78rem] text-ink-3" aria-live="polite">
+            <span className="text-xs text-ink-3" aria-live="polite">
               {t("portal.guide.step", { step: index + 1, total: STEPS.length })}
             </span>
             <Example step={step} />
             <h2>{t(`portal.guide.steps.${step}.title`)}</h2>
-            <p className="text-[.88rem] text-ink-3">{t(`portal.guide.steps.${step}.text`)}</p>
+            <p className="text-sm text-ink-3">{t(`portal.guide.steps.${step}.text`)}</p>
             <span aria-hidden="true" className="flex gap-1.5">
               {STEPS.map((key, dot) => (
                 <i
@@ -77,7 +77,7 @@ export function GuidePage() {
               <button
                 type="button"
                 onClick={leave}
-                className="min-h-11 cursor-pointer text-[.88rem] text-lake underline"
+                className="min-h-11 cursor-pointer text-sm text-lake underline"
               >
                 {t("portal.guide.skip")}
               </button>
@@ -85,7 +85,7 @@ export function GuidePage() {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="text-[.88rem]">
+          <CardContent className="text-sm">
             <b>{t("portal.guide.stepsTitle")}</b>{" "}
             {STEPS.map(
               (key, number) => `${number + 1}. ${t(`portal.guide.steps.${key}.summary`)}`,
@@ -103,7 +103,7 @@ function Example({ step }: { step: Step }) {
   const frame = (children: ReactNode) => (
     <div
       aria-hidden="true"
-      className="flex w-full flex-col gap-2 rounded-xl border border-line p-3 text-left text-[.88rem]"
+      className="flex w-full flex-col gap-2 rounded-xl border border-line p-3 text-left text-sm"
     >
       {children}
     </div>

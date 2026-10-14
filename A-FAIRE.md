@@ -240,7 +240,7 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make shell` | console Django | explorer les données |
 | `python3 maquettes/outils/maquettes.py menu` | réécrit le menu latéral de toutes les maquettes Gestion | après un changement de menu |
 | `python3 maquettes/outils/maquettes.py index` | régénère la galerie `maquettes/index.html` | après une nouvelle maquette |
-| `node maquettes/outils/captures.mjs` | refait les captures PNG des maquettes | après une modification de maquette |
+| `node maquettes/outils/captures.mjs` | refait les captures PNG des maquettes (téléphone et bureau) et signale tout ce qui dépasse de l'écran | après une modification de maquette |
 
 ### Prévues (arrivent avec leur tâche)
 

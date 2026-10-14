@@ -244,7 +244,7 @@ function CheckStep({ imp }: { imp: StudentImport }) {
         <Card>
           <Preview imp={imp} />
           <CardFooter className="flex-wrap items-center justify-between gap-3">
-            <span className="text-[.85rem] text-ink-3">
+            <span className="text-sm text-ink-3">
               {t("students.import.footer", {
                 count: imp.importable_count,
                 number: number(imp.importable_count),
@@ -480,7 +480,7 @@ function Line({ line }: { line: ImportLine }) {
             ))
           )}
           {family && (
-            <span className="text-[.8rem] text-ink-3">
+            <span className="text-xs text-ink-3">
               {t("students.import.issues.same_family", { line: family.line })}
             </span>
           )}

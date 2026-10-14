@@ -46,7 +46,7 @@ def test_colour_and_readable_text(client, school):
 
     body = client.get("/api/school/", HTTP_HOST="alpha.localhost").json()
 
-    assert (body["primary_color"], body["text_color"]) == ("#F2C94C", "#1A2233")
+    assert (body["primary_color"], body["text_color"]) == ("#F2C94C", "#211D1A")
 
 
 def test_is_public(client, school):

@@ -139,13 +139,13 @@ function Payments({ child }: { child: ChildPayments }) {
             {fees.map((fee) => (
               <li key={fee.id} className="flex justify-between gap-3 py-3">
                 <div className="min-w-0">
-                  <b className="block text-[.92rem]">{fee.fee}</b>
-                  <span className="text-[.8rem] text-ink-3">
+                  <b className="block text-md">{fee.fee}</b>
+                  <span className="text-xs text-ink-3">
                     {t("portal.child.dueOn", { date: formatDay(fee.due_on, language) })}
                   </span>
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                  <b className="text-[.92rem] whitespace-nowrap tabular-nums">
+                  <b className="text-md whitespace-nowrap tabular-nums">
                     {fee.remaining_minor > 0 && fee.remaining_minor < fee.amount_minor
                       ? t("portal.child.left", {
                           amount: formatAmount(fee.remaining_minor, fee.currency),
@@ -165,7 +165,7 @@ function Payments({ child }: { child: ChildPayments }) {
         <Card>
           <CardContent className="flex flex-wrap items-center justify-between gap-2 py-3.5">
             <div className="min-w-0">
-              <span className="block text-[.8rem] text-ink-3">{t("portal.child.teacher")}</span>
+              <span className="block text-xs text-ink-3">{t("portal.child.teacher")}</span>
               <b>{child.homeroom_teacher.name}</b>
             </div>
             {child.homeroom_teacher.phone && (
@@ -192,10 +192,10 @@ function Payments({ child }: { child: ChildPayments }) {
             {payments.map((payment) => (
               <li key={payment.id} className="flex items-center justify-between gap-3 py-3">
                 <div className="min-w-0">
-                  <b className="block text-[.92rem] break-all">
+                  <b className="block text-md break-all">
                     {payment.origin === "prior" ? t("portal.child.prior") : payment.receipt_number}
                   </b>
-                  <span className="text-[.8rem] text-ink-3 tabular-nums">
+                  <span className="text-xs text-ink-3 tabular-nums">
                     {formatDate(payment.paid_at, language, child.school_timezone)} ·{" "}
                     {formatAmount(payment.received_amount_minor, payment.received_currency)}
                   </span>

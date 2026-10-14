@@ -294,12 +294,12 @@ function StudentTable({ students, finance }: { students: StudentRow[]; finance: 
                 <span className="flex items-center gap-2.5">
                   <Avatar
                     text={initials(student.middle_name || student.first_name, student.last_name)}
-                    className="size-8 text-[.72rem]"
+                    className="size-8 text-xs"
                   />
                   <span className="flex flex-col">
                     <Link
                       to={`/students/${student.id}`}
-                      className="text-[.92rem] font-bold text-ink hover:text-lake hover:underline"
+                      className="text-md font-bold text-ink hover:text-lake hover:underline"
                     >
                       {studentName(student)}
                     </Link>

@@ -72,7 +72,7 @@ export function RegistrationFormPage() {
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <span className="text-[.87rem] font-bold text-ink-2">
+                <span className="text-sm font-bold text-ink-2">
                   {t("students.print.form.paper")}
                 </span>
                 <Segmented
@@ -92,9 +92,7 @@ export function RegistrationFormPage() {
                   checked={familyCode}
                   onCheckedChange={(checked) => setFamilyCode(checked === true)}
                 />
-                <p className="text-[.82rem] text-ink-3">
-                  {t("students.print.form.familyCodeHelp")}
-                </p>
+                <p className="text-sm text-ink-3">{t("students.print.form.familyCodeHelp")}</p>
               </div>
               {canReadFees && (
                 <div className="flex flex-col gap-1">
@@ -104,7 +102,7 @@ export function RegistrationFormPage() {
                     checked={fees}
                     onCheckedChange={(checked) => setFees(checked === true)}
                   />
-                  <p className="text-[.82rem] text-ink-3">{t("students.print.form.feesHelp")}</p>
+                  <p className="text-sm text-ink-3">{t("students.print.form.feesHelp")}</p>
                 </div>
               )}
               <Button asChild>

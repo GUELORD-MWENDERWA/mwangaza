@@ -15,7 +15,7 @@ export function PageHeader({
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div>
-        {crumbs && <div className="mb-1.5 text-[.82rem] text-ink-3">{crumbs}</div>}
+        {crumbs && <div className="mb-1.5 text-sm text-ink-3">{crumbs}</div>}
         <h1>{title}</h1>
         {subtitle && <p className="mt-1 text-ink-2">{subtitle}</p>}
       </div>

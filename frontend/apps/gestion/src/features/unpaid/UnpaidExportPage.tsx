@@ -95,9 +95,7 @@ export function UnpaidExportPage() {
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">
-                <span className="text-[.87rem] font-bold text-ink-2">
-                  {t("unpaid.export.group")}
-                </span>
+                <span className="text-sm font-bold text-ink-2">{t("unpaid.export.group")}</span>
                 <Segmented
                   label={t("unpaid.export.group")}
                   value={group}

@@ -11,8 +11,8 @@ type SchoolBadgeProps = {
 };
 
 const sizes = {
-  sm: "size-9 rounded-[8px] text-[.7rem]",
-  md: "size-12 rounded-box text-[.85rem]",
+  sm: "size-9 rounded-[8px] text-xs",
+  md: "size-12 rounded-box text-sm",
   lg: "size-[72px] rounded-[14px] text-base",
 };
 

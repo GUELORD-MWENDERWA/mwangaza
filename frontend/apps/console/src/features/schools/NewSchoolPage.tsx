@@ -274,7 +274,7 @@ export function NewSchoolPage() {
               <CardTitle>{t("console.schools.modulesTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-3">
-              <p className="text-[.9rem] text-ink-3">{t("console.schools.modulesCreateHelp")}</p>
+              <p className="text-md text-ink-3">{t("console.schools.modulesCreateHelp")}</p>
               <Controller
                 control={form.control}
                 name="modules"

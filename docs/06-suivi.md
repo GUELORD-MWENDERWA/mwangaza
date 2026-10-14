@@ -62,6 +62,14 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 
 ## Journal
 
+### 2026-10-14 — Identité visuelle : logo, couleurs, échelle de texte, téléphone (hors plan, demande de l'utilisateur)
+
+- Fait : logo lampe-tempête (maquettes, `BrandMark`, icônes des trois applications, page de vérification des reçus) ; neutres basalte à la place des gris bleutés génériques ; 306 tailles de texte ramenées sur une échelle de 8 ; 41 maquettes qui débordaient sur téléphone corrigées (règles « Téléphone » de `styles.css`, grilles `minmax(0, …)`), capture téléphone pour chaque écran.
+- Tests : `design.test.ts` (taille ou couleur en dur refusée) ; `captures.mjs` sort en erreur sur un débordement ; front 268 tests verts ; serveur : écoles, plateforme, comptes, vérification des reçus verts.
+- Décisions : `03`, journal (2026-10-14, identité visuelle). Logo et neutres à valider par l'utilisateur dans la PR.
+- À savoir : mes tests serveur, lancés depuis `.worktrees/mwangaza-identite` sur la base `test_mwangaza` commune, ont gêné S.6.2 ; deux sessions en même temps → `POSTGRES_DB=<nom>` à part (voir S.6.2 ci-dessous).
+- Suite : `make deploy` (avec S.6.1, S.6.2 et cette identité), puis 8.1.
+
 ### 2026-10-14 — Tâche S.6.2 : Row Level Security sur toutes les tables d'une école
 
 - Fait : la règle de S.6.1 va sur chaque table d'une école (`TenantModel`), plus de liste à tenir. Lectures de toute la plateforme mises dans `use_all_schools()` : code famille unique, identifiant déjà pris, famille par code (activation et mot de passe oublié du Portail), rôles d'un compte dans toutes ses écoles (`/me`, double authentification exigée), planificateur, purges, envoi des notifications, import d'élèves, `make demo`. Contrôle « rôle d'une autre école » réécrit (il comptait sur leur visibilité).

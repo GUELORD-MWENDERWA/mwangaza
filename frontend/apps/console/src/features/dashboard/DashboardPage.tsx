@@ -170,7 +170,7 @@ export function DashboardPage() {
             {data.health.checks.map((check) => (
               <li
                 key={check.name}
-                className="flex items-center justify-between gap-3 border-t border-line px-4 py-2.5 text-[.92rem] first:border-t-0"
+                className="flex items-center justify-between gap-3 border-t border-line px-4 py-2.5 text-md first:border-t-0"
               >
                 <span className="flex items-center gap-2">
                   <i aria-hidden="true" className={cn("size-2 rounded-full", DOTS[check.status])} />
@@ -229,7 +229,7 @@ function PlatformCard({ platform }: { platform: Platform }) {
         {rows.map((row) => (
           <li
             key={row.key}
-            className="flex items-center justify-between gap-3 border-t border-line px-4 py-2.5 text-[.92rem] first:border-t-0"
+            className="flex items-center justify-between gap-3 border-t border-line px-4 py-2.5 text-md first:border-t-0"
           >
             <span className="flex items-center gap-2">
               <i aria-hidden="true" className={cn("size-2 rounded-full", DOTS[row.status])} />
@@ -249,7 +249,7 @@ function PlatformCard({ platform }: { platform: Platform }) {
           {platform.syncs.map((school) => (
             <li
               key={school.id}
-              className="flex items-center justify-between gap-3 border-t border-line px-4 py-2.5 text-[.92rem]"
+              className="flex items-center justify-between gap-3 border-t border-line px-4 py-2.5 text-md"
             >
               <span>
                 {school.name} <span className="text-sm text-ink-3">{school.code}</span>

@@ -136,7 +136,7 @@ Aucune dépendance à installer (Python 3, Node 22 et Google Chrome de la machin
 |---|---|
 | `python3 maquettes/outils/maquettes.py menu` | réécrit le menu latéral de toutes les pages Gestion depuis `MENU` (à lancer après avoir ajouté une entrée) |
 | `python3 maquettes/outils/maquettes.py index` | régénère `index.html` depuis le catalogue `GESTION` / `PORTAIL` / `CONSOLE` |
-| `node maquettes/outils/captures.mjs [fichier.html …]` | refait les captures PNG (bureau 1440 px, mobile 390 px × 2 ; console : les deux) ; sans argument : toutes |
+| `node maquettes/outils/captures.mjs [fichier.html …]` | refait les captures PNG (téléphone 390 px pour tous les écrans ; bureau 1440 px pour la Gestion et la console) et **sort en erreur si un élément dépasse de l'écran** ; sans argument : toutes |
 
 Pour dessiner un nouvel écran : écrire la page avec la même coquille (`page_gestion`, `page_auth`, `page_portail` et `ic` dans `maquettes.py`), l'ajouter au catalogue, puis `index` et `captures`.
 
@@ -162,10 +162,11 @@ Depuis la 5.1, le nom « Mwangaza », la lampe et les couleurs `lamp` / `lake` d
 | `lamp-soft` | `#FDF3D8` | bandeaux d'information de marque |
 | `lake` | `#0E5C6B` | bouton principal, liens, focus (= `primary`) |
 | `lake-50` | `#E6F0F2` | sélection, fond de focus |
-| `ink` | `#1A2233` | texte |
-| `ink-2` / `ink-3` | `#4A5568` / `#77818F` | texte secondaire / tertiaire |
-| `surface` | `#F3F5F6` | fond de page |
-| `line` | `#DDE3E6` | bordures |
+| `ink` | `#211D1A` | texte |
+| `ink-2` / `ink-3` | `#554D46` / `#6E655D` | texte secondaire / tertiaire (≥ 4,5:1) |
+| `surface` | `#F4F2EF` | fond de page |
+| `line` / `line-soft` | `#E2DCD5` / `#EDE9E4` | bordures / séparateurs |
+| `field` | `#958A80` | bordure de champ (≥ 3:1 sur blanc) |
 | `ok` / `ok-50` | `#1F7A4D` / `#E5F3EB` | payé, à jour, succès |
 | `due` / `due-50` | `#B42318` / `#FBE9E7` | en retard, erreur, danger |
 | `warn` / `warn-50` | `#9A5B00` / `#FFF1D6` | partiel, hors-ligne, avertissement |
@@ -174,7 +175,16 @@ Depuis la 5.1, le nom « Mwangaza », la lampe et les couleurs `lamp` / `lake` d
 
 - Rayons : cartes 12 px, champs et boutons 8 px, pastilles d'état arrondies.
 - Hauteur minimale des champs : 40 px ; boutons principaux de caisse : très grands (60 px et plus).
-- Base 15 px ; titres de page 1,6 rem.
+- Base 15 px ; titres de page 1,6 rem. Échelle de texte (rem) : .8 · .85 · .92 · 1 · 1,15 · 1,3 · 1,6 · 2 — aucune autre taille à l'écran, rien sous 12 px (impression : pt / px).
+- Neutres tirés du basalte (2026-10-14) : gris chauds, pas les gris bleutés par défaut de Tailwind.
+
+### Logo
+
+Lampe-tempête allumée (*mwangaza* = la lumière), fichiers dans `assets/logo/` : `lampe-sur-sombre.svg` (défaut des maquettes, `.brand .mark`), `lampe-sur-clair.svg` (`.brand.clair`), `icone-application.svg` et `icone-maskable.svg` (icônes des applications). Remplace le disque jaune d'avant. Valeur de départ de l'identité de la plateforme, comme le nom et les couleurs.
+
+### Téléphone
+
+Chaque écran tient en 390 px sans défilement horizontal (règles « Téléphone » à la fin de `assets/styles.css` : rangées et pieds de carte qui passent à la ligne, tableau qui défile dans sa carte, onglets qui défilent, documents A4 en aperçu réduit). Grilles : toujours `minmax(0, …)`.
 
 ### Composants récurrents
 

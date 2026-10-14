@@ -1,6 +1,6 @@
 """Couleur de l'école (décision Q8, `docs/04` § 1) : choisie par l'école, lisible.
 
-Le texte posé sur la couleur (badge de l'école, en-têtes imprimés) est blanc ou encre `#1A2233`,
+Le texte posé sur la couleur (badge de l'école, en-têtes imprimés) est blanc ou encre `#211D1A`,
 celui qui contraste le plus, avec un contraste d'au moins 4,5 : 1 (WCAG 2, texte normal). Une
 couleur sur laquelle aucun des deux n'est lisible est refusée, avec une teinte voisine proposée.
 """
@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 
 DEFAULT_COLOR = "#0E5C6B"  # `lake`, couleur Mwangaza
 WHITE = "#FFFFFF"
-INK = "#1A2233"
+INK = "#211D1A"
 MIN_CONTRAST = 4.5
 
 _HEX = re.compile(r"^#([0-9A-F]{3}|[0-9A-F]{6})$")

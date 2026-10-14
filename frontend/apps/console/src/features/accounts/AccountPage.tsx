@@ -294,7 +294,7 @@ function AccountForm({ account }: { account: Detail }) {
               <CardTitle>{t("console.accounts.schools")}</CardTitle>
             </CardHeader>
             {account.memberships.length === 0 && (
-              <CardContent className="text-[.9rem] text-ink-3">
+              <CardContent className="text-md text-ink-3">
                 {t("console.accounts.noSchool")}
               </CardContent>
             )}
@@ -302,7 +302,7 @@ function AccountForm({ account }: { account: Detail }) {
               {account.memberships.map((membership) => (
                 <li
                   key={membership.id}
-                  className="flex flex-col gap-0.5 border-t border-line px-4 py-2.5 text-[.9rem] first:border-t-0"
+                  className="flex flex-col gap-0.5 border-t border-line px-4 py-2.5 text-md first:border-t-0"
                 >
                   <span>
                     <b>{membership.school.name}</b>
@@ -313,7 +313,7 @@ function AccountForm({ account }: { account: Detail }) {
                       </StatusPill>
                     )}
                   </span>
-                  <span className="text-[.82rem] text-ink-3">
+                  <span className="text-sm text-ink-3">
                     {t("console.accounts.lastLoginAt", { date: when(membership.last_login_at) })}
                   </span>
                 </li>
@@ -325,7 +325,7 @@ function AccountForm({ account }: { account: Detail }) {
               <CardTitle>{t("console.accounts.familiesTitle")}</CardTitle>
             </CardHeader>
             {account.families.length === 0 && (
-              <CardContent className="text-[.9rem] text-ink-3">
+              <CardContent className="text-md text-ink-3">
                 {t("console.accounts.noFamily")}
               </CardContent>
             )}
@@ -333,7 +333,7 @@ function AccountForm({ account }: { account: Detail }) {
               {account.families.map((family) => (
                 <li
                   key={family.id}
-                  className="flex flex-col gap-0.5 border-t border-line px-4 py-2.5 text-[.9rem] first:border-t-0"
+                  className="flex flex-col gap-0.5 border-t border-line px-4 py-2.5 text-md first:border-t-0"
                 >
                   <span>
                     <b>{family.school.name}</b> · {t("console.accounts.family")}{" "}
@@ -345,7 +345,7 @@ function AccountForm({ account }: { account: Detail }) {
                     )}
                   </span>
                   {family.activated_at && (
-                    <span className="text-[.82rem] text-ink-3">
+                    <span className="text-sm text-ink-3">
                       {t("console.accounts.activatedOn", {
                         date: formatDay(family.activated_at.slice(0, 10), i18n.language),
                       })}

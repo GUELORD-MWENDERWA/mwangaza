@@ -32,7 +32,7 @@ export function InstallPage() {
       <header className="bg-basalt px-5 pt-7 pb-8 text-basalt-ink">
         <div className="mx-auto max-w-[640px]">
           <Brand />
-          <h1 className="mt-5 text-[1.5rem]">{t("portal.install.title")}</h1>
+          <h1 className="mt-5 text-2xl">{t("portal.install.title")}</h1>
           <p className="mt-1.5 text-basalt-muted">{t("portal.install.subtitle")}</p>
         </div>
       </header>
@@ -40,7 +40,7 @@ export function InstallPage() {
         <Card className="overflow-hidden">
           <div
             aria-hidden="true"
-            className="grid place-items-center bg-[linear-gradient(160deg,#355C7D,var(--color-lake))] py-6"
+            className="grid place-items-center bg-[linear-gradient(160deg,var(--color-basalt),var(--color-lake))] py-6"
           >
             {icon ? (
               <img src={icon} alt="" className="size-[60px] rounded-[14px]" />
@@ -51,7 +51,7 @@ export function InstallPage() {
             )}
           </div>
           <CardContent className="flex flex-col gap-4">
-            <h2 className="text-[1.25rem]">{t("portal.install.heading")}</h2>
+            <h2 className="text-xl">{t("portal.install.heading")}</h2>
             <ul className="flex flex-col gap-2.5">
               {BENEFITS.map((key) => (
                 <li key={key} className="flex items-center gap-2.5">
@@ -65,7 +65,7 @@ export function InstallPage() {
                 {t("portal.install.install")}
               </Button>
             ) : (
-              <p className="text-[.88rem] text-ink-3">{t("portal.install.browserMenu")}</p>
+              <p className="text-sm text-ink-3">{t("portal.install.browserMenu")}</p>
             )}
             <Button
               variant="ghost"
@@ -86,16 +86,14 @@ export function InstallPage() {
             <ol className="flex flex-col gap-2.5">
               {IPHONE_STEPS.map((key, index) => (
                 <li key={key} className="flex items-center gap-2.5">
-                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-gray-50 text-[.8rem] font-bold">
+                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-gray-50 text-xs font-bold">
                     {index + 1}
                   </span>
                   {t(`portal.install.steps.${key}`)}
                 </li>
               ))}
             </ol>
-            <p className="mt-3 text-[.88rem] text-ink-3">
-              {t("portal.install.iphoneNotifications")}
-            </p>
+            <p className="mt-3 text-sm text-ink-3">{t("portal.install.iphoneNotifications")}</p>
           </CardContent>
         </Card>
       </main>

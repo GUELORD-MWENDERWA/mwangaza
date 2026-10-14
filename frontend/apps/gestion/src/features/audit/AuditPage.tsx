@@ -112,9 +112,7 @@ export function AuditPage() {
                 {t("audit.export")}
               </Button>
             )}
-            {!exportable && (
-              <span className="text-[.82rem] text-ink-3">{t("audit.exportHelp")}</span>
-            )}
+            {!exportable && <span className="text-sm text-ink-3">{t("audit.exportHelp")}</span>}
           </div>
         }
       />
@@ -273,7 +271,7 @@ function LogTable({
               </td>
               <td>
                 <span className="flex items-center gap-2">
-                  <Avatar text={initialsText} className="size-7 text-[.7rem]" />
+                  <Avatar text={initialsText} className="size-7 text-xs" />
                   <b className="text-sm">
                     <Who log={log} />
                   </b>

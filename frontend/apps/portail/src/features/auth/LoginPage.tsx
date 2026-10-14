@@ -61,7 +61,7 @@ export function LoginPage() {
             className="flex flex-col gap-4"
             onSubmit={form.handleSubmit((values) => login.mutate(values))}
           >
-            <h2 className="text-[1.4rem]">{t("portal.login.heading")}</h2>
+            <h2 className="text-xl">{t("portal.login.heading")}</h2>
             {login.isError ? (
               <Banner tone="due">{errorMessage(login.error, t)}</Banner>
             ) : (
