@@ -22,6 +22,8 @@ MODULES: dict[str, tuple[Promise, tuple[str, ...]]] = {
         tuple(code for code in PERMISSIONS if code.startswith("finance.")),
     ),
     "communication": (_("Announcements"), ("announcements.publish",)),
+    # Cours (8.1), puis notes, bulletins et délibération (8.2 à 8.4).
+    "academics": (_("Courses, grades and report cards"), ("courses.configure",)),
     # Sans permission : ils ouvrent des fonctions (portail des parents, notifications à l'écran,
     # travail hors-ligne), pas des droits du personnel.
     "portal": (_("Parent portal"), ()),
@@ -32,6 +34,8 @@ MODULES: dict[str, tuple[Promise, tuple[str, ...]]] = {
 # premier est actif. Rien n'est supprimé en désactivant (les données reviennent à la réactivation).
 DEPENDENCIES: dict[str, tuple[str, ...]] = {
     "finance": ("students",),
+    # Les notes sont celles des élèves inscrits.
+    "academics": ("students",),
     "portal": ("students",),
 }
 MODULE_CHOICES = [(code, label) for code, (label, _permissions) in MODULES.items()]

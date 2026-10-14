@@ -152,6 +152,7 @@ ACTIVE_FOR = {
     "bulletin.html": "notes-saisie.html",
     "bulletin-education-de-base.html": "notes-saisie.html",
     "cours-maxima.html": "notes-saisie.html",
+    "charges-enseignants.html": "notes-saisie.html",
     "guide-premiere-connexion.html": "caisse-encaissement.html",
 }
 
@@ -331,6 +332,7 @@ GESTION = [
     ("presences-pointage-qr", "Pointage QR à l'entrée", "V1.1", "Plus tard · 5.5", False),
     ("notes-saisie", "Saisie des notes", "V1.2", "Plus tard · 6.2", False),
     ("cours-maxima", "Cours et maxima par classe", "V1.2", "Plus tard · 6.1", True),
+    ("charges-enseignants", "Charges des enseignants", "V1.2", "Plus tard · 8.1", True),
     ("bulletin", "Bulletin officiel — humanités techniques", "V1.2", "Plus tard · 6.3", True),
     ("bulletin-education-de-base", "Bulletin officiel — 7e-8e EB", "V1.2", "Plus tard · 6.3", True),
 ]

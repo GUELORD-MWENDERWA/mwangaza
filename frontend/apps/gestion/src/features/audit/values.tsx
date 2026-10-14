@@ -40,6 +40,15 @@ type ClosingLine = {
   difference_minor: number;
 };
 
+// Cours d'une classe (8.1) : ceux ajoutés, retirés ou modifiés.
+type CourseRow = {
+  name: string;
+  period_max: number;
+  has_exam: boolean;
+  weekly_hours: number | null;
+  teacher: string | null;
+};
+
 type Snapshot = {
   kind: TermKind;
   name: string;
@@ -148,6 +157,23 @@ export function renderValue(
       return (value as string[]).join(" · ");
     case "terms":
       return <Terms terms={value as Snapshot[]} t={t} language={language} />;
+    case "courses":
+      return (
+        <ul className="flex flex-col gap-0.5">
+          {(value as CourseRow[]).map((row) => (
+            <li key={row.name}>
+              {[
+                t("audit.values.course", { name: row.name, max: row.period_max }),
+                row.has_exam ? null : t("courses.noExam"),
+                row.weekly_hours ? t("courses.hoursValue", { value: row.weekly_hours }) : null,
+                row.teacher,
+              ]
+                .filter(Boolean)
+                .join(", ")}
+            </li>
+          ))}
+        </ul>
+      );
     case "amounts":
       // Clôture de caisse (3.8.2) : une ligne par devise, jamais additionnées.
       return (

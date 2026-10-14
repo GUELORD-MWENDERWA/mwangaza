@@ -33,6 +33,7 @@ COLUMNS = [
 TABLE = {
     "school.configure": "✔ . . . . . .",
     "classes.manage": "✔ ✔ . . . . .",
+    "courses.configure": "✔ ✔ . . . . .",
     "roles.manage": "✔ . . . . . .",
     "students.view": "✔ ✔ ✔ ✔ ✔ ✔ ✔",
     "students.edit": "✔ ✔ . . . ✔ .",

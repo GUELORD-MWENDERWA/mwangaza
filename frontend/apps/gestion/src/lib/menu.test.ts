@@ -11,6 +11,8 @@ describe("menu selon les permissions (04 § 8)", () => {
     expect(keysOf(me("head"))).toEqual([
       "dashboard",
       "students",
+      "courses",
+      "teachingLoads",
       "unpaid",
       "fees",
       "cancellations",

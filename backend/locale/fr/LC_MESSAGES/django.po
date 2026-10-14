@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-14 21:40+0200\n"
+"POT-Creation-Date: 2026-10-14 22:39+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -13,6 +13,77 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: apps/academics/apps.py:11
+msgid "Courses and grades"
+msgstr "Cours et notes"
+
+#: apps/academics/courses.py:27
+msgid "A removed course is already used."
+msgstr "Un cours retiré est déjà utilisé."
+
+#: apps/academics/courses.py:66
+#, python-format
+msgid "At most %(max)d courses per class."
+msgstr "Au plus %(max)d cours par classe."
+
+#: apps/academics/courses.py:77
+msgid "This class already has this course."
+msgstr "Cette classe a déjà ce cours."
+
+#: apps/academics/courses.py:83
+msgid "Unknown course."
+msgstr "Cours inconnu."
+
+#: apps/academics/courses.py:90 apps/schools/organisation.py:501
+msgid "Choose a member of the school's staff."
+msgstr "Choisissez un membre du personnel de l'école."
+
+#: apps/academics/models.py:22 apps/notifications/models.py:129
+#: apps/schools/models.py:520 apps/students/models.py:170
+msgid "class"
+msgstr "classe"
+
+#: apps/academics/models.py:24 apps/accounts/models.py:134
+#: apps/core/models.py:137 apps/finance/models.py:35 apps/finance/models.py:371
+#: apps/schools/models.py:91 apps/schools/models.py:331
+#: apps/schools/models.py:389 apps/schools/models.py:428
+#: apps/schools/models.py:452 apps/sync/models.py:27
+msgid "name"
+msgstr "nom"
+
+#: apps/academics/models.py:27
+msgid "domain"
+msgstr "domaine"
+
+#: apps/academics/models.py:29
+msgid "maximum per period"
+msgstr "maximum par période"
+
+#: apps/academics/models.py:33
+msgid "with exam"
+msgstr "avec examen"
+
+#: apps/academics/models.py:36
+msgid "hours per week"
+msgstr "heures par semaine"
+
+#: apps/academics/models.py:48
+msgid "teacher"
+msgstr "enseignant"
+
+#: apps/academics/models.py:50 apps/finance/models.py:130
+#: apps/schools/models.py:388 apps/schools/models.py:430
+msgid "order"
+msgstr "ordre"
+
+#: apps/academics/models.py:54
+msgid "course"
+msgstr "cours"
+
+#: apps/academics/models.py:55
+msgid "courses"
+msgstr "cours"
 
 #: apps/accounts/admin.py:65
 #: apps/schools/templates/schools/access_sheet.html:25
@@ -224,14 +295,6 @@ msgstr "compte"
 msgid "accounts"
 msgstr "comptes"
 
-#: apps/accounts/models.py:134 apps/core/models.py:137
-#: apps/finance/models.py:35 apps/finance/models.py:371
-#: apps/schools/models.py:91 apps/schools/models.py:331
-#: apps/schools/models.py:389 apps/schools/models.py:428
-#: apps/schools/models.py:452 apps/sync/models.py:27
-msgid "name"
-msgstr "nom"
-
 #: apps/accounts/models.py:146
 msgid "role"
 msgstr "rôle"
@@ -291,21 +354,25 @@ msgstr "Frais, caisse et paiements"
 msgid "Announcements"
 msgstr "Annonces"
 
-#: apps/accounts/modules.py:27 apps/core/site.py:115
+#: apps/accounts/modules.py:26
+msgid "Courses, grades and report cards"
+msgstr "Cours, notes et bulletins"
+
+#: apps/accounts/modules.py:29 apps/core/site.py:115
 #: apps/core/templates/core/site/home.html:195 apps/notifications/models.py:230
 #: apps/portal/apps.py:10
 msgid "Parent portal"
 msgstr "Portail des parents"
 
-#: apps/accounts/modules.py:28
+#: apps/accounts/modules.py:30
 msgid "Notifications and reminders"
 msgstr "Notifications et relances"
 
-#: apps/accounts/modules.py:29
+#: apps/accounts/modules.py:31
 msgid "Offline work and synchronisation"
 msgstr "Travail hors-ligne et synchronisation"
 
-#: apps/accounts/modules.py:54
+#: apps/accounts/modules.py:58
 #, python-format
 msgid "%(module)s is still needed by %(by)s."
 msgstr "« %(module)s » est encore nécessaire à « %(by)s »."
@@ -340,99 +407,103 @@ msgid "Manage years, terms, levels, tracks, classes and student numbers"
 msgstr "Gérer les années, périodes, niveaux, options, classes et matricules"
 
 #: apps/accounts/roles.py:23
+msgid "Configure courses, maxima and teachers of each class"
+msgstr "Configurer les cours, maxima et enseignants de chaque classe"
+
+#: apps/accounts/roles.py:24
 msgid "Manage staff accounts and roles"
 msgstr "Gérer les comptes du personnel et les rôles"
 
-#: apps/accounts/roles.py:24
+#: apps/accounts/roles.py:25
 msgid "View students"
 msgstr "Voir les élèves"
 
-#: apps/accounts/roles.py:25
+#: apps/accounts/roles.py:26
 msgid "Edit students"
 msgstr "Modifier les élèves"
 
-#: apps/accounts/roles.py:26
+#: apps/accounts/roles.py:27
 msgid "Import students from Excel"
 msgstr "Importer des élèves depuis Excel"
 
-#: apps/accounts/roles.py:27
+#: apps/accounts/roles.py:28
 msgid "Configure fees"
 msgstr "Paramétrer les frais"
 
-#: apps/accounts/roles.py:28
+#: apps/accounts/roles.py:29
 msgid "Set the exchange rate"
 msgstr "Saisir le taux de change"
 
-#: apps/accounts/roles.py:29
+#: apps/accounts/roles.py:30
 msgid "Grant discounts"
 msgstr "Accorder des réductions"
 
-#: apps/accounts/roles.py:30
+#: apps/accounts/roles.py:31
 msgid "Collect payments"
 msgstr "Encaisser des paiements"
 
-#: apps/accounts/roles.py:31
+#: apps/accounts/roles.py:32
 msgid "Request a payment cancellation"
 msgstr "Demander l'annulation d'un paiement"
 
-#: apps/accounts/roles.py:32
+#: apps/accounts/roles.py:33
 msgid "Approve a payment cancellation"
 msgstr "Valider l'annulation d'un paiement"
 
-#: apps/accounts/roles.py:33
+#: apps/accounts/roles.py:34
 msgid "Close a cash register"
 msgstr "Clôturer une caisse"
 
-#: apps/accounts/roles.py:34
+#: apps/accounts/roles.py:35
 msgid "View financial reports"
 msgstr "Voir les rapports financiers"
 
-#: apps/accounts/roles.py:35
+#: apps/accounts/roles.py:36
 msgid "Record what students paid before the school started here"
 msgstr ""
 "Enregistrer ce que les élèves avaient payé avant l'application (reprise)"
 
-#: apps/accounts/roles.py:36
+#: apps/accounts/roles.py:37
 msgid "Publish announcements"
 msgstr "Publier des annonces"
 
-#: apps/accounts/roles.py:37
+#: apps/accounts/roles.py:38
 msgid "View the audit log"
 msgstr "Voir le journal d'audit"
 
-#: apps/accounts/roles.py:104
+#: apps/accounts/roles.py:107
 msgid "Head of school"
 msgstr "Directeur"
 
-#: apps/accounts/roles.py:123
+#: apps/accounts/roles.py:127
 msgid "Director of studies"
 msgstr "Directeur des études"
 
-#: apps/accounts/roles.py:127
+#: apps/accounts/roles.py:137
 msgid "Discipline master"
 msgstr "Directeur de discipline"
 
-#: apps/accounts/roles.py:130
+#: apps/accounts/roles.py:140
 msgid "Accountant"
 msgstr "Comptable"
 
-#: apps/accounts/roles.py:145 apps/finance/documents.py:68
+#: apps/accounts/roles.py:155 apps/finance/documents.py:68
 msgid "Cashier"
 msgstr "Caissier"
 
-#: apps/accounts/roles.py:154
+#: apps/accounts/roles.py:164
 msgid "Secretary"
 msgstr "Secrétaire"
 
-#: apps/accounts/roles.py:157
+#: apps/accounts/roles.py:167
 msgid "Promoter"
 msgstr "Promoteur"
 
-#: apps/accounts/roles.py:160
+#: apps/accounts/roles.py:170
 msgid "Teacher"
 msgstr "Enseignant"
 
-#: apps/accounts/roles.py:161
+#: apps/accounts/roles.py:171
 #: apps/schools/templates/schools/access_sheet.html:36
 msgid "Parent"
 msgstr "Parent"
@@ -628,7 +699,7 @@ msgstr "Double authentification sur un nouveau téléphone"
 msgid "Two-factor authentication turned off"
 msgstr "Double authentification désactivée"
 
-#: apps/audit/actions.py:24 apps/audit/actions.py:210
+#: apps/audit/actions.py:24 apps/audit/actions.py:213
 msgid "Two-factor authentication reset by support"
 msgstr "Double authentification réinitialisée par le support"
 
@@ -636,19 +707,19 @@ msgstr "Double authentification réinitialisée par le support"
 msgid "New recovery codes"
 msgstr "Nouveaux codes de secours"
 
-#: apps/audit/actions.py:27 apps/audit/actions.py:206
+#: apps/audit/actions.py:27 apps/audit/actions.py:209
 msgid "Names or phone changed by support"
 msgstr "Noms ou téléphone changés par le support"
 
-#: apps/audit/actions.py:28 apps/audit/actions.py:207
+#: apps/audit/actions.py:28 apps/audit/actions.py:210
 msgid "Account deactivated by support"
 msgstr "Compte désactivé par le support"
 
-#: apps/audit/actions.py:29 apps/audit/actions.py:208
+#: apps/audit/actions.py:29 apps/audit/actions.py:211
 msgid "Account reactivated by support"
 msgstr "Compte réactivé par le support"
 
-#: apps/audit/actions.py:30 apps/audit/actions.py:209
+#: apps/audit/actions.py:30 apps/audit/actions.py:212
 msgid "Temporary password given by support"
 msgstr "Mot de passe provisoire donné par le support"
 
@@ -692,7 +763,7 @@ msgstr "Mot de passe provisoire donné"
 msgid "Two-factor authentication reset"
 msgstr "Double authentification réinitialisée"
 
-#: apps/audit/actions.py:48 apps/audit/actions.py:198
+#: apps/audit/actions.py:48 apps/audit/actions.py:201
 msgid "School created"
 msgstr "École créée"
 
@@ -704,15 +775,15 @@ msgstr "Paramètres de l'école modifiés"
 msgid "School logo changed"
 msgstr "Logo de l'école changé"
 
-#: apps/audit/actions.py:51 apps/audit/actions.py:200
+#: apps/audit/actions.py:51 apps/audit/actions.py:203
 msgid "School suspended"
 msgstr "École suspendue"
 
-#: apps/audit/actions.py:52 apps/audit/actions.py:201
+#: apps/audit/actions.py:52 apps/audit/actions.py:204
 msgid "School reactivated"
 msgstr "École réactivée"
 
-#: apps/audit/actions.py:53 apps/audit/actions.py:202
+#: apps/audit/actions.py:53 apps/audit/actions.py:205
 msgid "School stopped"
 msgstr "École arrêtée"
 
@@ -777,270 +848,274 @@ msgid "Student number format changed"
 msgstr "Format du matricule modifié"
 
 #: apps/audit/actions.py:76
+msgid "Courses of a class changed"
+msgstr "Cours d'une classe modifiés"
+
+#: apps/audit/actions.py:79
 msgid "Family created"
 msgstr "Famille créée"
 
-#: apps/audit/actions.py:77
+#: apps/audit/actions.py:80
 msgid "Family changed"
 msgstr "Famille modifiée"
 
-#: apps/audit/actions.py:78
+#: apps/audit/actions.py:81
 msgid "Family deleted"
 msgstr "Famille supprimée"
 
-#: apps/audit/actions.py:79
+#: apps/audit/actions.py:82
 msgid "Student created"
 msgstr "Élève créé"
 
-#: apps/audit/actions.py:80
+#: apps/audit/actions.py:83
 msgid "Student changed"
 msgstr "Élève modifié"
 
-#: apps/audit/actions.py:81
+#: apps/audit/actions.py:84
 msgid "Student enrolled"
 msgstr "Élève inscrit"
 
-#: apps/audit/actions.py:82
+#: apps/audit/actions.py:85
 msgid "Enrollment changed"
 msgstr "Inscription modifiée"
 
-#: apps/audit/actions.py:83
+#: apps/audit/actions.py:86
 msgid "Student imported from a file"
 msgstr "Élève importé d'un fichier"
 
-#: apps/audit/actions.py:84
+#: apps/audit/actions.py:87
 msgid "Student import cancelled"
 msgstr "Import d'élèves annulé"
 
-#: apps/audit/actions.py:85
+#: apps/audit/actions.py:88
 msgid "Student removed (import cancelled)"
 msgstr "Élève retiré (import annulé)"
 
-#: apps/audit/actions.py:88
+#: apps/audit/actions.py:91
 msgid "Family code printed on the registration form"
 msgstr "Code famille imprimé sur la fiche d'inscription"
 
-#: apps/audit/actions.py:90
+#: apps/audit/actions.py:93
 msgid "New family code"
 msgstr "Nouveau code famille"
 
-#: apps/audit/actions.py:93
+#: apps/audit/actions.py:96
 msgid "Portal invitation letter printed (family code)"
 msgstr "Lettre d'invitation au portail imprimée (code famille)"
 
-#: apps/audit/actions.py:97
+#: apps/audit/actions.py:100
 msgid "Portal invitation message opened (family code)"
 msgstr "Message d'invitation au portail ouvert (code famille)"
 
-#: apps/audit/actions.py:99
+#: apps/audit/actions.py:102
 msgid "Parent portal access suspended"
 msgstr "Accès au portail suspendu"
 
-#: apps/audit/actions.py:100
+#: apps/audit/actions.py:103
 msgid "Parent portal access restored"
 msgstr "Accès au portail rétabli"
 
-#: apps/audit/actions.py:103
+#: apps/audit/actions.py:106
 msgid "Contact details sent by the parent applied"
 msgstr "Coordonnées envoyées par le parent appliquées"
 
-#: apps/audit/actions.py:107
+#: apps/audit/actions.py:110
 msgid "Contact details sent by the parent not applied"
 msgstr "Coordonnées envoyées par le parent non appliquées"
 
-#: apps/audit/actions.py:110
+#: apps/audit/actions.py:113
 msgid "Parent portal activated"
 msgstr "Portail activé par le parent"
 
-#: apps/audit/actions.py:111
+#: apps/audit/actions.py:114
 msgid "Parent chose a new password"
 msgstr "Nouveau mot de passe choisi par le parent"
 
-#: apps/audit/actions.py:113
+#: apps/audit/actions.py:116
 msgid "Fee type created"
 msgstr "Type de frais créé"
 
-#: apps/audit/actions.py:114
+#: apps/audit/actions.py:117
 msgid "Fee type changed"
 msgstr "Type de frais modifié"
 
-#: apps/audit/actions.py:115
+#: apps/audit/actions.py:118
 msgid "Fee type deleted"
 msgstr "Type de frais supprimé"
 
-#: apps/audit/actions.py:116
+#: apps/audit/actions.py:119
 msgid "Fee rule created"
 msgstr "Barème créé"
 
-#: apps/audit/actions.py:117
+#: apps/audit/actions.py:120
 msgid "Fee rule changed"
 msgstr "Barème modifié"
 
-#: apps/audit/actions.py:118
+#: apps/audit/actions.py:121
 msgid "Fee rule deleted"
 msgstr "Barème supprimé"
 
-#: apps/audit/actions.py:121
+#: apps/audit/actions.py:124
 msgid "Fee rules copied from another school year"
 msgstr "Barèmes repris d'une autre année"
 
-#: apps/audit/actions.py:123
+#: apps/audit/actions.py:126
 msgid "Exchange rate set"
 msgstr "Taux de l'année saisi"
 
-#: apps/audit/actions.py:124
+#: apps/audit/actions.py:127
 msgid "Custom schedule set"
 msgstr "Échéancier particulier enregistré"
 
-#: apps/audit/actions.py:125 apps/finance/models.py:717
+#: apps/audit/actions.py:128 apps/finance/models.py:717
 msgid "Discount granted"
 msgstr "Réduction accordée"
 
-#: apps/audit/actions.py:126
+#: apps/audit/actions.py:129
 msgid "Discount revoked"
 msgstr "Réduction retirée"
 
-#: apps/audit/actions.py:128
+#: apps/audit/actions.py:131
 msgid "Cash register created"
 msgstr "Caisse créée"
 
-#: apps/audit/actions.py:129
+#: apps/audit/actions.py:132
 msgid "Cash register changed"
 msgstr "Caisse modifiée"
 
-#: apps/audit/actions.py:130
+#: apps/audit/actions.py:133
 msgid "Cash session opened"
 msgstr "Caisse ouverte"
 
-#: apps/audit/actions.py:131
+#: apps/audit/actions.py:134
 msgid "Cash session closed"
 msgstr "Caisse clôturée"
 
-#: apps/audit/actions.py:132
+#: apps/audit/actions.py:135
 msgid "Payment recorded"
 msgstr "Paiement encaissé"
 
-#: apps/audit/actions.py:136
+#: apps/audit/actions.py:139
 msgid "Earlier payment recorded (not at the cash desk)"
 msgstr "Paiement d'avant l'application enregistré (hors caisse)"
 
-#: apps/audit/actions.py:139
+#: apps/audit/actions.py:142
 msgid "Receipt reprinted"
 msgstr "Reçu réimprimé"
 
-#: apps/audit/actions.py:143
+#: apps/audit/actions.py:146
 msgid "Payment cancellation requested"
 msgstr "Annulation de paiement demandée"
 
-#: apps/audit/actions.py:145
+#: apps/audit/actions.py:148
 msgid "Payment cancelled"
 msgstr "Paiement annulé"
 
-#: apps/audit/actions.py:148
+#: apps/audit/actions.py:151
 msgid "Payment cancellation refused"
 msgstr "Annulation de paiement refusée"
 
-#: apps/audit/actions.py:152
+#: apps/audit/actions.py:155
 msgid "Cancellation receipt reprinted"
 msgstr "Reçu d'annulation réimprimé"
 
-#: apps/audit/actions.py:155
+#: apps/audit/actions.py:158
 msgid "Student credit created"
 msgstr "Crédit d'élève créé"
 
-#: apps/audit/actions.py:156
+#: apps/audit/actions.py:159
 msgid "Student credit used"
 msgstr "Crédit d'élève utilisé"
 
-#: apps/audit/actions.py:157
+#: apps/audit/actions.py:160
 msgid "Student credit voided"
 msgstr "Crédit d'élève annulé"
 
-#: apps/audit/actions.py:159
+#: apps/audit/actions.py:162
 msgid "Unpaid fees exported"
 msgstr "Impayés exportés"
 
-#: apps/audit/actions.py:161
+#: apps/audit/actions.py:164
 msgid "Financial statement printed"
 msgstr "Situation financière imprimée"
 
-#: apps/audit/actions.py:164
+#: apps/audit/actions.py:167
 msgid "Announcement published"
 msgstr "Annonce publiée"
 
-#: apps/audit/actions.py:165
+#: apps/audit/actions.py:168
 msgid "Announcement archived"
 msgstr "Annonce archivée"
 
-#: apps/audit/actions.py:167
+#: apps/audit/actions.py:170
 msgid "Parents summoned"
 msgstr "Parents convoqués"
 
-#: apps/audit/actions.py:168
+#: apps/audit/actions.py:171
 msgid "Summons cancelled"
 msgstr "Convocation annulée"
 
-#: apps/audit/actions.py:171
+#: apps/audit/actions.py:174
 msgid "Device remembered"
 msgstr "Appareil mémorisé"
 
-#: apps/audit/actions.py:172
+#: apps/audit/actions.py:175
 msgid "Device disconnected"
 msgstr "Appareil déconnecté"
 
-#: apps/audit/actions.py:175
+#: apps/audit/actions.py:178
 msgid "Audit log exported"
 msgstr "Journal d'audit exporté"
 
-#: apps/audit/actions.py:179
+#: apps/audit/actions.py:182
 msgid "Support session opened"
 msgstr "Session support ouverte"
 
-#: apps/audit/actions.py:180
+#: apps/audit/actions.py:183
 msgid "Support session closed"
 msgstr "Session support fermée"
 
-#: apps/audit/actions.py:194
+#: apps/audit/actions.py:197
 msgid "Platform identity changed"
 msgstr "Identité de la plateforme modifiée"
 
-#: apps/audit/actions.py:195
+#: apps/audit/actions.py:198
 msgid "Platform logo changed"
 msgstr "Logo de la plateforme changé"
 
-#: apps/audit/actions.py:196
+#: apps/audit/actions.py:199
 msgid "Application icon changed"
 msgstr "Icône des applications changée"
 
-#: apps/audit/actions.py:199
+#: apps/audit/actions.py:202
 msgid "School or subscription changed"
 msgstr "École ou abonnement modifié"
 
-#: apps/audit/actions.py:203
+#: apps/audit/actions.py:206
 msgid "Sandbox or demonstration space deleted"
 msgstr "Espace d'essai ou de démonstration supprimé"
 
-#: apps/audit/actions.py:213
+#: apps/audit/actions.py:216
 msgid "Device disconnected by support"
 msgstr "Appareil déconnecté par le support"
 
-#: apps/audit/actions.py:215
+#: apps/audit/actions.py:218
 msgid "Announcement to schools published"
 msgstr "Annonce aux écoles publiée"
 
-#: apps/audit/actions.py:216
+#: apps/audit/actions.py:219
 msgid "Announcement to schools archived"
 msgstr "Annonce aux écoles archivée"
 
-#: apps/audit/actions.py:219
+#: apps/audit/actions.py:222
 msgid "Platform account logged in"
 msgstr "Connexion d'un compte de la plateforme"
 
-#: apps/audit/actions.py:220
+#: apps/audit/actions.py:223
 msgid "Two-factor code refused on a platform account"
 msgstr "Code de double authentification refusé sur un compte de la plateforme"
 
-#: apps/audit/actions.py:223
+#: apps/audit/actions.py:226
 msgid "Platform account refused from an unauthorised address"
 msgstr "Compte de la plateforme refusé depuis une adresse non autorisée"
 
@@ -2090,11 +2165,6 @@ msgstr "montant"
 #: apps/finance/models.py:129 apps/finance/models.py:178
 msgid "due date"
 msgstr "échéance"
-
-#: apps/finance/models.py:130 apps/schools/models.py:388
-#: apps/schools/models.py:430
-msgid "order"
-msgstr "ordre"
 
 #: apps/finance/models.py:134 apps/finance/models.py:187
 msgid "installment"
@@ -3212,11 +3282,6 @@ msgstr "événements du calendrier"
 msgid "student"
 msgstr "élève"
 
-#: apps/notifications/models.py:129 apps/schools/models.py:520
-#: apps/students/models.py:170
-msgid "class"
-msgstr "classe"
-
 #: apps/notifications/models.py:131
 msgid "date and time"
 msgstr "jour et heure"
@@ -4063,107 +4128,103 @@ msgstr "capacité"
 msgid "homeroom teacher"
 msgstr "titulaire"
 
-#: apps/schools/organisation.py:32
+#: apps/schools/organisation.py:33
 msgid "The school already has a school year with this name."
 msgstr "L'école a déjà une année scolaire de ce nom."
 
-#: apps/schools/organisation.py:34
+#: apps/schools/organisation.py:35
 msgid "The current school year cannot be deleted."
 msgstr "L'année scolaire en cours ne peut pas être supprimée."
 
-#: apps/schools/organisation.py:35
+#: apps/schools/organisation.py:36
 msgid "This school year has classes: delete them first."
 msgstr "Cette année scolaire a des classes : supprimez-les d'abord."
 
-#: apps/schools/organisation.py:37
+#: apps/schools/organisation.py:38
 msgid "The school already has a level with this name."
 msgstr "L'école a déjà un niveau de ce nom."
 
-#: apps/schools/organisation.py:39
+#: apps/schools/organisation.py:40
 msgid "This level is used by classes."
 msgstr "Ce niveau est utilisé par des classes."
 
-#: apps/schools/organisation.py:41
+#: apps/schools/organisation.py:42
 msgid "The school already has a track with this name."
 msgstr "L'école a déjà une option de ce nom."
 
-#: apps/schools/organisation.py:44
+#: apps/schools/organisation.py:45
 msgid "The school already has a track with this code."
 msgstr "L'école a déjà une option avec ce code."
 
-#: apps/schools/organisation.py:46
+#: apps/schools/organisation.py:47
 msgid "This track is used by classes."
 msgstr "Cette option est utilisée par des classes."
 
-#: apps/schools/organisation.py:47
+#: apps/schools/organisation.py:48
 msgid "This class already exists this school year."
 msgstr "Cette classe existe déjà cette année scolaire."
 
-#: apps/schools/organisation.py:48
+#: apps/schools/organisation.py:49
 msgid "This class has students: it cannot be deleted."
 msgstr "Cette classe a des élèves : elle ne peut pas être supprimée."
 
-#: apps/schools/organisation.py:49
+#: apps/schools/organisation.py:50
 msgid "A removed period is already used."
 msgstr "Une période retirée est déjà utilisée."
 
-#: apps/schools/organisation.py:66
+#: apps/schools/organisation.py:67
 msgid "RDC secondary: 2 semesters, 4 periods, 2 exam sessions"
 msgstr "Secondaire RDC — 2 semestres, 4 périodes, 2 examens"
 
-#: apps/schools/organisation.py:67
+#: apps/schools/organisation.py:68
 msgid "3 terms, 6 periods, 3 exam sessions"
 msgstr "3 trimestres, 6 périodes, 3 examens"
 
-#: apps/schools/organisation.py:68
+#: apps/schools/organisation.py:69
 msgid "Empty: enter the terms yourself"
 msgstr "Vide : je saisis le découpage moi-même"
 
-#: apps/schools/organisation.py:105 apps/schools/organisation.py:269
+#: apps/schools/organisation.py:106 apps/schools/organisation.py:275
 msgid "The end must come after the start."
 msgstr "La fin doit venir après le début."
 
-#: apps/schools/organisation.py:181
+#: apps/schools/organisation.py:187
 msgid "Some terms and periods would fall outside the year: change them first."
 msgstr ""
 "Des semestres, trimestres ou périodes tomberaient en dehors de l'année : "
 "modifiez-les d'abord."
 
-#: apps/schools/organisation.py:245
+#: apps/schools/organisation.py:251
 msgid "Too many terms and periods."
 msgstr "Trop de semestres, trimestres et périodes."
 
-#: apps/schools/organisation.py:256
+#: apps/schools/organisation.py:262
 msgid "Unknown term."
 msgstr "Semestre ou trimestre inconnu."
 
-#: apps/schools/organisation.py:258
+#: apps/schools/organisation.py:264
 msgid "This term appears twice."
 msgstr "Ce semestre ou trimestre apparaît deux fois."
 
-#: apps/schools/organisation.py:261
+#: apps/schools/organisation.py:267
 msgid "Only a semester or a term has periods."
 msgstr "Seul un semestre ou un trimestre contient des périodes."
 
-#: apps/schools/organisation.py:263
+#: apps/schools/organisation.py:269
 msgid "Only periods and exams go inside."
 msgstr "Seuls des périodes et des examens vont à l'intérieur."
 
-#: apps/schools/organisation.py:267
+#: apps/schools/organisation.py:273
 msgid "This date is outside the school year."
 msgstr "Cette date est en dehors de l'année scolaire."
 
-#: apps/schools/organisation.py:272 apps/schools/organisation.py:274
+#: apps/schools/organisation.py:278 apps/schools/organisation.py:280
 msgid "Outside its semester or term."
 msgstr "En dehors de son semestre ou trimestre."
 
-#: apps/schools/organisation.py:389
+#: apps/schools/organisation.py:395
 msgid "Give every level of the school once."
 msgstr "Donnez chaque niveau de l'école une seule fois."
-
-#: apps/schools/organisation.py:495
-msgid "Choose a member of the school's staff."
-msgstr "Choisissez un membre du personnel de l'école."
 
 #: apps/schools/serializers.py:80
 #, python-format
@@ -4277,7 +4338,7 @@ msgstr ""
 "Fiche du %(date)s. Une remise à zéro de l'espace donne un nouveau mot de "
 "passe : demandez la nouvelle fiche."
 
-#: apps/schools/views.py:73
+#: apps/schools/views.py:74
 msgid "This school has no logo."
 msgstr "Cette école n'a pas de logo."
 

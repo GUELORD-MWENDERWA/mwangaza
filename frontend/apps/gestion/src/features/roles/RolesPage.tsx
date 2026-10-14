@@ -38,8 +38,12 @@ import { LoadError } from "../status/StatusPages";
 
 type Role = Schemas["Role"];
 
-const GROUPS: { key: "students" | "finance" | "administration"; permissions: Permission[] }[] = [
+const GROUPS: {
+  key: "students" | "teaching" | "finance" | "administration";
+  permissions: Permission[];
+}[] = [
   { key: "students", permissions: ["students.view", "students.edit", "students.import"] },
+  { key: "teaching", permissions: ["courses.configure"] },
   {
     key: "finance",
     permissions: [

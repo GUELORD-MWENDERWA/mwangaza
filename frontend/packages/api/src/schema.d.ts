@@ -859,6 +859,44 @@ export interface paths {
         patch: operations["class_groups_partial_update"];
         trace?: never;
     };
+    "/api/class-groups/{id}/courses/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Grille de cours de la classe, dans l'ordre du bulletin. */
+        get: operations["class_groups_courses_list"];
+        /** @description Toute la grille d'un seul envoi : cours gardés (`id`), ajoutés, modifiés, retirés. */
+        put: operations["class_groups_courses_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/class-groups/{id}/courses/copy/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Donne la grille de la classe à d'autres classes de l'école (de cette année ou d'une
+         *     autre) : un cours du même nom garde son enseignant ; les autres cours sont retirés.
+         */
+        post: operations["class_groups_courses_copy_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/class-groups/homeroom-candidates/": {
         parameters: {
             query?: never;
@@ -1460,6 +1498,26 @@ export interface paths {
         put?: never;
         /** @description Garde la fiche telle quelle. */
         post: operations["contact_changes_dismiss_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/course-templates/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Grilles officielles qui pré-remplissent celle d'une classe (formulaires de bulletin
+         *     IGE/P.S, barème Électronique) ; l'école ajuste avant d'enregistrer.
+         */
+        get: operations["course_templates_list"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3631,6 +3689,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/teaching-loads/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Charge horaire de chaque membre du personnel actif dans l'année (heures par semaine
+         *     de ses cours), et les cours sans enseignant. Sert aussi de liste des enseignants
+         *     possibles : tout le personnel, quel que soit son rôle.
+         */
+        get: operations["teaching_loads_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tracks/": {
         parameters: {
             query?: never;
@@ -3820,6 +3899,7 @@ export interface components {
          *     * `organisation.class_updated` - Class changed
          *     * `organisation.class_deleted` - Class deleted
          *     * `organisation.matricule_format_changed` - Student number format changed
+         *     * `courses.changed` - Courses of a class changed
          *     * `students.family_created` - Family created
          *     * `students.family_updated` - Family changed
          *     * `students.family_deleted` - Family deleted
@@ -3878,7 +3958,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         /** @description Comptes du portail activés (H7) : école, puis chaque classe de l'année en cours. */
         ActivationSummary: {
             families: number;
@@ -4983,6 +5063,50 @@ export interface components {
             /** Format: int64 */
             amount_minor: number;
         };
+        Course: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly name: string;
+            readonly domain: string;
+            /** Maximum per period */
+            readonly period_max: number;
+            /** With exam */
+            readonly has_exam: boolean;
+            /** Hours per week */
+            readonly weekly_hours: number | null;
+            readonly teacher: components["schemas"]["Person"] | null;
+        };
+        CourseInputRequest: {
+            /**
+             * Format: uuid
+             * @description Cours de la classe à garder ; absent : nouveau.
+             */
+            id?: string | null;
+            name: string;
+            /** @default  */
+            domain: string;
+            period_max: number;
+            /** @default true */
+            has_exam: boolean;
+            weekly_hours?: number | null;
+            /**
+             * Format: uuid
+             * @description `id` du compte de l'enseignant : le personnel actif de l'école.
+             */
+            teacher_id?: string | null;
+        };
+        CoursesCopied: {
+            /** @description Classes qui ont reçu la grille. */
+            copied: number;
+        };
+        CoursesCopyRequest: {
+            /** @description Classes qui reçoivent la grille (et perdent leurs autres cours). */
+            class_groups: string[];
+        };
+        /** @description Toute la grille de la classe, dans l'ordre : ce qui n'y est plus est retiré. */
+        CoursesUpdateRequest: {
+            courses: components["schemas"]["CourseInputRequest"][];
+        };
         CreditAllocation: {
             /** Format: uuid */
             student_charge: string;
@@ -5321,7 +5445,7 @@ export interface components {
             reason: string;
         };
         /** @enum {string} */
-        DomainEnum: "account" | "announcements" | "audit" | "auth" | "devices" | "finance" | "organisation" | "portal" | "roles" | "school" | "staff" | "students" | "support";
+        DomainEnum: "account" | "announcements" | "audit" | "auth" | "courses" | "devices" | "finance" | "organisation" | "portal" | "roles" | "school" | "staff" | "students" | "support";
         EmailChange: {
             before: string;
             after: string;
@@ -5941,6 +6065,16 @@ export interface components {
          * @enum {string}
          */
         LinkedFamilyStatusEnum: "active" | "suspended" | "school_unavailable";
+        LoadCourse: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            /** Format: uuid */
+            class_group: string;
+            class_name: string;
+            /** Hours per week */
+            weekly_hours: number | null;
+        };
         LoginCodeRequest: {
             /** @description Code à 6 chiffres de l'application, ou code de secours (ex. 7KQ4-M2XP). */
             code: string;
@@ -6060,12 +6194,13 @@ export interface components {
          * @description * `students` - Students, families and enrolments
          *     * `finance` - Fees, cash desk and payments
          *     * `communication` - Announcements
+         *     * `academics` - Courses, grades and report cards
          *     * `portal` - Parent portal
          *     * `notifications` - Notifications and reminders
          *     * `offline` - Offline work and synchronisation
          * @enum {string}
          */
-        ModulesEnum: "students" | "finance" | "communication" | "portal" | "notifications" | "offline";
+        ModulesEnum: "students" | "finance" | "communication" | "academics" | "portal" | "notifications" | "offline";
         MySchool: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
             code: string;
@@ -6120,6 +6255,19 @@ export interface components {
         };
         /** @enum {unknown} */
         NullEnum: null;
+        OfficialCourse: {
+            name: string;
+            period_max: number;
+            has_exam: boolean;
+            weekly_hours: number | null;
+        };
+        OfficialGrid: {
+            /** @description Nom traduit par l'interface. */
+            key: string;
+            /** @description Référence du document officiel. */
+            reference: string;
+            readonly courses: components["schemas"]["OfficialCourse"][];
+        };
         OpenSession: {
             /** Format: uuid */
             readonly id: string;
@@ -7043,6 +7191,7 @@ export interface components {
         /**
          * @description * `school.configure` - Configure the school (name, logo, colour, currencies, receipts)
          *     * `classes.manage` - Manage years, terms, levels, tracks, classes and student numbers
+         *     * `courses.configure` - Configure courses, maxima and teachers of each class
          *     * `roles.manage` - Manage staff accounts and roles
          *     * `students.view` - View students
          *     * `students.edit` - Edit students
@@ -7060,7 +7209,7 @@ export interface components {
          *     * `audit.view` - View the audit log
          * @enum {string}
          */
-        PermissionsEnum: "school.configure" | "classes.manage" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.import_prior_payments" | "announcements.publish" | "audit.view";
+        PermissionsEnum: "school.configure" | "classes.manage" | "courses.configure" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.import_prior_payments" | "announcements.publish" | "audit.view";
         Person: {
             /** Format: uuid */
             readonly id: string;
@@ -8410,6 +8559,22 @@ export interface components {
              */
             readonly ends_on: string;
         };
+        TeachingLoad: {
+            teacher: components["schemas"]["Person"];
+            /** @description Heures par semaine de ses cours de l'année. */
+            hours: number;
+            courses: components["schemas"]["LoadCourse"][];
+        };
+        TeachingLoads: {
+            /** @description Tout le personnel actif, le plus chargé d'abord. */
+            loads: components["schemas"]["TeachingLoad"][];
+            /** @description Les premiers cours sans enseignant (tous : classe par classe). */
+            unassigned: components["schemas"]["LoadCourse"][];
+            /** @description Tous les cours sans enseignant. */
+            unassigned_count: number;
+            /** @description Leurs heures par semaine. */
+            unassigned_hours: number;
+        };
         /**
          * @description * `secondary` - RDC secondary: 2 semesters, 4 periods, 2 exam sessions
          *     * `trimesters` - 3 terms, 6 periods, 3 exam sessions
@@ -9242,6 +9407,7 @@ export interface operations {
                  *     * `organisation.class_updated` - Class changed
                  *     * `organisation.class_deleted` - Class deleted
                  *     * `organisation.matricule_format_changed` - Student number format changed
+                 *     * `courses.changed` - Courses of a class changed
                  *     * `students.family_created` - Family created
                  *     * `students.family_updated` - Family changed
                  *     * `students.family_deleted` - Family deleted
@@ -9299,7 +9465,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -9307,6 +9473,7 @@ export interface operations {
                  *     * `announcements` - announcements
                  *     * `audit` - audit
                  *     * `auth` - auth
+                 *     * `courses` - courses
                  *     * `devices` - devices
                  *     * `finance` - finance
                  *     * `organisation` - organisation
@@ -9317,7 +9484,7 @@ export interface operations {
                  *     * `students` - students
                  *     * `support` - support
                  */
-                domain?: "account" | "announcements" | "audit" | "auth" | "devices" | "finance" | "organisation" | "portal" | "roles" | "school" | "staff" | "students" | "support";
+                domain?: "account" | "announcements" | "audit" | "auth" | "courses" | "devices" | "finance" | "organisation" | "portal" | "roles" | "school" | "staff" | "students" | "support";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description A page number within the paginated result set. */
@@ -9480,6 +9647,7 @@ export interface operations {
                  *     * `organisation.class_updated` - Class changed
                  *     * `organisation.class_deleted` - Class deleted
                  *     * `organisation.matricule_format_changed` - Student number format changed
+                 *     * `courses.changed` - Courses of a class changed
                  *     * `students.family_created` - Family created
                  *     * `students.family_updated` - Family changed
                  *     * `students.family_deleted` - Family deleted
@@ -9537,7 +9705,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -9545,6 +9713,7 @@ export interface operations {
                  *     * `announcements` - announcements
                  *     * `audit` - audit
                  *     * `auth` - auth
+                 *     * `courses` - courses
                  *     * `devices` - devices
                  *     * `finance` - finance
                  *     * `organisation` - organisation
@@ -9555,7 +9724,7 @@ export interface operations {
                  *     * `students` - students
                  *     * `support` - support
                  */
-                domain?: "account" | "announcements" | "audit" | "auth" | "devices" | "finance" | "organisation" | "portal" | "roles" | "school" | "staff" | "students" | "support";
+                domain?: "account" | "announcements" | "audit" | "auth" | "courses" | "devices" | "finance" | "organisation" | "portal" | "roles" | "school" | "staff" | "students" | "support";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description Dans le nom de l'objet. */
@@ -11399,6 +11568,161 @@ export interface operations {
             };
         };
     };
+    class_groups_courses_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Course"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    class_groups_courses_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CoursesUpdateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CoursesUpdateRequest"];
+                "multipart/form-data": components["schemas"]["CoursesUpdateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Course"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    class_groups_courses_copy_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CoursesCopyRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CoursesCopyRequest"];
+                "multipart/form-data": components["schemas"]["CoursesCopyRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CoursesCopied"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     class_groups_homeroom_candidates_list: {
         parameters: {
             query?: never;
@@ -13197,6 +13521,41 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    course_templates_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OfficialGrid"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19588,6 +19947,44 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    teaching_loads_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Absent : l'année en cours. */
+                academic_year?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeachingLoads"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

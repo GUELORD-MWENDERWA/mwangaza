@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "apps.sync",
     "apps.notifications",
     "apps.portal",
+    "apps.academics",
 ]
 
 MIDDLEWARE = [
