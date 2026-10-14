@@ -105,7 +105,7 @@ Skill `dataviz` : séries `chart-1` (lac) puis `chart-2` (ambre), validées (dal
 
 ## Impression
 
-`core/print_base.html` (documents du serveur, WeasyPrint) : noir et gris d'abord (lisible photocopié), titres et filet sous l'en-tête de l'école en bleu nuit, police de la marque intégrée, tableaux à filets gris clair, marges ≥ 10 mm. Reçus de caisse (`features/cash/receipt.css`) : noir et blanc, réglés au millimètre pour le ticket 58 / 80 mm et les feuilles A4 (A6, A5, petit format) — ne pas y ajouter de couleur.
+`core/print_base.html` (documents du serveur, WeasyPrint) : noir et gris d'abord (lisible photocopié), titres et filet sous l'en-tête de l'école en bleu nuit, police de la marque intégrée, tableaux à filets gris clair, marges ≥ 10 mm ; un gabarit qui a ses propres styles n'utilise que les gris de la palette (`#101828`, `#475467`, `#5B677A`, `#A9B4C4`, `#CBD5E1`, `#EDF1F6`), jamais de noir pur ni de gris chaud. Vérifier : `make apercu ecran=documents` (chaque document dans `frontend/apercu/captures/documents/`). Guides PDF (`frontend/guide/`, `make guide`) : jetons de la refonte dans `guide.css`, texte et captures mis à jour quand l'apparence ou les écrans changent. Reçus de caisse (`features/cash/receipt.css`) : noir et blanc, réglés au millimètre pour le ticket 58 / 80 mm et les feuilles A4 (A6, A5, petit format) — ne pas y ajouter de couleur.
 
 ## Formats d'affichage
 

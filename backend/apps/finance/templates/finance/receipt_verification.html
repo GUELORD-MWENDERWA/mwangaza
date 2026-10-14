@@ -1,4 +1,4 @@
-{% load i18n %}{% get_current_language as language %}<!doctype html>
+{% load i18n static %}{% get_current_language as language %}<!doctype html>
 <html lang="{{ language }}">
 <head>
 <meta charset="utf-8">
@@ -10,13 +10,13 @@
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--surface); color: var(--ink); font: 15px/1.45 "Atkinson Hyperlegible Next", system-ui, sans-serif; }
 .phone { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
-header { background: var(--night); color: var(--night-ink); padding: 14px 16px 18px; }
+header { background: var(--night) url("{% static 'core/site/relief.svg' %}") center / cover; color: var(--night-ink); padding: 14px 16px 18px; }
 .brand { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; letter-spacing: -.01em; }
 .logo { height: 36px; max-width: 140px; object-fit: contain; }
 .mark { width: 36px; height: 36px; flex: none; }
-header p { margin: 6px 0 0; color: #CFC7BF; font-size: .85rem; }
+header p { margin: 6px 0 0; color: #C3CFE0; font-size: .85rem; }
 main { padding: 16px; }
-.card { background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 1px 2px rgba(33,29,26,.06), 0 4px 12px rgba(33,29,26,.05); padding: 16px 18px; }
+.card { background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 4px 12px rgba(16,24,40,.05); padding: 16px 18px; }
 .state { text-align: center; }
 .icon { width: 72px; height: 72px; border-radius: 50%; margin: 4px auto 0; display: grid; place-items: center; background: var(--due-50); color: var(--due); }
 [data-state="valid"] .icon { background: var(--ok-50); color: var(--ok); }
@@ -26,7 +26,7 @@ h1 { font-size: 1.4rem; margin: 12px 0 4px; }
 [data-state="pending"] h1 { color: var(--warn); }
 .state p { margin: 0; color: var(--ink-3); font-size: .85rem; }
 dl { margin: 12px 0 0; }
-dl div { display: flex; justify-content: space-between; gap: 10px; padding: 12px 0; border-bottom: 1px solid #EDE9E4; font-size: .85rem; }
+dl div { display: flex; justify-content: space-between; gap: 10px; padding: 12px 0; border-bottom: 1px solid #EDF1F6; font-size: .85rem; }
 dl div:last-child { border-bottom: 0; }
 dt { color: var(--ink-3); }
 .space { margin: 0 0 12px; padding: 10px 12px; border-radius: 8px; background: var(--warn-50); color: var(--warn); font-weight: 700; font-size: .85rem; text-align: center; }
