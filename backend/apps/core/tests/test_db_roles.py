@@ -8,6 +8,7 @@ from django.db import DatabaseError, connection, transaction
 from psycopg import errors
 
 from apps.core.db_roles import setup_app_role
+from apps.core.tenancy import use_all_schools, use_school
 from apps.finance.models import Payment
 from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.schools import deletion
@@ -33,7 +34,7 @@ OUT_OF_REACH = (
 
 
 @pytest.fixture
-def app_role(db):
+def app_role(migration_account):
     """La suite du test tourne avec le compte de l'application, comme Django en production. Le
     compte, créé dans la transaction du test, disparaît avec elle."""
     setup_app_role(ROLE, "secret-de-test")
@@ -76,19 +77,21 @@ def test_the_app_role_collects_and_deletes_a_trial_space_but_never_a_payment_of_
     School.objects.update(status=School.Status.DELETING)
 
     # Le compte a le droit d'écrire des lignes : c'est le déclencheur qui refuse.
-    for statement in (
-        "DELETE FROM finance_payment WHERE id = %s",
-        "UPDATE finance_payment SET received_amount_minor = 1 WHERE id = %s",
-    ):
-        assert isinstance(refusal(statement, [kept.pk]), errors.RestrictViolation), statement
+    with use_school(school):
+        for statement in (
+            "DELETE FROM finance_payment WHERE id = %s",
+            "UPDATE finance_payment SET received_amount_minor = 1 WHERE id = %s",
+        ):
+            assert isinstance(refusal(statement, [kept.pk]), errors.RestrictViolation), statement
     for space in (school, sandbox):
         deletion.run(str(space.pk))
 
     assert not School.objects.filter(pk=sandbox.pk).exists()
-    left = Payment.all_schools.values_list("pk", "received_amount_minor")
-    assert list(left) == [(kept.pk, 12000)]
+    with use_all_schools():
+        left = Payment.all_schools.values_list("pk", "received_amount_minor")
+        assert list(left) == [(kept.pk, 12000)]
 
 
-def test_the_migration_account_is_never_turned_into_the_app_role(db):
+def test_the_migration_account_is_never_turned_into_the_app_role(migration_account):
     with pytest.raises(ImproperlyConfigured):
         setup_app_role(connection.settings_dict["USER"], "secret-de-test")

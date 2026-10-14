@@ -4,13 +4,61 @@ avec un rôle, et des appels de l'API sur l'adresse d'une école."""
 import time
 
 import pytest
+from django.db import connection
 from django.test import Client
+from psycopg import sql
 
 from apps.accounts import privileged
 from apps.accounts.login import MFA_SESSION_KEY
 from apps.accounts.models import User
+from apps.core import db_roles
 from apps.core.tenancy import get_current_school
 from tests.factories import MembershipFactory, SchoolFactory
+
+# Compte des tests (S.6) : comme `mwangaza_app` en production, soumis aux règles par école.
+ROW_SECURITY_ROLE = "mwangaza_tests"
+
+
+@pytest.fixture(scope="session")
+def django_db_setup(django_db_setup, django_db_blocker):
+    """Base de test créée par le compte des migrations, puis le compte des tests : lignes
+    seulement, sans connexion directe (`SET ROLE` depuis le compte des migrations)."""
+    role = sql.Identifier(ROW_SECURITY_ROLE)
+    with django_db_blocker.unblock(), connection.cursor() as cursor:
+        cursor.execute("SELECT 1 FROM pg_roles WHERE rolname = %s", [ROW_SECURITY_ROLE])
+        if cursor.fetchone() is None:
+            cursor.execute(sql.SQL("CREATE ROLE {} NOLOGIN").format(role))
+        for right in db_roles.RIGHTS:
+            cursor.execute(sql.SQL(right).format(role=role))
+
+
+@pytest.fixture(autouse=True)
+def _row_security(request):
+    """Chaque test qui touche la base tourne avec le compte des tests, soumis aux règles par école
+    (S.6), comme Django en production : un chemin sans portée échoue ici, pas sur le serveur.
+    `SET LOCAL` : le compte des migrations revient avec l'annulation de la transaction du test ;
+    sans elle (`transaction=True`), `RESET ROLE` à la fin, avant que la base soit vidée."""
+    marker = request.node.get_closest_marker("django_db")
+    transactional = "transactional_db" in request.fixturenames or (
+        marker is not None and marker.kwargs.get("transaction", False)
+    )
+    uses_db = transactional or marker is not None or "db" in request.fixturenames
+    if uses_db:
+        request.getfixturevalue("transactional_db" if transactional else "db")
+        statement = "SET ROLE {}" if transactional else "SET LOCAL ROLE {}"
+        with connection.cursor() as cursor:
+            cursor.execute(sql.SQL(statement).format(sql.Identifier(ROW_SECURITY_ROLE)))
+    yield
+    if uses_db and transactional:
+        with connection.cursor() as cursor:
+            cursor.execute("RESET ROLE")
+
+
+@pytest.fixture
+def migration_account(db):
+    """Le reste du test tourne avec le compte des migrations (création de comptes PostgreSQL)."""
+    with connection.cursor() as cursor:
+        cursor.execute("RESET ROLE")
 
 
 @pytest.fixture

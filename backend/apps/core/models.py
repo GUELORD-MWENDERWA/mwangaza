@@ -108,13 +108,21 @@ class TenantModel(BaseModel):
             if field.is_cached(self):
                 related = field.get_cached_value(self)
                 related_school_id = getattr(related, "school_id", None)
+                if related_school_id is None:
+                    continue
             else:
                 related_school_id = (
                     field.related_model.all_schools.filter(**{field.target_field.attname: value})
                     .values_list("school_id", flat=True)
                     .first()
                 )
-            if related_school_id is not None and related_school_id != self.school_id:
+                # Ligne invisible : absente, ou d'une autre école que la base cache (S.6). La
+                # vérification de la clé étrangère par PostgreSQL, elle, ne voit pas ces règles.
+                if related_school_id is None:
+                    raise CrossSchoolError(
+                        f"{type(self).__name__}.{field.name} pointe vers une ligne introuvable."
+                    )
+            if related_school_id != self.school_id:
                 raise CrossSchoolError(
                     f"{type(self).__name__}.{field.name} pointe vers une ligne d'une autre école."
                 )

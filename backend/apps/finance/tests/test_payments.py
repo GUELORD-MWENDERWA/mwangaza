@@ -329,11 +329,15 @@ def test_payments_and_their_allocations_are_never_changed_or_deleted(school, cas
             Payment.objects.update(note="modifié")
         with pytest.raises(ImmutablePaymentError):
             PaymentAllocation.objects.all().delete()
-    for table in ("finance_payment", "finance_paymentallocation"):
-        for sql in (f"UPDATE {table} SET updated_at = now()", f"DELETE FROM {table}"):
-            with pytest.raises(DatabaseError), transaction.atomic(), connection.cursor() as cursor:
-                cursor.execute(sql)
-    assert PaymentAllocation.all_schools.get(pk=allocation.pk).amount_minor == 12000
+        for table in ("finance_payment", "finance_paymentallocation"):
+            for sql in (f"UPDATE {table} SET updated_at = now()", f"DELETE FROM {table}"):
+                with (
+                    pytest.raises(DatabaseError),
+                    transaction.atomic(),
+                    connection.cursor() as cursor,
+                ):
+                    cursor.execute(sql)
+        assert PaymentAllocation.objects.get(pk=allocation.pk).amount_minor == 12000
 
 
 def test_a_cancelled_payment_no_longer_counts_in_the_balance(

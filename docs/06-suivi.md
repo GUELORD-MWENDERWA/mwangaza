@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (A.2 faite, PR de la branche `tache/A.2-purge-synchro`) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | L.4 (toi : vrais téléphones et imprimantes), puis le premier espace réel (`A-FAIRE.md` § 9 quater) ; côté Claude : S.6 Row Level Security (V1.2, taille L : à découper au début) |
-| Issue GitHub | #240 |
-| Branche | `tache/A.2-purge-synchro` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune (S.6.1 faite, PR de la branche `tache/S.6.1-rls-finance`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | L.4 (toi : vrais téléphones et imprimantes), puis le premier espace réel (`A-FAIRE.md` § 9 quater) ; côté Claude : S.6.2 Row Level Security sur les autres tables (#242), puis 8.1 |
+| Issue GitHub | #71 |
+| Branche | `tache/S.6.1-rls-finance` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-14 |
 
 ## Avancement
@@ -28,7 +28,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
 | Lancement (L.0 à L.5 ; L.3 remplacée par S.1 et S.2) | 4 | 5 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
-| Sécurité (S.1 à S.9 ; S.3 en deux) | 6 | 10 |
+| Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 7 | 11 |
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1–8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 1 | 9 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
@@ -61,6 +61,13 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-14 — Tâche S.6.1 : Row Level Security, socle et tables de finance
+
+- Fait : S.6 coupée en deux (S.6.2 : #242). Les 15 tables de finance ne montrent, dans PostgreSQL même, que les écoles de la portée de la connexion (`use_school`, `use_schools` pour le Portail, `use_all_schools` pour la console, l'administration et les tâches de la plateforme ; sans portée, rien). Règles posées après chaque `migrate`.
+- Tests : toute la suite tourne désormais avec un compte soumis aux règles (`mwangaza_tests`) ; `test_row_security.py` (filtre oublié, SQL brut, écriture dans une autre école refusée, Portail, console). Coût mesuré : +20 % sur un rapport de 17 000 lignes.
+- Décisions : pas de second compte PostgreSQL pour la console (`03`, journal) ; un lien vers une ligne invisible est refusé.
+- Suite : S.6.2 (autres tables), puis 8.1.
 
 ### 2026-10-14 — Tâche A.2 : purge des opérations de synchronisation
 - Fait : chaque nuit (03:45, tâche `apps.sync.tasks.purge`), les `SyncOperation` appliquées de plus de 90 jours sont effacées dans toutes les écoles, en une requête. Les refusées restent (vérification d'un reçu hors ligne refusé).

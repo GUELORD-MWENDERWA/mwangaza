@@ -367,7 +367,7 @@ def test_two_offline_tills_paying_the_same_fee_both_keep_the_money(
             for p in payments
         ]
         remaining = finance.balance(finance.charges_of(alpha["enrollment"].pk)).currencies
-        credit = StudentCredit.objects.get()
+        credit = StudentCredit.objects.select_related("source_payment").get()
     assert [p.received_amount_minor for p in payments] == [36000, 12000]
     assert allocated == [36000, 0]
     assert (credit.origin, credit.amount_minor, credit.currency) == (

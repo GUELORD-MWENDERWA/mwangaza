@@ -52,7 +52,8 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 15 | **🚀 Premier espace réel** (`A-FAIRE.md`, « Le jour du lancement ») | — | — | 👤 |
 | | **V1.2 — Notes, bulletins et finances de l'école** (§ 7) | | | |
 | 16 | ~~**A.2**~~ ✓ Purge des opérations de synchronisation (`SyncOperation` ; `ChangeLog` gardé) | P1 | S | 🤖 |
-| 17 | **S.6** Row Level Security PostgreSQL (ex-9.15, avancée) | P1 | L | 🤖 |
+| 17 | ~~**S.6.1**~~ ✓ Row Level Security PostgreSQL : socle et tables de finance (ex-9.15, avancée) | P1 | M | 🤖 |
+| 17 bis | **S.6.2** Row Level Security : toutes les autres tables d'une école | P1 | M | 🤖 |
 | 18 | **8.1** Cours, volumes horaires et charges des enseignants | P1 | M | 🤖 |
 | 19 | **8.2 → 8.4, 8.8** Notes, bulletins EPST, délibération, Portail | P1 | L | 🤖 |
 | 20 | **FIN.1 → FIN.3** Dépenses, sorties de caisse, budget | P1 | M | 🤖 |
@@ -158,7 +159,8 @@ Demande du 2026-10-13 : « la partie sécurité est à renforcer au maximum ». 
 
 **P1 — avec les premières écoles réelles**
 
-- [ ] **S.6** Row Level Security PostgreSQL *(P1, L)* — ex-9.15, avancée de la V2 : chaque table d'une école refuse, dans la base elle-même, toute ligne d'une autre école (variable de session posée par le `TenantMiddleware`, et par chaque tâche Celery pour son école). Deuxième barrière si un jour un `filter` est oublié. À découper (S.6.1 socle et tables de finance, S.6.2 le reste) ; tâches de la plateforme (console, sauvegarde) sous un compte à part.
+- [x] **S.6.1** Row Level Security PostgreSQL : socle et tables de finance *(P1, M)* — ex-9.15, avancée de la V2 : chaque table d'une école refuse, dans la base elle-même, toute ligne d'une autre école. Deuxième barrière si un jour un `filter` est oublié. S.6 coupée en deux (S.6.1, S.6.2). **Fait** : portée de la connexion posée par `use_school`, `use_schools` (Portail : écoles des familles du parent) et `use_all_schools` (console et administration du super-admin, tâches de la plateforme), sans portée aucune ligne ; règle sur les 15 tables de finance, posée après chaque `migrate` ; toute la suite de tests tourne avec un compte soumis aux règles. **Simplifié** : pas de second compte PostgreSQL pour la console et la sauvegarde (`pg_dump` passe par le propriétaire, que les règles ne visent pas ; raison : `03`, journal du 2026-10-14).
+- [ ] **S.6.2** Row Level Security : toutes les autres tables d'une école *(P1, M)* — `row_security.APPS` étendu à toutes les applications (élèves, familles, années et classes, rôles, notifications, synchronisation, journal d'audit) ; chemins qui lisent ces tables hors d'une école à mettre dans leur portée (envoi des notifications et leur purge, purge de la synchronisation, activation du Portail par code famille, console : comptes et journaux) ; la suite de tests sous le compte des tests les trouve.
 - [ ] **S.7** Protection des données *(P1, M)* — politique de confidentialité et registre des traitements (quelles données, pourquoi, combien de temps) publiés dans le Portail et le site de la plateforme ; durées de conservation appliquées (élève parti depuis N années : données réduites au minimum légal) ; export des données d'une famille sur demande ; règles des données envoyées à l'IA (§ 6, IA.1). 👤 faire relire par un juriste au fait du droit congolais.
 - [ ] **S.8** Détection *(P1, S)* — alertes au super-admin : rafale de connexions ratées, export inhabituel (beaucoup de données d'un coup), nombre d'annulations hors norme, appareil révoqué qui insiste ; carte « Sécurité » dans la santé de la plateforme (4.25). Pas de nouvel outil : Sentry et le journal suffisent.
 - [ ] **S.9** Revue complète *(P1, M)* — revue des trois applications selon OWASP ASVS niveau 2 (accès, sessions, entrées, erreurs, journal), tests automatiques ajoutés pour chaque défaut trouvé ; 👤 test d'intrusion par une personne extérieure quand les revenus le permettent.
@@ -282,7 +284,8 @@ Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est 
 ### V1.2 — Notes, bulletins et finances de l'école
 
 - [x] **A.2** Purge des opérations de synchronisation : `SyncOperation` appliquées de plus de 90 jours, chaque nuit ; `ChangeLog` gardé (une ligne par inscription) *(P1, S)*
-- [ ] **S.6** Row Level Security *(P1, L)*
+- [x] **S.6.1** Row Level Security : socle et tables de finance *(P1, M)*
+- [ ] **S.6.2** Row Level Security : toutes les autres tables d'une école *(P1, M)*
 - [ ] **8.1** Cours, maxima, domaines, attribution des enseignants **avec leur charge horaire** (servira à l'emploi du temps) ; la grille de cours d'une section s'enregistre d'un seul bloc par un service (IA.5 la proposera depuis un PDF) *(P1, M)*
 - [ ] **8.2** Saisie des notes (y compris hors ligne), verrouillage, validation, historique *(P1, L)*
 - [ ] **8.3** Bulletin EPST PDF avec QR d'authenticité, totaux, places, mentions ; bulletin complet ou notes seules sur le formulaire pré-imprimé (Q11) ; régime et code EPST de l'école (M5) *(P1, L)* — 👤 fournir un vrai bulletin EPST rempli ou le modèle officiel.

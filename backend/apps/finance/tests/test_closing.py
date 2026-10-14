@@ -134,13 +134,13 @@ def test_a_closing_is_never_changed_or_deleted(api, school, cashier, alpha):
             closing.save()
         with pytest.raises(ImmutablePaymentError):
             CashClosing.objects.update(counted_minor=0)
-    for sql in (
-        "UPDATE finance_cashclosing SET counted_minor = 0",
-        "DELETE FROM finance_cashclosing",
-    ):
-        with pytest.raises(DatabaseError), transaction.atomic(), connection.cursor() as cursor:
-            cursor.execute(sql)
-    assert CashClosing.all_schools.get(pk=closing.pk).counted_minor == 12000
+        for sql in (
+            "UPDATE finance_cashclosing SET counted_minor = 0",
+            "DELETE FROM finance_cashclosing",
+        ):
+            with pytest.raises(DatabaseError), transaction.atomic(), connection.cursor() as cursor:
+                cursor.execute(sql)
+        assert CashClosing.objects.get(pk=closing.pk).counted_minor == 12000
 
 
 def test_the_accountant_sees_each_session_its_difference_and_those_left_open(
