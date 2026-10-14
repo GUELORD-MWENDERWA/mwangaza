@@ -2,6 +2,7 @@
 name = "mwangaza-backend"
 version = "0.1.0"
 description = "API Django de Mwangaza"
+authors = [{ name = "Guelord Mwenderwa", email = "guelsmwenderwa@gmail.com" }]
 requires-python = ">=3.12"
 dependencies = [
     "argon2-cffi>=25.1.0",

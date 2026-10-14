@@ -134,6 +134,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 # Portail des parents (un seul domaine pour toutes les écoles), écrit sur la fiche d'inscription.
 PORTAL_URL = env("DJANGO_PORTAL_URL", "https://parents.mwangaza.school")
+# Auteur du logiciel (pas l'identité de la plateforme, qui vient de ses paramètres) : signé sur le
+# site public, ses données structurées et `llms.txt` (`apps/core/site.py`).
+SOFTWARE_AUTHOR = "Guelord Mwenderwa"
+SOFTWARE_AUTHOR_URL = "https://github.com/GUELORD-MWENDERWA"
 # Notifications sur l'écran (5.5, Web Push) : paire de clés VAPID de la plateforme, créée une fois
 # par `manage.py webpush_keys` et jamais changée (elle invaliderait tous les abonnements). Vides :
 # rien n'est envoyé sur les écrans ; le centre de notifications marche quand même.

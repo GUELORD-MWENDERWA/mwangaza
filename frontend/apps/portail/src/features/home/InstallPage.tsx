@@ -45,9 +45,7 @@ export function InstallPage() {
             {icon ? (
               <img src={icon} alt="" className="size-[60px] rounded-[14px]" />
             ) : (
-              <span className="grid size-[60px] place-items-center rounded-[14px] bg-basalt">
-                <BrandMark />
-              </span>
+              <BrandMark className="size-[60px]" />
             )}
           </div>
           <CardContent className="flex flex-col gap-4">

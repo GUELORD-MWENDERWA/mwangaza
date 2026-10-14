@@ -146,14 +146,16 @@ class PlatformSettings(models.Model):
         upload_to=platform.logo_path,
         blank=True,
         validators=[platform.validate_logo],
-        help_text=_("PNG, JPEG or SVG, 1 MB at most. Without it: the lamp."),
+        help_text=_(
+            "PNG, JPEG or SVG, 1 MB at most. Without it: the default symbol (M and flame)."
+        ),
     )
     icon = models.FileField(
         _("application icon"),
         upload_to=platform.icon_path,
         blank=True,
         validators=[platform.validate_icon],
-        help_text=_("Square PNG of at least 512 x 512 pixels. Without it: the lamp icon."),
+        help_text=_("Square PNG of at least 512 x 512 pixels. Without it: the default symbol."),
     )
     primary_color = models.CharField(
         _("main colour"),

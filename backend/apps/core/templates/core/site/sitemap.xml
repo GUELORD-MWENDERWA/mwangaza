@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">{% for lang, path in paths.items %}
+  <url>
+    <loc>{{ site }}{{ path }}</loc>
+    <lastmod>{{ lastmod }}</lastmod>
+    <xhtml:link rel="alternate" hreflang="fr" href="{{ site }}{{ paths.fr }}"/>
+    <xhtml:link rel="alternate" hreflang="en" href="{{ site }}{{ paths.en }}"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="{{ site }}{{ paths.fr }}"/>
+  </url>{% endfor %}
+</urlset>

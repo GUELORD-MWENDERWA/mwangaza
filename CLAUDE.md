@@ -118,7 +118,7 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 
 Détail de chaque commande (dont tout ce que crée `make demo`) : `docs/claude/reference.md`.
 
-Adresses en dev : Gestion `http://itig.localhost:5173/app/` (sous-domaine = code de l'école), Portail `http://localhost:5174/`, Console `http://admin.localhost:5175/` (super-admin), API `/api/…` par le proxy Vite, doc de l'API `/api/docs/` (`DEBUG`), administration Django `http://localhost:8000/admin/` (dépannage). Chaque écran et chaque API : `docs/claude/reference.md` (à compléter à chaque nouvel écran ou API).
+Adresses en dev : Gestion `http://itig.localhost:5173/app/` (sous-domaine = code de l'école), Portail `http://localhost:5174/`, Console `http://admin.localhost:5175/` (super-admin), API `/api/…` par le proxy Vite, doc de l'API `/api/docs/` (`DEBUG`), administration Django `http://localhost:8000/admin/` (dépannage), site public de la plateforme `http://localhost:8000/` (et `/en/`, `/robots.txt`, `/sitemap.xml`, `/llms.txt`). Chaque écran et chaque API : `docs/claude/reference.md` (à compléter à chaque nouvel écran ou API).
 
 ## Façon de travailler
 

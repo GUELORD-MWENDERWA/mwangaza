@@ -1,11 +1,13 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 
 import { Icon, type IconName } from "../icons";
 import { cn } from "../lib/cn";
 
-// `.banner` des maquettes : icône à gauche, texte ; la couleur n'est jamais seule.
-const bannerVariants = cva("flex items-center gap-3 rounded-box border px-3.5 py-2.5 text-md", {
+// `.banner` des maquettes : icône à gauche, alignée sur la première ligne du texte (pas au milieu
+// d'un texte qui passe sur plusieurs lignes au téléphone) ; `action` (un bouton) à droite, centré.
+// La couleur n'est jamais seule.
+const bannerVariants = cva("flex items-start gap-3 rounded-box border px-3.5 py-2.5 text-md", {
   variants: {
     tone: {
       info: "border-info-200 bg-info-50 text-lake-700",
@@ -27,13 +29,14 @@ const icons: Record<NonNullable<VariantProps<typeof bannerVariants>["tone"]>, Ic
 };
 
 type BannerProps = ComponentProps<"div"> &
-  VariantProps<typeof bannerVariants> & { icon?: IconName };
+  VariantProps<typeof bannerVariants> & { icon?: IconName; action?: ReactNode };
 
-export function Banner({ className, tone, icon, children, ...props }: BannerProps) {
+export function Banner({ className, tone, icon, action, children, ...props }: BannerProps) {
   return (
     <div className={cn(bannerVariants({ tone }), className)} {...props}>
-      <Icon name={icon ?? icons[tone ?? "info"]} size={18} />
+      <Icon name={icon ?? icons[tone ?? "info"]} size={18} className="mt-0.5 shrink-0" />
       <div className="min-w-0 flex-1">{children}</div>
+      {action && <div className="shrink-0 self-center">{action}</div>}
     </div>
   );
 }

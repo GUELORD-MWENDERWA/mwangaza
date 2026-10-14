@@ -251,7 +251,9 @@ function RequestTable({
               {fullName(item.requested_by)}
               <span className="block text-sm text-ink-3">{registerLabel(item.payment, t)}</span>
             </td>
-            <td className="text-sm">{item.reason}</td>
+            <td data-wrap className="min-w-48 text-sm">
+              {item.reason}
+            </td>
           </tr>
         ))}
       </tbody>

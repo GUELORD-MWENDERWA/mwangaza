@@ -35,8 +35,14 @@ admin.{$MWANGAZA_DOMAIN} {
 	import admin
 }
 
-# Domaine nu : vers le portail des familles, en attendant un site de présentation.
-{$MWANGAZA_DOMAIN}, www.{$MWANGAZA_DOMAIN} {
+# Domaine nu : le site public de la plateforme (`vitrine`) ; www y renvoie (une seule adresse
+# pour les moteurs de recherche).
+{$MWANGAZA_DOMAIN} {
 	import site
-	redir https://parents.{$MWANGAZA_DOMAIN}{uri}
+	import vitrine
+}
+
+www.{$MWANGAZA_DOMAIN} {
+	import site
+	redir https://{$MWANGAZA_DOMAIN}{uri} permanent
 }

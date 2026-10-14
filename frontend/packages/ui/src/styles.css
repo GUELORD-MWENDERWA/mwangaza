@@ -165,6 +165,16 @@
   }
 }
 
+/* Tableaux au téléphone : une ligne par cellule, le tableau défile dans sa carte (pas de noms,
+   de dates ou de numéros coupés sur trois lignes) ; `data-wrap` sur une cellule de texte long. */
+@layer components {
+  @media screen and (width < 900px) {
+    .tbl td:not([data-wrap]) {
+      white-space: nowrap;
+    }
+  }
+}
+
 /* Chiffres : tabulaires, alignés à droite, sans retour à la ligne. */
 @utility num {
   font-variant-numeric: tabular-nums;

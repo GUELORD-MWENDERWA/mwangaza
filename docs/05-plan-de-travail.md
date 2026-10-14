@@ -211,7 +211,7 @@ L'argent de la plateforme. M.1 et M.2 donnent déjà les modules ; il manque le 
 
 ### 6.3 Sites web (WEB) — P1 pour la plateforme, P2 pour les écoles
 
-- [ ] **WEB.1** Site de la plateforme *(S, V1.3)* : `mwangazaschool.com` (aujourd'hui redirigé vers le Portail) : présentation, modules et prix (lus dans le catalogue et les offres, rien en dur), demande de démonstration (formulaire → console, limité contre le spam sans dépendance), mentions légales et confidentialité (S.7), français et anglais. Pages rendues par Django, mises en cache, sans JavaScript obligatoire.
+- [ ] **WEB.1** Site de la plateforme *(S, V1.3)* : `mwangazaschool.com` (depuis le 2026-10-14 : page de présentation fr/en, données structurées, `robots.txt`, `sitemap.xml`, `llms.txt` — `apps/core/site.py` ; reste ci-dessous) : présentation, modules et prix (lus dans le catalogue et les offres, rien en dur), demande de démonstration (formulaire → console, limité contre le spam sans dépendance), mentions légales et confidentialité (S.7), français et anglais. Pages rendues par Django, mises en cache, sans JavaScript obligatoire.
 - [ ] **WEB.2** Site de chaque école *(L, V1.7)* : à la racine de `{code}.mwangazaschool.com/` (la Gestion reste à `/app/`). L'école remplit elle-même son contenu depuis la Gestion : présentation, options et sections, admissions, actualités (annonces marquées « publiques »), galerie, contact, frais affichés seulement si elle le choisit ; publié ou non. **Sécurité** : modèles de pages fixes, texte en Markdown limité et nettoyé, aucun HTML ni script fourni par l'école, images ré-encodées (S.4), formulaire de contact limité. Domaine propre à une école : P3 (certificats à la demande, risque d'abus).
 
 ### 6.4 Emploi du temps (EDT) — P1, V1.4

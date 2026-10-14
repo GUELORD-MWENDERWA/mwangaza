@@ -152,7 +152,7 @@ Pour dessiner un nouvel écran : écrire la page avec la même coquille (`page_g
 
 ### Couleurs (à reporter dans le thème Tailwind / variables shadcn)
 
-Depuis la 5.1, le nom « Mwangaza », la lampe et les couleurs `lamp` / `lake` des maquettes sont les valeurs **de départ** de l'identité de la plateforme : l'application lit le nom, le logo (sinon la lampe), l'icône et ces deux couleurs dans ses paramètres. Ajouts sans maquette : lien « Mentions légales » à la suite des langues sous les connexions (Gestion et Portail, s'il y a un texte) ; téléphone et e-mail du support sous « École suspendue » et « Aucune école à cette adresse ».
+Depuis la 5.1, le nom « Mwangaza », le symbole M-flamme et les couleurs `lamp` / `lake` des maquettes sont les valeurs **de départ** de l'identité de la plateforme : l'application lit le nom, le logo (sinon le symbole), l'icône et ces deux couleurs dans ses paramètres. Ajouts sans maquette : lien « Mentions légales » à la suite des langues sous les connexions (Gestion et Portail, s'il y a un texte) ; téléphone et e-mail du support sous « École suspendue » et « Aucune école à cette adresse ».
 
 | Jeton | Valeur | Usage |
 |---|---|---|
@@ -180,11 +180,11 @@ Depuis la 5.1, le nom « Mwangaza », la lampe et les couleurs `lamp` / `lake` d
 
 ### Logo
 
-Lampe-tempête allumée (*mwangaza* = la lumière), fichiers dans `assets/logo/` : `lampe-sur-sombre.svg` (défaut des maquettes, `.brand .mark`), `lampe-sur-clair.svg` (`.brand.clair`), `icone-application.svg` et `icone-maskable.svg` (icônes des applications). Remplace le disque jaune d'avant. Valeur de départ de l'identité de la plateforme, comme le nom et les couleurs.
+Symbole **M-flamme** (2026-10-14, *mwangaza* = la lumière) : un M basalte épais surmonté d'une flamme, dans un carré arrondi jaune `lamp`. Comme GitHub ou Toddle : une forme pleine et fermée, d'une seule pièce, lisible de 16 px (favicon) à 512 px (icône installée), la même sur fond sombre ou clair. Fichiers dans `assets/logo/` : `symbole.svg` (écrans, favicon ; classe `.mark`), `icone-application.svg` (icône installée, coins arrondis), `icone-maskable.svg` (Android, plein cadre, dessin dans la zone sûre), `icone-apple.svg` (iPhone, plein cadre). Tailles : 36 px dans les barres (`.mark`), 48 px sur les pages de connexion (`.brand.lg` + `.mark.lg`), 28 px dans une carte (`.mark.sm`) ; nom à côté en gras, 1,3 rem (1,7 rem en grand). Remplace la lampe-tempête et le disque jaune d'avant, qui ne doivent plus apparaître nulle part. Valeur de départ de l'identité de la plateforme, comme le nom et les couleurs.
 
 ### Téléphone
 
-Chaque écran tient en 390 px sans défilement horizontal (règles « Téléphone » à la fin de `assets/styles.css` : rangées et pieds de carte qui passent à la ligne, tableau qui défile dans sa carte, onglets qui défilent, documents A4 en aperçu réduit). Grilles : toujours `minmax(0, …)`.
+Chaque écran tient en 390 px sans défilement horizontal (règles « Téléphone » à la fin de `assets/styles.css` : rangées et pieds de carte qui passent à la ligne, tableau qui défile dans sa carte avec une ligne par cellule — `data-wrap` pour une cellule de texte long —, onglets qui défilent, documents A4 en aperçu réduit, actions de l'en-tête en deux colonnes égales, choix d'un `.seg` étiré qui se partagent la largeur). Grilles : toujours `minmax(0, …)`.
 
 ### Composants récurrents
 

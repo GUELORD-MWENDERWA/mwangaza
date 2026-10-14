@@ -592,7 +592,7 @@ function CollectForm({
           <Button data-guide="cash-collect" type="submit" size="xl" disabled={!ready}>
             <Icon name="cash" size={20} />
             {t("cash.collect.submit")}
-            <kbd className="ml-2 rounded-[5px] bg-white/20 px-1.5 text-xs">
+            <kbd className="ml-2 whitespace-nowrap rounded-[5px] bg-white/20 px-1.5 text-xs">
               {t("cash.collect.submitKey")}
             </kbd>
           </Button>

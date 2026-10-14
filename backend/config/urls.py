@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from apps.core import site
 from apps.core import urls as core_urls
 from apps.finance.verification import verify_receipt, verify_statement
 from apps.schools.views import (
@@ -18,6 +19,14 @@ from apps.schools.views import (
 from config.views import health
 
 urlpatterns = [
+    # Site public de la plateforme (domaine nu, `apps/core/site.py`).
+    path("", site.home, name="site-home"),
+    path("en/", site.home, {"lang": "en"}, name="site-home-en"),
+    path("ecole/", site.school_space, name="site-school"),
+    path("robots.txt", site.robots_txt, name="site-robots"),
+    path("sitemap.xml", site.sitemap_xml, name="site-sitemap"),
+    path("llms.txt", site.llms_txt, name="site-llms"),
+    path("favicon.ico", site.favicon, name="site-favicon"),
     path("admin/", admin.site.urls),
     path("api/health/", health, name="health"),
     path("api/platform/", include("apps.core.urls")),

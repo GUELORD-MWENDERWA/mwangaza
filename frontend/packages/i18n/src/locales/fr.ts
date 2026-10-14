@@ -2916,13 +2916,13 @@ export const fr = {
       logo: {
         label: "Logo",
         alt: "Logo de la plateforme",
-        help: "PNG ou JPEG (2 048 px de côté au plus) ou SVG, 1 Mo au plus. Sans logo : la lampe.",
+        help: "PNG ou JPEG (2 048 px de côté au plus) ou SVG, 1 Mo au plus. Sans logo : le symbole par défaut (M et flamme).",
         change: "Changer le logo",
       },
       icon: {
         label: "Icône des applications",
         alt: "Icône des applications",
-        help: "PNG carré de 512 à 2 048 px de côté, 1 Mo au plus. Sans icône : la lampe.",
+        help: "PNG carré de 512 à 2 048 px de côté, 1 Mo au plus. Sans icône : le symbole par défaut, en carré arrondi.",
         change: "Changer l'icône",
       },
       change: "Changer",

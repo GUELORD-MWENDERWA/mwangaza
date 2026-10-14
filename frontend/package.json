@@ -1,6 +1,7 @@
 {
   "name": "mwangaza-frontend",
   "private": true,
+  "author": "Guelord Mwenderwa <guelsmwenderwa@gmail.com>",
   "type": "module",
   "packageManager": "pnpm@12.6.0",
   "scripts": {
