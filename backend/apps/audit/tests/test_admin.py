@@ -4,7 +4,7 @@ import pytest
 
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 
 pytestmark = pytest.mark.django_db
 
@@ -27,4 +27,5 @@ def test_the_journal_is_read_only_in_the_admin(admin_client, school, other_schoo
         f"/admin/audit/auditlog/{log.id}/change/", {"entity_label": "Autre chose"}
     )
     assert response.status_code == 403
-    assert AuditLog.all_schools.get(pk=log.pk).entity_label == "Chef d'atelier"
+    with use_all_schools():
+        assert AuditLog.all_schools.get(pk=log.pk).entity_label == "Chef d'atelier"

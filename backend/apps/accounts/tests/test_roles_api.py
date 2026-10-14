@@ -4,7 +4,7 @@ import pytest
 
 from apps.accounts.models import Role
 from apps.accounts.roles import STARTER_ROLES
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from tests.factories import MembershipFactory, starter_role
 
 pytestmark = pytest.mark.django_db
@@ -220,7 +220,8 @@ def test_other_school_roles_are_invisible(api, head, other_head, school, other_s
 
     ids = {r["id"] for r in results}
     assert str(alpha_custom.id) not in ids
-    assert ids == {str(r.id) for r in Role.all_schools.filter(school=other_school)}
+    with use_all_schools():
+        assert ids == {str(r.id) for r in Role.all_schools.filter(school=other_school)}
     assert "Alpha" not in str(results)
 
 

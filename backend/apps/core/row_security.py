@@ -8,17 +8,14 @@ superutilisateur (développement) : seulement au compte de l'application en prod
 au compte des tests (`conftest.py`). Elles ne protègent pas d'une injection SQL, qui pourrait
 changer la portée : l'ORM paramétré et le compte réduit s'en chargent.
 
-Posées après chaque `migrate` (signal `post_migrate`), sur chaque table de `TenantModel` des
-applications de `APPS` : une nouvelle table n'est jamais oubliée.
+Posées après chaque `migrate` (signal `post_migrate`), sur chaque table de `TenantModel` : une
+nouvelle table n'est jamais oubliée. Hors règle, les tables sans école ou partagées entre écoles
+(`School`, `User`, `Membership`, `PushSubscription`, `PlatformAuditLog`…).
 """
 
 from django.apps import apps
 from django.db import connections
 from psycopg import sql
-
-# S.6.1 : la finance d'abord ; S.6.2 : toutes les applications. `sample` : modèles des tests du
-# socle (`tests/sample`), absents ailleurs.
-APPS = frozenset({"finance", "sample"})
 
 # Changer l'expression : changer aussi le numéro, l'ancienne règle est remplacée.
 POLICY = "school_isolation_v1"
@@ -39,10 +36,7 @@ def tables() -> list[str]:
     return sorted(
         model._meta.db_table
         for model in apps.get_models()
-        if issubclass(model, TenantModel)
-        and model._meta.app_label in APPS
-        and model._meta.managed
-        and not model._meta.proxy
+        if issubclass(model, TenantModel) and model._meta.managed and not model._meta.proxy
     )
 
 

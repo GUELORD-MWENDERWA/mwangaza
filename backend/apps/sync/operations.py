@@ -29,6 +29,7 @@ from apps.accounts.roles import (
     FINANCE_VIEW_REPORTS,
 )
 from apps.core.errors import ApiError, BusinessError, api_exception_handler
+from apps.core.tenancy import use_all_schools
 from apps.finance import services as finance
 from apps.finance.models import CashRegister, CashSession, Payment, StudentCredit
 from apps.finance.serializers import CashCloseSerializer, PaymentCreateSerializer
@@ -298,7 +299,8 @@ def purge(now: datetime | None = None) -> int:
     donné par l'appareil. Les refusées restent : un reçu hors ligne refusé reste « inconnu »
     (`finance/verification.py`). Rend le nombre d'opérations effacées."""
     before = (now or timezone.now()) - timedelta(days=KEEP_DAYS)
-    deleted, _by_model = SyncOperation.all_schools.filter(
-        status=SyncOperation.Status.APPLIED, created_at__lt=before
-    ).delete()
+    with use_all_schools():
+        deleted, _by_model = SyncOperation.all_schools.filter(
+            status=SyncOperation.Status.APPLIED, created_at__lt=before
+        ).delete()
     return deleted

@@ -12,7 +12,7 @@ from apps.accounts import services
 from apps.accounts.models import Membership, Role
 from apps.accounts.roles import starter_role_name
 from apps.audit.models import AuditLog
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from tests.factories import (
     TEST_PASSWORD,
     MembershipFactory,
@@ -38,7 +38,8 @@ NEW_PASSWORD = "nouveau-mot-de-passe-2026"
 
 def journal(school) -> list[AuditLog]:
     """Entrées de l'école, la plus ancienne d'abord."""
-    return list(AuditLog.all_schools.filter(school=school).order_by("created_at"))
+    with use_all_schools():
+        return list(AuditLog.all_schools.filter(school=school).order_by("created_at"))
 
 
 def actions(school) -> list[str]:
@@ -46,11 +47,13 @@ def actions(school) -> list[str]:
 
 
 def only(school, action) -> AuditLog:
-    return AuditLog.all_schools.get(school=school, action=action)
+    with use_all_schools():
+        return AuditLog.all_schools.get(school=school, action=action)
 
 
 def last_login(school) -> AuditLog:
-    return AuditLog.all_schools.filter(school=school, action="auth.login").latest("created_at")
+    with use_all_schools():
+        return AuditLog.all_schools.filter(school=school, action="auth.login").latest("created_at")
 
 
 def role_of(school, code) -> Role:
@@ -97,7 +100,8 @@ def test_role_changed_keeps_what_it_was_and_what_it_is(api, school, head):
 
     ok(api(head).patch(f"{ROLES}{cashier.id}/", {"permissions": permissions}))
 
-    cashier.refresh_from_db()
+    with use_school(school):
+        cashier.refresh_from_db()
     log = only(school, "roles.updated")
     assert log.before == {"permissions": permissions_before}
     assert log.after == {"permissions": cashier.permissions}
@@ -284,7 +288,8 @@ def test_password_change_goes_to_each_school_of_the_person(
         # L'entrée de chaque école désigne sa propre appartenance : rien sur l'autre école.
         assert (log.actor, log.entity_id, log.entity_label) == (user, membership.id, str(user))
         assert (log.before, log.after) == (None, None)
-    assert not AuditLog.all_schools.filter(school__code="gamma").exists()
+    with use_all_schools():
+        assert not AuditLog.all_schools.filter(school__code="gamma").exists()
 
 
 def test_wrong_current_password_writes_nothing(api, school, teacher_of_two_schools):
@@ -293,7 +298,8 @@ def test_wrong_current_password_writes_nothing(api, school, teacher_of_two_schoo
     )
 
     assert response.json()["code"] == "wrong_password"
-    assert not AuditLog.all_schools.exists()
+    with use_all_schools():
+        assert not AuditLog.all_schools.exists()
 
 
 def test_two_factor_turned_on_moved_renewed_and_off(
@@ -397,14 +403,16 @@ def test_no_login_entry_where_the_person_does_not_work(api, school, other_school
 
     log_in(api(), user)
 
-    assert not AuditLog.all_schools.exists()
+    with use_all_schools():
+        assert not AuditLog.all_schools.exists()
 
 
 def test_failed_login_writes_nothing(api, school, head):
     response = api().post(LOGIN, {"phone": head.phone, "password": "pas-le-bon"})
 
     assert response.json()["code"] == "invalid_credentials"
-    assert not AuditLog.all_schools.exists()
+    with use_all_schools():
+        assert not AuditLog.all_schools.exists()
 
 
 # Jamais de secret
@@ -439,7 +447,8 @@ def test_no_secret_ever_reaches_the_journal(api, school, head):
             "account.recovery_codes_renewed",
         ]
     )
-    dump = json.dumps(list(AuditLog.all_schools.values()), cls=DjangoJSONEncoder)
+    with use_all_schools():
+        dump = json.dumps(list(AuditLog.all_schools.values()), cls=DjangoJSONEncoder)
     for secret in [created["temporary_password"], reset, NEW_PASSWORD, key, *codes, *renewed]:
         assert secret not in dump
     assert "argon2" not in dump

@@ -18,7 +18,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.core.http import client_ip
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.students.models import Family, Guardian
 
 INVALID_FAMILY_CODE = ApiError("invalid_family_code", _("Wrong phone number or family code."), 400)
@@ -82,13 +82,15 @@ def _family(
     fiche d'inscription, ne change jamais un mot de passe)."""
     key, ip = attempts.phone_key(phone), client_ip(request)
     attempts.ensure_allowed(key, ip)
-    family = (
-        Family.all_schools.select_related("school", "primary_user")
-        # Tuteurs de cette famille seulement (le portail n'a pas d'école courante).
-        .prefetch_related(Prefetch("guardians", queryset=Guardian.all_schools.all()))
-        .filter(code=_clean_code(code))
-        .first()
-    )
+    # Recherche par code sur toute la plateforme : la base ne cache rien le temps de la lire (S.6).
+    with use_all_schools():
+        family = (
+            Family.all_schools.select_related("school", "primary_user")
+            # Tuteurs de cette famille seulement (le portail n'a pas d'école courante).
+            .prefetch_related(Prefetch("guardians", queryset=Guardian.all_schools.all()))
+            .filter(code=_clean_code(code))
+            .first()
+        )
     expires = family.code_expires_at if family else None
     valid = family is not None and (expires > timezone.now() if expires else not renewed_only)
     if not valid or _expected_phone(family) != phone:

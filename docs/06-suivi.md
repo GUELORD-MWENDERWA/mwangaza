@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (S.6.1 faite, PR de la branche `tache/S.6.1-rls-finance`) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | L.4 (toi : vrais téléphones et imprimantes), puis le premier espace réel (`A-FAIRE.md` § 9 quater) ; côté Claude : S.6.2 Row Level Security sur les autres tables (#242), puis 8.1 |
-| Issue GitHub | #71 |
-| Branche | `tache/S.6.1-rls-finance` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune (S.6.2 faite, PR de la branche `tache/S.6.2-rls-toutes-tables`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | L.4 (toi : vrais téléphones et imprimantes), puis le premier espace réel (`A-FAIRE.md` § 9 quater) ; côté Claude : 8.1 Cours, volumes horaires et charges des enseignants |
+| Issue GitHub | #242 |
+| Branche | `tache/S.6.2-rls-toutes-tables` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-14 |
 
 ## Avancement
@@ -28,7 +28,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
 | Lancement (L.0 à L.5 ; L.3 remplacée par S.1 et S.2) | 4 | 5 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
-| Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 7 | 11 |
+| Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 8 | 11 |
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1–8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 1 | 9 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
@@ -67,7 +67,15 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 - Fait : logo lampe-tempête (maquettes, `BrandMark`, icônes des trois applications, page de vérification des reçus) ; neutres basalte à la place des gris bleutés génériques ; 306 tailles de texte ramenées sur une échelle de 8 ; 41 maquettes qui débordaient sur téléphone corrigées (règles « Téléphone » de `styles.css`, grilles `minmax(0, …)`), capture téléphone pour chaque écran.
 - Tests : `design.test.ts` (taille ou couleur en dur refusée) ; `captures.mjs` sort en erreur sur un débordement ; front 268 tests verts ; serveur : écoles, plateforme, comptes, vérification des reçus verts.
 - Décisions : `03`, journal (2026-10-14, identité visuelle). Logo et neutres à valider par l'utilisateur dans la PR.
-- Suite : S.6.2, puis 8.1.
+- À savoir : mes tests serveur, lancés depuis `.worktrees/mwangaza-identite` sur la base `test_mwangaza` commune, ont gêné S.6.2 ; deux sessions en même temps → `POSTGRES_DB=<nom>` à part (voir S.6.2 ci-dessous).
+- Suite : `make deploy` (avec S.6.1, S.6.2 et cette identité), puis 8.1.
+
+### 2026-10-14 — Tâche S.6.2 : Row Level Security sur toutes les tables d'une école
+
+- Fait : la règle de S.6.1 va sur chaque table d'une école (`TenantModel`), plus de liste à tenir. Lectures de toute la plateforme mises dans `use_all_schools()` : code famille unique, identifiant déjà pris, famille par code (activation et mot de passe oublié du Portail), rôles d'un compte dans toutes ses écoles (`/me`, double authentification exigée), planificateur, purges, envoi des notifications, import d'élèves, `make demo`. Contrôle « rôle d'une autre école » réécrit (il comptait sur leur visibilité).
+- Tests : en test, chaque requête et chaque tâche Celery partent d'un contexte vide, comme sur le serveur (`conftest.py`) ; une soixantaine de lectures de tests mises dans une portée (sans elle, `assert not …exists()` passait toujours). Tests du serveur verts en local hors `test_demo.py` (2 de ses tests lancés).
+- À savoir : une autre session lançait ses tests sur la même base `test_mwangaza` (dossier `.worktrees/mwangaza-identite`) et l'a abîmée ; base à part avec `POSTGRES_DB=mwangaza_s62`.
+- Suite : `make deploy` (avec S.6.1), puis 8.1.
 
 ### 2026-10-14 — Tâche S.6.1 : Row Level Security, socle et tables de finance
 

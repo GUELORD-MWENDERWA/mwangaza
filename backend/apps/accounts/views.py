@@ -46,6 +46,7 @@ from apps.accounts.serializers import (
 )
 from apps.core.errors import BusinessError, ErrorSerializer
 from apps.core.middleware import is_console_host
+from apps.core.tenancy import use_all_schools
 from apps.schools.models import School
 
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
@@ -85,17 +86,19 @@ class MeView(APIView):
 
     def _me(self, request: Request) -> dict:
         user = request.user
-        # Rôles de chaque école du compte : lus hors de l'école de l'adresse, pour ce compte seul.
-        memberships = (
-            Membership.objects.filter(user=user, is_active=True)
-            # Arrêté ou en cours de suppression : plus proposé.
-            .exclude(school__status__in=(School.Status.STOPPED, School.Status.DELETING))
-            .select_related("school")
-            .prefetch_related(
-                Prefetch("roles", queryset=Role.all_schools.order_by("id"), to_attr="role_list")
+        # Rôles de chaque école du compte : lus hors de l'école de l'adresse, pour ce compte seul
+        # (la base laisse voir toutes les écoles le temps de les lire, S.6).
+        with use_all_schools():
+            memberships = list(
+                Membership.objects.filter(user=user, is_active=True)
+                # Arrêté ou en cours de suppression : plus proposé.
+                .exclude(school__status__in=(School.Status.STOPPED, School.Status.DELETING))
+                .select_related("school")
+                .prefetch_related(
+                    Prefetch("roles", queryset=Role.all_schools.order_by("id"), to_attr="role_list")
+                )
+                .order_by("school__name")
             )
-            .order_by("school__name")
-        )
         access = school_access(request)
         school = None
         if access is not None:

@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from apps.accounts.models import User
 from apps.audit.models import AuditLog
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.schools.models import School
 from apps.students import services as students
 from apps.students.models import Family
@@ -50,7 +50,8 @@ def reset(client, code, phone=PHONE):
 
 
 def reloaded(family) -> Family:
-    return Family.all_schools.select_related("primary_user").get(pk=family.pk)
+    with use_all_schools():
+        return Family.all_schools.select_related("primary_user").get(pk=family.pk)
 
 
 def actions(school, action):
@@ -80,7 +81,8 @@ def test_activation_creates_the_account_links_the_family_and_logs_in(school, hea
 def test_wrong_phone_wrong_or_expired_code_same_error_and_attempts_counted(school, head):
     family = new_family(school, head)
     other = new_family(school, head, phone="+243990000001")
-    Family.all_schools.filter(pk=other.pk).update(code_expires_at=timezone.now())
+    with use_all_schools():
+        Family.all_schools.filter(pk=other.pk).update(code_expires_at=timezone.now())
 
     refused = [
         activate(portal(), family.code, phone="0990000001"),
@@ -203,7 +205,8 @@ def test_forgot_password_with_the_new_code_given_by_the_school_once(api, school,
 
 def test_forgot_password_refused_for_a_staff_account(school, head):
     family = new_family(school, head, phone=head.phone)
-    Family.all_schools.filter(pk=family.pk).update(primary_user=head)
+    with use_all_schools():
+        Family.all_schools.filter(pk=family.pk).update(primary_user=head)
     with use_school(school):
         students.renew_family_code(family, actor=head)
 

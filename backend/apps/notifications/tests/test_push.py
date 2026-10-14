@@ -14,7 +14,7 @@ from pywebpush import WebPushException
 
 from apps.accounts.models import User
 from apps.audit.actions import PlatformAction
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.notifications import platform, push
 from apps.notifications.models import Notification, PushSubscription
 from tests.factories import MembershipFactory, UserFactory, enable_totp, totp_code
@@ -164,7 +164,8 @@ def test_platform_news_notifies_active_staff_of_targeted_schools(
         audience="schools",
         schools=[school],
     )
-    recipients = set(Notification.all_schools.values_list("user", "school", "url"))
+    with use_all_schools():
+        recipients = set(Notification.all_schools.values_list("user", "school", "url"))
     assert recipients == {(head.pk, school.pk, "/platform-news")}
     assert left.pk not in {user for user, _, _ in recipients}
     assert other_head.pk not in {user for user, _, _ in recipients}
