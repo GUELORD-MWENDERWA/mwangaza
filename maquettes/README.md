@@ -84,7 +84,8 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Paie | `gestion/paie.html` | V1.7 | 7.3 | fournie |
 | Pointage QR (carte unique : puce ou QR) | `gestion/presences-pointage-qr.html` | V1.5 | 6.3 | fournie |
 | Saisie des notes | `gestion/notes-saisie.html` | V1.2 | 8.2 | fournie |
-| Cours et maxima par classe | `gestion/cours-maxima.html` | V1.2 | 8.1 | à valider |
+| Cours et maxima par classe | `gestion/cours-maxima.html` | V1.2 | 8.1 | à valider — codée en 8.1 avec des écarts : colonnes « Domaine » et « H / sem. » en plus, cours ajoutés et retirés dans la grille ; regroupements par maximum (lignes MAXIMA) dans la carte « Contrôle » et non dans la grille (les lignes sauteraient pendant la saisie) ; « Contrôle » et « Modèles officiels » au-dessus d'une grille en pleine largeur (sinon heures et enseignant sortent de la carte à 1440 px) ; pas de « Modèle appliqué » retenu (rien n'est stocké) |
+| Charges des enseignants | `gestion/charges-enseignants.html` | V1.2 | 8.1 | à valider — dessinée par Claude en 8.1 ; codée sans écart (au téléphone, colonne « Cours » masquée) |
 | Bulletin officiel — humanités techniques (formulaire IGE/P.S/100) | `gestion/bulletin.html` | V1.2 | 8.3 | à valider (remplace le gabarit provisoire) |
 | Bulletin officiel — 7e–8e EB (formulaire IGE/P.S/005) | `gestion/bulletin-education-de-base.html` | V1.2 | 8.3 | à valider |
 
