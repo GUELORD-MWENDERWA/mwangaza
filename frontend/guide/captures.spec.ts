@@ -238,6 +238,14 @@ test("super-admin", async ({ page }) => {
   await expect(page.getByText("ITIG Don Bosco Goma (démo)")).toBeVisible();
   await page.waitForLoadState("networkidle");
   await shot(page, "console-ecoles");
+  // Modules de l'école (M.2) : la carte seule, sur la fiche de l'école.
+  await page.getByRole("link", { name: "ITIG Don Bosco Goma (démo)" }).click();
+  const modules = page
+    .locator("section")
+    .filter({ has: page.getByRole("heading", { name: "Fonctions de l'école" }) })
+    .last();
+  await expect(modules.getByRole("checkbox").first()).toBeVisible();
+  await modules.screenshot({ path: `${CAPTURES}console-modules.jpg`, type: "jpeg", quality: 80 });
   await page.goto(`${CONSOLE}schools/new`);
   await page.waitForLoadState("networkidle");
   await expect(page.getByRole("heading").first()).toBeVisible();

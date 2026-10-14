@@ -51,9 +51,9 @@
           puis <code>make deploy</code> et <code>make deploy-check</code>.
         </li>
         <li>
-          Dans la console (<code>https://admin.mwangazaschool.com/</code>), créer un espace de
-          démonstration (petite ou grande école) ou remettre à zéro celui qui existe : la fiche
-          d'accès donne l'adresse, les comptes et le mot de passe commun.
+          Dans la console (<code>https://admin.mwangazaschool.com/</code>), créer deux espaces de
+          démonstration, une grande école et une petite (ou remettre à zéro ceux qui existent).
+          Imprimer la fiche d'accès de chacun : adresse, comptes, mot de passe de l'espace, parents.
         </li>
         <li>Jouer tout le déroulé une fois, avec deux ou trois téléphones.</li>
       </ol>
@@ -76,8 +76,8 @@
     <section>
       <h1>2. Adresses et comptes de test</h1>
       <p class="lead">
-        Adresses de l'espace de démonstration ; les comptes ci-dessous sont ceux de la fiche d'accès
-        (numéros et mot de passe propres à l'espace).
+        Adresses des deux espaces de démonstration ; leur code (ici <code>itig</code> et
+        <code>volcans</code>) est celui choisi en les créant.
       </p>
       <table>
         <tr>
@@ -85,11 +85,11 @@
           <th>Adresse</th>
         </tr>
         <tr>
-          <td>Gestion, première école</td>
+          <td>Gestion, grande école</td>
           <td>https://itig.<span data-guide="domain"></span>/app/</td>
         </tr>
         <tr>
-          <td>Gestion, seconde école</td>
+          <td>Gestion, petite école</td>
           <td>https://volcans.<span data-guide="domain"></span>/app/</td>
         </tr>
         <tr>
@@ -103,64 +103,72 @@
       </table>
       <h2>Comptes fictifs</h2>
       <p>
-        Mot de passe de tous ces comptes : <code>mwangaza-demo</code>. Aucun code à 6 chiffres n'est
-        demandé dans un espace de démonstration.
+        Les numéros et le mot de passe sont sur la <strong>fiche d'accès</strong> de chaque espace :
+        chaque numéro commence par <code>000</code> et finit par le code du rôle ci-dessous, le même
+        dans tous les espaces. Aucun code à 6 chiffres n'est demandé dans un espace de
+        démonstration. Sur ta machine (<code>make demo</code>) : <code>000000</code> suivi du code
+        (<code>0000001001</code> pour le directeur), mot de passe <code>mwangaza-demo</code>.
       </p>
       <table>
         <tr>
           <th>Rôle</th>
-          <th>Numéro</th>
+          <th>Fin du numéro</th>
           <th>Où</th>
         </tr>
         <tr>
           <td>Directeur</td>
-          <td><code>0000001001</code></td>
-          <td>Gestion, première école</td>
+          <td><code>1001</code></td>
+          <td>grande école</td>
         </tr>
         <tr>
           <td>Directeur des études</td>
-          <td><code>0000001002</code></td>
-          <td>Gestion, première école</td>
+          <td><code>1002</code></td>
+          <td>grande école</td>
         </tr>
         <tr>
           <td>Directeur de discipline</td>
-          <td><code>0000001003</code></td>
-          <td>Gestion, première école</td>
+          <td><code>1003</code></td>
+          <td>grande école</td>
         </tr>
         <tr>
           <td>Comptable</td>
-          <td><code>0000001004</code></td>
-          <td>Gestion, première école</td>
+          <td><code>1004</code></td>
+          <td>grande école</td>
         </tr>
         <tr>
           <td>Caissière</td>
-          <td><code>0000001005</code></td>
-          <td>Gestion, première école</td>
+          <td><code>1005</code></td>
+          <td>grande école</td>
         </tr>
         <tr>
           <td>Secrétaire</td>
-          <td><code>0000001006</code></td>
-          <td>Gestion, première école</td>
+          <td><code>1006</code></td>
+          <td>grande école</td>
         </tr>
         <tr>
           <td>Promoteur</td>
-          <td><code>0000001007</code></td>
-          <td>Gestion, première école</td>
+          <td><code>1007</code></td>
+          <td>grande école</td>
         </tr>
         <tr>
           <td>Enseignant</td>
-          <td><code>0000001008</code></td>
-          <td>Gestion, les deux écoles</td>
+          <td><code>1008</code></td>
+          <td>chaque école (sur ta machine : un seul compte pour les deux)</td>
+        </tr>
+        <tr>
+          <td>Chef d'atelier (rôle créé par l'école)</td>
+          <td><code>1010</code></td>
+          <td>grande école</td>
         </tr>
         <tr>
           <td>Directeur, comptable, caissière</td>
-          <td><code>0000002001</code>, <code>0000002004</code>, <code>0000002005</code></td>
-          <td>Gestion, seconde école</td>
+          <td><code>2001</code>, <code>2004</code>, <code>2005</code></td>
+          <td>petite école</td>
         </tr>
         <tr>
-          <td>Parent</td>
-          <td><code>0002000001</code></td>
-          <td>Portail des parents</td>
+          <td>Parents</td>
+          <td>sur la fiche d'accès</td>
+          <td>Portail : un parent déjà actif, trois familles à activer avec leur code</td>
         </tr>
         <tr>
           <td>Super-admin</td>
@@ -238,9 +246,9 @@
         <tr>
           <td>Plusieurs écoles</td>
           <td>2 min</td>
-          <td>seconde école, toi</td>
+          <td>petite école, toi</td>
           <td>ton ordinateur</td>
-          <td>Chaque école ne voit que ses données</td>
+          <td>Chaque école ne voit que ses données, ne prend que ses fonctions</td>
         </tr>
         <tr>
           <td>La suite, leur avis</td>
@@ -265,7 +273,7 @@
     </section>
 
     <section>
-      <span class="who">Caissière 0000001005 · téléphone ou tablette de la caisse</span>
+      <span class="who">Caissière …1005 · téléphone ou tablette de la caisse</span>
       <h1>4. Encaisser et remettre un reçu</h1>
       <ol class="steps">
         <li>Menu <strong>Caisse</strong> : la caisse est déjà ouverte (préparation du matin).</li>
@@ -301,7 +309,7 @@
     </section>
 
     <section>
-      <span class="who">Caissière 0000001005 · le même appareil, en mode avion</span>
+      <span class="who">Caissière …1005 · le même appareil, en mode avion</span>
       <h1>5. Encaisser sans internet</h1>
       <p class="lead">Le moment fort : fais-le toi-même, lentement, en disant ce que tu fais.</p>
       <ol class="steps">
@@ -332,7 +340,7 @@
     </section>
 
     <section>
-      <span class="who">Directeur 0000001001 · ton ordinateur</span>
+      <span class="who">Directeur …1001 · ton ordinateur</span>
       <h1>6. Ce que voit la direction</h1>
       <ol class="steps">
         <li>
@@ -346,11 +354,16 @@
           <strong>Annulations</strong> : ouvrir la demande en attente, lire son motif, la valider.
         </li>
         <li><strong>Journal</strong> : qui a fait quoi, et quand ; rien ne s'y efface.</li>
+        <li>
+          <strong>Rôles</strong> : le rôle « Chef d'atelier », créé par l'école ; renommer un rôle,
+          cocher ou décocher une permission.
+        </li>
       </ol>
       <div class="note">
         <strong>À dire</strong>
         « Vous savez chaque soir ce qui est entré et qui doit quoi, sans attendre un rapport. Et
-        personne, pas même le directeur, ne peut faire disparaître un paiement. »
+        personne, pas même le directeur, ne peut faire disparaître un paiement. Les rôles portent
+        vos noms, préfet, économe ou chef d'atelier, et vous cochez ce que chacun peut faire. »
       </div>
       <figure>
         <img src="captures/directeur-tableau-de-bord.jpg" alt="" />
@@ -369,7 +382,7 @@
     </section>
 
     <section>
-      <span class="who">Parent 0002000001 · leurs téléphones</span>
+      <span class="who">Parent de la fiche d'accès · leurs téléphones</span>
       <h1>7. Ce que voit le parent</h1>
       <ol class="steps">
         <li>
@@ -412,9 +425,7 @@
     </section>
 
     <section>
-      <span class="who"
-        >Secrétaire 0000001006, directeur de discipline 0000001003 · ordinateur</span
-      >
+      <span class="who">Secrétaire …1006, directeur de discipline …1003 · ordinateur</span>
       <h1>8. Démarrer une école, convoquer un parent</h1>
       <ol class="steps">
         <li>
@@ -445,17 +456,20 @@
     </section>
 
     <section>
-      <span class="who"
-        >Directeur de la seconde école 0000002001, puis ton compte · ordinateur</span
-      >
+      <span class="who">Directeur de la petite école …2001, puis ton compte · ordinateur</span>
       <h1>9. Plusieurs écoles, une plateforme</h1>
       <ol class="steps">
         <li>
-          Ouvrir la <strong>seconde école</strong> : autre nom, autre couleur, autres élèves, autres
-          frais. Le directeur de la première n'y entre pas.
+          Ouvrir la <strong>petite école</strong> : autre nom, autre couleur, autres élèves, autres
+          frais. Le directeur de la grande n'y entre pas.
         </li>
         <li>
           Ouvrir la <strong>console</strong> avec ton compte : la liste des écoles et leur état.
+        </li>
+        <li>
+          Ouvrir la fiche de la petite école, <strong>Fonctions de l'école</strong> : décocher «
+          Annonces », enregistrer ; dans la petite école, la page actualisée, le menu « Annonces » a
+          disparu. La recocher.
         </li>
         <li>
           Si une école veut essayer : <strong>Nouvelle école</strong>, type « Essai ». Elle reçoit
@@ -465,7 +479,8 @@
       <div class="note">
         <strong>À dire</strong>
         « Chaque école a son adresse, ses couleurs et ses données. Aucune école ne voit celles d'une
-        autre, ni dans les listes, ni dans les exports, ni dans le portail des parents. »
+        autre, ni dans les listes, ni dans les exports, ni dans le portail des parents. Et chaque
+        école ne prend que les fonctions qui lui servent. »
       </div>
       <div class="grid">
         <figure>
@@ -473,8 +488,8 @@
           <figcaption>Console : les écoles de la plateforme.</figcaption>
         </figure>
         <figure>
-          <img src="captures/console-nouvelle-ecole.jpg" alt="" />
-          <figcaption>Nouvelle école : espace réel, d'essai ou de démonstration.</figcaption>
+          <img src="captures/console-modules.jpg" alt="" />
+          <figcaption>Fonctions de l'école : les modules qu'elle a pris.</figcaption>
         </figure>
       </div>
     </section>
@@ -489,19 +504,33 @@
         </tr>
         <tr>
           <td>1.2</td>
-          <td>Carte de l'élève et du personnel (puce et QR code), présences.</td>
+          <td>Notes, bulletins EPST, délibération ; dépenses et budget de l'école.</td>
         </tr>
         <tr>
           <td>1.3</td>
-          <td>Personnel, paie, dépenses.</td>
+          <td>Abonnements par module, factures ; site de la plateforme.</td>
         </tr>
         <tr>
           <td>1.4</td>
-          <td>Notes, bulletins, délibération, discipline.</td>
+          <td>Emploi du temps ; aides par intelligence artificielle.</td>
+        </tr>
+        <tr>
+          <td>1.5</td>
+          <td>Carte de l'élève et du personnel (QR code, puce en option), présences.</td>
+        </tr>
+        <tr>
+          <td>1.6</td>
+          <td>Bibliothèque et ateliers (prêts, stock).</td>
+        </tr>
+        <tr>
+          <td>1.7</td>
+          <td>Site de chaque école, personnel et paie, discipline, messagerie.</td>
         </tr>
         <tr>
           <td>2</td>
-          <td>Paiement par Mobile Money, SMS et WhatsApp, applications dans les stores.</td>
+          <td>
+            Paiement par Mobile Money, SMS et WhatsApp, rapports EPST, applications dans les stores.
+          </td>
         </tr>
       </table>
       <p>Le plan ne fixe pas de date : donne l'ordre, ne promets pas de date.</p>
@@ -514,14 +543,15 @@
         <tr>
           <td>Combien ça coûte ?</td>
           <td>
-            Le prix n'est pas encore fixé. Principe prévu : un tarif par élève et par an, facturé
-            par trimestre, avec un trimestre d'essai gratuit. Demande-leur ce qui leur paraît juste.
+            Le prix n'est pas encore fixé. Principe prévu : un prix par module, par élève inscrit et
+            par trimestre ou par année, avec une période d'essai ; une école ne paie que les modules
+            qu'elle prend. Demande-leur ce qui leur paraît juste.
           </td>
         </tr>
         <tr>
           <td>Et les bulletins ?</td>
           <td>
-            Pas encore : version 1.4. La version d'aujourd'hui traite l'argent et les familles.
+            C'est la prochaine version, la 1.2. Celle d'aujourd'hui traite l'argent et les familles.
           </td>
         </tr>
         <tr>
@@ -534,8 +564,9 @@
         <tr>
           <td>Nos données sont-elles en sécurité ?</td>
           <td>
-            Chaque école est séparée ; double authentification pour le directeur, le comptable et le
-            caissier ; journal de tout ce qui touche à l'argent ; sauvegarde chiffrée chaque nuit.
+            Chaque école est séparée ; code à 6 chiffres pour qui touche à l'argent ou aux rôles ;
+            journal de tout ce qui touche à l'argent ; même l'application ne peut pas effacer un
+            paiement ; sauvegarde chiffrée chaque nuit, copiée hors du serveur.
           </td>
         </tr>
         <tr>
@@ -545,8 +576,8 @@
         <tr>
           <td>Quand peut-on commencer ?</td>
           <td>
-            L'essai : tout de suite. Avec de vraies données : dès la mise en ligne de la plateforme
-            sur son adresse définitive.
+            L'essai : tout de suite. Avec de vraies données : dans un espace réel créé pour elle sur
+            mwangazaschool.com, dès l'ouverture aux premières écoles.
           </td>
         </tr>
       </table>
@@ -555,16 +586,17 @@
         <li><strong>Essayer</strong> avec les comptes fictifs, un par rôle.</li>
         <li>
           <strong>Recevoir un espace d'essai</strong> vide à leur nom, pour y saisir leurs classes
-          et leurs frais. Pas de vraies données tant que la plateforme n'est pas en ligne pour de
-          bon.
+          et leurs frais. Un espace d'essai se supprime : les vraies données vont dans un espace
+          réel.
         </li>
         <li>
           <strong>Devenir une des premières écoles</strong> : leur liste d'élèves importée depuis
           Excel.
         </li>
         <li>
-          <strong>Donner leur avis</strong> : le prix acceptable, ce qui presse le plus (présences,
-          paie ou bulletins), et pour une école primaire, le découpage de son année.
+          <strong>Donner leur avis</strong> : le prix acceptable, les modules qui leur servent, ce
+          qui presse le plus (bulletins, présences ou paie), et pour une école primaire, le
+          découpage de son année.
         </li>
       </ol>
       <div class="note">
