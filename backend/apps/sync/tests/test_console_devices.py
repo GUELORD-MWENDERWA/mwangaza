@@ -8,7 +8,7 @@ import pytest
 
 from apps.audit.actions import Action, PlatformAction
 from apps.audit.models import AuditLog, PlatformAuditLog
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.sync.models import Device
 from apps.sync.tests.test_devices import WEBCRYPTO_KEY
 from tests.factories import MembershipFactory
@@ -38,7 +38,8 @@ def test_only_the_platform_admin_sees_and_disconnects_devices(
     for client in (api(platform_admin), api(head)):
         assert client.get(DEVICES).status_code == 404
         assert client.post(revoke).status_code == 404
-    assert Device.all_schools.get(pk=device_id).revoked_at is None
+    with use_all_schools():
+        assert Device.all_schools.get(pk=device_id).revoked_at is None
     assert not PlatformAuditLog.objects.exists()
 
 

@@ -5,7 +5,7 @@ from django.db import DatabaseError, connection, transaction
 
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog, ImmutableError
-from apps.core.tenancy import SchoolNotSetError, use_school
+from apps.core.tenancy import SchoolNotSetError, use_all_schools, use_school
 
 pytestmark = pytest.mark.django_db
 
@@ -26,7 +26,8 @@ def test_an_entry_cannot_be_changed(school):
     with use_school(school), pytest.raises(ImmutableError):
         log.save()
 
-    assert AuditLog.all_schools.get(pk=log.pk).entity_label == LABEL
+    with use_all_schools():
+        assert AuditLog.all_schools.get(pk=log.pk).entity_label == LABEL
 
 
 def test_an_entry_cannot_be_deleted(school):
@@ -35,7 +36,8 @@ def test_an_entry_cannot_be_deleted(school):
     with use_school(school), pytest.raises(ImmutableError):
         log.delete()
 
-    assert AuditLog.all_schools.filter(pk=log.pk).exists()
+    with use_all_schools():
+        assert AuditLog.all_schools.filter(pk=log.pk).exists()
 
 
 def test_entries_cannot_be_changed_or_deleted_in_bulk(school):
@@ -51,7 +53,8 @@ def test_entries_cannot_be_changed_or_deleted_in_bulk(school):
     with pytest.raises(ImmutableError):
         AuditLog.all_schools.filter(school=school).delete()
 
-    assert AuditLog.all_schools.get().entity_label == LABEL
+    with use_all_schools():
+        assert AuditLog.all_schools.get().entity_label == LABEL
 
 
 @pytest.mark.parametrize(
@@ -61,10 +64,17 @@ def test_entries_cannot_be_changed_or_deleted_in_bulk(school):
 def test_the_database_refuses_changes_even_in_sql(school, sql):
     log = entry(school)
 
-    with pytest.raises(DatabaseError), transaction.atomic(), connection.cursor() as cursor:
+    # Dans la portée de l'école : sinon la base ne montre aucune ligne à changer (S.6).
+    with (
+        use_school(school),
+        pytest.raises(DatabaseError),
+        transaction.atomic(),
+        connection.cursor() as cursor,
+    ):
         cursor.execute(sql)
 
-    assert AuditLog.all_schools.get(pk=log.pk).entity_label == LABEL
+    with use_all_schools():
+        assert AuditLog.all_schools.get(pk=log.pk).entity_label == LABEL
 
 
 def test_each_school_reads_only_its_own_entries(school, other_school):

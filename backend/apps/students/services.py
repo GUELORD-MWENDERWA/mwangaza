@@ -20,7 +20,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.core.ids import uuid7
-from apps.core.tenancy import require_current_school
+from apps.core.tenancy import require_current_school, use_all_schools
 from apps.finance import services as finance
 from apps.schools import matricule
 from apps.schools.models import AcademicYear, ClassGroup, School
@@ -79,7 +79,9 @@ def new_family_code() -> str:
     """8 caractères au hasard, sans caractère ambigu, unique sur toute la plateforme."""
     while True:
         code = "".join(secrets.choice(FAMILY_CODE_ALPHABET) for _ in range(FAMILY_CODE_LENGTH))
-        if not Family.all_schools.filter(code=code).exists():
+        with use_all_schools():
+            taken = Family.all_schools.filter(code=code).exists()
+        if not taken:
             return code
 
 
@@ -238,7 +240,9 @@ def create_student(
         replayed = Student.objects.filter(pk=student_id).first()
         if replayed is not None:
             return replayed, False
-        if Student.all_schools.filter(pk=student_id).exists():
+        with use_all_schools():
+            taken = Student.all_schools.filter(pk=student_id).exists()
+        if taken:
             raise BusinessError(ID_TAKEN)
     fields = _clean(fields)
     duplicates = [] if allow_duplicate else list(possible_duplicates(fields)[:5])
@@ -404,7 +408,9 @@ def enroll(
         replayed = Enrollment.objects.filter(pk=enrollment_id).first()
         if replayed is not None:
             return replayed, False
-        if Enrollment.all_schools.filter(pk=enrollment_id).exists():
+        with use_all_schools():
+            taken = Enrollment.all_schools.filter(pk=enrollment_id).exists()
+        if taken:
             raise BusinessError(ID_TAKEN)
     year = class_group.academic_year
     with transaction.atomic():

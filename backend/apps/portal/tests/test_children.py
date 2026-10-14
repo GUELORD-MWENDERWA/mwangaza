@@ -5,7 +5,7 @@ ou d'une autre école, rien si l'accès ou l'école est suspendu."""
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from apps.core.money import format_amount
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.finance.models import PaymentCancellation
 from apps.finance.tests.test_balance import at
 from apps.finance.tests.test_payments import pay, school_with_fees
@@ -146,7 +146,8 @@ def test_the_childs_photo_only_with_the_parents_consent(school, head):
     assert client.get(child_url(enrollment)).json()["photo"] is None
     assert client.get(photo_url).status_code == 404
 
-    Student.all_schools.filter(pk=student.pk).update(photo_consent=True)
+    with use_all_schools():
+        Student.all_schools.filter(pk=student.pk).update(photo_consent=True)
     assert client.get(child_url(enrollment)).json()["photo"].startswith(photo_url)
     assert client.get(photo_url)["Content-Type"] == "image/jpeg"
     assert stranger.get(photo_url).status_code == 404

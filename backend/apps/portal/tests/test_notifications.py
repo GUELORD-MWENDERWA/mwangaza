@@ -7,6 +7,7 @@ from unittest import mock
 import pytest
 from django.utils import timezone
 
+from apps.core.tenancy import use_all_schools
 from apps.notifications import push
 from apps.notifications.models import Notification, NotificationPreference, PushSubscription
 from apps.portal.tests.test_access import activate, new_family, portal, post, reloaded
@@ -74,15 +75,19 @@ def test_a_parent_reads_and_marks_only_their_portal_notifications_of_schools_ope
     assert titles(stranger, unread="true") == ["Autre parent"]
 
     # L'autre école coupe l'accès de la famille : ses notifications ne se lisent ni ne se notent.
-    Family.all_schools.filter(pk=other_family.pk).update(portal_suspended_at=timezone.now())
+    with use_all_schools():
+        Family.all_schools.filter(pk=other_family.pk).update(portal_suspended_at=timezone.now())
     assert titles(client) == ["Alpha"]
     post(client, "notifications/read/")
-    assert Notification.all_schools.get(title="Beta").read_at is None
+    with use_all_schools():
+        assert Notification.all_schools.get(title="Beta").read_at is None
 
     # Plus aucune école ouverte au compte : pas de notification d'essai.
-    Family.all_schools.filter(pk=family.pk).update(portal_suspended_at=timezone.now())
+    with use_all_schools():
+        Family.all_schools.filter(pk=family.pk).update(portal_suspended_at=timezone.now())
     assert post(client, "notifications/test/").status_code == 409
-    assert Notification.all_schools.filter(user=parent, app=App.PORTAIL).count() == 2
+    with use_all_schools():
+        assert Notification.all_schools.filter(user=parent, app=App.PORTAIL).count() == 2
 
 
 def test_notifications_need_a_session_at_the_portal_address(api, school, head):

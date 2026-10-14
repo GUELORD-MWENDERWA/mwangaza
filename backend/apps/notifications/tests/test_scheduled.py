@@ -9,7 +9,7 @@ import pytest
 from django.utils import timezone
 
 from apps.core.money import format_amount
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.finance import services as finance
 from apps.finance.tests.test_balance import at
 from apps.finance.tests.test_payments import pay, school_with_fees
@@ -42,9 +42,11 @@ def tick(monkeypatch, now: datetime) -> None:
     """Un passage à ce moment-là : le calcul des retards et la date des notifications créées le
     suivent (elles sont écrites à l'heure réelle)."""
     at(monkeypatch, now.date().isoformat())
-    known = set(Notification.all_schools.values_list("pk", flat=True))
+    with use_all_schools():
+        known = set(Notification.all_schools.values_list("pk", flat=True))
     scheduled.tick(now)
-    Notification.all_schools.exclude(pk__in=known).update(created_at=now)
+    with use_all_schools():
+        Notification.all_schools.exclude(pk__in=known).update(created_at=now)
 
 
 def test_reminders_go_once_to_the_parents_of_the_school_that_enabled_them(
@@ -134,7 +136,8 @@ def test_purge_removes_only_what_is_older_than_ninety_days(school, other_school,
             push.notify([owner], school=place, app="gestion", kind=Kind.TEST, title=title)[0]
             for title in ("Ancienne", "Récente")
         )
-        Notification.all_schools.filter(pk=old.pk).update(created_at=now - timedelta(days=91))
+        with use_all_schools():
+            Notification.all_schools.filter(pk=old.pk).update(created_at=now - timedelta(days=91))
         with use_school(place):
             ScheduledRun.objects.create(job="reminders", day=now.date() - timedelta(days=91))
             ScheduledRun.objects.create(job="reminders", day=now.date())
@@ -142,4 +145,5 @@ def test_purge_removes_only_what_is_older_than_ninety_days(school, other_school,
     scheduled.purge(now)
 
     assert [n.title for n in received()] == ["Récente", "Récente"]
-    assert ScheduledRun.all_schools.count() == 2
+    with use_all_schools():
+        assert ScheduledRun.all_schools.count() == 2

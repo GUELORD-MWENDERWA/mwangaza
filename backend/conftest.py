@@ -1,17 +1,21 @@
 """Fixtures communes : deux écoles fictives pour prouver l'isolation dans chaque test, des comptes
 avec un rôle, et des appels de l'API sur l'adresse d'une école."""
 
+import contextvars
+import functools
 import time
 
 import pytest
+from celery.app.task import Task
 from django.db import connection
 from django.test import Client
+from django.test.client import ClientHandler
 from psycopg import sql
 
 from apps.accounts import privileged
 from apps.accounts.login import MFA_SESSION_KEY
 from apps.accounts.models import User
-from apps.core import db_roles
+from apps.core import db_roles, tenancy
 from apps.core.tenancy import get_current_school
 from tests.factories import MembershipFactory, SchoolFactory
 
@@ -52,6 +56,34 @@ def _row_security(request):
     if uses_db and transactional:
         with connection.cursor() as cursor:
             cursor.execute("RESET ROLE")
+
+
+def _from_an_empty_context(call):
+    """En production, une requête ou une tâche de fond part de rien : ni école courante, ni portée
+    de la base (S.6). En test, le client de Django et Celery en mode immédiat tourneraient dans
+    le contexte du test, sa portée comprise : ici, dans un contexte vide, la portée de la
+    connexion vidée puis rendue au test. Un chemin sans portée échoue en test, pas en production."""
+
+    @functools.wraps(call)
+    def run(*args, **kwargs):
+        def empty():
+            tenancy._apply_db_scope(connection)
+            return call(*args, **kwargs)
+
+        try:
+            return contextvars.Context().run(empty)
+        finally:
+            tenancy._apply_db_scope(connection)
+
+    return run
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _requests_and_tasks_start_from_nothing():
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(ClientHandler, "__call__", _from_an_empty_context(ClientHandler.__call__))
+        patch.setattr(Task, "apply", _from_an_empty_context(Task.apply))
+        yield
 
 
 @pytest.fixture

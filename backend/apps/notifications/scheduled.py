@@ -26,7 +26,7 @@ from django.utils.translation import ngettext
 
 from apps.accounts.models import User
 from apps.core.money import Currency, format_amount
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.finance import services as finance
 from apps.finance.models import CashSession, StudentCharge
 from apps.notifications import events, push
@@ -52,11 +52,12 @@ def tick(now: datetime | None = None, *, force: bool = False) -> dict[str, int]:
     now = now or timezone.now()
     # Tâche de fond, sans école courante : les marques de toutes les écoles en une requête, puis
     # chaque école est servie dans la sienne (`run`).
-    done = set(
-        ScheduledRun.all_schools.filter(day__gte=now.date() - timedelta(days=1)).values_list(
-            "school_id", "job", "day"
+    with use_all_schools():
+        done = set(
+            ScheduledRun.all_schools.filter(day__gte=now.date() - timedelta(days=1)).values_list(
+                "school_id", "job", "day"
+            )
         )
-    )
     created = defaultdict(int)
     # Seulement les écoles qui ont le module `notifications` (une requête, pas un test par école).
     schools = School.objects.exclude(status__in=School.CLOSED_STATUSES).filter(
@@ -93,8 +94,9 @@ def purge(now: datetime | None = None) -> int:
     """Efface, dans toutes les écoles, les notifications de plus de `KEEP_DAYS` jours (lues ou
     non) et les marques des passages aussi vieilles. Rend le nombre de notifications effacées."""
     before = (now or timezone.now()) - timedelta(days=KEEP_DAYS)
-    ScheduledRun.all_schools.filter(day__lt=before.date()).delete()
-    deleted, _by_model = Notification.all_schools.filter(created_at__lt=before).delete()
+    with use_all_schools():
+        ScheduledRun.all_schools.filter(day__lt=before.date()).delete()
+        deleted, _by_model = Notification.all_schools.filter(created_at__lt=before).delete()
     return deleted
 
 

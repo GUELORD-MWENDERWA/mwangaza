@@ -8,6 +8,7 @@ from apps.accounts.login import TOTP_SETUP_SESSION_KEY
 from apps.accounts.models import LoginFailure, User
 from apps.audit.models import AuditLog
 from apps.core.crypto import decrypt
+from apps.core.tenancy import use_all_schools
 from tests.factories import MembershipFactory, enable_totp, totp_code
 
 pytestmark = pytest.mark.django_db
@@ -124,7 +125,8 @@ def test_staff_of_a_school_is_refused_like_a_wrong_password(client, school):
     assert "pas un compte d&#x27;administration de la plateforme" in response.content.decode()
     assert "_auth_user_id" not in client.session
     assert client.get(LOGIN).context["form"].fields.keys() == {"phone", "password"}
-    assert not AuditLog.all_schools.exists()
+    with use_all_schools():
+        assert not AuditLog.all_schools.exists()
 
 
 def test_locked_after_five_failures(client, secret):

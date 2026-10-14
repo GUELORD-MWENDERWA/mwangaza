@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 from django.core.files.base import ContentFile
 from django.utils import timezone
 
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.notifications import services as notifications
 from apps.notifications.models import Announcement
 from apps.portal.tests.test_access import activate, new_family, portal, post
@@ -36,7 +36,8 @@ def announce(school, actor, title, day, *, groups=(), pdf=False, archived=False)
         if archived:
             notifications.archive(announcement, actor=actor)
     published_at = datetime(2026, *day, 8, tzinfo=ZoneInfo("Africa/Lubumbashi"))
-    Announcement.all_schools.filter(pk=announcement.pk).update(published_at=published_at)
+    with use_all_schools():
+        Announcement.all_schools.filter(pk=announcement.pk).update(published_at=published_at)
     return announcement
 
 
@@ -104,7 +105,8 @@ def test_a_family_sees_its_schools_announcements_for_all_or_its_childrens_classe
     assert titles(client, family=other_family.pk) == ["Portes ouvertes"]
 
     # Accès suspendu par l'école ou école suspendue : plus rien de cette école.
-    Family.all_schools.filter(pk=other_family.pk).update(portal_suspended_at=timezone.now())
+    with use_all_schools():
+        Family.all_schools.filter(pk=other_family.pk).update(portal_suspended_at=timezone.now())
     other_school.status = other_school.Status.SUSPENDED
     other_school.save(update_fields=["status"])
     assert titles(client) == ["Réunion des parents de 3e", "Rentrée le 1er septembre"]

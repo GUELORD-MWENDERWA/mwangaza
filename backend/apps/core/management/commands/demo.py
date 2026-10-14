@@ -17,6 +17,7 @@ from apps.accounts.demo import (
 )
 from apps.accounts.models import User
 from apps.core.demo import create_demo_platform, fill
+from apps.core.tenancy import use_all_schools
 from apps.notifications.demo import create_demo_platform_announcements
 from apps.portal.demo import demo_portal
 from apps.schools.demo import create_demo_schools, make_demo_refusal
@@ -52,7 +53,8 @@ class Command(BaseCommand):
         # Clé commune de double authentification : en développement seulement, jamais là où le
         # mot de passe est propre au serveur.
         shared_key = settings.DEBUG and not settings.DEMO_PASSWORD
-        with transaction.atomic():
+        # Tâche de la plateforme : la base laisse voir toutes les écoles (S.6).
+        with use_all_schools(), transaction.atomic():
             create_demo_platform()
             admin = create_demo_admin()
             spaces = create_demo_schools(password=demo_password(), shared_totp_key=shared_key)

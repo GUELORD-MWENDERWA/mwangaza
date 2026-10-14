@@ -13,7 +13,7 @@ from apps.audit.actions import DOMAINS, Action, domain_of
 from apps.audit.context import RequestInfo, current_request_info, use_request_info
 from apps.audit.middleware import AuditMiddleware
 from apps.audit.models import AuditLog
-from apps.core.tenancy import SchoolNotSetError, use_school
+from apps.core.tenancy import SchoolNotSetError, use_all_schools, use_school
 from tests.factories import UserFactory
 
 pytestmark = pytest.mark.django_db
@@ -42,7 +42,8 @@ def test_an_entry_goes_to_the_current_school(school, other_school, role):
         "Chef d'atelier",
     )
     assert (log.before, log.after) == (None, {"name": "Chef d'atelier"})
-    assert not AuditLog.all_schools.filter(school=other_school).exists()
+    with use_all_schools():
+        assert not AuditLog.all_schools.filter(school=other_school).exists()
 
 
 def test_label_is_the_name_of_the_object_by_default(school, role):
@@ -82,7 +83,8 @@ def test_secrets_never_go_into_the_journal(school, role, data):
         with pytest.raises(ValueError, match="secret"):
             audit.record(Action.ROLES_UPDATED, role, actor=None, before=data)
 
-    assert not AuditLog.all_schools.exists()
+    with use_all_schools():
+        assert not AuditLog.all_schools.exists()
 
 
 def test_values_are_stored_as_json(school, role):
@@ -93,7 +95,8 @@ def test_values_are_stored_as_json(school, role):
             Action.ROLES_UPDATED, role, actor=None, after={"id": some_id, "on": date(2026, 9, 26)}
         )
 
-    log = AuditLog.all_schools.get(pk=log.pk)
+    with use_all_schools():
+        log = AuditLog.all_schools.get(pk=log.pk)
     assert log.after == {"id": str(some_id), "on": "2026-09-26"}
 
 
@@ -103,7 +106,8 @@ def test_an_action_undone_leaves_no_entry(school, role):
         audit.record(Action.ROLES_DELETED, role, actor=None)
         raise RuntimeError("l'action échoue après l'entrée")
 
-    assert not AuditLog.all_schools.exists()
+    with use_all_schools():
+        assert not AuditLog.all_schools.exists()
 
 
 def test_changes_keeps_only_what_changed():

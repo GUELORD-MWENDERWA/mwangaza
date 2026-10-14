@@ -4,7 +4,7 @@ fiche, modification, familles, inscriptions), liste sans requêtes en rafale."""
 import pytest
 
 from apps.core.ids import uuid7
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.students.models import Enrollment
 from apps.students.tests.conftest import GUARDIAN, enrolled, new_student
 from tests.factories import MembershipFactory
@@ -63,7 +63,8 @@ def test_search_and_filters(api, school, head, alpha, beta):
     assert names(search="mumb kase") == ["Jean"]
     assert names(search="ELIE") == names(search="élie") == ["Élie"]
     assert names(search="2026-0001") == ["Jean"]
-    assert names(search=esther.family.code) == ["Esther"]
+    with use_all_schools():
+        assert names(search=esther.family.code) == ["Esther"]
     assert names(class_group=str(alpha["group"].pk)) == ["Jean", "Élie"]
     assert names(track=str(alpha["track"].pk), status="active") == ["Jean"]
     assert names(status="left") == ["Élie"]
@@ -72,7 +73,8 @@ def test_search_and_filters(api, school, head, alpha, beta):
     assert client.get(STUDENTS, track=str(beta["track"].pk)).status_code == 400
     [row] = client.get(STUDENTS, search="jean").json()["results"]
     assert row["enrollment"]["class_group_name"] == "3e Électricité A"
-    assert row["family_code"] == jean.family.code
+    with use_all_schools():
+        assert row["family_code"] == jean.family.code
     assert row["primary_guardian"]["full_name"] == "Kahindo Neema"
 
 
@@ -96,19 +98,20 @@ def test_another_school_neither_reads_nor_changes(
     beta_student = new_student(other_school, other_head, last_name="Kasereka")
     with use_school(school):
         enrollment = Enrollment.objects.get()
+        family = student.family
     client = api(other_head, host="beta.localhost")
 
     assert [row["id"] for row in client.get(STUDENTS, search="kasereka").json()["results"]] == [
         str(beta_student.pk)
     ]
-    assert client.get(FAMILIES, search=student.family.code).json()["results"] == []
+    assert client.get(FAMILIES, search=family.code).json()["results"] == []
     assert client.get(f"{STUDENTS}{student.pk}/").status_code == 404
-    assert client.get(f"{FAMILIES}{student.family.pk}/").status_code == 404
+    assert client.get(f"{FAMILIES}{family.pk}/").status_code == 404
     assert client.patch(f"{STUDENTS}{student.pk}/", {"first_name": "X"}).status_code == 404
-    assert client.patch(f"{FAMILIES}{student.family.pk}/", {"guardians": []}).status_code == 404
+    assert client.patch(f"{FAMILIES}{family.pk}/", {"guardians": []}).status_code == 404
     assert client.patch(f"{ENROLLMENTS}{enrollment.pk}/", {"status": "dropped"}).status_code == 404
     # Ni relier un élève à une famille d'une autre école, ni l'inscrire dans une de ses classes.
-    linked = client.patch(f"{STUDENTS}{beta_student.pk}/", {"family": str(student.family.pk)})
+    linked = client.patch(f"{STUDENTS}{beta_student.pk}/", {"family": str(family.pk)})
     enrolled_there = client.post(
         ENROLLMENTS, {"student": str(beta_student.pk), "class_group": str(alpha["group"].pk)}
     )
@@ -116,7 +119,8 @@ def test_another_school_neither_reads_nor_changes(
     # Un identifiant d'élève de l'autre école n'écrase rien.
     taken = client.post(STUDENTS, {"id": str(student.pk), "last_name": "X", "sex": "M"})
     assert taken.status_code == 409
-    student.refresh_from_db()
+    with use_all_schools():
+        student.refresh_from_db()
     assert student.first_name == "Jean"
 
 

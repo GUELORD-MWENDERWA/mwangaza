@@ -20,7 +20,7 @@ from apps.accounts.roles import (
     ROLES_MANAGE,
 )
 from apps.core.models import PlatformSettings
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.notifications.models import (
     Notification,
     NotificationPreference,
@@ -210,7 +210,8 @@ def deliver(notification_ids: list[str]) -> None:
     if not is_configured():
         return
     # Tâche de fond, sans école courante : liste filtrée sur les identifiants donnés.
-    notifications = list(Notification.all_schools.filter(pk__in=notification_ids))
+    with use_all_schools():
+        notifications = list(Notification.all_schools.filter(pk__in=notification_ids))
     user_ids = {notification.user_id for notification in notifications}
     muted = dict(
         NotificationPreference.objects.filter(user_id__in=user_ids).values_list("user_id", "muted")

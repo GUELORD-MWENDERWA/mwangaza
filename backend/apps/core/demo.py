@@ -9,6 +9,7 @@ from django.db import transaction
 
 from apps.accounts.demo import create_demo_accounts
 from apps.core.models import PlatformSettings
+from apps.core.tenancy import use_all_schools
 from apps.finance.demo import (
     create_demo_cancellations,
     create_demo_charges,
@@ -57,12 +58,14 @@ STEPS: list[Callable[[list[DemoSpace]], None]] = [
 def fill(spaces: list[DemoSpace], on_step: Callable[[int, int], None] | None = None) -> None:
     """Écrit les données fictives dans `spaces` (écoles déjà créées, de démonstration), ou les
     remet comme au départ. Une transaction par étape : des écritures courtes, et `on_step(faites,
-    total)` dit où on en est (avancement affiché par la console)."""
+    total)` dit où on en est (avancement affiché par la console). Tâche de la plateforme : la base
+    laisse voir toutes les écoles (S.6, codes famille uniques partout), chaque étape travaille
+    dans l'école de chaque espace (`use_school`)."""
     for space in spaces:
         if not space.school.is_demo:
             raise ValueError(f"{space.school.code} n'est pas un espace de démonstration.")
     for done, step in enumerate(STEPS, start=1):
-        with transaction.atomic():
+        with use_all_schools(), transaction.atomic():
             step(spaces)
         if on_step is not None:
             on_step(done, len(STEPS))

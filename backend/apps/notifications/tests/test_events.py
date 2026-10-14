@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from apps.core.ids import uuid7
 from apps.core.money import format_amount
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.finance import services as finance
 from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.notifications import services
@@ -35,7 +35,8 @@ def parent_of(school, enrollment, **fields):
 
 
 def received(**filters) -> list[Notification]:
-    return list(Notification.all_schools.filter(**filters).order_by("created_at", "id"))
+    with use_all_schools():
+        return list(Notification.all_schools.filter(**filters).order_by("created_at", "id"))
 
 
 def test_payment_notifies_the_parent_of_that_school_once_in_their_language(

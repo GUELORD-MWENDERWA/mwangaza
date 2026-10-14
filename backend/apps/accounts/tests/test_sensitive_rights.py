@@ -6,7 +6,7 @@ from django.utils import translation
 
 from apps.accounts import services
 from apps.accounts.roles import PERMISSIONS
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.notifications import push
 from apps.notifications.models import Notification
 from tests.factories import MembershipFactory, starter_role
@@ -17,8 +17,9 @@ Kind = Notification.Kind
 
 
 def alerts() -> list[Notification]:
-    sent = Notification.all_schools.filter(kind=Kind.SENSITIVE_RIGHTS)
-    return list(sent.order_by("created_at", "id"))
+    with use_all_schools():
+        sent = Notification.all_schools.filter(kind=Kind.SENSITIVE_RIGHTS)
+        return list(sent.order_by("created_at", "id"))
 
 
 def right(code: str, reader) -> str:

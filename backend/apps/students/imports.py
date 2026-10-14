@@ -36,7 +36,7 @@ from apps.audit.actions import Action
 from apps.audit.context import current_request_info
 from apps.core.documents import workbook
 from apps.core.errors import ApiError, BusinessError
-from apps.core.tenancy import require_current_school
+from apps.core.tenancy import require_current_school, use_all_schools
 from apps.finance import services as finance
 from apps.schools import matricule
 from apps.schools.models import AcademicYear, ClassGroup, School
@@ -594,7 +594,9 @@ def _family_codes(count: int) -> list[str]:
             "".join(secrets.choice(FAMILY_CODE_ALPHABET) for _ in range(FAMILY_CODE_LENGTH))
             for _ in range(count - len(codes))
         }
-        wanted -= set(Family.all_schools.filter(code__in=wanted).values_list("code", flat=True))
+        with use_all_schools():
+            taken = set(Family.all_schools.filter(code__in=wanted).values_list("code", flat=True))
+        wanted -= taken
         codes |= wanted
     return list(codes)
 

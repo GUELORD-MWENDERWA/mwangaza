@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from apps.accounts import support
 from apps.accounts.models import Role
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 
 pytestmark = pytest.mark.django_db
 
@@ -71,10 +71,11 @@ def test_reopening_and_expiry(api, platform_admin, school):
     open_session(client, "Seconde demande")  # ferme la première
 
     now = timezone.now()
-    sessions = support.sessions(now=now).order_by("created_at")
-    assert [(s.after["reason"], s.state) for s in sessions] == [
-        ("Première demande", "ended"),
-        ("Seconde demande", "open"),
-    ]
-    later = support.sessions(now=now + timedelta(seconds=support.SUPPORT_DURATION + 1))
-    assert sorted(s.state for s in later) == ["ended", "expired"]
+    with use_all_schools():  # comme la console
+        sessions = support.sessions(now=now).order_by("created_at")
+        assert [(s.after["reason"], s.state) for s in sessions] == [
+            ("Première demande", "ended"),
+            ("Seconde demande", "open"),
+        ]
+        later = support.sessions(now=now + timedelta(seconds=support.SUPPORT_DURATION + 1))
+        assert sorted(s.state for s in later) == ["ended", "expired"]

@@ -6,7 +6,7 @@ from datetime import timedelta
 
 from django.utils import timezone
 
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.notifications import communication
 from apps.notifications import services as announcements
 from apps.notifications.models import Notification, Summons
@@ -75,14 +75,15 @@ def test_a_parent_sees_the_events_for_everyone_and_the_summons_of_its_children_o
     # « Vue » : seulement la sienne, même en donnant celles des autres.
     ids = [str(mine.pk), *(str(other.pk) for other in others)]
     assert post(client, "summons/seen/", ids=ids).status_code == 204
-    seen = Summons.all_schools.filter(seen_at__isnull=False)
-    assert list(seen) == [mine]
+    with use_all_schools():
+        assert list(Summons.all_schools.filter(seen_at__isnull=False)) == [mine]
 
     # Annulée, ou accès suspendu par l'école : plus rien.
     with use_school(school):
         communication.cancel_summons(mine, actor=head)
     assert client.get(SUMMONS).json()["count"] == 0
-    Family.all_schools.filter(pk=child.family_id).update(portal_suspended_at=timezone.now())
+    with use_all_schools():
+        Family.all_schools.filter(pk=child.family_id).update(portal_suspended_at=timezone.now())
     assert client.get(CALENDAR).json()["count"] == 0
 
 

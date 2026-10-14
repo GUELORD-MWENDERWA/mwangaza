@@ -5,7 +5,7 @@ from datetime import date
 import pytest
 
 from apps.audit.models import AuditLog
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.schools import organisation
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from tests.factories import MembershipFactory
@@ -115,7 +115,8 @@ def test_detail_endpoints_are_refused_too(api, cashier, alpha):
         client.delete(f"{CLASSES}{alpha['group'].id}/"),
     ):
         assert response.status_code == 403
-    assert ClassGroup.all_schools.filter(pk=alpha["group"].pk).exists()
+    with use_all_schools():
+        assert ClassGroup.all_schools.filter(pk=alpha["group"].pk).exists()
 
 
 # Années et découpage
