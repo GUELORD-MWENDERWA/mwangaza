@@ -28,7 +28,7 @@ Consultation des élèves et de leur situation financière, encaissement, impres
 
 ## Côté serveur
 
-- `SyncOperation.op_id` unique : une opération reçue deux fois est appliquée **une seule fois** et renvoie **le même résultat**.
+- `SyncOperation.op_id` unique : une opération reçue deux fois est appliquée **une seule fois** et renvoie **le même résultat**. Appliquée, elle est effacée après 90 jours (`operations.purge`, A.2) : ce qu'une nouvelle opération crée porte l'identifiant donné par l'appareil, pour qu'un renvoi tardif ne fasse pas de doublon.
 - Argent : écritures ajoutées seulement, jamais de conflit ; solde recalculé depuis tous les paiements ; surplus → `StudentCredit` signalé au comptable.
 - Données modifiables (fiche élève) : dernière écriture gagne, **champ par champ**, historique dans l'audit, conflit signalé si le même champ est modifié dans la même fenêtre.
 - Chaque changement d'une entité descendue écrit une ligne `ChangeLog` (seq croissante par école).

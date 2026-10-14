@@ -4,11 +4,13 @@ l'ordre, chacune une seule fois (`SyncOperation`).
 Chaque type d'opération donne le droit exigé, le contenu attendu (serializer) et le service
 appelé : encaissement (3.3.2), ouverture de caisse et réimpression (3.5.2), crédit utilisé à la
 caisse (3.6.2), demande d'annulation (3.8.1), clôture de caisse (3.8.2). Une opération hors
-ligne de plus est une entrée de plus dans `OPERATIONS`."""
+ligne de plus est une entrée de plus dans `OPERATIONS` ; ce qu'elle crée porte l'identifiant
+donné par l'appareil, car la trace d'une opération appliquée est effacée après `KEEP_DAYS`
+jours (`purge`)."""
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import UUID
 
 from django.core.exceptions import ValidationError as DjangoValidationError
@@ -36,6 +38,9 @@ UNKNOWN_OPERATION = ApiError(
     "unknown_operation", _("This application is out of date: update it."), 400
 )
 DUPLICATE = "duplicate"
+# Opérations appliquées gardées (A.2). L'appareil retire une opération dès qu'il a sa réponse :
+# seule une réponse perdue, puis ce délai sans réseau, la ferait renvoyer.
+KEEP_DAYS = 90
 
 
 class OfflinePaymentSerializer(PaymentCreateSerializer):
@@ -284,3 +289,16 @@ def _run(device: Device, actor: User, permissions: frozenset[str], incoming: Inc
     serializer = kind.serializer(data=incoming.payload, context={"permissions": permissions})
     serializer.is_valid(raise_exception=True)
     return kind.apply(serializer.to_service(), device, actor)
+
+
+def purge(now: datetime | None = None) -> int:
+    """Efface, dans toutes les écoles et en une requête, les opérations appliquées de plus de
+    `KEEP_DAYS` jours. Renvoyée plus tard, une opération effacée est appliquée de nouveau sans
+    doublon : encaissement, ouverture de caisse et demande d'annulation gardent l'identifiant
+    donné par l'appareil. Les refusées restent : un reçu hors ligne refusé reste « inconnu »
+    (`finance/verification.py`). Rend le nombre d'opérations effacées."""
+    before = (now or timezone.now()) - timedelta(days=KEEP_DAYS)
+    deleted, _by_model = SyncOperation.all_schools.filter(
+        status=SyncOperation.Status.APPLIED, created_at__lt=before
+    ).delete()
+    return deleted

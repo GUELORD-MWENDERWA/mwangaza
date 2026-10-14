@@ -51,7 +51,7 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 14 | ~~**L.5**~~ ✓ Guide régénéré, version déclarée prête | P0 | S | 🤖 |
 | 15 | **🚀 Premier espace réel** (`A-FAIRE.md`, « Le jour du lancement ») | — | — | 👤 |
 | | **V1.2 — Notes, bulletins et finances de l'école** (§ 7) | | | |
-| 16 | **A.2** Purge de `ChangeLog` et `SyncOperation` | P1 | S | 🤖 |
+| 16 | ~~**A.2**~~ ✓ Purge des opérations de synchronisation (`SyncOperation` ; `ChangeLog` gardé) | P1 | S | 🤖 |
 | 17 | **S.6** Row Level Security PostgreSQL (ex-9.15, avancée) | P1 | L | 🤖 |
 | 18 | **8.1** Cours, volumes horaires et charges des enseignants | P1 | M | 🤖 |
 | 19 | **8.2 → 8.4, 8.8** Notes, bulletins EPST, délibération, Portail | P1 | L | 🤖 |
@@ -174,7 +174,7 @@ Trouvées à la relecture. Chacune est marquée « à vérifier » quand elle re
 | # | Amélioration | Prio | Taille | Quand |
 |---|---|---|---|---|
 | ~~A.1~~ | ~~Mémoire du serveur~~ : **vérifié, déjà fait** après la panne du 2026-10-13 (swap de 2 Go, limites de mémoire par conteneur dans `docker-compose.production.yml`, construction en série). Rien à ajouter. | — | — | — |
-| **A.2** | **Tables qui grossissent sans fin.** **Vérifié** : les notifications sont purgées à 90 jours et les sessions chaque nuit, mais `ChangeLog` et `SyncOperation` n'ont **aucune purge**. Chaque paiement et chaque modification y ajoute des lignes pour toujours. Il faut une purge dans le planificateur existant, au-delà d'un délai sûr (tout ce que les appareils actifs ont déjà tiré ; un appareil trop en retard refait un instantané). Le journal d'audit est gardé. | P1 | S | après le lancement, avant la fin du premier trimestre réel |
+| **A.2** | **Tables qui grossissent sans fin.** **Vérifié** : les notifications sont purgées à 90 jours et les sessions chaque nuit, mais `ChangeLog` et `SyncOperation` n'ont **aucune purge**. **Fait (2026-10-14)** : chaque nuit, les `SyncOperation` appliquées de plus de 90 jours sont effacées (une ligne par opération envoyée, avec son contenu) ; les refusées restent (vérification d'un reçu). `ChangeLog` n'est pas purgé : une ligne par inscription, pas par paiement, il grossit comme `Enrollment`. Le journal d'audit est gardé. | P1 | S | après le lancement, avant la fin du premier trimestre réel |
 | **A.3** | **Dépendances serveur et front à jour** : une passe par version (Django 5.2 LTS, paquets du front), sans en ajouter. | P2 | S | fin de chaque version |
 | **A.4** | **Export des données d'une école** (aujourd'hui « à la main par le support » ; **vérifié** : aucune commande `make` ne le fait) : une commande `make export-ecole CODE=…` (Excel + fichiers), pas d'écran. Utile le jour où une école part ou demande ses données. | P2 | S | quand une école le demande, au plus tard V2 |
 | **A.5** | **Sélection de plusieurs élèves pour une impression** (2.4) | P3 | S | V1.5, avec la planche de cartes (6.1 : même sélection) |
@@ -281,7 +281,7 @@ Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est 
 
 ### V1.2 — Notes, bulletins et finances de l'école
 
-- [ ] **A.2** Purge de `ChangeLog` et `SyncOperation` *(P1, S)*
+- [x] **A.2** Purge des opérations de synchronisation : `SyncOperation` appliquées de plus de 90 jours, chaque nuit ; `ChangeLog` gardé (une ligne par inscription) *(P1, S)*
 - [ ] **S.6** Row Level Security *(P1, L)*
 - [ ] **8.1** Cours, maxima, domaines, attribution des enseignants **avec leur charge horaire** (servira à l'emploi du temps) ; la grille de cours d'une section s'enregistre d'un seul bloc par un service (IA.5 la proposera depuis un PDF) *(P1, M)*
 - [ ] **8.2** Saisie des notes (y compris hors ligne), verrouillage, validation, historique *(P1, L)*

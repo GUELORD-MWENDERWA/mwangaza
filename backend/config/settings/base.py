@@ -263,6 +263,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "apps.notifications.tasks.purge",
         "schedule": crontab(hour=3, minute=30),
     },
+    "sync-purge": {
+        "task": "apps.sync.tasks.purge",
+        "schedule": crontab(hour=3, minute=45),
+    },
 }
 
 LOGGING = {

@@ -1,15 +1,17 @@
 """Synchronisation (3.3.2) : appareil enregistré exigé, isolation entre écoles, droits,
 instantané et changements (écritures en masse et transaction en cours comprises), opérations
 appliquées une seule fois, encaissement hors ligne jamais refusé pour un surplus ; ouverture de
-caisse et réimpression hors ligne (3.5.2) ; crédit sur l'appareil, utilisé hors ligne (3.6.2)."""
+caisse et réimpression hors ligne (3.5.2) ; crédit sur l'appareil, utilisé hors ligne (3.6.2) ;
+purge des opérations appliquées (A.2)."""
 
 import threading
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from uuid import UUID
 
 import pytest
 from django.db import connection, transaction
+from django.utils import timezone
 
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
@@ -30,7 +32,7 @@ from apps.finance.tests.test_charges import once, rule
 from apps.finance.tests.test_credits import scholarship
 from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.students.tests.conftest import enrolled
-from apps.sync import changes
+from apps.sync import changes, operations
 from apps.sync.models import ChangeLog, Device, SyncOperation
 from apps.sync.tests.test_devices import remember
 from tests.factories import MembershipFactory
@@ -513,3 +515,35 @@ def test_a_school_never_reads_nor_writes_another_school_through_sync(
         assert not CreditAllocation.objects.exists()
         assert not CancellationRequest.objects.exists()
         assert not CashClosing.objects.exists()
+
+
+def test_old_applied_operations_are_purged_in_every_school_and_a_late_resend_pays_once(
+    api, school, other_school, head, other_head, cashier, alpha, django_assert_num_queries
+):
+    client, device, session = till(api, school, cashier, alpha)
+    paid = payment_op(alpha, device, session, 5000)
+    refused = payment_op(alpha, {"prefix": "P9"}, session, 5000)
+    recent = payment_op(alpha, device, session, 1000, seq=2)
+    client.post(PUSH, {"operations": [paid, refused, recent]})
+    remember(api(other_head, "beta.localhost"))
+    with use_school(other_school):
+        SyncOperation.objects.create(
+            op_id=uuid7(), device=Device.objects.get(), type="payment.reprint", status="applied"
+        )
+    old = timezone.now() - timedelta(days=operations.KEEP_DAYS + 1)
+    SyncOperation.all_schools.exclude(op_id=recent["op_id"]).update(created_at=old)
+
+    # Les deux écoles en une requête, sans charger les lignes ; refusée gardée (la vérification
+    # d'un reçu s'en sert).
+    with django_assert_num_queries(1):
+        assert operations.purge() == 2
+    assert set(SyncOperation.all_schools.values_list("op_id", flat=True)) == {
+        UUID(refused["op_id"]),
+        UUID(recent["op_id"]),
+    }
+    # Réponse perdue, appareil revenu après la purge : l'encaissement garde son identifiant.
+    again = client.post(PUSH, {"operations": [paid]}).json()["results"][0]
+    assert (again["status"], again["result"]["payment"]) == ("applied", paid["payload"]["id"])
+    with use_school(school):
+        assert Payment.objects.count() == 2
+        assert AuditLog.objects.filter(action=Action.FINANCE_PAYMENT_RECORDED).count() == 2
