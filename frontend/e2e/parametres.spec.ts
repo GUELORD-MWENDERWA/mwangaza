@@ -98,7 +98,7 @@ test("directeur : compte, rôle et couleur changés, puis lus dans le journal", 
   await mainMenu(page).getByRole("link", { name: "Paramètres de l'école" }).click();
   const color = page.getByLabel("Couleur de l'école");
   await color.fill("#FF0000");
-  await page.getByRole("button", { name: "Utiliser #ED0000" }).click();
+  await page.getByRole("button", { name: "Utiliser #FF0F0F" }).click();
   await page.getByRole("button", { name: "Enregistrer" }).click();
   await expect(page.getByText("Paramètres enregistrés.")).toBeVisible();
   await color.fill("#003C6C");
