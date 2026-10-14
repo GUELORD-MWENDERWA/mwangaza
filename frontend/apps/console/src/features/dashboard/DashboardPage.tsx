@@ -170,13 +170,16 @@ export function DashboardPage() {
             {data.health.checks.map((check) => (
               <li
                 key={check.name}
-                className="flex items-center justify-between gap-3 border-t border-line px-4 py-2.5 text-md first:border-t-0"
+                className="flex flex-wrap items-center gap-x-3 gap-y-0.5 border-t border-line px-4 py-2.5 text-md first:border-t-0"
               >
                 <span className="flex items-center gap-2">
-                  <i aria-hidden="true" className={cn("size-2 rounded-full", DOTS[check.status])} />
+                  <i
+                    aria-hidden="true"
+                    className={cn("size-2 shrink-0 rounded-full", DOTS[check.status])}
+                  />
                   {t(`console.health.checks.${check.name}`)}
                 </span>
-                <span className="text-ink-3">{healthValue(check, t)}</span>
+                <span className="ml-auto text-right text-ink-3">{healthValue(check, t)}</span>
               </li>
             ))}
           </ul>
@@ -229,32 +232,37 @@ function PlatformCard({ platform }: { platform: Platform }) {
         {rows.map((row) => (
           <li
             key={row.key}
-            className="flex items-center justify-between gap-3 border-t border-line px-4 py-2.5 text-md first:border-t-0"
+            className="flex flex-wrap items-center gap-x-3 gap-y-0.5 border-t border-line px-4 py-2.5 text-md first:border-t-0"
           >
             <span className="flex items-center gap-2">
-              <i aria-hidden="true" className={cn("size-2 rounded-full", DOTS[row.status])} />
+              <i
+                aria-hidden="true"
+                className={cn("size-2 shrink-0 rounded-full", DOTS[row.status])}
+              />
               {t(`console.platform.${row.key}`)}
             </span>
-            <span className="text-ink-3">{row.value}</span>
+            <span className="ml-auto text-right text-ink-3">{row.value}</span>
           </li>
         ))}
       </ul>
-      <p className="border-t border-line px-4 py-2.5 text-sm font-semibold">
+      <p className="border-t border-line bg-table-head px-4 py-2.5 text-sm font-bold text-ink-2">
         {t("console.platform.syncs")}
       </p>
       {platform.syncs.length === 0 ? (
-        <p className="px-4 pb-4 text-ink-3">{t("console.platform.noSchool")}</p>
+        <p className="border-t border-line px-4 py-5 text-center text-ink-3">
+          {t("console.platform.noSchool")}
+        </p>
       ) : (
         <ul>
           {platform.syncs.map((school) => (
             <li
               key={school.id}
-              className="flex items-center justify-between gap-3 border-t border-line px-4 py-2.5 text-md"
+              className="flex flex-wrap items-center gap-x-3 gap-y-0.5 border-t border-line px-4 py-2.5 text-md"
             >
               <span>
                 {school.name} <span className="text-sm text-ink-3">{school.code}</span>
               </span>
-              <span className="text-ink-3">{when(school.last_sync_at)}</span>
+              <span className="ml-auto text-right text-ink-3">{when(school.last_sync_at)}</span>
             </li>
           ))}
         </ul>

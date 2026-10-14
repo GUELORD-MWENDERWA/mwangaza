@@ -24,11 +24,16 @@ export function HomePage() {
   return (
     <PortalFrame subtitle={t("portal.home.greeting", { name: account.name })}>
       {offerInstall && (
-        <Banner tone="lamp" icon="phone" className="items-center">
-          <span className="flex-1">{t("portal.home.installBanner")}</span>
-          <Link to="/install" className={buttonVariants({ variant: "outline", size: "sm" })}>
-            {t("portal.home.installAction")}
-          </Link>
+        <Banner
+          tone="lamp"
+          icon="phone"
+          action={
+            <Link to="/install" className={buttonVariants({ variant: "outline", size: "sm" })}>
+              {t("portal.home.installAction")}
+            </Link>
+          }
+        >
+          {t("portal.home.installBanner")}
         </Banner>
       )}
       <SummonsBanner />
@@ -61,11 +66,16 @@ function SummonsBanner() {
   const [next] = summons.filter((item) => new Date(item.meeting_at) >= new Date());
   if (!next) return null;
   return (
-    <Banner tone="warn" icon="calendar" className="items-center">
-      <span className="flex-1">{t("portal.home.summons", { name: next.student_name })}</span>
-      <Link to="/calendar" className={buttonVariants({ variant: "outline", size: "sm" })}>
-        {t("portal.home.summonsAction")}
-      </Link>
+    <Banner
+      tone="warn"
+      icon="calendar"
+      action={
+        <Link to="/calendar" className={buttonVariants({ variant: "outline", size: "sm" })}>
+          {t("portal.home.summonsAction")}
+        </Link>
+      }
+    >
+      {t("portal.home.summons", { name: next.student_name })}
     </Banner>
   );
 }

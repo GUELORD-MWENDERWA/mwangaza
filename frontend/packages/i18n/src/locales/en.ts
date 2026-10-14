@@ -2898,13 +2898,13 @@ export const en: Messages<typeof fr> = {
       logo: {
         label: "Logo",
         alt: "Platform logo",
-        help: "PNG or JPEG (2,048 px per side at most) or SVG, 1 MB at most. Without a logo: the lamp.",
+        help: "PNG or JPEG (2,048 px per side at most) or SVG, 1 MB at most. Without a logo: the default symbol (M and flame).",
         change: "Change the logo",
       },
       icon: {
         label: "Application icon",
         alt: "Application icon",
-        help: "Square PNG, 512 to 2,048 px per side, 1 MB at most. Without an icon: the lamp.",
+        help: "Square PNG, 512 to 2,048 px per side, 1 MB at most. Without an icon: the default symbol, in a rounded square.",
         change: "Change the icon",
       },
       change: "Change",

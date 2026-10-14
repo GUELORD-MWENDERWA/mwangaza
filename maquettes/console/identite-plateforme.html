@@ -25,17 +25,17 @@ body{background:var(--surface)}
 .file{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .file .col{align-items:flex-start}
 .file .pic{width:84px;height:84px;border-radius:12px;border:1px solid var(--line);background:#fff;display:grid;place-items:center}
-.file .pic .mark{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 50% 55%,var(--lamp) 0 38%,transparent 40%),var(--basalt-2);box-shadow:0 0 0 3px var(--lamp) inset}
+.file .pic .mark{width:44px;height:44px}
 .colors .inp{gap:10px}
 .colors .sw{width:22px;height:22px;border-radius:6px;border:1px solid rgba(0,0,0,.15)}
 .ta{min-height:96px;align-items:flex-start;line-height:1.5}
 .preview .pbar{background:var(--basalt);color:var(--basalt-ink);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px}
-.preview .pbar .mark{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 50% 55%,var(--lamp) 0 38%,transparent 40%),var(--basalt-2);box-shadow:0 0 0 2px var(--lamp) inset}
+.preview .pbar .mark{width:32px;height:32px}
 .preview .pbar .on{margin-left:auto;font-size:.85rem;border-bottom:3px solid var(--lamp);padding-bottom:3px;color:#fff;font-weight:700}
 .preview .phome{display:flex;gap:18px;align-items:flex-end;padding:14px;border-radius:12px;background:linear-gradient(160deg,var(--ink-2),var(--basalt))}
 .preview .phome .papp{display:flex;flex-direction:column;align-items:center;gap:6px;color:#fff;font-size:.8rem;width:64px;text-align:center}
-.preview .phome .tile{width:56px;height:56px;border-radius:14px;background:var(--basalt-2);display:grid;place-items:center}
-.preview .phome .tile .mark{width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 50% 55%,var(--lamp) 0 38%,transparent 40%),var(--basalt-2);box-shadow:0 0 0 2px var(--lamp) inset}
+.preview .phome .tile{width:56px;height:56px;display:grid;place-items:center}
+.preview .phome .tile .mark{width:56px;height:56px}
 .preview .phome .other{width:56px;height:56px;border-radius:14px;background:rgba(255,255,255,.18)}
 .hist li{padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem;display:flex;flex-direction:column;gap:2px}
 .hist li:first-child{border-top:0}
@@ -56,8 +56,8 @@ body{background:var(--surface)}
         <label class="f">Nom court<span class="inp">Mwangaza</span><span class="help">Sous l'icône de l'écran d'accueil (12 caractères au mieux).</span></label>
       </div></div>
       <div class="card"><div class="hd"><h2>Logo et icône</h2></div><div class="bd grid g2">
-        <div class="col" style="gap:8px"><b class="small" style="color:var(--ink-2)">Logo</b><div class="file"><div class="pic"><span class="mark"></span></div><div class="col" style="gap:6px"><a class="btn sm" href="#"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>Changer</a><span class="help">PNG, JPEG ou SVG, 1 Mo au plus. Sans logo : la lampe.</span></div></div></div>
-        <div class="col" style="gap:8px"><b class="small" style="color:var(--ink-2)">Icône des applications</b><div class="file"><div class="pic" style="border-radius:20px;background:var(--basalt-2)"><span class="mark"></span></div><div class="col" style="gap:6px"><a class="btn sm" href="#"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>Changer</a><span class="help">PNG carré, 512 × 512 px au moins, 1 Mo au plus. Sans icône : la lampe.</span></div></div></div>
+        <div class="col" style="gap:8px"><b class="small" style="color:var(--ink-2)">Logo</b><div class="file"><div class="pic"><span class="mark"></span></div><div class="col" style="gap:6px"><a class="btn sm" href="#"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>Changer</a><span class="help">PNG, JPEG ou SVG, 1 Mo au plus. Sans logo : le symbole par défaut (M et flamme).</span></div></div></div>
+        <div class="col" style="gap:8px"><b class="small" style="color:var(--ink-2)">Icône des applications</b><div class="file"><div class="pic" style="border:0;background:none"><span class="mark" style="width:72px;height:72px"></span></div><div class="col" style="gap:6px"><a class="btn sm" href="#"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>Changer</a><span class="help">PNG carré, 512 × 512 px au moins, 1 Mo au plus. Sans icône : le symbole par défaut, en carré arrondi.</span></div></div></div>
       </div></div>
       <div class="card colors"><div class="hd"><h2>Couleurs</h2></div><div class="bd grid g2">
         <label class="f">Couleur principale<span class="inp"><span class="sw" style="background:#0E5C6B"></span><span style="font-family:var(--mono)">#0E5C6B</span></span><span class="help">Boutons et liens.</span></label>

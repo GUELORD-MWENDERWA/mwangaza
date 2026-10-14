@@ -334,7 +334,7 @@ function UnpaidTable({
                 </Link>
                 <span className="block text-sm text-ink-3">{row.class_group}</span>
               </td>
-              <td className="min-w-40 text-sm">
+              <td data-wrap className="min-w-60 text-sm">
                 {row.charges
                   .map((charge) =>
                     charge.label === charge.fee_type_name

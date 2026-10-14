@@ -19,6 +19,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  cn,
   Field,
   Icon,
   Input,
@@ -297,7 +298,10 @@ function FileField({ identity, kind }: { identity: Identity; kind: "logo" | "ico
         <span
           className={
             icon
-              ? "grid size-[84px] place-items-center overflow-hidden rounded-[20px] bg-basalt-2"
+              ? cn(
+                  "grid size-[84px] place-items-center overflow-hidden rounded-[20px]",
+                  file && "bg-basalt-2",
+                )
               : "grid size-[84px] place-items-center rounded-box border border-line bg-white p-1"
           }
         >
@@ -308,7 +312,7 @@ function FileField({ identity, kind }: { identity: Identity; kind: "logo" | "ico
               className="size-full object-contain"
             />
           ) : (
-            <BrandMark className="size-11" />
+            <BrandMark className={icon ? "size-[72px]" : "size-12"} />
           )}
         </span>
         <div className="flex flex-col items-start gap-1.5">
@@ -378,13 +382,9 @@ function Preview({ form, identity }: { form: Form; identity: Identity }) {
       <CardContent className="flex flex-col gap-3" style={style}>
         <div className="flex items-center gap-2.5 rounded-box bg-basalt px-3.5 py-3 text-basalt-ink">
           {identity.logo ? (
-            <img
-              src={identity.logo}
-              alt=""
-              className="h-[26px] w-auto max-w-[110px] object-contain"
-            />
+            <img src={identity.logo} alt="" className="h-8 w-auto max-w-[120px] object-contain" />
           ) : (
-            <BrandMark className="size-[26px]" />
+            <BrandMark className="size-8" />
           )}
           <b className="truncate">{name}</b>
           <span className="ml-auto border-b-[3px] border-lamp pb-0.5 text-sm font-bold text-white">
@@ -399,11 +399,11 @@ function Preview({ form, identity }: { form: Form; identity: Identity }) {
         </div>
         <div className="flex items-end gap-4 rounded-box bg-linear-160 from-ink-2 to-basalt p-3.5">
           <span className="flex w-16 flex-col items-center gap-1.5 text-center text-xs text-white">
-            <span className="grid size-14 place-items-center overflow-hidden rounded-[14px] bg-basalt-2">
+            <span className="grid size-14 place-items-center overflow-hidden rounded-[14px]">
               {identity.icon ? (
                 <img src={identity.icon} alt="" className="size-full object-cover" />
               ) : (
-                <BrandMark />
+                <BrandMark className="size-14" />
               )}
             </span>
             <span className="w-full truncate">{shortName}</span>

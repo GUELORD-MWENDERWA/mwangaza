@@ -44,7 +44,10 @@ def test_a_new_name_is_used_everywhere_without_code(client, school):
         "Lumi",
         "/app/",
     )
-    assert gestion["icons"][0]["src"] == "/app/icons/icon-192.png"  # pas d'icône : la lampe
+    assert gestion["icons"][0]["src"] == "/app/icons/icon-192.png"  # pas d'icône : le symbole
+    # Notifications : l'icône par défaut de l'application.
+    icon = client.get("/api/platform/icon/?app=portail", HTTP_HOST="localhost")
+    assert (icon.status_code, icon["Location"]) == (302, "/icons/icon-192.png")
     portail = client.get("/api/platform/manifest/portail/", HTTP_HOST="localhost").json()
     assert portail["name"] == "Lumière — Parents"
     assert "issuer=Lumi%C3%A8re" in totp.provisioning_uri("SECRET", "+243970000000")
@@ -75,7 +78,7 @@ def test_uploaded_icon_and_logo_are_served(client, db):
     ]
     icon = client.get(platform.icon_url, HTTP_HOST="alpha.localhost")
     assert (icon.status_code, icon["Content-Type"]) == (200, "image/png")
-    assert client.get("/api/platform/logo/").status_code == 404  # pas de logo : la lampe
+    assert client.get("/api/platform/logo/").status_code == 404  # pas de logo : le symbole
 
 
 def test_platform_name_is_not_written_in_server_texts():

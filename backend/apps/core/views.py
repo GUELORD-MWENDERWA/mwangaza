@@ -1,7 +1,7 @@
 """Identité de la plateforme (5.1), publique et lisible à toute adresse : école (même suspendue
 ou inconnue : l'écran le dit avec le contact du support), portail, administration."""
 
-from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET
@@ -26,7 +26,8 @@ from apps.core.serializers import (
     PlatformSerializer,
 )
 
-# Application installable : adresse de départ, portée et icônes par défaut (lampe, dans son build).
+# Application installable : adresse de départ, portée et icônes par défaut (le symbole, dans
+# son build).
 APPS = {
     "gestion": {"start_url": "/app/", "icons": "/app/icons/"},
     "portail": {"start_url": "/", "icons": "/icons/"},
@@ -59,6 +60,11 @@ def platform_logo(request: HttpRequest) -> HttpResponse:
 
 @require_GET
 def platform_icon(request: HttpRequest) -> HttpResponse:
+    """Icône téléversée par la plateforme ; sans elle, `?app=` renvoie vers l'icône par défaut
+    de cette application (notifications envoyées au téléphone)."""
+    app = APPS.get(request.GET.get("app", ""))
+    if app and not PlatformSettings.load().icon:
+        return HttpResponseRedirect(f"{app['icons']}icon-192.png")
     return _image("icon")
 
 

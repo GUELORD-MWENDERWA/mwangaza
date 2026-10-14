@@ -49,7 +49,7 @@ export function PortalFrame({
           {heading !== undefined ? (
             <>
               <div className="flex items-center gap-2.5">
-                <PlatformMark className="h-[26px] min-w-[26px]" />
+                <PlatformMark />
                 <h1 className="text-lg text-basalt-ink">{heading}</h1>
               </div>
               <NotificationBell />

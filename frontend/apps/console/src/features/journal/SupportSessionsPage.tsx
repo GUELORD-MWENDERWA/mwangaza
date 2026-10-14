@@ -79,7 +79,9 @@ export function SupportSessionsPage() {
                         {session.school.name}
                       </Link>
                     </td>
-                    <td>{session.reason}</td>
+                    <td data-wrap className="min-w-48">
+                      {session.reason}
+                    </td>
                     <td className="text-sm whitespace-nowrap text-ink-3">
                       {when(session.started_at)}
                     </td>

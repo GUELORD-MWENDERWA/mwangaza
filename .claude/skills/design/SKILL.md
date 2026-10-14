@@ -1,6 +1,6 @@
 ---
 name: design
-description: Système de design Mwangaza (basalte, lampe, lac Kivu, Atkinson Hyperlegible) — logo lampe-tempête, jetons de couleur, échelle de texte, thème Tailwind / shadcn, correspondance entre les classes des maquettes et les composants, formats des montants et des dates, règles d'accessibilité et de mise en page. À utiliser pour tout travail d'interface — thème, composant partagé, écran, impression — dans frontend/apps/gestion, frontend/apps/portail ou frontend/packages/ui.
+description: Système de design Mwangaza (basalte, lampe, lac Kivu, Atkinson Hyperlegible) — logo M-flamme, jetons de couleur, échelle de texte, thème Tailwind / shadcn, correspondance entre les classes des maquettes et les composants, formats des montants et des dates, règles d'accessibilité et de mise en page. À utiliser pour tout travail d'interface — thème, composant partagé, écran, impression — dans frontend/apps/gestion, frontend/apps/portail ou frontend/packages/ui.
 ---
 
 # Système de design Mwangaza
@@ -50,12 +50,13 @@ Rayons : cartes 12 px, champs et boutons 8 px, pastilles 999 px. Ombre des carte
 `--background` = surface · `--foreground` = ink · `--card` = card · `--border` = line · `--input` = field · `--primary` = lake · `--primary-foreground` = blanc · `--ring` = lake · `--accent` = lake-50 · `--accent-foreground` = lake-700 · `--muted-foreground` = ink-3 · `--destructive` = due · `--radius` = 8px (cartes : 12px) · `--sidebar` = basalt · `--sidebar-foreground` = basalt-ink · `--sidebar-accent` = basalt-2 · `--sidebar-primary` = lamp.
 Ajouter `ok`, `due`, `warn`, `info` (et leurs `-50`), `lamp`, `lamp-soft`, `basalt*`, `ink-2`, `ink-3` comme couleurs du thème Tailwind. Le thème vit dans `frontend/packages/ui` et est partagé par les deux applications.
 
-## Logo : la lampe-tempête
+## Logo : le symbole M-flamme
 
-La lampe sous laquelle les élèves étudient le soir (*mwangaza* = la lumière) ; même nom que le jeton `lamp`. Fichiers : `maquettes/assets/logo/` (`lampe-sur-sombre.svg`, `lampe-sur-clair.svg`, `icone-application.svg`, `icone-maskable.svg`) ; icônes PNG des applications (`apps/*/public/icons/`) rendues depuis ces SVG.
-- Composant `BrandMark` (`@mwangaza/ui`) : le cadre prend la couleur du texte autour (clair sur basalte, sombre sur fond clair), le verre suit `lamp` (donc l'accent de la plateforme). Ne jamais redessiner la lampe ailleurs : utiliser `Brand` / `PlatformMark` / `BrandMark`.
-- Un logo de plateforme téléversé (`PlatformSettings`) remplace la lampe ; la lampe reste le défaut.
-- Taille mini 16 px (favicon) ; zone de protection = un quart de sa largeur ; jamais déformée, jamais sur une photo.
+Un M basalte épais surmonté d'une flamme (*mwangaza* = la lumière), dans un carré arrondi à la couleur `lamp`. Forme pleine et fermée, comme les grandes marques (GitHub, Toddle) : lisible de 16 px à 512 px, la même sur fond sombre ou clair. Fichiers : `maquettes/assets/logo/` (`symbole.svg`, `icone-application.svg`, `icone-maskable.svg`, `icone-apple.svg`) ; icônes des applications (`apps/*/public/icons/` : `icon.svg` = `symbole.svg`, PNG 192 / 512 / maskable / apple-touch) rendues depuis ces SVG avec Chrome sans interface, à la taille exacte.
+- Composant `BrandMark` (`@mwangaza/ui`) : carré à la couleur d'accent (`lamp`, que la plateforme peut changer : le serveur exige 4,5:1 avec le basalte, donc le M reste lisible), M et flamme en basalte. Ne jamais redessiner le symbole ailleurs : utiliser `Brand` / `PlatformMark` / `BrandMark` (seule exception : la page de vérification des reçus, servie par Django, qui en garde une copie).
+- Tailles : 36 px (`size-9`) dans les barres, 48 px (`Brand large`) sur les pages de connexion ; jamais sous 16 px.
+- Un logo de plateforme téléversé (`PlatformSettings`) remplace le symbole ; le symbole reste le défaut. Sans icône téléversée, les notifications prennent l'icône par défaut de l'application (`/api/platform/icon/?app=…`).
+- Zone de protection = un quart de sa largeur ; jamais déformé, jamais sur une photo. L'ancienne lampe-tempête et le disque jaune ne doivent plus apparaître nulle part.
 
 ## Typographie
 
@@ -123,7 +124,7 @@ Les composants partagés vont dans `frontend/packages/ui` (exportés par `@mwang
 - Page : contenu `padding 24px`, largeur max 1360 px, espacement vertical 20 px.
 - En-tête de page : fil d'Ariane (`.crumbs`), titre, sous-titre `ink-2`, actions à droite.
 - Grilles des écrans : colonnes `minmax(0, …)` (ex. `grid-cols-[minmax(0,1fr)] min-[1200px]:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]`) : sinon un tableau large élargit toute la page ; le tableau défile dans sa carte.
-- Sous 900 px : barre latérale cachée (menu tiroir), grilles sur une colonne, recherche du haut masquée, rangées de boutons et pieds de carte qui passent à la ligne, tableau qui défile dans sa carte, barre d'onglets qui défile. **Chaque écran existe à 390 px (app) et à 1440 px (logiciel)** : `node maquettes/outils/captures.mjs` capture les deux et sort en erreur si un élément dépasse de l'écran.
+- Sous 900 px : barre latérale cachée (menu tiroir), grilles sur une colonne, recherche du haut masquée, rangées de boutons et pieds de carte qui passent à la ligne, tableau qui défile dans sa carte avec une ligne par cellule (`data-wrap` sur une cellule de texte long ; écran seulement, pas l'impression), barre d'onglets qui défile ; sous 560 px, actions de `PageHeader` en deux colonnes égales ; `Segmented` étiré : choix qui se partagent la largeur ; `Banner` : icône sur la première ligne, bouton dans `action` ; aperçu A4 (`DocumentPreview`) réduit, jamais tassé. **Chaque écran existe à 390 px (app) et à 1440 px (logiciel)** : `node maquettes/outils/captures.mjs` capture les deux et sort en erreur si un élément dépasse de l'écran.
 - Focus visible : bordure `lake` + anneau 3 px `lake-50`. Erreur : bordure `due` + anneau `due-50`.
 - Contraste : texte `ink` sur `surface` / `card` ; ne pas écrire en `ink-3` un texte important.
 - Couleurs d'état **toujours** accompagnées d'un texte (« 5 j de retard », « soldé »), jamais la couleur seule.

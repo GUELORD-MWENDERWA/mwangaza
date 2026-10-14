@@ -3,10 +3,12 @@ import type { ComponentProps } from "react";
 import { cn } from "../lib/cn";
 
 // `.card` `.hd` `.bd` `.ft` des maquettes.
+// `min-w-0` : dans une grille ou une rangée, une carte rétrécit avec l'écran ; un tableau large
+// défile dans la carte au lieu de l'élargir (et la page avec elle).
 export function Card({ className, ...props }: ComponentProps<"section">) {
   return (
     <section
-      className={cn("rounded-card border border-line bg-card shadow-card", className)}
+      className={cn("min-w-0 rounded-card border border-line bg-card shadow-card", className)}
       {...props}
     />
   );

@@ -12,7 +12,7 @@ export function Steps({ steps, className }: { steps: Step[]; className?: string 
           key={step.label}
           aria-current={step.state === "current" ? "step" : undefined}
           className={cn(
-            "flex flex-1 items-center gap-2.5 text-md font-bold after:mr-2.5 after:h-0.5 after:flex-1 after:bg-line after:content-[''] last:after:hidden",
+            "flex flex-1 items-center gap-2.5 text-md font-bold after:mr-2.5 after:h-0.5 after:flex-1 after:bg-line after:content-[''] last:flex-none last:after:hidden",
             step.state === "done" && "text-ok",
             step.state === "current" && "text-lake",
             step.state === "todo" && "text-ink-3",

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 23:15+0200\n"
+"POT-Creation-Date: 2026-10-14 21:07+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -224,7 +224,7 @@ msgstr "compte"
 msgid "accounts"
 msgstr "comptes"
 
-#: apps/accounts/models.py:134 apps/core/models.py:129
+#: apps/accounts/models.py:134 apps/core/models.py:137
 #: apps/finance/models.py:35 apps/finance/models.py:371
 #: apps/schools/models.py:91 apps/schools/models.py:331
 #: apps/schools/models.py:389 apps/schools/models.py:428
@@ -440,7 +440,7 @@ msgstr "Parent"
 msgid "Choose a password different from the current one."
 msgstr "Choisissez un mot de passe différent de l'actuel."
 
-#: apps/accounts/services.py:47
+#: apps/accounts/services.py:52
 msgid ""
 "This change would leave the school without an active account that can manage "
 "roles."
@@ -448,29 +448,29 @@ msgstr ""
 "Ce changement laisserait l'école sans compte actif capable de gérer les "
 "rôles."
 
-#: apps/accounts/services.py:51
+#: apps/accounts/services.py:56
 msgid "This role is still given to accounts: remove it from them first."
 msgstr "Ce rôle est encore attribué à des comptes : retirez-le-leur d'abord."
 
-#: apps/accounts/services.py:54
+#: apps/accounts/services.py:59
 msgid "The school already has a role with this name."
 msgstr "L'école a déjà un rôle de ce nom."
 
-#: apps/accounts/services.py:56
+#: apps/accounts/services.py:61
 msgid "A role needs a name."
 msgstr "Un rôle doit avoir un nom."
 
-#: apps/accounts/services.py:58
+#: apps/accounts/services.py:63
 msgid "This phone number already has an account in this school."
 msgstr "Ce numéro de téléphone a déjà un compte dans cette école."
 
-#: apps/accounts/services.py:62
+#: apps/accounts/services.py:67
 msgid "Numbers starting with 000 are kept for demonstration spaces."
 msgstr ""
 "Les numéros qui commencent par 000 sont réservés aux espaces de "
 "démonstration."
 
-#: apps/accounts/services.py:68
+#: apps/accounts/services.py:73
 msgid ""
 "A demonstration space only takes made-up numbers starting with 000 (for "
 "example 0001234567): never a real number."
@@ -478,11 +478,11 @@ msgstr ""
 "Un espace de démonstration n'accepte que des numéros fictifs commençant par "
 "000 (par exemple 0001234567) : jamais un vrai numéro."
 
-#: apps/accounts/services.py:74
+#: apps/accounts/services.py:79
 msgid "This phone number has no account yet: enter the last name."
 msgstr "Ce numéro de téléphone n'a pas encore de compte : saisissez le nom."
 
-#: apps/accounts/services.py:78
+#: apps/accounts/services.py:83
 msgid ""
 "This account is also used outside this school: only the platform support can "
 "change it."
@@ -490,11 +490,11 @@ msgstr ""
 "Ce compte sert aussi en dehors de cette école : seul le support de la "
 "plateforme peut le modifier."
 
-#: apps/accounts/services.py:81
+#: apps/accounts/services.py:86
 msgid "This phone number already has an account."
 msgstr "Ce numéro de téléphone a déjà un compte."
 
-#: apps/accounts/services.py:84
+#: apps/accounts/services.py:89
 msgid ""
 "A platform administrator account is changed in the Django administration "
 "only."
@@ -502,7 +502,7 @@ msgstr ""
 "Un compte de super-administrateur ne se modifie que dans l'administration "
 "Django."
 
-#: apps/accounts/services.py:90
+#: apps/accounts/services.py:95
 msgid ""
 "This account is only used for the parent portal: its school gives the parent "
 "a new family code instead."
@@ -510,15 +510,15 @@ msgstr ""
 "Ce compte ne sert qu'au portail des parents : son école donne plutôt au "
 "parent un nouveau code famille."
 
-#: apps/accounts/services.py:96
+#: apps/accounts/services.py:101
 msgid "This code is not valid, or it has already been used."
 msgstr "Ce code n'est pas valide, ou il a déjà été utilisé."
 
-#: apps/accounts/services.py:98
+#: apps/accounts/services.py:103
 msgid "The current password is not correct."
 msgstr "Le mot de passe actuel n'est pas correct."
 
-#: apps/accounts/services.py:102
+#: apps/accounts/services.py:107
 msgid ""
 "This demonstration account is shared between visitors: its password and its "
 "two-step verification do not change."
@@ -526,7 +526,7 @@ msgstr ""
 "Ce compte de démonstration est partagé entre les visiteurs : son mot de "
 "passe et sa double authentification ne se changent pas."
 
-#: apps/accounts/services.py:109
+#: apps/accounts/services.py:114
 msgid ""
 "One of your roles requires two-factor authentication: it cannot be turned "
 "off."
@@ -607,7 +607,7 @@ msgstr ""
 msgid "Give a temporary password"
 msgstr "Donner un mot de passe provisoire"
 
-#: apps/accounts/views.py:60
+#: apps/accounts/views.py:61
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
@@ -1087,7 +1087,7 @@ msgstr "navigateur"
 
 #: apps/audit/models.py:76 apps/finance/models.py:418
 #: apps/finance/models.py:541 apps/finance/models.py:635
-#: apps/finance/models.py:835 apps/sync/models.py:46 apps/sync/models.py:69
+#: apps/finance/models.py:835 apps/sync/models.py:46 apps/sync/models.py:70
 msgid "device"
 msgstr "appareil"
 
@@ -1170,7 +1170,7 @@ msgstr "Système"
 msgid "To change it: Identity screen of the platform console."
 msgstr "Pour la modifier : écran « Identité de la plateforme » de la console."
 
-#: apps/core/apps.py:10
+#: apps/core/apps.py:12
 msgid "Core"
 msgstr "Socle"
 
@@ -1207,7 +1207,7 @@ msgstr "L'image ne doit pas dépasser %(side)s pixels de côté."
 msgid "created at"
 msgstr "créé le"
 
-#: apps/core/models.py:23 apps/core/models.py:167
+#: apps/core/models.py:23 apps/core/models.py:177
 msgid "updated at"
 msgstr "modifié le"
 
@@ -1215,61 +1215,65 @@ msgstr "modifié le"
 msgid "created by"
 msgstr "créé par"
 
-#: apps/core/models.py:131
+#: apps/core/models.py:139
 msgid "short name"
 msgstr "nom court"
 
-#: apps/core/models.py:134
+#: apps/core/models.py:142
 msgid "Under the application icon on the home screen (12 characters is best)."
 msgstr ""
 "Sous l'icône de l'application sur l'écran d'accueil (12 caractères au mieux)."
 
-#: apps/core/models.py:137 apps/schools/models.py:95
+#: apps/core/models.py:145 apps/schools/models.py:95
 msgid "logo"
 msgstr "logo"
 
-#: apps/core/models.py:141
-msgid "PNG, JPEG or SVG, 1 MB at most. Without it: the lamp."
-msgstr "PNG, JPEG ou SVG, 1 Mo au plus. Sans lui : la lampe."
+#: apps/core/models.py:150
+msgid ""
+"PNG, JPEG or SVG, 1 MB at most. Without it: the default symbol (M and flame)."
+msgstr ""
+"PNG, JPEG ou SVG, 1 Mo au plus. Sans lui : le symbole par défaut (M et "
+"flamme)."
 
-#: apps/core/models.py:144
+#: apps/core/models.py:154
 msgid "application icon"
 msgstr "icône des applications"
 
-#: apps/core/models.py:148
-msgid "Square PNG of at least 512 x 512 pixels. Without it: the lamp icon."
+#: apps/core/models.py:158
+msgid ""
+"Square PNG of at least 512 x 512 pixels. Without it: the default symbol."
 msgstr ""
-"PNG carré d'au moins 512 x 512 pixels. Sans elle : l'icône de la lampe."
+"PNG carré d'au moins 512 x 512 pixels. Sans elle : le symbole par défaut."
 
-#: apps/core/models.py:151
+#: apps/core/models.py:161
 msgid "main colour"
 msgstr "couleur principale"
 
-#: apps/core/models.py:155
+#: apps/core/models.py:165
 msgid "Buttons and links of the interface."
 msgstr "Boutons et liens de l'interface."
 
-#: apps/core/models.py:158
+#: apps/core/models.py:168
 msgid "accent colour"
 msgstr "couleur d'accent"
 
-#: apps/core/models.py:162
+#: apps/core/models.py:172
 msgid "Mark and highlights on the dark menu."
 msgstr "Marque et repères sur le menu sombre."
 
-#: apps/core/models.py:164
+#: apps/core/models.py:174
 msgid "support phone"
 msgstr "téléphone du support"
 
-#: apps/core/models.py:165
+#: apps/core/models.py:175
 msgid "support email"
 msgstr "e-mail du support"
 
-#: apps/core/models.py:166
+#: apps/core/models.py:176
 msgid "legal notice"
 msgstr "mentions légales"
 
-#: apps/core/models.py:170 apps/core/models.py:171
+#: apps/core/models.py:180 apps/core/models.py:181
 msgid "platform identity"
 msgstr "identité de la plateforme"
 
@@ -1310,7 +1314,7 @@ msgstr ""
 msgid "page"
 msgstr "page"
 
-#: apps/core/views.py:96
+#: apps/core/views.py:102
 #, python-format
 msgid "%(platform)s — Parents"
 msgstr "%(platform)s — Parents"
@@ -1614,7 +1618,7 @@ msgstr "Remplacé"
 
 #: apps/finance/models.py:170 apps/finance/models.py:237
 #: apps/finance/models.py:501 apps/finance/models.py:723
-#: apps/students/models.py:180 apps/sync/models.py:97
+#: apps/students/models.py:180 apps/sync/models.py:98
 msgid "enrollment"
 msgstr "inscription"
 
@@ -1625,7 +1629,7 @@ msgstr "origine"
 #: apps/finance/models.py:190 apps/finance/models.py:638
 #: apps/schools/models.py:164 apps/schools/models.py:336
 #: apps/students/models.py:173 apps/students/models.py:239
-#: apps/students/models.py:287 apps/sync/models.py:73
+#: apps/students/models.py:287 apps/sync/models.py:74
 msgid "status"
 msgstr "statut"
 
@@ -2896,27 +2900,27 @@ msgstr "préférences de notification"
 msgid "Choose at least one school."
 msgstr "Choisissez au moins une école."
 
-#: apps/notifications/scheduled.py:120
+#: apps/notifications/scheduled.py:122
 #, python-format
 msgid "Payment due on %(date)s: %(amounts)s"
 msgstr "Échéance le %(date)s : %(amounts)s"
 
-#: apps/notifications/scheduled.py:122
+#: apps/notifications/scheduled.py:124
 #, python-format
 msgid "%(students)s · %(fees)s"
 msgstr "%(students)s · %(fees)s"
 
-#: apps/notifications/scheduled.py:129
+#: apps/notifications/scheduled.py:131
 #, python-format
 msgid "Late payment: %(amounts)s"
 msgstr "Retard de paiement : %(amounts)s"
 
-#: apps/notifications/scheduled.py:130
+#: apps/notifications/scheduled.py:132
 #, python-format
 msgid "%(students)s · since %(date)s"
 msgstr "%(students)s · depuis le %(date)s"
 
-#: apps/notifications/scheduled.py:224
+#: apps/notifications/scheduled.py:226
 #, python-format
 msgid "%(count)d register still open"
 msgid_plural "%(count)d registers still open"
@@ -3975,16 +3979,16 @@ msgstr "Colonne inconnue."
 msgid "Choose a class of this school year."
 msgstr "Choisissez une classe de cette année scolaire."
 
-#: apps/students/imports.py:722
+#: apps/students/imports.py:724
 #, python-format
 msgid "%(title)s (optional)"
 msgstr "%(title)s (facultatif)"
 
-#: apps/students/imports.py:738
+#: apps/students/imports.py:740
 msgid "Line"
 msgstr "Ligne"
 
-#: apps/students/imports.py:738
+#: apps/students/imports.py:740
 msgid "Problems"
 msgstr "Problèmes"
 
@@ -4284,7 +4288,7 @@ msgstr "Appliquée"
 msgid "Not applied"
 msgstr "Non appliquée"
 
-#: apps/students/models.py:285 apps/sync/models.py:114
+#: apps/students/models.py:285 apps/sync/models.py:115
 msgid "changes"
 msgstr "changements"
 
@@ -4336,15 +4340,15 @@ msgstr "Un autre élève a déjà ce matricule."
 msgid "This identifier is already used."
 msgstr "Cet identifiant est déjà utilisé."
 
-#: apps/students/services.py:105
+#: apps/students/services.py:107
 msgid "At most 10 guardians."
 msgstr "Au plus 10 tuteurs."
 
-#: apps/students/services.py:107
+#: apps/students/services.py:109
 msgid "Only one main contact."
 msgstr "Un seul contact principal."
 
-#: apps/students/services.py:117
+#: apps/students/services.py:119
 msgid "Unknown guardian for this family."
 msgstr "Tuteur inconnu pour cette famille."
 
@@ -4621,71 +4625,71 @@ msgstr "déconnecté le"
 msgid "devices"
 msgstr "appareils"
 
-#: apps/sync/models.py:64
+#: apps/sync/models.py:65
 msgid "applied"
 msgstr "appliquée"
 
-#: apps/sync/models.py:65
+#: apps/sync/models.py:66
 msgid "rejected"
 msgstr "refusée"
 
-#: apps/sync/models.py:67 apps/sync/models.py:110
+#: apps/sync/models.py:68 apps/sync/models.py:111
 msgid "operation"
 msgstr "opération"
 
-#: apps/sync/models.py:71
+#: apps/sync/models.py:72
 msgid "type"
 msgstr "type"
 
-#: apps/sync/models.py:72
+#: apps/sync/models.py:73
 msgid "content"
 msgstr "contenu"
 
-#: apps/sync/models.py:76
+#: apps/sync/models.py:77
 msgid "result"
 msgstr "résultat"
 
-#: apps/sync/models.py:79
+#: apps/sync/models.py:80
 msgid "sync operation"
 msgstr "opération de synchronisation"
 
-#: apps/sync/models.py:80
+#: apps/sync/models.py:81
 msgid "sync operations"
 msgstr "opérations de synchronisation"
 
-#: apps/sync/models.py:98
+#: apps/sync/models.py:99
 msgid "configuration"
 msgstr "configuration"
 
-#: apps/sync/models.py:101
+#: apps/sync/models.py:102
 msgid "created or changed"
 msgstr "créée ou modifiée"
 
-#: apps/sync/models.py:102
+#: apps/sync/models.py:103
 msgid "deleted"
 msgstr "supprimée"
 
-#: apps/sync/models.py:106
+#: apps/sync/models.py:107
 msgid "number"
 msgstr "numéro"
 
-#: apps/sync/models.py:107
+#: apps/sync/models.py:108
 msgid "waiting for a number"
 msgstr "en attente d'un numéro"
 
-#: apps/sync/models.py:108
+#: apps/sync/models.py:109
 msgid "entity"
 msgstr "entité"
 
-#: apps/sync/models.py:109
+#: apps/sync/models.py:110
 msgid "entity id"
 msgstr "identifiant de l'entité"
 
-#: apps/sync/models.py:113
+#: apps/sync/models.py:114
 msgid "change"
 msgstr "changement"
 
-#: apps/sync/operations.py:36
+#: apps/sync/operations.py:39
 msgid "This application is out of date: update it."
 msgstr "Cette application n'est plus à jour : mettez-la à jour."
 

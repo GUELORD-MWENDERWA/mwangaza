@@ -502,7 +502,7 @@ function SessionPayments({
                       <td className="text-right font-bold tabular-nums whitespace-nowrap">
                         {struck ? <s>{amount}</s> : amount}
                       </td>
-                      <td>
+                      <td data-wrap className="min-w-40">
                         <PaymentState payment={payment} sync={sync} />
                         {error && <span className="block text-sm text-due">{error.detail}</span>}
                       </td>

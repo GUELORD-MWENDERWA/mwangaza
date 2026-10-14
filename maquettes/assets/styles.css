@@ -54,10 +54,12 @@ a{color:var(--lake)}
 .app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
 .side{background:var(--basalt);color:var(--basalt-ink);padding:18px 12px;display:flex;flex-direction:column;gap:4px}
 .brand{display:flex;align-items:center;gap:10px;padding:4px 10px 18px}
-/* Marque : lampe-tempête (logo/), cadre clair sur basalte ; `.brand.clair` sur fond clair. */
-.brand .mark{width:30px;height:30px;flex:none;background:url(logo/lampe-sur-sombre.svg) center/contain no-repeat}
-.brand.clair .mark{background-image:url(logo/lampe-sur-clair.svg)}
-.brand b{font-size:1.15rem;letter-spacing:.01em}
+/* Marque : symbole M-flamme (logo/symbole.svg), le même sur fond sombre ou clair ; 36 px dans
+   les barres, `.mark.lg` (48 px) sur les pages de connexion, `.mark.sm` (28 px) dans les cartes. */
+.mark{display:inline-block;width:36px;height:36px;flex:none;background:url(logo/symbole.svg) center/contain no-repeat}
+.mark.lg{width:48px;height:48px}.mark.sm{width:28px;height:28px}
+.brand b{font-size:1.3rem;letter-spacing:-.01em;line-height:1.1}
+.brand.lg{gap:14px}.brand.lg b{font-size:1.7rem}
 .school{background:var(--basalt-2);border-radius:10px;padding:10px 12px;margin:0 0 12px;font-size:.85rem}
 .school b{display:block;font-size:.92rem}
 .navlabel{font-size:.8rem;color:#A8A09A;padding:14px 10px 4px}
@@ -129,7 +131,7 @@ label.f .req{color:var(--due)}
 .box{display:inline-block;vertical-align:middle;width:18px;height:18px;border:1.5px solid #9A918A;border-radius:4px;flex:none;margin-top:1px;background:#fff}
 .box.on{background:var(--lake);border-color:var(--lake);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-7' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r-input);overflow:hidden;background:#fff}
-.seg span{padding:8px 16px;font-weight:700;font-size:.92rem;color:var(--ink-2)}
+.seg span{flex:auto;text-align:center;padding:8px 16px;font-weight:700;font-size:.92rem;color:var(--ink-2)}
 .seg span.on{background:var(--lake);color:#fff}
 .toggle{width:40px;height:22px;border-radius:999px;background:#958A80;position:relative;flex:none}
 .toggle::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff}
@@ -185,9 +187,10 @@ label.f .req{color:var(--due)}
 .phone{max-width:430px;margin:0 auto;min-height:100vh;background:var(--surface);display:flex;flex-direction:column}
 .ptop{background:var(--basalt);color:var(--basalt-ink);padding:14px 16px 18px}
 .ptop .brand{padding:0}
+.ptop .mark:not(.lg){width:32px;height:32px}
 .pbody{padding:16px;display:flex;flex-direction:column;gap:14px;flex:1}
-.pnav{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px 4px 10px}
-.pnav a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.8rem;color:var(--ink-3);text-decoration:none;font-weight:700;padding:4px}
+.pnav{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-auto-flow:column;grid-auto-columns:1fr;padding:6px 4px 10px}
+.pnav a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.8rem;min-width:0;text-align:center;color:var(--ink-3);text-decoration:none;font-weight:700;padding:4px}
 .pnav a svg{width:22px;height:22px}
 .pnav a.on{color:var(--lake)}
 .child{display:flex;gap:12px;align-items:center}
@@ -221,6 +224,7 @@ label.f .req{color:var(--due)}
   .hide-m{display:none}
 }
 .banner svg,.row>svg{flex:none}
+.banner>.btn{flex:none;white-space:nowrap}
 @media (max-width:900px){.grid[style*="grid-template-columns"]{grid-template-columns:1fr!important}.pagehead .row{flex-wrap:wrap}}
 
 /* ---------- Ajouts du 2026-09-26 (maquettes M1–M20, bulletins officiels) ---------- */
@@ -291,6 +295,8 @@ label.f .req{color:var(--due)}
   .inp{max-width:100%;min-width:0}
   /* Un tableau large défile dans sa carte, jamais la page. */
   .tbl{display:block;overflow-x:auto;max-width:100%}
+  /* Une ligne par cellule (noms, dates, numéros entiers) ; `data-wrap` : cellule de texte long. */
+  .tbl td:not([data-wrap]){white-space:nowrap}.tbl td[data-wrap]{min-width:12rem}
   .code,.codes{overflow-wrap:anywhere}
   .pill{max-width:100%;white-space:normal}.tbl .pill{white-space:nowrap}
   .list>div{flex-wrap:wrap}.list>div>.num{margin-left:auto}
@@ -302,4 +308,10 @@ label.f .req{color:var(--due)}
   .steps{flex-wrap:wrap;gap:8px 16px}.steps div{flex:none}.steps div::after{display:none}
   /* Documents imprimables : aperçu réduit de la page entière, comme un PDF sur téléphone. */
   .a4{zoom:.45}.a4.land{zoom:.32}
+}
+/* Actions de l'en-tête au téléphone : deux colonnes de même largeur ; une action seule, ou la
+   dernière d'un nombre impair, prend toute la largeur (comme `PageHeader`). */
+@media (max-width:560px){
+  .pagehead>.row{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}
+  .pagehead>.row>*{justify-content:center}.pagehead>.row>*:last-child:nth-child(odd){grid-column:span 2}
 }

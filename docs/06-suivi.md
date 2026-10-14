@@ -12,7 +12,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Prochaine tâche | L.4 (toi : vrais téléphones et imprimantes), puis le premier espace réel (`A-FAIRE.md` § 9 quater) ; côté Claude : 8.1 Cours, volumes horaires et charges des enseignants |
 | Issue GitHub | #242 |
 | Branche | `tache/S.6.2-rls-toutes-tables` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-14 |
+| Dernière mise à jour | 2026-10-14 (logo M-flamme, branche `design/logo-m-flamme`) |
 
 ## Avancement
 
@@ -61,6 +61,13 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-14 — Logo M-flamme et alignements au téléphone (hors plan, demande de l'utilisateur)
+
+- Fait : nouveau logo (M et flamme dans un carré arrondi jaune) partout : maquettes (plus aucune trace du disque ni de la lampe), `BrandMark`, connexions en grand, icônes installées et favicon des trois applications, page de vérification des reçus, aides de la console et du serveur ; notifications sans icône de plateforme → icône par défaut. Toutes les pages des trois applications passées à 390 px : tableaux, cartes en grille, actions d'en-tête, sélecteurs, bandeaux, frise d'étapes, aperçus A4 et lignes du tableau de bord de la console corrigés dans les composants communs ; mêmes règles dans les maquettes.
+- Tests : plateforme (icône par défaut) ; `design.test.ts`, `textes.test.ts` ; inspection de toutes les pages à 390 et 1440 px (aucun débordement).
+- Décisions : `03`, journal (2026-10-14, logo M-flamme). Logo à valider par l'utilisateur dans la PR.
+- Suite : `make deploy`, puis 8.1.
 
 ### 2026-10-14 — Identité visuelle : logo, couleurs, échelle de texte, téléphone (hors plan, demande de l'utilisateur)
 

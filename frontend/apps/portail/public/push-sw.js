@@ -14,7 +14,7 @@ self.addEventListener("push", (event) => {
       self.registration.showNotification(data.title || "", {
         body: data.body || "",
         tag: data.id,
-        icon: "/api/platform/icon/",
+        icon: "/api/platform/icon/?app=portail",
         data: { id: data.id, path },
       }),
       // Application ouverte : la cloche se met à jour tout de suite.
