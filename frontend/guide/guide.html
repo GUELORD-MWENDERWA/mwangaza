@@ -15,7 +15,7 @@
       <div class="brand"><span class="lamp"></span><span data-guide="platform"></span></div>
       <h1>Guide de la version <span data-guide="version"></span></h1>
       <div class="subtitle">
-        Finances, caisse, portail des familles, notifications et communication
+        Finances, caisse, portail des familles, communication ; modules et rôles de chaque école
       </div>
       <ol class="contents">
         <li>La version en bref</li>
@@ -51,6 +51,16 @@
         parents, réglées par l'école ; annonces au personnel, calendrier de l'école, convocations
         des parents et circulaires à imprimer ; console de la plateforme avec l'identité de la
         plateforme (nom, logo, couleurs). Détail au chapitre 11.
+      </div>
+      <div class="note">
+        <strong>Nouveau pour le lancement</strong>
+        <strong>Modules</strong> : chaque école reçoit les fonctions qu'elle a prises (élèves,
+        argent, annonces, portail, notifications, travail hors ligne) ; les autres n'apparaissent
+        nulle part. <strong>Rôles libres</strong> : un rôle, c'est un nom choisi par l'école et des
+        permissions cochées ; tous se renomment, se modifient et se suppriment.
+        <strong>Sécurité</strong> renforcée avant les vraies données : images envoyées nettoyées,
+        compte de la plateforme surveillé, paiements protégés jusque dans la base de données. Détail
+        aux chapitres 3, 10 et 12.
       </div>
       <h2>Trois applications</h2>
       <ul>
@@ -88,15 +98,27 @@
           les finances, les élèves et les rôles.
         </li>
         <li>
-          <strong>Chacun voit seulement ce que son rôle permet</strong> ; l'école peut créer ses
-          propres rôles (par exemple « chef d'atelier ») en cochant des permissions.
+          <strong>Chacun voit seulement ce que ses rôles permettent</strong>, et seulement les
+          fonctions que l'école a prises. L'école nomme ses rôles comme elle veut (par exemple «
+          préfet des études » ou « chef d'atelier ») et choisit leurs permissions.
+        </li>
+        <li>
+          <strong>Les comptes et les fichiers sont protégés</strong> : code à 6 chiffres pour qui
+          touche à l'argent, aux rôles, aux paramètres ou au journal ; logos et photos envoyés
+          refaits image par image (la position GPS d'une photo est retirée) ; sauvegarde chiffrée
+          chaque nuit, copiée hors du serveur.
         </li>
       </ul>
       <h2>Qui fait quoi</h2>
+      <p>
+        Une école neuve reçoit ces <strong>rôles de départ</strong>, nommés en français. Elle les
+        renomme, change leurs permissions, en supprime ou en crée d'autres : les noms de ce guide
+        sont ceux du départ.
+      </p>
       <table>
         <thead>
           <tr>
-            <th>Rôle</th>
+            <th>Rôle de départ</th>
             <th>Dans cette version</th>
           </tr>
         </thead>
@@ -150,8 +172,8 @@
           <tr>
             <td>Enseignant</td>
             <td>
-              Lit les annonces au personnel et le calendrier de l'école ; ses autres fonctions
-              arrivent avec les versions 1.3 et 1.4.
+              Lit les annonces au personnel et le calendrier de l'école ; les notes arrivent avec la
+              version 1.2, l'emploi du temps avec la 1.4, la fiche de paie avec la 1.7.
             </td>
           </tr>
           <tr>
@@ -164,8 +186,8 @@
           <tr>
             <td>Super-admin</td>
             <td>
-              Équipe de la plateforme : crée les écoles et leur premier directeur, suit les
-              abonnements, aide une école en session support.
+              Équipe de la plateforme : crée les écoles et leur premier directeur, choisit les
+              modules de chaque école, suit les abonnements, aide une école en session support.
             </td>
           </tr>
         </tbody>
@@ -183,10 +205,11 @@
               on choisit le sien à la première connexion.
             </li>
             <li>
-              Directeur, promoteur, comptable et caissier ajoutent un
+              Qui touche à l'argent, aux rôles, aux paramètres de l'école ou au journal (au départ :
+              directeur, promoteur, comptable et caissier) ajoute un
               <strong>code à 6 chiffres</strong> donné par une application d'authentification
               (double authentification, activée à la première connexion, avec 8 codes de secours à
-              garder).
+              garder). Un rôle qui reçoit l'un de ces droits l'exige aussi.
             </li>
             <li>
               Cocher <strong>« Se souvenir de cet appareil »</strong> sur l'ordinateur ou le
@@ -209,9 +232,9 @@
               fichiers Excel suivent la langue choisie.
             </li>
             <li>
-              <strong>Guides de première connexion</strong> : le caissier et le comptable sont
-              guidés pas à pas sur leurs vrais écrans ; « Aide et guide », en bas du menu, les
-              relance.
+              <strong>Guides de première connexion</strong> : qui encaisse, et qui règle les frais,
+              est guidé pas à pas sur ses vrais écrans, quel que soit le nom de son rôle ; « Aide et
+              guide », en bas du menu, les relance.
             </li>
           </ul>
         </div>
@@ -254,6 +277,8 @@
           <strong>Mise en route d'une école neuve</strong> : tant que l'école n'est pas prête, le
           tableau de bord montre la liste des étapes (année, classes, frais et taux, comptes du
           personnel, caisse et appareil, élèves) ; chacune mène à son écran et se coche seule.
+          Seules les étapes des modules de l'école y figurent ; une école sans aucun module voit «
+          Aucun module activé » et contacte le support de la plateforme.
         </li>
         <li>
           <strong>Tableau de bord</strong> : les alertes signalent les annulations à valider, une
@@ -262,15 +287,19 @@
         <li>
           <strong>Paramètres de l'école</strong> : nom, logo, couleur, fuseau horaire, contenu et
           format des reçus (ticket 58 ou 80 mm, A6, A5 ou petit reçu à coller dans le cahier ; 1
-          exemplaire ou 2 avec souche), seuils d'alerte.
+          exemplaire ou 2 avec souche), seuils d'alerte. Le logo est une image PNG ou JPEG d'1 Mo au
+          plus.
         </li>
         <li>
           <strong>Organisation scolaire</strong> : année et périodes, niveaux, options, classes,
           format du matricule, ou aucun matricule automatique si l'école garde les siens.
         </li>
         <li>
-          <strong>Personnel et rôles</strong> : créer les comptes, donner un ou plusieurs rôles,
-          renommer ou supprimer un rôle, en créer un en cochant ses permissions.
+          <strong>Personnel et rôles</strong> : créer les comptes, donner un ou plusieurs rôles. Un
+          rôle, c'est un nom unique dans l'école et des permissions cochées : tous se renomment et
+          se modifient, et se suppriment s'ils ne sont donnés à personne. L'école garde toujours au
+          moins un compte qui gère les rôles. Quand un compte reçoit un droit sur l'argent ou sur
+          les rôles, ceux qui gèrent les rôles en sont prévenus.
         </li>
         <li>
           <strong>Argent</strong> : comme le comptable, il règle les frais, accorde des réductions
@@ -531,18 +560,18 @@
           <h2>Directeur de discipline</h2>
           <p>
             Il consulte les élèves, publie des annonces, tient le calendrier et convoque les parents
-            (chapitre 11). Le suivi de la discipline arrive avec la version 1.4.
+            (chapitre 11). Le suivi de la discipline arrive avec la version 1.7.
           </p>
           <h2>Enseignant</h2>
           <p>
             Un seul compte, même s'il enseigne dans plusieurs écoles. Il lit les annonces au
-            personnel et le calendrier de chaque école. Son espace (horaire, fiche de paie) arrive
-            avec la version 1.3, les notes avec la 1.4.
+            personnel et le calendrier de chaque école. Les notes arrivent avec la version 1.2,
+            l'emploi du temps avec la 1.4, son espace (fiche de paie, congés) avec la 1.7.
           </p>
-          <h2>Rôle propre à l'école</h2>
+          <h2>Rôles propres à l'école</h2>
           <p>
-            Le directeur peut créer d'autres rôles, par exemple « chef d'atelier », en cochant les
-            permissions utiles.
+            Ces rôles ne sont qu'un point de départ. Le directeur les renomme (« Préfet des études
+            »), change leurs permissions ou en crée d'autres, par exemple « chef d'atelier ».
           </p>
         </div>
         <figure>
@@ -604,6 +633,10 @@
           <figcaption>Calendrier et convocation.</figcaption>
         </figure>
       </div>
+      <p>
+        Le portail suit les modules des écoles : les paiements et les annonces n'y paraissent que si
+        une école de la famille a pris ces fonctions.
+      </p>
       <div class="note">
         <strong>Mot de passe oublié</strong>
         L'école donne un nouveau code depuis la fiche de la famille (« Nouveau code ») ; le parent
@@ -635,6 +668,13 @@
           code ; un espace réel ne se supprime pas.
         </li>
         <li>
+          <strong>Modules</strong> : sur la fiche de l'école, « Fonctions de l'école » : élèves,
+          argent, annonces, portail, notifications, travail hors ligne. Les six sont cochés à la
+          création ; un module qui en demande un autre le coche avec lui (« Nécessite… »). Retirer
+          un module ferme ses écrans et ses droits sans rien effacer ; le socle (connexion,
+          paramètres, comptes, journal, classes) reste toujours actif.
+        </li>
+        <li>
           <strong>Comptes, appareils, annonces, journal</strong> : chercher un compte dans toutes
           les écoles, réinitialiser sa double authentification, déconnecter un appareil, écrire une
           annonce aux écoles, relire chaque action de l'équipe ; nom, logo et couleurs de la
@@ -645,11 +685,21 @@
           qu'école », avec un motif. Un bandeau rouge reste affiché, tout est noté au journal
           d'audit, et la caisse reste interdite.
         </li>
+        <li>
+          <strong>Compte de l'équipe protégé</strong> : chaque connexion est notée au journal de la
+          plateforme et signalée sur les appareils de l'équipe (« Recevoir les alertes sur cet
+          appareil », dans « Journal ») ; la session se ferme après 2 heures sans activité ; les
+          adresses d'où le compte peut entrer peuvent être limitées.
+        </li>
       </ul>
       <div class="grid">
         <figure>
           <img src="captures/console-ecoles.jpg" alt="" />
           <figcaption>Console : les espaces de démonstration.</figcaption>
+        </figure>
+        <figure>
+          <img src="captures/console-modules.jpg" alt="" />
+          <figcaption>Fonctions de l'école : les modules qu'elle a pris.</figcaption>
         </figure>
         <figure>
           <img src="captures/console-nouvelle-ecole.jpg" alt="" />
@@ -723,7 +773,8 @@
             <td>Personnel</td>
             <td>
               Annonce de l'école à son personnel, annonce de la plateforme ; selon les droits :
-              annulation à valider, écart de caisse, caisse encore ouverte à l'heure de clôture.
+              annulation à valider, écart de caisse, caisse encore ouverte à l'heure de clôture,
+              compte qui reçoit un droit sur l'argent ou sur les rôles (celle-ci ne se coupe pas).
             </td>
           </tr>
         </tbody>
@@ -777,6 +828,10 @@
           personne ; reçu d'annulation dans sa propre série.
         </li>
         <li>
+          <strong>Paiements intouchables</strong> : l'application elle-même n'a pas le droit de
+          modifier ou d'effacer un paiement dans la base de données, ni de vider une table.
+        </li>
+        <li>
           <strong>Clôture signée</strong> par le caissier, vue par le comptable avec ses écarts ; un
           paiement arrivé après la clôture est signalé.
         </li>
@@ -791,10 +846,10 @@
       <h1>13. Ce qui n'est pas encore là, et la suite</h1>
       <h2>Pas dans cette version</h2>
       <p>
-        Paie et dépenses, notes et bulletins, présences, discipline, messagerie, portail des élèves,
-        paiement en ligne (Mobile Money), SMS et WhatsApp automatiques, applications dans les
-        stores, pré-inscription en ligne, bibliothèque, cantine, transport, ateliers, rapports
-        officiels EPST, comptabilité SYSCOHADA complète.
+        Notes et bulletins, dépenses et budget, paie, emploi du temps, présences, discipline,
+        messagerie, portail des élèves, bibliothèque, ateliers, paiement en ligne (Mobile Money),
+        SMS et WhatsApp automatiques, applications dans les stores, pré-inscription en ligne,
+        cantine, transport, rapports officiels EPST, comptabilité SYSCOHADA complète.
       </p>
       <h2>Les prochaines versions</h2>
       <table class="versions">
@@ -808,34 +863,57 @@
           <tr>
             <td>1.2</td>
             <td>
-              <strong>Carte unique et présences</strong> : une carte par élève et par membre du
-              personnel (puce, QR code, photo) ; pointage par téléphone, tablette ou lecteur ;
-              listes du jour, absents et retards ; arrivées et absences signalées aux parents.
+              <strong>Notes, bulletins et finances de l'école</strong> : cours et maxima, charge des
+              enseignants, saisie des notes (même sans internet), bulletin EPST avec QR
+              d'authenticité, délibération et passage de classe, notes et bulletins dans le portail
+              des familles ; dépenses, sorties de caisse et budget de l'école.
             </td>
           </tr>
           <tr>
             <td>1.3</td>
             <td>
-              <strong>Personnel, paie, dépenses</strong> : dossiers du personnel, paie (primes,
-              motivation des enseignants, avances, retenues), dépenses par catégorie, espace
-              enseignant (horaire, fiche de paie), pénalités de retard.
+              <strong>Abonnements</strong> : abonnement de chaque école par module, factures et
+              échéances ; site de la plateforme ; protection des données renforcée.
             </td>
           </tr>
           <tr>
             <td>1.4</td>
             <td>
-              <strong>Notes, bulletins, vie scolaire</strong> : cours et maxima, saisie des notes,
-              bulletin EPST avec QR d'authenticité, délibération et passage de classe, discipline,
-              portail des élèves, notes et bulletins dans le portail des familles, transfert d'un
-              élève vers une autre école de la plateforme.
+              <strong>Emploi du temps et intelligence artificielle</strong> : emploi du temps
+              construit et publié ; aides à la saisie (grille de cours lue dans un bulletin en PDF,
+              proposition d'emploi du temps, rédaction), réglées et limitées par la plateforme.
+            </td>
+          </tr>
+          <tr>
+            <td>1.5</td>
+            <td>
+              <strong>Carte et présences</strong> : une carte par élève et par membre du personnel
+              (QR code, puce en option) ; pointage par téléphone ou tablette, même sans internet ;
+              absents et retards, signalés aux parents.
+            </td>
+          </tr>
+          <tr>
+            <td>1.6</td>
+            <td>
+              <strong>Bibliothèque et ateliers</strong> : prêts de livres et d'outils, stock des
+              ateliers.
+            </td>
+          </tr>
+          <tr>
+            <td>1.7</td>
+            <td>
+              <strong>Site, personnel, paie, vie scolaire</strong> : site de chaque école ; dossiers
+              du personnel, paie (primes, motivation, avances, retenues), espace enseignant ;
+              discipline, messagerie avec les parents, portail des élèves, transfert d'un élève vers
+              une autre école de la plateforme.
             </td>
           </tr>
           <tr>
             <td>Ensuite</td>
             <td>
-              Abonnements des écoles, tableau d'un réseau d'écoles, paiement Mobile Money, SMS et
-              WhatsApp, applications Android et iPhone, pré-inscription en ligne, comptabilité
-              SYSCOHADA, emploi du temps, rapports EPST, bibliothèque, cantine, transport.
+              Paiement Mobile Money, SMS et WhatsApp, rapports officiels EPST, tableau d'un réseau
+              d'écoles, pré-inscription en ligne, applications Android et iPhone, comptabilité
+              SYSCOHADA, cantine, transport et internat.
             </td>
           </tr>
         </tbody>
@@ -843,7 +921,8 @@
       <div class="note">
         <strong>Une version à la fois</strong>
         Chaque version arrive complète et testée, avec son propre guide. Les données saisies restent
-        : rien n'est à refaire d'une version à l'autre.
+        : rien n'est à refaire d'une version à l'autre. Chaque nouvelle fonction est un module : une
+        école ne prend que ce qui lui sert.
       </div>
     </section>
   </body>

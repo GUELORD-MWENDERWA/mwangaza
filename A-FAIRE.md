@@ -5,17 +5,17 @@ Claude ne peut pas : installer avec `sudo`, fusionner une PR, parler à l'ITIG, 
 
 Ce qui manque en détail (maquettes, informations ITIG, décisions) : [`docs/07-a-fournir.md`](docs/07-a-fournir.md). Ici : **quoi faire, dans quel ordre, avec quelles commandes**.
 
-Dernière mise à jour : 2026-10-13 (tâche 4.7.2 : sauvegardes hors du serveur, suivi d'erreurs, sonde).
+Dernière mise à jour : 2026-10-14 (tâche L.5 : guides du lancement, « Le jour du lancement » relu).
 
 ## Maintenant
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
-| 1 | **Relire et fusionner la PR « L.0 — plan révisé »** (attendre les coches vertes) : la nouvelle file des tâches dans `docs/05-plan-de-travail.md`, à lire en entier une fois ; marche à suivre : [§ 10](#10-comment-relire-et-fusionner-une-pr) | 20 min | [ ] |
+| 1 | ~~Relire et fusionner la PR « L.0 — plan révisé »~~ : fait (2026-10-13) ; la file des tâches est dans `docs/05-plan-de-travail.md` § 2 | | [x] |
 | 2 | ~~Sauvegardes hors du serveur, alertes, suivi d'erreurs (UptimeRobot, copie des clés)~~ : fait (L.1, vérifié le 2026-10-13) | | [x] |
 | 3 | ~~Clés du serveur gardées hors du serveur~~ : fait (L.2, 2026-10-13) — garder hors du serveur `BACKUP_PASSPHRASE` (sans elle, les sauvegardes B2 sont illisibles) et une copie de `infra/serveur/serveur.env`** dans un gestionnaire de mots de passe ; changement de chaque clé : [§ 9 septies](#9-septies-garder-et-changer-les-clés-du-serveur-s2) | 2 min | [x] |
-| 4 | **Lire le guide de la version 1.1** (`docs/guide/guide-v1.1.pdf`) et préparer ta présentation (`docs/guide/presentation-v1.1.pdf`) : elle se fait maintenant sur le vrai serveur, dans un espace de démonstration créé depuis la console | 1 h | [ ] |
-| 5 | **Avant la première vraie école** : étapes du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) (tâche 4.7.2) | 1 h | [ ] |
+| 4 | **Lire le guide de la version** (`docs/guide/guide-v1.1.pdf`, remis à jour pour le lancement : modules, rôles libres, sécurité) et préparer ta présentation (`docs/guide/presentation-v1.1.pdf`) : sur le vrai serveur, dans deux espaces de démonstration créés depuis la console (une grande école, une petite), fiches d'accès imprimées | 1 h | [ ] |
+| 5 | **Avant la première vraie école** : essai sur de vrais téléphones et imprimantes (L.4, [`05` § 3](docs/05-plan-de-travail.md)), puis les étapes non cochées du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) | 2 h | [ ] |
 | 6 | **GitHub › Settings › Code security** du dépôt : activer « Secret scanning » et « Push protection » (tâche S.2 : une clé poussée par erreur est bloquée) ; puis **Dependabot** : Settings › Code security › « Dependabot alerts » activé | 5 min | [ ] |
 | 6 ter | **PR de Dependabot du 2026-10-13**, après la fusion de S.3.1 : fusionner **#225** (Actions, verte) ; **fermer #223, #226, #221 et #222** si Dependabot ne les a pas fermées lui-même (bouton « Close pull request ») — Django 6.1, TypeScript 7 et Python 3.14 ne se prennent pas ainsi. Il rouvrira des PR propres, sans versions majeures | 5 min | [ ] |
 | 6 quater | **Alertes du super-admin sur tes appareils** (S.3.2), après la fusion et `make deploy` : sur chaque appareil (ordinateur, téléphone), ouvrir https://admin.mwangazaschool.com/journal, cliquer « Recevoir les alertes sur cet appareil » et accepter la demande du navigateur. Sur iPhone : d'abord Partager → « Sur l'écran d'accueil », puis ouvrir la console depuis cette icône. Essai : te déconnecter puis te reconnecter → une alerte « Connexion d'un compte de la plateforme » s'affiche sur chaque appareil abonné | 5 min | [ ] |
@@ -63,16 +63,16 @@ Si un document arrive quand même :
 
 ## 9. Vraie mise en ligne (4.6.3, 4.7) : comptes et achats
 
-À faire **avant** qu'une école saisisse ses vraies données : changer d'adresse ensuite obligerait à réinstaller les applications et rendrait invérifiables les QR des reçus déjà imprimés. Le serveur est en ligne (§ 9 ter) ; la copie des sauvegardes hors du serveur est prête côté code (4.7.2) ; il reste à créer les comptes (§ 9 bis).
+Fait **avant** qu'une école saisisse ses vraies données : changer d'adresse ensuite obligerait à réinstaller les applications et rendrait invérifiables les QR des reçus déjà imprimés. Serveur en ligne (§ 9 ter), comptes des sauvegardes et des alertes créés et vérifiés (§ 9 bis, L.1 et L.2, 2026-10-13). Restent les deux dernières lignes.
 
 | Quoi | Comment | Fait |
 |---|---|:-:|
 | Domaine **`mwangazaschool.com`** | acheté ; renouvellement automatique | [x] |
-| Cloudflare (gratuit) | DNS « DNS seulement » : fait | [x] |
+| Cloudflare (gratuit) | DNS fait ; reste le passage en proxy, nuage orange (« Maintenant » 6 bis, avec Claude) | [x] |
 | Serveur | AWS Lightsail (§ 9 ter) | [x] |
-| Stockage objet des sauvegardes | **Backblaze B2** (10 Go gratuits, compte séparé d'AWS) : § 9 bis, étapes 1 et 2 | [ ] |
-| Clé des sauvegardes (4.7.2) | une phrase secrète `BACKUP_PASSPHRASE` dans le fichier de valeurs du serveur : dès qu'elle y est, la sauvegarde de chaque nuit se fait. **La noter aussi hors du serveur** (gestionnaire de mots de passe), avec `DJANGO_SECRET_KEY` : sans ces deux clés, une sauvegarde ne se relit pas | [ ] |
-| Alerte de sauvegarde, suivi d'erreurs, sonde de disponibilité | Healthchecks.io, Sentry, UptimeRobot (tous gratuits) : § 9 bis, étapes 3 à 5 | [ ] |
+| Stockage objet des sauvegardes | **Backblaze B2** (10 Go gratuits, compte séparé d'AWS) : § 9 bis, étapes 1 et 2 | [x] |
+| Clé des sauvegardes (4.7.2) | une phrase secrète `BACKUP_PASSPHRASE` dans le fichier de valeurs du serveur : dès qu'elle y est, la sauvegarde de chaque nuit se fait. **La noter aussi hors du serveur** (gestionnaire de mots de passe), avec `DJANGO_SECRET_KEY` : sans ces deux clés, une sauvegarde ne se relit pas | [x] |
+| Alerte de sauvegarde, suivi d'erreurs, sonde de disponibilité | Healthchecks.io, Sentry, UptimeRobot (tous gratuits) : § 9 bis, étapes 3 à 5 | [x] |
 | Documents (T5, avant les vraies données d'une école) | conditions d'utilisation, confidentialité, contrat avec chaque école : Claude peut rédiger un brouillon, à faire relire | [ ] |
 | Tarif des écoles (T6, avant les abonnements, 9.2) | décider : essai gratuit ? prix par élève ? | [ ] |
 
@@ -82,10 +82,10 @@ Partout : activer la double authentification et garder les codes de secours. Les
 
 ## 9 ter. Le vrai serveur AWS Lightsail (en ligne depuis le 2026-10-13)
 
-`make deploy-init` a créé `infra/serveur/serveur.env` (MODE=production, `ubuntu@15.237.26.123`, clé `~/.ssh/LightsailDefaultKey-eu-west-3.pem`, secrets neufs). **À remplir** : `ACME_EMAIL` et `CLOUDFLARE_API_TOKEN` (Cloudflare : ajouter `mwangazaschool.com`, remplacer les serveurs de noms chez LWS par ceux de Cloudflare, jeton « Edit zone DNS » limité à cette zone ; enregistrements `A` `@` et `*` vers 15.237.26.123, en **DNS seulement** — nuage gris). Dans Lightsail › Mise en réseau : ouvrir HTTP 80 et HTTPS 443. **Garder une copie de `serveur.env`** (clé de sauvegarde et clé Django comprises). Quand le DNS répond : dis-le à Claude, puis `make deploy-setup`, `make deploy`, `make deploy-check`, `make deploy-superuser`. Les mêmes commandes servent à `make deploy-*` ; `make reseau` n'est pas touché.
+`infra/serveur/serveur.env` (créé par `make deploy-init`) : MODE=production, `ubuntu@15.236.78.55` (IP statique), clé `~/.ssh/LightsailDefaultKey-eu-west-3.pem`, secrets et clés des services. Cloudflare : enregistrements `A` `@` et `*` vers 15.236.78.55 ; Lightsail › Mise en réseau : 22, 80 et 443 ouverts, en IPv4 et IPv6. **Garder une copie de `serveur.env`** (§ 9 septies). Commandes : `make deploy`, `make deploy-check`, `make deploy-logs`, `make deploy-backup`, `make deploy-ssh` (CLAUDE.md, skill `/deployer`).
 
-**Après la panne du 2026-10-13 (serveur figé pendant la construction)** — à faire une fois dans la console Lightsail :
-- **IP statique** : onglet *Mise en réseau* → *Créer une IP statique* → l'attacher à `mwangaza-vps-prod`. Sans elle, un arrêt puis démarrage (pas un simple redémarrage) change l'adresse et casse le DNS et `SERVEUR`. Si l'adresse change, mets-la à jour dans `serveur.env` et dans les enregistrements `A` de Cloudflare (`@` et `*`).
+**Après la panne du 2026-10-13 (serveur figé pendant la construction)** — fait le 2026-10-13 dans la console Lightsail (à refaire seulement sur un nouveau serveur) :
+- **IP statique** (15.236.78.55) : onglet *Mise en réseau* → *Créer une IP statique* → l'attacher à `mwangaza-vps-prod`. Sans elle, un arrêt puis démarrage (pas un simple redémarrage) change l'adresse et casse le DNS et `SERVEUR`. Si l'adresse change, mets-la à jour dans `serveur.env` et dans les enregistrements `A` de Cloudflare (`@` et `*`).
 - **HTTPS en IPv6** : dans le pare-feu, la règle HTTPS 443 doit être cochée **aussi pour IPv6** (comme 22 et 80).
 - **Alarmes** : onglet *Metrics* de l'instance → *Add alarm* : « Status check failed (instance) » et « CPU utilization » > 90 % pendant 15 min, notification par e-mail. Avec le moniteur UptimeRobot (§ 9 bis, étape 5), tu es prévenu en quelques minutes d'un serveur muet.
 - **Mémoire** : `make deploy-setup` pose maintenant 2 Go de swap et protège SSH (sans danger si relancé) ; `make deploy` refuse de construire sans swap. Les conteneurs ont des limites de mémoire : un conteneur qui déborde est relancé seul, la machine ne se fige plus.
@@ -101,21 +101,23 @@ Partout : activer la double authentification et garder les codes de secours. Les
 
 ## 9 quater. Le jour du lancement (première vraie école)
 
-Après la recette finale (4.21), il ne manque que les achats et la mise en ligne. Dans l'ordre, sans sauter d'étape :
+Achats, serveur et sauvegardes sont faits ; le code du lancement est fini (L.5, 2026-10-14). Restent les étapes non cochées, dans l'ordre, sans en sauter une. Toutes les adresses sont sur `mwangazaschool.com`.
 
 | # | Étape | Comment | Fait |
 |:-:|---|---|:-:|
-| 1 | **Achats et comptes** | [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats) : domaine `mwangazaschool.com`, Cloudflare, serveur, stockage objet, phrase secrète des sauvegardes notée **hors du serveur** | [ ] |
-| 2 | **Vrai domaine** | fait le 2026-10-13 (4.6.3) : `mwangazaschool.com`, AWS Lightsail, `make deploy-check` | [x] |
-| 3 | **Sauvegardes hors du serveur, alertes** | code fait (4.7.2) ; reste le [§ 9 bis](#9-bis-brancher-les-sauvegardes-hors-du-serveur-472), puis `make deploy-backup` : « Copie hors du serveur » s'affiche et le fichier est dans le bucket | [ ] |
+| 1 | **Achats et comptes** | [§ 9](#9-vraie-mise-en-ligne-463-47--comptes-et-achats) : domaine, Cloudflare, serveur AWS Lightsail, Backblaze B2, Healthchecks, Sentry, UptimeRobot ; `BACKUP_PASSPHRASE` et copie de `serveur.env` gardées **hors du serveur** (L.1, L.2) | [x] |
+| 2 | **Vrai domaine** | `mwangazaschool.com` en ligne depuis le 2026-10-13 (4.6.3) : `make deploy-check` vert sur les trois adresses | [x] |
+| 3 | **Sauvegardes hors du serveur, alertes** | vérifiées le 2026-10-13 (L.1) : `make deploy-backup` affiche « Copie hors du serveur : b2:… » ; restauration réelle depuis B2 essayée (L.2, [§ 9 bis](#9-bis-brancher-les-sauvegardes-hors-du-serveur-472)) | [x] |
 | 4 | **Mesure sur le vrai serveur** | fait le 2026-10-13 (4.23) : tableau de bord 0,6 s, impayés 0,7 s pour 800 élèves, rien à corriger | [x] |
-| 5 | **Ton compte super-admin** | créé le 2026-10-13 (`make deploy-superuser`) ; reste : double authentification liée à ton téléphone, codes de secours rangés | [ ] |
-| 5 bis | **Sécurité et modules avant les vraies données** | PR des tâches P0 de la file fusionnées et mises en ligne (`make deploy`) : modules et rôles libres (M.2, M.3), sécurité S.1 à S.5, restauration réelle depuis B2 (L.2), **Cloudflare en proxy** (nuage orange : Claude te guide pendant S.1), essai sur vrais téléphones (L.4) | [ ] |
-| 6 | **Identité de la plateforme** | console (`https://admin.mwangazaschool.com/`) → Identité : nom, logo, contact du support, mentions légales — les vraies valeurs | [ ] |
-| 7 | **Premier espace réel** | console → Écoles → Nouvelle école → type **Réel** : nom, code (c'est son adresse, `code.mwangazaschool.com` : il ne change plus), premier directeur avec son vrai numéro. Lui remettre l'adresse et son mot de passe provisoire | [ ] |
-| 8 | **L'école se met en route** | le directeur suit la liste « Mise en route » de son tableau de bord : année, classes, frais et taux, comptes du personnel, caisse et appareil, élèves (import Excel). Rentrée déjà passée : « Reprise » (ce que chaque élève a déjà payé) | [ ] |
-| 9 | **Premier encaissement** | un vrai paiement : reçu imprimé, QR vérifié avec un téléphone ; le soir, clôture de caisse ; le parent voit le reçu sur le Portail | [ ] |
-| 10 | **Le lendemain** | la sauvegarde de la nuit existe ; aucune alerte | [ ] |
+| 5 | **Ton compte super-admin** | créé le 2026-10-13 (`make deploy-superuser`) ; reste : double authentification liée à ton téléphone, codes de secours rangés, alertes de la console sur tes appareils (« Maintenant » 6 quater) | [ ] |
+| 5 bis | **Dernière version en ligne** | code des tâches P0 fusionné (modules et rôles libres M.2, M.3 ; sécurité S.1 à S.5 ; L.2, L.5). Mettre en ligne `main` : `make deploy-init` (ajoute `POSTGRES_APP_PASSWORD`, S.5), `make deploy`, `make deploy-check` (« Maintenant » 6 quinquies et 6 sexies) | [ ] |
+| 5 ter | **Cloudflare en proxy** | nuage orange sur `@`, `*`, `admin` et `parents`, pare-feu du serveur limité à Cloudflare : **avec Claude**, pas seul (« Maintenant » 6 bis). La CSP imposée attend une semaine sans message : elle ne bloque pas le lancement | [ ] |
+| 5 quater | **Essai sur de vrais téléphones** (L.4) | sur `https://<démo>.mwangazaschool.com/app/` : un Android et un iPhone, Gestion installée, caisse hors ligne, imprimante thermique 58 / 80 mm et A4, Portail installé et notifications, QR d'un reçu imprimé scanné. Un défaut trouvé → dis-le à Claude (tâche L.4.x) | [ ] |
+| 6 | **Identité de la plateforme** | console `https://admin.mwangazaschool.com/` → Identité : nom, logo (PNG, JPEG ou SVG), contact du support, mentions légales — les vraies valeurs | [ ] |
+| 7 | **Premier espace réel** | console → Écoles → Nouvelle école → type **Réel** : nom, code (c'est son adresse, `https://<code>.mwangazaschool.com/app/` : il ne change plus), **modules** qu'elle prend (les six sont cochés : décocher ceux qu'elle ne prend pas), premier directeur avec son vrai numéro. Lui remettre l'adresse, son mot de passe provisoire et les étapes d'installation ([§ 9 sexies](#9-sexies-guide-de-démarrage-du-personnel--installer-la-gestion-424)) | [ ] |
+| 8 | **L'école se met en route** | le directeur suit la liste « Mise en route » de son tableau de bord : année, classes, frais et taux, comptes du personnel, caisse et appareil, élèves (import Excel). Les rôles de départ se renomment à ses mots (« Préfet des études »…). Rentrée déjà passée : « Reprise » (ce que chaque élève a déjà payé) | [ ] |
+| 9 | **Premier encaissement** | un vrai paiement : reçu imprimé, QR vérifié avec un téléphone ; le soir, clôture de caisse ; le parent voit le reçu sur `https://parents.mwangazaschool.com/` | [ ] |
+| 10 | **Le lendemain** | la sauvegarde de la nuit est arrivée (Healthchecks vert, `make deploy-backup cmd=fetch` si tu veux la voir) ; aucune alerte (Sentry, UptimeRobot) | [ ] |
 
 À ne plus faire une fois l'étape 7 passée : `make demo` sur cette plateforme (refusés d'office dès qu'un espace réel existe) ; changer de domaine ; saisir de vraies données dans un espace d'essai ou de démonstration (ils se suppriment). Montrer l'application à une autre école : console → Écoles → onglet « Démonstration », sa fiche d'accès à imprimer.
 
@@ -123,7 +125,7 @@ Après la recette finale (4.21), il ne manque que les achats et la mise en ligne
 
 ## 9 bis. Brancher les sauvegardes hors du serveur (4.7.2)
 
-Tout est prêt côté code. Ces sept étapes sont des comptes à créer ; les clés vont dans `infra/serveur/serveur.env` (lignes déjà présentes pour un nouveau fichier ; **à ajouter à la main** dans le tien : `BACKUP_B2_BUCKET`, `BACKUP_B2_ACCOUNT`, `BACKUP_B2_KEY`, `BACKUP_PING_URL`, `SENTRY_DSN`, modèle : `infra/.env.example`). Aucune n'est obligatoire pour que l'application marche, **toutes le sont avant la première vraie école**.
+**Fait et vérifié le 2026-10-13 (L.1)** : à refaire seulement pour un nouveau serveur ou une clé changée. Ces sept étapes sont des comptes à créer ; les clés vont dans `infra/serveur/serveur.env` (lignes déjà présentes pour un nouveau fichier ; **à ajouter à la main** dans le tien : `BACKUP_B2_BUCKET`, `BACKUP_B2_ACCOUNT`, `BACKUP_B2_KEY`, `BACKUP_PING_URL`, `SENTRY_DSN`, modèle : `infra/.env.example`). Aucune n'est obligatoire pour que l'application marche, **toutes le sont avant la première vraie école**.
 
 | # | Quoi | Comment |
 |:-:|---|---|
@@ -332,7 +334,7 @@ Rien pour l'instant.
 | `"code": "too_many_attempts"` à la connexion | 5 essais ratés pour ce numéro en 15 minutes (ou 30 depuis ta machine) | attendre 15 minutes, ou `make demo` (débloque tout en développement) |
 | `"code": "totp_required"` sur une page de l'école | session ouverte sans double authentification, alors qu'un rôle l'exige (ex. rôle donné pendant la session) | se déconnecter (`…/api/auth/logout/`) et se reconnecter |
 | `"code": "invalid_code"` avec le code de `make totp` | code déjà utilisé (un code ne sert qu'une fois) | attendre le code suivant (30 secondes) et refaire `make totp` |
-| `make test-e2e` : `Executable doesn't exist at …/ms-playwright/…` | Chromium de Playwright pas encore téléchargé | une fois : `cd frontend && pnpm exec playwright install chromium` |
+| `make test-e2e` ou `make guide` : `Executable doesn't exist at …/ms-playwright/…` | Chromium de Playwright pas encore téléchargé, ou Playwright mis à jour depuis (PR de Dependabot) | `cd frontend && pnpm exec playwright install chromium` ; à refaire après chaque mise à jour de Playwright |
 | `make test-e2e` : « Ce code n'est pas valable, ou il a déjà servi » | tu t'es connecté avec le même compte fictif dans les 30 secondes d'avant (un code ne sert qu'une fois) | relancer `make test-e2e` (il remet la démonstration à zéro au début) |
 | PDF (fiche d'inscription, liste de classe) : `cannot load library 'libpango-1.0-0'`, ou avertissement `HarfBuzz-Subset will be required` (`make dev-local`, `make test`) | bibliothèques de WeasyPrint absentes de ta machine (Docker les a déjà) | `sudo apt install libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0` |
 | Le Portail change de compte ou se déconnecte tout seul, en développement | l'administration Django (`http://localhost:8000/admin/`) et le Portail (`http://localhost:5174/`) sont tous deux à `localhost` : ils partagent le même cookie de session, quel que soit le port | ouvrir l'administration dans une fenêtre privée, ou se reconnecter au Portail (rien de tel en ligne : chaque application a son adresse) |
