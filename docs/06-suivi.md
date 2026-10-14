@@ -8,7 +8,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | **8.1** Cours, maxima, enseignants et charges horaires (plan : `docs/claude/plans/tache-8.1.md`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Tâche en cours | **8.1** code fini et commité sur la branche ; reste : `reference.md`, `A-FAIRE.md` § 11, `07` § 1 et § 4, `maquettes/README.md`, journal de `06`, push et PR (plan : `docs/claude/plans/tache-8.1.md`) ; vrai serveur : https://admin.mwangazaschool.com/ |
 | Prochaine tâche | L.4 (toi : vrais téléphones et imprimantes), puis le premier espace réel (`A-FAIRE.md` § 9 quater) ; côté Claude : 8.1 Cours, volumes horaires et charges des enseignants |
 | Issue GitHub | #46 |
 | Branche | `tache/8.1-cours-charges` ; dossier local : `~/Projets/mwangaza` |

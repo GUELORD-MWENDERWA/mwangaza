@@ -40,7 +40,7 @@ Suivre aussi la skill `design` (jetons, composants, formats).
 | `gestion/guide-premiere-connexion`, `portail/guide` | V1.0 | I3 | 4.5 |
 | `gestion/paie` | **V1.7** | 7.3 | 7.3 |
 | `gestion/presences-pointage-qr` | **V1.5** | 6.3 | 6.3 |
-| `gestion/cours-maxima`, `gestion/notes-saisie`, `gestion/bulletin`, `gestion/bulletin-education-de-base`, `portail/enfant-scolarite` | **V1.2** | 8.x | 8.1, 8.2, 8.3, 8.8 |
+| `gestion/cours-maxima`, `gestion/charges-enseignants`, `gestion/notes-saisie`, `gestion/bulletin`, `gestion/bulletin-education-de-base`, `portail/enfant-scolarite` | **V1.2** | 8.x | 8.1, 8.2, 8.3, 8.8 |
 
 Maquettes marquées « à valider » dans `maquettes/README.md` : dessinées par Claude ; si l'utilisateur a laissé une remarque (PR ou `docs/06-suivi.md`), l'appliquer à la maquette avant de coder.
 

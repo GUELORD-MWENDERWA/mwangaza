@@ -1,6 +1,6 @@
 ---
 name: backend
-description: Créer ou modifier un modèle, un service, un serializer, un endpoint ou une migration Django dans Mwangaza en respectant l'isolation des écoles (TenantModel), les UUID v7, l'audit, les permissions serveur, l'OpenAPI et les tests obligatoires (isolation entre deux écoles, permission refusée). À utiliser pour tout travail dans backend/ — apps core, accounts, schools, students, finance, portal, notifications, sync, audit.
+description: Créer ou modifier un modèle, un service, un serializer, un endpoint ou une migration Django dans Mwangaza en respectant l'isolation des écoles (TenantModel), les UUID v7, l'audit, les permissions serveur, l'OpenAPI et les tests obligatoires (isolation entre deux écoles, permission refusée). À utiliser pour tout travail dans backend/ — apps core, accounts, schools, students, finance, academics, portal, notifications, sync, audit.
 ---
 
 # Backend Django conforme

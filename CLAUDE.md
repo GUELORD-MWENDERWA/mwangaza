@@ -85,7 +85,7 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 | Circulaire | pas de modèle : vue imprimable d'une `Announcement` |
 | Prime / motivation enseignants | `TeacherBonus` |
 
-- Backend : une app Django par domaine (`core`, `accounts`, `schools`, `students`, `finance`, `payroll`, `portal`, `notifications`, `sync`, `audit`). Logique métier dans `services.py`, pas dans les vues.
+- Backend : une app Django par domaine (`core`, `accounts`, `schools`, `students`, `finance`, `academics`, `payroll`, `portal`, `notifications`, `sync`, `audit`). Logique métier dans `services.py`, pas dans les vues.
 - Front : dossiers par fonctionnalité (`features/finance/...`). Client API typé généré depuis l'OpenAPI (`packages/api`).
 - Messages de commit en français, style conventionnel : `feat(finance): encaissement partiel`.
 
