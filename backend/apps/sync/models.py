@@ -58,7 +58,8 @@ class SyncOperation(TenantModel):
     """Opération envoyée par un appareil (`POST /api/sync/push`) [T], gardée avec son résultat :
     le même `op_id` reçu deux fois n'est appliqué qu'une fois et rend le même résultat. Refusée,
     elle reste refusée (l'appareil la montre ; un nouvel essai est une nouvelle opération).
-    `created_at` : arrivée au serveur."""
+    Appliquée, elle est effacée après 90 jours (`operations.purge`, A.2). `created_at` : arrivée
+    au serveur."""
 
     class Status(models.TextChoices):
         APPLIED = "applied", _("applied")

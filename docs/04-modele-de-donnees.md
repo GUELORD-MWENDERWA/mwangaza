@@ -151,7 +151,7 @@ Règles :
 
 ## 6. Synchronisation
 
-**SyncOperation [T]** — `op_id` (unique dans l'école), `device`, `type` (`payment.create`, `cash_session.open`, `payment.reprint`, `credit.use`, `cancellation.request` ; clôture en 3.8.2), `payload`, `status` (`applied`, `rejected`), `result` (résultat ou erreur, rendu tel quel au second envoi), `created_at` (arrivée).
+**SyncOperation [T]** — `op_id` (unique dans l'école), `device`, `type` (`payment.create`, `cash_session.open`, `payment.reprint`, `credit.use`, `cancellation.request` ; clôture en 3.8.2), `payload`, `status` (`applied`, `rejected`), `result` (résultat ou erreur, rendu tel quel au second envoi), `created_at` (arrivée). Appliquée : effacée après 90 jours, chaque nuit (A.2) ; refusée : gardée.
 
 **ChangeLog [T]** — une ligne par entité, sa dernière modification : `seq` (croissant par école, donné à la lecture sous verrou, jamais repris), `pending` (changement en attente de son numéro), `entity_type` (`enrollment` : élève, classe, frais dus, paiements de l'année ; `config` : école, reçus, année, classes, types de frais, caisses, taux), `entity_id`, `operation` (`upsert`, `delete`), `updated_at` (heure du changement). Écrit par signaux Django, et explicitement après une écriture en masse (`apps/sync/changes.py`).
 
