@@ -28,7 +28,7 @@ GitHub (dépôt privé `GUELORD-MWENDERWA/mwangaza`) : un jalon par version (V1.
 
 Si une demande sort du périmètre de `02-perimetre-v1.md`, le signaler avant de coder.
 
-Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reproduire en React + Tailwind + shadcn/ui avec les jetons de `maquettes/README.md`. Les encadrés `.note` des maquettes sont des règles métier à appliquer, pas du contenu à afficher. Les documents `docs/` priment sur les maquettes en cas de contradiction.
+Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reproduire en React + Tailwind + shadcn/ui avec les jetons de `maquettes/README.md`. **Jamais une page sans maquette** : sinon, regarder d'abord comment les grands logiciels font, puis la dessiner (skill `design`, « Méthode ») ; chaque application s'adapte au téléphone, à la tablette et à l'ordinateur (le portail aussi, la caisse aussi), vérifié avec `make apercu`. Les encadrés `.note` des maquettes sont des règles métier à appliquer, pas du contenu à afficher. Les documents `docs/` priment sur les maquettes en cas de contradiction.
 
 ## Stack (décidée — ne pas changer sans accord)
 
@@ -85,7 +85,7 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 | Circulaire | pas de modèle : vue imprimable d'une `Announcement` |
 | Prime / motivation enseignants | `TeacherBonus` |
 
-- Backend : une app Django par domaine (`core`, `accounts`, `schools`, `students`, `finance`, `payroll`, `portal`, `notifications`, `sync`, `audit`). Logique métier dans `services.py`, pas dans les vues.
+- Backend : une app Django par domaine (`core`, `accounts`, `schools`, `students`, `finance`, `academics`, `payroll`, `portal`, `notifications`, `sync`, `audit`). Logique métier dans `services.py`, pas dans les vues.
 - Front : dossiers par fonctionnalité (`features/finance/...`). Client API typé généré depuis l'OpenAPI (`packages/api`).
 - Messages de commit en français, style conventionnel : `feat(finance): encaissement partiel`.
 
@@ -108,6 +108,7 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 | `make test` · `make test-back` · `make test-front` · `make test-e2e` | pytest ; types puis Vitest (`*.test.ts` Node, `*.test.tsx` jsdom) ; Playwright dans Chromium (`frontend/e2e/`, `make demo` avant et après) |
 | `make lint` · `make format` | vérifier sans modifier (ruff ; ESLint + Prettier) ; corriger ce qui peut l'être |
 | `make api` · `make api-schema` | schéma OpenAPI → `frontend/packages/api/openapi.yaml`, puis types du client `src/schema.d.ts` (après tout changement d'API) ; `api-schema` : schéma seul (CI) |
+| `make apercu` · `make apercu ecran=gestion/dashboard` | captures de chaque écran des trois applications à 390, 820 et 1440 px et des documents imprimables (`frontend/apercu/captures/`, hors Git) et `rapport.json` des débordements, sur les données de `make demo` ; ou d’un seul écran, d’une application, ou `ecran=documents` |
 | `make build` · `make guide` | build des PWA ; guide de la version (pour les écoles) et guide de présentation (pour celui qui la montre : commandes, comptes de test, déroulé écran par écran) en PDF (`docs/guide/`, les deux mis à jour à la fin de chaque version) |
 | `make prod-local` | essai de la production sur la machine (mêmes images que le serveur) |
 | `make deploy-init` · `make deploy-check` · `make deploy-setup` · `make deploy` · `make deploy-superuser` · `make deploy-logs` · `make deploy-backup` · `make deploy-ssh` | vrai serveur en ligne (AWS Lightsail, `mwangazaschool.com`, `A-FAIRE.md` § 9 ter, skill `/deployer`) : créer `serveur.env` (ou y ajouter une clé apparue depuis) et préparer une fois, mettre en ligne `main`, vérifier HTTPS et santé, super-admin, journaux, sauvegarde du jour sur le serveur (`cmd=fetch` rapatrie la copie du stockage objet, `cmd=restore` l'essaie) ; pas de données fictives sur ce serveur : les démonstrations se créent dans la console |

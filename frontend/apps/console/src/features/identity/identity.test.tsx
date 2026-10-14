@@ -18,7 +18,7 @@ const IDENTITY = {
   short_name: "Lampe",
   logo: null,
   icon: null,
-  primary_color: "#0E5C6B",
+  primary_color: "#0B5FCC",
   accent_color: "#F2B632",
   support_phone: "",
   support_email: "",

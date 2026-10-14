@@ -21,6 +21,8 @@ import { CashPage } from "./features/cash/CashPage";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
 import { DevicesPage } from "./features/devices/DevicesPage";
 import { FeesPage } from "./features/fees/FeesPage";
+import { CoursesPage } from "./features/courses/CoursesPage";
+import { TeachingLoadsPage } from "./features/courses/TeachingLoadsPage";
 import { OrganisationPage } from "./features/organisation/OrganisationPage";
 import { PriorPaymentsPage } from "./features/prior-payments/PriorPaymentsPage";
 import { RolesPage } from "./features/roles/RolesPage";
@@ -57,6 +59,8 @@ import { MENU_ITEMS, type MenuItem, type MenuKey } from "./lib/menu";
 const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   dashboard: <DashboardPage />,
   students: <StudentsPage />,
+  courses: <CoursesPage />,
+  teachingLoads: <TeachingLoadsPage />,
   schoolSettings: <SchoolSettingsPage />,
   organisation: <OrganisationPage />,
   cash: <CashPage />,

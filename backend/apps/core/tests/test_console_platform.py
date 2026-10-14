@@ -56,7 +56,7 @@ def test_each_change_is_journaled_once_with_only_what_changed(api, platform_admi
         platform_admin,
         "Lumière",
     )
-    assert log.before == {"name": INITIAL_NAME, "primary_color": "#0E5C6B", "support_phone": ""}
+    assert log.before == {"name": INITIAL_NAME, "primary_color": "#0B5FCC", "support_phone": ""}
     assert log.after == {
         "name": "Lumière",
         "primary_color": "#1D4ED8",

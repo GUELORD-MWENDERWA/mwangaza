@@ -21,7 +21,7 @@ export function SheetContent({ title, className, children, ...props }: SheetCont
       <Dialog.Content
         aria-describedby={undefined}
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[292px] max-w-[85vw] animate-drawer-in flex-col gap-0.5 overflow-y-auto bg-basalt px-3 py-4 text-basalt-ink focus:outline-none",
+          "relief fixed inset-y-0 left-0 z-50 flex w-[292px] max-w-[85vw] animate-drawer-in flex-col gap-0.5 overflow-y-auto bg-night px-3 py-4 text-night-ink shadow-float focus:outline-none",
           className,
         )}
         {...props}
@@ -57,22 +57,22 @@ export function DialogContent({
       <Dialog.Content
         {...(description ? {} : { "aria-describedby": undefined })}
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 max-h-[90vh] w-[min(620px,calc(100vw-32px))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[14px] bg-card shadow-[0_20px_60px_rgba(0,0,0,.25)] focus:outline-none",
+          "fixed top-1/2 left-1/2 z-50 max-h-[90vh] w-[min(620px,calc(100vw-32px))] -translate-x-1/2 -translate-y-1/2 animate-fade-in overflow-y-auto rounded-dialog bg-card shadow-float focus:outline-none",
           className,
         )}
         {...props}
       >
-        <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
-          <Dialog.Title className="text-lg font-bold">{title}</Dialog.Title>
+        <div className="flex items-center justify-between gap-3 border-b border-line-soft px-6 py-4">
+          <Dialog.Title className="text-lg font-bold tracking-tight">{title}</Dialog.Title>
         </div>
-        <div className="flex flex-col gap-3 px-5 py-[18px]">
+        <div className="flex flex-col gap-3 px-6 py-5">
           {description && (
             <Dialog.Description className="text-sm text-ink-2">{description}</Dialog.Description>
           )}
           {children}
         </div>
         {footer && (
-          <div className="flex flex-wrap justify-end gap-2.5 border-t border-line px-5 py-3.5">
+          <div className="flex flex-wrap justify-end gap-2.5 rounded-b-dialog border-t border-line-soft bg-table-head px-6 py-3.5">
             {footer}
           </div>
         )}

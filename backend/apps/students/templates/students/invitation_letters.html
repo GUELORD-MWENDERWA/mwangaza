@@ -2,17 +2,17 @@
 {% block title %}{% translate "Invitation to the parents' portal" %}{% endblock %}
 {% block style %}
 @page { margin: 0; @bottom-right { content: none; } }
-@media screen { body { padding: 0; } .letter { border: 1px solid #ccc; margin-bottom: 8px; } }
+@media screen { body { padding: 0; } .letter { border: 1px solid #CBD5E1; margin-bottom: 8px; } }
 .letter { height: 148mm; padding: 10mm 14mm 8mm; position: relative; overflow: hidden; font-size: 11pt; }
-.letter:nth-child(odd) { border-bottom: 1px dashed #888; }
+.letter:nth-child(odd) { border-bottom: 1px dashed #5B677A; }
 .letter:nth-child(even) { break-after: page; }
 .letter:last-child { break-after: auto; }
 h1 { margin: .7em 0 .3em; font-size: 1.35em; }
 .contact { white-space: pre-line; }
-.portal { margin-top: .8em; border: 2px solid #111; border-radius: 8px; padding: .7em 1em; align-items: center; }
+.portal { margin-top: .8em; border: 2px solid #101828; border-radius: 8px; padding: .7em 1em; align-items: center; }
 .steps { line-height: 1.7; }
 .qr { width: 26mm; height: 26mm; }
-.code { border: 2px dashed #111; border-radius: 6px; padding: .4em .8em; text-align: center; }
+.code { border: 2px dashed #101828; border-radius: 6px; padding: .4em .8em; text-align: center; }
 .code b { display: block; font-size: 1.8em; letter-spacing: .08em; font-family: "DejaVu Sans Mono", monospace; }
 .foot { position: absolute; left: 14mm; right: 14mm; bottom: 7mm; }
 {% endblock %}

@@ -46,7 +46,7 @@ def test_head_reads_the_settings(api, school, head):
         "code": "alpha",
         "name": "École Alpha (fictive)",
         "official_name": "",
-        "primary_color": "#0E5C6B",
+        "primary_color": "#0B5FCC",
         "text_color": "#FFFFFF",
         "logo": None,
         "logo_monochrome": None,
@@ -77,13 +77,13 @@ def test_head_changes_the_colour(api, school, head):
 
     assert response.status_code == 200
     assert response.json()["primary_color"] == "#F2C94C"
-    assert response.json()["text_color"] == "#211D1A"
+    assert response.json()["text_color"] == "#101828"
     school.refresh_from_db()
     assert school.primary_color == "#F2C94C"
     [entry] = journal(school)
     assert entry.action == Action.SCHOOL_UPDATED
     assert entry.actor == head
-    assert entry.before == {"primary_color": "#0E5C6B"}
+    assert entry.before == {"primary_color": "#0B5FCC"}
     assert entry.after == {"primary_color": "#F2C94C"}
 
 
@@ -93,9 +93,9 @@ def test_an_unreadable_colour_is_refused_with_a_proposal(api, school, head):
     assert response.status_code == 400
     [error] = response.json()["fields"]["primary_color"]
     assert error["code"] == "unreadable_color"
-    assert "#ED0000" in error["detail"]
+    assert "#FF0F0F" in error["detail"]
     school.refresh_from_db()
-    assert school.primary_color == "#0E5C6B"
+    assert school.primary_color == "#0B5FCC"
     assert journal(school) == []
 
 

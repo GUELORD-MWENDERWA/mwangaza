@@ -20,6 +20,7 @@ from django.utils.translation import gettext_lazy as _
 PERMISSIONS: dict[str, Promise] = {
     "school.configure": _("Configure the school (name, logo, colour, currencies, receipts)"),
     "classes.manage": _("Manage years, terms, levels, tracks, classes and student numbers"),
+    "courses.configure": _("Configure courses, maxima and teachers of each class"),
     "roles.manage": _("Manage staff accounts and roles"),
     "students.view": _("View students"),
     "students.edit": _("Edit students"),
@@ -47,6 +48,8 @@ SENSITIVE_PERMISSIONS = frozenset(
 SCHOOL_CONFIGURE = "school.configure"
 # Organisation scolaire : années, découpage, niveaux, options, classes, matricule (C1-C3).
 CLASSES_MANAGE = "classes.manage"
+# Cours de chaque classe : maxima, heures, enseignants (8.1).
+COURSES_CONFIGURE = "courses.configure"
 # Gérer les rôles et les comptes du personnel : une école garde toujours un compte actif qui l'a.
 ROLES_MANAGE = "roles.manage"
 # Publier et archiver les annonces aux familles (H4).
@@ -105,6 +108,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
         (
             "school.configure",
             "classes.manage",
+            "courses.configure",
             "roles.manage",
             "students.view",
             "students.edit",
@@ -121,7 +125,13 @@ STARTER_ROLES: dict[str, StarterRole] = {
     ),
     "study_director": StarterRole(
         _("Director of studies"),
-        ("classes.manage", "students.view", "students.edit", "announcements.publish"),
+        (
+            "classes.manage",
+            "courses.configure",
+            "students.view",
+            "students.edit",
+            "announcements.publish",
+        ),
     ),
     "discipline_master": StarterRole(
         _("Discipline master"), ("students.view", "announcements.publish")

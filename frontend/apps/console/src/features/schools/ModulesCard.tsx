@@ -21,6 +21,7 @@ export const MODULES: Module[] = [
   "students",
   "finance",
   "communication",
+  "academics",
   "portal",
   "notifications",
   "offline",
@@ -30,6 +31,7 @@ export const MODULES: Module[] = [
 // refuse le reste), ici on évite seulement un aller-retour d'erreur.
 const NEEDS: Partial<Record<Module, Module[]>> = {
   finance: ["students"],
+  academics: ["students"],
   portal: ["students"],
 };
 

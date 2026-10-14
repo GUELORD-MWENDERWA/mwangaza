@@ -8,4 +8,6 @@ packages/api/src/schema.d.ts
 dist/
 coverage/
 test-results/
+# Captures de `make apercu` (hors Git).
+apercu/captures/
 playwright-report/

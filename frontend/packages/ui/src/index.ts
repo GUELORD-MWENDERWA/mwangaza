@@ -42,6 +42,7 @@ export { Toast } from "./components/toast";
 export { Kpi } from "./components/kpi";
 export { Icon, type IconName } from "./icons";
 export { cn } from "./lib/cn";
+export { DESKTOP, useMediaQuery } from "./media";
 export {
   applyPlatform,
   LegalNotice,

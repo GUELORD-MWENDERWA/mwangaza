@@ -47,7 +47,7 @@ export function NotificationBell() {
         {unread > 0 && (
           <span
             aria-hidden
-            className="absolute -top-1.5 -right-1.5 rounded-full bg-lamp px-1.5 text-xs font-bold text-basalt"
+            className="absolute -top-1.5 -right-1.5 rounded-full bg-lamp px-1.5 text-xs font-bold text-night"
           >
             {unread > 99 ? "99+" : unread}
           </span>

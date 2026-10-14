@@ -5,22 +5,25 @@ import type { ComponentProps } from "react";
 import { cn } from "../lib/cn";
 
 // `.btn` des maquettes : `default` = `.primary` (lac), `outline` = `.btn`, `ghost` = lien.
+// Graisse 600, ombre légère, anneau de focus large (clavier), un pixel d'enfoncement au clic.
 export const buttonVariants = cva(
-  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-field border font-bold leading-tight no-underline transition-colors focus-visible:border-lake focus-visible:ring-3 focus-visible:ring-lake-50 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-55 [&_svg]:shrink-0",
+  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-field border font-semibold leading-tight no-underline transition-[background-color,border-color,color,box-shadow] duration-150 focus-visible:ring-4 focus-visible:ring-lake-100 focus-visible:outline-none active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 disabled:active:translate-y-0 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "border-lake bg-lake text-white hover:border-lake-700 hover:bg-lake-700",
-        outline: "border-line bg-card text-ink hover:bg-surface",
-        "destructive-outline": "border-due-200 bg-card text-due hover:bg-due-50",
-        destructive: "border-due bg-due text-white hover:brightness-95",
+        default:
+          "border-lake bg-lake text-white shadow-button hover:border-lake-700 hover:bg-lake-700",
+        outline:
+          "border-line bg-card text-ink shadow-button hover:border-field hover:bg-table-head",
+        "destructive-outline": "border-due-200 bg-card text-due shadow-button hover:bg-due-50",
+        destructive: "border-due bg-due text-white shadow-button hover:bg-due-900",
         ghost: "border-transparent bg-transparent text-lake hover:bg-lake-50",
       },
       size: {
-        sm: "min-h-8 px-2.5 py-[5px] text-sm",
-        default: "min-h-10 px-4 py-[9px] text-md",
-        lg: "min-h-12 px-[22px] py-3.5 text-base",
-        xl: "min-h-15 w-full px-6 py-[18px] text-lg",
+        sm: "min-h-8 px-3 py-1 text-sm",
+        default: "min-h-10 px-4 py-2 text-md",
+        lg: "min-h-12 px-5 py-3 text-base",
+        xl: "min-h-15 w-full px-6 py-4 text-lg",
       },
     },
     defaultVariants: { variant: "default", size: "default" },

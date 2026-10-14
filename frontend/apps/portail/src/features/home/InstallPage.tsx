@@ -29,18 +29,18 @@ export function InstallPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-basalt px-5 pt-7 pb-8 text-basalt-ink">
+      <header className="bg-night px-5 pt-7 pb-8 text-night-ink">
         <div className="mx-auto max-w-[640px]">
           <Brand />
           <h1 className="mt-5 text-2xl">{t("portal.install.title")}</h1>
-          <p className="mt-1.5 text-basalt-muted">{t("portal.install.subtitle")}</p>
+          <p className="mt-1.5 text-night-muted">{t("portal.install.subtitle")}</p>
         </div>
       </header>
       <main className="mx-auto flex max-w-[640px] flex-col gap-4 px-4 py-5">
         <Card className="overflow-hidden">
           <div
             aria-hidden="true"
-            className="grid place-items-center bg-[linear-gradient(160deg,var(--color-basalt),var(--color-lake))] py-6"
+            className="grid place-items-center bg-[linear-gradient(160deg,var(--color-night),var(--color-lake))] py-6"
           >
             {icon ? (
               <img src={icon} alt="" className="size-[60px] rounded-[14px]" />

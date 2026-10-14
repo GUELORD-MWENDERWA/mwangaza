@@ -5,18 +5,18 @@
 <style>
 /* Coquille de la console : comme console/tableau-de-bord.html. */
 body{background:var(--surface)}
-.ctop{background:var(--basalt);color:var(--basalt-ink)}
+.ctop{background-color:var(--night);color:var(--night-ink)}
 .ctop .in{max-width:1240px;margin:0 auto;padding:12px 24px 0;display:flex;flex-direction:column;gap:10px}
 .ctop .row1{display:flex;align-items:center;gap:12px}
 .ctop .brand{padding:0}
-.ctop .chip{font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--basalt);background:var(--lamp);border-radius:var(--r-pill);padding:2px 9px}
+.ctop .chip{font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--night);background:var(--lamp);border-radius:var(--r-pill);padding:2px 9px}
 .ctop .grow{flex:1}
 .ctop .me{display:flex;align-items:center;gap:8px;font-size:.85rem}
-.ctop .me .avatar{background:var(--basalt-2);color:var(--lamp)}
+.ctop .me .avatar{background:var(--night-2);color:var(--lamp)}
 .ctop nav{display:flex;gap:4px;overflow-x:auto}
-.ctop nav a{color:#CFC7BF;text-decoration:none;padding:10px 12px;border-bottom:3px solid transparent;white-space:nowrap;font-size:.92rem}
+.ctop nav a{color:#C3CFE0;text-decoration:none;padding:10px 12px;border-bottom:3px solid transparent;white-space:nowrap;font-size:.92rem}
 .ctop nav a.on{color:#fff;border-bottom-color:var(--lamp);font-weight:700}
-.ctop nav a .soon{font-size:.8rem;color:#9A918A;margin-left:4px}
+.ctop nav a .soon{font-size:.8rem;color:#7A8699;margin-left:4px}
 .cmain{max-width:1240px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:20px}
 /* Cet écran */
 .two{display:grid;gap:16px;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:start}
@@ -29,10 +29,10 @@ body{background:var(--surface)}
 .colors .inp{gap:10px}
 .colors .sw{width:22px;height:22px;border-radius:6px;border:1px solid rgba(0,0,0,.15)}
 .ta{min-height:96px;align-items:flex-start;line-height:1.5}
-.preview .pbar{background:var(--basalt);color:var(--basalt-ink);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.preview .pbar{background:var(--night);color:var(--night-ink);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px}
 .preview .pbar .mark{width:32px;height:32px}
 .preview .pbar .on{margin-left:auto;font-size:.85rem;border-bottom:3px solid var(--lamp);padding-bottom:3px;color:#fff;font-weight:700}
-.preview .phome{display:flex;gap:18px;align-items:flex-end;padding:14px;border-radius:12px;background:linear-gradient(160deg,var(--ink-2),var(--basalt))}
+.preview .phome{display:flex;gap:18px;align-items:flex-end;padding:14px;border-radius:12px;background:linear-gradient(160deg,var(--ink-2),var(--night))}
 .preview .phome .papp{display:flex;flex-direction:column;align-items:center;gap:6px;color:#fff;font-size:.8rem;width:64px;text-align:center}
 .preview .phome .tile{width:56px;height:56px;display:grid;place-items:center}
 .preview .phome .tile .mark{width:56px;height:56px}
@@ -60,7 +60,7 @@ body{background:var(--surface)}
         <div class="col" style="gap:8px"><b class="small" style="color:var(--ink-2)">Icône des applications</b><div class="file"><div class="pic" style="border:0;background:none"><span class="mark" style="width:72px;height:72px"></span></div><div class="col" style="gap:6px"><a class="btn sm" href="#"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>Changer</a><span class="help">PNG carré, 512 × 512 px au moins, 1 Mo au plus. Sans icône : le symbole par défaut, en carré arrondi.</span></div></div></div>
       </div></div>
       <div class="card colors"><div class="hd"><h2>Couleurs</h2></div><div class="bd grid g2">
-        <label class="f">Couleur principale<span class="inp"><span class="sw" style="background:#0E5C6B"></span><span style="font-family:var(--mono)">#0E5C6B</span></span><span class="help">Boutons et liens.</span></label>
+        <label class="f">Couleur principale<span class="inp"><span class="sw" style="background:#0B5FCC"></span><span style="font-family:var(--mono)">#0B5FCC</span></span><span class="help">Boutons et liens.</span></label>
         <label class="f">Couleur d'accent<span class="inp"><span class="sw" style="background:#F2B632"></span><span style="font-family:var(--mono)">#F2B632</span></span><span class="help">Repères sur le menu sombre.</span></label>
       </div></div>
       <div class="card"><div class="hd"><h2>Support et mentions légales</h2></div><div class="bd grid g2">
@@ -79,7 +79,7 @@ body{background:var(--surface)}
         <ul class="hist" style="list-style:none;margin:0;padding:0">
           <li><b>Identité modifiée</b><span class="muted small">2 oct. 2026, 14:05 · Guelord Mwenderwa</span><span class="small">Téléphone du support : (vide) → +243 000 000 999</span></li>
           <li><b>Icône des applications changée</b><span class="muted small">2 oct. 2026, 13:58 · Guelord Mwenderwa</span></li>
-          <li><b>Identité modifiée</b><span class="muted small">1 oct. 2026, 09:12 · Guelord Mwenderwa</span><span class="small">Couleur principale : #0F6B7D → #0E5C6B</span></li>
+          <li><b>Identité modifiée</b><span class="muted small">1 oct. 2026, 09:12 · Guelord Mwenderwa</span><span class="small">Couleur principale : #0F6B7D → #0B5FCC</span></li>
         </ul></div>
     </div>
   </div>

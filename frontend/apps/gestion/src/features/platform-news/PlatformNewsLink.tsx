@@ -20,14 +20,14 @@ export function PlatformNewsLink({
       to="/platform-news"
       onClick={onClick}
       className={cn(
-        "flex min-h-11 items-center gap-2.5 text-sm text-basalt-soft no-underline hover:text-basalt-ink",
+        "flex min-h-11 items-center gap-2.5 text-sm text-night-soft no-underline hover:text-night-ink",
         className,
       )}
     >
       <Icon name="megaphone" size={18} />
       <span className="min-w-0 flex-1 truncate">{t("platformNews.menu", { platform })}</span>
       {unread > 0 && (
-        <span className="rounded-full bg-lamp px-1.5 text-xs font-bold text-basalt">
+        <span className="rounded-full bg-lamp px-1.5 text-xs font-bold text-night">
           <span aria-hidden>{unread}</span>
           <span className="sr-only">{t("platformNews.unread", { count: unread })}</span>
         </span>

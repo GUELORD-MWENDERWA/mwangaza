@@ -84,7 +84,8 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Paie | `gestion/paie.html` | V1.7 | 7.3 | fournie |
 | Pointage QR (carte unique : puce ou QR) | `gestion/presences-pointage-qr.html` | V1.5 | 6.3 | fournie |
 | Saisie des notes | `gestion/notes-saisie.html` | V1.2 | 8.2 | fournie |
-| Cours et maxima par classe | `gestion/cours-maxima.html` | V1.2 | 8.1 | à valider |
+| Cours et maxima par classe | `gestion/cours-maxima.html` | V1.2 | 8.1 | à valider — codée en 8.1 avec des écarts : colonnes « Domaine » et « H / sem. » en plus, cours ajoutés et retirés dans la grille ; regroupements par maximum (lignes MAXIMA) dans la carte « Contrôle » et non dans la grille (les lignes sauteraient pendant la saisie) ; « Contrôle » et « Modèles officiels » au-dessus d'une grille en pleine largeur (sinon heures et enseignant sortent de la carte à 1440 px) ; pas de « Modèle appliqué » retenu (rien n'est stocké) |
+| Charges des enseignants | `gestion/charges-enseignants.html` | V1.2 | 8.1 | à valider — dessinée par Claude en 8.1 ; codée sans écart (au téléphone, colonne « Cours » masquée) |
 | Bulletin officiel — humanités techniques (formulaire IGE/P.S/100) | `gestion/bulletin.html` | V1.2 | 8.3 | à valider (remplace le gabarit provisoire) |
 | Bulletin officiel — 7e–8e EB (formulaire IGE/P.S/005) | `gestion/bulletin-education-de-base.html` | V1.2 | 8.3 | à valider |
 
@@ -112,7 +113,7 @@ Bulletins : structure et maxima repris des formulaires officiels trouvés en lig
 
 ### Console de la plateforme — `admin.mwangaza.school` (super-admin, son propre design)
 
-Pas de menu latéral comme la Gestion : barre du haut en basalte (marque, pastille « Console », menu du compte), navigation dessous avec le repère lampe, contenu clair et large (styles de la coquille dans la page : `.ctop`, `.cmain`). Connexion : carte blanche sur fond basalte, mêmes étapes que la Gestion (`gestion/connexion`, `gestion/connexion-double-authentification`), sans « Se souvenir de cet appareil ».
+Pas de menu latéral comme la Gestion : barre du haut bleu nuit (lignes de relief) (marque, pastille « Console », menu du compte), navigation dessous avec le repère lampe, contenu clair et large (styles de la coquille dans la page : `.ctop`, `.cmain`). Connexion : carte blanche sur fond bleu nuit, mêmes étapes que la Gestion (`gestion/connexion`, `gestion/connexion-double-authentification`), sans « Se souvenir de cet appareil ».
 
 | Écran | Fichier | Lot | Réf. | État |
 |---|---|---|---|---|
@@ -136,61 +137,66 @@ Aucune dépendance à installer (Python 3, Node 22 et Google Chrome de la machin
 |---|---|
 | `python3 maquettes/outils/maquettes.py menu` | réécrit le menu latéral de toutes les pages Gestion depuis `MENU` (à lancer après avoir ajouté une entrée) |
 | `python3 maquettes/outils/maquettes.py index` | régénère `index.html` depuis le catalogue `GESTION` / `PORTAIL` / `CONSOLE` |
-| `node maquettes/outils/captures.mjs [fichier.html …]` | refait les captures PNG (téléphone 390 px pour tous les écrans ; bureau 1440 px pour la Gestion et la console) et **sort en erreur si un élément dépasse de l'écran** ; sans argument : toutes |
+| `node maquettes/outils/captures.mjs [fichier.html …]` | refait les captures PNG (téléphone 390 px et bureau 1440 px, pour les trois applications — le portail aussi depuis le 2026-10-14) et **sort en erreur si un élément dépasse de l'écran** ; sans argument : toutes |
 
-Pour dessiner un nouvel écran : écrire la page avec la même coquille (`page_gestion`, `page_auth`, `page_portail` et `ic` dans `maquettes.py`), l'ajouter au catalogue, puis `index` et `captures`.
+Pour dessiner un nouvel écran : d'abord regarder comment les grands logiciels font (skill `design`, « Méthode ») ; écrire la page avec la même coquille (`page_gestion`, `page_auth`, `page_portail` et `ic` dans `maquettes.py` ; une page du portail porte aussi la barre d'ordinateur `.dtop`), l'ajouter au catalogue, puis `index` et `captures`, et regarder les deux captures.
 
 ## Système de design
 
-### Intention
+### Intention (refonte du 2026-10-14)
 
-- **Basalte** (pierre volcanique de Goma) pour la barre latérale et l'en-tête du portail : sobre, lisible, ancré localement.
-- **Lampe** (jaune) = *mwangaza*, la lumière. Utilisée avec parcimonie : repère de l'élément actif, logo, points d'attention. Jamais en fond de page.
-- **Lac** (bleu-vert du lac Kivu) pour toutes les actions principales.
-- Police **Atkinson Hyperlegible** (fournie dans `assets/fonts/`, à embarquer dans l'application pour le hors-ligne) : conçue pour la lisibilité, adaptée à des utilisateurs peu habitués à l'informatique et aux écrans de faible qualité.
-- Chiffres toujours en **tabulaires** (`font-variant-numeric: tabular-nums`) et alignés à droite.
+Recherche, références et raisons : `docs/claude/recherches/2026-10-14-refonte-design.md`. L'ancienne palette (basalte, beige, gris chauds) « ressemblait à l'IA » : l'identité est maintenant tirée du **lac Kivu** et du **drapeau du Congo**.
 
-### Couleurs (à reporter dans le thème Tailwind / variables shadcn)
+- **Nuit du Kivu** (bleu nuit) : barre latérale de la Gestion, en-tête et barre du haut du portail, barre de la console, panneau des connexions ; avec, en filigrane, les **lignes de relief** des volcans et des collines du Kivu (`assets/relief.svg`) : la signature de la marque.
+- **Lumière** (jaune) = *mwangaza* : logo, repère de l'élément actif, compteurs, points d'attention. Jamais en texte sur fond clair ni en grande surface.
+- **Bleu Kivu** : toutes les actions principales, liens, focus.
+- Neutres froids, légèrement bleutés ; jamais de beige ni de gris chaud.
+- Police **Atkinson Hyperlegible Next** (`assets/fonts/`, 400 · 600 · 700 · 800, embarquée pour le hors-ligne) : lisibilité pour des utilisateurs peu habitués à l'informatique et des écrans de faible qualité.
+- Chiffres toujours **tabulaires** et alignés à droite.
 
-Depuis la 5.1, le nom « Mwangaza », le symbole M-flamme et les couleurs `lamp` / `lake` des maquettes sont les valeurs **de départ** de l'identité de la plateforme : l'application lit le nom, le logo (sinon le symbole), l'icône et ces deux couleurs dans ses paramètres. Ajouts sans maquette : lien « Mentions légales » à la suite des langues sous les connexions (Gestion et Portail, s'il y a un texte) ; téléphone et e-mail du support sous « École suspendue » et « Aucune école à cette adresse ».
+### Couleurs (reportées dans le thème Tailwind / variables shadcn)
+
+Le nom « Mwangaza », le symbole M-flamme et les couleurs `lamp` / `lake` sont les valeurs **de départ** de l'identité de la plateforme (5.1) : l'application lit le nom, le logo, l'icône et ces deux couleurs dans ses paramètres (défaut `#0B5FCC` / `#F2B632`, migré le 2026-10-14). Ajouts sans maquette : lien « Mentions légales » après les langues sous les connexions ; téléphone et e-mail du support sous « École suspendue » et « Aucune école à cette adresse ».
 
 | Jeton | Valeur | Usage |
 |---|---|---|
-| `basalt` | `#2B2724` | barre latérale, en-tête portail |
-| `basalt-2` | `#3A3531` | élément actif sur basalte |
-| `lamp` | `#F2B632` | repère actif, logo, accent rare |
-| `lamp-soft` | `#FDF3D8` | bandeaux d'information de marque |
-| `lake` | `#0E5C6B` | bouton principal, liens, focus (= `primary`) |
-| `lake-50` | `#E6F0F2` | sélection, fond de focus |
-| `ink` | `#211D1A` | texte |
-| `ink-2` / `ink-3` | `#554D46` / `#6E655D` | texte secondaire / tertiaire (≥ 4,5:1) |
-| `surface` | `#F4F2EF` | fond de page |
-| `line` / `line-soft` | `#E2DCD5` / `#EDE9E4` | bordures / séparateurs |
-| `field` | `#958A80` | bordure de champ (≥ 3:1 sur blanc) |
-| `ok` / `ok-50` | `#1F7A4D` / `#E5F3EB` | payé, à jour, succès |
-| `due` / `due-50` | `#B42318` / `#FBE9E7` | en retard, erreur, danger |
-| `warn` / `warn-50` | `#9A5B00` / `#FFF1D6` | partiel, hors-ligne, avertissement |
+| `night` / `night-2` / `night-3` | `#0B1C35` / `#15294B` / `#213A63` | barres sombres / élément actif, encadré de l'école / bordures sur la nuit |
+| `night-ink` / `night-soft` / `night-muted` | `#E6ECF5` / `#C3CFE0` / `#94A3BB` | texte sur la nuit / entrées du menu / libellés de section |
+| `lamp` / `lamp-soft` | `#F2B632` / `#FEF5DA` | lumière / bandeaux de marque |
+| `lake` / `lake-700` / `lake-100` / `lake-50` | `#0B5FCC` / `#08459A` / `#D4E3F9` / `#EAF1FC` | bouton principal, liens, focus (= `primary`) / survol / anneau de focus / sélection |
+| `ink` / `ink-2` / `ink-3` | `#101828` / `#475467` / `#5B677A` | texte / secondaire / tertiaire (≥ 5:1) |
+| `surface` / `card` / `table-head` | `#F3F5F9` / `#FFFFFF` / `#F7F9FC` | fond de page / cartes / en-têtes de tableau, pieds de carte |
+| `line` / `line-soft` | `#E2E8F0` / `#EDF1F6` | bordures / séparateurs |
+| `field` | `#7A8699` | bordure de champ (3,7:1 sur blanc) |
+| `ok` / `ok-50` | `#127A48` / `#E8F6EE` | payé, à jour, succès |
+| `due` / `due-50` | `#B42318` / `#FDECEA` | en retard, erreur, danger |
+| `warn` / `warn-50` | `#985A06` / `#FEF3DC` | partiel, hors-ligne, avertissement |
+| `chart-1` / `chart-2` | `lake` / `#C47F00` | séries d'un graphique (validées : daltonisme, contraste) |
 
 ### Formes et tailles
 
-- Rayons : cartes 12 px, champs et boutons 8 px, pastilles d'état arrondies.
-- Hauteur minimale des champs : 40 px ; boutons principaux de caisse : très grands (60 px et plus).
+- Rayons : cartes 14 px, fenêtres 16 px, champs et boutons 8 px, pastilles arrondies. Ombres froides et discrètes (la bordure dessine la carte).
+- Champs ≥ 40 px ; boutons 32 / 40 / 48 px, boutons de caisse 60 px et plus ; graisse 600 pour les boutons, onglets et libellés, 800 pour les grands nombres.
 - Base 15 px ; titres de page 1,6 rem. Échelle de texte (rem) : .8 · .85 · .92 · 1 · 1,15 · 1,3 · 1,6 · 2 — aucune autre taille à l'écran, rien sous 12 px (impression : pt / px).
-- Neutres tirés du basalte (2026-10-14) : gris chauds, pas les gris bleutés par défaut de Tailwind.
 
 ### Logo
 
-Symbole **M-flamme** (2026-10-14, *mwangaza* = la lumière) : un M basalte épais surmonté d'une flamme, dans un carré arrondi jaune `lamp`. Comme GitHub ou Toddle : une forme pleine et fermée, d'une seule pièce, lisible de 16 px (favicon) à 512 px (icône installée), la même sur fond sombre ou clair. Fichiers dans `assets/logo/` : `symbole.svg` (écrans, favicon ; classe `.mark`), `icone-application.svg` (icône installée, coins arrondis), `icone-maskable.svg` (Android, plein cadre, dessin dans la zone sûre), `icone-apple.svg` (iPhone, plein cadre). Tailles : 36 px dans les barres (`.mark`), 48 px sur les pages de connexion (`.brand.lg` + `.mark.lg`), 28 px dans une carte (`.mark.sm`) ; nom à côté en gras, 1,3 rem (1,7 rem en grand). Remplace la lampe-tempête et le disque jaune d'avant, qui ne doivent plus apparaître nulle part. Valeur de départ de l'identité de la plateforme, comme le nom et les couleurs.
+Symbole **M-flamme** (*mwangaza* = la lumière) : un M **bleu nuit** épais (basalte jusqu'au 2026-10-14) surmonté d'une flamme, dans un carré arrondi jaune `lamp`. Forme pleine et fermée, lisible de 16 px (favicon) à 512 px (icône installée), la même sur fond sombre ou clair. Fichiers dans `assets/logo/` : `symbole.svg` (écrans, favicon ; classe `.mark`), `icone-application.svg` (icône installée), `icone-maskable.svg` (Android, plein cadre), `icone-apple.svg` (iPhone). Tailles : 36 px dans les barres (`.mark`), 48 px sur les connexions (`.brand.lg` + `.mark.lg`), 28 px dans une carte (`.mark.sm`).
 
-### Téléphone
+### Adaptation à chaque écran
 
-Chaque écran tient en 390 px sans défilement horizontal (règles « Téléphone » à la fin de `assets/styles.css` : rangées et pieds de carte qui passent à la ligne, tableau qui défile dans sa carte avec une ligne par cellule — `data-wrap` pour une cellule de texte long —, onglets qui défilent, documents A4 en aperçu réduit, actions de l'en-tête en deux colonnes égales, choix d'un `.seg` étiré qui se partagent la largeur). Grilles : toujours `minmax(0, …)`.
+Chaque application a sa mise en page à trois largeurs (2026-10-14 : le portail n'est pas « que téléphone ») :
+
+- **Téléphone (< 600 px)** : une colonne ; rangées et pieds de carte qui passent à la ligne ; grandes listes en **tableau empilé** (`.tbl.stack` + `data-label` : une carte par ligne — élèves, impayés) ; autres tableaux qui défilent dans leur carte (`data-wrap` pour un texte long) ; onglets qui défilent ; documents A4 en aperçu réduit ; actions de l'en-tête en deux colonnes ; portail avec sa barre du bas.
+- **Tablette (600–1023 px)** : Gestion avec menu tiroir sous 900 px, grilles à deux colonnes ; portail élargi à 760 px, enfants deux par rangée.
+- **Ordinateur (≥ 1024 px)** : Gestion avec barre latérale ; **portail avec barre du haut** (`.dtop` : marque, navigation, cloche, compte), en-tête = titre de la page, contenu jusqu'à 1 120 px sur deux colonnes (`.pgrid` ; `.pgrid.left` : résumé à gauche), 760 px pour lire (`.pbody.narrow`) ; connexions du portail en deux panneaux (`.phone.pauth`).
+- Grilles : toujours `minmax(0, …)`. Dans l'application : `make apercu` (390, 820, 1440 px).
 
 ### Composants récurrents
 
-Carte (en-tête / corps / pied), KPI, tableau, pastille d'état (`ok`, `due`, `warn`, `info`, `gray`), bandeau (`info`, `warn`, `due`, `ok`, `lampb`), segmenté, interrupteur, case à cocher, étapes, barre de progression, indicateur de synchronisation (toujours visible en haut de la Gestion).
+Carte (en-tête / corps / pied sur fond gris clair), KPI (avec pastille d'icône `.chip`), tableau, pastille d'état (`ok`, `due`, `warn`, `info`, `gray`), bandeau (`info`, `warn`, `due`, `ok`, `lampb`), segmenté (piste grise, choix actif blanc), interrupteur, case à cocher, étapes, barre de progression, indicateur de synchronisation (toujours visible en haut de la Gestion).
 
-Ajoutés le 2026-09-26 (fin de `assets/styles.css`) : écran hors application (`authgrid`), fenêtre de dialogue (`overlay` + `dialog`), frise chronologique (`tl`), codes à recopier (`codes`, `code`), cadre de téléphone et menu coulissant (`frame`, `drawer`, `scrim`), mise en avant du guide (`spot`, `coach`), notification passagère (`toast`), pastille de couleur (`swatch`), A4 à l'italienne (`a4 land`), bulletin officiel (`bul`, `idbox`), onglets-liens (`.tabs>a`).
+Ajoutés le 2026-09-26 (fin de `assets/styles.css`) : écran hors application (`authgrid`), fenêtre de dialogue (`overlay` + `dialog`), frise chronologique (`tl`), codes à recopier (`codes`, `code`), cadre de téléphone et menu coulissant (`frame`, `drawer`, `scrim`), mise en avant du guide (`spot`, `coach`), notification passagère (`toast`), pastille de couleur (`swatch`), A4 à l'italienne (`a4 land`), bulletin officiel (`bul`, `idbox`), onglets-liens (`.tabs>a`). Ajoutés le 2026-10-14 : barre d'ordinateur du portail (`dtop`), colonnes du portail (`pgrid`, `pcards`), connexions du portail en deux panneaux (`pauth`), tableau empilé (`tbl.stack`), motif de relief (`relief`).
 
 ### Formats d'affichage
 

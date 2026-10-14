@@ -7,6 +7,8 @@ import base64
 import io
 import re
 from dataclasses import dataclass
+from functools import cache
+from pathlib import Path
 
 import openpyxl
 import segno
@@ -32,6 +34,24 @@ PRINT_RESPONSE = {
     (200, PDF): OpenApiResponse(OpenApiTypes.BINARY, description="Document PDF (`output=pdf`)."),
     (200, HTML): OpenApiResponse(OpenApiTypes.STR, description="Aperçu HTML (`output=html`)."),
 }
+
+
+FONTS = Path(__file__).parent / "static" / "core" / "site"
+
+
+@cache
+def print_fonts() -> str:
+    """Police de la marque (Atkinson Hyperlegible Next) intégrée aux documents en `data:` : le PDF
+    a la même typographie que l'application, sans que WeasyPrint charge un fichier."""
+    rules = []
+    for weight in (400, 700, 800):
+        path = FONTS / f"atkinson-hyperlegible-next-latin-{weight}-normal.woff2"
+        data = base64.b64encode(path.read_bytes()).decode()
+        rules.append(
+            '@font-face { font-family: "Atkinson Hyperlegible Next"; '
+            f'font-weight: {weight}; src: url(data:font/woff2;base64,{data}) format("woff2"); }}'
+        )
+    return "\n".join(rules)
 
 
 def data_uri(field, kind: str | None, content_types: dict[str, str]) -> str:
@@ -70,7 +90,9 @@ def school_header(school: School) -> dict:
 def render(template: str, context: dict, output: str, name: str) -> HttpResponse:
     """`html` : aperçu dans la page (même origine seulement) ; `pdf` : fichier ouvert dans le
     navigateur, qui l'imprime ou l'enregistre."""
-    html = render_to_string(template, {"platform": PlatformSettings.load(), **context})
+    html = render_to_string(
+        template, {"platform": PlatformSettings.load(), "print_fonts": print_fonts(), **context}
+    )
     if output == "html":
         response = HttpResponse(html, content_type=f"{HTML}; charset=utf-8")
         response["X-Frame-Options"] = "SAMEORIGIN"

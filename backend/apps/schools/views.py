@@ -22,6 +22,7 @@ from apps.accounts.permissions import HasSchoolPermission, IsPlatformAdmin, scho
 from apps.accounts.roles import (
     ANNOUNCEMENTS_PUBLISH,
     CLASSES_MANAGE,
+    COURSES_CONFIGURE,
     FEES_READ,
     FINANCE_CONFIGURE_FEES,
     SCHOOL_CONFIGURE,
@@ -207,14 +208,20 @@ class SchoolSetupFinishView(_SchoolSettingsBase):
 class _OrganisationViewSet(SchoolViewSet):
     pagination_class = None
     # Années, niveaux, options et classes : lus aussi avec `students.view` (filtres de la liste
-    # des élèves, inscription) et les droits des frais (barèmes, E2) ; tout le reste demande
-    # `classes.manage`.
+    # des élèves, inscription), les droits des frais (barèmes, E2) et `courses.configure` (cours
+    # de chaque classe, 8.1) ; tout le reste demande `classes.manage`.
     shared_reads = False
 
     @property
     def required_permission(self) -> str | tuple[str, ...]:
         if self.shared_reads and self.action in {"list", "retrieve"}:
-            return (CLASSES_MANAGE, STUDENTS_VIEW, ANNOUNCEMENTS_PUBLISH, *FEES_READ)
+            return (
+                CLASSES_MANAGE,
+                STUDENTS_VIEW,
+                ANNOUNCEMENTS_PUBLISH,
+                COURSES_CONFIGURE,
+                *FEES_READ,
+            )
         return CLASSES_MANAGE
 
     http_method_names = ["get", "post", "put", "patch", "delete", "head", "options"]

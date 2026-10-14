@@ -43,6 +43,20 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         permissions: ["students.view"],
         task: "2.2",
       },
+      {
+        key: "courses",
+        path: "courses",
+        icon: "book",
+        permissions: ["courses.configure"],
+        task: "8.1",
+      },
+      {
+        key: "teachingLoads",
+        path: "teaching-loads",
+        icon: "clock",
+        permissions: ["courses.configure"],
+        task: "8.1",
+      },
     ],
   },
   {

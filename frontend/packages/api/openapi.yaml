@@ -632,6 +632,7 @@ paths:
           - organisation.class_updated
           - organisation.class_deleted
           - organisation.matricule_format_changed
+          - courses.changed
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -733,6 +734,7 @@ paths:
           * `organisation.class_updated` - Class changed
           * `organisation.class_deleted` - Class deleted
           * `organisation.matricule_format_changed` - Student number format changed
+          * `courses.changed` - Courses of a class changed
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -803,6 +805,7 @@ paths:
           - announcements
           - audit
           - auth
+          - courses
           - devices
           - finance
           - organisation
@@ -819,6 +822,7 @@ paths:
           * `announcements` - announcements
           * `audit` - audit
           * `auth` - auth
+          * `courses` - courses
           * `devices` - devices
           * `finance` - finance
           * `organisation` - organisation
@@ -1001,6 +1005,7 @@ paths:
           - organisation.class_updated
           - organisation.class_deleted
           - organisation.matricule_format_changed
+          - courses.changed
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -1102,6 +1107,7 @@ paths:
           * `organisation.class_updated` - Class changed
           * `organisation.class_deleted` - Class deleted
           * `organisation.matricule_format_changed` - Student number format changed
+          * `courses.changed` - Courses of a class changed
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -1172,6 +1178,7 @@ paths:
           - announcements
           - audit
           - auth
+          - courses
           - devices
           - finance
           - organisation
@@ -1188,6 +1195,7 @@ paths:
           * `announcements` - announcements
           * `audit` - audit
           * `auth` - auth
+          * `courses` - courses
           * `devices` - devices
           * `finance` - finance
           * `organisation` - organisation
@@ -2971,6 +2979,162 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/class-groups/{id}/courses/:
+    get:
+      operationId: class_groups_courses_list
+      description: Grille de cours de la classe, dans l'ordre du bulletin.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - courses
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    put:
+      operationId: class_groups_courses_update
+      description: 'Toute la grille d''un seul envoi : cours gardés (`id`), ajoutés,
+        modifiés, retirés.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoursesUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CoursesUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CoursesUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/courses/copy/:
+    post:
+      operationId: class_groups_courses_copy_create
+      description: |-
+        Donne la grille de la classe à d'autres classes de l'école (de cette année ou d'une
+        autre) : un cours du même nom garde son enseignant ; les autres cours sont retirés.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoursesCopyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CoursesCopyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CoursesCopyRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoursesCopied'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/class-groups/homeroom-candidates/:
     get:
       operationId: class_groups_homeroom_candidates_list
@@ -4687,6 +4851,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/course-templates/:
+    get:
+      operationId: course_templates_list
+      description: |-
+        Grilles officielles qui pré-remplissent celle d'une classe (formulaires de bulletin
+        IGE/P.S, barème Électronique) ; l'école ajuste avant d'enregistrer.
+      tags:
+      - courses
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OfficialGrid'
           description: ''
         '403':
           content:
@@ -10852,6 +11047,43 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/teaching-loads/:
+    get:
+      operationId: teaching_loads_retrieve
+      description: |-
+        Charge horaire de chaque membre du personnel actif dans l'année (heures par semaine
+        de ses cours), et les cours sans enseignant. Sert aussi de liste des enseignants
+        possibles : tout le personnel, quel que soit son rôle.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: 'Absent : l''année en cours.'
+      tags:
+      - courses
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeachingLoads'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/tracks/:
     get:
       operationId: tracks_list
@@ -11538,6 +11770,7 @@ components:
       - organisation.class_updated
       - organisation.class_deleted
       - organisation.matricule_format_changed
+      - courses.changed
       - students.family_created
       - students.family_updated
       - students.family_deleted
@@ -11638,6 +11871,7 @@ components:
         * `organisation.class_updated` - Class changed
         * `organisation.class_deleted` - Class deleted
         * `organisation.matricule_format_changed` - Student number format changed
+        * `courses.changed` - Courses of a class changed
         * `students.family_created` - Family created
         * `students.family_updated` - Family changed
         * `students.family_deleted` - Family deleted
@@ -14222,6 +14456,111 @@ components:
       required:
       - amount_minor
       - currency
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        domain:
+          type: string
+          readOnly: true
+        period_max:
+          type: integer
+          readOnly: true
+          title: Maximum per period
+        has_exam:
+          type: boolean
+          readOnly: true
+          title: With exam
+        weekly_hours:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: Hours per week
+        teacher:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+          nullable: true
+      required:
+      - id
+      - name
+      - domain
+      - period_max
+      - has_exam
+      - weekly_hours
+      - teacher
+    CourseInputRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Cours de la classe à garder ; absent : nouveau.'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        domain:
+          type: string
+          default: ''
+          maxLength: 100
+        period_max:
+          type: integer
+          maximum: 1000
+          minimum: 1
+        has_exam:
+          type: boolean
+          default: true
+        weekly_hours:
+          type: integer
+          maximum: 40
+          minimum: 1
+          nullable: true
+        teacher_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: '`id` du compte de l''enseignant : le personnel actif de l''école.'
+      required:
+      - name
+      - period_max
+    CoursesCopied:
+      type: object
+      properties:
+        copied:
+          type: integer
+          description: Classes qui ont reçu la grille.
+      required:
+      - copied
+    CoursesCopyRequest:
+      type: object
+      properties:
+        class_groups:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Classes qui reçoivent la grille (et perdent leurs autres cours).
+      required:
+      - class_groups
+    CoursesUpdateRequest:
+      type: object
+      description: 'Toute la grille de la classe, dans l''ordre : ce qui n''y est
+        plus est retiré.'
+      properties:
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseInputRequest'
+      required:
+      - courses
     CreditAllocation:
       type: object
       properties:
@@ -14406,7 +14745,7 @@ components:
         primary_color:
           type: string
           title: Colour
-          description: 'Printed documents and the school badge, e.g. #0E5C6B.'
+          description: 'Printed documents and the school badge, e.g. #0B5FCC.'
           maxLength: 7
         text_color:
           type: string
@@ -15004,6 +15343,7 @@ components:
       - announcements
       - audit
       - auth
+      - courses
       - devices
       - finance
       - organisation
@@ -16350,6 +16690,33 @@ components:
         * `active` - active
         * `suspended` - suspended
         * `school_unavailable` - school_unavailable
+    LoadCourse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        class_group:
+          type: string
+          format: uuid
+        class_name:
+          type: string
+        weekly_hours:
+          type: integer
+          maximum: 40
+          minimum: 1
+          nullable: true
+          title: Hours per week
+      required:
+      - id
+      - name
+      - class_group
+      - class_name
+      - weekly_hours
     LoginCodeRequest:
       type: object
       properties:
@@ -16593,6 +16960,7 @@ components:
       - students
       - finance
       - communication
+      - academics
       - portal
       - notifications
       - offline
@@ -16601,6 +16969,7 @@ components:
         * `students` - Students, families and enrolments
         * `finance` - Fees, cash desk and payments
         * `communication` - Announcements
+        * `academics` - Courses, grades and report cards
         * `portal` - Parent portal
         * `notifications` - Notifications and reminders
         * `offline` - Offline work and synchronisation
@@ -16736,6 +17105,41 @@ components:
     NullEnum:
       enum:
       - null
+    OfficialCourse:
+      type: object
+      properties:
+        name:
+          type: string
+        period_max:
+          type: integer
+        has_exam:
+          type: boolean
+        weekly_hours:
+          type: integer
+          nullable: true
+      required:
+      - name
+      - period_max
+      - has_exam
+      - weekly_hours
+    OfficialGrid:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Nom traduit par l'interface.
+        reference:
+          type: string
+          description: Référence du document officiel.
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/OfficialCourse'
+          readOnly: true
+      required:
+      - key
+      - reference
+      - courses
     OpenSession:
       type: object
       properties:
@@ -17926,7 +18330,7 @@ components:
           type: string
           minLength: 1
           title: Colour
-          description: 'Printed documents and the school badge, e.g. #0E5C6B.'
+          description: 'Printed documents and the school badge, e.g. #0B5FCC.'
           maxLength: 7
         timezone:
           type: string
@@ -18399,6 +18803,7 @@ components:
       enum:
       - school.configure
       - classes.manage
+      - courses.configure
       - roles.manage
       - students.view
       - students.edit
@@ -18418,6 +18823,7 @@ components:
       description: |-
         * `school.configure` - Configure the school (name, logo, colour, currencies, receipts)
         * `classes.manage` - Manage years, terms, levels, tracks, classes and student numbers
+        * `courses.configure` - Configure courses, maxima and teachers of each class
         * `roles.manage` - Manage staff accounts and roles
         * `students.view` - View students
         * `students.edit` - Edit students
@@ -19766,7 +20172,7 @@ components:
         primary_color:
           type: string
           title: Colour
-          description: 'Printed documents and the school badge, e.g. #0E5C6B.'
+          description: 'Printed documents and the school badge, e.g. #0B5FCC.'
           maxLength: 7
         text_color:
           type: string
@@ -21428,6 +21834,46 @@ components:
       - name
       - starts_on
       - ends_on
+    TeachingLoad:
+      type: object
+      properties:
+        teacher:
+          $ref: '#/components/schemas/Person'
+        hours:
+          type: integer
+          description: Heures par semaine de ses cours de l'année.
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoadCourse'
+      required:
+      - teacher
+      - hours
+      - courses
+    TeachingLoads:
+      type: object
+      properties:
+        loads:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeachingLoad'
+          description: Tout le personnel actif, le plus chargé d'abord.
+        unassigned:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoadCourse'
+          description: 'Les premiers cours sans enseignant (tous : classe par classe).'
+        unassigned_count:
+          type: integer
+          description: Tous les cours sans enseignant.
+        unassigned_hours:
+          type: integer
+          description: Leurs heures par semaine.
+      required:
+      - loads
+      - unassigned
+      - unassigned_count
+      - unassigned_hours
     TemplateEnum:
       enum:
       - secondary

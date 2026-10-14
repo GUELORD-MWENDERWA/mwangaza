@@ -288,7 +288,7 @@ function UnpaidTable({
   const { t, i18n } = useTranslation();
   const school = useCurrentSchool();
   return (
-    <Table>
+    <Table stacked>
       <thead>
         <tr>
           <th className="w-10">
@@ -318,7 +318,7 @@ function UnpaidTable({
           const payment = row.last_payment;
           return (
             <tr key={row.enrollment}>
-              <td>
+              <td className="stack-check">
                 <Checkbox
                   aria-label={t("unpaid.select", { name: studentName(row.student) })}
                   checked={selected.includes(row.enrollment)}
@@ -334,7 +334,7 @@ function UnpaidTable({
                 </Link>
                 <span className="block text-sm text-ink-3">{row.class_group}</span>
               </td>
-              <td data-wrap className="min-w-60 text-sm">
+              <td data-wrap className="min-w-60 text-sm" data-label={t("unpaid.columns.detail")}>
                 {row.charges
                   .map((charge) =>
                     charge.label === charge.fee_type_name
@@ -343,24 +343,30 @@ function UnpaidTable({
                   )
                   .join(" + ")}
               </td>
-              <td className="text-right font-bold whitespace-nowrap text-due tabular-nums">
+              <td
+                className="text-right font-bold whitespace-nowrap text-due tabular-nums"
+                data-label={t("unpaid.columns.overdue")}
+              >
                 {row.amounts
                   .map((amount) => money(amount.overdue_minor, amount.currency))
                   .join(" + ")}
               </td>
-              <td>
+              <td data-label={t("unpaid.columns.late")}>
                 <StatusPill tone={row.days_late > LONG_DELAY ? "due" : "warn"}>
                   {t("unpaid.days", { count: row.days_late })}
                 </StatusPill>
               </td>
-              <td className="text-sm">
+              <td className="text-sm" data-label={t("unpaid.columns.guardian")}>
                 {row.guardian
                   ? [row.guardian.full_name, row.guardian.phone && formatPhone(row.guardian.phone)]
                       .filter(Boolean)
                       .join(" · ")
                   : "—"}
               </td>
-              <td className="text-sm whitespace-nowrap text-ink-3 tabular-nums">
+              <td
+                className="text-sm whitespace-nowrap text-ink-3 tabular-nums"
+                data-label={t("unpaid.columns.lastPayment")}
+              >
                 {payment
                   ? `${formatDate(payment.paid_at, i18n.language, school.timezone).slice(0, 5)} · ${money(payment.received_amount_minor, payment.received_currency)}`
                   : "—"}

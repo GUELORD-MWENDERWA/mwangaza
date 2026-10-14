@@ -33,8 +33,8 @@ APPS = {
     "portail": {"start_url": "/", "icons": "/icons/"},
 }
 # Couleurs du design (fond de l'écran de démarrage, barre du système) : pas celles de la plateforme.
-BACKGROUND = "#F4F2EF"
-THEME = "#2B2724"
+BACKGROUND = "#F3F5F9"
+THEME = "#0B1C35"
 
 
 @extend_schema(responses={200: PlatformSerializer}, tags=["platform"])

@@ -3,7 +3,8 @@ import { Brand, cn, LegalNotice } from "@mwangaza/ui";
 import type { ReactNode } from "react";
 
 /** Écrans sans compte connecté (maquettes `connexion`, `activation`, `mot-de-passe-oublie`) :
- *  en-tête basalte avec la marque et le titre, cartes en dessous, langues en bas. */
+ *  en-tête bleu nuit avec la marque et le titre, cartes en dessous, langues en bas ; sur
+ *  ordinateur, panneau bleu nuit à gauche et cartes centrées à droite. */
 export function AuthFrame({
   title,
   subtitle,
@@ -14,17 +15,17 @@ export function AuthFrame({
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-background">
-      <header className="bg-basalt px-4 pt-6 pb-8 text-basalt-ink">
-        <div className="mx-auto flex max-w-[440px] flex-col gap-5">
+    <div className="min-h-screen bg-background lg:grid lg:grid-cols-2">
+      <header className="relief bg-night px-4 pt-6 pb-8 text-night-ink lg:flex lg:items-center lg:px-16 lg:py-14">
+        <div className="mx-auto flex max-w-[440px] flex-col gap-5 lg:mx-0 lg:max-w-[460px] lg:gap-8">
           <Brand large />
-          <div className="flex flex-col gap-2">
-            <h1 className="text-2xl leading-tight">{title}</h1>
-            <p className="text-base text-basalt-soft">{subtitle}</p>
+          <div className="flex flex-col gap-2 lg:gap-3">
+            <h1 className="text-2xl leading-tight lg:text-3xl">{title}</h1>
+            <p className="text-base text-night-soft">{subtitle}</p>
           </div>
         </div>
       </header>
-      <main className="mx-auto flex max-w-[440px] flex-col gap-4 px-4 py-4">
+      <main className="mx-auto flex max-w-[440px] flex-col gap-4 px-4 py-4 lg:w-full lg:max-w-[488px] lg:justify-center lg:px-6 lg:py-12">
         {children}
         <LanguageLinks />
       </main>

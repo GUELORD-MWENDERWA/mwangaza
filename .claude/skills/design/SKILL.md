@@ -1,131 +1,116 @@
 ---
 name: design
-description: Système de design Mwangaza (basalte, lampe, lac Kivu, Atkinson Hyperlegible) — logo M-flamme, jetons de couleur, échelle de texte, thème Tailwind / shadcn, correspondance entre les classes des maquettes et les composants, formats des montants et des dates, règles d'accessibilité et de mise en page. À utiliser pour tout travail d'interface — thème, composant partagé, écran, impression — dans frontend/apps/gestion, frontend/apps/portail ou frontend/packages/ui.
+description: Système de design Mwangaza (refonte du 2026-10-14 — bleu Kivu, nuit, lumière, Atkinson Hyperlegible Next, lignes de relief) — logo M-flamme, jetons de couleur, échelle de texte, thème Tailwind / shadcn, correspondance entre les classes des maquettes et les composants, adaptation à chaque taille d'écran (téléphone, tablette, ordinateur), graphiques, impression, formats des montants et des dates, accessibilité. À utiliser pour tout travail d'interface — thème, composant partagé, écran, impression — dans frontend/apps/gestion, frontend/apps/portail, frontend/apps/console ou frontend/packages/ui.
 ---
 
 # Système de design Mwangaza
 
-Sources de vérité, dans cet ordre : `maquettes/assets/styles.css` (bloc `:root`), `maquettes/README.md` § « Système de design », les captures `maquettes/captures/`. Ne pas inventer de couleur, de rayon ni de taille : les reprendre de ces fichiers. Si un besoin n'y est pas couvert, proposer une valeur cohérente et la noter (`/noter`).
+Sources de vérité, dans cet ordre : `maquettes/assets/styles.css` (bloc `:root`), `maquettes/README.md` § « Système de design », les captures `maquettes/captures/` (bureau 1440 px et téléphone 390 px, pour **les trois** applications). Recherche et raisons : `docs/claude/recherches/2026-10-14-refonte-design.md`. Ne pas inventer de couleur, de rayon ni de taille : les reprendre de ces fichiers ; un besoin non couvert → un jeton du thème, noté au « Journal des décisions » de `03`.
+
+## Méthode (demande de l'utilisateur du 2026-10-14)
+
+1. **Références d'abord** : avant de dessiner un écran nouveau (ou une page publique), regarder comment les grands logiciels font (Stripe, Linear, Shopify Polaris, GitHub, logiciels scolaires ; sites marketing actuels pour une page publique) et noter les sources dans `docs/claude/recherches/`.
+2. **Maquette ensuite**, à 390 px **et** 1440 px (et l'état tablette dans la feuille de style), dans `maquettes/` — jamais une page codée sans maquette.
+3. **Code**, puis `make apercu` (ou `ecran=…`) : regarder l'écran réel à 390, 820 et 1440 px, `rapport.json` vide.
+4. Pages publiques (site de la plateforme WEB.1, sites des écoles) : vrai design marketing aux normes actuelles — photos (écoles, intérieurs), animations sobres (`prefers-reduced-motion` respecté), pied de page complet (liens, contact, langues, mentions, « © DTMS. Tous droits réservés. »), l'auteur seulement en `<meta name="author">`.
 
 ## Intention
 
-- **Basalte** (pierre volcanique de Goma) : barre latérale de la Gestion, en-tête du Portail, barre du haut de la console (pastille « Console » en lampe).
-- **Lampe** (jaune, *mwangaza* = lumière) : repère de l'élément actif, logo, points d'attention. **Jamais en fond de page ni de grande surface.**
-- **Lac** (bleu-vert du lac Kivu) : toutes les actions principales, liens, focus.
-- Utilisateurs peu habitués à l'informatique, écrans de faible qualité : gros boutons, formulaires courts, texte lisible.
+- **Nuit du Kivu** (bleu nuit) : barre latérale de la Gestion, en-tête et barre du haut du Portail, barre de la console, panneau des connexions — avec le motif de **lignes de relief** (volcans et collines du Kivu, `relief.svg`, classe `relief`) en filigrane.
+- **Lumière** (jaune, *mwangaza*) : logo, repère de l'élément actif (barre de 4 px, icône active, soulignement de la barre du portail et de la console), compteurs, points d'attention. **Jamais en texte sur fond clair, jamais en grande surface, jamais comme couleur de série d'un graphique** (trop claire : 1,8:1).
+- **Bleu Kivu** (lac et drapeau du Congo) : toutes les actions principales, liens, focus, onglet actif.
+- Neutres **froids**, légèrement bleutés : jamais de beige, de crème ni de gris chauds (« look IA » refusé par l'utilisateur).
+- Utilisateurs peu habitués à l'informatique, écrans de faible qualité : gros boutons, formulaires courts, texte lisible, contrastes ≥ 4,5:1.
 
 ## Jetons
 
-Les valeurs de `lake` et `lamp` (et leurs teintes `lake-700`, `lake-50`, `lamp-soft`, `info`) sont celles de départ : depuis la 5.1, les couleurs de la plateforme (`PlatformSettings`, contraste vérifié par le serveur) les remplacent à l'exécution (`applyPlatform` de `@mwangaza/ui`, teintes en `color-mix`). Toujours passer par ces jetons, jamais leur valeur en dur.
+`lake` et `lamp` (et leurs teintes) sont les valeurs de départ : les couleurs de la plateforme (`PlatformSettings`, défaut `#0B5FCC` / `#F2B632`, contraste vérifié par le serveur, l'accent contre la nuit `#0B1C35`) les remplacent à l'exécution (`applyPlatform`). Toujours passer par les jetons.
 
 | Jeton | Valeur | Usage |
 |---|---|---|
-| `basalt` | `#2B2724` | barre latérale, en-tête portail |
-| `basalt-2` | `#3A3531` | élément actif / encart école sur basalte |
-| `basalt-ink` | `#EDE8E3` | texte sur basalte |
-| `lamp` | `#F2B632` | repère actif (barre 4 px à gauche), logo, compteur |
-| `lamp-soft` | `#FDF3D8` | bandeau d'information de marque (`lampb`), étiquette V1.x |
-| `lake` | `#0E5C6B` | `primary` : bouton principal, lien, focus, onglet actif |
-| `lake-700` | `#0A4652` | survol / texte sur `lake-50` |
-| `lake-50` | `#E6F0F2` | ligne sélectionnée, anneau de focus, fond avatar |
-| `ink` / `ink-2` / `ink-3` | `#211D1A` / `#554D46` / `#6E655D` | texte / secondaire / tertiaire (≥ 4,5:1 sur `surface`) |
-| `surface` | `#F4F2EF` | fond de page |
-| `card` | `#FFFFFF` | cartes |
-| `line` / `line-soft` | `#E2DCD5` / `#EDE9E4` | bordures / séparateurs de lignes |
-| `field` | `#958A80` | bordure de champ, case à cocher (≥ 3:1 sur blanc) |
-| `table-head` | `#F8F6F3` | en-tête et pied de tableau |
-| `scrim` | basalte à 50 % | voile sous un tiroir ou une fenêtre |
-| `ok` / `ok-50` | `#1F7A4D` / `#E5F3EB` | payé, soldé, à jour, en ligne, succès |
-| `due` / `due-50` | `#B42318` / `#FBE9E7` | en retard, erreur, danger, annulé |
-| `warn` / `warn-50` | `#9A5B00` / `#FFF1D6` | partiel, hors-ligne, avertissement |
-| `info` / `info-50` | `#0E5C6B` / `#E6F0F2` | information |
-| `*-200` / `*-900` (`ok`, `due`, `warn`, `info`, `lamp`) | voir `packages/ui/src/styles.css` | bordure / texte d'un `Banner`, bordure du bouton « danger » |
+| `night` / `night-2` / `night-3` | `#0B1C35` / `#15294B` / `#213A63` | barres sombres / élément actif, encadré de l'école / bordures sur la nuit |
+| `night-ink` / `night-soft` / `night-muted` | `#E6ECF5` / `#C3CFE0` / `#94A3BB` | texte sur la nuit (14:1) / entrées du menu, sous-titres / libellés de section |
+| `lamp` / `lamp-soft` | `#F2B632` / `#FEF5DA` | lumière (voir Intention) / bandeau de marque, étiquette V1.x |
+| `lake` / `lake-700` / `lake-100` / `lake-50` | `#0B5FCC` / `#08459A` / `#D4E3F9` / `#EAF1FC` | `primary` (5,96:1 sur blanc) / survol, texte sur `lake-50` / anneau de focus, sélection / ligne choisie, fond d'avatar |
+| `ink` / `ink-2` / `ink-3` | `#101828` / `#475467` / `#5B677A` | texte / secondaire / tertiaire (≥ 5:1 sur `surface`) |
+| `surface` / `card` / `table-head` | `#F3F5F9` / `#FFFFFF` / `#F7F9FC` | fond de page / cartes / en-tête et pied de tableau, pied de carte |
+| `line` / `line-soft` / `gray-50` | `#E2E8F0` / `#EDF1F6` / `#EDF1F6` | bordures / séparateurs / fond neutre (piste du `Segmented`, étiquette) |
+| `field` | `#7A8699` | bordure de champ, case (3,7:1 sur blanc) |
+| `ok` / `due` / `warn` / `info` (+ `-50`, `-200`, `-900`) | `#127A48` / `#B42318` / `#985A06` / `#0B5FCC` | états, **toujours avec un texte** |
+| `chart-1` / `chart-2` / `chart-grid` | `lake` / `#C47F00` / `#E2E8F0` | séries de graphique (validées par la skill `dataviz`) / grille |
+| `scrim` | nuit à 55 % | voile sous un tiroir ou une fenêtre |
 
-**Neutres tirés du basalte** (2026-10-14) : gris chauds de la pierre de Goma, jamais les gris bleutés par défaut de Tailwind ou shadcn (`slate`, `gray`, `#1A2233`…). Une couleur qui manque devient un jeton du thème, jamais une valeur `-[#…]` dans une classe : `apps/gestion/design.test.ts` refuse les couleurs et les tailles écrites en dur.
-
-Rayons : cartes 12 px, champs et boutons 8 px, pastilles 999 px. Ombre des cartes : `0 1px 2px rgba(26,34,51,.06), 0 4px 12px rgba(26,34,51,.05)`.
+Rayons : cartes 14 px (`rounded-card`), fenêtres 16 px (`rounded-dialog`), champs et boutons 8 px, encadrés 10 px, pastilles 999 px. Ombres froides : `shadow-button` (boutons, champs), `shadow-card` (cartes : la bordure dessine, l'ombre décolle à peine), `shadow-raised` (survol, choix actif), `shadow-float` (fenêtres, tiroir, bulles). `apps/gestion/design.test.ts` refuse les couleurs et les tailles écrites en dur.
 
 ### Correspondance shadcn/ui
 
-`--background` = surface · `--foreground` = ink · `--card` = card · `--border` = line · `--input` = field · `--primary` = lake · `--primary-foreground` = blanc · `--ring` = lake · `--accent` = lake-50 · `--accent-foreground` = lake-700 · `--muted-foreground` = ink-3 · `--destructive` = due · `--radius` = 8px (cartes : 12px) · `--sidebar` = basalt · `--sidebar-foreground` = basalt-ink · `--sidebar-accent` = basalt-2 · `--sidebar-primary` = lamp.
-Ajouter `ok`, `due`, `warn`, `info` (et leurs `-50`), `lamp`, `lamp-soft`, `basalt*`, `ink-2`, `ink-3` comme couleurs du thème Tailwind. Le thème vit dans `frontend/packages/ui` et est partagé par les deux applications.
+`--background` = surface · `--foreground` = ink · `--card` = card · `--border` = line · `--input` = field · `--primary` = lake · `--ring` = lake · `--accent` = lake-50 · `--accent-foreground` = lake-700 · `--muted-foreground` = ink-3 · `--destructive` = due · `--sidebar` = night · `--sidebar-foreground` = night-ink · `--sidebar-accent` = night-2 · `--sidebar-primary` = lamp. Le thème vit dans `frontend/packages/ui/src/styles.css`, partagé par les trois applications.
 
 ## Logo : le symbole M-flamme
 
-Un M basalte épais surmonté d'une flamme (*mwangaza* = la lumière), dans un carré arrondi à la couleur `lamp`. Forme pleine et fermée, comme les grandes marques (GitHub, Toddle) : lisible de 16 px à 512 px, la même sur fond sombre ou clair. Fichiers : `maquettes/assets/logo/` (`symbole.svg`, `icone-application.svg`, `icone-maskable.svg`, `icone-apple.svg`) ; icônes des applications (`apps/*/public/icons/` : `icon.svg` = `symbole.svg`, PNG 192 / 512 / maskable / apple-touch) rendues depuis ces SVG avec Chrome sans interface, à la taille exacte.
-- Composant `BrandMark` (`@mwangaza/ui`) : carré à la couleur d'accent (`lamp`, que la plateforme peut changer : le serveur exige 4,5:1 avec le basalte, donc le M reste lisible), M et flamme en basalte. Ne jamais redessiner le symbole ailleurs : utiliser `Brand` / `PlatformMark` / `BrandMark` (seule exception : la page de vérification des reçus, servie par Django, qui en garde une copie).
-- Tailles : 36 px (`size-9`) dans les barres, 48 px (`Brand large`) sur les pages de connexion ; jamais sous 16 px.
-- Un logo de plateforme téléversé (`PlatformSettings`) remplace le symbole ; le symbole reste le défaut. Sans icône téléversée, les notifications prennent l'icône par défaut de l'application (`/api/platform/icon/?app=…`).
-- Zone de protection = un quart de sa largeur ; jamais déformé, jamais sur une photo. L'ancienne lampe-tempête et le disque jaune ne doivent plus apparaître nulle part.
+Un M **bleu nuit** épais surmonté d'une flamme, dans un carré arrondi `lamp`. Forme pleine et fermée, lisible de 16 à 512 px. Fichiers : `maquettes/assets/logo/` (`symbole.svg`, `icone-application.svg`, `icone-maskable.svg`, `icone-apple.svg`) ; icônes des applications (`apps/*/public/icons/`, `backend/apps/core/static/core/site/`) rendues depuis ces SVG avec Chrome sans interface, à la taille exacte (M passé du basalte au bleu nuit le 2026-10-14).
+- `BrandMark` / `PlatformMark` / `Brand` (`@mwangaza/ui`) : ne jamais redessiner le symbole ailleurs (seule copie : la page de vérification des reçus, servie par Django).
+- Tailles : 36 px dans les barres, 48 px sur les connexions ; jamais sous 16 px ; zone de protection = un quart de sa largeur ; jamais déformé.
 
 ## Typographie
 
-- **Atkinson Hyperlegible** 400 et 700, fichiers `maquettes/assets/fonts/*.woff2` **embarqués dans l'application** (pas de Google Fonts : hors-ligne), `font-display: swap`, repli `system-ui, sans-serif`.
-- Base 15 px, interligne 1,45. `h1` 1,6 rem, `h2` 1,15 rem, `h3` 1 rem.
-- **Échelle, la seule autorisée** : `text-xs` .8 rem (12 px, étiquettes ; rien en dessous) · `text-sm` .85 · `text-md` .92 (menu, tableaux denses) · `text-base` 1 · `text-lg` 1,15 · `text-xl` 1,3 · `text-2xl` 1,6 · `text-3xl` 2. Jamais `text-[…rem]` (refusé par `design.test.ts`) ; dans les maquettes, `font-size` en rem prend une de ces valeurs. Les gabarits d'impression (reçu thermique, A4, bulletin) gardent leurs tailles en pt / px.
-- **Chiffres** : toujours `tabular-nums`, alignés à droite dans les tableaux, sans retour à la ligne (classe utilitaire `num`).
+- **Atkinson Hyperlegible Next** (2025, OFL), embarquée (hors-ligne) : `fonts/atkinson-hyperlegible-next-latin-{400,600,700,800}-normal.woff2` dans `packages/ui`, les maquettes et `backend/apps/core/static/core/site/` ; repli `system-ui`. Les PDF l'intègrent aussi (`core/documents.py:print_fonts`).
+- Graisses : 400 texte · **600** (`font-semibold`) boutons, onglets, libellés, entrées de menu · 700 titres · **800** (`font-extrabold`) grands nombres (KPI, montant en caisse).
+- Base 15 px, interligne 1,45 ; titres `tracking-tight`. **Échelle, la seule autorisée** : `text-xs` .8 rem (12 px, rien en dessous) · `text-sm` .85 · `text-md` .92 · `text-base` 1 · `text-lg` 1,15 · `text-xl` 1,3 · `text-2xl` 1,6 · `text-3xl` 2. Impression : tailles en pt.
+- **Chiffres** : `tabular-nums`, alignés à droite dans les tableaux, sans retour à la ligne (`num`).
 
 ## Composants (maquette → application)
 
-Les composants partagés vont dans `frontend/packages/ui` (exportés par `@mwangaza/ui`). Les construire une fois, les réutiliser partout. **Déjà construits (1.6)** : `Button`, `Input`, `PasswordInput`, `Textarea`, `Field`, `Checkbox` / `CheckboxField`, `Segmented`, `CodeInput`, `Card…`, `List`, `Banner`, `StatusPill`, `Tag`, `Steps`, `Code` / `CodeList`, `Sheet…`, `DialogRoot` / `DialogContent`, `DropdownMenu…`, `Avatar`, `Brand` (logo de la plateforme ou lampe, et son nom) / `PlatformMark` / `BrandMark` (lampe seule), `SchoolBadge`, `SyncIndicator`, `PageHeader`, `StateCard`, `Toast`, `Skeleton`, `Icon` (icônes des maquettes) ; **1.7** : `Tabs` / `TabsList` / `TabsTrigger` / `TabsContent`, `Switch`, `Select` (liste native stylée), `Table`, `ConfirmDialog` ; **5.1** : `usePlatform()` (identité de la plateforme : nom, logo, icône, couleurs, support, mentions légales), `LegalNotice` (lien et fenêtre des mentions légales) ; les autres noms du tableau sont à créer avec leur premier écran.
+Dans `frontend/packages/ui` (exportés par `@mwangaza/ui`), construits une fois, réutilisés partout : `Button`, `Input`, `PasswordInput`, `Textarea`, `Field`, `Checkbox` / `CheckboxField`, `Segmented`, `CodeInput`, `Card…`, `List`, `Banner`, `StatusPill`, `Tag`, `Steps`, `Code` / `CodeList`, `Sheet…`, `DialogRoot` / `DialogContent`, `DropdownMenu…`, `Avatar`, `Brand` / `PlatformMark` / `BrandMark`, `SchoolBadge`, `SyncIndicator`, `PageHeader`, `StateCard`, `Toast`, `Skeleton`, `Icon`, `Tabs…`, `Switch`, `Select`, `Table`, `ConfirmDialog`, `Kpi`, `usePlatform()`, `LegalNotice`, `useMediaQuery` / `DESKTOP`.
 
 | Maquette | Composant | Notes |
 |---|---|---|
-| `.card` `.hd` `.bd` `.ft` | `Card` / `CardHeader` / `CardContent` / `CardFooter` | |
-| `.kpi` (`.lbl` `.val` `.sub` `.up` `.down`) | `Kpi` | valeur `text-2xl` (1,6 rem) gras, tabulaire |
-| `.btn` `.primary` `.danger` `.dangerf` `.ghost` · `.sm` `.lg` `.xl` | `Button` variantes `default`, `outline`, `destructive-outline`, `destructive`, `ghost` ; tailles `sm`, `lg`, `xl` | `xl` = pleine largeur, ≥ 60 px (caisse) ; raccourci clavier affiché en `.k` |
-| `.inp` `.inp.big` `.focus` `.err` | `Input`, `AmountInput` | hauteur ≥ 40 px ; `big` = saisie du montant en caisse (`text-3xl`, ≥ 64 px) |
-| `label.f` `.req` `.help` `.errtxt` | `Field` (le champ reçoit `id`, `aria-invalid`, `aria-describedby` : `{(control) => <Input {...control} />}`) ; react-hook-form + zod | astérisque rouge pour obligatoire ; erreur du serveur sous le champ : `applyServerErrors` (`src/lib/errors.ts`) |
-| `.box` | `Checkbox` | |
-| `.seg` | `Segmented` (choix unique, sur le `ToggleGroup` de Radix) | ex. USD / FC, Français / English |
-| `.toggle` | `Switch` | |
-| `.tbl` `tr.sel` `.errrow` `.warnrow` `tfoot` | `Table` | en-tête `#F8FAFA` ; ligne sélectionnée `lake-50` |
-| `.pill` `ok` `due` `warn` `info` `gray` | `StatusPill` | point de couleur devant le texte |
-| `.tag` `.tag.v` | `Tag` | `v` = marqueur de version (V1.1…) |
-| `.banner` `info` `warn` `due` `ok` `lampb` | `Banner` (Alert) | icône à gauche |
-| `.tabs` (`>span`, `>a`) | `Tabs` | onglet actif : texte et soulignement 3 px `lake` ; onglets de la fiche élève = liens (une URL par onglet) |
-| `.steps` `.done` `.on` | `Steps` | fait = `ok` avec ✓ ; en cours = `lake` |
-| `.bar` `i.ok` `i.warn` `i.due` | `Progress` | |
-| `.avatar` `.who` | `Avatar`, `PersonCell` | initiales sur `lake-50` |
-| `.sync.online` / `.sync.offline` | `SyncIndicator` | **toujours visible** dans la barre du haut de la Gestion |
-| `.keypad` `.pins` | `PinPad` | déverrouillage PIN |
-| `.side` `.brand` `.school` `.navlabel` `.nav a.on` `.soon` `.count` | coquille `AppShell` de la Gestion | 248 px ; groupes Pilotage / Scolarité / Finances / Communication / Paramètres ; entrée active = fond `basalt-2` + barre `lamp` ; entrées V1.1 / V1.2 **masquées** en V1.0 ; entrées filtrées par permission |
-| `.top` `.search` `.kbd` `.user` | barre du haut | recherche globale `Ctrl K` |
-| `.ptop` `.pnav` `.phone` | coquille du Portail | en-tête basalte, navigation basse à 4 entrées, largeur max 430 px |
-| `.ctop` `.cmain` (`maquettes/console/`) | coquille de la console (`frontend/apps/console`, `ConsoleShell`) | pas de menu latéral : barre du haut basalte, marque + pastille « Console », navigation dessous (repère lampe), contenu clair jusqu'à 1 240 px ; connexion : carte blanche sur fond basalte |
-| `.thermal` | gabarit reçu thermique | `@page { size: 80mm auto; margin: 0 }` ou `58mm auto` selon le réglage de l'école ; reçus A6 / A5 / petit format sur A4 avec traits de découpe : à dessiner en 3.2 |
-| `.a4` | gabarit A4 | |
-| `.authgrid` `.authside` `.authmain` | coquille des écrans hors application | connexion, activation 2FA, choix de l'école ; une colonne sous 900 px |
-| `.overlay` `.dialog` | `DialogRoot` + `DialogContent` (titre, description, pied) | ex. réduction ; fermeture Échap, focus piégé |
-| `.tl` (`.ok` `.due` `.warn` `.lamp`) | `Timeline` | historique de l'élève, plus récent en haut |
-| `.codes` `.code` | `CodeList`, `Code` (police à chasse fixe) | codes de secours, code famille, clé TOTP ; code à 6 cases : `CodeInput` |
-| `.frame` `.drawer` `.scrim` | `Sheet` (shadcn) côté gauche | menu de la Gestion sous 900 px (`frame` = présentation seulement) |
-| `.spot` `.coach` | `Tour` (guide de première connexion) | élément réel mis en avant, reste assombri |
-| `.toast` | `Toast` | ex. nouvelle version prête |
-| `.a4.land` | gabarit A4 à l'italienne | export des impayés |
-| `.bul` `.idbox` `tr.mx` `td.grey` | gabarit bulletin officiel (V1.2) | mise en page du formulaire EPST, voir `docs/claude/recherches/2026-09-26-bulletins-rdc.md` |
-| `.pagehead` `.crumbs` | `PageHeader` | titre, sous-titre, fil d'Ariane, actions |
-| pages d'état (M8) | `StateCard` | icône ronde, titre, texte, étiquette, actions |
-| `.note` | **rien** | règle métier / critère d'acceptation, jamais affichée |
+| `.card` `.hd` `.bd` `.ft` | `Card` / `CardHeader` / `CardContent` / `CardFooter` | en-tête séparé par `line-soft` ; pied sur `table-head` |
+| `.kpi` (`.lbl` `.val` `.sub` `.chip`) | `Kpi` (`icon`, `chip`, `tone`, enfants : barre) | valeur `text-2xl` extra-grasse ; icône dans une pastille teintée en haut à droite |
+| `.btn` `.primary` `.danger` `.dangerf` `.ghost` · `.sm` `.lg` `.xl` | `Button` `default`, `outline`, `destructive-outline`, `destructive`, `ghost` ; `sm` 32, `default` 40, `lg` 48, `xl` 60 px pleine largeur (caisse) | graisse 600, ombre légère, anneau de focus `lake-100` 4 px |
+| `.inp` `.inp.big` `.focus` `.err` | `Input`, `AmountInput` | ≥ 40 px ; focus : bordure lac + anneau `lake-100` |
+| `label.f` `.req` `.help` `.errtxt` | `Field` + react-hook-form + zod | erreur du serveur : `applyServerErrors` |
+| `.seg` | `Segmented` | piste grise, choix actif en carte blanche (`shadow-raised`) |
+| `.tbl` `tr.sel` `.errrow` `.warnrow` `tfoot` | `Table` ; `Table stacked` + `data-label` | en-tête `table-head` en `ink-3` ; survol de ligne ; **`stacked`** : au téléphone (< 600 px) une carte par ligne — pour les grandes listes consultées au téléphone (élèves, impayés ; maquettes : `.tbl.stack`) ; case à cocher : `td.stack-check` |
+| `.pill` | `StatusPill` | point + texte, anneau intérieur `-200` |
+| `.banner` | `Banner` | icône à gauche sur la 1re ligne, action à droite |
+| `.tabs` | `Tabs` | actif : texte lac, soulignement 2 px |
+| `.side` `.nav a.on` `.navlabel` | coquille `AppShell` de la Gestion | 256 px, nuit + relief ; libellés de section en capitales `night-muted` ; entrée active : `night-2`, texte blanc, icône `lamp`, barre `lamp` |
+| `.top` | barre du haut de la Gestion | 64 px, blanche translucide, recherche `Ctrl K`, `SyncIndicator` toujours visible |
+| `.dtop` `.ptop` `.pbody` `.pgrid` `.pcards` `.pnav` | coquille du Portail (`PortalFrame`) | voir « Adaptation » ; `wide` : accueil et enfant sur deux colonnes |
+| `.phone.pauth` / `.authgrid` | connexions du Portail / de la Gestion | panneau nuit + relief à gauche, formulaire à droite (≥ 1024 / 900 px) |
+| `.ctop` `.cmain` | coquille de la console | barre nuit + relief, navigation dessous (repère lampe) |
+| `.overlay` `.dialog` | `DialogRoot` + `DialogContent` | 16 px, `shadow-float`, pied sur `table-head` |
+| `.drawer` `.scrim` | `Sheet` | menu tiroir nuit + relief |
+| `.thermal` `.a4` `.a4.land` `.bul` | gabarits d'impression | voir « Impression » |
+| `.note` | **rien** | règle métier, jamais affichée |
+
+## Adaptation à chaque écran
+
+Trois largeurs pour **chaque** application (Material 3 : compact / moyen / étendu) — le Portail n'est pas « que téléphone », la caisse et la console ne sont pas « que ordinateur » :
+
+| | Téléphone < 600 px | Tablette 600–1023 px | Ordinateur ≥ 1024 px |
+|---|---|---|---|
+| Gestion | menu tiroir, une colonne, `Table stacked` pour les grandes listes, filtres repliés derrière « Filtres (n) », actions d'en-tête en deux colonnes | menu tiroir (barre latérale dès 900 px), grilles 2 colonnes | barre latérale, grilles `minmax(0, …)`, contenu jusqu'à 1 400 px |
+| Portail | barre du bas, colonne de 640 px | colonne de 760 px, enfants deux par rangée | **barre du haut** (marque, navigation, cloche, déconnexion) à la place de la barre du bas, en-tête = titre de la page, contenu 1 120 px sur deux colonnes (accueil, enfant) ou 760 px pour lire ; connexions en deux panneaux |
+| Console | navigation qui défile, cartes en 2 colonnes | | contenu 1 240 px |
+
+- Un élément qui change entre téléphone et ordinateur (barre du portail) : `useMediaQuery(DESKTOP)` plutôt que deux copies cachées par CSS (les tests ne voient qu'une copie).
+- Grilles : toujours `minmax(0, …)` ; un tableau large défile dans sa carte, jamais la page.
+- Vérification : `make apercu` (390, 820, 1440 px, `rapport.json` vide) **et** regarder les captures (alignements, pas seulement débordements).
+
+## Graphiques
+
+Skill `dataviz` : séries `chart-1` (lac) puis `chart-2` (ambre), validées (daltonisme, luminosité, contraste ≥ 3:1) ; grille discrète `chart-grid` ; barres fines arrondies (4 px) posées sur la ligne de base, 2 px entre elles ; infobulle au survol ; tableau `sr-only` des valeurs ; légende neutre (point de couleur + texte, jamais `StatusPill` ni couleur d'état pour une série) ; jamais deux axes.
+
+## Impression
+
+`core/print_base.html` (documents du serveur, WeasyPrint) : noir et gris d'abord (lisible photocopié), titres et filet sous l'en-tête de l'école en bleu nuit, police de la marque intégrée, tableaux à filets gris clair, marges ≥ 10 mm ; un gabarit qui a ses propres styles n'utilise que les gris de la palette (`#101828`, `#475467`, `#5B677A`, `#A9B4C4`, `#CBD5E1`, `#EDF1F6`), jamais de noir pur ni de gris chaud. Vérifier : `make apercu ecran=documents` (chaque document dans `frontend/apercu/captures/documents/`). Guides PDF (`frontend/guide/`, `make guide`) : jetons de la refonte dans `guide.css`, texte et captures mis à jour quand l'apparence ou les écrans changent. Reçus de caisse (`features/cash/receipt.css`) : noir et blanc, réglés au millimètre pour le ticket 58 / 80 mm et les feuilles A4 (A6, A5, petit format) — ne pas y ajouter de couleur.
 
 ## Formats d'affichage
 
-À implémenter une seule fois (`frontend/packages/money` et `frontend/packages/i18n`), jamais à la main dans un écran.
+Une seule fois (`frontend/packages/money`, `frontend/packages/i18n`) : USD `1 234,56 $` ; FC `1 260 000 FC` ; deux devises `20,00 $ + 30 000 FC` (jamais additionnées) ; dates `19/10/2026`, heures `10:42`, fuseau de l'école ; élève `NOM POST-NOM` + prénom.
 
-- USD : `1 234,56 $` — séparateur de milliers insécable, virgule décimale, symbole après.
-- FC : `1 260 000 FC` — sans décimales.
-- Montants dans deux devises : `20,00 $ + 30 000 FC`.
-- Dates `19/10/2026`, heures `10:42`, fuseau de l'école (`Africa/Lubumbashi` par défaut).
-- Élève : `NOM POST-NOM` en majuscules, prénom en casse normale (`KAMBALE MUHINDO Josué`).
-- Anglais : mêmes règles de devise, formats de date selon la langue via i18next.
+## Accessibilité
 
-## Mise en page et accessibilité
-
-- Page : contenu `padding 24px`, largeur max 1360 px, espacement vertical 20 px.
-- En-tête de page : fil d'Ariane (`.crumbs`), titre, sous-titre `ink-2`, actions à droite.
-- Grilles des écrans : colonnes `minmax(0, …)` (ex. `grid-cols-[minmax(0,1fr)] min-[1200px]:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]`) : sinon un tableau large élargit toute la page ; le tableau défile dans sa carte.
-- Sous 900 px : barre latérale cachée (menu tiroir), grilles sur une colonne, recherche du haut masquée, rangées de boutons et pieds de carte qui passent à la ligne, tableau qui défile dans sa carte avec une ligne par cellule (`data-wrap` sur une cellule de texte long ; écran seulement, pas l'impression), barre d'onglets qui défile ; sous 560 px, actions de `PageHeader` en deux colonnes égales ; `Segmented` étiré : choix qui se partagent la largeur ; `Banner` : icône sur la première ligne, bouton dans `action` ; aperçu A4 (`DocumentPreview`) réduit, jamais tassé. **Chaque écran existe à 390 px (app) et à 1440 px (logiciel)** : `node maquettes/outils/captures.mjs` capture les deux et sort en erreur si un élément dépasse de l'écran.
-- Focus visible : bordure `lake` + anneau 3 px `lake-50`. Erreur : bordure `due` + anneau `due-50`.
-- Contraste : texte `ink` sur `surface` / `card` ; ne pas écrire en `ink-3` un texte important.
-- Couleurs d'état **toujours** accompagnées d'un texte (« 5 j de retard », « soldé »), jamais la couleur seule.
-- Personnalisation par école (`School.primary_color`, logo) : prévue via variables CSS ; elle ne remplace jamais les couleurs d'état.
+Focus visible (bordure lac + anneau `lake-100`) ; erreur : bordure `due` + anneau `due-50` ; contrastes vérifiés (texte ≥ 4,5:1, bordure de champ ≥ 3:1) ; couleur d'état toujours avec un texte ; `prefers-reduced-motion` coupe les animations ; cibles ≥ 44 px au téléphone.

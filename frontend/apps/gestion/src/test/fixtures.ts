@@ -15,7 +15,7 @@ const ALL_MODULES: Schemas["ModulesEnum"][] = [
 export const school: Schemas["CurrentSchool"] = {
   code: "alpha",
   name: "École Alpha (fictive)",
-  primary_color: "#0E5C6B",
+  primary_color: "#0B5FCC",
   text_color: "#FFFFFF",
   logo: null,
   logo_monochrome: null,
@@ -33,6 +33,7 @@ export const PERMISSIONS = {
   head: [
     "school.configure",
     "classes.manage",
+    "courses.configure",
     "roles.manage",
     "students.view",
     "students.edit",
@@ -53,7 +54,13 @@ export const PERMISSIONS = {
     "finance.close_register",
   ],
   promoter: ["students.view", "finance.view_reports", "audit.view"],
-  study_director: ["classes.manage", "students.view", "students.edit", "announcements.publish"],
+  study_director: [
+    "classes.manage",
+    "courses.configure",
+    "students.view",
+    "students.edit",
+    "announcements.publish",
+  ],
   teacher: [],
   accountant: [
     "students.view",

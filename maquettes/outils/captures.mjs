@@ -1,6 +1,6 @@
 // Captures PNG des maquettes avec Chrome sans interface (protocole DevTools, aucune dépendance).
 // Usage : node maquettes/outils/captures.mjs [fichier.html …]   (sans argument : toutes les maquettes)
-// Bureau : 1440 px de large, page entière (Gestion, Console). Téléphone : 390 px, densité 1 (tous les écrans ; assez pour lire la mise en page, léger dans Git).
+// Bureau : 1440 px de large, page entière (toutes les applications : le portail aussi, 2026-10-14). Téléphone : 390 px, densité 1 (assez pour lire la mise en page, léger dans Git).
 // Chaque capture est contrôlée : un élément qui dépasse de l'écran (hors conteneur qui défile) est signalé
 // et la commande sort en erreur (code 2) — une maquette qui déborde n'est pas finie.
 import { spawn } from "node:child_process";
@@ -31,7 +31,7 @@ function targets(file) {
   const app = basename(dirname(file));
   const name = basename(file, ".html");
   const t = [];
-  if (app === "gestion" || app === "console") t.push({ kind: "desktop", width: 1440, height: 900, scale: 1 });
+  t.push({ kind: "desktop", width: 1440, height: 900, scale: 1 });
   t.push({ kind: "mobile", width: 390, height: 844, scale: 1 });
   return t.map((x) => ({ ...x, out: join(ROOT, "captures", x.kind, `${app}-${name}.png`) }));
 }

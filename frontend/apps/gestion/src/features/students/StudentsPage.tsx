@@ -13,6 +13,7 @@ import {
   Input,
   PageHeader,
   Select,
+  cn,
   Skeleton,
   StatusPill,
   Table,
@@ -65,6 +66,8 @@ export function StudentsPage() {
   const finance = can(me, CHARGES_READ);
   const [filters, setFilters] = useState<Filters>(NO_FILTERS);
   const [page, setPage] = useState(1);
+  // Téléphone : les listes de choix se replient derrière « Filtres (n) » ; la recherche reste.
+  const [showFilters, setShowFilters] = useState(false);
   const years = useYears();
   const tracks = useTracks();
   const currentYear = years.data?.find((year) => year.is_current);
@@ -99,6 +102,9 @@ export function StudentsPage() {
   const groups = classes.data ?? [];
   const enrolled = groups.reduce((total, group) => total + group.student_count, 0);
   const filtered = JSON.stringify(filters) !== JSON.stringify(NO_FILTERS);
+  const chosen = (["year", "classGroup", "track", "status", "payment"] as const).filter(
+    (key) => filters[key] !== NO_FILTERS[key],
+  ).length;
 
   return (
     <>
@@ -160,88 +166,103 @@ export function StudentsPage() {
               size={16}
               className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-ink-3"
             />
-            <Input
-              type="search"
-              aria-label={t("students.list.search")}
-              placeholder={t("students.list.search")}
-              value={filters.search}
-              onChange={(e) => change("search")(e.target.value)}
-              className="pl-9"
-            />
+            <div className="flex gap-2">
+              <Input
+                type="search"
+                aria-label={t("students.list.search")}
+                placeholder={t("students.list.search")}
+                value={filters.search}
+                onChange={(e) => change("search")(e.target.value)}
+                className="pl-9"
+              />
+              <Button
+                variant="outline"
+                className="min-[700px]:hidden"
+                aria-expanded={showFilters}
+                onClick={() => setShowFilters((open) => !open)}
+              >
+                <Icon name="settings" size={16} />
+                {chosen
+                  ? t("students.filters.toggleCount", { count: chosen })
+                  : t("students.filters.toggle")}
+              </Button>
+            </div>
           </div>
-          <Select
-            aria-label={t("students.filters.year")}
-            value={yearId}
-            onChange={(e) =>
-              change("year")(e.target.value === currentYear?.id ? "" : e.target.value)
-            }
-          >
-            {(years.data ?? []).map((candidate) => (
-              <option key={candidate.id} value={candidate.id}>
-                {t("students.filters.yearOption", { name: candidate.name })}
-              </option>
-            ))}
-          </Select>
-          <Select
-            aria-label={t("students.filters.class")}
-            value={filters.classGroup}
-            onChange={(e) => change("classGroup")(e.target.value)}
-          >
-            <option value="">{t("students.filters.allClasses")}</option>
-            {groups.map((group) => (
-              <option key={group.id} value={group.id}>
-                {group.name}
-              </option>
-            ))}
-          </Select>
-          <Select
-            aria-label={t("students.filters.track")}
-            value={filters.track}
-            onChange={(e) => change("track")(e.target.value)}
-          >
-            <option value="">{t("students.filters.allTracks")}</option>
-            {(tracks.data ?? []).map((track) => (
-              <option key={track.id} value={track.id}>
-                {track.name}
-              </option>
-            ))}
-          </Select>
-          <Select
-            aria-label={t("students.filters.status")}
-            value={filters.status}
-            onChange={(e) => change("status")(e.target.value)}
-          >
-            {STATUSES.map((status) => (
-              <option key={status} value={status}>
-                {t(`students.filters.statuses.${status}`)}
-              </option>
-            ))}
-            <option value="">{t("students.filters.statuses.all")}</option>
-          </Select>
-          {finance && (
+          <div className={cn("contents", !showFilters && "max-[699px]:hidden")}>
             <Select
-              aria-label={t("students.filters.payment")}
-              value={filters.payment}
-              onChange={(e) => change("payment")(e.target.value)}
+              aria-label={t("students.filters.year")}
+              value={yearId}
+              onChange={(e) =>
+                change("year")(e.target.value === currentYear?.id ? "" : e.target.value)
+              }
             >
-              <option value="">{t("students.filters.payments.all")}</option>
-              {SITUATIONS.map((situation) => (
-                <option key={situation} value={situation}>
-                  {t(`students.filters.payments.${situation}`)}
+              {(years.data ?? []).map((candidate) => (
+                <option key={candidate.id} value={candidate.id}>
+                  {t("students.filters.yearOption", { name: candidate.name })}
                 </option>
               ))}
             </Select>
-          )}
-          <Button
-            variant="ghost"
-            disabled={!filtered}
-            onClick={() => {
-              setFilters(NO_FILTERS);
-              setPage(1);
-            }}
-          >
-            {t("students.filters.clear")}
-          </Button>
+            <Select
+              aria-label={t("students.filters.class")}
+              value={filters.classGroup}
+              onChange={(e) => change("classGroup")(e.target.value)}
+            >
+              <option value="">{t("students.filters.allClasses")}</option>
+              {groups.map((group) => (
+                <option key={group.id} value={group.id}>
+                  {group.name}
+                </option>
+              ))}
+            </Select>
+            <Select
+              aria-label={t("students.filters.track")}
+              value={filters.track}
+              onChange={(e) => change("track")(e.target.value)}
+            >
+              <option value="">{t("students.filters.allTracks")}</option>
+              {(tracks.data ?? []).map((track) => (
+                <option key={track.id} value={track.id}>
+                  {track.name}
+                </option>
+              ))}
+            </Select>
+            <Select
+              aria-label={t("students.filters.status")}
+              value={filters.status}
+              onChange={(e) => change("status")(e.target.value)}
+            >
+              {STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {t(`students.filters.statuses.${status}`)}
+                </option>
+              ))}
+              <option value="">{t("students.filters.statuses.all")}</option>
+            </Select>
+            {finance && (
+              <Select
+                aria-label={t("students.filters.payment")}
+                value={filters.payment}
+                onChange={(e) => change("payment")(e.target.value)}
+              >
+                <option value="">{t("students.filters.payments.all")}</option>
+                {SITUATIONS.map((situation) => (
+                  <option key={situation} value={situation}>
+                    {t(`students.filters.payments.${situation}`)}
+                  </option>
+                ))}
+              </Select>
+            )}
+            <Button
+              variant="ghost"
+              disabled={!filtered}
+              onClick={() => {
+                setFilters(NO_FILTERS);
+                setPage(1);
+              }}
+            >
+              {t("students.filters.clear")}
+            </Button>
+          </div>
         </CardContent>
       </Card>
       <Card>
@@ -275,7 +296,7 @@ export function StudentsPage() {
 function StudentTable({ students, finance }: { students: StudentRow[]; finance: boolean }) {
   const { t } = useTranslation();
   return (
-    <Table>
+    <Table stacked>
       <thead>
         <tr>
           <th>{t("students.list.columns.student")}</th>
@@ -309,7 +330,7 @@ function StudentTable({ students, finance }: { students: StudentRow[]; finance: 
                   </span>
                 </span>
               </td>
-              <td className="whitespace-nowrap">
+              <td className="whitespace-nowrap" data-label={t("students.list.columns.class")}>
                 {enrollment ? (
                   <span className="flex flex-wrap items-center gap-2">
                     {enrollment.class_group_name}
@@ -323,7 +344,7 @@ function StudentTable({ students, finance }: { students: StudentRow[]; finance: 
                   <span className="text-ink-3">{t("students.list.notEnrolled")}</span>
                 )}
               </td>
-              <td className="text-sm">
+              <td className="text-sm" data-label={t("students.list.columns.guardian")}>
                 {guardian
                   ? [guardian.full_name, guardian.phone && formatPhone(guardian.phone)]
                       .filter(Boolean)
@@ -351,10 +372,11 @@ function FinanceCells({ balance }: { balance: StudentRow["finance"] }) {
     <>
       <td
         className={`text-right whitespace-nowrap tabular-nums ${overdue ? "font-bold text-due" : "text-ink-3"}`}
+        data-label={t("students.list.columns.overdue")}
       >
         {overdue || "—"}
       </td>
-      <td>
+      <td data-label={t("students.list.columns.payments")}>
         <StatusPill tone={SITUATION_TONES[balance.situation]}>
           {t(`students.list.situations.${balance.situation}`)}
         </StatusPill>

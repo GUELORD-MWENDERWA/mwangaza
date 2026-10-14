@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (S.6.2 faite, PR de la branche `tache/S.6.2-rls-toutes-tables`) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | L.4 (toi : vrais téléphones et imprimantes), puis le premier espace réel (`A-FAIRE.md` § 9 quater) ; côté Claude : 8.1 Cours, volumes horaires et charges des enseignants |
-| Issue GitHub | #242 |
-| Branche | `tache/S.6.2-rls-toutes-tables` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-14 (logo M-flamme, branche `design/logo-m-flamme`) |
+| Tâche en cours | aucune (8.1 faite, puis refonte du design demandée pendant sa PR, même branche `tache/8.1-cours-charges`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | L.4 (toi : vrais téléphones et imprimantes), puis le premier espace réel (`A-FAIRE.md` § 9 quater) ; côté Claude : 8.2 Saisie des notes |
+| Issue GitHub | #46 |
+| Branche | `tache/8.1-cours-charges` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-14 (refonte du design) |
 
 ## Avancement
 
@@ -29,7 +29,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Lancement (L.0 à L.5 ; L.3 remplacée par S.1 et S.2) | 4 | 5 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
 | Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 8 | 11 |
-| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1–8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 1 | 9 |
+| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1–8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 2 | 9 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
 | V1.5 — carte et présences (avec A.5) | 0 | 7 |
@@ -61,6 +61,21 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-14 — Refonte du design (demande de l'utilisateur, dans la PR de la 8.1)
+
+- Demande : palette qui « ressemble à l'IA », portail pas adapté à l'ordinateur, pages faites sans maquette, site public non demandé et mal signé ; tout revoir d'après les grands logiciels. Recherche : `docs/claude/recherches/2026-10-14-refonte-design.md`.
+- Fait : identité bleu Kivu / nuit / lumière, lignes de relief, Atkinson Hyperlegible Next ; composants, coquilles, connexions, tableaux de bord et graphiques, documents PDF redessinés ; portail sur ordinateur (barre du haut, deux colonnes) ; listes empilées et filtres repliés au téléphone ; couleurs par défaut migrées ; site public signé « © DTMS. Tous droits réservés. » (auteur en meta seulement) ; toutes les maquettes recapturées (portail aussi à 1440 px) ; outil `make apercu` (chaque écran à 390, 820, 1440 px).
+- Tests : front 270 verts, serveur des parties touchées verts ; aucun débordement (`make apercu`, maquettes). Skills `design`, `ecran`, `verifier` et règle de `CLAUDE.md` mises à jour ; WEB.1 et WEB.2 : maquette et vrai design marketing d'abord.
+- Ensuite (même jour, demande de l'utilisateur) : documents imprimés aux couleurs de la refonte (gris froids, filet et titres bleu nuit, police de la marque), aperçu des documents dans `make apercu` ; guides PDF de la version 1.1 régénérés avec le nouveau texte (apparence, portail sur ordinateur, listes au téléphone, cours et charges des enseignants) et les nouvelles captures ; parcours des paramètres corrigé (couleur proposée `#FF0F0F` avec la nouvelle encre).
+- Suite : relecture de l'utilisateur, puis 8.2.
+
+### 2026-10-14 — Tâche 8.1 : cours, maxima, enseignants et charges horaires
+
+- Fait : app `academics`, modèle `Course` par classe (maximum par période, examen ou non, heures, domaine, enseignant) ; grille remplacée d'un seul envoi, copie vers d'autres classes, modèles officiels (IGE/P.S/005, /100, /094, Électronique 1re–2e) ; une nouvelle année « avec les classes » reprend leurs cours ; charges des enseignants. Droit `courses.configure` (directeur, directeur des études, rôles qui avaient `classes.manage`), module `academics` à cocher dans la console. Écrans `/app/courses` et `/app/teaching-loads` ; maquette « Charges des enseignants » dessinée ; `make demo` remplit les grilles.
+- Tests : 7 nouveaux (isolation, droits, grille, copie, charges, journal, reprise à la nouvelle année) + calcul du T.G. côté front ; schools, accounts, academics verts (572) ; suite complète : CI.
+- Décisions (`03`, 2026-10-14) : pas de catalogue de matières, examen et T.G. calculés, regroupements par maximum dans la carte « Contrôle », cours sans enseignant limités à 20 dans l'API.
+- Suite : 8.2 Saisie des notes.
 
 ### 2026-10-14 — Logo M-flamme, alignements au téléphone et site public (hors plan, demande de l'utilisateur)
 

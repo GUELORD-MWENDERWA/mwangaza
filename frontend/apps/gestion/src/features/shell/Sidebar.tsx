@@ -1,4 +1,4 @@
-// Menu latéral basalte (maquette `tableau-de-bord`) et son contenu, repris dans le menu tiroir
+// Menu latéral bleu nuit (maquette `tableau-de-bord`) et son contenu, repris dans le menu tiroir
 // sous 900 px (M7) : école (changement d'école, M2), entrées permises par le rôle, pied.
 import { useTranslation } from "@mwangaza/i18n";
 import {
@@ -25,7 +25,7 @@ export function Nav({ me, onNavigate }: { me: Me; onNavigate?: () => void }) {
     <nav aria-label={t("shell.mainMenu")} className="flex flex-col gap-0.5">
       {visibleMenu(me).map(({ section, items }) => (
         <div key={section} className="flex flex-col gap-0.5">
-          <div className="px-2.5 pt-3.5 pb-1 text-xs text-basalt-muted">
+          <div className="px-2.5 pt-4 pb-1.5 text-xs font-semibold tracking-wider text-night-muted uppercase">
             {t(`shell.sections.${section}`)}
           </div>
           {items.map((item) => (
@@ -35,16 +35,20 @@ export function Nav({ me, onNavigate }: { me: Me; onNavigate?: () => void }) {
               onClick={onNavigate}
               className={({ isActive }) =>
                 cn(
-                  "relative flex min-h-11 items-center gap-2.5 rounded-field px-2.5 py-2 text-md text-basalt-ink no-underline hover:bg-basalt-2 min-[900px]:min-h-0",
+                  "group relative flex min-h-11 items-center gap-3 rounded-field px-2.5 py-2 text-md text-night-soft no-underline transition-colors hover:bg-night-2 hover:text-white min-[900px]:min-h-0",
                   isActive &&
-                    "bg-basalt-2 font-bold before:absolute before:top-1.5 before:bottom-1.5 before:-left-3 before:w-1 before:rounded-r-[4px] before:bg-lamp",
+                    "bg-night-2 font-semibold text-white before:absolute before:top-1.5 before:bottom-1.5 before:-left-3 before:w-1 before:rounded-r-[4px] before:bg-lamp",
                 )
               }
             >
-              <span className="opacity-85">
-                <Icon name={item.icon} />
-              </span>
-              <span>{t(`shell.menu.${item.key}`)}</span>
+              {({ isActive }) => (
+                <>
+                  <span className={cn("shrink-0", isActive ? "text-lamp" : "opacity-80")}>
+                    <Icon name={item.icon} />
+                  </span>
+                  <span>{t(`shell.menu.${item.key}`)}</span>
+                </>
+              )}
             </NavLink>
           ))}
         </div>
@@ -63,19 +67,19 @@ export function SchoolSwitcher({ me }: { me: Me }) {
     <>
       <span className="min-w-0 flex-1">
         <b className="block truncate text-md">{school.name}</b>
-        <span className="block truncate text-basalt-soft">{window.location.host}</span>
+        <span className="block truncate text-night-soft">{window.location.host}</span>
       </span>
       {me.schools.length > 1 && <Icon name="chevdown" size={16} />}
     </>
   );
   const boxClasses =
-    "flex w-full items-center gap-2 rounded-box bg-basalt-2 px-3 py-2.5 text-left text-sm text-basalt-ink";
+    "flex w-full items-center gap-2 rounded-box bg-night-2 px-3 py-2.5 text-left text-sm text-night-ink ring-1 ring-night-3 ring-inset";
 
   if (me.schools.length <= 1) return <div className={boxClasses}>{box}</div>;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className={cn(boxClasses, "cursor-pointer hover:bg-basalt-3")}
+        className={cn(boxClasses, "cursor-pointer hover:bg-night-3")}
         aria-label={`${school.name} — ${t("shell.switchSchool")}`}
       >
         {box}
@@ -109,8 +113,8 @@ export function Sidebar({ me }: { me: Me }) {
   const { t } = useTranslation();
   const { restart } = useGuide();
   return (
-    <aside className="sticky top-0 hidden h-screen flex-col gap-1 overflow-y-auto bg-basalt px-3 py-[18px] text-basalt-ink min-[900px]:flex">
-      <Link to="/" className="px-2.5 pt-1 pb-[18px] text-basalt-ink no-underline">
+    <aside className="relief sticky top-0 hidden h-screen flex-col gap-1 overflow-y-auto bg-night px-3 py-[18px] text-night-ink min-[900px]:flex">
+      <Link to="/" className="px-2.5 pt-1 pb-[18px] text-night-ink no-underline">
         <Brand />
       </Link>
       <SchoolSwitcher me={me} />
@@ -120,7 +124,7 @@ export function Sidebar({ me }: { me: Me }) {
       <div className="mt-auto px-2.5">
         <PlatformNewsLink />
       </div>
-      <div className="p-2.5 text-xs text-basalt-muted">
+      <div className="p-2.5 text-xs text-night-muted">
         {t("common.version", { version: __APP_VERSION__ })}
         {restart && (
           <>
@@ -128,7 +132,7 @@ export function Sidebar({ me }: { me: Me }) {
             <button
               type="button"
               onClick={restart}
-              className="cursor-pointer text-basalt-soft underline-offset-2 hover:underline"
+              className="cursor-pointer text-night-soft underline-offset-2 hover:underline"
             >
               {t("guide.help")}
             </button>

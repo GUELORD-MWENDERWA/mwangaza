@@ -87,6 +87,9 @@ test("directeur", async ({ page }) => {
   await open(page, "dashboard", "directeur-tableau-de-bord");
   await open(page, "settings", "directeur-parametres");
   await open(page, "roles", "directeur-roles");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page, "dashboard", "tableau-de-bord-telephone");
+  await page.setViewportSize({ width: 1280, height: 720 });
 });
 
 test("promoteur", async ({ page }) => {
@@ -101,6 +104,9 @@ test("promoteur", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await open(page, "unpaid", "promoteur-impayes");
   await open(page, "audit", "promoteur-audit");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page, "unpaid", "impayes-telephone");
+  await page.setViewportSize({ width: 1280, height: 720 });
 });
 
 test("comptable", async ({ page }) => {
@@ -176,11 +182,17 @@ test("secrétaire", async ({ page }) => {
   await open(page, `students/${studentWithHistory()}`, "secretaire-fiche-eleve");
   await open(page, "students/import", "secretaire-import");
   await open(page, "students/invitations", "secretaire-invitations");
+  // Au téléphone : une carte par élève (tableau empilé), filtres repliés.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page, "students", "eleves-telephone");
+  await page.setViewportSize({ width: 1280, height: 720 });
 });
 
 test("directrice des études", async ({ page }) => {
   await login(page, "0000001002");
   await open(page, "organisation", "etudes-organisation");
+  await open(page, "courses", "etudes-cours");
+  await open(page, "teaching-loads", "etudes-charges");
 });
 
 test("directeur de discipline", async ({ page }) => {
@@ -222,6 +234,19 @@ test.describe("parent", () => {
     await settle(page);
     await shot(page, "parent-calendrier");
   });
+});
+
+test("portail sur ordinateur", async ({ page }) => {
+  await page.goto(`${PORTAL}login`);
+  await page.getByLabel("Numéro de téléphone").fill("0002000001");
+  await page.getByLabel("Mot de passe", { exact: true }).fill(PASSWORD);
+  await page.getByRole("button", { name: "Se connecter" }).click();
+  await page.waitForURL((url) => !url.pathname.includes("/login"));
+  await page.waitForLoadState("networkidle");
+  const skip = page.getByRole("button", { name: "Passer le guide" });
+  if (await skip.isVisible()) await skip.click();
+  await settle(page);
+  await shot(page, "parent-ordinateur");
 });
 
 test("super-admin", async ({ page }) => {

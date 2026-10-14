@@ -42,7 +42,7 @@ export function AppShell() {
   if (!me.school) return <Navigate to={me.is_platform_admin ? "/support" : "/schools"} replace />;
   return (
     <GuideProvider me={me}>
-      <div className="min-h-screen min-[900px]:grid min-[900px]:grid-cols-[248px_minmax(0,1fr)]">
+      <div className="min-h-screen min-[900px]:grid min-[900px]:grid-cols-[256px_minmax(0,1fr)]">
         <Sidebar me={me} />
         <div className="flex min-w-0 flex-col">
           {/* Bandeau support et barre du haut restent visibles en faisant défiler. */}
@@ -51,7 +51,7 @@ export function AppShell() {
             {me.support && <SupportBanner support={me.support} />}
             <TopBar me={me} />
           </div>
-          <main className="flex w-full max-w-[1360px] flex-col gap-5 p-4 min-[900px]:p-6">
+          <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-6 p-4 min-[900px]:p-8 min-[900px]:pt-7">
             <PlatformNewsBanner />
             <StorageBanner />
             <Outlet />
@@ -72,7 +72,7 @@ function TopBar({ me }: { me: Me }) {
   const { t } = useTranslation();
   const roleLine = useRoleLine(me);
   return (
-    <header className="flex h-14 items-center gap-2.5 border-b border-line bg-card px-3 min-[900px]:h-[60px] min-[900px]:gap-4 min-[900px]:px-6">
+    <header className="flex h-14 items-center gap-2.5 border-b border-line bg-card/90 px-3 backdrop-blur min-[900px]:h-16 min-[900px]:gap-4 min-[900px]:px-8">
       <MobileMenu me={me} />
       {can(me, ["students.view"]) && <SearchPalette />}
       <SyncMenu className="max-[899px]:px-[9px] max-[899px]:py-[5px] max-[899px]:text-xs" />
@@ -110,10 +110,10 @@ function MobileMenu({ me }: { me: Me }) {
       </SheetTrigger>
       <SheetContent title={t("shell.mainMenu")}>
         <div className="flex items-center justify-between px-1.5 pt-0.5 pb-2.5">
-          <Link to="/" onClick={close} className="text-basalt-ink no-underline">
+          <Link to="/" onClick={close} className="text-night-ink no-underline">
             <Brand />
           </Link>
-          <SheetClose className="grid size-11 cursor-pointer place-items-center text-basalt-soft">
+          <SheetClose className="grid size-11 cursor-pointer place-items-center text-night-soft">
             <Icon name="x" />
             <span className="sr-only">{t("shell.closeMenu")}</span>
           </SheetClose>
@@ -122,12 +122,12 @@ function MobileMenu({ me }: { me: Me }) {
         <div className="mt-1">
           <Nav me={me} onNavigate={close} />
         </div>
-        <div className="mt-auto flex flex-col gap-1 border-t border-basalt-3 px-1.5 pt-2.5">
+        <div className="mt-auto flex flex-col gap-1 border-t border-night-3 px-1.5 pt-2.5">
           <div className="flex items-center gap-2.5">
             <Link
               to="/account"
               onClick={close}
-              className="flex min-h-11 min-w-0 flex-1 items-center gap-2.5 text-sm text-basalt-ink no-underline"
+              className="flex min-h-11 min-w-0 flex-1 items-center gap-2.5 text-sm text-night-ink no-underline"
             >
               <Avatar
                 text={initials(me.last_name, me.first_name, me.middle_name)}
@@ -135,14 +135,14 @@ function MobileMenu({ me }: { me: Me }) {
               />
               <span className="min-w-0">
                 <b className="block truncate">{displayName(me)}</b>
-                <span className="text-basalt-muted">{t("shell.account")}</span>
+                <span className="text-night-muted">{t("shell.account")}</span>
               </span>
             </Link>
             <button
               type="button"
               onClick={() => logout.mutate()}
               disabled={logout.isPending}
-              className="grid size-11 cursor-pointer place-items-center text-basalt-soft"
+              className="grid size-11 cursor-pointer place-items-center text-night-soft"
             >
               <Icon name="logout" />
               <span className="sr-only">{t("common.logout")}</span>
@@ -156,7 +156,7 @@ function MobileMenu({ me }: { me: Me }) {
                 close();
                 restart();
               }}
-              className="flex min-h-11 cursor-pointer items-center gap-2.5 text-sm text-basalt-soft"
+              className="flex min-h-11 cursor-pointer items-center gap-2.5 text-sm text-night-soft"
             >
               <Icon name="info" size={18} />
               {t("guide.help")}

@@ -18,6 +18,7 @@ from django.db.models import Max, ProtectedError
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from apps.academics import courses
 from apps.accounts.models import Membership, User
 from apps.audit import services as audit
 from apps.audit.actions import Action
@@ -118,9 +119,9 @@ def create_year(
     copy_fees: bool = False,
 ) -> AcademicYear:
     """Nouvelle année scolaire depuis un modèle de découpage (C1), avec, en option, les classes
-    d'une autre année (niveau, option, section, capacité ; pas les titulaires, qui changent d'une
-    année à l'autre) et ses barèmes (`copy_fees`, droit vérifié par l'API). La première année de
-    l'école devient l'année en cours."""
+    d'une autre année (niveau, option, section, capacité, cours ; pas les titulaires ni les
+    enseignants, qui changent d'une année à l'autre) et ses barèmes (`copy_fees`, droit vérifié
+    par l'API). La première année de l'école devient l'année en cours."""
     require_current_school()
     name = name.strip() or f"{starts_on.year}-{ends_on.year}"
     with transaction.atomic():
@@ -136,14 +137,18 @@ def create_year(
         after = {**_year_data(year), "is_current": year.is_current, "template": template}
         if copy_classes_from is not None:
             after["copied_from"] = copy_classes_from.name
-            after["class_count"] = _copy_classes(copy_classes_from, year, actor=actor)
+            after["class_count"], after["course_count"] = _copy_classes(
+                copy_classes_from, year, actor=actor
+            )
         audit.record(Action.ORGANISATION_YEAR_CREATED, year, actor=actor, after=after)
         if copy_fees and copy_classes_from is not None:
             finance.copy_fee_rules(copy_classes_from, year, actor=actor)
     return year
 
 
-def _copy_classes(source: AcademicYear, year: AcademicYear, *, actor: User) -> int:
+def _copy_classes(source: AcademicYear, year: AcademicYear, *, actor: User) -> tuple[int, int]:
+    """Classes copiées, puis leurs cours (8.1) : (nombre de classes, nombre de cours)."""
+    old = list(source.class_groups.all())
     groups = [
         ClassGroup(
             academic_year=year,
@@ -153,11 +158,12 @@ def _copy_classes(source: AcademicYear, year: AcademicYear, *, actor: User) -> i
             capacity=group.capacity,
             created_by=actor,
         )
-        for group in source.class_groups.all()
+        for group in old
     ]
     created = ClassGroup.objects.bulk_create(groups)
+    course_count = courses.copy_year_courses(list(zip(old, created, strict=True)), actor=actor)
     sync_changes.touch_config()
-    return len(created)
+    return len(created), course_count
 
 
 def update_year(

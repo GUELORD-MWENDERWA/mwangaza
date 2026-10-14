@@ -31,7 +31,7 @@ export function Segmented<T extends string>({
       aria-label={label}
       disabled={disabled}
       className={cn(
-        "inline-flex overflow-hidden rounded-field border border-line bg-card",
+        "inline-flex gap-1 rounded-box bg-gray-50 p-1 ring-1 ring-line ring-inset",
         className,
       )}
     >
@@ -39,7 +39,7 @@ export function Segmented<T extends string>({
         <ToggleGroup.Item
           key={option.value}
           value={option.value}
-          className="min-h-10 flex-auto cursor-pointer px-4 py-2 text-center text-md leading-tight font-bold text-ink-2 focus-visible:relative focus-visible:ring-3 focus-visible:ring-lake-50 focus-visible:outline-none disabled:cursor-not-allowed data-[state=on]:bg-lake data-[state=on]:text-white"
+          className="min-h-9 flex-auto cursor-pointer rounded-field px-4 py-1.5 text-center text-md leading-tight font-semibold text-ink-3 transition-colors hover:text-ink focus-visible:relative focus-visible:ring-4 focus-visible:ring-lake-100 focus-visible:outline-none disabled:cursor-not-allowed data-[state=on]:bg-card data-[state=on]:text-lake-700 data-[state=on]:shadow-raised"
         >
           {option.label}
         </ToggleGroup.Item>

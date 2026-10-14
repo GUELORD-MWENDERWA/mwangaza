@@ -16,7 +16,6 @@ import {
   PageHeader,
   Segmented,
   Skeleton,
-  StatusPill,
   Table,
   Tag,
   cn,
@@ -114,6 +113,7 @@ export function DashboardPage() {
       <Alerts alerts={data.alerts} open={open} />
       <div className="grid gap-4 min-[560px]:grid-cols-2 min-[1000px]:grid-cols-4">
         <Kpi
+          icon="cash"
           label={t("dashboard.kpi.today")}
           value={today.value}
           sub={[
@@ -124,6 +124,7 @@ export function DashboardPage() {
           ].join(" · ")}
         />
         <Kpi
+          icon="wallet"
           label={t("dashboard.kpi.month", { month: formatMonth(data.date.slice(0, 7), language) })}
           value={month.value}
           sub={[
@@ -140,6 +141,8 @@ export function DashboardPage() {
           ].join(" · ")}
         />
         <Kpi
+          icon="alert"
+          chip={data.overdue_students ? "due" : "lake"}
           label={t("dashboard.kpi.overdue")}
           value={overdue.value}
           tone={data.overdue_students ? "due" : undefined}
@@ -149,6 +152,8 @@ export function DashboardPage() {
           ].join(" · ")}
         />
         <Kpi
+          icon="check"
+          chip="ok"
           label={t("dashboard.kpi.recovery")}
           value={data.recovery_percent === null ? "—" : `${data.recovery_percent} %`}
           sub={
@@ -266,7 +271,12 @@ function DailyChart({ days, main }: { days: Dashboard["daily"]; main: string }) 
   );
   const max = Math.max(...values, 0);
   const name = (code: string) => (code === "CDF" ? "FC" : code);
-  const day = (index: number) => formatDay(days[index]?.date ?? "", i18n.language).slice(0, 5);
+  const date = (index: number) => formatDay(days[index]?.date ?? "", i18n.language);
+  const label = (index: number) =>
+    t("dashboard.chart.bar", {
+      date: date(index),
+      amount: formatAmount(values[index] ?? 0, currency),
+    });
   return (
     <Card>
       <CardHeader className="flex-wrap">
@@ -281,44 +291,74 @@ function DailyChart({ days, main }: { days: Dashboard["daily"]; main: string }) 
         )}
       </CardHeader>
       <CardContent>
-        <div
-          role="img"
+        <figure
+          className="m-0"
           aria-label={t("dashboard.chart.label", {
             currency: name(currency),
-            from: formatDay(days[0]?.date ?? "", i18n.language),
-            to: formatDay(days.at(-1)?.date ?? "", i18n.language),
+            from: date(0),
+            to: date(days.length - 1),
             total: formatAmount(
               values.reduce((total, value) => total + value, 0),
               currency,
             ),
           })}
         >
-          <p className="text-right text-xs text-ink-3 tabular-nums">
-            {formatAmount(max, currency)}
-          </p>
-          {/* Aujourd'hui en couleur lampe ; le montant de chaque jour au survol. */}
-          <div className="flex h-40 items-end gap-[3px] border-t border-b border-dashed border-line">
-            {values.map((value, index) => (
+          {/* Grille discrète (0, moitié, maximum) ; barres fines arrondies posées sur la ligne de
+              base ; aujourd'hui en ambre ; montant du jour au survol ou au clavier. */}
+          <div className="relative h-44" aria-hidden="true">
+            {[1, 0.5, 0].map((step) => (
               <div
-                key={days[index]?.date}
-                title={t("dashboard.chart.bar", {
-                  date: formatDay(days[index]?.date ?? "", i18n.language),
-                  amount: formatAmount(value, currency),
-                })}
-                className={cn(
-                  "min-w-0 flex-1 rounded-t-[3px]",
-                  index === values.length - 1 ? "bg-lamp" : "bg-lake",
-                )}
-                style={{ height: max ? `${(value * 100) / max}%` : 0 }}
-              />
+                key={step}
+                className="absolute inset-x-0 flex items-center gap-2"
+                style={{ bottom: `${step * 100}%` }}
+              >
+                <span className="h-px flex-1 bg-chart-grid" />
+                <span className="w-24 text-right text-xs text-ink-3 tabular-nums">
+                  {formatAmount(Math.round(max * step), currency)}
+                </span>
+              </div>
             ))}
+            <div className="absolute inset-y-0 right-26 left-0 flex items-end gap-0.5">
+              {values.map((value, index) => (
+                <div
+                  key={days[index]?.date}
+                  className="group relative flex h-full min-w-0 flex-1 items-end"
+                >
+                  <div
+                    className={cn(
+                      "w-full rounded-t-[4px] transition-opacity group-hover:opacity-80",
+                      index === values.length - 1 ? "bg-chart-2" : "bg-chart-1",
+                    )}
+                    style={{
+                      height: max ? `${Math.max((value * 100) / max, value ? 1.5 : 0)}%` : 0,
+                    }}
+                  />
+                  <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 hidden -translate-x-1/2 rounded-field bg-night px-2 py-1 text-xs whitespace-nowrap text-night-ink shadow-raised group-hover:block">
+                    {label(index)}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="mt-1.5 flex justify-between text-xs text-ink-3 tabular-nums">
-            <span>{day(0)}</span>
-            <span>{day(Math.floor(days.length / 2))}</span>
-            <span>{day(days.length - 1)}</span>
+          <div
+            className="mt-2 mr-26 flex justify-between text-xs text-ink-3 tabular-nums"
+            aria-hidden="true"
+          >
+            <span>{date(0).slice(0, 5)}</span>
+            <span>{date(Math.floor(days.length / 2)).slice(0, 5)}</span>
+            <span>{date(days.length - 1).slice(0, 5)}</span>
           </div>
-        </div>
+          {/* Les mêmes montants pour les lecteurs d'écran. */}
+          <table className="sr-only">
+            <tbody>
+              {values.map((_value, index) => (
+                <tr key={days[index]?.date}>
+                  <td>{label(index)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </figure>
       </CardContent>
     </Card>
   );
@@ -344,14 +384,14 @@ function Enrollment({ data }: { data: Dashboard }) {
       <CardContent className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-2xl font-bold tabular-nums">
+            <p className="text-3xl font-extrabold tracking-tight tabular-nums">
               {data.enrolled.toLocaleString(i18n.language)}
             </p>
             <p className="text-sm text-ink-3">{t("dashboard.enrollment.enrolled")}</p>
           </div>
           <svg
             viewBox="0 0 42 42"
-            className="size-[110px]"
+            className="size-[112px] shrink-0"
             role="img"
             aria-label={t("dashboard.enrollment.chart", { male: data.male, female: data.female })}
           >
@@ -371,9 +411,9 @@ function Enrollment({ data }: { data: Dashboard }) {
                   r={15.9}
                   fill="none"
                   strokeWidth={6}
-                  strokeDasharray={`${male} ${100 - male}`}
+                  strokeDasharray={`${Math.max(male - 1, 0)} ${100 - Math.max(male - 1, 0)}`}
                   transform="rotate(-90 21 21)"
-                  className="stroke-lake"
+                  className="stroke-chart-1"
                   pathLength={100}
                 />
                 <circle
@@ -382,24 +422,26 @@ function Enrollment({ data }: { data: Dashboard }) {
                   r={15.9}
                   fill="none"
                   strokeWidth={6}
-                  strokeDasharray={`${100 - male} ${male}`}
+                  strokeDasharray={`${Math.max(99 - male, 0)} ${Math.min(male + 1, 100)}`}
                   strokeDashoffset={-male}
                   transform="rotate(-90 21 21)"
-                  className="stroke-lamp"
+                  className="stroke-chart-2"
                   pathLength={100}
                 />
               </>
             )}
           </svg>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <StatusPill tone="info">
+        <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-2">
+          <li className="flex items-center gap-2">
+            <span aria-hidden="true" className="size-2.5 rounded-full bg-chart-1" />
             {t("dashboard.enrollment.male", { count: data.male })}
-          </StatusPill>
-          <StatusPill tone="warn">
+          </li>
+          <li className="flex items-center gap-2">
+            <span aria-hidden="true" className="size-2.5 rounded-full bg-chart-2" />
             {t("dashboard.enrollment.female", { count: data.female })}
-          </StatusPill>
-        </div>
+          </li>
+        </ul>
         {groups.size > 0 && (
           <Table>
             <tbody>

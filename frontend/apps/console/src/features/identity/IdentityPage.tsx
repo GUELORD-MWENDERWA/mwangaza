@@ -300,7 +300,7 @@ function FileField({ identity, kind }: { identity: Identity; kind: "logo" | "ico
             icon
               ? cn(
                   "grid size-[84px] place-items-center overflow-hidden rounded-[20px]",
-                  file && "bg-basalt-2",
+                  file && "bg-night-2",
                 )
               : "grid size-[84px] place-items-center rounded-box border border-line bg-white p-1"
           }
@@ -380,7 +380,7 @@ function Preview({ form, identity }: { form: Form; identity: Identity }) {
         <CardTitle>{t("console.identity.preview")}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3" style={style}>
-        <div className="flex items-center gap-2.5 rounded-box bg-basalt px-3.5 py-3 text-basalt-ink">
+        <div className="flex items-center gap-2.5 rounded-box bg-night px-3.5 py-3 text-night-ink">
           {identity.logo ? (
             <img src={identity.logo} alt="" className="h-8 w-auto max-w-[120px] object-contain" />
           ) : (
@@ -397,7 +397,7 @@ function Preview({ form, identity }: { form: Form; identity: Identity }) {
           </span>
           <span className="font-bold text-lake underline">{t("console.identity.previewLink")}</span>
         </div>
-        <div className="flex items-end gap-4 rounded-box bg-linear-160 from-ink-2 to-basalt p-3.5">
+        <div className="flex items-end gap-4 rounded-box bg-linear-160 from-ink-2 to-night p-3.5">
           <span className="flex w-16 flex-col items-center gap-1.5 text-center text-xs text-white">
             <span className="grid size-14 place-items-center overflow-hidden rounded-[14px]">
               {identity.icon ? (

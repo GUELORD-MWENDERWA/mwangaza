@@ -4,18 +4,18 @@ import { cn } from "../lib/cn";
 /**
  * Symbole M-flamme (`maquettes/assets/logo/symbole.svg`) : marque de la plateforme sans logo.
  * Carré arrondi à la couleur d'accent (`lamp`, que la plateforme peut remplacer : toujours
- * lisible avec le basalte, 4,5:1 vérifié par le serveur), M et flamme en basalte ; le même sur
+ * lisible avec le bleu nuit, 4,5:1 vérifié par le serveur), M et flamme en bleu nuit ; le même sur
  * fond sombre ou clair. 36 px dans les barres, 48 px sur les pages de connexion.
  */
 export function BrandMark({ className }: { className?: string }) {
   return (
     <svg aria-hidden="true" viewBox="0 0 64 64" className={cn("size-9 shrink-0", className)}>
       <rect width="64" height="64" rx="16" fill="var(--color-lamp)" />
-      <g transform="translate(0 1.5)" fill="var(--color-basalt)">
+      <g transform="translate(0 1.5)" fill="var(--color-night)">
         <path
           d="M15.5 49V24L32 40.5L48.5 24V49"
           fill="none"
-          stroke="var(--color-basalt)"
+          stroke="var(--color-night)"
           strokeWidth="8.5"
           strokeLinecap="round"
           strokeLinejoin="round"

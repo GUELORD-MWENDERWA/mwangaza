@@ -17,11 +17,11 @@ describe("couleur de l'école", () => {
   });
 
   it("teinte voisine proposée comme le serveur", () => {
-    expect(nearbyReadable("#FF0000")).toBe("#ED0000");
+    expect(nearbyReadable("#FF0000")).toBe("#FF0F0F");
     expect(nearbyReadable("#0E5C6B")).toBe("#0E5C6B");
     // Calculés par le serveur (`colors.nearby_readable`).
     expect(nearbyReadable("#888888")).toBe("#888888");
-    expect(nearbyReadable("#E0457B")).toBe("#E25083");
+    expect(nearbyReadable("#E0457B")).toBe("#E0477D");
     expect(nearbyReadable("#FF8800")).toBe("#FF8800");
   });
 

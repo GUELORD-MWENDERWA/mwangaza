@@ -54,7 +54,7 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 16 | ~~**A.2**~~ ✓ Purge des opérations de synchronisation (`SyncOperation` ; `ChangeLog` gardé) | P1 | S | 🤖 |
 | 17 | ~~**S.6.1**~~ ✓ Row Level Security PostgreSQL : socle et tables de finance (ex-9.15, avancée) | P1 | M | 🤖 |
 | 17 bis | ~~**S.6.2**~~ ✓ Row Level Security : toutes les autres tables d'une école | P1 | M | 🤖 |
-| 18 | **8.1** Cours, volumes horaires et charges des enseignants | P1 | M | 🤖 |
+| 18 | ~~**8.1**~~ ✓ Cours, volumes horaires et charges des enseignants | P1 | M | 🤖 |
 | 19 | **8.2 → 8.4, 8.8** Notes, bulletins EPST, délibération, Portail | P1 | L | 🤖 |
 | 20 | **FIN.1 → FIN.3** Dépenses, sorties de caisse, budget | P1 | M | 🤖 |
 | | **V1.3 — Plateforme commerciale** | | | |
@@ -211,8 +211,8 @@ L'argent de la plateforme. M.1 et M.2 donnent déjà les modules ; il manque le 
 
 ### 6.3 Sites web (WEB) — P1 pour la plateforme, P2 pour les écoles
 
-- [ ] **WEB.1** Site de la plateforme *(S, V1.3)* : `mwangazaschool.com` (depuis le 2026-10-14 : page de présentation fr/en, données structurées, `robots.txt`, `sitemap.xml`, `llms.txt` — `apps/core/site.py` ; reste ci-dessous) : présentation, modules et prix (lus dans le catalogue et les offres, rien en dur), demande de démonstration (formulaire → console, limité contre le spam sans dépendance), mentions légales et confidentialité (S.7), français et anglais. Pages rendues par Django, mises en cache, sans JavaScript obligatoire.
-- [ ] **WEB.2** Site de chaque école *(L, V1.7)* : à la racine de `{code}.mwangazaschool.com/` (la Gestion reste à `/app/`). L'école remplit elle-même son contenu depuis la Gestion : présentation, options et sections, admissions, actualités (annonces marquées « publiques »), galerie, contact, frais affichés seulement si elle le choisit ; publié ou non. **Sécurité** : modèles de pages fixes, texte en Markdown limité et nettoyé, aucun HTML ni script fourni par l'école, images ré-encodées (S.4), formulaire de contact limité. Domaine propre à une école : P3 (certificats à la demande, risque d'abus).
+- [ ] **WEB.1** Site de la plateforme *(S, V1.3)* : `mwangazaschool.com` (depuis le 2026-10-14 : page de présentation fr/en, données structurées, `robots.txt`, `sitemap.xml`, `llms.txt` — `apps/core/site.py` ; reste ci-dessous) : présentation, modules et prix (lus dans le catalogue et les offres, rien en dur), demande de démonstration (formulaire → console, limité contre le spam sans dépendance), mentions légales et confidentialité (S.7), français et anglais. Pages rendues par Django, mises en cache, sans JavaScript obligatoire. **Design (demande du 2026-10-14)** : la page actuelle n'est qu'un socle technique pour Google et les IA ; la tâche commence par regarder les sites des grands logiciels (SaaS, logiciels scolaires), puis une **maquette** (390, 820, 1440 px) avant tout code : vrai design marketing aux normes actuelles — photos (écoles, salles, ateliers ; libres de droits ou fournies), animations sobres (désactivées par `prefers-reduced-motion`), sections claires, **pied de page complet** (liens, contact, langues, mentions, « © DTMS. Tous droits réservés. » ; l'auteur seulement en `<meta name="author">`), identité de la refonte (bleu Kivu, nuit, lumière, lignes de relief).
+- [ ] **WEB.2** Site de chaque école *(L, V1.7)* : à la racine de `{code}.mwangazaschool.com/` (la Gestion reste à `/app/`). L'école remplit elle-même son contenu depuis la Gestion : présentation, options et sections, admissions, actualités (annonces marquées « publiques »), galerie, contact, frais affichés seulement si elle le choisit ; publié ou non. **Sécurité** : modèles de pages fixes, texte en Markdown limité et nettoyé, aucun HTML ni script fourni par l'école, images ré-encodées (S.4), formulaire de contact limité. Domaine propre à une école : P3 (certificats à la demande, risque d'abus). Design : comme WEB.1 (références, maquette aux trois tailles, photos de l'école, pied de page complet), les couleurs et le logo de chaque école.
 
 ### 6.4 Emploi du temps (EDT) — P1, V1.4
 
@@ -286,7 +286,7 @@ Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est 
 - [x] **A.2** Purge des opérations de synchronisation : `SyncOperation` appliquées de plus de 90 jours, chaque nuit ; `ChangeLog` gardé (une ligne par inscription) *(P1, S)*
 - [x] **S.6.1** Row Level Security : socle et tables de finance *(P1, M)*
 - [x] **S.6.2** Row Level Security : toutes les autres tables d'une école *(P1, M)*
-- [ ] **8.1** Cours, maxima, domaines, attribution des enseignants **avec leur charge horaire** (servira à l'emploi du temps) ; la grille de cours d'une section s'enregistre d'un seul bloc par un service (IA.5 la proposera depuis un PDF) *(P1, M)*
+- [x] **8.1** Cours, maxima, domaines, attribution des enseignants **avec leur charge horaire** (servira à l'emploi du temps) ; la grille de cours d'une section s'enregistre d'un seul bloc par un service (IA.5 la proposera depuis un PDF) *(P1, M)*
 - [ ] **8.2** Saisie des notes (y compris hors ligne), verrouillage, validation, historique *(P1, L)*
 - [ ] **8.3** Bulletin EPST PDF avec QR d'authenticité, totaux, places, mentions ; bulletin complet ou notes seules sur le formulaire pré-imprimé (Q11) ; régime et code EPST de l'école (M5) *(P1, L)* — 👤 fournir un vrai bulletin EPST rempli ou le modèle officiel.
 - [ ] **8.4** Délibération, décisions, palmarès, passage de classe *(P1, M)*
