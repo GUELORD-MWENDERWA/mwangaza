@@ -141,7 +141,7 @@ def test_demo_can_run_twice_and_resets_the_demo(demo):
     call_command("demo")
 
     platform = PlatformSettings.load()
-    assert (platform.name, platform.primary_color) == ("Mwangaza", "#0E5C6B")
+    assert (platform.name, platform.primary_color) == ("Mwangaza", "#0B5FCC")
     assert platform.support_phone and platform.legal_notice
 
     assert School.objects.count() == 2

@@ -1,12 +1,24 @@
-import { errorMessage, formatDay, formatVisit, useTranslation } from "@mwangaza/i18n";
+import { errorMessage, formatDate, formatDay, formatVisit, useTranslation } from "@mwangaza/i18n";
 import { formatAmount } from "@mwangaza/money";
-import { Banner, Button, buttonVariants, Card, CardContent, Icon, Skeleton } from "@mwangaza/ui";
+import {
+  Banner,
+  Button,
+  buttonVariants,
+  Card,
+  CardContent,
+  CardFooter,
+  DESKTOP,
+  Icon,
+  Skeleton,
+  useMediaQuery,
+} from "@mwangaza/ui";
 import { useState } from "react";
 import { Link, useOutletContext } from "react-router";
 
 import type { Account } from "../../lib/account";
 import { type Child, type LinkedFamily, useFamilies } from "../../lib/families";
 import { shouldOfferInstall } from "../../lib/install";
+import { useAnnouncements } from "../announcements/data";
 import { LanguageLinks } from "../auth/AuthFrame";
 import { useSummons } from "../calendar/data";
 import { ChildAvatar } from "../child/ChildAvatar";
@@ -20,9 +32,10 @@ export function HomePage() {
   const account = useOutletContext<Account>();
   const families = useFamilies();
   const [offerInstall] = useState(() => shouldOfferInstall());
+  const desktop = useMediaQuery(DESKTOP);
 
   return (
-    <PortalFrame subtitle={t("portal.home.greeting", { name: account.name })}>
+    <PortalFrame wide subtitle={t("portal.home.greeting", { name: account.name })}>
       {offerInstall && (
         <Banner
           tone="lamp"
@@ -37,23 +50,34 @@ export function HomePage() {
         </Banner>
       )}
       <SummonsBanner />
-      <h2 className="text-xl">{t("portal.home.children")}</h2>
-      {families.isPending && <Skeleton label={t("common.loading")} />}
-      {families.isError && (
-        <div className="flex flex-col gap-3">
-          <Banner tone="due">{errorMessage(families.error, t)}</Banner>
-          <Button variant="outline" onClick={() => void families.refetch()}>
-            {t("common.retry")}
-          </Button>
+      {/* Ordinateur : enfants à gauche (deux par rangée dès la tablette), annonces à droite. */}
+      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-6">
+        <div className="flex flex-col gap-4">
+          <h2 className="text-xl">{t("portal.home.children")}</h2>
+          {families.isPending && <Skeleton label={t("common.loading")} />}
+          {families.isError && (
+            <div className="flex flex-col gap-3">
+              <Banner tone="due">{errorMessage(families.error, t)}</Banner>
+              <Button variant="outline" onClick={() => void families.refetch()}>
+                {t("common.retry")}
+              </Button>
+            </div>
+          )}
+          <div className="grid gap-4 sm:grid-cols-2">
+            {families.data?.map((family) => (
+              <FamilyCards key={family.id} family={family} />
+            ))}
+          </div>
+          <Link
+            to="/add-school"
+            className={buttonVariants({ variant: "outline", className: "lg:self-start" })}
+          >
+            <Icon name="plus" size={16} />
+            {t("portal.home.addSchool")}
+          </Link>
         </div>
-      )}
-      {families.data?.map((family) => (
-        <FamilyCards key={family.id} family={family} />
-      ))}
-      <Link to="/add-school" className={buttonVariants({ variant: "outline" })}>
-        <Icon name="plus" size={16} />
-        {t("portal.home.addSchool")}
-      </Link>
+        {desktop && <RecentAnnouncements />}
+      </div>
       <LanguageLinks />
     </PortalFrame>
   );
@@ -107,8 +131,8 @@ function ChildCard({ child, family }: { child: Child; family: LinkedFamily }) {
   const overdue = balance.currencies.filter((line) => line.overdue_minor > 0);
 
   return (
-    <Link to={`/children/${child.id}`} className="text-inherit no-underline">
-      <Card>
+    <Link to={`/children/${child.id}`} className="block h-full text-inherit no-underline">
+      <Card className="h-full transition-shadow hover:shadow-raised">
         <CardContent className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
             <ChildAvatar name={child.full_name} photo={child.photo} className="size-14 text-lg" />
@@ -173,5 +197,56 @@ function ChildCard({ child, family }: { child: Child; family: LinkedFamily }) {
         </CardContent>
       </Card>
     </Link>
+  );
+}
+
+/** Ordinateur : dernières annonces des écoles reliées, à côté des enfants (maquette `accueil`). */
+function RecentAnnouncements() {
+  const { t, i18n } = useTranslation();
+  const families = useFamilies();
+  const announcements = useAnnouncements();
+  const offered = families.data?.some(
+    (family) => family.status === "active" && family.school_modules.includes("communication"),
+  );
+  if (!offered) return null;
+  const items = announcements.data?.pages[0]?.results.slice(0, 4) ?? [];
+  return (
+    <aside className="flex flex-col gap-4">
+      <h2 className="text-xl">{t("portal.home.recentAnnouncements")}</h2>
+      <Card>
+        <CardContent className="py-1">
+          {announcements.isPending ? (
+            <Skeleton label={t("common.loading")} />
+          ) : items.length === 0 ? (
+            <p className="py-3 text-ink-3">{t("portal.home.noAnnouncements")}</p>
+          ) : (
+            <ul className="divide-y divide-line-soft">
+              {items.map((item) => (
+                <li key={item.id}>
+                  <Link
+                    to="/announcements"
+                    className="flex items-center justify-between gap-3 py-3 text-ink no-underline hover:text-lake"
+                  >
+                    <span className="min-w-0">
+                      <b className="block truncate">{item.title}</b>
+                      <span className="text-sm text-ink-3">
+                        {item.school_name} ·{" "}
+                        {formatDate(item.published_at, i18n.language, item.school_timezone)}
+                      </span>
+                    </span>
+                    <Icon name="chevron" size={18} className="shrink-0 text-ink-3" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+        <CardFooter>
+          <Link to="/announcements" className="font-semibold">
+            {t("portal.home.allAnnouncements")}
+          </Link>
+        </CardFooter>
+      </Card>
+    </aside>
   );
 }

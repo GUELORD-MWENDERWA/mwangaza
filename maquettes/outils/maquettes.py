@@ -218,18 +218,18 @@ def page_gestion(title: str, active: str | None, user: str, content: str, sync: 
 
 
 def page_auth(title: str, content: str, school: bool = True, width: int = 440) -> str:
-    """Écran hors application (connexion…) : panneau basalte à gauche, formulaire à droite."""
+    """Écran hors application (connexion…) : panneau bleu nuit à gauche, formulaire à droite."""
     left = (
         '<div class="stack" style="max-width:420px">\n'
-        '    <div style="width:72px;height:72px;border-radius:14px;background:#fff;color:var(--basalt);'
+        '    <div style="width:72px;height:72px;border-radius:14px;background:#fff;color:var(--night);'
         'display:grid;place-items:center;font-weight:700">ITIG</div>\n'
         '    <h1 style="font-size:2rem">ITIG Don Bosco Goma</h1>\n'
-        '    <p style="color:#CFC7BF">Espace du personnel. Encaissez, suivez les élèves et informez les familles, '
+        '    <p style="color:#C3CFE0">Espace du personnel. Encaissez, suivez les élèves et informez les familles, '
         "même quand internet est coupé.</p>\n  </div>"
         if school
         else '<div class="stack" style="max-width:420px">\n'
         '    <h1 style="font-size:2rem">Espace du personnel</h1>\n'
-        '    <p style="color:#CFC7BF">Un seul compte pour toutes les écoles où vous travaillez.</p>\n  </div>'
+        '    <p style="color:#C3CFE0">Un seul compte pour toutes les écoles où vous travaillez.</p>\n  </div>'
     )
     host = "itig.mwangaza.cd" if school else "app.mwangaza.cd"
     return (
@@ -237,7 +237,7 @@ def page_auth(title: str, content: str, school: bool = True, width: int = 440) -
         + '<body><div class="authgrid"><div class="authside">\n'
         '  <div class="brand" style="padding:0"><span class="mark"></span><b style="font-size:1.3rem">Mwangaza</b></div>\n'
         f"  {left}\n"
-        f'  <p class="small" style="color:#A8A09A">{host} · Français | English</p>\n'
+        f'  <p class="small" style="color:#94A3BB">{host} · Français | English</p>\n'
         f'</div><div class="authmain"><div style="width:100%;max-width:{width}px" class="col">\n'
         + content.strip()
         + "\n</div></div></div></body></html>\n"
@@ -388,10 +388,10 @@ def build_index() -> str:
     console = "".join(_card("console", *row) for row in CONSOLE)
     return (
         head("Maquettes", "assets/styles.css")
-        + '<body><div style="background:var(--basalt);color:var(--basalt-ink);padding:36px 32px">'
+        + '<body><div style="background:var(--night);color:var(--night-ink);padding:36px 32px">'
         '<div class="brand" style="padding:0"><span class="mark"></span><b>Mwangaza</b></div>\n'
         '<h1 style="margin-top:16px;font-size:2rem">Maquettes de l\'application</h1>'
-        '<p style="color:#CFC7BF;margin-top:6px">Application Gestion (personnel) et Portail (familles). '
+        '<p style="color:#C3CFE0;margin-top:6px">Application Gestion (personnel) et Portail (familles). '
         "Données fictives. Cliquez une vignette pour ouvrir l'écran. "
         f"« à valider » : {todo} maquettes dessinées par Claude le 2026-09-26, en attente de validation.</p></div>\n"
         '<main class="content" style="margin:0 auto">\n'

@@ -5,7 +5,7 @@ import { cn } from "../lib/cn";
 
 // `.inp` des maquettes : 40 px au moins ; focus = bordure lac + anneau ; erreur = `aria-invalid`.
 export const inputClasses =
-  "min-h-10 w-full rounded-field border border-field bg-card px-3 py-[9px] text-base text-ink placeholder:text-ink-3 focus:border-lake focus:ring-3 focus:ring-lake-50 focus:outline-none aria-invalid:border-due aria-invalid:ring-3 aria-invalid:ring-due-50 disabled:bg-surface disabled:text-ink-2 read-only:bg-surface";
+  "min-h-10 w-full rounded-field border border-field bg-card px-3 py-2 text-base text-ink shadow-button transition-[border-color,box-shadow] duration-150 placeholder:text-ink-3 hover:border-ink-3 focus:border-lake focus:ring-4 focus:ring-lake-100 focus:outline-none aria-invalid:border-due aria-invalid:ring-4 aria-invalid:ring-due-50 disabled:bg-surface disabled:text-ink-2 read-only:bg-surface";
 
 export function Input({ className, ...props }: ComponentProps<"input">) {
   return <input className={cn(inputClasses, className)} {...props} />;

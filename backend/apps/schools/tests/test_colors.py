@@ -19,7 +19,8 @@ def test_contrast_is_symmetric():
 @pytest.mark.parametrize(
     ("color", "text"),
     [
-        ("#0E5C6B", WHITE),  # couleur Mwangaza (défaut)
+        ("#0E5C6B", WHITE),  # ancienne couleur par défaut
+        ("#0B5FCC", WHITE),  # couleur par défaut (bleu du lac Kivu)
         ("#003C6C", WHITE),  # ITIG de démonstration
         ("#000000", WHITE),
         ("#FFFFFF", INK),

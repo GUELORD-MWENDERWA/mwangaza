@@ -137,7 +137,7 @@ function PinUnlock({ accounts, onRetry }: { accounts: Account[]; onRetry: () => 
     );
 
   return (
-    <main className="grid min-h-screen place-items-center bg-basalt p-4">
+    <main className="grid min-h-screen place-items-center bg-night p-4">
       <div className="flex w-full max-w-[400px] flex-col items-center gap-3.5 rounded-card border border-line bg-card p-5 text-center shadow-sm min-[480px]:p-7">
         <Banner tone="warn" icon="wifioff" className="w-full text-left">
           {t("unlock.offline")}

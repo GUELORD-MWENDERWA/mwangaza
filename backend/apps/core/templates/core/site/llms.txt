@@ -38,5 +38,5 @@
 
 ## {% translate "Author" %}
 
-{% blocktranslate %}Designed and built by {{ author }} ({{ author_url }}).{% endblocktranslate %}
+{% blocktranslate %}Author: {{ author }} ({{ author_url }}). © {{ copyright }}, all rights reserved.{% endblocktranslate %}
 {% endautoescape %}

@@ -123,7 +123,7 @@ def test_changes_are_noted_field_by_field(platform_admin, school):
 
     [entry] = journal(school)
     assert entry.action == Action.SCHOOL_UPDATED
-    assert entry.before == {"name": "École Alpha (fictive)", "primary_color": "#0E5C6B"}
+    assert entry.before == {"name": "École Alpha (fictive)", "primary_color": "#0B5FCC"}
     assert entry.after == {"name": "École Alpha", "primary_color": "#003C6C"}
     assert entry.entity_label == "École Alpha"
 

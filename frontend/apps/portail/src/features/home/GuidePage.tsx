@@ -31,11 +31,11 @@ export function GuidePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-basalt px-5 pt-7 pb-8 text-basalt-ink">
+      <header className="bg-night px-5 pt-7 pb-8 text-night-ink">
         <div className="mx-auto max-w-[640px]">
           <Brand />
           <h1 className="mt-5 text-2xl">{t("portal.guide.title", { name: account.name })}</h1>
-          <p className="mt-1.5 text-basalt-muted">
+          <p className="mt-1.5 text-night-muted">
             {t(first ? "portal.guide.activated" : "portal.guide.again")}
           </p>
         </div>

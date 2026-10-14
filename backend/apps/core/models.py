@@ -160,7 +160,7 @@ class PlatformSettings(models.Model):
     primary_color = models.CharField(
         _("main colour"),
         max_length=7,
-        default="#0E5C6B",
+        default="#0B5FCC",
         validators=[platform.validate_primary_color],
         help_text=_("Buttons and links of the interface."),
     )

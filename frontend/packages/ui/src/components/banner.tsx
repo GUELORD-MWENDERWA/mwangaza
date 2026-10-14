@@ -7,7 +7,7 @@ import { cn } from "../lib/cn";
 // `.banner` des maquettes : icône à gauche, alignée sur la première ligne du texte (pas au milieu
 // d'un texte qui passe sur plusieurs lignes au téléphone) ; `action` (un bouton) à droite, centré.
 // La couleur n'est jamais seule.
-const bannerVariants = cva("flex items-start gap-3 rounded-box border px-3.5 py-2.5 text-md", {
+const bannerVariants = cva("flex items-start gap-3 rounded-box border px-4 py-3 text-md", {
   variants: {
     tone: {
       info: "border-info-200 bg-info-50 text-lake-700",

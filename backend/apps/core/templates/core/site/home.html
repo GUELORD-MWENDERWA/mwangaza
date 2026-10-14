@@ -12,7 +12,7 @@
 <link rel="alternate" hreflang="en" href="{{ site }}{{ paths.en }}">
 <link rel="alternate" hreflang="x-default" href="{{ site }}{{ paths.fr }}">
 <link rel="alternate" type="text/markdown" title="llms.txt" href="{{ site }}/llms.txt">
-<meta name="theme-color" content="#2B2724">
+<meta name="theme-color" content="#0B1C35">
 {% if platform.icon_url %}<link rel="icon" href="{{ platform.icon_url }}">
 <link rel="apple-touch-icon" href="{{ platform.icon_url }}">{% else %}<link rel="icon" type="image/svg+xml" href="{% static 'core/site/symbole.svg' %}">
 <link rel="icon" type="image/png" sizes="192x192" href="{% static 'core/site/icon-192.png' %}">
@@ -33,16 +33,17 @@
 <link rel="preload" href="{% static 'core/site/atkinson-hyperlegible-latin-700-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
 <script type="application/ld+json">{{ json_ld }}</script>
 <style>
-@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 400; font-display: swap; src: url("{% static 'core/site/atkinson-hyperlegible-latin-400-normal.woff2' %}") format("woff2"); }
-@font-face { font-family: "Atkinson Hyperlegible"; font-weight: 700; font-display: swap; src: url("{% static 'core/site/atkinson-hyperlegible-latin-700-normal.woff2' %}") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 400; font-display: swap; src: url("{% static 'core/site/atkinson-hyperlegible-next-latin-400-normal.woff2' %}") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 700; font-display: swap; src: url("{% static 'core/site/atkinson-hyperlegible-next-latin-700-normal.woff2' %}") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 800; font-display: swap; src: url("{% static 'core/site/atkinson-hyperlegible-next-latin-800-normal.woff2' %}") format("woff2"); }
 :root {
-  --basalt: #2B2724; --basalt-2: #3A3531; --basalt-ink: #EDE8E3; --basalt-soft: #CFC7BF;
+  --night: #0B1C35; --night-2: #15294B; --night-ink: #E6ECF5; --night-soft: #C3CFE0;
   --lamp: {{ platform.accent_color }}; --lake: {{ platform.primary_color }};
-  --ink: #211D1A; --ink-2: #554D46; --ink-3: #6E655D; --surface: #F4F2EF; --line: #E2DCD5; --ok: #1F7A4D; --ok-50: #E5F3EB;
+  --ink: #101828; --ink-2: #475467; --ink-3: #5B677A; --surface: #F3F5F9; --line: #E2E8F0; --ok: #127A48; --ok-50: #E8F6EE;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { margin: 0; background: var(--surface); color: var(--ink); font: 16px/1.55 "Atkinson Hyperlegible", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--surface); color: var(--ink); font: 16px/1.55 "Atkinson Hyperlegible Next", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 a { color: var(--lake); }
 h1, h2, h3 { line-height: 1.15; letter-spacing: -.01em; margin: 0; }
 .wrap { max-width: 1160px; margin: 0 auto; padding: 0 16px; }
@@ -50,20 +51,20 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.01em; margin: 0; }
 .skip:focus { left: 16px; top: 16px; background: #fff; padding: 8px 12px; border-radius: 8px; z-index: 2; }
 :focus-visible { outline: 3px solid var(--lamp); outline-offset: 2px; }
 
-/* En-tête et accroche, sur le basalte. */
-.top { background: var(--basalt); color: var(--basalt-ink); }
+/* En-tête et accroche, sur le bleu nuit (lignes de relief en filigrane). */
+.top { background: var(--night) url("{% static 'core/site/relief.svg' %}") center/cover; color: var(--night-ink); }
 .bar { display: flex; align-items: center; gap: 20px; min-height: 76px; }
 .brand { display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; font-weight: 700; font-size: 1.35rem; letter-spacing: -.01em; }
 .brand svg, .brand img.mark { width: 40px; height: 40px; flex: none; }
 .brand img.logo { height: 40px; max-width: 160px; object-fit: contain; }
 .nav { display: flex; gap: 22px; margin-left: auto; }
-.nav a, .lang { color: var(--basalt-soft); text-decoration: none; font-weight: 700; font-size: .95rem; }
+.nav a, .lang { color: var(--night-soft); text-decoration: none; font-weight: 700; font-size: .95rem; }
 .nav a:hover, .lang:hover { color: #fff; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 12px 20px; border-radius: 10px; font: inherit; font-weight: 700; text-decoration: none; border: 1.5px solid transparent; cursor: pointer; }
-.btn.lamp { background: var(--lamp); color: var(--basalt); }
+.btn.lamp { background: var(--lamp); color: var(--night); }
 .btn.lamp:hover { filter: brightness(1.06); }
 .btn.ghost { border-color: #6B635C; color: #fff; }
-.btn.ghost:hover { border-color: var(--basalt-soft); }
+.btn.ghost:hover { border-color: var(--night-soft); }
 .btn.lake { background: var(--lake); color: #fff; }
 .btn.line { border-color: var(--line); color: var(--ink); background: #fff; }
 .btn.sm { min-height: 40px; padding: 8px 14px; font-size: .95rem; }
@@ -72,9 +73,9 @@ h1, h2, h3 { line-height: 1.15; letter-spacing: -.01em; margin: 0; }
 .hero .wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 56px; align-items: center; }
 .eyebrow { display: inline-block; background: color-mix(in srgb, var(--lamp) 16%, transparent); color: var(--lamp); border: 1px solid color-mix(in srgb, var(--lamp) 40%, transparent); border-radius: 999px; padding: 4px 14px; font-weight: 700; font-size: .9rem; }
 .hero h1 { font-size: 3rem; color: #fff; margin: 18px 0 18px; }
-.hero .lead { font-size: 1.18rem; color: var(--basalt-soft); max-width: 36em; margin: 0 0 28px; }
+.hero .lead { font-size: 1.18rem; color: var(--night-soft); max-width: 36em; margin: 0 0 28px; }
 .actions { display: flex; flex-wrap: wrap; gap: 12px; }
-.facts { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 30px 0 0; padding: 0; list-style: none; color: var(--basalt-ink); font-weight: 700; font-size: .95rem; }
+.facts { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 30px 0 0; padding: 0; list-style: none; color: var(--night-ink); font-weight: 700; font-size: .95rem; }
 .facts li { display: flex; align-items: center; gap: 8px; }
 .facts li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--lamp); }
 
@@ -99,7 +100,7 @@ h2 { font-size: 2.1rem; margin: 8px 0 14px; }
 .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
 .alt .card { background: var(--surface); }
-.card .ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--lamp) 22%, #fff); color: var(--basalt); margin-bottom: 14px; }
+.card .ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--lamp) 22%, #fff); color: var(--night); margin-bottom: 14px; }
 .card h3 { font-size: 1.1rem; margin-bottom: 6px; }
 .card p { margin: 0; color: var(--ink-2); font-size: .97rem; }
 .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
@@ -118,11 +119,11 @@ h2 { font-size: 2.1rem; margin: 8px 0 14px; }
 .faq details p { margin: 0 0 18px; color: var(--ink-2); }
 
 /* Contact et espaces. */
-.contact { background: var(--basalt); color: var(--basalt-ink); border-radius: 20px; padding: 40px; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 40px; align-items: center; }
+.contact { background: var(--night); color: var(--night-ink); border-radius: 20px; padding: 40px; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 40px; align-items: center; }
 .contact h2 { color: #fff; }
-.contact p { color: var(--basalt-soft); margin: 0 0 24px; }
+.contact p { color: var(--night-soft); margin: 0 0 24px; }
 .spaces { display: grid; gap: 14px; }
-.space { background: var(--basalt-2); border-radius: 14px; padding: 18px; }
+.space { background: var(--night-2); border-radius: 14px; padding: 18px; }
 .space b { display: block; color: #fff; margin-bottom: 4px; }
 .space p { margin: 0 0 12px; font-size: .95rem; }
 .code { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -130,11 +131,11 @@ h2 { font-size: 2.1rem; margin: 8px 0 14px; }
 .code input { border: 0; outline: 0; font: inherit; color: var(--ink); min-width: 0; flex: 1; background: transparent; }
 .code label:focus-within { box-shadow: 0 0 0 3px var(--lamp); }
 
-footer { background: var(--basalt); color: var(--basalt-soft); padding: 36px 0; margin-top: 72px; font-size: .95rem; }
+footer { background: var(--night); color: var(--night-soft); padding: 36px 0; margin-top: 72px; font-size: .95rem; }
 footer .wrap { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; justify-content: space-between; }
-footer a { color: var(--basalt-ink); }
+footer a { color: var(--night-ink); }
 footer details { flex-basis: 100%; }
-footer summary { cursor: pointer; color: var(--basalt-ink); }
+footer summary { cursor: pointer; color: var(--night-ink); }
 footer details p { white-space: pre-line; max-width: 60em; }
 
 @media (max-width: 960px) {
@@ -167,7 +168,7 @@ footer details p { white-space: pre-line; max-width: 60em; }
 <div class="top">
   <header class="wrap bar">
     <a class="brand" href="{% if lang == 'en' %}{{ paths.en }}{% else %}{{ paths.fr }}{% endif %}" aria-label="{{ platform.name }}">
-      {% if platform.logo_url %}<img class="logo" src="{{ platform.logo_url }}" alt="">{% else %}<svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="var(--lamp)"/><g transform="translate(0 1.5)" fill="var(--basalt)"><path d="M15.5 49V24L32 40.5L48.5 24V49" fill="none" stroke="var(--basalt)" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M33.5 4.5C35 10 40 12.5 40 19.5A8 8 0 0 1 24 19.5C24 15.6 25.9 13.2 28.4 11.6C28.5 14 29.4 15.6 31 16.3C30.3 12 31.3 7.8 33.5 4.5Z"/><path d="M32 14.5C33.6 17 35 18.3 35 20.5A3 3 0 0 1 29 20.5C29 18.6 30.3 16.8 32 14.5Z" fill="var(--lamp)"/></g></svg>{% endif %}
+      {% if platform.logo_url %}<img class="logo" src="{{ platform.logo_url }}" alt="">{% else %}<svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="var(--lamp)"/><g transform="translate(0 1.5)" fill="var(--night)"><path d="M15.5 49V24L32 40.5L48.5 24V49" fill="none" stroke="var(--night)" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M33.5 4.5C35 10 40 12.5 40 19.5A8 8 0 0 1 24 19.5C24 15.6 25.9 13.2 28.4 11.6C28.5 14 29.4 15.6 31 16.3C30.3 12 31.3 7.8 33.5 4.5Z"/><path d="M32 14.5C33.6 17 35 18.3 35 20.5A3 3 0 0 1 29 20.5C29 18.6 30.3 16.8 32 14.5Z" fill="var(--lamp)"/></g></svg>{% endif %}
       <span>{{ platform.name }}</span>
     </a>
     <nav class="nav" aria-label="{% translate 'Main menu' %}">
@@ -296,7 +297,7 @@ footer details p { white-space: pre-line; max-width: 60em; }
 
 <footer>
   <div class="wrap">
-    <span>© {{ year }} {{ platform.name }} · {% blocktranslate %}Designed and built by <a href="{{ author_url }}" rel="author">{{ author }}</a>, Goma{% endblocktranslate %}</span>
+    <span>© {{ year }} {{ copyright }}. {% translate "All rights reserved." %}</span>
     <span>{% if other_lang == "en" %}<a href="{{ paths.en }}" hreflang="en" lang="en">English</a>{% else %}<a href="{{ paths.fr }}" hreflang="fr" lang="fr">Français</a>{% endif %} · <a href="{{ portal_url }}">{% translate "Parent space" %}</a></span>
     {% if platform.legal_notice %}<details><summary>{% translate "Legal notice" %}</summary><p>{{ platform.legal_notice }}</p></details>{% endif %}
   </div>

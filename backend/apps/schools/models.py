@@ -112,7 +112,7 @@ class School(BaseModel):
         max_length=7,
         default=colors.DEFAULT_COLOR,
         validators=[colors.validate_school_color],
-        help_text=_("Printed documents and the school badge, e.g. #0E5C6B."),
+        help_text=_("Printed documents and the school badge, e.g. #0B5FCC."),
     )
     timezone = models.CharField(
         _("time zone"),

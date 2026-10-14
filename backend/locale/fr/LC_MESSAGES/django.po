@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-14 22:39+0200\n"
+"POT-Creation-Date: 2026-10-14 23:40+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -39,12 +39,12 @@ msgstr "Cours inconnu."
 msgid "Choose a member of the school's staff."
 msgstr "Choisissez un membre du personnel de l'école."
 
-#: apps/academics/models.py:22 apps/notifications/models.py:129
+#: apps/academics/models.py:23 apps/notifications/models.py:129
 #: apps/schools/models.py:520 apps/students/models.py:170
 msgid "class"
 msgstr "classe"
 
-#: apps/academics/models.py:24 apps/accounts/models.py:134
+#: apps/academics/models.py:25 apps/accounts/models.py:134
 #: apps/core/models.py:137 apps/finance/models.py:35 apps/finance/models.py:371
 #: apps/schools/models.py:91 apps/schools/models.py:331
 #: apps/schools/models.py:389 apps/schools/models.py:428
@@ -52,36 +52,36 @@ msgstr "classe"
 msgid "name"
 msgstr "nom"
 
-#: apps/academics/models.py:27
+#: apps/academics/models.py:28
 msgid "domain"
 msgstr "domaine"
 
-#: apps/academics/models.py:29
+#: apps/academics/models.py:30
 msgid "maximum per period"
 msgstr "maximum par période"
 
-#: apps/academics/models.py:33
+#: apps/academics/models.py:34
 msgid "with exam"
 msgstr "avec examen"
 
-#: apps/academics/models.py:36
+#: apps/academics/models.py:37
 msgid "hours per week"
 msgstr "heures par semaine"
 
-#: apps/academics/models.py:48
+#: apps/academics/models.py:49
 msgid "teacher"
 msgstr "enseignant"
 
-#: apps/academics/models.py:50 apps/finance/models.py:130
+#: apps/academics/models.py:51 apps/finance/models.py:130
 #: apps/schools/models.py:388 apps/schools/models.py:430
 msgid "order"
 msgstr "ordre"
 
-#: apps/academics/models.py:54
+#: apps/academics/models.py:55
 msgid "course"
 msgstr "cours"
 
-#: apps/academics/models.py:55
+#: apps/academics/models.py:56
 msgid "courses"
 msgstr "cours"
 
@@ -359,7 +359,7 @@ msgid "Courses, grades and report cards"
 msgstr "Cours, notes et bulletins"
 
 #: apps/accounts/modules.py:29 apps/core/site.py:115
-#: apps/core/templates/core/site/home.html:195 apps/notifications/models.py:230
+#: apps/core/templates/core/site/home.html:196 apps/notifications/models.py:230
 #: apps/portal/apps.py:10
 msgid "Parent portal"
 msgstr "Portail des parents"
@@ -1370,8 +1370,8 @@ msgid "The icon must be a square PNG image of at least 512 x 512 pixels."
 msgstr "L'icône doit être une image PNG carrée d'au moins 512 x 512 pixels."
 
 #: apps/core/platform.py:85 apps/schools/colors.py:82
-msgid "Enter a colour as #RRGGBB, e.g. #0E5C6B."
-msgstr "Saisissez une couleur au format #RRGGBB, ex. #0E5C6B."
+msgid "Enter a colour as #RRGGBB, e.g. #0B5FCC."
+msgstr "Saisissez une couleur au format #RRGGBB, ex. #0B5FCC."
 
 #: apps/core/platform.py:101
 msgid ""
@@ -1678,72 +1678,72 @@ msgstr "Gestion scolaire"
 msgid "page"
 msgstr "page"
 
-#: apps/core/templates/core/site/home.html:166
+#: apps/core/templates/core/site/home.html:167
 msgid "Skip to content"
 msgstr "Aller au contenu"
 
-#: apps/core/templates/core/site/home.html:173
+#: apps/core/templates/core/site/home.html:174
 msgid "Main menu"
 msgstr "Menu principal"
 
-#: apps/core/templates/core/site/home.html:174
-#: apps/core/templates/core/site/home.html:218
+#: apps/core/templates/core/site/home.html:175
+#: apps/core/templates/core/site/home.html:219
 #: apps/core/templates/core/site/llms.txt:9
 msgid "Features"
 msgstr "Fonctions"
 
-#: apps/core/templates/core/site/home.html:175
-#: apps/core/templates/core/site/home.html:254
+#: apps/core/templates/core/site/home.html:176
+#: apps/core/templates/core/site/home.html:255
 msgid "Questions"
 msgstr "Questions"
 
-#: apps/core/templates/core/site/home.html:176
+#: apps/core/templates/core/site/home.html:177
 #: apps/core/templates/core/site/llms.txt:33
 msgid "Contact"
 msgstr "Contact"
 
-#: apps/core/templates/core/site/home.html:179
-#: apps/core/templates/core/site/home.html:287
-#: apps/core/templates/core/site/home.html:300
+#: apps/core/templates/core/site/home.html:180
+#: apps/core/templates/core/site/home.html:288
+#: apps/core/templates/core/site/home.html:301
 #: apps/core/templates/core/site/llms.txt:31
 msgid "Parent space"
 msgstr "Espace parents"
 
-#: apps/core/templates/core/site/home.html:188
+#: apps/core/templates/core/site/home.html:189
 msgid "Ask for a demonstration"
 msgstr "Demander une démonstration"
 
-#: apps/core/templates/core/site/home.html:189
+#: apps/core/templates/core/site/home.html:190
 msgid "Open my school's space"
 msgstr "Ouvrir l'espace de mon école"
 
-#: apps/core/templates/core/site/home.html:192
+#: apps/core/templates/core/site/home.html:193
 msgid "Works offline"
 msgstr "Marche hors ligne"
 
-#: apps/core/templates/core/site/home.html:193
+#: apps/core/templates/core/site/home.html:194
 msgid "USD and FC"
 msgstr "USD et FC"
 
-#: apps/core/templates/core/site/home.html:194
+#: apps/core/templates/core/site/home.html:195
 msgid "Receipts with QR code"
 msgstr "Reçus avec QR code"
 
-#: apps/core/templates/core/site/home.html:198
+#: apps/core/templates/core/site/home.html:199
 msgid "Example of a receipt (made-up data)"
 msgstr "Exemple de reçu (données inventées)"
 
-#: apps/core/templates/core/site/home.html:200
+#: apps/core/templates/core/site/home.html:201
 msgid "Payment receipt"
 msgstr "Reçu de paiement"
 
-#: apps/core/templates/core/site/home.html:200
+#: apps/core/templates/core/site/home.html:201
 #: apps/finance/templates/finance/unpaid.html:31 apps/students/documents.py:224
 #: apps/students/templates/students/class_list.html:21
 msgid "No."
 msgstr "N°"
 
-#: apps/core/templates/core/site/home.html:204 apps/finance/documents.py:145
+#: apps/core/templates/core/site/home.html:205 apps/finance/documents.py:145
 #: apps/finance/templates/finance/receipt_verification.html:73
 #: apps/finance/templates/finance/statement.html:29
 #: apps/finance/templates/finance/statement_verification.html:21
@@ -1752,7 +1752,7 @@ msgstr "N°"
 msgid "Student"
 msgstr "Élève"
 
-#: apps/core/templates/core/site/home.html:205 apps/finance/documents.py:143
+#: apps/core/templates/core/site/home.html:206 apps/finance/documents.py:143
 #: apps/finance/templates/finance/statement.html:30
 #: apps/finance/templates/finance/unpaid.html:33
 #: apps/portal/templates/portal/receipt.html:30 apps/students/imports.py:84
@@ -1760,33 +1760,33 @@ msgstr "Élève"
 msgid "Class"
 msgstr "Classe"
 
-#: apps/core/templates/core/site/home.html:205
+#: apps/core/templates/core/site/home.html:206
 msgid "3rd year Electricity A"
 msgstr "3e Électricité A"
 
-#: apps/core/templates/core/site/home.html:206 apps/finance/documents.py:148
+#: apps/core/templates/core/site/home.html:207 apps/finance/documents.py:148
 #: apps/finance/templates/finance/statement.html:35
 #: apps/portal/templates/portal/receipt.html:34
 msgid "Fee"
 msgstr "Frais"
 
-#: apps/core/templates/core/site/home.html:206
+#: apps/core/templates/core/site/home.html:207
 msgid "Tuition · 1st instalment"
 msgstr "Minerval · 1re tranche"
 
-#: apps/core/templates/core/site/home.html:208
+#: apps/core/templates/core/site/home.html:209
 msgid "Amount paid"
 msgstr "Montant payé"
 
-#: apps/core/templates/core/site/home.html:209
+#: apps/core/templates/core/site/home.html:210
 msgid "Taken offline, synced"
 msgstr "Encaissé hors ligne, synchronisé"
 
-#: apps/core/templates/core/site/home.html:219
+#: apps/core/templates/core/site/home.html:220
 msgid "Everything the school needs, in one place"
 msgstr "Tout ce dont l'école a besoin, au même endroit"
 
-#: apps/core/templates/core/site/home.html:220
+#: apps/core/templates/core/site/home.html:221
 #, python-format
 msgid ""
 "From enrolment to the receipt in the parent's hands, %(name)s follows the "
@@ -1795,35 +1795,35 @@ msgstr ""
 "De l'inscription au reçu entre les mains du parent, %(name)s suit toute "
 "l'année scolaire."
 
-#: apps/core/templates/core/site/home.html:236
+#: apps/core/templates/core/site/home.html:237
 #: apps/core/templates/core/site/llms.txt:13
 msgid "For everyone at school"
 msgstr "Pour chacun à l'école"
 
-#: apps/core/templates/core/site/home.html:237
+#: apps/core/templates/core/site/home.html:238
 msgid "Each person sees what concerns them"
 msgstr "Chacun voit ce qui le concerne"
 
-#: apps/core/templates/core/site/home.html:243
+#: apps/core/templates/core/site/home.html:244
 #: apps/core/templates/core/site/llms.txt:17
 msgid "Made for the DRC"
 msgstr "Pensé pour la RDC"
 
-#: apps/core/templates/core/site/home.html:244
+#: apps/core/templates/core/site/home.html:245
 msgid "Designed for schools as they really are"
 msgstr "Conçu pour les écoles telles qu'elles sont"
 
-#: apps/core/templates/core/site/home.html:255
+#: apps/core/templates/core/site/home.html:256
 #: apps/core/templates/core/site/llms.txt:21
 msgid "Frequently asked questions"
 msgstr "Questions fréquentes"
 
-#: apps/core/templates/core/site/home.html:268
+#: apps/core/templates/core/site/home.html:269
 #, python-format
 msgid "Try %(name)s in your school"
 msgstr "Essayez %(name)s dans votre école"
 
-#: apps/core/templates/core/site/home.html:269
+#: apps/core/templates/core/site/home.html:270
 msgid ""
 "We open a trial space with your classes and fees, and help your staff get "
 "started."
@@ -1831,50 +1831,45 @@ msgstr ""
 "Nous ouvrons un espace d'essai avec vos classes et vos frais, et "
 "accompagnons votre personnel pour la mise en route."
 
-#: apps/core/templates/core/site/home.html:271
+#: apps/core/templates/core/site/home.html:272
 msgid "Call"
 msgstr "Appeler le"
 
-#: apps/core/templates/core/site/home.html:278
+#: apps/core/templates/core/site/home.html:279
 msgid "My school's space"
 msgstr "Espace de mon école"
 
-#: apps/core/templates/core/site/home.html:279
+#: apps/core/templates/core/site/home.html:280
 msgid "Staff: type your school's address code."
 msgstr "Personnel : saisissez le code de l'adresse de votre école."
 
-#: apps/core/templates/core/site/home.html:282
+#: apps/core/templates/core/site/home.html:283
 msgid "School code"
 msgstr "Code de l'école"
 
-#: apps/core/templates/core/site/home.html:282 apps/finance/models.py:373
+#: apps/core/templates/core/site/home.html:283 apps/finance/models.py:373
 #: apps/schools/models.py:75 apps/schools/models.py:454
 msgid "code"
 msgstr "code"
 
-#: apps/core/templates/core/site/home.html:283
+#: apps/core/templates/core/site/home.html:284
 msgctxt "website button"
 msgid "Open"
 msgstr "Ouvrir"
 
-#: apps/core/templates/core/site/home.html:288
+#: apps/core/templates/core/site/home.html:289
 msgid "Payments, receipts and school news for your children."
 msgstr "Paiements, reçus et nouvelles de l'école de vos enfants."
 
-#: apps/core/templates/core/site/home.html:289
+#: apps/core/templates/core/site/home.html:290
 msgid "Open the parent space"
 msgstr "Ouvrir l'espace parents"
 
-#: apps/core/templates/core/site/home.html:299
-#, python-format
-msgid ""
-"Designed and built by <a href=\"%(author_url)s\" rel=\"author\">%(author)s</"
-"a>, Goma"
-msgstr ""
-"Conçu et développé par <a href=\"%(author_url)s\" rel=\"author\">%(author)s</"
-"a>, Goma"
+#: apps/core/templates/core/site/home.html:300
+msgid "All rights reserved."
+msgstr "Tous droits réservés."
 
-#: apps/core/templates/core/site/home.html:301
+#: apps/core/templates/core/site/home.html:302
 msgid "Legal notice"
 msgstr "Mentions légales"
 
@@ -1917,8 +1912,10 @@ msgstr "Auteur"
 
 #: apps/core/templates/core/site/llms.txt:41
 #, python-format
-msgid "Designed and built by %(author)s (%(author_url)s)."
-msgstr "Conçu et développé par %(author)s (%(author_url)s)."
+msgid ""
+"Author: %(author)s (%(author_url)s). © %(copyright)s, all rights reserved."
+msgstr ""
+"Auteur : %(author)s (%(author_url)s). © %(copyright)s, tous droits réservés."
 
 #: apps/core/views.py:102
 #, python-format
@@ -3885,8 +3882,8 @@ msgid "colour"
 msgstr "couleur"
 
 #: apps/schools/models.py:115
-msgid "Printed documents and the school badge, e.g. #0E5C6B."
-msgstr "Documents imprimés et badge de l'école, ex. #0E5C6B."
+msgid "Printed documents and the school badge, e.g. #0B5FCC."
+msgstr "Documents imprimés et badge de l'école, ex. #0B5FCC."
 
 #: apps/schools/models.py:118
 msgid "time zone"

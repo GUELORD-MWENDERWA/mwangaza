@@ -29,6 +29,10 @@ def test_home_page_uses_the_platform_identity_and_names_the_author(client, db):
     assert data["Organization"]["name"] == data["SoftwareApplication"]["name"] == "Lumière"
     assert data["Organization"]["contactPoint"]["telephone"] == "+243970000001"
     assert data["Person"]["name"] == settings.SOFTWARE_AUTHOR
+    # L'auteur dans la balise meta seulement ; le pied de page porte le titulaire des droits.
+    assert f'<meta name="author" content="{settings.SOFTWARE_AUTHOR}">' in french
+    assert f"{settings.SOFTWARE_COPYRIGHT}. Tous droits réservés." in french
+    assert "Conçu et développé" not in french
     assert len(data["FAQPage"]["mainEntity"]) == 6
 
     english = client.get("/en/").content.decode()

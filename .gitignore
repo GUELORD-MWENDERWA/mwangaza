@@ -52,3 +52,5 @@ frontend/guide/captures/
 
 # Liste d’élèves fictive de make demo-excel
 /eleves-fictifs.xlsx
+# Aperçu de tous les écrans (`make apercu`), refait à chaque fois.
+frontend/apercu/captures/

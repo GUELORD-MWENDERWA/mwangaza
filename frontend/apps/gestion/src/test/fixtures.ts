@@ -15,7 +15,7 @@ const ALL_MODULES: Schemas["ModulesEnum"][] = [
 export const school: Schemas["CurrentSchool"] = {
   code: "alpha",
   name: "École Alpha (fictive)",
-  primary_color: "#0E5C6B",
+  primary_color: "#0B5FCC",
   text_color: "#FFFFFF",
   logo: null,
   logo_monochrome: null,

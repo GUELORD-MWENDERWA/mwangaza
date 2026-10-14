@@ -28,7 +28,7 @@ const MENU = [
 ] as const;
 
 /** Design propre à la console (maquette `console/tableau-de-bord`) : pas de menu latéral comme la
- *  Gestion, une barre du haut en basalte avec la navigation dessous, contenu large et clair. */
+ *  Gestion, une barre du haut en bleu nuit avec la navigation dessous, contenu large et clair. */
 export function ConsoleShell() {
   const { t } = useTranslation();
   const { data: me } = useMe();
@@ -38,7 +38,7 @@ export function ConsoleShell() {
 
   return (
     <div className="min-h-screen bg-surface">
-      <header className="bg-basalt text-basalt-ink">
+      <header className="relief bg-night text-night-ink">
         <div className="mx-auto flex max-w-[1240px] flex-col gap-2.5 px-4 pt-3 min-[820px]:px-6">
           <div className="flex items-center gap-3">
             <Brand />
@@ -51,7 +51,7 @@ export function ConsoleShell() {
               >
                 <Avatar
                   text={me ? initials(me.last_name, me.first_name) : ""}
-                  className="bg-basalt-2 text-lamp"
+                  className="bg-night-2 text-lamp"
                 />
                 <b className="hidden min-[820px]:inline">{name}</b>
               </DropdownMenuTrigger>
@@ -74,8 +74,8 @@ export function ConsoleShell() {
                 end={item.end}
                 className={({ isActive }) =>
                   isActive
-                    ? "border-b-[3px] border-lamp px-3 py-2.5 text-md font-bold whitespace-nowrap text-white"
-                    : "border-b-[3px] border-transparent px-3 py-2.5 text-md whitespace-nowrap text-basalt-soft hover:text-white"
+                    ? "border-b-[3px] border-lamp px-3 py-2.5 text-md font-semibold whitespace-nowrap text-white"
+                    : "border-b-[3px] border-transparent px-3 py-2.5 text-md font-semibold whitespace-nowrap text-night-soft transition-colors hover:text-white"
                 }
               >
                 {t(`console.menu.${item.key}`)}
@@ -84,7 +84,7 @@ export function ConsoleShell() {
           </nav>
         </div>
       </header>
-      <main className="mx-auto flex max-w-[1240px] flex-col gap-5 px-4 py-6 min-[820px]:px-6">
+      <main className="mx-auto flex max-w-[1240px] flex-col gap-6 px-4 py-6 min-[820px]:px-6 min-[820px]:py-8">
         <Outlet />
       </main>
     </div>

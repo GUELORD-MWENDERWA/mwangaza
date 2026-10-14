@@ -5197,7 +5197,7 @@ export interface components {
             name: string;
             /**
              * Colour
-             * @description Printed documents and the school badge, e.g. #0E5C6B.
+             * @description Printed documents and the school badge, e.g. #0B5FCC.
              */
             primary_color: string;
             /** @description Couleur du texte posé sur `primary_color` : blanc ou encre. */
@@ -6966,7 +6966,7 @@ export interface components {
             official_name?: string;
             /**
              * Colour
-             * @description Printed documents and the school badge, e.g. #0E5C6B.
+             * @description Printed documents and the school badge, e.g. #0B5FCC.
              */
             primary_color?: string;
             /**
@@ -7835,7 +7835,7 @@ export interface components {
             official_name: string;
             /**
              * Colour
-             * @description Printed documents and the school badge, e.g. #0E5C6B.
+             * @description Printed documents and the school badge, e.g. #0B5FCC.
              */
             primary_color: string;
             /** @description Couleur du texte posé sur `primary_color` : blanc ou encre. */

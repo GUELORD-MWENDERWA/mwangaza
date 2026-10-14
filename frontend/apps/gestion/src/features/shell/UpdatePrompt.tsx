@@ -70,7 +70,7 @@ export function UpdatePrompt() {
       action={
         <Button
           size="sm"
-          className="border-lamp bg-lamp text-basalt hover:border-lamp hover:bg-lamp hover:brightness-95"
+          className="border-lamp bg-lamp text-night hover:border-lamp hover:bg-lamp hover:brightness-95"
           disabled={asked}
           onClick={() => {
             setAsked(true);
@@ -83,7 +83,7 @@ export function UpdatePrompt() {
     >
       <b>{t("shell.update.ready")}</b>
       <br />
-      <span className="text-basalt-soft">
+      <span className="text-night-soft">
         {pending > 0 ? t("shell.update.afterSync", { count: pending }) : t("shell.update.text")}
       </span>
     </Toast>

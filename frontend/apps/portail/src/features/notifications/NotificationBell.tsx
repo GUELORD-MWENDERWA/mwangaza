@@ -40,13 +40,13 @@ export function NotificationBell() {
       aria-label={
         unread ? t("notifications.bellUnread", { count: unread }) : t("notifications.title")
       }
-      className="relative grid size-11 shrink-0 place-items-center rounded-full text-basalt-ink"
+      className="relative grid size-11 shrink-0 place-items-center rounded-full text-night-ink"
     >
       <Icon name="bell" size={22} />
       {unread > 0 && (
         <span
           aria-hidden
-          className="absolute top-0.5 right-0 rounded-full bg-lamp px-1.5 text-xs font-bold text-basalt"
+          className="absolute top-0.5 right-0 rounded-full bg-lamp px-1.5 text-xs font-bold text-night"
         >
           {unread > 99 ? "99+" : unread}
         </span>

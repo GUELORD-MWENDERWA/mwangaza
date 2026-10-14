@@ -3480,6 +3480,9 @@ export const fr = {
       submit: "Enregistrer et me connecter",
     },
     home: {
+      recentAnnouncements: "Annonces récentes",
+      noAnnouncements: "Aucune annonce pour le moment.",
+      allAnnouncements: "Toutes les annonces",
       greeting: "Bonjour, {{name}}",
       logout: "Se déconnecter",
       installBanner:
@@ -3815,7 +3818,7 @@ export const fr = {
     min_value: "Valeur trop petite.",
     max_value: "Valeur trop grande.",
     invalid_phone: "Numéro invalide : 10 chiffres commençant par 0, ou +243 suivi de 9 chiffres.",
-    invalid_color: "Couleur au format #RRGGBB, ex. #0E5C6B.",
+    invalid_color: "Couleur au format #RRGGBB, ex. #0B5FCC.",
     unreadable_color: "Texte illisible sur cette couleur, en blanc comme en noir.",
     invalid_timezone: "Fuseau horaire inconnu.",
     image_too_large: "L'image dépasse 1 Mo.",
@@ -3866,7 +3869,7 @@ export const fr = {
     reasonRequired: "Indiquez le motif.",
     reasonMax: "200 caractères au plus.",
     nameRequired: "Saisissez le nom.",
-    colorFormat: "Couleur au format #RRGGBB, ex. #0E5C6B.",
+    colorFormat: "Couleur au format #RRGGBB, ex. #0B5FCC.",
     rolesRequired: "Choisissez au moins un rôle.",
     dateRequired: "Saisissez la date.",
     datesOrder: "La fin doit venir après le début.",

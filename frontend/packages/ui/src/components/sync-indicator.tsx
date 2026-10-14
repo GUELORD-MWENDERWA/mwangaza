@@ -22,7 +22,7 @@ export function SyncIndicator({
     <div
       role="status"
       className={cn(
-        "flex items-center gap-2 rounded-full px-3 py-1.5 text-sm whitespace-nowrap",
+        "flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold whitespace-nowrap",
         box,
         className,
       )}

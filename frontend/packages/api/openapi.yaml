@@ -14745,7 +14745,7 @@ components:
         primary_color:
           type: string
           title: Colour
-          description: 'Printed documents and the school badge, e.g. #0E5C6B.'
+          description: 'Printed documents and the school badge, e.g. #0B5FCC.'
           maxLength: 7
         text_color:
           type: string
@@ -18330,7 +18330,7 @@ components:
           type: string
           minLength: 1
           title: Colour
-          description: 'Printed documents and the school badge, e.g. #0E5C6B.'
+          description: 'Printed documents and the school badge, e.g. #0B5FCC.'
           maxLength: 7
         timezone:
           type: string
@@ -20172,7 +20172,7 @@ components:
         primary_color:
           type: string
           title: Colour
-          description: 'Printed documents and the school badge, e.g. #0E5C6B.'
+          description: 'Printed documents and the school badge, e.g. #0B5FCC.'
           maxLength: 7
         text_color:
           type: string

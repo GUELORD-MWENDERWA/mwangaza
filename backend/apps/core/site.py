@@ -327,7 +327,7 @@ def home(request: HttpRequest, lang: str = "fr") -> HttpResponse:
             "whatsapp": _whatsapp(platform),
             "phone": format_phone(str(platform.support_phone)) if platform.support_phone else "",
             "author": settings.SOFTWARE_AUTHOR,
-            "author_url": settings.SOFTWARE_AUTHOR_URL,
+            "copyright": settings.SOFTWARE_COPYRIGHT,
             "sample_amount": format_amount(15000, "USD"),
             "year": timezone.localdate().year,
         }
@@ -386,6 +386,7 @@ def llms_txt(request: HttpRequest) -> HttpResponse:
                 "portal_url": settings.PORTAL_URL,
                 "author": settings.SOFTWARE_AUTHOR,
                 "author_url": settings.SOFTWARE_AUTHOR_URL,
+                "copyright": settings.SOFTWARE_COPYRIGHT,
             },
             content_type="text/markdown; charset=utf-8",
         )

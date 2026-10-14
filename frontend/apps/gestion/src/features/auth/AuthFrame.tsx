@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 import type { School } from "../../lib/queries";
 
-/** Écrans hors application (`.authgrid` des maquettes) : panneau basalte avec l'école à gauche,
+/** Écrans hors application (`.authgrid` des maquettes) : panneau bleu nuit avec l'école à gauche,
  *  formulaire à droite ; une colonne sous 900 px. */
 export function AuthFrame({
   school,
@@ -18,7 +18,7 @@ export function AuthFrame({
   const { t } = useTranslation();
   return (
     <div className="grid min-h-screen grid-cols-1 grid-rows-[auto_1fr] min-[900px]:grid-cols-2 min-[900px]:grid-rows-1">
-      <aside className="flex flex-col justify-between gap-3 bg-basalt px-4 py-5 text-basalt-ink min-[900px]:gap-6 min-[900px]:p-12">
+      <aside className="relief flex flex-col justify-between gap-3 bg-night px-4 py-5 text-night-ink min-[900px]:gap-6 min-[900px]:p-12">
         <Brand large />
         {/* Téléphone : l'école en une ligne sous la marque (le grand encadré est masqué). */}
         {school && (
@@ -46,12 +46,12 @@ export function AuthFrame({
                 size="lg"
               />
               <h1 className="text-3xl">{school.name}</h1>
-              <p className="text-basalt-soft">{t("auth.side.tagline")}</p>
+              <p className="text-night-soft">{t("auth.side.tagline")}</p>
             </>
           ) : (
             <>
               <h1 className="text-3xl">{t("auth.side.genericTitle")}</h1>
-              <p className="text-basalt-soft">{t("auth.side.genericText")}</p>
+              <p className="text-night-soft">{t("auth.side.genericText")}</p>
             </>
           )}
         </div>
@@ -73,7 +73,7 @@ function LanguageLinks({ className }: { className?: string }) {
   return (
     <nav
       aria-label={t("auth.side.languages")}
-      className={cn("flex flex-wrap items-center gap-1 text-sm text-basalt-muted", className)}
+      className={cn("flex flex-wrap items-center gap-1 text-sm text-night-muted", className)}
     >
       <span>{window.location.host} ·</span>
       {LANGUAGES.map((language, index) => (

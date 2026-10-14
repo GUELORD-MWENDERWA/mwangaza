@@ -9,7 +9,7 @@ const settings = {
   code: "alpha",
   name: "École Alpha (fictive)",
   official_name: "Institut Alpha",
-  primary_color: "#0E5C6B",
+  primary_color: "#0B5FCC",
   text_color: "#FFFFFF",
   logo: null,
   logo_monochrome: null,
@@ -79,7 +79,7 @@ describe("Paramètres de l'école (M5)", () => {
       name: "Institut Alpha",
       official_name: "Institut Alpha",
       timezone: "Africa/Kinshasa",
-      primary_color: "#0E5C6B",
+      primary_color: "#0B5FCC",
       enabled_currencies: ["USD", "CDF"],
       default_currency: "USD",
       receipt: {
@@ -111,9 +111,9 @@ describe("Paramètres de l'école (M5)", () => {
     await user.clear(color);
     await user.type(color, "#ff0000");
 
-    expect(await screen.findByText(/Texte illisible sur cette couleur.*#ED0000/)).toBeTruthy();
-    await user.click(screen.getByRole("button", { name: "Utiliser #ED0000" }));
-    expect((color as HTMLInputElement).value).toBe("#ED0000");
+    expect(await screen.findByText(/Texte illisible sur cette couleur.*#FF0F0F/)).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "Utiliser #FF0F0F" }));
+    expect((color as HTMLInputElement).value).toBe("#FF0F0F");
     expect(screen.queryByText(/Texte illisible/)).toBeNull();
   });
 
@@ -130,7 +130,7 @@ describe("Paramètres de l'école (M5)", () => {
     await card("Logo et couleur");
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
 
-    expect(await screen.findByText("Couleur au format #RRGGBB, ex. #0E5C6B.")).toBeTruthy();
+    expect(await screen.findByText("Couleur au format #RRGGBB, ex. #0B5FCC.")).toBeTruthy();
   });
 
   it("devises : au moins une ; la devise principale suit", async () => {

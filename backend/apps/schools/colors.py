@@ -1,6 +1,6 @@
 """Couleur de l'école (décision Q8, `docs/04` § 1) : choisie par l'école, lisible.
 
-Le texte posé sur la couleur (badge de l'école, en-têtes imprimés) est blanc ou encre `#211D1A`,
+Le texte posé sur la couleur (badge de l'école, en-têtes imprimés) est blanc ou encre `#101828`,
 celui qui contraste le plus, avec un contraste d'au moins 4,5 : 1 (WCAG 2, texte normal). Une
 couleur sur laquelle aucun des deux n'est lisible est refusée, avec une teinte voisine proposée.
 """
@@ -11,9 +11,9 @@ import re
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-DEFAULT_COLOR = "#0E5C6B"  # `lake`, couleur Mwangaza
+DEFAULT_COLOR = "#0B5FCC"  # `lake`, bleu du lac Kivu (2026-10-14 ; avant : #0E5C6B)
 WHITE = "#FFFFFF"
-INK = "#211D1A"
+INK = "#101828"
 MIN_CONTRAST = 4.5
 
 _HEX = re.compile(r"^#([0-9A-F]{3}|[0-9A-F]{6})$")
@@ -79,7 +79,7 @@ def validate_school_color(value: str) -> None:
         color = normalize(value)
     except ValueError:
         raise ValidationError(
-            _("Enter a colour as #RRGGBB, e.g. #0E5C6B."), code="invalid_color"
+            _("Enter a colour as #RRGGBB, e.g. #0B5FCC."), code="invalid_color"
         ) from None
     if text_color(color) is None:
         raise ValidationError(

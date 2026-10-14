@@ -7,12 +7,12 @@ import { safeNext, stepPath } from "../../lib/login";
 import { useLoginStep } from "../../lib/queries";
 import { ConsoleTag } from "../shell/ConsoleTag";
 
-/** Cadre des écrans hors console : fond basalte, carte blanche au centre, marque et « Console ». */
+/** Cadre des écrans hors console : fond bleu nuit, carte blanche au centre, marque et « Console ». */
 export function ConsoleFrame({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-basalt px-4 py-8">
-      <main className="flex w-full max-w-[420px] flex-col gap-4 rounded-card bg-white p-6 shadow-card">
+    <div className="relief flex min-h-screen flex-col items-center justify-center gap-4 bg-night px-4 py-8">
+      <main className="flex w-full max-w-[420px] flex-col gap-4 rounded-dialog bg-white p-7 shadow-float">
         <div className="flex items-center gap-3">
           <Brand />
           <ConsoleTag />
@@ -22,7 +22,7 @@ export function ConsoleFrame({ children }: { children: ReactNode }) {
       <LegalNotice
         label={t("common.legalNotice")}
         closeLabel={t("common.close")}
-        className="text-sm text-basalt-soft"
+        className="text-sm text-night-soft"
       />
     </div>
   );

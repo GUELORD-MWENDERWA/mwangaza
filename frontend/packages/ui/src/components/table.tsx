@@ -14,7 +14,7 @@ export function Table({ className, ...props }: ComponentProps<"table">) {
     <div className="overflow-x-auto">
       <table
         className={cn(
-          "tbl w-full border-collapse text-md [&_td]:border-b [&_td]:border-line-soft [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-middle [&_th]:border-b [&_th]:border-line [&_th]:bg-table-head [&_th]:px-3 [&_th]:py-2.5 [&_th]:text-left [&_th.text-right]:text-right [&_th]:text-xs [&_th]:font-bold [&_th]:whitespace-nowrap [&_th]:text-ink-2 [&_tr[aria-selected=true]_td]:bg-lake-50 [&_tr[data-tone=due]_td]:bg-due-50 [&_tr[data-tone=warn]_td]:bg-warn-50",
+          "tbl w-full border-collapse text-md [&_td]:border-b [&_td]:border-line-soft [&_td]:px-4 [&_td]:py-3 [&_td]:align-middle [&_th]:border-b [&_th]:border-line [&_th]:bg-table-head [&_th]:px-4 [&_th]:py-2.5 [&_th]:text-left [&_th.text-right]:text-right [&_th]:text-xs [&_th]:font-semibold [&_th]:whitespace-nowrap [&_th]:text-ink-3 [&_tbody_tr]:transition-colors [&_tbody_tr:hover_td]:bg-table-head [&_tr:last-child_td]:border-b-0 [&_tfoot_td]:border-t [&_tfoot_td]:border-line [&_tr[aria-selected=true]_td]:bg-lake-50 [&_tr[data-tone=due]_td]:bg-due-50 [&_tr[data-tone=warn]_td]:bg-warn-50",
           className,
         )}
         {...props}

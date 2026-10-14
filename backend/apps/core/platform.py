@@ -7,7 +7,7 @@ elle n'est pas redimensionnée.
 
 Les couleurs remplacent celles de l'interface (`lake`, `lamp` du design) : la couleur principale
 porte du texte blanc (boutons) et s'écrit sur fond clair (liens), l'accent se pose sur le fond
-sombre du menu (basalte). Une couleur illisible est refusée.
+sombre du menu (bleu nuit). Une couleur illisible est refusée.
 """
 
 from pathlib import Path
@@ -21,7 +21,7 @@ from apps.schools.colors import contrast, normalize
 from apps.schools.logos import logo_kind
 
 ICON_MIN_SIDE = 512
-BASALT = "#2B2724"  # fond du menu (design), sous l'accent
+NIGHT = "#0B1C35"  # fond du menu (design), sous l'accent
 MIN_CONTRAST = 4.5
 # Adresses publiques (sans école) ; `?v=` change avec chaque fichier (cache des navigateurs).
 ADDRESSES = {"logo": "/api/platform/logo/", "icon": "/api/platform/icon/"}
@@ -82,7 +82,7 @@ def _color(value: str) -> str:
         return normalize(value)
     except ValueError:
         raise ValidationError(
-            _("Enter a colour as #RRGGBB, e.g. #0E5C6B."), code="invalid_color"
+            _("Enter a colour as #RRGGBB, e.g. #0B5FCC."), code="invalid_color"
         ) from None
 
 
@@ -106,7 +106,7 @@ def validate_primary_color(value: str) -> None:
 
 
 def validate_accent_color(value: str) -> None:
-    if contrast(_color(value), BASALT) < MIN_CONTRAST:
+    if contrast(_color(value), NIGHT) < MIN_CONTRAST:
         raise ValidationError(
             _("This colour is too dark: it is not readable on the dark menu."),
             code="unreadable_color",

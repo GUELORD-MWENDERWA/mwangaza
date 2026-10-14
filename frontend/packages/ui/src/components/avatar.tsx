@@ -12,7 +12,7 @@ export function Avatar({ text, className }: { text: string; className?: string }
     <span
       aria-hidden="true"
       className={cn(
-        "grid size-[34px] shrink-0 place-items-center rounded-full bg-lake-50 text-sm font-bold text-lake",
+        "grid size-[34px] shrink-0 place-items-center rounded-full bg-lake-50 text-sm font-bold text-lake-700 ring-1 ring-lake-100",
         className,
       )}
     >
