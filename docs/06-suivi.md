@@ -62,10 +62,11 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 
 ## Journal
 
-### 2026-10-14 — Logo M-flamme et alignements au téléphone (hors plan, demande de l'utilisateur)
+### 2026-10-14 — Logo M-flamme, alignements au téléphone et site public (hors plan, demande de l'utilisateur)
 
 - Fait : nouveau logo (M et flamme dans un carré arrondi jaune) partout : maquettes (plus aucune trace du disque ni de la lampe), `BrandMark`, connexions en grand, icônes installées et favicon des trois applications, page de vérification des reçus, aides de la console et du serveur ; notifications sans icône de plateforme → icône par défaut. Toutes les pages des trois applications passées à 390 px : tableaux, cartes en grille, actions d'en-tête, sélecteurs, bandeaux, frise d'étapes, aperçus A4 et lignes du tableau de bord de la console corrigés dans les composants communs ; mêmes règles dans les maquettes.
-- Tests : plateforme (icône par défaut) ; `design.test.ts`, `textes.test.ts` ; inspection de toutes les pages à 390 et 1440 px (aucun débordement).
+- Visibilité (début de WEB.1) : le domaine nu sert une page de présentation fr/en rendue par Django (identité de la plateforme, auteur Guelord Mwenderwa, données structurées, Open Graph), `robots.txt`, `sitemap.xml`, `llms.txt` ; écoles, portail et console jamais indexés. À faire par l'utilisateur : Google Search Console et Bing (`A-FAIRE.md` 6 octies).
+- Tests : plateforme (icône par défaut), site public (identité lue dans les paramètres, auteur, robots, sitemap, llms.txt, espace d'une école) ; `design.test.ts`, `textes.test.ts` ; inspection de toutes les pages à 390 et 1440 px (aucun débordement).
 - Décisions : `03`, journal (2026-10-14, logo M-flamme). Logo à valider par l'utilisateur dans la PR.
 - Suite : `make deploy`, puis 8.1.
 

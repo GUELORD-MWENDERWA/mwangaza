@@ -1,0 +1,42 @@
+{% load i18n %}{% autoescape off %}# {{ platform.name }}
+
+> {{ texts.description }}
+
+{{ texts.lead }}
+
+{% translate "Address" %} : {{ site }}{{ paths.fr }} ({% translate "English" %} : {{ site }}{{ paths.en }})
+
+## {% translate "Features" %}
+{% for icon, title, text in texts.features %}
+- **{{ title }}** : {{ text }}{% endfor %}
+
+## {% translate "For everyone at school" %}
+{% for role, text in texts.roles %}
+- **{{ role }}** : {{ text }}{% endfor %}
+
+## {% translate "Made for the DRC" %}
+{% for item in texts.local %}
+- {{ item }}{% endfor %}
+
+## {% translate "Frequently asked questions" %}
+{% for question, answer in texts.faq %}
+### {{ question }}
+
+{{ answer }}
+{% endfor %}
+## {% translate "Links" %}
+
+- [{% translate "Presentation (French)" %}]({{ site }}{{ paths.fr }})
+- [{% translate "Presentation (English)" %}]({{ site }}{{ paths.en }})
+- [{% translate "Parent space" %}]({{ portal_url }})
+
+## {% translate "Contact" %}
+{% if platform.support_phone %}
+- {% translate "Phone and WhatsApp" %} : {{ platform.support_phone }}{% endif %}{% if platform.support_email %}
+- {% translate "Email" %} : {{ platform.support_email }}{% endif %}
+- {% translate "Goma, North Kivu, Democratic Republic of the Congo" %}
+
+## {% translate "Author" %}
+
+{% blocktranslate %}Designed and built by {{ author }} ({{ author_url }}).{% endblocktranslate %}
+{% endautoescape %}

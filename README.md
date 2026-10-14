@@ -2,6 +2,8 @@
 
 A multi-school management platform for the Democratic Republic of the Congo, designed for schools in Goma.
 
+Designed and built by **Guelord Mwenderwa** (Goma, DRC). © 2026 Guelord Mwenderwa — all rights reserved.
+
 > Work in progress. This README will be completed later.
 
 ## What it is
