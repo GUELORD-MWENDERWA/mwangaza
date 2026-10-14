@@ -61,9 +61,7 @@ export function CalendarPage() {
       )}
       {months.map((month) => (
         <section key={month} className="flex flex-col gap-2.5">
-          <h2 className="text-[1.05rem] first-letter:uppercase">
-            {formatMonth(month, i18n.language)}
-          </h2>
+          <h2 className="text-base first-letter:uppercase">{formatMonth(month, i18n.language)}</h2>
           {events
             .filter((event) => event.starts_on.startsWith(month))
             .map((event) => (
@@ -95,16 +93,16 @@ function SummonsCard({ summons }: { summons: PortalSummons }) {
             {t("portal.calendar.summons")}
           </StatusPill>
         </div>
-        <h2 className="text-[1.05rem]">
+        <h2 className="text-base">
           {t("portal.calendar.summonsFor", { name: summons.student_name })}
         </h2>
         <b className="tabular-nums">
           {formatDateTime(summons.meeting_at, i18n.language, summons.school_timezone)}
         </b>
-        <span className="text-[.95rem]">
+        <span className="text-md">
           {t("portal.calendar.meetWith", { name: summons.meet_with })}
         </span>
-        <p className="text-[.95rem] whitespace-pre-line">{summons.reason}</p>
+        <p className="text-md whitespace-pre-line">{summons.reason}</p>
       </CardContent>
     </Card>
   );
@@ -131,7 +129,7 @@ function EventCard({ event }: { event: PortalEvent }) {
           {[days, event.start_time?.slice(0, 5)].filter(Boolean).join(" · ")}
         </span>
         {event.description && (
-          <p className="text-[.92rem] whitespace-pre-line text-ink-3">{event.description}</p>
+          <p className="text-md whitespace-pre-line text-ink-3">{event.description}</p>
         )}
       </CardContent>
     </Card>

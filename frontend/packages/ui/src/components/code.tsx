@@ -14,7 +14,7 @@ export function CodeList({ codes, className }: { codes: string[]; className?: st
   return (
     <ul
       className={cn(
-        "grid grid-cols-2 gap-x-[18px] gap-y-2 font-mono text-[1.02rem] tracking-[.06em]",
+        "grid grid-cols-2 gap-x-[18px] gap-y-2 font-mono text-base tracking-[.06em]",
         className,
       )}
     >

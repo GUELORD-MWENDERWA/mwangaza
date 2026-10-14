@@ -110,7 +110,7 @@ export function ClassListPage() {
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               <fieldset className="flex flex-col gap-2.5">
-                <legend className="mb-1.5 text-[.87rem] font-bold text-ink-2">
+                <legend className="mb-1.5 text-sm font-bold text-ink-2">
                   {t("students.print.classList.columns")}
                 </legend>
                 {offered.map((column) => (
@@ -143,7 +143,7 @@ export function ClassListPage() {
                 )}
               </Field>
               <div className="flex flex-col gap-1.5">
-                <span className="text-[.87rem] font-bold text-ink-2">
+                <span className="text-sm font-bold text-ink-2">
                   {t("students.print.classList.order")}
                 </span>
                 <Segmented

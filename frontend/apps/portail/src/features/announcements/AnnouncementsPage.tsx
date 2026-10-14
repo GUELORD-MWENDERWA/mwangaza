@@ -86,7 +86,7 @@ function SchoolFilter({
         >
           <StatusPill
             tone={value === choice.id ? "info" : "gray"}
-            className="px-3.5 py-1.5 text-[.88rem]"
+            className="px-3.5 py-1.5 text-sm"
           >
             {choice.label}
           </StatusPill>
@@ -114,14 +114,14 @@ function AnnouncementCard({ announcement }: { announcement: PortalAnnouncement }
           <span className="shrink-0 text-xs text-ink-3">{day}</span>
         </div>
         <div className="flex items-start justify-between gap-2">
-          <h2 className="text-[1.05rem]">{announcement.title}</h2>
+          <h2 className="text-base">{announcement.title}</h2>
           {!announcement.read && (
             <StatusPill tone="info" className="shrink-0">
               {t("portal.announcements.new")}
             </StatusPill>
           )}
         </div>
-        <p className="text-[.95rem] whitespace-pre-line">{announcement.body}</p>
+        <p className="text-md whitespace-pre-line">{announcement.body}</p>
         {announcement.attachment && (
           <a
             className="flex items-center gap-1.5 text-sm font-bold text-lake underline"

@@ -20,8 +20,8 @@ describe("couleur de l'école", () => {
     expect(nearbyReadable("#FF0000")).toBe("#ED0000");
     expect(nearbyReadable("#0E5C6B")).toBe("#0E5C6B");
     // Calculés par le serveur (`colors.nearby_readable`).
-    expect(nearbyReadable("#888888")).toBe("#898989");
-    expect(nearbyReadable("#E0457B")).toBe("#E35687");
+    expect(nearbyReadable("#888888")).toBe("#888888");
+    expect(nearbyReadable("#E0457B")).toBe("#E25083");
     expect(nearbyReadable("#FF8800")).toBe("#FF8800");
   });
 

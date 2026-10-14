@@ -69,7 +69,7 @@ export function FamilyPage() {
             <Icon name="users" size={28} />
           </span>
           <div className="min-w-[200px] flex-1">
-            <h1 className="text-[1.5rem] font-bold">{t("students.family.title", { name })}</h1>
+            <h1 className="text-2xl font-bold">{t("students.family.title", { name })}</h1>
             <div className="mt-1.5 flex flex-wrap gap-2 text-sm">
               <Tag>{t("students.family.children", { count: data.students.length })}</Tag>
               <Tag>{t("students.family.contacts", { count: data.guardians.length })}</Tag>
@@ -77,8 +77,8 @@ export function FamilyPage() {
           </div>
           <div className="flex flex-col items-center gap-1.5">
             <div className="rounded-card border-2 border-lamp px-4 py-2.5 text-center">
-              <div className="text-[.78rem] text-ink-3">{t("students.card.familyCode")}</div>
-              <Code className="text-[1.4rem]">{data.code}</Code>
+              <div className="text-xs text-ink-3">{t("students.card.familyCode")}</div>
+              <Code className="text-xl">{data.code}</Code>
             </div>
             <PortalStatus family={data} />
             {can(me, ["students.edit"]) && data.portal_status === "pending" && (
@@ -109,7 +109,7 @@ export function FamilyPage() {
                   <span className="flex items-center gap-2.5">
                     <Avatar
                       text={initials(child.middle_name || child.first_name, child.last_name)}
-                      className="size-8 text-[.72rem]"
+                      className="size-8 text-xs"
                     />
                     <span className="flex flex-col">
                       <Link

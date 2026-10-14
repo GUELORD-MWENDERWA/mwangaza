@@ -180,7 +180,7 @@ export function DemoCard({ school }: { school: Detail & { demonstration: Demo } 
         {failed ? (
           <Banner tone="due">{t("console.demo.failed")}</Banner>
         ) : (
-          <p className="text-[.9rem]">
+          <p className="text-md">
             {t("console.demo.ready", {
               profile: t(`console.demo.profile.${school.demonstration.profile}`),
             })}

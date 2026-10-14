@@ -159,7 +159,7 @@ export function IdentitySections<T extends IdentityValues>({
           {field("middle_name", t("students.new.middleName"), true)}
           {field("first_name", t("students.new.firstName"))}
           <div className="flex flex-col gap-1.5">
-            <span className="text-[.87rem] font-bold text-ink-2">
+            <span className="text-sm font-bold text-ink-2">
               {t("students.new.sex")}
               <span className="text-due" aria-hidden="true">
                 {" "}
@@ -183,7 +183,7 @@ export function IdentitySections<T extends IdentityValues>({
               )}
             />
             {sexError && (
-              <p role="alert" className="text-[.8rem] text-due">
+              <p role="alert" className="text-xs text-due">
                 {sexError}
               </p>
             )}

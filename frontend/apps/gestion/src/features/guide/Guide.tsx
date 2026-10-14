@@ -162,7 +162,7 @@ function Coach({
           />
         )}
         <div className="flex items-start justify-between gap-2">
-          <span className="text-[.78rem] text-ink-3">
+          <span className="text-xs text-ink-3">
             {t("guide.progress", {
               guide: t(`guide.names.${guide}`),
               step: index + 1,

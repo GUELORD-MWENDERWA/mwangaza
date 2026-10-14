@@ -50,7 +50,7 @@ export function PortalFrame({
             <>
               <div className="flex items-center gap-2.5">
                 <PlatformMark className="h-[26px] min-w-[26px]" />
-                <h1 className="text-[1.1rem] text-basalt-ink">{heading}</h1>
+                <h1 className="text-lg text-basalt-ink">{heading}</h1>
               </div>
               <NotificationBell />
             </>
@@ -76,13 +76,13 @@ export function PortalFrame({
               <Link to="/" aria-label={t("portal.child.back")} className="text-basalt-ink">
                 <Icon name="back" size={22} />
               </Link>
-              <h1 className="min-w-0 flex-1 truncate text-[1.1rem] text-basalt-ink">{title}</h1>
+              <h1 className="min-w-0 flex-1 truncate text-lg text-basalt-ink">{title}</h1>
               {aside}
             </>
           )}
         </div>
         {subtitle && (
-          <p className="mx-auto mt-1.5 max-w-[640px] text-[.88rem] text-basalt-muted">{subtitle}</p>
+          <p className="mx-auto mt-1.5 max-w-[640px] text-sm text-basalt-muted">{subtitle}</p>
         )}
       </header>
       <main className="mx-auto flex w-full max-w-[640px] flex-1 flex-col gap-4 px-4 py-5">
@@ -150,7 +150,7 @@ function PortalNav({ childId }: { childId?: string }) {
             end
             className={({ isActive }) =>
               cn(
-                "flex flex-1 flex-col items-center gap-[3px] p-1 text-[.72rem] font-bold no-underline",
+                "flex flex-1 flex-col items-center gap-[3px] p-1 text-xs font-bold no-underline",
                 isActive ? "text-lake" : "text-ink-3",
               )
             }

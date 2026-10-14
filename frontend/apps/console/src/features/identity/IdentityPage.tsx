@@ -292,9 +292,7 @@ function FileField({ identity, kind }: { identity: Identity; kind: "logo" | "ico
   const icon = kind === "icon";
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-[.87rem] font-bold text-ink-2">
-        {t(`console.identity.${kind}.label`)}
-      </span>
+      <span className="text-sm font-bold text-ink-2">{t(`console.identity.${kind}.label`)}</span>
       <div className="flex flex-wrap items-center gap-3">
         <span
           className={
@@ -310,7 +308,7 @@ function FileField({ identity, kind }: { identity: Identity; kind: "logo" | "ico
               className="size-full object-contain"
             />
           ) : (
-            <BrandMark className="size-11 shadow-[inset_0_0_0_3px_var(--color-lamp)]" />
+            <BrandMark className="size-11" />
           )}
         </span>
         <div className="flex flex-col items-start gap-1.5">
@@ -335,7 +333,7 @@ function FileField({ identity, kind }: { identity: Identity; kind: "logo" | "ico
               </Button>
             )}
           </div>
-          <span className="text-[.8rem] text-ink-3">{t(`console.identity.${kind}.help`)}</span>
+          <span className="text-xs text-ink-3">{t(`console.identity.${kind}.help`)}</span>
         </div>
         <input
           ref={input}
@@ -351,7 +349,7 @@ function FileField({ identity, kind }: { identity: Identity; kind: "logo" | "ico
         />
       </div>
       {error && (
-        <p className="text-[.8rem] text-due" role="alert">
+        <p className="text-xs text-due" role="alert">
           {error}
         </p>
       )}
@@ -389,7 +387,7 @@ function Preview({ form, identity }: { form: Form; identity: Identity }) {
             <BrandMark className="size-[26px]" />
           )}
           <b className="truncate">{name}</b>
-          <span className="ml-auto border-b-[3px] border-lamp pb-0.5 text-[.82rem] font-bold text-white">
+          <span className="ml-auto border-b-[3px] border-lamp pb-0.5 text-sm font-bold text-white">
             {t("console.identity.previewMenu")}
           </span>
         </div>
@@ -400,7 +398,7 @@ function Preview({ form, identity }: { form: Form; identity: Identity }) {
           <span className="font-bold text-lake underline">{t("console.identity.previewLink")}</span>
         </div>
         <div className="flex items-end gap-4 rounded-box bg-linear-160 from-ink-2 to-basalt p-3.5">
-          <span className="flex w-16 flex-col items-center gap-1.5 text-center text-[.75rem] text-white">
+          <span className="flex w-16 flex-col items-center gap-1.5 text-center text-xs text-white">
             <span className="grid size-14 place-items-center overflow-hidden rounded-[14px] bg-basalt-2">
               {identity.icon ? (
                 <img src={identity.icon} alt="" className="size-full object-cover" />
@@ -427,18 +425,16 @@ function History({ changes }: { changes: Change[] }) {
         <CardTitle>{t("console.identity.historyTitle")}</CardTitle>
       </CardHeader>
       {changes.length === 0 ? (
-        <CardContent className="text-[.9rem] text-ink-3">
-          {t("console.identity.noChange")}
-        </CardContent>
+        <CardContent className="text-md text-ink-3">{t("console.identity.noChange")}</CardContent>
       ) : (
         <ul className="m-0 list-none p-0">
           {changes.map((change) => (
             <li
               key={change.id}
-              className="flex flex-col gap-0.5 border-t border-line px-4 py-2.5 text-[.9rem] first:border-t-0"
+              className="flex flex-col gap-0.5 border-t border-line px-4 py-2.5 text-md first:border-t-0"
             >
               <b>{t(`console.actions.${change.action}`)}</b>
-              <span className="text-[.82rem] text-ink-3">
+              <span className="text-sm text-ink-3">
                 {formatDateTime(change.created_at, i18n.language, timeZone)}
                 {change.actor &&
                   ` · ${[change.actor.first_name, change.actor.last_name].join(" ")}`}
@@ -461,7 +457,7 @@ function Differences({ change, t }: { change: Change; t: TFunction }) {
       {Object.keys(after).map((field) => {
         const label = t(`console.identity.fields.${field as (typeof FIELDS)[number]}`);
         return (
-          <span key={field} className="text-[.85rem] break-words">
+          <span key={field} className="text-sm break-words">
             {/* Les mentions légales sont longues : seulement le fait qu'elles ont changé. */}
             {field === "legal_notice"
               ? label

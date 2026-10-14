@@ -190,7 +190,7 @@ export function PriorPaymentsPage() {
               <CardContent className="text-ink-3">{t("priorPayments.ready.none")}</CardContent>
             )}
             <CardFooter className="flex-wrap items-center justify-between gap-3">
-              <span className="text-[.85rem] text-ink-3">
+              <span className="text-sm text-ink-3">
                 {preview.recorded
                   ? t("priorPayments.done.footer")
                   : t("priorPayments.ready.footer", {

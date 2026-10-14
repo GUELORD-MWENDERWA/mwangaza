@@ -1,6 +1,8 @@
 // Captures PNG des maquettes avec Chrome sans interface (protocole DevTools, aucune dépendance).
 // Usage : node maquettes/outils/captures.mjs [fichier.html …]   (sans argument : toutes les maquettes)
-// Bureau : 1440 px de large, page entière. Mobile (écrans listés dans MOBILE) : 390 px, densité 2.
+// Bureau : 1440 px de large, page entière (Gestion, Console). Téléphone : 390 px, densité 1 (tous les écrans ; assez pour lire la mise en page, léger dans Git).
+// Chaque capture est contrôlée : un élément qui dépasse de l'écran (hors conteneur qui défile) est signalé
+// et la commande sort en erreur (code 2) — une maquette qui déborde n'est pas finie.
 import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, readdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -9,12 +11,6 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CHROME = process.env.CHROME ?? "google-chrome";
-
-// Écrans qui ont aussi une capture mobile (tout le portail + les écrans Gestion utilisés sur téléphone).
-const MOBILE_GESTION = new Set([
-  "caisse-encaissement", "notes-saisie", "presences-pointage-qr",
-  "menu-mobile", "caisse-ouverture", "guide-premiere-connexion",
-]);
 
 function pages(args) {
   if (args.length) {
@@ -36,11 +32,26 @@ function targets(file) {
   const name = basename(file, ".html");
   const t = [];
   if (app === "gestion" || app === "console") t.push({ kind: "desktop", width: 1440, height: 900, scale: 1 });
-  if (app === "portail" || app === "console" || MOBILE_GESTION.has(name)) t.push({ kind: "mobile", width: 390, height: 844, scale: 2 });
+  t.push({ kind: "mobile", width: 390, height: 844, scale: 1 });
   return t.map((x) => ({ ...x, out: join(ROOT, "captures", x.kind, `${app}-${name}.png`) }));
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Éléments qui dépassent à droite de l'écran sans être dans un conteneur qui défile (3 au plus).
+const OVERFLOW = `(() => {
+  const w = window.innerWidth, out = [];
+  for (const el of document.body.querySelectorAll("*")) {
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 || r.right <= w + 1) continue;
+    let p = el.parentElement;
+    while (p && p !== document.body && !["auto", "scroll", "hidden"].includes(getComputedStyle(p).overflowX)) p = p.parentElement;
+    if (p && p !== document.body) continue;
+    const cls = typeof el.className === "string" ? el.className.trim().split(/\\s+/).slice(0, 2).join(".") : "";
+    out.push(el.tagName.toLowerCase() + (cls ? "." + cls : "") + " +" + Math.round(r.right - w) + " px");
+  }
+  return out.slice(0, 3);
+})()`;
 
 async function main() {
   const profile = mkdtempSync(join(tmpdir(), "mwangaza-captures-"));
@@ -80,6 +91,7 @@ async function main() {
   const { sessionId } = await send("Target.attachToTarget", { targetId, flatten: true });
   await send("Page.enable", {}, sessionId);
 
+  const overflows = [];
   for (const file of pages(process.argv.slice(2))) {
     for (const t of targets(file)) {
       await send("Emulation.setDeviceMetricsOverride",
@@ -91,6 +103,8 @@ async function main() {
       const { result } = await send("Runtime.evaluate",
         { expression: "Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)", returnByValue: true }, sessionId);
       const height = Math.max(t.height, Math.ceil(result.value));
+      const { result: over } = await send("Runtime.evaluate", { expression: OVERFLOW, returnByValue: true }, sessionId);
+      if (over.value.length) overflows.push(`${relative(ROOT, file)} (${t.width} px) : ${over.value.join(", ")}`);
       await send("Emulation.setDeviceMetricsOverride",
         { width: t.width, height, deviceScaleFactor: t.scale, mobile: t.kind === "mobile" }, sessionId);
       await sleep(150);
@@ -105,6 +119,11 @@ async function main() {
   chrome.kill();
   await exited;
   await sleep(500); // les sous-processus de Chrome écrivent encore quelques instants dans le profil
+  if (overflows.length) {
+    console.error(`\n✘ ${overflows.length} capture(s) qui débordent de l'écran :`);
+    for (const o of overflows) console.error(`  ${o}`);
+    process.exitCode = 2;
+  }
   try {
     rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 });
   } catch {

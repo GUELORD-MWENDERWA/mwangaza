@@ -66,7 +66,7 @@ export function ProfilePage() {
     <PortalFrame heading={t("portal.profile.title")}>
       <Card>
         <CardContent className="flex items-center gap-3.5">
-          <Avatar text={letters} className="size-14 text-[1.1rem]" />
+          <Avatar text={letters} className="size-14 text-lg" />
           <div className="min-w-0">
             <b className="block truncate">{account.name}</b>
             <span className="text-sm text-ink-3">
@@ -240,7 +240,7 @@ function ContactCard({ profile }: { profile: Profile }) {
           <Button type="submit" size="lg" disabled={save.isPending}>
             {t("portal.profile.save")}
           </Button>
-          <p className="text-[.8rem] text-ink-3">{t("portal.profile.help")}</p>
+          <p className="text-xs text-ink-3">{t("portal.profile.help")}</p>
         </form>
       </CardContent>
     </Card>

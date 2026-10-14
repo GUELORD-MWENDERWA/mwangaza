@@ -206,7 +206,7 @@ export function CashDesk({
       {chosen ? (
         <>
           <Card>
-            <CardContent className="flex flex-wrap items-center gap-3 text-[1.1rem]">
+            <CardContent className="flex flex-wrap items-center gap-3 text-lg">
               <Icon name="search" size={22} />
               <b className="min-w-0 flex-1">
                 {[chosen.name, chosen.matricule, chosen.classGroup].filter(Boolean).join(" · ")}
@@ -307,7 +307,7 @@ function StudentSearch({
       <CardContent className="flex flex-col gap-2">
         <label
           data-guide="cash-search"
-          className="flex min-h-[54px] items-center gap-3 rounded-field border-2 border-lake bg-card px-3 text-[1.2rem]"
+          className="flex min-h-[54px] items-center gap-3 rounded-field border-2 border-lake bg-card px-3 text-lg"
         >
           <Icon name="search" size={22} />
           <input

@@ -23,7 +23,7 @@ export function Field({ id, label, required, help, error, className, children }:
   const noteId = error ? `${id}-error` : help ? `${id}-help` : undefined;
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
-      <label htmlFor={id} className="text-[.87rem] font-bold text-ink-2">
+      <label htmlFor={id} className="text-sm font-bold text-ink-2">
         {label}
         {required && (
           <span className="text-due" aria-hidden="true">
@@ -38,11 +38,11 @@ export function Field({ id, label, required, help, error, className, children }:
         "aria-describedby": noteId,
       })}
       {error ? (
-        <p id={noteId} className="text-[.8rem] text-due" role="alert">
+        <p id={noteId} className="text-xs text-due" role="alert">
           {error}
         </p>
       ) : help ? (
-        <p id={noteId} className="text-[.8rem] text-ink-3">
+        <p id={noteId} className="text-xs text-ink-3">
           {help}
         </p>
       ) : null}

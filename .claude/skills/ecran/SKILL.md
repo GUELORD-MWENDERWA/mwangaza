@@ -70,12 +70,12 @@ Maquettes marquées « à valider » dans `maquettes/README.md` : dessinées par
 - **Permissions** : masquer les actions selon les codes de `docs/04-modele-de-donnees.md` § 8 ; le serveur vérifie de son côté.
 - **États** que la maquette ne montre pas : chargement, liste vide, erreur, hors-ligne, opérations en attente — les traiter avec `Banner`, `StatusPill`, squelettes, dans le style du système.
 - **Clavier** : reprendre les raccourcis indiqués (caisse : `Ctrl K` rechercher, `F9` valider, `Échap` changer d'élève) ; double-clic / double envoi protégé sur les actions d'argent.
-- Mobile : vérifier l'écran à 390 px ; le Portail est conçu mobile d'abord.
+- Téléphone et bureau : l'écran marche à 390 px et à 1440 px ; le Portail est conçu mobile d'abord. Tailles de texte de l'échelle et couleurs des jetons seulement (`design.test.ts`).
 
 ## 4. Vérifier
 
 1. Tests (« Économie de tokens » de `CLAUDE.md`) : Vitest pour les règles `.note` qui protègent quelque chose (permissions masquées, argent, règle métier) — pas de test de libellé ou de mise en page ; Playwright seulement pour un chemin critique (connexion, caisse, hors-ligne). Lancer seulement le dossier touché, depuis `frontend/` : `pnpm exec vitest run apps/gestion/src/features/<dossier>`. Écrans de la Gestion (`*.test.tsx`) : `renderApp("/adresse")` (`src/test/render.tsx` ; guide de première connexion déjà vu, sauf `renderApp("/", { guide: true })`), faux serveur `mockApi({"GET /api/…": réponse})` (il renvoie les requêtes reçues avec `query` et `body`), `apiError(code, statut)` (`src/test/api.ts`), comptes `me("cashier")`, `platformAdmin()` (`src/test/fixtures.ts`). Parcours réels : `frontend/e2e/*.spec.ts` (`make test-e2e` ; un compte à code une seule fois par parcours : un code ne sert qu'une fois ; caissier ou comptable : `skipGuide(page)` après la connexion). Élément qu'une étape du guide doit montrer : attribut `data-guide` (`features/guide/guides.ts`).
-2. Une seule capture de l'écran construit, à 390 px, comparée à la maquette ; lister les différences restantes. Pas de capture à 1440 px ni de rejeu du parcours à la main.
+2. Deux captures de l'écran construit, 390 px et 1440 px, comparées aux captures de la maquette ; aucun élément ne dépasse de l'écran ; lister les différences restantes. Pas de rejeu du parcours à la main.
 3. Aucun texte en dur : `apps/gestion/textes.test.ts` le vérifie (Gestion, console et composants partagés) (texte entre balises, `label`, `placeholder`, `title`, `aria-label`, `alt` ; nom de la plateforme nulle part) ; `fr` et `en` aux mêmes clés : TypeScript et `packages/i18n/src/locales.test.ts`.
 
 ## 5. Rendre compte

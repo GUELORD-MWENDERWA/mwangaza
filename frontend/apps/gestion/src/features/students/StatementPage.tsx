@@ -68,7 +68,7 @@ function Statement({
               {option("upcoming", "statement-upcoming")}
               {option("payments", "statement-payments")}
               {option("hidePaid", "statement-hide-paid")}
-              <p className="text-[.82rem] text-ink-3">{t("students.print.statement.help")}</p>
+              <p className="text-sm text-ink-3">{t("students.print.statement.help")}</p>
               <Button asChild>
                 <a href={pdf} target="_blank" rel="noopener">
                   <Icon name="print" size={16} />

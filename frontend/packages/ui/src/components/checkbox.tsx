@@ -8,7 +8,7 @@ export function Checkbox({ className, ...props }: ComponentProps<typeof Checkbox
   return (
     <CheckboxPrimitive.Root
       className={cn(
-        "mt-px grid size-[18px] shrink-0 cursor-pointer place-items-center rounded-[4px] border-[1.5px] border-[#9aa5ad] bg-card text-white focus-visible:ring-3 focus-visible:ring-lake-50 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-55 data-[state=checked]:border-lake data-[state=checked]:bg-lake",
+        "mt-px grid size-[18px] shrink-0 cursor-pointer place-items-center rounded-[4px] border-[1.5px] border-field bg-card text-white focus-visible:ring-3 focus-visible:ring-lake-50 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-55 data-[state=checked]:border-lake data-[state=checked]:bg-lake",
         className,
       )}
       {...props}
@@ -36,7 +36,7 @@ type CheckboxFieldProps = ComponentProps<typeof CheckboxPrimitive.Root> & {
 
 export function CheckboxField({ id, label, className, ...props }: CheckboxFieldProps) {
   return (
-    <div className={cn("flex items-start gap-2.5 text-[.9rem]", className)}>
+    <div className={cn("flex items-start gap-2.5 text-md", className)}>
       <Checkbox id={id} {...props} />
       <label htmlFor={id} className="cursor-pointer">
         {label}

@@ -235,9 +235,7 @@ function DiscountForm({
             )}
           </Field>
           <div className="flex flex-col gap-1.5">
-            <span className="text-[.87rem] font-bold text-ink-2">
-              {t("students.discount.kind")}
-            </span>
+            <span className="text-sm font-bold text-ink-2">{t("students.discount.kind")}</span>
             <Segmented
               label={t("students.discount.kind")}
               value={kind}

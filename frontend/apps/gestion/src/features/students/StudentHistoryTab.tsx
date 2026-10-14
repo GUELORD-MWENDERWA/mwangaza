@@ -170,7 +170,7 @@ function Event({ entry }: { entry: HistoryEntry }) {
         ))}
         <div className="text-sm text-ink-3">{t("students.history.by", { name: who })}</div>
       </div>
-      <span className="text-[.78rem] whitespace-nowrap text-ink-3">
+      <span className="text-xs whitespace-nowrap text-ink-3">
         {formatDate(entry.created_at, i18n.language, school.timezone)} ·{" "}
         {formatTime(entry.created_at, i18n.language, school.timezone)}
       </span>

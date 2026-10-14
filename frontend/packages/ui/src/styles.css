@@ -1,4 +1,4 @@
-/* Thème Mwangaza pour Tailwind v4, partagé par la Gestion et le Portail.
+/* Thème Mwangaza pour Tailwind v4, partagé par la Gestion, le Portail et la Console.
    Source : `maquettes/assets/styles.css` (bloc :root) et skill `design`. Ne pas inventer de
    couleur, de rayon ni de taille : les reprendre des maquettes. */
 @import "tailwindcss";
@@ -27,11 +27,14 @@
   /* Espacements en pixels, comme les maquettes (la base du texte est 15 px). */
   --spacing: 4px;
 
-  /* Tailles de texte des maquettes : base 15 px, petit .85rem, minuscule .75rem, titres. */
-  --text-xs: 0.75rem;
+  /* Échelle de texte, la seule autorisée (base 15 px) : jamais `text-[…rem]`, jamais sous 12 px.
+     xs 12 px étiquettes · sm 12,75 secondaire · md 13,8 menu, tableaux denses · base 15 · titres. */
+  --text-xs: 0.8rem;
   --text-xs--line-height: 1.45;
   --text-sm: 0.85rem;
   --text-sm--line-height: 1.45;
+  --text-md: 0.92rem;
+  --text-md--line-height: 1.45;
   --text-base: 1rem;
   --text-base--line-height: 1.45;
   --text-lg: 1.15rem;
@@ -55,16 +58,17 @@
   --color-lake: #0e5c6b;
   --color-lake-700: #0a4652;
   --color-lake-50: #e6f0f2;
-  /* Neutres */
-  --color-ink: #1a2233;
-  --color-ink-2: #4a5568;
-  --color-ink-3: #77818f;
-  --color-surface: #f3f5f6;
+  /* Neutres tirés du basalte (gris chauds, jamais les gris bleutés par défaut de Tailwind).
+     Contrastes : ink-3 ≥ 4,5:1 sur surface et gray-50 ; bordure de champ ≥ 3:1 sur blanc. */
+  --color-ink: #211d1a;
+  --color-ink-2: #554d46;
+  --color-ink-3: #6e655d;
+  --color-surface: #f4f2ef;
   --color-card: #ffffff;
-  --color-line: #dde3e6;
-  --color-line-soft: #edf1f2;
-  --color-field: #c9d1d6;
-  --color-gray-50: #eef1f2;
+  --color-line: #e2dcd5;
+  --color-line-soft: #ede9e4;
+  --color-field: #958a80;
+  --color-gray-50: #efebe6;
   /* États : toujours avec un texte, jamais la couleur seule. */
   --color-ok: #1f7a4d;
   --color-ok-50: #e5f3eb;
@@ -74,6 +78,19 @@
   --color-warn-50: #fff1d6;
   --color-info: #0e5c6b;
   --color-info-50: #e6f0f2;
+  /* Nuances d'état : -200 bordure d'un bandeau ou d'un bouton, -900 texte sur le fond -50. */
+  --color-info-200: #c5dde1;
+  --color-ok-200: #bfe0cc;
+  --color-ok-900: #155436;
+  --color-due-200: #f2c4be;
+  --color-due-900: #7a1810;
+  --color-warn-200: #f3d9a4;
+  --color-warn-900: #6b4000;
+  --color-lamp-200: #f1d98f;
+  --color-lamp-900: #5c4300;
+  /* En-tête et pied de tableau ; voile sous un tiroir ou une fenêtre. */
+  --color-table-head: #f8f6f3;
+  --color-scrim: rgba(33, 29, 26, 0.5);
 
   /* Noms de shadcn/ui (skill `design`, « Correspondance shadcn/ui »). */
   --color-background: var(--color-surface);
@@ -96,8 +113,8 @@
   --radius-card: 12px;
   --radius-field: 8px;
   --radius-box: 10px;
-  --shadow-card: 0 1px 2px rgba(26, 34, 51, 0.06), 0 4px 12px rgba(26, 34, 51, 0.05);
-  --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --shadow-card: 0 1px 2px rgba(43, 39, 36, 0.07), 0 4px 12px rgba(43, 39, 36, 0.05);
+  --shadow-float: 0 8px 24px rgba(43, 39, 36, 0.22);
 
   --animate-drawer-in: drawer-in 180ms ease-out;
   --animate-fade-in: fade-in 180ms ease-out;

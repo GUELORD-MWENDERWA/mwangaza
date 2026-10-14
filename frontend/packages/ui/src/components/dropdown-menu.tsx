@@ -17,7 +17,7 @@ export function DropdownMenuContent({
       <Menu.Content
         sideOffset={sideOffset}
         className={cn(
-          "z-50 min-w-[220px] rounded-field bg-card p-1 text-[.85rem] text-ink shadow-float",
+          "z-50 min-w-[220px] rounded-field bg-card p-1 text-sm text-ink shadow-float",
           className,
         )}
         {...props}

@@ -91,7 +91,7 @@ function MatriculeForm({
           <div className="flex items-center justify-between gap-3">
             <label htmlFor="matricule-auto" className="cursor-pointer">
               <b>{t("organisation.matricule.auto")}</b>
-              <span className="block text-[.8rem] text-ink-3">
+              <span className="block text-xs text-ink-3">
                 {t(automatic ? "organisation.matricule.autoOn" : "organisation.matricule.autoOff")}
               </span>
             </label>
@@ -140,7 +140,7 @@ function MatriculeForm({
           )}
         </CardContent>
         <CardFooter>
-          <span className="text-[.8rem] text-ink-3">{t("organisation.matricule.note")}</span>
+          <span className="text-xs text-ink-3">{t("organisation.matricule.note")}</span>
           <Button
             type="submit"
             variant="outline"

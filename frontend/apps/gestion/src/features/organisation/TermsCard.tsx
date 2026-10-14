@@ -235,7 +235,7 @@ function TermsEditor({ year, drafts, onChange, onDone }: EditorProps) {
             className={cn("min-w-[180px]", !child && "font-bold")}
           />
           {errors.map((error) => (
-            <p key={error} role="alert" className="mt-1 text-[.8rem] text-due">
+            <p key={error} role="alert" className="mt-1 text-xs text-due">
               {error}
             </p>
           ))}

@@ -17,7 +17,7 @@ type SheetContentProps = ComponentProps<typeof Dialog.Content> & {
 export function SheetContent({ title, className, children, ...props }: SheetContentProps) {
   return (
     <Dialog.Portal>
-      <Dialog.Overlay className="fixed inset-0 z-40 animate-fade-in bg-[rgba(26,34,51,.55)]" />
+      <Dialog.Overlay className="fixed inset-0 z-40 animate-fade-in bg-scrim" />
       <Dialog.Content
         aria-describedby={undefined}
         className={cn(
@@ -53,7 +53,7 @@ export function DialogContent({
 }: DialogContentProps) {
   return (
     <Dialog.Portal>
-      <Dialog.Overlay className="fixed inset-0 z-40 animate-fade-in bg-[rgba(26,34,51,.45)]" />
+      <Dialog.Overlay className="fixed inset-0 z-40 animate-fade-in bg-scrim" />
       <Dialog.Content
         {...(description ? {} : { "aria-describedby": undefined })}
         className={cn(

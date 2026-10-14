@@ -77,7 +77,7 @@ def test_head_changes_the_colour(api, school, head):
 
     assert response.status_code == 200
     assert response.json()["primary_color"] == "#F2C94C"
-    assert response.json()["text_color"] == "#1A2233"
+    assert response.json()["text_color"] == "#211D1A"
     school.refresh_from_db()
     assert school.primary_color == "#F2C94C"
     [entry] = journal(school)

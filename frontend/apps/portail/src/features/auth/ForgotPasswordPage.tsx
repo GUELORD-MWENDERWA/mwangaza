@@ -65,7 +65,7 @@ export function ForgotPasswordPage() {
             className="flex flex-col gap-4"
             onSubmit={form.handleSubmit((values) => reset.mutate(values))}
           >
-            <h2 className="text-[1.4rem]">{t("portal.forgot.heading")}</h2>
+            <h2 className="text-xl">{t("portal.forgot.heading")}</h2>
             <p>
               <Trans i18nKey="portal.forgot.intro" components={{ b: <b /> }} />
             </p>

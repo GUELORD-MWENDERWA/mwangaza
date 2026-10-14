@@ -434,7 +434,7 @@ function LogoField({ settings, kind }: { settings: Settings; kind: "logo" | "log
   const fieldError = failed instanceof ApiError ? Object.values(failed.fields)[0]?.[0] : undefined;
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-[.87rem] font-bold text-ink-2">
+      <span className="text-sm font-bold text-ink-2">
         {t(monochrome ? "settings.logo.monochrome" : "settings.logo.label")}
       </span>
       <div className="flex flex-wrap items-center gap-3">
@@ -445,7 +445,7 @@ function LogoField({ settings, kind }: { settings: Settings; kind: "logo" | "log
             className="size-[84px] rounded-box border border-line bg-white object-contain p-1"
           />
         ) : monochrome ? (
-          <span className="grid size-[84px] place-items-center rounded-box border border-dashed border-line text-center text-[.75rem] text-ink-3">
+          <span className="grid size-[84px] place-items-center rounded-box border border-dashed border-line text-center text-xs text-ink-3">
             {t("settings.logo.none")}
           </span>
         ) : (
@@ -480,7 +480,7 @@ function LogoField({ settings, kind }: { settings: Settings; kind: "logo" | "log
               </Button>
             )}
           </div>
-          <span className="text-[.8rem] text-ink-3">
+          <span className="text-xs text-ink-3">
             {t(monochrome ? "settings.logo.monochromeHelp" : "settings.logo.help")}
           </span>
         </div>
@@ -497,7 +497,7 @@ function LogoField({ settings, kind }: { settings: Settings; kind: "logo" | "log
           }}
         />
       </div>
-      <p role="status" className="text-[.8rem] text-ok">
+      <p role="status" className="text-xs text-ok">
         {upload.isSuccess && t("settings.logo.saved")}
         {remove.isSuccess && t("settings.logo.removed")}
       </p>
@@ -549,7 +549,7 @@ function CurrenciesCard({ form }: CardProps) {
           </div>
         ))}
         {errors.enabled_currencies && (
-          <p role="alert" className="pt-2 text-[.8rem] text-due">
+          <p role="alert" className="pt-2 text-xs text-due">
             {errors.enabled_currencies.message}
           </p>
         )}

@@ -69,7 +69,7 @@ export function ActivatePage() {
             className="flex flex-col gap-4"
             onSubmit={form.handleSubmit((values) => activate.mutate(values))}
           >
-            <h2 className="text-[1.4rem]">{t("portal.activate.heading")}</h2>
+            <h2 className="text-xl">{t("portal.activate.heading")}</h2>
             {general && <Banner tone="due">{general}</Banner>}
             <Field
               id="phone"
@@ -128,7 +128,7 @@ export function ActivatePage() {
         <CardContent className="flex items-center gap-4">
           <div
             aria-hidden="true"
-            className="flex w-[150px] shrink-0 flex-col gap-1 rounded-card border border-line p-2.5 text-[.62rem] leading-tight"
+            className="flex w-[150px] shrink-0 flex-col gap-1 rounded-card border border-line p-2.5 text-xs leading-tight"
           >
             <span className="uppercase">{t("portal.activate.form")}</span>
             <span className="text-ink-3">……… ………</span>

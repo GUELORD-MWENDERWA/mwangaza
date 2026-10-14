@@ -109,11 +109,11 @@ export function RolesPage() {
                 onClick={() => setSelected(role.id)}
                 className={cn(
                   "cursor-pointer rounded-box border border-transparent px-3 py-2.5 text-left hover:bg-surface focus-visible:ring-3 focus-visible:ring-lake-50 focus-visible:outline-none",
-                  role.id === current?.id && "border-[#c5dde1] bg-lake-50",
+                  role.id === current?.id && "border-info-200 bg-lake-50",
                 )}
               >
                 <b className="block">{role.name}</b>
-                <span className="text-[.8rem] text-ink-3">
+                <span className="text-xs text-ink-3">
                   {t("rolesPage.members", { count: role.member_count })}
                 </span>
               </button>
@@ -234,7 +234,7 @@ function RoleEditor({ role, onDeleted }: { role: Role; onDeleted: () => void }) 
             {t("rolesPage.delete")}
           </Button>
           {role.member_count > 0 && (
-            <span className="text-[.8rem] text-ink-3">{t("rolesPage.deleteHelp")}</span>
+            <span className="text-xs text-ink-3">{t("rolesPage.deleteHelp")}</span>
           )}
         </div>
         <Button disabled={save.isPending} onClick={() => save.mutate()}>

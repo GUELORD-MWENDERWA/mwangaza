@@ -19,8 +19,8 @@ export function AuthFrame({
         <div className="mx-auto flex max-w-[440px] flex-col gap-5">
           <Brand large />
           <div className="flex flex-col gap-2">
-            <h1 className="text-[1.75rem] leading-tight">{title}</h1>
-            <p className="text-[1.05rem] text-basalt-soft">{subtitle}</p>
+            <h1 className="text-2xl leading-tight">{title}</h1>
+            <p className="text-base text-basalt-soft">{subtitle}</p>
           </div>
         </div>
       </header>

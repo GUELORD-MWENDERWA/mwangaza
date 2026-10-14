@@ -5,7 +5,7 @@ import { cn } from "../lib/cn";
 
 // `.pill` des maquettes : point de couleur devant le texte.
 const pillVariants = cva(
-  "inline-flex items-center gap-1.5 rounded-full px-2.5 py-[3px] text-[.78rem] font-bold whitespace-nowrap before:size-[7px] before:rounded-full before:bg-current before:content-['']",
+  "inline-flex items-center gap-1.5 rounded-full px-2.5 py-[3px] text-xs font-bold whitespace-nowrap before:size-[7px] before:rounded-full before:bg-current before:content-['']",
   {
     variants: {
       tone: {
@@ -34,7 +34,7 @@ export function Tag({ className, lot, ...props }: ComponentProps<"span"> & { lot
     <span
       className={cn(
         "inline-block rounded-[6px] px-2 py-0.5 text-xs font-bold",
-        lot ? "bg-lamp-soft text-[#6b4f00]" : "bg-gray-50 text-ink-2",
+        lot ? "bg-lamp-soft text-lamp-900" : "bg-gray-50 text-ink-2",
         className,
       )}
       {...props}

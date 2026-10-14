@@ -12,7 +12,7 @@ export function Table({ className, ...props }: ComponentProps<"table">) {
     <div className="overflow-x-auto">
       <table
         className={cn(
-          "w-full border-collapse text-[.9rem] [&_td]:border-b [&_td]:border-line-soft [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-middle [&_th]:border-b [&_th]:border-line [&_th]:bg-[#f8fafa] [&_th]:px-3 [&_th]:py-2.5 [&_th]:text-left [&_th.text-right]:text-right [&_th]:text-[.8rem] [&_th]:font-bold [&_th]:whitespace-nowrap [&_th]:text-ink-2 [&_tr[aria-selected=true]_td]:bg-lake-50 [&_tr[data-tone=due]_td]:bg-due-50 [&_tr[data-tone=warn]_td]:bg-warn-50",
+          "w-full border-collapse text-md [&_td]:border-b [&_td]:border-line-soft [&_td]:px-3 [&_td]:py-2.5 [&_td]:align-middle [&_th]:border-b [&_th]:border-line [&_th]:bg-table-head [&_th]:px-3 [&_th]:py-2.5 [&_th]:text-left [&_th.text-right]:text-right [&_th]:text-xs [&_th]:font-bold [&_th]:whitespace-nowrap [&_th]:text-ink-2 [&_tr[aria-selected=true]_td]:bg-lake-50 [&_tr[data-tone=due]_td]:bg-due-50 [&_tr[data-tone=warn]_td]:bg-warn-50",
           className,
         )}
         {...props}

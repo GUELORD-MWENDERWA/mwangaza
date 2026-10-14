@@ -165,7 +165,7 @@ function PinUnlock({ accounts, onRetry }: { accounts: Account[]; onRetry: () => 
           </>
         ) : (
           <>
-            <Avatar text={personInitials(me)} className="size-[72px] text-[1.3rem]" />
+            <Avatar text={personInitials(me)} className="size-[72px] text-xl" />
             <h1 className="text-lg font-bold">{t("unlock.hello", { name: me.first_name })}</h1>
             <p className="text-sm text-ink-3">
               {school.name}
@@ -211,7 +211,7 @@ function PinUnlock({ accounts, onRetry }: { accounts: Account[]; onRetry: () => 
               </>
             ) : (
               <>
-                <p role="alert" className="text-[.92rem] text-due">
+                <p role="alert" className="text-md text-due">
                   {t(`unlock.${state}`)}
                 </p>
                 <Button variant="outline" onClick={onRetry}>
@@ -235,7 +235,7 @@ function Key(props: ComponentProps<"button">) {
   return (
     <button
       type="button"
-      className="grid h-[58px] cursor-pointer place-items-center rounded-[12px] border border-line bg-card text-[1.4rem] font-bold hover:bg-surface disabled:opacity-60"
+      className="grid h-[58px] cursor-pointer place-items-center rounded-[12px] border border-line bg-card text-xl font-bold hover:bg-surface disabled:opacity-60"
       {...props}
     />
   );

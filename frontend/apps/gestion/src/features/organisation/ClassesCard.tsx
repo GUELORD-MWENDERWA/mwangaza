@@ -380,7 +380,7 @@ function ClassDialog({ year, group, open, levels, tracks, onClose }: ClassDialog
             )}
           </Field>
           {group && (
-            <p className="text-[.8rem] text-ink-3 min-[600px]:col-span-2">
+            <p className="text-xs text-ink-3 min-[600px]:col-span-2">
               {t("organisation.classes.deleteHelp")}
             </p>
           )}

@@ -35,7 +35,7 @@ export function Nav({ me, onNavigate }: { me: Me; onNavigate?: () => void }) {
               onClick={onNavigate}
               className={({ isActive }) =>
                 cn(
-                  "relative flex min-h-11 items-center gap-2.5 rounded-field px-2.5 py-2 text-[.93rem] text-basalt-ink no-underline hover:bg-basalt-2 min-[900px]:min-h-0",
+                  "relative flex min-h-11 items-center gap-2.5 rounded-field px-2.5 py-2 text-md text-basalt-ink no-underline hover:bg-basalt-2 min-[900px]:min-h-0",
                   isActive &&
                     "bg-basalt-2 font-bold before:absolute before:top-1.5 before:bottom-1.5 before:-left-3 before:w-1 before:rounded-r-[4px] before:bg-lamp",
                 )
@@ -62,7 +62,7 @@ export function SchoolSwitcher({ me }: { me: Me }) {
   const box = (
     <>
       <span className="min-w-0 flex-1">
-        <b className="block truncate text-[.92rem]">{school.name}</b>
+        <b className="block truncate text-md">{school.name}</b>
         <span className="block truncate text-basalt-soft">{window.location.host}</span>
       </span>
       {me.schools.length > 1 && <Icon name="chevdown" size={16} />}
@@ -120,7 +120,7 @@ export function Sidebar({ me }: { me: Me }) {
       <div className="mt-auto px-2.5">
         <PlatformNewsLink />
       </div>
-      <div className="p-2.5 text-[.78rem] text-basalt-muted">
+      <div className="p-2.5 text-xs text-basalt-muted">
         {t("common.version", { version: __APP_VERSION__ })}
         {restart && (
           <>

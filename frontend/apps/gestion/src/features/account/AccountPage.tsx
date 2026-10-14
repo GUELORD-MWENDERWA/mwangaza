@@ -111,7 +111,7 @@ function IdentityCard({ me }: { me: Me }) {
           {(control) => <Input {...control} value={me.phone} readOnly className={readOnly} />}
         </Field>
         <div className="flex flex-col gap-1.5">
-          <span className="text-[.87rem] font-bold text-ink-2">{t("common.language")}</span>
+          <span className="text-sm font-bold text-ink-2">{t("common.language")}</span>
           <Segmented
             label={t("common.language")}
             value={language}
@@ -123,7 +123,7 @@ function IdentityCard({ me }: { me: Me }) {
             disabled={save.isPending}
             className="w-fit"
           />
-          <p role="status" className="text-[.8rem] text-ink-3">
+          <p role="status" className="text-xs text-ink-3">
             {save.isSuccess && t("account.identity.languageSaved")}
           </p>
         </div>

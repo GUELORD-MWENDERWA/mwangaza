@@ -32,7 +32,7 @@ APPS = {
     "portail": {"start_url": "/", "icons": "/icons/"},
 }
 # Couleurs du design (fond de l'écran de démarrage, barre du système) : pas celles de la plateforme.
-BACKGROUND = "#F3F5F6"
+BACKGROUND = "#F4F2EF"
 THEME = "#2B2724"
 
 

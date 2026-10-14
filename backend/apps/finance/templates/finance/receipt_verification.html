@@ -6,17 +6,17 @@
 <meta name="robots" content="noindex, nofollow">
 <title>{% block title %}{% translate "Receipt verification" %}{% endblock %} · {{ platform.name }}</title>
 <style>
-:root { --basalt: #2B2724; --basalt-2: #3A3531; --basalt-ink: #EDE8E3; --lamp: {{ platform.accent_color }}; --ink: #1A2233; --ink-3: #77818F; --surface: #F3F5F6; --line: #DDE3E6; --ok: #1F7A4D; --ok-50: #E5F3EB; --due: #B42318; --due-50: #FBE9E7; --warn: #9A5B00; --warn-50: #FFF1D6; }
+:root { --basalt: #2B2724; --basalt-2: #3A3531; --basalt-ink: #EDE8E3; --lamp: {{ platform.accent_color }}; --ink: #211D1A; --ink-3: #6E655D; --surface: #F4F2EF; --line: #E2DCD5; --ok: #1F7A4D; --ok-50: #E5F3EB; --due: #B42318; --due-50: #FBE9E7; --warn: #9A5B00; --warn-50: #FFF1D6; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--surface); color: var(--ink); font: 15px/1.45 "Atkinson Hyperlegible", system-ui, sans-serif; }
 .phone { max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
 header { background: var(--basalt); color: var(--basalt-ink); padding: 14px 16px 18px; }
 .brand { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; }
 .logo { height: 30px; max-width: 120px; object-fit: contain; }
-.mark { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 50% 55%, var(--lamp) 0 38%, transparent 40%), var(--basalt-2); box-shadow: 0 0 0 2px var(--lamp) inset; }
+.mark { width: 30px; height: 30px; flex: none; }
 header p { margin: 6px 0 0; color: #CFC7BF; font-size: .85rem; }
 main { padding: 16px; }
-.card { background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 1px 2px rgba(26,34,51,.06), 0 4px 12px rgba(26,34,51,.05); padding: 16px 18px; }
+.card { background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 1px 2px rgba(33,29,26,.06), 0 4px 12px rgba(33,29,26,.05); padding: 16px 18px; }
 .state { text-align: center; }
 .icon { width: 72px; height: 72px; border-radius: 50%; margin: 4px auto 0; display: grid; place-items: center; background: var(--due-50); color: var(--due); }
 [data-state="valid"] .icon { background: var(--ok-50); color: var(--ok); }
@@ -26,7 +26,7 @@ h1 { font-size: 1.4rem; margin: 12px 0 4px; }
 [data-state="pending"] h1 { color: var(--warn); }
 .state p { margin: 0; color: var(--ink-3); font-size: .85rem; }
 dl { margin: 12px 0 0; }
-dl div { display: flex; justify-content: space-between; gap: 10px; padding: 12px 0; border-bottom: 1px solid #EDF1F2; font-size: .85rem; }
+dl div { display: flex; justify-content: space-between; gap: 10px; padding: 12px 0; border-bottom: 1px solid #EDE9E4; font-size: .85rem; }
 dl div:last-child { border-bottom: 0; }
 dt { color: var(--ink-3); }
 .space { margin: 0 0 12px; padding: 10px 12px; border-radius: 8px; background: var(--warn-50); color: var(--warn); font-weight: 700; font-size: .85rem; text-align: center; }
@@ -36,7 +36,7 @@ dd { margin: 0; font-weight: 700; text-align: right; font-variant-numeric: tabul
 <body>
 <div class="phone">
 <header>
-  <div class="brand">{% if platform.logo_url %}<img class="logo" src="{{ platform.logo_url }}" alt="">{% else %}<span class="mark"></span>{% endif %}<b>{{ platform.name }}</b></div>
+  <div class="brand">{% if platform.logo_url %}<img class="logo" src="{{ platform.logo_url }}" alt="">{% else %}<svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M23 14C23 5 41 5 41 14" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/><path d="M18.5 14.5H45.5L41.5 21H22.5Z" fill="currentColor"/><path d="M22.5 21H41.5C48.5 27.5 48.5 43.5 41.5 50H22.5C15.5 43.5 15.5 27.5 22.5 21Z" fill="var(--lamp)"/><path d="M32 27C35.6 32 37 35.3 37 38.8A5 5 0 0 1 27 38.8C27 35.3 28.4 32 32 27Z" fill="#fff" fill-opacity=".9"/><path d="M16.5 50H47.5L45 58H19Z" fill="currentColor"/></svg>{% endif %}<b>{{ platform.name }}</b></div>
   <p>{% translate "Document verification" %}</p>
 </header>
 <main>

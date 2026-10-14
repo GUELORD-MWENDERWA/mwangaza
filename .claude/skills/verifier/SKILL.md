@@ -21,7 +21,7 @@ Périmètre : `git diff main...HEAD --stat` + `git status`, puis les passages ut
 | 8 | **Pas de nouvelle dépendance** | Diff de `pyproject.toml` / `requirements*` / `package.json` / `pnpm-lock.yaml` : toute nouvelle dépendance a été expliquée et acceptée par l'utilisateur. |
 | 9 | Conventions | Code en anglais, noms du glossaire ; logique dans `services.py` ; front par fonctionnalité (`features/…`) ; client API régénéré si l'OpenAPI a changé. |
 | 10 | Périmètre | Rien d'une version suivante (`05`) codé pendant la tâche. |
-| 11 | Design | Jetons et composants de la skill `design` ; pas de couleur ou taille inventée ; formats de montants via `packages/money`. |
+| 11 | Design | Jetons et composants de la skill `design` ; pas de couleur ou taille inventée (`apps/gestion/design.test.ts` vert) ; écran et maquette sans débordement à 390 et 1440 px (`captures.mjs` sans ✘) ; formats de montants via `packages/money`. |
 | 12 | Secrets | Aucun `.env`, mot de passe, clé ou jeton ajouté. Aucune donnée personnelle réelle de l'ITIG hors de `docs/ecole-pilote/prive/`. |
 | 13 | Tests et qualité | Lint et tests lancés une fois à la fin, résultat réel montré. Tests utiles seulement (isolation, permissions, argent, audit, règles métier) ; aucun test d'isolation, de permission, d'argent ou d'audit supprimé. Pas de N+1 dans les nouvelles listes, listes paginées. |
 | 14 | Suivi | Tâche cochée dans `docs/05`, `docs/06-suivi.md` à jour (état, compteur, journal de 3 à 5 lignes), décision notée dans `docs/03` seulement si c'en est une vraie. |

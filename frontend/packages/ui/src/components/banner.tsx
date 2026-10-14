@@ -5,21 +5,18 @@ import { Icon, type IconName } from "../icons";
 import { cn } from "../lib/cn";
 
 // `.banner` des maquettes : icône à gauche, texte ; la couleur n'est jamais seule.
-const bannerVariants = cva(
-  "flex items-center gap-3 rounded-box border px-3.5 py-2.5 text-[.9rem]",
-  {
-    variants: {
-      tone: {
-        info: "border-[#c5dde1] bg-info-50 text-lake-700",
-        warn: "border-[#f3d9a4] bg-warn-50 text-[#6b4000]",
-        due: "border-[#f2c4be] bg-due-50 text-[#7a1810]",
-        ok: "border-[#bfe0cc] bg-ok-50 text-[#155436]",
-        lamp: "border-[#f1d98f] bg-lamp-soft text-[#5c4300]",
-      },
+const bannerVariants = cva("flex items-center gap-3 rounded-box border px-3.5 py-2.5 text-md", {
+  variants: {
+    tone: {
+      info: "border-info-200 bg-info-50 text-lake-700",
+      warn: "border-warn-200 bg-warn-50 text-warn-900",
+      due: "border-due-200 bg-due-50 text-due-900",
+      ok: "border-ok-200 bg-ok-50 text-ok-900",
+      lamp: "border-lamp-200 bg-lamp-soft text-lamp-900",
     },
-    defaultVariants: { tone: "info" },
   },
-);
+  defaultVariants: { tone: "info" },
+});
 
 const icons: Record<NonNullable<VariantProps<typeof bannerVariants>["tone"]>, IconName> = {
   info: "info",

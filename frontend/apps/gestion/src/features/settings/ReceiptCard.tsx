@@ -35,9 +35,9 @@ export function headerLines(header: string): string[] {
 function Choice({ label, help, children }: { label: string; help?: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-[.87rem] font-bold text-ink-2">{label}</span>
+      <span className="text-sm font-bold text-ink-2">{label}</span>
       {children}
-      {help && <span className="text-[.8rem] text-ink-3">{help}</span>}
+      {help && <span className="text-xs text-ink-3">{help}</span>}
     </div>
   );
 }
@@ -60,9 +60,9 @@ export function ReceiptCard({ form }: CardProps) {
       <CardContent className="flex flex-col gap-4">
         <div
           aria-hidden
-          className="rounded-box border border-dashed border-line bg-white px-4 py-3 text-center text-[.8rem] leading-snug text-black"
+          className="rounded-box border border-dashed border-line bg-white px-4 py-3 text-center text-xs leading-snug text-black"
         >
-          <b className="block text-[.9rem] uppercase">{name}</b>
+          <b className="block text-md uppercase">{name}</b>
           {headerLines(header).map((line, index) => (
             <span key={index} className="block">
               {line}
@@ -71,7 +71,7 @@ export function ReceiptCard({ form }: CardProps) {
           {footer.trim() && (
             <>
               <hr className="my-2 border-dashed border-black/40" />
-              <span className="block text-[.72rem]">{footer}</span>
+              <span className="block text-xs">{footer}</span>
             </>
           )}
         </div>

@@ -23,18 +23,16 @@ export function History({
         <CardTitle>{t("console.schools.historyTitle")}</CardTitle>
       </CardHeader>
       {changes.length === 0 && (
-        <CardContent className="text-[.9rem] text-ink-3">
-          {t("console.identity.noChange")}
-        </CardContent>
+        <CardContent className="text-md text-ink-3">{t("console.identity.noChange")}</CardContent>
       )}
       <ul className="m-0 list-none p-0">
         {changes.map((change) => (
           <li
             key={change.id}
-            className="flex flex-col gap-0.5 border-t border-line px-4 py-2.5 text-[.9rem] first:border-t-0"
+            className="flex flex-col gap-0.5 border-t border-line px-4 py-2.5 text-md first:border-t-0"
           >
             <b>{t(`console.actions.${change.action}`)}</b>
-            <span className="text-[.82rem] text-ink-3">
+            <span className="text-sm text-ink-3">
               {formatDateTime(change.created_at, i18n.language, timeZone)}
               {change.actor && ` · ${[change.actor.first_name, change.actor.last_name].join(" ")}`}
             </span>
@@ -66,7 +64,7 @@ export function Differences({
     const name = label(field);
     return (
       name && (
-        <span key={field} className="text-[.85rem] break-words">
+        <span key={field} className="text-sm break-words">
           {t("console.identity.difference", {
             field: name,
             before: text(field, before[field]),

@@ -352,7 +352,7 @@ function CollectForm({
               className="size-12 text-base"
             />
             <div className="min-w-0 flex-1">
-              <h2 className="text-[1.15rem] font-bold">{chosen.name}</h2>
+              <h2 className="text-lg font-bold">{chosen.name}</h2>
               <p className="text-sm text-ink-3">
                 {[
                   chosen.classGroup,
@@ -491,7 +491,7 @@ function CollectForm({
                   value={text}
                   onChange={(event) => setText(event.target.value)}
                   aria-label={t("cash.collect.amount", { currency })}
-                  className="min-w-0 flex-1 bg-transparent text-[1.4rem] font-bold tabular-nums outline-none"
+                  className="min-w-0 flex-1 bg-transparent text-xl font-bold tabular-nums outline-none"
                 />
                 <span className="text-ink-3">{currencySymbol(currency)}</span>
               </label>
@@ -567,9 +567,7 @@ function CollectForm({
                   })}
                   <div className="border-t-2 border-ink">
                     <b>{t("cash.collect.total")}</b>
-                    <b className="text-[1.2rem] tabular-nums">
-                      {formatAmount(allocated, currency)}
-                    </b>
+                    <b className="text-lg tabular-nums">{formatAmount(allocated, currency)}</b>
                   </div>
                   <div>
                     <span className="text-ink-3">{t("cash.collect.remainingAfter")}</span>
@@ -594,7 +592,7 @@ function CollectForm({
           <Button data-guide="cash-collect" type="submit" size="xl" disabled={!ready}>
             <Icon name="cash" size={20} />
             {t("cash.collect.submit")}
-            <kbd className="ml-2 rounded-[5px] bg-white/20 px-1.5 text-[.8rem]">
+            <kbd className="ml-2 rounded-[5px] bg-white/20 px-1.5 text-xs">
               {t("cash.collect.submitKey")}
             </kbd>
           </Button>
