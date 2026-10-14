@@ -9,12 +9,22 @@ from django.db import DatabaseError, connection, transaction
 
 from apps.accounts.models import Membership, User
 from apps.audit.models import AuditLog, PlatformAuditLog
+from apps.core.tenancy import use_all_schools
 from apps.finance.models import Payment
 from apps.schools import deletion
 from apps.schools.models import School
 from tests.factories import MembershipFactory, SchoolFactory
 
 pytestmark = pytest.mark.django_db
+
+
+@pytest.fixture(autouse=True)
+def _seen_by_the_platform():
+    """Les comptages et le SQL brut de ces tests regardent comme la plateforme : la base laisse
+    voir toutes les écoles (S.6). Les requêtes de la console posent leur propre portée."""
+    with use_all_schools():
+        yield
+
 
 CONSOLE = "admin.localhost"
 SCHOOLS = "/api/console/schools/"

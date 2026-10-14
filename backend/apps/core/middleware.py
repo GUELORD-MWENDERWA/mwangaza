@@ -12,7 +12,13 @@ from django.http.request import split_domain_port
 from django.utils import timezone
 
 from apps.core.errors import SCHOOL_NOT_FOUND, SCHOOL_STOPPED, SCHOOL_SUSPENDED, ApiError
-from apps.core.tenancy import CONSOLE_SUBDOMAIN, RESERVED_SUBDOMAINS, use_school
+from apps.core.tenancy import (
+    CONSOLE_SUBDOMAIN,
+    RESERVED_SUBDOMAINS,
+    use_all_schools,
+    use_school,
+    use_schools,
+)
 from apps.schools.models import School
 
 
@@ -71,4 +77,44 @@ class TenantMiddleware:
                 return _error_response(SCHOOL_SUSPENDED)
         request.school = school
         with use_school(school), _school_timezone(school):
+            return self.get_response(request)
+
+
+PORTAL_PATH = "/api/portal/"
+ADMIN_PATH = "/admin/"
+
+
+def _db_scope(request: HttpRequest):
+    """Portée de la base d'une requête sans école (S.6) : toutes les écoles pour le super-admin
+    (console, administration Django), les écoles de ses familles pour un parent (Portail), aucune
+    sinon."""
+    user = request.user
+    if not user.is_authenticated:
+        return nullcontext()
+    if user.is_platform_admin and (
+        is_console_host(request.get_host()) or request.path.startswith(ADMIN_PATH)
+    ):
+        return use_all_schools()
+    if request.path.startswith(PORTAL_PATH):
+        from apps.students.models import Family
+
+        with use_all_schools():
+            school_ids = list(
+                Family.all_schools.filter(primary_user=user).values_list("school_id", flat=True)
+            )
+        return use_schools(school_ids)
+    return nullcontext()
+
+
+class RowSecurityMiddleware:
+    """Après l'authentification : portée de la base des requêtes sans école (`_db_scope`). Celles
+    d'une école ont déjà la sienne (`TenantMiddleware`)."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        if request.school is not None:
+            return self.get_response(request)
+        with _db_scope(request):
             return self.get_response(request)

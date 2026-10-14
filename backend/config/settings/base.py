@@ -75,6 +75,8 @@ MIDDLEWARE = [
     "apps.audit.middleware.AuditMiddleware",
     # Compte super-admin : adresses autorisées et session courte (S.3.1).
     "apps.accounts.privileged.PrivilegedAccountMiddleware",
+    # Portée de la base (S.6) des requêtes sans école : console, administration, Portail.
+    "apps.core.middleware.RowSecurityMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]

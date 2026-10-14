@@ -6,10 +6,24 @@ erreur de code.
 
 import pytest
 
-from apps.core.tenancy import CrossSchoolError, SchoolNotSetError, get_current_school, use_school
+from apps.core.tenancy import (
+    CrossSchoolError,
+    SchoolNotSetError,
+    get_current_school,
+    use_all_schools,
+    use_school,
+)
 from tests.sample.models import Comment, Note
 
 pytestmark = pytest.mark.django_db
+
+
+@pytest.fixture(autouse=True)
+def _database_sees_every_school():
+    """Ici, la première barrière (le modèle) : la base, deuxième barrière (S.6,
+    `test_row_security.py`), laisse voir toutes les écoles, sauf dans `use_school`."""
+    with use_all_schools():
+        yield
 
 
 @pytest.fixture

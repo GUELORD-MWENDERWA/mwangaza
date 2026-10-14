@@ -279,10 +279,11 @@ def test_a_saved_rate_is_never_changed_or_deleted(alpha, head, school):
             ExchangeRate.objects.update(rate=Decimal("1"))
         with pytest.raises(ImmutableRateError):
             rate.delete()
-    for sql in ("UPDATE finance_exchangerate SET rate = 1", "DELETE FROM finance_exchangerate"):
-        with pytest.raises(DatabaseError), transaction.atomic(), connection.cursor() as cursor:
-            cursor.execute(sql)
-    assert ExchangeRate.all_schools.get(pk=rate.pk).rate == Decimal("2850")
+        # Même en SQL brut, sur les lignes que la base laisse voir (S.6) : le déclencheur refuse.
+        for sql in ("UPDATE finance_exchangerate SET rate = 1", "DELETE FROM finance_exchangerate"):
+            with pytest.raises(DatabaseError), transaction.atomic(), connection.cursor() as cursor:
+                cursor.execute(sql)
+        assert ExchangeRate.objects.get(pk=rate.pk).rate == Decimal("2850")
 
 
 # Devises de l'école (M5)

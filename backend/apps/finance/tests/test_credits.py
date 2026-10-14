@@ -143,10 +143,11 @@ def test_using_a_credit_pays_the_oldest_charges_of_its_currency_without_a_paymen
     assert entry.actor == head and entry.after["amount_minor"] == 3000
     assert api(head).post(f"{CREDITS}{credit.pk}/use/").json()["code"] == "credit_used"
 
-    with use_school(school), pytest.raises(ImmutablePaymentError):
-        allocation.save()
-    with pytest.raises(DatabaseError), transaction.atomic(), connection.cursor() as cursor:
-        cursor.execute("UPDATE finance_creditallocation SET amount_minor = 1")
+    with use_school(school):
+        with pytest.raises(ImmutablePaymentError):
+            allocation.save()
+        with pytest.raises(DatabaseError), transaction.atomic(), connection.cursor() as cursor:
+            cursor.execute("UPDATE finance_creditallocation SET amount_minor = 1")
 
 
 def test_a_credit_larger_than_what_is_owed_keeps_its_rest_to_process(

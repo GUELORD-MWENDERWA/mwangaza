@@ -20,6 +20,7 @@ from django.utils import timezone
 from apps.accounts.models import Membership, User
 from apps.accounts.phone import DEMO_PHONE_PREFIX
 from apps.core.models import TenantModel
+from apps.core.tenancy import use_all_schools
 from apps.notifications.models import PushSubscription
 from apps.schools.models import Demonstration, School
 from apps.students.models import Family
@@ -207,8 +208,9 @@ def run(school_id: str, *, then: Callable[[School], None] | None = None) -> None
     """Vide puis supprime l'espace `school_id`, déjà marqué « suppression en cours ». Rejouable :
     un nouveau passage efface ce qu'une panne a laissé. `then(école effacée)` tourne dans la
     transaction qui efface la ligne de l'école : une remise à zéro la recrée sans qu'elle manque
-    un instant, ou pas du tout (`demonstrations.recreation`)."""
-    with only_one() as free:
+    un instant, ou pas du tout (`demonstrations.recreation`). Tâche de la plateforme : la base
+    laisse voir toutes les écoles (S.6), les comptes servant ailleurs compris."""
+    with only_one() as free, use_all_schools():
         if not free:
             logger.warning("Suppression de l'espace %s : un autre passage tourne déjà", school_id)
             return

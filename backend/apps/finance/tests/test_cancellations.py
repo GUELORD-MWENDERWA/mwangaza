@@ -160,7 +160,9 @@ def test_cancelling_a_payment_voids_the_discount_credit_it_had_made_and_keeps_th
             first, actor=cashier, reason="Mauvais élève"
         )
         services.approve_cancellation(request, actor=head)
-        credits = list(StudentCredit.objects.order_by("created_at"))
+        credits = list(
+            StudentCredit.objects.select_related("source_discount").order_by("created_at")
+        )
 
     assert [(c.amount_minor, c.voided_at is not None) for c in credits] == [
         (6000, True),
