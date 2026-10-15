@@ -91,7 +91,23 @@ export function useValidation() {
   });
 }
 
-/** Bulletin (8.3.2) d'un élève de la classe : PDF ou son aperçu HTML. */
-export function reportCardUrl(classId: string, enrollmentId: string, output: "html" | "pdf") {
-  return `/api/class-groups/${classId}/report-card/?${new URLSearchParams({ enrollment: enrollmentId, output })}`;
+/** Réglages d'impression du bulletin (8.3.5) : notes seules sur le formulaire pré-imprimé, et
+ *  calage en mm (chaque imprimante décale un peu). */
+export type CardPrint = { gradesOnly: boolean; dx: number; dy: number };
+export const DEFAULT_CARD_PRINT: CardPrint = { gradesOnly: false, dx: 0, dy: 0 };
+
+/** Bulletin (8.3.2) d'un élève de la classe, ou de toute la classe sans `enrollmentId` (8.3.5) :
+ *  PDF ou son aperçu HTML. */
+export function reportCardUrl(
+  classId: string,
+  enrollmentId: string | null,
+  output: "html" | "pdf",
+  print: CardPrint = DEFAULT_CARD_PRINT,
+) {
+  const query = new URLSearchParams({ output });
+  if (enrollmentId) query.set("enrollment", enrollmentId);
+  if (print.gradesOnly) query.set("mode", "grades_only");
+  if (print.dx) query.set("dx", String(print.dx));
+  if (print.dy) query.set("dy", String(print.dy));
+  return `/api/class-groups/${classId}/report-card/?${query}`;
 }

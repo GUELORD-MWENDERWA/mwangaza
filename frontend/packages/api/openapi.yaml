@@ -3213,21 +3213,55 @@ paths:
       operationId: class_groups_report_card_retrieve
       description: |-
         Bulletin imprimable : PDF A4 ou son aperçu HTML, avec les places de la classe et un
-        QR code d'authenticité ; chaque PDF est noté dans le journal d'audit.
+        QR code d'authenticité ; sans `enrollment`, toute la classe (un élève par feuille) ;
+        `mode=grades_only` pour le formulaire pré-imprimé ; chaque élève imprimé est noté dans le
+        journal d'audit.
       parameters:
+      - in: query
+        name: dx
+        schema:
+          type: number
+          format: double
+          maximum: 10
+          minimum: -10
+          default: 0.0
+        description: Décalage horizontal, en mm.
+      - in: query
+        name: dy
+        schema:
+          type: number
+          format: double
+          maximum: 10
+          minimum: -10
+          default: 0.0
+        description: Décalage vertical, en mm.
       - in: query
         name: enrollment
         schema:
           type: string
           format: uuid
-        description: Inscription de l'élève dans cette classe.
-        required: true
+        description: 'Inscription de l''élève dans cette classe ; absente : toute
+          la classe, un élève par feuille (PDF seulement).'
       - in: path
         name: id
         schema:
           type: string
           format: uuid
         required: true
+      - in: query
+        name: mode
+        schema:
+          enum:
+          - full
+          - grades_only
+          type: string
+          default: full
+          minLength: 1
+        description: |-
+          `grades_only` : seules les valeurs, pour le formulaire pré-imprimé.
+
+          * `full` - full
+          * `grades_only` - grades_only
       - in: query
         name: output
         schema:

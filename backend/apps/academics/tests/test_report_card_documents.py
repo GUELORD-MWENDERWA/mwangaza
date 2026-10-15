@@ -177,6 +177,38 @@ def test_pdf_is_audited_but_not_the_preview_and_needs_a_grades_right(
         assert api(user).get(url(card), enrollment=card["amani"], output="html").status_code == 403
 
 
+def test_the_whole_class_prints_in_one_pdf_and_each_student_is_audited(
+    api, school, other_school, director, card
+):
+    validate_all(school, card)
+    client = api(director)
+    pdf = client.get(url(card), output="pdf")
+    assert pdf["Content-Type"] == "application/pdf"
+    with use_school(school):
+        logs = AuditLog.objects.filter(action=Action.GRADES_REPORT_CARD_PRINTED)
+        assert logs.count() == 2 and {log.actor for log in logs} == {director}
+    # Aperçu d'une classe entière : refusé ; autre école : introuvable.
+    assert client.get(url(card), output="html").status_code == 400
+    foreign = MembershipFactory(school=other_school, roles=["study_director"]).user
+    assert api(foreign, host="beta.localhost").get(url(card), output="pdf").status_code == 404
+
+
+def test_grades_only_keeps_the_values_and_hides_what_the_form_already_prints(api, director, card):
+    html = api(director).get(
+        url(card), enrollment=card["josue"], output="html", mode="grades_only", dx="1.5", dy="-2"
+    )
+    page = html.content.decode()
+    assert 'class="sheet only"' in page and "translate(1.5mm, -2.0mm)" in page
+    assert '<th rowspan="3" class="branches"' in page  # présent mais caché par la feuille de style
+    assert 'class="name mx lbl"' in page and "Physique" in page
+    full = api(director).get(url(card), enrollment=card["josue"], output="html").content.decode()
+    assert 'class="sheet"' in full
+    too_far = api(director).get(
+        url(card), enrollment=card["josue"], output="html", mode="grades_only", dx="30"
+    )
+    assert too_far.status_code == 400
+
+
 def test_a_school_neither_prints_nor_verifies_the_card_of_another(
     api, school, other_school, director, card
 ):

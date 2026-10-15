@@ -325,8 +325,28 @@ class ValidationSerializer(serializers.Serializer):
 class ReportCardSerializer(serializers.Serializer):
     """Bulletin (8.3.2) d'un élève de la classe."""
 
-    enrollment = serializers.UUIDField(help_text="Inscription de l'élève dans cette classe.")
+    enrollment = serializers.UUIDField(
+        required=False,
+        help_text="Inscription de l'élève dans cette classe ; absente : toute la classe, un élève "
+        "par feuille (PDF seulement).",
+    )
     output = serializers.ChoiceField(choices=["pdf", "html"], help_text="PDF, ou son aperçu HTML.")
+    mode = serializers.ChoiceField(
+        choices=["full", "grades_only"],
+        default="full",
+        help_text="`grades_only` : seules les valeurs, pour le formulaire pré-imprimé.",
+    )
+    dx = serializers.FloatField(
+        min_value=-10, max_value=10, default=0, help_text="Décalage horizontal, en mm."
+    )
+    dy = serializers.FloatField(
+        min_value=-10, max_value=10, default=0, help_text="Décalage vertical, en mm."
+    )
+
+    def validate(self, attrs):
+        if not attrs.get("enrollment") and attrs["output"] != "pdf":
+            raise serializers.ValidationError({"enrollment": "Required for the HTML preview."})
+        return attrs
 
 
 class MissingSheetSerializer(serializers.Serializer):

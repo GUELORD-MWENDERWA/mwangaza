@@ -1,11 +1,12 @@
 // Bulletin d'un élève (8.3.2, maquettes `bulletin` et `bulletin-education-de-base`) : le document
 // que le serveur met en PDF, avec les places de la classe et un QR code d'authenticité. Droit
-// `grades.enter_any` ou `grades.validate` ; l'impression de toute la classe suivra (8.3.3).
+// `grades.enter_any` ou `grades.validate` ; 8.3.5 : notes seules sur le formulaire pré-imprimé et toute la classe en un PDF.
 import { useTranslation } from "@mwangaza/i18n";
 import {
   Banner,
   Button,
   Card,
+  CheckboxField,
   CardContent,
   CardHeader,
   CardTitle,
@@ -21,7 +22,8 @@ import { studentName } from "../../lib/people";
 import { LoadError } from "../status/StatusPages";
 import { DocumentPreview } from "../students/DocumentPreview";
 import { useStudents } from "../students/data";
-import { reportCardUrl, useGrading, useReportStatus } from "./data";
+import { usePrintOptions } from "../printing/printOptions";
+import { DEFAULT_CARD_PRINT, reportCardUrl, useGrading, useReportStatus } from "./data";
 
 export function ReportCardPage() {
   const { t } = useTranslation();
@@ -29,6 +31,7 @@ export function ReportCardPage() {
   const [classId, setClassId] = useState("");
   const [search, setSearch] = useState("");
   const [enrollmentId, setEnrollmentId] = useState("");
+  const [print, setPrint] = usePrintOptions("report-card", DEFAULT_CARD_PRINT);
   const classes = grading.data?.classes ?? [];
   const groupId = classId || classes[0]?.id || "";
   const status = useReportStatus(groupId);
@@ -43,7 +46,7 @@ export function ReportCardPage() {
   const chosen = rows.find((row) => row.enrollment?.id === enrollmentId) ?? rows[0];
   const enrollment = chosen?.enrollment?.id ?? "";
   const missing = status.data?.missing_count ?? 0;
-  const pdf = enrollment ? reportCardUrl(groupId, enrollment, "pdf") : "";
+  const pdf = enrollment ? reportCardUrl(groupId, enrollment, "pdf", print) : "";
 
   return (
     <>
@@ -105,6 +108,44 @@ export function ReportCardPage() {
                   </ul>
                 </Banner>
               )}
+              <CheckboxField
+                id="grades-only"
+                label={t("reportCard.gradesOnly")}
+                checked={print.gradesOnly}
+                onCheckedChange={(checked) => setPrint({ gradesOnly: checked === true })}
+              />
+              <p className="-mt-2 text-sm text-ink-3">{t("reportCard.gradesOnlyHelp")}</p>
+              <div className="grid grid-cols-2 gap-2">
+                {(["dx", "dy"] as const).map((axis) => (
+                  <label key={axis} className="flex flex-col gap-1 text-sm">
+                    {t(`reportCard.${axis}`)}
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      step="0.5"
+                      min={-10}
+                      max={10}
+                      value={print[axis]}
+                      onChange={(event) => {
+                        const value = Number(event.target.value);
+                        setPrint({ [axis]: Math.min(10, Math.max(-10, value || 0)) });
+                      }}
+                    />
+                  </label>
+                ))}
+              </div>
+              {missing === 0 && classes.length > 0 && (
+                <Button asChild variant="outline">
+                  <a
+                    href={reportCardUrl(groupId, null, "pdf", print)}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    <Icon name="print" size={16} />
+                    {t("reportCard.printClass")}
+                  </a>
+                </Button>
+              )}
               {enrollment && missing === 0 && (
                 <>
                   <Button asChild>
@@ -127,7 +168,7 @@ export function ReportCardPage() {
             {enrollment ? (
               <DocumentPreview
                 title={t("reportCard.preview")}
-                src={reportCardUrl(groupId, enrollment, "html")}
+                src={reportCardUrl(groupId, enrollment, "html", print)}
               />
             ) : (
               <Banner tone="info">{t("reportCard.noStudent")}</Banner>

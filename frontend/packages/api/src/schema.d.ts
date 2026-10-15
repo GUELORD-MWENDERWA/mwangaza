@@ -906,7 +906,9 @@ export interface paths {
         };
         /**
          * @description Bulletin imprimable : PDF A4 ou son aperçu HTML, avec les places de la classe et un
-         *     QR code d'authenticité ; chaque PDF est noté dans le journal d'audit.
+         *     QR code d'authenticité ; sans `enrollment`, toute la classe (un élève par feuille) ;
+         *     `mode=grades_only` pour le formulaire pré-imprimé ; chaque élève imprimé est noté dans le
+         *     journal d'audit.
          */
         get: operations["class_groups_report_card_retrieve"];
         put?: never;
@@ -12319,8 +12321,19 @@ export interface operations {
     class_groups_report_card_retrieve: {
         parameters: {
             query: {
-                /** @description Inscription de l'élève dans cette classe. */
-                enrollment: string;
+                /** @description Décalage horizontal, en mm. */
+                dx?: number;
+                /** @description Décalage vertical, en mm. */
+                dy?: number;
+                /** @description Inscription de l'élève dans cette classe ; absente : toute la classe, un élève par feuille (PDF seulement). */
+                enrollment?: string;
+                /**
+                 * @description `grades_only` : seules les valeurs, pour le formulaire pré-imprimé.
+                 *
+                 *     * `full` - full
+                 *     * `grades_only` - grades_only
+                 */
+                mode?: "full" | "grades_only";
                 /**
                  * @description PDF, ou son aperçu HTML.
                  *
