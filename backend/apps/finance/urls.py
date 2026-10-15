@@ -18,6 +18,7 @@ router.register("student-credits", views.StudentCreditViewSet, basename="student
 router.register("unpaid", views.UnpaidViewSet, basename="unpaid")
 
 urlpatterns = [
+    path("receipt-register/", views.ReceiptRegisterView.as_view(), name="receipt-register"),
     path("dashboard/", views.DashboardView.as_view(), name="dashboard"),
     path("prior-payments/", views.PriorPaymentsView.as_view(), name="prior-payments"),
     path(

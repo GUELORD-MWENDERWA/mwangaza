@@ -65,6 +65,10 @@ test("documents imprimables", async ({ browser }) => {
       "impayes",
       `/api/unpaid/export/?output=html&group=class&page_per_class=false&phone=true&detail=true`,
     ],
+    [
+      "registre-recus",
+      `/api/receipt-register/?output=html&start=${new Date(Date.now() - 6 * 864e5).toISOString().slice(0, 10)}&end=${new Date().toISOString().slice(0, 10)}`,
+    ],
     ["lettres-invitation", `/api/families/letters/?class_group=${id.class_group}&output=html`],
     ["circulaire", `/api/announcements/${id.announcement}/circular/?output=html`],
     ["convocation", `/api/summons/${id.summons}/letter/?output=html`],

@@ -142,4 +142,25 @@ describe("Clôtures de caisse (M16)", () => {
     );
     expect(filtered.every((request) => /^\d{4}-\d{2}$/.test(request.query.month!))).toBe(true);
   });
+
+  it("le registre des reçus : un mois entier par défaut, une caisse au choix, les dates dans l'adresse du fichier", async () => {
+    mockApi(routes());
+    const { user } = renderApp("/cash-closings/register");
+
+    await screen.findByRole("option", { name: "Caisse : Caisse 2" });
+    await user.selectOptions(screen.getByRole("combobox", { name: "Caisse" }), C2.id);
+    const pdf = screen.getByRole("link", { name: "PDF" });
+    const query = new URL(pdf.getAttribute("href")!, "http://x").searchParams;
+    expect(query.get("start")).toMatch(/^\d{4}-\d{2}-01$/);
+    expect(query.get("end")).toMatch(/^\d{4}-\d{2}-(28|29|30|31)$/);
+    expect(query.get("cash_register")).toBe(C2.id);
+
+    // Fin avant le début : plus de fichier à ouvrir.
+    await user.click(screen.getByRole("radio", { name: "Dates" }));
+    const to = screen.getByLabelText("Au");
+    await user.clear(to);
+    await user.type(to, "2000-01-01");
+    expect(screen.queryByRole("link", { name: "PDF" })).toBeNull();
+    screen.getByText("La date de fin est avant la date de début.");
+  });
 });

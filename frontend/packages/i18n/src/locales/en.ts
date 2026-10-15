@@ -1380,6 +1380,7 @@ export const en: Messages<typeof fr> = {
         cancellation_rejected: "Payment cancellation refused",
         cancellation_reprinted: "Cancellation receipt reprinted",
         unpaid_exported: "Unpaid fees exported",
+        receipt_register_exported: "Receipt register exported",
         statement_printed: "Financial statement printed",
       },
       devices: {
@@ -2768,6 +2769,25 @@ export const en: Messages<typeof fr> = {
     },
   },
   closings: {
+    register_: {
+      crumb: "Receipt register",
+      title: "Receipt register",
+      subtitle:
+        "One receipt per line, by period and cash register: it replaces the stub book. Cancelled receipts stay listed but are not counted.",
+      period: "Period",
+      day: "One day",
+      month: "One month",
+      range: "Dates",
+      from: "From",
+      to: "To",
+      order: "The end date is before the start date.",
+      pdf: "PDF",
+      preview: "Register preview",
+      excelTitle: "Excel file",
+      excelHelp:
+        "One line per receipt: cash register, number, date, time, student, class, amount, currency, cashier, status and cancellation receipt; each cash register's totals at the bottom, by currency. One year at most; 3,000 receipts at most for the PDF.",
+      open: "Receipt register",
+    },
     title: "Cash closings",
     subtitle:
       "Every evening, each cashier counts the money in their cash register. Here you see the differences and the sessions left open.",

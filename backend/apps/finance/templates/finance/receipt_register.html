@@ -1,0 +1,86 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% translate "Receipt register" %}{% endblock %}
+{% block style %}
+@page { size: A4 landscape; }
+body { font-size: 9pt; }
+section + section { margin-top: 1.6em; }
+h1 { font-size: 1.5em; margin-top: .8em; }
+h2 { font-size: 1.1em; margin: 1.2em 0 .4em; }
+tr.cancelled td { color: #98A2B3; text-decoration: line-through; }
+tr.cancelled td.state { text-decoration: none; font-weight: 700; color: #B42318; }
+tfoot td { font-weight: 700; background: #EDF1F6; }
+.foot { margin-top: .8em; font-size: .9em; color: #475467; }
+{% endblock %}
+{% block content %}
+<div class="row between">
+  <div class="row">
+    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% endif %}
+    <div><b>{{ school_name|upper }}</b></div>
+  </div>
+  <div class="small" style="text-align:right">{% blocktranslate with date=printed_at|date:"d/m/Y" time=printed_at|time:"H:i" name=printed_by %}Printed on {{ date }} at {{ time }} by {{ name }}{% endblocktranslate %}</div>
+</div>
+
+<h1>{% translate "RECEIPT REGISTER" %}</h1>
+<p class="center small">{% blocktranslate with start=start|date:"d/m/Y" end=end|date:"d/m/Y" %}from {{ start }} to {{ end }}{% endblocktranslate %} · {% if register %}{{ register }}{% else %}{% translate "All cash registers" %}{% endif %} · {% blocktranslate count count=receipts %}{{ count }} receipt{% plural %}{{ count }} receipts{% endblocktranslate %}</p>
+
+{% for section in sections %}
+<section>
+<h2>{% blocktranslate with name=section.name %}Cash register: {{ name }}{% endblocktranslate %}</h2>
+<table>
+  <thead><tr>
+    <th>{% translate "Receipt" %}</th>
+    <th>{% translate "Date" %}</th>
+    <th>{% translate "Student" %}</th>
+    <th>{% translate "Class" %}</th>
+    <th class="num">{% translate "Amount" %}</th>
+    <th>{% translate "Cashier" %}</th>
+    <th>{% translate "Status" %}</th>
+  </tr></thead>
+  <tbody>
+  {% for row in section.rows %}
+  <tr{% if row.cancelled %} class="cancelled"{% endif %}>
+    <td>{{ row.number }}</td>
+    <td>{{ row.paid_at|date:"d/m/Y H:i" }}</td>
+    <td><b>{{ row.student }}</b></td>
+    <td>{{ row.class_group }}</td>
+    <td class="num">{{ row.amount }}</td>
+    <td>{{ row.cashier }}</td>
+    <td class="state">{% if row.cancelled %}{% translate "CANCELLED" %}{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+  <tfoot>
+  {% for total in section.totals %}
+  <tr>
+    <td colspan="4">{% blocktranslate count count=total.count %}Total · {{ count }} receipt{% plural %}Total · {{ count }} receipts{% endblocktranslate %}</td>
+    <td class="num">{{ total.amount }}</td>
+    <td colspan="2">{% if total.cancelled_count %}{% blocktranslate with count=total.cancelled_count amount=total.cancelled %}not counted: {{ count }} cancelled ({{ amount }}){% endblocktranslate %}{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tfoot>
+</table>
+</section>
+{% empty %}
+<p class="center muted">{% translate "No receipt over this period." %}</p>
+{% endfor %}
+
+{% if sections|length > 1 %}
+<h2>{% translate "All cash registers" %}</h2>
+<table>
+  <tfoot>
+  {% for total in grand_totals %}
+  <tr>
+    <td>{% blocktranslate count count=total.count %}Total · {{ count }} receipt{% plural %}Total · {{ count }} receipts{% endblocktranslate %}</td>
+    <td class="num">{{ total.amount }}</td>
+    <td>{% if total.cancelled_count %}{% blocktranslate with count=total.cancelled_count amount=total.cancelled %}not counted: {{ count }} cancelled ({{ amount }}){% endblocktranslate %}{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tfoot>
+</table>
+{% endif %}
+
+<div class="row between foot">
+  <div>{% translate "Cancelled receipts stay listed but are not counted. Amounts in each currency are shown separately, never converted or added up. Prior payments (no receipt) are not included." %}</div>
+  {% if signer or stamp %}{% include "core/_signer.html" %}{% else %}<div class="sign">{% translate "Signature and school stamp" %}<span></span></div>{% endif %}
+</div>
+{% endblock %}

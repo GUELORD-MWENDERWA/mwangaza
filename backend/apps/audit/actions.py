@@ -167,6 +167,11 @@ class Action(models.TextChoices):
     FINANCE_CREDIT_VOIDED = "finance.credit_voided", _("Student credit voided")
     # Impayés (G1) : chaque export (Excel, PDF) est noté, il contient des données personnelles.
     FINANCE_UNPAID_EXPORTED = "finance.unpaid_exported", _("Unpaid fees exported")
+    # Registre des reçus (DOC.3) : chaque fichier est noté (noms d'élèves, montants).
+    FINANCE_RECEIPT_REGISTER_EXPORTED = (
+        "finance.receipt_register_exported",
+        _("Receipt register exported"),
+    )
     # Situation financière (G2) : chaque PDF est noté, comme les exports des impayés.
     FINANCE_STATEMENT_PRINTED = "finance.statement_printed", _("Financial statement printed")
 
