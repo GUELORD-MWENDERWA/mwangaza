@@ -262,10 +262,24 @@ export const fr = {
     none: "Aucun rôle",
     deleted: "Rôle supprimé",
   },
+  signature: {
+    none: "Aucune image : signature à la main",
+    add: "Ajouter",
+    change: "Changer",
+    remove: "Retirer",
+    saved: "Image enregistrée.",
+    removed: "Image retirée.",
+    help: "Photo ou scan de la signature sur papier blanc, PNG ou JPEG, 1 Mo au plus : le fond blanc est retiré.",
+  },
   account: {
     title: "Mon compte",
     subtitle:
       "Vos informations de connexion. Elles valent pour toutes les écoles où vous travaillez.",
+    signature: {
+      title: "Ma signature",
+      label: "Signature",
+      help: "Posée sur les reçus, convocations et bordereaux que vous donnez dans cette école. Photo ou scan sur papier blanc, PNG ou JPEG, 1 Mo au plus : le fond blanc est retiré.",
+    },
     identity: {
       title: "Identité",
       lastName: "Nom",
@@ -501,6 +515,18 @@ export const fr = {
       zoneLubumbashi: "Goma, Bukavu, Kisangani, Lubumbashi (UTC+2)",
       zoneKinshasa: "Kinshasa, Mbandaka (UTC+1)",
       otherZones: "Autres fuseaux",
+    },
+    signing: {
+      title: "Signature et cachet",
+      intro:
+        "Posés sur les reçus, fiches d'inscription, situations financières, circulaires et lettres aux parents. Sans image, la ligne reste à signer à la main. Ce qui prouve qu'un reçu est authentique, c'est son QR code, pas l'image.",
+      headName: "Nom du chef d'établissement",
+      headTitle: "Titre",
+      headTitleHelp: "Sous la signature, ex. Préfet des études.",
+      headSignature: "Signature du chef d'établissement",
+      stamp: "Cachet de l'école",
+      stampHelp:
+        "Photo ou scan du cachet sur papier blanc, PNG ou JPEG, 1 Mo au plus : le fond blanc est retiré.",
     },
     logo: {
       title: "Logo et couleur",
@@ -1276,6 +1302,7 @@ export const fr = {
         deactivated: "Compte désactivé",
         reactivated: "Compte réactivé",
         account_changed: "Noms ou téléphone changés",
+        signature_changed: "Signature changée",
         password_reset: "Nouveau mot de passe provisoire",
         totp_reset: "Double authentification réinitialisée",
       },
@@ -1283,6 +1310,7 @@ export const fr = {
         created: "École créée",
         updated: "Paramètres de l'école modifiés",
         logo_changed: "Logo changé",
+        signature_changed: "Cachet ou signature du chef changé",
         suspended: "École suspendue",
         reactivated: "École réactivée",
         stopped: "École arrêtée",

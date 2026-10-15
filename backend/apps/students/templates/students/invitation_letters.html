@@ -15,6 +15,10 @@ h1 { margin: .7em 0 .3em; font-size: 1.35em; }
 .code { border: 2px dashed #101828; border-radius: 6px; padding: .4em .8em; text-align: center; }
 .code b { display: block; font-size: 1.8em; letter-spacing: .08em; font-family: "DejaVu Sans Mono", monospace; }
 .foot { position: absolute; left: 14mm; right: 14mm; bottom: 7mm; }
+.letter > .signer { position: absolute; right: 14mm; bottom: 4mm; font-size: .85em; }
+.letter > .signer .signer__marks { height: 16mm; }
+.letter > .signer .signer__signature { max-height: 15mm; }
+.letter > .signer .signer__stamp { max-height: 16mm; }
 {% endblock %}
 {% block content %}
 {% for letter in letters %}
@@ -39,6 +43,7 @@ h1 { margin: .7em 0 .3em; font-size: 1.35em; }
   {% if letter.expires_at %}<p class="small"><b>{% blocktranslate with date=letter.expires_at|date:"d/m/Y" %}This code works once, until {{ date }}.{% endblocktranslate %}</b></p>{% endif %}
   <p class="small">{% translate "Not your number any more, or a problem? Ask the school's secretariat. Do not give this code to anyone: it opens your family's account." %}</p>
   <p class="small muted foot">{% blocktranslate with date=printed_at|date:"d/m/Y" %}Printed on {{ date }} by {{ printed_by }}{% endblocktranslate %}</p>
+  {% if signer or stamp %}{% include "core/_signer.html" %}{% endif %}
 </section>
 {% endfor %}
 {% endblock %}

@@ -256,8 +256,8 @@ Rien pour l'instant.
 | Adresse | Quoi |
 |---|---|
 | http://itig.localhost:5173/app/ | Gestion (le sous-domaine = code de l'école) : connexion avec un compte de `make demo` (mot de passe `mwangaza-demo`, code de `make totp`), menu selon le rôle ; caissier et comptable : guide de première connexion (« Aide et guide » en bas du menu pour le revoir) |
-| http://itig.localhost:5173/app/account | Mon compte : langue, mot de passe, double authentification, écoles, déconnexion |
-| http://itig.localhost:5173/app/settings | Paramètres de l'école : nom, logo, couleur, fuseau, devises, alertes au directeur, relances aux parents (à activer ; jours avant l'échéance, intervalle des rappels) (directeur) |
+| http://itig.localhost:5173/app/account | Mon compte : langue, ma signature (posée sur les reçus que je donne), mot de passe, double authentification, écoles, déconnexion |
+| http://itig.localhost:5173/app/settings | Paramètres de l'école : nom, logo, couleur, fuseau, devises, alertes au directeur, relances aux parents (à activer ; jours avant l'échéance, intervalle des rappels), cachet de l'école, nom, titre et signature du chef (directeur) |
 | http://itig.localhost:5173/app/organisation | Organisation scolaire : année, découpage, niveaux, options, classes, matricule — son format, et l'interrupteur « Attribuer un matricule automatiquement » (sur non, l'école garde les siens ou n'en a pas) (directeur, directeur des études `0000001002`) |
 | http://itig.localhost:5173/app/courses | Cours et maxima (directeur, directeur des études ; module « Cours, notes et bulletins ») : choisir la classe, appliquer un modèle officiel, corriger maxima, examen, heures et enseignant, « Enregistrer » ; « Copier vers d'autres classes » |
 | http://itig.localhost:5173/app/teaching-loads | Charges des enseignants : heures par semaine de chacun, cours sans enseignant |

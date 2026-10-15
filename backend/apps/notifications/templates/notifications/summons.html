@@ -31,7 +31,7 @@ td.label { width: 28%; background: #EDF1F6; }
 <p>{% translate "Your presence is necessary. If you cannot come, please tell the school before that day." %}</p>
 <div class="signature">
   <p>{% translate "For the school," %}</p>
-  <p style="margin-top:2.5em"><b>{{ signed_by }}</b></p>
+  {% if signer or stamp %}{% include "core/_signer.html" %}{% else %}<p style="margin-top:2.5em"><b>{{ signed_by }}</b></p>{% endif %}
 </div>
 <div class="slip">
   <p><b>{% translate "SLIP TO RETURN TO THE SCHOOL" %}</b> — {{ student.full_name }} ({{ summons.class_name }})</p>

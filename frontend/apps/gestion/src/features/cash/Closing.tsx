@@ -28,7 +28,7 @@ import { useEffect, useState } from "react";
 
 import { firstErrorMessage } from "../../lib/errors";
 import { fullName } from "../../lib/people";
-import { keys } from "../../lib/queries";
+import { keys, useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { LoadError } from "../status/StatusPages";
 import { headerLines } from "../settings/ReceiptCard";
@@ -38,6 +38,7 @@ import { useSessionClosing } from "./data";
 import { queueClosing } from "./localData";
 import { schoolDay, sessionPayments } from "./offline";
 import { ReceiptPages, usePrintArea } from "./Receipt";
+import { SignatureMark, signatureOf } from "./signatures";
 import "./receipt.css";
 
 type Session = Schemas["CashSession"];
@@ -419,10 +420,11 @@ function Summary({ data, unsynced }: { data: ClosingData; unsynced?: number }) {
   );
 }
 
-/** Bordereau de clôture, au format de reçu de l'école, un exemplaire : à signer par le caissier
- *  et le comptable qui reçoit l'argent. */
+/** Bordereau de clôture, au format de reçu de l'école, un exemplaire : signé par le caissier (sa
+ *  signature déposée, DOC.1) et, à la main, par le comptable qui reçoit l'argent. */
 function SlipCopy({ slip }: { slip: Slip }) {
   const { t, i18n } = useTranslation();
+  const me = useCurrentMe();
   const school = useCurrentSchool();
   const when = (value: string) => formatDateTime(value, i18n.language, school.timezone);
   const cancelled = slip.data.cancelled.reduce((sum, row) => sum + row.count, 0);
@@ -490,7 +492,7 @@ function SlipCopy({ slip }: { slip: Slip }) {
       <div className="receipt__sign">
         <p>
           {t("cash.closing.slip.signCashier")}
-          <br />
+          <SignatureMark src={signatureOf(me, slip.session.cashier.id)} />
           <b>{fullName(slip.session.cashier)}</b>
         </p>
         <p>{t("cash.closing.slip.signAccountant")}</p>

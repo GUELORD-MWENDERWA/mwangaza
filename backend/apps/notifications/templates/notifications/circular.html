@@ -20,6 +20,6 @@ h1 { margin: 1.4em 0 .6em; font-size: 1.4em; }
 <div class="body">{{ announcement.body }}</div>
 <div class="signature">
   <p>{% translate "For the school," %}</p>
-  <p style="margin-top:2.5em"><b>{{ signed_by }}</b></p>
+  {% if signer or stamp %}{% include "core/_signer.html" %}{% else %}<p style="margin-top:2.5em"><b>{{ signed_by }}</b></p>{% endif %}
 </div>
 {% endblock %}

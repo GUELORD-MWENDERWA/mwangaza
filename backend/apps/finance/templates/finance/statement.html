@@ -58,7 +58,7 @@ tr.overdue td { font-weight: 700; }
 
 <div class="row between foot">
   <div>{% translate "Information document: this is not a receipt." %}<br>{% blocktranslate with date=printed_at|date:"d/m/Y" time=printed_at|time:"H:i" name=printed_by %}Printed on {{ date }} at {{ time }} by {{ name }}{% endblocktranslate %}</div>
-  <div class="sign">{% translate "Signature and school stamp" %}<span></span></div>
+  {% if signer or stamp %}{% include "core/_signer.html" %}{% else %}<div class="sign">{% translate "Signature and school stamp" %}<span></span></div>{% endif %}
 </div>
 </section>
 {% endfor %}{% endblock %}

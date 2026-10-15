@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { json, mockApi, type Routes } from "../../test/api";
-import { charge, fakeId, me, school, studentCredit } from "../../test/fixtures";
+import { charge, fakeId, me, NO_SIGNATURES, school, studentCredit } from "../../test/fixtures";
 import { renderApp } from "../../test/render";
 
 const cashier = { id: fakeId(1), last_name: "Kavira", middle_name: "", first_name: "Jeanne" };
@@ -181,9 +181,15 @@ describe("Caisse (F1-F2)", () => {
       return json(receipt, 201);
     };
     all[`POST /api/payments/${receipt.id}/reprint/`] = receipt;
+    const account = me("cashier");
+    account.school!.documents = { ...NO_SIGNATURES, stamp: "/api/school/stamp/?v=1" };
+    all["GET /api/me/"] = account;
     const printed: string[] = [];
+    const images: string[][] = [];
     vi.spyOn(window, "print").mockImplementation(() => {
       printed.push(document.querySelector(".print-area")?.textContent ?? "");
+      const shown = document.querySelectorAll(".print-area img");
+      images.push([...shown].map((image) => image.getAttribute("src") ?? ""));
     });
     const requests = mockApi(all);
     const { user } = renderApp("/cash");
@@ -233,6 +239,10 @@ describe("Caisse (F1-F2)", () => {
     expect(printed[0]).toMatch(/Reste de l'année15,00\s\$ \+ 30\s000\sFC/);
     expect(printed[0]).not.toContain("Taux utilisé");
     expect(printed[0]).not.toContain("Duplicata");
+    // Signature de la caissière qui a encaissé (pas celle du compte) et cachet de l'école (DOC.1).
+    expect(images[0]).toEqual(
+      expect.arrayContaining([`/api/school/signatures/${cashier.id}/`, "/api/school/stamp/?v=1"]),
+    );
     // Réimpression (F6) : notée par le serveur, marquée DUPLICATA.
     await user.click(screen.getByRole("button", { name: "Réimprimer" }));
     await waitFor(() => expect(printed).toHaveLength(2));

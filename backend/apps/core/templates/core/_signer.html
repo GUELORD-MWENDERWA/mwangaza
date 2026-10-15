@@ -1,0 +1,9 @@
+{% comment %}Bas d'un document (DOC.1) : titre, signature déposée (sinon la place de signer à la main), cachet posé dessus, nom. Images en `data:` seulement (`signatures.signature_context`).{% endcomment %}
+<div class="signer">
+  {% if signer.title %}<div>{{ signer.title }}</div>{% endif %}
+  <div class="signer__marks">
+    {% if signer.signature %}<img class="signer__signature" src="{{ signer.signature }}" alt="">{% endif %}
+    {% if stamp %}<img class="signer__stamp" src="{{ stamp }}" alt="">{% endif %}
+  </div>
+  {% if signer.name %}<b>{{ signer.name }}</b>{% endif %}
+</div>

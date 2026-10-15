@@ -70,7 +70,8 @@ def test_demo_puts_back_the_demo_logos(demo, settings):
     assert not (media / stored).exists()
     # Logo public de l'ITIG, un seul fichier gardé même après plusieurs `make demo`.
     assert itig.logo.name.endswith(".png")
-    assert len(list((media / "schools" / str(itig.pk)).iterdir())) == 1
+    folder = media / "schools" / str(itig.pk)
+    assert len([f for f in folder.iterdir() if f.name.startswith("logo")]) == 1
 
 
 def test_demo_puts_back_a_suspended_school(demo):

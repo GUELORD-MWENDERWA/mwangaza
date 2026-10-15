@@ -29,10 +29,11 @@ def user_agent(request) -> str:
     return request.META.get("HTTP_USER_AGENT", "")[:USER_AGENT_MAX_LENGTH]
 
 
-def serve_image(file) -> HttpResponse | None:
+def serve_image(file, *, private: bool = False) -> HttpResponse | None:
     """Logo ou icône public (hors de l'API typée : c'est une image) ; None s'il manque. Un SVG
     ne peut rien exécuter, même ouvert seul dans le navigateur. L'adresse donnée par l'API change
-    avec chaque fichier : il peut rester un jour en cache."""
+    avec chaque fichier : il peut rester un jour en cache. `private` : cachet ou signature (DOC.1),
+    gardés par le navigateur du compte (reçu imprimé hors ligne), jamais par un cache partagé."""
     if not file:
         return None
     try:
@@ -43,5 +44,5 @@ def serve_image(file) -> HttpResponse | None:
     response = FileResponse(content, content_type=LOGO_TYPES.get(kind, "application/octet-stream"))
     response["X-Content-Type-Options"] = "nosniff"
     response["Content-Security-Policy"] = "default-src 'none'; style-src 'unsafe-inline'; sandbox"
-    response["Cache-Control"] = "public, max-age=86400"
+    response["Cache-Control"] = f"{'private' if private else 'public'}, max-age=86400"
     return response

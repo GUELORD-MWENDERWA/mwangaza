@@ -40,6 +40,7 @@ class Action(models.TextChoices):
     STAFF_DEACTIVATED = "staff.deactivated", _("Staff member deactivated")
     STAFF_REACTIVATED = "staff.reactivated", _("Staff member reactivated")
     STAFF_ACCOUNT_CHANGED = "staff.account_changed", _("Staff member's names or phone changed")
+    STAFF_SIGNATURE_CHANGED = "staff.signature_changed", _("Staff member's signature changed")
     STAFF_PASSWORD_RESET = "staff.password_reset", _("Temporary password given")
     STAFF_TOTP_RESET = "staff.totp_reset", _("Two-factor authentication reset")
 
@@ -48,6 +49,10 @@ class Action(models.TextChoices):
     SCHOOL_CREATED = "school.created", _("School created")
     SCHOOL_UPDATED = "school.updated", _("School settings changed")
     SCHOOL_LOGO_CHANGED = "school.logo_changed", _("School logo changed")
+    SCHOOL_SIGNATURE_CHANGED = (
+        "school.signature_changed",
+        _("School stamp or signature of the head changed"),
+    )
     SCHOOL_SUSPENDED = "school.suspended", _("School suspended")
     SCHOOL_REACTIVATED = "school.reactivated", _("School reactivated")
     SCHOOL_STOPPED = "school.stopped", _("School stopped")

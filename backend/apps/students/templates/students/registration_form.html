@@ -62,8 +62,8 @@ td.label { width: 22%; }
 
 <div class="row between signatures">
   <div>{% translate "Parent's signature" %}<br><br>……………………</div>
-  <div>{% translate "The school office" %}<br><b>{{ printed_by }}</b></div>
-  <div>{% translate "School seal" %}</div>
+  {% if signer or stamp %}{% include "core/_signer.html" %}{% else %}<div>{% translate "The school office" %}<br><b>{{ printed_by }}</b></div>
+  <div>{% translate "School seal" %}</div>{% endif %}
 </div>
 
 {% if family_code %}

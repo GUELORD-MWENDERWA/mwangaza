@@ -6,12 +6,15 @@ Les données d'exemple sont rangées par **profil** (`itig` : grande école tech
 `volcans` : petite, ≈ 150), pas par code d'école : la console en remplit d'autres espaces (4.17.2).
 """
 
+import io
 from dataclasses import dataclass
 from datetime import date, timedelta
 
 from django.conf import settings
 from django.core.files import File
+from django.core.files.base import ContentFile
 from django.utils import timezone
+from PIL import Image, ImageDraw
 
 from apps.academics.models import Evaluation
 from apps.accounts.models import User
@@ -159,6 +162,28 @@ def create_demo_schools(*, password: str, shared_totp_key: bool) -> list[DemoSpa
     return spaces
 
 
+def demo_signature(seed: int, *, stamp: bool = False) -> ContentFile:
+    """Image fictive (PNG détouré) : un paraphe, ou un cachet rond (jamais l'image d'une école)."""
+    image = Image.new("RGBA", (400, 400 if stamp else 160), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    if stamp:
+        ink = (30, 60, 140, 200)
+        draw.ellipse((10, 10, 390, 390), outline=ink, width=8)
+        draw.ellipse((70, 70, 330, 330), outline=ink, width=4)
+        draw.line([(120, 200), (280, 200)], fill=ink, width=6)
+    else:
+        ink = (20, 30, 90, 255)
+        points = [(10 + i * 38, 90 + ((i * 53 + seed * 29) % 70) - 35) for i in range(10)]
+        draw.line(points, fill=ink, width=5, joint="curve")
+    return ContentFile(_png(image), name="demo.png")
+
+
+def _png(image: Image.Image) -> bytes:
+    output = io.BytesIO()
+    image.save(output, "PNG")
+    return output.getvalue()
+
+
 def create_demo_look(spaces: list[DemoSpace]) -> None:
     """Couleur, réglages du reçu et logo du profil, remis comme au départ ; pas de logo noir et
     blanc."""
@@ -170,7 +195,13 @@ def create_demo_look(spaces: list[DemoSpace]) -> None:
         school.primary_color = look["primary_color"]
         school.settings = {"receipt": look["receipt"]}
         school.logo, school.logo_monochrome = "", ""
+        for image in (school.stamp, school.head_signature):
+            if image:
+                image.delete(save=False)
+        school.head_name, school.head_title = "Mukendi Kabasele", "Préfet des études"
         school.save()
+        school.stamp.save("stamp.png", demo_signature(0, stamp=True))
+        school.head_signature.save("signature.png", demo_signature(1))
         logo = DEMO_LOGOS.get(space.profile) if space.with_logo else None
         if logo is not None and logo.exists():
             with logo.open("rb") as file:

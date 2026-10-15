@@ -11,9 +11,9 @@ from rest_framework.fields import get_error_detail
 
 from apps.accounts.models import User
 from apps.core import health
-from apps.core.images import CleanedFileField
+from apps.core.images import CleanedFileField, clean_signature
 from apps.core.money import Currency
-from apps.schools import organisation, receipts
+from apps.schools import organisation, receipts, signatures
 from apps.schools.matricule import MAX_LENGTH as MAX_MATRICULE_LENGTH
 from apps.schools.models import (
     TRACK_CODE_PATTERN,
@@ -194,6 +194,12 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
     logo_monochrome = serializers.SerializerMethodField(
         help_text="Adresse du logo noir et blanc des reçus thermiques (public) ; null sans lui."
     )
+    stamp = serializers.SerializerMethodField(
+        help_text="Adresse du cachet (personnel connecté seulement) ; null sans lui (DOC.1)."
+    )
+    head_signature = serializers.SerializerMethodField(
+        help_text="Adresse de la signature du chef d'établissement ; null sans elle (DOC.1)."
+    )
     receipt = ReceiptSettingsSerializer(required=False)
     alerts = AlertSettingsSerializer(required=False)
     reminders = ReminderSettingsSerializer(required=False)
@@ -212,6 +218,10 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
             "timezone",
             "enabled_currencies",
             "default_currency",
+            "stamp",
+            "head_name",
+            "head_title",
+            "head_signature",
             "receipt",
             "alerts",
             "reminders",
@@ -222,6 +232,14 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
     @extend_schema_field(serializers.CharField(allow_null=True))
     def get_logo_monochrome(self, school: School) -> str | None:
         return logo_url(school, "logo_monochrome")
+
+    @extend_schema_field(serializers.CharField(allow_null=True))
+    def get_stamp(self, school: School) -> str | None:
+        return signatures.school_image_url(school, "stamp")
+
+    @extend_schema_field(serializers.CharField(allow_null=True))
+    def get_head_signature(self, school: School) -> str | None:
+        return signatures.school_image_url(school, "head_signature")
 
     def validate(self, data):
         # Mêmes règles que l'administration (`School.clean`) : devise principale parmi celles de
@@ -242,6 +260,27 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
 
 class LogoUploadSerializer(serializers.Serializer):
     logo = CleanedFileField(help_text="PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus.")
+
+
+class SignatureUploadSerializer(serializers.Serializer):
+    image = CleanedFileField(
+        clean=clean_signature,
+        help_text="Cachet ou signature : PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus ; "
+        "enregistré en PNG, le fond blanc rendu transparent.",
+    )
+
+
+class DocumentSignersSerializer(serializers.Serializer):
+    """Ce que la Gestion pose sur les documents qu'elle imprime (DOC.1) : adresses servies au
+    seul personnel connecté de l'école ; null : ligne à signer à la main."""
+
+    stamp = serializers.CharField(allow_null=True)
+    head_name = serializers.CharField()
+    head_title = serializers.CharField()
+    head_signature = serializers.CharField(allow_null=True)
+    signature = serializers.CharField(
+        allow_null=True, help_text="Signature du compte connecté dans cette école (Mon compte)."
+    )
 
 
 # Organisation scolaire (C1-C3)

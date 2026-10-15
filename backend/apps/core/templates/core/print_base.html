@@ -35,6 +35,10 @@ td.num, th.num { text-align: right; white-space: nowrap; font-variant-numeric: t
 tfoot td, tr.total td { font-weight: 700; background: #F7F9FC; }
 thead { display: table-header-group; }
 tr { break-inside: avoid; }
+.signer { display: inline-block; min-width: 48mm; text-align: center; break-inside: avoid; }
+.signer__marks { position: relative; height: 22mm; }
+.signer__signature { position: absolute; left: 0; right: 0; top: 1mm; margin: 0 auto; max-width: 48mm; max-height: 20mm; }
+.signer__stamp { position: absolute; left: 50%; top: 0; max-width: 30mm; max-height: 22mm; opacity: .92; }
 {% block style %}{% endblock %}
 </style>
 </head>

@@ -2,7 +2,7 @@
 // (`school.receipt`, carte « Reçus et documents ») : ticket thermique 80 ou 58 mm, ou reçus A6,
 // A5 ou petit format sur une feuille A4 avec traits de découpe ; 1 exemplaire, ou 2 avec la
 // souche de l'école. Tout vient du paiement (solde juste après lui compris) et de l'école, pour
-// qu'il s'imprime aussi hors ligne (3.5). QR code signé par l'appareil mémorisé (3.5.2). Zone
+// qu'il s'imprime aussi hors ligne (3.5) ; signature du caissier et cachet déposés (DOC.1). QR code signé par l'appareil mémorisé (3.5.2). Zone
 // cachée à l'écran, puis `window.print()`.
 import type { Schemas } from "@mwangaza/api";
 import { formatDateTime, formatDay, type TFunction, useTranslation } from "@mwangaza/i18n";
@@ -18,6 +18,7 @@ import { QrCode } from "../auth/QrCode";
 import { headerLines } from "../settings/ReceiptCard";
 import "./receipt.css";
 import { receiptQr } from "./receiptQr";
+import { SignatureMark, signatureOf, StampMark } from "./signatures";
 
 export type Receipt = Schemas["PaymentReceipt"];
 /** `reprintedAt` : duplicata (F6) ; `test` : reçu d'essai de l'imprimante, sans valeur. */
@@ -36,6 +37,7 @@ export function amounts(items: { currency: string; minor: number }[], nothing: s
 
 function ReceiptCopy({ job, school, copy }: { job: Printing; school: School; copy?: number }) {
   const { t, i18n } = useTranslation();
+  const me = useCurrentMe();
   const { payment } = job;
   const { printer, sheet_size } = school.receipt;
   const thermal = printer !== "sheet";
@@ -159,10 +161,10 @@ function ReceiptCopy({ job, school, copy }: { job: Printing; school: School; cop
       <div className="receipt__sign">
         <p>
           {t("cash.receipt.cashier")}
-          <br />
+          <SignatureMark src={signatureOf(me, payment.cashier.id)} />
           <b>{fullName(payment.cashier)}</b> · {payment.cash_register_name}
         </p>
-        <p className="receipt__stamp">{t("cash.receipt.stamp")}</p>
+        <StampMark me={me} fallback={<p className="receipt__stamp">{t("cash.receipt.stamp")}</p>} />
       </div>
       {thermal && qr}
       <p className="receipt__foot receipt__verify">

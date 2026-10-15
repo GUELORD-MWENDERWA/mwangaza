@@ -609,11 +609,13 @@ paths:
           - staff.deactivated
           - staff.reactivated
           - staff.account_changed
+          - staff.signature_changed
           - staff.password_reset
           - staff.totp_reset
           - school.created
           - school.updated
           - school.logo_changed
+          - school.signature_changed
           - school.suspended
           - school.reactivated
           - school.stopped
@@ -712,11 +714,13 @@ paths:
           * `staff.deactivated` - Staff member deactivated
           * `staff.reactivated` - Staff member reactivated
           * `staff.account_changed` - Staff member's names or phone changed
+          * `staff.signature_changed` - Staff member's signature changed
           * `staff.password_reset` - Temporary password given
           * `staff.totp_reset` - Two-factor authentication reset
           * `school.created` - School created
           * `school.updated` - School settings changed
           * `school.logo_changed` - School logo changed
+          * `school.signature_changed` - School stamp or signature of the head changed
           * `school.suspended` - School suspended
           * `school.reactivated` - School reactivated
           * `school.stopped` - School stopped
@@ -986,11 +990,13 @@ paths:
           - staff.deactivated
           - staff.reactivated
           - staff.account_changed
+          - staff.signature_changed
           - staff.password_reset
           - staff.totp_reset
           - school.created
           - school.updated
           - school.logo_changed
+          - school.signature_changed
           - school.suspended
           - school.reactivated
           - school.stopped
@@ -1089,11 +1095,13 @@ paths:
           * `staff.deactivated` - Staff member deactivated
           * `staff.reactivated` - Staff member reactivated
           * `staff.account_changed` - Staff member's names or phone changed
+          * `staff.signature_changed` - Staff member's signature changed
           * `staff.password_reset` - Temporary password given
           * `staff.totp_reset` - Two-factor authentication reset
           * `school.created` - School created
           * `school.updated` - School settings changed
           * `school.logo_changed` - School logo changed
+          * `school.signature_changed` - School stamp or signature of the head changed
           * `school.suspended` - School suspended
           * `school.reactivated` - School reactivated
           * `school.stopped` - School stopped
@@ -7190,6 +7198,65 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/me/signature/:
+    post:
+      operationId: me_signature_create
+      description: |-
+        Ma signature dans l'école de l'adresse (DOC.1, Mon compte), posée sur les documents que
+        je donne (reçu, convocation…) : PNG ou JPEG, 1 Mo au plus, enregistrée en PNG, le fond blanc
+        rendu transparent. Au journal de l'école.
+      tags:
+      - accounts
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SignatureUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: me_signature_destroy
+      description: |-
+        Ma signature dans l'école de l'adresse (DOC.1, Mon compte), posée sur les documents que
+        je donne (reçu, convocation…) : PNG ou JPEG, 1 Mo au plus, enregistrée en PNG, le fond blanc
+        rendu transparent. Au journal de l'école.
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/notifications/:
     get:
       operationId: notifications_list
@@ -8958,6 +9025,69 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/school/settings/head-signature/:
+    post:
+      operationId: school_settings_head_signature_create
+      description: |-
+        Signature du chef d'établissement (DOC.1), sous son nom et son titre. Mêmes règles que le
+        cachet.
+      tags:
+      - schools
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SignatureUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolSettings'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: school_settings_head_signature_destroy
+      description: |-
+        Signature du chef d'établissement (DOC.1), sous son nom et son titre. Mêmes règles que le
+        cachet.
+      tags:
+      - schools
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolSettings'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/school/settings/logo/:
     post:
       operationId: school_settings_logo_create
@@ -9061,6 +9191,69 @@ paths:
       description: |-
         Logo noir et blanc des reçus thermiques (M5) ; sans lui, le logo s'imprime en niveaux de
         gris. Mêmes règles que le logo.
+      tags:
+      - schools
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolSettings'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/school/settings/stamp/:
+    post:
+      operationId: school_settings_stamp_create
+      description: |-
+        Cachet de l'école (DOC.1) : PNG ou JPEG, 1 Mo au plus, enregistré en PNG, le fond blanc
+        rendu transparent. Au journal de l'école.
+      tags:
+      - schools
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SignatureUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolSettings'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: school_settings_stamp_destroy
+      description: |-
+        Cachet de l'école (DOC.1) : PNG ou JPEG, 1 Mo au plus, enregistré en PNG, le fond blanc
+        rendu transparent. Au journal de l'école.
       tags:
       - schools
       security:
@@ -11897,11 +12090,13 @@ components:
       - staff.deactivated
       - staff.reactivated
       - staff.account_changed
+      - staff.signature_changed
       - staff.password_reset
       - staff.totp_reset
       - school.created
       - school.updated
       - school.logo_changed
+      - school.signature_changed
       - school.suspended
       - school.reactivated
       - school.stopped
@@ -11999,11 +12194,13 @@ components:
         * `staff.deactivated` - Staff member deactivated
         * `staff.reactivated` - Staff member reactivated
         * `staff.account_changed` - Staff member's names or phone changed
+        * `staff.signature_changed` - Staff member's signature changed
         * `staff.password_reset` - Temporary password given
         * `staff.totp_reset` - Two-factor authentication reset
         * `school.created` - School created
         * `school.updated` - School settings changed
         * `school.logo_changed` - School logo changed
+        * `school.signature_changed` - School stamp or signature of the head changed
         * `school.suspended` - School suspended
         * `school.reactivated` - School reactivated
         * `school.stopped` - School stopped
@@ -14986,12 +15183,18 @@ components:
             $ref: '#/components/schemas/ModulesEnum'
           description: 'Fonctions que la plateforme a données à l''école (M.1) ; vide
             : aucune.'
+        documents:
+          allOf:
+          - $ref: '#/components/schemas/DocumentSigners'
+          description: Cachet et signatures posés sur les documents que la Gestion
+            imprime (DOC.1).
       required:
       - code
       - name
       - roles
       - permissions
       - modules
+      - documents
     CycleEnum:
       enum:
       - primary
@@ -15489,6 +15692,32 @@ components:
           maxLength: 200
       required:
       - reason
+    DocumentSigners:
+      type: object
+      description: |-
+        Ce que la Gestion pose sur les documents qu'elle imprime (DOC.1) : adresses servies au
+        seul personnel connecté de l'école ; null : ligne à signer à la main.
+      properties:
+        stamp:
+          type: string
+          nullable: true
+        head_name:
+          type: string
+        head_title:
+          type: string
+        head_signature:
+          type: string
+          nullable: true
+        signature:
+          type: string
+          nullable: true
+          description: Signature du compte connecté dans cette école (Mon compte).
+      required:
+      - stamp
+      - head_name
+      - head_title
+      - head_signature
+      - signature
     DomainEnum:
       enum:
       - account
@@ -18624,6 +18853,15 @@ components:
 
             * `USD` - US dollar
             * `CDF` - Congolese franc
+        head_name:
+          type: string
+          title: Name of the head
+          maxLength: 150
+        head_title:
+          type: string
+          title: Title of the head
+          description: Under the signature, e.g. Préfet des études.
+          maxLength: 100
         receipt:
           $ref: '#/components/schemas/ReceiptSettingsRequest'
         alerts:
@@ -20487,6 +20725,27 @@ components:
 
             * `USD` - US dollar
             * `CDF` - Congolese franc
+        stamp:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Adresse du cachet (personnel connecté seulement) ; null sans
+            lui (DOC.1).
+        head_name:
+          type: string
+          title: Name of the head
+          maxLength: 150
+        head_title:
+          type: string
+          title: Title of the head
+          description: Under the signature, e.g. Préfet des études.
+          maxLength: 100
+        head_signature:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Adresse de la signature du chef d'établissement ; null sans
+            elle (DOC.1).
         receipt:
           $ref: '#/components/schemas/ReceiptSettings'
         alerts:
@@ -20506,6 +20765,10 @@ components:
       - timezone
       - enabled_currencies
       - default_currency
+      - stamp
+      - head_name
+      - head_title
+      - head_signature
       - receipt
       - alerts
       - reminders
@@ -20735,6 +20998,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/GradeInputRequest'
+    SignatureUploadRequest:
+      type: object
+      properties:
+        image:
+          type: string
+          format: binary
+          description: 'Cachet ou signature : PNG ou JPEG, 1 Mo et 2 048 pixels de
+            côté au plus ; enregistré en PNG, le fond blanc rendu transparent.'
+      required:
+      - image
     SituationEnum:
       enum:
       - up_to_date

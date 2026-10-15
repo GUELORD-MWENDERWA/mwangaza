@@ -123,6 +123,37 @@
   justify-content: space-between;
   gap: 3mm;
 }
+/* Signature et cachet déposés (DOC.1) : PNG détourés, le trait seul se pose sur le reçu. */
+.receipt__signature {
+  display: block;
+  max-width: 40mm;
+  max-height: 13mm;
+  margin: 0.5mm 0;
+}
+.receipt__stamp-image {
+  flex: none;
+  align-self: center;
+  max-width: 30mm;
+  max-height: 20mm;
+}
+/* Ticket thermique : noir seulement. */
+.receipt-roll .receipt__signature,
+.receipt-roll .receipt__stamp-image {
+  filter: grayscale(1) contrast(1.3);
+}
+.receipt-roll--thermal_58 .receipt__signature {
+  max-height: 10mm;
+}
+.receipt-roll--thermal_58 .receipt__stamp-image {
+  max-width: 22mm;
+  max-height: 16mm;
+}
+.receipt-sheet--small .receipt__signature {
+  max-height: 8mm;
+}
+.receipt-sheet--small .receipt__stamp-image {
+  max-height: 12mm;
+}
 .receipt__stamp {
   flex: 1;
   max-width: 34mm;

@@ -112,6 +112,15 @@ export function schoolEntry(overrides: Partial<Schemas["MeSchool"]> = {}): Schem
 }
 
 /** Compte connecté avec un rôle dans l'école de l'adresse. */
+/** Ni cachet ni signature déposés (DOC.1) : lignes à signer à la main. */
+export const NO_SIGNATURES: Schemas["DocumentSigners"] = {
+  stamp: null,
+  head_name: "",
+  head_title: "",
+  head_signature: null,
+  signature: null,
+};
+
 export function me(code: Role = "head", overrides: Partial<Schemas["Me"]> = {}): Schemas["Me"] {
   return {
     id: "00000000-0000-7000-8000-000000000100",
@@ -132,6 +141,7 @@ export function me(code: Role = "head", overrides: Partial<Schemas["Me"]> = {}):
       roles: [role(code)],
       permissions: PERMISSIONS[code],
       modules: ALL_MODULES,
+      documents: NO_SIGNATURES,
     },
     support: null,
     ...overrides,

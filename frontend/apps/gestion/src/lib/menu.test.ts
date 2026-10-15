@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { me, PERMISSIONS } from "../test/fixtures";
+import { me, NO_SIGNATURES, PERMISSIONS } from "../test/fixtures";
 import { MENU_ITEMS, visibleMenu } from "./menu";
 
 const keysOf = (account: ReturnType<typeof me>) =>
@@ -83,6 +83,7 @@ describe("menu selon les permissions (04 § 8)", () => {
         roles: [],
         permissions: support,
         modules: [],
+        documents: NO_SIGNATURES,
       },
     });
 

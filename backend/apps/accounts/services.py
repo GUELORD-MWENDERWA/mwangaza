@@ -14,6 +14,7 @@ import secrets
 from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
+from functools import partial
 
 from django.conf import settings
 from django.db import transaction
@@ -345,6 +346,24 @@ def add_staff_member(
 def _audit_staff(action: str, membership: Membership, *, actor: User | None, **data) -> None:
     """Action de l'école sur une personne : dans le journal de l'école courante."""
     audit.record(action, membership, actor=actor, label=str(membership.user), **data)
+
+
+def set_signature(membership: Membership, image, *, actor: User) -> Membership:
+    """Signature de la personne dans cette école (DOC.1), image déjà contrôlée et détourée ;
+    `None` la retire. Au journal de l'école ; l'ancien fichier est effacé une fois enregistré."""
+    old = membership.signature
+    membership.signature = image or ""
+    with transaction.atomic():
+        membership.save(update_fields=["signature", "updated_at"])
+        _audit_staff(
+            Action.STAFF_SIGNATURE_CHANGED,
+            membership,
+            actor=actor,
+            after={"signature": bool(membership.signature)},
+        )
+        if old:
+            transaction.on_commit(partial(old.storage.delete, old.name))
+    return membership
 
 
 def _audit_account(user: User, action: str, *, actor: User | None, **data) -> None:

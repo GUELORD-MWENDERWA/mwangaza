@@ -19,7 +19,7 @@ from apps.accounts.models import LoginFailure, Membership, Role, User
 from apps.accounts.roles import STARTER_ROLES, TOTP_PERMISSIONS, starter_role_name
 from apps.core.crypto import encrypt
 from apps.core.tenancy import use_school
-from apps.schools.demo import DemoSpace
+from apps.schools.demo import DemoSpace, demo_signature
 
 DEMO_PASSWORD = "mwangaza-demo"
 # Développement : un espace de démonstration ne demande pas la double authentification, mais les
@@ -228,6 +228,11 @@ def create_demo_accounts(spaces: list[DemoSpace]) -> None:
             )
             with use_school(space.school):
                 membership.roles.set([role])
+            if membership.signature:
+                membership.signature.delete(save=False)
+            membership.signature.save(
+                "signature.png", demo_signature(sum(map(int, filter(str.isdigit, phone))))
+            )
             sensitive = bool(TOTP_PERMISSIONS.intersection(role.permissions))
             _set_demo_totp(
                 user, shared_key=space.shared_totp_key and sensitive and not demo.no_code

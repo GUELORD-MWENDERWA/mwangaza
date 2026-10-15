@@ -44,6 +44,8 @@ IDENTITY_FIELDS = (
     "timezone",
     "enabled_currencies",
     "default_currency",
+    "head_name",
+    "head_title",
 )
 # Ce que le journal de la plateforme garde en plus (`environment` : fixé à la création).
 SUBSCRIPTION_FIELDS = ("environment", "status", "plan", "trial_ends_on", "paid_until", "modules")
@@ -136,7 +138,7 @@ def save_school(school: School, *, actor) -> School:
         school.save()
         with use_school(school):
             _record_changes(old, school, actor=actor)
-        for field in LOGO_FIELDS:
+        for field in FILE_FIELDS:
             file = getattr(old, field)
             if file and file.name != getattr(school, field).name:
                 transaction.on_commit(partial(file.storage.delete, file.name))
@@ -150,10 +152,9 @@ def _record_changes(old: School, school: School, *, actor) -> None:
     )
     if after:
         audit.record(Action.SCHOOL_UPDATED, school, actor=actor, before=before, after=after)
-    for field in LOGO_FIELDS:
+    for field, action in FILE_FIELDS.items():
         if getattr(old, field).name != getattr(school, field).name:
-            after = {field: bool(getattr(school, field))}
-            audit.record(Action.SCHOOL_LOGO_CHANGED, school, actor=actor, after=after)
+            audit.record(action, school, actor=actor, after={field: bool(getattr(school, field))})
     if old.status == school.status:
         return
     if school.status == School.Status.SUSPENDED:
@@ -173,13 +174,20 @@ def _settings_fields(settings: dict) -> dict:
     }
 
 
-LOGO_FIELDS = ("logo", "logo_monochrome")
+# Fichiers de l'école : `None` les retire ; l'ancien fichier est effacé une fois enregistré.
+FILE_FIELDS = {
+    "logo": Action.SCHOOL_LOGO_CHANGED,
+    "logo_monochrome": Action.SCHOOL_LOGO_CHANGED,
+    "stamp": Action.SCHOOL_SIGNATURE_CHANGED,
+    "head_signature": Action.SCHOOL_SIGNATURE_CHANGED,
+}
 
 
 def update_school(school: School, *, actor, **fields) -> School:
     """Paramètres de l'école (M5) ou administration : champs déjà vérifiés. `logo=None` retire
-    le logo ; `receipt`, `alerts`, `reminders`, `portal` : réglages du reçu, seuils d'alerte,
-    relances aux parents ou portail à changer, les autres restent."""
+    le logo (de même pour le cachet et la signature du chef, DOC.1) ; `receipt`, `alerts`,
+    `reminders`, `portal` : réglages du reçu, seuils d'alerte, relances aux parents ou portail à
+    changer, les autres restent."""
     if (receipt := fields.pop("receipt", None)) is not None:
         school.settings = {**school.settings, "receipt": {**school.receipt, **receipt}}
     if (changed := fields.pop("alerts", None)) is not None:
@@ -196,7 +204,7 @@ def update_school(school: School, *, actor, **fields) -> School:
     if (changed := fields.pop("portal", None)) is not None:
         school.settings = {**school.settings, "portal": {**school.portal, **changed}}
     for field, value in fields.items():
-        setattr(school, field, "" if field in LOGO_FIELDS and value is None else value)
+        setattr(school, field, "" if field in FILE_FIELDS and value is None else value)
     return save_school(school, actor=actor)
 
 

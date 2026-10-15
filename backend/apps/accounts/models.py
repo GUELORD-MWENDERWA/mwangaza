@@ -17,6 +17,7 @@ from django.utils.translation import gettext_lazy as _
 from apps.accounts.phone import InvalidPhoneError, PhoneNumberField, normalize_phone
 from apps.accounts.roles import PERMISSION_CHOICES
 from apps.core.models import BaseModel, TenantModel
+from apps.schools.signatures import member_signature_path
 
 
 class UserManager(BaseUserManager):
@@ -178,6 +179,11 @@ class Membership(BaseModel):
     is_active = models.BooleanField(_("active"), default=True)
     # Dernière connexion à l'adresse de cette école : l'école ne voit pas celles des autres.
     last_login_at = models.DateTimeField(_("last login"), null=True, blank=True, editable=False)
+    # Posée sur les documents que la personne donne (reçu, convocation…), DOC.1 : propre à
+    # l'école, comme tout ce qu'elle y fait ; déposée dans « Mon compte ».
+    signature = models.FileField(
+        _("signature"), upload_to=member_signature_path, blank=True, editable=False
+    )
 
     class Meta:
         ordering = ["created_at"]

@@ -12,7 +12,7 @@ from apps.accounts.modules import MODULE_CHOICES
 from apps.accounts.phone import INVALID_PHONE_MESSAGE, InvalidPhoneError, normalize_phone
 from apps.accounts.roles import PERMISSION_CHOICES, TOTP_PERMISSIONS
 from apps.schools.models import School
-from apps.schools.serializers import logo_url
+from apps.schools.serializers import DocumentSignersSerializer, logo_url
 
 
 class PermissionListField(serializers.ListField):
@@ -209,6 +209,9 @@ class CurrentSchoolAccessSerializer(serializers.Serializer):
     modules = serializers.ListField(
         child=serializers.ChoiceField(choices=MODULE_CHOICES),
         help_text="Fonctions que la plateforme a données à l'école (M.1) ; vide : aucune.",
+    )
+    documents = DocumentSignersSerializer(
+        help_text="Cachet et signatures posés sur les documents que la Gestion imprime (DOC.1)."
     )
 
 
