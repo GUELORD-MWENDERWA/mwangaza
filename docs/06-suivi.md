@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (8.2.3 faite le 2026-10-15) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | 8.3 (bulletin EPST, 👤 modèle réel à fournir ; sinon 8.4) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Tâche en cours | aucune (8.3.1 faite le 2026-10-15) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | 8.3.2 (bulletin PDF avec QR ; 8.3 découpée en trois le 2026-10-15) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
 | Issue GitHub | aucune |
-| Branche | `tache/8.2.3-notes-hors-ligne` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-15 (8.2.2 faite) |
+| Branche | `tache/8.3.1-calcul-bulletin` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-15 (8.3.1 faite) |
 
 ## Avancement
 
@@ -29,7 +29,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Lancement (L.0 à L.5, DOC.1 à DOC.3 ; L.3 remplacée par S.1 et S.2) | 8 | 8 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
 | Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 8 | 11 |
-| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3, 8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 5 | 11 |
+| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.3, 8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 6 | 13 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
 | V1.5 — carte et présences (avec A.5) | 0 | 7 |
@@ -60,6 +60,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-15 — Tâche 8.3.1 : calcul du bulletin
+- Fait : `academics/report_cards.py` calcule le bulletin d'une classe en une lecture des notes : colonnes (périodes, examens, total du semestre, T.G.), totaux par domaine, pourcentage, place (ex æquo), mention. Réglages de l'école : code EPST (7 chiffres) et régime (écran Paramètres, journal, démo `itig`). 8.3 découpée en 8.3.1 à 8.3.3.
+- Tests : `test_report_cards.py` (totaux, cours sans examen, case incomplète, ex æquo, isolation) ; réglages.
+- Décisions : une case incomplète n'a ni total ni place ; place sur les élèves complets ; échelle de mentions (80/70/60/50 %) provisoire, à confirmer (`07` I15) ; pas d'API (8.3.2 l'utilise pour le PDF).
+- Suite : 8.3.2 (PDF, QR, signature et cachet).
 
 ### 2026-10-15 — Tâche 8.2.3 : notes hors ligne
 - Fait : l'enseignant saisit les notes sans réseau. La liste des cours et chaque feuille lue en ligne sont gardées sur l'appareil (Dexie, table `grades`) ; un enregistrement hors ligne (ou pendant que des notes attendent d'être envoyées : l'ordre compte) met à jour la copie et ajoute l'opération `grades.save` à la file. Côté serveur, `grades.save` appelle `save_sheet` : mêmes règles qu'en ligne (cours du compte, date limite, feuille validée) ; refusée, la feuille du serveur reste et la raison s'affiche sur la feuille.

@@ -219,6 +219,8 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
             "head_name",
             "head_title",
             "head_signature",
+            "epst_code",
+            "regime",
             "receipt",
             "alerts",
             "reminders",

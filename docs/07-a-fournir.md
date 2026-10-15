@@ -109,7 +109,7 @@ Déjà dessinés le 2026-09-26 d'après les **formulaires officiels** trouvés e
 |---|---|---|:-:|
 | I14 | Grille salariale, primes, règle de répartition de la motivation des enseignants, statut SECOPE, avances, retenues | 5.2, 5.3 | [ ] |
 | I15 | Bulletin officiel vierge et rempli (photo ou scan), branches et maxima par classe et option — surtout 3e–4e (« 5e, 6e année »), Électronique, Mécanique automobile et 7e–8e. Formulaires IGE/P.S/094, /100 et /005 déjà trouvés en ligne (note de recherche du 2026-09-26) | 6.1, 6.3 | [ ] |
-| I18 | Code de l'école (7 chiffres, imprimé sur les bulletins), N° ID et N° permanent des élèves ; bulletin officiel **pré-imprimé** acheté ou imprimé par l'école (question Q11) | 6.3 | [ ] |
+| I18 | Code de l'école (7 chiffres, imprimé sur les bulletins), N° ID et N° permanent des élèves ; bulletin officiel **pré-imprimé** acheté ou imprimé par l'école (question Q11) | 6.3 | [ ] En attendant (8.3.1) : code fictif 9000001 pour `itig` ; échelle des mentions provisoire (≥ 80 % excellent, 70, 60, 50, sinon insuffisant) à confirmer avec un bulletin réel |
 | I16 | Règles de délibération (réussite, repêchage, passage), palmarès | 6.4 | [ ] |
 | I17 | Cote de conduite et sanctions pratiquées | 6.7 | [ ] |
 

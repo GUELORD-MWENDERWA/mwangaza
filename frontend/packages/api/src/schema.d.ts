@@ -7322,6 +7322,13 @@ export interface components {
              * @description Under the signature, e.g. Préfet des études.
              */
             head_title?: string;
+            /**
+             * EPST school code
+             * @description Official code of the school, printed on report cards.
+             */
+            epst_code?: string;
+            /** School regime */
+            regime?: components["schemas"]["RegimeEnum"] | components["schemas"]["BlankEnum"];
             receipt?: components["schemas"]["ReceiptSettingsRequest"];
             alerts?: components["schemas"]["AlertSettingsRequest"];
             reminders?: components["schemas"]["ReminderSettingsRequest"];
@@ -8010,6 +8017,13 @@ export interface components {
             recovery_codes: string[];
         };
         /**
+         * @description * `public` - Public
+         *     * `convention` - Public, under convention
+         *     * `private` - Private, approved
+         * @enum {string}
+         */
+        RegimeEnum: "public" | "convention" | "private";
+        /**
          * @description * `father` - Father
          *     * `mother` - Mother
          *     * `guardian` - Guardian
@@ -8210,6 +8224,13 @@ export interface components {
             head_title: string;
             /** @description Adresse de la signature du chef d'établissement ; null sans elle (DOC.1). */
             readonly head_signature: string | null;
+            /**
+             * EPST school code
+             * @description Official code of the school, printed on report cards.
+             */
+            epst_code: string;
+            /** School regime */
+            regime: components["schemas"]["RegimeEnum"] | components["schemas"]["BlankEnum"];
             receipt: components["schemas"]["ReceiptSettings"];
             alerts: components["schemas"]["AlertSettings"];
             reminders: components["schemas"]["ReminderSettings"];

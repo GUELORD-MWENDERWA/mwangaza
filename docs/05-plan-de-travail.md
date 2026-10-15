@@ -59,7 +59,7 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 19 a | ~~**DOC.1** Signature et cachet de l'école sur tous les documents (§ 3)~~ | P0 | M | 🤖 |
 | 19 b | ~~**DOC.2** Reçu sur demi ou tiers de feuille A4 (§ 3)~~ | P0 | M | 🤖 |
 | 19 c | ~~**DOC.3** Registre des reçus : PDF et Excel par période et par caisse (§ 3)~~ | P0 | M | 🤖 |
-| 19 bis | ~~**8.2.2**~~ ✓ Contrôle des notes (date limite, envoi, validation) ; ~~**8.2.3**~~ ✓ notes hors ligne ; **8.3 → 8.4, 8.8** bulletins EPST, délibération, Portail | P1 | L | 🤖 |
+| 19 bis | ~~**8.2.2**~~ ✓ Contrôle des notes (date limite, envoi, validation) ; ~~**8.2.3**~~ ✓ notes hors ligne ; **~~8.3.1~~ ✓, 8.3.2, 8.3.3 → 8.4, 8.8** bulletins EPST, délibération, Portail | P1 | L | 🤖 |
 | 20 | **FIN.1 → FIN.3** Dépenses, sorties de caisse, budget | P1 | M | 🤖 |
 | | **V1.3 — Plateforme commerciale** | | | |
 | 21 | **ABO.1 → ABO.3** Abonnements par module, factures, échéances | P1 | L | 🤖 |
@@ -301,7 +301,10 @@ Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est 
   - [x] **8.2.1** Saisie en ligne : évaluations libres (nom, maximum), notes à une décimale, note de la période ramenée au maximum (règle de trois), droits `grades.enter` (ses cours, sa classe de titulaire) et `grades.enter_any`, journal par enregistrement, écran (tableau, carte par élève au téléphone), démo *(M)*
   - [x] **8.2.2** Contrôle : date limite de saisie par période, envoi pour validation, validation par le directeur des études (`grades.validate`, double authentification), modification après envoi avec motif et historique, maximum d'un cours noté changé seulement avec validation, écran de validation *(M)*
   - [x] **8.2.3** Hors ligne : feuilles gardées sur l'appareil (Dexie), file d'envoi, opération de synchronisation idempotente, test Playwright réseau coupé *(M)*
-- [ ] **8.3** Bulletin EPST PDF avec QR d'authenticité, totaux, places, mentions ; bulletin complet ou notes seules sur le formulaire pré-imprimé (Q11) ; régime et code EPST de l'école (M5) *(P1, L)* — 👤 fournir un vrai bulletin EPST rempli ou le modèle officiel.
+- **8.3** Bulletin EPST PDF avec QR d'authenticité, totaux, places, mentions ; bulletin complet ou notes seules sur le formulaire pré-imprimé (Q11) ; régime et code EPST de l'école (M5) *(P1, L)* — 👤 fournir un vrai bulletin EPST rempli ou le modèle officiel (en attendant : maquettes `gestion/bulletin*`). Découpée le 2026-10-15 :
+  - [x] **8.3.1** Calcul : totaux par période et par domaine, pourcentage, places, mentions ; paramètres EPST de l'école (code, régime, M5) ; service testé *(M)*
+  - [ ] **8.3.2** Bulletin PDF (humanités techniques et 7e–8e), QR d'authenticité, signature et cachet (DOC.1), aperçu à l'écran *(M)*
+  - [ ] **8.3.3** Notes seules sur le formulaire pré-imprimé (Q11), impression par classe en lot, démo *(M)*
 - [ ] **8.4** Délibération, décisions, palmarès, passage de classe *(P1, M)*
 - [ ] **8.8** Portail parents : notes, bulletins PDF ; tableau de bord : résultats *(P1, M)*
 - [ ] **FIN.1 → FIN.3** Dépenses, sorties de caisse, budget (§ 6.1) *(P1)*
