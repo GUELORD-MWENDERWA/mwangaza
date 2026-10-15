@@ -197,6 +197,7 @@ def create_demo_look(spaces: list[DemoSpace]) -> None:
             if image:
                 image.delete(save=False)
         school.head_name, school.head_title = "Mukendi Kabasele", "Préfet des études"
+        school.epst_code, school.regime = "9000001", School.Regime.CONVENTION
         school.save()
         school.stamp.save("stamp.png", demo_signature(0, stamp=True))
         school.head_signature.save("signature.png", demo_signature(1))

@@ -48,6 +48,8 @@ const DRC_ZONES = ["Africa/Lubumbashi", "Africa/Kinshasa"] as const;
 const FIELDS = [
   "name",
   "official_name",
+  "epst_code",
+  "regime",
   "head_name",
   "head_title",
   "timezone",
@@ -98,6 +100,14 @@ function useSchema() {
       .object({
         name: z.string().trim().min(1, t("validation.nameRequired")).max(200),
         official_name: z.string().trim().max(255),
+        epst_code: z
+          .string()
+          .trim()
+          .refine(
+            (value) => value === "" || /^\d{7}$/.test(value),
+            t("settings.identity.epstCodeInvalid"),
+          ),
+        regime: z.enum(["", "public", "convention", "private"]),
         head_name: z.string().trim().max(150),
         head_title: z.string().trim().max(100),
         timezone: z.string().min(1),
@@ -185,6 +195,8 @@ function SettingsForm({ settings }: { settings: Settings }) {
     defaultValues: {
       name: settings.name,
       official_name: settings.official_name,
+      epst_code: settings.epst_code,
+      regime: settings.regime,
       head_name: settings.head_name,
       head_title: settings.head_title,
       timezone: settings.timezone,
@@ -302,6 +314,28 @@ function IdentityCard({ form, code }: CardProps & { code: string }) {
           className="min-[600px]:col-span-2"
         >
           {(control) => <Input {...control} {...form.register("official_name")} />}
+        </Field>
+        <Field
+          id="school-epst-code"
+          label={t("settings.identity.epstCode")}
+          help={t("settings.identity.epstCodeHelp")}
+          error={errors.epst_code?.message}
+        >
+          {(control) => <Input inputMode="numeric" {...control} {...form.register("epst_code")} />}
+        </Field>
+        <Field
+          id="school-regime"
+          label={t("settings.identity.regime")}
+          error={errors.regime?.message}
+        >
+          {(control) => (
+            <Select {...control} {...form.register("regime")}>
+              <option value="">{t("settings.identity.regimeNone")}</option>
+              <option value="public">{t("settings.identity.regimePublic")}</option>
+              <option value="convention">{t("settings.identity.regimeConvention")}</option>
+              <option value="private">{t("settings.identity.regimePrivate")}</option>
+            </Select>
+          )}
         </Field>
         <Field
           id="school-timezone"

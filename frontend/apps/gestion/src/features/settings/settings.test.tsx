@@ -83,6 +83,8 @@ describe("Paramètres de l'école (M5)", () => {
       default_currency: "USD",
       head_name: "",
       head_title: "",
+      epst_code: "",
+      regime: "",
       receipt: {
         printer: "sheet",
         sheet_size: "third",

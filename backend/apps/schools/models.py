@@ -61,6 +61,11 @@ class School(BaseModel):
         TEST = "test", _("Sandbox")
         DEMO = "demo", _("Demonstration")
 
+    class Regime(models.TextChoices):
+        PUBLIC = "public", _("Public")
+        CONVENTION = "convention", _("Public, under convention")
+        PRIVATE = "private", _("Private, approved")
+
     class Status(models.TextChoices):
         TRIAL = "trial", _("Free trial")
         ACTIVE = "active", _("Active")
@@ -119,6 +124,17 @@ class School(BaseModel):
     head_signature = models.FileField(
         _("signature of the head"), upload_to=head_signature_path, blank=True, editable=False
     )
+    # Code de l'école (7 chiffres) imprimé sur les bulletins (8.3.1, M5) ; vide : case à remplir
+    # à la main.
+    epst_code = models.CharField(
+        _("EPST school code"),
+        max_length=7,
+        blank=True,
+        validators=[RegexValidator(r"^\d{7}$", _("7 digits."))],
+        help_text=_("Official code of the school, printed on report cards."),
+    )
+    # Régime de l'école (M5) : mentionné sur le bulletin.
+    regime = models.CharField(_("school regime"), max_length=12, choices=Regime.choices, blank=True)
     # Q8 : choisie par l'école ; texte blanc ou encre choisi pour rester lisible (`colors.py`).
     primary_color = models.CharField(
         _("colour"),

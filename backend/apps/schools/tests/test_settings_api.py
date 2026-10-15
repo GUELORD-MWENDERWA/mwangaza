@@ -54,6 +54,8 @@ def test_head_reads_the_settings(api, school, head):
         "head_name": "",
         "head_title": "",
         "head_signature": None,
+        "epst_code": "",
+        "regime": "",
         "timezone": "Africa/Lubumbashi",
         "enabled_currencies": ["USD", "CDF"],
         "default_currency": "USD",

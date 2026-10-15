@@ -19263,6 +19263,20 @@ components:
           title: Title of the head
           description: Under the signature, e.g. Préfet des études.
           maxLength: 100
+        epst_code:
+          title: EPST school code
+          description: Official code of the school, printed on report cards.
+          oneOf:
+          - type: string
+            pattern: ^\d{7}$
+            maxLength: 7
+          - type: string
+            maxLength: 0
+        regime:
+          title: School regime
+          oneOf:
+          - $ref: '#/components/schemas/RegimeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
         receipt:
           $ref: '#/components/schemas/ReceiptSettingsRequest'
         alerts:
@@ -20767,6 +20781,16 @@ components:
           description: 'Affichés une seule fois : à imprimer.'
       required:
       - recovery_codes
+    RegimeEnum:
+      enum:
+      - public
+      - convention
+      - private
+      type: string
+      description: |-
+        * `public` - Public
+        * `convention` - Public, under convention
+        * `private` - Private, approved
     RelationshipEnum:
       enum:
       - father
@@ -21163,6 +21187,20 @@ components:
           readOnly: true
           description: Adresse de la signature du chef d'établissement ; null sans
             elle (DOC.1).
+        epst_code:
+          title: EPST school code
+          description: Official code of the school, printed on report cards.
+          oneOf:
+          - type: string
+            pattern: ^\d{7}$
+            maxLength: 7
+          - type: string
+            maxLength: 0
+        regime:
+          title: School regime
+          oneOf:
+          - $ref: '#/components/schemas/RegimeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
         receipt:
           $ref: '#/components/schemas/ReceiptSettings'
         alerts:
@@ -21186,6 +21224,8 @@ components:
       - head_name
       - head_title
       - head_signature
+      - epst_code
+      - regime
       - receipt
       - alerts
       - reminders
