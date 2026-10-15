@@ -226,11 +226,12 @@ def test_demo_accounts_that_require_it_have_two_factor_authentication(demo):
         User.objects.filter(totp_enabled_at__isnull=False).values_list("phone", flat=True)
     )
 
-    # Super-admin, directeur, comptable, caissière de chaque école ; pas le promoteur de l'ITIG
-    # (activation à essayer), ni l'enseignant, la secrétaire…
+    # Super-admin, directeur, directeur des études (ITIG : valide les notes), comptable, caissière ;
+    # pas le promoteur de l'ITIG (activation à essayer), ni l'enseignant, la secrétaire…
     assert enabled == {
         "+243000000000",
         "+243000001001",
+        "+243000001002",
         "+243000001004",
         "+243000001005",
         "+243000002001",

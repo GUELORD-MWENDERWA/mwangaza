@@ -58,10 +58,10 @@ def entries(school, action: str) -> list[AuditLog]:
 # Droits
 
 
-def test_study_director_manages_the_organisation_without_two_factor(api, school, alpha):
+def test_study_director_manages_the_organisation(api, school, alpha):
     director = MembershipFactory(school=school, roles=["study_director"]).user
 
-    response = api(director, mfa=False).get(CLASSES)
+    response = api(director).get(CLASSES)
 
     assert response.status_code == 200
     assert [group["name"] for group in response.json()] == ["3e Électricité A"]
