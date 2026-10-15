@@ -114,9 +114,10 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
             enrollments = Enrollment.objects.filter(
                 academic_year=year, status=Enrollment.Status.ACTIVE
             ).order_by("pk")
-            for pk, group in enrollments.values_list("pk", "class_group_id"):
-                students[group].append(pk)
-            level = {pk: draw.uniform(0.35, 0.95) for pks in students.values() for pk in pks}
+            # Inscriptions chargées : `bulk_create` ne relit pas l'école de chaque note.
+            for enrollment in enrollments.only("pk", "school_id", "class_group_id"):
+                students[enrollment.class_group_id].append(enrollment)
+            level = {e.pk: draw.uniform(0.35, 0.95) for group in students.values() for e in group}
             evaluations = [
                 Evaluation(
                     course=course,
@@ -131,13 +132,15 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
             Evaluation.objects.bulk_create(evaluations, batch_size=2000)
             grades = []
             for evaluation in evaluations:
-                for pk in students[evaluation.course.class_group_id]:
+                for enrollment in students[evaluation.course.class_group_id]:
                     if draw.random() < EMPTY_SHARE:
                         continue
-                    ratio = min(1.0, max(0.0, level[pk] + draw.uniform(-0.15, 0.15)))
+                    ratio = min(1.0, max(0.0, level[enrollment.pk] + draw.uniform(-0.15, 0.15)))
                     # Au demi-point, comme la plupart des enseignants.
                     halves = round(ratio * evaluation.max_score * 2)
                     grades.append(
-                        Grade(evaluation=evaluation, enrollment_id=pk, score=Decimal(halves) / 2)
+                        Grade(
+                            evaluation=evaluation, enrollment=enrollment, score=Decimal(halves) / 2
+                        )
                     )
             Grade.objects.bulk_create(grades, batch_size=5000)

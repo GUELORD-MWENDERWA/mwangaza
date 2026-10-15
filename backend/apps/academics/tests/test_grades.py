@@ -145,27 +145,31 @@ def test_period_score_is_brought_back_to_the_maximum_to_a_tenth():
     assert period_score([], [], 20) is None
 
 
-def test_the_sheet_is_saved_in_one_go_and_noted_once_per_save(api, school, head, secretary):
+def test_the_sheet_is_saved_in_one_go_and_noted_once_per_save(
+    api, school, head, secretary, django_assert_max_num_queries
+):
     data = setup(school, head)
     client = api(secretary)
     url = sheet_url(data["physics"], data["p1"])
     first, second = str(uuid7()), str(uuid7())
     amani, josue = data["amani"], data["josue"]
-    response = client.put(
-        url,
-        {
-            "evaluations": [
-                {"id": first, "name": "Interrogation 1", "max_score": 10},
-                {"id": second, "name": "Interrogation 2", "max_score": 10},
-                {"name": "TP", "max_score": 20},
-            ],
-            "grades": [
-                {"enrollment_id": amani, "evaluation_id": first, "score": "8"},
-                {"enrollment_id": amani, "evaluation_id": second, "score": "9"},
-                {"enrollment_id": josue, "evaluation_id": first, "score": "7.5"},
-            ],
-        },
-    )
+    # Autant de requêtes quel que soit le nombre de notes (aucune par note).
+    with django_assert_max_num_queries(23):
+        response = client.put(
+            url,
+            {
+                "evaluations": [
+                    {"id": first, "name": "Interrogation 1", "max_score": 10},
+                    {"id": second, "name": "Interrogation 2", "max_score": 10},
+                    {"name": "TP", "max_score": 20},
+                ],
+                "grades": [
+                    {"enrollment_id": amani, "evaluation_id": first, "score": "8"},
+                    {"enrollment_id": amani, "evaluation_id": second, "score": "9"},
+                    {"enrollment_id": josue, "evaluation_id": first, "score": "7.5"},
+                ],
+            },
+        )
     assert response.status_code == 200, response.json()
     sheet = response.json()
     tp = sheet["evaluations"][2]["id"]

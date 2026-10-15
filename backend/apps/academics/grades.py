@@ -280,7 +280,9 @@ def save_sheet(
             )
         gone = [existing[pk] for pk in removed_ids]
         before_evaluations += [{"name": e.name, "max_score": e.max_score} for e in gone]
-        names = {e.pk: e.name for e in [*existing.values(), *created]}
+        # Objets liés passés tels quels : `bulk_create` ne relit pas l'école de chacun (S.6).
+        by_pk = {e.pk: e for e in [*existing.values(), *created]}
+        names = {pk: evaluation.name for pk, evaluation in by_pk.items()}
 
         before_grades, after_grades, to_create, to_update, to_delete = [], [], [], [], []
         students = {
@@ -302,8 +304,8 @@ def save_sheet(
             if grade is None:
                 to_create.append(
                     Grade(
-                        evaluation_id=evaluation_id,
-                        enrollment_id=enrollment_id,
+                        evaluation=by_pk[evaluation_id],
+                        enrollment=students[enrollment_id],
                         score=score,
                         created_by=actor,
                     )
