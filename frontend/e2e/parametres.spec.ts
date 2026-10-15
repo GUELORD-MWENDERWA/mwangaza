@@ -10,8 +10,11 @@ const newPhone = () => `00000${80000 + Math.floor(Math.random() * 9999)}`;
 test("directeur des études : organisation scolaire, classe ajoutée puis retirée, matricule", async ({
   page,
 }) => {
+  // Directeur des études : double authentification depuis la validation des notes (8.2.2).
+  allowCodeAgain("+243000001002");
   await page.goto(`${ITIG}organisation`);
   await enterPassword(page, "0000001002");
+  await enterCode(page);
 
   await expect(page.getByRole("heading", { name: "Organisation scolaire" })).toBeVisible();
   await expect(page.getByLabel("Année", { exact: true }).locator("option:checked")).toHaveText(
