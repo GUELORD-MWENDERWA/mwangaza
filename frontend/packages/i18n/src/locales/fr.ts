@@ -586,22 +586,20 @@ export const fr = {
       footerPlaceholder: "Ex : Conservez ce reçu. Aucun remboursement sans reçu.",
       printer: "Imprimante",
       printerHelp:
-        "80 et 58 mm : imprimante thermique, un reçu à la fois. Feuille A4 : imprimante ordinaire, reçus séparés par des traits de découpe.",
+        "80 et 58 mm : imprimante thermique, un reçu à la fois. Feuille A4 : imprimante ordinaire, un reçu par feuille.",
       printerOptions: { thermal_80: "80 mm", thermal_58: "58 mm", sheet: "Feuille A4" },
       printers: {
         thermal_80: "Thermique 80 mm",
         thermal_58: "Thermique 58 mm",
         sheet: "Feuille A4",
       },
-      sheetSize: "Taille du reçu sur la feuille A4",
-      sheetSizeHelp: "Le petit format (≈ 10 × 7 cm) se colle dans le cahier de l'élève.",
+      sheetSize: "Hauteur de la feuille",
+      sheetSizeHelp:
+        "Le reçu garde la largeur d'un A4 (21 cm) ; une feuille A4 coupée en deux ou en trois donne deux ou trois feuilles.",
       sheetSizes: {
-        a6: "A6 · 4 par feuille",
-        a5: "A5 · 2 par feuille",
-        small: "Petit format · 8 par feuille",
+        half: "Demi A4 · 21 × 14,8 cm",
+        third: "Tiers d'A4 · 21 × 9,9 cm",
       },
-      copies: "Exemplaires",
-      copiesOptions: { one: "1 · élève", two: "2 · élève + souche" },
     },
     color: {
       label: "Couleur de l'école",
@@ -2285,8 +2283,6 @@ export const fr = {
       reprinted: "Réimprimé le {{date}}",
       test: "Test d'impression",
       testHelp: "Reçu sans valeur",
-      studentCopy: "Exemplaire de l'élève",
-      schoolCopy: "Souche de l'école",
       sample: {
         number: "TEST",
         student: "ÉLÈVE D'ESSAI",

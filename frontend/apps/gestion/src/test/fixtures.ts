@@ -25,7 +25,7 @@ export const school: Schemas["CurrentSchool"] = {
   auto_matricule: true,
   environment: "live",
   setup_done: true,
-  receipt: { printer: "thermal_80", sheet_size: "a6", copies: 1, header: "", footer: "" },
+  receipt: { printer: "thermal_80", sheet_size: "half", header: "", footer: "" },
 };
 
 // Droits des rôles du modèle de départ (copie de `backend/apps/accounts/roles.py`, `04` § 8).

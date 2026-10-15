@@ -59,8 +59,7 @@ def test_head_reads_the_settings(api, school, head):
         "default_currency": "USD",
         "receipt": {
             "printer": "thermal_80",
-            "sheet_size": "a6",
-            "copies": 1,
+            "sheet_size": "half",
             "header": "",
             "footer": "",
         },
@@ -134,7 +133,7 @@ def test_other_settings(api, school, head):
         ({"primary_color": "bleu"}, "primary_color"),
         ({"name": ""}, "name"),
         ({"receipt": {"printer": "laser"}}, "receipt"),
-        ({"receipt": {"copies": 3}}, "receipt"),
+        ({"receipt": {"sheet_size": "a6"}}, "receipt"),
         ({"receipt": {"header": "1\n2\n3\n4\n5\n6"}}, "receipt"),
         ({"alerts": {"difference_minor": {"EUR": 500}}}, "alerts"),
         ({"alerts": {"difference_minor": {"USD": -1}}}, "alerts"),
@@ -151,17 +150,16 @@ def test_invalid_settings_are_refused(api, school, head, data, field):
 
 
 def test_receipt_settings_are_merged_and_journaled(api, school, head):
-    first = api(head).patch(SETTINGS, {"receipt": {"printer": "sheet", "sheet_size": "small"}})
+    first = api(head).patch(SETTINGS, {"receipt": {"printer": "sheet", "sheet_size": "third"}})
     response = api(head).patch(
-        SETTINGS, {"receipt": {"copies": 2, "header": " Av. du Lac 1 \n+243 000 000 000 "}}
+        SETTINGS, {"receipt": {"header": " Av. du Lac 1 \n+243 000 000 000 "}}
     )
 
     assert first.status_code == 200, first.content
     assert response.status_code == 200, response.content
     receipt = {
         "printer": "sheet",
-        "sheet_size": "small",
-        "copies": 2,
+        "sheet_size": "third",
         "header": "Av. du Lac 1\n+243 000 000 000",
         "footer": "",
     }
@@ -173,12 +171,12 @@ def test_receipt_settings_are_merged_and_journaled(api, school, head):
     updates = [log for log in journal(school) if log.action == Action.SCHOOL_UPDATED]
     assert [(log.before, log.after) for log in updates] == [
         (
-            {"receipt_printer": "thermal_80", "receipt_sheet_size": "a6"},
-            {"receipt_printer": "sheet", "receipt_sheet_size": "small"},
+            {"receipt_printer": "thermal_80", "receipt_sheet_size": "half"},
+            {"receipt_printer": "sheet", "receipt_sheet_size": "third"},
         ),
         (
-            {"receipt_copies": 1, "receipt_header": ""},
-            {"receipt_copies": 2, "receipt_header": "Av. du Lac 1\n+243 000 000 000"},
+            {"receipt_header": ""},
+            {"receipt_header": "Av. du Lac 1\n+243 000 000 000"},
         ),
     ]
 
@@ -392,3 +390,11 @@ def test_suspended_school_serves_nothing(client, school):
     school.save()
 
     assert client.get(PUBLIC_LOGO, HTTP_HOST="alpha.localhost").status_code == 403
+
+
+def test_old_receipt_settings_are_read_as_one_receipt_per_sheet(school):
+    from apps.schools.receipts import receipt_settings
+
+    school.settings = {"receipt": {"printer": "sheet", "sheet_size": "half", "copies": 2}}
+
+    assert "copies" not in receipt_settings(school.settings)

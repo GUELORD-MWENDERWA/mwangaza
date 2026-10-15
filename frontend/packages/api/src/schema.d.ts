@@ -5173,12 +5173,6 @@ export interface components {
             email: string;
             emergency_contact: components["schemas"]["EmergencyContactRequest"];
         };
-        /**
-         * @description * `1` - 1
-         *     * `2` - 2
-         * @enum {integer}
-         */
-        CopiesEnum: 1 | 2;
         CountedRequest: {
             currency: components["schemas"]["CurrencyEnum"];
             /** Format: int64 */
@@ -7812,20 +7806,12 @@ export interface components {
              */
             printer: components["schemas"]["PrinterEnum"];
             /**
-             * @description Sur une feuille A4 : A6 (4 par feuille), A5 (2), petit format ≈ 10 x 7 cm (8).
+             * @description Un reçu par feuille : demi A4 (21 x 14,8 cm) ou tiers d'A4 (21 x 9,9 cm).
              *
-             *     * `a6` - a6
-             *     * `a5` - a5
-             *     * `small` - small
+             *     * `half` - half
+             *     * `third` - third
              */
             sheet_size: components["schemas"]["SheetSizeEnum"];
-            /**
-             * @description 1 (élève) ou 2 (élève et souche pour l'école).
-             *
-             *     * `1` - 1
-             *     * `2` - 2
-             */
-            copies: components["schemas"]["CopiesEnum"];
             /** @description Lignes d'en-tête : adresse, téléphone, e-mail (5 lignes au plus). */
             header: string;
             /** @description Mention en bas du reçu. */
@@ -7842,20 +7828,12 @@ export interface components {
              */
             printer: components["schemas"]["PrinterEnum"];
             /**
-             * @description Sur une feuille A4 : A6 (4 par feuille), A5 (2), petit format ≈ 10 x 7 cm (8).
+             * @description Un reçu par feuille : demi A4 (21 x 14,8 cm) ou tiers d'A4 (21 x 9,9 cm).
              *
-             *     * `a6` - a6
-             *     * `a5` - a5
-             *     * `small` - small
+             *     * `half` - half
+             *     * `third` - third
              */
             sheet_size: components["schemas"]["SheetSizeEnum"];
-            /**
-             * @description 1 (élève) ou 2 (élève et souche pour l'école).
-             *
-             *     * `1` - 1
-             *     * `2` - 2
-             */
-            copies: components["schemas"]["CopiesEnum"];
             /** @description Lignes d'en-tête : adresse, téléphone, e-mail (5 lignes au plus). */
             header: string;
             /** @description Mention en bas du reçu. */
@@ -8165,12 +8143,11 @@ export interface components {
             total: string | null;
         };
         /**
-         * @description * `a6` - a6
-         *     * `a5` - a5
-         *     * `small` - small
+         * @description * `half` - half
+         *     * `third` - third
          * @enum {string}
          */
-        SheetSizeEnum: "a6" | "a5" | "small";
+        SheetSizeEnum: "half" | "third";
         /**
          * @description Évaluations ajoutées ou modifiées (dans l'ordre ; les autres restent), retirées avec leurs
          *     notes, et les seules cases changées.

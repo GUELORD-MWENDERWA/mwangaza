@@ -23,7 +23,7 @@ type Printer = Schemas["PrinterEnum"];
 type SheetSize = Schemas["SheetSizeEnum"];
 
 const PRINTERS: Printer[] = ["thermal_80", "thermal_58", "sheet"];
-const SHEET_SIZES: SheetSize[] = ["a6", "a5", "small"];
+const SHEET_SIZES: SheetSize[] = ["half", "third"];
 export const HEADER_MAX_LINES = 5;
 
 /** Nombre de lignes d'en-tête, comme le serveur (lignes vides du début et de la fin ignorées). */
@@ -138,24 +138,6 @@ export function ReceiptCard({ form }: CardProps) {
             )}
           </Field>
         )}
-        <Choice label={t("settings.receipt.copies")}>
-          <Controller
-            control={form.control}
-            name="receipt.copies"
-            render={({ field }) => (
-              <Segmented
-                label={t("settings.receipt.copies")}
-                value={String(field.value)}
-                onValueChange={(value) => field.onChange(Number(value))}
-                className="self-start"
-                options={[
-                  { value: "1", label: t("settings.receipt.copiesOptions.one") },
-                  { value: "2", label: t("settings.receipt.copiesOptions.two") },
-                ]}
-              />
-            )}
-          />
-        </Choice>
       </CardContent>
     </Card>
   );

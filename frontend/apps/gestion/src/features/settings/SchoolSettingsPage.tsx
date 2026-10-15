@@ -110,8 +110,7 @@ function useSchema() {
         default_currency: z.enum(["USD", "CDF"]),
         receipt: z.object({
           printer: z.enum(["thermal_80", "thermal_58", "sheet"]),
-          sheet_size: z.enum(["a6", "a5", "small"]),
-          copies: z.union([z.literal(1), z.literal(2)]),
+          sheet_size: z.enum(["half", "third"]),
           header: z
             .string()
             .trim()
