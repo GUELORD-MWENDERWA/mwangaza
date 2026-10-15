@@ -49,6 +49,10 @@ type CourseRow = {
   teacher: string | null;
 };
 
+// Notes (8.2.1) : évaluations changées et cases changées d'une feuille.
+type EvaluationRow = { name: string; max_score: number };
+type GradeRow = { student: string; evaluation: string; score: string };
+
 type Snapshot = {
   kind: TermKind;
   name: string;
@@ -174,6 +178,32 @@ export function renderValue(
           ))}
         </ul>
       );
+    case "evaluations":
+      return (
+        <ul className="flex flex-col gap-0.5">
+          {(value as EvaluationRow[]).map((row, index) => (
+            <li key={index}>
+              {t("audit.values.evaluation", { name: row.name, max: row.max_score })}
+            </li>
+          ))}
+        </ul>
+      );
+    case "grades": {
+      const decimal = new Intl.NumberFormat(language, { maximumFractionDigits: 1 });
+      return (
+        <ul className="flex flex-col gap-0.5">
+          {(value as GradeRow[]).map((row, index) => (
+            <li key={index}>
+              {t("audit.values.grade", {
+                student: row.student,
+                evaluation: row.evaluation,
+                score: decimal.format(Number(row.score)),
+              })}
+            </li>
+          ))}
+        </ul>
+      );
+    }
     case "amounts":
       // Clôture de caisse (3.8.2) : une ligne par devise, jamais additionnées.
       return (
