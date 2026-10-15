@@ -19,6 +19,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.academics import courses
+from apps.academics.models import Evaluation
 from apps.accounts.models import Membership, User
 from apps.audit import services as audit
 from apps.audit.actions import Action
@@ -300,10 +301,17 @@ def terms_snapshot(year: AcademicYear) -> list[dict]:
 
 def _write_terms(year: AcademicYear, nodes: list[TermNode], *, actor: User) -> None:
     existing = {term.pk: term for term in year.terms.all()}
+    # Une période ou des examens déjà notés (8.2.1) gardent leur genre : sinon leurs notes
+    # sortiraient du bulletin. Retirés, la base les protège.
+    graded = set(
+        Evaluation.objects.filter(term__academic_year=year).values_list("term_id", flat=True)
+    )
     kept: set[UUID] = set()
     parents: dict[int, Term] = {}
     for order, (_path, node, parent_node) in enumerate(_walk(nodes)):
         term = existing.get(node.id) if node.id is not None else None
+        if term is not None and term.pk in graded and term.kind != node.kind:
+            raise BusinessError(TERM_IN_USE)
         if term is None:
             term = Term(academic_year=year, created_by=actor)
         term.kind = node.kind

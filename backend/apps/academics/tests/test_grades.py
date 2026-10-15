@@ -10,8 +10,10 @@ from apps.academics.grades import period_score
 from apps.academics.models import Course, Evaluation, Grade
 from apps.academics.tests.test_courses import classes, courses_url
 from apps.audit.models import AuditLog
+from apps.core.errors import BusinessError
 from apps.core.ids import uuid7
 from apps.core.tenancy import use_school
+from apps.schools import organisation
 from apps.schools.models import ClassGroup, School, Term
 from apps.students.tests.conftest import enrolled
 from tests.factories import MembershipFactory
@@ -268,3 +270,44 @@ def test_a_graded_course_keeps_its_place_and_its_exam(api, school, head, secreta
     assert response.status_code == 409 and response.json()["code"] == "exam_graded"
     response = client.put(courses_url(data["a"]), {"courses": without_exam[1:]})
     assert response.status_code == 409 and response.json()["code"] == "course_in_use"
+
+
+def test_a_graded_period_keeps_its_kind_and_its_place(api, school, head, secretary):
+    data = setup(school, head)
+    sent = {"evaluations": [{"name": "Interro", "max_score": 10}]}
+    assert api(secretary).put(sheet_url(data["physics"], data["p1"]), sent).status_code == 200
+
+    def tree(change=None):
+        with use_school(school):
+            terms = list(Term.objects.filter(academic_year=data["year"]).order_by("order"))
+        nodes = []
+        for term in terms:
+            node = organisation.TermNode(kind=term.kind, id=term.pk)
+            if change and term.pk == data["p1"].pk:
+                change(node)
+            if term.parent_id is None:
+                nodes.append(node)
+            else:
+                next(n for n in nodes if n.id == term.parent_id).children.append(node)
+        return nodes
+
+    def refused(nodes):
+        with use_school(school), pytest.raises(BusinessError) as error:
+            organisation.set_terms(data["year"], nodes, actor=head)
+        return error.value.error.code
+
+    def as_exam(node):
+        node.kind = "exam"
+
+    assert refused(tree(as_exam)) == "term_in_use"
+    removed = tree()
+    removed[0].children = [n for n in removed[0].children if n.id != data["p1"].pk]
+    assert refused(removed) == "term_in_use"
+
+    # Son nom et ses dates, eux, se changent.
+    def dated(node):
+        node.name = "P1"
+
+    with use_school(school):
+        organisation.set_terms(data["year"], tree(dated), actor=head)
+        assert Term.objects.get(pk=data["p1"].pk).name == "P1"

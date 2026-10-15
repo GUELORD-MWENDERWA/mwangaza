@@ -13,6 +13,7 @@ from django.conf import settings
 from django.core.files import File
 from django.utils import timezone
 
+from apps.academics.models import Evaluation
 from apps.accounts.models import User
 from apps.accounts.modules import ALL_MODULES
 from apps.core.tenancy import use_school
@@ -264,29 +265,33 @@ DEMO_ORGANISATIONS = {
 
 
 def _demo_terms(year: AcademicYear, dates: list | None) -> None:
-    """Découpage du modèle secondaire, avec les dates de démonstration."""
-    year.terms.all().delete()
+    """Découpage du modèle secondaire, avec les dates de démonstration. Mis à jour en place,
+    chaque élément gardé par sa place : les notes saisies (8.2.1) restent sur leur période ; un
+    élément en trop part avec ses évaluations."""
+    existing = {term.order: term for term in year.terms.all()}
+    wanted = []
     order = 0
     for index, group in enumerate(template_terms(YearTemplate.SECONDARY)):
         span, children = dates[index] if dates else ((None, None), [(None, None)] * 3)
-        parent = Term.objects.create(
-            academic_year=year,
-            kind=group.kind,
-            order=order,
-            starts_on=span[0],
-            ends_on=span[1],
-        )
+        wanted.append((order, group.kind, None, span))
+        parent_order = order
         order += 1
-        for child, (starts_on, ends_on) in zip(group.children, children, strict=True):
-            Term.objects.create(
-                academic_year=year,
-                kind=child.kind,
-                parent=parent,
-                order=order,
-                starts_on=starts_on,
-                ends_on=ends_on,
-            )
+        for child, child_span in zip(group.children, children, strict=True):
+            wanted.append((order, child.kind, parent_order, child_span))
             order += 1
+    extra = [term.pk for place, term in existing.items() if place >= order]
+    Evaluation.objects.filter(term_id__in=extra).delete()
+    Term.objects.filter(pk__in=extra).delete()
+    terms: dict[int, Term] = {}
+    for place, kind, parent_order, (starts_on, ends_on) in wanted:
+        term = existing.get(place) or Term(academic_year=year, order=place)
+        term.kind, term.name, term.starts_on, term.ends_on = kind, "", starts_on, ends_on
+        term.parent = terms[parent_order] if parent_order is not None else None
+        term.save()
+        terms[place] = term
+    # Une période devenue semestre (découpage changé en essayant) ne garde pas de notes.
+    gradable = [Term.Kind.PERIOD, Term.Kind.EXAM]
+    Evaluation.objects.filter(term__academic_year=year).exclude(term__kind__in=gradable).delete()
 
 
 def create_demo_organisation(spaces: list[DemoSpace]) -> None:
