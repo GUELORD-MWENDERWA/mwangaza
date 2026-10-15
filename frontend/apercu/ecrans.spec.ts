@@ -150,6 +150,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     const director = await staff(browser, "0000001002", true);
     await visit(director, `${ITIG}grade-validation`, "gestion", "grade-validation");
     await visit(director, `${ITIG}report-cards`, "gestion", "report-cards");
+    await visit(director, `${ITIG}grade-sheets`, "gestion", "grade-sheets");
   }
 
   if (!ONLY || ONLY.startsWith("portail")) {

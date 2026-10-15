@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (8.3.5 faite le 2026-10-15) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | 8.3.6 (fiches de cotes) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #266 (8.3.5) |
-| Branche | `tache/8.3.5-formulaire-preimprime` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-15 (8.3.5 faite) |
+| Tâche en cours | aucune (8.3.6 faite le 2026-10-15) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | 8.5.1 (conduite et discipline, à découper) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #268 (8.3.6) |
+| Branche | `tache/8.3.6-fiches-de-cotes` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-15 (8.3.6 faite) |
 
 ## Avancement
 
@@ -29,7 +29,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Lancement (L.0 à L.5, DOC.1 à DOC.3 ; L.3 remplacée par S.1 et S.2) | 8 | 8 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
 | Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 8 | 11 |
-| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.5, 8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 10 | 13 |
+| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.6, 8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 11 | 13 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
 | V1.5 — carte et présences (avec A.5) | 0 | 7 |
@@ -60,6 +60,13 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-15 — Tâche 8.3.6 : fiches de cotes
+
+- Fait : `GET /api/class-groups/<id>/grade-sheet/` (`kind=course|blank|class`) d'après `class_report` (rien de stocké) : fiche d'un cours avec moyenne, plus haute et plus basse note, nombre sous la moitié et signature ; fiche vierge ; tableau de la classe pour une colonne du bulletin (total, % et place). Écran « Fiches de cotes » (maquette `notes-fiches`), options d'impression de 8.3.4, menu pour `grades.enter`, `enter_any`, `validate`. Document « provisoire » tant que des feuilles ne sont pas validées ; PDF noté (`grades.sheet_printed`).
+- Droits : cours noté par le compte (ou `grades.validate`) ; tableau de la classe : `enter_any`, `validate` ou titulaire (`is_homeroom` ajouté à `GET /api/grading/`).
+- Décision : cours du tableau de la classe en colonnes numérotées avec légende (le texte vertical de WeasyPrint n'est pas fiable). Pas d'Excel ni de table.
+- Tests : statistiques, tableau de classe, droits et isolation, audit du PDF ; lien d'adresse côté front. Suite : 8.5.1.
 
 ### 2026-10-15 — Tâche 8.3.5 : notes seules sur le formulaire pré-imprimé, bulletins de la classe en lot
 - Serveur : `GET …/report-card/` accepte `mode=grades_only` (même gabarit, classe `only` : cadres, titres, cases noires et textes fixes invisibles, valeurs à la même place que le bulletin fidèle), `dx`/`dy` (calage −10 à 10 mm) et un `enrollment` facultatif : absent, un PDF de toute la classe, un élève par feuille (`core.documents.render(..., more=)`, bulletin de la classe calculé une fois, `record_many` : une ligne d'audit par élève).

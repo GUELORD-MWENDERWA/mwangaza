@@ -674,6 +674,7 @@ paths:
           - grades.reopened
           - grades.deadline_set
           - grades.report_card_printed
+          - grades.sheet_printed
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -785,6 +786,7 @@ paths:
           * `grades.reopened` - Grades reopened
           * `grades.deadline_set` - Grade entry deadline set
           * `grades.report_card_printed` - Report card printed
+          * `grades.sheet_printed` - Grade sheet printed
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -1067,6 +1069,7 @@ paths:
           - grades.reopened
           - grades.deadline_set
           - grades.report_card_printed
+          - grades.sheet_printed
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -1178,6 +1181,7 @@ paths:
           * `grades.reopened` - Grades reopened
           * `grades.deadline_set` - Grade entry deadline set
           * `grades.report_card_printed` - Report card printed
+          * `grades.sheet_printed` - Grade sheet printed
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -3191,6 +3195,141 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: ''
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/grade-sheet/:
+    get:
+      operationId: class_groups_grade_sheet_retrieve
+      description: |-
+        Fiche de cotes en PDF ou en aperçu HTML. Fiche d'un cours ou vierge : le compte note
+        ce cours (qui valide les notes les lit toutes). Tableau de la classe : `grades.enter_any`,
+        `grades.validate` ou titulaire de la classe. Notes pas encore validées : le document le
+        dit (« provisoire »). Chaque PDF est noté dans le journal d'audit.
+      parameters:
+      - in: query
+        name: blank_columns
+        schema:
+          type: integer
+          maximum: 20
+          minimum: 1
+          default: 8
+        description: '`kind=blank` : colonnes vides à remplir.'
+      - in: query
+        name: column
+        schema:
+          type: string
+          minLength: 1
+          default: year
+        description: '`kind=class` : `year`, ou l''identifiant d''une période, d''un
+          examen ou d''un semestre de l''année.'
+      - in: query
+        name: columns
+        schema:
+          type: array
+          items:
+            enum:
+            - matricule
+            - totals
+            type: string
+            description: |-
+              * `matricule` - matricule
+              * `totals` - totals
+        description: 'Colonnes en plus du N° et du nom (paramètre répété) : `matricule`,
+          `totals` (totaux des semestres et de l''année, fiche d''un cours).'
+      - in: query
+        name: course
+        schema:
+          type: string
+          format: uuid
+        description: 'Cours de la classe (`kind` : `course` ou `blank`).'
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: kind
+        schema:
+          enum:
+          - course
+          - blank
+          - class
+          type: string
+          minLength: 1
+        description: |-
+          * `course` - course
+          * `blank` - blank
+          * `class` - class
+        required: true
+      - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
+        name: output
+        schema:
+          enum:
+          - pdf
+          - html
+          type: string
+          default: pdf
+          minLength: 1
+        description: |-
+          * `pdf` - pdf
+          * `html` - html
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Document PDF (`output=pdf`).
+        '400':
           content:
             application/json:
               schema:
@@ -12786,6 +12925,7 @@ components:
       - grades.reopened
       - grades.deadline_set
       - grades.report_card_printed
+      - grades.sheet_printed
       - students.family_created
       - students.family_updated
       - students.family_deleted
@@ -12896,6 +13036,7 @@ components:
         * `grades.reopened` - Grades reopened
         * `grades.deadline_set` - Grade entry deadline set
         * `grades.report_card_printed` - Report card printed
+        * `grades.sheet_printed` - Grade sheet printed
         * `students.family_created` - Family created
         * `students.family_updated` - Family changed
         * `students.family_deleted` - Family deleted
@@ -17155,10 +17296,15 @@ components:
           items:
             $ref: '#/components/schemas/GradingCourse'
           description: Cours que le compte peut noter.
+        is_homeroom:
+          type: boolean
+          description: Le compte est titulaire de la classe (tableau de la classe,
+            8.3.6).
       required:
       - id
       - name
       - courses
+      - is_homeroom
     GradingCourse:
       type: object
       properties:

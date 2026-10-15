@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { LocalDb } from "../../lib/sync/db";
 import { keys } from "../../lib/queries";
 import { useSyncStatus } from "../../lib/sync/session";
+import { layoutQuery, type PrintLayout } from "../printing/printOptions";
 import { GRADING_ID, isNetworkError, recall, remember, sheetId, sheetQueue } from "./offline";
 
 export type Grading = Schemas["Grading"];
@@ -110,4 +111,29 @@ export function reportCardUrl(
   if (print.dx) query.set("dx", String(print.dx));
   if (print.dy) query.set("dy", String(print.dy));
   return `/api/class-groups/${classId}/report-card/?${query}`;
+}
+
+export type SheetKind = "course" | "blank" | "class";
+
+/** Fiche de cotes (8.3.6) d'une classe : d'un cours, vierge, ou tableau de la classe ; PDF ou son
+ *  aperçu HTML. `layout` : papier et sens (8.3.4). */
+export function gradeSheetUrl(
+  classId: string,
+  options: {
+    kind: SheetKind;
+    output: "html" | "pdf";
+    layout: PrintLayout;
+    course?: string;
+    column?: string;
+    columns: string[];
+    blankColumns: number;
+  },
+) {
+  const query = new URLSearchParams({ kind: options.kind, output: options.output });
+  if (options.kind !== "class") query.set("course", options.course ?? "");
+  if (options.kind === "class") query.set("column", options.column || "year");
+  if (options.kind === "blank") query.set("blank_columns", String(options.blankColumns));
+  for (const column of options.columns) query.append("columns", column);
+  for (const [key, value] of Object.entries(layoutQuery(options.layout))) query.set(key, value);
+  return `/api/class-groups/${classId}/grade-sheet/?${query}`;
 }

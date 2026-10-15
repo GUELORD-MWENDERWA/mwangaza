@@ -78,6 +78,13 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         permissions: ["grades.enter_any", "grades.validate"],
         task: "8.3.2",
       },
+      {
+        key: "gradeSheets",
+        path: "grade-sheets",
+        icon: "file",
+        permissions: ["grades.enter", "grades.enter_any", "grades.validate"],
+        task: "8.3.6",
+      },
     ],
   },
   {

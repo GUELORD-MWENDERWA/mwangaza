@@ -3,12 +3,19 @@ from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.academics import courses, grades, official, report_card_documents, report_cards
+from apps.academics import (
+    courses,
+    gradebook,
+    grades,
+    official,
+    report_card_documents,
+    report_cards,
+)
 from apps.academics.models import Course, GradeDeadline
 from apps.academics.serializers import (
     CoursesCopiedSerializer,
@@ -16,6 +23,7 @@ from apps.academics.serializers import (
     CourseSerializer,
     CoursesUpdateSerializer,
     DeadlineSerializer,
+    GradeSheetPrintSerializer,
     GradingFilterSerializer,
     GradingSerializer,
     OfficialGridSerializer,
@@ -37,7 +45,7 @@ from apps.accounts.roles import (
 )
 from apps.audit import services as audit
 from apps.audit.actions import Action
-from apps.core.documents import PRINT_RESPONSE, render
+from apps.core.documents import PRINT_RESPONSE, print_options, render
 from apps.core.errors import ApiError, BusinessError, ErrorSerializer
 from apps.schools import organisation
 from apps.schools.models import ClassGroup, Term
@@ -197,7 +205,13 @@ class GradingView(_GradesView):
         for course in listed:
             group = course.class_group
             entry = classes.setdefault(
-                group.pk, {"id": group.pk, "name": group.name, "courses": []}
+                group.pk,
+                {
+                    "id": group.pk,
+                    "name": group.name,
+                    "courses": [],
+                    "is_homeroom": group.homeroom_teacher_id == request.user.pk,
+                },
             )
             entry["courses"].append(course)
         data = {
@@ -456,4 +470,79 @@ class ReportCardView(APIView):
             output,
             f"bulletin-{name}.pdf",
             more=contexts[1:],
+        )
+
+
+@extend_schema(tags=["grades"])
+class GradeSheetPrintView(_GradesView):
+    """Fiche de cotes imprimable (8.3.6) : d'un cours, vierge, ou tableau de la classe."""
+
+    required_permission = (GRADES_ENTER, GRADES_ENTER_ANY, GRADES_VALIDATE)
+
+    @extend_schema(
+        parameters=[GradeSheetPrintSerializer],
+        responses={**PRINT_RESPONSE, 400: ErrorSerializer, **ERRORS},
+    )
+    def get(self, request: Request, pk) -> HttpResponse:
+        """Fiche de cotes en PDF ou en aperçu HTML. Fiche d'un cours ou vierge : le compte note
+        ce cours (qui valide les notes les lit toutes). Tableau de la classe : `grades.enter_any`,
+        `grades.validate` ou titulaire de la classe. Notes pas encore validées : le document le
+        dit (« provisoire »). Chaque PDF est noté dans le journal d'audit."""
+        params = GradeSheetPrintSerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        data = params.validated_data
+        group = get_object_or_404(
+            ClassGroup.objects.select_related("academic_year", "homeroom_teacher"), pk=pk
+        )
+        permissions = school_access(request).permissions
+        kind, course = data["kind"], data.get("course")
+        if kind == "class":
+            if not (
+                permissions & {GRADES_ENTER_ANY, GRADES_VALIDATE}
+                or group.homeroom_teacher_id == request.user.pk
+            ):
+                raise PermissionDenied(_("You cannot print the table of this class."))
+        else:
+            if course.class_group_id != group.pk:
+                raise Http404
+            if GRADES_VALIDATE not in permissions and not self.gradable().filter(pk=course.pk):
+                raise PermissionDenied(
+                    _("You do not enter the grades of this course."), code="not_your_course"
+                )
+        report = report_cards.class_report(group)
+        missing = [
+            item for item in report_cards.missing_sheets(group) if not course or item[0] == course
+        ]
+        columns = set(data.get("columns", ()))
+        if kind == "class":
+            keys = {column.key for column in report.columns}
+            if data["column"] not in keys:
+                raise ValidationError({"column": "Unknown column."})
+            context = gradebook.class_table(
+                report, data["column"], columns=columns, missing=bool(missing)
+            )
+            name = f"cotes-{slugify(group.name)}"
+        else:
+            context = gradebook.course_sheet(
+                report,
+                course,
+                columns=columns,
+                missing=bool(missing),
+                blank=data["blank_columns"] if kind == "blank" else None,
+            )
+            name = f"cotes-{slugify(group.name)}-{slugify(course.name)}"
+        output = data["output"]
+        if output == "pdf":
+            audit.record(
+                Action.GRADES_SHEET_PRINTED,
+                group,
+                actor=request.user,
+                label=f"{course.name if course else ''} · {group.name} · {kind}".strip(" ·"),
+            )
+        return render(
+            "academics/grade_sheet.html",
+            context,
+            output,
+            f"{name}.pdf",
+            print_options(data, context["orientation_default"]),
         )

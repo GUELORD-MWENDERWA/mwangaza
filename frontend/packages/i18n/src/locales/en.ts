@@ -141,6 +141,7 @@ export const en: Messages<typeof fr> = {
       grades: "Grade entry",
       gradeValidation: "Grade validation",
       reportCards: "Report cards",
+      gradeSheets: "Grade sheets",
       cash: "Cash desk",
       unpaid: "Unpaid fees",
       fees: "Fees and rates",
@@ -996,6 +997,31 @@ export const en: Messages<typeof fr> = {
     printClass: "Print the whole class",
     noStudent: "No student in this class.",
   },
+  gradeSheets: {
+    title: "Grade sheets",
+    subtitle:
+      "The grades of a course, a blank sheet to fill in by hand, or the table of the whole class.",
+    document: "Document",
+    kind: { course: "Course", blank: "Blank", class: "Class" },
+    class: "Class",
+    course: "Course",
+    column: "Report card column",
+    year: "Whole year",
+    blankColumns: "Empty columns to fill in",
+    blankHelp: "For grades written by hand.",
+    columns: "Columns",
+    matricule: "Student number",
+    totals: "Semester and year totals",
+    print: "Printing",
+    classHelp:
+      "Courses are numbered columns, with the list of courses under the table. Total, percentage and place only show once all of the student's grades are entered.",
+    printButton: "Print",
+    pdf: "Download the PDF",
+    preview: "Sheet preview",
+    noClass:
+      "No course to show you: add them in “Courses and maxima” or ask for the grade entry rights.",
+    noCourse: "No course in this class.",
+  },
   gradeValidation: {
     title: "Grade validation",
     subtitle: "The sheets teachers have sent, and the entry deadline of each period.",
@@ -1450,6 +1476,7 @@ export const en: Messages<typeof fr> = {
         reopened: "Grades reopened",
         deadline_set: "Grade entry deadline set",
         report_card_printed: "Report card printed",
+        sheet_printed: "Grade sheet printed",
       },
       students: {
         family_created: "Family created",

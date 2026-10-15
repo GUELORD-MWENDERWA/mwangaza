@@ -19,6 +19,11 @@ urlpatterns = [
         views.ReportCardStatusView.as_view(),
         name="report-card-status",
     ),
+    path(
+        "class-groups/<uuid:pk>/grade-sheet/",
+        views.GradeSheetPrintView.as_view(),
+        name="grade-sheet-print",
+    ),
     path("course-templates/", views.OfficialGridsView.as_view(), name="course-templates"),
     path("teaching-loads/", views.TeachingLoadsView.as_view(), name="teaching-loads"),
     path("grading/", views.GradingView.as_view(), name="grading"),

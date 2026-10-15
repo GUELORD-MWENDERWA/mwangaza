@@ -139,6 +139,7 @@ export const fr = {
       grades: "Saisie des notes",
       gradeValidation: "Validation des notes",
       reportCards: "Bulletins",
+      gradeSheets: "Fiches de cotes",
       cash: "Caisse",
       unpaid: "Impayés",
       fees: "Frais et barèmes",
@@ -1001,6 +1002,31 @@ export const fr = {
     printClass: "Imprimer toute la classe",
     noStudent: "Aucun élève dans cette classe.",
   },
+  gradeSheets: {
+    title: "Fiches de cotes",
+    subtitle:
+      "Les notes d'un cours, une fiche vierge à remplir à la main, ou le tableau de la classe.",
+    document: "Document",
+    kind: { course: "Un cours", blank: "Vierge", class: "La classe" },
+    class: "Classe",
+    course: "Cours",
+    column: "Colonne du bulletin",
+    year: "Année complète",
+    blankColumns: "Colonnes vides à remplir",
+    blankHelp: "Pour les notes écrites à la main.",
+    columns: "Colonnes",
+    matricule: "Numéro matricule",
+    totals: "Totaux des semestres et de l'année",
+    print: "Impression",
+    classHelp:
+      "Les cours sont des colonnes numérotées, avec la liste des cours sous le tableau. Total, pourcentage et place n'apparaissent que lorsque toutes les notes de l'élève sont saisies.",
+    printButton: "Imprimer",
+    pdf: "Télécharger le PDF",
+    preview: "Aperçu de la fiche",
+    noClass:
+      "Aucun cours à vous afficher : ajoutez-les dans « Cours et maxima » ou demandez les droits de saisie des notes.",
+    noCourse: "Aucun cours dans cette classe.",
+  },
   gradeValidation: {
     title: "Validation des notes",
     subtitle:
@@ -1458,6 +1484,7 @@ export const fr = {
         reopened: "Notes rouvertes",
         deadline_set: "Date limite de saisie fixée",
         report_card_printed: "Bulletin imprimé",
+        sheet_printed: "Fiche de cotes imprimée",
       },
       students: {
         family_created: "Famille créée",
