@@ -7,22 +7,30 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.academics import courses, grades, official
-from apps.academics.models import Course
+from apps.academics.models import Course, GradeDeadline
 from apps.academics.serializers import (
     CoursesCopiedSerializer,
     CoursesCopySerializer,
     CourseSerializer,
     CoursesUpdateSerializer,
+    DeadlineSerializer,
     GradingFilterSerializer,
     GradingSerializer,
     OfficialGridSerializer,
+    ReopenSerializer,
     SheetSerializer,
     SheetUpdateSerializer,
     TeachingLoadsFilterSerializer,
     TeachingLoadsSerializer,
+    ValidationSerializer,
 )
 from apps.accounts.permissions import HasSchoolPermission, school_access
-from apps.accounts.roles import COURSES_CONFIGURE, GRADES_ENTER, GRADES_ENTER_ANY
+from apps.accounts.roles import (
+    COURSES_CONFIGURE,
+    GRADES_ENTER,
+    GRADES_ENTER_ANY,
+    GRADES_VALIDATE,
+)
 from apps.core.errors import ErrorSerializer
 from apps.schools import organisation
 from apps.schools.models import ClassGroup, Term
@@ -40,6 +48,9 @@ class _CoursesView(APIView):
     permission_classes = [HasSchoolPermission]
     required_permission = COURSES_CONFIGURE
     required_module = "academics"
+
+    def may_validate(self) -> bool:
+        return GRADES_VALIDATE in school_access(self.request).permissions
 
     def group(self, pk) -> ClassGroup:
         # Manager de l'école de l'adresse : une classe d'une autre école est introuvable.
@@ -69,7 +80,9 @@ class ClassCoursesView(_CoursesView):
         group = self.group(pk)
         serializer = CoursesUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        courses.set_courses(group, serializer.items(), actor=request.user)
+        courses.set_courses(
+            group, serializer.items(), actor=request.user, may_validate=self.may_validate()
+        )
         return Response(CourseSerializer(courses.courses_of(group), many=True).data)
 
 
@@ -93,7 +106,10 @@ class ClassCoursesCopyView(_CoursesView):
         serializer = CoursesCopySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         copied = courses.copy_courses(
-            source, serializer.validated_data["class_groups"], actor=request.user
+            source,
+            serializer.validated_data["class_groups"],
+            actor=request.user,
+            may_validate=self.may_validate(),
         )
         return Response({"copied": copied})
 
@@ -185,27 +201,34 @@ class GradingView(_GradesView):
         return Response(GradingSerializer(data).data)
 
 
-@extend_schema(tags=["grades"])
-class GradeSheetView(_GradesView):
-    serializer_class = SheetUpdateSerializer
+class _SheetView(_GradesView):
+    required_permission = (GRADES_ENTER, GRADES_ENTER_ANY, GRADES_VALIDATE)
 
-    def objects(self, pk, term_pk) -> tuple[Course, Term]:
+    def objects(self, pk, term_pk, *, read: bool = False) -> tuple[Course, Term]:
         # Manager de l'école de l'adresse : un cours ou une période d'une autre école est
-        # introuvable ; un cours de l'école que le compte ne note pas : 403.
+        # introuvable ; un cours de l'école que le compte ne note pas : 403 (qui valide les notes
+        # les lit toutes).
         course = get_object_or_404(
             Course.objects.select_related("class_group__level", "class_group__track"), pk=pk
         )
-        if not self.gradable().filter(pk=course.pk).exists():
+        if read and GRADES_VALIDATE in school_access(self.request).permissions:
+            pass
+        elif not self.gradable().filter(pk=course.pk).exists():
             raise PermissionDenied(
                 _("You do not enter the grades of this course."), code="not_your_course"
             )
         return course, get_object_or_404(Term.objects.select_related("parent"), pk=term_pk)
 
+
+@extend_schema(tags=["grades"])
+class GradeSheetView(_SheetView):
+    serializer_class = SheetUpdateSerializer
+
     @extend_schema(responses={200: SheetSerializer, 400: ErrorSerializer, **ERRORS})
     def get(self, request: Request, pk, term) -> Response:
         """Feuille de notes du cours dans une période ou des examens : évaluations, élèves de la
         classe, notes, note de la période."""
-        return Response(SheetSerializer(grades.sheet(*self.objects(pk, term))).data)
+        return Response(SheetSerializer(grades.sheet(*self.objects(pk, term, read=True))).data)
 
     @extend_schema(
         request=SheetUpdateSerializer,
@@ -217,5 +240,109 @@ class GradeSheetView(_GradesView):
         course, period = self.objects(pk, term)
         serializer = SheetUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        saved = grades.save_sheet(course, period, actor=request.user, **serializer.inputs())
+        saved = grades.save_sheet(
+            course,
+            period,
+            actor=request.user,
+            may_validate=GRADES_VALIDATE in school_access(request).permissions,
+            **serializer.inputs(),
+        )
         return Response(SheetSerializer(saved).data)
+
+
+@extend_schema(tags=["grades"], request=None)
+class GradeSubmitView(_SheetView):
+    @extend_schema(responses={200: SheetSerializer, 400: ErrorSerializer, **ERRORS})
+    def post(self, request: Request, pk, term) -> Response:
+        """Envoie la feuille au directeur des études : complète (400 `incomplete_sheet`), pas
+        déjà envoyée (409 `sheet_not_draft`)."""
+        saved = grades.submit_sheet(*self.objects(pk, term), actor=request.user)
+        return Response(SheetSerializer(saved).data)
+
+
+class _ValidationView(_SheetView):
+    """Droit `grades.validate` (double authentification), sur toutes les feuilles de l'école."""
+
+    required_permission = GRADES_VALIDATE
+
+    def objects(self, pk, term_pk, *, read: bool = True) -> tuple[Course, Term]:
+        return super().objects(pk, term_pk, read=True)
+
+
+@extend_schema(tags=["grades"], request=None)
+class GradeValidateView(_ValidationView):
+    @extend_schema(responses={200: SheetSerializer, 400: ErrorSerializer, **ERRORS})
+    def post(self, request: Request, pk, term) -> Response:
+        """Valide une feuille envoyée : elle est fermée (409 `sheet_not_sent` sinon)."""
+        saved = grades.validate_sheet(*self.objects(pk, term), actor=request.user)
+        return Response(SheetSerializer(saved).data)
+
+
+@extend_schema(tags=["grades"])
+class GradeReopenView(_ValidationView):
+    serializer_class = ReopenSerializer
+
+    @extend_schema(
+        request=ReopenSerializer,
+        responses={200: SheetSerializer, 400: ErrorSerializer, **ERRORS},
+    )
+    def post(self, request: Request, pk, term) -> Response:
+        """Renvoie une feuille envoyée ou validée en brouillon, avec le motif ; la date limite ne
+        la ferme plus."""
+        course, period = self.objects(pk, term)
+        serializer = ReopenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        saved = grades.reopen_sheet(
+            course, period, reason=serializer.validated_data["reason"], actor=request.user
+        )
+        return Response(SheetSerializer(saved).data)
+
+
+@extend_schema(tags=["grades"])
+class GradingValidationView(APIView):
+    """Droit `grades.validate`, module `academics` (8.2.2)."""
+
+    permission_classes = [HasSchoolPermission]
+    required_permission = GRADES_VALIDATE
+    required_module = "academics"
+
+    @extend_schema(
+        parameters=[GradingFilterSerializer], responses={200: ValidationSerializer, **ERRORS}
+    )
+    def get(self, request: Request) -> Response:
+        """Feuilles envoyées de l'année à valider, et la date limite de saisie de chaque période."""
+        params = GradingFilterSerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        year = params.validated_data.get("academic_year") or organisation.current_year()
+        if year is None:
+            return Response({"academic_year": None, "terms": [], "deadlines": [], "sheets": []})
+        deadlines = GradeDeadline.objects.filter(term__academic_year=year).values(
+            "term_id", "due_on"
+        )
+        data = {
+            "academic_year": year.pk,
+            "terms": term_tree(year),
+            "deadlines": [{"term": row["term_id"], "due_on": row["due_on"]} for row in deadlines],
+            "sheets": grades.awaiting_validation(year),
+        }
+        return Response(ValidationSerializer(data).data)
+
+
+@extend_schema(tags=["grades"])
+class GradeDeadlineView(APIView):
+    permission_classes = [HasSchoolPermission]
+    required_permission = GRADES_VALIDATE
+    required_module = "academics"
+    serializer_class = DeadlineSerializer
+
+    @extend_schema(
+        request=DeadlineSerializer,
+        responses={200: DeadlineSerializer, 400: ErrorSerializer, **ERRORS},
+    )
+    def put(self, request: Request, term) -> Response:
+        """Date limite de saisie des notes d'une période ou des examens ; vide : plus de limite."""
+        period = get_object_or_404(Term, pk=term)
+        serializer = DeadlineSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        grades.set_deadline(period, serializer.validated_data["due_on"], actor=request.user)
+        return Response(serializer.validated_data)

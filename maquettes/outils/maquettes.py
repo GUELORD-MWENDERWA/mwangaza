@@ -333,6 +333,7 @@ GESTION = [
     ("paie", "Paie mensuelle", "V1.1", "Plus tard · 5.3", False),
     ("presences-pointage-qr", "Pointage QR à l'entrée", "V1.1", "Plus tard · 5.5", False),
     ("notes-saisie", "Saisie des notes", "V1.2", "Plus tard · 6.2", False),
+    ("notes-validation", "Validation des notes", "V1.2", "Plus tard · 8.2.2", True),
     ("cours-maxima", "Cours et maxima par classe", "V1.2", "Plus tard · 6.1", True),
     ("charges-enseignants", "Charges des enseignants", "V1.2", "Plus tard · 8.1", True),
     ("bulletin", "Bulletin officiel — humanités techniques", "V1.2", "Plus tard · 6.3", True),

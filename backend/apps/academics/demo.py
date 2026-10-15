@@ -9,9 +9,12 @@ la 1re période est remise comme au départ, les autres restent."""
 
 import random
 from collections import defaultdict
+from datetime import timedelta
 from decimal import Decimal
 
-from apps.academics.models import Course, Evaluation, Grade
+from django.utils import timezone
+
+from apps.academics.models import Course, Evaluation, Grade, GradeDeadline, GradeSheet
 from apps.academics.official import BY_KEY
 from apps.accounts.models import User
 from apps.core.tenancy import use_school
@@ -109,6 +112,7 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
             if first is None:
                 continue
             # Les notes partent avec leurs évaluations.
+            GradeSheet.objects.filter(term=first).delete()
             Evaluation.objects.filter(term=first).delete()
             students: dict = defaultdict(list)
             enrollments = Enrollment.objects.filter(
@@ -144,3 +148,31 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
                         )
                     )
             Grade.objects.bulk_create(grades, batch_size=5000)
+            _create_demo_control(first)
+
+
+# Contrôle des notes (8.2.2) : quelques feuilles envoyées (à valider) et validées, les autres en
+# brouillon, et une date limite encore ouverte.
+SENT_SHEETS, VALIDATED_SHEETS = 6, 10
+
+
+def _create_demo_control(term: Term) -> None:
+    GradeDeadline.objects.update_or_create(
+        term=term, defaults={"due_on": timezone.localdate() + timedelta(days=14)}
+    )
+    courses = list(Course.objects.filter(evaluations__term=term).distinct().order_by("pk"))
+    now = timezone.now()
+    sheets = []
+    for position, course in enumerate(courses[: SENT_SHEETS + VALIDATED_SHEETS]):
+        validated = position >= SENT_SHEETS
+        sheets.append(
+            GradeSheet(
+                course=course,
+                term=term,
+                status=GradeSheet.Status.VALIDATED if validated else GradeSheet.Status.SUBMITTED,
+                submitted_at=now - timedelta(days=position + 1),
+                submitted_by=course.teacher,
+                validated_at=now if validated else None,
+            )
+        )
+    GradeSheet.objects.bulk_create(sheets)

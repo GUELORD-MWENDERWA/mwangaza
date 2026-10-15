@@ -2,7 +2,8 @@
 // des examens — évaluations libres (nom, maximum) et notes des élèves — s'enregistre d'un seul
 // envoi. Note de la période et pourcentage recalculés à chaque frappe (`sheet.ts`, même règle que
 // le serveur). Droits `grades.enter` (ses cours, sa classe de titulaire) ou `grades.enter_any`
-// (toutes les classes) ; en ligne (hors ligne : 8.2.3 ; date limite et validation : 8.2.2).
+// (toutes les classes) ; en ligne (hors ligne : 8.2.3). Contrôle (8.2.2) : date limite, envoi pour
+// validation, validation et réouverture par `grades.validate`, motif d'une modification après envoi.
 import { api, call } from "@mwangaza/api";
 import { firstErrorMessage, useTranslation } from "@mwangaza/i18n";
 import {
@@ -28,17 +29,21 @@ import {
 } from "@mwangaza/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type KeyboardEvent, useState } from "react";
+import { useSearchParams } from "react-router";
 
 import { uuidv7 } from "../../lib/ids";
-import { keys } from "../../lib/queries";
+import { can } from "../../lib/permissions";
+import { keys, useCurrentMe } from "../../lib/queries";
+import { useCurrentSchool } from "../../lib/school";
 import { termLabels, type TermShape } from "../../lib/terms";
 import { LoadError } from "../status/StatusPages";
 import { type Grading, type GradingCourse, type Sheet, useGrading, useSheet } from "./data";
+import { ControlBanner, isLocked, ReasonDialog, SheetHistory, todayIn } from "./SheetControl";
 import { parseTenths, percent, periodTenths, serverTenths, toScore } from "./sheet";
 
 type Term = Grading["terms"][number];
 type Choice = { classId: string; courseId: string; termId: string };
-type Leaf = {
+export type Leaf = {
   id: string;
   kind: string;
   label: string;
@@ -47,7 +52,7 @@ type Leaf = {
 };
 
 /** Périodes et examens de l'année, dans l'ordre, avec leur nom affiché. */
-function gradableTerms(terms: Term[], label: Map<TermShape, string>): Leaf[] {
+export function gradableTerms(terms: Term[], label: Map<TermShape, string>): Leaf[] {
   const leaves: Leaf[] = [];
   const visit = (node: Term | Term["children"][number]) => {
     if (node.kind === "period" || node.kind === "exam") {
@@ -73,7 +78,10 @@ function currentPeriod(leaves: Leaf[]): Leaf | undefined {
 export function GradesPage() {
   const { t } = useTranslation();
   const grading = useGrading();
+  // « À valider » ouvre la feuille voulue : `?course=…&term=…`.
+  const [params] = useSearchParams();
   const [choice, setChoice] = useState<Choice | null>(null);
+  const wanted = params.get("course");
 
   if (grading.isPending) return <Skeleton label={t("common.loading")} />;
   if (grading.isError) {
@@ -92,11 +100,20 @@ export function GradesPage() {
       </>
     );
   }
-  const group = classes.find((item) => item.id === choice?.classId) ?? classes[0]!;
-  const course = group.courses.find((item) => item.id === choice?.courseId) ?? group.courses[0]!;
+  const start: Choice | null =
+    choice ??
+    (wanted
+      ? {
+          classId: classes.find((item) => item.courses.some((c) => c.id === wanted))?.id ?? "",
+          courseId: wanted,
+          termId: params.get("term") ?? "",
+        }
+      : null);
+  const group = classes.find((item) => item.id === start?.classId) ?? classes[0]!;
+  const course = group.courses.find((item) => item.id === start?.courseId) ?? group.courses[0]!;
   const usable = leaves.filter((leaf) => leaf.kind === "period" || course.has_exam);
   const term =
-    usable.find((leaf) => leaf.id === choice?.termId) ?? currentPeriod(usable) ?? usable[0]!;
+    usable.find((leaf) => leaf.id === start?.termId) ?? currentPeriod(usable) ?? usable[0]!;
   return (
     <GradeSheet
       key={`${course.id}-${term.id}`}
@@ -119,6 +136,13 @@ type SheetProps = {
   onChoose: (choice: Choice) => void;
 };
 
+type SaveBody = {
+  evaluations: EvaluationDraft[];
+  removed_evaluations: string[];
+  grades: { enrollment_id: string; evaluation_id: string; score: string | null }[];
+  reason: string;
+};
+
 type EvaluationDraft = { id: string; name: string; max_score: number };
 type Editing = { evaluation: EvaluationDraft | null };
 
@@ -127,6 +151,8 @@ const cellKey = (enrollment: string, evaluation: string) => `${enrollment}|${eva
 function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetProps) {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
+  const me = useCurrentMe();
+  const school = useCurrentSchool();
   const sheet = useSheet(course.id, term.id);
   // Changements pas encore enregistrés : évaluations (`null` : celles du serveur), évaluations
   // retirées, cases tapées (texte, par élève et évaluation).
@@ -135,15 +161,15 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
   const [cells, setCells] = useState<Record<string, string>>({});
   const [editing, setEditing] = useState<Editing | null>(null);
   const [leaving, setLeaving] = useState<Choice | null>(null);
-  const [notice, setNotice] = useState(false);
+  const [notice, setNotice] = useState<"saved" | "submit" | "validate" | "reopen" | null>(null);
+  const [reasonFor, setReasonFor] = useState<"edit" | "reopen" | null>(null);
+  const [pendingSave, setPendingSave] = useState<SaveBody | null>(null);
   const [invalid, setInvalid] = useState(false);
 
+  const sheetKey = [...keys.gradeSheet, course.id, term.id];
+  const path = { params: { path: { id: course.id, term: term.id } } };
   const save = useMutation({
-    mutationFn: (body: {
-      evaluations: EvaluationDraft[];
-      removed_evaluations: string[];
-      grades: { enrollment_id: string; evaluation_id: string; score: string | null }[];
-    }) =>
+    mutationFn: (body: SaveBody) =>
       call(
         api.PUT("/api/courses/{id}/terms/{term}/grades/", {
           params: { path: { id: course.id, term: term.id } },
@@ -151,11 +177,35 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
         }),
       ),
     onSuccess: (saved) => {
-      queryClient.setQueryData([...keys.gradeSheet, course.id, term.id], saved);
+      queryClient.setQueryData(sheetKey, saved);
       setEvaluations(null);
       setRemoved([]);
       setCells({});
-      setNotice(true);
+      setReasonFor(null);
+      setNotice("saved");
+    },
+  });
+  // Envoi, validation, réouverture : la feuille revient à jour.
+  const act = useMutation({
+    mutationFn: (input: { action: "submit" | "validate" | "reopen"; reason?: string }) => {
+      if (input.action === "submit") {
+        return call(api.POST("/api/courses/{id}/terms/{term}/grades/submit/", path));
+      }
+      if (input.action === "validate") {
+        return call(api.POST("/api/courses/{id}/terms/{term}/grades/validate/", path));
+      }
+      return call(
+        api.POST("/api/courses/{id}/terms/{term}/grades/reopen/", {
+          ...path,
+          body: { reason: input.reason ?? "" },
+        }),
+      );
+    },
+    onSuccess: (saved, input) => {
+      queryClient.setQueryData(sheetKey, saved);
+      void queryClient.invalidateQueries({ queryKey: keys.gradeValidation });
+      setReasonFor(null);
+      setNotice(input.action);
     },
   });
 
@@ -164,6 +214,8 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
 
   const data: Sheet = sheet.data;
   const columns = evaluations ?? data.evaluations;
+  const canValidate = can(me, ["grades.validate"]);
+  const locked = isLocked(data, canValidate, todayIn(school.timezone));
   const dirty = evaluations !== null || removed.length > 0 || Object.keys(cells).length > 0;
   const decimal = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 });
   const show = (tenths: number) => decimal.format(tenths / 10);
@@ -183,7 +235,7 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
   const valueOf = (key: string, max: number) => parseTenths(textOf(key), max);
 
   const edit = (change: () => void) => {
-    setNotice(false);
+    setNotice(null);
     setInvalid(false);
     change();
   };
@@ -209,7 +261,12 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
         score: tenths === null ? null : toScore(tenths),
       });
     }
-    save.mutate({ evaluations: columns, removed_evaluations: removed, grades });
+    const body = { evaluations: columns, removed_evaluations: removed, grades, reason: "" };
+    // Feuille déjà envoyée : le motif d'abord.
+    if (data.status === "submitted") {
+      setPendingSave(body);
+      setReasonFor("edit");
+    } else save.mutate(body);
   };
 
   // Entrée : même évaluation, élève suivant ; après le dernier, évaluation suivante.
@@ -279,15 +336,25 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
           </>
         }
       />
+      <div className="mb-4">
+        <ControlBanner
+          sheet={data}
+          locked={locked}
+          language={i18n.language}
+          timeZone={school.timezone}
+        />
+      </div>
       {notice && (
         <div className="mb-4">
-          <Banner tone="ok">{t("grades.saved")}</Banner>
+          <Banner tone="ok">
+            {notice === "saved" ? t("grades.saved") : t(`grades.done.${notice}`)}
+          </Banner>
         </div>
       )}
-      {(invalid || save.isError) && (
+      {(invalid || save.isError || act.isError) && (
         <div className="mb-4">
           <Banner tone="due">
-            {invalid ? t("grades.invalidCells") : firstErrorMessage(save.error, t)}
+            {invalid ? t("grades.invalidCells") : firstErrorMessage(save.error ?? act.error, t)}
           </Banner>
         </div>
       )}
@@ -303,13 +370,19 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
               key={column.id}
               variant="outline"
               size="sm"
+              disabled={locked}
               onClick={() => setEditing({ evaluation: column })}
             >
               {t("grades.evaluationChip", { name: column.name, max: column.max_score })}
               <Icon name="edit" size={14} />
             </Button>
           ))}
-          <Button variant="ghost" size="sm" onClick={() => setEditing({ evaluation: null })}>
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={locked}
+            onClick={() => setEditing({ evaluation: null })}
+          >
             <Icon name="plus" size={14} />
             {t("grades.addEvaluation")}
           </Button>
@@ -371,6 +444,7 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
                             data-cell={`${index}:${place}`}
                             inputMode="decimal"
                             value={textOf(key)}
+                            disabled={locked}
                             aria-invalid={value === undefined || undefined}
                             onChange={(event) =>
                               edit(() =>
@@ -416,11 +490,58 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
         {/* Collé en bas de l'écran : au téléphone, une carte par élève fait une longue page. */}
         <CardFooter className="sticky bottom-0 z-10">
           <span className="text-sm text-ink-2">{t("grades.hint")}</span>
-          <Button disabled={!dirty || save.isPending} onClick={submit}>
-            {t("grades.save")}
-          </Button>
+          <div className="flex flex-wrap justify-end gap-2">
+            {data.status === "validated" && canValidate && (
+              <Button variant="outline" onClick={() => setReasonFor("reopen")}>
+                {t("grades.reopen")}
+              </Button>
+            )}
+            {data.status === "submitted" && canValidate && (
+              <>
+                <Button variant="outline" disabled={dirty} onClick={() => setReasonFor("reopen")}>
+                  {t("grades.sendBack")}
+                </Button>
+                <Button
+                  disabled={dirty || act.isPending}
+                  onClick={() => act.mutate({ action: "validate" })}
+                >
+                  {t("grades.validate")}
+                </Button>
+              </>
+            )}
+            {!locked && (
+              <Button
+                variant={data.status === "draft" ? "outline" : "default"}
+                disabled={!dirty || save.isPending}
+                onClick={submit}
+              >
+                {t("grades.save")}
+              </Button>
+            )}
+            {data.status === "draft" && (
+              <Button
+                disabled={dirty || act.isPending || columns.length === 0}
+                onClick={() => act.mutate({ action: "submit" })}
+              >
+                {t("grades.submit")}
+              </Button>
+            )}
+          </div>
         </CardFooter>
       </Card>
+      <SheetHistory sheet={data} language={i18n.language} timeZone={school.timezone} />
+      {reasonFor && (
+        <ReasonDialog
+          kind={reasonFor}
+          pending={save.isPending || act.isPending}
+          onClose={() => setReasonFor(null)}
+          onConfirm={(reason) =>
+            reasonFor === "edit"
+              ? pendingSave && save.mutate({ ...pendingSave, reason })
+              : act.mutate({ action: "reopen", reason })
+          }
+        />
+      )}
       {editing && (
         <EvaluationDialog
           evaluation={editing.evaluation}

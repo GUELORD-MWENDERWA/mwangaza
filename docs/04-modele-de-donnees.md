@@ -61,6 +61,8 @@ Changés avec `courses.configure` (module `academics`), en ligne seulement ; ser
 
 **Grade [T]** — note d'un élève à une évaluation : `evaluation` (CASCADE : une évaluation retirée part avec ses notes), `enrollment` (PROTECT : un élève noté est gardé à l'annulation d'un import, raison `grades`), `score` (décimal, **une décimale**, de 0 au maximum de l'évaluation). Unique (évaluation, inscription) ; pas de ligne = pas encore noté, une case vidée efface la ligne. **Note de la période** = somme des notes ramenée au maximum de la période (examens : 2 × `period_max`) par une **règle de trois**, au dixième le plus proche (la moitié vers le haut) ; rien tant qu'une case est vide (« incomplet ») ; calculée, jamais stockée (`grades.period_score`, et `sheet.ts` à l'écran). La **feuille** (cours × période) se lit et s'enregistre d'un seul envoi : évaluations ajoutées ou modifiées (les autres restent), retirées, et seules les cases changées ; dernière écriture gagnante pour une même case ; une entrée au journal par enregistrement (domaine `grades`), avec les évaluations et les cases changées. Droits : `grades.enter` (cours qu'on donne et classe dont on est titulaire) ou `grades.enter_any` (toutes les classes) ; services dans `apps/academics/grades.py`.
 
+**GradeSheet [T]** (8.2.2) — état de la feuille d'un cours dans une période : `course`, `term` (PROTECT, unique ensemble), `status` (`draft`, `submitted`, `validated`), `submitted_at/by`, `validated_at/by`, `reopened`. Créée au premier enregistrement qui change quelque chose. Brouillon → envoyée (feuille complète : une note par élève actif et par évaluation) → validée (droit `grades.validate`, fermée à tous) ; `reopen` (motif) ramène en brouillon et lève la date limite pour cette feuille. Envoyée : toute modification exige un motif (journal). Historique = entrées du journal ayant la feuille pour objet. **GradeDeadline [T]** — `term` (période ou examens, un seul), `due_on` (dernier jour de saisie compris) : fermée aux enseignants et au secrétariat après la date, pas à qui a `grades.validate`. Maximum d'un cours déjà noté (`Course.period_max`) : changé seulement avec `grades.validate`.
+
 ## 3. Élèves et familles
 
 Décision Q10 (2026-09-26) : **chaque école a sa propre copie** de l'élève et de sa famille. Une correction faite par une école ne touche pas les autres, et une école ne voit jamais qu'un élève ou une famille existe aussi ailleurs.
@@ -184,6 +186,7 @@ Règles :
 | `courses.configure` (cours, maxima, heures et enseignants de chaque classe, 8.1) | ✔ | ✔ | | | | | | |
 | `grades.enter` (notes de ses cours et de la classe dont on est titulaire, 8.2.1) | | | | | | | | ✔ |
 | `grades.enter_any` (notes de toutes les classes, 8.2.1) | | ✔ | | | | ✔ | | |
+| `grades.validate` (valider les notes envoyées, les rouvrir, fixer la date limite de saisie, changer le maximum d'un cours noté, 8.2.2 ; double authentification) | | ✔ | | | | | | |
 | `roles.manage` (rôles et comptes du personnel) | ✔ | | | | | | | |
 | `students.view` | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | |
 | `students.edit` | ✔ | ✔ | | | | ✔ | | |

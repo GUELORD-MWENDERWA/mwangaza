@@ -37,6 +37,7 @@ TABLE = {
     "courses.configure": "✔ ✔ . . . . . .",
     "grades.enter": ". . . . . . . ✔",
     "grades.enter_any": ". ✔ . . . ✔ . .",
+    "grades.validate": ". ✔ . . . . . .",
     "roles.manage": "✔ . . . . . . .",
     "students.view": "✔ ✔ ✔ ✔ ✔ ✔ ✔ .",
     "students.edit": "✔ ✔ . . . ✔ . .",
@@ -138,12 +139,12 @@ def test_sorted_permissions():
 
 
 def test_default_roles_that_require_two_factor_authentication():
-    # B4 : directeur, comptable, caissier, promoteur.
+    # B4 : directeur, directeur des études (validation des notes), comptable, caissier, promoteur.
     requiring = {
         key for key, role in STARTER_ROLES.items() if set(role.permissions) & TOTP_PERMISSIONS
     }
 
-    assert requiring == {"head", "accountant", "cashier", "promoter"}
+    assert requiring == {"head", "study_director", "accountant", "cashier", "promoter"}
 
 
 def test_every_right_on_money_requires_it():

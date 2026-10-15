@@ -9,6 +9,7 @@ export type Grading = Schemas["Grading"];
 export type GradingClass = Schemas["GradingClass"];
 export type GradingCourse = Schemas["GradingCourse"];
 export type Sheet = Schemas["Sheet"];
+export type Validation = Schemas["Validation"];
 
 export function useGrading() {
   return useQuery({ queryKey: keys.grading, queryFn: () => call(api.GET("/api/grading/")) });
@@ -24,5 +25,13 @@ export function useSheet(courseId: string, termId: string) {
         }),
       ),
     enabled: Boolean(courseId && termId),
+  });
+}
+
+/** Feuilles envoyées à valider et dates limites (droit `grades.validate`). */
+export function useValidation() {
+  return useQuery({
+    queryKey: keys.gradeValidation,
+    queryFn: () => call(api.GET("/api/grading/validation/")),
   });
 }

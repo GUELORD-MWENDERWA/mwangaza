@@ -7,9 +7,17 @@ maximum du cours) par une règle de trois, arrondie au dixième (décisions du 2
 jamais stockée. Droits `grades.enter` (ses cours et sa classe de titulaire) et `grades.enter_any`
 (toutes les classes), vérifiés par l'API avec `gradable_courses`. Chaque enregistrement qui change
 quelque chose écrit **une** entrée au journal (domaine `grades`), avec les seules cases changées.
+
+Contrôle (8.2.2) : la feuille est un brouillon, puis envoyée (`submit_sheet`, complète), puis
+validée par le directeur des études (`validate_sheet`, droit `grades.validate`). Brouillon : saisie
+libre jusqu'à la date limite de la période (`set_deadline`), passée : refusée, sauf feuille rouverte
+ou droit `grades.validate`. Envoyée : modifier demande un motif, gardé au journal. Validée :
+fermée ; `reopen_sheet` (avec motif) la renvoie en brouillon. Tout est dans le journal de la
+feuille (`GradeSheet`), que `sheet()` relit comme historique.
 """
 
 from dataclasses import dataclass, field
+from datetime import date, datetime
 from decimal import ROUND_HALF_UP, Decimal
 from uuid import UUID
 
@@ -19,16 +27,31 @@ from django.db.models import Exists, OuterRef, Q, QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from apps.academics.models import Course, Evaluation, Grade
+from apps.academics.models import Course, Evaluation, Grade, GradeDeadline, GradeSheet
 from apps.accounts.models import User
 from apps.accounts.roles import GRADES_ENTER, GRADES_ENTER_ANY
 from apps.audit import services as audit
 from apps.audit.actions import Action
+from apps.audit.models import AuditLog
 from apps.core.errors import ApiError, BusinessError
 from apps.schools.models import Term
 from apps.students.models import Enrollment
 
 NOT_GRADED_HERE = ApiError("not_graded_here", _("This course is not graded in this period."), 400)
+DEADLINE_PASSED = ApiError(
+    "deadline_passed", _("The deadline to enter these grades has passed."), 409
+)
+SHEET_VALIDATED = ApiError(
+    "sheet_validated", _("These grades are validated: ask the director of studies to reopen."), 409
+)
+SHEET_NOT_DRAFT = ApiError("sheet_not_draft", _("These grades are already sent."), 409)
+SHEET_NOT_SENT = ApiError("sheet_not_sent", _("These grades are not waiting for validation."), 409)
+INCOMPLETE_SHEET = ApiError(
+    "incomplete_sheet", _("Every student needs a grade in every evaluation before sending."), 400
+)
+REASON_REQUIRED = ApiError(
+    "reason_required", _("Give the reason for changing grades that are already sent."), 400
+)
 # Au-delà, c'est une erreur de saisie (une période en compte rarement plus de dix).
 MAX_EVALUATIONS = 30
 STEP = Decimal("0.1")
@@ -60,6 +83,17 @@ class Row:
     total: Decimal | None = None
 
 
+@dataclass(frozen=True)
+class HistoryEntry:
+    """Une ligne de l'historique de la feuille, tirée du journal."""
+
+    action: str
+    at: datetime
+    by: str
+    reason: str
+    changes: int
+
+
 @dataclass
 class Sheet:
     course: Course
@@ -67,6 +101,14 @@ class Sheet:
     maximum: int
     evaluations: list[Evaluation]
     rows: list[Row]
+    status: str = GradeSheet.Status.DRAFT
+    reopened: bool = False
+    due_on: date | None = None
+    submitted_at: datetime | None = None
+    submitted_by: str = ""
+    validated_at: datetime | None = None
+    validated_by: str = ""
+    history: list[HistoryEntry] = field(default_factory=list)
 
 
 def gradable_courses(user: User, permissions) -> QuerySet[Course]:
@@ -132,9 +174,39 @@ def _evaluations(course: Course, term: Term) -> list[Evaluation]:
     return list(Evaluation.objects.filter(course=course, term=term).order_by("order", "created_at"))
 
 
+HISTORY_SHOWN = 30
+
+
+def _state(course: Course, term: Term) -> GradeSheet | None:
+    return (
+        GradeSheet.objects.select_related("submitted_by", "validated_by")
+        .filter(course=course, term=term)
+        .first()
+    )
+
+
+def _history(state: GradeSheet) -> list[HistoryEntry]:
+    entries = (
+        AuditLog.objects.filter(entity_type=state._meta.label_lower, entity_id=state.pk)
+        .select_related("actor")
+        .order_by("-created_at")[:HISTORY_SHOWN]
+    )
+    return [
+        HistoryEntry(
+            action=entry.action,
+            at=entry.created_at,
+            by=str(entry.actor) if entry.actor else "",
+            reason=(entry.after or {}).get("reason", ""),
+            changes=sum(len((entry.after or {}).get(key, [])) for key in ("grades", "evaluations")),
+        )
+        for entry in entries
+    ]
+
+
 def sheet(course: Course, term: Term) -> Sheet:
     """Feuille de notes : évaluations dans l'ordre, élèves actifs de la classe (et ceux partis
-    qui ont déjà une note ici) par nom, leurs notes et leur note de la période. Trois requêtes."""
+    qui ont déjà une note ici) par nom, leurs notes et leur note de la période, son état, sa date
+    limite et son historique. Sept requêtes au plus."""
     _check_term(course, term)
     evaluations = _evaluations(course, term)
     graded_here = Grade.objects.filter(enrollment=OuterRef("pk"), evaluation__in=evaluations)
@@ -156,7 +228,16 @@ def sheet(course: Course, term: Term) -> Sheet:
     for row in rows.values():
         scores = [row.scores.get(evaluation.pk) for evaluation in evaluations]
         row.total = period_score(scores, maxima, maximum)
-    return Sheet(course, term, maximum, evaluations, list(rows.values()))
+    result = Sheet(course, term, maximum, evaluations, list(rows.values()))
+    deadline = GradeDeadline.objects.filter(term=term).values_list("due_on", flat=True).first()
+    result.due_on = deadline
+    state = _state(course, term)
+    if state is not None:
+        result.status, result.reopened = state.status, state.reopened
+        result.submitted_at, result.submitted_by = state.submitted_at, str(state.submitted_by or "")
+        result.validated_at, result.validated_by = state.validated_at, str(state.validated_by or "")
+        result.history = _history(state)
+    return result
 
 
 def _invalid(path: str, message, code: str) -> ValidationError:
@@ -194,16 +275,33 @@ def save_sheet(
     removed: list[UUID],
     grades: list[GradeInput],
     actor: User,
+    reason: str = "",
+    may_validate: bool = False,
 ) -> Sheet:
     """Enregistre la feuille d'un seul envoi : évaluations ajoutées ou modifiées (`evaluations`,
     dans l'ordre ; celles qui ne sont pas envoyées restent), retirées avec leurs notes
     (`removed` ; une déjà partie est ignorée), et les seules cases changées (`grades`). Tout est
     vérifié avant d'écrire. Deux enregistrements de la même feuille passent l'un après l'autre ;
-    pour une même case, le dernier gagne."""
+    pour une même case, le dernier gagne. Contrôle (8.2.2) : feuille validée : 409
+    `sheet_validated` ; date limite passée : 409 `deadline_passed` (sauf feuille rouverte ou
+    `may_validate`) ; feuille envoyée : `reason` obligatoire (400 `reason_required`) s'il y a un
+    changement."""
     _check_term(course, term)
     with transaction.atomic():
         # Verrou sur le cours : deux envois de la même feuille ne créent pas deux fois une note.
         list(Course.objects.select_for_update().filter(pk=course.pk).order_by().values("pk"))
+        state = _state(course, term) or GradeSheet(course=course, term=term, created_by=actor)
+        if state.status == GradeSheet.Status.VALIDATED:
+            raise BusinessError(SHEET_VALIDATED)
+        deadline = GradeDeadline.objects.filter(term=term).values_list("due_on", flat=True).first()
+        if (
+            deadline is not None
+            and deadline < timezone.localdate()
+            and not state.reopened
+            and not may_validate
+        ):
+            raise BusinessError(DEADLINE_PASSED)
+        reason = reason.strip()
         existing = {evaluation.pk: evaluation for evaluation in _evaluations(course, term)}
         removed_ids = {pk for pk in removed if pk in existing}
         maxima = _plan_evaluations(existing, evaluations, removed_ids)
@@ -326,6 +424,12 @@ def save_sheet(
                     }
                 )
 
+        changed = bool(
+            before_grades or after_grades or before_evaluations or after_evaluations or removed_ids
+        )
+        sent = state.status == GradeSheet.Status.SUBMITTED
+        if changed and sent and not reason:
+            raise BusinessError(REASON_REQUIRED)
         try:
             with transaction.atomic():
                 Evaluation.objects.bulk_create(created)
@@ -343,12 +447,147 @@ def save_sheet(
         before = {key: value for key, value in before.items() if value}
         after = {key: value for key, value in after.items() if value}
         if before or after:
+            if sent:
+                after = {**after, "reason": reason}
+            if state._state.adding:
+                state.save()
             audit.record(
                 Action.GRADES_CHANGED,
-                course,
+                state,
                 actor=actor,
                 before=before or None,
                 after=after or None,
-                label=f"{course.name} · {course.class_group.name} · {term_label(term)}",
+                label=_label(course, term),
             )
     return sheet(course, term)
+
+
+def _label(course: Course, term: Term) -> str:
+    return f"{course.name} · {course.class_group.name} · {term_label(term)}"
+
+
+def _locked_state(course: Course, term: Term, actor: User) -> GradeSheet:
+    """Feuille de l'état du cours, cours verrouillé (dans une transaction)."""
+    list(Course.objects.select_for_update().filter(pk=course.pk).order_by().values("pk"))
+    return _state(course, term) or GradeSheet(course=course, term=term, created_by=actor)
+
+
+def _move(state: GradeSheet, action: str, before: str, after: dict, actor: User, label: str):
+    if state._state.adding:
+        state.save()
+    else:
+        state.updated_at = timezone.now()
+        state.save()
+    audit.record(action, state, actor=actor, before={"status": before}, after=after, label=label)
+
+
+def submit_sheet(course: Course, term: Term, *, actor: User) -> Sheet:
+    """Envoie la feuille au directeur des études : au moins une évaluation et une note pour chaque
+    élève actif dans chacune (400 `incomplete_sheet`) ; déjà envoyée ou validée : 409
+    `sheet_not_draft`."""
+    _check_term(course, term)
+    with transaction.atomic():
+        state = _locked_state(course, term, actor)
+        if state.status != GradeSheet.Status.DRAFT:
+            raise BusinessError(SHEET_NOT_DRAFT)
+        current = sheet(course, term)
+        active = Enrollment.Status.ACTIVE
+        if not current.evaluations or any(
+            row.total is None for row in current.rows if row.enrollment.status == active
+        ):
+            raise BusinessError(INCOMPLETE_SHEET)
+        state.status, state.reopened = GradeSheet.Status.SUBMITTED, False
+        state.submitted_at, state.submitted_by = timezone.now(), actor
+        _move(
+            state,
+            Action.GRADES_SUBMITTED,
+            GradeSheet.Status.DRAFT,
+            {"status": state.status},
+            actor,
+            _label(course, term),
+        )
+    return sheet(course, term)
+
+
+def validate_sheet(course: Course, term: Term, *, actor: User) -> Sheet:
+    """Valide une feuille envoyée (droit `grades.validate`, vérifié par l'API) ; sinon 409
+    `sheet_not_sent`."""
+    _check_term(course, term)
+    with transaction.atomic():
+        state = _locked_state(course, term, actor)
+        if state.status != GradeSheet.Status.SUBMITTED:
+            raise BusinessError(SHEET_NOT_SENT)
+        state.status = GradeSheet.Status.VALIDATED
+        state.validated_at, state.validated_by = timezone.now(), actor
+        _move(
+            state,
+            Action.GRADES_VALIDATED,
+            GradeSheet.Status.SUBMITTED,
+            {"status": state.status},
+            actor,
+            _label(course, term),
+        )
+    return sheet(course, term)
+
+
+def reopen_sheet(course: Course, term: Term, *, reason: str, actor: User) -> Sheet:
+    """Renvoie une feuille envoyée ou validée en brouillon, avec le motif (droit
+    `grades.validate`) ; la date limite ne la ferme plus. Un brouillon : 409 `sheet_not_sent`."""
+    _check_term(course, term)
+    reason = reason.strip()
+    if not reason:
+        raise BusinessError(REASON_REQUIRED)
+    with transaction.atomic():
+        state = _locked_state(course, term, actor)
+        if state.status == GradeSheet.Status.DRAFT:
+            raise BusinessError(SHEET_NOT_SENT)
+        before = state.status
+        state.status, state.reopened = GradeSheet.Status.DRAFT, True
+        state.submitted_at = state.submitted_by = state.validated_at = state.validated_by = None
+        _move(
+            state,
+            Action.GRADES_REOPENED,
+            before,
+            {"status": state.status, "reason": reason},
+            actor,
+            _label(course, term),
+        )
+    return sheet(course, term)
+
+
+def set_deadline(term: Term, due_on: date | None, *, actor: User) -> None:
+    """Date limite de saisie d'une période ou des examens (dernier jour compris) ; vide : plus de
+    limite. Droit `grades.validate`, vérifié par l'API."""
+    if term.kind not in (Term.Kind.PERIOD, Term.Kind.EXAM):
+        raise BusinessError(NOT_GRADED_HERE)
+    with transaction.atomic():
+        old = GradeDeadline.objects.filter(term=term).first()
+        before = old.due_on if old else None
+        if before == due_on:
+            return
+        if due_on is None:
+            old.delete()
+        elif old is None:
+            GradeDeadline.objects.create(term=term, due_on=due_on, created_by=actor)
+        else:
+            old.due_on, old.updated_at = due_on, timezone.now()
+            old.save()
+        audit.record(
+            Action.GRADES_DEADLINE_SET,
+            term,
+            actor=actor,
+            before={"due_on": str(before)} if before else None,
+            after={"due_on": str(due_on)} if due_on else None,
+            label=str(term_label(term)),
+        )
+
+
+def awaiting_validation(year) -> list[GradeSheet]:
+    """Feuilles envoyées de l'année, les plus anciennes d'abord."""
+    return list(
+        GradeSheet.objects.filter(
+            status=GradeSheet.Status.SUBMITTED, course__class_group__academic_year=year
+        )
+        .select_related("course__class_group", "term", "submitted_by")
+        .order_by("submitted_at")
+    )

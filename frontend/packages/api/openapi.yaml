@@ -636,6 +636,10 @@ paths:
           - organisation.matricule_format_changed
           - courses.changed
           - grades.changed
+          - grades.submitted
+          - grades.validated
+          - grades.reopened
+          - grades.deadline_set
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -742,6 +746,10 @@ paths:
           * `organisation.matricule_format_changed` - Student number format changed
           * `courses.changed` - Courses of a class changed
           * `grades.changed` - Grades changed
+          * `grades.submitted` - Grades sent for validation
+          * `grades.validated` - Grades validated
+          * `grades.reopened` - Grades reopened
+          * `grades.deadline_set` - Grade entry deadline set
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -1019,6 +1027,10 @@ paths:
           - organisation.matricule_format_changed
           - courses.changed
           - grades.changed
+          - grades.submitted
+          - grades.validated
+          - grades.reopened
+          - grades.deadline_set
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -1125,6 +1137,10 @@ paths:
           * `organisation.matricule_format_changed` - Student number format changed
           * `courses.changed` - Courses of a class changed
           * `grades.changed` - Grades changed
+          * `grades.submitted` - Grades sent for validation
+          * `grades.validated` - Grades validated
+          * `grades.reopened` - Grades reopened
+          * `grades.deadline_set` - Grade entry deadline set
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -5021,6 +5037,161 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/courses/{id}/terms/{term}/grades/reopen/:
+    post:
+      operationId: courses_terms_grades_reopen_create
+      description: |-
+        Renvoie une feuille envoyée ou validée en brouillon, avec le motif ; la date limite ne
+        la ferme plus.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReopenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReopenRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReopenRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sheet'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/courses/{id}/terms/{term}/grades/submit/:
+    post:
+      operationId: courses_terms_grades_submit_create
+      description: |-
+        Envoie la feuille au directeur des études : complète (400 `incomplete_sheet`), pas
+        déjà envoyée (409 `sheet_not_draft`).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sheet'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/courses/{id}/terms/{term}/grades/validate/:
+    post:
+      operationId: courses_terms_grades_validate_create
+      description: 'Valide une feuille envoyée : elle est fermée (409 `sheet_not_sent`
+        sinon).'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sheet'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/dashboard/:
     get:
       operationId: dashboard_retrieve
@@ -6589,6 +6760,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Grading'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/grading/validation/:
+    get:
+      operationId: grading_validation_retrieve
+      description: Feuilles envoyées de l'année à valider, et la date limite de saisie
+        de chaque période.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: 'Par défaut : l''année en cours.'
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Validation'
           description: ''
         '403':
           content:
@@ -11512,6 +11718,59 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/terms/{term}/grades-deadline/:
+    put:
+      operationId: terms_grades_deadline_update
+      description: 'Date limite de saisie des notes d''une période ou des examens
+        ; vide : plus de limite.'
+      parameters:
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeadlineRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeadlineRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeadlineRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deadline'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/tracks/:
     get:
       operationId: tracks_list
@@ -12202,6 +12461,10 @@ components:
       - organisation.matricule_format_changed
       - courses.changed
       - grades.changed
+      - grades.submitted
+      - grades.validated
+      - grades.reopened
+      - grades.deadline_set
       - students.family_created
       - students.family_updated
       - students.family_deleted
@@ -12307,6 +12570,10 @@ components:
         * `organisation.matricule_format_changed` - Student number format changed
         * `courses.changed` - Courses of a class changed
         * `grades.changed` - Grades changed
+        * `grades.submitted` - Grades sent for validation
+        * `grades.validated` - Grades validated
+        * `grades.reopened` - Grades reopened
+        * `grades.deadline_set` - Grade entry deadline set
         * `students.family_created` - Family created
         * `students.family_updated` - Family changed
         * `students.family_deleted` - Family deleted
@@ -15487,6 +15754,38 @@ components:
       - student
       - class_group
       - cash_register
+    Deadline:
+      type: object
+      properties:
+        due_on:
+          type: string
+          format: date
+          nullable: true
+          description: 'Vide : plus de limite.'
+      required:
+      - due_on
+    DeadlineRequest:
+      type: object
+      properties:
+        due_on:
+          type: string
+          format: date
+          nullable: true
+          description: 'Vide : plus de limite.'
+      required:
+      - due_on
+    DeadlineRow:
+      type: object
+      properties:
+        term:
+          type: string
+          format: uuid
+        due_on:
+          type: string
+          format: date
+      required:
+      - term
+      - due_on
     Demonstration:
       type: object
       description: 'Espace de démonstration créé depuis la console (4.17.2) : où en
@@ -16708,6 +17007,29 @@ components:
         * `warning` - warning
         * `error` - error
         * `off` - off
+    HistoryEntry:
+      type: object
+      properties:
+        action:
+          type: string
+          description: '`grades.changed`, `grades.submitted`…'
+        at:
+          type: string
+          format: date-time
+        by:
+          type: string
+        reason:
+          type: string
+          description: Motif d'une modification après envoi ou d'une réouverture.
+        changes:
+          type: integer
+          description: Cases et évaluations changées.
+      required:
+      - action
+      - at
+      - by
+      - reason
+      - changes
     HomeroomTeacher:
       type: object
       description: Titulaire de la classe de l'enfant (5.7).
@@ -19388,6 +19710,31 @@ components:
       - id
       - full_name
       - matricule
+    PendingSheet:
+      type: object
+      properties:
+        course:
+          type: string
+          format: uuid
+        course_name:
+          type: string
+        class_group:
+          type: string
+        term:
+          type: string
+          format: uuid
+        submitted_at:
+          type: string
+          format: date-time
+        submitted_by:
+          type: string
+      required:
+      - course
+      - course_name
+      - class_group
+      - term
+      - submitted_at
+      - submitted_by
     PermissionsEnum:
       enum:
       - school.configure
@@ -19395,6 +19742,7 @@ components:
       - courses.configure
       - grades.enter
       - grades.enter_any
+      - grades.validate
       - roles.manage
       - students.view
       - students.edit
@@ -19417,6 +19765,7 @@ components:
         * `courses.configure` - Configure courses, maxima and teachers of each class
         * `grades.enter` - Enter the grades of one's courses and of one's homeroom class
         * `grades.enter_any` - Enter the grades of every class
+        * `grades.validate` - Validate the grades sent by teachers and set the entry deadlines
         * `roles.manage` - Manage staff accounts and roles
         * `students.view` - View students
         * `students.edit` - Edit students
@@ -20480,6 +20829,15 @@ components:
       - days_before
       - enabled
       - overdue_every_days
+    ReopenRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 3
+          maxLength: 300
+      required:
+      - reason
     RescheduleRequest:
       type: object
       description: 'Échéancier particulier (E4) : les versements remplacent ce qui
@@ -20961,6 +21319,33 @@ components:
     Sheet:
       type: object
       properties:
+        status:
+          $ref: '#/components/schemas/SheetStatusEnum'
+        reopened:
+          type: boolean
+          description: 'Rouverte : la date limite ne la ferme plus.'
+        due_on:
+          type: string
+          format: date
+          nullable: true
+          description: 'Dernier jour de saisie de la période ; vide : sans limite.'
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+        submitted_by:
+          type: string
+        validated_at:
+          type: string
+          format: date-time
+          nullable: true
+        validated_by:
+          type: string
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoryEntry'
+          description: Les plus récentes d'abord.
         course:
           $ref: '#/components/schemas/GradingCourse'
         class_group:
@@ -20980,6 +21365,14 @@ components:
           items:
             $ref: '#/components/schemas/SheetRow'
       required:
+      - status
+      - reopened
+      - due_on
+      - submitted_at
+      - submitted_by
+      - validated_at
+      - validated_by
+      - history
       - course
       - class_group
       - term
@@ -21035,6 +21428,16 @@ components:
       description: |-
         * `half` - half
         * `third` - third
+    SheetStatusEnum:
+      enum:
+      - draft
+      - submitted
+      - validated
+      type: string
+      description: |-
+        * `draft` - Draft
+        * `submitted` - Sent for validation
+        * `validated` - Validated
     SheetUpdateRequest:
       type: object
       description: |-
@@ -21055,6 +21458,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/GradeInputRequest'
+        reason:
+          type: string
+          default: ''
+          description: Obligatoire si la feuille est déjà envoyée pour validation.
+          maxLength: 300
     SignatureUploadRequest:
       type: object
       properties:
@@ -22954,6 +23362,31 @@ components:
       - class_groups
       - fee_types
       - installments
+    Validation:
+      type: object
+      properties:
+        academic_year:
+          type: string
+          format: uuid
+          nullable: true
+        terms:
+          type: array
+          items:
+            $ref: '#/components/schemas/Term'
+        deadlines:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeadlineRow'
+        sheets:
+          type: array
+          items:
+            $ref: '#/components/schemas/PendingSheet'
+          description: Envoyées, les plus anciennes d'abord.
+      required:
+      - academic_year
+      - terms
+      - deadlines
+      - sheets
     YearStatusEnum:
       enum:
       - open

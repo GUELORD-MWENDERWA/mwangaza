@@ -38,6 +38,14 @@ const sheet = {
   class_group: "3e Électricité A",
   term: PERIOD,
   maximum: 20,
+  status: "draft",
+  reopened: false,
+  due_on: null,
+  submitted_at: null,
+  submitted_by: "",
+  validated_at: null,
+  validated_by: "",
+  history: [],
   evaluations: [
     { id: FIRST, name: "Interrogation 1", max_score: 10 },
     { id: SECOND, name: "Interrogation 2", max_score: 10 },
@@ -97,6 +105,31 @@ describe("saisie des notes", () => {
       evaluations: sheet.evaluations,
       removed_evaluations: [],
       grades: [{ enrollment_id: JOSUE, evaluation_id: SECOND, score: "6.5" }],
+      reason: "",
+    });
+  });
+
+  it("une feuille envoyée demande un motif avant d'enregistrer", async () => {
+    const sent = { ...sheet, status: "submitted", submitted_at: "2026-11-02T08:00:00Z" };
+    const requests = mockApi(
+      routes({
+        [`GET /api/courses/${COURSE}/terms/${PERIOD}/grades/`]: sent,
+        [`PUT /api/courses/${COURSE}/terms/${PERIOD}/grades/`]: sent,
+      }),
+    );
+    const { user } = renderApp("/grades");
+
+    await user.type(await screen.findByLabelText("Interrogation 2 — KAMBALE MUHINDO Josué"), "6");
+    await user.click(screen.getByRole("button", { name: "Enregistrer" }));
+    // Pas d'envoi sans motif ; avec le motif, il part avec les cases.
+    await user.click(await screen.findByRole("button", { name: "Enregistrer" }));
+    await screen.findByText(/Donnez un motif/);
+    expect(requests.some((request) => request.method === "PUT")).toBe(false);
+    await user.type(screen.getByRole("textbox", { name: /Motif/ }), "Erreur de copie");
+    await user.click(screen.getByRole("button", { name: "Enregistrer" }));
+    await waitFor(() => expect(requests.some((r) => r.method === "PUT")).toBe(true));
+    expect(requests.find((r) => r.method === "PUT")!.body).toMatchObject({
+      reason: "Erreur de copie",
     });
   });
 

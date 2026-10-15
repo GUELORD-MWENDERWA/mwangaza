@@ -144,6 +144,9 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     // Saisie des notes (8.2.1) : l'enseignant, sur ses cours.
     const teacher = await staff(browser, "0000001008", false);
     await visit(teacher, `${ITIG}grades`, "gestion", "grades");
+    // Validation des notes (8.2.2) : la directrice des études (double authentification).
+    const director = await staff(browser, "0000001002", true);
+    await visit(director, `${ITIG}grade-validation`, "gestion", "grade-validation");
   }
 
   if (!ONLY || ONLY.startsWith("portail")) {

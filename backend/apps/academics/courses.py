@@ -28,6 +28,11 @@ COURSE_IN_USE = ApiError("course_in_use", _("A removed course is already used.")
 EXAM_GRADED = ApiError(
     "exam_graded", _("This course already has exam grades: it keeps its exam."), 409
 )
+MAX_GRADED = ApiError(
+    "max_graded",
+    _("This course already has grades: only whoever validates grades may change its maximum."),
+    409,
+)
 
 # Au-delà, c'est une erreur de saisie (un bulletin en compte une vingtaine).
 MAX_COURSES = 60
@@ -112,10 +117,13 @@ def courses_of(group: ClassGroup):
     return group.courses.select_related("teacher").order_by("order")
 
 
-def set_courses(group: ClassGroup, items: list[CourseInput], *, actor: User) -> list[Course]:
+def set_courses(
+    group: ClassGroup, items: list[CourseInput], *, actor: User, may_validate: bool = False
+) -> list[Course]:
     """Remplace la grille de la classe : cours gardés (par `id`), ajoutés, modifiés, retirés,
     dans l'ordre reçu. Un cours retiré qui sert déjà (notes, 8.2) : 409 `course_in_use` ; un
-    cours qui perd son examen alors qu'il y est noté : 409 `exam_graded`."""
+    cours qui perd son examen alors qu'il y est noté : 409 `exam_graded` ; le maximum d'un cours
+    déjà noté ne change qu'avec `may_validate` (droit `grades.validate`) : 409 `max_graded`."""
     staff = _check(group, items)
     with transaction.atomic():
         existing = {course.pk: course for course in courses_of(group)}
@@ -127,6 +135,17 @@ def set_courses(group: ClassGroup, items: list[CourseInput], *, actor: User) -> 
         exams = Evaluation.objects.filter(course_id__in=no_more_exam, term__kind=Term.Kind.EXAM)
         if no_more_exam and exams.exists():
             raise BusinessError(EXAM_GRADED)
+        new_max = [
+            item.id
+            for item in items
+            if item.id in existing and existing[item.id].period_max != item.period_max
+        ]
+        if (
+            new_max
+            and not may_validate
+            and Evaluation.objects.filter(course_id__in=new_max).exists()
+        ):
+            raise BusinessError(MAX_GRADED)
         before = {pk: (_snapshot(course), course.order) for pk, course in existing.items()}
         wanted = {item.id for item in items}
         removed = [course for pk, course in existing.items() if pk not in wanted]
@@ -171,7 +190,9 @@ def set_courses(group: ClassGroup, items: list[CourseInput], *, actor: User) -> 
     return final
 
 
-def copy_courses(source: ClassGroup, targets: list[ClassGroup], *, actor: User) -> int:
+def copy_courses(
+    source: ClassGroup, targets: list[ClassGroup], *, actor: User, may_validate: bool = False
+) -> int:
     """Donne la grille de `source` à chaque classe de `targets`, qui perd ses autres cours. Un
     cours du même nom garde son identifiant et son enseignant ; un cours nouveau n'en a pas."""
     grid = [
@@ -195,7 +216,7 @@ def copy_courses(source: ClassGroup, targets: list[ClassGroup], *, actor: User) 
                 items.append(
                     replace(item, id=kept.pk, teacher_id=kept.teacher_id) if kept else item
                 )
-            set_courses(target, items, actor=actor)
+            set_courses(target, items, actor=actor, may_validate=may_validate)
     return len([target for target in targets if target.pk != source.pk])
 
 
