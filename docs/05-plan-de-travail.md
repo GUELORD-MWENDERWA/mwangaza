@@ -47,7 +47,7 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 10 | ~~**M.3.1**~~ ✓ Rôles : codes de rôle remplacés par des permissions | P0 | M | 🤖 |
 | 11 | ~~**M.3.2**~~ ✓ Rôles entièrement libres | P0 | M | 🤖 |
 | 12 | ~~**S.5**~~ ✓ Base de données : droits minimaux, paiements non effaçables | P0 | S | 🤖 |
-| 13 | **L.4** Essai sur de vrais téléphones et imprimantes | P0 | S | 👤 |
+| 13 | ~~**L.4** Essai sur de vrais téléphones et imprimantes~~ (fait 2026-10-15) | P0 | S | 👤 |
 | 14 | ~~**L.5**~~ ✓ Guide régénéré, version déclarée prête | P0 | S | 🤖 |
 | 15 | **🚀 Premier espace réel** (`A-FAIRE.md`, « Le jour du lancement ») | — | — | 👤 |
 | | **V1.2 — Notes, bulletins et finances de l'école** (§ 7) | | | |
@@ -92,7 +92,7 @@ La V1.0 et la V1.1 sont faites (annexe). Il reste à fermer ce qui touche la sé
 
 - ~~**L.3**~~ Compléments de sécurité : remplacée par **S.1** et **S.2** (§ 4 bis). Ce qui est déjà en place y est listé.
 
-- [ ] **L.4** Essai sur de vrais téléphones *(P0, S, 👤)* — ce que la recette 4.21 n'a pas pu faire : sur le vrai serveur, un Android et un iPhone ; installation obligatoire de la Gestion (4.24) ; caisse hors ligne (couper le réseau, encaisser, reconnecter) ; impression sur une vraie imprimante thermique 58 / 80 mm et en A4 ; Portail installé, notifications sur iPhone ; scan du QR d'un reçu imprimé. Chaque défaut trouvé devient une tâche L.4.x en tête de file.
+- [x] **L.4** Essai sur de vrais téléphones *(P0, S, 👤)* — ce que la recette 4.21 n'a pas pu faire : sur le vrai serveur, un Android et un iPhone ; installation obligatoire de la Gestion (4.24) ; caisse hors ligne (couper le réseau, encaisser, reconnecter) ; impression sur une vraie imprimante thermique 58 / 80 mm et en A4 ; Portail installé, notifications sur iPhone ; scan du QR d'un reçu imprimé. Chaque défaut trouvé devient une tâche L.4.x en tête de file.
 
 - [x] **L.5** Clôture de la version *(P0, S, 🤖)* — après M.3 : texte du guide mis à jour (modules, rôles libres), `make guide` → `docs/guide/guide-v1.1.pdf`, « Le jour du lancement » de `A-FAIRE.md` relu avec le vrai domaine `mwangazaschool.com`.
 
