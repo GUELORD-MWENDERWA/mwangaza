@@ -390,7 +390,8 @@ MAX_MISSING_LISTED = 20
 
 @extend_schema(tags=["grades"])
 class ReportCardView(APIView):
-    """Bulletin d'un élève (8.3.2) : droit `grades.enter_any` ou `grades.validate`."""
+    """Bulletin d'un élève ou de toute la classe (8.3.2, 8.3.5) : `grades.enter_any` ou
+    `grades.validate`."""
 
     permission_classes = [HasSchoolPermission]
     required_permission = (GRADES_ENTER_ANY, GRADES_VALIDATE)
@@ -402,17 +403,18 @@ class ReportCardView(APIView):
     )
     def get(self, request: Request, pk) -> HttpResponse:
         """Bulletin imprimable : PDF A4 ou son aperçu HTML, avec les places de la classe et un
-        QR code d'authenticité ; chaque PDF est noté dans le journal d'audit."""
+        QR code d'authenticité ; sans `enrollment`, toute la classe (un élève par feuille) ;
+        `mode=grades_only` pour le formulaire pré-imprimé ; chaque élève imprimé est noté dans le
+        journal d'audit."""
         params = ReportCardSerializer(data=request.query_params)
         params.is_valid(raise_exception=True)
         group = get_object_or_404(ClassGroup.objects.select_related("academic_year"), pk=pk)
-        report, student = report_card_documents.student_report(
-            group, params.validated_data["enrollment"]
-        )
-        if student is None:
+        enrollment = params.validated_data.get("enrollment")
+        report = report_cards.class_report(group)
+        students = [s for s in report.students if not enrollment or s.enrollment.pk == enrollment]
+        if not students:
             raise Http404
         output = params.validated_data["output"]
-        name = student.enrollment.student.full_name
         missing = report_cards.missing_sheets(group)
         if output == "pdf" and missing:
             raise BusinessError(
@@ -424,16 +426,34 @@ class ReportCardView(APIView):
                 missing_count=len(missing),
             )
         if output == "pdf":
-            audit.record(
+            audit.record_many(
                 Action.GRADES_REPORT_CARD_PRINTED,
-                student.enrollment,
+                [(s.enrollment, {}) for s in students],
                 actor=request.user,
-                label=f"{name} · {group.name}",
+                label=lambda enrollment: f"{enrollment.student.full_name} · {group.name}",
             )
-        context = report_card_documents.report_card_document(
-            report, student, actor=request.user, absolute=request.build_absolute_uri
+        extra = {
+            "missing_count": len(missing),
+            "grades_only": params.validated_data["mode"] == "grades_only",
+            "dx": params.validated_data["dx"],
+            "dy": params.validated_data["dy"],
+        }
+        contexts = [
+            {
+                **report_card_documents.report_card_document(
+                    report, student, actor=request.user, absolute=request.build_absolute_uri
+                ),
+                **extra,
+            }
+            for student in students
+        ]
+        name = (
+            slugify(students[0].enrollment.student.full_name) if enrollment else slugify(group.name)
         )
-        context["missing_count"] = len(missing)
         return render(
-            "academics/report_card.html", context, output, f"bulletin-{slugify(name)}.pdf"
+            "academics/report_card.html",
+            contexts[0],
+            output,
+            f"bulletin-{name}.pdf",
+            more=contexts[1:],
         )

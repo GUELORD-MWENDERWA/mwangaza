@@ -993,6 +993,12 @@ export const fr = {
     pdf: "Télécharger le PDF",
     preview: "Aperçu du bulletin",
     noClass: "Aucune classe n'a encore de cours. Ajoutez-les dans « Cours et maxima ».",
+    gradesOnly: "Notes seules (formulaire pré-imprimé)",
+    gradesOnlyHelp:
+      "Seules les valeurs s'impriment, à la place exacte du bulletin : cadres et titres sont déjà sur le formulaire officiel. Calage : décalez le texte en mm si votre imprimante le déplace.",
+    dx: "Horizontal (mm)",
+    dy: "Vertical (mm)",
+    printClass: "Imprimer toute la classe",
     noStudent: "Aucun élève dans cette classe.",
   },
   gradeValidation: {

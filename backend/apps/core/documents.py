@@ -158,21 +158,33 @@ def school_header(school: School) -> dict:
 
 
 def render(
-    template: str, context: dict, output: str, name: str, options: dict | None = None
+    template: str,
+    context: dict,
+    output: str,
+    name: str,
+    options: dict | None = None,
+    more: list[dict] | None = None,
 ) -> HttpResponse:
     """`html` : aperçu dans la page (même origine seulement) ; `pdf` : fichier ouvert dans le
-    navigateur, qui l'imprime ou l'enregistre. `options` : `print_options(...)`."""
+    navigateur, qui l'imprime ou l'enregistre. `options` : `print_options(...)`. `more` : autres
+    contextes du même gabarit (bulletins de toute la classe), chacun sur sa propre page."""
     options = options or print_options({})
-    html = render_to_string(
-        template,
-        {
-            "platform": PlatformSettings.load(),
-            "print_fonts": print_fonts(),
-            "serif_fonts": serif_fonts(),
-            **options,
-            **context,
-        },
-    )
+    shared = {
+        "platform": PlatformSettings.load(),
+        "print_fonts": print_fonts(),
+        "serif_fonts": serif_fonts(),
+        **options,
+    }
+    html = render_to_string(template, {**shared, **context})
+    if more:
+        bodies = []
+        for extra in more:
+            page = render_to_string(template, {**shared, **extra})
+            bodies.append(page[page.index("<body>") + 6 : page.rindex("</body>")])
+        end = html.rindex("</body>")
+        html = (
+            html[:end] + "".join(f'<div class="next">{body}</div>' for body in bodies) + html[end:]
+        )
     if options["per_sheet"] > 1:
         html = _repeat_body(html, options["per_sheet"])
     if output == "html":

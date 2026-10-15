@@ -988,6 +988,12 @@ export const en: Messages<typeof fr> = {
     pdf: "Download the PDF",
     preview: "Report card preview",
     noClass: "No class has courses yet. Add them in “Courses and maxima”.",
+    gradesOnly: "Grades only (pre-printed form)",
+    gradesOnlyHelp:
+      "Only the values are printed, exactly where they sit on the report card: frames and titles are already on the official form. Shift the text in mm if your printer moves it.",
+    dx: "Horizontal (mm)",
+    dy: "Vertical (mm)",
+    printClass: "Print the whole class",
     noStudent: "No student in this class.",
   },
   gradeValidation: {

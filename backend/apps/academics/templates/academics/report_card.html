@@ -59,34 +59,39 @@ table.bul td.pn .boxes span { width: 3.6mm; height: 3.6mm; line-height: 3.6mm; f
 table.bul td.pn { border-top: 0; border-bottom: 0; text-align: left; padding-left: 1.2mm; font-size: 6.4pt; letter-spacing: -.02em; }
 table.bul td.pn.top { border-top: .5pt solid #000; background: #fff; }
 table.bul td.pn.bot { border-bottom: .5pt solid #000; }
+/* Notes seules (8.3.5) : le formulaire pré-imprimé porte déjà cadres, titres et cases noires ; on
+   n'imprime que les valeurs, à la même place que dans le bulletin complet. */
+.only, .only * { border-color: transparent !important; background: transparent !important; }
+.only .top svg, .only .top .state, .only .lbl, .only .side, .only table.bul th, .only .under, .only .foot { visibility: hidden; }
+.next { break-before: page; }
 .missing { margin: 0 0 4mm; padding: 2mm 3mm; border: 1pt solid #B54708; background: #FFF4E5; color: #7A2E0E; font: 700 9pt sans-serif; }
 @media print { .missing { display: none; } }
 {% endblock %}
 {% block content %}
 {% if missing_count %}<div class="missing">{% blocktranslate count n=missing_count %}Preview: {{ n }} grade sheet is not validated yet. The report card cannot be printed until it is.{% plural %}Preview: {{ n }} grade sheets are not validated yet. The report card cannot be printed until they are.{% endblocktranslate %}</div>{% endif %}
-<div class="sheet">
+<div class="sheet{% if grades_only %} only{% endif %}"{% if dx or dy %} style="transform: translate({{ dx|unlocalize }}mm, {{ dy|unlocalize }}mm)"{% endif %}>
   <div class="sec top">
     {% include "core/_flag.html" %}
     <div class="state">{% translate "DEMOCRATIC REPUBLIC OF THE CONGO" %}<br>{% translate "MINISTRY OF PRIMARY, SECONDARY AND TECHNICAL EDUCATION" %}</div>
     <img class="qr" src="{{ qr }}" alt="">
   </div>
-  <div class="sec idrow"><span class="label">{% translate "ID NO." %} :</span><span class="boxes">{% for c in id_boxes %}<span>{{ c }}</span>{% endfor %}</span></div>
-  <div class="sec prov">{% translate "PROVINCE" %} : &nbsp;<span style="font-weight:400">{{ school.province|upper }}</span></div>
+  <div class="sec idrow"><span class="label lbl">{% translate "ID NO." %} :</span><span class="boxes">{% for c in id_boxes %}<span>{{ c }}</span>{% endfor %}</span></div>
+  <div class="sec prov"><span class="lbl">{% translate "PROVINCE" %} :</span> &nbsp;<span style="font-weight:400">{{ school.province|upper }}</span></div>
   <div class="sec two">
     <div class="left">
-      <div class="line"><b>{% translate "TOWN" %}</b>&nbsp;:&nbsp;<span class="value" style="width:60mm">{{ school.city }}</span></div>
-      <div class="line"><b>{% translate "COMMUNE / TERRITORY" %}</b>&nbsp;:&nbsp;<span class="value" style="width:40mm">{{ school.commune }}</span></div>
-      <div class="line"><b>{% translate "SCHOOL" %}</b>&nbsp;:&nbsp;<span class="value" style="width:68mm">{{ school_name }}</span></div>
-      <div class="line"><b>{% translate "CODE" %}</b>&nbsp;:&nbsp;<span class="boxes">{% for c in code_boxes %}<span>{{ c }}</span>{% endfor %}</span></div>
+      <div class="line"><b class="lbl">{% translate "TOWN" %}&nbsp;:&nbsp;</b><span class="value" style="width:60mm">{{ school.city }}</span></div>
+      <div class="line"><b class="lbl">{% translate "COMMUNE / TERRITORY" %}&nbsp;:&nbsp;</b><span class="value" style="width:40mm">{{ school.commune }}</span></div>
+      <div class="line"><b class="lbl">{% translate "SCHOOL" %}&nbsp;:&nbsp;</b><span class="value" style="width:68mm">{{ school_name }}</span></div>
+      <div class="line"><b class="lbl">{% translate "CODE" %}&nbsp;:&nbsp;</b><span class="boxes">{% for c in code_boxes %}<span>{{ c }}</span>{% endfor %}</span></div>
     </div>
     <div class="right">
-      <div class="line"><b>{% translate "STUDENT" %}</b>&nbsp;:&nbsp;<span class="value" style="width:56mm">{{ student.full_name|upper }}</span>&nbsp;<b>{% translate "SEX" %}</b>&nbsp;:&nbsp;{{ student.sex }}</div>
-      <div class="line"><b>{% translate "BORN AT" %}</b>&nbsp;:&nbsp;<span class="value" style="width:30mm">{{ student.birth_place }}</span>&nbsp;<b>{% translate "ON" %}</b>&nbsp;<span class="value" style="width:20mm">{{ student.birth_date|date:"d/m/Y" }}</span></div>
-      <div class="line"><b>{% translate "CLASS" %}</b>&nbsp;:&nbsp;<span class="value" style="width:68mm">{{ class_group }}</span></div>
-      <div class="line"><b>{% translate "PERM. NO." %}</b>&nbsp;:&nbsp;<span class="boxes">{% for c in perm_boxes %}<span>{{ c }}</span>{% endfor %}</span></div>
+      <div class="line"><b class="lbl">{% translate "STUDENT" %}&nbsp;:&nbsp;</b><span class="value" style="width:56mm">{{ student.full_name|upper }}</span>&nbsp;<b class="lbl">{% translate "SEX" %}&nbsp;:&nbsp;</b>{{ student.sex }}</div>
+      <div class="line"><b class="lbl">{% translate "BORN AT" %}&nbsp;:&nbsp;</b><span class="value" style="width:30mm">{{ student.birth_place }}</span>&nbsp;<b class="lbl">{% translate "ON" %}&nbsp;</b><span class="value" style="width:20mm">{{ student.birth_date|date:"d/m/Y" }}</span></div>
+      <div class="line"><b class="lbl">{% translate "CLASS" %}&nbsp;:&nbsp;</b><span class="value" style="width:68mm">{{ class_group }}</span></div>
+      <div class="line"><b class="lbl">{% translate "PERM. NO." %}&nbsp;:&nbsp;</b><span class="boxes">{% for c in perm_boxes %}<span>{{ c }}</span>{% endfor %}</span></div>
     </div>
   </div>
-  <div class="sec titlebar"><span>{% blocktranslate %}REPORT CARD OF {{ class_title }}{% endblocktranslate %}</span><span>{% blocktranslate %}SCHOOL YEAR {{ year }}{% endblocktranslate %}</span></div>
+  <div class="sec titlebar"><span><span class="lbl">{% translate "REPORT CARD OF" %}</span>&nbsp;{{ class_title }}</span><span><span class="lbl">{% translate "SCHOOL YEAR" %}</span>&nbsp;{{ year }}</span></div>
 
   <div class="tw"><table class="bul">
     <colgroup>{% localize off %}
@@ -104,7 +109,7 @@ table.bul td.pn.bot { border-bottom: .5pt solid #000; }
     {% for line in lines %}
     <tr class="b">
       {% if line.maxima %}
-      <td class="name mx">{% translate "MAXIMA" %}</td>{% for m in line.maxima %}<td class="mx{% if not m %} k{% endif %}">{% if m %}{{ m }}{% endif %}</td>{% endfor %}
+      <td class="name mx lbl">{% translate "MAXIMA" %}</td>{% for m in line.maxima %}<td class="mx{% if not m %} k{% endif %}">{% if m %}{{ m }}{% endif %}</td>{% endfor %}
       {% else %}
       {% if line.struck %}<td class="name">{{ line.name }}</td>{% for cell in line.cells %}<td class="dash">&mdash;</td>{% endfor %}{% else %}<td class="name">{{ line.name }}</td>{% for cell in line.cells %}<td class="{% if not cell.maximum %}k{% elif cell.low %}low{% endif %}">{% if cell.maximum %}{{ cell.score|default_if_none:""|floatformat:"-1" }}{% endif %}</td>{% endfor %}{% endif %}
       {% endif %}
@@ -112,15 +117,15 @@ table.bul td.pn.bot { border-bottom: .5pt solid #000; }
     </tr>
     {% endfor %}
     <tr class="b">
-      <td class="name mx">{% translate "GENERAL MAXIMA" %}</td>{% for v in totals.maximum %}<td class="tot">{% if v %}{{ v }}{% endif %}</td>{% endfor %}
+      <td class="name mx lbl">{% translate "GENERAL MAXIMA" %}</td>{% for v in totals.maximum %}<td class="tot">{% if v %}{{ v }}{% endif %}</td>{% endfor %}
       {% include "academics/_report_card_side.html" with footer=0 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.0 footer=0 %}{% endif %}
     </tr>
-    <tr class="b"><td class="name mx">{% translate "TOTALS" %}</td>{% for v in totals.score %}<td class="tot">{{ v|default_if_none:""|floatformat:"-1" }}</td>{% endfor %}{% include "academics/_report_card_side.html" with footer=1 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.1 footer=1 %}{% endif %}</tr>
-    <tr class="b"><td class="name">{% translate "PERCENTAGE" %}</td>{% for v in totals.percent %}<td>{{ v|default_if_none:""|floatformat:"-1" }}</td>{% endfor %}{% include "academics/_report_card_side.html" with footer=2 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.2 footer=2 %}{% endif %}</tr>
-    <tr class="b"><td class="name">{% translate "PLACE / NUMBER OF STUDENTS" %}</td>{% for v in totals.place %}<td>{{ v }}</td>{% endfor %}{% include "academics/_report_card_side.html" with footer=3 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.3 footer=3 %}{% endif %}</tr>
-    <tr class="b"><td class="name mx">{% translate "APPLICATION" %}</td>{% for c in columns %}<td{% if c.kind != "period" %} class="k"{% endif %}></td>{% endfor %}{% if year_column %}<td class="k"></td>{% endif %}{% include "academics/_report_card_side.html" with footer=4 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.4 footer=4 %}{% endif %}</tr>
-    <tr class="b"><td class="name mx">{% translate "CONDUCT" %}</td>{% for c in columns %}<td{% if c.kind != "period" %} class="k"{% endif %}></td>{% endfor %}{% if year_column %}<td class="k"></td>{% endif %}{% include "academics/_report_card_side.html" with footer=5 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.5 footer=5 %}{% endif %}</tr>
-    <tr class="b"><td class="name mx" style="font-size:7.3pt">{% translate "HEAD'S SIGNATURE" %}</td>{% for span in signature %}<td{% if span > 1 %} colspan="{{ span }}"{% endif %}></td>{% endfor %}{% include "academics/_report_card_side.html" with footer=6 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.6 footer=6 %}{% endif %}</tr>
+    <tr class="b"><td class="name mx lbl">{% translate "TOTALS" %}</td>{% for v in totals.score %}<td class="tot">{{ v|default_if_none:""|floatformat:"-1" }}</td>{% endfor %}{% include "academics/_report_card_side.html" with footer=1 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.1 footer=1 %}{% endif %}</tr>
+    <tr class="b"><td class="name lbl">{% translate "PERCENTAGE" %}</td>{% for v in totals.percent %}<td>{{ v|default_if_none:""|floatformat:"-1" }}</td>{% endfor %}{% include "academics/_report_card_side.html" with footer=2 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.2 footer=2 %}{% endif %}</tr>
+    <tr class="b"><td class="name lbl">{% translate "PLACE / NUMBER OF STUDENTS" %}</td>{% for v in totals.place %}<td>{{ v }}</td>{% endfor %}{% include "academics/_report_card_side.html" with footer=3 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.3 footer=3 %}{% endif %}</tr>
+    <tr class="b"><td class="name mx lbl">{% translate "APPLICATION" %}</td>{% for c in columns %}<td{% if c.kind != "period" %} class="k"{% endif %}></td>{% endfor %}{% if year_column %}<td class="k"></td>{% endif %}{% include "academics/_report_card_side.html" with footer=4 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.4 footer=4 %}{% endif %}</tr>
+    <tr class="b"><td class="name mx lbl">{% translate "CONDUCT" %}</td>{% for c in columns %}<td{% if c.kind != "period" %} class="k"{% endif %}></td>{% endfor %}{% if year_column %}<td class="k"></td>{% endif %}{% include "academics/_report_card_side.html" with footer=5 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.5 footer=5 %}{% endif %}</tr>
+    <tr class="b"><td class="name mx lbl" style="font-size:7.3pt">{% translate "HEAD'S SIGNATURE" %}</td>{% for span in signature %}<td{% if span > 1 %} colspan="{{ span }}"{% endif %}></td>{% endfor %}{% include "academics/_report_card_side.html" with footer=6 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.6 footer=6 %}{% endif %}</tr>
   </table></div>
 
   <div class="under">
