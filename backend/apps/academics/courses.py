@@ -16,15 +16,18 @@ from django.db.models import ProtectedError
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from apps.academics.models import Course
+from apps.academics.models import Course, Evaluation
 from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import require_current_school
-from apps.schools.models import AcademicYear, ClassGroup
+from apps.schools.models import AcademicYear, ClassGroup, Term
 
 COURSE_IN_USE = ApiError("course_in_use", _("A removed course is already used."), 409)
+EXAM_GRADED = ApiError(
+    "exam_graded", _("This course already has exam grades: it keeps its exam."), 409
+)
 
 # Au-delà, c'est une erreur de saisie (un bulletin en compte une vingtaine).
 MAX_COURSES = 60
@@ -111,10 +114,19 @@ def courses_of(group: ClassGroup):
 
 def set_courses(group: ClassGroup, items: list[CourseInput], *, actor: User) -> list[Course]:
     """Remplace la grille de la classe : cours gardés (par `id`), ajoutés, modifiés, retirés,
-    dans l'ordre reçu. Un cours retiré qui sert déjà (notes, 8.2) : 409 `course_in_use`."""
+    dans l'ordre reçu. Un cours retiré qui sert déjà (notes, 8.2) : 409 `course_in_use` ; un
+    cours qui perd son examen alors qu'il y est noté : 409 `exam_graded`."""
     staff = _check(group, items)
     with transaction.atomic():
         existing = {course.pk: course for course in courses_of(group)}
+        no_more_exam = [
+            item.id
+            for item in items
+            if item.id in existing and existing[item.id].has_exam and not item.has_exam
+        ]
+        exams = Evaluation.objects.filter(course_id__in=no_more_exam, term__kind=Term.Kind.EXAM)
+        if no_more_exam and exams.exists():
+            raise BusinessError(EXAM_GRADED)
         before = {pk: (_snapshot(course), course.order) for pk, course in existing.items()}
         wanted = {item.id for item in items}
         removed = [course for pk, course in existing.items() if pk not in wanted]

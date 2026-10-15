@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (8.1 faite, puis refonte du design demandée pendant sa PR, même branche `tache/8.1-cours-charges`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Tâche en cours | **8.2.1** Saisie des notes en ligne (8.2 découpée en 8.2.1 → 8.2.3 le 2026-10-15) ; vrai serveur : https://admin.mwangazaschool.com/ |
 | Prochaine tâche | L.4 (toi : vrais téléphones et imprimantes), puis le premier espace réel (`A-FAIRE.md` § 9 quater) ; côté Claude : 8.2 Saisie des notes |
-| Issue GitHub | #46 |
-| Branche | `tache/8.1-cours-charges` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-14 (refonte du design) |
+| Issue GitHub | #47 |
+| Branche | `tache/8.2.1-saisie-notes` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-15 (8.2.1 commencée) |
 
 ## Avancement
 

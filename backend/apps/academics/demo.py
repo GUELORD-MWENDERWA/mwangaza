@@ -1,15 +1,24 @@
 """Cours de démonstration (8.1, `docs/07-a-fournir.md` § 4) : chaque classe reçoit une grille
 officielle (`official.py`) d'après son niveau et son option, avec des heures inventées quand la
 grille n'en donne pas, et quelques cours ont un enseignant parmi les comptes d'exemple. Rejouable :
-les cours de la grille sont remis comme au départ, ceux ajoutés en essayant restent."""
+les cours de la grille sont remis comme au départ, ceux ajoutés en essayant restent.
 
-from apps.academics.models import Course
+Notes (8.2.1) : la 1re période de l'année est notée dans chaque cours (deux interrogations et un
+devoir), chaque élève avec son niveau ; quelques cases restent vides (« incomplet »). Rejouable :
+la 1re période est remise comme au départ, les autres restent."""
+
+import random
+from collections import defaultdict
+from decimal import Decimal
+
+from apps.academics.models import Course, Evaluation, Grade
 from apps.academics.official import BY_KEY
 from apps.accounts.models import User
 from apps.core.tenancy import use_school
 from apps.schools.demo import DemoSpace
-from apps.schools.models import ClassGroup
+from apps.schools.models import ClassGroup, Term
 from apps.schools.organisation import current_year
+from apps.students.models import Enrollment
 
 # (niveau, code de l'option) → grille ; une classe sans grille connue n'a pas de cours.
 BASIC = "basic_education"
@@ -78,3 +87,57 @@ def create_demo_courses(spaces: list[DemoSpace]) -> None:
             Course.objects.bulk_update(
                 updated, ["period_max", "has_exam", "order", "weekly_hours", "teacher"]
             )
+
+
+# Évaluations de la 1re période : nom et part du maximum du cours.
+EVALUATIONS = (("Interrogation 1", 0.25), ("Interrogation 2", 0.25), ("Devoir", 0.5))
+EMPTY_SHARE = 0.01
+
+
+def create_demo_grades(spaces: list[DemoSpace]) -> None:
+    for space in spaces:
+        draw = random.Random(f"grades-{space.school.code}")
+        with use_school(space.school):
+            year = current_year()
+            first = (
+                Term.objects.filter(academic_year=year, kind=Term.Kind.PERIOD)
+                .order_by("order")
+                .first()
+                if year
+                else None
+            )
+            if first is None:
+                continue
+            # Les notes partent avec leurs évaluations.
+            Evaluation.objects.filter(term=first).delete()
+            students: dict = defaultdict(list)
+            enrollments = Enrollment.objects.filter(
+                academic_year=year, status=Enrollment.Status.ACTIVE
+            ).order_by("pk")
+            for pk, group in enrollments.values_list("pk", "class_group_id"):
+                students[group].append(pk)
+            level = {pk: draw.uniform(0.35, 0.95) for pks in students.values() for pk in pks}
+            evaluations = [
+                Evaluation(
+                    course=course,
+                    term=first,
+                    name=name,
+                    max_score=max(1, round(course.period_max * share)),
+                    order=order,
+                )
+                for course in Course.objects.filter(class_group__academic_year=year).order_by("pk")
+                for order, (name, share) in enumerate(EVALUATIONS)
+            ]
+            Evaluation.objects.bulk_create(evaluations, batch_size=2000)
+            grades = []
+            for evaluation in evaluations:
+                for pk in students[evaluation.course.class_group_id]:
+                    if draw.random() < EMPTY_SHARE:
+                        continue
+                    ratio = min(1.0, max(0.0, level[pk] + draw.uniform(-0.15, 0.15)))
+                    # Au demi-point, comme la plupart des enseignants.
+                    halves = round(ratio * evaluation.max_score * 2)
+                    grades.append(
+                        Grade(evaluation=evaluation, enrollment_id=pk, score=Decimal(halves) / 2)
+                    )
+            Grade.objects.bulk_create(grades, batch_size=5000)

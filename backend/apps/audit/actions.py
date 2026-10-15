@@ -74,6 +74,8 @@ class Action(models.TextChoices):
 
     # Cours de chaque classe (8.1) : grille enregistrée, copiée, ou reprise d'une autre année.
     COURSES_CHANGED = "courses.changed", _("Courses of a class changed")
+    # Notes d'un cours dans une période ou des examens (8.2.1) : une entrée par enregistrement.
+    GRADES_CHANGED = "grades.changed", _("Grades changed")
 
     # Élèves et familles (D2-D4).
     STUDENTS_FAMILY_CREATED = "students.family_created", _("Family created")

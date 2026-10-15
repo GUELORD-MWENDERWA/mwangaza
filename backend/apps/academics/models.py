@@ -4,12 +4,15 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import TenantModel
-from apps.schools.models import ClassGroup
+from apps.schools.models import ClassGroup, Term
+from apps.students.models import Enrollment
 
 # Bornes de saisie : un maximum de bulletin va de 10 à 100 (rarement plus), une semaine compte
 # 36 à 41 heures de cours au secondaire.
 MAX_PERIOD_MAX = 1000
 MAX_WEEKLY_HOURS = 40
+# Une note : une décimale (7,5), de 0 au maximum de son évaluation (décision du 2026-10-15).
+SCORE_DIGITS, SCORE_DECIMALS = 5, 1
 
 
 class Course(TenantModel):
@@ -76,3 +79,68 @@ class Course(TenantModel):
 
     def __str__(self) -> str:
         return self.name
+
+
+class Evaluation(TenantModel):
+    """Interrogation, devoir, travail pratique ou examen d'un cours dans une période ou des
+    examens [T] (8.2.1), avec son maximum, libre : la note de la période est la somme des notes
+    ramenée au maximum de la période (règle de trois, `grades.period_score`), jamais stockée.
+    Identifiant donné par l'appareil possible (saisie hors ligne, 8.2.3)."""
+
+    course = models.ForeignKey(
+        Course, on_delete=models.PROTECT, related_name="evaluations", verbose_name=_("course")
+    )
+    # Une période ou des examens de l'année de la classe (vérifié par `grades.py`).
+    term = models.ForeignKey(
+        Term, on_delete=models.PROTECT, related_name="evaluations", verbose_name=_("term")
+    )
+    name = models.CharField(_("name"), max_length=60)
+    max_score = models.PositiveSmallIntegerField(
+        _("maximum"), validators=[MinValueValidator(1), MaxValueValidator(MAX_PERIOD_MAX)]
+    )
+    order = models.PositiveSmallIntegerField(_("order"), default=0)
+
+    class Meta:
+        ordering = ["course", "term", "order", "created_at"]
+        verbose_name = _("evaluation")
+        verbose_name_plural = _("evaluations")
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(max_score__gte=1, max_score__lte=MAX_PERIOD_MAX),
+                name="evaluation_max_score_range",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["school", "course", "term"], name="evaluation_school_sheet")
+        ]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Grade(TenantModel):
+    """Note d'un élève à une évaluation [T] (8.2.1). Pas de ligne : pas encore notée ; une case
+    vidée efface la ligne. Chaque enregistrement va au journal de l'école (`grades.py`)."""
+
+    evaluation = models.ForeignKey(
+        Evaluation, on_delete=models.CASCADE, related_name="grades", verbose_name=_("evaluation")
+    )
+    # Un élève noté reste : l'annulation d'un import le garde (`import_cancellation.py`).
+    enrollment = models.ForeignKey(
+        Enrollment, on_delete=models.PROTECT, related_name="grades", verbose_name=_("enrollment")
+    )
+    score = models.DecimalField(_("score"), max_digits=SCORE_DIGITS, decimal_places=SCORE_DECIMALS)
+
+    class Meta:
+        verbose_name = _("grade")
+        verbose_name_plural = _("grades")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["evaluation", "enrollment"], name="grade_unique_per_student"
+            ),
+            models.CheckConstraint(condition=models.Q(score__gte=0), name="grade_not_negative"),
+        ]
+        indexes = [models.Index(fields=["school", "enrollment"], name="grade_school_enrollment")]
+
+    def __str__(self) -> str:
+        return str(self.score)

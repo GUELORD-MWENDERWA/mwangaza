@@ -73,7 +73,7 @@ def test_one_account_in_two_schools(api, school, other_school):
     assert [r["name"] for r in at_alpha["school"]["roles"]] == ["Directeur"]
     # Dans chaque école, seulement les rôles et permissions de cette école.
     assert [r["name"] for r in at_beta["school"]["roles"]] == ["Enseignant"]
-    assert at_beta["school"]["permissions"] == []
+    assert at_beta["school"]["permissions"] == ["grades.enter"]
     # Adresse générale : choix de l'école (M2), aucun droit.
     assert at_platform["school"] is None
     assert len(at_platform["schools"]) == 2

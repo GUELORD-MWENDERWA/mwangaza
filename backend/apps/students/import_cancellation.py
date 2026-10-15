@@ -4,10 +4,10 @@ mauvaises classes se rattrape.
 Les élèves créés par l'import (`Student.student_import`) sont effacés avec leurs inscriptions,
 leurs frais dus et les familles restées sans élève. Un élève que quelque chose touche déjà
 reste, avec sa famille et son lien : paiement ou crédit, réduction, échéancier particulier,
-compte parent activé. Aucun paiement n'est touché ; les frais dus effacés ici n'ont jamais rien
-reçu (seule exception à « rien n'est effacé dans les finances », décision du 2026-10-11).
-Un import ne s'annule que dans les 30 jours qui suivent sa fin : passé ce délai, un geste de trop
-effacerait une année d'élèves qui n'ont pas encore payé.
+compte parent activé, note (8.2.1). Aucun paiement n'est touché ; les frais dus effacés ici
+n'ont jamais rien reçu (seule exception à « rien n'est effacé dans les finances », décision du
+2026-10-11). Un import ne s'annule que dans les 30 jours qui suivent sa fin : passé ce délai, un
+geste de trop effacerait une année d'élèves qui n'ont pas encore payé.
 
 Tout nouveau modèle lié à un élève ou à une inscription s'ajoute ici : aux raisons de garder
 l'élève (`_touches`) ou à ce qui part avec lui (`cancel`). Sinon la base refuse l'annulation.
@@ -25,6 +25,7 @@ from django.db.models import Count, Exists, OuterRef, Q, QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from apps.academics.models import Grade
 from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import Action
@@ -37,8 +38,8 @@ from apps.sync import changes as sync_changes
 
 logger = logging.getLogger(__name__)
 
-PAYMENT, DISCOUNT, SCHEDULE, PORTAL = "payment", "discount", "schedule", "portal"
-REASONS = (PAYMENT, DISCOUNT, SCHEDULE, PORTAL)
+PAYMENT, DISCOUNT, SCHEDULE, PORTAL, GRADES = "payment", "discount", "schedule", "portal", "grades"
+REASONS = (PAYMENT, DISCOUNT, SCHEDULE, PORTAL, GRADES)
 # Élèves gardés nommés à l'écran ; au-delà, leur nombre seulement.
 KEPT_SHOWN = 50
 CANCEL_WITHIN = timedelta(days=30)
@@ -94,6 +95,7 @@ def _touches() -> dict[str, tuple[str, Exists]]:
             PORTAL,
             Exists(Family.objects.filter(pk=OuterRef("family_id"), primary_user__isnull=False)),
         ),
+        "graded": (GRADES, Exists(Grade.objects.filter(enrollment__student=student))),
     }
 
 
