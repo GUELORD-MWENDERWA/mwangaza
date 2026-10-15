@@ -9,7 +9,7 @@ Référence complète : `docs/03-architecture-technique.md` § 5 (principes, end
 
 ## Ce qui marche sans réseau en V1.0
 
-Consultation des élèves et de leur situation financière, encaissement, impression et réimpression des reçus, demande d'annulation (validée en ligne), clôture de caisse (envoyée à la reconnexion). La configuration (frais, barèmes, rôles, classes) se fait **en ligne seulement**.
+Notes (8.2.3) : feuilles lues en ligne puis saisies sans réseau (`grades.save`, copie Dexie `grades`), envoi et validation en ligne. Consultation des élèves et de leur situation financière, encaissement, impression et réimpression des reçus, demande d'annulation (validée en ligne), clôture de caisse (envoyée à la reconnexion). La configuration (frais, barèmes, rôles, classes) se fait **en ligne seulement**.
 
 ## Écrire hors-ligne (navigateur)
 

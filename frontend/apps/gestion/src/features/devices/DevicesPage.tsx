@@ -325,7 +325,8 @@ function LocalDevice({ db, prefix }: { db: LocalDb; prefix: string }) {
   );
 }
 
-type QueueType = "payment" | "reprint" | "cashOpen" | "creditUse" | "cancellation" | "other";
+type QueueType =
+  "payment" | "reprint" | "cashOpen" | "creditUse" | "cancellation" | "grades" | "other";
 
 const TYPES: Record<string, QueueType> = {
   "payment.create": "payment",
@@ -333,6 +334,7 @@ const TYPES: Record<string, QueueType> = {
   "cash_session.open": "cashOpen",
   "credit.use": "creditUse",
   "cancellation.request": "cancellation",
+  "grades.save": "grades",
 };
 
 function QueueRow({ operation }: { operation: QueuedOperation }) {

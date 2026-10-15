@@ -977,6 +977,15 @@ export const fr = {
     termChoice: "Période",
     students_one: "{{count}} élève",
     students_other: "{{count}} élèves",
+    offline: {
+      waiting_one:
+        "{{count}} enregistrement de notes attend d'être envoyé : il part dès que le réseau revient.",
+      waiting_other:
+        "{{count}} enregistrements de notes attendent d'être envoyés : ils partent dès que le réseau revient.",
+      rejected:
+        "Des notes saisies sans réseau ont été refusées par le serveur : {{reason}} Les notes affichées sont celles du serveur.",
+      dismiss: "Compris",
+    },
     unsaved: "Modifications non enregistrées",
     evaluations: "Évaluations",
     evaluationChip: "{{name}} · /{{max}}",
@@ -2988,6 +2997,7 @@ export const fr = {
         cashOpen: "Ouverture de caisse",
         creditUse: "Crédit utilisé",
         cancellation: "Demande d'annulation",
+        grades: "Notes saisies sans réseau",
         other: "Opération",
       },
     },

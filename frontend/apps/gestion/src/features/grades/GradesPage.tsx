@@ -28,18 +28,27 @@ import {
   cn,
 } from "@mwangaza/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { type KeyboardEvent, useState } from "react";
+import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 
 import { uuidv7 } from "../../lib/ids";
 import { can } from "../../lib/permissions";
 import { keys, useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
+import { useSyncStatus } from "../../lib/sync/session";
 import { termLabels, type TermShape } from "../../lib/terms";
 import { LoadError } from "../status/StatusPages";
 import { type Grading, type GradingCourse, type Sheet, useGrading, useSheet } from "./data";
 import { ControlBanner, isLocked, ReasonDialog, SheetHistory, todayIn } from "./SheetControl";
-import { parseTenths, percent, periodTenths, serverTenths, toScore } from "./sheet";
+import {
+  dismissRejected,
+  isNetworkError,
+  remember,
+  saveOffline,
+  sheetId,
+  useSheetQueue,
+} from "./offline";
+import { parseTenths, percent, periodTenths, type SaveBody, serverTenths, toScore } from "./sheet";
 
 type Term = Grading["terms"][number];
 type Choice = { classId: string; courseId: string; termId: string };
@@ -136,13 +145,6 @@ type SheetProps = {
   onChoose: (choice: Choice) => void;
 };
 
-type SaveBody = {
-  evaluations: EvaluationDraft[];
-  removed_evaluations: string[];
-  grades: { enrollment_id: string; evaluation_id: string; score: string | null }[];
-  reason: string;
-};
-
 type EvaluationDraft = { id: string; name: string; max_score: number };
 type Editing = { evaluation: EvaluationDraft | null };
 
@@ -154,6 +156,8 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
   const me = useCurrentMe();
   const school = useCurrentSchool();
   const sheet = useSheet(course.id, term.id);
+  const { db } = useSyncStatus();
+  const queue = useSheetQueue(db, course.id, term.id);
   // Changements pas encore enregistrés : évaluations (`null` : celles du serveur), évaluations
   // retirées, cases tapées (texte, par élève et évaluation).
   const [evaluations, setEvaluations] = useState<EvaluationDraft[] | null>(null);
@@ -168,16 +172,41 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
 
   const sheetKey = [...keys.gradeSheet, course.id, term.id];
   const path = { params: { path: { id: course.id, term: term.id } } };
+  const keep = (saved: Sheet) => {
+    queryClient.setQueryData(sheetKey, saved);
+    if (db) void remember(db, sheetId(course.id, term.id), saved).catch(() => undefined);
+  };
+  const waiting = queue?.waiting.length ?? 0;
+  // Notes de l'appareil parties et reprises par le serveur : la feuille du serveur revient.
+  const hadWaiting = useRef(false);
+  useEffect(() => {
+    if (hadWaiting.current && waiting === 0)
+      void queryClient.invalidateQueries({ queryKey: sheetKey });
+    hadWaiting.current = waiting > 0;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [waiting]);
   const save = useMutation({
-    mutationFn: (body: SaveBody) =>
-      call(
-        api.PUT("/api/courses/{id}/terms/{term}/grades/", {
-          params: { path: { id: course.id, term: term.id } },
-          body,
-        }),
-      ),
+    mutationFn: async (body: SaveBody) => {
+      // Hors ligne, ou notes de l'appareil pas encore parties (l'ordre compte) : sur l'appareil.
+      const local = Boolean(db) && (!navigator.onLine || waiting > 0);
+      const current = queryClient.getQueryData<Sheet>(sheetKey);
+      const queueIt = () =>
+        saveOffline(db!, { course: course.id, term: term.id, sheet: current!, body });
+      if (local && current) return queueIt();
+      try {
+        return await call(
+          api.PUT("/api/courses/{id}/terms/{term}/grades/", {
+            params: { path: { id: course.id, term: term.id } },
+            body,
+          }),
+        );
+      } catch (error) {
+        if (db && current && isNetworkError(error)) return queueIt();
+        throw error;
+      }
+    },
     onSuccess: (saved) => {
-      queryClient.setQueryData(sheetKey, saved);
+      keep(saved);
       setEvaluations(null);
       setRemoved([]);
       setCells({});
@@ -202,7 +231,7 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
       );
     },
     onSuccess: (saved, input) => {
-      queryClient.setQueryData(sheetKey, saved);
+      keep(saved);
       void queryClient.invalidateQueries({ queryKey: keys.gradeValidation });
       setReasonFor(null);
       setNotice(input.action);
@@ -344,7 +373,28 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
           timeZone={school.timezone}
         />
       </div>
-      {notice && (
+      {waiting > 0 && (
+        <div className="mb-4">
+          <Banner tone="warn">{t("grades.offline.waiting", { count: waiting })}</Banner>
+        </div>
+      )}
+      {queue && queue.rejected.length > 0 && db && (
+        <div className="mb-4">
+          <Banner
+            tone="due"
+            action={
+              <Button variant="outline" onClick={() => void dismissRejected(db, queue.rejected)}>
+                {t("grades.offline.dismiss")}
+              </Button>
+            }
+          >
+            {t("grades.offline.rejected", {
+              reason: queue.rejected.at(-1)?.error?.detail ?? "",
+            })}
+          </Banner>
+        </div>
+      )}
+      {notice && waiting === 0 && (
         <div className="mb-4">
           <Banner tone="ok">
             {notice === "saved" ? t("grades.saved") : t(`grades.done.${notice}`)}

@@ -1,3 +1,5 @@
+import type { Sheet } from "./data";
+
 // Feuille de notes (8.2.1) : une note a au plus une décimale, de 0 au maximum de son évaluation ;
 // la note de la période est la somme des notes ramenée au maximum de la période (règle de trois),
 // au dixième le plus proche, la moitié vers le haut — même règle que le serveur
@@ -40,4 +42,45 @@ export function periodTenths(
 /** Pourcentage entier d'une note de la période. */
 export function percent(tenths: number, maximum: number): number {
   return Math.floor((20 * tenths + maximum) / (2 * maximum));
+}
+
+/** Ce qu'un enregistrement change dans la feuille (corps de `PUT …/grades/`). */
+export type SaveBody = {
+  evaluations: { id: string; name: string; max_score: number }[];
+  removed_evaluations: string[];
+  grades: { enrollment_id: string; evaluation_id: string; score: string | null }[];
+  reason: string;
+};
+
+/** La feuille après `body`, comme le serveur la rendrait : sert à la montrer sur l'appareil tant
+ *  que l'enregistrement fait hors ligne n'est pas parti (8.2.3). */
+export function applySave(sheet: Sheet, body: SaveBody): Sheet {
+  const evaluations = body.evaluations.filter(
+    (item) => !body.removed_evaluations.includes(item.id),
+  );
+  const changes = new Map(
+    body.grades.map((g) => [`${g.enrollment_id}|${g.evaluation_id}`, g.score]),
+  );
+  const students = sheet.students.map((row) => {
+    const scores = new Map(row.scores.map((cell) => [cell.evaluation_id, cell.score]));
+    for (const item of evaluations) {
+      const key = `${row.enrollment_id}|${item.id}`;
+      if (!changes.has(key)) continue;
+      const score = changes.get(key);
+      if (score === null || score === undefined) scores.delete(item.id);
+      else scores.set(item.id, score);
+    }
+    const kept = evaluations.filter((item) => scores.has(item.id));
+    const total = periodTenths(
+      evaluations.map((item) => (scores.has(item.id) ? serverTenths(scores.get(item.id)!) : null)),
+      evaluations.map((item) => item.max_score),
+      sheet.maximum,
+    );
+    return {
+      ...row,
+      scores: kept.map((item) => ({ evaluation_id: item.id, score: scores.get(item.id)! })),
+      total: total === null ? null : (total / 10).toFixed(1),
+    };
+  });
+  return { ...sheet, evaluations, students };
 }

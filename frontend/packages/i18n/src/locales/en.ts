@@ -971,6 +971,15 @@ export const en: Messages<typeof fr> = {
     termChoice: "Period",
     students_one: "{{count}} student",
     students_other: "{{count}} students",
+    offline: {
+      waiting_one:
+        "{{count}} grade entry is waiting to be sent: it goes as soon as the network is back.",
+      waiting_other:
+        "{{count}} grade entries are waiting to be sent: they go as soon as the network is back.",
+      rejected:
+        "Grades typed offline were refused by the server: {{reason}} The grades shown are the server's.",
+      dismiss: "Got it",
+    },
     unsaved: "Unsaved changes",
     evaluations: "Evaluations",
     evaluationChip: "{{name}} · /{{max}}",
@@ -2968,6 +2977,7 @@ export const en: Messages<typeof fr> = {
         cashOpen: "Cash register opening",
         creditUse: "Credit used",
         cancellation: "Cancellation request",
+        grades: "Grades typed offline",
         other: "Operation",
       },
     },
