@@ -13,13 +13,14 @@ import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 
+from apps.academics.models import Course, Evaluation, Grade
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.tenancy import use_school
 from apps.finance import services as finance
 from apps.finance.models import Payment, PaymentAllocation, StudentCharge
 from apps.finance.tests.test_payments import pay
-from apps.schools.models import School
+from apps.schools.models import School, Term
 from apps.students import import_cancellation, imports, services
 from apps.students.demo import import_rows, import_workbook
 from apps.students.models import Enrollment, Family, Guardian, Student, StudentImport
@@ -346,13 +347,21 @@ def test_cancelling_an_import_removes_untouched_students_and_never_touches_money
         removed = {enrollment[name].pk for name in ("Josué", "Neema")}
         gone = {enrollment[name].student_id for name in ("Josué", "Neema")}
     payment = pay(school, cashier, enrollment["Daniel"], 5000, "USD")
+    with use_school(school):
+        # Une note garde aussi l'élève (8.2.1).
+        course = Course.objects.create(class_group=alpha["group"], name="Physique", period_max=20)
+        term = Term.objects.filter(academic_year=alpha["year"], kind="period").first()
+        evaluation = Evaluation.objects.create(
+            course=course, term=term, name="Interro", max_score=10
+        )
+        Grade.objects.create(evaluation=evaluation, enrollment=enrollment["Daniel"], score=7)
 
     client = api(head)
     path = f"{IMPORTS}{imp.pk}/"
     preview = client.get(f"{path}cancellation/").json()
     assert (preview["removable_count"], preview["kept_count"]) == (2, 4)
     assert {student["first_name"]: student["reasons"] for student in preview["kept"]} == {
-        "Daniel": ["payment"],
+        "Daniel": ["payment", "grades"],
         "Esther": ["discount"],
         "Christian": ["schedule"],
         "Grâce": ["portal"],

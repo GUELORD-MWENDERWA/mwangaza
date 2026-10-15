@@ -633,6 +633,7 @@ paths:
           - organisation.class_deleted
           - organisation.matricule_format_changed
           - courses.changed
+          - grades.changed
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -735,6 +736,7 @@ paths:
           * `organisation.class_deleted` - Class deleted
           * `organisation.matricule_format_changed` - Student number format changed
           * `courses.changed` - Courses of a class changed
+          * `grades.changed` - Grades changed
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -808,6 +810,7 @@ paths:
           - courses
           - devices
           - finance
+          - grades
           - organisation
           - portal
           - roles
@@ -825,6 +828,7 @@ paths:
           * `courses` - courses
           * `devices` - devices
           * `finance` - finance
+          * `grades` - grades
           * `organisation` - organisation
           * `portal` - portal
           * `roles` - roles
@@ -1006,6 +1010,7 @@ paths:
           - organisation.class_deleted
           - organisation.matricule_format_changed
           - courses.changed
+          - grades.changed
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -1108,6 +1113,7 @@ paths:
           * `organisation.class_deleted` - Class deleted
           * `organisation.matricule_format_changed` - Student number format changed
           * `courses.changed` - Courses of a class changed
+          * `grades.changed` - Grades changed
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -1181,6 +1187,7 @@ paths:
           - courses
           - devices
           - finance
+          - grades
           - organisation
           - portal
           - roles
@@ -1198,6 +1205,7 @@ paths:
           * `courses` - courses
           * `devices` - devices
           * `finance` - finance
+          * `grades` - grades
           * `organisation` - organisation
           * `portal` - portal
           * `roles` - roles
@@ -4895,6 +4903,112 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/courses/{id}/terms/{term}/grades/:
+    get:
+      operationId: courses_terms_grades_retrieve
+      description: |-
+        Feuille de notes du cours dans une période ou des examens : évaluations, élèves de la
+        classe, notes, note de la période.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sheet'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    put:
+      operationId: courses_terms_grades_update
+      description: |-
+        Enregistre la feuille d'un seul envoi : évaluations ajoutées, modifiées ou retirées,
+        cases changées ; renvoie la feuille à jour.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SheetUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SheetUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SheetUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sheet'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/dashboard/:
     get:
       operationId: dashboard_retrieve
@@ -6427,6 +6541,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/grading/:
+    get:
+      operationId: grading_retrieve
+      description: |-
+        Ce que le compte peut noter dans l'année : son découpage (périodes, examens) et, par
+        classe, les cours qu'il donne, ceux de la classe dont il est titulaire, ou tous.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: 'Par défaut : l''année en cours.'
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grading'
           description: ''
         '403':
           content:
@@ -11771,6 +11921,7 @@ components:
       - organisation.class_deleted
       - organisation.matricule_format_changed
       - courses.changed
+      - grades.changed
       - students.family_created
       - students.family_updated
       - students.family_deleted
@@ -11872,6 +12023,7 @@ components:
         * `organisation.class_deleted` - Class deleted
         * `organisation.matricule_format_changed` - Student number format changed
         * `courses.changed` - Courses of a class changed
+        * `grades.changed` - Grades changed
         * `students.family_created` - Family created
         * `students.family_updated` - Family changed
         * `students.family_deleted` - Family deleted
@@ -15346,6 +15498,7 @@ components:
       - courses
       - devices
       - finance
+      - grades
       - organisation
       - portal
       - roles
@@ -15502,6 +15655,44 @@ components:
       required:
       - code
       - detail
+    Evaluation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        max_score:
+          type: integer
+          readOnly: true
+          title: Maximum
+      required:
+      - id
+      - name
+      - max_score
+    EvaluationInputRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Évaluation de la feuille à garder, ou identifiant (UUID v7)
+            d''une nouvelle donné par l''appareil ; absent : nouvelle.'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 60
+        max_score:
+          type: integer
+          maximum: 1000
+          minimum: 1
+      required:
+      - max_score
+      - name
     EventAudienceEnum:
       enum:
       - everyone
@@ -15972,6 +16163,87 @@ components:
       required:
       - code
       - detail
+    GradeInputRequest:
+      type: object
+      properties:
+        enrollment_id:
+          type: string
+          format: uuid
+        evaluation_id:
+          type: string
+          format: uuid
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+          description: 'Vide : la case est vidée.'
+      required:
+      - enrollment_id
+      - evaluation_id
+      - score
+    Grading:
+      type: object
+      properties:
+        academic_year:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Vide : aucune année.'
+        terms:
+          type: array
+          items:
+            $ref: '#/components/schemas/Term'
+          description: 'Découpage de l''année : on note les périodes et les examens.'
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/GradingClass'
+      required:
+      - academic_year
+      - terms
+      - classes
+    GradingClass:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: « 3e Électricité A ».
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/GradingCourse'
+          description: Cours que le compte peut noter.
+      required:
+      - id
+      - name
+      - courses
+    GradingCourse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        period_max:
+          type: integer
+          readOnly: true
+          title: Maximum per period
+        has_exam:
+          type: boolean
+          readOnly: true
+          title: With exam
+      required:
+      - id
+      - name
+      - period_max
+      - has_exam
     Guardian:
       type: object
       properties:
@@ -18804,6 +19076,8 @@ components:
       - school.configure
       - classes.manage
       - courses.configure
+      - grades.enter
+      - grades.enter_any
       - roles.manage
       - students.view
       - students.edit
@@ -18824,6 +19098,8 @@ components:
         * `school.configure` - Configure the school (name, logo, colour, currencies, receipts)
         * `classes.manage` - Manage years, terms, levels, tracks, classes and student numbers
         * `courses.configure` - Configure courses, maxima and teachers of each class
+        * `grades.enter` - Enter the grades of one's courses and of one's homeroom class
+        * `grades.enter_any` - Enter the grades of every class
         * `roles.manage` - Manage staff accounts and roles
         * `students.view` - View students
         * `students.edit` - Edit students
@@ -19723,12 +19999,14 @@ components:
       - discount
       - schedule
       - portal
+      - grades
       type: string
       description: |-
         * `payment` - payment
         * `discount` - discount
         * `schedule` - schedule
         * `portal` - portal
+        * `grades` - grades
     ReceiptSettings:
       type: object
       description: 'Réglages du reçu (M5, `receipts.py`). Écriture partielle : les
@@ -20256,6 +20534,19 @@ components:
           maxLength: 200
       required:
       - reason
+    Score:
+      type: object
+      properties:
+        evaluation_id:
+          type: string
+          format: uuid
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+      required:
+      - evaluation_id
+      - score
     ServerHealth:
       type: object
       properties:
@@ -20345,6 +20636,75 @@ components:
       description: |-
         * `M` - Male
         * `F` - Female
+    Sheet:
+      type: object
+      properties:
+        course:
+          $ref: '#/components/schemas/GradingCourse'
+        class_group:
+          type: string
+        term:
+          type: string
+          format: uuid
+        maximum:
+          type: integer
+          description: 'Maximum de la période (examens : deux fois celui du cours).'
+        evaluations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Evaluation'
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/SheetRow'
+      required:
+      - course
+      - class_group
+      - term
+      - maximum
+      - evaluations
+      - students
+    SheetRow:
+      type: object
+      properties:
+        enrollment_id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        matricule:
+          type: string
+        status:
+          allOf:
+          - $ref: '#/components/schemas/EnrollmentStatusEnum'
+          description: |-
+            Un élève parti n'apparaît que s'il a déjà une note ici.
+
+            * `active` - Active
+            * `transferred` - Transferred
+            * `dropped` - Dropped out
+            * `excluded` - Excluded
+            * `graduated` - Graduated
+        scores:
+          type: array
+          items:
+            $ref: '#/components/schemas/Score'
+          readOnly: true
+          description: Cases remplies seulement.
+        total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,1})?$
+          nullable: true
+          description: Note de la période (somme ramenée au maximum) ; vide tant qu'une
+            case manque.
+      required:
+      - enrollment_id
+      - full_name
+      - matricule
+      - status
+      - scores
+      - total
     SheetSizeEnum:
       enum:
       - a6
@@ -20355,6 +20715,26 @@ components:
         * `a6` - a6
         * `a5` - a5
         * `small` - small
+    SheetUpdateRequest:
+      type: object
+      description: |-
+        Évaluations ajoutées ou modifiées (dans l'ordre ; les autres restent), retirées avec leurs
+        notes, et les seules cases changées.
+      properties:
+        evaluations:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvaluationInputRequest'
+        removed_evaluations:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 30
+        grades:
+          type: array
+          items:
+            $ref: '#/components/schemas/GradeInputRequest'
     SituationEnum:
       enum:
       - up_to_date

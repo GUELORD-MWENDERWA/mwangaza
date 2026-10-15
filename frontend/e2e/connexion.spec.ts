@@ -133,7 +133,7 @@ test("enseignant dans deux écoles : changer d'école (M2)", async ({ page }) =>
   await page.goto(ITIG);
   await enterPassword(page, "0000001008");
 
-  // Sans aucun droit, il lit ce que tout le personnel lit (5.7) : annonces de l'école, calendrier.
+  // Comme tout le personnel (5.7), il lit les annonces de l'école et le calendrier.
   await page.getByRole("link", { name: "Annonces au personnel" }).click();
   await expect(page.getByText("Conseil des enseignants de fin de période")).toBeVisible();
   await page.getByRole("button", { name: /Changer d'école/ }).click();

@@ -138,6 +138,7 @@ export const en: Messages<typeof fr> = {
       students: "Students",
       courses: "Courses and maxima",
       teachingLoads: "Teaching loads",
+      grades: "Grade entry",
       cash: "Cash desk",
       unpaid: "Unpaid fees",
       fees: "Fees and rates",
@@ -465,6 +466,10 @@ export const en: Messages<typeof fr> = {
       },
       courses: {
         configure: "Configure the courses, maxima and teachers of classes",
+      },
+      grades: {
+        enter: "Enter the grades of one's courses and of one's homeroom class",
+        enter_any: "Enter the grades of every class",
       },
       roles: {
         manage: "Manage roles and accounts",
@@ -916,6 +921,60 @@ export const en: Messages<typeof fr> = {
       saved: "Format saved.",
     },
   },
+  grades: {
+    title: "Grade entry",
+    subtitle: "{{className}} · {{course}} · period maximum: {{max}} · {{term}}",
+    classChoice: "Class",
+    courseChoice: "Course",
+    termChoice: "Period",
+    students_one: "{{count}} student",
+    students_other: "{{count}} students",
+    unsaved: "Unsaved changes",
+    evaluations: "Evaluations",
+    evaluationChip: "{{name}} · /{{max}}",
+    evaluationColumn: "{{name}} /{{max}}",
+    addEvaluation: "Add an evaluation",
+    noEvaluation:
+      "No evaluation in this period yet: add the first one (test, homework, practical work…).",
+    noStudent: "No student is enrolled in this class.",
+    noYear: "No current school year: the head creates it in “School organisation”.",
+    noCourse:
+      "No course to grade this year. The director of studies assigns courses in “Courses and maxima”.",
+    columns: {
+      student: "Student",
+      total: "Total /{{max}}",
+      percent: "%",
+    },
+    percentValue: "{{value}}%",
+    scoreLabel: "{{evaluation}} — {{student}}",
+    incomplete: "incomplete",
+    left: "left",
+    hint: "Enter = next box · an empty box leaves the period grade incomplete",
+    save: "Save",
+    saved: "Grades saved.",
+    invalidCells:
+      "Fix the boxes in red: a grade has at most one decimal and does not exceed the maximum of its evaluation.",
+    dialog: {
+      title: "Evaluation",
+      help: "Test, homework, practical work… with its own maximum.",
+      name: "Name",
+      max: "Maximum",
+      maxHelp:
+        "The period grade is the sum of the evaluations brought back to the period maximum ({{max}}).",
+      confirm: "Confirm",
+      remove: "Remove the evaluation",
+      removeWarning_one: "If you remove it, its grade will be deleted when you save.",
+      removeWarning_other: "If you remove it, its {{count}} grades will be deleted when you save.",
+      nameRequired: "Give the evaluation a name.",
+      maxInvalid: "A whole number from 1 to 1000.",
+      belowAGrade: "A grade is above this maximum.",
+    },
+    leave: {
+      title: "Leave without saving?",
+      body: "The grades typed in this sheet will be lost.",
+      confirm: "Leave without saving",
+    },
+  },
   courses: {
     title: "Courses and maxima",
     subtitle: "{{name}} · {{year}}",
@@ -1169,6 +1228,7 @@ export const en: Messages<typeof fr> = {
       school: "School",
       organisation: "School organisation",
       courses: "Courses",
+      grades: "Grades",
       students: "Students",
       portal: "Parent portal",
       finance: "Fees and finance",
@@ -1239,6 +1299,9 @@ export const en: Messages<typeof fr> = {
       },
       courses: {
         changed: "Courses of a class changed",
+      },
+      grades: {
+        changed: "Grades changed",
       },
       students: {
         family_created: "Family created",
@@ -1348,6 +1411,8 @@ export const en: Messages<typeof fr> = {
       class_count: "Classes copied",
       course_count: "Courses copied",
       courses: "Courses",
+      evaluations: "Evaluations",
+      grades: "Grades",
       terms: "Terms",
       cycle: "Cycle",
       levels: "Levels",
@@ -1388,6 +1453,8 @@ export const en: Messages<typeof fr> = {
     },
     values: {
       course: "{{name}}: maximum {{max}}",
+      evaluation: "{{name}} /{{max}}",
+      grade: "{{student}}, {{evaluation}}: {{score}}",
       closingLine:
         "{{currency}}: expected {{expected}}, counted {{counted}}, difference {{difference}}",
       yes: "Yes",
@@ -1975,6 +2042,7 @@ export const en: Messages<typeof fr> = {
           discount: "discount",
           schedule: "custom schedule",
           portal: "parent account activated",
+          grades: "grades",
         },
         offline:
           "Synchronise the cash registers first: a payment collected offline for one of these students would be refused when sent.",
@@ -3714,6 +3782,9 @@ export const en: Messages<typeof fr> = {
     class_in_use: "This class has students: it cannot be deleted.",
     term_in_use: "A removed period is already used.",
     course_in_use: "A removed course is already used.",
+    exam_graded: "This course already has exam grades: it keeps its exam.",
+    not_graded_here: "This course is not graded in this period.",
+    not_your_course: "You do not enter the grades of this course.",
     last_role_manager: "This change would leave the school with nobody to manage roles.",
     role_in_use: "This role is still given to people: remove it from them first.",
     role_name_taken: "The school already has a role with this name.",
@@ -3734,6 +3805,11 @@ export const en: Messages<typeof fr> = {
     id_taken: "This request was refused: close the screen and start again.",
   },
   fieldErrors: {
+    unknown_evaluation: "Unknown evaluation: reload the sheet.",
+    too_many_evaluations: "At most 30 evaluations per period.",
+    unknown_student: "A student is no longer in the class: reload the sheet.",
+    above_maximum: "A grade is above the maximum of its evaluation.",
+    below_a_grade: "A grade is above this maximum.",
     reserved: "This code is reserved by the platform.",
     unique: "This value is already used.",
     name_required: "This phone number has no account yet: enter the name.",

@@ -136,6 +136,7 @@ export const fr = {
       students: "Élèves",
       courses: "Cours et maxima",
       teachingLoads: "Charges des enseignants",
+      grades: "Saisie des notes",
       cash: "Caisse",
       unpaid: "Impayés",
       fees: "Frais et barèmes",
@@ -467,6 +468,10 @@ export const fr = {
       },
       courses: {
         configure: "Configurer les cours, maxima et enseignants des classes",
+      },
+      grades: {
+        enter: "Saisir les notes de ses cours et de la classe dont on est titulaire",
+        enter_any: "Saisir les notes de toutes les classes",
       },
       roles: {
         manage: "Gérer les rôles et les comptes",
@@ -921,6 +926,61 @@ export const fr = {
       saved: "Format enregistré.",
     },
   },
+  grades: {
+    title: "Saisie des notes",
+    subtitle: "{{className}} · {{course}} · maximum de la période : {{max}} · {{term}}",
+    classChoice: "Classe",
+    courseChoice: "Cours",
+    termChoice: "Période",
+    students_one: "{{count}} élève",
+    students_other: "{{count}} élèves",
+    unsaved: "Modifications non enregistrées",
+    evaluations: "Évaluations",
+    evaluationChip: "{{name}} · /{{max}}",
+    evaluationColumn: "{{name}} /{{max}}",
+    addEvaluation: "Ajouter une évaluation",
+    noEvaluation:
+      "Aucune évaluation dans cette période : ajoutez la première (interrogation, devoir, travail pratique…).",
+    noStudent: "Aucun élève inscrit dans cette classe.",
+    noYear: "Aucune année scolaire en cours : le directeur la crée dans « Organisation scolaire ».",
+    noCourse:
+      "Aucun cours à noter cette année. Le directeur des études attribue les cours dans « Cours et maxima ».",
+    columns: {
+      student: "Élève",
+      total: "Total /{{max}}",
+      percent: "%",
+    },
+    percentValue: "{{value}} %",
+    scoreLabel: "{{evaluation}} — {{student}}",
+    incomplete: "incomplet",
+    left: "parti",
+    hint: "Entrée = case suivante · une case vide laisse la note de la période incomplète",
+    save: "Enregistrer",
+    saved: "Notes enregistrées.",
+    invalidCells:
+      "Corrigez les cases en rouge : une note a au plus une décimale et ne dépasse pas le maximum de son évaluation.",
+    dialog: {
+      title: "Évaluation",
+      help: "Interrogation, devoir, travail pratique… avec son propre maximum.",
+      name: "Nom",
+      max: "Maximum",
+      maxHelp:
+        "La note de la période est la somme des évaluations ramenée au maximum de la période ({{max}}).",
+      confirm: "Valider",
+      remove: "Retirer l'évaluation",
+      removeWarning_one: "Si vous la retirez, sa note sera effacée à l'enregistrement.",
+      removeWarning_other:
+        "Si vous la retirez, ses {{count}} notes seront effacées à l'enregistrement.",
+      nameRequired: "Donnez un nom à l'évaluation.",
+      maxInvalid: "Un nombre entier de 1 à 1000.",
+      belowAGrade: "Une note dépasse ce maximum.",
+    },
+    leave: {
+      title: "Quitter sans enregistrer ?",
+      body: "Les notes tapées dans cette feuille seront perdues.",
+      confirm: "Quitter sans enregistrer",
+    },
+  },
   courses: {
     title: "Cours et maxima",
     subtitle: "{{name}} · {{year}}",
@@ -1175,6 +1235,7 @@ export const fr = {
       school: "École",
       organisation: "Organisation scolaire",
       courses: "Cours",
+      grades: "Notes",
       students: "Élèves",
       portal: "Portail des familles",
       finance: "Frais et finances",
@@ -1245,6 +1306,9 @@ export const fr = {
       },
       courses: {
         changed: "Cours d'une classe modifiés",
+      },
+      grades: {
+        changed: "Notes modifiées",
       },
       students: {
         family_created: "Famille créée",
@@ -1354,6 +1418,8 @@ export const fr = {
       class_count: "Classes reprises",
       course_count: "Cours repris",
       courses: "Cours",
+      evaluations: "Évaluations",
+      grades: "Notes",
       terms: "Découpage",
       cycle: "Cycle",
       levels: "Niveaux",
@@ -1394,6 +1460,8 @@ export const fr = {
     },
     values: {
       course: "{{name}} : maximum {{max}}",
+      evaluation: "{{name}} /{{max}}",
+      grade: "{{student}}, {{evaluation}} : {{score}}",
       closingLine: "{{currency}} : attendu {{expected}}, compté {{counted}}, écart {{difference}}",
       yes: "Oui",
       no: "Non",
@@ -1983,6 +2051,7 @@ export const fr = {
           discount: "réduction",
           schedule: "échéancier particulier",
           portal: "compte parent activé",
+          grades: "notes",
         },
         offline:
           "Synchronisez d'abord les caisses : un paiement encaissé hors ligne pour l'un de ces élèves serait refusé à l'envoi.",
@@ -3749,6 +3818,9 @@ export const fr = {
     class_in_use: "Cette classe a des élèves : elle ne peut pas être supprimée.",
     term_in_use: "Une période retirée est déjà utilisée.",
     course_in_use: "Un cours retiré est déjà utilisé.",
+    exam_graded: "Ce cours a déjà des notes d'examen : il garde son examen.",
+    not_graded_here: "Ce cours n'est pas noté dans cette période.",
+    not_your_course: "Vous ne saisissez pas les notes de ce cours.",
     last_role_manager: "Ce changement laisserait l'école sans personne pour gérer les rôles.",
     role_in_use: "Ce rôle est encore donné à des personnes : retirez-le-leur d'abord.",
     role_name_taken: "L'école a déjà un rôle de ce nom.",
@@ -3770,6 +3842,11 @@ export const fr = {
     id_taken: "Cet envoi est refusé : fermez l'écran et recommencez.",
   },
   fieldErrors: {
+    unknown_evaluation: "Évaluation inconnue : rechargez la feuille.",
+    too_many_evaluations: "30 évaluations au plus par période.",
+    unknown_student: "Un élève n'est plus dans la classe : rechargez la feuille.",
+    above_maximum: "Une note dépasse le maximum de son évaluation.",
+    below_a_grade: "Une note dépasse ce maximum.",
     reserved: "Ce code est réservé par la plateforme.",
     unique: "Cette valeur est déjà utilisée.",
     name_required: "Ce numéro n'a pas encore de compte : saisissez le nom.",

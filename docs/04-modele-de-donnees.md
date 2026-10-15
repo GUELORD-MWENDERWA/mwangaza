@@ -55,7 +55,11 @@ Changée avec `classes.manage` (directeur, directeur des études), en ligne seul
 
 Changés avec `courses.configure` (module `academics`), en ligne seulement ; services dans `apps/academics/courses.py`, journal : domaine `courses`.
 
-**Course [T]** — cours (branche) d'une classe : `class_group` (part avec la classe), `name` (unique dans la classe sans tenir compte des majuscules), `domain` (texte facultatif : « Sciences », « Langues »), `period_max` (maximum par période, 1 à 1000), `has_exam` (non pour un atelier, un laboratoire, une pratique professionnelle), `weekly_hours` (1 à 40, facultatif : servira à l'emploi du temps), `teacher` (une personne du personnel actif de l'école, quel que soit son rôle ; facultatif), `order` (place dans la grille). **Examen = 2 × `period_max`** ; total de l'année (T.G.) = maximum × nombre de périodes + examen × nombre d'examens du découpage de l'année (secondaire : 8 × ou 4 × sans examen) ; ni l'un ni l'autre n'est stocké. Pas de catalogue de matières : le nom relie les cours de classes différentes (copie, statistiques). La grille d'une classe se remplace **d'un seul envoi** (cours gardés par leur `id`, ajoutés, modifiés, retirés ; 60 au plus) et se copie vers d'autres classes (un cours du même nom garde son enseignant, les autres cours de la classe sont retirés) ; une entrée au journal par classe changée, avec seulement les cours ajoutés, retirés ou modifiés. Modèles officiels pour pré-remplir (`academics/official.py`). **Charge d'un enseignant** = somme des heures de ses cours de l'année ; un compte désactivé perd ses cours (« sans enseignant »). Une fois des notes saisies (8.2) : un cours noté ne se retire plus (409 `course_in_use`) et changer son maximum demandera la validation du directeur des études.
+**Course [T]** — cours (branche) d'une classe : `class_group` (part avec la classe), `name` (unique dans la classe sans tenir compte des majuscules), `domain` (texte facultatif : « Sciences », « Langues »), `period_max` (maximum par période, 1 à 1000), `has_exam` (non pour un atelier, un laboratoire, une pratique professionnelle), `weekly_hours` (1 à 40, facultatif : servira à l'emploi du temps), `teacher` (une personne du personnel actif de l'école, quel que soit son rôle ; facultatif), `order` (place dans la grille). **Examen = 2 × `period_max`** ; total de l'année (T.G.) = maximum × nombre de périodes + examen × nombre d'examens du découpage de l'année (secondaire : 8 × ou 4 × sans examen) ; ni l'un ni l'autre n'est stocké. Pas de catalogue de matières : le nom relie les cours de classes différentes (copie, statistiques). La grille d'une classe se remplace **d'un seul envoi** (cours gardés par leur `id`, ajoutés, modifiés, retirés ; 60 au plus) et se copie vers d'autres classes (un cours du même nom garde son enseignant, les autres cours de la classe sont retirés) ; une entrée au journal par classe changée, avec seulement les cours ajoutés, retirés ou modifiés. Modèles officiels pour pré-remplir (`academics/official.py`). **Charge d'un enseignant** = somme des heures de ses cours de l'année ; un compte désactivé perd ses cours (« sans enseignant »). Une fois des notes saisies (8.2.1) : un cours qui a des évaluations ne se retire plus (409 `course_in_use`), ne perd plus son examen s'il y est noté (409 `exam_graded`), et changer son maximum demandera la validation du directeur des études (8.2.2).
+
+**Evaluation [T]** — interrogation, devoir, travail pratique ou examen d'un cours dans une période ou des examens (8.2.1) : `course` (PROTECT), `term` (une période ou des examens de l'année de la classe ; des examens seulement pour un cours avec examen ; PROTECT : 409 `term_in_use`), `name` (60 caractères), `max_score` (1 à 1000, libre), `order`. Identifiant donné par l'appareil accepté (UUID v7, hors ligne en 8.2.3). 30 au plus par feuille.
+
+**Grade [T]** — note d'un élève à une évaluation : `evaluation` (CASCADE : une évaluation retirée part avec ses notes), `enrollment` (PROTECT : un élève noté est gardé à l'annulation d'un import, raison `grades`), `score` (décimal, **une décimale**, de 0 au maximum de l'évaluation). Unique (évaluation, inscription) ; pas de ligne = pas encore noté, une case vidée efface la ligne. **Note de la période** = somme des notes ramenée au maximum de la période (examens : 2 × `period_max`) par une **règle de trois**, au dixième le plus proche (la moitié vers le haut) ; rien tant qu'une case est vide (« incomplet ») ; calculée, jamais stockée (`grades.period_score`, et `sheet.ts` à l'écran). La **feuille** (cours × période) se lit et s'enregistre d'un seul envoi : évaluations ajoutées ou modifiées (les autres restent), retirées, et seules les cases changées ; dernière écriture gagnante pour une même case ; une entrée au journal par enregistrement (domaine `grades`), avec les évaluations et les cases changées. Droits : `grades.enter` (cours qu'on donne et classe dont on est titulaire) ou `grades.enter_any` (toutes les classes) ; services dans `apps/academics/grades.py`.
 
 ## 3. Élèves et familles
 
@@ -173,30 +177,32 @@ Règles :
 
 **Modèle de départ** (décision Q3, M.3.2) : 9 rôles copiés dans chaque école neuve — directeur, directeur des études, directeur de discipline / surveillant, comptable, caissier, secrétaire, promoteur, enseignant, parent. Le tableau donne leurs permissions de départ ; ensuite chaque école renomme, modifie ou supprime ces rôles et en crée d'autres (B2). Dans le code, chacun a une clé (`head`, `study_director`, `discipline_master`, `accountant`, `cashier`, `secretary`, `promoter`, `teacher`, `parent`) qui ne sert qu'au modèle, aux données de démonstration et aux tests : rien en base ni dans l'API.
 
-| Code | Directeur | Dir. des études | Dir. de discipline | Comptable | Caissier | Secrétaire | Promoteur |
-|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| `school.configure` (nom, logo, couleur, devises, reçus) | ✔ | | | | | | |
-| `classes.manage` (année, périodes, niveaux, options, classes, matricule) | ✔ | ✔ | | | | | |
-| `courses.configure` (cours, maxima, heures et enseignants de chaque classe, 8.1) | ✔ | ✔ | | | | | |
-| `roles.manage` (rôles et comptes du personnel) | ✔ | | | | | | |
-| `students.view` | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ |
-| `students.edit` | ✔ | ✔ | | | | ✔ | |
-| `students.import` | ✔ | | | | | ✔ | |
-| `finance.configure_fees` | ✔ | | | ✔ | | | |
-| `finance.set_exchange_rate` | ✔ | | | ✔ | | | |
-| `finance.grant_discount` | ✔ | | | ✔ | | | |
-| `finance.collect_payment` | | | | ✔ | ✔ | | |
-| `finance.request_cancellation` | | | | ✔ | ✔ | | |
-| `finance.approve_cancellation` | ✔ | | | ✔ | | | |
-| `finance.close_register` | | | | ✔ | ✔ | | |
-| `finance.view_reports` | ✔ | | | ✔ | | | ✔ |
-| `finance.import_prior_payments` | ✔ | | | ✔ | | | |
-| `announcements.publish` | ✔ | ✔ | ✔ | | | ✔ | |
-| `audit.view` | ✔ | | | | | | ✔ |
+| Code | Directeur | Dir. des études | Dir. de discipline | Comptable | Caissier | Secrétaire | Promoteur | Enseignant |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| `school.configure` (nom, logo, couleur, devises, reçus) | ✔ | | | | | | | |
+| `classes.manage` (année, périodes, niveaux, options, classes, matricule) | ✔ | ✔ | | | | | | |
+| `courses.configure` (cours, maxima, heures et enseignants de chaque classe, 8.1) | ✔ | ✔ | | | | | | |
+| `grades.enter` (notes de ses cours et de la classe dont on est titulaire, 8.2.1) | | | | | | | | ✔ |
+| `grades.enter_any` (notes de toutes les classes, 8.2.1) | | ✔ | | | | ✔ | | |
+| `roles.manage` (rôles et comptes du personnel) | ✔ | | | | | | | |
+| `students.view` | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | |
+| `students.edit` | ✔ | ✔ | | | | ✔ | | |
+| `students.import` | ✔ | | | | | ✔ | | |
+| `finance.configure_fees` | ✔ | | | ✔ | | | | |
+| `finance.set_exchange_rate` | ✔ | | | ✔ | | | | |
+| `finance.grant_discount` | ✔ | | | ✔ | | | | |
+| `finance.collect_payment` | | | | ✔ | ✔ | | | |
+| `finance.request_cancellation` | | | | ✔ | ✔ | | | |
+| `finance.approve_cancellation` | ✔ | | | ✔ | | | | |
+| `finance.close_register` | | | | ✔ | ✔ | | | |
+| `finance.view_reports` | ✔ | | | ✔ | | | ✔ | |
+| `finance.import_prior_payments` | ✔ | | | ✔ | | | | |
+| `announcements.publish` | ✔ | ✔ | ✔ | | | ✔ | | |
+| `audit.view` | ✔ | | | | | | ✔ | |
 
 - `announcements.publish` couvre toute la communication de l'école (5.7) : annonces aux familles et au personnel, calendrier (écriture), convocations. Lire les annonces au personnel et le calendrier ne demande aucun droit : tout compte de l'école.
 - **Portail** (`School.settings["portal"]`, 5.7) : `teacher_phone` (faux par défaut) — le portail montre toujours le nom du titulaire de la classe de l'enfant, son téléphone seulement si l'école l'a choisi.
 - Codes et modèle de départ dans `backend/apps/accounts/roles.py` (`STARTER_ROLES`) ; un test compare ce tableau au code. Nouvelle permission : donnée aux rôles des écoles existantes qui ont déjà un droit voisin, jamais d'après un nom de rôle. Vérification par le serveur sur chaque point d'API (`HasSchoolPermission`) : compte actif, appartenance active dans l'école de l'adresse, un rôle qui porte le code, et une session passée par la double authentification si les droits dans cette école l'exigent. Le super-admin n'a aucun droit dans une école hors session support « en tant qu'école » (1.5 : motif, une heure au plus, droits de l'école sauf `finance.collect_payment`, `finance.request_cancellation`, `finance.approve_cancellation`, `finance.close_register`, chaque action notée dans le journal de l'école).
 - **Double authentification** (B4) : exigée pour qui a, dans une école, l'un des droits `school.configure`, `roles.manage`, `audit.view` ou `finance.*` (`TOTP_PERMISSIONS` dans `roles.py`). Dans le modèle de départ : directeur, comptable, caissier, promoteur (un test le vérifie) ; tout rôle de l'école qui porte l'un de ces droits l'exige aussi. Nouveau droit sensible (ex. `grades.validate`, V1.2) : l'ajouter à cette liste.
-- **Enseignant** : aucune permission en V1.0 (B1). **Parent** : aucune permission dans la Gestion ; le portail lui montre ses enfants (§ 3).
+- **Enseignant** : aucune permission en V1.0 (B1) ; depuis la 8.2.1, `grades.enter` (rôles des écoles existantes : à donner par leur directeur, aucun droit voisin ne le désigne ; `grades.enter_any` est donné d'office aux rôles qui ont `courses.configure`). **Parent** : aucune permission dans la Gestion ; le portail lui montre ses enfants (§ 3).
 - Permissions des deux rôles ajoutés le 2026-09-26 (proposition de Claude, validée par la fusion de la PR) : en V1.0, le directeur des études s'occupe des classes et des inscriptions, le directeur de discipline consulte les élèves ; aucun des deux ne touche à l'argent. Prévu ensuite : `attendance.manage` (pointage, V1.1–V1.2) et `discipline.manage` (V1.2) pour le directeur de discipline ; `grades.validate`, `report_cards.publish` et `deliberation.manage` (V1.2) pour le directeur des études (`courses.configure` donné en 8.1, aussi aux rôles des écoles existantes qui avaient `classes.manage`), avec double authentification obligatoire dès qu'il valide des notes.

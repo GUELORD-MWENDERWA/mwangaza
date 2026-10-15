@@ -1,10 +1,21 @@
+from decimal import Decimal
+
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.academics.courses import CourseInput
-from apps.academics.models import MAX_PERIOD_MAX, MAX_WEEKLY_HOURS, Course
+from apps.academics.grades import MAX_EVALUATIONS, EvaluationInput, GradeInput
+from apps.academics.models import (
+    MAX_PERIOD_MAX,
+    MAX_WEEKLY_HOURS,
+    SCORE_DECIMALS,
+    SCORE_DIGITS,
+    Course,
+    Evaluation,
+)
 from apps.schools.models import AcademicYear, ClassGroup
-from apps.schools.serializers import PersonSerializer
+from apps.schools.serializers import PersonSerializer, TermSerializer
+from apps.students.models import Enrollment
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -110,3 +121,125 @@ class TeachingLoadsFilterSerializer(serializers.Serializer):
     academic_year = serializers.PrimaryKeyRelatedField(
         queryset=AcademicYear.objects, required=False, help_text="Absent : l'année en cours."
     )
+
+
+# Notes (8.2.1)
+
+
+class GradingCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ["id", "name", "period_max", "has_exam"]
+        read_only_fields = fields
+
+
+class GradingClassSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField(help_text="« 3e Électricité A ».")
+    courses = GradingCourseSerializer(many=True, help_text="Cours que le compte peut noter.")
+
+
+class GradingSerializer(serializers.Serializer):
+    academic_year = serializers.UUIDField(allow_null=True, help_text="Vide : aucune année.")
+    terms = TermSerializer(
+        many=True, help_text="Découpage de l'année : on note les périodes et les examens."
+    )
+    classes = GradingClassSerializer(many=True)
+
+
+class GradingFilterSerializer(serializers.Serializer):
+    academic_year = serializers.PrimaryKeyRelatedField(
+        queryset=AcademicYear.objects,
+        required=False,
+        help_text="Par défaut : l'année en cours.",
+    )
+
+
+class EvaluationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Evaluation
+        fields = ["id", "name", "max_score"]
+        read_only_fields = fields
+
+
+class ScoreSerializer(serializers.Serializer):
+    evaluation_id = serializers.UUIDField()
+    score = serializers.DecimalField(max_digits=SCORE_DIGITS, decimal_places=SCORE_DECIMALS)
+
+
+class SheetRowSerializer(serializers.Serializer):
+    enrollment_id = serializers.UUIDField(source="enrollment.pk")
+    full_name = serializers.CharField(source="enrollment.student.full_name")
+    matricule = serializers.CharField(source="enrollment.student.matricule")
+    status = serializers.ChoiceField(
+        source="enrollment.status",
+        choices=Enrollment.Status.choices,
+        help_text="Un élève parti n'apparaît que s'il a déjà une note ici.",
+    )
+    scores = serializers.SerializerMethodField(help_text="Cases remplies seulement.")
+    total = serializers.DecimalField(
+        max_digits=SCORE_DIGITS + 2,
+        decimal_places=SCORE_DECIMALS,
+        allow_null=True,
+        help_text="Note de la période (somme ramenée au maximum) ; vide tant qu'une case manque.",
+    )
+
+    @extend_schema_field(ScoreSerializer(many=True))
+    def get_scores(self, row) -> list[dict]:
+        return ScoreSerializer(
+            [{"evaluation_id": pk, "score": score} for pk, score in row.scores.items()], many=True
+        ).data
+
+
+class SheetSerializer(serializers.Serializer):
+    course = GradingCourseSerializer()
+    class_group = serializers.CharField(source="course.class_group.name")
+    term = serializers.UUIDField(source="term.pk")
+    maximum = serializers.IntegerField(
+        help_text="Maximum de la période (examens : deux fois celui du cours)."
+    )
+    evaluations = EvaluationSerializer(many=True)
+    students = SheetRowSerializer(source="rows", many=True)
+
+
+class EvaluationInputSerializer(serializers.Serializer):
+    id = serializers.UUIDField(
+        required=False,
+        allow_null=True,
+        default=None,
+        help_text="Évaluation de la feuille à garder, ou identifiant (UUID v7) d'une nouvelle "
+        "donné par l'appareil ; absent : nouvelle.",
+    )
+    name = serializers.CharField(max_length=60)
+    max_score = serializers.IntegerField(min_value=1, max_value=MAX_PERIOD_MAX)
+
+
+class GradeInputSerializer(serializers.Serializer):
+    enrollment_id = serializers.UUIDField()
+    evaluation_id = serializers.UUIDField()
+    score = serializers.DecimalField(
+        max_digits=SCORE_DIGITS,
+        decimal_places=SCORE_DECIMALS,
+        min_value=Decimal(0),
+        allow_null=True,
+        help_text="Vide : la case est vidée.",
+    )
+
+
+class SheetUpdateSerializer(serializers.Serializer):
+    """Évaluations ajoutées ou modifiées (dans l'ordre ; les autres restent), retirées avec leurs
+    notes, et les seules cases changées."""
+
+    evaluations = EvaluationInputSerializer(many=True, required=False, default=list)
+    removed_evaluations = serializers.ListField(
+        child=serializers.UUIDField(), required=False, default=list, max_length=MAX_EVALUATIONS
+    )
+    grades = GradeInputSerializer(many=True, required=False, default=list, max_length=6000)
+
+    def inputs(self) -> dict:
+        data = self.validated_data
+        return {
+            "evaluations": [EvaluationInput(**row) for row in data["evaluations"]],
+            "removed": data["removed_evaluations"],
+            "grades": [GradeInput(**row) for row in data["grades"]],
+        }

@@ -57,6 +57,13 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         permissions: ["courses.configure"],
         task: "8.1",
       },
+      {
+        key: "grades",
+        path: "grades",
+        icon: "edit",
+        permissions: ["grades.enter", "grades.enter_any"],
+        task: "8.2.1",
+      },
     ],
   },
   {

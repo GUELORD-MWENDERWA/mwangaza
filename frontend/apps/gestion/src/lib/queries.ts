@@ -22,6 +22,8 @@ export const keys = {
   courses: ["courses"],
   courseTemplates: ["course-templates"],
   teachingLoads: ["teaching-loads"],
+  grading: ["grading"],
+  gradeSheet: ["grade-sheet"],
   matricule: ["matricule-format"],
   roles: ["roles"],
   staff: ["staff"],

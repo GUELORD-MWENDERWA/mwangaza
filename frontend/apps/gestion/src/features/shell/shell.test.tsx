@@ -80,7 +80,7 @@ describe("coquille et menu (M7)", () => {
     expect(await mainMenu()).toBeTruthy();
   });
 
-  it("enseignant (aucun droit) : seulement ce que tout le personnel lit", async () => {
+  it("enseignant : ses notes et ce que tout le personnel lit", async () => {
     mockApi(loggedIn(me("teacher")));
     renderApp("/");
 
@@ -89,7 +89,7 @@ describe("coquille et menu (M7)", () => {
       within(menu)
         .getAllByRole("link")
         .map((link) => link.textContent),
-    ).toEqual(["Annonces au personnel", "Calendrier"]);
+    ).toEqual(["Saisie des notes", "Annonces au personnel", "Calendrier"]);
   });
 
   it("hors ligne : indiqué en haut", async () => {

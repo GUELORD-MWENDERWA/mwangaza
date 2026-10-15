@@ -57,11 +57,12 @@ export const PERMISSIONS = {
   study_director: [
     "classes.manage",
     "courses.configure",
+    "grades.enter_any",
     "students.view",
     "students.edit",
     "announcements.publish",
   ],
-  teacher: [],
+  teacher: ["grades.enter"],
   accountant: [
     "students.view",
     "finance.configure_fees",

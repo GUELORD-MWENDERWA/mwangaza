@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (8.1 faite, puis refonte du design demandée pendant sa PR, même branche `tache/8.1-cours-charges`) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | L.4 (toi : vrais téléphones et imprimantes), puis le premier espace réel (`A-FAIRE.md` § 9 quater) ; côté Claude : 8.2 Saisie des notes |
-| Issue GitHub | #46 |
-| Branche | `tache/8.1-cours-charges` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-14 (refonte du design) |
+| Tâche en cours | aucune (8.2.1 faite ; la 8.2 est découpée en 8.2.1 → 8.2.3 depuis le 2026-10-15) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | L.4 (toi : vrais téléphones et imprimantes), puis le premier espace réel (`A-FAIRE.md` § 9 quater) ; côté Claude : DOC.1 Signature et cachet, puis DOC.2 Reçu en bande et registre des reçus (avant L.4), puis 8.2.2 |
+| Issue GitHub | #47 |
+| Branche | `tache/8.2.1-saisie-notes` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-15 (8.2.1 faite) |
 
 ## Avancement
 
@@ -26,10 +26,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 14 | 14 |
 | **V1.0** | **67** | **67** |
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
-| Lancement (L.0 à L.5 ; L.3 remplacée par S.1 et S.2) | 4 | 5 |
+| Lancement (L.0 à L.5, DOC.1, DOC.2 ; L.3 remplacée par S.1 et S.2) | 4 | 7 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
 | Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 8 | 11 |
-| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1–8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 2 | 9 |
+| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3, 8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 3 | 11 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
 | V1.5 — carte et présences (avec A.5) | 0 | 7 |
@@ -61,6 +61,19 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-15 — Documents de l'école : signature, cachet, reçus en bande, registre (demande de l'utilisateur)
+
+- Demandé pendant la PR de la 8.2.1 : signature électronique et cachet sur les documents et reçus ; reçu A4 repensé (un reçu par feuille, pas plusieurs sur une page) ; registre téléchargeable de tous les reçus ; site public à refaire (débordements au téléphone).
+- Tranché avec l'utilisateur : deux tâches juste après la 8.2.1, avant L.4 — **DOC.1** cachet + signature du chef (paramètres) + signature de chaque caissier (« Mon compte ») ; **DOC.2** reçu sur **demi A4** (21 × 14,8 cm) ou **tiers d'A4** (21 × 9,9 cm) au choix de l'école, **registre des reçus** (liste et totaux, PDF et Excel, par période et par caisse) qui remplace la souche. Site : ajouté à WEB.1 (maquettes de chaque page d'abord, `make apercu`). Détail : `05` § 3 et § 6.3.
+
+### 2026-10-15 — Tâche 8.2.1 : saisie des notes en ligne
+
+- 8.2 découpée (accord de l'utilisateur) en 8.2.1 en ligne, 8.2.2 contrôle (#248), 8.2.3 hors ligne (#249). Règles tranchées : note de la période = somme des évaluations **ramenée au maximum** (règle de trois), notes à **une décimale**, arrondi au dixième.
+- Fait : `Evaluation` et `Grade` (`academics/grades.py`), `GET /api/grading/`, feuille `GET`/`PUT /api/courses/<id>/terms/<id>/grades/` d'un seul envoi (cases changées seulement), droits `grades.enter` (enseignant : ses cours et sa classe de titulaire) et `grades.enter_any` (secrétaire, directeur des études ; migration : rôles qui ont `courses.configure`), une entrée au journal par enregistrement ; cours noté non retirable, examen gardé (`exam_graded`), élève noté gardé à l'annulation d'un import. Écran « Saisie des notes » (tableau, carte par élève au téléphone), maquette complétée ; `make demo` : 1re période notée.
+- Tests : isolation, droits (enseignant, titulaire, secrétariat, sans droit), règle de trois et arrondi (serveur et front), notes refusées, journal, cours noté ; `make lint`, modules touchés ; suite complète : CI.
+- Corrigé pendant la PR : `make demo` rejoué (découpage mis à jour en place, plus effacé), une période notée garde son genre (409 `term_in_use`), notes créées sans une requête de contrôle chacune (CI bloquée sous la Row Level Security).
+- Suite : 8.2.2 (date limite, validation par le directeur des études, historique avec motif).
 
 ### 2026-10-14 — Refonte du design (demande de l'utilisateur, dans la PR de la 8.1)
 

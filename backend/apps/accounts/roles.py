@@ -21,6 +21,8 @@ PERMISSIONS: dict[str, Promise] = {
     "school.configure": _("Configure the school (name, logo, colour, currencies, receipts)"),
     "classes.manage": _("Manage years, terms, levels, tracks, classes and student numbers"),
     "courses.configure": _("Configure courses, maxima and teachers of each class"),
+    "grades.enter": _("Enter the grades of one's courses and of one's homeroom class"),
+    "grades.enter_any": _("Enter the grades of every class"),
     "roles.manage": _("Manage staff accounts and roles"),
     "students.view": _("View students"),
     "students.edit": _("Edit students"),
@@ -50,6 +52,9 @@ SCHOOL_CONFIGURE = "school.configure"
 CLASSES_MANAGE = "classes.manage"
 # Cours de chaque classe : maxima, heures, enseignants (8.1).
 COURSES_CONFIGURE = "courses.configure"
+# Notes (8.2.1) : celles de ses cours et de la classe dont on est titulaire, ou de toutes.
+GRADES_ENTER = "grades.enter"
+GRADES_ENTER_ANY = "grades.enter_any"
 # Gérer les rôles et les comptes du personnel : une école garde toujours un compte actif qui l'a.
 ROLES_MANAGE = "roles.manage"
 # Publier et archiver les annonces aux familles (H4).
@@ -128,6 +133,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
         (
             "classes.manage",
             "courses.configure",
+            "grades.enter_any",
             "students.view",
             "students.edit",
             "announcements.publish",
@@ -162,12 +168,18 @@ STARTER_ROLES: dict[str, StarterRole] = {
     ),
     "secretary": StarterRole(
         _("Secretary"),
-        ("students.view", "students.edit", "students.import", "announcements.publish"),
+        (
+            "students.view",
+            "students.edit",
+            "students.import",
+            "grades.enter_any",
+            "announcements.publish",
+        ),
     ),
     "promoter": StarterRole(_("Promoter"), ("students.view", "finance.view_reports", "audit.view")),
-    # Enseignant : aucune fonction en V1.0 (B1). Parent : rien dans la Gestion, le portail lui
-    # montre ses enfants.
-    "teacher": StarterRole(_("Teacher"), ()),
+    # Enseignant : les notes de ses cours et de la classe dont il est titulaire (8.2.1). Parent :
+    # rien dans la Gestion, le portail lui montre ses enfants.
+    "teacher": StarterRole(_("Teacher"), ("grades.enter",)),
     "parent": StarterRole(_("Parent"), ()),
 }
 

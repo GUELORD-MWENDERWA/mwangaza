@@ -20,7 +20,7 @@ pytestmark = pytest.mark.django_db
 
 # Tableau de `docs/04` § 8 recopié ici : un écart entre le code et le document fait échouer le test.
 # Colonnes : directeur, dir. des études, dir. de discipline, comptable, caissier, secrétaire,
-# promoteur.
+# promoteur, enseignant.
 COLUMNS = [
     "head",
     "study_director",
@@ -29,31 +29,34 @@ COLUMNS = [
     "cashier",
     "secretary",
     "promoter",
+    "teacher",
 ]
 TABLE = {
-    "school.configure": "✔ . . . . . .",
-    "classes.manage": "✔ ✔ . . . . .",
-    "courses.configure": "✔ ✔ . . . . .",
-    "roles.manage": "✔ . . . . . .",
-    "students.view": "✔ ✔ ✔ ✔ ✔ ✔ ✔",
-    "students.edit": "✔ ✔ . . . ✔ .",
-    "students.import": "✔ . . . . ✔ .",
-    "finance.configure_fees": "✔ . . ✔ . . .",
-    "finance.set_exchange_rate": "✔ . . ✔ . . .",
-    "finance.grant_discount": "✔ . . ✔ . . .",
-    "finance.collect_payment": ". . . ✔ ✔ . .",
-    "finance.request_cancellation": ". . . ✔ ✔ . .",
-    "finance.approve_cancellation": "✔ . . ✔ . . .",
-    "finance.close_register": ". . . ✔ ✔ . .",
-    "finance.view_reports": "✔ . . ✔ . . ✔",
-    "finance.import_prior_payments": "✔ . . ✔ . . .",
-    "announcements.publish": "✔ ✔ ✔ . . ✔ .",
-    "audit.view": "✔ . . . . . ✔",
+    "school.configure": "✔ . . . . . . .",
+    "classes.manage": "✔ ✔ . . . . . .",
+    "courses.configure": "✔ ✔ . . . . . .",
+    "grades.enter": ". . . . . . . ✔",
+    "grades.enter_any": ". ✔ . . . ✔ . .",
+    "roles.manage": "✔ . . . . . . .",
+    "students.view": "✔ ✔ ✔ ✔ ✔ ✔ ✔ .",
+    "students.edit": "✔ ✔ . . . ✔ . .",
+    "students.import": "✔ . . . . ✔ . .",
+    "finance.configure_fees": "✔ . . ✔ . . . .",
+    "finance.set_exchange_rate": "✔ . . ✔ . . . .",
+    "finance.grant_discount": "✔ . . ✔ . . . .",
+    "finance.collect_payment": ". . . ✔ ✔ . . .",
+    "finance.request_cancellation": ". . . ✔ ✔ . . .",
+    "finance.approve_cancellation": "✔ . . ✔ . . . .",
+    "finance.close_register": ". . . ✔ ✔ . . .",
+    "finance.view_reports": "✔ . . ✔ . . ✔ .",
+    "finance.import_prior_payments": "✔ . . ✔ . . . .",
+    "announcements.publish": "✔ ✔ ✔ . . ✔ . .",
+    "audit.view": "✔ . . . . . ✔ .",
 }
 
 
 def expected_permissions() -> dict[str, set[str]]:
-    expected = {code: set() for code in [*COLUMNS, "teacher", "parent"]}
+    expected = {code: set() for code in [*COLUMNS, "parent"]}
     for permission, marks in TABLE.items():
         for role, mark in zip(COLUMNS, marks.split(), strict=True):
             if mark == "✔":

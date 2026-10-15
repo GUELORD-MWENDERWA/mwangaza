@@ -57,9 +57,12 @@ describe("menu selon les permissions (04 § 8)", () => {
     ]);
   });
 
-  it("enseignant (aucun droit) : seulement ce que tout le personnel lit (5.7)", () => {
-    expect(keysOf(me("teacher"))).toEqual(["staffNews", "calendar"]);
-    expect(visibleMenu(me("teacher")).map(({ section }) => section)).toEqual(["communication"]);
+  it("enseignant : ses notes (8.2.1) et ce que tout le personnel lit (5.7)", () => {
+    expect(keysOf(me("teacher"))).toEqual(["grades", "staffNews", "calendar"]);
+    expect(visibleMenu(me("teacher")).map(({ section }) => section)).toEqual([
+      "schooling",
+      "communication",
+    ]);
   });
 
   it("session support : droits de l'école sauf la caisse", () => {
