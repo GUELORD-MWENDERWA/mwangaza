@@ -61,6 +61,11 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 
 ## Journal
 
+### 2026-10-15 — Bulletins réels reçus, plan 8.3 et conduite revus
+- Reçu : bulletin 3e HT (IGE/P.S/137) et 4e HT (IGE/P.S/096) scannés → `docs/ecole-pilote/prive/builtin/` (hors Git, données personnelles). Constats : le 4e HT remplace « Examen de repêchage » par un bloc « Examen d'État » ; Application et Conduite sont par période ; cases noires ; MAXIMA par groupe et MAXIMA GÉNÉRAUX ; N° ID, province, ville, commune, N° permanent ; police serif de type Times ; la 8.3.2 n'est pas assez fidèle (mesures, police).
+- Décisions de l'utilisateur : le 3e HT est le modèle par défaut de toute classe et option, la dernière année a le bloc Examen d'État ; la personne qui imprime choisit elle-même colonnes, exemplaires par feuille, papier ; fiches de cotes par cours ; conduite tirée d'un barème d'infractions du directeur de discipline, parents prévenus, corrigeable en délibération.
+- Plan : 8.3.3 (bulletin fidèle), 8.3.4 (options d'impression), 8.3.5 (formulaire pré-imprimé, lot), 8.3.6 (fiches de cotes), 8.5.1 (conduite, P1, avant 8.4), 8.5.2 (reste de la discipline, P2). Modèle de la conduite : `04` fin de document.
+
 ### 2026-10-15 — Tâche 8.3.2 : bulletin PDF
 - Fait : `GET /api/class-groups/{id}/report-card/` (PDF ou aperçu) : tableau du formulaire EPST d'après le calcul de 8.3.1 (une ligne de maxima chaque fois qu'ils changent, notes sous la moitié en rouge, totaux, %, place/effectif, mention), signature et cachet (DOC.1), QR vers `/v/b/<jeton>` (page publique, initiales). Écran `/app/report-cards` (classe, élève, aperçu, PDF). PDF noté au journal.
 - Tests : `test_report_card_documents.py` (contenu, droits, PDF audité, isolation de l'API et du jeton) ; traductions `.po` de 8.3.1 complétées.
