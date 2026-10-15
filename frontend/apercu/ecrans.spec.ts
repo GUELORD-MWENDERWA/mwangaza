@@ -141,6 +141,9 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     await visit(head, `${ITIG}families/${families.results[0]!.id}`, "gestion", "famille");
     const cashier = await staff(browser, "0000001005", true);
     await visit(cashier, `${ITIG}cash`, "gestion", "caisse");
+    // Saisie des notes (8.2.1) : l'enseignant, sur ses cours.
+    const teacher = await staff(browser, "0000001008", false);
+    await visit(teacher, `${ITIG}grades`, "gestion", "grades");
   }
 
   if (!ONLY || ONLY.startsWith("portail")) {

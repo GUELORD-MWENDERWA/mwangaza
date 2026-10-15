@@ -55,7 +55,8 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 17 | ~~**S.6.1**~~ ✓ Row Level Security PostgreSQL : socle et tables de finance (ex-9.15, avancée) | P1 | M | 🤖 |
 | 17 bis | ~~**S.6.2**~~ ✓ Row Level Security : toutes les autres tables d'une école | P1 | M | 🤖 |
 | 18 | ~~**8.1**~~ ✓ Cours, volumes horaires et charges des enseignants | P1 | M | 🤖 |
-| 19 | **8.2 → 8.4, 8.8** Notes, bulletins EPST, délibération, Portail | P1 | L | 🤖 |
+| 19 | ~~**8.2.1**~~ ✓ Saisie des notes en ligne (évaluations, notes, droits, journal) | P1 | M | 🤖 |
+| 19 bis | **8.2.2 → 8.2.3, 8.3 → 8.4, 8.8** Contrôle des notes, notes hors ligne, bulletins EPST, délibération, Portail | P1 | L | 🤖 |
 | 20 | **FIN.1 → FIN.3** Dépenses, sorties de caisse, budget | P1 | M | 🤖 |
 | | **V1.3 — Plateforme commerciale** | | | |
 | 21 | **ABO.1 → ABO.3** Abonnements par module, factures, échéances | P1 | L | 🤖 |
@@ -287,7 +288,10 @@ Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est 
 - [x] **S.6.1** Row Level Security : socle et tables de finance *(P1, M)*
 - [x] **S.6.2** Row Level Security : toutes les autres tables d'une école *(P1, M)*
 - [x] **8.1** Cours, maxima, domaines, attribution des enseignants **avec leur charge horaire** (servira à l'emploi du temps) ; la grille de cours d'une section s'enregistre d'un seul bloc par un service (IA.5 la proposera depuis un PDF) *(P1, M)*
-- [ ] **8.2** Saisie des notes (y compris hors ligne), verrouillage, validation, historique *(P1, L)*
+- **8.2** Saisie des notes (y compris hors ligne), verrouillage, validation, historique *(P1, L)* — découpée le 2026-10-15 :
+  - [x] **8.2.1** Saisie en ligne : évaluations libres (nom, maximum), notes à une décimale, note de la période ramenée au maximum (règle de trois), droits `grades.enter` (ses cours, sa classe de titulaire) et `grades.enter_any`, journal par enregistrement, écran (tableau, carte par élève au téléphone), démo *(M)*
+  - [ ] **8.2.2** Contrôle : date limite de saisie par période, envoi pour validation, validation par le directeur des études (`grades.validate`, double authentification), modification après envoi avec motif et historique, maximum d'un cours noté changé seulement avec validation, écran de validation *(M)*
+  - [ ] **8.2.3** Hors ligne : feuilles gardées sur l'appareil (Dexie), file d'envoi, opération de synchronisation idempotente, test Playwright réseau coupé *(M)*
 - [ ] **8.3** Bulletin EPST PDF avec QR d'authenticité, totaux, places, mentions ; bulletin complet ou notes seules sur le formulaire pré-imprimé (Q11) ; régime et code EPST de l'école (M5) *(P1, L)* — 👤 fournir un vrai bulletin EPST rempli ou le modèle officiel.
 - [ ] **8.4** Délibération, décisions, palmarès, passage de classe *(P1, M)*
 - [ ] **8.8** Portail parents : notes, bulletins PDF ; tableau de bord : résultats *(P1, M)*

@@ -413,7 +413,8 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
             </tbody>
           </Table>
         )}
-        <CardFooter className="flex flex-wrap items-center justify-between gap-3">
+        {/* Collé en bas de l'écran : au téléphone, une carte par élève fait une longue page. */}
+        <CardFooter className="sticky bottom-0 z-10">
           <span className="text-sm text-ink-2">{t("grades.hint")}</span>
           <Button disabled={!dirty || save.isPending} onClick={submit}>
             {t("grades.save")}
