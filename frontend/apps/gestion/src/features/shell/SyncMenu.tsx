@@ -27,7 +27,15 @@ import {
 /** Synchronisation de l'appareil mémorisé tant que la coquille est ouverte : droits des
  *  endpoints de `/api/sync/` (03 § 5.3), jamais en session support. */
 export function useSyncSession(me: Me) {
-  const enabled = !me.support && can(me, ["students.view", "finance.collect_payment"]);
+  const enabled =
+    !me.support &&
+    can(me, [
+      "students.view",
+      "finance.collect_payment",
+      "grades.enter",
+      "grades.enter_any",
+      "grades.validate",
+    ]);
   useEffect(() => (enabled ? startSync(me.id) : undefined), [enabled, me.id]);
 }
 

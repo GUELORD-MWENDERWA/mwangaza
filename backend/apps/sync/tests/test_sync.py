@@ -123,7 +123,8 @@ def test_only_a_remembered_device_of_an_allowed_account_syncs(api, school, head,
 
     teacher = api(MembershipFactory(school=school, roles=["teacher"]).user)
     remember(teacher)
-    assert teacher.get(SNAPSHOT).status_code == 403
+    # Enseignant : pas d'élève sur son appareil (il n'y envoie que des notes, 8.2.3).
+    assert teacher.get(SNAPSHOT).json()["enrollments"] == []
 
 
 def test_the_snapshot_gives_each_account_what_its_rights_allow(api, school, head, cashier, alpha):

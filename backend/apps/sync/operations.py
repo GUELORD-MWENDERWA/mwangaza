@@ -3,7 +3,8 @@ l'ordre, chacune une seule fois (`SyncOperation`).
 
 Chaque type d'opération donne le droit exigé, le contenu attendu (serializer) et le service
 appelé : encaissement (3.3.2), ouverture de caisse et réimpression (3.5.2), crédit utilisé à la
-caisse (3.6.2), demande d'annulation (3.8.1), clôture de caisse (3.8.2). Une opération hors
+caisse (3.6.2), demande d'annulation (3.8.1), clôture de caisse (3.8.2), feuille de notes
+(8.2.3). Une opération hors
 ligne de plus est une entrée de plus dans `OPERATIONS` ; ce qu'elle crée porte l'identifiant
 donné par l'appareil, car la trace d'une opération appliquée est effacée après `KEEP_DAYS`
 jours (`purge`)."""
@@ -22,17 +23,24 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import APIException, PermissionDenied
 
+from apps.academics import grades
+from apps.academics.models import Course
+from apps.academics.serializers import SheetUpdateSerializer
 from apps.accounts.models import User
 from apps.accounts.roles import (
     FINANCE_COLLECT_PAYMENT,
     FINANCE_REQUEST_CANCELLATION,
     FINANCE_VIEW_REPORTS,
+    GRADES_ENTER,
+    GRADES_ENTER_ANY,
+    GRADES_VALIDATE,
 )
 from apps.core.errors import ApiError, BusinessError, api_exception_handler
 from apps.core.tenancy import use_all_schools
 from apps.finance import services as finance
 from apps.finance.models import CashRegister, CashSession, Payment, StudentCredit
 from apps.finance.serializers import CashCloseSerializer, PaymentCreateSerializer
+from apps.schools.models import Term
 from apps.sync.models import Device, SyncOperation
 
 UNKNOWN_OPERATION = ApiError(
@@ -178,9 +186,37 @@ def _request_cancellation(data: dict, device: Device, actor: User) -> dict:
     return {"cancellation": str(request.pk)}
 
 
+class OfflineGradesSerializer(SheetUpdateSerializer):
+    """Feuille de notes enregistrée hors ligne (8.2.3) : comme `PUT …/grades/`, plus le cours et
+    la période. L'identifiant d'une évaluation ajoutée est celui de l'appareil."""
+
+    course = serializers.PrimaryKeyRelatedField(queryset=Course.objects)
+    term = serializers.PrimaryKeyRelatedField(queryset=Term.objects)
+
+    def to_service(self) -> dict:
+        return {
+            "course": self.validated_data["course"],
+            "term": self.validated_data["term"],
+            "permissions": self.context["permissions"],
+            **self.inputs(),
+        }
+
+
+def _save_grades(data: dict, device: Device, actor: User) -> dict:
+    """Mêmes règles qu'en ligne : un cours que le compte ne note pas est refusé ; date limite
+    passée, feuille validée ou envoyée sans motif : refusée, la feuille du serveur reste."""
+    course, term, permissions = data.pop("course"), data.pop("term"), data.pop("permissions")
+    if not grades.gradable_courses(actor, permissions).filter(pk=course.pk).exists():
+        raise PermissionDenied()
+    grades.save_sheet(
+        course, term, actor=actor, may_validate=GRADES_VALIDATE in permissions, **data
+    )
+    return {"course": str(course.pk), "term": str(term.pk)}
+
+
 @dataclass(frozen=True)
 class OperationType:
-    permission: str
+    permission: str | tuple[str, ...]
     serializer: type[serializers.Serializer]
     apply: Callable[[dict, Device, User], dict]
 
@@ -199,6 +235,9 @@ OPERATIONS = {
     "credit.use": OperationType(FINANCE_COLLECT_PAYMENT, OfflineCreditSerializer, _use_credit),
     "cancellation.request": OperationType(
         FINANCE_REQUEST_CANCELLATION, OfflineCancellationSerializer, _request_cancellation
+    ),
+    "grades.save": OperationType(
+        (GRADES_ENTER, GRADES_ENTER_ANY, GRADES_VALIDATE), OfflineGradesSerializer, _save_grades
     ),
 }
 
@@ -285,7 +324,8 @@ def _run(device: Device, actor: User, permissions: frozenset[str], incoming: Inc
     kind = OPERATIONS.get(incoming.type)
     if kind is None:
         raise BusinessError(UNKNOWN_OPERATION)
-    if kind.permission not in permissions:
+    needed = (kind.permission,) if isinstance(kind.permission, str) else kind.permission
+    if not permissions.intersection(needed):
         raise PermissionDenied()
     serializer = kind.serializer(data=incoming.payload, context={"permissions": permissions})
     serializer.is_valid(raise_exception=True)

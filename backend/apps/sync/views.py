@@ -15,7 +15,14 @@ from apps.accounts.permissions import (
     ensure_module,
     school_access,
 )
-from apps.accounts.roles import FINANCE_COLLECT_PAYMENT, ROLES_MANAGE, STUDENTS_VIEW
+from apps.accounts.roles import (
+    FINANCE_COLLECT_PAYMENT,
+    GRADES_ENTER,
+    GRADES_ENTER_ANY,
+    GRADES_VALIDATE,
+    ROLES_MANAGE,
+    STUDENTS_VIEW,
+)
 from apps.accounts.views import CONSOLE_ERRORS, SchoolViewSet
 from apps.core.errors import SCHOOL_NOT_FOUND, ErrorSerializer
 from apps.sync import operations, services
@@ -200,10 +207,17 @@ def revoke(request: Request, device: Device) -> Response:
 class SyncViewSet(viewsets.ViewSet):
     """Synchronisation hors ligne (3.3.2), seulement depuis l'appareil enregistré de la session
     (sinon 403 `device_required` ; déconnecté : 409 `device_revoked`, il efface ses données).
-    Élèves et, selon les droits, leurs finances (`services.Reader`)."""
+    Élèves et, selon les droits, leurs finances (`services.Reader`) ; les notes (8.2.3) passent par
+    des opérations seulement."""
 
     permission_classes = [HasSchoolPermission]
-    required_permission = (STUDENTS_VIEW, FINANCE_COLLECT_PAYMENT)
+    required_permission = (
+        STUDENTS_VIEW,
+        FINANCE_COLLECT_PAYMENT,
+        GRADES_ENTER,
+        GRADES_ENTER_ANY,
+        GRADES_VALIDATE,
+    )
     required_module = "offline"
 
     @extend_schema(

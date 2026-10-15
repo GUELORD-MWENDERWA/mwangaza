@@ -26,7 +26,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.models import User
-from apps.accounts.roles import FINANCE_COLLECT_PAYMENT, FINANCE_VIEW_REPORTS
+from apps.accounts.roles import FINANCE_COLLECT_PAYMENT, FINANCE_VIEW_REPORTS, STUDENTS_VIEW
 from apps.audit import services as audit
 from apps.audit.actions import Action, PlatformAction
 from apps.core.errors import ApiError, BusinessError
@@ -200,20 +200,24 @@ def sync_device(session, school: School, user: User) -> Device:
 
 @dataclass(frozen=True)
 class Reader:
-    """Ce que le compte peut recevoir sur son appareil : les élèves toujours ; frais dus,
-    paiements, caisses et taux avec un droit sur les finances ; les paiements des autres
+    """Ce que le compte peut recevoir sur son appareil : les élèves avec `students.view` ou un
+    droit sur les finances (un enseignant qui n'a que les notes n'en reçoit aucun, 8.2.3) ;
+    frais dus, paiements, caisses et taux avec un droit sur les finances ; les paiements des autres
     caissiers seulement avec `finance.view_reports` (comme en ligne)."""
 
     user: User
     finance: bool
     all_payments: bool
+    students: bool = True
 
     @classmethod
     def of(cls, user: User, permissions: frozenset[str]) -> "Reader":
+        finance = bool(permissions & {FINANCE_COLLECT_PAYMENT, FINANCE_VIEW_REPORTS})
         return cls(
             user=user,
-            finance=bool(permissions & {FINANCE_COLLECT_PAYMENT, FINANCE_VIEW_REPORTS}),
+            finance=finance,
             all_payments=FINANCE_VIEW_REPORTS in permissions,
+            students=finance or STUDENTS_VIEW in permissions,
         )
 
 
@@ -321,11 +325,11 @@ def snapshot(
     données : `pull` depuis ce numéro renvoie tout ce qui a changé ensuite."""
     first = after is None
     cursor = changes.sequence() if first else None
-    items = enrollments(reader, after=after, limit=limit + 1)
+    items = enrollments(reader, after=after, limit=limit + 1) if reader.students else []
     return Snapshot(
         cursor=cursor,
         device=device if first else None,
-        config=config(reader, school) if first else None,
+        config=config(reader, school) if first and reader.students else None,
         enrollments=items[:limit],
         next=items[limit - 1].pk if len(items) > limit else None,
     )
@@ -339,6 +343,8 @@ def pull(reader: Reader, school: School, *, since: int, limit: int = 500) -> Pul
     last = changes.sequence()
     if since > last:
         raise BusinessError(SNAPSHOT_REQUIRED)
+    if not reader.students:
+        return Pull([], last, False)
     rows = list(ChangeLog.objects.filter(seq__gt=since).order_by("seq")[: limit + 1])
     has_more, rows = len(rows) > limit, rows[:limit]
     wanted = [row.entity_id for row in rows if row.entity_type == ChangeLog.Entity.ENROLLMENT]

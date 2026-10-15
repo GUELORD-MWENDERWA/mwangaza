@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { parseTenths, percent, periodTenths, serverTenths, toScore } from "./sheet";
+import type { Sheet } from "./data";
+import { applySave, parseTenths, percent, periodTenths, serverTenths, toScore } from "./sheet";
 
 describe("feuille de notes", () => {
   it("lit une note à une décimale, jamais au-dessus du maximum", () => {
@@ -23,5 +24,42 @@ describe("feuille de notes", () => {
     expect(periodTenths([], [], 20)).toBeNull();
     expect(percent(155, 20)).toBe(78);
     expect(percent(90, 20)).toBe(45);
+  });
+
+  it("montre sur l'appareil la feuille telle que le serveur la rendra (8.2.3)", () => {
+    const sheet = {
+      maximum: 20,
+      evaluations: [{ id: "e1", name: "Interro", max_score: 20 }],
+      students: [
+        { enrollment_id: "a", scores: [{ evaluation_id: "e1", score: "12.0" }], total: "12.0" },
+        { enrollment_id: "b", scores: [], total: null },
+      ],
+    } as unknown as Sheet;
+    const saved = applySave(sheet, {
+      evaluations: [
+        { id: "e1", name: "Interro", max_score: 20 },
+        { id: "e2", name: "Devoir", max_score: 10 },
+      ],
+      removed_evaluations: [],
+      grades: [
+        { enrollment_id: "a", evaluation_id: "e2", score: "7.5" },
+        { enrollment_id: "b", evaluation_id: "e1", score: "9.0" },
+        { enrollment_id: "b", evaluation_id: "e2", score: "10.0" },
+      ],
+      reason: "",
+    });
+    // 12 + 7,5 sur 30 → 13 sur 20 (13,0 : 19,5 × 20 / 30) ; l'élève b : 19 sur 30 → 12,7.
+    expect(saved.students.map((row) => row.total)).toEqual(["13.0", "12.7"]);
+    const cleared = applySave(saved, {
+      evaluations: saved.evaluations,
+      removed_evaluations: ["e2"],
+      grades: [{ enrollment_id: "a", evaluation_id: "e1", score: null }],
+      reason: "",
+    });
+    expect(cleared.evaluations.map((item) => item.id)).toEqual(["e1"]);
+    expect(cleared.students.map((row) => [row.scores.length, row.total])).toEqual([
+      [0, null],
+      [1, "9.0"],
+    ]);
   });
 });
