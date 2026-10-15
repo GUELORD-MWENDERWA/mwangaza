@@ -972,6 +972,10 @@ export const en: Messages<typeof fr> = {
     options: "Print options",
   },
   reportCard: {
+    missing_one:
+      "{{count}} grade sheet is not validated yet: the report card cannot be printed while grades are missing. The preview stays available.",
+    missing_other:
+      "{{count}} grade sheets are not validated yet: the report card cannot be printed while grades are missing. The preview stays available.",
     title: "Report cards",
     subtitle:
       "A student's report card, with their place in the class: print it or save it as a PDF.",

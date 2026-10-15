@@ -21,7 +21,7 @@ import { studentName } from "../../lib/people";
 import { LoadError } from "../status/StatusPages";
 import { DocumentPreview } from "../students/DocumentPreview";
 import { useStudents } from "../students/data";
-import { reportCardUrl, useGrading } from "./data";
+import { reportCardUrl, useGrading, useReportStatus } from "./data";
 
 export function ReportCardPage() {
   const { t } = useTranslation();
@@ -31,6 +31,7 @@ export function ReportCardPage() {
   const [enrollmentId, setEnrollmentId] = useState("");
   const classes = grading.data?.classes ?? [];
   const groupId = classId || classes[0]?.id || "";
+  const status = useReportStatus(groupId);
   const students = useStudents({ class_group: groupId, search: search || undefined }, 1);
 
   if (grading.isPending) return <Skeleton label={t("common.loading")} />;
@@ -41,6 +42,7 @@ export function ReportCardPage() {
   const rows = (students.data?.results ?? []).filter((row) => row.enrollment);
   const chosen = rows.find((row) => row.enrollment?.id === enrollmentId) ?? rows[0];
   const enrollment = chosen?.enrollment?.id ?? "";
+  const missing = status.data?.missing_count ?? 0;
   const pdf = enrollment ? reportCardUrl(groupId, enrollment, "pdf") : "";
 
   return (
@@ -91,7 +93,19 @@ export function ReportCardPage() {
                 ))}
               </Select>
               <p className="text-sm text-ink-3">{t("reportCard.help")}</p>
-              {enrollment && (
+              {missing > 0 && (
+                <Banner tone="warn">
+                  {t("reportCard.missing", { count: missing })}
+                  <ul className="mt-1 list-disc pl-5">
+                    {(status.data?.missing ?? []).slice(0, 6).map((item) => (
+                      <li key={`${item.course}-${item.term}`}>
+                        {item.course} · {item.term}
+                      </li>
+                    ))}
+                  </ul>
+                </Banner>
+              )}
+              {enrollment && missing === 0 && (
                 <>
                   <Button asChild>
                     <a href={pdf} target="_blank" rel="noopener">

@@ -19,7 +19,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from uuid import UUID
 
 from apps.academics.grades import period_score, term_maximum
-from apps.academics.models import Course, Evaluation, Grade
+from apps.academics.models import Course, Evaluation, Grade, GradeSheet
 from apps.schools.models import ClassGroup, Term
 from apps.students.models import Enrollment
 
@@ -121,6 +121,37 @@ def _sum(cells: list[Cell]) -> Cell:
 
 def _percent(score: Decimal, maximum: int) -> Decimal:
     return (score * 100 / maximum).quantize(PERCENT_STEP, rounding=ROUND_HALF_UP)
+
+
+def missing_sheets(class_group: ClassGroup) -> list[tuple[Course, Term]]:
+    """Feuilles de notes pas encore validées, pour les périodes et examens déjà commencés dans la
+    classe (au moins une évaluation) ; classe sans aucune note : la première période. Le bulletin
+    imprimé attend que cette liste soit vide (un cours sans note chez l'enseignant, ou envoyé et
+    pas encore validé, ne laisse pas de case vide sur un bulletin remis aux parents)."""
+    terms = [
+        term
+        for term in Term.objects.filter(academic_year_id=class_group.academic_year_id).order_by(
+            "order"
+        )
+        if term.kind in (Term.Kind.PERIOD, Term.Kind.EXAM)
+    ]
+    started = set(
+        Evaluation.objects.filter(course__class_group=class_group).values_list("term_id", flat=True)
+    )
+    due = [term for term in terms if term.pk in started] or terms[:1]
+    validated = set(
+        GradeSheet.objects.filter(
+            course__class_group=class_group, status=GradeSheet.Status.VALIDATED
+        ).values_list("course_id", "term_id")
+    )
+    courses = Course.objects.filter(class_group=class_group).order_by("order", "name")
+    return [
+        (course, term)
+        for term in due
+        for course in courses
+        if (term.kind != Term.Kind.EXAM or course.has_exam)
+        and (course.pk, term.pk) not in validated
+    ]
 
 
 def class_report(class_group: ClassGroup) -> ClassReport:

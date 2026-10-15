@@ -308,3 +308,15 @@ class ReportCardSerializer(serializers.Serializer):
 
     enrollment = serializers.UUIDField(help_text="Inscription de l'élève dans cette classe.")
     output = serializers.ChoiceField(choices=["pdf", "html"], help_text="PDF, ou son aperçu HTML.")
+
+
+class MissingSheetSerializer(serializers.Serializer):
+    course = serializers.CharField()
+    term = serializers.CharField()
+
+
+class ReportCardStatusSerializer(serializers.Serializer):
+    """Le bulletin de la classe peut-il s'imprimer ? Feuilles de notes pas encore validées."""
+
+    missing_count = serializers.IntegerField()
+    missing = MissingSheetSerializer(many=True, help_text="Les premières seulement.")

@@ -917,6 +917,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/class-groups/{id}/report-card-status/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Feuilles de notes pas encore validées pour les périodes commencées de la classe : tant
+         *     qu'il en reste, le PDF du bulletin est refusé (409 `report_incomplete`).
+         */
+        get: operations["class_groups_report_card_status_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/class-groups/homeroom-candidates/": {
         parameters: {
             query?: never;
@@ -6560,6 +6580,10 @@ export interface components {
          * @enum {string}
          */
         MissingFieldsEnum: "last_name" | "middle_name" | "first_name" | "sex" | "birth_date" | "birth_place" | "class_name" | "matricule" | "national_id" | "permanent_number" | "guardian_name" | "guardian_phone";
+        MissingSheet: {
+            course: string;
+            term: string;
+        };
         /**
          * @description * `students` - Students, families and enrolments
          *     * `finance` - Fees, cash desk and payments
@@ -8101,6 +8125,12 @@ export interface components {
         };
         ReopenRequest: {
             reason: string;
+        };
+        /** @description Le bulletin de la classe peut-il s'imprimer ? Feuilles de notes pas encore validées. */
+        ReportCardStatus: {
+            missing_count: number;
+            /** @description Les premières seulement. */
+            missing: components["schemas"]["MissingSheet"][];
         };
         /** @description Échéancier particulier (E4) : les versements remplacent ce qui reste dû pour ce frais. */
         RescheduleRequest: {
@@ -12307,6 +12337,51 @@ export interface operations {
                 content: {
                     "application/pdf": string;
                     "text/html": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    class_groups_report_card_status_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportCardStatus"];
                 };
             };
             403: {

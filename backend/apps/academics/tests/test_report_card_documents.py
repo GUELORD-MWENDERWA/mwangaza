@@ -6,6 +6,7 @@ from decimal import Decimal
 
 import pytest
 
+from apps.academics.models import GradeSheet
 from apps.academics.report_card_documents import verification_path
 from apps.academics.report_cards import class_report
 from apps.academics.tests.test_grades import setup
@@ -70,29 +71,69 @@ def test_the_form_follows_the_official_one_and_the_last_year_has_the_state_exam(
     url_html = (url(card), {"enrollment": card["josue"], "output": "html"})
 
     context = api(director).get(url_html[0], **url_html[1]).context
-    assert "".join(context["id_boxes"]).strip() == "61022-6100210011533"
-    assert "".join(context["perm_boxes"]).strip() == "2-610021001115"
-    assert "".join(context["code_boxes"]).strip() == "2-610021"
+    # Une case par caractère, aucune case vide derrière.
+    assert "".join(context["id_boxes"]) == "61022-6100210011533"
+    assert "".join(context["perm_boxes"]) == "2-610021001115"
+    assert "".join(context["code_boxes"]) == "2-610021"
     assert not context["state_exam"]
     # Deux semestres de deux périodes : les largeurs du scan, 199,5 mm en tout.
     assert round(sum(context["widths"]) + 40.7 + 5.6 + 30.6, 1) == 199.6
-    # Lignes vides jusqu'à la hauteur du formulaire (35 lignes en tout) ; les autres années
-    # gardent les cases du repêchage, noires sur les lignes de maxima.
-    assert len(context["lines"]) + len(context["blank_lines"]) + 7 == 35
-    assert context["lines"][0]["side"] == {"resit": True}
+    # Aucune ligne vide : deux cours (4 lignes avec les maxima) + 7 lignes de totaux, étirées pour
+    # remplir la hauteur du formulaire (au plus 9 mm chacune).
+    assert len(context["lines"]) == 4
+    assert context["row_height"] == 9.0
 
     with use_school(school):
         Level.objects.update(has_state_exam=True)
     context = api(director).get(url_html[0], **url_html[1]).context
-    assert context["state_exam"] and context["lines"][0]["side"]["cols"]
-    sides = [line["side"] for line in context["lines"]]
-    sides += [blank["side"] for blank in context["blank_lines"]] + context["footer_side"]
-    assert any(item.get("boxes") for item in sides)
+    # Examen d'État : la colonne de droite a une entrée par ligne, la signature du responsable
+    # (dernière ligne) n'a rien à sa droite.
+    assert context["state_exam"] and len(context["footer_state"]) == 7
+    assert context["footer_state"][-1] == {}
+
+
+def test_the_state_exam_column_spreads_over_any_number_of_rows():
+    from apps.academics.report_card_documents import _state_column
+
+    for rows in (24, 30, 40):
+        column = _state_column(rows)
+        assert len(column) == rows and column[-1] == {}
+        texts = [item for item in column if item]
+        assert len(texts) == 16  # les cinq parties du formulaire, toutes présentes
+        assert column[0].get("cols") and column[rows - 2]  # du haut au bas, sans trou à la fin
+
+
+def validate_all(school, data):
+    with use_school(school):
+        for course in ("physics", "workshop"):
+            GradeSheet.objects.update_or_create(
+                course=data[course],
+                term=data["p1"],
+                defaults={"status": GradeSheet.Status.VALIDATED},
+            )
+
+
+def test_pdf_waits_for_every_course_to_be_validated_but_the_preview_does_not(
+    api, school, director, card
+):
+    client = api(director)
+    pdf = client.get(url(card), enrollment=card["amani"], output="pdf")
+    assert (pdf.status_code, pdf.json()["code"], pdf.json()["missing_count"]) == (
+        409,
+        "report_incomplete",
+        2,
+    )
+    assert {item["course"] for item in pdf.json()["missing"]} == {"Physique", "Atelier"}
+    preview = client.get(url(card), enrollment=card["amani"], output="html")
+    assert preview.status_code == 200 and preview.context["missing_count"] == 2
+    validate_all(school, card)
+    assert client.get(url(card), enrollment=card["amani"], output="pdf").status_code == 200
 
 
 def test_pdf_is_audited_but_not_the_preview_and_needs_a_grades_right(
     api, school, director, cashier, card
 ):
+    validate_all(school, card)
     client = api(director)
     assert client.get(url(card), enrollment=card["amani"], output="html").status_code == 200
     pdf = client.get(url(card), enrollment=card["amani"], output="pdf")

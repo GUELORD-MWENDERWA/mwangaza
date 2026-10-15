@@ -977,6 +977,10 @@ export const fr = {
     options: "Options d'impression",
   },
   reportCard: {
+    missing_one:
+      "{{count}} feuille de notes n'est pas encore validée : le bulletin ne s'imprime pas tant qu'il manque des notes. L'aperçu reste disponible.",
+    missing_other:
+      "{{count}} feuilles de notes ne sont pas encore validées : le bulletin ne s'imprime pas tant qu'il manque des notes. L'aperçu reste disponible.",
     title: "Bulletins",
     subtitle:
       "Le bulletin d'un élève, avec sa place dans la classe : à imprimer ou à enregistrer en PDF.",

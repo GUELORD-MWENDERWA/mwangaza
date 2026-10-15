@@ -3257,6 +3257,48 @@ paths:
               schema:
                 type: string
           description: Document PDF (`output=pdf`).
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/report-card-status/:
+    get:
+      operationId: class_groups_report_card_status_retrieve
+      description: |-
+        Feuilles de notes pas encore validées pour les périodes commencées de la classe : tant
+        qu'il en reste, le PDF du bulletin est refusé (409 `report_incomplete`).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportCardStatus'
+          description: ''
         '403':
           content:
             application/json:
@@ -18142,6 +18184,16 @@ components:
         * `permanent_number` - permanent_number
         * `guardian_name` - guardian_name
         * `guardian_phone` - guardian_phone
+    MissingSheet:
+      type: object
+      properties:
+        course:
+          type: string
+        term:
+          type: string
+      required:
+      - course
+      - term
     ModulesEnum:
       enum:
       - students
@@ -21167,6 +21219,21 @@ components:
           maxLength: 300
       required:
       - reason
+    ReportCardStatus:
+      type: object
+      description: Le bulletin de la classe peut-il s'imprimer ? Feuilles de notes
+        pas encore validées.
+      properties:
+        missing_count:
+          type: integer
+        missing:
+          type: array
+          items:
+            $ref: '#/components/schemas/MissingSheet'
+          description: Les premières seulement.
+      required:
+      - missing_count
+      - missing
     RescheduleRequest:
       type: object
       description: 'Échéancier particulier (E4) : les versements remplacent ce qui
