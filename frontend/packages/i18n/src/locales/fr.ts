@@ -1140,6 +1140,7 @@ export const fr = {
       periodMax: "Max. période",
       exam: "Examen",
       examMax: "Max. examen",
+      taught: "Suivi par la classe",
       year: "T.G.",
       hours: "H / sem.",
       teacher: "Enseignant",

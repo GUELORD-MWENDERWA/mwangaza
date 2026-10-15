@@ -1,0 +1,13 @@
+{% load i18n %}{% comment %}En-tête commun des documents imprimés (8.3.4), d'après l'exemplaire fourni : logo de l'école à gauche, drapeau à droite, lignes centrées (République, ministère, école, adresse, service), filet épais, puis le titre souligné avec, si `reference`, un N° de référence à compléter. Paramètres : `title`, `service`, `reference`.{% endcomment %}<header class="lh">
+  <div class="lh-logo">{% if logo %}<img src="{{ logo }}" alt="">{% else %}<div class="logo-text">{{ school_name|slice:":4"|upper }}</div>{% endif %}</div>
+  <div class="lh-center">
+    <div class="lh-rdc">{% translate "Democratic Republic of the Congo" %}</div>
+    <div class="lh-min">{% translate "MINISTRY OF PRIMARY, SECONDARY AND TECHNICAL EDUCATION" %}</div>
+    <div class="lh-school">{{ school_name|upper }}</div>
+    {% for line in header_lines %}<div class="lh-line">{{ line }}</div>{% endfor %}
+    {% if service %}<div class="lh-service">{{ service|upper }}</div>{% endif %}
+  </div>
+  <div class="lh-flag">{% include "core/_flag.html" %}</div>
+</header>
+<div class="lh-rule"></div>
+{% if title %}<h1 class="lh-title"><u>{{ title|upper }}</u>{% if reference %} {% translate "No." %} <span class="lh-ref">&hellip;&hellip;&hellip;/{{ school_code|upper }}{% if service_code %}/{{ service_code }}{% endif %}/{{ printed_at|date:"y" }}</span>{% endif %}</h1>{% endif %}

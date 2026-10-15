@@ -17,7 +17,7 @@ body { margin: 0; color: #101828; font-family: "Atkinson Hyperlegible Next", "De
 .copy + .copy { margin-top: 4mm; padding-top: 4mm; border-top: .6pt dashed #A9B4C4; }
 .copy { break-inside: avoid; }
 @media screen { body { padding: 16px; background: #fff; } }
-h1 { text-align: center; font-size: 1.55em; font-weight: 800; letter-spacing: .01em; color: #0B1C35; margin: 1.1em 0 .15em; }
+h1 { text-align: center; font-size: 1.4em; font-weight: 800; letter-spacing: .01em; color: #0B1C35; margin: 1.1em 0 .15em; text-transform: uppercase; text-decoration: underline; }
 h2 { font-size: 1.15em; color: #0B1C35; margin: 1em 0 .3em; }
 b, strong { font-weight: 700; }
 .center { text-align: center; }
@@ -27,6 +27,22 @@ b, strong { font-weight: 700; }
 .between { justify-content: space-between; }
 .grow { flex: 1; }
 /* En-tête de l'école : logo, nom, lignes de l'en-tête ; filet bleu nuit dessous. */
+/* En-tête commun (`_document_header.html`) : exemplaire fourni, tout centré, filet épais dessous. */
+.lh { display: grid; grid-template-columns: 24mm 1fr 24mm; align-items: center; column-gap: 4mm; }
+.lh-logo { justify-self: start; } .lh-flag { justify-self: end; }
+.lh-logo img, .lh-logo .logo-text { width: 22mm; height: 22mm; object-fit: contain; }
+.lh .flag { width: 22mm; height: 14.7mm; display: block; }
+.lh-center { text-align: center; min-width: 0; line-height: 1.3; }
+.lh-rdc { font-size: 1.25em; font-style: italic; color: #0B1C35; }
+.lh-min { font-size: .95em; font-weight: 800; color: #0B1C35; }
+.lh-school { font-size: .95em; font-weight: 800; }
+.lh-line, .lh-service { font-size: .85em; }
+.lh-service { font-weight: 700; margin-top: .3em; }
+.lh-rule { border-top: 2.2pt solid #0B1C35; margin: 3mm 0 0; }
+.lh-extra { text-align: right; font-size: .85em; color: #475467; margin-top: 1.5mm; }
+.lh-qr { float: right; width: 20mm; margin: 1.5mm 0 0 3mm; } .photo-empty.lh-qr { width: 30mm; height: 37mm; }
+h1.lh-title { margin: 1.1em 0 .6em; }
+.lh-ref { font-weight: 400; }
 body > .row.between:first-of-type, section > .row.between:first-of-type { padding-bottom: 3mm; border-bottom: 1.5pt solid #0B1C35; }
 .logo { width: 16mm; height: 16mm; object-fit: contain; }
 .logo-text { width: 16mm; height: 16mm; border: 1.5pt solid #0B1C35; border-radius: 3mm; color: #0B1C35; display: flex; align-items: center; justify-content: center; font-weight: 800; }

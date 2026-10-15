@@ -15460,6 +15460,10 @@ components:
           type: boolean
           readOnly: true
           title: With exam
+        is_taught:
+          type: boolean
+          readOnly: true
+          title: Taught in this class
         weekly_hours:
           type: integer
           readOnly: true
@@ -15476,6 +15480,7 @@ components:
       - domain
       - period_max
       - has_exam
+      - is_taught
       - weekly_hours
       - teacher
     CourseInputRequest:
@@ -15501,6 +15506,10 @@ components:
         has_exam:
           type: boolean
           default: true
+        is_taught:
+          type: boolean
+          default: true
+          description: 'Faux : cours du formulaire barré sur le bulletin, jamais noté.'
         weekly_hours:
           type: integer
           maximum: 40
@@ -18353,6 +18362,8 @@ components:
           type: integer
         has_exam:
           type: boolean
+        is_taught:
+          type: boolean
         weekly_hours:
           type: integer
           nullable: true
@@ -18360,6 +18371,7 @@ components:
       - name
       - period_max
       - has_exam
+      - is_taught
       - weekly_hours
     OfficialGrid:
       type: object

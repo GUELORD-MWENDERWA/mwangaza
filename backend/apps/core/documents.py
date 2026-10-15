@@ -147,6 +147,10 @@ def school_header(school: School) -> dict:
             kind = None
     return {
         "school_name": school.official_name or school.name,
+        "school_code": school.code,
+        "header_lines": [
+            line for line in (school.receipt or {}).get("header", "").splitlines() if line.strip()
+        ],
         "logo": data_uri(school.logo, kind, LOGO_TYPES),
         "printed_at": timezone.localtime(),
         **signatures.signature_context(school),

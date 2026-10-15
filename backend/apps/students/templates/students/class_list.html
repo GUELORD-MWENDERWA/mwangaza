@@ -5,13 +5,8 @@ td.blank, th.blank { width: 18mm; }
 td.sex { text-align: center; }
 {% endblock %}
 {% block content %}
-<div class="row between">
-  <div class="row">
-    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% endif %}
-    <div><b>{{ school_name|upper }}</b><br><span class="small">{% blocktranslate with year=year.name %}School year {{ year }}{% endblocktranslate %}</span></div>
-  </div>
-  <div class="small" style="text-align:right">{% blocktranslate with date=printed_at|date:"d/m/Y" %}Printed on {{ date }}{% endblocktranslate %}</div>
-</div>
+{% include "core/_document_header.html" with service=_("Secretariat") service_code="SEC" %}
+<div class="lh-extra">{% blocktranslate with year=year.name date=printed_at|date:"d/m/Y" %}School year {{ year }} · printed on {{ date }}{% endblocktranslate %}</div>
 
 <h1>{% blocktranslate with name=class_group.name %}LIST OF STUDENTS — {{ name }}{% endblocktranslate %}</h1>
 <p class="center small">{% if teacher %}{% blocktranslate %}Homeroom teacher: {{ teacher }}{% endblocktranslate %} · {% endif %}{% blocktranslate with total=rows|length %}Enrolment: <b>{{ total }}</b>{% endblocktranslate %} ({% blocktranslate %}boys {{ boys }}, girls {{ girls }}{% endblocktranslate %})</p>

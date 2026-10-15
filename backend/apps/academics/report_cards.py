@@ -7,6 +7,8 @@ Règles (décisions du 2026-10-15) :
 - Une case est « incomplète » (`None`) tant qu'une évaluation n'est pas notée pour
   l'élève, ou que le cours n'a aucune évaluation dans la période : aucun total ne cache un manque.
 - Un total n'existe que si toutes ses cases le sont ; sans total, ni pourcentage, ni place.
+- Un cours barré (`is_taught` faux, autre option du formulaire) n'est ni noté ni compté dans les
+  maxima : le bulletin l'imprime en tirets.
 - Un cours sans examen (atelier, laboratoire) n'a pas de case d'examen : son maximum n'y compte pas.
 - Place : 1 + nombre d'élèves au total strictement plus haut (ex æquo : même place). Le nombre
   d'élèves est celui de la classe.
@@ -144,7 +146,9 @@ def missing_sheets(class_group: ClassGroup) -> list[tuple[Course, Term]]:
             course__class_group=class_group, status=GradeSheet.Status.VALIDATED
         ).values_list("course_id", "term_id")
     )
-    courses = Course.objects.filter(class_group=class_group).order_by("order", "name")
+    courses = Course.objects.filter(class_group=class_group, is_taught=True).order_by(
+        "order", "name"
+    )
     return [
         (course, term)
         for term in due
@@ -183,7 +187,7 @@ def class_report(class_group: ClassGroup) -> ClassReport:
             row: dict[str, Cell] = {}
             for key, column in leaves.items():
                 term = column.term
-                if term.kind == Term.Kind.EXAM and not course.has_exam:
+                if not course.is_taught or (term.kind == Term.Kind.EXAM and not course.has_exam):
                     row[key] = Cell(None, 0)
                     continue
                 maximum = term_maximum(course, term)

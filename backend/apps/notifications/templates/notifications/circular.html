@@ -8,14 +8,8 @@ h1 { margin: 1.4em 0 .6em; font-size: 1.4em; }
 .signature { margin-top: 3em; text-align: right; }
 {% endblock %}
 {% block content %}
-<div class="row between">
-  <div class="row">
-    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% else %}<div class="logo-text">{{ school_name|slice:":4"|upper }}</div>{% endif %}
-    <div><b>{{ school_name|upper }}</b>{% if contact %}<div class="small contact">{{ contact }}</div>{% endif %}</div>
-  </div>
-  <div class="small">{{ announcement.published_at|date:"d/m/Y" }}</div>
-</div>
-<h1>{{ announcement.title|upper }}</h1>
+{% include "core/_document_header.html" with service=_("Management") service_code="DIR" title=announcement.title reference=True %}
+<div class="lh-extra">{{ announcement.published_at|date:"d/m/Y" }}</div>
 <p><b>{% if to_staff %}{% translate "To the staff of the school" %}{% elif classes %}{% blocktranslate %}To the parents of the students of: {{ classes }}{% endblocktranslate %}{% else %}{% translate "To all the parents" %}{% endif %}</b></p>
 <div class="body">{{ announcement.body }}</div>
 <div class="signature">

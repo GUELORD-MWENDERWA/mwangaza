@@ -6,7 +6,7 @@
    199,5 mm de large, hauteur du formulaire 279,5 mm. */
 @page { margin: 5mm; @bottom-right { content: none; } }
 body { font-family: "Liberation Serif", "Times New Roman", serif; font-size: 8pt; line-height: 1.15; color: #000; }
-.sheet { box-sizing: content-box; width: 199.5mm; height: 279.5mm; display: flex; flex-direction: column; border: .9pt solid #000; }
+.sheet { box-sizing: content-box; width: 199.5mm; height: {{ sheet_height|unlocalize }}mm; display: flex; flex-direction: column; border: .9pt solid #000; }
 .sheet > * { flex: none; }
 .sec { border-bottom: .8pt solid #000; }
 .top { height: 19.9mm; display: flex; align-items: center; padding: 0 3mm; }
@@ -41,6 +41,7 @@ table.bul td.mx { font-weight: 700; }
 table.bul td.k, table.bul th.k { background: #000; }
 table.bul td.sp, table.bul th.sp { background: #E4E4E4; }
 table.bul td.low { color: #B42318; }
+table.bul td.dash { color: #333; }
 table.bul td.tot { font-weight: 700; }
 .dots { display: inline-block; border-bottom: .5pt dotted #000; min-width: 22mm; height: 1em; vertical-align: baseline; }
 .under { flex: 1; display: flex; padding: 1.2mm 3mm 0; font-size: 7.5pt; line-height: 1.25; min-height: 0; overflow: hidden; border-top: .8pt solid #000; }
@@ -65,12 +66,7 @@ table.bul td.pn.bot { border-bottom: .5pt solid #000; }
 {% if missing_count %}<div class="missing">{% blocktranslate count n=missing_count %}Preview: {{ n }} grade sheet is not validated yet. The report card cannot be printed until it is.{% plural %}Preview: {{ n }} grade sheets are not validated yet. The report card cannot be printed until they are.{% endblocktranslate %}</div>{% endif %}
 <div class="sheet">
   <div class="sec top">
-    <svg viewBox="0 0 30 20" aria-hidden="true">
-      <rect width="30" height="20" fill="#00A3E0"/>
-      <polygon points="0,16.6 24.9,0 30,0 30,3.4 5.1,20 0,20" fill="#F7D618"/>
-      <polygon points="0,17.8 26.7,0 30,0 30,2.2 3.3,20 0,20" fill="#CE1021"/>
-      <polygon points="6,2.4 6.9,4.7 9.4,4.8 7.4,6.3 8.1,8.7 6,7.3 3.9,8.7 4.6,6.3 2.6,4.8 5.1,4.7" fill="#F7D618"/>
-    </svg>
+    {% include "core/_flag.html" %}
     <div class="state">{% translate "DEMOCRATIC REPUBLIC OF THE CONGO" %}<br>{% translate "MINISTRY OF PRIMARY, SECONDARY AND TECHNICAL EDUCATION" %}</div>
     <img class="qr" src="{{ qr }}" alt="">
   </div>
@@ -110,7 +106,7 @@ table.bul td.pn.bot { border-bottom: .5pt solid #000; }
       {% if line.maxima %}
       <td class="name mx">{% translate "MAXIMA" %}</td>{% for m in line.maxima %}<td class="mx{% if not m %} k{% endif %}">{% if m %}{{ m }}{% endif %}</td>{% endfor %}
       {% else %}
-      <td class="name">{{ line.name }}</td>{% for cell in line.cells %}<td class="{% if not cell.maximum %}k{% elif cell.low %}low{% endif %}">{% if cell.maximum %}{{ cell.score|default_if_none:""|floatformat:"-1" }}{% endif %}</td>{% endfor %}
+      {% if line.struck %}<td class="name">{{ line.name }}</td>{% for cell in line.cells %}<td class="dash">&mdash;</td>{% endfor %}{% else %}<td class="name">{{ line.name }}</td>{% for cell in line.cells %}<td class="{% if not cell.maximum %}k{% elif cell.low %}low{% endif %}">{% if cell.maximum %}{{ cell.score|default_if_none:""|floatformat:"-1" }}{% endif %}</td>{% endfor %}{% endif %}
       {% endif %}
       {% if state_exam %}{% include "academics/_report_card_state.html" with item=line.state footer=None %}{% else %}{% include "academics/_report_card_side.html" with maxima=line.maxima footer=None %}{% endif %}
     </tr>
@@ -124,7 +120,7 @@ table.bul td.pn.bot { border-bottom: .5pt solid #000; }
     <tr class="b"><td class="name">{% translate "PLACE / NUMBER OF STUDENTS" %}</td>{% for v in totals.place %}<td>{{ v }}</td>{% endfor %}{% include "academics/_report_card_side.html" with footer=3 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.3 footer=3 %}{% endif %}</tr>
     <tr class="b"><td class="name mx">{% translate "APPLICATION" %}</td>{% for c in columns %}<td{% if c.kind != "period" %} class="k"{% endif %}></td>{% endfor %}{% if year_column %}<td class="k"></td>{% endif %}{% include "academics/_report_card_side.html" with footer=4 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.4 footer=4 %}{% endif %}</tr>
     <tr class="b"><td class="name mx">{% translate "CONDUCT" %}</td>{% for c in columns %}<td{% if c.kind != "period" %} class="k"{% endif %}></td>{% endfor %}{% if year_column %}<td class="k"></td>{% endif %}{% include "academics/_report_card_side.html" with footer=5 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.5 footer=5 %}{% endif %}</tr>
-    <tr class="b"><td class="name mx" style="font-size:7.3pt">{% translate "HEAD'S SIGNATURE" %}</td>{% for w in widths %}<td></td>{% endfor %}{% include "academics/_report_card_side.html" with footer=6 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.6 footer=6 %}{% endif %}</tr>
+    <tr class="b"><td class="name mx" style="font-size:7.3pt">{% translate "HEAD'S SIGNATURE" %}</td>{% for span in signature %}<td{% if span > 1 %} colspan="{{ span }}"{% endif %}></td>{% endfor %}{% include "academics/_report_card_side.html" with footer=6 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.6 footer=6 %}{% endif %}</tr>
   </table></div>
 
   <div class="under">

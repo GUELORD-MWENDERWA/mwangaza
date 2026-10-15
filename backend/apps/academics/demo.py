@@ -57,7 +57,9 @@ def _grid_key(group: ClassGroup) -> str | None:
         return BASIC
     code = group.track.code if group.track else ""
     if code == "ELO":
-        return "electronics_1" if group.level.name == "1re" else "electronics_2"
+        return {"1re": "electronics_1", "3e": "electronics_3"}.get(
+            group.level.name, "electronics_2"
+        )
     return TRACK_GRIDS.get(code)
 
 
@@ -88,12 +90,13 @@ def create_demo_courses(spaces: list[DemoSpace]) -> None:
                     else:
                         updated.append(course)
                     course.period_max, course.has_exam, course.order = maximum, exam, order
+                    course.is_taught = name not in BY_KEY[key].untaught
                     # Inventées d'après le maximum : de 1 h (sur 10 ou 20) à 7 h (atelier sur 100).
                     course.weekly_hours = hours or max(1, round(maximum / 15))
                     course.teacher = assigned.get((group.level.name, code, group.section, name))
             Course.objects.bulk_create(created)
             Course.objects.bulk_update(
-                updated, ["period_max", "has_exam", "order", "weekly_hours", "teacher"]
+                updated, ["period_max", "has_exam", "is_taught", "order", "weekly_hours", "teacher"]
             )
 
 
@@ -135,7 +138,9 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
                     max_score=max(1, round(course.period_max * share)),
                     order=order,
                 )
-                for course in Course.objects.filter(class_group__academic_year=year).order_by("pk")
+                for course in Course.objects.filter(
+                    class_group__academic_year=year, is_taught=True
+                ).order_by("pk")
                 for order, (name, share) in enumerate(EVALUATIONS)
             ]
             Evaluation.objects.bulk_create(evaluations, batch_size=2000)
@@ -189,8 +194,11 @@ def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
     """Toutes les périodes et tous les examens de deux classes, tous les élèves notés, feuilles
     validées (bulletin imprimable)."""
     groups = sorted(
-        ClassGroup.objects.filter(academic_year=year, track__isnull=False).select_related("level"),
-        key=lambda g: (g.level.name, g.name),
+        ClassGroup.objects.filter(academic_year=year, track__isnull=False).select_related(
+            "level", "track"
+        ),
+        # La 3e Électronique, classe du bulletin fourni, d'abord.
+        key=lambda g: (g.track.code != "ELO" or g.level.name != "3e", g.level.name, g.name),
     )
     chosen = [
         next((g for g in groups if g.level.has_state_exam is flag and students.get(g.pk)), None)
@@ -203,7 +211,9 @@ def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
     )
     now = timezone.now()
     for group in filter(None, chosen):
-        courses = list(Course.objects.filter(class_group=group).order_by("order", "name"))
+        courses = list(
+            Course.objects.filter(class_group=group, is_taught=True).order_by("order", "name")
+        )
         enrolled = students[group.pk]
         level = {e.pk: draw.uniform(0.4, 0.92) for e in enrolled}
         GradeSheet.objects.filter(course__in=courses).delete()

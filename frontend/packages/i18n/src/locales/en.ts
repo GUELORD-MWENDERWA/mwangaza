@@ -1133,6 +1133,7 @@ export const en: Messages<typeof fr> = {
       periodMax: "Period max.",
       exam: "Exam",
       examMax: "Exam max.",
+      taught: "Taken by the class",
       year: "Year total",
       hours: "Hrs / wk",
       teacher: "Teacher",

@@ -107,6 +107,8 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "courses",
       "teaching-loads",
       "unpaid",
+      "unpaid/export",
+      "cash-closings/register",
       "fees",
       "fees/prior-payments",
       "cancellations",
@@ -147,6 +149,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     // Validation des notes (8.2.2) : la directrice des études (double authentification).
     const director = await staff(browser, "0000001002", true);
     await visit(director, `${ITIG}grade-validation`, "gestion", "grade-validation");
+    await visit(director, `${ITIG}report-cards`, "gestion", "report-cards");
   }
 
   if (!ONLY || ONLY.startsWith("portail")) {

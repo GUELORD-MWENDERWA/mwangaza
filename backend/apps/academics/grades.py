@@ -114,7 +114,7 @@ class Sheet:
 def gradable_courses(user: User, permissions) -> QuerySet[Course]:
     """Cours de l'école courante dont `user` saisit les notes : tous avec `grades.enter_any` ;
     avec `grades.enter`, ceux qu'il donne et ceux de la classe dont il est titulaire."""
-    courses = Course.objects.all()
+    courses = Course.objects.filter(is_taught=True)
     if GRADES_ENTER_ANY in permissions:
         return courses
     if GRADES_ENTER in permissions:

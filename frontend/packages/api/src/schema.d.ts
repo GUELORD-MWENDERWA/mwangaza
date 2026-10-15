@@ -5345,6 +5345,8 @@ export interface components {
             readonly period_max: number;
             /** With exam */
             readonly has_exam: boolean;
+            /** Taught in this class */
+            readonly is_taught: boolean;
             /** Hours per week */
             readonly weekly_hours: number | null;
             readonly teacher: components["schemas"]["Person"] | null;
@@ -5361,6 +5363,11 @@ export interface components {
             period_max: number;
             /** @default true */
             has_exam: boolean;
+            /**
+             * @description Faux : cours du formulaire barré sur le bulletin, jamais noté.
+             * @default true
+             */
+            is_taught: boolean;
             weekly_hours?: number | null;
             /**
              * Format: uuid
@@ -6653,6 +6660,7 @@ export interface components {
             name: string;
             period_max: number;
             has_exam: boolean;
+            is_taught: boolean;
             weekly_hours: number | null;
         };
         OfficialGrid: {

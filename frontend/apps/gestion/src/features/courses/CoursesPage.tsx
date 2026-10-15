@@ -54,6 +54,7 @@ type Draft = {
   domain: string;
   period_max: string;
   has_exam: boolean;
+  is_taught: boolean;
   weekly_hours: string;
   teacher_id: string;
 };
@@ -68,6 +69,7 @@ const toDraft = (course: Course): Draft => ({
   domain: course.domain,
   period_max: String(course.period_max),
   has_exam: course.has_exam,
+  is_taught: course.is_taught,
   weekly_hours: course.weekly_hours ? String(course.weekly_hours) : "",
   teacher_id: course.teacher?.id ?? "",
 });
@@ -85,6 +87,7 @@ const blank = (): Draft => ({
   domain: "",
   period_max: "",
   has_exam: true,
+  is_taught: true,
   weekly_hours: "",
   teacher_id: "",
 });
@@ -102,6 +105,7 @@ function fromGrid(grid: OfficialGrid, current: Draft[]): Draft[] {
       domain: kept?.domain ?? "",
       period_max: String(course.period_max),
       has_exam: course.has_exam,
+      is_taught: course.is_taught,
       weekly_hours: course.weekly_hours ? String(course.weekly_hours) : (kept?.weekly_hours ?? ""),
       teacher_id: kept?.teacher_id ?? "",
     };
@@ -173,6 +177,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
               domain: draft.domain,
               period_max: Number(draft.period_max),
               has_exam: draft.has_exam,
+              is_taught: draft.is_taught,
               weekly_hours: draft.weekly_hours ? Number(draft.weekly_hours) : null,
               teacher_id: draft.teacher_id || null,
             })),
@@ -196,7 +201,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
   const rows = drafts ?? courses.data.map(toDraft);
   const dirty = drafts !== null;
   const counts = termCounts(year.terms);
-  const summary = gridSummary(rows.map(toRow), counts);
+  const summary = gridSummary(rows.filter((draft) => draft.is_taught).map(toRow), counts);
   const number = (value: number) => new Intl.NumberFormat(i18n.language).format(value);
   const edit = (next: Draft[]) => {
     setNotice(null);
@@ -207,7 +212,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
 
   const fields = save.error instanceof ApiError ? save.error.fields : {};
   const errorsOf = (index: number) =>
-    ["name", "id", "period_max", "weekly_hours", "teacher_id", "domain", "has_exam"]
+    ["name", "id", "period_max", "weekly_hours", "teacher_id", "domain", "has_exam", "is_taught"]
       .flatMap((field) => fields[`courses.${index}.${field}`] ?? [])
       .map((error) => fieldMessage(error.code, t));
   const placed = Object.keys(fields).some((path) => /^courses\.\d+\./.test(path));
@@ -369,6 +374,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
               <th>{t("courses.columns.exam")}</th>
               <th className="text-right">{t("courses.columns.examMax")}</th>
               <th className="text-right">{t("courses.columns.year")}</th>
+              <th>{t("courses.columns.taught")}</th>
               <th className="text-right">{t("courses.columns.hours")}</th>
               <th>{t("courses.columns.teacher")}</th>
               <th />
@@ -440,6 +446,13 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
                   </td>
                   <td className="text-right font-bold tabular-nums">
                     {row.period_max && counts.periods ? number(yearMax(row, counts)) : "—"}
+                  </td>
+                  <td>
+                    <Switch
+                      aria-label={`${t("courses.columns.taught")} — ${label}`}
+                      checked={draft.is_taught}
+                      onCheckedChange={(checked) => update(draft, { is_taught: checked })}
+                    />
                   </td>
                   <td className="text-right">
                     <Input

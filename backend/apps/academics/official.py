@@ -18,6 +18,8 @@ class OfficialGrid:
     # Référence du document officiel, la même dans toutes les langues.
     reference: str
     courses: tuple[Row, ...]
+    # Cours imprimés sur le formulaire mais barrés pour cette option : jamais notés.
+    untaught: tuple[str, ...] = ()
 
 
 def _same(maximum: int, names: tuple[str, ...], *, exam: bool = True) -> tuple[Row, ...]:
@@ -152,6 +154,48 @@ GRIDS = (
             ("Atelier électronique", 40, False, 4),
             ("Labo électronique", 40, False, 4),
         ),
+    ),
+)
+
+# 3e année d'électronique industrielle (formulaire IGE/P.S/137, bulletin fourni le 2026-10-15) :
+# tous les cours du formulaire ; ceux que l'option ne suit pas y sont barrés (tirets).
+_ELECTRONICS_3_UNTAUGHT = (
+    "Automate programmable",
+    "Hyperfréquence",
+    "Maintenance informatique",
+    "Microprocesseur",
+    "Physique",
+    "Régulation",
+)
+GRIDS += (
+    OfficialGrid(
+        "electronics_3",
+        "IGE/P.S/137",
+        (
+            *_same(10, ("Religion", "Éducation à la vie", "Éducation civique et morale")),
+            *_same(
+                20,
+                (
+                    "Actualités",
+                    "Anglais",
+                    "Automate programmable",
+                    "Circuits logiques",
+                    "Hyperfréquence",
+                    "Informatique industrielle",
+                    "Instruments et mesures",
+                    "Maintenance informatique",
+                    "Microprocesseur",
+                    "Physique",
+                    "Régulation",
+                    "Schéma électronique",
+                    "Technologie électronique",
+                ),
+            ),
+            *_same(40, ("Électricité", "Électronique", "Radio électronique")),
+            *_same(50, ("Français", "Mathématiques")),
+            *_same(100, ("Atelier électronique", "Labo électronique"), exam=False),
+        ),
+        untaught=_ELECTRONICS_3_UNTAUGHT,
     ),
 )
 

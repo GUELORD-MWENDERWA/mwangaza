@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-15 20:38+0200\n"
+"POT-Creation-Date: 2026-10-15 21:09+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -34,20 +34,20 @@ msgstr ""
 "Ce cours a déjà des notes : seul celui qui valide les notes peut changer son "
 "maximum."
 
-#: apps/academics/courses.py:74
+#: apps/academics/courses.py:75
 #, python-format
 msgid "At most %(max)d courses per class."
 msgstr "Au plus %(max)d cours par classe."
 
-#: apps/academics/courses.py:85
+#: apps/academics/courses.py:86
 msgid "This class already has this course."
 msgstr "Cette classe a déjà ce cours."
 
-#: apps/academics/courses.py:91
+#: apps/academics/courses.py:92
 msgid "Unknown course."
 msgstr "Cours inconnu."
 
-#: apps/academics/courses.py:98 apps/schools/organisation.py:520
+#: apps/academics/courses.py:99 apps/schools/organisation.py:520
 msgid "Choose a member of the school's staff."
 msgstr "Choisissez un membre du personnel de l'école."
 
@@ -132,7 +132,7 @@ msgstr "Une note dépasse ce maximum."
 msgid "class"
 msgstr "classe"
 
-#: apps/academics/models.py:28 apps/academics/models.py:97
+#: apps/academics/models.py:28 apps/academics/models.py:100
 #: apps/accounts/models.py:135 apps/core/models.py:137
 #: apps/finance/models.py:35 apps/finance/models.py:371
 #: apps/schools/models.py:97 apps/schools/models.py:364
@@ -154,77 +154,81 @@ msgid "with exam"
 msgstr "avec examen"
 
 #: apps/academics/models.py:40
+msgid "taught in this class"
+msgstr "suivi par la classe"
+
+#: apps/academics/models.py:43
 msgid "hours per week"
 msgstr "heures par semaine"
 
-#: apps/academics/models.py:52
+#: apps/academics/models.py:55
 msgid "teacher"
 msgstr "enseignant"
 
-#: apps/academics/models.py:54 apps/academics/models.py:101
+#: apps/academics/models.py:57 apps/academics/models.py:104
 #: apps/finance/models.py:130 apps/schools/models.py:421
 #: apps/schools/models.py:463
 msgid "order"
 msgstr "ordre"
 
-#: apps/academics/models.py:58 apps/academics/models.py:91
-#: apps/academics/models.py:160
+#: apps/academics/models.py:61 apps/academics/models.py:94
+#: apps/academics/models.py:163
 msgid "course"
 msgstr "cours"
 
-#: apps/academics/models.py:59
+#: apps/academics/models.py:62
 msgid "courses"
 msgstr "cours"
 
-#: apps/academics/models.py:95 apps/academics/models.py:163
-#: apps/academics/models.py:204 apps/schools/models.py:428
+#: apps/academics/models.py:98 apps/academics/models.py:166
+#: apps/academics/models.py:207 apps/schools/models.py:428
 msgid "term"
 msgstr "période"
 
-#: apps/academics/models.py:99
+#: apps/academics/models.py:102
 msgid "maximum"
 msgstr "maximum"
 
-#: apps/academics/models.py:105 apps/academics/models.py:126
+#: apps/academics/models.py:108 apps/academics/models.py:129
 msgid "evaluation"
 msgstr "évaluation"
 
-#: apps/academics/models.py:106
+#: apps/academics/models.py:109
 msgid "evaluations"
 msgstr "évaluations"
 
-#: apps/academics/models.py:130 apps/finance/models.py:170
+#: apps/academics/models.py:133 apps/finance/models.py:170
 #: apps/finance/models.py:237 apps/finance/models.py:501
 #: apps/finance/models.py:723 apps/students/models.py:183
 #: apps/sync/models.py:98
 msgid "enrollment"
 msgstr "inscription"
 
-#: apps/academics/models.py:132
+#: apps/academics/models.py:135
 msgid "score"
 msgstr "note"
 
-#: apps/academics/models.py:135
+#: apps/academics/models.py:138
 msgid "grade"
 msgstr "note"
 
-#: apps/academics/models.py:136
+#: apps/academics/models.py:139
 msgid "grades"
 msgstr "notes"
 
-#: apps/academics/models.py:155
+#: apps/academics/models.py:158
 msgid "Draft"
 msgstr "Brouillon"
 
-#: apps/academics/models.py:156
+#: apps/academics/models.py:159
 msgid "Sent for validation"
 msgstr "Envoyée pour validation"
 
-#: apps/academics/models.py:157
+#: apps/academics/models.py:160
 msgid "Validated"
 msgstr "Validée"
 
-#: apps/academics/models.py:166 apps/finance/models.py:190
+#: apps/academics/models.py:169 apps/finance/models.py:190
 #: apps/finance/models.py:638 apps/schools/models.py:197
 #: apps/schools/models.py:369 apps/students/models.py:176
 #: apps/students/models.py:242 apps/students/models.py:290
@@ -232,43 +236,43 @@ msgstr "Validée"
 msgid "status"
 msgstr "statut"
 
-#: apps/academics/models.py:168
+#: apps/academics/models.py:171
 msgid "sent on"
 msgstr "envoyée le"
 
-#: apps/academics/models.py:175
+#: apps/academics/models.py:178
 msgid "sent by"
 msgstr "envoyée par"
 
-#: apps/academics/models.py:177
+#: apps/academics/models.py:180
 msgid "validated on"
 msgstr "validée le"
 
-#: apps/academics/models.py:184
+#: apps/academics/models.py:187
 msgid "validated by"
 msgstr "validée par"
 
-#: apps/academics/models.py:187
+#: apps/academics/models.py:190
 msgid "reopened"
 msgstr "rouverte"
 
-#: apps/academics/models.py:190
+#: apps/academics/models.py:193
 msgid "grade sheet"
 msgstr "feuille de notes"
 
-#: apps/academics/models.py:191
+#: apps/academics/models.py:194
 msgid "grade sheets"
 msgstr "feuilles de notes"
 
-#: apps/academics/models.py:206
+#: apps/academics/models.py:209
 msgid "deadline"
 msgstr "date limite"
 
-#: apps/academics/models.py:209
+#: apps/academics/models.py:212
 msgid "grade deadline"
 msgstr "date limite de saisie"
 
-#: apps/academics/models.py:210
+#: apps/academics/models.py:213
 msgid "grade deadlines"
 msgstr "dates limites de saisie"
 
@@ -312,87 +316,87 @@ msgstr "SEMESTRE"
 msgid "TERM"
 msgstr "TRIMESTRE"
 
-#: apps/academics/report_card_documents.py:103
+#: apps/academics/report_card_documents.py:109
 msgid "1st P."
 msgstr "1ère P."
 
-#: apps/academics/report_card_documents.py:103
+#: apps/academics/report_card_documents.py:109
 #, python-format
 msgid "P%(n)d"
 msgstr "%(n)de P."
 
-#: apps/academics/report_card_documents.py:119
+#: apps/academics/report_card_documents.py:125
 msgid "TOT."
 msgstr "TOT."
 
-#: apps/academics/report_card_documents.py:121
+#: apps/academics/report_card_documents.py:127
 msgid "EXAM."
 msgstr "EXAM."
 
-#: apps/academics/report_card_documents.py:131
-#: apps/academics/report_card_documents.py:138
+#: apps/academics/report_card_documents.py:137
+#: apps/academics/report_card_documents.py:144
 msgid "DAILY WORK."
 msgstr "TRAVAUX JOURNAL."
 
-#: apps/academics/report_card_documents.py:212
+#: apps/academics/report_card_documents.py:228
 msgid "Points"
 msgstr "Points obtenus"
 
-#: apps/academics/report_card_documents.py:212
+#: apps/academics/report_card_documents.py:228
 msgid "MAX"
 msgstr "MAX"
 
-#: apps/academics/report_card_documents.py:213
+#: apps/academics/report_card_documents.py:229
 msgid "Exam"
 msgstr "Exam."
 
-#: apps/academics/report_card_documents.py:217
+#: apps/academics/report_card_documents.py:233
 msgid "For checking"
 msgstr "Pour le contrôle"
 
-#: apps/academics/report_card_documents.py:218
-#: apps/academics/report_card_documents.py:230
+#: apps/academics/report_card_documents.py:234
+#: apps/academics/report_card_documents.py:246
 msgid "On ...../...../....."
 msgstr "Le ...../...../....."
 
-#: apps/academics/report_card_documents.py:219
+#: apps/academics/report_card_documents.py:235
 msgid "The head of the centre"
 msgstr "Le chef du centre"
 
-#: apps/academics/report_card_documents.py:221
+#: apps/academics/report_card_documents.py:237
 msgid "Centre code"
 msgstr "Le code du centre"
 
-#: apps/academics/report_card_documents.py:223
+#: apps/academics/report_card_documents.py:239
 msgid "FINAL RESULT"
 msgstr "RÉSULTAT FINAL"
 
-#: apps/academics/report_card_documents.py:224
+#: apps/academics/report_card_documents.py:240
 msgid "Diploma (1)"
 msgstr "Diplôme (1)"
 
-#: apps/academics/report_card_documents.py:225
+#: apps/academics/report_card_documents.py:241
 msgid "With ......... (%)"
 msgstr "Avec ......... (%)"
 
-#: apps/academics/report_card_documents.py:226
+#: apps/academics/report_card_documents.py:242
 msgid "Failed (1)"
 msgstr "A échoué (1)"
 
-#: apps/academics/report_card_documents.py:229
+#: apps/academics/report_card_documents.py:245
 msgid "As evidence"
 msgstr "Pour témoignage"
 
-#: apps/academics/report_card_documents.py:231
+#: apps/academics/report_card_documents.py:247
 #: apps/academics/templates/academics/_report_card_side.html:2
-#: apps/academics/templates/academics/report_card.html:142
+#: apps/academics/templates/academics/report_card.html:138
 #: apps/schools/signatures.py:68
 msgid "The head of the school"
 msgstr "Le chef d'établissement"
 
-#: apps/academics/report_card_documents.py:232
+#: apps/academics/report_card_documents.py:248
 #: apps/academics/templates/academics/_report_card_side.html:2
-#: apps/students/templates/students/registration_form.html:66
+#: apps/students/templates/students/registration_form.html:61
 msgid "School seal"
 msgstr "Sceau de l'école"
 
@@ -412,7 +416,7 @@ msgstr "LE ...../...../20"
 msgid "Report card"
 msgstr "Bulletin"
 
-#: apps/academics/templates/academics/report_card.html:65
+#: apps/academics/templates/academics/report_card.html:66
 #, python-format
 msgid ""
 "Preview: %(n)s grade sheet is not validated yet. The report card cannot be "
@@ -427,167 +431,168 @@ msgstr[1] ""
 "Aperçu : %(n)s feuilles de notes ne sont pas encore validées. Le bulletin ne "
 "peut pas s'imprimer tant qu'elles ne le sont pas."
 
-#: apps/academics/templates/academics/report_card.html:74
+#: apps/academics/templates/academics/report_card.html:70
 msgid "DEMOCRATIC REPUBLIC OF THE CONGO"
 msgstr "RÉPUBLIQUE DÉMOCRATIQUE DU CONGO"
 
-#: apps/academics/templates/academics/report_card.html:74
+#: apps/academics/templates/academics/report_card.html:70
+#: apps/core/templates/core/_document_header.html:6
 msgid "MINISTRY OF PRIMARY, SECONDARY AND TECHNICAL EDUCATION"
 msgstr "MINISTÈRE DE L'ENSEIGNEMENT PRIMAIRE, SECONDAIRE ET TECHNIQUE"
 
-#: apps/academics/templates/academics/report_card.html:77
+#: apps/academics/templates/academics/report_card.html:73
 msgid "ID NO."
 msgstr "N° ID"
 
-#: apps/academics/templates/academics/report_card.html:78
+#: apps/academics/templates/academics/report_card.html:74
 msgid "PROVINCE"
 msgstr "PROVINCE"
 
-#: apps/academics/templates/academics/report_card.html:81
+#: apps/academics/templates/academics/report_card.html:77
 msgid "TOWN"
 msgstr "VILLE"
 
-#: apps/academics/templates/academics/report_card.html:82
+#: apps/academics/templates/academics/report_card.html:78
 msgid "COMMUNE / TERRITORY"
 msgstr "COMMUNE / TERRITOIRE"
 
-#: apps/academics/templates/academics/report_card.html:83
+#: apps/academics/templates/academics/report_card.html:79
 msgid "SCHOOL"
 msgstr "ÉCOLE"
 
-#: apps/academics/templates/academics/report_card.html:84
+#: apps/academics/templates/academics/report_card.html:80
 msgid "CODE"
 msgstr "CODE"
 
-#: apps/academics/templates/academics/report_card.html:87
-#: apps/students/templates/students/registration_form.html:26
+#: apps/academics/templates/academics/report_card.html:83
+#: apps/students/templates/students/registration_form.html:21
 msgid "STUDENT"
 msgstr "ÉLÈVE"
 
-#: apps/academics/templates/academics/report_card.html:87
+#: apps/academics/templates/academics/report_card.html:83
 msgid "SEX"
 msgstr "SEXE"
 
-#: apps/academics/templates/academics/report_card.html:88
+#: apps/academics/templates/academics/report_card.html:84
 msgid "BORN AT"
 msgstr "NÉ(E) À"
 
-#: apps/academics/templates/academics/report_card.html:88
+#: apps/academics/templates/academics/report_card.html:84
 msgid "ON"
 msgstr "LE"
 
-#: apps/academics/templates/academics/report_card.html:89
+#: apps/academics/templates/academics/report_card.html:85
 #: apps/finance/prior_payments.py:379
 msgid "CLASS"
 msgstr "CLASSE"
 
-#: apps/academics/templates/academics/report_card.html:90
+#: apps/academics/templates/academics/report_card.html:86
 msgid "PERM. NO."
 msgstr "N° PERM."
 
-#: apps/academics/templates/academics/report_card.html:93
+#: apps/academics/templates/academics/report_card.html:89
 #, python-format
 msgid "REPORT CARD OF %(class_title)s"
 msgstr "BULLETIN DE LA %(class_title)s"
 
-#: apps/academics/templates/academics/report_card.html:93
+#: apps/academics/templates/academics/report_card.html:89
 #, python-format
 msgid "SCHOOL YEAR %(year)s"
 msgstr "ANNÉE SCOLAIRE %(year)s"
 
-#: apps/academics/templates/academics/report_card.html:100
+#: apps/academics/templates/academics/report_card.html:96
 msgid "SUBJECTS"
 msgstr "BRANCHES"
 
-#: apps/academics/templates/academics/report_card.html:104
+#: apps/academics/templates/academics/report_card.html:100
 msgid "STATE EXAM"
 msgstr "EXAMEN D'ÉTAT"
 
-#: apps/academics/templates/academics/report_card.html:104
+#: apps/academics/templates/academics/report_card.html:100
 msgid "RESIT EXAM"
 msgstr "EXAMEN DE REPÊCHAGE"
 
-#: apps/academics/templates/academics/report_card.html:107
+#: apps/academics/templates/academics/report_card.html:103
 msgid "Teacher's sign."
 msgstr "Sign. prof."
 
-#: apps/academics/templates/academics/report_card.html:111
+#: apps/academics/templates/academics/report_card.html:107
 msgid "MAXIMA"
 msgstr "MAXIMA"
 
-#: apps/academics/templates/academics/report_card.html:119
+#: apps/academics/templates/academics/report_card.html:115
 msgid "GENERAL MAXIMA"
 msgstr "MAXIMA GÉNÉRAUX"
 
-#: apps/academics/templates/academics/report_card.html:122
+#: apps/academics/templates/academics/report_card.html:118
 msgid "TOTALS"
 msgstr "TOTAUX"
 
-#: apps/academics/templates/academics/report_card.html:123
+#: apps/academics/templates/academics/report_card.html:119
 msgid "PERCENTAGE"
 msgstr "POURCENTAGE"
 
-#: apps/academics/templates/academics/report_card.html:124
+#: apps/academics/templates/academics/report_card.html:120
 msgid "PLACE / NUMBER OF STUDENTS"
 msgstr "PLACE / NBRE D'ÉLÈVES"
 
-#: apps/academics/templates/academics/report_card.html:125
+#: apps/academics/templates/academics/report_card.html:121
 msgid "APPLICATION"
 msgstr "APPLICATION"
 
-#: apps/academics/templates/academics/report_card.html:126
+#: apps/academics/templates/academics/report_card.html:122
 msgid "CONDUCT"
 msgstr "CONDUITE"
 
-#: apps/academics/templates/academics/report_card.html:127
+#: apps/academics/templates/academics/report_card.html:123
 msgid "HEAD'S SIGNATURE"
 msgstr "SIGNATURE DU RESPONSABLE"
 
-#: apps/academics/templates/academics/report_card.html:133
+#: apps/academics/templates/academics/report_card.html:129
 msgid ""
 "The student may move up to the next class only after passing a resit exam in"
 msgstr ""
 "L'élève ne pourra passer dans la classe supérieure s'il ne subit avec succès "
 "un examen de repêchage en"
 
-#: apps/academics/templates/academics/report_card.html:134
+#: apps/academics/templates/academics/report_card.html:130
 msgid "The student moves up to the next class (1)"
 msgstr "L'élève passe dans la classe supérieure (1)"
 
-#: apps/academics/templates/academics/report_card.html:135
+#: apps/academics/templates/academics/report_card.html:131
 msgid "The student repeats the class (1)"
 msgstr "L'élève double sa classe (1)"
 
-#: apps/academics/templates/academics/report_card.html:136
+#: apps/academics/templates/academics/report_card.html:132
 msgid "The student failed and is to be redirected to"
 msgstr "L'élève a échoué et est à réorienter vers"
 
-#: apps/academics/templates/academics/report_card.html:138
+#: apps/academics/templates/academics/report_card.html:134
 msgid "Student's signature"
 msgstr "Signature de l'élève"
 
-#: apps/academics/templates/academics/report_card.html:141
+#: apps/academics/templates/academics/report_card.html:137
 #, python-format
 msgid "Done at %(city)s, on %(date)s"
 msgstr "Fait à %(city)s, le %(date)s"
 
-#: apps/academics/templates/academics/report_card.html:142
+#: apps/academics/templates/academics/report_card.html:138
 msgid "Name and signature"
 msgstr "Nom et signature"
 
-#: apps/academics/templates/academics/report_card.html:146
+#: apps/academics/templates/academics/report_card.html:142
 msgid "Strike out what does not apply."
 msgstr "Biffer la mention inutile."
 
-#: apps/academics/templates/academics/report_card.html:146
+#: apps/academics/templates/academics/report_card.html:142
 msgid "IMPORTANT NOTE"
 msgstr "NOTE IMPORTANTE"
 
-#: apps/academics/templates/academics/report_card.html:146
+#: apps/academics/templates/academics/report_card.html:142
 msgid "This report card is void if it is crossed out or overwritten."
 msgstr "Le bulletin est sans valeur s'il est raturé ou surchargé."
 
-#: apps/academics/templates/academics/report_card.html:147
+#: apps/academics/templates/academics/report_card.html:143
 msgid ""
 "Reproducing this report card is strictly forbidden, under the penalties set "
 "by law."
@@ -595,7 +600,7 @@ msgstr ""
 "Interdiction formelle de reproduire ce bulletin sous peine des sanctions "
 "prévues par la loi."
 
-#: apps/academics/templates/academics/report_card.html:148
+#: apps/academics/templates/academics/report_card.html:144
 msgid "Scan the QR code to check this report card."
 msgstr "Scannez le QR code pour vérifier ce bulletin."
 
@@ -640,12 +645,12 @@ msgstr "École"
 #: apps/academics/templates/academics/report_card_verification.html:20
 #: apps/core/templates/core/site/home.html:205 apps/finance/documents.py:145
 #: apps/finance/documents.py:400
-#: apps/finance/templates/finance/receipt_register.html:32
+#: apps/finance/templates/finance/receipt_register.html:27
 #: apps/finance/templates/finance/receipt_verification.html:73
-#: apps/finance/templates/finance/statement.html:29
+#: apps/finance/templates/finance/statement.html:24
 #: apps/finance/templates/finance/statement_verification.html:21
-#: apps/finance/templates/finance/unpaid.html:31
-#: apps/portal/templates/portal/receipt.html:28
+#: apps/finance/templates/finance/unpaid.html:26
+#: apps/portal/templates/portal/receipt.html:23
 msgid "Student"
 msgstr "Élève"
 
@@ -662,11 +667,11 @@ msgstr "Résultat"
 msgid "place %(place)s of %(size)s"
 msgstr "place %(place)s sur %(size)s"
 
-#: apps/academics/views.py:224
+#: apps/academics/views.py:225
 msgid "You do not enter the grades of this course."
 msgstr "Vous ne saisissez pas les notes de ce cours."
 
-#: apps/academics/views.py:359
+#: apps/academics/views.py:385
 msgid ""
 "Some courses have no validated grades yet: the report card cannot be printed."
 msgstr ""
@@ -721,7 +726,7 @@ msgstr ""
 "de la plateforme."
 
 #: apps/accounts/admin_site.py:39 apps/finance/documents.py:147
-#: apps/students/templates/students/registration_form.html:40
+#: apps/students/templates/students/registration_form.html:35
 msgid "Phone"
 msgstr "Téléphone"
 
@@ -1095,7 +1100,7 @@ msgstr "Comptable"
 
 #: apps/accounts/roles.py:166 apps/finance/documents.py:68
 #: apps/finance/documents.py:404
-#: apps/finance/templates/finance/receipt_register.html:35
+#: apps/finance/templates/finance/receipt_register.html:30
 msgid "Cashier"
 msgstr "Caissier"
 
@@ -1850,9 +1855,9 @@ msgstr "Support %(platform)s"
 
 #: apps/audit/views.py:106 apps/finance/documents.py:66
 #: apps/finance/documents.py:397
-#: apps/finance/templates/finance/receipt_register.html:31
+#: apps/finance/templates/finance/receipt_register.html:26
 #: apps/finance/templates/finance/receipt_verification.html:72
-#: apps/notifications/templates/notifications/summons.html:26
+#: apps/notifications/templates/notifications/summons.html:20
 msgid "Date"
 msgstr "Date"
 
@@ -2324,6 +2329,17 @@ msgstr ""
 msgid "School management"
 msgstr "Gestion scolaire"
 
+#: apps/core/templates/core/_document_header.html:5
+msgid "Democratic Republic of the Congo"
+msgstr "République Démocratique du Congo"
+
+#: apps/core/templates/core/_document_header.html:14
+#: apps/core/templates/core/site/home.html:201
+#: apps/finance/templates/finance/unpaid.html:25 apps/students/documents.py:222
+#: apps/students/templates/students/class_list.html:16
+msgid "No."
+msgstr "N°"
+
 #: apps/core/templates/core/print_base.html:13
 msgid "page"
 msgstr "page"
@@ -2387,19 +2403,13 @@ msgstr "Exemple de reçu (données inventées)"
 msgid "Payment receipt"
 msgstr "Reçu de paiement"
 
-#: apps/core/templates/core/site/home.html:201
-#: apps/finance/templates/finance/unpaid.html:30 apps/students/documents.py:222
-#: apps/students/templates/students/class_list.html:21
-msgid "No."
-msgstr "N°"
-
 #: apps/core/templates/core/site/home.html:206 apps/finance/documents.py:143
 #: apps/finance/documents.py:401
-#: apps/finance/templates/finance/receipt_register.html:33
-#: apps/finance/templates/finance/statement.html:30
-#: apps/finance/templates/finance/unpaid.html:32
-#: apps/portal/templates/portal/receipt.html:30 apps/students/imports.py:86
-#: apps/students/templates/students/registration_form.html:35
+#: apps/finance/templates/finance/receipt_register.html:28
+#: apps/finance/templates/finance/statement.html:25
+#: apps/finance/templates/finance/unpaid.html:27
+#: apps/portal/templates/portal/receipt.html:25 apps/students/imports.py:86
+#: apps/students/templates/students/registration_form.html:30
 msgid "Class"
 msgstr "Classe"
 
@@ -2408,8 +2418,8 @@ msgid "3rd year Electricity A"
 msgstr "3e Électricité A"
 
 #: apps/core/templates/core/site/home.html:207 apps/finance/documents.py:148
-#: apps/finance/templates/finance/statement.html:35
-#: apps/portal/templates/portal/receipt.html:34
+#: apps/finance/templates/finance/statement.html:30
+#: apps/portal/templates/portal/receipt.html:29
 msgid "Fee"
 msgstr "Frais"
 
@@ -2517,7 +2527,7 @@ msgid "Legal notice"
 msgstr "Mentions légales"
 
 #: apps/core/templates/core/site/llms.txt:7
-#: apps/students/templates/students/registration_form.html:30
+#: apps/students/templates/students/registration_form.html:25
 msgid "Address"
 msgstr "Adresse"
 
@@ -2633,17 +2643,17 @@ msgid "Cash closings"
 msgstr "Clôtures de caisse"
 
 #: apps/finance/documents.py:144 apps/finance/documents.py:399
-#: apps/finance/templates/finance/statement.html:29
-#: apps/portal/templates/portal/receipt.html:29 apps/students/documents.py:225
+#: apps/finance/templates/finance/statement.html:24
+#: apps/portal/templates/portal/receipt.html:24 apps/students/documents.py:225
 #: apps/students/imports.py:87
-#: apps/students/templates/students/class_list.html:22
-#: apps/students/templates/students/registration_form.html:35
+#: apps/students/templates/students/class_list.html:17
+#: apps/students/templates/students/registration_form.html:30
 msgid "Student number"
 msgstr "Matricule"
 
 #: apps/finance/documents.py:146
-#: apps/finance/templates/finance/statement.html:30
-#: apps/finance/templates/finance/unpaid.html:33 apps/students/models.py:60
+#: apps/finance/templates/finance/statement.html:25
+#: apps/finance/templates/finance/unpaid.html:28 apps/students/models.py:60
 msgid "Guardian"
 msgstr "Tuteur"
 
@@ -2652,28 +2662,28 @@ msgid "Installment"
 msgstr "Tranche"
 
 #: apps/finance/documents.py:150
-#: apps/finance/templates/finance/statement.html:35
-#: apps/portal/templates/portal/receipt.html:34
+#: apps/finance/templates/finance/statement.html:30
+#: apps/portal/templates/portal/receipt.html:29
 msgid "Due date"
 msgstr "Échéance"
 
 #: apps/finance/documents.py:151 apps/finance/documents.py:402
 #: apps/finance/models.py:224
-#: apps/finance/templates/finance/receipt_register.html:34
+#: apps/finance/templates/finance/receipt_register.html:29
 #: apps/finance/templates/finance/receipt_verification.html:74
-#: apps/finance/templates/finance/statement.html:35
-#: apps/portal/templates/portal/receipt.html:34
-#: apps/students/templates/students/registration_form.html:50
+#: apps/finance/templates/finance/statement.html:30
+#: apps/portal/templates/portal/receipt.html:29
+#: apps/students/templates/students/registration_form.html:45
 msgid "Amount"
 msgstr "Montant"
 
 #: apps/finance/documents.py:152
-#: apps/finance/templates/finance/statement.html:35
+#: apps/finance/templates/finance/statement.html:30
 msgid "Paid"
 msgstr "Payé"
 
 #: apps/finance/documents.py:153
-#: apps/finance/templates/finance/statement.html:35
+#: apps/finance/templates/finance/statement.html:30
 msgid "Remaining"
 msgstr "Reste"
 
@@ -2703,8 +2713,8 @@ msgid "Valid"
 msgstr "Valide"
 
 #: apps/finance/documents.py:377
-#: apps/finance/templates/finance/receipt_register.html:23
-#: apps/finance/templates/finance/receipt_register.html:67
+#: apps/finance/templates/finance/receipt_register.html:18
+#: apps/finance/templates/finance/receipt_register.html:62
 msgid "All cash registers"
 msgstr "Toutes les caisses"
 
@@ -2723,13 +2733,13 @@ msgid "Receipt number"
 msgstr "Numéro du reçu"
 
 #: apps/finance/documents.py:398
-#: apps/notifications/templates/notifications/summons.html:27
+#: apps/notifications/templates/notifications/summons.html:21
 msgid "Time"
 msgstr "Heure"
 
 #: apps/finance/documents.py:405
-#: apps/finance/templates/finance/receipt_register.html:36
-#: apps/finance/templates/finance/statement.html:35
+#: apps/finance/templates/finance/receipt_register.html:31
+#: apps/finance/templates/finance/statement.html:30
 msgid "Status"
 msgstr "État"
 
@@ -3452,61 +3462,67 @@ msgstr "Comptez l'argent de chaque devise."
 msgid "Explain the difference: the accountant will see it."
 msgstr "Expliquez l'écart : le comptable le verra."
 
-#: apps/finance/templates/finance/receipt_register.html:19
-#: apps/finance/templates/finance/statement.html:60
-#, python-format
-msgid "Printed on %(date)s at %(time)s by %(name)s"
-msgstr "Imprimé le %(date)s à %(time)s par %(name)s"
+#: apps/finance/templates/finance/receipt_register.html:14
+#: apps/finance/templates/finance/statement.html:17
+#: apps/finance/templates/finance/unpaid.html:17
+#: apps/portal/templates/portal/receipt.html:16
+msgid "Accounting"
+msgstr "Comptabilité"
 
-#: apps/finance/templates/finance/receipt_register.html:22
+#: apps/finance/templates/finance/receipt_register.html:15
+#, python-format
+msgid "Printed on %(date)s at %(time)s"
+msgstr "Imprimé le %(date)s à %(time)s"
+
+#: apps/finance/templates/finance/receipt_register.html:17
 msgid "RECEIPT REGISTER"
 msgstr "REGISTRE DES REÇUS"
 
-#: apps/finance/templates/finance/receipt_register.html:23
+#: apps/finance/templates/finance/receipt_register.html:18
 #, python-format
 msgid "from %(start)s to %(end)s"
 msgstr "du %(start)s au %(end)s"
 
-#: apps/finance/templates/finance/receipt_register.html:23
+#: apps/finance/templates/finance/receipt_register.html:18
 #, python-format
 msgid "%(count)s receipt"
 msgid_plural "%(count)s receipts"
 msgstr[0] "%(count)s reçu"
 msgstr[1] "%(count)s reçus"
 
-#: apps/finance/templates/finance/receipt_register.html:27
+#: apps/finance/templates/finance/receipt_register.html:22
 #, python-format
 msgid "Cash register: %(name)s"
 msgstr "Caisse : %(name)s"
 
-#: apps/finance/templates/finance/receipt_register.html:30
+#: apps/finance/templates/finance/receipt_register.html:25
 msgid "Receipt"
 msgstr "Reçu"
 
-#: apps/finance/templates/finance/receipt_register.html:47
-#: apps/notifications/templates/notifications/summons.html:23
+#: apps/finance/templates/finance/receipt_register.html:42
+#: apps/notifications/templates/notifications/summons.html:17
 msgid "CANCELLED"
 msgstr "ANNULÉE"
 
-#: apps/finance/templates/finance/receipt_register.html:54
-#: apps/finance/templates/finance/receipt_register.html:72
+#: apps/finance/templates/finance/receipt_register.html:49
+#: apps/finance/templates/finance/receipt_register.html:67
 #, python-format
 msgid "Total · %(count)s receipt"
 msgid_plural "Total · %(count)s receipts"
 msgstr[0] "Total · %(count)s reçu"
 msgstr[1] "Total · %(count)s reçus"
 
-#: apps/finance/templates/finance/receipt_register.html:56
-#: apps/finance/templates/finance/receipt_register.html:74
+#: apps/finance/templates/finance/receipt_register.html:51
+#: apps/finance/templates/finance/receipt_register.html:69
 #, python-format
 msgid "not counted: %(count)s cancelled (%(amount)s)"
 msgstr "non comptés : %(count)s annulés (%(amount)s)"
 
-#: apps/finance/templates/finance/receipt_register.html:63
+#: apps/finance/templates/finance/receipt_register.html:58
 msgid "No receipt over this period."
 msgstr "Aucun reçu sur cette période."
 
-#: apps/finance/templates/finance/receipt_register.html:82
+#: apps/finance/templates/finance/receipt_register.html:77
 msgid ""
 "Cancelled receipts stay listed but are not counted. Amounts in each currency "
 "are shown separately, never converted or added up. Prior payments (no "
@@ -3516,8 +3532,8 @@ msgstr ""
 "chaque devise sont présentés séparément, jamais convertis ni additionnés. "
 "Les paiements de reprise (sans reçu) n'y figurent pas."
 
-#: apps/finance/templates/finance/receipt_register.html:83
-#: apps/finance/templates/finance/statement.html:61
+#: apps/finance/templates/finance/receipt_register.html:78
+#: apps/finance/templates/finance/statement.html:56
 msgid "Signature and school stamp"
 msgstr "Signature et cachet de l'école"
 
@@ -3603,77 +3619,80 @@ msgstr "Numéro"
 msgid "Financial statement"
 msgstr "Situation financière"
 
-#: apps/finance/templates/finance/statement.html:25
+#: apps/finance/templates/finance/statement.html:20
 #, python-format
 msgid "FINANCIAL STATEMENT ON %(date)s"
 msgstr "SITUATION FINANCIÈRE AU %(date)s"
 
-#: apps/finance/templates/finance/statement.html:26
-#: apps/finance/templates/finance/unpaid.html:20
-#: apps/portal/templates/portal/receipt.html:25
-#: apps/students/templates/students/class_list.html:11
+#: apps/finance/templates/finance/statement.html:21
+#: apps/portal/templates/portal/receipt.html:20
 #, python-format
 msgid "School year %(year)s"
 msgstr "Année scolaire %(year)s"
 
-#: apps/finance/templates/finance/statement.html:37
+#: apps/finance/templates/finance/statement.html:32
 msgid "OVERDUE"
 msgstr "EN RETARD"
 
-#: apps/finance/templates/finance/statement.html:37
+#: apps/finance/templates/finance/statement.html:32
 msgctxt "fee"
 msgid "paid"
 msgstr "soldé"
 
-#: apps/finance/templates/finance/statement.html:37
+#: apps/finance/templates/finance/statement.html:32
 msgid "upcoming"
 msgstr "à venir"
 
-#: apps/finance/templates/finance/statement.html:45
+#: apps/finance/templates/finance/statement.html:40
 msgid "Total for the year"
 msgstr "Total de l'année"
 
-#: apps/finance/templates/finance/statement.html:46
+#: apps/finance/templates/finance/statement.html:41
 msgid "Already paid"
 msgstr "Déjà payé"
 
-#: apps/finance/templates/finance/statement.html:47
+#: apps/finance/templates/finance/statement.html:42
 #, python-format
 msgid "Overdue on %(date)s"
 msgstr "En retard au %(date)s"
 
-#: apps/finance/templates/finance/statement.html:48
+#: apps/finance/templates/finance/statement.html:43
 #: apps/finance/templates/finance/statement_verification.html:23
-#: apps/portal/templates/portal/receipt.html:43
+#: apps/portal/templates/portal/receipt.html:38
 msgid "Remaining for the year"
 msgstr "Reste de l'année"
 
-#: apps/finance/templates/finance/statement.html:51
+#: apps/finance/templates/finance/statement.html:46
 msgid "No fees due this year."
 msgstr "Aucun frais dû cette année."
 
-#: apps/finance/templates/finance/statement.html:55
+#: apps/finance/templates/finance/statement.html:50
 msgid "Payments received:"
 msgstr "Paiements reçus :"
 
-#: apps/finance/templates/finance/statement.html:56
+#: apps/finance/templates/finance/statement.html:51
 #, python-format
 msgid "receipt %(number)s of %(date)s cancelled"
 msgstr "reçu %(number)s du %(date)s annulé"
 
-#: apps/finance/templates/finance/statement.html:56
+#: apps/finance/templates/finance/statement.html:51
 #, python-format
 msgid "paid before the school started here (%(amount)s)"
 msgstr "payé avant que l'école n'utilise l'application (%(amount)s)"
 
-#: apps/finance/templates/finance/statement.html:56
+#: apps/finance/templates/finance/statement.html:51
 #, python-format
 msgid "%(number)s of %(date)s (%(amount)s)"
 msgstr "%(number)s du %(date)s (%(amount)s)"
 
-#: apps/finance/templates/finance/statement.html:60
+#: apps/finance/templates/finance/statement.html:55
 msgid "Information document: this is not a receipt."
 msgstr "Document d'information : ce n'est pas un reçu."
+
+#: apps/finance/templates/finance/statement.html:55
+#, python-format
+msgid "Printed on %(date)s at %(time)s by %(name)s"
+msgstr "Imprimé le %(date)s à %(time)s par %(name)s"
 
 #: apps/finance/templates/finance/statement_verification.html:2
 msgid "Financial statement verification"
@@ -3704,81 +3723,81 @@ msgstr "En retard"
 msgid "Students late with payments"
 msgstr "Élèves en retard de paiement"
 
-#: apps/finance/templates/finance/unpaid.html:22
+#: apps/finance/templates/finance/unpaid.html:18
 #, python-format
-msgid "Situation on %(date)s at %(time)s"
-msgstr "Situation au %(date)s à %(time)s"
+msgid "School year %(year)s · situation on %(date)s at %(time)s"
+msgstr "Année scolaire %(year)s · situation au %(date)s à %(time)s"
 
-#: apps/finance/templates/finance/unpaid.html:25
+#: apps/finance/templates/finance/unpaid.html:20
 #, python-format
 msgid "STUDENTS LATE WITH PAYMENTS — %(name)s"
 msgstr "ÉLÈVES EN RETARD DE PAIEMENT — %(name)s"
 
-#: apps/finance/templates/finance/unpaid.html:25
+#: apps/finance/templates/finance/unpaid.html:20
 msgid "STUDENTS LATE WITH PAYMENTS"
 msgstr "ÉLÈVES EN RETARD DE PAIEMENT"
 
-#: apps/finance/templates/finance/unpaid.html:26
+#: apps/finance/templates/finance/unpaid.html:21
 #, python-format
 msgid "%(late)s student out of %(total)s"
 msgid_plural "%(late)s students out of %(total)s"
 msgstr[0] "%(late)s élève sur %(total)s"
 msgstr[1] "%(late)s élèves sur %(total)s"
 
-#: apps/finance/templates/finance/unpaid.html:26
+#: apps/finance/templates/finance/unpaid.html:21
 #, python-format
 msgid "homeroom teacher: %(teacher)s"
 msgstr "titulaire : %(teacher)s"
 
-#: apps/finance/templates/finance/unpaid.html:33
+#: apps/finance/templates/finance/unpaid.html:28
 msgid "Guardian · phone"
 msgstr "Tuteur · téléphone"
 
-#: apps/finance/templates/finance/unpaid.html:34
+#: apps/finance/templates/finance/unpaid.html:29
 msgid "Late fees"
 msgstr "Frais en retard"
 
-#: apps/finance/templates/finance/unpaid.html:36
+#: apps/finance/templates/finance/unpaid.html:31
 msgid "Late by"
 msgstr "Retard"
 
-#: apps/finance/templates/finance/unpaid.html:37
+#: apps/finance/templates/finance/unpaid.html:32
 msgid "Last payment"
 msgstr "Dernier paiement"
 
-#: apps/finance/templates/finance/unpaid.html:46
+#: apps/finance/templates/finance/unpaid.html:41
 #, python-format
 msgid "%(count)s fee"
 msgid_plural "%(count)s fees"
 msgstr[0] "%(count)s frais"
 msgstr[1] "%(count)s frais"
 
-#: apps/finance/templates/finance/unpaid.html:48
-#: apps/finance/templates/finance/unpaid.html:57
+#: apps/finance/templates/finance/unpaid.html:43
+#: apps/finance/templates/finance/unpaid.html:52
 #, python-format
 msgid "%(days)s d"
 msgstr "%(days)s j"
 
-#: apps/finance/templates/finance/unpaid.html:54
+#: apps/finance/templates/finance/unpaid.html:49
 #, python-format
 msgid "due on %(date)s"
 msgstr "échéance du %(date)s"
 
-#: apps/finance/templates/finance/unpaid.html:62
-#: apps/finance/templates/finance/unpaid.html:75
+#: apps/finance/templates/finance/unpaid.html:57
+#: apps/finance/templates/finance/unpaid.html:70
 msgid "No student is late with payments."
 msgstr "Aucun élève en retard de paiement."
 
-#: apps/finance/templates/finance/unpaid.html:67
+#: apps/finance/templates/finance/unpaid.html:62
 msgid "Total for the class"
 msgstr "Total de la classe"
 
-#: apps/finance/templates/finance/unpaid.html:67
-#: apps/students/templates/students/registration_form.html:55
+#: apps/finance/templates/finance/unpaid.html:62
+#: apps/students/templates/students/registration_form.html:50
 msgid "Total"
 msgstr "Total"
 
-#: apps/finance/templates/finance/unpaid.html:72
+#: apps/finance/templates/finance/unpaid.html:67
 msgid ""
 "Late = due date passed and something left to pay. Amounts in each currency "
 "are shown separately, never converted or added up. Internal document."
@@ -4219,29 +4238,34 @@ msgstr "L'adresse doit commencer par https://."
 msgid "Choose at least one class."
 msgstr "Choisissez au moins une classe."
 
-#: apps/notifications/templates/notifications/circular.html:19
+#: apps/notifications/templates/notifications/circular.html:11
+#: apps/notifications/templates/notifications/summons.html:15
+msgid "Management"
+msgstr "Direction"
+
+#: apps/notifications/templates/notifications/circular.html:13
 msgid "To the staff of the school"
 msgstr "Au personnel de l'école"
 
-#: apps/notifications/templates/notifications/circular.html:19
+#: apps/notifications/templates/notifications/circular.html:13
 #, python-format
 msgid "To the parents of the students of: %(classes)s"
 msgstr "Aux parents des élèves de : %(classes)s"
 
-#: apps/notifications/templates/notifications/circular.html:19
+#: apps/notifications/templates/notifications/circular.html:13
 msgid "To all the parents"
 msgstr "À tous les parents"
 
-#: apps/notifications/templates/notifications/circular.html:22
-#: apps/notifications/templates/notifications/summons.html:33
+#: apps/notifications/templates/notifications/circular.html:16
+#: apps/notifications/templates/notifications/summons.html:27
 msgid "For the school,"
 msgstr "Pour l'école,"
 
-#: apps/notifications/templates/notifications/summons.html:22
-msgid "SUMMONS OF THE PARENTS"
-msgstr "CONVOCATION DES PARENTS"
+#: apps/notifications/templates/notifications/summons.html:15
+msgid "Summons of the parents"
+msgstr "Convocation des parents"
 
-#: apps/notifications/templates/notifications/summons.html:24
+#: apps/notifications/templates/notifications/summons.html:18
 #, python-format
 msgid ""
 "The parents or guardian of the student <b>%(name)s</b>, class "
@@ -4250,15 +4274,15 @@ msgstr ""
 "Les parents ou le tuteur de l'élève <b>%(name)s</b>, classe "
 "<b>%(class_name)s</b>, sont priés de se présenter à l'école :"
 
-#: apps/notifications/templates/notifications/summons.html:28
+#: apps/notifications/templates/notifications/summons.html:22
 msgid "Person to see"
 msgstr "Personne à voir"
 
-#: apps/notifications/templates/notifications/summons.html:29
+#: apps/notifications/templates/notifications/summons.html:23
 msgid "Reason"
 msgstr "Motif"
 
-#: apps/notifications/templates/notifications/summons.html:31
+#: apps/notifications/templates/notifications/summons.html:25
 msgid ""
 "Your presence is necessary. If you cannot come, please tell the school "
 "before that day."
@@ -4266,20 +4290,20 @@ msgstr ""
 "Votre présence est nécessaire. En cas d'empêchement, merci de prévenir "
 "l'école avant ce jour."
 
-#: apps/notifications/templates/notifications/summons.html:37
+#: apps/notifications/templates/notifications/summons.html:31
 msgid "SLIP TO RETURN TO THE SCHOOL"
 msgstr "COUPON À RENVOYER À L'ÉCOLE"
 
-#: apps/notifications/templates/notifications/summons.html:38
+#: apps/notifications/templates/notifications/summons.html:32
 #, python-format
 msgid "I have received the summons for %(date)s."
 msgstr "J'ai bien reçu la convocation pour le %(date)s."
 
-#: apps/notifications/templates/notifications/summons.html:39
+#: apps/notifications/templates/notifications/summons.html:33
 msgid "Name:"
 msgstr "Nom :"
 
-#: apps/notifications/templates/notifications/summons.html:39
+#: apps/notifications/templates/notifications/summons.html:33
 msgid "Signature:"
 msgstr "Signature :"
 
@@ -4368,7 +4392,7 @@ msgstr ""
 "contact principal."
 
 #: apps/portal/templates/portal/receipt.html:2
-#: apps/portal/templates/portal/receipt.html:24
+#: apps/portal/templates/portal/receipt.html:19
 #, python-format
 msgid "Receipt %(number)s"
 msgstr "Reçu n° %(number)s"
@@ -4380,29 +4404,29 @@ msgid ""
 msgstr ""
 "<b>Copie</b> téléchargée sur le portail des familles le %(date)s à %(time)s."
 
-#: apps/portal/templates/portal/receipt.html:38
+#: apps/portal/templates/portal/receipt.html:33
 msgid "Total received"
 msgstr "Total reçu"
 
-#: apps/portal/templates/portal/receipt.html:40
+#: apps/portal/templates/portal/receipt.html:35
 #, python-format
 msgid "Rate used: 1 $ = %(rate)s FC"
 msgstr "Taux utilisé : 1 $ = %(rate)s FC"
 
-#: apps/portal/templates/portal/receipt.html:42
+#: apps/portal/templates/portal/receipt.html:37
 msgid "Overdue remaining"
 msgstr "Reste en retard"
 
-#: apps/portal/templates/portal/receipt.html:45
+#: apps/portal/templates/portal/receipt.html:40
 #, python-format
 msgid "Note: %(note)s"
 msgstr "Note : %(note)s"
 
-#: apps/portal/templates/portal/receipt.html:47
+#: apps/portal/templates/portal/receipt.html:42
 msgid "The cashier"
 msgstr "Le caissier"
 
-#: apps/portal/templates/portal/receipt.html:48
+#: apps/portal/templates/portal/receipt.html:43
 #, python-format
 msgid "Check this receipt: %(verify_url)s"
 msgstr "Vérifier ce reçu : %(verify_url)s"
@@ -5150,14 +5174,14 @@ msgid "Overdue: %(amounts)s"
 msgstr "En retard : %(amounts)s"
 
 #: apps/students/documents.py:227
-#: apps/students/templates/students/class_list.html:23
-#: apps/students/templates/students/registration_form.html:27
+#: apps/students/templates/students/class_list.html:18
+#: apps/students/templates/students/registration_form.html:22
 msgid "Last name, middle name, first name"
 msgstr "Nom, post-nom, prénom"
 
 #: apps/students/documents.py:230
-#: apps/students/templates/students/class_list.html:24
-#: apps/students/templates/students/registration_form.html:28
+#: apps/students/templates/students/class_list.html:19
+#: apps/students/templates/students/registration_form.html:23
 msgid "Sex"
 msgstr "Sexe"
 
@@ -5166,12 +5190,12 @@ msgid "Date of birth"
 msgstr "Date de naissance"
 
 #: apps/students/documents.py:233
-#: apps/students/templates/students/class_list.html:25
+#: apps/students/templates/students/class_list.html:20
 msgid "Main contact's phone"
 msgstr "Téléphone du tuteur principal"
 
 #: apps/students/documents.py:236
-#: apps/students/templates/students/class_list.html:26
+#: apps/students/templates/students/class_list.html:21
 msgid "Payment status"
 msgstr "Situation des paiements"
 
@@ -5442,7 +5466,7 @@ msgid "email"
 msgstr "e-mail"
 
 #: apps/students/models.py:72
-#: apps/students/templates/students/registration_form.html:42
+#: apps/students/templates/students/registration_form.html:37
 msgid "main contact"
 msgstr "tuteur principal"
 
@@ -5710,36 +5734,41 @@ msgstr "Tuteur inconnu pour cette famille."
 msgid "Class list"
 msgstr "Liste de classe"
 
-#: apps/students/templates/students/class_list.html:13
-#, python-format
-msgid "Printed on %(date)s"
-msgstr "Imprimé le %(date)s"
+#: apps/students/templates/students/class_list.html:8
+#: apps/students/templates/students/registration_form.html:14
+msgid "Secretariat"
+msgstr "Secrétariat"
 
-#: apps/students/templates/students/class_list.html:16
+#: apps/students/templates/students/class_list.html:9
+#, python-format
+msgid "School year %(year)s · printed on %(date)s"
+msgstr "Année scolaire %(year)s · imprimé le %(date)s"
+
+#: apps/students/templates/students/class_list.html:11
 #, python-format
 msgid "LIST OF STUDENTS — %(name)s"
 msgstr "LISTE DES ÉLÈVES — %(name)s"
 
-#: apps/students/templates/students/class_list.html:17
+#: apps/students/templates/students/class_list.html:12
 #, python-format
 msgid "Homeroom teacher: %(teacher)s"
 msgstr "Titulaire : %(teacher)s"
 
-#: apps/students/templates/students/class_list.html:17
+#: apps/students/templates/students/class_list.html:12
 #, python-format
 msgid "Enrolment: <b>%(total)s</b>"
 msgstr "Effectif : <b>%(total)s</b>"
 
-#: apps/students/templates/students/class_list.html:17
+#: apps/students/templates/students/class_list.html:12
 #, python-format
 msgid "boys %(boys)s, girls %(girls)s"
 msgstr "garçons %(boys)s, filles %(girls)s"
 
-#: apps/students/templates/students/class_list.html:24
+#: apps/students/templates/students/class_list.html:19
 msgid "Born on"
 msgstr "Né le"
 
-#: apps/students/templates/students/class_list.html:41
+#: apps/students/templates/students/class_list.html:36
 msgid "No active student in this class."
 msgstr "Aucun élève actif dans cette classe."
 
@@ -5778,7 +5807,7 @@ msgid "Enter the family code opposite and choose a password."
 msgstr "Saisissez le code famille ci-contre et choisissez un mot de passe."
 
 #: apps/students/templates/students/invitation_letters.html:41
-#: apps/students/templates/students/registration_form.html:78
+#: apps/students/templates/students/registration_form.html:73
 msgid "FAMILY CODE"
 msgstr "CODE FAMILLE"
 
@@ -5799,64 +5828,64 @@ msgstr "Imprimé le %(date)s par %(printed_by)s"
 msgid "Registration form"
 msgstr "Fiche d'inscription"
 
-#: apps/students/templates/students/registration_form.html:19
+#: apps/students/templates/students/registration_form.html:15
 msgid "Photo"
 msgstr "Photo"
 
-#: apps/students/templates/students/registration_form.html:22
+#: apps/students/templates/students/registration_form.html:17
 msgid "REGISTRATION FORM"
 msgstr "FICHE D'INSCRIPTION"
 
-#: apps/students/templates/students/registration_form.html:23
+#: apps/students/templates/students/registration_form.html:18
 #, python-format
 msgid "School year %(year)s · enrolled on %(date)s"
 msgstr "Année scolaire %(year)s · inscrit le %(date)s"
 
-#: apps/students/templates/students/registration_form.html:28
+#: apps/students/templates/students/registration_form.html:23
 msgid "Born on, in"
 msgstr "Né le, à"
 
-#: apps/students/templates/students/registration_form.html:29
+#: apps/students/templates/students/registration_form.html:24
 msgid "Nationality"
 msgstr "Nationalité"
 
-#: apps/students/templates/students/registration_form.html:29
+#: apps/students/templates/students/registration_form.html:24
 msgid "Origin"
 msgstr "Origine"
 
-#: apps/students/templates/students/registration_form.html:34
+#: apps/students/templates/students/registration_form.html:29
 msgid "SCHOOLING"
 msgstr "SCOLARITÉ"
 
-#: apps/students/templates/students/registration_form.html:36
+#: apps/students/templates/students/registration_form.html:31
 msgid "Previous school"
 msgstr "École de provenance"
 
-#: apps/students/templates/students/registration_form.html:40
+#: apps/students/templates/students/registration_form.html:35
 msgid "FAMILY"
 msgstr "FAMILLE"
 
-#: apps/students/templates/students/registration_form.html:40
+#: apps/students/templates/students/registration_form.html:35
 msgid "Relationship"
 msgstr "Lien"
 
-#: apps/students/templates/students/registration_form.html:42
+#: apps/students/templates/students/registration_form.html:37
 msgid "emergency"
 msgstr "urgence"
 
-#: apps/students/templates/students/registration_form.html:44
+#: apps/students/templates/students/registration_form.html:39
 msgid "No guardian recorded."
 msgstr "Aucun tuteur enregistré."
 
-#: apps/students/templates/students/registration_form.html:50
+#: apps/students/templates/students/registration_form.html:45
 msgid "FEES FOR THE YEAR"
 msgstr "FRAIS DE L'ANNÉE"
 
-#: apps/students/templates/students/registration_form.html:50
+#: apps/students/templates/students/registration_form.html:45
 msgid "Due dates"
 msgstr "Échéances"
 
-#: apps/students/templates/students/registration_form.html:60
+#: apps/students/templates/students/registration_form.html:55
 msgid ""
 "The parent declares the above information to be accurate and undertakes to "
 "respect the school rules."
@@ -5864,7 +5893,7 @@ msgstr ""
 "Le parent déclare exacts les renseignements ci-dessus et s'engage à "
 "respecter le règlement de l'école."
 
-#: apps/students/templates/students/registration_form.html:61
+#: apps/students/templates/students/registration_form.html:56
 msgid ""
 "Photo: the parent agrees to its use on the student card and the parents' "
 "portal."
@@ -5872,7 +5901,7 @@ msgstr ""
 "Photo : le parent accepte son utilisation sur la carte d'élève et le portail "
 "des parents."
 
-#: apps/students/templates/students/registration_form.html:61
+#: apps/students/templates/students/registration_form.html:56
 msgid ""
 "Photo: the parent does not agree to its use on the student card and the "
 "parents' portal."
@@ -5880,37 +5909,37 @@ msgstr ""
 "Photo : le parent n'accepte pas son utilisation sur la carte d'élève et le "
 "portail des parents."
 
-#: apps/students/templates/students/registration_form.html:64
+#: apps/students/templates/students/registration_form.html:59
 msgid "Parent's signature"
 msgstr "Signature du parent"
 
-#: apps/students/templates/students/registration_form.html:65
+#: apps/students/templates/students/registration_form.html:60
 msgid "The school office"
 msgstr "Le secrétariat"
 
-#: apps/students/templates/students/registration_form.html:72
+#: apps/students/templates/students/registration_form.html:67
 msgid "Follow your child's schooling on your phone"
 msgstr "Suivez la scolarité de votre enfant sur votre téléphone"
 
-#: apps/students/templates/students/registration_form.html:73
+#: apps/students/templates/students/registration_form.html:68
 #, python-format
 msgid "Open <b>%(portal_url)s</b>"
 msgstr "Ouvrez <b>%(portal_url)s</b>"
 
-#: apps/students/templates/students/registration_form.html:74
+#: apps/students/templates/students/registration_form.html:69
 #, python-format
 msgid "Enter your number: <b>%(primary_phone)s</b>"
 msgstr "Saisissez votre numéro : <b>%(primary_phone)s</b>"
 
-#: apps/students/templates/students/registration_form.html:74
+#: apps/students/templates/students/registration_form.html:69
 msgid "Enter your phone number"
 msgstr "Saisissez votre numéro de téléphone"
 
-#: apps/students/templates/students/registration_form.html:75
+#: apps/students/templates/students/registration_form.html:70
 msgid "Enter the family code opposite and choose a password"
 msgstr "Saisissez le code famille ci-contre et choisissez un mot de passe"
 
-#: apps/students/templates/students/registration_form.html:80
+#: apps/students/templates/students/registration_form.html:75
 #, python-format
 msgid ""
 "Keep this code: it gives access to your children's information. Printed on "

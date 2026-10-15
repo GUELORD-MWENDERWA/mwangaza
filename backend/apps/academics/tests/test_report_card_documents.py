@@ -6,7 +6,7 @@ from decimal import Decimal
 
 import pytest
 
-from apps.academics.models import GradeSheet
+from apps.academics.models import Course, GradeSheet
 from apps.academics.report_card_documents import verification_path
 from apps.academics.report_cards import class_report
 from apps.academics.tests.test_grades import setup
@@ -101,6 +101,37 @@ def test_the_state_exam_column_spreads_over_any_number_of_rows():
         texts = [item for item in column if item]
         assert len(texts) == 16  # les cinq parties du formulaire, toutes présentes
         assert column[0].get("cols") and column[rows - 2]  # du haut au bas, sans trou à la fin
+
+
+def test_free_space_goes_below_the_frame_first_then_inside_little_by_little():
+    from apps.academics.report_card_documents import BODY_HEIGHT, _signature, _spread
+
+    # Une classe pleine garde les lignes du formulaire ; trop de cours : lignes plus basses.
+    assert _spread(35) == (4.4, 0.1) and _spread(40)[0] < 4.4
+    # Peu de cours : d'abord tout sous le cadre, puis une part dans le cadre, jusqu'à zéro.
+    height, outside = _spread(33)
+    assert (height, outside) == (4.4, round(BODY_HEIGHT - 33 * 4.4, 2))
+    heights = [_spread(rows)[0] for rows in range(35, 8, -1)]
+    outsides = [_spread(rows)[1] for rows in range(35, 8, -1)]
+    assert heights == sorted(heights) and outsides == sorted(outsides)
+    assert _spread(10)[0] == 9.0
+    # Signature : une case par période, examen + total (+ T.G. pour le dernier) en une seule.
+    kinds = ["period", "period", "exam", "group"] * 2
+    assert _signature(kinds, True) == [1, 1, 2, 1, 1, 3]
+
+
+def test_a_struck_course_stays_on_the_card_in_dashes_but_counts_for_nothing(
+    api, school, director, card
+):
+    with use_school(school):
+        Course.objects.filter(pk=card["workshop"].pk).update(is_taught=False)
+    context = api(director).get(url(card), enrollment=card["josue"], output="html").context
+    names = [
+        (line.get("name"), line.get("struck", False)) for line in context["lines"] if "name" in line
+    ]
+    assert names == [("Physique", False), ("Atelier", True)]
+    # Ni noté, ni dans les maxima (20 de la physique seulement), ni attendu en feuille validée.
+    assert context["totals"]["maximum"][0] == 20 and context["missing_count"] == 1
 
 
 def validate_all(school, data):

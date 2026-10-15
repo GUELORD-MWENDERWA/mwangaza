@@ -35,6 +35,9 @@ class Course(TenantModel):
     )
     # Atelier, laboratoire, pratique professionnelle : pas d'examen.
     has_exam = models.BooleanField(_("with exam"), default=True)
+    # Cours du formulaire que la classe ne suit pas (autre option) : barré sur le bulletin (tirets),
+    # ni noté ni compté dans les maxima.
+    is_taught = models.BooleanField(_("taught in this class"), default=True)
     # Vide tant que l'école ne l'a pas saisi ; servira à l'emploi du temps (EDT).
     weekly_hours = models.PositiveSmallIntegerField(
         _("hours per week"),
