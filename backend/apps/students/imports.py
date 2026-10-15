@@ -70,6 +70,8 @@ FIELDS = (
     "birth_place",
     "class_name",
     "matricule",
+    "national_id",
+    "permanent_number",
     "guardian_name",
     "guardian_phone",
 )
@@ -83,6 +85,8 @@ FIELD_LABELS = {
     "birth_place": _("Place of birth"),
     "class_name": _("Class"),
     "matricule": _("Student number"),
+    "national_id": _("National ID number"),
+    "permanent_number": _("Permanent number"),
     "guardian_name": _("Guardian name"),
     "guardian_phone": _("Guardian phone"),
 }
@@ -116,6 +120,23 @@ _TITLES = {
     },
     "class_name": {"classe", "class", "promotion", "classeoption"},
     "matricule": {"matricule", "mat", "numeromatricule", "studentnumber"},
+    "national_id": {
+        "nid",
+        "numid",
+        "numeroid",
+        "idnational",
+        "nationalid",
+        "nationalidnumber",
+        "nidnational",
+    },
+    "permanent_number": {
+        "nperm",
+        "numperm",
+        "numeropermanent",
+        "permanentnumber",
+        "permanent",
+        "npermanent",
+    },
     "guardian_name": {
         "nomdututeur",
         "nomduparent",
@@ -477,6 +498,8 @@ def _check(imp: StudentImport) -> tuple[dict, list[_Row]]:
             "birth_date": birth,
             "birth_place": values["birth_place"][:120],
             "matricule": number[:60],
+            "national_id": values["national_id"][:30],
+            "permanent_number": values["permanent_number"][:30],
         }
     counts = {"rows": len(rows), "ready": 0, "warning": 0, "error": 0}
     for row in rows:

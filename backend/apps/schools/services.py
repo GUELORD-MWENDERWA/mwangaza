@@ -47,6 +47,9 @@ IDENTITY_FIELDS = (
     "head_name",
     "head_title",
     "epst_code",
+    "province",
+    "city",
+    "commune",
     "regime",
 )
 # Ce que le journal de la plateforme garde en plus (`environment` : fixé à la création).

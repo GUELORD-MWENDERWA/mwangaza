@@ -1,88 +1,144 @@
-{% extends "core/print_base.html" %}{% load i18n %}
+{% extends "core/print_base.html" %}{% load i18n l10n %}
 {% block title %}{% translate "Report card" %}{% endblock %}
 {% block style %}
-body { font-size: 9pt; }
-.state { font-size: .88em; line-height: 1.3; }
-.frame { border: .8pt solid #101828; margin-top: 2.5mm; }
-.frame + .frame { border-top: 0; }
-.id { display: flex; font-size: .92em; line-height: 1.75; }
-.id > div { flex: 1; padding: 1.5mm 2.5mm; }
-.id > div + div { border-left: .8pt solid #101828; flex: 1.25; }
-.fill { display: inline-block; min-width: 24mm; border-bottom: .6pt dotted #475467; height: 1em; vertical-align: baseline; }
-.title { padding: 1.8mm; text-align: center; font-weight: 800; letter-spacing: .01em; }
-table.bul { margin-top: 2.5mm; font-size: .9em; }
-table.bul th, table.bul td { border: .6pt solid #101828; padding: .25em .3em; text-align: center; }
-table.bul th { background: #EDF1F6; font-size: .85em; }
-table.bul td:first-child, table.bul th:first-child { text-align: left; width: 34mm; }
-table.bul tr.mx td { background: #F2F4F7; font-weight: 700; font-size: .85em; }
-table.bul tr.tot td { font-weight: 700; }
-table.bul tr.tot td:first-child { background: #F2F4F7; }
-table.bul td.low { color: #B42318; font-weight: 800; }
-table.bul td.na { background: #EAECF0; }
-.decision { margin-top: 2.5mm; font-size: .92em; line-height: 1.55; }
-.foot { margin-top: 3mm; align-items: flex-end; font-size: .92em; }
-.qr { width: 22mm; height: 22mm; flex: none; }
-.sign { text-align: center; min-width: 45mm; }
-.sign span { display: block; margin-top: 14mm; border-top: .6pt solid #101828; }
-.legal { margin-top: 2mm; font-size: .8em; color: #475467; }
+{{ serif_fonts|safe }}
+/* Formulaire officiel de l'EPST (8.3.3) : mesures relevées sur le scan de la 3e HT, en mm ; page de
+   199,5 mm de large, hauteur du formulaire 279,5 mm. */
+@page { margin: 5mm; @bottom-right { content: none; } }
+body { font-family: "Liberation Serif", "Times New Roman", serif; font-size: 8pt; line-height: 1.15; color: #000; }
+.sheet { box-sizing: content-box; width: 199.5mm; height: 279.5mm; display: flex; flex-direction: column; border: .9pt solid #000; }
+.sheet > * { flex: none; }
+.sec { border-bottom: .8pt solid #000; }
+.top { height: 19.9mm; display: flex; align-items: center; padding: 0 3mm; }
+.top svg { width: 24mm; height: 16mm; flex: none; }
+.top .state { flex: 1; text-align: center; font-weight: 700; font-size: 12.5pt; line-height: 1.25; padding: 0 17mm 0 7mm; }
+.top .qr { width: 16mm; height: 16mm; flex: none; }
+.idrow { height: 12.3mm; display: flex; align-items: center; padding: 0 3mm; font-weight: 700; font-size: 9pt; }
+.idrow .label { width: 18.4mm; }
+.boxes { display: inline-flex; }
+.boxes span { display: inline-block; width: 5.08mm; height: 6mm; border: .6pt solid #000; margin-right: -.6pt; text-align: center; line-height: 6mm; font-size: 10pt; font-weight: 400; }
+.prov { height: 8.8mm; display: flex; align-items: center; padding: 0 3mm; font-weight: 700; font-size: 9pt; }
+.two { height: 28.2mm; display: flex; }
+.two > div { padding: 2mm 3mm 0; font-size: 8.5pt; line-height: 1; }
+.two .left { width: 93.8mm; border-right: .8pt solid #000; }
+.two .right { flex: 1; }
+.two .line { height: 6mm; display: flex; align-items: center; white-space: nowrap; }
+.two b { font-weight: 700; }
+.two .value { font-weight: 400; border-bottom: .5pt dotted #000; padding: 0 1mm; min-width: 10mm; display: inline-block; }
+.two .boxes span { width: 5.4mm; height: 5.2mm; line-height: 5.2mm; font-size: 8.5pt; }
+.titlebar { height: 5.8mm; display: flex; align-items: center; justify-content: space-between; padding: 0 2mm; font-weight: 700; font-size: 10pt; }
+table.bul { width: 199.5mm; table-layout: fixed; border-collapse: collapse; margin: 0; }
+table.bul th, table.bul td { border: .5pt solid #000; padding: 0 .6mm; text-align: center; vertical-align: middle; overflow: hidden; white-space: nowrap; line-height: 1; }
+table.bul tr.h1 { height: 4.4mm; }
+table.bul tr.h2 { height: 7.8mm; }
+table.bul tr.h3 { height: 4.4mm; }
+table.bul th { font-weight: 700; font-size: 8.5pt; white-space: normal; }
+table.bul th.branches { font-size: 9pt; letter-spacing: .08em; }
+{% localize off %}table.bul tr.b, table.bul tr.b > td { height: {{ row_height }}mm; font-size: {{ font_size }}pt; }{% endlocalize %}
+table.bul td.name { text-align: left; padding-left: 1mm; font-size: .9em; }
+table.bul td.mx { font-weight: 700; }
+table.bul td.k, table.bul th.k { background: #000; }
+table.bul td.sp, table.bul th.sp { background: #E4E4E4; }
+table.bul td.low { color: #B42318; }
+table.bul td.tot { font-weight: 700; }
+table.bul td.pn { border-top: 0; border-bottom: 0; text-align: left; padding-left: 1.2mm; font-size: 6.4pt; letter-spacing: -.02em; }
+table.bul td.bold { font-weight: 700; }
+table.bul td.pn .boxes span { width: 3.6mm; height: 3.6mm; line-height: 3.6mm; }
+.dots { display: inline-block; border-bottom: .5pt dotted #000; min-width: 22mm; height: 1em; vertical-align: baseline; }
+.under { flex: 1; display: flex; padding: 1.2mm 3mm 0; font-size: 7.5pt; line-height: 1.25; min-height: 0; overflow: hidden; border-top: .8pt solid #000; }
+.under .uleft { flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding-bottom: 1.5mm; }
+.under .uright { width: 62mm; text-align: center; padding-top: 3mm; }
+.under .signer { min-width: 0; width: 100%; }
+.under .signer__marks { height: 12mm; }
+.under .signer__stamp { max-height: 12mm; max-width: 22mm; }
+.under .signer__signature { max-height: 10mm; }
+.foot { padding: 0 3mm 1.5mm; font-size: 7pt; flex: none; }
+.legal { margin-top: .5mm; font-size: 6.5pt; color: #333; }
 {% endblock %}
 {% block content %}
-<div class="row between">
-  <div class="row">
-    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% endif %}
-    <div class="state"><b>{% translate "DEMOCRATIC REPUBLIC OF THE CONGO" %}</b><br>{% translate "Ministry of National Education and New Citizenship" %}</div>
+<div class="sheet">
+  <div class="sec top">
+    <svg viewBox="0 0 30 20" aria-hidden="true">
+      <rect width="30" height="20" fill="#00A3E0"/>
+      <polygon points="0,16.6 24.9,0 30,0 30,3.4 5.1,20 0,20" fill="#F7D618"/>
+      <polygon points="0,17.8 26.7,0 30,0 30,2.2 3.3,20 0,20" fill="#CE1021"/>
+      <polygon points="6,2.4 6.9,4.7 9.4,4.8 7.4,6.3 8.1,8.7 6,7.3 3.9,8.7 4.6,6.3 2.6,4.8 5.1,4.7" fill="#F7D618"/>
+    </svg>
+    <div class="state">{% translate "DEMOCRATIC REPUBLIC OF THE CONGO" %}<br>{% translate "MINISTRY OF PRIMARY, SECONDARY AND TECHNICAL EDUCATION" %}</div>
+    <img class="qr" src="{{ qr }}" alt="">
   </div>
-  <img class="qr" src="{{ qr }}" alt="">
-</div>
-
-<div class="frame id">
-  <div>
-    {% translate "SCHOOL" %} : <b>{{ school_name|upper }}</b><br>
-    {% translate "CODE" %} : {% if epst_code %}<b>{{ epst_code }}</b>{% else %}<span class="fill"></span>{% endif %}
-    {% if regime %}<br>{% translate "REGIME" %} : <b>{{ regime }}</b>{% endif %}
-    <br>{% translate "PROVINCE" %} : <span class="fill"></span>
-    <br>{% translate "TOWN" %} : <span class="fill"></span>
+  <div class="sec idrow"><span class="label">{% translate "ID NO." %} :</span><span class="boxes">{% for c in id_boxes %}<span>{{ c }}</span>{% endfor %}</span></div>
+  <div class="sec prov">{% translate "PROVINCE" %} : &nbsp;<span style="font-weight:400">{{ school.province|upper }}</span></div>
+  <div class="sec two">
+    <div class="left">
+      <div class="line"><b>{% translate "TOWN" %}</b>&nbsp;:&nbsp;<span class="value" style="width:60mm">{{ school.city }}</span></div>
+      <div class="line"><b>{% translate "COMMUNE / TERRITORY" %}</b>&nbsp;:&nbsp;<span class="value" style="width:40mm">{{ school.commune }}</span></div>
+      <div class="line"><b>{% translate "SCHOOL" %}</b>&nbsp;:&nbsp;<span class="value" style="width:68mm">{{ school_name }}</span></div>
+      <div class="line"><b>{% translate "CODE" %}</b>&nbsp;:&nbsp;<span class="boxes">{% for c in code_boxes %}<span>{{ c }}</span>{% endfor %}</span></div>
+    </div>
+    <div class="right">
+      <div class="line"><b>{% translate "STUDENT" %}</b>&nbsp;:&nbsp;<span class="value" style="width:56mm">{{ student.full_name|upper }}</span>&nbsp;<b>{% translate "SEX" %}</b>&nbsp;:&nbsp;{{ student.sex }}</div>
+      <div class="line"><b>{% translate "BORN AT" %}</b>&nbsp;:&nbsp;<span class="value" style="width:30mm">{{ student.birth_place }}</span>&nbsp;<b>{% translate "ON" %}</b>&nbsp;<span class="value" style="width:20mm">{{ student.birth_date|date:"d/m/Y" }}</span></div>
+      <div class="line"><b>{% translate "CLASS" %}</b>&nbsp;:&nbsp;<span class="value" style="width:68mm">{{ class_group }}</span></div>
+      <div class="line"><b>{% translate "PERM. NO." %}</b>&nbsp;:&nbsp;<span class="boxes">{% for c in perm_boxes %}<span>{{ c }}</span>{% endfor %}</span></div>
+    </div>
   </div>
-  <div>
-    {% translate "STUDENT" %} : <b>{{ student.full_name|upper }}</b> &nbsp; {% translate "SEX" %} : <b>{{ student.sex }}</b><br>
-    {% translate "BORN AT" %} : {% if student.birth_place %}<b>{{ student.birth_place }}</b>{% else %}<span class="fill"></span>{% endif %} &nbsp; {% translate "ON" %} {% if student.birth_date %}<b>{{ student.birth_date|date:"d/m/Y" }}</b>{% else %}<span class="fill"></span>{% endif %}<br>
-    {% translate "CLASS" %} : <b>{{ class_group }}</b><br>
-    {% translate "STUDENT NUMBER" %} : {% if student.matricule %}<b>{{ student.matricule }}</b>{% else %}<span class="fill"></span>{% endif %}
+  <div class="sec titlebar"><span>{% blocktranslate %}REPORT CARD OF {{ class_title }}{% endblocktranslate %}</span><span>{% blocktranslate %}SCHOOL YEAR {{ year }}{% endblocktranslate %}</span></div>
+
+  <div class="tw"><table class="bul">
+    <colgroup>{% localize off %}
+      <col style="width:{{ branch_width }}mm">{% for w in widths %}<col style="width:{{ w }}mm">{% endfor %}<col style="width:{{ spacer_width }}mm"><col style="width:{{ resit_widths.0 }}mm"><col style="width:{{ resit_widths.1 }}mm">
+    {% endlocalize %}</colgroup>
+    <tr class="h1">
+      <th rowspan="3" class="branches">{% translate "SUBJECTS" %}</th>
+      {% for group in groups %}<th colspan="{{ group.span }}">{{ group.label }}</th>{% endfor %}
+      {% if year_column %}<th rowspan="3">{{ year_column.label }}</th>{% endif %}
+      <th rowspan="3" class="{% if state_exam %}sp{% else %}k{% endif %}"></th>
+      {% if state_exam %}<th rowspan="3" colspan="2">{% translate "STATE EXAM" %}</th>{% else %}<th rowspan="2" colspan="2">{% translate "RESIT EXAM" %}</th>{% endif %}
+    </tr>
+    <tr class="h2">{% for h in head2 %}<th{% if h.colspan %} colspan="{{ h.colspan }}"{% endif %}{% if h.rowspan %} rowspan="{{ h.rowspan }}"{% endif %}>{{ h.label }}</th>{% endfor %}</tr>
+    <tr class="h3">{% for h in head3 %}<th>{{ h.label }}</th>{% endfor %}{% if not state_exam %}<th>%</th><th>{% translate "Teacher's sign." %}</th>{% endif %}</tr>
+    {% for line in lines %}
+    <tr class="b">
+      {% if line.maxima %}
+      <td class="name mx">{% translate "MAXIMA" %}</td>{% for m in line.maxima %}<td class="mx{% if not m %} k{% endif %}">{% if m %}{{ m }}{% endif %}</td>{% endfor %}
+      {% else %}
+      <td class="name">{{ line.name }}</td>{% for cell in line.cells %}<td class="{% if not cell.maximum %}k{% elif cell.low %}low{% endif %}">{% if cell.maximum %}{{ cell.score|default_if_none:""|floatformat:"-1" }}{% endif %}</td>{% endfor %}
+      {% endif %}
+      {% include "academics/_report_card_side.html" with item=line.side maxima=line.maxima %}
+    </tr>
+    {% endfor %}
+    {% for blank in blank_lines %}<tr class="b"><td class="name"></td>{% for w in widths %}<td></td>{% endfor %}{% include "academics/_report_card_side.html" with item=blank.side %}</tr>{% endfor %}
+    <tr class="b">
+      <td class="name mx">{% translate "GENERAL MAXIMA" %}</td>{% for v in totals.maximum %}<td class="tot">{% if v %}{{ v }}{% endif %}</td>{% endfor %}
+      {% include "academics/_report_card_side.html" with item=footer_side.0 %}
+    </tr>
+    <tr class="b"><td class="name mx">{% translate "TOTALS" %}</td>{% for v in totals.score %}<td class="tot">{{ v|default_if_none:""|floatformat:"-1" }}</td>{% endfor %}{% include "academics/_report_card_side.html" with item=footer_side.1 %}</tr>
+    <tr class="b"><td class="name">{% translate "PERCENTAGE" %}</td>{% for v in totals.percent %}<td>{{ v|default_if_none:""|floatformat:"-1" }}</td>{% endfor %}{% include "academics/_report_card_side.html" with item=footer_side.2 %}</tr>
+    <tr class="b"><td class="name">{% translate "PLACE / NUMBER OF STUDENTS" %}</td>{% for v in totals.place %}<td>{{ v }}</td>{% endfor %}{% include "academics/_report_card_side.html" with item=footer_side.3 %}</tr>
+    <tr class="b"><td class="name mx">{% translate "APPLICATION" %}</td>{% for c in columns %}<td{% if c.kind != "period" %} class="k"{% endif %}></td>{% endfor %}{% if year_column %}<td class="k"></td>{% endif %}{% include "academics/_report_card_side.html" with item=footer_side.4 %}</tr>
+    <tr class="b"><td class="name mx">{% translate "CONDUCT" %}</td>{% for c in columns %}<td{% if c.kind != "period" %} class="k"{% endif %}></td>{% endfor %}{% if year_column %}<td class="k"></td>{% endif %}{% include "academics/_report_card_side.html" with item=footer_side.5 %}</tr>
+    <tr class="b"><td class="name mx" style="font-size:7.3pt">{% translate "HEAD'S SIGNATURE" %}</td>{% for w in widths %}<td></td>{% endfor %}{% include "academics/_report_card_side.html" with item=footer_side.6 footer=1 %}</tr>
+  </table></div>
+
+  <div class="under">
+    <div class="uleft">
+      <div>
+        <div>- {% translate "The student may move up to the next class only after passing a resit exam in" %} <span class="dots" style="min-width:45mm"></span> (1)</div>
+        <div>- {% translate "The student moves up to the next class (1)" %}</div>
+        <div>- {% translate "The student repeats the class (1)" %}</div>
+        {% if state_exam %}<div>- {% translate "The student failed and is to be redirected to" %} <span class="dots" style="min-width:40mm"></span> (1)</div>{% endif %}
+      </div>
+      <div>{% translate "Student's signature" %}</div>
+    </div>
+    <div class="uright">
+      <div>{% blocktranslate with city=school.city date=day|date:"d/m/Y" %}Done at {{ city }}, on {{ date }}{% endblocktranslate %}</div>
+      {% if signer or stamp %}{% include "core/_signer.html" %}{% else %}<div>{% translate "The head of the school" %}</div><div style="height:15mm"></div><div>{% translate "Name and signature" %}</div>{% endif %}
+    </div>
+  </div>
+  <div class="foot">
+    <div>(1) {% translate "Strike out what does not apply." %} &nbsp; <b>{% translate "IMPORTANT NOTE" %}</b> : {% translate "This report card is void if it is crossed out or overwritten." %}</div>
+    <div class="legal">{% blocktranslate with date=printed_at|date:"d/m/Y" time=printed_at|time:"H:i" name=printed_by %}Printed on {{ date }} at {{ time }} by {{ name }}. Scan the QR code to check it.{% endblocktranslate %}</div>
   </div>
 </div>
-<div class="frame title">{% blocktranslate %}REPORT CARD — SCHOOL YEAR {{ year }}{% endblocktranslate %}</div>
-
-<table class="bul">
-  <thead>
-    <tr><th rowspan="2">{% translate "SUBJECTS" %}</th>{% for group in groups %}<th colspan="{{ group.span }}">{{ group.label }}</th>{% endfor %}{% if year_column %}<th rowspan="2">{{ year_column.label }}</th>{% endif %}</tr>
-    <tr>{% for column in columns %}<th>{{ column.label }}</th>{% endfor %}</tr>
-  </thead>
-  {% for line in lines %}{% if line.maxima %}
-  <tr class="mx"><td>{% translate "MAXIMA" %}</td>{% for m in line.maxima %}<td>{% if m %}{{ m }}{% endif %}</td>{% endfor %}</tr>
-  {% else %}
-  <tr><td>{{ line.name }}</td>{% for cell in line.cells %}<td class="{% if not cell.maximum %}na{% elif cell.low %}low{% endif %}">{% if cell.maximum %}{{ cell.score|default_if_none:""|floatformat:"-1" }}{% endif %}</td>{% endfor %}</tr>
-  {% endif %}{% endfor %}
-  <tr class="tot"><td>{% translate "GENERAL MAXIMA" %}</td>{% for v in totals.maximum %}<td>{% if v %}{{ v }}{% endif %}</td>{% endfor %}</tr>
-  <tr class="tot"><td>{% translate "TOTALS" %}</td>{% for v in totals.score %}<td>{{ v|default_if_none:""|floatformat:"-1" }}</td>{% endfor %}</tr>
-  <tr class="tot"><td>{% translate "PERCENTAGE" %}</td>{% for v in totals.percent %}<td>{{ v|default_if_none:""|floatformat:"-1" }}</td>{% endfor %}</tr>
-  <tr class="tot"><td>{% translate "PLACE / STUDENTS" %}</td>{% for v in totals.place %}<td>{{ v }}</td>{% endfor %}</tr>
-  <tr class="tot"><td>{% translate "MENTION" %}</td>{% for v in totals.mention %}<td>{{ v }}</td>{% endfor %}</tr>
-  <tr class="tot"><td>{% translate "APPLICATION" %}</td>{% for v in totals.maximum %}<td></td>{% endfor %}</tr>
-  <tr class="tot"><td>{% translate "CONDUCT" %}</td>{% for v in totals.maximum %}<td></td>{% endfor %}</tr>
-</table>
-
-<div class="decision">
-  - {% translate "The student moves up to the next class (1)" %}<br>
-  - {% translate "The student repeats the class (1)" %}<br>
-  - {% translate "The student may move up only after passing a resit exam in" %} <span class="fill" style="min-width:50mm"></span> (1)<br>
-  - {% translate "The student failed and is directed to" %} <span class="fill" style="min-width:50mm"></span> (1)
-</div>
-
-<div class="row between foot">
-  <div class="sign">{% translate "Student's signature" %}<span></span></div>
-  <div class="center">{% blocktranslate with date=day|date:"d/m/Y" %}Done on {{ date }}{% endblocktranslate %}<br>{% translate "The head of the school" %}<br>
-    {% if signer or stamp %}{% include "core/_signer.html" %}{% else %}<div class="sign">{% translate "Name, signature and stamp" %}<span></span></div>{% endif %}
-  </div>
-</div>
-<p class="legal">(1) {% translate "Strike out what does not apply." %} · {% translate "This report card is void if it is crossed out or overwritten." %} · {% blocktranslate with date=printed_at|date:"d/m/Y" time=printed_at|time:"H:i" name=printed_by %}Printed on {{ date }} at {{ time }} by {{ name }}. Scan the QR code to check it.{% endblocktranslate %}</p>
 {% endblock %}

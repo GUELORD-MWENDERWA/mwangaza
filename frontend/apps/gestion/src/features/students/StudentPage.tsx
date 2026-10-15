@@ -222,6 +222,8 @@ function IdentityTab({
               )}
             </Info>
             <Info label={t("students.new.birthPlace")}>{text(student.birth_place)}</Info>
+            <Info label={t("students.new.nationalId")}>{text(student.national_id)}</Info>
+            <Info label={t("students.new.permanentNumber")}>{text(student.permanent_number)}</Info>
             <Info label={t("students.new.nationality")}>{text(student.nationality)}</Info>
             <Info label={t("students.new.originProvince")}>{text(student.origin_province)}</Info>
             <Info label={t("students.new.originTerritory")}>{text(student.origin_territory)}</Info>

@@ -133,6 +133,10 @@ class School(BaseModel):
         validators=[RegexValidator(r"^\d{7}$", _("7 digits."))],
         help_text=_("Official code of the school, printed on report cards."),
     )
+    # Lieu de l'école, en tête du bulletin (8.3.3).
+    province = models.CharField(_("province"), max_length=60, blank=True)
+    city = models.CharField(_("town"), max_length=80, blank=True)
+    commune = models.CharField(_("commune or territory"), max_length=80, blank=True)
     # Régime de l'école (M5) : mentionné sur le bulletin.
     regime = models.CharField(_("school regime"), max_length=12, choices=Regime.choices, blank=True)
     # Q8 : choisie par l'école ; texte blanc ou encre choisi pour rester lisible (`colors.py`).
@@ -457,6 +461,12 @@ class Level(TenantModel):
     name = models.CharField(_("name"), max_length=40)
     cycle = models.CharField(_("cycle"), max_length=20, choices=Cycle.choices)
     order = models.PositiveSmallIntegerField(_("order"), default=0)
+    # Dernière année avant l'Examen d'État : le bulletin en reprend le bloc (8.3.3).
+    has_state_exam = models.BooleanField(
+        _("ends with the state exam"),
+        default=False,
+        help_text=_("The report card shows the state exam block instead of the resit exam."),
+    )
 
     class Meta:
         ordering = ["order", "name"]

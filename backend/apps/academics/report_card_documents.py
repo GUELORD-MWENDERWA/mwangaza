@@ -9,16 +9,14 @@ effectif) ; la page publique les montre avec l'élève en initiales
 Ce que disait le bulletin à la date d'impression : une note corrigée ensuite ne le rend pas faux,
 la page l'indique."""
 
-from collections import defaultdict
 from datetime import date
 
 from django.core import signing
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext
+from django.utils.translation import get_language, gettext
 from django.utils.translation import gettext_lazy as _
 
-from apps.academics.grades import term_label
 from apps.academics.report_cards import ClassReport, StudentReport, class_report
 from apps.core.documents import qr_code, school_header
 from apps.core.tenancy import require_current_school
@@ -70,45 +68,91 @@ def read_token(token: str) -> dict | None:
 
 
 def _group_label(term: Term, groups: list[Term]) -> str:
-    """« Premier semestre » : le nom du semestre ou du trimestre, sinon son rang dans l'année."""
+    """« PREMIER SEMESTRE » : le nom du semestre ou du trimestre, sinon son rang dans l'année."""
     if term.name:
-        return term.name
+        return term.name.upper()
     rank = [g.pk for g in groups if g.kind == term.kind].index(term.pk) + 1
-    if term.kind == Term.Kind.SEMESTER:
-        return gettext("Semester %(n)d") % {"n": rank}
-    return gettext("Trimester %(n)d") % {"n": rank}
+    ranks = {1: gettext("FIRST"), 2: gettext("SECOND"), 3: gettext("THIRD")}
+    unit = gettext("SEMESTER") if term.kind == Term.Kind.SEMESTER else gettext("TERM")
+    return f"{ranks.get(rank, rank)} {unit}"
 
 
-def _headers(report: ClassReport) -> tuple[list[dict], list[dict], dict]:
-    """En-tête à deux rangées : groupes (semestre ou trimestre, avec leurs colonnes) puis une
-    colonne chacune ; le T.G. s'étend sur les deux rangées."""
-    labels = {}
-    for column in report.columns:
-        if column.kind == "year":
-            labels[column.key] = "T.G."
-        elif column.kind == "group":
-            labels[column.key] = gettext("Total")
-        elif column.term.kind == Term.Kind.EXAM:
-            labels[column.key] = gettext("Exam")
-        else:
-            labels[column.key] = term_label(column.term)
+# Formulaire officiel (3e HT, scan à 150 ppp) : largeurs en mm de ses colonnes, de gauche à droite.
+FORM_WIDTH = 199.5
+BRANCH_WIDTH = 40.7
+YEAR_WIDTH = 15.1
+SPACER_WIDTH = 5.6  # colonne noircie entre le T.G. et le repêchage
+RESIT_WIDTHS = (9.6, 21.0)
+# Deux semestres de deux périodes, un examen et un total chacun : la structure du formulaire.
+STANDARD_KINDS = ["period", "period", "exam", "group"] * 2
+STANDARD_WIDTHS = [12.7, 15.2, 15.5, 15.3, 10.1, 10.3, 15.4, 13.1]
+BODY_HEIGHT = 154.1  # mm, de la première ligne MAXIMA à la signature du responsable
+ROW_HEIGHT = 4.4
+FOOTER_ROWS = 7  # maxima généraux, totaux, pourcentage, place, application, conduite, signature
+
+
+def _ordinal(n: int) -> str:
+    """« 1er », « 3e » (français) ou « 1st », « 3rd » (anglais) : la place dans la classe."""
+    if (get_language() or "fr").startswith("fr"):
+        return f"{n}er" if n == 1 else f"{n}e"
+    suffix = "th" if 10 <= n % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+    return f"{n}{suffix}"
+
+
+def _period_label(n: int) -> str:
+    return gettext("1st P.") if n == 1 else gettext("P%(n)d") % {"n": n}
+
+
+def _headers(report: ClassReport) -> dict:
+    """En-tête à trois rangées comme le formulaire : semestres (ou trimestres), « Travail
+    journalier » sur les périodes avec examen et total sur deux rangées, puis les périodes ; le
+    T.G. s'étend sur les trois."""
     terms = [c.term for c in report.columns if c.kind == "group"]
-    groups, cells, year = [], [], {}
+    cells, year, head2, head3, groups = [], None, [], [], []
+    run = 0  # périodes qui se suivent : une seule case « Travail journalier »
+    start = periods = 0
     for column in report.columns:
         if column.kind == "year":
-            year = {"key": column.key, "label": labels[column.key]}
+            year = {"key": column.key, "label": "T.G."}
             continue
-        cells.append({"key": column.key, "label": labels[column.key], "kind": column.kind})
-    # Un groupe finit par sa colonne de total : ses colonnes sont les précédentes depuis le dernier.
-    start = 0
-    for index, column in enumerate(c for c in report.columns if c.kind != "year"):
         if column.kind == "group":
-            span = index + 1 - start
-            groups.append({"label": _group_label(column.term, terms), "span": span})
-            start = index + 1
+            kind, label = "group", gettext("TOT.")
+        elif column.term.kind == Term.Kind.EXAM:
+            kind, label = "exam", gettext("EXAM.")
+        else:
+            kind, label = "period", ""
+        cells.append({"key": column.key, "kind": kind})
+        if kind == "period":
+            periods += 1
+            run += 1
+            head3.append({"label": _period_label(periods)})
+            continue
+        if run:
+            head2.append({"label": gettext("DAILY WORK."), "colspan": run})
+            run = 0
+        head2.append({"label": label, "rowspan": 2})
+        if kind == "group":
+            groups.append({"label": _group_label(column.term, terms), "span": len(cells) - start})
+            start = len(cells)
+    if run:
+        head2.append({"label": gettext("DAILY WORK."), "colspan": run})
     if start < len(cells):
         groups.append({"label": "", "span": len(cells) - start})
-    return groups, cells, year
+    standard = [c["kind"] for c in cells] == STANDARD_KINDS and year is not None
+    if standard:
+        widths = STANDARD_WIDTHS
+    else:
+        fixed = BRANCH_WIDTH + SPACER_WIDTH + sum(RESIT_WIDTHS) + (YEAR_WIDTH if year else 0)
+        free = FORM_WIDTH - fixed
+        widths = [round(free / len(cells), 2)] * len(cells)
+    return {
+        "groups": groups,
+        "head2": head2,
+        "head3": head3,
+        "cells": cells,
+        "year_column": year,
+        "widths": [*widths, *([YEAR_WIDTH] if year else [])],
+    }
 
 
 def _row(cells: dict, keys: list[str]) -> list[dict]:
@@ -130,7 +174,9 @@ def _body(report: ClassReport, student: StudentReport, keys: list[str]) -> list[
     suivant, comme sur le formulaire."""
     lines: list[dict] = []
     previous = None
-    for course in report.courses:
+    # Cours groupés par maxima, du plus petit au plus grand, comme sur le formulaire.
+    ordered = sorted(report.courses, key=lambda c: (c.period_max, not c.has_exam, c.name))
+    for course in ordered:
         row = _row(student.cells[course.pk], keys)
         maxima = tuple(cell["maximum"] for cell in row)
         if maxima != previous:
@@ -146,7 +192,7 @@ def _total_rows(student: StudentReport, keys: list[str], size: int) -> dict:
         "maximum": [t.maximum for t in totals],
         "score": [t.score for t in totals],
         "percent": [t.percent for t in totals],
-        "place": [f"{t.place}/{size}" if t.place else "" for t in totals],
+        "place": [f"{_ordinal(t.place)}/{size}" if t.place else "" for t in totals],
         "mention": [MENTION_LABELS[t.mention] if t.mention else "" for t in totals],
     }
 
@@ -158,33 +204,107 @@ def student_report(class_group: ClassGroup, enrollment_id) -> tuple[ClassReport,
     return report, found
 
 
+def _side_state(rows: int) -> list[dict]:
+    """Colonne de droite de la dernière année, ligne par ligne comme le formulaire : points de
+    l'Examen d'État, contrôle, centre, résultat final, témoignage. Un texte, deux colonnes
+    (`cols`) ou des cases (`boxes`)."""
+    items: list[dict] = [{} for _ in range(rows)]
+    slots = {
+        0: {"cols": (gettext("Points"), gettext("MAX"))},
+        1: {"cols": (gettext("Exam"), "")},
+        2: {"cols": ("%", "")},
+        4: {"text": gettext("For checking"), "bold": True},
+        5: {"text": gettext("On ...../...../....."), "dots": True},
+        7: {"text": gettext("The head of the centre")},
+        10: {"text": gettext("Centre code")},
+        11: {"boxes": range(5)},
+        14: {"text": gettext("FINAL RESULT"), "bold": True},
+        15: {"text": gettext("Diploma (1)")},
+        16: {"text": gettext("With ......... (%)")},
+        18: {"text": gettext("Failed (1)")},
+        21: {"text": gettext("As evidence"), "bold": True},
+        22: {"text": gettext("On ...../...../.....")},
+        24: {"text": gettext("The head of the school")},
+        28: {"text": gettext("School seal")},
+    }
+    for index, item in slots.items():
+        if index < rows:
+            items[index] = item
+    return items
+
+
+def _side_resit(rows: int) -> list[dict]:
+    """Pied de la colonne de droite des autres années : passe, double, date, chef, sceau (sept
+    lignes sous les totaux) ; au-dessus, les cases « % » et « Sign. prof. » à remplir."""
+    footer = [
+        {"text": gettext("- PASSED (1)")},
+        {"text": gettext("- REPEATS (1)")},
+        {"text": gettext("ON ...../...../20")},
+        {},
+        {"text": gettext("The head of the school")},
+        {"text": gettext("School seal")},
+        {},
+    ]
+    return [{"resit": True}] * (rows - FOOTER_ROWS) + footer
+
+
+def _boxes(value: str, count: int) -> list[str]:
+    """Une case par caractère, comme les cases à remplir du formulaire."""
+    return list(value[:count].ljust(count))
+
+
+def _code(value: str) -> str:
+    """Code de l'école comme sur le formulaire : « 2-610021 »."""
+    return f"{value[0]}-{value[1:]}" if len(value) == 7 and value.isdigit() else value
+
+
 def report_card_document(
     report: ClassReport, student: StudentReport, *, actor, absolute, day: date | None = None
 ) -> dict:
     """Contenu du PDF A4 du bulletin d'un élève ; `absolute` fait l'adresse complète du QR code."""
     school = require_current_school()
     day = day or timezone.localdate()
-    groups, columns, year = _headers(report)
+    head = _headers(report)
+    columns, year = head["cells"], head["year_column"]
     keys = [c["key"] for c in columns] + ([year["key"]] if year else [])
     size = len(report.students)
     person = student.enrollment.student
     class_group = report.class_group
-    by_domain: dict[str, int] = defaultdict(int)
-    for course in report.courses:
-        by_domain[course.domain] += 1
+    lines = _body(report, student, keys)
+    # Lignes vides jusqu'à la hauteur du formulaire : les cours d'une autre option y ont leur place.
+    blank = max(0, round(BODY_HEIGHT / ROW_HEIGHT) - FOOTER_ROWS - len(lines))
+    rows = len(lines) + blank + FOOTER_ROWS
+    side = _side_state(rows) if class_group.level.has_state_exam else _side_resit(rows)
+    for line, item in zip(lines, side, strict=False):
+        line["side"] = item
+    blank_lines = [{"side": item} for item in side[len(lines) : len(lines) + blank]]
+    row_height = min(ROW_HEIGHT, round(BODY_HEIGHT / rows, 2))
+    track = class_group.track.name if class_group.track_id else ""
     return {
         **school_header(school),
-        "epst_code": school.epst_code,
+        "epst_code": _code(school.epst_code),
+        "code_boxes": _boxes(_code(school.epst_code), 8),
+        "id_boxes": _boxes(person.national_id, 28),
+        "perm_boxes": _boxes(person.permanent_number, 15),
         "regime": school.get_regime_display() if school.regime else "",
+        "school": school,
         "student": person,
         "class_group": class_group.name,
+        "class_title": f"{class_group.level.name} {track}".strip(),
+        "state_exam": class_group.level.has_state_exam,
         "year": class_group.academic_year.name,
         "day": day,
         "printed_by": actor.get_full_name(),
-        "groups": groups,
+        **head,
         "columns": columns,
-        "year_column": year,
-        "lines": _body(report, student, keys),
+        "lines": lines,
+        "blank_lines": blank_lines,
+        "footer_side": side[len(lines) + blank :],
+        "row_height": row_height,
+        "font_size": round(min(9.0, row_height * 2.835 * 0.72), 2),
         "totals": _total_rows(student, keys, size),
+        "branch_width": BRANCH_WIDTH,
+        "resit_widths": RESIT_WIDTHS,
+        "spacer_width": SPACER_WIDTH,
         "qr": qr_code(absolute(verification_path(student, keys, size, day))),
     }

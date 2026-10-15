@@ -28,6 +28,8 @@ export function identityShape(t: TFunction) {
     sex: z.string().min(1, t("students.validation.sexRequired")),
     birth_date: z.string().min(1, t("validation.dateRequired")),
     birth_place: text(120),
+    national_id: text(30),
+    permanent_number: text(30),
     nationality: text(60),
     origin_province: text(60),
     origin_territory: text(80),
@@ -49,6 +51,8 @@ export type IdentityValues = {
   sex: string;
   birth_date: string;
   birth_place: string;
+  national_id: string;
+  permanent_number: string;
   nationality: string;
   origin_province: string;
   origin_territory: string;
@@ -64,6 +68,8 @@ export const IDENTITY_EMPTY: IdentityValues = {
   sex: "",
   birth_date: "",
   birth_place: "",
+  national_id: "",
+  permanent_number: "",
   nationality: "",
   origin_province: "",
   origin_territory: "",
@@ -190,6 +196,8 @@ export function IdentitySections<T extends IdentityValues>({
           </div>
           {field("birth_date", t("students.new.birthDate"), true, "date")}
           {field("birth_place", t("students.new.birthPlace"))}
+          {field("national_id", t("students.new.nationalId"))}
+          {field("permanent_number", t("students.new.permanentNumber"))}
           {field("nationality", t("students.new.nationality"))}
           {field("origin_province", t("students.new.originProvince"))}
           {field("origin_territory", t("students.new.originTerritory"))}

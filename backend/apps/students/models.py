@@ -95,6 +95,9 @@ class Student(TenantModel):
         Family, on_delete=models.PROTECT, related_name="students", verbose_name=_("family")
     )
     matricule = models.CharField(_("student number"), max_length=60, blank=True)
+    # N° ID (donné par l'EPST) et N° permanent de l'élève : en tête du bulletin (8.3.3).
+    national_id = models.CharField(_("national ID number"), max_length=30, blank=True)
+    permanent_number = models.CharField(_("permanent number"), max_length=30, blank=True)
     last_name = models.CharField(_("last name"), max_length=80)
     middle_name = models.CharField(_("middle name"), max_length=80, blank=True)
     first_name = models.CharField(_("first name"), max_length=80, blank=True)

@@ -55,6 +55,23 @@ def print_fonts() -> str:
     return "\n".join(rules)
 
 
+SERIF_FONTS = Path(__file__).parent / "static" / "core" / "fonts"
+
+
+@cache
+def serif_fonts() -> str:
+    """Police à empattements (Liberation Serif, métrique de Times) du bulletin : le formulaire
+    officiel est composé en Times, le PDF s'en approche sans dépendre des polices du serveur."""
+    rules = []
+    for weight, name in ((400, "Regular"), (700, "Bold")):
+        data = base64.b64encode((SERIF_FONTS / f"LiberationSerif-{name}.ttf").read_bytes()).decode()
+        rules.append(
+            '@font-face { font-family: "Liberation Serif"; '
+            f'font-weight: {weight}; src: url(data:font/ttf;base64,{data}) format("truetype"); }}'
+        )
+    return "\n".join(rules)
+
+
 def data_uri(field, kind: str | None, content_types: dict[str, str]) -> str:
     """Fichier (logo, photo) intégré au document ; vide s'il manque ou n'est plus lisible."""
     if not field or kind is None:
@@ -94,7 +111,13 @@ def render(template: str, context: dict, output: str, name: str) -> HttpResponse
     """`html` : aperçu dans la page (même origine seulement) ; `pdf` : fichier ouvert dans le
     navigateur, qui l'imprime ou l'enregistre."""
     html = render_to_string(
-        template, {"platform": PlatformSettings.load(), "print_fonts": print_fonts(), **context}
+        template,
+        {
+            "platform": PlatformSettings.load(),
+            "print_fonts": print_fonts(),
+            "serif_fonts": serif_fonts(),
+            **context,
+        },
     )
     if output == "html":
         response = HttpResponse(html, content_type=f"{HTML}; charset=utf-8")

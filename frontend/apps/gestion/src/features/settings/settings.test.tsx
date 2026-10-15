@@ -84,6 +84,9 @@ describe("Paramètres de l'école (M5)", () => {
       head_name: "",
       head_title: "",
       epst_code: "",
+      province: "",
+      city: "",
+      commune: "",
       regime: "",
       receipt: {
         printer: "sheet",

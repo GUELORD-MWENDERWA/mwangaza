@@ -59,6 +59,8 @@ _STUDENT_FIELDS = (
     "sex",
     "birth_date",
     "birth_place",
+    "national_id",
+    "permanent_number",
     "nationality",
     "origin_province",
     "origin_territory",

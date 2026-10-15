@@ -6255,6 +6255,8 @@ export interface components {
             birth_place: number | null;
             class_name: number | null;
             matricule: number | null;
+            national_id: number | null;
+            permanent_number: number | null;
             guardian_name: number | null;
             guardian_phone: number | null;
         };
@@ -6268,6 +6270,8 @@ export interface components {
             birth_place?: number | null;
             class_name?: number | null;
             matricule?: number | null;
+            national_id?: number | null;
+            permanent_number?: number | null;
             guardian_name?: number | null;
             guardian_phone?: number | null;
         };
@@ -6280,6 +6284,8 @@ export interface components {
             birth_place: string;
             class_name: string;
             matricule: string;
+            national_id: string;
+            permanent_number: string;
             guardian_name: string;
             guardian_phone: string;
         };
@@ -6375,6 +6381,11 @@ export interface components {
             name: string;
             cycle: components["schemas"]["CycleEnum"];
             readonly order: number;
+            /**
+             * Ends with the state exam
+             * @description The report card shows the state exam block instead of the resit exam.
+             */
+            has_state_exam: boolean;
         };
         LevelReorderRequest: {
             /** @description Tous les niveaux de l'école, dans l'ordre voulu. */
@@ -6383,6 +6394,11 @@ export interface components {
         LevelRequest: {
             name: string;
             cycle: components["schemas"]["CycleEnum"];
+            /**
+             * Ends with the state exam
+             * @description The report card shows the state exam block instead of the resit exam.
+             */
+            has_state_exam?: boolean;
         };
         LinkRequest: {
             /** @description Code famille remis par l'école. */
@@ -6537,11 +6553,13 @@ export interface components {
          *     * `birth_place` - birth_place
          *     * `class_name` - class_name
          *     * `matricule` - matricule
+         *     * `national_id` - national_id
+         *     * `permanent_number` - permanent_number
          *     * `guardian_name` - guardian_name
          *     * `guardian_phone` - guardian_phone
          * @enum {string}
          */
-        MissingFieldsEnum: "last_name" | "middle_name" | "first_name" | "sex" | "birth_date" | "birth_place" | "class_name" | "matricule" | "guardian_name" | "guardian_phone";
+        MissingFieldsEnum: "last_name" | "middle_name" | "first_name" | "sex" | "birth_date" | "birth_place" | "class_name" | "matricule" | "national_id" | "permanent_number" | "guardian_name" | "guardian_phone";
         /**
          * @description * `students` - Students, families and enrolments
          *     * `finance` - Fees, cash desk and payments
@@ -7274,6 +7292,7 @@ export interface components {
         PatchedLevelUpdateRequest: {
             name?: string;
             cycle?: components["schemas"]["CycleEnum"];
+            has_state_exam?: boolean;
         };
         PatchedMatriculeSettingsInputRequest: {
             /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
@@ -7348,6 +7367,11 @@ export interface components {
              * @description Official code of the school, printed on report cards.
              */
             epst_code?: string;
+            province?: string;
+            /** Town */
+            city?: string;
+            /** Commune or territory */
+            commune?: string;
             /** School regime */
             regime?: components["schemas"]["RegimeEnum"] | components["schemas"]["BlankEnum"];
             receipt?: components["schemas"]["ReceiptSettingsRequest"];
@@ -7395,6 +7419,9 @@ export interface components {
             birth_date?: string | null;
             /** Place of birth */
             birth_place?: string;
+            /** National ID number */
+            national_id?: string;
+            permanent_number?: string;
             nationality?: string;
             /** Province of origin */
             origin_province?: string;
@@ -8250,6 +8277,11 @@ export interface components {
              * @description Official code of the school, printed on report cards.
              */
             epst_code: string;
+            province: string;
+            /** Town */
+            city: string;
+            /** Commune or territory */
+            commune: string;
             /** School regime */
             regime: components["schemas"]["RegimeEnum"] | components["schemas"]["BlankEnum"];
             receipt: components["schemas"]["ReceiptSettings"];
@@ -8530,6 +8562,9 @@ export interface components {
             birth_date: string | null;
             /** Place of birth */
             birth_place: string;
+            /** National ID number */
+            national_id: string;
+            permanent_number: string;
             nationality: string;
             /** Province of origin */
             origin_province: string;
@@ -8831,6 +8866,9 @@ export interface components {
             birth_date?: string | null;
             /** Place of birth */
             birth_place?: string;
+            /** National ID number */
+            national_id?: string;
+            permanent_number?: string;
             nationality?: string;
             /** Province of origin */
             origin_province?: string;

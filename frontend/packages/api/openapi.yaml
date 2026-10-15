@@ -17290,6 +17290,14 @@ components:
           type: integer
           minimum: 0
           nullable: true
+        national_id:
+          type: integer
+          minimum: 0
+          nullable: true
+        permanent_number:
+          type: integer
+          minimum: 0
+          nullable: true
         guardian_name:
           type: integer
           minimum: 0
@@ -17307,6 +17315,8 @@ components:
       - birth_place
       - class_name
       - matricule
+      - national_id
+      - permanent_number
       - guardian_name
       - guardian_phone
     ImportMappingRequest:
@@ -17346,6 +17356,14 @@ components:
           type: integer
           minimum: 0
           nullable: true
+        national_id:
+          type: integer
+          minimum: 0
+          nullable: true
+        permanent_number:
+          type: integer
+          minimum: 0
+          nullable: true
         guardian_name:
           type: integer
           minimum: 0
@@ -17373,6 +17391,10 @@ components:
           type: string
         matricule:
           type: string
+        national_id:
+          type: string
+        permanent_number:
+          type: string
         guardian_name:
           type: string
         guardian_phone:
@@ -17386,6 +17408,8 @@ components:
       - birth_place
       - class_name
       - matricule
+      - national_id
+      - permanent_number
       - guardian_name
       - guardian_phone
     IncomingRequest:
@@ -17569,11 +17593,17 @@ components:
         order:
           type: integer
           readOnly: true
+        has_state_exam:
+          type: boolean
+          title: Ends with the state exam
+          description: The report card shows the state exam block instead of the resit
+            exam.
       required:
       - id
       - name
       - cycle
       - order
+      - has_state_exam
     LevelReorderRequest:
       type: object
       properties:
@@ -17594,6 +17624,11 @@ components:
           maxLength: 40
         cycle:
           $ref: '#/components/schemas/CycleEnum'
+        has_state_exam:
+          type: boolean
+          title: Ends with the state exam
+          description: The report card shows the state exam block instead of the resit
+            exam.
       required:
       - cycle
       - name
@@ -17910,6 +17945,8 @@ components:
       - birth_place
       - class_name
       - matricule
+      - national_id
+      - permanent_number
       - guardian_name
       - guardian_phone
       type: string
@@ -17922,6 +17959,8 @@ components:
         * `birth_place` - birth_place
         * `class_name` - class_name
         * `matricule` - matricule
+        * `national_id` - national_id
+        * `permanent_number` - permanent_number
         * `guardian_name` - guardian_name
         * `guardian_phone` - guardian_phone
     ModulesEnum:
@@ -19222,6 +19261,8 @@ components:
           maxLength: 40
         cycle:
           $ref: '#/components/schemas/CycleEnum'
+        has_state_exam:
+          type: boolean
     PatchedMatriculeSettingsInputRequest:
       type: object
       properties:
@@ -19339,6 +19380,17 @@ components:
             maxLength: 7
           - type: string
             maxLength: 0
+        province:
+          type: string
+          maxLength: 60
+        city:
+          type: string
+          title: Town
+          maxLength: 80
+        commune:
+          type: string
+          title: Commune or territory
+          maxLength: 80
         regime:
           title: School regime
           oneOf:
@@ -19424,6 +19476,13 @@ components:
           type: string
           title: Place of birth
           maxLength: 120
+        national_id:
+          type: string
+          title: National ID number
+          maxLength: 30
+        permanent_number:
+          type: string
+          maxLength: 30
         nationality:
           type: string
           maxLength: 60
@@ -21263,6 +21322,17 @@ components:
             maxLength: 7
           - type: string
             maxLength: 0
+        province:
+          type: string
+          maxLength: 60
+        city:
+          type: string
+          title: Town
+          maxLength: 80
+        commune:
+          type: string
+          title: Commune or territory
+          maxLength: 80
         regime:
           title: School regime
           oneOf:
@@ -21292,6 +21362,9 @@ components:
       - head_title
       - head_signature
       - epst_code
+      - province
+      - city
+      - commune
       - regime
       - receipt
       - alerts
@@ -21880,6 +21953,13 @@ components:
           type: string
           title: Place of birth
           maxLength: 120
+        national_id:
+          type: string
+          title: National ID number
+          maxLength: 30
+        permanent_number:
+          type: string
+          maxLength: 30
         nationality:
           type: string
           maxLength: 60
@@ -21928,6 +22008,8 @@ components:
       - sex
       - birth_date
       - birth_place
+      - national_id
+      - permanent_number
       - nationality
       - origin_province
       - origin_territory
@@ -22592,6 +22674,13 @@ components:
           type: string
           title: Place of birth
           maxLength: 120
+        national_id:
+          type: string
+          title: National ID number
+          maxLength: 30
+        permanent_number:
+          type: string
+          maxLength: 30
         nationality:
           type: string
           maxLength: 60

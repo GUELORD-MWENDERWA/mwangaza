@@ -9,6 +9,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CheckboxField,
   ConfirmDialog,
   DialogClose,
   DialogContent,
@@ -23,7 +24,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { applyServerErrors, errorMessage } from "../../lib/errors";
@@ -48,6 +49,7 @@ function useLevelSchema() {
       z.object({
         name: z.string().trim().min(1, t("validation.nameRequired")).max(40),
         cycle: z.string(),
+        has_state_exam: z.boolean(),
       }),
     [t],
   );
@@ -127,7 +129,10 @@ export function LevelsCard() {
             {list.map((level, index) => (
               <tr key={level.id}>
                 <td className="font-bold">{level.name}</td>
-                <td className="text-ink-2">{t(`cycles.${level.cycle}`)}</td>
+                <td className="text-ink-2">
+                  {t(`cycles.${level.cycle}`)}
+                  {level.has_state_exam && ` · ${t("organisation.levels.stateExamShort")}`}
+                </td>
                 <td className="whitespace-nowrap">
                   <Button
                     variant="ghost"
@@ -247,6 +252,19 @@ function LevelFields({
           </Select>
         )}
       </Field>
+      <Controller
+        control={form.control}
+        name="has_state_exam"
+        render={({ field }) => (
+          <CheckboxField
+            id={`${idPrefix}-state-exam`}
+            label={t("organisation.levels.stateExam")}
+            checked={field.value}
+            onCheckedChange={(checked) => field.onChange(checked === true)}
+            className="min-[600px]:col-span-3"
+          />
+        )}
+      />
     </>
   );
 }
@@ -255,7 +273,11 @@ function useLevelForm(level?: Level | null) {
   const schema = useLevelSchema();
   return useForm({
     resolver: zodResolver(schema),
-    values: { name: level?.name ?? "", cycle: level?.cycle ?? "secondary_general" },
+    values: {
+      name: level?.name ?? "",
+      cycle: level?.cycle ?? "secondary_general",
+      has_state_exam: level?.has_state_exam ?? false,
+    },
   });
 }
 
@@ -265,10 +287,10 @@ function LevelForm() {
   const form = useLevelForm();
   const [general, setGeneral] = useState<string | null>(null);
   const create = useMutation({
-    mutationFn: (body: { name: string; cycle: string }) =>
+    mutationFn: (body: { name: string; cycle: string; has_state_exam: boolean }) =>
       call(api.POST("/api/levels/", { body: { ...body, cycle: body.cycle as Cycle } })),
     onSuccess: async () => {
-      form.reset({ name: "", cycle: form.getValues("cycle") });
+      form.reset({ name: "", cycle: form.getValues("cycle"), has_state_exam: false });
       await refresh(keys.levels);
     },
     onError: (error) => setGeneral(applyServerErrors(error, ["name", "cycle"], form.setError, t)),
@@ -302,7 +324,7 @@ function LevelDialog({ level, onClose }: { level: Level | null; onClose: () => v
   const form = useLevelForm(level);
   const [general, setGeneral] = useState<string | null>(null);
   const save = useMutation({
-    mutationFn: (body: { name: string; cycle: string }) =>
+    mutationFn: (body: { name: string; cycle: string; has_state_exam: boolean }) =>
       call(
         api.PATCH("/api/levels/{id}/", {
           params: { path: { id: level!.id } },

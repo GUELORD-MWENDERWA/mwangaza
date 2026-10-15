@@ -49,6 +49,9 @@ const FIELDS = [
   "name",
   "official_name",
   "epst_code",
+  "province",
+  "city",
+  "commune",
   "regime",
   "head_name",
   "head_title",
@@ -107,6 +110,9 @@ function useSchema() {
             (value) => value === "" || /^\d{7}$/.test(value),
             t("settings.identity.epstCodeInvalid"),
           ),
+        province: z.string().trim().max(60),
+        city: z.string().trim().max(80),
+        commune: z.string().trim().max(80),
         regime: z.enum(["", "public", "convention", "private"]),
         head_name: z.string().trim().max(150),
         head_title: z.string().trim().max(100),
@@ -196,6 +202,9 @@ function SettingsForm({ settings }: { settings: Settings }) {
       name: settings.name,
       official_name: settings.official_name,
       epst_code: settings.epst_code,
+      province: settings.province,
+      city: settings.city,
+      commune: settings.commune,
       regime: settings.regime,
       head_name: settings.head_name,
       head_title: settings.head_title,
@@ -322,6 +331,24 @@ function IdentityCard({ form, code }: CardProps & { code: string }) {
           error={errors.epst_code?.message}
         >
           {(control) => <Input inputMode="numeric" {...control} {...form.register("epst_code")} />}
+        </Field>
+        <Field
+          id="school-province"
+          label={t("settings.identity.province")}
+          error={errors.province?.message}
+        >
+          {(control) => <Input {...control} {...form.register("province")} />}
+        </Field>
+        <Field id="school-city" label={t("settings.identity.city")} error={errors.city?.message}>
+          {(control) => <Input {...control} {...form.register("city")} />}
+        </Field>
+        <Field
+          id="school-commune"
+          label={t("settings.identity.commune")}
+          help={t("settings.identity.placeHelp")}
+          error={errors.commune?.message}
+        >
+          {(control) => <Input {...control} {...form.register("commune")} />}
         </Field>
         <Field
           id="school-regime"
