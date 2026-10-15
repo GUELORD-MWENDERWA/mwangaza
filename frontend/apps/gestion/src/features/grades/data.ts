@@ -74,3 +74,8 @@ export function useValidation() {
     queryFn: () => call(api.GET("/api/grading/validation/")),
   });
 }
+
+/** Bulletin (8.3.2) d'un élève de la classe : PDF ou son aperçu HTML. */
+export function reportCardUrl(classId: string, enrollmentId: string, output: "html" | "pdf") {
+  return `/api/class-groups/${classId}/report-card/?${new URLSearchParams({ enrollment: enrollmentId, output })}`;
+}

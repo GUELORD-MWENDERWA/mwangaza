@@ -1,4 +1,6 @@
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema
 from rest_framework.exceptions import PermissionDenied
@@ -6,7 +8,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.academics import courses, grades, official
+from apps.academics import courses, grades, official, report_card_documents
 from apps.academics.models import Course, GradeDeadline
 from apps.academics.serializers import (
     CoursesCopiedSerializer,
@@ -18,6 +20,7 @@ from apps.academics.serializers import (
     GradingSerializer,
     OfficialGridSerializer,
     ReopenSerializer,
+    ReportCardSerializer,
     SheetSerializer,
     SheetUpdateSerializer,
     TeachingLoadsFilterSerializer,
@@ -31,6 +34,9 @@ from apps.accounts.roles import (
     GRADES_ENTER_ANY,
     GRADES_VALIDATE,
 )
+from apps.audit import services as audit
+from apps.audit.actions import Action
+from apps.core.documents import PRINT_RESPONSE, render
 from apps.core.errors import ErrorSerializer
 from apps.schools import organisation
 from apps.schools.models import ClassGroup, Term
@@ -346,3 +352,40 @@ class GradeDeadlineView(APIView):
         serializer.is_valid(raise_exception=True)
         grades.set_deadline(period, serializer.validated_data["due_on"], actor=request.user)
         return Response(serializer.validated_data)
+
+
+@extend_schema(tags=["grades"])
+class ReportCardView(APIView):
+    """Bulletin d'un élève (8.3.2) : droit `grades.enter_any` ou `grades.validate`."""
+
+    permission_classes = [HasSchoolPermission]
+    required_permission = (GRADES_ENTER_ANY, GRADES_VALIDATE)
+    required_module = "academics"
+
+    @extend_schema(parameters=[ReportCardSerializer], responses={**PRINT_RESPONSE, **ERRORS})
+    def get(self, request: Request, pk) -> HttpResponse:
+        """Bulletin imprimable : PDF A4 ou son aperçu HTML, avec les places de la classe et un
+        QR code d'authenticité ; chaque PDF est noté dans le journal d'audit."""
+        params = ReportCardSerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        group = get_object_or_404(ClassGroup.objects.select_related("academic_year"), pk=pk)
+        report, student = report_card_documents.student_report(
+            group, params.validated_data["enrollment"]
+        )
+        if student is None:
+            raise Http404
+        output = params.validated_data["output"]
+        name = student.enrollment.student.full_name
+        if output == "pdf":
+            audit.record(
+                Action.GRADES_REPORT_CARD_PRINTED,
+                student.enrollment,
+                actor=request.user,
+                label=f"{name} · {group.name}",
+            )
+        context = report_card_documents.report_card_document(
+            report, student, actor=request.user, absolute=request.build_absolute_uri
+        )
+        return render(
+            "academics/report_card.html", context, output, f"bulletin-{slugify(name)}.pdf"
+        )

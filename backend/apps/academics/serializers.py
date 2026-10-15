@@ -301,3 +301,10 @@ class ValidationSerializer(serializers.Serializer):
     terms = TermSerializer(many=True)
     deadlines = DeadlineRowSerializer(many=True)
     sheets = PendingSheetSerializer(many=True, help_text="Envoyées, les plus anciennes d'abord.")
+
+
+class ReportCardSerializer(serializers.Serializer):
+    """Bulletin (8.3.2) d'un élève de la classe."""
+
+    enrollment = serializers.UUIDField(help_text="Inscription de l'élève dans cette classe.")
+    output = serializers.ChoiceField(choices=["pdf", "html"], help_text="PDF, ou son aperçu HTML.")

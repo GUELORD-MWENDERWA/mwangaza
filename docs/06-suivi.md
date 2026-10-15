@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (8.3.1 faite le 2026-10-15) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | 8.3.2 (bulletin PDF avec QR ; 8.3 découpée en trois le 2026-10-15) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Tâche en cours | aucune (8.3.2 faite le 2026-10-15) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | 8.3.3 (notes seules sur le formulaire pré-imprimé, impression par classe) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
 | Issue GitHub | aucune |
-| Branche | `tache/8.3.1-calcul-bulletin` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-15 (8.3.1 faite) |
+| Branche | `tache/8.3.2-bulletin-pdf` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-15 (8.3.2 faite) |
 
 ## Avancement
 
@@ -29,7 +29,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Lancement (L.0 à L.5, DOC.1 à DOC.3 ; L.3 remplacée par S.1 et S.2) | 8 | 8 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
 | Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 8 | 11 |
-| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.3, 8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 6 | 13 |
+| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.3, 8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 7 | 13 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
 | V1.5 — carte et présences (avec A.5) | 0 | 7 |
@@ -60,6 +60,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-15 — Tâche 8.3.2 : bulletin PDF
+- Fait : `GET /api/class-groups/{id}/report-card/` (PDF ou aperçu) : tableau du formulaire EPST d'après le calcul de 8.3.1 (une ligne de maxima chaque fois qu'ils changent, notes sous la moitié en rouge, totaux, %, place/effectif, mention), signature et cachet (DOC.1), QR vers `/v/b/<jeton>` (page publique, initiales). Écran `/app/report-cards` (classe, élève, aperçu, PDF). PDF noté au journal.
+- Tests : `test_report_card_documents.py` (contenu, droits, PDF audité, isolation de l'API et du jeton) ; traductions `.po` de 8.3.1 complétées.
+- Décisions : un seul gabarit pour humanités techniques et 7e–8e (colonnes d'après les périodes de l'année) ; province, ville, commune, N° ID, N° permanent : lignes à remplir à la main (pas de champ dans l'école) ; décision de passage laissée à biffer (8.4) ; droit = `grades.enter_any` ou `grades.validate`.
+- Suite : 8.3.3 (notes seules sur le formulaire pré-imprimé, classe en lot, démo).
 
 ### 2026-10-15 — Tâche 8.3.1 : calcul du bulletin
 - Fait : `academics/report_cards.py` calcule le bulletin d'une classe en une lecture des notes : colonnes (périodes, examens, total du semestre, T.G.), totaux par domaine, pourcentage, place (ex æquo), mention. Réglages de l'école : code EPST (7 chiffres) et régime (écran Paramètres, journal, démo `itig`). 8.3 découpée en 8.3.1 à 8.3.3.

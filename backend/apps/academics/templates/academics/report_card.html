@@ -1,0 +1,88 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% translate "Report card" %}{% endblock %}
+{% block style %}
+body { font-size: 9pt; }
+.state { font-size: .88em; line-height: 1.3; }
+.frame { border: .8pt solid #101828; margin-top: 2.5mm; }
+.frame + .frame { border-top: 0; }
+.id { display: flex; font-size: .92em; line-height: 1.75; }
+.id > div { flex: 1; padding: 1.5mm 2.5mm; }
+.id > div + div { border-left: .8pt solid #101828; flex: 1.25; }
+.fill { display: inline-block; min-width: 24mm; border-bottom: .6pt dotted #475467; height: 1em; vertical-align: baseline; }
+.title { padding: 1.8mm; text-align: center; font-weight: 800; letter-spacing: .01em; }
+table.bul { margin-top: 2.5mm; font-size: .9em; }
+table.bul th, table.bul td { border: .6pt solid #101828; padding: .25em .3em; text-align: center; }
+table.bul th { background: #EDF1F6; font-size: .85em; }
+table.bul td:first-child, table.bul th:first-child { text-align: left; width: 34mm; }
+table.bul tr.mx td { background: #F2F4F7; font-weight: 700; font-size: .85em; }
+table.bul tr.tot td { font-weight: 700; }
+table.bul tr.tot td:first-child { background: #F2F4F7; }
+table.bul td.low { color: #B42318; font-weight: 800; }
+table.bul td.na { background: #EAECF0; }
+.decision { margin-top: 2.5mm; font-size: .92em; line-height: 1.55; }
+.foot { margin-top: 3mm; align-items: flex-end; font-size: .92em; }
+.qr { width: 22mm; height: 22mm; flex: none; }
+.sign { text-align: center; min-width: 45mm; }
+.sign span { display: block; margin-top: 14mm; border-top: .6pt solid #101828; }
+.legal { margin-top: 2mm; font-size: .8em; color: #475467; }
+{% endblock %}
+{% block content %}
+<div class="row between">
+  <div class="row">
+    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% endif %}
+    <div class="state"><b>{% translate "DEMOCRATIC REPUBLIC OF THE CONGO" %}</b><br>{% translate "Ministry of National Education and New Citizenship" %}</div>
+  </div>
+  <img class="qr" src="{{ qr }}" alt="">
+</div>
+
+<div class="frame id">
+  <div>
+    {% translate "SCHOOL" %} : <b>{{ school_name|upper }}</b><br>
+    {% translate "CODE" %} : {% if epst_code %}<b>{{ epst_code }}</b>{% else %}<span class="fill"></span>{% endif %}
+    {% if regime %}<br>{% translate "REGIME" %} : <b>{{ regime }}</b>{% endif %}
+    <br>{% translate "PROVINCE" %} : <span class="fill"></span>
+    <br>{% translate "TOWN" %} : <span class="fill"></span>
+  </div>
+  <div>
+    {% translate "STUDENT" %} : <b>{{ student.full_name|upper }}</b> &nbsp; {% translate "SEX" %} : <b>{{ student.sex }}</b><br>
+    {% translate "BORN AT" %} : {% if student.birth_place %}<b>{{ student.birth_place }}</b>{% else %}<span class="fill"></span>{% endif %} &nbsp; {% translate "ON" %} {% if student.birth_date %}<b>{{ student.birth_date|date:"d/m/Y" }}</b>{% else %}<span class="fill"></span>{% endif %}<br>
+    {% translate "CLASS" %} : <b>{{ class_group }}</b><br>
+    {% translate "STUDENT NUMBER" %} : {% if student.matricule %}<b>{{ student.matricule }}</b>{% else %}<span class="fill"></span>{% endif %}
+  </div>
+</div>
+<div class="frame title">{% blocktranslate %}REPORT CARD — SCHOOL YEAR {{ year }}{% endblocktranslate %}</div>
+
+<table class="bul">
+  <thead>
+    <tr><th rowspan="2">{% translate "SUBJECTS" %}</th>{% for group in groups %}<th colspan="{{ group.span }}">{{ group.label }}</th>{% endfor %}{% if year_column %}<th rowspan="2">{{ year_column.label }}</th>{% endif %}</tr>
+    <tr>{% for column in columns %}<th>{{ column.label }}</th>{% endfor %}</tr>
+  </thead>
+  {% for line in lines %}{% if line.maxima %}
+  <tr class="mx"><td>{% translate "MAXIMA" %}</td>{% for m in line.maxima %}<td>{% if m %}{{ m }}{% endif %}</td>{% endfor %}</tr>
+  {% else %}
+  <tr><td>{{ line.name }}</td>{% for cell in line.cells %}<td class="{% if not cell.maximum %}na{% elif cell.low %}low{% endif %}">{% if cell.maximum %}{{ cell.score|default_if_none:""|floatformat:"-1" }}{% endif %}</td>{% endfor %}</tr>
+  {% endif %}{% endfor %}
+  <tr class="tot"><td>{% translate "GENERAL MAXIMA" %}</td>{% for v in totals.maximum %}<td>{% if v %}{{ v }}{% endif %}</td>{% endfor %}</tr>
+  <tr class="tot"><td>{% translate "TOTALS" %}</td>{% for v in totals.score %}<td>{{ v|default_if_none:""|floatformat:"-1" }}</td>{% endfor %}</tr>
+  <tr class="tot"><td>{% translate "PERCENTAGE" %}</td>{% for v in totals.percent %}<td>{{ v|default_if_none:""|floatformat:"-1" }}</td>{% endfor %}</tr>
+  <tr class="tot"><td>{% translate "PLACE / STUDENTS" %}</td>{% for v in totals.place %}<td>{{ v }}</td>{% endfor %}</tr>
+  <tr class="tot"><td>{% translate "MENTION" %}</td>{% for v in totals.mention %}<td>{{ v }}</td>{% endfor %}</tr>
+  <tr class="tot"><td>{% translate "APPLICATION" %}</td>{% for v in totals.maximum %}<td></td>{% endfor %}</tr>
+  <tr class="tot"><td>{% translate "CONDUCT" %}</td>{% for v in totals.maximum %}<td></td>{% endfor %}</tr>
+</table>
+
+<div class="decision">
+  - {% translate "The student moves up to the next class (1)" %}<br>
+  - {% translate "The student repeats the class (1)" %}<br>
+  - {% translate "The student may move up only after passing a resit exam in" %} <span class="fill" style="min-width:50mm"></span> (1)<br>
+  - {% translate "The student failed and is directed to" %} <span class="fill" style="min-width:50mm"></span> (1)
+</div>
+
+<div class="row between foot">
+  <div class="sign">{% translate "Student's signature" %}<span></span></div>
+  <div class="center">{% blocktranslate with date=day|date:"d/m/Y" %}Done on {{ date }}{% endblocktranslate %}<br>{% translate "The head of the school" %}<br>
+    {% if signer or stamp %}{% include "core/_signer.html" %}{% else %}<div class="sign">{% translate "Name, signature and stamp" %}<span></span></div>{% endif %}
+  </div>
+</div>
+<p class="legal">(1) {% translate "Strike out what does not apply." %} · {% translate "This report card is void if it is crossed out or overwritten." %} · {% blocktranslate with date=printed_at|date:"d/m/Y" time=printed_at|time:"H:i" name=printed_by %}Printed on {{ date }} at {{ time }} by {{ name }}. Scan the QR code to check it.{% endblocktranslate %}</p>
+{% endblock %}

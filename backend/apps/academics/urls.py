@@ -9,6 +9,11 @@ urlpatterns = [
         views.ClassCoursesCopyView.as_view(),
         name="class-courses-copy",
     ),
+    path(
+        "class-groups/<uuid:pk>/report-card/",
+        views.ReportCardView.as_view(),
+        name="report-card",
+    ),
     path("course-templates/", views.OfficialGridsView.as_view(), name="course-templates"),
     path("teaching-loads/", views.TeachingLoadsView.as_view(), name="teaching-loads"),
     path("grading/", views.GradingView.as_view(), name="grading"),

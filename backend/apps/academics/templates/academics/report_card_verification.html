@@ -1,0 +1,25 @@
+{% extends "finance/receipt_verification.html" %}{% load i18n %}
+{% block title %}{% translate "Report card verification" %}{% endblock %}
+{% block card %}<div class="card" data-state="{{ state }}">
+  <div class="state">
+    <div class="icon" aria-hidden="true">
+      {% if state == "valid" %}<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      {% else %}<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>{% endif %}
+    </div>
+    {% if state == "valid" %}
+    <h1>{% translate "Authentic report card" %}</h1>
+    <p>{% blocktranslate with date=day|date:"d/m/Y" %}This report card was issued by the school on {{ date }}. Compare the result below with the paper: a grade corrected since is not shown here.{% endblocktranslate %}</p>
+    {% else %}
+    <h1>{% translate "Unknown document" %}</h1>
+    <p>{% blocktranslate with school=school_name %}No document of {{ school }} matches this code. This document may be false: check with the school.{% endblocktranslate %}</p>
+    {% endif %}
+  </div>
+  {% if state == "valid" %}
+  <dl>
+    <div><dt>{% translate "School" %}</dt><dd>{{ school_name }}</dd></div>
+    <div><dt>{% translate "Student" %}</dt><dd>{{ student }} · {{ class_group }}</dd></div>
+    <div><dt>{% translate "School year" %}</dt><dd>{{ year }}</dd></div>
+    <div><dt>{% translate "Result" %}</dt><dd>{% if percent is not None %}{{ percent|floatformat:"-1" }} %{% if place %} · {% blocktranslate %}place {{ place }} of {{ size }}{% endblocktranslate %}{% endif %}{% else %}—{% endif %}</dd></div>
+  </dl>
+  {% endif %}
+</div>{% endblock %}
