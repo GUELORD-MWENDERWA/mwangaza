@@ -44,6 +44,7 @@ import { AppShell } from "./features/shell/AppShell";
 import { CreditsPage } from "./features/credits/CreditsPage";
 import { CancellationsPage } from "./features/cancellations/CancellationsPage";
 import { ClosingsPage } from "./features/closings/ClosingsPage";
+import { ReceiptRegisterPage } from "./features/closings/ReceiptRegisterPage";
 import { HomePage } from "./features/shell/HomePage";
 import { MenuScreen } from "./features/shell/MenuScreen";
 import { RequireAuth } from "./features/shell/RequireAuth";
@@ -121,6 +122,7 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
   },
   { path: "students/:id/:tab?", item: menuItem("students"), element: <StudentPage /> },
   { path: "families/:id", item: menuItem("students"), element: <FamilyPage /> },
+  { path: "cash-closings/register", item: menuItem("closings"), element: <ReceiptRegisterPage /> },
   { path: "unpaid/export", item: menuItem("unpaid"), element: <UnpaidExportPage /> },
   { path: "unpaid/statements", item: menuItem("unpaid"), element: <UnpaidStatementsPage /> },
 ];

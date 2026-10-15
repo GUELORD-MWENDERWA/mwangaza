@@ -32,6 +32,7 @@ import {
 } from "@mwangaza/ui";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { type ReactNode, useState } from "react";
+import { Link } from "react-router";
 
 import { fullName } from "../../lib/people";
 import { keys } from "../../lib/queries";
@@ -151,6 +152,12 @@ export function ClosingsPage() {
                 <Icon name="excel" size={16} />
                 {t("closings.excel")}
               </a>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/cash-closings/register">
+                <Icon name="print" size={16} />
+                {t("closings.register_.open")}
+              </Link>
             </Button>
           </div>
         }

@@ -1,8 +1,9 @@
 from django.db.models import Count, Prefetch, Q
 from django.http import HttpResponse
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
-from rest_framework import mixins, status
+from rest_framework import mixins, serializers, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.parsers import MultiPartParser
@@ -30,7 +31,15 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.documents import PRINT_RESPONSE, XLSX, XLSX_RESPONSE, file_response, render
 from apps.core.errors import ErrorSerializer
-from apps.finance import dashboard, documents, prior_payments, services, statements, unpaid
+from apps.finance import (
+    dashboard,
+    documents,
+    prior_payments,
+    receipt_register,
+    services,
+    statements,
+    unpaid,
+)
 from apps.finance.models import (
     CancellationRequest,
     CashRegister,
@@ -80,6 +89,7 @@ from apps.finance.serializers import (
     PaymentSerializer,
     PriorPaymentPreviewSerializer,
     PriorPaymentUploadSerializer,
+    ReceiptRegisterSerializer,
     RescheduleSerializer,
     StatementSerializer,
     StudentChargeFilterSerializer,
@@ -987,6 +997,55 @@ class UnpaidViewSet(mixins.ListModelMixin, SchoolViewSet):
             detail=data["detail"],
         )
         return render("finance/unpaid.html", context, output, f"{name}.pdf")
+
+
+@extend_schema(tags=["finance"])
+class ReceiptRegisterView(APIView):
+    """Registre des reçus (DOC.3) : un reçu par ligne, par période et par caisse, totaux par caisse
+    et par devise, cachet et signature du chef. Excel, PDF (3 000 reçus au plus) ou aperçu HTML ;
+    chaque fichier est tracé dans le journal d'audit (noms d'élèves et montants)."""
+
+    permission_classes = [HasSchoolPermission]
+    required_permission = FINANCE_VIEW_REPORTS
+
+    @extend_schema(
+        parameters=[ReceiptRegisterSerializer],
+        responses={**XLSX_RESPONSE, **PRINT_RESPONSE, **INVALID, **ERRORS},
+    )
+    def get(self, request: Request) -> HttpResponse:
+        params = ReceiptRegisterSerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        filters, output = params.filters(), params.validated_data["output"]
+        limit = (
+            receipt_register.MAX_XLSX_ROWS if output == "xlsx" else receipt_register.MAX_PDF_ROWS
+        )
+        rows = list(receipt_register.payments(filters)[: limit + 1])
+        if len(rows) > limit:
+            raise serializers.ValidationError(
+                {
+                    "end": _(
+                        "Too many receipts for one file (%(limit)s at most): shorten the period."
+                    )
+                    % {"limit": limit}
+                }
+            )
+        found = receipt_register.groups(rows)
+        if output != "html":
+            audit.record(
+                Action.FINANCE_RECEIPT_REGISTER_EXPORTED,
+                actor=request.user,
+                label=f"{output.upper()} · {filters.start:%d/%m/%Y} → {filters.end:%d/%m/%Y}",
+                after={
+                    "output": output,
+                    "receipts": len(rows),
+                    **{key: str(value) for key, value in request.query_params.items()},
+                },
+            )
+        name = f"registre-des-recus-{filters.start:%Y%m%d}-{filters.end:%Y%m%d}"
+        if output == "xlsx":
+            return file_response(documents.receipt_register_workbook(found), XLSX, f"{name}.xlsx")
+        context = documents.receipt_register_document(found, filters, actor=request.user)
+        return render("finance/receipt_register.html", context, output, f"{name}.pdf")
 
 
 @extend_schema(tags=["finance"])

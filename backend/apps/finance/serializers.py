@@ -6,7 +6,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
 
 from apps.core.money import Currency
-from apps.finance import services, statements, unpaid
+from apps.finance import receipt_register, services, statements, unpaid
 from apps.finance.models import (
     CancellationRequest,
     CashClosing,
@@ -678,6 +678,35 @@ class PaymentFilterSerializer(serializers.Serializer):
     search = serializers.CharField(
         required=False, help_text="Numéro de reçu, nom ou matricule de l'élève."
     )
+
+
+class ReceiptRegisterSerializer(serializers.Serializer):
+    """Registre des reçus (DOC.3) : période, caisse, format."""
+
+    start = serializers.DateField(help_text="Premier jour (inclus).")
+    end = serializers.DateField(
+        help_text="Dernier jour (inclus), 366 jours au plus après le premier."
+    )
+    cash_register = serializers.PrimaryKeyRelatedField(
+        queryset=CashRegister.objects, required=False, help_text="Absent : toutes les caisses."
+    )
+    output = serializers.ChoiceField(
+        choices=["xlsx", "pdf", "html"], help_text="Excel, PDF, ou aperçu HTML du PDF."
+    )
+
+    def validate(self, data):
+        days = (data["end"] - data["start"]).days
+        if days < 0:
+            raise serializers.ValidationError({"end": _("The end is before the start.")})
+        if days >= receipt_register.MAX_DAYS:
+            raise serializers.ValidationError(
+                {"end": _("The period cannot be longer than one year.")}
+            )
+        return data
+
+    def filters(self) -> receipt_register.Filters:
+        data = self.validated_data
+        return receipt_register.Filters(data["start"], data["end"], data.get("cash_register"))
 
 
 # Crédits d'élèves (3.6.1, M14)

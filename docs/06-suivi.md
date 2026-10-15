@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | DOC.2 finie (2026-10-15, PR en attente de fusion) ; ensuite DOC.3 ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | L.4 (toi : vrais téléphones et imprimantes), puis le premier espace réel (`A-FAIRE.md` § 9 quater) ; côté Claude : DOC.3 Registre des reçus (avant L.4), puis 8.2.2 |
-| Issue GitHub | #252 |
-| Branche | `tache/DOC.2-recu-bande-registre` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune (DOC.3 finie le 2026-10-15, PR en attente de fusion) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | L.4 (toi : vrais téléphones et imprimantes), puis le premier espace réel (`A-FAIRE.md` § 9 quater) ; côté Claude : 8.2.2 |
+| Issue GitHub | #254 |
+| Branche | `tache/DOC.3-registre-des-recus` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-15 (8.2.1 faite) |
 
 ## Avancement
@@ -26,7 +26,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Lancement — version finie (4.12 à 4.22, 4.7.1 ; 4.17 et 4.20 en deux) | 14 | 14 |
 | **V1.0** | **67** | **67** |
 | V1.1 — plateforme, notifications, communication | 12 | 12 |
-| Lancement (L.0 à L.5, DOC.1 à DOC.3 ; L.3 remplacée par S.1 et S.2) | 6 | 8 |
+| Lancement (L.0 à L.5, DOC.1 à DOC.3 ; L.3 remplacée par S.1 et S.2) | 7 | 8 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
 | Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 8 | 11 |
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3, 8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 3 | 11 |
@@ -61,6 +61,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-15 — Tâche DOC.3 : registre des reçus
+- Fait : `GET /api/receipt-register/` (`finance.view_reports`) : un reçu par ligne sur une période (un an au plus) et pour une caisse ou toutes, totaux par caisse et par devise, annulés listés mais hors totaux, cachet et signature du chef ; Excel, PDF, aperçu HTML. Écran « Registre des reçus » (jour, mois ou dates) depuis les Clôtures de caisse ; maquette `registre-recus`.
+- Tests : droits (403), isolation (autre école, caisse d'une autre école), totaux et annulés, filtres, audit des fichiers, plafonds ; écran. Traductions du serveur : entrées vides ou approximatives de DOC.1 corrigées au passage.
+- Décision : **pas de tâche de fond** (Celery) : une requête bornée (366 jours, PDF 3 000 reçus, Excel 50 000) suffit, sans table ni file de plus (`03` journal).
+- Suite : L.4 (toi), puis 8.2.2.
 
 ### 2026-10-15 — Tâche DOC.2 : reçu en bande
 - Fait : reçu sur imprimante ordinaire = **un reçu par feuille** de 21 cm de large, **demi A4** (14,8 cm) ou **tiers d'A4** (9,9 cm, deux colonnes) ; `a6`/`a5`/`small` retirés, réglage `copies` retiré (migration `schools.0017` convertit les écoles existantes) ; le bordereau et le reçu d'annulation suivent le même format ; carte « Reçus » simplifiée.

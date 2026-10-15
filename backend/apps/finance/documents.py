@@ -11,7 +11,7 @@ from apps.accounts.phone import format_phone
 from apps.core.documents import Formatted, qr_code, school_header, workbook
 from apps.core.money import DECIMALS, SYMBOLS, Currency, Money, format_amount
 from apps.core.tenancy import require_current_school
-from apps.finance import services, statements, unpaid
+from apps.finance import receipt_register, services, statements, unpaid
 from apps.finance.models import CashClosing, CashRegister
 from apps.schools.receipts import receipt_settings
 
@@ -338,4 +338,125 @@ def statement_document(items: list[statements.Statement], *, actor, absolute, **
         "day": services.today(),
         "printed_by": actor.get_full_name(),
         "pages": [_statement_page(item, absolute, **options) for item in items],
+    }
+
+
+# Registre des reçus (DOC.3)
+
+
+def _cashier_name(user) -> str:
+    return user.get_full_name() or str(user.phone)
+
+
+def receipt_register_workbook(found: list[receipt_register.Group]) -> bytes:
+    """Une ligne par reçu, pour trier et filtrer dans Excel ; en bas, les totaux de chaque caisse
+    puis de toutes, une ligne par devise (reçus annulés exclus, comptés dans leur colonne)."""
+
+    def lines():
+        for group in found:
+            for payment in group.payments:
+                cancelled = receipt_register.is_cancelled(payment)
+                enrollment, currency = payment.enrollment, payment.received_currency
+                paid_at = timezone.localtime(payment.paid_at).replace(tzinfo=None)
+                yield [
+                    group.cash_register.name,
+                    payment.receipt_number,
+                    paid_at,
+                    paid_at,
+                    enrollment.student.matricule,
+                    _student_name(enrollment.student),
+                    enrollment.class_group.name,
+                    _money(payment.received_amount_minor, currency),
+                    SYMBOLS[currency],
+                    _cashier_name(payment.cashier),
+                    gettext("Cancelled") if cancelled else gettext("Valid"),
+                    payment.cancellation.receipt_number if cancelled else "",
+                ]
+        yield [None] * 12
+        blocks = [(group.cash_register.name, list(group.totals.values())) for group in found]
+        blocks.append((gettext("All cash registers"), receipt_register.grand_totals(found)))
+        for name, totals in blocks:
+            for total in totals:
+                yield [
+                    gettext("Total · %(name)s") % {"name": name},
+                    None,
+                    None,
+                    None,
+                    None,
+                    gettext("%(count)s receipts, %(cancelled)s cancelled")
+                    % {"count": total.count, "cancelled": total.cancelled_count},
+                    None,
+                    _money(total.minor, total.currency),
+                    SYMBOLS[total.currency],
+                ]
+
+    return workbook(
+        [
+            gettext("Cash register"),
+            gettext("Receipt number"),
+            gettext("Date"),
+            gettext("Time"),
+            gettext("Student number"),
+            gettext("Student"),
+            gettext("Class"),
+            gettext("Amount"),
+            gettext("Currency"),
+            gettext("Cashier"),
+            gettext("Status"),
+            gettext("Cancellation receipt"),
+        ],
+        lines(),
+        title=gettext("Receipt register"),
+        widths=[20, 22, 12, 8, 16, 32, 18, 14, 8, 24, 12, 22],
+        formats=[None, None, "dd/mm/yyyy", "hh:mm"],
+    )
+
+
+def receipt_register_document(
+    found: list[receipt_register.Group], filters: receipt_register.Filters, *, actor
+) -> dict:
+    """Contenu du PDF A4 : un tableau par caisse avec ses totaux, puis les totaux de toutes les
+    caisses, le cachet et la signature du chef (`core/_signer.html`)."""
+    school = require_current_school()
+    sections = []
+    for group in found:
+        rows = []
+        for payment in group.payments:
+            enrollment, currency = payment.enrollment, payment.received_currency
+            rows.append(
+                {
+                    "number": payment.receipt_number,
+                    "paid_at": timezone.localtime(payment.paid_at),
+                    "student": _student_name(enrollment.student),
+                    "class_group": enrollment.class_group.name,
+                    "amount": format_amount(payment.received_amount_minor, currency),
+                    "cashier": _cashier_name(payment.cashier),
+                    "cancelled": receipt_register.is_cancelled(payment),
+                }
+            )
+        sections.append(
+            {
+                "name": group.cash_register.name,
+                "rows": rows,
+                "totals": [_total_line(total) for total in group.totals.values()],
+            }
+        )
+    return {
+        **school_header(school),
+        "start": filters.start,
+        "end": filters.end,
+        "register": filters.cash_register.name if filters.cash_register else "",
+        "printed_by": actor.get_full_name(),
+        "sections": sections,
+        "grand_totals": [_total_line(total) for total in receipt_register.grand_totals(found)],
+        "receipts": sum(len(group.payments) for group in found),
+    }
+
+
+def _total_line(total: receipt_register.Totals) -> dict:
+    return {
+        "count": total.count,
+        "amount": format_amount(total.minor, total.currency),
+        "cancelled_count": total.cancelled_count,
+        "cancelled": format_amount(total.cancelled_minor, total.currency),
     }

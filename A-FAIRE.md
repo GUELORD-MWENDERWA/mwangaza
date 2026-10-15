@@ -271,6 +271,7 @@ Rien pour l'instant.
 | http://itig.localhost:5173/app/fees | Frais : types, barèmes, tranches, taux de l'année (comptable) |
 | http://itig.localhost:5173/app/fees/prior-payments | Reprise en cours d'année : importer ce que chaque élève avait payé avant Mwangaza (directeur, comptable) |
 | http://itig.localhost:5173/app/cancellations · …/app/cash-closings · …/app/credits | Annulations à valider ; clôtures de caisse ; crédits d'élèves (comptable) |
+| http://itig.localhost:5173/app/cash-closings/register | Registre des reçus (jour, mois ou dates ; PDF et Excel) |
 | http://itig.localhost:5173/app/announcements | Annonces aux familles ou au personnel : rédiger, joindre un PDF, archiver, « lue par N familles », « Circulaire à imprimer » (directeur) |
 | http://itig.localhost:5173/app/staff-news · …/app/calendar | Annonces au personnel et calendrier de l'école : lus par tous les rôles (enseignant `0000001008`) ; le directeur, la secrétaire, les directeurs des études et de discipline ajoutent des événements |
 | http://itig.localhost:5173/app/summons | Convocations des parents : choisir l'élève, le jour, l'heure, le motif ; lettre PDF ; « vue par le parent » (directeur de discipline `0000001003`) |

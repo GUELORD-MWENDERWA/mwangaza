@@ -1387,6 +1387,7 @@ export const fr = {
         cancellation_rejected: "Annulation de paiement refusée",
         cancellation_reprinted: "Reçu d'annulation réimprimé",
         unpaid_exported: "Impayés exportés",
+        receipt_register_exported: "Registre des reçus exporté",
         statement_printed: "Situation financière imprimée",
       },
       devices: {
@@ -2786,6 +2787,25 @@ export const fr = {
     },
   },
   closings: {
+    register_: {
+      crumb: "Registre des reçus",
+      title: "Registre des reçus",
+      subtitle:
+        "Un reçu par ligne, par période et par caisse : il remplace la souche. Les reçus annulés restent listés, sans être comptés.",
+      period: "Période",
+      day: "Un jour",
+      month: "Un mois",
+      range: "Dates",
+      from: "Du",
+      to: "Au",
+      order: "La date de fin est avant la date de début.",
+      pdf: "PDF",
+      preview: "Aperçu du registre",
+      excelTitle: "Fichier Excel",
+      excelHelp:
+        "Une ligne par reçu : caisse, numéro, date, heure, élève, classe, montant, devise, caissier, état et reçu d'annulation ; les totaux de chaque caisse en bas, par devise. Une année au plus ; 3 000 reçus au plus pour le PDF.",
+      open: "Registre des reçus",
+    },
     title: "Clôtures de caisse",
     subtitle:
       "Chaque soir, chaque caissier compte l'argent de sa caisse. Ici, vous voyez les écarts et les sessions restées ouvertes.",

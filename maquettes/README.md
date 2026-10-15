@@ -68,6 +68,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Impayés | `gestion/impayes.html` | V1.0 | G1–G2 | fournie ; écart : pas de bouton « Envoyer une relance » (relances automatiques, 5.6.2) |
 | Situation financière imprimable | `gestion/situation-financiere.html` | V1.0 | G2 · M17 | à valider |
 | Export des impayés (PDF par classe, Excel) | `gestion/impayes-export.html` | V1.0 | G1 · M17 | à valider |
+| Registre des reçus (PDF, Excel) | `gestion/registre-recus.html` | V1.0 | DOC.3 | à valider (dessinée d'après l'export des impayés ; pas de capture PNG) |
 | Annonces | `gestion/annonces.html` | V1.0 | H4 | fournie |
 | Annonces au personnel | `gestion/annonces-personnel.html` | V1.1 | 5.7 | dessinée par Claude en 5.7 d'après `console/annonces` (à valider) ; codée en 5.7 |
 | Calendrier de l'école | `gestion/calendrier.html` | V1.1 | 5.7 | dessinée par Claude en 5.7 d'après `gestion/annonces` (à valider) ; codée en 5.7 — écart : le formulaire s'ouvre dans une fenêtre, pas dans une colonne |
