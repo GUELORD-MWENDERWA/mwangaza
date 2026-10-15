@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-15 18:48+0200\n"
+"POT-Creation-Date: 2026-10-15 19:19+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -90,12 +90,12 @@ msgstr "Période %(n)d"
 msgid "Exams"
 msgstr "Examens"
 
-#: apps/academics/grades.py:157 apps/academics/report_card_documents.py:76
+#: apps/academics/grades.py:157
 #, python-format
 msgid "Semester %(n)d"
 msgstr "Semestre %(n)d"
 
-#: apps/academics/grades.py:157 apps/academics/report_card_documents.py:77
+#: apps/academics/grades.py:157
 #, python-format
 msgid "Trimester %(n)d"
 msgstr "Trimestre %(n)d"
@@ -292,99 +292,119 @@ msgstr "Satisfaisant"
 msgid "Insufficient"
 msgstr "Insuffisant"
 
-#: apps/academics/report_card_documents.py:102
+#: apps/academics/report_card_documents.py:75
+msgid "FIRST"
+msgstr "PREMIER"
+
+#: apps/academics/report_card_documents.py:75
+msgid "SECOND"
+msgstr "SECOND"
+
+#: apps/academics/report_card_documents.py:75
+msgid "THIRD"
+msgstr "TROISIÈME"
+
+#: apps/academics/report_card_documents.py:76
+msgid "SEMESTER"
+msgstr "SEMESTRE"
+
+#: apps/academics/report_card_documents.py:76
+msgid "TERM"
+msgstr "TRIMESTRE"
+
+#: apps/academics/report_card_documents.py:103
 msgid "1st P."
 msgstr "1ère P."
 
-#: apps/academics/report_card_documents.py:102
+#: apps/academics/report_card_documents.py:103
 #, python-format
 msgid "P%(n)d"
 msgstr "%(n)de P."
 
-#: apps/academics/report_card_documents.py:118
+#: apps/academics/report_card_documents.py:119
 msgid "TOT."
 msgstr "TOT."
 
-#: apps/academics/report_card_documents.py:120
+#: apps/academics/report_card_documents.py:121
 msgid "EXAM."
 msgstr "EXAM."
 
-#: apps/academics/report_card_documents.py:130
-#: apps/academics/report_card_documents.py:137
+#: apps/academics/report_card_documents.py:131
+#: apps/academics/report_card_documents.py:138
 msgid "DAILY WORK."
-msgstr "TRAVAIL JOURNAL."
+msgstr "TRAVAUX JOURNAL."
 
-#: apps/academics/report_card_documents.py:209
+#: apps/academics/report_card_documents.py:210
 msgid "Points"
 msgstr "Points obtenus"
 
-#: apps/academics/report_card_documents.py:209
+#: apps/academics/report_card_documents.py:210
 msgid "MAX"
 msgstr "MAX"
 
-#: apps/academics/report_card_documents.py:210
-msgid "State exam"
-msgstr "Examen d'État"
+#: apps/academics/report_card_documents.py:211
+msgid "Exam"
+msgstr "Exam."
 
-#: apps/academics/report_card_documents.py:212
+#: apps/academics/report_card_documents.py:213
 msgid "For checking"
 msgstr "Pour le contrôle"
 
-#: apps/academics/report_card_documents.py:213
-#: apps/academics/report_card_documents.py:222
+#: apps/academics/report_card_documents.py:214
+#: apps/academics/report_card_documents.py:223
 msgid "On ...../...../....."
 msgstr "Le ...../...../....."
 
-#: apps/academics/report_card_documents.py:214
+#: apps/academics/report_card_documents.py:215
 msgid "The head of the centre"
 msgstr "Le chef du centre"
 
-#: apps/academics/report_card_documents.py:215
+#: apps/academics/report_card_documents.py:216
 msgid "Centre code"
 msgstr "Le code du centre"
 
-#: apps/academics/report_card_documents.py:217
+#: apps/academics/report_card_documents.py:218
 msgid "FINAL RESULT"
 msgstr "RÉSULTAT FINAL"
 
-#: apps/academics/report_card_documents.py:218
+#: apps/academics/report_card_documents.py:219
 msgid "Diploma (1)"
 msgstr "Diplôme (1)"
 
-#: apps/academics/report_card_documents.py:219
+#: apps/academics/report_card_documents.py:220
 msgid "With ......... (%)"
 msgstr "Avec ......... (%)"
 
-#: apps/academics/report_card_documents.py:220
+#: apps/academics/report_card_documents.py:221
 msgid "Failed (1)"
 msgstr "A échoué (1)"
 
-#: apps/academics/report_card_documents.py:221
+#: apps/academics/report_card_documents.py:222
 msgid "As evidence"
 msgstr "Pour témoignage"
 
-#: apps/academics/report_card_documents.py:223
-#: apps/academics/report_card_documents.py:240
-#: apps/academics/templates/academics/report_card.html:134
+#: apps/academics/report_card_documents.py:224
+#: apps/academics/report_card_documents.py:241
+#: apps/academics/templates/academics/report_card.html:136
 #: apps/schools/signatures.py:68
 msgid "The head of the school"
 msgstr "Le chef d'établissement"
 
-#: apps/academics/report_card_documents.py:224
-#: apps/academics/report_card_documents.py:241
+#: apps/academics/report_card_documents.py:225
+#: apps/academics/report_card_documents.py:242
 #: apps/students/templates/students/registration_form.html:66
 msgid "School seal"
 msgstr "Sceau de l'école"
 
-#: apps/academics/report_card_documents.py:236
+#: apps/academics/report_card_documents.py:237
 msgid "- PASSED (1)"
 msgstr "- PASSE (1)"
 
-#: apps/academics/report_card_documents.py:237
+#: apps/academics/report_card_documents.py:238
 msgid "- REPEATS (1)"
 msgstr "- DOUBLE (1)"
 
-#: apps/academics/report_card_documents.py:238
+#: apps/academics/report_card_documents.py:239
 msgid "ON ...../...../20"
 msgstr "LE ...../...../20"
 
@@ -392,167 +412,167 @@ msgstr "LE ...../...../20"
 msgid "Report card"
 msgstr "Bulletin"
 
-#: apps/academics/templates/academics/report_card.html:66
+#: apps/academics/templates/academics/report_card.html:67
 msgid "DEMOCRATIC REPUBLIC OF THE CONGO"
 msgstr "RÉPUBLIQUE DÉMOCRATIQUE DU CONGO"
 
-#: apps/academics/templates/academics/report_card.html:66
+#: apps/academics/templates/academics/report_card.html:67
 msgid "MINISTRY OF PRIMARY, SECONDARY AND TECHNICAL EDUCATION"
 msgstr "MINISTÈRE DE L'ENSEIGNEMENT PRIMAIRE, SECONDAIRE ET TECHNIQUE"
 
-#: apps/academics/templates/academics/report_card.html:69
+#: apps/academics/templates/academics/report_card.html:70
 msgid "ID NO."
 msgstr "N° ID"
 
-#: apps/academics/templates/academics/report_card.html:70
+#: apps/academics/templates/academics/report_card.html:71
 msgid "PROVINCE"
 msgstr "PROVINCE"
 
-#: apps/academics/templates/academics/report_card.html:73
+#: apps/academics/templates/academics/report_card.html:74
 msgid "TOWN"
 msgstr "VILLE"
 
-#: apps/academics/templates/academics/report_card.html:74
+#: apps/academics/templates/academics/report_card.html:75
 msgid "COMMUNE / TERRITORY"
 msgstr "COMMUNE / TERRITOIRE"
 
-#: apps/academics/templates/academics/report_card.html:75
+#: apps/academics/templates/academics/report_card.html:76
 msgid "SCHOOL"
 msgstr "ÉCOLE"
 
-#: apps/academics/templates/academics/report_card.html:76
+#: apps/academics/templates/academics/report_card.html:77
 msgid "CODE"
 msgstr "CODE"
 
-#: apps/academics/templates/academics/report_card.html:79
+#: apps/academics/templates/academics/report_card.html:80
 #: apps/students/templates/students/registration_form.html:26
 msgid "STUDENT"
 msgstr "ÉLÈVE"
 
-#: apps/academics/templates/academics/report_card.html:79
+#: apps/academics/templates/academics/report_card.html:80
 msgid "SEX"
 msgstr "SEXE"
 
-#: apps/academics/templates/academics/report_card.html:80
+#: apps/academics/templates/academics/report_card.html:81
 msgid "BORN AT"
 msgstr "NÉ(E) À"
 
-#: apps/academics/templates/academics/report_card.html:80
+#: apps/academics/templates/academics/report_card.html:81
 msgid "ON"
 msgstr "LE"
 
-#: apps/academics/templates/academics/report_card.html:81
+#: apps/academics/templates/academics/report_card.html:82
 #: apps/finance/prior_payments.py:379
 msgid "CLASS"
 msgstr "CLASSE"
 
-#: apps/academics/templates/academics/report_card.html:82
+#: apps/academics/templates/academics/report_card.html:83
 msgid "PERM. NO."
 msgstr "N° PERM."
 
-#: apps/academics/templates/academics/report_card.html:85
+#: apps/academics/templates/academics/report_card.html:86
 #, python-format
 msgid "REPORT CARD OF %(class_title)s"
 msgstr "BULLETIN DE LA %(class_title)s"
 
-#: apps/academics/templates/academics/report_card.html:85
+#: apps/academics/templates/academics/report_card.html:86
 #, python-format
 msgid "SCHOOL YEAR %(year)s"
 msgstr "ANNÉE SCOLAIRE %(year)s"
 
-#: apps/academics/templates/academics/report_card.html:92
+#: apps/academics/templates/academics/report_card.html:93
 msgid "SUBJECTS"
 msgstr "BRANCHES"
 
-#: apps/academics/templates/academics/report_card.html:95
+#: apps/academics/templates/academics/report_card.html:97
 msgid "STATE EXAM"
 msgstr "EXAMEN D'ÉTAT"
 
-#: apps/academics/templates/academics/report_card.html:95
+#: apps/academics/templates/academics/report_card.html:97
 msgid "RESIT EXAM"
 msgstr "EXAMEN DE REPÊCHAGE"
 
-#: apps/academics/templates/academics/report_card.html:98
+#: apps/academics/templates/academics/report_card.html:100
 msgid "Teacher's sign."
 msgstr "Sign. prof."
 
-#: apps/academics/templates/academics/report_card.html:102
+#: apps/academics/templates/academics/report_card.html:104
 msgid "MAXIMA"
 msgstr "MAXIMA"
 
-#: apps/academics/templates/academics/report_card.html:111
+#: apps/academics/templates/academics/report_card.html:113
 msgid "GENERAL MAXIMA"
 msgstr "MAXIMA GÉNÉRAUX"
 
-#: apps/academics/templates/academics/report_card.html:114
+#: apps/academics/templates/academics/report_card.html:116
 msgid "TOTALS"
 msgstr "TOTAUX"
 
-#: apps/academics/templates/academics/report_card.html:115
+#: apps/academics/templates/academics/report_card.html:117
 msgid "PERCENTAGE"
 msgstr "POURCENTAGE"
 
-#: apps/academics/templates/academics/report_card.html:116
+#: apps/academics/templates/academics/report_card.html:118
 msgid "PLACE / NUMBER OF STUDENTS"
 msgstr "PLACE / NBRE D'ÉLÈVES"
 
-#: apps/academics/templates/academics/report_card.html:117
+#: apps/academics/templates/academics/report_card.html:119
 msgid "APPLICATION"
 msgstr "APPLICATION"
 
-#: apps/academics/templates/academics/report_card.html:118
+#: apps/academics/templates/academics/report_card.html:120
 msgid "CONDUCT"
 msgstr "CONDUITE"
 
-#: apps/academics/templates/academics/report_card.html:119
+#: apps/academics/templates/academics/report_card.html:121
 msgid "HEAD'S SIGNATURE"
 msgstr "SIGNATURE DU RESPONSABLE"
 
-#: apps/academics/templates/academics/report_card.html:125
+#: apps/academics/templates/academics/report_card.html:127
 msgid ""
 "The student may move up to the next class only after passing a resit exam in"
 msgstr ""
 "L'élève ne pourra passer dans la classe supérieure s'il ne subit avec succès "
 "un examen de repêchage en"
 
-#: apps/academics/templates/academics/report_card.html:126
+#: apps/academics/templates/academics/report_card.html:128
 msgid "The student moves up to the next class (1)"
 msgstr "L'élève passe dans la classe supérieure (1)"
 
-#: apps/academics/templates/academics/report_card.html:127
+#: apps/academics/templates/academics/report_card.html:129
 msgid "The student repeats the class (1)"
 msgstr "L'élève double sa classe (1)"
 
-#: apps/academics/templates/academics/report_card.html:128
+#: apps/academics/templates/academics/report_card.html:130
 msgid "The student failed and is to be redirected to"
 msgstr "L'élève a échoué et est à réorienter vers"
 
-#: apps/academics/templates/academics/report_card.html:130
+#: apps/academics/templates/academics/report_card.html:132
 msgid "Student's signature"
 msgstr "Signature de l'élève"
 
-#: apps/academics/templates/academics/report_card.html:133
+#: apps/academics/templates/academics/report_card.html:135
 #, python-format
 msgid "Done at %(city)s, on %(date)s"
 msgstr "Fait à %(city)s, le %(date)s"
 
-#: apps/academics/templates/academics/report_card.html:134
+#: apps/academics/templates/academics/report_card.html:136
 msgid "Name and signature"
 msgstr "Nom et signature"
 
-#: apps/academics/templates/academics/report_card.html:138
+#: apps/academics/templates/academics/report_card.html:140
 msgid "Strike out what does not apply."
 msgstr "Biffer la mention inutile."
 
-#: apps/academics/templates/academics/report_card.html:138
+#: apps/academics/templates/academics/report_card.html:140
 msgid "IMPORTANT NOTE"
 msgstr "NOTE IMPORTANTE"
 
-#: apps/academics/templates/academics/report_card.html:138
+#: apps/academics/templates/academics/report_card.html:140
 msgid "This report card is void if it is crossed out or overwritten."
 msgstr "Le bulletin est sans valeur s'il est raturé ou surchargé."
 
-#: apps/academics/templates/academics/report_card.html:139
+#: apps/academics/templates/academics/report_card.html:141
 #, python-format
 msgid ""
 "Printed on %(date)s at %(time)s by %(name)s. Scan the QR code to check it."
@@ -5185,114 +5205,114 @@ msgstr "Nom du tuteur"
 msgid "Guardian phone"
 msgstr "Téléphone du tuteur"
 
-#: apps/students/imports.py:163
+#: apps/students/imports.py:178
 msgid "Last name missing"
 msgstr "Nom manquant"
 
-#: apps/students/imports.py:164
+#: apps/students/imports.py:179
 msgid "Sex missing or unknown (M or F)"
 msgstr "Sexe manquant ou inconnu (M ou F)"
 
-#: apps/students/imports.py:165
+#: apps/students/imports.py:180
 msgid "Invalid date of birth"
 msgstr "Date de naissance invalide"
 
-#: apps/students/imports.py:166
+#: apps/students/imports.py:181
 msgid "Class missing"
 msgstr "Classe manquante"
 
-#: apps/students/imports.py:167
+#: apps/students/imports.py:182
 msgid "Unknown class"
 msgstr "Classe inconnue"
 
-#: apps/students/imports.py:168
+#: apps/students/imports.py:183
 msgid "Student number already used in the school"
 msgstr "Matricule déjà utilisé dans l'école"
 
-#: apps/students/imports.py:169
+#: apps/students/imports.py:184
 #, python-format
 msgid "Student number repeated (line %(line)s)"
 msgstr "Matricule répété (ligne %(line)s)"
 
-#: apps/students/imports.py:170
+#: apps/students/imports.py:185
 msgid "Already in the school (same names and date of birth)"
 msgstr "Déjà dans l'école (mêmes noms et date de naissance)"
 
-#: apps/students/imports.py:171
+#: apps/students/imports.py:186
 #, python-format
 msgid "Possible duplicate (line %(line)s)"
 msgstr "Doublon possible (ligne %(line)s)"
 
-#: apps/students/imports.py:172
+#: apps/students/imports.py:187
 msgid "Date of birth missing"
 msgstr "Date de naissance manquante"
 
-#: apps/students/imports.py:173
+#: apps/students/imports.py:188
 msgid "Unreadable phone number: guardian kept without phone"
 msgstr "Téléphone illisible : tuteur gardé sans téléphone"
 
-#: apps/students/imports.py:174
+#: apps/students/imports.py:189
 msgid "Phone without guardian name: not kept"
 msgstr "Téléphone sans nom de tuteur : pas gardé"
 
-#: apps/students/imports.py:175
+#: apps/students/imports.py:190
 #, python-format
 msgid "Same family as line %(line)s"
 msgstr "Même famille que la ligne %(line)s"
 
-#: apps/students/imports.py:178
+#: apps/students/imports.py:193
 msgid "The file is larger than 5 MB."
 msgstr "Le fichier dépasse 5 Mo."
 
-#: apps/students/imports.py:180
+#: apps/students/imports.py:195
 msgid "Old Excel file (.xls): save it as .xlsx in Excel, then try again."
 msgstr ""
 "Ancien fichier Excel (.xls) : enregistrez-le en .xlsx dans Excel, puis "
 "réessayez."
 
-#: apps/students/imports.py:183
+#: apps/students/imports.py:198
 msgid "This file cannot be read: send an Excel (.xlsx) or CSV file."
 msgstr ""
 "Ce fichier ne peut pas être lu : envoyez un fichier Excel (.xlsx) ou CSV."
 
-#: apps/students/imports.py:185
+#: apps/students/imports.py:200
 msgid "The file has no student rows."
 msgstr "Le fichier n'a aucune ligne d'élève."
 
-#: apps/students/imports.py:186
+#: apps/students/imports.py:201
 msgid "The file has more than 5,000 rows."
 msgstr "Le fichier a plus de 5 000 lignes."
 
-#: apps/students/imports.py:187
+#: apps/students/imports.py:202
 msgid "This import has already been started."
 msgstr "Cet import a déjà été lancé."
 
-#: apps/students/imports.py:188
+#: apps/students/imports.py:203
 msgid "No row can be imported."
 msgstr "Aucune ligne ne peut être importée."
 
-#: apps/students/imports.py:539
+#: apps/students/imports.py:554
 msgid "Invalid column mapping."
 msgstr "Correspondance des colonnes non valide."
 
-#: apps/students/imports.py:541
+#: apps/students/imports.py:556
 msgid "Unknown column."
 msgstr "Colonne inconnue."
 
-#: apps/students/imports.py:553
+#: apps/students/imports.py:568
 msgid "Choose a class of this school year."
 msgstr "Choisissez une classe de cette année scolaire."
 
-#: apps/students/imports.py:732
+#: apps/students/imports.py:747
 #, python-format
 msgid "%(title)s (optional)"
 msgstr "%(title)s (facultatif)"
 
-#: apps/students/imports.py:748
+#: apps/students/imports.py:763
 msgid "Line"
 msgstr "Ligne"
 
-#: apps/students/imports.py:748
+#: apps/students/imports.py:763
 msgid "Problems"
 msgstr "Problèmes"
 

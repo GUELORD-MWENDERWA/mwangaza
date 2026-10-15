@@ -68,20 +68,21 @@ def read_token(token: str) -> dict | None:
 
 
 def _group_label(term: Term, groups: list[Term]) -> str:
-    """« Premier semestre » : le nom du semestre ou du trimestre, sinon son rang dans l'année."""
+    """« PREMIER SEMESTRE » : le nom du semestre ou du trimestre, sinon son rang dans l'année."""
     if term.name:
-        return term.name
+        return term.name.upper()
     rank = [g.pk for g in groups if g.kind == term.kind].index(term.pk) + 1
-    if term.kind == Term.Kind.SEMESTER:
-        return gettext("Semester %(n)d") % {"n": rank}
-    return gettext("Trimester %(n)d") % {"n": rank}
+    ranks = {1: gettext("FIRST"), 2: gettext("SECOND"), 3: gettext("THIRD")}
+    unit = gettext("SEMESTER") if term.kind == Term.Kind.SEMESTER else gettext("TERM")
+    return f"{ranks.get(rank, rank)} {unit}"
 
 
 # Formulaire officiel (3e HT, scan à 150 ppp) : largeurs en mm de ses colonnes, de gauche à droite.
 FORM_WIDTH = 199.5
 BRANCH_WIDTH = 40.7
-YEAR_WIDTH = 18.0
-RESIT_WIDTHS = (12.5, 20.7)
+YEAR_WIDTH = 15.1
+SPACER_WIDTH = 5.6  # colonne noircie entre le T.G. et le repêchage
+RESIT_WIDTHS = (9.6, 21.0)
 # Deux semestres de deux périodes, un examen et un total chacun : la structure du formulaire.
 STANDARD_KINDS = ["period", "period", "exam", "group"] * 2
 STANDARD_WIDTHS = [12.7, 15.2, 15.5, 15.3, 10.1, 10.3, 15.4, 13.1]
@@ -141,7 +142,8 @@ def _headers(report: ClassReport) -> dict:
     if standard:
         widths = STANDARD_WIDTHS
     else:
-        free = FORM_WIDTH - BRANCH_WIDTH - sum(RESIT_WIDTHS) - (YEAR_WIDTH if year else 0)
+        fixed = BRANCH_WIDTH + SPACER_WIDTH + sum(RESIT_WIDTHS) + (YEAR_WIDTH if year else 0)
+        free = FORM_WIDTH - fixed
         widths = [round(free / len(cells), 2)] * len(cells)
     return {
         "groups": groups,
@@ -172,7 +174,9 @@ def _body(report: ClassReport, student: StudentReport, keys: list[str]) -> list[
     suivant, comme sur le formulaire."""
     lines: list[dict] = []
     previous = None
-    for course in report.courses:
+    # Cours groupés par maxima, du plus petit au plus grand, comme sur le formulaire.
+    ordered = sorted(report.courses, key=lambda c: (c.period_max, not c.has_exam, c.name))
+    for course in ordered:
         row = _row(student.cells[course.pk], keys)
         maxima = tuple(cell["maximum"] for cell in row)
         if maxima != previous:
@@ -207,7 +211,7 @@ def _side_state(rows: int) -> list[dict]:
     items: list[dict] = [{} for _ in range(rows)]
     slots = {
         0: {"cols": (gettext("Points"), gettext("MAX"))},
-        1: {"cols": (gettext("State exam"), "")},
+        1: {"cols": (gettext("Exam"), "")},
         2: {"cols": ("%", "")},
         4: {"text": gettext("For checking"), "bold": True},
         5: {"text": gettext("On ...../...../....."), "dots": True},
@@ -280,7 +284,7 @@ def report_card_document(
         **school_header(school),
         "epst_code": _code(school.epst_code),
         "code_boxes": _boxes(_code(school.epst_code), 8),
-        "id_boxes": _boxes(person.national_id, 26),
+        "id_boxes": _boxes(person.national_id, 28),
         "perm_boxes": _boxes(person.permanent_number, 15),
         "regime": school.get_regime_display() if school.regime else "",
         "school": school,
@@ -297,9 +301,10 @@ def report_card_document(
         "blank_lines": blank_lines,
         "footer_side": side[len(lines) + blank :],
         "row_height": row_height,
-        "font_size": round(min(8.0, row_height * 2.835 * 0.68), 2),
+        "font_size": round(min(9.0, row_height * 2.835 * 0.72), 2),
         "totals": _total_rows(student, keys, size),
         "branch_width": BRANCH_WIDTH,
         "resit_widths": RESIT_WIDTHS,
+        "spacer_width": SPACER_WIDTH,
         "qr": qr_code(absolute(verification_path(student, keys, size, day))),
     }

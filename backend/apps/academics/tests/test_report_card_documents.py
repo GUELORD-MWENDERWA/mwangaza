@@ -44,15 +44,15 @@ def test_the_card_shows_maxima_scores_low_marks_and_the_place(api, director, car
     assert context["totals"]["place"][0] == "2e/2"
     assert context["totals"]["percent"][0] == Decimal("73.3")
     lines = context["lines"]
-    # Cours par ordre alphabétique : l'atelier (sans examen) puis la physique, chacun sous sa
-    # ligne de maxima ; 8 sur 20 est sous la moitié.
+    # Cours par maxima croissants : la physique (20) puis l'atelier (100, sans examen), chacun
+    # sous sa ligne de maxima ; 8 sur 20 est sous la moitié.
     assert [line.get("name") or line["maxima"][0] for line in lines] == [
-        100,
-        "Atelier",
         20,
         "Physique",
+        100,
+        "Atelier",
     ]
-    atelier, physics = lines[1]["cells"], lines[3]["cells"]
+    physics, atelier = lines[1]["cells"], lines[3]["cells"]
     assert (physics[0]["score"], physics[0]["low"]) == (Decimal("8"), True)
     exam = [c["kind"] for c in context["columns"]].index("exam")
     assert (atelier[0]["low"], atelier[exam]["maximum"], physics[exam]["maximum"]) == (False, 0, 40)
@@ -75,7 +75,7 @@ def test_the_form_follows_the_official_one_and_the_last_year_has_the_state_exam(
     assert "".join(context["code_boxes"]).strip() == "2-610021"
     assert not context["state_exam"]
     # Deux semestres de deux périodes : les largeurs du scan, 199,5 mm en tout.
-    assert round(sum(context["widths"]) + 40.7 + 33.2, 1) == 199.5
+    assert round(sum(context["widths"]) + 40.7 + 5.6 + 30.6, 1) == 199.6
     # Lignes vides jusqu'à la hauteur du formulaire (35 lignes en tout) ; les autres années
     # gardent les cases du repêchage, noires sur les lignes de maxima.
     assert len(context["lines"]) + len(context["blank_lines"]) + 7 == 35

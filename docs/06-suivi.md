@@ -68,8 +68,8 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 
 ### 2026-10-15 — Tâche 8.3.3 : bulletin fidèle au formulaire officiel
 - Fait : le PDF reprend le formulaire EPST (3e HT, IGE/P.S/137) : drapeau dessiné, N° ID et N° permanent en cases, province, ville, commune, code, 3 rangées d'en-tête, largeurs de colonnes relevées sur le scan, lignes MAXIMA, cases noires, place/effectif (« 3e/22 »), Application et Conduite (cases à remplir), 35 lignes comme le formulaire ; repêchage, ou bloc « Examen d'État » si le niveau est la dernière année ; police Liberation Serif embarquée. Champs ajoutés : `School.province/city/commune` (Paramètres), `Student.national_id/permanent_number` (fiche, import), `Level.has_state_exam` (Niveaux).
-- Tests : contenu du formulaire (cases, 35 lignes, bloc Examen d'État), import des deux numéros, niveaux et réglages ; contrôle : superposition du PDF sur le scan à 150 ppp, colonnes à 0,2 mm, lignes à 0,7 mm du scan (marge du scan).
-- Décisions : armoiries non reproduites (le QR code prend leur place) ; Application et Conduite restent vides jusqu'à 8.5.1 ; ligne « Mention » retirée du PDF (absente du formulaire ; reste dans le calcul) ; hauteur de ligne réduite si la classe a plus de 28 cours.
+- Tests : contenu du formulaire (cases, 35 lignes, bloc Examen d'État), import des deux numéros, niveaux et réglages ; contrôle : PDF superposé au scan de la 3e HT à 150 ppp (image sur image), grille, en-tête, cases et colonne noire à moins de 1 mm.
+- Décisions : armoiries non reproduites (le QR code prend leur place) ; Application et Conduite restent vides jusqu'à 8.5.1 ; ligne « Mention » retirée du PDF (absente du formulaire ; reste dans le calcul) ; hauteur de ligne réduite si la classe a plus de 28 cours ; cours classés par maxima croissants comme le formulaire ; colonne noire entre T.G. et repêchage ; maquette `gestion/bulletin` refaite (image du vrai PDF).
 - Suite : 8.3.4 (options d'impression au choix).
 
 ### 2026-10-15 — Tâche 8.3.2 : bulletin PDF

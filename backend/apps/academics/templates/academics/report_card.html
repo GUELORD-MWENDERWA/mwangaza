@@ -10,13 +10,13 @@ body { font-family: "Liberation Serif", "Times New Roman", serif; font-size: 8pt
 .sheet > * { flex: none; }
 .sec { border-bottom: .8pt solid #000; }
 .top { height: 19.9mm; display: flex; align-items: center; padding: 0 3mm; }
-.top svg { width: 17mm; height: 11.3mm; flex: none; }
-.top .state { flex: 1; text-align: center; font-weight: 700; font-size: 10.5pt; line-height: 1.3; padding: 0 3mm; }
-.top .qr { width: 15mm; height: 15mm; flex: none; }
+.top svg { width: 24mm; height: 16mm; flex: none; }
+.top .state { flex: 1; text-align: center; font-weight: 700; font-size: 12.5pt; line-height: 1.25; padding: 0 17mm 0 7mm; }
+.top .qr { width: 16mm; height: 16mm; flex: none; }
 .idrow { height: 12.3mm; display: flex; align-items: center; padding: 0 3mm; font-weight: 700; font-size: 9pt; }
-.idrow .label { margin-right: 2mm; }
+.idrow .label { width: 18.4mm; }
 .boxes { display: inline-flex; }
-.boxes span { display: inline-block; width: 5.6mm; height: 6mm; border: .6pt solid #000; margin-right: -.6pt; text-align: center; line-height: 6mm; font-size: 10pt; font-weight: 400; }
+.boxes span { display: inline-block; width: 5.08mm; height: 6mm; border: .6pt solid #000; margin-right: -.6pt; text-align: center; line-height: 6mm; font-size: 10pt; font-weight: 400; }
 .prov { height: 8.8mm; display: flex; align-items: center; padding: 0 3mm; font-weight: 700; font-size: 9pt; }
 .two { height: 28.2mm; display: flex; }
 .two > div { padding: 2mm 3mm 0; font-size: 8.5pt; line-height: 1; }
@@ -26,31 +26,32 @@ body { font-family: "Liberation Serif", "Times New Roman", serif; font-size: 8pt
 .two b { font-weight: 700; }
 .two .value { font-weight: 400; border-bottom: .5pt dotted #000; padding: 0 1mm; min-width: 10mm; display: inline-block; }
 .two .boxes span { width: 5.4mm; height: 5.2mm; line-height: 5.2mm; font-size: 8.5pt; }
-.titlebar { height: 5.8mm; display: flex; align-items: center; justify-content: space-between; padding: 0 2mm; font-weight: 700; font-size: 8.5pt; }
+.titlebar { height: 5.8mm; display: flex; align-items: center; justify-content: space-between; padding: 0 2mm; font-weight: 700; font-size: 10pt; }
 table.bul { width: 199.5mm; table-layout: fixed; border-collapse: collapse; margin: 0; }
 table.bul th, table.bul td { border: .5pt solid #000; padding: 0 .6mm; text-align: center; vertical-align: middle; overflow: hidden; white-space: nowrap; line-height: 1; }
 table.bul tr.h1 { height: 4.4mm; }
 table.bul tr.h2 { height: 7.8mm; }
 table.bul tr.h3 { height: 4.4mm; }
-table.bul th { font-weight: 700; font-size: 7.5pt; white-space: normal; }
+table.bul th { font-weight: 700; font-size: 8.5pt; white-space: normal; }
 table.bul th.branches { font-size: 9pt; letter-spacing: .08em; }
 {% localize off %}table.bul tr.b, table.bul tr.b > td { height: {{ row_height }}mm; font-size: {{ font_size }}pt; }{% endlocalize %}
-table.bul td.name { text-align: left; padding-left: 1mm; }
+table.bul td.name { text-align: left; padding-left: 1mm; font-size: .9em; }
 table.bul td.mx { font-weight: 700; }
 table.bul td.k, table.bul th.k { background: #000; }
+table.bul td.sp, table.bul th.sp { background: #E4E4E4; }
 table.bul td.low { color: #B42318; }
 table.bul td.tot { font-weight: 700; }
-table.bul td.pn { border-top: 0; border-bottom: 0; text-align: left; padding-left: 1.6mm; font-size: 7pt; }
+table.bul td.pn { border-top: 0; border-bottom: 0; text-align: left; padding-left: 1.2mm; font-size: 6.4pt; letter-spacing: -.02em; }
 table.bul td.bold { font-weight: 700; }
 table.bul td.pn .boxes span { width: 3.6mm; height: 3.6mm; line-height: 3.6mm; }
 .dots { display: inline-block; border-bottom: .5pt dotted #000; min-width: 22mm; height: 1em; vertical-align: baseline; }
 .under { flex: 1; display: flex; padding: 1.2mm 3mm 0; font-size: 7.5pt; line-height: 1.25; min-height: 0; overflow: hidden; border-top: .8pt solid #000; }
 .under .uleft { flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding-bottom: 1.5mm; }
-.under .uright { width: 62mm; text-align: center; }
+.under .uright { width: 62mm; text-align: center; padding-top: 3mm; }
 .under .signer { min-width: 0; width: 100%; }
-.under .signer__marks { height: 14mm; }
-.under .signer__stamp { max-height: 14mm; max-width: 22mm; }
-.under .signer__signature { max-height: 12mm; }
+.under .signer__marks { height: 12mm; }
+.under .signer__stamp { max-height: 12mm; max-width: 22mm; }
+.under .signer__signature { max-height: 10mm; }
 .foot { padding: 0 3mm 1.5mm; font-size: 7pt; flex: none; }
 .legal { margin-top: .5mm; font-size: 6.5pt; color: #333; }
 {% endblock %}
@@ -86,12 +87,13 @@ table.bul td.pn .boxes span { width: 3.6mm; height: 3.6mm; line-height: 3.6mm; }
 
   <div class="tw"><table class="bul">
     <colgroup>{% localize off %}
-      <col style="width:{{ branch_width }}mm">{% for w in widths %}<col style="width:{{ w }}mm">{% endfor %}<col style="width:{{ resit_widths.0 }}mm"><col style="width:{{ resit_widths.1 }}mm">
+      <col style="width:{{ branch_width }}mm">{% for w in widths %}<col style="width:{{ w }}mm">{% endfor %}<col style="width:{{ spacer_width }}mm"><col style="width:{{ resit_widths.0 }}mm"><col style="width:{{ resit_widths.1 }}mm">
     {% endlocalize %}</colgroup>
     <tr class="h1">
       <th rowspan="3" class="branches">{% translate "SUBJECTS" %}</th>
       {% for group in groups %}<th colspan="{{ group.span }}">{{ group.label }}</th>{% endfor %}
       {% if year_column %}<th rowspan="3">{{ year_column.label }}</th>{% endif %}
+      <th rowspan="3" class="{% if state_exam %}sp{% else %}k{% endif %}"></th>
       {% if state_exam %}<th rowspan="3" colspan="2">{% translate "STATE EXAM" %}</th>{% else %}<th rowspan="2" colspan="2">{% translate "RESIT EXAM" %}</th>{% endif %}
     </tr>
     <tr class="h2">{% for h in head2 %}<th{% if h.colspan %} colspan="{{ h.colspan }}"{% endif %}{% if h.rowspan %} rowspan="{{ h.rowspan }}"{% endif %}>{{ h.label }}</th>{% endfor %}</tr>
@@ -116,7 +118,7 @@ table.bul td.pn .boxes span { width: 3.6mm; height: 3.6mm; line-height: 3.6mm; }
     <tr class="b"><td class="name">{% translate "PLACE / NUMBER OF STUDENTS" %}</td>{% for v in totals.place %}<td>{{ v }}</td>{% endfor %}{% include "academics/_report_card_side.html" with item=footer_side.3 %}</tr>
     <tr class="b"><td class="name mx">{% translate "APPLICATION" %}</td>{% for c in columns %}<td{% if c.kind != "period" %} class="k"{% endif %}></td>{% endfor %}{% if year_column %}<td class="k"></td>{% endif %}{% include "academics/_report_card_side.html" with item=footer_side.4 %}</tr>
     <tr class="b"><td class="name mx">{% translate "CONDUCT" %}</td>{% for c in columns %}<td{% if c.kind != "period" %} class="k"{% endif %}></td>{% endfor %}{% if year_column %}<td class="k"></td>{% endif %}{% include "academics/_report_card_side.html" with item=footer_side.5 %}</tr>
-    <tr class="b"><td class="name mx">{% translate "HEAD'S SIGNATURE" %}</td>{% for w in widths %}<td></td>{% endfor %}{% include "academics/_report_card_side.html" with item=footer_side.6 %}</tr>
+    <tr class="b"><td class="name mx" style="font-size:7.3pt">{% translate "HEAD'S SIGNATURE" %}</td>{% for w in widths %}<td></td>{% endfor %}{% include "academics/_report_card_side.html" with item=footer_side.6 footer=1 %}</tr>
   </table></div>
 
   <div class="under">
