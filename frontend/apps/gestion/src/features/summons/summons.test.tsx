@@ -66,7 +66,7 @@ describe("Convocations", () => {
     await waitFor(() =>
       expect(
         screen.getAllByRole("link", { name: "Lettre à imprimer (PDF)" })[0]!.getAttribute("href"),
-      ).toBe(`/api/summons/${id(401)}/letter/`),
+      ).toBe(`/api/summons/${id(401)}/letter/?paper=a4`),
     );
   });
 });

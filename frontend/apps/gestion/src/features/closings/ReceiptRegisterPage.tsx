@@ -24,6 +24,8 @@ import { Link } from "react-router";
 import { keys } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { schoolDay } from "../cash/offline";
+import { PrintLayoutFields } from "../printing/PrintLayoutFields";
+import { DEFAULT_LAYOUT, layoutQuery, usePrintOptions } from "../printing/printOptions";
 import { DocumentPreview } from "../students/DocumentPreview";
 
 type Mode = "day" | "month" | "range";
@@ -45,6 +47,7 @@ export function ReceiptRegisterPage() {
   const [from, setFrom] = useState(`${today.slice(0, 7)}-01`);
   const [to, setTo] = useState(today);
   const [register, setRegister] = useState("");
+  const [layout, setLayout] = usePrintOptions("receipt-register", DEFAULT_LAYOUT);
   const registers = useQuery({
     queryKey: [...keys.closings, "summary", { month: today.slice(0, 7) }],
     queryFn: () =>
@@ -59,6 +62,7 @@ export function ReceiptRegisterPage() {
       start,
       end,
       output,
+      ...layoutQuery(layout),
       ...(register ? { cash_register: register } : {}),
     })}`;
 
@@ -183,6 +187,7 @@ export function ReceiptRegisterPage() {
                   </Select>
                 )}
               </Field>
+              <PrintLayoutFields layout={layout} onChange={setLayout} />
             </CardContent>
           </Card>
           <Card>

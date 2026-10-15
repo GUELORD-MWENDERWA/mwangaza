@@ -13,13 +13,8 @@ h1 { margin-top: .8em; }
 {% endblock %}
 {% block content %}
 <p class="mark">{% blocktranslate with date=printed_at|date:"d/m/Y" time=printed_at|time:"H:i" %}<b>Copy</b> downloaded from the families' portal on {{ date }} at {{ time }}.{% endblocktranslate %}</p>
-<div class="row between">
-  <div class="row">
-    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% else %}<div class="logo-text">{{ school_name|slice:":4"|upper }}</div>{% endif %}
-    <div><b>{{ school_name|upper }}</b>{% for line in header_lines %}<br><span class="small">{{ line }}</span>{% endfor %}</div>
-  </div>
-  <img class="qr" src="{{ qr }}" alt="">
-</div>
+{% include "core/_document_header.html" with service=_("Accounting") service_code="CPT" %}
+<img class="qr lh-qr" src="{{ qr }}" alt="">
 
 <h1>{% blocktranslate %}Receipt {{ number }}{% endblocktranslate %}</h1>
 <p class="center">{{ paid_at|date:"d/m/Y H:i" }} · {% blocktranslate %}School year {{ year }}{% endblocktranslate %}</p>

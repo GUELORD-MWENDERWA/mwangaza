@@ -1,7 +1,6 @@
 {% extends "core/print_base.html" %}{% load i18n %}
 {% block title %}{% translate "Students late with payments" %}{% endblock %}
 {% block style %}
-@page { size: A4 landscape; }
 body { font-size: 9pt; }
 section + section { margin-top: 2em; }
 section.break + section.break { break-before: page; margin-top: 0; }
@@ -15,13 +14,8 @@ tfoot td { font-weight: 700; background: #EDF1F6; }
 {% block content %}
 {% for page in pages %}
 <section class="{% if page_per_class %}break{% endif %}">
-<div class="row between">
-  <div class="row">
-    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% endif %}
-    <div><b>{{ school_name|upper }}</b><br><span class="small">{% blocktranslate with year=year.name %}School year {{ year }}{% endblocktranslate %}</span></div>
-  </div>
-  <div class="small" style="text-align:right">{% blocktranslate with date=printed_at|date:"d/m/Y" time=printed_at|time:"H:i" %}Situation on {{ date }} at {{ time }}{% endblocktranslate %}</div>
-</div>
+{% include "core/_document_header.html" with service=_("Accounting") service_code="CPT" %}
+<div class="lh-extra">{% blocktranslate with year=year.name date=printed_at|date:"d/m/Y" time=printed_at|time:"H:i" %}School year {{ year }} · situation on {{ date }} at {{ time }}{% endblocktranslate %}</div>
 
 <h1>{% if page.class_group %}{% blocktranslate with name=page.class_group.name|upper %}STUDENTS LATE WITH PAYMENTS — {{ name }}{% endblocktranslate %}{% else %}{% translate "STUDENTS LATE WITH PAYMENTS" %}{% endif %}</h1>
 <p class="center small">{% blocktranslate with total=page.enrolled count late=page.rows|length %}{{ late }} student out of {{ total }}{% plural %}{{ late }} students out of {{ total }}{% endblocktranslate %}{% if page.teacher %} · {% blocktranslate with teacher=page.teacher %}homeroom teacher: {{ teacher }}{% endblocktranslate %}{% endif %}{% if filters %} · {{ filters }}{% endif %}</p>

@@ -5,7 +5,11 @@ les cours de la grille sont remis comme au départ, ceux ajoutés en essayant re
 
 Notes (8.2.1) : la 1re période de l'année est notée dans chaque cours (deux interrogations et un
 devoir), chaque élève avec son niveau ; quelques cases restent vides (« incomplet »). Rejouable :
-la 1re période est remise comme au départ, les autres restent."""
+la 1re période est remise comme au départ, les autres restent.
+
+Bulletins complets (8.3.4) : deux classes de l'ITIG (une sans Examen d'État, une avec) sont notées
+dans tous leurs cours, toutes les périodes et tous les examens, feuilles validées : leur bulletin
+n'a aucune case vide et peut s'imprimer. Les autres classes n'ont que la 1re période, à valider."""
 
 import random
 from collections import defaultdict
@@ -14,6 +18,7 @@ from decimal import Decimal
 
 from django.utils import timezone
 
+from apps.academics.grades import term_maximum
 from apps.academics.models import Course, Evaluation, Grade, GradeDeadline, GradeSheet
 from apps.academics.official import BY_KEY
 from apps.accounts.models import User
@@ -52,7 +57,9 @@ def _grid_key(group: ClassGroup) -> str | None:
         return BASIC
     code = group.track.code if group.track else ""
     if code == "ELO":
-        return "electronics_1" if group.level.name == "1re" else "electronics_2"
+        return {"1re": "electronics_1", "3e": "electronics_3"}.get(
+            group.level.name, "electronics_2"
+        )
     return TRACK_GRIDS.get(code)
 
 
@@ -83,12 +90,13 @@ def create_demo_courses(spaces: list[DemoSpace]) -> None:
                     else:
                         updated.append(course)
                     course.period_max, course.has_exam, course.order = maximum, exam, order
+                    course.is_taught = name not in BY_KEY[key].untaught
                     # Inventées d'après le maximum : de 1 h (sur 10 ou 20) à 7 h (atelier sur 100).
                     course.weekly_hours = hours or max(1, round(maximum / 15))
                     course.teacher = assigned.get((group.level.name, code, group.section, name))
             Course.objects.bulk_create(created)
             Course.objects.bulk_update(
-                updated, ["period_max", "has_exam", "order", "weekly_hours", "teacher"]
+                updated, ["period_max", "has_exam", "is_taught", "order", "weekly_hours", "teacher"]
             )
 
 
@@ -130,7 +138,9 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
                     max_score=max(1, round(course.period_max * share)),
                     order=order,
                 )
-                for course in Course.objects.filter(class_group__academic_year=year).order_by("pk")
+                for course in Course.objects.filter(
+                    class_group__academic_year=year, is_taught=True
+                ).order_by("pk")
                 for order, (name, share) in enumerate(EVALUATIONS)
             ]
             Evaluation.objects.bulk_create(evaluations, batch_size=2000)
@@ -149,6 +159,8 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
                     )
             Grade.objects.bulk_create(grades, batch_size=5000)
             _create_demo_control(first)
+            if space.profile == "itig":
+                _complete_demo_classes(year, students, draw)
 
 
 # Contrôle des notes (8.2.2) : quelques feuilles envoyées (à valider) et validées, les autres en
@@ -176,3 +188,83 @@ def _create_demo_control(term: Term) -> None:
             )
         )
     GradeSheet.objects.bulk_create(sheets)
+
+
+def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
+    """Toutes les périodes et tous les examens de deux classes, tous les élèves notés, feuilles
+    validées (bulletin imprimable)."""
+    groups = sorted(
+        ClassGroup.objects.filter(academic_year=year, track__isnull=False).select_related(
+            "level", "track"
+        ),
+        # La 3e Électronique, classe du bulletin fourni, d'abord.
+        key=lambda g: (g.track.code != "ELO" or g.level.name != "3e", g.level.name, g.name),
+    )
+    chosen = [
+        next((g for g in groups if g.level.has_state_exam is flag and students.get(g.pk)), None)
+        for flag in (False, True)
+    ]
+    terms = list(
+        Term.objects.filter(
+            academic_year=year, kind__in=(Term.Kind.PERIOD, Term.Kind.EXAM)
+        ).order_by("order")
+    )
+    now = timezone.now()
+    for group in filter(None, chosen):
+        courses = list(
+            Course.objects.filter(class_group=group, is_taught=True).order_by("order", "name")
+        )
+        enrolled = students[group.pk]
+        level = {e.pk: draw.uniform(0.4, 0.92) for e in enrolled}
+        GradeSheet.objects.filter(course__in=courses).delete()
+        Evaluation.objects.filter(course__in=courses).delete()
+        evaluations = []
+        for term in terms:
+            for course in courses:
+                if term.kind == Term.Kind.EXAM:
+                    if course.has_exam:
+                        evaluations.append(
+                            Evaluation(
+                                course=course,
+                                term=term,
+                                name="Examen",
+                                max_score=term_maximum(course, term),
+                                order=0,
+                            )
+                        )
+                    continue
+                for order, (name, share) in enumerate(EVALUATIONS):
+                    evaluations.append(
+                        Evaluation(
+                            course=course,
+                            term=term,
+                            name=name,
+                            max_score=max(1, round(course.period_max * share)),
+                            order=order,
+                        )
+                    )
+        Evaluation.objects.bulk_create(evaluations, batch_size=2000)
+        grades = []
+        for evaluation in evaluations:
+            for enrollment in enrolled:
+                ratio = min(1.0, max(0.0, level[enrollment.pk] + draw.uniform(-0.15, 0.15)))
+                halves = round(ratio * evaluation.max_score * 2)
+                grades.append(
+                    Grade(evaluation=evaluation, enrollment=enrollment, score=Decimal(halves) / 2)
+                )
+        Grade.objects.bulk_create(grades, batch_size=5000)
+        GradeSheet.objects.bulk_create(
+            [
+                GradeSheet(
+                    course=course,
+                    term=term,
+                    status=GradeSheet.Status.VALIDATED,
+                    submitted_at=now,
+                    submitted_by=course.teacher,
+                    validated_at=now,
+                )
+                for term in terms
+                for course in courses
+                if term.kind != Term.Kind.EXAM or course.has_exam
+            ]
+        )

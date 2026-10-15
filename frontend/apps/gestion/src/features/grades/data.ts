@@ -45,6 +45,22 @@ export function useGrading() {
   });
 }
 
+/** Feuilles de notes pas encore validées dans la classe : tant qu'il en reste, le PDF du bulletin
+ *  est refusé. Les notes validées changent à chaque validation : toujours relu. */
+export function useReportStatus(classId: string) {
+  return useQuery({
+    queryKey: [...keys.grading, "report-status", classId],
+    queryFn: () =>
+      call(
+        api.GET("/api/class-groups/{id}/report-card-status/", {
+          params: { path: { id: classId } },
+        }),
+      ),
+    enabled: Boolean(classId),
+    staleTime: 0,
+  });
+}
+
 export function useSheet(courseId: string, termId: string) {
   const { db } = useSyncStatus();
   return useQuery({

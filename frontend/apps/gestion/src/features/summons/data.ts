@@ -36,4 +36,4 @@ export function useCancel() {
 }
 
 /** Lettre de convocation (PDF) : ouverte dans un nouvel onglet, à imprimer. */
-export const letterUrl = (id: string) => `/api/summons/${id}/letter/`;
+export const LETTER_PATH = (id: string) => `/api/summons/${id}/letter/`;

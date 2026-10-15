@@ -6,6 +6,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import type { Permission } from "../../lib/permissions";
 import { keys } from "../../lib/queries";
+import { layoutQuery, type PrintLayout } from "../printing/printOptions";
 
 export type StudentRow = Schemas["StudentList"];
 export type Student = Schemas["Student"];
@@ -234,7 +235,6 @@ export const importTemplateUrl = "/api/student-imports/template/";
 export const importReportUrl = (id: string) => `/api/student-imports/${id}/report/`;
 
 // Impressions (D5, M11) : aperçu HTML dans la page, PDF que le navigateur ouvre ou enregistre.
-export type Paper = "a4" | "a5";
 export type ClassListColumn = "matricule" | "sex_birth" | "guardian_phone" | "payments";
 export type ClassListOrder = "name" | "matricule";
 
@@ -243,13 +243,14 @@ export type StatementOptions = { upcoming: boolean; payments: boolean; hidePaid:
 /** Situation financière (G2) d'un ou de plusieurs élèves, une page chacun : PDF ou aperçu. */
 export function statementUrl(
   enrollments: string[],
-  options: StatementOptions & { output: "html" | "pdf" },
+  options: StatementOptions & { output: "html" | "pdf"; layout: PrintLayout },
 ) {
   const query = new URLSearchParams({
     output: options.output,
     upcoming: String(options.upcoming),
     payments: String(options.payments),
     hide_paid: String(options.hidePaid),
+    ...layoutQuery(options.layout),
   });
   for (const id of enrollments) query.append("enrollment", id);
   return `/api/student-charges/statement/?${query}`;
@@ -257,11 +258,11 @@ export function statementUrl(
 
 export function registrationFormUrl(
   enrollmentId: string,
-  options: { output: "html" | "pdf"; paper: Paper; familyCode: boolean; fees: boolean },
+  options: { output: "html" | "pdf"; layout: PrintLayout; familyCode: boolean; fees: boolean },
 ) {
   const query = new URLSearchParams({
     output: options.output,
-    paper: options.paper,
+    ...layoutQuery(options.layout),
     family_code: String(options.familyCode),
     fees: String(options.fees),
   });
@@ -275,6 +276,7 @@ export function classListUrl(
     columns: ClassListColumn[];
     blankColumns: number;
     order: ClassListOrder;
+    layout: PrintLayout;
   },
 ) {
   const query = new URLSearchParams({
@@ -282,6 +284,7 @@ export function classListUrl(
     output: options.output,
     blank_columns: String(options.blankColumns),
     order: options.order,
+    ...layoutQuery(options.layout),
   });
   for (const column of options.columns) query.append("columns", column);
   return `/api/enrollments/class-list/?${query}`;

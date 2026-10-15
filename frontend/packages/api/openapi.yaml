@@ -476,6 +476,19 @@ paths:
         description: A UUID string identifying this announcement.
         required: true
       - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
         name: output
         schema:
           enum:
@@ -489,6 +502,26 @@ paths:
 
           * `pdf` - pdf
           * `html` - html
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
+      - in: query
+        name: per_sheet
+        schema:
+          type: integer
+          maximum: 3
+          minimum: 1
+          default: 1
+        description: Exemplaires par feuille.
       tags:
       - announcements
       security:
@@ -3224,6 +3257,48 @@ paths:
               schema:
                 type: string
           description: Document PDF (`output=pdf`).
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/report-card-status/:
+    get:
+      operationId: class_groups_report_card_status_retrieve
+      description: |-
+        Feuilles de notes pas encore validées pour les périodes commencées de la classe : tant
+        qu'il en reste, le PDF du bulletin est refusé (409 `report_incomplete`).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportCardStatus'
+          description: ''
         '403':
           content:
             application/json:
@@ -5648,6 +5723,19 @@ paths:
         description: A UUID string identifying this enrollment.
         required: true
       - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
         name: output
         schema:
           enum:
@@ -5757,6 +5845,19 @@ paths:
           * `name` - name
           * `matricule` - matricule
       - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
         name: output
         schema:
           enum:
@@ -5770,6 +5871,18 @@ paths:
           * `pdf` - pdf
           * `xlsx` - xlsx
           * `html` - html
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
       tags:
       - students
       security:
@@ -9022,6 +9135,19 @@ paths:
         description: Dernier jour (inclus), 366 jours au plus après le premier.
         required: true
       - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
         name: output
         schema:
           enum:
@@ -9037,6 +9163,18 @@ paths:
           * `pdf` - pdf
           * `html` - html
         required: true
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
       - in: query
         name: start
         schema:
@@ -10244,6 +10382,19 @@ paths:
           default: false
         description: Sans les frais soldés.
       - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
         name: output
         schema:
           enum:
@@ -10257,6 +10408,18 @@ paths:
           * `pdf` - pdf
           * `html` - html
         required: true
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
       - in: query
         name: payments
         schema:
@@ -11477,6 +11640,19 @@ paths:
         description: A UUID string identifying this summons.
         required: true
       - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
         name: output
         schema:
           enum:
@@ -11490,6 +11666,26 @@ paths:
 
           * `pdf` - pdf
           * `html` - html
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
+      - in: query
+        name: per_sheet
+        schema:
+          type: integer
+          maximum: 3
+          minimum: 1
+          default: 1
+        description: Exemplaires par feuille.
       tags:
       - communication
       security:
@@ -12225,6 +12421,19 @@ paths:
           * `name` - name
           * `class` - class
       - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
         name: output
         schema:
           enum:
@@ -12255,6 +12464,18 @@ paths:
           type: boolean
           default: true
         description: 'PDF : une page par classe.'
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
       - in: query
         name: phone
         schema:
@@ -15239,6 +15460,10 @@ components:
           type: boolean
           readOnly: true
           title: With exam
+        is_taught:
+          type: boolean
+          readOnly: true
+          title: Taught in this class
         weekly_hours:
           type: integer
           readOnly: true
@@ -15255,6 +15480,7 @@ components:
       - domain
       - period_max
       - has_exam
+      - is_taught
       - weekly_hours
       - teacher
     CourseInputRequest:
@@ -15280,6 +15506,10 @@ components:
         has_exam:
           type: boolean
           default: true
+        is_taught:
+          type: boolean
+          default: true
+          description: 'Faux : cours du formulaire barré sur le bulletin, jamais noté.'
         weekly_hours:
           type: integer
           maximum: 40
@@ -17963,6 +18193,16 @@ components:
         * `permanent_number` - permanent_number
         * `guardian_name` - guardian_name
         * `guardian_phone` - guardian_phone
+    MissingSheet:
+      type: object
+      properties:
+        course:
+          type: string
+        term:
+          type: string
+      required:
+      - course
+      - term
     ModulesEnum:
       enum:
       - students
@@ -18122,6 +18362,8 @@ components:
           type: integer
         has_exam:
           type: boolean
+        is_taught:
+          type: boolean
         weekly_hours:
           type: integer
           nullable: true
@@ -18129,6 +18371,7 @@ components:
       - name
       - period_max
       - has_exam
+      - is_taught
       - weekly_hours
     OfficialGrid:
       type: object
@@ -20988,6 +21231,21 @@ components:
           maxLength: 300
       required:
       - reason
+    ReportCardStatus:
+      type: object
+      description: Le bulletin de la classe peut-il s'imprimer ? Feuilles de notes
+        pas encore validées.
+      properties:
+        missing_count:
+          type: integer
+        missing:
+          type: array
+          items:
+            $ref: '#/components/schemas/MissingSheet'
+          description: Les premières seulement.
+      required:
+      - missing_count
+      - missing
     RescheduleRequest:
       type: object
       description: 'Échéancier particulier (E4) : les versements remplacent ce qui

@@ -36,7 +36,7 @@ MAX_GRADED = ApiError(
 
 # Au-delà, c'est une erreur de saisie (un bulletin en compte une vingtaine).
 MAX_COURSES = 60
-FIELDS = ("name", "domain", "period_max", "has_exam", "weekly_hours", "teacher_id")
+FIELDS = ("name", "domain", "period_max", "has_exam", "is_taught", "weekly_hours", "teacher_id")
 
 
 @dataclass(frozen=True)
@@ -46,6 +46,7 @@ class CourseInput:
     name: str
     period_max: int
     has_exam: bool = True
+    is_taught: bool = True
     domain: str = ""
     weekly_hours: int | None = None
     teacher_id: UUID | None = None
@@ -108,6 +109,7 @@ def _snapshot(course: Course) -> dict:
         "domain": course.domain,
         "period_max": course.period_max,
         "has_exam": course.has_exam,
+        "is_taught": course.is_taught,
         "weekly_hours": course.weekly_hours,
         "teacher": str(teacher) if teacher else None,
     }
@@ -165,6 +167,7 @@ def set_courses(
             course.domain = item.domain.strip()
             course.period_max = item.period_max
             course.has_exam = item.has_exam
+            course.is_taught = item.is_taught
             course.weekly_hours = item.weekly_hours
             course.teacher = staff.get(item.teacher_id) if item.teacher_id else None
             course.order = order
@@ -201,6 +204,7 @@ def copy_courses(
             domain=course.domain,
             period_max=course.period_max,
             has_exam=course.has_exam,
+            is_taught=course.is_taught,
             weekly_hours=course.weekly_hours,
         )
         for course in courses_of(source)

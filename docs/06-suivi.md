@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (8.3.3 faite le 2026-10-15) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | 8.3.4 (options d'impression au choix, IMP.1) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Tâche en cours | aucune (8.3.4 faite le 2026-10-15) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | 8.3.5 (formulaire pré-imprimé, impression en lot) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
 | Issue GitHub | aucune |
-| Branche | `tache/8.3.3-bulletin-fidele` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-15 (8.3.3 faite) |
+| Branche | `tache/8.3.4-options-impression` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-15 (8.3.4 faite) |
 
 ## Avancement
 
@@ -29,7 +29,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Lancement (L.0 à L.5, DOC.1 à DOC.3 ; L.3 remplacée par S.1 et S.2) | 8 | 8 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
 | Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 8 | 11 |
-| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.3, 8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 8 | 13 |
+| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.4, 8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 9 | 13 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
 | V1.5 — carte et présences (avec A.5) | 0 | 7 |
@@ -60,6 +60,14 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-15 — Tâche 8.3.4 : options d'impression au choix (IMP.1)
+- Serveur : `PrintOptionsSerializer` (`paper` A4/A5, `orientation`) et `SlipPrintOptionsSerializer` (+ `per_sheet` 1–3) dans `core/documents.py` ; `render(..., options)` règle `@page` (plus de paysage en dur) ; liste de classe, impayés, registre des reçus, situation, fiche d'inscription, convocation, circulaire.
+- Gestion : bloc commun `features/printing` (`PrintLayoutFields`, `SlipPrintLink`, `usePrintOptions`) ; choix gardés par personne et par document **sur l'appareil** (localStorage, aucune table).
+- Décisions : pas de réglage d'école (aucun besoin) ; exemplaires par feuille réservés aux documents courts ; reçus (imprimés côté appareil, exemplaires déjà réglables) et bulletin (formulaire officiel) hors options. Fiches de cotes (8.3.6) réutiliseront le bloc.
+- Tests : papier/sens/400 sur la liste de classe, 3 exemplaires de la convocation, requête du bloc. Suite : 8.3.5.
+- Deuxième tour (2026-10-15) : en-tête commun des documents d'après l'exemplaire fourni (logo, drapeau, lignes centrées, filet, titre + N° de référence), maquette `impression-options.html` et règle « maquette avant code, deux tailles » (CLAUDE.md, mémoire) ; bulletin : cours barrés (`Course.is_taught`, démo 3e Électronique = formulaire fourni), place libre sous le cadre puis partagée dedans, signature par période avec examen + total en une case ; `make apercu` : 3 écrans d'impression ajoutés, aucun débordement.
+- Bulletin (corrections demandées avant la fusion) : plus de ligne vide (lignes étirées, A4 toujours plein), noms coupés, cases adaptées au numéro, pied du formulaire rétabli (colonne en trop de la signature retirée, nom de l'imprimeur retiré), colonne Examen d'État répartie sur toutes les lignes ; PDF refusé tant qu'une feuille de notes d'une période commencée n'est pas validée (`report_incomplete`, écran bulletins), démo complète pour deux classes de l'ITIG. Non fait : numéro du formulaire (IGE/P.S/137) en bas à droite — il change par année, à saisir par l'école plus tard.
 
 ### 2026-10-15 — Bulletins réels reçus, plan 8.3 et conduite revus
 - Reçu : bulletin 3e HT (IGE/P.S/137) et 4e HT (IGE/P.S/096) scannés → `docs/ecole-pilote/prive/builtin/` (hors Git, données personnelles). Constats : le 4e HT remplace « Examen de repêchage » par un bloc « Examen d'État » ; Application et Conduite sont par période ; cases noires ; MAXIMA par groupe et MAXIMA GÉNÉRAUX ; N° ID, province, ville, commune, N° permanent ; police serif de type Times ; la 8.3.2 n'est pas assez fidèle (mesures, police).

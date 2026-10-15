@@ -9,10 +9,8 @@ import {
   CheckboxField,
   Icon,
   PageHeader,
-  Segmented,
   Skeleton,
 } from "@mwangaza/ui";
-import { useState } from "react";
 import { Link, useParams } from "react-router";
 
 import { studentName } from "../../lib/people";
@@ -20,7 +18,9 @@ import { can } from "../../lib/permissions";
 import { useCurrentMe } from "../../lib/queries";
 import { useYears } from "../organisation/data";
 import { LoadError } from "../status/StatusPages";
-import { CHARGES_READ, type Paper, registrationFormUrl, useStudent } from "./data";
+import { PrintLayoutFields } from "../printing/PrintLayoutFields";
+import { DEFAULT_LAYOUT, usePrintOptions } from "../printing/printOptions";
+import { CHARGES_READ, registrationFormUrl, useStudent } from "./data";
 import { DocumentPreview } from "./DocumentPreview";
 
 /** Fiche d'inscription de l'année en cours (D5, M11) : remise au parent avec le code famille,
@@ -31,9 +31,15 @@ export function RegistrationFormPage() {
   const { id = "" } = useParams();
   const student = useStudent(id);
   const years = useYears();
-  const [paper, setPaper] = useState<Paper>("a4");
-  const [familyCode, setFamilyCode] = useState(true);
-  const [fees, setFees] = useState(true);
+  const [saved, save] = usePrintOptions("registration-form", {
+    ...DEFAULT_LAYOUT,
+    familyCode: true,
+    fees: true,
+  });
+  const { familyCode, fees } = saved;
+  const layout = saved;
+  const setFamilyCode = (value: boolean) => save({ familyCode: value });
+  const setFees = (value: boolean) => save({ fees: value });
   const canReadFees = can(useCurrentMe(), CHARGES_READ);
 
   if (student.error)
@@ -42,7 +48,7 @@ export function RegistrationFormPage() {
   const data = student.data;
   const year = years.data.find((candidate) => candidate.is_current);
   const enrollment = data.enrollments.find((item) => item.academic_year === year?.id);
-  const options = { paper, familyCode, fees: canReadFees && fees };
+  const options = { layout, familyCode, fees: canReadFees && fees };
 
   return (
     <>
@@ -71,20 +77,7 @@ export function RegistrationFormPage() {
               <CardTitle>{t("students.print.print")}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <span className="text-sm font-bold text-ink-2">
-                  {t("students.print.form.paper")}
-                </span>
-                <Segmented
-                  label={t("students.print.form.paper")}
-                  value={paper}
-                  onValueChange={setPaper}
-                  options={[
-                    { value: "a4", label: "A4" },
-                    { value: "a5", label: "A5" },
-                  ]}
-                />
-              </div>
+              <PrintLayoutFields layout={layout} onChange={save} />
               <div className="flex flex-col gap-1">
                 <CheckboxField
                   id="family-code"

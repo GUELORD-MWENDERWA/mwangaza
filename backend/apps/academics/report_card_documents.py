@@ -87,7 +87,13 @@ RESIT_WIDTHS = (9.6, 21.0)
 STANDARD_KINDS = ["period", "period", "exam", "group"] * 2
 STANDARD_WIDTHS = [12.7, 15.2, 15.5, 15.3, 10.1, 10.3, 15.4, 13.1]
 BODY_HEIGHT = 154.1  # mm, de la première ligne MAXIMA à la signature du responsable
-ROW_HEIGHT = 4.4
+ROW_HEIGHT = 4.4  # mm, hauteur d'une ligne du formulaire
+MAX_ROW_HEIGHT = 9.0
+# Peu de cours : la place libre va d'abord sous le cadre (jusqu'à OUTSIDE_FIRST), puis se partage
+# entre l'extérieur et l'intérieur du cadre (lignes plus hautes) jusqu'à disparaître.
+OUTSIDE_FIRST = 15.0
+OUTSIDE_SHARE = 0.4
+SHEET_HEIGHT = 279.5  # mm, hauteur du formulaire
 FOOTER_ROWS = 7  # maxima généraux, totaux, pourcentage, place, application, conduite, signature
 
 
@@ -170,19 +176,29 @@ def _row(cells: dict, keys: list[str]) -> list[dict]:
 
 
 def _body(report: ClassReport, student: StudentReport, keys: list[str]) -> list[dict]:
-    """Lignes du tableau : une ligne « Maxima » chaque fois que les maxima changent d'un cours au
-    suivant, comme sur le formulaire."""
+    """Lignes du tableau : une ligne « Maxima » chaque fois que le groupe de cours change (même
+    maximum par période, avec ou sans examen), comme sur le formulaire. Un cours barré (autre
+    option) garde sa place dans son groupe, en tirets."""
     lines: list[dict] = []
-    previous = None
-    # Cours groupés par maxima, du plus petit au plus grand, comme sur le formulaire.
     ordered = sorted(report.courses, key=lambda c: (c.period_max, not c.has_exam, c.name))
+    # Maxima de chaque groupe : ceux de son premier cours suivi (un cours barré n'en a pas).
+    group_maxima: dict[tuple, tuple] = {}
     for course in ordered:
-        row = _row(student.cells[course.pk], keys)
-        maxima = tuple(cell["maximum"] for cell in row)
-        if maxima != previous:
-            lines.append({"maxima": maxima})
-            previous = maxima
-        lines.append({"name": course.name, "cells": row})
+        if course.is_taught:
+            row = _row(student.cells[course.pk], keys)
+            group_maxima.setdefault(
+                (course.period_max, course.has_exam), tuple(cell["maximum"] for cell in row)
+            )
+    previous = None
+    for course in ordered:
+        group = (course.period_max, course.has_exam)
+        if group != previous and group in group_maxima:
+            lines.append({"maxima": group_maxima[group]})
+            previous = group
+        if course.is_taught:
+            lines.append({"name": course.name, "cells": _row(student.cells[course.pk], keys)})
+        else:
+            lines.append({"name": course.name, "struck": True, "cells": [{}] * len(keys)})
     return lines
 
 
@@ -204,53 +220,89 @@ def student_report(class_group: ClassGroup, enrollment_id) -> tuple[ClassReport,
     return report, found
 
 
-def _side_state(rows: int) -> list[dict]:
-    """Colonne de droite de la dernière année, ligne par ligne comme le formulaire : points de
-    l'Examen d'État, contrôle, centre, résultat final, témoignage. Un texte, deux colonnes
-    (`cols`) ou des cases (`boxes`)."""
+def _state_parts() -> list[list[dict]]:
+    """Colonne de droite de la dernière année, comme le formulaire : cinq parties, une ligne de
+    texte par ligne du tableau (texte, gras, deux cases `cols` ou cases `boxes`)."""
+    return [
+        [
+            {"cols": (gettext("Points"), gettext("MAX"))},
+            {"cols": (gettext("Exam"), "")},
+            {"cols": ("%", "")},
+        ],
+        [
+            {"text": gettext("For checking"), "bold": True},
+            {"text": gettext("On ...../...../.....")},
+            {"text": gettext("The head of the centre")},
+        ],
+        [{"text": gettext("Centre code")}, {"boxes": range(5)}],
+        [
+            {"text": gettext("FINAL RESULT"), "bold": True},
+            {"text": gettext("Diploma (1)")},
+            {"text": gettext("With ......... (%)")},
+            {"text": gettext("Failed (1)")},
+        ],
+        [
+            {"text": gettext("As evidence"), "bold": True},
+            {"text": gettext("On ...../...../.....")},
+            {"text": gettext("The head of the school")},
+            {"text": gettext("School seal")},
+        ],
+    ]
+
+
+def _state_column(rows: int) -> list[dict]:
+    """Une entrée par ligne du tableau : les cinq parties s'espacent sur toutes les lignes sauf la
+    dernière (signature du responsable), la dernière partie finit en bas. Quel que soit le nombre
+    de cours, aucune ligne n'est ajoutée ni retirée ; trop peu de lignes : le bas est coupé."""
+    parts = _state_parts()
     items: list[dict] = [{} for _ in range(rows)]
-    slots = {
-        0: {"cols": (gettext("Points"), gettext("MAX"))},
-        1: {"cols": (gettext("Exam"), "")},
-        2: {"cols": ("%", "")},
-        4: {"text": gettext("For checking"), "bold": True},
-        5: {"text": gettext("On ...../...../....."), "dots": True},
-        7: {"text": gettext("The head of the centre")},
-        10: {"text": gettext("Centre code")},
-        11: {"boxes": range(5)},
-        14: {"text": gettext("FINAL RESULT"), "bold": True},
-        15: {"text": gettext("Diploma (1)")},
-        16: {"text": gettext("With ......... (%)")},
-        18: {"text": gettext("Failed (1)")},
-        21: {"text": gettext("As evidence"), "bold": True},
-        22: {"text": gettext("On ...../...../.....")},
-        24: {"text": gettext("The head of the school")},
-        28: {"text": gettext("School seal")},
-    }
-    for index, item in slots.items():
-        if index < rows:
-            items[index] = item
+    available = rows - 1
+    free = max(0, available - sum(len(part) for part in parts))
+    gaps = len(parts) - 1
+    row = 0
+    for index, part in enumerate(parts):
+        for entry in part:
+            if row < available:
+                items[row] = entry
+            row += 1
+        row += free // gaps + (1 if index < free % gaps else 0)
     return items
 
 
-def _side_resit(rows: int) -> list[dict]:
-    """Pied de la colonne de droite des autres années : passe, double, date, chef, sceau (sept
-    lignes sous les totaux) ; au-dessus, les cases « % » et « Sign. prof. » à remplir."""
-    footer = [
-        {"text": gettext("- PASSED (1)")},
-        {"text": gettext("- REPEATS (1)")},
-        {"text": gettext("ON ...../...../20")},
-        {},
-        {"text": gettext("The head of the school")},
-        {"text": gettext("School seal")},
-        {},
-    ]
-    return [{"resit": True}] * (rows - FOOTER_ROWS) + footer
+def _spread(rows: int) -> tuple[float, float]:
+    """Hauteur d'une ligne et espace laissé sous le cadre (mm) pour `rows` lignes de tableau : à
+    beaucoup de cours, les lignes rétrécissent pour tenir ; à peu de cours, la place libre va sous
+    le cadre d'abord, puis aussi dans le cadre, peu à peu, sans changer l'allure du bulletin."""
+    free = BODY_HEIGHT - rows * ROW_HEIGHT
+    if free <= 0:
+        return round(BODY_HEIGHT / rows, 2), 0.0
+    outside = min(free, OUTSIDE_FIRST) + max(0.0, free - OUTSIDE_FIRST) * OUTSIDE_SHARE
+    inside = min(free - outside, rows * (MAX_ROW_HEIGHT - ROW_HEIGHT))
+    return round(ROW_HEIGHT + inside / rows, 2), round(free - inside, 2)
+
+
+def _signature(kinds: list[str], with_year: bool) -> list[int]:
+    """Cases de la ligne « signature du responsable » : une par période, mais l'examen, le total
+    du semestre (et le T.G. pour le dernier) se voient en même temps : une seule case."""
+    spans: list[int] = []
+    for kind in kinds:
+        if kind != "period" and spans and spans[-1] < 0:
+            spans[-1] -= 1
+        else:
+            spans.append(1 if kind == "period" else -1)
+    spans = [abs(span) for span in spans]
+    if with_year:
+        if kinds and kinds[-1] != "period":
+            spans[-1] += 1
+        else:
+            spans.append(1)
+    return spans
 
 
 def _boxes(value: str, count: int) -> list[str]:
-    """Une case par caractère, comme les cases à remplir du formulaire."""
-    return list(value[:count].ljust(count))
+    """Une case par caractère, sans case vide derrière : la valeur s'imprime telle quelle (au plus
+    `count` cases, la largeur du formulaire)."""
+    return list(value[:count])
 
 
 def _code(value: str) -> str:
@@ -271,14 +323,13 @@ def report_card_document(
     person = student.enrollment.student
     class_group = report.class_group
     lines = _body(report, student, keys)
-    # Lignes vides jusqu'à la hauteur du formulaire : les cours d'une autre option y ont leur place.
-    blank = max(0, round(BODY_HEIGHT / ROW_HEIGHT) - FOOTER_ROWS - len(lines))
-    rows = len(lines) + blank + FOOTER_ROWS
-    side = _side_state(rows) if class_group.level.has_state_exam else _side_resit(rows)
-    for line, item in zip(lines, side, strict=False):
-        line["side"] = item
-    blank_lines = [{"side": item} for item in side[len(lines) : len(lines) + blank]]
-    row_height = min(ROW_HEIGHT, round(BODY_HEIGHT / rows, 2))
+    # Pas de ligne vide : la page reste pleine parce que les lignes (cours, maxima, totaux)
+    # s'étirent ; retirer un cours rend sa place à toutes les autres.
+    rows = len(lines) + FOOTER_ROWS
+    state = _state_column(rows) if class_group.level.has_state_exam else [{}] * rows
+    for line, item in zip(lines, state, strict=False):
+        line["state"] = item
+    row_height, outside = _spread(rows)
     track = class_group.track.name if class_group.track_id else ""
     return {
         **school_header(school),
@@ -294,13 +345,13 @@ def report_card_document(
         "state_exam": class_group.level.has_state_exam,
         "year": class_group.academic_year.name,
         "day": day,
-        "printed_by": actor.get_full_name(),
         **head,
         "columns": columns,
         "lines": lines,
-        "blank_lines": blank_lines,
-        "footer_side": side[len(lines) + blank :],
+        "footer_state": state[len(lines) :],
         "row_height": row_height,
+        "sheet_height": round(SHEET_HEIGHT - outside, 2),
+        "signature": _signature([c["kind"] for c in columns], year is not None),
         "font_size": round(min(9.0, row_height * 2.835 * 0.72), 2),
         "totals": _total_rows(student, keys, size),
         "branch_width": BRANCH_WIDTH,

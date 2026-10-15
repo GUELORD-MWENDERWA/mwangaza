@@ -21,7 +21,7 @@ from rest_framework.response import Response
 from apps.accounts.permissions import HasSchoolAccess, IsPlatformAdmin, school_access
 from apps.accounts.roles import ANNOUNCEMENTS_PUBLISH
 from apps.accounts.views import SchoolViewSet
-from apps.core.documents import PRINT_RESPONSE, render
+from apps.core.documents import PRINT_RESPONSE, print_options, render
 from apps.core.errors import ApiError, BusinessError, ErrorSerializer
 from apps.notifications import communication, platform, push, services
 from apps.notifications.attachments import attachment_response
@@ -162,7 +162,10 @@ class AnnouncementViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, School
         announcement = self.get_object()
         name = f"circulaire-{slugify(announcement.title)[:60] or 'annonce'}.pdf"
         context = communication.circular_context(announcement)
-        return render("notifications/circular.html", context, params.validated_data["output"], name)
+        data = params.validated_data
+        return render(
+            "notifications/circular.html", context, data["output"], name, print_options(data)
+        )
 
 
 @extend_schema(tags=["announcements"])
@@ -302,7 +305,10 @@ class SummonsViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, SchoolViewS
         summons = self.get_object()
         name = f"convocation-{slugify(summons.student.full_name)}.pdf"
         context = communication.summons_context(summons)
-        return render("notifications/summons.html", context, params.validated_data["output"], name)
+        data = params.validated_data
+        return render(
+            "notifications/summons.html", context, data["output"], name, print_options(data)
+        )
 
 
 CONSOLE_ERRORS = {400: ErrorSerializer, **ERRORS}

@@ -16,10 +16,11 @@ import {
   Segmented,
 } from "@mwangaza/ui";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 
 import { keys } from "../../lib/queries";
+import { PrintLayoutFields } from "../printing/PrintLayoutFields";
+import { DEFAULT_LAYOUT, usePrintOptions } from "../printing/printOptions";
 import { DocumentPreview } from "../students/DocumentPreview";
 import { type ExportOptions, exportUrl, filtersOf } from "./data";
 
@@ -34,11 +35,19 @@ export function UnpaidExportPage() {
     queryKey: [...keys.unpaid, "summary", filters],
     queryFn: () => call(api.GET("/api/unpaid/summary/", { params: { query: filters } })),
   });
-  const [group, setGroup] = useState<ExportOptions["group"]>("class");
-  const [pagePerClass, setPagePerClass] = useState(true);
-  const [phone, setPhone] = useState(true);
-  const [detail, setDetail] = useState(false);
-  const options = { group, pagePerClass, phone, detail };
+  const [saved, save] = usePrintOptions("unpaid", {
+    ...DEFAULT_LAYOUT,
+    group: "class" as ExportOptions["group"],
+    pagePerClass: true,
+    phone: true,
+    detail: false,
+  });
+  const { group, pagePerClass, phone, detail } = saved;
+  const setGroup = (value: ExportOptions["group"]) => save({ group: value });
+  const setPagePerClass = (value: boolean) => save({ pagePerClass: value });
+  const setPhone = (value: boolean) => save({ phone: value });
+  const setDetail = (value: boolean) => save({ detail: value });
+  const options = { group, pagePerClass, phone, detail, layout: saved };
   const query = new URLSearchParams(filters).toString();
   // « 3e Électricité A · Minerval · Retard : plus de 30 jours » : les filtres repris, en clair.
   const described = [
@@ -126,6 +135,7 @@ export function UnpaidExportPage() {
                 checked={detail}
                 onCheckedChange={(checked) => setDetail(checked === true)}
               />
+              <PrintLayoutFields layout={saved} onChange={save} />
             </CardContent>
           </Card>
           <Card>

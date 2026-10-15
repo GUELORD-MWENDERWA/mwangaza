@@ -12,14 +12,8 @@ td.label { width: 28%; background: #EDF1F6; }
 .cancelled { border: 2px solid #101828; padding: .4em .8em; text-align: center; font-weight: 700; }
 {% endblock %}
 {% block content %}
-<div class="row between">
-  <div class="row">
-    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% else %}<div class="logo-text">{{ school_name|slice:":4"|upper }}</div>{% endif %}
-    <div><b>{{ school_name|upper }}</b>{% if contact %}<div class="small contact">{{ contact }}</div>{% endif %}</div>
-  </div>
-  <div class="small">{{ summons.created_at|date:"d/m/Y" }}</div>
-</div>
-<h1>{% translate "SUMMONS OF THE PARENTS" %}</h1>
+{% include "core/_document_header.html" with service=_("Management") service_code="DIR" title=_("Summons of the parents") reference=True %}
+<div class="lh-extra">{{ summons.created_at|date:"d/m/Y" }}</div>
 {% if summons.cancelled_at %}<p class="cancelled">{% translate "CANCELLED" %}</p>{% endif %}
 <p>{% blocktranslate with name=student.full_name class_name=summons.class_name %}The parents or guardian of the student <b>{{ name }}</b>, class <b>{{ class_name }}</b>, are asked to come to the school:{% endblocktranslate %}</p>
 <table>

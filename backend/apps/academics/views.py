@@ -8,7 +8,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.academics import courses, grades, official, report_card_documents
+from apps.academics import courses, grades, official, report_card_documents, report_cards
 from apps.academics.models import Course, GradeDeadline
 from apps.academics.serializers import (
     CoursesCopiedSerializer,
@@ -21,6 +21,7 @@ from apps.academics.serializers import (
     OfficialGridSerializer,
     ReopenSerializer,
     ReportCardSerializer,
+    ReportCardStatusSerializer,
     SheetSerializer,
     SheetUpdateSerializer,
     TeachingLoadsFilterSerializer,
@@ -37,7 +38,7 @@ from apps.accounts.roles import (
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.documents import PRINT_RESPONSE, render
-from apps.core.errors import ErrorSerializer
+from apps.core.errors import ApiError, BusinessError, ErrorSerializer
 from apps.schools import organisation
 from apps.schools.models import ClassGroup, Term
 from apps.schools.serializers import term_tree
@@ -355,6 +356,39 @@ class GradeDeadlineView(APIView):
 
 
 @extend_schema(tags=["grades"])
+class ReportCardStatusView(APIView):
+    """Le bulletin de la classe peut-il s'imprimer ? (8.3.4) : mêmes droits que le bulletin."""
+
+    permission_classes = [HasSchoolPermission]
+    required_permission = (GRADES_ENTER_ANY, GRADES_VALIDATE)
+    required_module = "academics"
+
+    @extend_schema(responses={200: ReportCardStatusSerializer, **ERRORS})
+    def get(self, request: Request, pk) -> Response:
+        """Feuilles de notes pas encore validées pour les périodes commencées de la classe : tant
+        qu'il en reste, le PDF du bulletin est refusé (409 `report_incomplete`)."""
+        group = get_object_or_404(ClassGroup.objects.select_related("academic_year"), pk=pk)
+        missing = report_cards.missing_sheets(group)
+        return Response(
+            {
+                "missing_count": len(missing),
+                "missing": [
+                    {"course": course.name, "term": grades.term_label(term)}
+                    for course, term in missing[:MAX_MISSING_LISTED]
+                ],
+            }
+        )
+
+
+REPORT_INCOMPLETE = ApiError(
+    "report_incomplete",
+    _("Some courses have no validated grades yet: the report card cannot be printed."),
+    409,
+)
+MAX_MISSING_LISTED = 20
+
+
+@extend_schema(tags=["grades"])
 class ReportCardView(APIView):
     """Bulletin d'un élève (8.3.2) : droit `grades.enter_any` ou `grades.validate`."""
 
@@ -362,7 +396,10 @@ class ReportCardView(APIView):
     required_permission = (GRADES_ENTER_ANY, GRADES_VALIDATE)
     required_module = "academics"
 
-    @extend_schema(parameters=[ReportCardSerializer], responses={**PRINT_RESPONSE, **ERRORS})
+    @extend_schema(
+        parameters=[ReportCardSerializer],
+        responses={**PRINT_RESPONSE, 409: ErrorSerializer, **ERRORS},
+    )
     def get(self, request: Request, pk) -> HttpResponse:
         """Bulletin imprimable : PDF A4 ou son aperçu HTML, avec les places de la classe et un
         QR code d'authenticité ; chaque PDF est noté dans le journal d'audit."""
@@ -376,6 +413,16 @@ class ReportCardView(APIView):
             raise Http404
         output = params.validated_data["output"]
         name = student.enrollment.student.full_name
+        missing = report_cards.missing_sheets(group)
+        if output == "pdf" and missing:
+            raise BusinessError(
+                REPORT_INCOMPLETE,
+                missing=[
+                    {"course": course.name, "term": grades.term_label(term)}
+                    for course, term in missing[:MAX_MISSING_LISTED]
+                ],
+                missing_count=len(missing),
+            )
         if output == "pdf":
             audit.record(
                 Action.GRADES_REPORT_CARD_PRINTED,
@@ -386,6 +433,7 @@ class ReportCardView(APIView):
         context = report_card_documents.report_card_document(
             report, student, actor=request.user, absolute=request.build_absolute_uri
         )
+        context["missing_count"] = len(missing)
         return render(
             "academics/report_card.html", context, output, f"bulletin-{slugify(name)}.pdf"
         )

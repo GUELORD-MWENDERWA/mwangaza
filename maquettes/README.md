@@ -49,6 +49,7 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Fiche famille | `gestion/famille-fiche.html` | V1.0 | D4, H1 · M10 | à valider |
 | Fiche d'inscription (A4, code famille) | `gestion/fiche-inscription.html` | V1.0 | D5 · M11 | à valider |
 | Liste de classe (PDF, Excel) | `gestion/liste-classe.html` | V1.0 | D5 · M11 | à valider |
+| Options d'impression et en-tête des documents (papier, sens, exemplaires ; logo, drapeau, filet, titre avec N°) | `gestion/impression-options.html` | V1.2 | IMP.1 · 8.3.4 | à valider — dessinée par Claude le 2026-10-15 d'après l'exemplaire d'en-tête fourni ; s'applique à tous les documents imprimés |
 | Invitations au portail (suivi par classe, message à partager) | `gestion/invitations-portail.html` | V1.0 | H7 | à valider — dessinée par Claude en 4.9 |
 | Lettre d'invitation au portail (2 par A4) | `gestion/lettre-invitation.html` | V1.0 | H7 | à valider — dessinée par Claude en 4.9 |
 | Frais, barèmes, taux | `gestion/frais-baremes.html` | V1.0 | E1–E5 | fournie |

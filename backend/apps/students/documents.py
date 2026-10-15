@@ -19,7 +19,6 @@ from apps.students.models import Enrollment, Guardian, Student
 from apps.students.photos import CONTENT_TYPES as PHOTO_TYPES
 from apps.students.photos import photo_kind
 
-PAPERS = ("a4", "a5")
 # Colonnes au choix de la liste de classe ; N° et nom toujours présents. `payments` : avec
 # `finance.view_reports`, vérifié par l'API.
 MATRICULE, SEX_BIRTH, GUARDIAN_PHONE = "matricule", "sex_birth", "guardian_phone"
@@ -102,7 +101,7 @@ def _fees(enrollment: Enrollment) -> list[dict]:
 
 
 def registration_form(
-    enrollment: Enrollment, *, actor, paper: str, with_code: bool, with_fees: bool, preview: bool
+    enrollment: Enrollment, *, actor, with_code: bool, with_fees: bool, preview: bool
 ) -> dict:
     """Contenu de la fiche. Le code famille, pour le tuteur principal, n'y est que si
     `with_code` ; chaque PDF qui l'imprime est noté dans le journal d'audit. Les frais de
@@ -120,7 +119,6 @@ def registration_form(
         )
     return {
         **school_header(require_current_school()),
-        "paper": paper,
         "enrollment": enrollment,
         "student": student,
         "photo": _photo(student),

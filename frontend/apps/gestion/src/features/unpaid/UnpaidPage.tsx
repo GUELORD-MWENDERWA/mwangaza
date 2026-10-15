@@ -27,6 +27,7 @@ import { formatPhone, studentName } from "../../lib/people";
 import { keys } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { schoolDay } from "../cash/offline";
+import { DEFAULT_LAYOUT } from "../printing/printOptions";
 import { Pagination } from "../shell/Pagination";
 import { LoadError } from "../status/StatusPages";
 import { type FilterName, ORDERS, OVER_DAYS, type UnpaidRow, exportUrl, filtersOf } from "./data";
@@ -119,6 +120,7 @@ export function UnpaidPage() {
                   pagePerClass: true,
                   phone: true,
                   detail: false,
+                  layout: DEFAULT_LAYOUT,
                 })}
                 download
               >

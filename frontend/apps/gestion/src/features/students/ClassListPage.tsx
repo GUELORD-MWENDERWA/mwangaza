@@ -21,6 +21,8 @@ import { can } from "../../lib/permissions";
 import { useCurrentMe } from "../../lib/queries";
 import { useClasses, useYears } from "../organisation/data";
 import { type ClassListColumn, type ClassListOrder, classListUrl } from "./data";
+import { PrintLayoutFields } from "../printing/PrintLayoutFields";
+import { DEFAULT_LAYOUT, usePrintOptions } from "../printing/printOptions";
 import { DocumentPreview } from "./DocumentPreview";
 
 const COLUMNS = ["matricule", "sex_birth", "guardian_phone", "payments"] as const;
@@ -39,17 +41,27 @@ export function ClassListPage() {
   const offered = can(useCurrentMe(), ["finance.view_reports"])
     ? COLUMNS
     : COLUMNS.filter((column) => column !== "payments");
-  const [columns, setColumns] = useState<ClassListColumn[]>(["matricule", "sex_birth"]);
-  const [blankColumns, setBlankColumns] = useState(2);
-  const [order, setOrder] = useState<ClassListOrder>("name");
+  const [saved, save] = usePrintOptions("class-list", {
+    ...DEFAULT_LAYOUT,
+    columns: "matricule,sex_birth",
+    blankColumns: 2,
+    order: "name" as ClassListOrder,
+  });
+  // Colonnes gardées, sauf celles que cette personne ne peut pas voir (paiements).
+  const columns = saved.columns
+    .split(",")
+    .filter((column): column is ClassListColumn => offered.some((name) => name === column));
+  const { blankColumns, order } = saved;
+  const setBlankColumns = (value: number) => save({ blankColumns: value });
+  const setOrder = (value: ClassListOrder) => save({ order: value });
 
   const groups = classes.data ?? [];
   const group = groups.find((candidate) => candidate.id === chosen) ?? groups[0];
-  const options = { columns, blankColumns, order };
+  const options = { columns, blankColumns, order, layout: saved };
   const toggle = (column: ClassListColumn, on: boolean) =>
-    setColumns((current) =>
-      COLUMNS.filter((name) => (name === column ? on : current.includes(name))),
-    );
+    save({
+      columns: COLUMNS.filter((name) => (name === column ? on : columns.includes(name))).join(","),
+    });
 
   return (
     <>
@@ -156,6 +168,7 @@ export function ClassListPage() {
                   ]}
                 />
               </div>
+              <PrintLayoutFields layout={saved} onChange={save} />
             </CardContent>
           </Card>
           <div className="min-[1000px]:order-1">

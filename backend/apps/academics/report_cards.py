@@ -7,6 +7,8 @@ Règles (décisions du 2026-10-15) :
 - Une case est « incomplète » (`None`) tant qu'une évaluation n'est pas notée pour
   l'élève, ou que le cours n'a aucune évaluation dans la période : aucun total ne cache un manque.
 - Un total n'existe que si toutes ses cases le sont ; sans total, ni pourcentage, ni place.
+- Un cours barré (`is_taught` faux, autre option du formulaire) n'est ni noté ni compté dans les
+  maxima : le bulletin l'imprime en tirets.
 - Un cours sans examen (atelier, laboratoire) n'a pas de case d'examen : son maximum n'y compte pas.
 - Place : 1 + nombre d'élèves au total strictement plus haut (ex æquo : même place). Le nombre
   d'élèves est celui de la classe.
@@ -19,7 +21,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from uuid import UUID
 
 from apps.academics.grades import period_score, term_maximum
-from apps.academics.models import Course, Evaluation, Grade
+from apps.academics.models import Course, Evaluation, Grade, GradeSheet
 from apps.schools.models import ClassGroup, Term
 from apps.students.models import Enrollment
 
@@ -123,6 +125,39 @@ def _percent(score: Decimal, maximum: int) -> Decimal:
     return (score * 100 / maximum).quantize(PERCENT_STEP, rounding=ROUND_HALF_UP)
 
 
+def missing_sheets(class_group: ClassGroup) -> list[tuple[Course, Term]]:
+    """Feuilles de notes pas encore validées, pour les périodes et examens déjà commencés dans la
+    classe (au moins une évaluation) ; classe sans aucune note : la première période. Le bulletin
+    imprimé attend que cette liste soit vide (un cours sans note chez l'enseignant, ou envoyé et
+    pas encore validé, ne laisse pas de case vide sur un bulletin remis aux parents)."""
+    terms = [
+        term
+        for term in Term.objects.filter(academic_year_id=class_group.academic_year_id).order_by(
+            "order"
+        )
+        if term.kind in (Term.Kind.PERIOD, Term.Kind.EXAM)
+    ]
+    started = set(
+        Evaluation.objects.filter(course__class_group=class_group).values_list("term_id", flat=True)
+    )
+    due = [term for term in terms if term.pk in started] or terms[:1]
+    validated = set(
+        GradeSheet.objects.filter(
+            course__class_group=class_group, status=GradeSheet.Status.VALIDATED
+        ).values_list("course_id", "term_id")
+    )
+    courses = Course.objects.filter(class_group=class_group, is_taught=True).order_by(
+        "order", "name"
+    )
+    return [
+        (course, term)
+        for term in due
+        for course in courses
+        if (term.kind != Term.Kind.EXAM or course.has_exam)
+        and (course.pk, term.pk) not in validated
+    ]
+
+
 def class_report(class_group: ClassGroup) -> ClassReport:
     """Bulletin de toute la classe, pour l'année de la classe (élèves inscrits actifs)."""
     year_terms = list(Term.objects.filter(academic_year_id=class_group.academic_year_id))
@@ -152,7 +187,7 @@ def class_report(class_group: ClassGroup) -> ClassReport:
             row: dict[str, Cell] = {}
             for key, column in leaves.items():
                 term = column.term
-                if term.kind == Term.Kind.EXAM and not course.has_exam:
+                if not course.is_taught or (term.kind == Term.Kind.EXAM and not course.has_exam):
                     row[key] = Cell(None, 0)
                     continue
                 maximum = term_maximum(course, term)

@@ -2,6 +2,8 @@
 // l'écran « Exporter » reprenne exactement ceux de la liste, comme le serveur.
 import type { Schemas } from "@mwangaza/api";
 
+import { layoutQuery, type PrintLayout } from "../printing/printOptions";
+
 export type UnpaidRow = Schemas["UnpaidStudent"];
 export type UnpaidSummary = Schemas["UnpaidSummary"];
 
@@ -40,6 +42,7 @@ export type ExportOptions = {
   pagePerClass: boolean;
   phone: boolean;
   detail: boolean;
+  layout: PrintLayout;
 };
 
 /** Adresse de l'export, avec les filtres de la liste. */
@@ -51,6 +54,7 @@ export function exportUrl(filters: Record<string, string>, options: ExportOption
     page_per_class: String(options.pagePerClass),
     phone: String(options.phone),
     detail: String(options.detail),
+    ...layoutQuery(options.layout),
   });
   return `/api/unpaid/export/?${query}`;
 }

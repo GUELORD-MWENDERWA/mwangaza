@@ -29,7 +29,14 @@ from apps.accounts.roles import (
 from apps.accounts.views import SchoolViewSet
 from apps.audit import services as audit
 from apps.audit.actions import Action
-from apps.core.documents import PRINT_RESPONSE, XLSX, XLSX_RESPONSE, file_response, render
+from apps.core.documents import (
+    PRINT_RESPONSE,
+    XLSX,
+    XLSX_RESPONSE,
+    file_response,
+    print_options,
+    render,
+)
 from apps.core.errors import ErrorSerializer
 from apps.finance import (
     dashboard,
@@ -378,7 +385,13 @@ class StudentChargeViewSet(mixins.ListModelMixin, SchoolViewSet):
             hide_paid=data["hide_paid"],
         )
         name = slugify(names[0] if len(names) == 1 else f"situations-{len(names)}")
-        return render("finance/statement.html", context, data["output"], f"situation-{name}.pdf")
+        return render(
+            "finance/statement.html",
+            context,
+            data["output"],
+            f"situation-{name}.pdf",
+            print_options(data),
+        )
 
     @extend_schema(
         request=RescheduleSerializer,
@@ -996,7 +1009,13 @@ class UnpaidViewSet(mixins.ListModelMixin, SchoolViewSet):
             phone=data["phone"],
             detail=data["detail"],
         )
-        return render("finance/unpaid.html", context, output, f"{name}.pdf")
+        return render(
+            "finance/unpaid.html",
+            context,
+            output,
+            f"{name}.pdf",
+            print_options(data, orientation="landscape"),
+        )
 
 
 @extend_schema(tags=["finance"])
@@ -1045,7 +1064,13 @@ class ReceiptRegisterView(APIView):
         if output == "xlsx":
             return file_response(documents.receipt_register_workbook(found), XLSX, f"{name}.xlsx")
         context = documents.receipt_register_document(found, filters, actor=request.user)
-        return render("finance/receipt_register.html", context, output, f"{name}.pdf")
+        return render(
+            "finance/receipt_register.html",
+            context,
+            output,
+            f"{name}.pdf",
+            print_options(params.validated_data, orientation="landscape"),
+        )
 
 
 @extend_schema(tags=["finance"])

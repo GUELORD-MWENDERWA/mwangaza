@@ -11,13 +11,15 @@ import {
   PageHeader,
   Skeleton,
 } from "@mwangaza/ui";
-import { type ReactNode, useState } from "react";
+import type { ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 
 import { studentName } from "../../lib/people";
 import { can } from "../../lib/permissions";
 import { useCurrentMe } from "../../lib/queries";
 import { useYears } from "../organisation/data";
+import { PrintLayoutFields } from "../printing/PrintLayoutFields";
+import { DEFAULT_LAYOUT, usePrintOptions } from "../printing/printOptions";
 import { LoadError } from "../status/StatusPages";
 import { CHARGES_READ, type StatementOptions, statementUrl, useStudent } from "./data";
 import { DocumentPreview } from "./DocumentPreview";
@@ -38,17 +40,19 @@ function Statement({
 }) {
   const { t } = useTranslation();
   const me = useCurrentMe();
-  const [options, setOptions] = useState<StatementOptions>({
+  const [saved, save] = usePrintOptions("statement", {
+    ...DEFAULT_LAYOUT,
     upcoming: true,
     payments: true,
     hidePaid: false,
   });
+  const options = { ...saved, layout: saved };
   const option = (name: keyof StatementOptions, id: string) => (
     <CheckboxField
       id={id}
       label={t(`students.print.statement.${name}`)}
       checked={options[name]}
-      onCheckedChange={(checked) => setOptions({ ...options, [name]: checked === true })}
+      onCheckedChange={(checked) => save({ [name]: checked === true })}
     />
   );
   const pdf = statementUrl(enrollments, { output: "pdf", ...options });
@@ -68,6 +72,7 @@ function Statement({
               {option("upcoming", "statement-upcoming")}
               {option("payments", "statement-payments")}
               {option("hidePaid", "statement-hide-paid")}
+              <PrintLayoutFields layout={saved} onChange={save} />
               <p className="text-sm text-ink-3">{t("students.print.statement.help")}</p>
               <Button asChild>
                 <a href={pdf} target="_blank" rel="noopener">

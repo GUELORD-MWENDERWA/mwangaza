@@ -14,13 +14,8 @@ tr.overdue td { font-weight: 700; }
 {% endblock %}
 {% block content %}{% for page in pages %}
 <section class="page">
-<div class="row between">
-  <div class="row">
-    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% else %}<div class="logo-text">{{ school_name|slice:":4"|upper }}</div>{% endif %}
-    <div><b>{{ school_name|upper }}</b>{% for line in header_lines %}<br><span class="small">{{ line }}</span>{% endfor %}</div>
-  </div>
-  <img class="qr" src="{{ page.qr }}" alt="">
-</div>
+{% include "core/_document_header.html" with service=_("Accounting") service_code="CPT" %}
+<img class="qr lh-qr" src="{{ page.qr }}" alt="">
 
 <h1>{% blocktranslate with date=day|date:"d/m/Y" %}FINANCIAL STATEMENT ON {{ date }}{% endblocktranslate %}</h1>
 <p class="center">{% blocktranslate with year=page.year %}School year {{ year }}{% endblocktranslate %}</p>

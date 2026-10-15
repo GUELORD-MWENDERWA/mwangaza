@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from apps.accounts.serializers import PhoneField
 from apps.audit.serializers import AuditLogSerializer
+from apps.core.documents import PrintOptionsSerializer
 from apps.core.images import CleanedFileField
 from apps.finance import services as finance
 from apps.finance.serializers import BalanceSerializer
@@ -552,7 +553,7 @@ class ImportLineFilterSerializer(serializers.Serializer):
     )
 
 
-class RegistrationFormQuerySerializer(serializers.Serializer):
+class RegistrationFormQuerySerializer(PrintOptionsSerializer):
     """Fiche d'inscription (D5, M11)."""
 
     output = serializers.ChoiceField(
@@ -560,7 +561,6 @@ class RegistrationFormQuerySerializer(serializers.Serializer):
         default="pdf",
         help_text="`html` : aperçu dans la page, code famille masqué ; `pdf` : à imprimer.",
     )
-    paper = serializers.ChoiceField(choices=documents.PAPERS, default="a4")
     family_code = serializers.BooleanField(
         default=False,
         help_text="Imprimer le code famille (pour le tuteur principal) ; chaque PDF qui "
@@ -573,7 +573,7 @@ class RegistrationFormQuerySerializer(serializers.Serializer):
     )
 
 
-class ClassListQuerySerializer(serializers.Serializer):
+class ClassListQuerySerializer(PrintOptionsSerializer):
     """Liste de classe (D5, M11) : élèves actifs de la classe."""
 
     class_group = serializers.PrimaryKeyRelatedField(queryset=ClassGroup.objects)

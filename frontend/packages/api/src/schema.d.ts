@@ -917,6 +917,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/class-groups/{id}/report-card-status/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Feuilles de notes pas encore validées pour les périodes commencées de la classe : tant
+         *     qu'il en reste, le PDF du bulletin est refusé (409 `report_incomplete`).
+         */
+        get: operations["class_groups_report_card_status_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/class-groups/homeroom-candidates/": {
         parameters: {
             query?: never;
@@ -5325,6 +5345,8 @@ export interface components {
             readonly period_max: number;
             /** With exam */
             readonly has_exam: boolean;
+            /** Taught in this class */
+            readonly is_taught: boolean;
             /** Hours per week */
             readonly weekly_hours: number | null;
             readonly teacher: components["schemas"]["Person"] | null;
@@ -5341,6 +5363,11 @@ export interface components {
             period_max: number;
             /** @default true */
             has_exam: boolean;
+            /**
+             * @description Faux : cours du formulaire barré sur le bulletin, jamais noté.
+             * @default true
+             */
+            is_taught: boolean;
             weekly_hours?: number | null;
             /**
              * Format: uuid
@@ -6560,6 +6587,10 @@ export interface components {
          * @enum {string}
          */
         MissingFieldsEnum: "last_name" | "middle_name" | "first_name" | "sex" | "birth_date" | "birth_place" | "class_name" | "matricule" | "national_id" | "permanent_number" | "guardian_name" | "guardian_phone";
+        MissingSheet: {
+            course: string;
+            term: string;
+        };
         /**
          * @description * `students` - Students, families and enrolments
          *     * `finance` - Fees, cash desk and payments
@@ -6629,6 +6660,7 @@ export interface components {
             name: string;
             period_max: number;
             has_exam: boolean;
+            is_taught: boolean;
             weekly_hours: number | null;
         };
         OfficialGrid: {
@@ -8101,6 +8133,12 @@ export interface components {
         };
         ReopenRequest: {
             reason: string;
+        };
+        /** @description Le bulletin de la classe peut-il s'imprimer ? Feuilles de notes pas encore validées. */
+        ReportCardStatus: {
+            missing_count: number;
+            /** @description Les premières seulement. */
+            missing: components["schemas"]["MissingSheet"][];
         };
         /** @description Échéancier particulier (E4) : les versements remplacent ce qui reste dû pour ce frais. */
         RescheduleRequest: {
@@ -9778,12 +9816,26 @@ export interface operations {
         parameters: {
             query?: {
                 /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
                  * @description `html` : aperçu ; `pdf` : à imprimer.
                  *
                  *     * `pdf` - pdf
                  *     * `html` - html
                  */
                 output?: "pdf" | "html";
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
+                /** @description Exemplaires par feuille. */
+                per_sheet?: number;
             };
             header?: never;
             path: {
@@ -12311,6 +12363,51 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    class_groups_report_card_status_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportCardStatus"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
         };
     };
     class_groups_homeroom_candidates_list: {
@@ -14795,6 +14892,13 @@ export interface operations {
                 /** @description Frais de l'année de l'élève, après réductions, par devise : avec un droit de lecture des frais (comme `/api/student-charges/`), sinon 403. */
                 fees?: boolean;
                 /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
                  * @description `html` : aperçu dans la page, code famille masqué ; `pdf` : à imprimer.
                  *
                  *     * `pdf` - pdf
@@ -14866,11 +14970,23 @@ export interface operations {
                  */
                 order?: "name" | "matricule";
                 /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
                  * @description * `pdf` - pdf
                  *     * `xlsx` - xlsx
                  *     * `html` - html
                  */
                 output?: "pdf" | "xlsx" | "html";
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
             };
             header?: never;
             path?: never;
@@ -18333,6 +18449,13 @@ export interface operations {
                 /** @description Dernier jour (inclus), 366 jours au plus après le premier. */
                 end: string;
                 /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
                  * @description Excel, PDF, ou aperçu HTML du PDF.
                  *
                  *     * `xlsx` - xlsx
@@ -18340,6 +18463,11 @@ export interface operations {
                  *     * `html` - html
                  */
                 output: "xlsx" | "pdf" | "html";
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
                 /** @description Premier jour (inclus). */
                 start: string;
             };
@@ -19624,12 +19752,24 @@ export interface operations {
                 /** @description Sans les frais soldés. */
                 hide_paid?: boolean;
                 /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
                  * @description PDF, ou son aperçu HTML.
                  *
                  *     * `pdf` - pdf
                  *     * `html` - html
                  */
                 output: "pdf" | "html";
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
                 /** @description Paiements reçus et annulés. */
                 payments?: boolean;
                 /** @description Échéances à venir. */
@@ -20842,12 +20982,26 @@ export interface operations {
         parameters: {
             query?: {
                 /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
                  * @description `html` : aperçu ; `pdf` : à imprimer.
                  *
                  *     * `pdf` - pdf
                  *     * `html` - html
                  */
                 output?: "pdf" | "html";
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
+                /** @description Exemplaires par feuille. */
+                per_sheet?: number;
             };
             header?: never;
             path: {
@@ -21556,6 +21710,13 @@ export interface operations {
                  */
                 order?: "amount" | "days" | "name" | "class";
                 /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
                  * @description Excel (une ligne par frais en retard), PDF, ou aperçu HTML du PDF.
                  *
                  *     * `xlsx` - xlsx
@@ -21567,6 +21728,11 @@ export interface operations {
                 over_days?: number;
                 /** @description PDF : une page par classe. */
                 page_per_class?: boolean;
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
                 /** @description PDF : téléphone du tuteur. */
                 phone?: boolean;
             };

@@ -24,7 +24,16 @@ class CourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ["id", "name", "domain", "period_max", "has_exam", "weekly_hours", "teacher"]
+        fields = [
+            "id",
+            "name",
+            "domain",
+            "period_max",
+            "has_exam",
+            "is_taught",
+            "weekly_hours",
+            "teacher",
+        ]
         read_only_fields = fields
 
 
@@ -36,6 +45,9 @@ class CourseInputSerializer(serializers.Serializer):
     domain = serializers.CharField(max_length=100, required=False, allow_blank=True, default="")
     period_max = serializers.IntegerField(min_value=1, max_value=MAX_PERIOD_MAX)
     has_exam = serializers.BooleanField(default=True)
+    is_taught = serializers.BooleanField(
+        default=True, help_text="Faux : cours du formulaire barré sur le bulletin, jamais noté."
+    )
     weekly_hours = serializers.IntegerField(
         min_value=1, max_value=MAX_WEEKLY_HOURS, required=False, allow_null=True, default=None
     )
@@ -73,6 +85,7 @@ class OfficialCourseSerializer(serializers.Serializer):
     name = serializers.CharField()
     period_max = serializers.IntegerField()
     has_exam = serializers.BooleanField()
+    is_taught = serializers.BooleanField()
     weekly_hours = serializers.IntegerField(allow_null=True)
 
 
@@ -85,7 +98,13 @@ class OfficialGridSerializer(serializers.Serializer):
     def get_courses(self, grid) -> list[dict]:
         return OfficialCourseSerializer(
             [
-                {"name": n, "period_max": m, "has_exam": e, "weekly_hours": h}
+                {
+                    "name": n,
+                    "period_max": m,
+                    "has_exam": e,
+                    "is_taught": n not in grid.untaught,
+                    "weekly_hours": h,
+                }
                 for n, m, e, h in grid.courses
             ],
             many=True,
@@ -308,3 +327,15 @@ class ReportCardSerializer(serializers.Serializer):
 
     enrollment = serializers.UUIDField(help_text="Inscription de l'élève dans cette classe.")
     output = serializers.ChoiceField(choices=["pdf", "html"], help_text="PDF, ou son aperçu HTML.")
+
+
+class MissingSheetSerializer(serializers.Serializer):
+    course = serializers.CharField()
+    term = serializers.CharField()
+
+
+class ReportCardStatusSerializer(serializers.Serializer):
+    """Le bulletin de la classe peut-il s'imprimer ? Feuilles de notes pas encore validées."""
+
+    missing_count = serializers.IntegerField()
+    missing = MissingSheetSerializer(many=True, help_text="Les premières seulement.")
