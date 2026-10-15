@@ -501,13 +501,14 @@ function SlipCopy({ slip }: { slip: Slip }) {
   );
 }
 
-/** Impression du bordereau : un exemplaire, au format de reçu de l'école (aussi pour le
- *  comptable, écran « Clôtures de caisse »). */
+/** Impression du bordereau, au format de reçu de l'école (aussi pour le comptable, écran
+ *  « Clôtures de caisse »). */
 export function useSlipPrint() {
   const school = useCurrentSchool();
-  const single = { ...school, receipt: { ...school.receipt, copies: 1 as const } };
   return usePrintArea<Slip>((job) => (
-    <ReceiptPages school={single} copy={() => <SlipCopy slip={job} />} />
+    <ReceiptPages school={school}>
+      <SlipCopy slip={job} />
+    </ReceiptPages>
   ));
 }
 

@@ -154,7 +154,7 @@ Rôles proposés au départ (un modèle : l'école les renomme, les modifie et l
 - Plusieurs caisses et caissiers.
 - Encaissement **hors-ligne**.
 - Paiement partiel accepté ; répartition automatique sur les échéances les plus anciennes, modifiable.
-- Reçu imprimé automatiquement dans le format choisi par l'école : thermique 58 ou 80 mm, ou petit reçu (A6, A5, ≈ 10 × 7 cm) sur feuille A4 avec traits de découpe ; 1 ou 2 exemplaires (souche) ; QR code de vérification, valable aussi pour un reçu imprimé hors ligne.
+- Reçu imprimé automatiquement dans le format choisi par l'école : thermique 58 ou 80 mm, ou reçu sur demi ou tiers de feuille A4 (un reçu par feuille, un seul exemplaire) ; QR code de vérification, valable aussi pour un reçu imprimé hors ligne.
 - Annulation seulement avec autorisation d'un responsable et motif.
 - Clôture de caisse journalière par caissier et par devise, avec écart constaté.
 

@@ -29,8 +29,7 @@ def test_each_school_sees_its_own_name(client, school, other_school):
         # Le reçu imprimé par la caisse (réglages par défaut).
         "receipt": {
             "printer": "thermal_80",
-            "sheet_size": "a6",
-            "copies": 1,
+            "sheet_size": "half",
             "header": "",
             "footer": "",
         },

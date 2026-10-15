@@ -21,15 +21,7 @@ export type CancellationReceipt = Schemas["CancellationReceipt"];
 /** `reprintedAt` : duplicata. */
 export type CancellationJob = { cancellation: CancellationReceipt; reprintedAt?: string };
 
-function CancellationCopy({
-  job,
-  school,
-  copy,
-}: {
-  job: CancellationJob;
-  school: School;
-  copy?: number;
-}) {
+function CancellationCopy({ job, school }: { job: CancellationJob; school: School }) {
   const { t, i18n } = useTranslation();
   const me = useCurrentMe();
   const { cancellation: item, reprintedAt } = job;
@@ -150,11 +142,6 @@ function CancellationCopy({
       <p className="receipt__foot">
         {t("cancellations.receipt.void", { number: payment.receipt_number })}
       </p>
-      {copy !== undefined && (
-        <p className="receipt__copy">
-          {t(copy === 0 ? "cash.receipt.studentCopy" : "cash.receipt.schoolCopy")}
-        </p>
-      )}
     </article>
   );
 }
@@ -163,9 +150,8 @@ function CancellationCopy({
 export function useCancellationPrinter() {
   const school = useCurrentSchool();
   return usePrintArea<CancellationJob>((job) => (
-    <ReceiptPages
-      school={school}
-      copy={(index) => <CancellationCopy job={job} school={school} copy={index} />}
-    />
+    <ReceiptPages school={school}>
+      <CancellationCopy job={job} school={school} />
+    </ReceiptPages>
   ));
 }

@@ -148,12 +148,6 @@
   max-width: 22mm;
   max-height: 16mm;
 }
-.receipt-sheet--small .receipt__signature {
-  max-height: 8mm;
-}
-.receipt-sheet--small .receipt__stamp-image {
-  max-height: 12mm;
-}
 .receipt__stamp {
   flex: 1;
   max-width: 34mm;
@@ -162,14 +156,9 @@
   padding: 1mm;
   font-size: 0.85em;
 }
-.receipt__foot,
-.receipt__copy {
+.receipt__foot {
   font-size: 0.85em;
   text-align: center;
-}
-.receipt__copy {
-  font-weight: 700;
-  text-transform: uppercase;
 }
 
 /* Ticket thermique : largeur du rouleau ; la longueur suit le reçu (papier choisi dans le
@@ -198,81 +187,60 @@
   width: 26mm;
   height: 26mm;
 }
-.receipt-cut {
-  margin: 6mm 0;
-  border: 0;
-  border-top: 0.3mm dashed #000;
-}
 
-/* Feuille A4 : cases A6 (2 x 2), A5 (1 x 2) ou petit format (2 x 4), bordées de traits de
-   découpe ; un peu moins que 297 mm pour ne jamais déborder sur une 2e page. */
+/* Feuille de la largeur d'un A4 et de hauteur réduite, un reçu par feuille (DOC.2) : demi A4
+   (210 x 148 mm) ou tiers d'A4 (210 x 99 mm). Un peu moins que la feuille pour ne jamais
+   déborder sur une 2e page. */
 .receipt-sheet {
-  display: grid;
   box-sizing: border-box;
   width: 210mm;
-  height: 296mm;
-  align-content: start;
-}
-.receipt-sheet--a6 {
-  grid-template: repeat(2, 148mm) / repeat(2, 105mm);
-}
-.receipt-sheet--a5 {
-  grid-template: repeat(2, 148mm) / 210mm;
-}
-.receipt-sheet--small {
-  grid-template: repeat(4, 74mm) / repeat(2, 105mm);
-}
-.receipt-cell {
-  box-sizing: border-box;
+  padding: 6mm 9mm;
   overflow: hidden;
-  padding: 5mm 6mm;
-  outline: 0.2mm dashed #666;
-  outline-offset: -0.1mm;
 }
-.receipt-sheet--a6 .receipt {
-  font-size: 8pt;
+.receipt-sheet--half {
+  height: 147mm;
 }
-.receipt-sheet--a5 .receipt {
-  font-size: 9.5pt;
+.receipt-sheet--third {
+  height: 98mm;
+  padding: 4mm 9mm;
 }
-.receipt-sheet--a5 .receipt__qr svg {
+.receipt-sheet--half .receipt {
+  font-size: 10pt;
+}
+.receipt-sheet--half .receipt__qr svg {
   width: 24mm;
   height: 24mm;
 }
-.receipt-sheet--small .receipt-cell {
-  padding: 3mm 4mm;
+/* Tiers : deux colonnes (école, élève et signatures à gauche ; lignes, total et solde à droite). */
+.receipt-sheet--third .receipt {
+  display: block;
+  column-count: 2;
+  column-gap: 10mm;
+  font-size: 8.5pt;
+  line-height: 1.2;
 }
-/* Petit format : tout doit tenir dans 74 mm ; le QR code suffit pour vérifier. */
-.receipt-sheet--small .receipt {
-  gap: 0.6mm;
-  font-size: 6.5pt;
-  line-height: 1.12;
+.receipt-sheet--third .receipt > * {
+  break-inside: avoid;
+  margin-bottom: 1.4mm;
 }
-.receipt-sheet--small .receipt__title,
-.receipt-sheet--small .receipt__total,
-.receipt-sheet--small .receipt__rule {
-  padding-top: 0.6mm;
+.receipt-sheet--third .receipt__logo {
+  width: 11mm;
+  height: 11mm;
 }
-.receipt-sheet--small .receipt__lines td {
-  padding: 0;
+.receipt-sheet--third .receipt__qr svg {
+  width: 17mm;
+  height: 17mm;
 }
-.receipt-sheet--small .receipt__total {
-  font-size: 1.1em;
+.receipt-sheet--third .receipt__qr--dense svg {
+  width: 21mm;
+  height: 21mm;
 }
-.receipt-sheet--small .receipt__verify {
-  display: none;
+.receipt-sheet--third .receipt__signature {
+  max-height: 9mm;
 }
-.receipt-sheet--small .receipt__logo {
-  display: none;
+.receipt-sheet--third .receipt__stamp-image {
+  max-height: 14mm;
 }
-.receipt-sheet--small .receipt__qr svg {
-  width: 15mm;
-  height: 15mm;
-}
-.receipt-sheet--small .receipt__stamp {
-  min-height: 7mm;
-}
-.receipt-sheet--small .receipt__qr--dense svg {
-  width: 20mm;
-  height: 20mm;
+.receipt-sheet--third .receipt__stamp {
+  min-height: 9mm;
 }

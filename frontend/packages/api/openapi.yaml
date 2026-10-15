@@ -14784,14 +14784,6 @@ components:
       - address
       - email
       - emergency_contact
-    CopiesEnum:
-      enum:
-      - 1
-      - 2
-      type: integer
-      description: |-
-        * `1` - 1
-        * `2` - 2
     CountedRequest:
       type: object
       properties:
@@ -20263,19 +20255,10 @@ components:
           allOf:
           - $ref: '#/components/schemas/SheetSizeEnum'
           description: |-
-            Sur une feuille A4 : A6 (4 par feuille), A5 (2), petit format ≈ 10 x 7 cm (8).
+            Un reçu par feuille : demi A4 (21 x 14,8 cm) ou tiers d'A4 (21 x 9,9 cm).
 
-            * `a6` - a6
-            * `a5` - a5
-            * `small` - small
-        copies:
-          allOf:
-          - $ref: '#/components/schemas/CopiesEnum'
-          description: |-
-            1 (élève) ou 2 (élève et souche pour l'école).
-
-            * `1` - 1
-            * `2` - 2
+            * `half` - half
+            * `third` - third
         header:
           type: string
           description: 'Lignes d''en-tête : adresse, téléphone, e-mail (5 lignes au
@@ -20288,7 +20271,6 @@ components:
       required:
       - printer
       - sheet_size
-      - copies
       - header
       - footer
     ReceiptSettingsRequest:
@@ -20309,19 +20291,10 @@ components:
           allOf:
           - $ref: '#/components/schemas/SheetSizeEnum'
           description: |-
-            Sur une feuille A4 : A6 (4 par feuille), A5 (2), petit format ≈ 10 x 7 cm (8).
+            Un reçu par feuille : demi A4 (21 x 14,8 cm) ou tiers d'A4 (21 x 9,9 cm).
 
-            * `a6` - a6
-            * `a5` - a5
-            * `small` - small
-        copies:
-          allOf:
-          - $ref: '#/components/schemas/CopiesEnum'
-          description: |-
-            1 (élève) ou 2 (élève et souche pour l'école).
-
-            * `1` - 1
-            * `2` - 2
+            * `half` - half
+            * `third` - third
         header:
           type: string
           description: 'Lignes d''en-tête : adresse, téléphone, e-mail (5 lignes au
@@ -20332,7 +20305,6 @@ components:
           description: Mention en bas du reçu.
           maxLength: 200
       required:
-      - copies
       - footer
       - header
       - printer
@@ -20970,14 +20942,12 @@ components:
       - total
     SheetSizeEnum:
       enum:
-      - a6
-      - a5
-      - small
+      - half
+      - third
       type: string
       description: |-
-        * `a6` - a6
-        * `a5` - a5
-        * `small` - small
+        * `half` - half
+        * `third` - third
     SheetUpdateRequest:
       type: object
       description: |-

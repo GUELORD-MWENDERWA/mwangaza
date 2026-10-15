@@ -109,19 +109,17 @@ DEMO_LOOKS = {
         # En-tête et mention fictifs, thermique 80 mm.
         "receipt": {
             "printer": "thermal_80",
-            "sheet_size": "a6",
-            "copies": 1,
+            "sheet_size": "half",
             "header": "Institut Technique Industriel\nGoma · Nord-Kivu\n+243 000 000 000",
             "footer": "Conservez ce reçu. Aucun remboursement sans reçu.",
         },
     },
     "volcans": {
         "primary_color": "#7A3E00",
-        # Imprimante ordinaire : reçus A6, avec une souche pour l'école.
+        # Imprimante ordinaire : reçus sur un tiers de feuille A4.
         "receipt": {
             "printer": "sheet",
-            "sheet_size": "a6",
-            "copies": 2,
+            "sheet_size": "third",
             "header": "Quartier Himbi, Goma\nvolcans@example.org",
             "footer": "Merci de payer à temps.",
         },

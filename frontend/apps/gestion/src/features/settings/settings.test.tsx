@@ -16,7 +16,7 @@ const settings = {
   timezone: "Africa/Lubumbashi",
   enabled_currencies: ["USD", "CDF"],
   default_currency: "USD",
-  receipt: { printer: "thermal_80", sheet_size: "a6", copies: 1, header: "", footer: "" },
+  receipt: { printer: "thermal_80", sheet_size: "half", header: "", footer: "" },
   alerts: {
     difference_minor: { USD: 1000, CDF: 20000 },
     cancellations_per_day: 3,
@@ -52,12 +52,11 @@ describe("Paramètres de l'école (M5)", () => {
     await user.clear(name);
     await user.type(name, "Institut Alpha");
     await user.selectOptions(identity.getByLabelText("Fuseau horaire"), "Africa/Kinshasa");
-    // Reçus : la taille sur la feuille A4 seulement pour une imprimante ordinaire.
+    // Reçus : la hauteur de la feuille seulement pour une imprimante ordinaire.
     const receipt = await card("Reçus");
-    expect(receipt.queryByLabelText("Taille du reçu sur la feuille A4")).toBeNull();
+    expect(receipt.queryByLabelText("Hauteur de la feuille")).toBeNull();
     await user.click(receipt.getByRole("radio", { name: "Feuille A4" }));
-    await user.selectOptions(receipt.getByLabelText("Taille du reçu sur la feuille A4"), "small");
-    await user.click(receipt.getByRole("radio", { name: "2 · élève + souche" }));
+    await user.selectOptions(receipt.getByLabelText("Hauteur de la feuille"), "third");
     await user.type(receipt.getByLabelText(/Lignes d'en-tête/), "Av. du Lac 1{Enter}Goma");
     // Seuil d'écart saisi comme à la caisse, envoyé en centimes.
     const alerts = await card("Alertes au directeur");
@@ -86,8 +85,7 @@ describe("Paramètres de l'école (M5)", () => {
       head_title: "",
       receipt: {
         printer: "sheet",
-        sheet_size: "small",
-        copies: 2,
+        sheet_size: "third",
         header: "Av. du Lac 1\nGoma",
         footer: "",
       },

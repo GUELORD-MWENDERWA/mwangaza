@@ -1,5 +1,5 @@
 // Reçu imprimé dans le navigateur (F3, F6 ; maquette `recu`) au format choisi par l'école
-// (`school.receipt`, carte « Reçus et documents ») : ticket thermique 80 ou 58 mm, ou reçus A6,
+// (`school.receipt`, carte « Reçus et documents ») : ticket thermique 80 ou 58 mm, ou reçu sur A6,
 // A5 ou petit format sur une feuille A4 avec traits de découpe ; 1 exemplaire, ou 2 avec la
 // souche de l'école. Tout vient du paiement (solde juste après lui compris) et de l'école, pour
 // qu'il s'imprime aussi hors ligne (3.5) ; signature du caissier et cachet déposés (DOC.1). QR code signé par l'appareil mémorisé (3.5.2). Zone
@@ -7,7 +7,7 @@
 import type { Schemas } from "@mwangaza/api";
 import { formatDateTime, formatDay, type TFunction, useTranslation } from "@mwangaza/i18n";
 import { amountInWords, type Currency, formatAmount, formatRate } from "@mwangaza/money";
-import { Fragment, type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { localDevice } from "../../lib/device";
@@ -35,13 +35,13 @@ export function amounts(items: { currency: string; minor: number }[], nothing: s
   return due.map((item) => formatAmount(item.minor, item.currency as Currency)).join(" + ");
 }
 
-function ReceiptCopy({ job, school, copy }: { job: Printing; school: School; copy?: number }) {
+function ReceiptCopy({ job, school }: { job: Printing; school: School }) {
   const { t, i18n } = useTranslation();
   const me = useCurrentMe();
   const { payment } = job;
   const { printer, sheet_size } = school.receipt;
   const thermal = printer !== "sheet";
-  const withDueDates = printer === "sheet" && sheet_size === "a5";
+  const withDueDates = printer === "sheet" && sheet_size === "half";
   const logo = thermal ? (school.logo_monochrome ?? school.logo) : school.logo;
   const received = payment.received_currency as Currency;
   const rate =
@@ -171,47 +171,27 @@ function ReceiptCopy({ job, school, copy }: { job: Printing; school: School; cop
         {t("cash.receipt.verify", { url: `${host}/v/${id.slice(0, 4)}…${id.slice(-3)}` })}
       </p>
       {school.receipt.footer && <p className="receipt__foot">{school.receipt.footer}</p>}
-      {copy !== undefined && (
-        <p className="receipt__copy">
-          {t(copy === 0 ? "cash.receipt.studentCopy" : "cash.receipt.schoolCopy")}
-        </p>
-      )}
     </article>
   );
 }
 
-/** Les exemplaires d'un reçu sur la page (`copy(index)` : un exemplaire ; reçu de paiement ou
- * d'annulation) : ticket (séparés par un trait de découpe) ou feuille A4 découpée en cases A6,
- * A5 ou petit format. */
-export function ReceiptPages({
-  school,
-  copy,
-}: {
-  school: School;
-  copy: (index: number | undefined) => ReactNode;
-}) {
-  const { printer, sheet_size, copies } = school.receipt;
-  const items = Array.from({ length: copies }, (_, index) => (
-    <Fragment key={index}>{copy(copies > 1 ? index : undefined)}</Fragment>
-  ));
+/** Le reçu sur sa page : ticket (rouleau) ou feuille de la largeur d'un A4 et de hauteur réduite
+ * (demi ou tiers), un reçu par feuille. */
+export function ReceiptPages({ school, children }: { school: School; children: ReactNode }) {
+  const { printer, sheet_size } = school.receipt;
   if (printer !== "sheet") {
     return (
       <div className={`receipt-roll receipt-roll--${printer}`}>
         <style>{"@page { margin: 0 }"}</style>
-        {items.flatMap((item, index) =>
-          index ? [<hr key={`cut-${index}`} className="receipt-cut" />, item] : [item],
-        )}
+        {children}
       </div>
     );
   }
+  const height = sheet_size === "third" ? "99mm" : "148mm";
   return (
     <div className={`receipt-sheet receipt-sheet--${sheet_size}`}>
-      <style>{"@page { size: A4 portrait; margin: 0 }"}</style>
-      {items.map((item, index) => (
-        <div key={index} className="receipt-cell">
-          {item}
-        </div>
-      ))}
+      <style>{`@page { size: 210mm ${height}; margin: 0 }`}</style>
+      {children}
     </div>
   );
 }
@@ -275,10 +255,9 @@ export function useReceiptPrinter(): { print: (job: PrintJob) => void; area: Rea
   const school = useCurrentSchool();
   const me = useCurrentMe();
   const { print, area } = usePrintArea<Printing>((job) => (
-    <ReceiptPages
-      school={school}
-      copy={(index) => <ReceiptCopy job={job} school={school} copy={index} />}
-    />
+    <ReceiptPages school={school}>
+      <ReceiptCopy job={job} school={school} />
+    </ReceiptPages>
   ));
   return { print: (next) => void withQr(next, me.id).then(print), area };
 }

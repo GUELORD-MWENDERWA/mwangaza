@@ -584,18 +584,16 @@ export const en: Messages<typeof fr> = {
       footerPlaceholder: "E.g. Keep this receipt. No refund without a receipt.",
       printer: "Printer",
       printerHelp:
-        "80 and 58 mm: thermal printer, one receipt at a time. A4 sheet: ordinary printer, receipts separated by cutting lines.",
+        "80 and 58 mm: thermal printer, one receipt at a time. A4 sheet: ordinary printer, one receipt per sheet.",
       printerOptions: { thermal_80: "80 mm", thermal_58: "58 mm", sheet: "A4 sheet" },
       printers: { thermal_80: "Thermal 80 mm", thermal_58: "Thermal 58 mm", sheet: "A4 sheet" },
-      sheetSize: "Receipt size on the A4 sheet",
-      sheetSizeHelp: "The small size (≈ 10 × 7 cm) is glued into the student's exercise book.",
+      sheetSize: "Sheet height",
+      sheetSizeHelp:
+        "The receipt keeps the width of an A4 (21 cm); an A4 sheet cut in two or three gives two or three sheets.",
       sheetSizes: {
-        a6: "A6 · 4 per sheet",
-        a5: "A5 · 2 per sheet",
-        small: "Small · 8 per sheet",
+        half: "Half A4 · 21 × 14.8 cm",
+        third: "Third of A4 · 21 × 9.9 cm",
       },
-      copies: "Copies",
-      copiesOptions: { one: "1 · student", two: "2 · student + stub" },
     },
     color: {
       label: "School colour",
@@ -2273,8 +2271,6 @@ export const en: Messages<typeof fr> = {
       reprinted: "Reprinted on {{date}}",
       test: "Test print",
       testHelp: "Receipt of no value",
-      studentCopy: "Student copy",
-      schoolCopy: "School stub",
       sample: {
         number: "TEST",
         student: "TEST STUDENT",

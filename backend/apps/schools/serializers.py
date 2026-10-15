@@ -59,10 +59,7 @@ class ReceiptSettingsSerializer(serializers.Serializer):
     )
     sheet_size = serializers.ChoiceField(
         choices=receipts.SHEET_SIZES,
-        help_text="Sur une feuille A4 : A6 (4 par feuille), A5 (2), petit format ≈ 10 x 7 cm (8).",
-    )
-    copies = serializers.ChoiceField(
-        choices=receipts.COPIES, help_text="1 (élève) ou 2 (élève et souche pour l'école)."
+        help_text="Un reçu par feuille : demi A4 (21 x 14,8 cm) ou tiers d'A4 (21 x 9,9 cm).",
     )
     header = serializers.CharField(
         max_length=300,
