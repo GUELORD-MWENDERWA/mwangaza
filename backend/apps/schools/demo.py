@@ -16,7 +16,7 @@ from django.core.files.base import ContentFile
 from django.utils import timezone
 from PIL import Image, ImageDraw
 
-from apps.academics.models import Evaluation
+from apps.academics.models import Evaluation, GradeSheet
 from apps.accounts.models import User
 from apps.accounts.modules import ALL_MODULES
 from apps.core.tenancy import use_school
@@ -309,6 +309,7 @@ def _demo_terms(year: AcademicYear, dates: list | None) -> None:
             wanted.append((order, child.kind, parent_order, child_span))
             order += 1
     extra = [term.pk for place, term in existing.items() if place >= order]
+    GradeSheet.objects.filter(term_id__in=extra).delete()
     Evaluation.objects.filter(term_id__in=extra).delete()
     Term.objects.filter(pk__in=extra).delete()
     terms: dict[int, Term] = {}
@@ -320,7 +321,9 @@ def _demo_terms(year: AcademicYear, dates: list | None) -> None:
         terms[place] = term
     # Une période devenue semestre (découpage changé en essayant) ne garde pas de notes.
     gradable = [Term.Kind.PERIOD, Term.Kind.EXAM]
-    Evaluation.objects.filter(term__academic_year=year).exclude(term__kind__in=gradable).delete()
+    stale = Evaluation.objects.filter(term__academic_year=year).exclude(term__kind__in=gradable)
+    GradeSheet.objects.filter(term__academic_year=year).exclude(term__kind__in=gradable).delete()
+    stale.delete()
 
 
 def create_demo_organisation(spaces: list[DemoSpace]) -> None:

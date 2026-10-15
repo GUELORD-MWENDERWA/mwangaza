@@ -154,7 +154,7 @@ def test_the_sheet_is_saved_in_one_go_and_noted_once_per_save(
     first, second = str(uuid7()), str(uuid7())
     amani, josue = data["amani"], data["josue"]
     # Autant de requêtes quel que soit le nombre de notes (aucune par note).
-    with django_assert_max_num_queries(23):
+    with django_assert_max_num_queries(29):
         response = client.put(
             url,
             {
@@ -207,7 +207,7 @@ def test_the_sheet_is_saved_in_one_go_and_noted_once_per_save(
     client.put(url, {"grades": [{"enrollment_id": amani, "evaluation_id": first, "score": "8.0"}]})
     logs = grades_log(school)
     assert len(logs) == 3
-    assert logs[0].actor_id == secretary.pk and logs[0].entity_id == data["physics"].pk
+    assert logs[0].actor_id == secretary.pk and logs[0].entity_type == "academics.gradesheet"
     assert logs[0].entity_label == "Physique · 1re Électricité A · Période 1"
     assert len(logs[0].after["evaluations"]) == 3 and len(logs[0].after["grades"]) == 3
     assert logs[0].before is None

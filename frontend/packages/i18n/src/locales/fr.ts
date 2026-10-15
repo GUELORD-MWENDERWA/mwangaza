@@ -137,6 +137,7 @@ export const fr = {
       courses: "Cours et maxima",
       teachingLoads: "Charges des enseignants",
       grades: "Saisie des notes",
+      gradeValidation: "Validation des notes",
       cash: "Caisse",
       unpaid: "Impayés",
       fees: "Frais et barèmes",
@@ -486,6 +487,7 @@ export const fr = {
       grades: {
         enter: "Saisir les notes de ses cours et de la classe dont on est titulaire",
         enter_any: "Saisir les notes de toutes les classes",
+        validate: "Valider les notes envoyées et fixer les dates limites de saisie",
       },
       roles: {
         manage: "Gérer les rôles et les comptes",
@@ -950,6 +952,23 @@ export const fr = {
       saved: "Format enregistré.",
     },
   },
+  gradeValidation: {
+    title: "Validation des notes",
+    subtitle:
+      "Les feuilles envoyées par les enseignants, et la date limite de saisie de chaque période.",
+    waiting_one: "{{count}} feuille à valider",
+    waiting_other: "{{count}} feuilles à valider",
+    none: "Aucune feuille n'attend votre validation.",
+    open: "Ouvrir",
+    columns: { course: "Cours", term: "Période", sentBy: "Envoyée par" },
+    deadlines: {
+      title: "Dates limites de saisie",
+      help: "Dernier jour de saisie de chaque période. Vide : pas de limite. Vous pouvez toujours saisir après la date.",
+      dateOf: "Date limite : {{term}}",
+      until: "Saisie ouverte jusqu'au {{date}}",
+      saved: "Date limite enregistrée.",
+    },
+  },
   grades: {
     title: "Saisie des notes",
     subtitle: "{{className}} · {{course}} · maximum de la période : {{max}} · {{term}}",
@@ -981,6 +1000,46 @@ export const fr = {
     hint: "Entrée = case suivante · une case vide laisse la note de la période incomplète",
     save: "Enregistrer",
     saved: "Notes enregistrées.",
+    submit: "Envoyer pour validation",
+    validate: "Valider",
+    sendBack: "Renvoyer en saisie",
+    reopen: "Rouvrir",
+    done: {
+      submit: "Notes envoyées au directeur des études.",
+      validate: "Notes validées : la feuille est fermée.",
+      reopen: "Feuille rouverte : la saisie est de nouveau possible.",
+    },
+    control: {
+      open: "Saisie ouverte jusqu'au {{date}}. Ensuite, la feuille est fermée.",
+      closed:
+        "La date limite de saisie était le {{date}} : la feuille est fermée. Le directeur des études peut la rouvrir.",
+      reopened: "Feuille rouverte par le directeur des études : la date limite ne la ferme plus.",
+      sent: "Notes envoyées le {{date}} par {{name}} pour validation. Toute modification demande un motif.",
+      validated:
+        "Notes validées le {{date}} par {{name}}. Pour les modifier, le directeur des études doit les rouvrir.",
+    },
+    reason: {
+      label: "Motif",
+      required: "Donnez un motif d'au moins 3 lettres.",
+      edit: {
+        title: "Motif de la modification",
+        help: "Ces notes sont déjà envoyées au directeur des études : le motif est gardé dans l'historique de la feuille.",
+        confirm: "Enregistrer",
+      },
+      reopen: {
+        title: "Rouvrir la feuille",
+        help: "La feuille revient en saisie ; le motif est gardé dans l'historique.",
+        confirm: "Rouvrir",
+      },
+    },
+    history: {
+      title: "Historique de la feuille",
+      changed_one: "{{count}} modification",
+      changed_other: "{{count}} modifications",
+      submitted: "Envoyée pour validation",
+      validated: "Validée",
+      reopened: "Rouverte",
+    },
     invalidCells:
       "Corrigez les cases en rouge : une note a au plus une décimale et ne dépasse pas le maximum de son évaluation.",
     dialog: {
@@ -1335,6 +1394,10 @@ export const fr = {
       },
       grades: {
         changed: "Notes modifiées",
+        submitted: "Notes envoyées pour validation",
+        validated: "Notes validées",
+        reopened: "Notes rouvertes",
+        deadline_set: "Date limite de saisie fixée",
       },
       students: {
         family_created: "Famille créée",

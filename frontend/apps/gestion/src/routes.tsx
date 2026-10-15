@@ -24,6 +24,7 @@ import { FeesPage } from "./features/fees/FeesPage";
 import { CoursesPage } from "./features/courses/CoursesPage";
 import { TeachingLoadsPage } from "./features/courses/TeachingLoadsPage";
 import { GradesPage } from "./features/grades/GradesPage";
+import { GradeValidationPage } from "./features/grades/GradeValidationPage";
 import { OrganisationPage } from "./features/organisation/OrganisationPage";
 import { PriorPaymentsPage } from "./features/prior-payments/PriorPaymentsPage";
 import { RolesPage } from "./features/roles/RolesPage";
@@ -64,6 +65,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   courses: <CoursesPage />,
   teachingLoads: <TeachingLoadsPage />,
   grades: <GradesPage />,
+  gradeValidation: <GradeValidationPage />,
   schoolSettings: <SchoolSettingsPage />,
   organisation: <OrganisationPage />,
   cash: <CashPage />,

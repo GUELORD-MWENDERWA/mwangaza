@@ -24,6 +24,7 @@ export const keys = {
   teachingLoads: ["teaching-loads"],
   grading: ["grading"],
   gradeSheet: ["grade-sheet"],
+  gradeValidation: ["grade-validation"],
   matricule: ["matricule-format"],
   roles: ["roles"],
   staff: ["staff"],

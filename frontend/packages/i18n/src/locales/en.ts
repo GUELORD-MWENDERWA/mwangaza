@@ -139,6 +139,7 @@ export const en: Messages<typeof fr> = {
       courses: "Courses and maxima",
       teachingLoads: "Teaching loads",
       grades: "Grade entry",
+      gradeValidation: "Grade validation",
       cash: "Cash desk",
       unpaid: "Unpaid fees",
       fees: "Fees and rates",
@@ -484,6 +485,7 @@ export const en: Messages<typeof fr> = {
       grades: {
         enter: "Enter the grades of one's courses and of one's homeroom class",
         enter_any: "Enter the grades of every class",
+        validate: "Validate the grades sent and set the entry deadlines",
       },
       roles: {
         manage: "Manage roles and accounts",
@@ -945,6 +947,22 @@ export const en: Messages<typeof fr> = {
       saved: "Format saved.",
     },
   },
+  gradeValidation: {
+    title: "Grade validation",
+    subtitle: "The sheets teachers have sent, and the entry deadline of each period.",
+    waiting_one: "{{count}} sheet to validate",
+    waiting_other: "{{count}} sheets to validate",
+    none: "No sheet is waiting for your validation.",
+    open: "Open",
+    columns: { course: "Course", term: "Period", sentBy: "Sent by" },
+    deadlines: {
+      title: "Entry deadlines",
+      help: "Last day to enter the grades of each period. Empty: no limit. You can still enter grades after the date.",
+      dateOf: "Deadline: {{term}}",
+      until: "Entry open until {{date}}",
+      saved: "Deadline saved.",
+    },
+  },
   grades: {
     title: "Grade entry",
     subtitle: "{{className}} · {{course}} · period maximum: {{max}} · {{term}}",
@@ -976,6 +994,46 @@ export const en: Messages<typeof fr> = {
     hint: "Enter = next box · an empty box leaves the period grade incomplete",
     save: "Save",
     saved: "Grades saved.",
+    submit: "Send for validation",
+    validate: "Validate",
+    sendBack: "Send back for entry",
+    reopen: "Reopen",
+    done: {
+      submit: "Grades sent to the director of studies.",
+      validate: "Grades validated: the sheet is closed.",
+      reopen: "Sheet reopened: grades can be entered again.",
+    },
+    control: {
+      open: "Entry open until {{date}}. After that, the sheet is closed.",
+      closed:
+        "The entry deadline was {{date}}: the sheet is closed. The director of studies can reopen it.",
+      reopened: "Sheet reopened by the director of studies: the deadline no longer closes it.",
+      sent: "Grades sent on {{date}} by {{name}} for validation. Any change needs a reason.",
+      validated:
+        "Grades validated on {{date}} by {{name}}. To change them, the director of studies must reopen them.",
+    },
+    reason: {
+      label: "Reason",
+      required: "Give a reason of at least 3 letters.",
+      edit: {
+        title: "Reason for the change",
+        help: "These grades are already sent to the director of studies: the reason is kept in the sheet's history.",
+        confirm: "Save",
+      },
+      reopen: {
+        title: "Reopen the sheet",
+        help: "The sheet goes back to entry; the reason is kept in its history.",
+        confirm: "Reopen",
+      },
+    },
+    history: {
+      title: "Sheet history",
+      changed_one: "{{count}} change",
+      changed_other: "{{count}} changes",
+      submitted: "Sent for validation",
+      validated: "Validated",
+      reopened: "Reopened",
+    },
     invalidCells:
       "Fix the boxes in red: a grade has at most one decimal and does not exceed the maximum of its evaluation.",
     dialog: {
@@ -1328,6 +1386,10 @@ export const en: Messages<typeof fr> = {
       },
       grades: {
         changed: "Grades changed",
+        submitted: "Grades sent for validation",
+        validated: "Grades validated",
+        reopened: "Grades reopened",
+        deadline_set: "Grade entry deadline set",
       },
       students: {
         family_created: "Family created",

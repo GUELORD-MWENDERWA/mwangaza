@@ -23,6 +23,7 @@ PERMISSIONS: dict[str, Promise] = {
     "courses.configure": _("Configure courses, maxima and teachers of each class"),
     "grades.enter": _("Enter the grades of one's courses and of one's homeroom class"),
     "grades.enter_any": _("Enter the grades of every class"),
+    "grades.validate": _("Validate the grades sent by teachers and set the entry deadlines"),
     "roles.manage": _("Manage staff accounts and roles"),
     "students.view": _("View students"),
     "students.edit": _("Edit students"),
@@ -55,6 +56,8 @@ COURSES_CONFIGURE = "courses.configure"
 # Notes (8.2.1) : celles de ses cours et de la classe dont on est titulaire, ou de toutes.
 GRADES_ENTER = "grades.enter"
 GRADES_ENTER_ANY = "grades.enter_any"
+# Valider les notes envoyées, les rouvrir, fixer la date limite de saisie (8.2.2).
+GRADES_VALIDATE = "grades.validate"
 # Gérer les rôles et les comptes du personnel : une école garde toujours un compte actif qui l'a.
 ROLES_MANAGE = "roles.manage"
 # Publier et archiver les annonces aux familles (H4).
@@ -90,10 +93,11 @@ CHARGES_READ = (
 )
 
 # Double authentification obligatoire (B4) pour un compte qui a l'un de ces droits dans une école :
-# l'argent, les réglages, les comptes, le journal d'audit. Par défaut : directeur, comptable,
-# caissier et promoteur ; un rôle créé par l'école avec l'un de ces droits l'exige aussi.
+# l'argent, les réglages, les comptes, le journal d'audit, la validation des notes. Par défaut :
+# directeur, directeur des études, comptable, caissier et promoteur ; un rôle créé par l'école
+# avec l'un de ces droits l'exige aussi.
 TOTP_PERMISSIONS = frozenset(
-    {SCHOOL_CONFIGURE, ROLES_MANAGE, AUDIT_VIEW}
+    {SCHOOL_CONFIGURE, ROLES_MANAGE, AUDIT_VIEW, GRADES_VALIDATE}
     | {code for code in PERMISSIONS if code.startswith("finance.")}
 )
 
@@ -134,6 +138,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "classes.manage",
             "courses.configure",
             "grades.enter_any",
+            "grades.validate",
             "students.view",
             "students.edit",
             "announcements.publish",

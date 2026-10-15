@@ -12,6 +12,7 @@ from apps.academics.models import (
     SCORE_DIGITS,
     Course,
     Evaluation,
+    GradeSheet,
 )
 from apps.schools.models import AcademicYear, ClassGroup
 from apps.schools.serializers import PersonSerializer, TermSerializer
@@ -191,7 +192,27 @@ class SheetRowSerializer(serializers.Serializer):
         ).data
 
 
+class HistoryEntrySerializer(serializers.Serializer):
+    action = serializers.CharField(help_text="`grades.changed`, `grades.submitted`…")
+    at = serializers.DateTimeField()
+    by = serializers.CharField()
+    reason = serializers.CharField(
+        help_text="Motif d'une modification après envoi ou d'une réouverture."
+    )
+    changes = serializers.IntegerField(help_text="Cases et évaluations changées.")
+
+
 class SheetSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=GradeSheet.Status.choices)
+    reopened = serializers.BooleanField(help_text="Rouverte : la date limite ne la ferme plus.")
+    due_on = serializers.DateField(
+        allow_null=True, help_text="Dernier jour de saisie de la période ; vide : sans limite."
+    )
+    submitted_at = serializers.DateTimeField(allow_null=True)
+    submitted_by = serializers.CharField()
+    validated_at = serializers.DateTimeField(allow_null=True)
+    validated_by = serializers.CharField()
+    history = HistoryEntrySerializer(many=True, help_text="Les plus récentes d'abord.")
     course = GradingCourseSerializer()
     class_group = serializers.CharField(source="course.class_group.name")
     term = serializers.UUIDField(source="term.pk")
@@ -235,6 +256,13 @@ class SheetUpdateSerializer(serializers.Serializer):
         child=serializers.UUIDField(), required=False, default=list, max_length=MAX_EVALUATIONS
     )
     grades = GradeInputSerializer(many=True, required=False, default=list, max_length=6000)
+    reason = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        default="",
+        max_length=300,
+        help_text="Obligatoire si la feuille est déjà envoyée pour validation.",
+    )
 
     def inputs(self) -> dict:
         data = self.validated_data
@@ -242,4 +270,34 @@ class SheetUpdateSerializer(serializers.Serializer):
             "evaluations": [EvaluationInput(**row) for row in data["evaluations"]],
             "removed": data["removed_evaluations"],
             "grades": [GradeInput(**row) for row in data["grades"]],
+            "reason": data["reason"],
         }
+
+
+class ReopenSerializer(serializers.Serializer):
+    reason = serializers.CharField(min_length=3, max_length=300)
+
+
+class DeadlineSerializer(serializers.Serializer):
+    due_on = serializers.DateField(allow_null=True, help_text="Vide : plus de limite.")
+
+
+class PendingSheetSerializer(serializers.Serializer):
+    course = serializers.UUIDField(source="course.pk")
+    course_name = serializers.CharField(source="course.name")
+    class_group = serializers.CharField(source="course.class_group.name")
+    term = serializers.UUIDField(source="term.pk")
+    submitted_at = serializers.DateTimeField()
+    submitted_by = serializers.CharField()
+
+
+class DeadlineRowSerializer(serializers.Serializer):
+    term = serializers.UUIDField()
+    due_on = serializers.DateField()
+
+
+class ValidationSerializer(serializers.Serializer):
+    academic_year = serializers.UUIDField(allow_null=True)
+    terms = TermSerializer(many=True)
+    deadlines = DeadlineRowSerializer(many=True)
+    sheets = PendingSheetSerializer(many=True, help_text="Envoyées, les plus anciennes d'abord.")

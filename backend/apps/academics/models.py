@@ -144,3 +144,70 @@ class Grade(TenantModel):
 
     def __str__(self) -> str:
         return str(self.score)
+
+
+class GradeSheet(TenantModel):
+    """État de la feuille d'un cours dans une période ou des examens [T] (8.2.2) : brouillon, puis
+    envoyée au directeur des études, puis validée. Créée au premier enregistrement qui change
+    quelque chose ; toute l'histoire de la feuille est dans le journal (`grades.py`)."""
+
+    class Status(models.TextChoices):
+        DRAFT = "draft", _("Draft")
+        SUBMITTED = "submitted", _("Sent for validation")
+        VALIDATED = "validated", _("Validated")
+
+    course = models.ForeignKey(
+        Course, on_delete=models.PROTECT, related_name="sheets", verbose_name=_("course")
+    )
+    term = models.ForeignKey(
+        Term, on_delete=models.PROTECT, related_name="sheets", verbose_name=_("term")
+    )
+    status = models.CharField(
+        _("status"), max_length=10, choices=Status.choices, default=Status.DRAFT
+    )
+    submitted_at = models.DateTimeField(_("sent on"), null=True, blank=True)
+    submitted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("sent by"),
+    )
+    validated_at = models.DateTimeField(_("validated on"), null=True, blank=True)
+    validated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("validated by"),
+    )
+    # Rouverte par le directeur des études : la date limite ne la ferme plus.
+    reopened = models.BooleanField(_("reopened"), default=False)
+
+    class Meta:
+        verbose_name = _("grade sheet")
+        verbose_name_plural = _("grade sheets")
+        constraints = [models.UniqueConstraint(fields=["course", "term"], name="gradesheet_unique")]
+        indexes = [models.Index(fields=["school", "status"], name="gradesheet_school_status")]
+
+    def __str__(self) -> str:
+        return f"{self.course} · {self.term}"
+
+
+class GradeDeadline(TenantModel):
+    """Date limite de saisie des notes d'une période ou des examens [T] (8.2.2), posée par le
+    directeur des études ; sans ligne, pas de limite. Dernier jour de saisie compris."""
+
+    term = models.OneToOneField(
+        Term, on_delete=models.CASCADE, related_name="grade_deadline", verbose_name=_("term")
+    )
+    due_on = models.DateField(_("deadline"))
+
+    class Meta:
+        verbose_name = _("grade deadline")
+        verbose_name_plural = _("grade deadlines")
+
+    def __str__(self) -> str:
+        return f"{self.term} · {self.due_on}"

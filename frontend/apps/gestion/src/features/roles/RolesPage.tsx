@@ -43,7 +43,10 @@ const GROUPS: {
   permissions: Permission[];
 }[] = [
   { key: "students", permissions: ["students.view", "students.edit", "students.import"] },
-  { key: "teaching", permissions: ["courses.configure", "grades.enter", "grades.enter_any"] },
+  {
+    key: "teaching",
+    permissions: ["courses.configure", "grades.enter", "grades.enter_any", "grades.validate"],
+  },
   {
     key: "finance",
     permissions: [

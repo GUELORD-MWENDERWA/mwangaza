@@ -81,6 +81,11 @@ class Action(models.TextChoices):
     COURSES_CHANGED = "courses.changed", _("Courses of a class changed")
     # Notes d'un cours dans une période ou des examens (8.2.1) : une entrée par enregistrement.
     GRADES_CHANGED = "grades.changed", _("Grades changed")
+    # Contrôle des notes (8.2.2) : envoi, validation, réouverture, date limite de saisie.
+    GRADES_SUBMITTED = "grades.submitted", _("Grades sent for validation")
+    GRADES_VALIDATED = "grades.validated", _("Grades validated")
+    GRADES_REOPENED = "grades.reopened", _("Grades reopened")
+    GRADES_DEADLINE_SET = "grades.deadline_set", _("Grade entry deadline set")
 
     # Élèves et familles (D2-D4).
     STUDENTS_FAMILY_CREATED = "students.family_created", _("Family created")

@@ -59,7 +59,7 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 19 a | ~~**DOC.1** Signature et cachet de l'école sur tous les documents (§ 3)~~ | P0 | M | 🤖 |
 | 19 b | ~~**DOC.2** Reçu sur demi ou tiers de feuille A4 (§ 3)~~ | P0 | M | 🤖 |
 | 19 c | ~~**DOC.3** Registre des reçus : PDF et Excel par période et par caisse (§ 3)~~ | P0 | M | 🤖 |
-| 19 bis | **8.2.2 → 8.2.3, 8.3 → 8.4, 8.8** Contrôle des notes, notes hors ligne, bulletins EPST, délibération, Portail | P1 | L | 🤖 |
+| 19 bis | ~~**8.2.2**~~ ✓ Contrôle des notes (date limite, envoi, validation) ; **8.2.3, 8.3 → 8.4, 8.8** notes hors ligne, bulletins EPST, délibération, Portail | P1 | L | 🤖 |
 | 20 | **FIN.1 → FIN.3** Dépenses, sorties de caisse, budget | P1 | M | 🤖 |
 | | **V1.3 — Plateforme commerciale** | | | |
 | 21 | **ABO.1 → ABO.3** Abonnements par module, factures, échéances | P1 | L | 🤖 |
@@ -299,7 +299,7 @@ Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est 
 - [x] **8.1** Cours, maxima, domaines, attribution des enseignants **avec leur charge horaire** (servira à l'emploi du temps) ; la grille de cours d'une section s'enregistre d'un seul bloc par un service (IA.5 la proposera depuis un PDF) *(P1, M)*
 - **8.2** Saisie des notes (y compris hors ligne), verrouillage, validation, historique *(P1, L)* — découpée le 2026-10-15 :
   - [x] **8.2.1** Saisie en ligne : évaluations libres (nom, maximum), notes à une décimale, note de la période ramenée au maximum (règle de trois), droits `grades.enter` (ses cours, sa classe de titulaire) et `grades.enter_any`, journal par enregistrement, écran (tableau, carte par élève au téléphone), démo *(M)*
-  - [ ] **8.2.2** Contrôle : date limite de saisie par période, envoi pour validation, validation par le directeur des études (`grades.validate`, double authentification), modification après envoi avec motif et historique, maximum d'un cours noté changé seulement avec validation, écran de validation *(M)*
+  - [x] **8.2.2** Contrôle : date limite de saisie par période, envoi pour validation, validation par le directeur des études (`grades.validate`, double authentification), modification après envoi avec motif et historique, maximum d'un cours noté changé seulement avec validation, écran de validation *(M)*
   - [ ] **8.2.3** Hors ligne : feuilles gardées sur l'appareil (Dexie), file d'envoi, opération de synchronisation idempotente, test Playwright réseau coupé *(M)*
 - [ ] **8.3** Bulletin EPST PDF avec QR d'authenticité, totaux, places, mentions ; bulletin complet ou notes seules sur le formulaire pré-imprimé (Q11) ; régime et code EPST de l'école (M5) *(P1, L)* — 👤 fournir un vrai bulletin EPST rempli ou le modèle officiel.
 - [ ] **8.4** Délibération, décisions, palmarès, passage de classe *(P1, M)*

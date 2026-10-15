@@ -58,6 +58,7 @@ export const PERMISSIONS = {
     "classes.manage",
     "courses.configure",
     "grades.enter_any",
+    "grades.validate",
     "students.view",
     "students.edit",
     "announcements.publish",
