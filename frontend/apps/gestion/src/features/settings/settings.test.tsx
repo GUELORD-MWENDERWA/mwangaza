@@ -82,6 +82,8 @@ describe("Paramètres de l'école (M5)", () => {
       primary_color: "#0B5FCC",
       enabled_currencies: ["USD", "CDF"],
       default_currency: "USD",
+      head_name: "",
+      head_title: "",
       receipt: {
         printer: "sheet",
         sheet_size: "small",

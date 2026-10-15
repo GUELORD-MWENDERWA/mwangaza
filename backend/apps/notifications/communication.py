@@ -16,6 +16,7 @@ from apps.core.documents import school_header
 from apps.core.tenancy import require_current_school
 from apps.notifications import events
 from apps.notifications.models import Announcement, SchoolEvent, Summons
+from apps.schools.signatures import signature_context
 from apps.students.models import Enrollment, Student
 
 
@@ -120,6 +121,7 @@ def circular_context(announcement: Announcement) -> dict:
         "classes": ", ".join(group.name for group in announcement.class_groups.all()),
         "to_staff": announcement.audience == Announcement.Audience.STAFF,
         "signed_by": _signature(announcement.created_by),
+        **signature_context(school, author=announcement.created_by, head_first=True),
     }
 
 
@@ -133,4 +135,5 @@ def summons_context(summons: Summons) -> dict:
         "student": summons.student,
         "meeting_at": timezone.localtime(summons.meeting_at),
         "signed_by": _signature(summons.created_by),
+        **signature_context(school, author=summons.created_by),
     }

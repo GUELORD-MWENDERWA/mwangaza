@@ -18,7 +18,13 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts.permissions import HasSchoolPermission, IsPlatformAdmin, school_access
+from apps.accounts.models import Membership
+from apps.accounts.permissions import (
+    HasSchoolAccess,
+    HasSchoolPermission,
+    IsPlatformAdmin,
+    school_access,
+)
 from apps.accounts.roles import (
     ANNOUNCEMENTS_PUBLISH,
     CLASSES_MANAGE,
@@ -66,6 +72,7 @@ from apps.schools.serializers import (
     PersonSerializer,
     SchoolSettingsSerializer,
     SetupSerializer,
+    SignatureUploadSerializer,
     TermsUpdateSerializer,
     TrackSerializer,
     TrackUpdateSerializer,
@@ -176,6 +183,74 @@ class SchoolMonochromeLogoView(SchoolLogoView):
     gris. Mêmes règles que le logo."""
 
     field = "logo_monochrome"
+
+
+NO_IMAGE = ApiError("no_image", _("No image."), 404)
+
+
+def _private_image(file) -> HttpResponse:
+    return serve_image(file, private=True) or JsonResponse(NO_IMAGE.body(), status=NO_IMAGE.status)
+
+
+@extend_schema(exclude=True)
+class SchoolSignatureImageView(APIView):
+    """Cachet de l'école ou signature du chef (DOC.1), posés sur les reçus que la Gestion imprime :
+    au seul personnel connecté de l'école, jamais public. Hors de l'API typée : c'est une image."""
+
+    permission_classes = [HasSchoolAccess]
+    field = "stamp"
+
+    def get(self, request: Request) -> HttpResponse:
+        return _private_image(getattr(request.school, self.field))
+
+
+@extend_schema(exclude=True)
+class MemberSignatureView(APIView):
+    """Signature d'une personne de l'école (DOC.1) : celle du caissier sur un reçu réimprimé par
+    un autre. Au seul personnel connecté de l'école ; la personne d'une autre école n'existe pas
+    ici (404)."""
+
+    permission_classes = [HasSchoolAccess]
+
+    def get(self, request: Request, user_id) -> HttpResponse:
+        membership = Membership.objects.filter(school=request.school, user_id=user_id).first()
+        return _private_image(membership.signature if membership else None)
+
+
+@extend_schema(tags=["schools"])
+class SchoolStampView(_SchoolSettingsBase):
+    """Cachet de l'école (DOC.1) : PNG ou JPEG, 1 Mo au plus, enregistré en PNG, le fond blanc
+    rendu transparent. Au journal de l'école."""
+
+    parser_classes = [MultiPartParser, FormParser]
+    serializer_class = SignatureUploadSerializer
+    field = "stamp"
+
+    @extend_schema(
+        request={"multipart/form-data": SignatureUploadSerializer},
+        responses={200: SchoolSettingsSerializer, **ERRORS},
+    )
+    def post(self, request: Request) -> Response:
+        serializer = SignatureUploadSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        school = self.school()
+        image = serializer.validated_data["image"]
+        services.update_school(school, actor=request.user, **{self.field: image})
+        return self.settings_response(school)
+
+    @extend_schema(request=None, responses={200: SchoolSettingsSerializer, **ERRORS})
+    def delete(self, request: Request) -> Response:
+        school = self.school()
+        services.update_school(school, actor=request.user, **{self.field: None})
+        return self.settings_response(school)
+
+
+@extend_schema(tags=["schools"])
+class SchoolHeadSignatureView(SchoolStampView):
+    """Signature du chef d'établissement (DOC.1), sous son nom et son titre. Mêmes règles que le
+    cachet."""
+
+    field = "head_signature"
 
 
 # Organisation scolaire (C1-C3) : droit `classes.manage`. Listes de configuration (des dizaines de

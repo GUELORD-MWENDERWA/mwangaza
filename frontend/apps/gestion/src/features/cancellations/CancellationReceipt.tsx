@@ -8,11 +8,12 @@ import { amountInWords, type Currency, formatAmount } from "@mwangaza/money";
 import type { ReactNode } from "react";
 
 import { fullName } from "../../lib/people";
-import type { School } from "../../lib/queries";
+import { type School, useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { registerLabel } from "../prior-payments/data";
 import { QrCode } from "../auth/QrCode";
 import { amounts, ReceiptPages, usePrintArea } from "../cash/Receipt";
+import { SignatureMark, signatureOf, StampMark } from "../cash/signatures";
 import { headerLines } from "../settings/ReceiptCard";
 import "../cash/receipt.css";
 
@@ -30,6 +31,7 @@ function CancellationCopy({
   copy?: number;
 }) {
   const { t, i18n } = useTranslation();
+  const me = useCurrentMe();
   const { cancellation: item, reprintedAt } = job;
   const { payment } = item;
   const done = item.cancellation!;
@@ -128,14 +130,15 @@ function CancellationCopy({
       <div className="receipt__sign">
         <p>
           {t("cancellations.receipt.requestedBy")}
-          <br />
+          <SignatureMark src={signatureOf(me, item.requested_by.id)} />
           <b>{fullName(item.requested_by)}</b> · {registerLabel(payment, t)}
         </p>
         <p>
           {t("cancellations.receipt.approvedBy")}
-          <br />
+          <SignatureMark src={signatureOf(me, done.approved_by.id)} />
           <b>{fullName(done.approved_by)}</b>
         </p>
+        <StampMark me={me} />
       </div>
       <p className="receipt__stamp">{t("cancellations.receipt.parent")}</p>
       {thermal && qr}

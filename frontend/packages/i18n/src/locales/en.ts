@@ -263,9 +263,23 @@ export const en: Messages<typeof fr> = {
     none: "No role",
     deleted: "Deleted role",
   },
+  signature: {
+    none: "No image: signed by hand",
+    add: "Add",
+    change: "Change",
+    remove: "Remove",
+    saved: "Image saved.",
+    removed: "Image removed.",
+    help: "Photo or scan of the signature on white paper, PNG or JPEG, 1 MB at most: the white background is removed.",
+  },
   account: {
     title: "My account",
     subtitle: "Your login details. They are the same in every school where you work.",
+    signature: {
+      title: "My signature",
+      label: "Signature",
+      help: "Put on the receipts, summons and closing slips you give in this school. Photo or scan on white paper, PNG or JPEG, 1 MB at most: the white background is removed.",
+    },
     identity: {
       title: "Identity",
       lastName: "Last name",
@@ -499,6 +513,18 @@ export const en: Messages<typeof fr> = {
       zoneLubumbashi: "Goma, Bukavu, Kisangani, Lubumbashi (UTC+2)",
       zoneKinshasa: "Kinshasa, Mbandaka (UTC+1)",
       otherZones: "Other time zones",
+    },
+    signing: {
+      title: "Signature and stamp",
+      intro:
+        "Put on receipts, registration forms, financial statements, circulars and letters to parents. Without an image, the line stays to be signed by hand. What proves a receipt is genuine is its QR code, not the image.",
+      headName: "Name of the head of school",
+      headTitle: "Title",
+      headTitleHelp: "Under the signature, e.g. Préfet des études.",
+      headSignature: "Signature of the head of school",
+      stamp: "School stamp",
+      stampHelp:
+        "Photo or scan of the stamp on white paper, PNG or JPEG, 1 MB at most: the white background is removed.",
     },
     logo: {
       title: "Logo and colour",
@@ -1269,6 +1295,7 @@ export const en: Messages<typeof fr> = {
         deactivated: "Account deactivated",
         reactivated: "Account reactivated",
         account_changed: "Names or phone changed",
+        signature_changed: "Signature changed",
         password_reset: "New temporary password",
         totp_reset: "Two-factor authentication reset",
       },
@@ -1276,6 +1303,7 @@ export const en: Messages<typeof fr> = {
         created: "School created",
         updated: "School settings changed",
         logo_changed: "Logo changed",
+        signature_changed: "Stamp or signature of the head changed",
         suspended: "School suspended",
         reactivated: "School reactivated",
         stopped: "School stopped",

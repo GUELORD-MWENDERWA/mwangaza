@@ -2,7 +2,7 @@ import { act, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { apiError, mockApi, noContent, type Routes } from "../../test/api";
-import { me, PERMISSIONS, platformAdmin, school } from "../../test/fixtures";
+import { me, NO_SIGNATURES, PERMISSIONS, platformAdmin, school } from "../../test/fixtures";
 import { renderApp } from "../../test/render";
 
 const session = {
@@ -20,6 +20,7 @@ const inSession = platformAdmin({
     roles: [],
     permissions: PERMISSIONS.head,
     modules: ["students", "finance", "communication"],
+    documents: NO_SIGNATURES,
   },
   support: session,
 });

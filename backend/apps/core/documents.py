@@ -22,6 +22,7 @@ from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
 
 from apps.core.models import PlatformSettings
+from apps.schools import signatures
 from apps.schools.logos import CONTENT_TYPES as LOGO_TYPES
 from apps.schools.logos import logo_kind
 from apps.schools.models import School
@@ -72,7 +73,8 @@ def qr_code(text: str) -> str:
 
 
 def school_header(school: School) -> dict:
-    """En-tête commun : nom officiel (sinon nom) et logo de l'école, date d'impression."""
+    """En-tête commun : nom officiel (sinon nom) et logo de l'école, date d'impression ; pour le
+    bas du document, cachet et chef d'établissement qui signe (`signatures`, DOC.1)."""
     kind = None
     if school.logo:
         try:
@@ -84,6 +86,7 @@ def school_header(school: School) -> dict:
         "school_name": school.official_name or school.name,
         "logo": data_uri(school.logo, kind, LOGO_TYPES),
         "printed_at": timezone.localtime(),
+        **signatures.signature_context(school),
     }
 
 

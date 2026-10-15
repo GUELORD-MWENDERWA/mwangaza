@@ -6,7 +6,8 @@ from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
-from rest_framework.exceptions import ErrorDetail, ValidationError
+from rest_framework.exceptions import ErrorDetail, PermissionDenied, ValidationError
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -20,7 +21,12 @@ from apps.accounts.console_serializers import (
 )
 from apps.accounts.login import MFA_SESSION_KEY, Step
 from apps.accounts.models import Membership, Role, User
-from apps.accounts.permissions import HasSchoolPermission, IsPlatformAdmin, school_access
+from apps.accounts.permissions import (
+    HasSchoolAccess,
+    HasSchoolPermission,
+    IsPlatformAdmin,
+    school_access,
+)
 from apps.accounts.roles import ROLES_MANAGE, sorted_permissions
 from apps.accounts.serializers import (
     CodeSerializer,
@@ -47,7 +53,9 @@ from apps.accounts.serializers import (
 from apps.core.errors import BusinessError, ErrorSerializer
 from apps.core.middleware import is_console_host
 from apps.core.tenancy import use_all_schools
+from apps.schools import signatures
 from apps.schools.models import School
+from apps.schools.serializers import SignatureUploadSerializer
 
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
 # Étapes de connexion : saisie refusée, trop d'essais, étape expirée ou pas la bonne.
@@ -70,7 +78,7 @@ class MeView(APIView):
 
     @extend_schema(responses={200: MeSerializer, 403: ErrorSerializer}, tags=["accounts"])
     def get(self, request: Request) -> Response:
-        return Response(self._me(request))
+        return Response(me_data(request))
 
     @extend_schema(
         request=MeUpdateSerializer,
@@ -82,50 +90,89 @@ class MeView(APIView):
         serializer.is_valid(raise_exception=True)
         request.user.language = serializer.validated_data["language"]
         request.user.save(update_fields=["language", "updated_at"])
-        return Response(self._me(request))
+        return Response(me_data(request))
 
-    def _me(self, request: Request) -> dict:
-        user = request.user
-        # Rôles de chaque école du compte : lus hors de l'école de l'adresse, pour ce compte seul
-        # (la base laisse voir toutes les écoles le temps de les lire, S.6).
-        with use_all_schools():
-            memberships = list(
-                Membership.objects.filter(user=user, is_active=True)
-                # Arrêté ou en cours de suppression : plus proposé.
-                .exclude(school__status__in=(School.Status.STOPPED, School.Status.DELETING))
-                .select_related("school")
-                .prefetch_related(
-                    Prefetch("roles", queryset=Role.all_schools.order_by("id"), to_attr="role_list")
-                )
-                .order_by("school__name")
+
+@extend_schema(tags=["accounts"])
+class MySignatureView(APIView):
+    """Ma signature dans l'école de l'adresse (DOC.1, Mon compte), posée sur les documents que
+    je donne (reçu, convocation…) : PNG ou JPEG, 1 Mo au plus, enregistrée en PNG, le fond blanc
+    rendu transparent. Au journal de l'école."""
+
+    permission_classes = [HasSchoolAccess]
+    parser_classes = [MultiPartParser, FormParser]
+    serializer_class = SignatureUploadSerializer
+
+    def membership(self, request: Request) -> Membership:
+        membership = Membership.objects.filter(
+            school=request.school, user=request.user, is_active=True
+        ).first()
+        if membership is None:  # session support du super-admin : il ne signe rien
+            raise PermissionDenied(_("Only the staff of the school can sign its documents."))
+        return membership
+
+    @extend_schema(
+        request={"multipart/form-data": SignatureUploadSerializer},
+        responses={200: MeSerializer, 400: ErrorSerializer, 403: ErrorSerializer},
+    )
+    def post(self, request: Request) -> Response:
+        serializer = SignatureUploadSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        image = serializer.validated_data["image"]
+        services.set_signature(self.membership(request), image, actor=request.user)
+        return Response(me_data(request))
+
+    @extend_schema(request=None, responses={200: MeSerializer, 403: ErrorSerializer})
+    def delete(self, request: Request) -> Response:
+        services.set_signature(self.membership(request), None, actor=request.user)
+        return Response(me_data(request))
+
+
+def me_data(request: Request) -> dict:
+    """Le compte connecté (`MeSerializer`)."""
+    user = request.user
+    # Rôles de chaque école du compte : lus hors de l'école de l'adresse, pour ce compte seul
+    # (la base laisse voir toutes les écoles le temps de les lire, S.6).
+    with use_all_schools():
+        memberships = list(
+            Membership.objects.filter(user=user, is_active=True)
+            # Arrêté ou en cours de suppression : plus proposé.
+            .exclude(school__status__in=(School.Status.STOPPED, School.Status.DELETING))
+            .select_related("school")
+            .prefetch_related(
+                Prefetch("roles", queryset=Role.all_schools.order_by("id"), to_attr="role_list")
             )
-        access = school_access(request)
-        school = None
-        if access is not None:
-            school = {
-                "code": request.school.code,
-                "name": request.school.name,
-                "roles": access.roles,
-                "permissions": sorted_permissions(access.permissions),
-                "modules": request.school.modules,
-            }
-        me = {
-            "id": user.id,
-            "phone": user.phone,
-            "last_name": user.last_name,
-            "middle_name": user.middle_name,
-            "first_name": user.first_name,
-            "language": user.language,
-            "totp_enabled": user.totp_enabled,
-            "totp_enabled_at": user.totp_enabled_at,
-            "totp_required": services.totp_required(user),
-            "recovery_codes_left": services.recovery_codes_left(user),
-            "is_platform_admin": user.is_platform_admin,
-            "schools": memberships,
-            "school": school,
-            "support": support.current(request),
+            .order_by("school__name")
+        )
+    access = school_access(request)
+    school = None
+    if access is not None:
+        here = next((m for m in memberships if m.school_id == request.school.pk), None)
+        school = {
+            "code": request.school.code,
+            "name": request.school.name,
+            "roles": access.roles,
+            "permissions": sorted_permissions(access.permissions),
+            "modules": request.school.modules,
+            "documents": signatures.documents(request.school, here),
         }
-        return MeSerializer(me).data
+    me = {
+        "id": user.id,
+        "phone": user.phone,
+        "last_name": user.last_name,
+        "middle_name": user.middle_name,
+        "first_name": user.first_name,
+        "language": user.language,
+        "totp_enabled": user.totp_enabled,
+        "totp_enabled_at": user.totp_enabled_at,
+        "totp_required": services.totp_required(user),
+        "recovery_codes_left": services.recovery_codes_left(user),
+        "is_platform_admin": user.is_platform_admin,
+        "schools": memberships,
+        "school": school,
+        "support": support.current(request),
+    }
+    return MeSerializer(me).data
 
 
 class SchoolViewSet(viewsets.GenericViewSet):

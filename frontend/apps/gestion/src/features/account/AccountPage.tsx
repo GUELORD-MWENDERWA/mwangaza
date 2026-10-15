@@ -38,6 +38,7 @@ import { hasCode, keys, useCurrentMe, type Me } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { useLogout } from "../../lib/session";
 import { passwordSchema } from "../auth/NewPasswordPage";
+import { SignatureField } from "../settings/SignatureField";
 import { DisableTwoFactorDialog, NewRecoveryCodesDialog } from "./TwoFactorDialogs";
 
 type Device = Schemas["Device"];
@@ -55,6 +56,7 @@ export function AccountPage() {
       <div className="grid items-start gap-4 min-[1280px]:grid-cols-2">
         <div className="flex flex-col gap-4">
           <IdentityCard me={me} />
+          {me.school && !me.support && <SignatureCard signature={me.school.documents.signature} />}
           <PasswordCard />
           <DevicesCard />
         </div>
@@ -75,6 +77,32 @@ export function AccountPage() {
         </div>
       </div>
     </>
+  );
+}
+
+/** Ma signature dans cette école (DOC.1) : posée sur les reçus, convocations et bordereaux que
+ *  je donne ; sans elle, je signe à la main. Au journal de l'école. */
+function SignatureCard({ signature }: { signature: string | null }) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("account.signature.title")}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <SignatureField
+          label={t("account.signature.label")}
+          help={t("account.signature.help")}
+          image={signature}
+          send={(body) =>
+            call(api.POST("/api/me/signature/", { body: body as unknown as { image: string } }))
+          }
+          remove={() => call(api.DELETE("/api/me/signature/"))}
+          onSaved={(data) => queryClient.setQueryData(keys.me, data)}
+        />
+      </CardContent>
+    </Card>
   );
 }
 

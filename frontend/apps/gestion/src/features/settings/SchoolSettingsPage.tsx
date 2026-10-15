@@ -1,7 +1,7 @@
 // Paramètres de l'école (M5) : identité, logos (couleur, noir et blanc des reçus thermiques),
 // couleur (lisibilité vérifiée, Q8), fuseau horaire, reçus, devises. Droit `school.configure` ;
-// chaque changement va dans le journal de l'école. Carte « Alertes » : 4.2. Carte « Caisses » :
-// avec `finance.configure_fees`.
+// chaque changement va dans le journal de l'école. Carte « Alertes » : 4.2. Carte « Signature et
+// cachet » : DOC.1. Carte « Caisses » : avec `finance.configure_fees`.
 import { ApiError, api, call, type Schemas } from "@mwangaza/api";
 import { useTranslation } from "@mwangaza/i18n";
 import { formatAmountValue, parseAmount } from "@mwangaza/money";
@@ -37,6 +37,7 @@ import { CashRegistersCard } from "./CashRegistersCard";
 import { HEADER_MAX_LINES, headerLines, ReceiptCard } from "./ReceiptCard";
 import { PortalCard } from "./PortalCard";
 import { RemindersCard } from "./RemindersCard";
+import { SigningCard } from "./SigningCard";
 
 type Settings = Schemas["SchoolSettings"];
 type Currency = Schemas["CurrencyEnum"];
@@ -47,6 +48,8 @@ const DRC_ZONES = ["Africa/Lubumbashi", "Africa/Kinshasa"] as const;
 const FIELDS = [
   "name",
   "official_name",
+  "head_name",
+  "head_title",
   "timezone",
   "primary_color",
   "enabled_currencies",
@@ -95,6 +98,8 @@ function useSchema() {
       .object({
         name: z.string().trim().min(1, t("validation.nameRequired")).max(200),
         official_name: z.string().trim().max(255),
+        head_name: z.string().trim().max(150),
+        head_title: z.string().trim().max(100),
         timezone: z.string().min(1),
         primary_color: z
           .string()
@@ -181,6 +186,8 @@ function SettingsForm({ settings }: { settings: Settings }) {
     defaultValues: {
       name: settings.name,
       official_name: settings.official_name,
+      head_name: settings.head_name,
+      head_title: settings.head_title,
       timezone: settings.timezone,
       primary_color: settings.primary_color,
       enabled_currencies: settings.enabled_currencies,
@@ -243,6 +250,7 @@ function SettingsForm({ settings }: { settings: Settings }) {
         <div className="flex flex-col gap-4">
           <IdentityCard form={form} code={settings.code} />
           <LogoColorCard form={form} settings={settings} />
+          <SigningCard form={form} settings={settings} />
         </div>
         <div className="flex flex-col gap-4">
           <ReceiptCard form={form} />

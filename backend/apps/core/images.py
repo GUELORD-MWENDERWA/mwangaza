@@ -8,7 +8,7 @@ import io
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.utils.translation import gettext_lazy as _
-from PIL import Image, ImageOps
+from PIL import Image, ImageChops, ImageOps
 from rest_framework import serializers
 from rest_framework.fields import get_error_detail
 
@@ -80,6 +80,35 @@ def clean_image(file, *, formats: dict[str, str] = FORMATS) -> ContentFile:
     else:
         fresh.save(output, "PNG")
     return ContentFile(output.getvalue(), name=f"image.{kind}")
+
+
+# Cachet et signatures (DOC.1) : assez net pour un document imprimé, léger dans un PDF de 50 pages.
+SIGNATURE_SIDE = 800
+# Luminance (0 noir, 255 blanc) : au-dessus de PAPER, transparent ; sous INK, opaque ; entre les
+# deux, en partie (bords du trait adoucis).
+PAPER, INK = 225, 160
+
+
+def clean_signature(file) -> ContentFile:
+    """Cachet ou signature : contrôlé comme toute image (`clean_image`), réduit à
+    `SIGNATURE_SIDE` et enregistré en PNG. Sans transparence (photo ou scan d'une feuille), le
+    fond clair devient transparent : seul le trait se pose sur le document, le cachet peut
+    chevaucher la signature. Un PNG déjà détouré garde la sienne."""
+    with Image.open(clean_image(file)) as image:
+        image = image.convert("RGBA")
+    image.thumbnail((SIGNATURE_SIDE, SIGNATURE_SIDE))
+    alpha = image.getchannel("A")
+    if alpha.getextrema()[0] == 255:
+        # Feuille photographiée : le papier le plus clair devient blanc, l'encre la plus foncée
+        # noire, avant de choisir ce qui est transparent.
+        light = ImageOps.autocontrast(image.convert("L"), cutoff=1)
+        ink = light.point(
+            lambda v: 0 if v >= PAPER else 255 if v <= INK else (PAPER - v) * 255 // (PAPER - INK)
+        )
+        image.putalpha(ImageChops.multiply(alpha, ink))
+    output = io.BytesIO()
+    image.save(output, "PNG", optimize=True)
+    return ContentFile(output.getvalue(), name="signature.png")
 
 
 class CleanedFileField(serializers.FileField):

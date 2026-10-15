@@ -15,6 +15,7 @@ router.register(
 
 urlpatterns = [
     path("me/", views.MeView.as_view(), name="me"),
+    path("me/signature/", views.MySignatureView.as_view(), name="me-signature"),
     path("auth/csrf/", views.CsrfView.as_view(), name="auth-csrf"),
     path("auth/login/", views.LoginView.as_view(), name="auth-login"),
     path("auth/login/totp/", views.LoginCodeView.as_view(), name="auth-login-totp"),

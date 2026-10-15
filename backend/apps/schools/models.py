@@ -16,6 +16,7 @@ from apps.core.money import Currency
 from apps.core.tenancy import RESERVED_SUBDOMAINS
 from apps.schools import alerts, colors, matricule, portal, receipts, reminders
 from apps.schools.logos import logo_path, monochrome_logo_path, validate_logo
+from apps.schools.signatures import head_signature_path, stamp_path
 
 # Le code est le sous-domaine de l'école : 2 à 30 caractères, minuscules, chiffres, tirets.
 CODE_PATTERN = r"^[a-z0-9][a-z0-9-]{0,28}[a-z0-9]$"
@@ -105,6 +106,18 @@ class School(BaseModel):
         blank=True,
         validators=[validate_logo],
         help_text=_("For thermal receipts. PNG or JPEG, 1 MB at most."),
+    )
+    # Documents signés (DOC.1) : envoyés par l'API seulement (image détourée, `signatures.py`).
+    stamp = models.FileField(_("school stamp"), upload_to=stamp_path, blank=True, editable=False)
+    head_name = models.CharField(_("name of the head"), max_length=150, blank=True)
+    head_title = models.CharField(
+        _("title of the head"),
+        max_length=100,
+        blank=True,
+        help_text=_("Under the signature, e.g. Préfet des études."),
+    )
+    head_signature = models.FileField(
+        _("signature of the head"), upload_to=head_signature_path, blank=True, editable=False
     )
     # Q8 : choisie par l'école ; texte blanc ou encre choisi pour rester lisible (`colors.py`).
     primary_color = models.CharField(

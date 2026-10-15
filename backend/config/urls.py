@@ -7,11 +7,15 @@ from apps.core import site
 from apps.core import urls as core_urls
 from apps.finance.verification import verify_receipt, verify_statement
 from apps.schools.views import (
+    MemberSignatureView,
+    SchoolHeadSignatureView,
     SchoolLogoView,
     SchoolMonochromeLogoView,
     SchoolSettingsView,
     SchoolSetupFinishView,
     SchoolSetupView,
+    SchoolSignatureImageView,
+    SchoolStampView,
     current_school,
     school_logo,
     school_logo_monochrome,
@@ -42,6 +46,24 @@ urlpatterns = [
         "api/school/settings/logo-monochrome/",
         SchoolMonochromeLogoView.as_view(),
         name="school-settings-logo-monochrome",
+    ),
+    # Cachet et signatures (DOC.1) : au personnel connecté de l'école seulement.
+    path("api/school/stamp/", SchoolSignatureImageView.as_view(), name="school-stamp"),
+    path(
+        "api/school/head-signature/",
+        SchoolSignatureImageView.as_view(field="head_signature"),
+        name="school-head-signature",
+    ),
+    path(
+        "api/school/signatures/<uuid:user_id>/",
+        MemberSignatureView.as_view(),
+        name="school-member-signature",
+    ),
+    path("api/school/settings/stamp/", SchoolStampView.as_view(), name="school-settings-stamp"),
+    path(
+        "api/school/settings/head-signature/",
+        SchoolHeadSignatureView.as_view(),
+        name="school-settings-head-signature",
     ),
     path("api/", include("apps.accounts.urls")),
     path("api/", include("apps.audit.urls")),

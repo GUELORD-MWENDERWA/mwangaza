@@ -43,9 +43,11 @@ import {
 } from "./data";
 import { closedHere, openOffline, saveSession, useLocalCash } from "./localData";
 import { sampleReceipt, useReceiptPrinter } from "./Receipt";
+import { usePreloadSignatures } from "./signatures";
 
 export function CashPage() {
   const { db, prefix, persisted } = useSyncStatus();
+  usePreloadSignatures(useCurrentMe());
   const [onlineOnly, setOnlineOnly] = useState(onlineOnlyChosen);
   // Caisse clôturée : la session n'est plus là, le bordereau s'imprime ici (3.8.2).
   const [slip, setSlip] = useState<Slip | null>(null);
