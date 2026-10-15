@@ -354,7 +354,7 @@ def set_terms(year: AcademicYear, nodes: list[TermNode], *, actor: User) -> Acad
 
 
 def _level_data(level: Level) -> dict:
-    return {"name": level.name, "cycle": level.cycle}
+    return {"name": level.name, "cycle": level.cycle, "has_state_exam": level.has_state_exam}
 
 
 def _check_level_name(name: str, *, level_id=None) -> None:
@@ -362,7 +362,7 @@ def _check_level_name(name: str, *, level_id=None) -> None:
         raise BusinessError(LEVEL_NAME_TAKEN)
 
 
-def create_level(*, actor: User, name: str, cycle: str) -> Level:
+def create_level(*, actor: User, name: str, cycle: str, has_state_exam: bool = False) -> Level:
     """Nouveau niveau, placé après les autres."""
     require_current_school()
     name = name.strip()
@@ -370,7 +370,11 @@ def create_level(*, actor: User, name: str, cycle: str) -> Level:
         _check_level_name(name)
         last = Level.objects.aggregate(last=Max("order"))["last"]
         level = Level.objects.create(
-            name=name, cycle=cycle, order=0 if last is None else last + 1, created_by=actor
+            name=name,
+            cycle=cycle,
+            has_state_exam=has_state_exam,
+            order=0 if last is None else last + 1,
+            created_by=actor,
         )
         audit.record(
             Action.ORGANISATION_LEVEL_CREATED, level, actor=actor, after=_level_data(level)
@@ -379,7 +383,12 @@ def create_level(*, actor: User, name: str, cycle: str) -> Level:
 
 
 def update_level(
-    level: Level, *, actor: User, name: str | None = None, cycle: str | None = None
+    level: Level,
+    *,
+    actor: User,
+    name: str | None = None,
+    cycle: str | None = None,
+    has_state_exam: bool | None = None,
 ) -> Level:
     name = level.name if name is None else name.strip()
     _check_level_name(name, level_id=level.pk)
@@ -387,6 +396,8 @@ def update_level(
         before = _level_data(level)
         level.name = name
         level.cycle = cycle or level.cycle
+        if has_state_exam is not None:
+            level.has_state_exam = has_state_exam
         level.save()
         old, new = audit.changes(before, _level_data(level))
         if new:

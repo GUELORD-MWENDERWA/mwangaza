@@ -243,8 +243,11 @@ def test_levels(api, head, school, alpha):
         "name": "7e EB",
         "cycle": "basic",
         "order": 2,
+        "has_state_exam": False,
     }
     assert renamed.json()["name"] == "7e"
+    last_year = client.patch(f"{LEVELS}{alpha['level'].id}/", {"has_state_exam": True})
+    assert last_year.json()["has_state_exam"] is True
     assert [level["name"] for level in reordered.json()] == ["4e", "7e", "3e"]
     assert (in_use.status_code, in_use.json()["code"]) == (409, "level_in_use")
     assert unused.status_code == 204

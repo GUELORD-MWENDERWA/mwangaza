@@ -5,7 +5,6 @@ from datetime import date
 from decimal import Decimal
 
 import pytest
-from django.utils.translation import gettext
 
 from apps.academics.report_card_documents import verification_path
 from apps.academics.report_cards import class_report
@@ -14,6 +13,8 @@ from apps.academics.tests.test_report_cards import put
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.tenancy import use_school
+from apps.schools.models import Level
+from apps.students.models import Enrollment
 from tests.factories import MembershipFactory
 
 pytestmark = pytest.mark.django_db
@@ -40,7 +41,7 @@ def card(school, head):
 def test_the_card_shows_maxima_scores_low_marks_and_the_place(api, director, card):
     page = api(director).get(url(card), enrollment=card["josue"], output="html")
     context = page.context
-    assert context["totals"]["place"][0] == "2/2"
+    assert context["totals"]["place"][0] == "2e/2"
     assert context["totals"]["percent"][0] == Decimal("73.3")
     lines = context["lines"]
     # Cours par ordre alphabétique : l'atelier (sans examen) puis la physique, chacun sous sa
@@ -53,8 +54,40 @@ def test_the_card_shows_maxima_scores_low_marks_and_the_place(api, director, car
     ]
     atelier, physics = lines[1]["cells"], lines[3]["cells"]
     assert (physics[0]["score"], physics[0]["low"]) == (Decimal("8"), True)
-    exam = [c["label"] for c in context["columns"]].index(gettext("Exam"))
+    exam = [c["kind"] for c in context["columns"]].index("exam")
     assert (atelier[0]["low"], atelier[exam]["maximum"], physics[exam]["maximum"]) == (False, 0, 40)
+
+
+def test_the_form_follows_the_official_one_and_the_last_year_has_the_state_exam(
+    api, director, card, school
+):
+    school.province, school.city, school.epst_code = "Nord-Kivu", "Goma", "2610021"
+    school.save()
+    with use_school(school):
+        person = Enrollment.objects.get(pk=card["josue"]).student
+        person.national_id, person.permanent_number = "61022-6100210011533", "2-610021001115"
+        person.save()
+    url_html = (url(card), {"enrollment": card["josue"], "output": "html"})
+
+    context = api(director).get(url_html[0], **url_html[1]).context
+    assert "".join(context["id_boxes"]).strip() == "61022-6100210011533"
+    assert "".join(context["perm_boxes"]).strip() == "2-610021001115"
+    assert "".join(context["code_boxes"]).strip() == "2-610021"
+    assert not context["state_exam"]
+    # Deux semestres de deux périodes : les largeurs du scan, 199,5 mm en tout.
+    assert round(sum(context["widths"]) + 40.7 + 33.2, 1) == 199.5
+    # Lignes vides jusqu'à la hauteur du formulaire (35 lignes en tout) ; les autres années
+    # gardent les cases du repêchage, noires sur les lignes de maxima.
+    assert len(context["lines"]) + len(context["blank_lines"]) + 7 == 35
+    assert context["lines"][0]["side"] == {"resit": True}
+
+    with use_school(school):
+        Level.objects.update(has_state_exam=True)
+    context = api(director).get(url_html[0], **url_html[1]).context
+    assert context["state_exam"] and context["lines"][0]["side"]["cols"]
+    sides = [line["side"] for line in context["lines"]]
+    sides += [blank["side"] for blank in context["blank_lines"]] + context["footer_side"]
+    assert any(item.get("boxes") for item in sides)
 
 
 def test_pdf_is_audited_but_not_the_preview_and_needs_a_grades_right(

@@ -250,6 +250,8 @@ class StudentSerializer(_StudentFields):
         fields = [
             *_StudentFields.Meta.fields,
             "birth_place",
+            "national_id",
+            "permanent_number",
             "nationality",
             "origin_province",
             "origin_territory",
@@ -308,6 +310,8 @@ class StudentWriteSerializer(serializers.ModelSerializer):
             "sex",
             "birth_date",
             "birth_place",
+            "national_id",
+            "permanent_number",
             "nationality",
             "origin_province",
             "origin_territory",
@@ -371,6 +375,8 @@ class ImportMappingSerializer(serializers.Serializer):
     birth_place = serializers.IntegerField(min_value=0, allow_null=True, required=False)
     class_name = serializers.IntegerField(min_value=0, allow_null=True, required=False)
     matricule = serializers.IntegerField(min_value=0, allow_null=True, required=False)
+    national_id = serializers.IntegerField(min_value=0, allow_null=True, required=False)
+    permanent_number = serializers.IntegerField(min_value=0, allow_null=True, required=False)
     guardian_name = serializers.IntegerField(min_value=0, allow_null=True, required=False)
     guardian_phone = serializers.IntegerField(min_value=0, allow_null=True, required=False)
 
@@ -527,6 +533,8 @@ class ImportValuesSerializer(serializers.Serializer):
     birth_place = serializers.CharField()
     class_name = serializers.CharField()
     matricule = serializers.CharField()
+    national_id = serializers.CharField()
+    permanent_number = serializers.CharField()
     guardian_name = serializers.CharField()
     guardian_phone = serializers.CharField()
 

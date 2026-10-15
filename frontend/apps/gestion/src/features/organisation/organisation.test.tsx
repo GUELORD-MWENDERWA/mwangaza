@@ -36,7 +36,7 @@ const year = {
   terms: [semester(10, true), semester(20)],
 };
 const levels = [
-  { id: id(31), name: "7e EB", cycle: "basic", order: 0 },
+  { id: id(31), name: "7e EB", cycle: "basic", order: 0, has_state_exam: false },
   { id: id(32), name: "3e", cycle: "secondary_technical", order: 1 },
 ];
 const tracks = [{ id: id(41), name: "Électricité", code: "ELEC" }];
@@ -234,7 +234,7 @@ describe("Organisation scolaire (C1-C3)", () => {
     );
     const sent = (path: string) =>
       requests.find((r) => r.method === "POST" && r.path === path)?.body;
-    expect(sent("/api/levels/")).toEqual({ name: "8e EB", cycle: "basic" });
+    expect(sent("/api/levels/")).toEqual({ name: "8e EB", cycle: "basic", has_state_exam: false });
     expect(sent("/api/levels/reorder/")).toEqual({ ids: [id(32), id(31)] });
     expect(sent("/api/tracks/")).toEqual({ name: "Électronique", code: "ELO" });
   });

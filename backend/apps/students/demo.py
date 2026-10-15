@@ -104,6 +104,8 @@ def _student(
     female = sex == Student.Sex.FEMALE
     age = LEVEL_AGE.get(group.level.name, 14) + rng.choice([0, 0, 0, 1, 1, 2])
     birth_date = date(2026 - age, 1, 1) + timedelta(days=rng.randint(0, 364))
+    # Hors de `rng` : ajouter des numéros ne change pas le reste des données de démonstration.
+    numbers = random.Random(f"{last_name}{birth_date}{group.pk}")
     return Student(
         family=family,
         last_name=last_name,
@@ -112,6 +114,8 @@ def _student(
         sex=sex,
         birth_date=birth_date,
         birth_place=rng.choice(BIRTH_PLACES),
+        national_id=f"61022-{numbers.randrange(10**12, 10**13)}",
+        permanent_number=f"2-{numbers.randrange(10**9, 10**10)}",
         nationality="Congolaise",
         origin_province="Nord-Kivu",
         address=address,

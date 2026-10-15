@@ -198,6 +198,7 @@ def create_demo_look(spaces: list[DemoSpace]) -> None:
                 image.delete(save=False)
         school.head_name, school.head_title = "Mukendi Kabasele", "Préfet des études"
         school.epst_code, school.regime = "9000001", School.Regime.CONVENTION
+        school.province, school.city, school.commune = "Nord-Kivu", "Goma", "Karisimbi"
         school.save()
         school.stamp.save("stamp.png", demo_signature(0, stamp=True))
         school.head_signature.save("signature.png", demo_signature(1))
@@ -347,7 +348,13 @@ def create_demo_organisation(spaces: list[DemoSpace]) -> None:
             levels = {}
             for order, (level_name, cycle) in enumerate(demo.levels):
                 levels[level_name], _created = Level.objects.update_or_create(
-                    name=level_name, defaults={"cycle": cycle, "order": order}
+                    name=level_name,
+                    defaults={
+                        "cycle": cycle,
+                        "order": order,
+                        # La dernière année du modèle finit par l'Examen d'État (8.3.3).
+                        "has_state_exam": order == len(demo.levels) - 1,
+                    },
                 )
             tracks = {"": None}
             for track_name, track_code in demo.tracks:

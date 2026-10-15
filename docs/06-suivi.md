@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (8.3.2 faite le 2026-10-15) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | 8.3.3 (notes seules sur le formulaire pré-imprimé, impression par classe) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Tâche en cours | aucune (8.3.3 faite le 2026-10-15) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | 8.3.4 (options d'impression au choix, IMP.1) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
 | Issue GitHub | aucune |
-| Branche | `tache/8.3.2-bulletin-pdf` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-15 (8.3.2 faite) |
+| Branche | `tache/8.3.3-bulletin-fidele` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-15 (8.3.3 faite) |
 
 ## Avancement
 
@@ -29,7 +29,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Lancement (L.0 à L.5, DOC.1 à DOC.3 ; L.3 remplacée par S.1 et S.2) | 8 | 8 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
 | Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 8 | 11 |
-| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.3, 8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 7 | 13 |
+| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.3, 8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 8 | 13 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
 | V1.5 — carte et présences (avec A.5) | 0 | 7 |
@@ -65,6 +65,12 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 - Reçu : bulletin 3e HT (IGE/P.S/137) et 4e HT (IGE/P.S/096) scannés → `docs/ecole-pilote/prive/builtin/` (hors Git, données personnelles). Constats : le 4e HT remplace « Examen de repêchage » par un bloc « Examen d'État » ; Application et Conduite sont par période ; cases noires ; MAXIMA par groupe et MAXIMA GÉNÉRAUX ; N° ID, province, ville, commune, N° permanent ; police serif de type Times ; la 8.3.2 n'est pas assez fidèle (mesures, police).
 - Décisions de l'utilisateur : le 3e HT est le modèle par défaut de toute classe et option, la dernière année a le bloc Examen d'État ; la personne qui imprime choisit elle-même colonnes, exemplaires par feuille, papier ; fiches de cotes par cours ; conduite tirée d'un barème d'infractions du directeur de discipline, parents prévenus, corrigeable en délibération.
 - Plan : 8.3.3 (bulletin fidèle), 8.3.4 (options d'impression), 8.3.5 (formulaire pré-imprimé, lot), 8.3.6 (fiches de cotes), 8.5.1 (conduite, P1, avant 8.4), 8.5.2 (reste de la discipline, P2). Modèle de la conduite : `04` fin de document.
+
+### 2026-10-15 — Tâche 8.3.3 : bulletin fidèle au formulaire officiel
+- Fait : le PDF reprend le formulaire EPST (3e HT, IGE/P.S/137) : drapeau dessiné, N° ID et N° permanent en cases, province, ville, commune, code, 3 rangées d'en-tête, largeurs de colonnes relevées sur le scan, lignes MAXIMA, cases noires, place/effectif (« 3e/22 »), Application et Conduite (cases à remplir), 35 lignes comme le formulaire ; repêchage, ou bloc « Examen d'État » si le niveau est la dernière année ; police Liberation Serif embarquée. Champs ajoutés : `School.province/city/commune` (Paramètres), `Student.national_id/permanent_number` (fiche, import), `Level.has_state_exam` (Niveaux).
+- Tests : contenu du formulaire (cases, 35 lignes, bloc Examen d'État), import des deux numéros, niveaux et réglages ; contrôle : superposition du PDF sur le scan à 150 ppp, colonnes à 0,2 mm, lignes à 0,7 mm du scan (marge du scan).
+- Décisions : armoiries non reproduites (le QR code prend leur place) ; Application et Conduite restent vides jusqu'à 8.5.1 ; ligne « Mention » retirée du PDF (absente du formulaire ; reste dans le calcul) ; hauteur de ligne réduite si la classe a plus de 28 cours.
+- Suite : 8.3.4 (options d'impression au choix).
 
 ### 2026-10-15 — Tâche 8.3.2 : bulletin PDF
 - Fait : `GET /api/class-groups/{id}/report-card/` (PDF ou aperçu) : tableau du formulaire EPST d'après le calcul de 8.3.1 (une ligne de maxima chaque fois qu'ils changent, notes sous la moitié en rouge, totaux, %, place/effectif, mention), signature et cachet (DOC.1), QR vers `/v/b/<jeton>` (page publique, initiales). Écran `/app/report-cards` (classe, élève, aperçu, PDF). PDF noté au journal.

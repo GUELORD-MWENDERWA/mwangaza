@@ -43,6 +43,8 @@ function valuesOf(student: Student): Values {
     sex: student.sex,
     birth_date: student.birth_date ?? "",
     birth_place: student.birth_place,
+    national_id: student.national_id,
+    permanent_number: student.permanent_number,
     nationality: student.nationality,
     origin_province: student.origin_province,
     origin_territory: student.origin_territory,

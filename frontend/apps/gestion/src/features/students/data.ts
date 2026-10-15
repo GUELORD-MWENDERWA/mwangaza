@@ -157,6 +157,8 @@ export const IMPORT_FIELDS: ImportField[] = [
   "birth_place",
   "class_name",
   "matricule",
+  "national_id",
+  "permanent_number",
   "guardian_name",
   "guardian_phone",
 ];

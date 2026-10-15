@@ -31,12 +31,12 @@ from tests.factories import UserFactory
 IMPORTS = "/api/student-imports/"
 HEADERS = [
     "NOM", "POSTNOM", "PRENOM", "SEXE", "DATE NAISS.", "CLASSE", "NOM DU PARENT", "TEL",
-    "MATRICULE",
+    "MATRICULE", "N° ID", "N° PERM.",
 ]  # fmt: skip
 # Lignes 3 à 11 du fichier (titre en ligne 1, colonnes en ligne 2).
 ROWS = [
     ["KAMBALE", "MUHINDO", "Josué", "M", datetime(2010, 5, 3), "3E ELEC A", "Kambale Paluku",
-     "0971234567", ""],
+     "0971234567", "", "61022-6100210011533", "2-610021001115"],
     ["KAMBALE", "KAVIRA", "Neema", "F", "21/11/2011", "3ème Électricité A", "KAMBALE PALUKU",
      971234567, ""],
     ["PALUKU", "SIVIHWA", "Daniel", "M", "31/02/2008", "3E ELEC A", "", "", ""],
@@ -126,6 +126,11 @@ def test_each_row_is_checked_then_imported_once_with_siblings_and_matricules(
             "Kambale Paluku",
             "+243971234567",
             True,
+        )
+        josue = next(student for student in created if student.first_name == "Josué")
+        assert (josue.national_id, josue.permanent_number) == (
+            "61022-6100210011533",
+            "2-610021001115",
         )
         numbers = [student.matricule for student in created]
         assert "ANCIEN-001" in numbers and len(set(numbers)) == 5 and all(numbers)

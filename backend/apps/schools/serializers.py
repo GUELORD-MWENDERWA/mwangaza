@@ -220,6 +220,9 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
             "head_title",
             "head_signature",
             "epst_code",
+            "province",
+            "city",
+            "commune",
             "regime",
             "receipt",
             "alerts",
@@ -406,13 +409,14 @@ class TermsUpdateSerializer(serializers.Serializer):
 class LevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Level
-        fields = ["id", "name", "cycle", "order"]
+        fields = ["id", "name", "cycle", "order", "has_state_exam"]
         read_only_fields = ["id", "order"]
 
 
 class LevelUpdateSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=40, required=False)
     cycle = serializers.ChoiceField(choices=Level.Cycle.choices, required=False)
+    has_state_exam = serializers.BooleanField(required=False)
 
 
 class LevelReorderSerializer(serializers.Serializer):
