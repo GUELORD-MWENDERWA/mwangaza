@@ -25,7 +25,7 @@ Dernière mise à jour : 2026-10-14 (logo M-flamme, alignements au téléphone e
 | 6 septies | **Après la fusion de S.6.1 et S.6.2 : `make deploy`** puis `make deploy-check` (une seule mise en ligne pour les deux) — la Row Level Security (chaque table d'une école ne montre que l'école de la connexion) n'existe sur le serveur qu'une fois la nouvelle version en ligne, et c'est là seulement qu'elle s'applique (le compte `mwangaza_app`). Puis ouvrir https://admin.mwangazaschool.com/ (liste des espaces, Comptes, Journal) et une école de démonstration (Élèves, Caisse, Impayés, un reçu, Annonces) : tout doit s'afficher comme avant ; sur le Portail, le parent de démonstration voit ses enfants. Une liste vide ou une erreur inattendue : `make deploy-logs`, et me le dire | 10 min | [ ] |
 | 6 octies | **Visibilité sur Google et les IA**, après la fusion du logo M-flamme et `make deploy` : ① console https://admin.mwangazaschool.com/identity : vrai téléphone (WhatsApp) et e-mail du support — la page publique les affiche ; ② https://search.google.com/search-console → « Ajouter une propriété » → **Domaine** `mwangazaschool.com` → copier l'enregistrement TXT → Cloudflare › DNS › Ajouter un enregistrement TXT (nom `@`) → « Valider » ; puis « Sitemaps » : `https://mwangazaschool.com/sitemap.xml` ; puis « Inspection de l'URL » sur `https://mwangazaschool.com/` et `/en/` → « Demander l'indexation » ; ③ https://www.bing.com/webmasters → « Importer depuis Google Search Console » (Bing alimente ChatGPT, Copilot et DuckDuckGo) ; ④ vérifier : https://search.google.com/test/rich-results?url=https://mwangazaschool.com/ (données structurées valides) et envoie-toi le lien sur WhatsApp (aperçu avec le logo) ; ⑤ facultatif, mais ce qui aide le plus ensuite : des liens vers `mwangazaschool.com` depuis tes profils (LinkedIn, Facebook, GitHub), une fiche Google Business Profile « logiciel » à Goma, les sites des écoles clientes. Compter quelques jours à quelques semaines avant d'apparaître dans les résultats. | 30 min | [ ] |
 | 6 bis | **CSP : après une semaine de `make deploy` sans message « Content-Security-Policy » dans la console du navigateur** (F12, sur les trois adresses), ajouter la ligne `CSP_HEADER=Content-Security-Policy` dans `infra/serveur/serveur.env` puis `make deploy` ; **Cloudflare en nuage orange** (DNS › les enregistrements `*`, `admin`, `parents` et la racine) : à faire avec Claude, pas seul | 15 min | [ ] |
-| 7 | ~~**Un vrai bulletin EPST rempli**~~ : reçu le 2026-10-15 (3e HT et 4e HT, scans dans `docs/ecole-pilote/depot/`) ; si une autre option a un formulaire différent, ajoute-le | — | [x] |
+| 7 | ~~**Un vrai bulletin EPST rempli**~~ : reçu le 2026-10-15 (3e HT et 4e HT, scans dans `docs/ecole-pilote/prive/builtin/`) ; si une autre option a un formulaire différent, ajoute-le | — | [x] |
 | 8 | **Démarches Mobile Money et SMS** : contacter un agrégateur (M-Pesa, Airtel Money, Orange Money) et un fournisseur SMS / WhatsApp ; les contrats sont longs à obtenir (9.3 et 9.4, V2) | à ton rythme | [ ] |
 
 Déjà fait : installation de la machine (Docker, `.env`, gettext), décisions (nom, domaine, Q1 à Q11), PR des tâches 0.1 à 4.22, 4.24 et 5.1 à 5.7 ; historique complet : [`docs/06-suivi.md`](docs/06-suivi.md). À chaque PR : [comment la relire et la fusionner](#10-comment-relire-et-fusionner-une-pr) (§ 10). [Rien à demander à l'ITIG](#8-litig--rien-à-demander).
@@ -59,7 +59,7 @@ Déjà fait sur ta machine. Pour un autre ordinateur sous Ubuntu 24.04 :
 
 Si un document arrive quand même :
 
-- un fichier → le mettre dans `docs/ecole-pilote/depot/` (hors Git), puis dans Claude Code : `/document-ecole`
+- un fichier → le mettre dans `docs/ecole-pilote/prive/builtin/` (hors Git), puis dans Claude Code : `/document-ecole`
 - une liste d'élèves ou tout fichier avec des noms reste **hors Git** (`depot/`, `prive/`) : ne jamais le mettre ailleurs dans le dossier.
 
 ---
@@ -325,7 +325,7 @@ Rien pour l'instant.
 | `/etat` | où on en est, prochaine tâche, bloquants |
 | `/tache 1.1` | réaliser une tâche du plan de bout en bout (une PR à relire à la fin) |
 | `/noter …` | noter une décision, une réponse de l'ITIG, un blocage |
-| `/document-ecole` | après avoir déposé un fichier de l'ITIG dans `docs/ecole-pilote/depot/` |
+| `/document-ecole` | après avoir déposé un fichier de l'ITIG dans `docs/ecole-pilote/prive/builtin/` |
 | `/ecran …` | construire un écran d'après sa maquette |
 | `/verifier` | contrôle des règles avant commit |
 | `/deployer …` | mettre en ligne ou à jour le serveur de démonstration, le dépanner (`/deployer panne`) |
