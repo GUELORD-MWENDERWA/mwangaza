@@ -962,6 +962,15 @@ export const en: Messages<typeof fr> = {
       saved: "Format saved.",
     },
   },
+  print: {
+    paper: "Paper",
+    orientation: "Orientation",
+    auto: "Default",
+    portrait: "Portrait",
+    landscape: "Landscape",
+    perSheet: "Copies per sheet",
+    options: "Print options",
+  },
   reportCard: {
     title: "Report cards",
     subtitle:

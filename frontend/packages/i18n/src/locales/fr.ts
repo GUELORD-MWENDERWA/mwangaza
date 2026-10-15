@@ -967,6 +967,15 @@ export const fr = {
       saved: "Format enregistré.",
     },
   },
+  print: {
+    paper: "Papier",
+    orientation: "Sens",
+    auto: "Habituel",
+    portrait: "Portrait",
+    landscape: "Paysage",
+    perSheet: "Exemplaires par feuille",
+    options: "Options d'impression",
+  },
   reportCard: {
     title: "Bulletins",
     subtitle:

@@ -20,6 +20,7 @@ from drf_spectacular.utils import OpenApiResponse
 from openpyxl.cell import WriteOnlyCell
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
+from rest_framework import serializers
 
 from apps.core.models import PlatformSettings
 from apps.schools import signatures
@@ -35,6 +36,51 @@ PRINT_RESPONSE = {
     (200, PDF): OpenApiResponse(OpenApiTypes.BINARY, description="Document PDF (`output=pdf`)."),
     (200, HTML): OpenApiResponse(OpenApiTypes.STR, description="Aperçu HTML (`output=html`)."),
 }
+
+
+PAPERS = ("a4", "a5")
+ORIENTATIONS = ("portrait", "landscape")
+MAX_PER_SHEET = 3
+# Corps réduit quand plusieurs exemplaires se partagent une feuille.
+PER_SHEET_FONT = {2: "9pt", 3: "8pt"}
+
+
+class PrintOptionsSerializer(serializers.Serializer):
+    """Choix de la personne qui imprime (8.3.4) : papier et sens ; sans sens, celui du document."""
+
+    paper = serializers.ChoiceField(choices=PAPERS, default="a4")
+    orientation = serializers.ChoiceField(
+        choices=ORIENTATIONS, required=False, help_text="Absent : le sens habituel du document."
+    )
+
+
+class SlipPrintOptionsSerializer(PrintOptionsSerializer):
+    """Documents courts (convocation, circulaire) : plusieurs exemplaires par feuille."""
+
+    per_sheet = serializers.IntegerField(
+        default=1, min_value=1, max_value=MAX_PER_SHEET, help_text="Exemplaires par feuille."
+    )
+
+
+def print_options(data: dict, orientation: str = "portrait") -> dict:
+    """Options validées → contexte des gabarits (`page_size` pour `@page`, `per_sheet`)."""
+    paper = data.get("paper", "a4")
+    chosen = data.get("orientation") or orientation
+    return {
+        "paper": paper,
+        "orientation": chosen,
+        "page_size": f"{paper.upper()} {chosen}",
+        "per_sheet": data.get("per_sheet", 1),
+    }
+
+
+def _repeat_body(html: str, count: int) -> str:
+    """Le corps du document `count` fois sur la feuille, séparé d'un filet pointillé."""
+    start = html.index("<body>") + len("<body>")
+    end = html.rindex("</body>")
+    copy = f'<div class="copy">{html[start:end]}</div>'
+    style = f"<style>body {{ font-size: {PER_SHEET_FONT[count]}; }}</style>"
+    return f"{html[:start]}{style}{copy * count}{html[end:]}"
 
 
 FONTS = Path(__file__).parent / "static" / "core" / "site"
@@ -107,18 +153,24 @@ def school_header(school: School) -> dict:
     }
 
 
-def render(template: str, context: dict, output: str, name: str) -> HttpResponse:
+def render(
+    template: str, context: dict, output: str, name: str, options: dict | None = None
+) -> HttpResponse:
     """`html` : aperçu dans la page (même origine seulement) ; `pdf` : fichier ouvert dans le
-    navigateur, qui l'imprime ou l'enregistre."""
+    navigateur, qui l'imprime ou l'enregistre. `options` : `print_options(...)`."""
+    options = options or print_options({})
     html = render_to_string(
         template,
         {
             "platform": PlatformSettings.load(),
             "print_fonts": print_fonts(),
             "serif_fonts": serif_fonts(),
+            **options,
             **context,
         },
     )
+    if options["per_sheet"] > 1:
+        html = _repeat_body(html, options["per_sheet"])
     if output == "html":
         response = HttpResponse(html, content_type=f"{HTML}; charset=utf-8")
         response["X-Frame-Options"] = "SAMEORIGIN"

@@ -601,7 +601,7 @@ describe("Élèves (D2-D4)", () => {
     await user.click(screen.getByLabelText("Téléphone du tuteur principal"));
     await user.click(screen.getByRole("radio", { name: "Matricule" }));
     expect(excel.getAttribute("href")).toBe(
-      `/api/enrollments/class-list/?class_group=${group.id}&output=xlsx&blank_columns=2&order=matricule&columns=matricule&columns=guardian_phone`,
+      `/api/enrollments/class-list/?class_group=${group.id}&output=xlsx&blank_columns=2&order=matricule&paper=a4&columns=matricule&columns=guardian_phone`,
     );
   });
 });

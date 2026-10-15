@@ -5,6 +5,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.exceptions import ErrorDetail
 
+from apps.core.documents import PrintOptionsSerializer
 from apps.core.money import Currency
 from apps.finance import receipt_register, services, statements, unpaid
 from apps.finance.models import (
@@ -680,7 +681,7 @@ class PaymentFilterSerializer(serializers.Serializer):
     )
 
 
-class ReceiptRegisterSerializer(serializers.Serializer):
+class ReceiptRegisterSerializer(PrintOptionsSerializer):
     """Registre des reçus (DOC.3) : période, caisse, format."""
 
     start = serializers.DateField(help_text="Premier jour (inclus).")
@@ -967,7 +968,7 @@ class UnpaidFilterSerializer(YearFilterSerializer):
         )
 
 
-class UnpaidExportSerializer(UnpaidFilterSerializer):
+class UnpaidExportSerializer(PrintOptionsSerializer, UnpaidFilterSerializer):
     output = serializers.ChoiceField(
         choices=["xlsx", "pdf", "html"],
         help_text="Excel (une ligne par frais en retard), PDF, ou aperçu HTML du PDF.",
@@ -980,7 +981,7 @@ class UnpaidExportSerializer(UnpaidFilterSerializer):
     detail = serializers.BooleanField(default=False, help_text="PDF : une ligne par tranche.")
 
 
-class StatementSerializer(serializers.Serializer):
+class StatementSerializer(PrintOptionsSerializer):
     """Situation financière (G2) d'un ou de plusieurs élèves : une page chacun."""
 
     enrollment = serializers.ListField(

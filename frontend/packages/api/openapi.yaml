@@ -476,6 +476,19 @@ paths:
         description: A UUID string identifying this announcement.
         required: true
       - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
         name: output
         schema:
           enum:
@@ -489,6 +502,26 @@ paths:
 
           * `pdf` - pdf
           * `html` - html
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
+      - in: query
+        name: per_sheet
+        schema:
+          type: integer
+          maximum: 3
+          minimum: 1
+          default: 1
+        description: Exemplaires par feuille.
       tags:
       - announcements
       security:
@@ -5648,6 +5681,19 @@ paths:
         description: A UUID string identifying this enrollment.
         required: true
       - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
         name: output
         schema:
           enum:
@@ -5757,6 +5803,19 @@ paths:
           * `name` - name
           * `matricule` - matricule
       - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
         name: output
         schema:
           enum:
@@ -5770,6 +5829,18 @@ paths:
           * `pdf` - pdf
           * `xlsx` - xlsx
           * `html` - html
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
       tags:
       - students
       security:
@@ -9022,6 +9093,19 @@ paths:
         description: Dernier jour (inclus), 366 jours au plus après le premier.
         required: true
       - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
         name: output
         schema:
           enum:
@@ -9037,6 +9121,18 @@ paths:
           * `pdf` - pdf
           * `html` - html
         required: true
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
       - in: query
         name: start
         schema:
@@ -10244,6 +10340,19 @@ paths:
           default: false
         description: Sans les frais soldés.
       - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
         name: output
         schema:
           enum:
@@ -10257,6 +10366,18 @@ paths:
           * `pdf` - pdf
           * `html` - html
         required: true
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
       - in: query
         name: payments
         schema:
@@ -11477,6 +11598,19 @@ paths:
         description: A UUID string identifying this summons.
         required: true
       - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
         name: output
         schema:
           enum:
@@ -11490,6 +11624,26 @@ paths:
 
           * `pdf` - pdf
           * `html` - html
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
+      - in: query
+        name: per_sheet
+        schema:
+          type: integer
+          maximum: 3
+          minimum: 1
+          default: 1
+        description: Exemplaires par feuille.
       tags:
       - communication
       security:
@@ -12225,6 +12379,19 @@ paths:
           * `name` - name
           * `class` - class
       - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
         name: output
         schema:
           enum:
@@ -12255,6 +12422,18 @@ paths:
           type: boolean
           default: true
         description: 'PDF : une page par classe.'
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
       - in: query
         name: phone
         schema:

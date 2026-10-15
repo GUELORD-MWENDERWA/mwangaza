@@ -30,10 +30,11 @@ import { applyServerErrors, errorMessage, firstErrorMessage } from "../../lib/er
 import { studentName } from "../../lib/people";
 import { useCurrentSchool } from "../../lib/school";
 import { useSettled } from "../../lib/settled";
+import { SlipPrintLink } from "../printing/SlipPrintLink";
 import { Pagination } from "../shell/Pagination";
 import { LoadError } from "../status/StatusPages";
 import { type StudentRow, useStudentSearch } from "../students/data";
-import { letterUrl, PAGE_SIZE, type Summons, useCancel, useIssue, useSummons } from "./data";
+import { LETTER_PATH, PAGE_SIZE, type Summons, useCancel, useIssue, useSummons } from "./data";
 
 const SHOWN = 6;
 type Values = { student: string; day: string; time: string; meet_with: string; reason: string };
@@ -159,14 +160,11 @@ function NewSummonsCard() {
           {done && (
             <Banner tone="ok">
               {t("summons.issued", { name: done.student.full_name })}{" "}
-              <a
-                className="font-bold underline"
-                href={letterUrl(done.id)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {t("summons.letter")}
-              </a>
+              <SlipPrintLink
+                document="summons"
+                path={LETTER_PATH(done.id)}
+                label={t("summons.letter")}
+              />
             </Banner>
           )}
           {general && <Banner tone="due">{general}</Banner>}
@@ -278,14 +276,11 @@ function SummonsItem({ summons }: { summons: Summons }) {
           ].join(" · ")}
         </span>
         <span className="text-sm whitespace-pre-line text-ink-3">{summons.reason}</span>
-        <a
-          className="self-start text-sm font-bold text-lake underline"
-          href={letterUrl(summons.id)}
-          target="_blank"
-          rel="noreferrer"
-        >
-          {t("summons.letter")}
-        </a>
+        <SlipPrintLink
+          document="summons"
+          path={LETTER_PATH(summons.id)}
+          label={t("summons.letter")}
+        />
         {cancel.error && <div className="text-sm text-due">{errorMessage(cancel.error, t)}</div>}
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1.5">

@@ -4,6 +4,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.accounts.console_serializers import ConsoleSchoolRefSerializer
+from apps.core.documents import SlipPrintOptionsSerializer
 from apps.notifications.attachments import validate_attachment
 from apps.notifications.models import (
     Announcement,
@@ -94,7 +95,7 @@ class RecipientsSerializer(serializers.Serializer):
     )
 
 
-class PrintQuerySerializer(serializers.Serializer):
+class PrintQuerySerializer(SlipPrintOptionsSerializer):
     output = serializers.ChoiceField(
         choices=["pdf", "html"], default="pdf", help_text="`html` : aperçu ; `pdf` : à imprimer."
     )

@@ -128,6 +128,12 @@ def test_summons_is_audited_printed_and_cancelled_never_edited(api, school, head
     letter = client.get(f"{detail}letter/", output="html").content.decode()
     assert student.full_name in letter
     assert "Absences répétées" in letter
+    assert letter.count("Absences répétées") == 1
+
+    # Trois exemplaires sur la feuille (convocation courte) ; pas plus de trois.
+    three = client.get(f"{detail}letter/", output="html", per_sheet=3).content.decode()
+    assert three.count("Absences répétées") == 3
+    assert client.get(f"{detail}letter/", output="html", per_sheet=4).status_code == 400
 
     # Jour passé, ou élève qui n'est pas inscrit cette année : refusé.
     past = summon(client, student, meeting_at=(timezone.now() - timedelta(days=1)).isoformat())

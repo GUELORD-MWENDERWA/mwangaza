@@ -37,6 +37,7 @@ import { applyServerErrors, errorMessage } from "../../lib/errors";
 import { fullName } from "../../lib/people";
 import { useCurrentSchool } from "../../lib/school";
 import { useClasses, useYears } from "../organisation/data";
+import { SlipPrintLink } from "../printing/SlipPrintLink";
 import { Pagination } from "../shell/Pagination";
 import { LoadError } from "../status/StatusPages";
 import {
@@ -403,14 +404,11 @@ function PublishedItem({ announcement }: { announcement: Announcement }) {
               {t("announcements.pdf")}
             </a>
           )}
-          <a
-            className="text-sm font-bold text-lake underline"
-            href={`/api/announcements/${announcement.id}/circular/`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {t("announcements.circular")}
-          </a>
+          <SlipPrintLink
+            document="circular"
+            path={`/api/announcements/${announcement.id}/circular/`}
+            label={t("announcements.circular")}
+          />
         </div>
         {archive.error && <div className="text-sm text-due">{errorMessage(archive.error, t)}</div>}
       </div>

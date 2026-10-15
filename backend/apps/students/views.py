@@ -25,7 +25,14 @@ from apps.accounts.roles import (
 )
 from apps.accounts.views import SchoolViewSet
 from apps.audit.models import AuditLog
-from apps.core.documents import PRINT_RESPONSE, XLSX, XLSX_RESPONSE, file_response, render
+from apps.core.documents import (
+    PRINT_RESPONSE,
+    XLSX,
+    XLSX_RESPONSE,
+    file_response,
+    print_options,
+    render,
+)
 from apps.core.errors import ApiError, ErrorSerializer
 from apps.finance import services as finance
 from apps.schools.models import ClassGroup
@@ -516,13 +523,18 @@ class EnrollmentViewSet(StudentsViewSet):
         context = documents.registration_form(
             enrollment,
             actor=request.user,
-            paper=data["paper"],
             with_code=data["family_code"],
             with_fees=data["fees"],
             preview=data["output"] == "html",
         )
         name = f"fiche-{slugify(enrollment.student.full_name)}.pdf"
-        return render("students/registration_form.html", context, data["output"], name)
+        return render(
+            "students/registration_form.html",
+            context,
+            data["output"],
+            name,
+            print_options(data),
+        )
 
     @extend_schema(
         parameters=[ClassListQuerySerializer],
@@ -548,7 +560,13 @@ class EnrollmentViewSet(StudentsViewSet):
         name = f"liste-{slugify(group.name)}"
         if data["output"] == "xlsx":
             return file_response(documents.class_list_workbook(context), XLSX, f"{name}.xlsx")
-        return render("students/class_list.html", context, data["output"], f"{name}.pdf")
+        return render(
+            "students/class_list.html",
+            context,
+            data["output"],
+            f"{name}.pdf",
+            print_options(data),
+        )
 
 
 NO_CURRENT_YEAR = _("No current school year: choose one.")

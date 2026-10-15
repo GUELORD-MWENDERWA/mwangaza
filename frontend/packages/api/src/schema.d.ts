@@ -9778,12 +9778,26 @@ export interface operations {
         parameters: {
             query?: {
                 /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
                  * @description `html` : aperçu ; `pdf` : à imprimer.
                  *
                  *     * `pdf` - pdf
                  *     * `html` - html
                  */
                 output?: "pdf" | "html";
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
+                /** @description Exemplaires par feuille. */
+                per_sheet?: number;
             };
             header?: never;
             path: {
@@ -14795,6 +14809,13 @@ export interface operations {
                 /** @description Frais de l'année de l'élève, après réductions, par devise : avec un droit de lecture des frais (comme `/api/student-charges/`), sinon 403. */
                 fees?: boolean;
                 /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
                  * @description `html` : aperçu dans la page, code famille masqué ; `pdf` : à imprimer.
                  *
                  *     * `pdf` - pdf
@@ -14866,11 +14887,23 @@ export interface operations {
                  */
                 order?: "name" | "matricule";
                 /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
                  * @description * `pdf` - pdf
                  *     * `xlsx` - xlsx
                  *     * `html` - html
                  */
                 output?: "pdf" | "xlsx" | "html";
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
             };
             header?: never;
             path?: never;
@@ -18333,6 +18366,13 @@ export interface operations {
                 /** @description Dernier jour (inclus), 366 jours au plus après le premier. */
                 end: string;
                 /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
                  * @description Excel, PDF, ou aperçu HTML du PDF.
                  *
                  *     * `xlsx` - xlsx
@@ -18340,6 +18380,11 @@ export interface operations {
                  *     * `html` - html
                  */
                 output: "xlsx" | "pdf" | "html";
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
                 /** @description Premier jour (inclus). */
                 start: string;
             };
@@ -19624,12 +19669,24 @@ export interface operations {
                 /** @description Sans les frais soldés. */
                 hide_paid?: boolean;
                 /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
                  * @description PDF, ou son aperçu HTML.
                  *
                  *     * `pdf` - pdf
                  *     * `html` - html
                  */
                 output: "pdf" | "html";
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
                 /** @description Paiements reçus et annulés. */
                 payments?: boolean;
                 /** @description Échéances à venir. */
@@ -20842,12 +20899,26 @@ export interface operations {
         parameters: {
             query?: {
                 /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
                  * @description `html` : aperçu ; `pdf` : à imprimer.
                  *
                  *     * `pdf` - pdf
                  *     * `html` - html
                  */
                 output?: "pdf" | "html";
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
+                /** @description Exemplaires par feuille. */
+                per_sheet?: number;
             };
             header?: never;
             path: {
@@ -21556,6 +21627,13 @@ export interface operations {
                  */
                 order?: "amount" | "days" | "name" | "class";
                 /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
                  * @description Excel (une ligne par frais en retard), PDF, ou aperçu HTML du PDF.
                  *
                  *     * `xlsx` - xlsx
@@ -21567,6 +21645,11 @@ export interface operations {
                 over_days?: number;
                 /** @description PDF : une page par classe. */
                 page_per_class?: boolean;
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
                 /** @description PDF : téléphone du tuteur. */
                 phone?: boolean;
             };

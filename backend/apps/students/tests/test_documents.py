@@ -93,6 +93,18 @@ def test_class_list_has_the_active_students_of_the_class_with_the_chosen_columns
     assert other.status_code == 400 and "Bahati" not in other.content.decode()
 
 
+def test_class_list_follows_the_paper_and_orientation_chosen(api, school, head, alpha):
+    group = str(alpha["group"].pk)
+    client = api(head)
+
+    def html(**options):
+        return client.get(CLASS_LIST, class_group=group, output="html", **options).content.decode()
+
+    assert "size: A4 portrait" in html()
+    assert "size: A5 landscape" in html(paper="a5", orientation="landscape")
+    assert client.get(CLASS_LIST, class_group=group, paper="a3").status_code == 400
+
+
 def test_class_list_by_student_number(api, school, head, alpha):
     group = alpha["group"]
     first = enrolled(school, head, group, last_name="Zawadi")
