@@ -71,6 +71,13 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         permissions: ["grades.validate"],
         task: "8.2.2",
       },
+      {
+        key: "reportCards",
+        path: "report-cards",
+        icon: "print",
+        permissions: ["grades.enter_any", "grades.validate"],
+        task: "8.3.2",
+      },
     ],
   },
   {

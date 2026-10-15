@@ -640,6 +640,7 @@ paths:
           - grades.validated
           - grades.reopened
           - grades.deadline_set
+          - grades.report_card_printed
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -750,6 +751,7 @@ paths:
           * `grades.validated` - Grades validated
           * `grades.reopened` - Grades reopened
           * `grades.deadline_set` - Grade entry deadline set
+          * `grades.report_card_printed` - Report card printed
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -1031,6 +1033,7 @@ paths:
           - grades.validated
           - grades.reopened
           - grades.deadline_set
+          - grades.report_card_printed
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -1141,6 +1144,7 @@ paths:
           * `grades.validated` - Grades validated
           * `grades.reopened` - Grades reopened
           * `grades.deadline_set` - Grade entry deadline set
+          * `grades.report_card_printed` - Report card printed
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -3159,6 +3163,67 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/report-card/:
+    get:
+      operationId: class_groups_report_card_retrieve
+      description: |-
+        Bulletin imprimable : PDF A4 ou son aperçu HTML, avec les places de la classe et un
+        QR code d'authenticité ; chaque PDF est noté dans le journal d'audit.
+      parameters:
+      - in: query
+        name: enrollment
+        schema:
+          type: string
+          format: uuid
+        description: Inscription de l'élève dans cette classe.
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: output
+        schema:
+          enum:
+          - pdf
+          - html
+          type: string
+          minLength: 1
+        description: |-
+          PDF, ou son aperçu HTML.
+
+          * `pdf` - pdf
+          * `html` - html
+        required: true
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Document PDF (`output=pdf`).
         '403':
           content:
             application/json:
@@ -12465,6 +12530,7 @@ components:
       - grades.validated
       - grades.reopened
       - grades.deadline_set
+      - grades.report_card_printed
       - students.family_created
       - students.family_updated
       - students.family_deleted
@@ -12574,6 +12640,7 @@ components:
         * `grades.validated` - Grades validated
         * `grades.reopened` - Grades reopened
         * `grades.deadline_set` - Grade entry deadline set
+        * `grades.report_card_printed` - Report card printed
         * `students.family_created` - Family created
         * `students.family_updated` - Family changed
         * `students.family_deleted` - Family deleted

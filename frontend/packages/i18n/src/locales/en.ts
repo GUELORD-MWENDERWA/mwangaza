@@ -140,6 +140,7 @@ export const en: Messages<typeof fr> = {
       teachingLoads: "Teaching loads",
       grades: "Grade entry",
       gradeValidation: "Grade validation",
+      reportCards: "Report cards",
       cash: "Cash desk",
       unpaid: "Unpaid fees",
       fees: "Fees and rates",
@@ -955,6 +956,21 @@ export const en: Messages<typeof fr> = {
       saved: "Format saved.",
     },
   },
+  reportCard: {
+    title: "Report cards",
+    subtitle:
+      "A student's report card, with their place in the class: print it or save it as a PDF.",
+    choose: "Choose the student",
+    classChoice: "Class",
+    studentChoice: "Student",
+    search: "Search a student",
+    help: "Totals, places and mentions are worked out from the class grades; a box stays empty while a grade is missing. The QR code lets anyone check the report card.",
+    print: "Print",
+    pdf: "Download the PDF",
+    preview: "Report card preview",
+    noClass: "No class has courses yet. Add them in “Courses and maxima”.",
+    noStudent: "No student in this class.",
+  },
   gradeValidation: {
     title: "Grade validation",
     subtitle: "The sheets teachers have sent, and the entry deadline of each period.",
@@ -1407,6 +1423,7 @@ export const en: Messages<typeof fr> = {
         validated: "Grades validated",
         reopened: "Grades reopened",
         deadline_set: "Grade entry deadline set",
+        report_card_printed: "Report card printed",
       },
       students: {
         family_created: "Family created",

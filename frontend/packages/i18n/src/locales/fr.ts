@@ -138,6 +138,7 @@ export const fr = {
       teachingLoads: "Charges des enseignants",
       grades: "Saisie des notes",
       gradeValidation: "Validation des notes",
+      reportCards: "Bulletins",
       cash: "Caisse",
       unpaid: "Impayés",
       fees: "Frais et barèmes",
@@ -960,6 +961,21 @@ export const fr = {
       saved: "Format enregistré.",
     },
   },
+  reportCard: {
+    title: "Bulletins",
+    subtitle:
+      "Le bulletin d'un élève, avec sa place dans la classe : à imprimer ou à enregistrer en PDF.",
+    choose: "Choisir l'élève",
+    classChoice: "Classe",
+    studentChoice: "Élève",
+    search: "Chercher un élève",
+    help: "Les totaux, les places et les mentions se calculent d'après les notes de la classe ; une case vide reste vide tant qu'une note manque. Le QR code permet de vérifier le bulletin.",
+    print: "Imprimer",
+    pdf: "Télécharger le PDF",
+    preview: "Aperçu du bulletin",
+    noClass: "Aucune classe n'a encore de cours. Ajoutez-les dans « Cours et maxima ».",
+    noStudent: "Aucun élève dans cette classe.",
+  },
   gradeValidation: {
     title: "Validation des notes",
     subtitle:
@@ -1415,6 +1431,7 @@ export const fr = {
         validated: "Notes validées",
         reopened: "Notes rouvertes",
         deadline_set: "Date limite de saisie fixée",
+        report_card_printed: "Bulletin imprimé",
       },
       students: {
         family_created: "Famille créée",

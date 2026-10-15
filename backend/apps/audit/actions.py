@@ -86,6 +86,8 @@ class Action(models.TextChoices):
     GRADES_VALIDATED = "grades.validated", _("Grades validated")
     GRADES_REOPENED = "grades.reopened", _("Grades reopened")
     GRADES_DEADLINE_SET = "grades.deadline_set", _("Grade entry deadline set")
+    # Bulletin (8.3.2) : chaque PDF est noté, il contient les résultats d'un élève.
+    GRADES_REPORT_CARD_PRINTED = "grades.report_card_printed", _("Report card printed")
 
     # Élèves et familles (D2-D4).
     STUDENTS_FAMILY_CREATED = "students.family_created", _("Family created")

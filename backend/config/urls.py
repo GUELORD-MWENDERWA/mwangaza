@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from apps.academics.verification import verify_report_card
 from apps.core import site
 from apps.core import urls as core_urls
 from apps.finance.verification import verify_receipt, verify_statement
@@ -78,6 +79,8 @@ urlpatterns = [
     path("v/<uuid:payment_id>", verify_receipt, name="receipt-verification"),
     # Vérification publique d'une situation financière imprimée (son QR code).
     path("v/s/<str:token>", verify_statement, name="statement-verification"),
+    # Vérification publique d'un bulletin imprimé (son QR code).
+    path("v/b/<str:token>", verify_report_card, name="report-card-verification"),
 ]
 
 if settings.DEBUG:
