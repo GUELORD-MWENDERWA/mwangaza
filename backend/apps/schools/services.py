@@ -23,7 +23,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action, PlatformAction
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import use_school
-from apps.schools import alerts, deletion, portal, receipts, reminders, tasks
+from apps.schools import alerts, deletion, grading, portal, receipts, reminders, tasks
 from apps.schools.models import Demonstration, School
 
 LIVE_SPACE = ApiError("live_space", _("A live space is never deleted: stop it instead."), 409)
@@ -176,6 +176,7 @@ def _settings_fields(settings: dict) -> dict:
         **alerts.journal_fields(settings),
         **reminders.journal_fields(settings),
         **portal.journal_fields(settings),
+        **grading.journal_fields(settings),
     }
 
 
@@ -191,7 +192,8 @@ FILE_FIELDS = {
 def update_school(school: School, *, actor, **fields) -> School:
     """Paramètres de l'école (M5) ou administration : champs déjà vérifiés. `logo=None` retire
     le logo (de même pour le cachet et la signature du chef, DOC.1) ; `receipt`, `alerts`,
-    `reminders`, `portal` : réglages du reçu, seuils d'alerte, relances aux parents ou portail à
+    `reminders`, `portal`, `grading` : réglages du reçu, seuils d'alerte, relances aux parents,
+    portail ou saisie des points à
     changer, les autres restent."""
     if (receipt := fields.pop("receipt", None)) is not None:
         school.settings = {**school.settings, "receipt": {**school.receipt, **receipt}}
@@ -208,6 +210,8 @@ def update_school(school: School, *, actor, **fields) -> School:
         school.settings = {**school.settings, "reminders": {**school.reminders, **changed}}
     if (changed := fields.pop("portal", None)) is not None:
         school.settings = {**school.settings, "portal": {**school.portal, **changed}}
+    if (changed := fields.pop("grading", None)) is not None:
+        school.settings = {**school.settings, "grading": {**school.grading, **changed}}
     for field, value in fields.items():
         setattr(school, field, "" if field in FILE_FIELDS and value is None else value)
     return save_school(school, actor=actor)

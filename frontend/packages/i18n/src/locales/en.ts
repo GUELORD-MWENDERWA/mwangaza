@@ -590,6 +590,15 @@ export const en: Messages<typeof fr> = {
       overdueEveryHelp: "A parent gets at most one reminder in this interval. Between 1 and 60.",
       invalidDays: "A number between 1 and {{max}}.",
     },
+    grading: {
+      title: "Entering marks",
+      intro: "How teachers hand in the marks of each period.",
+      detailed: "Detailed assignments",
+      detailedHelp: "One mark per quiz, test or practical; the period mark is worked out.",
+      totals: "Period total only",
+      totalsHelp:
+        "A single mark per period (and per exam), copied onto the marking sheet. A course can choose otherwise.",
+    },
     portal: {
       title: "Parent portal",
       intro: "What parents see besides payments and announcements.",
@@ -1167,6 +1176,7 @@ export const en: Messages<typeof fr> = {
     evaluationChip: "{{name}} · /{{max}}",
     evaluationColumn: "{{name}} /{{max}}",
     addEvaluation: "Add an evaluation",
+    totalName: "Total",
     noEvaluation:
       "No evaluation in this period yet: add the first one (test, homework, practical work…).",
     noStudent: "No student is enrolled in this class.",
@@ -1268,6 +1278,11 @@ export const en: Messages<typeof fr> = {
     noExam: "no exam",
     totals: "Overall maxima",
     hoursValue: "{{value}} h",
+    entry: {
+      school: "School setting",
+      detailed: "Detailed assignments",
+      totals: "Period total",
+    },
     columns: {
       name: "Subject",
       domain: "Domain",
@@ -1275,6 +1290,7 @@ export const en: Messages<typeof fr> = {
       exam: "Exam",
       examMax: "Exam max.",
       taught: "Taken by the class",
+      entry: "Marks entry",
       year: "Year total",
       hours: "Hrs / wk",
       teacher: "Teacher",
@@ -1754,6 +1770,7 @@ export const en: Messages<typeof fr> = {
       meet_with: "Person to see",
       cancelled: "Cancelled",
       portal_teacher_phone: "Homeroom teacher's phone shown to parents",
+      grading_entry: "Entering marks (detailed or total)",
     },
     values: {
       course: "{{name}}: maximum {{max}}",

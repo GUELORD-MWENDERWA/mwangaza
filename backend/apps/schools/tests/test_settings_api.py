@@ -77,6 +77,7 @@ def test_head_reads_the_settings(api, school, head):
         "reminders": {"enabled": False, "days_before": 3, "overdue_every_days": 7},
         # Téléphone du titulaire : caché aux parents tant que l'école ne l'a pas choisi.
         "portal": {"teacher_phone": False},
+        "grading": {"entry": "detailed"},
     }
 
 

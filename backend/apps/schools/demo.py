@@ -123,6 +123,8 @@ DEMO_LOOKS = {
             "header": "Quartier Himbi, Goma\nvolcans@example.org",
             "footer": "Merci de payer à temps.",
         },
+        # Saisie des points sans devoirs (8.4.0) : seulement le total de la période.
+        "grading": {"entry": "totals"},
     },
 }
 
@@ -191,7 +193,10 @@ def create_demo_look(spaces: list[DemoSpace]) -> None:
             if logo:
                 logo.delete(save=False)
         school.primary_color = look["primary_color"]
-        school.settings = {"receipt": look["receipt"]}
+        school.settings = {
+            "receipt": look["receipt"],
+            **({"grading": look["grading"]} if "grading" in look else {}),
+        }
         school.logo, school.logo_monochrome = "", ""
         for image in (school.stamp, school.head_signature):
             if image:

@@ -61,7 +61,7 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 19 a | ~~**DOC.1** Signature et cachet de l'école sur tous les documents (§ 3)~~ | P0 | M | 🤖 |
 | 19 b | ~~**DOC.2** Reçu sur demi ou tiers de feuille A4 (§ 3)~~ | P0 | M | 🤖 |
 | 19 c | ~~**DOC.3** Registre des reçus : PDF et Excel par période et par caisse (§ 3)~~ | P0 | M | 🤖 |
-| 19 bis | ~~**8.2.2**~~ ✓ Contrôle des notes (date limite, envoi, validation) ; ~~**8.2.3**~~ ✓ notes hors ligne ; **~~8.3.1~~ ✓, ~~8.3.2~~ ✓, ~~8.3.3~~ ✓, ~~8.3.4~~ ✓, ~~8.3.5~~ ✓, ~~8.3.6~~ ✓, ~~8.5.1a~~ ✓, ~~8.5.1b~~ ✓, ~~8.5.1c~~ ✓, 8.4, 8.8** bulletin fidèle, impression au choix, fiches de cotes, conduite, délibération, Portail | P1 | L | 🤖 |
+| 19 bis | ~~**8.2.2**~~ ✓ Contrôle des notes (date limite, envoi, validation) ; ~~**8.2.3**~~ ✓ notes hors ligne ; **~~8.3.1~~ ✓, ~~8.3.2~~ ✓, ~~8.3.3~~ ✓, ~~8.3.4~~ ✓, ~~8.3.5~~ ✓, ~~8.3.6~~ ✓, ~~8.5.1a~~ ✓, ~~8.5.1b~~ ✓, ~~8.5.1c~~ ✓, ~~8.4.0~~ ✓, 8.4.1 à 8.4.7, 8.8, PERF.6, S.10** bulletin fidèle, impression au choix, fiches de cotes, conduite, délibération, Portail | P1 | L | 🤖 |
 | 20 | **FIN.1 → FIN.3** Dépenses, sorties de caisse, budget | P1 | M | 🤖 |
 | | **V1.3 — Plateforme commerciale** | | | |
 | 21 | **ABO.1 → ABO.3** Abonnements par module, factures, échéances | P1 | L | 🤖 |
@@ -329,15 +329,25 @@ Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est 
 - [x] **8.5.1a** **Conduite : barème et incidents** *(P1, M)* — le directeur de discipline (DD, `discipline.configure`) tient la **liste des infractions avec leurs points** (modèle de départ proposé, modifiable) et les **seuils** TB, B, AB, ME, MA réglables par l'école ; tout enseignant (`discipline.record`) attribue une infraction à un élève (date, motif, note) ; liste des incidents d'un élève ; droits ajoutés aux rôles de départ et aux écoles existantes ; audit, isolation, `make demo`. Modèle : `04` § Conduite et discipline
 - [x] **8.5.1b** **Conduite : parents et bulletin** *(P1, M, après 8.5.1a ; faite le 2026-10-16)* — le **parent est prévenu** (notification et carte « Conduite » de la page de l'enfant au Portail) ; la cote de conduite de chaque période se calcule d'après les points (`ConductGrade` : correction seule stockée) et alimente la ligne Conduite du bulletin ; le DD ou la délibération (8.4) peut la corriger avec un motif (`discipline.override`, journal)
 - [x] **8.5.1c** **Application** *(P1, S, après 8.5.1b ; faite le 2026-10-16)* — cote d'application de chaque période proposée d'après le pourcentage de la période, corrigée par le titulaire (avant 8.4) avec motif, journal ; alimente la ligne Application du bulletin (`ApplicationGrade`, même forme que `ConductGrade`) — issue #282
-- [ ] **8.4** Délibération (revoit la conduite), décisions, palmarès, passage de classe *(P1, M)*
-- [ ] **8.8** Portail parents : notes, bulletins PDF ; tableau de bord : résultats *(P1, M)*
+- [ ] **8.4** *(découpée le 2026-10-16 en 8.4.0 à 8.4.6 ; issue #49 = suivi)* Délibération, repêchage, bulletin complété, situations de classe et d'école, passage de classe, proclamation. Tout reste dans le module `academics` (le lien avec les frais, seulement si l'école a aussi le module `finance`) : une école sans ce module n'en voit rien.
+  - [x] **8.4.0** **Saisie des points sans devoirs** *(P1, S ; faite le 2026-10-16)* — réglage de l'école (tout l'établissement ou par cours) : soit des devoirs détaillés (comme aujourd'hui), soit **seulement le total de la période** (et des examens) reporté sur la fiche de cotation ; bulletin, fiches de cotes et délibération lisent les deux de la même façon — issue #293
+  - [ ] **8.4.1** **Règles de réussite et examens de repêchage** *(P1, M, après 8.4.0)* — règles de l'école (départ proposé, I16 à confirmer : réussite à 50 % du total, cours échoué sous 50 %, repêchage ouvert de 45 à 50 % ou pour tout cours échoué, nombre de cours échoués au repêchage qui fait échouer l'élève) ; saisie de la **note de repêchage de chaque cours échoué** par son enseignant, avec **sa signature** (la colonne « Examen de repêchage » du bulletin, ou « Examen d'État » en dernière année) ; échouer tous les repêchages (ou plus que le seuil) = échec proposé — issue #294
+  - [ ] **8.4.2** **Délibération d'une classe** *(P1, M, après 8.4.1)* — tableau de la classe ; **décision proposée par le système** (règles de 8.4.1) puis **décision prise** : admis (passe), doublant, repêchage, réorienté, exclu, **abandon** ; quand la décision prise **diffère** de la proposition (réussi mais doublant, échoué mais passe), l'écart est **signalé** (pastille, motif obligatoire, journal) et compté à part dans les statistiques ; correction de la conduite et de l'application ; date de délibération ; classe « proclamée » seulement après validation, et **les résultats proclamés sont figés** (instantané : une correction ensuite = nouvelle version avec motif et journal, le bulletin déjà remis ne change pas en silence) — issue #295
+  - [ ] **8.4.3** **Bulletin complété** *(P1, S, après 8.4.2)* — le bas du bulletin se remplit tout seul : repêchage par cours avec signature de l'enseignant, **mention « passe » / « double » cochée** (autres mentions à biffer selon la délibération), **date** de proclamation, nom et signature du chef d'établissement, cachet ; maquette `gestion/bulletin` d'après les scans — issue #296
+  - [ ] **8.4.4** **Situation de chaque classe et de l'école** *(P1, M, après 8.4.2)* — à imprimer : par classe, inscrits, réussites, échecs, abandons, doublants, exclus, taux, par cours aussi, palmarès ; pour **toute l'école** : lauréat de l'école et sa classe, meilleur de chaque classe, taux par classe, niveau et global, **écarts de délibération**. **Critère au choix à chaque édition** : règles de la classe (repêchage compris) ou **moyenne seule** (≥ 50 %) — issue #297
+  - [ ] **8.4.5** **Passage de classe et confirmation de place** *(P1, M, après 8.4.2)* — à la clôture de l'année : admis au niveau suivant, doublants dans la même classe, exclus et abandons retirés ; **confirmation de place des anciens** selon la décision (réussite ou non), demandée au parent par le Portail avant la rentrée ; rien créé sans confirmation de l'école
+  - [ ] **8.4.6** **Proclamation et frais** *(P1, M, après 8.4.3 ; avec 8.8)* — à la proclamation, le bulletin va au parent **si la famille a payé le montant exigé** (réglage de l'école, solde de `finance`) ; sinon il reçoit un message « paiement pas encore finalisé » (sans cacher la décision de passage : on ne chasse pas l'enfant) ; **dérogation** accordée par le préfet (droit dédié, motif, durée, journal) pour une famille ou un élève ; la demande du parent passe par le Portail (voir 8.8)
+  - [ ] **8.4.7** **Reprise des résultats de l'année précédente** *(P1, S, avant 8.4.5)* — une école qui arrive avec Mwangaza n'a pas les notes de l'an dernier : elle saisit ou importe (Excel) seulement la **décision finale** et le pourcentage de chaque ancien, ce qui suffit à confirmer sa place (comme la reprise des paiements `origin=prior`)
+- [ ] **8.8** Portail parents : notes, bulletins PDF ; tableau de bord : résultats ; **pont parent ↔ école** : le parent écrit à l'école depuis le Portail (demande de dérogation, question sur une note ou une décision), l'école répond, fil gardé par élève *(P1, M ; version légère, la messagerie complète reste V1.7)*
+- [ ] **PERF.6** **Rapidité des notes et de la délibération** *(P1, S, après 8.4.4)* — `make perf` étendu à la feuille de notes, au tableau de délibération, au palmarès, aux situations et au bulletin d'une classe de 60 et d'une école de 1 200 élèves ; budget de requêtes (`assertNumQueries`) sur chaque liste ; PDF en tâche de fond par paquets ; résultat dans `docs/claude/recherches/`
+- [ ] **S.10** **Revue de sécurité des notes, bulletins et du Portail** *(P1, S, après 8.8 et 8.4.6)* — un parent ne voit que ses enfants (test d'accès à l'élève d'un autre, d'une autre école) ; bulletins PDF non devinables et servis après contrôle du droit ; blocage des frais impossible à contourner par l'adresse du fichier ; journal des consultations de bulletins ; limite d'essais ; permissions de la délibération (`grades.validate`, dérogation) vérifiées sur chaque point d'API
 - [ ] **FIN.1 → FIN.3** Dépenses, sorties de caisse, budget (§ 6.1) *(P1)*
 
 ### V1.3 — Plateforme commerciale
 
 - [ ] **ABO.1 → ABO.3** Abonnements par module (§ 6.2) *(P1)*
 - [ ] **WEB.1** Site de la plateforme (§ 6.3) *(P1)*
-- [ ] **S.7 → S.9** Protection des données, détection, revue ASVS (§ 4 bis) *(P1)*
+- [ ] **S.7 → S.9** Protection des données (dont **export complet des données d'une école** à sa demande ou à son départ), détection, revue ASVS (§ 4 bis) *(P1)*
 
 ### V1.4 — Emploi du temps et IA
 
@@ -369,6 +379,9 @@ Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est 
 - [ ] **8.6** Portail élèves ; espace titulaire *(P2, L)*
 - [ ] **8.7** Transfert d'élève entre écoles de la plateforme ; attestations *(P2, M)*
 - [ ] **8.9** Sondages ; blocage des bulletins en cas de dette (désactivé par défaut) *(P2, S)*
+- [ ] **8.2.4** Import des points d'une classe depuis un classeur Excel (modèle fourni, erreurs montrées ligne par ligne, rien enregistré avant confirmation) *(P2, S)*
+- [ ] **I18N.1** Swahili (puis lingala) pour le Portail et les messages aux parents, à côté du français et de l'anglais *(P2, S)*
+- [ ] **SUP.1** Aide dans l'application (guide court par écran) et demande d'aide de l'école à la plateforme, suivie dans la console *(P2, M)*
 - [ ] **7.6** Connexion Google, champs complémentaires de la fiche élève *(P3, S)*
 
 ### V2 — après la V1.7 (ordre à valider avant de commencer)
@@ -425,6 +438,7 @@ Une tâche n'est cochée que si **tout** est vrai :
 - [ ] Aucune écriture en base ajoutée à chaque requête ; tout ce qui est lourd en tâche de fond, par paquets.
 - [ ] Les documents rendus faux sont corrigés dans la même PR.
 - [ ] Sécurité : aucune donnée d'une autre école, permission vérifiée côté serveur, entrée de l'utilisateur jamais affichée comme du HTML, envoi de fichier contrôlé (S.4), point public limité en nombre d'essais.
+- [ ] **Rapidité** : tout écran de liste ou d'impression a un nombre de requêtes borné (pas de N+1, testé), est paginé, et reste fluide avec 1 200 élèves ; les calculs lourds (classement, statistiques) sont faits une fois et gardés, pas à chaque ouverture.
 - [ ] La CI est verte.
 
 ### 8.3 Pour aller plus vite

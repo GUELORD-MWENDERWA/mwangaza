@@ -8,6 +8,11 @@ jamais stockée. Droits `grades.enter` (ses cours et sa classe de titulaire) et 
 (toutes les classes), vérifiés par l'API avec `gradable_courses`. Chaque enregistrement qui change
 quelque chose écrit **une** entrée au journal (domaine `grades`), avec les seules cases changées.
 
+Saisie des points (8.4.0) : selon le réglage de l'école ou du cours, la feuille compte des devoirs
+détaillés ou **une seule évaluation « Total »** au maximum de la période (`entry_mode`) ; tout ce
+qui suit (note de la période, bulletin, fiches, délibération) lit les évaluations de la même
+façon. Une feuille qui a déjà plusieurs évaluations reste détaillée, quel que soit le réglage.
+
 Contrôle (8.2.2) : la feuille est un brouillon, puis envoyée (`submit_sheet`, complète), puis
 validée par le directeur des études (`validate_sheet`, droit `grades.validate`). Brouillon : saisie
 libre jusqu'à la date limite de la période (`set_deadline`), passée : refusée, sauf feuille rouverte
@@ -34,6 +39,8 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.errors import ApiError, BusinessError
+from apps.core.tenancy import require_current_school
+from apps.schools.grading import DETAILED, TOTALS
 from apps.schools.models import Term
 from apps.students.models import Enrollment
 
@@ -48,6 +55,11 @@ SHEET_NOT_DRAFT = ApiError("sheet_not_draft", _("These grades are already sent."
 SHEET_NOT_SENT = ApiError("sheet_not_sent", _("These grades are not waiting for validation."), 409)
 INCOMPLETE_SHEET = ApiError(
     "incomplete_sheet", _("Every student needs a grade in every evaluation before sending."), 400
+)
+TOTALS_ONLY = ApiError(
+    "totals_only",
+    _("This course is graded with the period total only: a single evaluation at the maximum."),
+    400,
 )
 REASON_REQUIRED = ApiError(
     "reason_required", _("Give the reason for changing grades that are already sent."), 400
@@ -101,6 +113,7 @@ class Sheet:
     maximum: int
     evaluations: list[Evaluation]
     rows: list[Row]
+    entry: str = DETAILED
     status: str = GradeSheet.Status.DRAFT
     reopened: bool = False
     due_on: date | None = None
@@ -120,6 +133,15 @@ def gradable_courses(user: User, permissions) -> QuerySet[Course]:
     if GRADES_ENTER in permissions:
         return courses.filter(Q(teacher=user) | Q(class_group__homeroom_teacher=user))
     return courses.none()
+
+
+def entry_mode(course: Course, evaluation_count: int) -> str:
+    """Saisie de la feuille : le choix du cours, sinon celui de l'école (`School.grading`), sauf
+    si la feuille a déjà plusieurs évaluations (elle garde ses devoirs : rien n'est perdu en
+    silence)."""
+    if evaluation_count > 1:
+        return DETAILED
+    return course.grade_entry or require_current_school().grading["entry"]
 
 
 def term_maximum(course: Course, term: Term) -> int:
@@ -229,6 +251,7 @@ def sheet(course: Course, term: Term) -> Sheet:
         scores = [row.scores.get(evaluation.pk) for evaluation in evaluations]
         row.total = period_score(scores, maxima, maximum)
     result = Sheet(course, term, maximum, evaluations, list(rows.values()))
+    result.entry = entry_mode(course, len(evaluations))
     deadline = GradeDeadline.objects.filter(term=term).values_list("due_on", flat=True).first()
     result.due_on = deadline
     state = _state(course, term)
@@ -305,6 +328,11 @@ def save_sheet(
         existing = {evaluation.pk: evaluation for evaluation in _evaluations(course, term)}
         removed_ids = {pk for pk in removed if pk in existing}
         maxima = _plan_evaluations(existing, evaluations, removed_ids)
+        if entry_mode(course, len(existing)) == TOTALS and (
+            len(maxima) + sum(item.id is None for item in evaluations) != 1
+            or any(item.max_score != term_maximum(course, term) for item in evaluations)
+        ):
+            raise BusinessError(TOTALS_ONLY)
         new_ids = {item.id for item in evaluations if item.id is not None} - existing.keys()
         enrollment_ids = set(
             Enrollment.objects.filter(

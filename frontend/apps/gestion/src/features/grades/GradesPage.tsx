@@ -161,6 +161,8 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
   // Changements pas encore enregistrés : évaluations (`null` : celles du serveur), évaluations
   // retirées, cases tapées (texte, par élève et évaluation).
   const [evaluations, setEvaluations] = useState<EvaluationDraft[] | null>(null);
+  // Saisie « total » (8.4.0) : identifiant de l'unique évaluation tant que le serveur n'en a pas.
+  const [totalId] = useState(uuidv7);
   const [removed, setRemoved] = useState<string[]>([]);
   const [cells, setCells] = useState<Record<string, string>>({});
   const [editing, setEditing] = useState<Editing | null>(null);
@@ -242,7 +244,17 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
   if (sheet.isError) return <LoadError error={sheet.error} onRetry={() => void sheet.refetch()} />;
 
   const data: Sheet = sheet.data;
-  const columns = evaluations ?? data.evaluations;
+  const totalsOnly = data.entry === "totals";
+  // Saisie « total » : une seule colonne au maximum de la période, jamais de devoirs à gérer.
+  const columns: EvaluationDraft[] = totalsOnly
+    ? [
+        {
+          id: data.evaluations[0]?.id ?? totalId,
+          name: data.evaluations[0]?.name ?? t("grades.totalName"),
+          max_score: data.maximum,
+        },
+      ]
+    : (evaluations ?? data.evaluations);
   const canValidate = can(me, ["grades.validate"]);
   const locked = isLocked(data, canValidate, todayIn(school.timezone));
   const dirty = evaluations !== null || removed.length > 0 || Object.keys(cells).length > 0;
@@ -413,30 +425,32 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
           <CardTitle>{t("grades.students", { count: data.students.length })}</CardTitle>
           {dirty && <StatusPill tone="warn">{t("grades.unsaved")}</StatusPill>}
         </CardHeader>
-        <div className="flex flex-wrap items-center gap-2 border-b border-line-soft px-5 py-3">
-          <span className="text-sm text-ink-3">{t("grades.evaluations")}</span>
-          {columns.map((column) => (
+        {!totalsOnly && (
+          <div className="flex flex-wrap items-center gap-2 border-b border-line-soft px-5 py-3">
+            <span className="text-sm text-ink-3">{t("grades.evaluations")}</span>
+            {columns.map((column) => (
+              <Button
+                key={column.id}
+                variant="outline"
+                size="sm"
+                disabled={locked}
+                onClick={() => setEditing({ evaluation: column })}
+              >
+                {t("grades.evaluationChip", { name: column.name, max: column.max_score })}
+                <Icon name="edit" size={14} />
+              </Button>
+            ))}
             <Button
-              key={column.id}
-              variant="outline"
+              variant="ghost"
               size="sm"
               disabled={locked}
-              onClick={() => setEditing({ evaluation: column })}
+              onClick={() => setEditing({ evaluation: null })}
             >
-              {t("grades.evaluationChip", { name: column.name, max: column.max_score })}
-              <Icon name="edit" size={14} />
+              <Icon name="plus" size={14} />
+              {t("grades.addEvaluation")}
             </Button>
-          ))}
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={locked}
-            onClick={() => setEditing({ evaluation: null })}
-          >
-            <Icon name="plus" size={14} />
-            {t("grades.addEvaluation")}
-          </Button>
-        </div>
+          </div>
+        )}
         {columns.length === 0 || data.students.length === 0 ? (
           <p className="px-5 py-6 text-sm text-ink-2">
             {t(columns.length === 0 ? "grades.noEvaluation" : "grades.noStudent")}

@@ -16498,6 +16498,16 @@ components:
           type: boolean
           readOnly: true
           title: Taught in this class
+        grade_entry:
+          readOnly: true
+          description: |-
+            Saisie des points de ce cours ; vide : réglage de l'école (8.4.0).
+
+            * `detailed` - detailed
+            * `totals` - totals
+          oneOf:
+          - $ref: '#/components/schemas/GradeEntryEnum'
+          - $ref: '#/components/schemas/BlankEnum'
         weekly_hours:
           type: integer
           readOnly: true
@@ -16515,6 +16525,7 @@ components:
       - period_max
       - has_exam
       - is_taught
+      - grade_entry
       - weekly_hours
       - teacher
     CourseInputRequest:
@@ -16544,6 +16555,16 @@ components:
           type: boolean
           default: true
           description: 'Faux : cours du formulaire barré sur le bulletin, jamais noté.'
+        grade_entry:
+          default: ''
+          description: |-
+            Saisie des points de ce cours ; vide : réglage de l'école (8.4.0).
+
+            * `detailed` - detailed
+            * `totals` - totals
+          oneOf:
+          - $ref: '#/components/schemas/GradeEntryEnum'
+          - $ref: '#/components/schemas/BlankEnum'
         weekly_hours:
           type: integer
           maximum: 40
@@ -18103,6 +18124,14 @@ components:
       required:
       - code
       - detail
+    GradeEntryEnum:
+      enum:
+      - detailed
+      - totals
+      type: string
+      description: |-
+        * `detailed` - detailed
+        * `totals` - totals
     GradeInputRequest:
       type: object
       properties:
@@ -18189,6 +18218,34 @@ components:
       - name
       - period_max
       - has_exam
+    GradingSettings:
+      type: object
+      description: Saisie des points de l'école (`grading.py`, 8.4.0).
+      properties:
+        entry:
+          allOf:
+          - $ref: '#/components/schemas/GradeEntryEnum'
+          description: |-
+            detailed : une note par devoir ; totals : seulement le total de la période.
+
+            * `detailed` - detailed
+            * `totals` - totals
+      required:
+      - entry
+    GradingSettingsRequest:
+      type: object
+      description: Saisie des points de l'école (`grading.py`, 8.4.0).
+      properties:
+        entry:
+          allOf:
+          - $ref: '#/components/schemas/GradeEntryEnum'
+          description: |-
+            detailed : une note par devoir ; totals : seulement le total de la période.
+
+            * `detailed` - detailed
+            * `totals` - totals
+      required:
+      - entry
     Guardian:
       type: object
       properties:
@@ -20802,6 +20859,8 @@ components:
           $ref: '#/components/schemas/ReminderSettingsRequest'
         portal:
           $ref: '#/components/schemas/PortalSettingsRequest'
+        grading:
+          $ref: '#/components/schemas/GradingSettingsRequest'
     PatchedStaffUpdateRequest:
       type: object
       description: Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`.
@@ -22938,6 +22997,8 @@ components:
           $ref: '#/components/schemas/ReminderSettings'
         portal:
           $ref: '#/components/schemas/PortalSettings'
+        grading:
+          $ref: '#/components/schemas/GradingSettings'
       required:
       - code
       - name
@@ -22962,6 +23023,7 @@ components:
       - alerts
       - reminders
       - portal
+      - grading
     SchoolStatusEnum:
       enum:
       - trial
@@ -23091,6 +23153,14 @@ components:
     Sheet:
       type: object
       properties:
+        entry:
+          allOf:
+          - $ref: '#/components/schemas/GradeEntryEnum'
+          description: |-
+            totals : une seule évaluation « Total » au maximum de la période (8.4.0).
+
+            * `detailed` - detailed
+            * `totals` - totals
         status:
           $ref: '#/components/schemas/SheetStatusEnum'
         reopened:
@@ -23137,6 +23207,7 @@ components:
           items:
             $ref: '#/components/schemas/SheetRow'
       required:
+      - entry
       - status
       - reopened
       - due_on

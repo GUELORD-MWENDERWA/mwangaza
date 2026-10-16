@@ -592,6 +592,16 @@ export const fr = {
       overdueEveryHelp: "Un parent reçoit au plus un rappel dans cet intervalle. Entre 1 et 60.",
       invalidDays: "Un nombre entre 1 et {{max}}.",
     },
+    grading: {
+      title: "Saisie des points",
+      intro: "Comment les enseignants remettent les points de chaque période.",
+      detailed: "Devoirs détaillés",
+      detailedHelp:
+        "Une note par interrogation, devoir ou travail pratique ; la période est calculée.",
+      totals: "Total de la période seulement",
+      totalsHelp:
+        "Une seule note par période (et par examen), reportée sur la fiche de cotation. Un cours peut choisir autrement.",
+    },
     portal: {
       title: "Portail des parents",
       intro: "Ce que les parents voient en plus des paiements et des annonces.",
@@ -1174,6 +1184,7 @@ export const fr = {
     evaluationChip: "{{name}} · /{{max}}",
     evaluationColumn: "{{name}} /{{max}}",
     addEvaluation: "Ajouter une évaluation",
+    totalName: "Total",
     noEvaluation:
       "Aucune évaluation dans cette période : ajoutez la première (interrogation, devoir, travail pratique…).",
     noStudent: "Aucun élève inscrit dans cette classe.",
@@ -1276,6 +1287,11 @@ export const fr = {
     noExam: "pas d'examen",
     totals: "Maxima généraux",
     hoursValue: "{{value}} h",
+    entry: {
+      school: "Selon l'école",
+      detailed: "Devoirs détaillés",
+      totals: "Total de la période",
+    },
     columns: {
       name: "Branche",
       domain: "Domaine",
@@ -1283,6 +1299,7 @@ export const fr = {
       exam: "Examen",
       examMax: "Max. examen",
       taught: "Suivi par la classe",
+      entry: "Saisie des points",
       year: "T.G.",
       hours: "H / sem.",
       teacher: "Enseignant",
@@ -1763,6 +1780,7 @@ export const fr = {
       meet_with: "Personne à voir",
       cancelled: "Annulée",
       portal_teacher_phone: "Téléphone du titulaire montré aux parents",
+      grading_entry: "Saisie des points (détaillée ou total)",
     },
     values: {
       course: "{{name}} : maximum {{max}}",
