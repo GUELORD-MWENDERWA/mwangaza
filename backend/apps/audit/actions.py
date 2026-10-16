@@ -90,6 +90,11 @@ class Action(models.TextChoices):
     GRADES_REPORT_CARD_PRINTED = "grades.report_card_printed", _("Report card printed")
     # Fiche de cotes (8.3.6) : chaque PDF est noté, il contient des notes d'élèves.
     GRADES_SHEET_PRINTED = "grades.sheet_printed", _("Grade sheet printed")
+    # Conduite (8.5.1a) : liste des infractions, seuils des cotes, incidents et leur annulation.
+    DISCIPLINE_RULE_CHANGED = "discipline.rule_changed", _("Offence list changed")
+    DISCIPLINE_SCALE_CHANGED = "discipline.scale_changed", _("Conduct scale changed")
+    DISCIPLINE_INCIDENT_RECORDED = "discipline.incident_recorded", _("Offence recorded")
+    DISCIPLINE_INCIDENT_CANCELLED = "discipline.incident_cancelled", _("Offence cancelled")
 
     # Élèves et familles (D2-D4).
     STUDENTS_FAMILY_CREATED = "students.family_created", _("Family created")

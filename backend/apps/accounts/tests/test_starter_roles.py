@@ -38,6 +38,8 @@ TABLE = {
     "grades.enter": ". . . . . . . ✔",
     "grades.enter_any": ". ✔ . . . ✔ . .",
     "grades.validate": ". ✔ . . . . . .",
+    "discipline.configure": "✔ . ✔ . . . . .",
+    "discipline.record": "✔ ✔ ✔ . . . . ✔",
     "roles.manage": "✔ . . . . . . .",
     "students.view": "✔ ✔ ✔ ✔ ✔ ✔ ✔ .",
     "students.edit": "✔ ✔ . . . ✔ . .",

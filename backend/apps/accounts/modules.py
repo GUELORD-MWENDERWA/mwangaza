@@ -25,7 +25,14 @@ MODULES: dict[str, tuple[Promise, tuple[str, ...]]] = {
     # Cours (8.1), puis notes, bulletins et délibération (8.2 à 8.4).
     "academics": (
         _("Courses, grades and report cards"),
-        ("courses.configure", "grades.enter", "grades.enter_any", "grades.validate"),
+        (
+            "courses.configure",
+            "grades.enter",
+            "grades.enter_any",
+            "grades.validate",
+            "discipline.configure",
+            "discipline.record",
+        ),
     ),
     # Sans permission : ils ouvrent des fonctions (portail des parents, notifications à l'écran,
     # travail hors-ligne), pas des droits du personnel.

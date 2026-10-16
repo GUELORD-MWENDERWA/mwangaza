@@ -1,5 +1,6 @@
 from django.urls import path
 
+from apps.academics import discipline_views as conduct
 from apps.academics import views
 
 urlpatterns = [
@@ -52,5 +53,28 @@ urlpatterns = [
         "courses/<uuid:pk>/terms/<uuid:term>/grades/",
         views.GradeSheetView.as_view(),
         name="grade-sheet",
+    ),
+    path("discipline/rules/", conduct.RulesView.as_view(), name="discipline-rules"),
+    path(
+        "discipline/rules/defaults/", conduct.DefaultRulesView.as_view(), name="discipline-defaults"
+    ),
+    path("discipline/rules/<uuid:pk>/", conduct.RuleView.as_view(), name="discipline-rule"),
+    path("discipline/scale/", conduct.ScaleView.as_view(), name="discipline-scale"),
+    path("discipline/classes/", conduct.ClassesView.as_view(), name="discipline-classes"),
+    path(
+        "discipline/classes/<uuid:pk>/students/",
+        conduct.ClassStudentsView.as_view(),
+        name="discipline-class-students",
+    ),
+    path("discipline/incidents/", conduct.IncidentsView.as_view(), name="discipline-incidents"),
+    path(
+        "discipline/incidents/<uuid:pk>/cancel/",
+        conduct.IncidentCancelView.as_view(),
+        name="discipline-incident-cancel",
+    ),
+    path(
+        "discipline/enrollments/<uuid:pk>/",
+        conduct.EnrollmentIncidentsView.as_view(),
+        name="discipline-enrollment",
     ),
 ]

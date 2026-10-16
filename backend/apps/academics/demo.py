@@ -16,10 +16,21 @@ from collections import defaultdict
 from datetime import timedelta
 from decimal import Decimal
 
-from django.utils import timezone
+from django.conf import settings
+from django.utils import timezone, translation
+from django.utils.translation import gettext
 
+from apps.academics.discipline import DEFAULT_RULES
 from apps.academics.grades import term_maximum
-from apps.academics.models import Course, Evaluation, Grade, GradeDeadline, GradeSheet
+from apps.academics.models import (
+    Course,
+    DisciplineIncident,
+    DisciplineRule,
+    Evaluation,
+    Grade,
+    GradeDeadline,
+    GradeSheet,
+)
 from apps.academics.official import BY_KEY
 from apps.accounts.models import User
 from apps.core.tenancy import use_school
@@ -159,6 +170,7 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
                     )
             Grade.objects.bulk_create(grades, batch_size=5000)
             _create_demo_control(first)
+            _create_demo_discipline(first, students, draw)
             if space.profile == "itig":
                 _complete_demo_classes(year, students, draw)
 
@@ -268,3 +280,42 @@ def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
                 if term.kind != Term.Kind.EXAM or course.has_exam
             ]
         )
+
+
+# Conduite (8.5.1a) : la liste proposée et quelques incidents dans la 1re période, pour qu'un
+# élève sur dix environ ait déjà des points (de quoi voir les cotes TB à MA).
+DEMO_INCIDENT_SHARE = 0.1
+
+
+def _create_demo_discipline(term: Term, students: dict, draw: random.Random) -> None:
+    DisciplineIncident.objects.filter(term=term).delete()
+    DisciplineRule.objects.all().delete()
+    with translation.override(settings.LANGUAGE_CODE):
+        rules = DisciplineRule.objects.bulk_create(
+            DisciplineRule(label=gettext(label), points=points, order=order)
+            for order, (label, points) in enumerate(DEFAULT_RULES, start=1)
+        )
+    author = User.objects.filter(phone="+243000001008").first()
+    if author is None:
+        return
+    today = timezone.localdate()
+    start = term.starts_on or today - timedelta(days=60)
+    span = max(1, (min(term.ends_on or today, today) - start).days)
+    incidents = []
+    for group in students.values():
+        for enrollment in group:
+            if draw.random() >= DEMO_INCIDENT_SHARE:
+                continue
+            for _ in range(draw.choice((1, 1, 2, 3, 6))):
+                rule = draw.choice(rules)
+                incidents.append(
+                    DisciplineIncident(
+                        enrollment_id=enrollment.pk,
+                        term=term,
+                        rule=rule,
+                        points=rule.points,
+                        occurred_on=start + timedelta(days=draw.randrange(span)),
+                        recorded_by=author,
+                    )
+                )
+    DisciplineIncident.objects.bulk_create(incidents, batch_size=2000)

@@ -59,7 +59,7 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 19 a | ~~**DOC.1** Signature et cachet de l'école sur tous les documents (§ 3)~~ | P0 | M | 🤖 |
 | 19 b | ~~**DOC.2** Reçu sur demi ou tiers de feuille A4 (§ 3)~~ | P0 | M | 🤖 |
 | 19 c | ~~**DOC.3** Registre des reçus : PDF et Excel par période et par caisse (§ 3)~~ | P0 | M | 🤖 |
-| 19 bis | ~~**8.2.2**~~ ✓ Contrôle des notes (date limite, envoi, validation) ; ~~**8.2.3**~~ ✓ notes hors ligne ; **~~8.3.1~~ ✓, ~~8.3.2~~ ✓, ~~8.3.3~~ ✓, ~~8.3.4~~ ✓, ~~8.3.5~~ ✓, ~~8.3.6~~ ✓, 8.5.1, 8.4, 8.8** bulletin fidèle, impression au choix, fiches de cotes, conduite, délibération, Portail | P1 | L | 🤖 |
+| 19 bis | ~~**8.2.2**~~ ✓ Contrôle des notes (date limite, envoi, validation) ; ~~**8.2.3**~~ ✓ notes hors ligne ; **~~8.3.1~~ ✓, ~~8.3.2~~ ✓, ~~8.3.3~~ ✓, ~~8.3.4~~ ✓, ~~8.3.5~~ ✓, ~~8.3.6~~ ✓, ~~8.5.1a~~ ✓, 8.5.1b, 8.4, 8.8** bulletin fidèle, impression au choix, fiches de cotes, conduite, délibération, Portail | P1 | L | 🤖 |
 | 20 | **FIN.1 → FIN.3** Dépenses, sorties de caisse, budget | P1 | M | 🤖 |
 | | **V1.3 — Plateforme commerciale** | | | |
 | 21 | **ABO.1 → ABO.3** Abonnements par module, factures, échéances | P1 | L | 🤖 |
@@ -308,7 +308,8 @@ Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est 
   - [x] **8.3.4** **Options d'impression au choix de la personne qui imprime** (IMP.1) : sur tout document imprimable (liste de classe, impayés, fiches de cotes, bulletins, reçus) un panneau « Imprimer » où elle choisit les colonnes à garder (moins de papier), le nombre d'exemplaires par feuille (1, 2, 3), le papier (A4, A5) et le sens, mémorisés par personne et par document ; le serveur applique ces choix (`columns`, `per_sheet`, `paper`, `orientation`), sans réglage de l'école sauf les valeurs de départ *(M)*
   - [x] **8.3.5** Notes seules sur le formulaire pré-imprimé (Q11 : texte placé au millimètre sur les cases du formulaire de l'école), impression de toute la classe en lot, démo *(M)*
   - [x] **8.3.6** **Fiches de cotes** : fiche d'un cours (élèves × périodes et examens, total du semestre, moyenne, plus haute et plus basse note, nombre sous la moitié, signature de l'enseignant), fiche vierge à remplir à la main, tableau de toute la classe (cours × élèves, servira à la délibération 8.4) ; droits `grades.enter` (ses cours) ou `grades.enter_any` ; options d'impression de 8.3.4 *(M)*
-- [ ] **8.5.1** **Conduite et discipline** *(P1, L, à découper : barème et incidents, puis parents et bulletin)* — le directeur de discipline (DD, droit `discipline.configure`) tient la **liste des infractions avec leurs points** (modèle de départ proposé, modifiable) et le barème qui en tire la cote de conduite d'une période (TB, B, AB, ME, MA ; seuils à régler par l'école) ; tout enseignant (`discipline.record`) attribue une infraction à un élève (date, motif, note) ; le **parent est prévenu** (notification et Portail) ; la cote de conduite de chaque période se calcule d'après les points et alimente la ligne Conduite du bulletin ; le DD ou la délibération (8.4) peut la corriger avec un motif (journal) ; Application : proposée d'après le pourcentage de la période, corrigée par le titulaire *(avant 8.4)*
+- [x] **8.5.1a** **Conduite : barème et incidents** *(P1, M)* — le directeur de discipline (DD, `discipline.configure`) tient la **liste des infractions avec leurs points** (modèle de départ proposé, modifiable) et les **seuils** TB, B, AB, ME, MA réglables par l'école ; tout enseignant (`discipline.record`) attribue une infraction à un élève (date, motif, note) ; liste des incidents d'un élève ; droits ajoutés aux rôles de départ et aux écoles existantes ; audit, isolation, `make demo`. Modèle : `04` § Conduite et discipline
+- [ ] **8.5.1b** **Conduite : parents et bulletin** *(P1, M, après 8.5.1a)* — le **parent est prévenu** (notification et Portail) ; la cote de conduite de chaque période se calcule d'après les points et alimente la ligne Conduite du bulletin ; le DD ou la délibération (8.4) peut la corriger avec un motif (`discipline.override`, journal) ; Application : proposée d'après le pourcentage de la période, corrigée par le titulaire *(avant 8.4)*
 - [ ] **8.4** Délibération (revoit la conduite), décisions, palmarès, passage de classe *(P1, M)*
 - [ ] **8.8** Portail parents : notes, bulletins PDF ; tableau de bord : résultats *(P1, M)*
 - [ ] **FIN.1 → FIN.3** Dépenses, sorties de caisse, budget (§ 6.1) *(P1)*
@@ -345,7 +346,7 @@ Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est 
 - [ ] **7.3** Paie : périodes, primes, motivation liée aux frais, avances, retenues, fiche de paie PDF ; la paie devient une dépense (FIN.1) *(P2, L)*
 - [ ] **7.4** Espace enseignant : fiche de paie, emploi du temps (EDT.4), congés *(P2, M)*
 - [ ] **7.5** Pénalités de retard des frais, inscription validée par le paiement, documents téléversés *(P2, M)*
-- [ ] **8.5.2** Messagerie parent ↔ titulaire / administration ; rendez-vous ; mérites et récompenses ; renvoi temporaire et exclusion *(P2, L)* — la conduite est faite en 8.5.1 (P1)
+- [ ] **8.5.2** Messagerie parent ↔ titulaire / administration ; rendez-vous ; mérites et récompenses ; renvoi temporaire et exclusion *(P2, L)* — la conduite est faite en 8.5.1a et 8.5.1b (P1)
 - [ ] **8.6** Portail élèves ; espace titulaire *(P2, L)*
 - [ ] **8.7** Transfert d'élève entre écoles de la plateforme ; attestations *(P2, M)*
 - [ ] **8.9** Sondages ; blocage des bulletins en cas de dette (désactivé par défaut) *(P2, S)*

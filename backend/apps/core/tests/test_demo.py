@@ -7,6 +7,7 @@ import pytest
 from django.contrib.auth import authenticate
 from django.core.management import CommandError, call_command
 
+from apps.academics.models import DisciplineIncident, DisciplineRule
 from apps.accounts import attempts, services, totp
 from apps.accounts.demo import DEMO_PASSWORD, DEMO_TOTP_SECRET
 from apps.accounts.models import Membership, Role, User
@@ -50,6 +51,11 @@ def test_demo_creates_the_two_demo_schools(demo):
     assert demo["volcans"].status == School.Status.ACTIVE
     # Données fictives : jamais dans un espace réel (`03` § 4 bis).
     assert {school.environment for school in demo.values()} == {School.Environment.DEMO}
+    # Conduite (8.5.1a) : liste proposée et incidents dans chaque espace.
+    for school in demo.values():
+        with use_school(school):
+            assert DisciplineRule.objects.count() == 10
+            assert DisciplineIncident.objects.exists()
 
 
 def test_demo_puts_back_the_demo_logos(demo, settings):
