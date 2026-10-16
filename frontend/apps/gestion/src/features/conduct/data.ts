@@ -9,6 +9,7 @@ export type Rule = Schemas["Rule"];
 export type ScaleRow = Schemas["ScaleRow"];
 export type StudentIncidents = Schemas["StudentIncidents"];
 export type Incident = Schemas["Incident"];
+export type TermConduct = StudentIncidents["totals"][number];
 
 export function useRules(all = false) {
   return useQuery({

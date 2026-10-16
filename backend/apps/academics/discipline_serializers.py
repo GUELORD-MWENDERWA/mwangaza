@@ -3,6 +3,7 @@ from rest_framework import serializers
 from apps.academics import discipline
 from apps.academics.models import (
     MAX_RULE_POINTS,
+    ConductScale,
     DisciplineIncident,
     DisciplineRule,
 )
@@ -110,9 +111,30 @@ class IncidentSerializer(serializers.ModelSerializer):
 
 class TermConductSerializer(serializers.Serializer):
     term = serializers.UUIDField(source="term.pk")
-    term_name = serializers.CharField(source="term.__str__")
+    term_name = serializers.CharField(source="label")
     points = serializers.IntegerField(help_text="Points des incidents non annulés.")
-    grade = serializers.CharField(help_text="Cote proposée d'après les seuils de l'école.")
+    calculated = serializers.CharField(
+        help_text="Cote d'après les points et les seuils de l'école."
+    )
+    grade = serializers.CharField(help_text="Cote retenue : la correction si elle existe.")
+    override_reason = serializers.SerializerMethodField()
+    override_by = serializers.SerializerMethodField()
+
+    def get_override_reason(self, conduct) -> str:
+        return conduct.override.reason if conduct.override else ""
+
+    def get_override_by(self, conduct) -> str:
+        return conduct.override.overridden_by.get_full_name() if conduct.override else ""
+
+
+class OverrideSerializer(serializers.Serializer):
+    term = serializers.PrimaryKeyRelatedField(queryset=Term.objects)
+    grade = serializers.ChoiceField(choices=ConductScale.Grade.choices)
+    reason = serializers.CharField(max_length=300)
+
+
+class ClearOverrideSerializer(serializers.Serializer):
+    term = serializers.PrimaryKeyRelatedField(queryset=Term.objects)
 
 
 class StudentIncidentsSerializer(serializers.Serializer):

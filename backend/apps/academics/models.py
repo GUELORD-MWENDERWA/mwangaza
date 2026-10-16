@@ -320,3 +320,38 @@ class IncidentCancellation(TenantModel):
         related_name="+",
         verbose_name=_("cancelled by"),
     )
+
+
+class ConductGrade(TenantModel):
+    """Correction de la cote de conduite d'une inscription pour une période [T] (8.5.1b). Seule la
+    correction est gardée : sans ligne, la cote est celle que donnent les points (elle suit donc
+    une annulation d'incident). Le directeur de discipline ou la délibération (8.4) la pose avec
+    un motif ; la reprendre la supprime, le journal d'audit garde chaque étape."""
+
+    enrollment = models.ForeignKey(
+        Enrollment,
+        on_delete=models.PROTECT,
+        related_name="conduct_grades",
+        verbose_name=_("enrolment"),
+    )
+    term = models.ForeignKey(
+        Term, on_delete=models.PROTECT, related_name="conduct_grades", verbose_name=_("term")
+    )
+    grade = models.CharField(_("grade"), max_length=2, choices=ConductScale.Grade.choices)
+    reason = models.CharField(_("reason"), max_length=300)
+    overridden_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("corrected by"),
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["enrollment", "term"], name="conduct_grade_enrollment_term_unique"
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.enrollment} · {self.term} · {self.grade}"

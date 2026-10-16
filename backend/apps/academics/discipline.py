@@ -5,7 +5,8 @@ Droits : `discipline.configure` (liste, seuils, annulation d'un incident), `disc
 (attribuer une infraction : tout enseignant). Un incident garde les points de l'infraction à
 l'instant où il est écrit ; il n'est jamais modifié ni effacé, seulement annulé (motif, auteur).
 Chaque changement va dans le journal de l'école (domaine `discipline`). La cote d'une période
-calculée d'après ces points, les parents prévenus et la ligne du bulletin sont la tâche 8.5.1b.
+calculée d'après ces points, corrigeable avec motif (`discipline.override`, 8.5.1b), les parents
+prévenus et la ligne du bulletin.
 """
 
 from dataclasses import dataclass
@@ -20,6 +21,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from apps.academics.models import (
+    ConductGrade,
     ConductScale,
     DisciplineIncident,
     DisciplineRule,
@@ -29,6 +31,7 @@ from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
+from apps.notifications import events
 from apps.schools.models import Term
 from apps.students.models import Enrollment
 
@@ -46,6 +49,13 @@ NO_TERM = ApiError(
 )
 BAD_TERM = ApiError("bad_term", _("This period does not belong to the student's school year."), 400)
 ALREADY_CANCELLED = ApiError("already_cancelled", _("This offence is already cancelled."), 409)
+BAD_GRADE = ApiError("bad_grade", _("This is not a conduct grade."), 400)
+REASON_REQUIRED = ApiError("reason_required", _("Say why the grade is corrected."), 400)
+BAD_TERM_GRADE = ApiError(
+    "bad_term_grade",
+    _("A conduct grade is given for a period, not for a semester or an exam."),
+    400,
+)
 BAD_SCALE = ApiError(
     "bad_scale", _("The scale must start at 0 point and rise from one grade to the next."), 400
 )
@@ -258,6 +268,7 @@ def record_incident(
             },
             label=f"{enrollment.student.full_name} · {rule.label}",
         )
+        events.incident_recorded(incident)
     return incident
 
 
@@ -287,20 +298,122 @@ def incidents_of(enrollment: Enrollment):
 
 @dataclass
 class TermConduct:
+    """Une période d'une inscription : points retenus, cote des points, cote retenue (la
+    correction si elle existe) et, s'il y en a une, la correction avec son motif."""
+
     term: Term
     points: int
+    calculated: str
     grade: str
+    override: ConductGrade | None = None
+    label: str = ""
+
+
+def _terms_of(enrollments, *, only: Term | None = None) -> dict:
+    """Points retenus (incidents non annulés) : {(inscription, période): total}."""
+    rows = DisciplineIncident.objects.filter(enrollment__in=enrollments, cancellation__isnull=True)
+    if only is not None:
+        rows = rows.filter(term=only)
+    sums = rows.values("enrollment", "term").annotate(total=Sum("points"))
+    return {(row["enrollment"], row["term"]): row["total"] for row in sums}
 
 
 def totals_of(enrollment: Enrollment) -> list[TermConduct]:
-    """Points retenus (incidents non annulés) et cote proposée, période par période ; seules les
-    périodes qui ont des incidents sont listées."""
+    """Cote de chaque période de l'année de l'inscription (la correction peut porter sur une
+    période sans incident)."""
     scale = scale_of()
-    sums = (
-        DisciplineIncident.objects.filter(enrollment=enrollment, cancellation__isnull=True)
-        .values("term")
-        .annotate(total=Sum("points"))
-    )
-    totals = {row["term"]: row["total"] for row in sums}
-    terms = Term.objects.filter(pk__in=totals).order_by("order")
-    return [TermConduct(t, totals[t.pk], grade_for(totals[t.pk], scale)) for t in terms]
+    totals = _terms_of([enrollment])
+    overrides = {
+        o.term_id: o
+        for o in ConductGrade.objects.filter(enrollment=enrollment).select_related("overridden_by")
+    }
+    result = []
+    periods = Term.objects.filter(
+        academic_year_id=enrollment.academic_year_id, kind=Term.Kind.PERIOD
+    ).order_by("order")
+    for number, term in enumerate(periods, start=1):
+        points = totals.get((enrollment.pk, term.pk), 0)
+        calculated = grade_for(points, scale)
+        override = overrides.get(term.pk)
+        result.append(
+            TermConduct(
+                term,
+                points,
+                calculated,
+                override.grade if override else calculated,
+                override,
+                term.name or gettext("Period %(n)d") % {"n": number},
+            )
+        )
+    return result
+
+
+def grades_of_class(enrollment_ids, terms) -> dict:
+    """Cote retenue de chaque inscription pour chaque période de `terms` : {(inscription, période):
+    cote}. Deux requêtes pour toute la classe (bulletins) ; sans incident ni correction, TB."""
+    scale = scale_of()
+    totals = _terms_of(enrollment_ids)
+    overrides = {
+        (o.enrollment_id, o.term_id): o.grade
+        for o in ConductGrade.objects.filter(enrollment__in=enrollment_ids)
+    }
+    return {
+        (enrollment_id, term.pk): overrides.get(
+            (enrollment_id, term.pk), grade_for(totals.get((enrollment_id, term.pk), 0), scale)
+        )
+        for enrollment_id in enrollment_ids
+        for term in terms
+    }
+
+
+def override_grade(
+    enrollment: Enrollment, term: Term, *, actor: User, grade: str, reason: str
+) -> ConductGrade:
+    """Corrige la cote de la période (motif obligatoire) ; une seconde correction remplace la
+    première, le journal garde les deux."""
+    reason = reason.strip()
+    if grade not in GRADES:
+        raise BusinessError(BAD_GRADE)
+    if not reason:
+        raise BusinessError(REASON_REQUIRED)
+    if term.kind != Term.Kind.PERIOD or term.academic_year_id != enrollment.academic_year_id:
+        raise BusinessError(BAD_TERM_GRADE)
+    with transaction.atomic():
+        before = totals_for_term(enrollment, term)
+        row, _created = ConductGrade.objects.update_or_create(
+            enrollment=enrollment,
+            term=term,
+            defaults={"grade": grade, "reason": reason, "overridden_by": actor},
+        )
+        audit.record(
+            Action.DISCIPLINE_GRADE_OVERRIDDEN,
+            row,
+            actor=actor,
+            before={"grade": before},
+            after={"grade": grade, "reason": reason, "term": str(term)},
+            label=f"{enrollment.student.full_name} · {term}",
+        )
+    return row
+
+
+def clear_override(enrollment: Enrollment, term: Term, *, actor: User) -> None:
+    """Reprend la cote des points ; le journal garde la correction retirée."""
+    with transaction.atomic():
+        row = ConductGrade.objects.filter(enrollment=enrollment, term=term).first()
+        if row is None:
+            return
+        before = {"grade": row.grade, "reason": row.reason}
+        row.delete()
+        audit.record(
+            Action.DISCIPLINE_GRADE_OVERRIDDEN,
+            None,
+            actor=actor,
+            before=before,
+            after={"grade": totals_for_term(enrollment, term), "term": str(term)},
+            label=f"{enrollment.student.full_name} · {term}",
+        )
+
+
+def totals_for_term(enrollment: Enrollment, term: Term) -> str:
+    """Cote retenue de la période (la correction sinon celle des points)."""
+    return grades_of_class([enrollment.pk], [term])[(enrollment.pk, term.pk)]

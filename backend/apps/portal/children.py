@@ -14,6 +14,7 @@ from django.db.models import Exists, OuterRef
 from django.utils import timezone
 from rest_framework.exceptions import NotFound
 
+from apps.academics import discipline
 from apps.accounts.models import User
 from apps.core.tenancy import use_school
 from apps.finance import services as finance
@@ -137,3 +138,40 @@ def child_payments(user: User, student_id) -> ChildPayments:
             fees,
             payments,
         )
+
+
+def child_conduct(user: User, student_id) -> dict:
+    """Conduite de l'enfant pour l'année en cours (8.5.1b) : cote et points de chaque période
+    commencée, fautes non annulées (libellé, points, date ; ni la note ni l'enseignant). Vide dans
+    une école sans le module `academics`. Cinq requêtes."""
+    student = find_student(user, student_id)
+    with in_school(student.school):
+        enrollment = (
+            Enrollment.objects.filter(
+                student=student,
+                academic_year__is_current=True,
+                status=Enrollment.Status.ACTIVE,
+            )
+            .select_related("student", "class_group")
+            .first()
+        )
+        if enrollment is None:
+            raise NotFound
+        terms: list = []
+        incidents: list = []
+        if student.school.has_module("academics"):
+            day = timezone.localdate()
+            terms = [
+                t
+                for t in discipline.totals_of(enrollment)
+                if (t.term.starts_on and t.term.starts_on <= day) or t.points or t.override
+            ]
+            incidents = [
+                i for i in discipline.incidents_of(enrollment) if not hasattr(i, "cancellation")
+            ]
+        return {
+            "id": student.pk,
+            "full_name": student.full_name,
+            "terms": terms,
+            "incidents": incidents,
+        }

@@ -25,6 +25,15 @@ export function useChild(id: string) {
   });
 }
 
+/** Conduite d'un enfant (8.5.1b) : cote de chaque période et fautes. */
+export function useChildConduct(id: string) {
+  return useQuery({
+    queryKey: ["portal", "child", id, "conduct"],
+    queryFn: () =>
+      call(api.GET("/api/portal/children/{id}/conduct/", { params: { path: { id } } })),
+  });
+}
+
 /** Reçu PDF d'un paiement, ouvert par le navigateur (session du portail). */
 export function receiptUrl(paymentId: string): string {
   return `/api/portal/payments/${paymentId}/receipt/`;

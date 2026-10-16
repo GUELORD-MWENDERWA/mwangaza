@@ -32,6 +32,7 @@ MODULES: dict[str, tuple[Promise, tuple[str, ...]]] = {
             "grades.validate",
             "discipline.configure",
             "discipline.record",
+            "discipline.override",
         ),
     ),
     # Sans permission : ils ouvrent des fonctions (portail des parents, notifications à l'écran,

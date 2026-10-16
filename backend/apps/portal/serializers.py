@@ -245,3 +245,25 @@ class PortalNotificationSerializer(NotificationSerializer):
     class Meta(NotificationSerializer.Meta):
         fields = [*NotificationSerializer.Meta.fields, "school_name", "school_timezone"]
         read_only_fields = fields
+
+
+class ChildTermConductSerializer(serializers.Serializer):
+    term_name = serializers.CharField(source="label")
+    points = serializers.IntegerField()
+    grade = serializers.CharField(help_text="TB, B, AB, ME ou MA.")
+
+
+class ChildIncidentSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    offence = serializers.CharField(source="rule.label")
+    points = serializers.IntegerField()
+    occurred_on = serializers.DateField()
+
+
+class ChildConductSerializer(serializers.Serializer):
+    """Conduite d'un enfant (8.5.1b)."""
+
+    id = serializers.UUIDField()
+    full_name = serializers.CharField()
+    terms = ChildTermConductSerializer(many=True)
+    incidents = ChildIncidentSerializer(many=True)

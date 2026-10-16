@@ -13,6 +13,7 @@ import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 
+from apps.academics import discipline
 from apps.academics.models import Course, Evaluation, Grade
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
@@ -360,6 +361,15 @@ def test_cancelling_an_import_removes_untouched_students_and_never_touches_money
             course=course, term=term, name="Interro", max_score=10
         )
         Grade.objects.create(evaluation=evaluation, enrollment=enrollment["Daniel"], score=7)
+        # Et une faute de conduite (8.5.1a) : sans cela l'annulation de l'import se bloquerait.
+        rule = discipline.create_rule(actor=head, label="Retard", points=1)
+        discipline.record_incident(
+            actor=head,
+            enrollment=enrollment["Christian"],
+            rule=rule,
+            occurred_on=timezone.localdate(),
+            term=term,
+        )
 
     client = api(head)
     path = f"{IMPORTS}{imp.pk}/"
@@ -368,7 +378,7 @@ def test_cancelling_an_import_removes_untouched_students_and_never_touches_money
     assert {student["first_name"]: student["reasons"] for student in preview["kept"]} == {
         "Daniel": ["payment", "grades"],
         "Esther": ["discount"],
-        "Christian": ["schedule"],
+        "Christian": ["schedule", "grades"],
         "Grâce": ["portal"],
     }
     response = client.post(f"{path}cancel/", {"reason": " "})

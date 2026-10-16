@@ -77,4 +77,9 @@ urlpatterns = [
         conduct.EnrollmentIncidentsView.as_view(),
         name="discipline-enrollment",
     ),
+    path(
+        "discipline/enrollments/<uuid:pk>/grade/",
+        conduct.GradeOverrideView.as_view(),
+        name="discipline-grade",
+    ),
 ]

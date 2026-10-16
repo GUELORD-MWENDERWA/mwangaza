@@ -151,3 +151,47 @@ def test_the_childs_photo_only_with_the_parents_consent(school, head):
     assert client.get(child_url(enrollment)).json()["photo"].startswith(photo_url)
     assert client.get(photo_url)["Content-Type"] == "image/jpeg"
     assert stranger.get(photo_url).status_code == 404
+
+
+def test_the_parent_is_told_of_an_offence_and_sees_it_with_the_period_grade_never_another_childs(
+    school, other_school, head, other_head
+):
+    from django.utils import timezone
+
+    from apps.academics import discipline
+    from apps.notifications.models import Notification
+    from apps.schools.models import Term
+
+    alpha = school_with_fees(school, head)
+    client = portal()
+    activate(client, family_of(school, alpha["enrollment"]).code)
+    stranger = portal()
+    activate(
+        stranger,
+        new_family(other_school, other_head, phone="+243990000001").code,
+        phone="0990000001",
+    )
+    enrollment = alpha["enrollment"]
+    with use_school(school):
+        term = Term.objects.filter(
+            academic_year=enrollment.academic_year, kind=Term.Kind.PERIOD
+        ).first()
+        rule = discipline.create_rule(actor=head, label="Retard", points=6)
+        discipline.record_incident(
+            actor=head,
+            enrollment=enrollment,
+            rule=rule,
+            occurred_on=timezone.localdate(),
+            note="Note interne",
+            term=term,
+        )
+        [notice] = Notification.objects.filter(kind=Notification.Kind.DISCIPLINE_INCIDENT)
+        assert notice.app == "portail" and notice.url == f"/children/{enrollment.student_id}"
+        assert "Note interne" not in notice.body and "Retard" in notice.body
+
+    page = client.get(f"{child_url(enrollment)}conduct/").json()
+    assert [(i["offence"], i["points"]) for i in page["incidents"]] == [("Retard", 6)]
+    assert "note" not in page["incidents"][0]
+    assert [(t["points"], t["grade"]) for t in page["terms"]] == [(6, "B")]
+    # Un compte d'une autre école, ou sans lien avec l'enfant : 404.
+    assert stranger.get(f"{child_url(enrollment)}conduct/").status_code == 404

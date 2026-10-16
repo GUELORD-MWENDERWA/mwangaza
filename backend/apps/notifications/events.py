@@ -16,6 +16,7 @@ from django.utils import timezone, translation
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 
+from apps.academics.models import DisciplineIncident
 from apps.accounts.models import Role, User
 from apps.accounts.roles import PERMISSIONS, sorted_permissions
 from apps.core.models import PlatformSettings
@@ -241,5 +242,26 @@ def role_rights_added(role: Role, permissions: set[str], *, actor: User) -> None
             _("Sensitive rights: role %(role)s") % {"role": role.name},
             _("Added by %(actor)s · accounts with this role: %(count)s · %(rights)s")
             % {"actor": _by(actor), "count": holders, "rights": _rights(permissions)},
+        ),
+    )
+
+
+def incident_recorded(incident: DisciplineIncident) -> None:
+    """Faute de l'enfant écrite (8.5.1b) : le parent la voit sur son téléphone et ouvre la page de
+    l'enfant, où sont ses fautes et sa cote de conduite. Ni la note de l'enseignant ni son nom."""
+    student = incident.enrollment.student
+    send(
+        _parents(Family.objects.filter(pk=student.family_id)),
+        app=App.PORTAIL,
+        kind=Kind.DISCIPLINE_INCIDENT,
+        url=f"/children/{student.pk}",
+        text=lambda: (
+            _("Conduct: %(student)s") % {"student": student},
+            _("%(offence)s on %(date)s (%(points)s points).")
+            % {
+                "offence": incident.rule.label,
+                "date": date_format(incident.occurred_on, "j F Y"),
+                "points": incident.points,
+            },
         ),
     )

@@ -244,6 +244,8 @@ class Notification(TenantModel):
         # Communication (5.7) : annonce de l'école à son personnel, convocation au parent.
         STAFF_ANNOUNCEMENT = "staff_announcement", _("Announcement to the staff")
         SUMMONS = "summons", _("Summons")
+        # Conduite (8.5.1b) : une faute de l'enfant est écrite, au parent.
+        DISCIPLINE_INCIDENT = "discipline_incident", _("Conduct")
         # Sécurité (S.3.1) : un compte reçoit le droit de gérer les rôles ou un droit sur
         # l'argent ; à ceux qui gèrent les rôles de l'école.
         SENSITIVE_RIGHTS = "sensitive_rights", _("Sensitive rights given")

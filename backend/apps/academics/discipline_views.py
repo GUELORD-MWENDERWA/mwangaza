@@ -12,8 +12,10 @@ from rest_framework.views import APIView
 from apps.academics import discipline
 from apps.academics.discipline_serializers import (
     CancelSerializer,
+    ClearOverrideSerializer,
     IncidentCreateSerializer,
     IncidentSerializer,
+    OverrideSerializer,
     PickClassSerializer,
     PickStudentSerializer,
     RuleCreateSerializer,
@@ -24,14 +26,14 @@ from apps.academics.discipline_serializers import (
 )
 from apps.academics.models import DisciplineIncident, DisciplineRule
 from apps.accounts.permissions import HasSchoolPermission
-from apps.accounts.roles import DISCIPLINE_CONFIGURE, DISCIPLINE_RECORD
+from apps.accounts.roles import DISCIPLINE_CONFIGURE, DISCIPLINE_OVERRIDE, DISCIPLINE_RECORD
 from apps.core.errors import ErrorSerializer
 from apps.schools import organisation
 from apps.schools.models import ClassGroup
 from apps.students.models import Enrollment
 
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
-READ = (DISCIPLINE_RECORD, DISCIPLINE_CONFIGURE)
+READ = (DISCIPLINE_RECORD, DISCIPLINE_CONFIGURE, DISCIPLINE_OVERRIDE)
 # Une liste de classe : ~60 élèves au plus, jamais assez pour paginer.
 CLASS_STUDENTS_LIMIT = 200
 
@@ -187,6 +189,19 @@ class IncidentsView(_DisciplineView):
         return Response(IncidentSerializer(incident).data, status=status.HTTP_201_CREATED)
 
 
+def _student_conduct(enrollment: Enrollment) -> dict:
+    enrollment = Enrollment.objects.select_related(
+        "student", "class_group__level", "class_group__track"
+    ).get(pk=enrollment.pk)
+    data = {
+        "full_name": enrollment.student.full_name,
+        "class_name": enrollment.class_group.name,
+        "incidents": discipline.incidents_of(enrollment),
+        "totals": discipline.totals_of(enrollment),
+    }
+    return StudentIncidentsSerializer(data).data
+
+
 @extend_schema(tags=["discipline"])
 class EnrollmentIncidentsView(_DisciplineView):
     @extend_schema(responses={200: StudentIncidentsSerializer, **ERRORS})
@@ -198,13 +213,42 @@ class EnrollmentIncidentsView(_DisciplineView):
             ),
             pk=pk,
         )
-        data = {
-            "full_name": enrollment.student.full_name,
-            "class_name": enrollment.class_group.name,
-            "incidents": discipline.incidents_of(enrollment),
-            "totals": discipline.totals_of(enrollment),
-        }
-        return Response(StudentIncidentsSerializer(data).data)
+        return Response(_student_conduct(enrollment))
+
+
+@extend_schema(tags=["discipline"])
+class GradeOverrideView(_DisciplineView):
+    required_permission = DISCIPLINE_OVERRIDE
+
+    @extend_schema(
+        request=OverrideSerializer,
+        responses={200: StudentIncidentsSerializer, 400: ErrorSerializer, **ERRORS},
+    )
+    def put(self, request: Request, pk) -> Response:
+        """Corrige la cote de conduite d'une période, avec un motif."""
+        enrollment = get_object_or_404(Enrollment.objects.select_related("student"), pk=pk)
+        data = OverrideSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        discipline.override_grade(
+            enrollment,
+            data.validated_data["term"],
+            actor=request.user,
+            grade=data.validated_data["grade"],
+            reason=data.validated_data["reason"],
+        )
+        return Response(_student_conduct(enrollment))
+
+    @extend_schema(
+        parameters=[OpenApiParameter("term", str, required=True, description="Période.")],
+        responses={200: StudentIncidentsSerializer, **ERRORS},
+    )
+    def delete(self, request: Request, pk) -> Response:
+        """Reprend la cote donnée par les points."""
+        enrollment = get_object_or_404(Enrollment.objects.select_related("student"), pk=pk)
+        data = ClearOverrideSerializer(data=request.query_params)
+        data.is_valid(raise_exception=True)
+        discipline.clear_override(enrollment, data.validated_data["term"], actor=request.user)
+        return Response(_student_conduct(enrollment))
 
 
 @extend_schema(tags=["discipline"])

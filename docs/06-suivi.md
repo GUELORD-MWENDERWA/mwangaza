@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | **8.5.1b** (conduite : parents et bulletin), branche `tache/8.5.1b-conduite-parents-bulletin`, issue #271, 2026-10-16 ; PERF.1 à PERF.4 faites, à mettre en ligne avec `make deploy` ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | 8.5.1b (conduite : parents et bulletin) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #280 (PERF.3) ; #278 (PERF.4) ; #276 (PERF.2) ; #274 (PERF.1) ; #271 (8.5.1b) |
-| Branche | `tache/PERF.3-bulletin-leger` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-16 (PERF.3 faite) |
+| Tâche en cours | aucune (8.5.1b faite le 2026-10-16, PR en attente de fusion ; PERF.1 à PERF.4 à mettre en ligne avec `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | 8.5.1c (Application) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #271 (8.5.1b) ; #282 (8.5.1c) |
+| Branche | `tache/8.5.1b-conduite-parents-bulletin` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-16 (8.5.1b faite) |
 
 ## Avancement
 
@@ -29,7 +29,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Lancement (L.0 à L.5, DOC.1 à DOC.3 ; L.3 remplacée par S.1 et S.2) | 8 | 8 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
 | Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 8 | 11 |
-| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.6, 8.5.1a–8.5.1b, 8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 12 | 15 |
+| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.6, 8.5.1a–8.5.1c, 8.4, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 13 | 16 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
 | V1.5 — carte et présences (avec A.5) | 0 | 7 |
@@ -60,6 +60,13 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-16 — Tâche 8.5.1b : conduite, parents et bulletin
+
+- Fait : le parent est prévenu d'une faute (notification `discipline_incident`, sans la note de l'enseignant) et la voit dans une carte « Conduite » de la page de l'enfant (`GET /api/portal/children/<id>/conduct/`) ; `ConductGrade` ne garde que la correction (la cote des points se recalcule, donc suit une annulation) ; droit `discipline.override` (directeur, directeur de discipline, écoles existantes par migration) ; « Corriger » avec motif, « Reprendre la cote des points », journal ; ligne Conduite du bulletin remplie (deux requêtes pour toute la classe). Annulation d'un import : un élève avec faute ou cote de conduite est gardé (raison « grades »).
+- Tests : droit, motif, journal, bulletin, notification et carte du parent, isolation entre écoles, annulation d'import. Maquettes `conduite-incidents` et `enfant-scolarite` complétées.
+- Décisions : Application découpée en **8.5.1c** (#282) ; cote retenue = correction sinon points, TB sans incident ; libellés de période « Période n » quand la période n'a pas de nom.
+- Suite : 8.5.1c.
 
 ### 2026-10-16 — Tâche PERF.3 : bulletin plus léger
 

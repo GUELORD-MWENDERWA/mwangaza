@@ -1,6 +1,7 @@
 // Conduite (8.5.1a, maquette `conduite-incidents`) : attribuer une infraction à un élève et voir
-// ses incidents, avec les points et la cote proposée de chaque période. Annuler un incident
-// (motif) est réservé au directeur de discipline ; l'incident reste visible.
+// ses incidents, avec les points et la cote de chaque période. Annuler un incident (motif) est
+// réservé au directeur de discipline ; l'incident reste visible. Corriger la cote d'une période
+// (8.5.1b : motif, journal) demande `discipline.override`.
 import { api, call } from "@mwangaza/api";
 import { useTranslation } from "@mwangaza/i18n";
 import {
@@ -33,7 +34,11 @@ import {
   useRules,
   useStudentIncidents,
   type Incident,
+  type TermConduct,
 } from "./data";
+
+const GRADES = ["TB", "B", "AB", "ME", "MA"] as const;
+type Grade = (typeof GRADES)[number];
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -51,6 +56,9 @@ export function ConductPage() {
   const [saved, setSaved] = useState(false);
   const [cancelling, setCancelling] = useState<Incident | null>(null);
   const [reason, setReason] = useState("");
+  const [correcting, setCorrecting] = useState<TermConduct | null>(null);
+  const [newGrade, setNewGrade] = useState<Grade>("TB");
+  const [correctReason, setCorrectReason] = useState("");
 
   const groupId = classId || classes.data?.[0]?.id || "";
   const students = useClassStudents(groupId);
@@ -85,6 +93,33 @@ export function ConductPage() {
     },
   });
 
+  const correct = useMutation({
+    mutationFn: (total: TermConduct) =>
+      call(
+        api.PUT("/api/discipline/enrollments/{id}/grade/", {
+          params: { path: { id: enrollment } },
+          body: { term: total.term, grade: newGrade, reason: correctReason },
+        }),
+      ),
+    onSuccess: () => {
+      setCorrecting(null);
+      setCorrectReason("");
+      refresh();
+    },
+  });
+  const restore = useMutation({
+    mutationFn: (total: TermConduct) =>
+      call(
+        api.DELETE("/api/discipline/enrollments/{id}/grade/", {
+          params: { path: { id: enrollment }, query: { term: total.term } },
+        }),
+      ),
+    onSuccess: () => {
+      setCorrecting(null);
+      refresh();
+    },
+  });
+
   if (classes.isPending || rules.isPending) return <Skeleton label={t("common.loading")} />;
   if (classes.isError) {
     return <LoadError error={classes.error} onRetry={() => void classes.refetch()} />;
@@ -92,6 +127,7 @@ export function ConductPage() {
   if (rules.isError) return <LoadError error={rules.error} onRetry={() => void rules.refetch()} />;
 
   const mayCancel = can(me, ["discipline.configure"]);
+  const mayCorrect = can(me, ["discipline.override"]);
   const format = new Intl.DateTimeFormat(i18n.language, { day: "2-digit", month: "2-digit" });
   const student = students.data?.find((item) => item.enrollment === enrollment);
 
@@ -209,13 +245,35 @@ export function ConductPage() {
                 <>
                   <div className="flex flex-wrap gap-2">
                     {history.data.totals.map((total) => (
-                      <StatusPill key={total.term} tone="warn">
-                        {t("conduct.proposed", {
-                          term: total.term_name,
-                          count: total.points,
-                          grade: total.grade,
-                        })}
-                      </StatusPill>
+                      <span key={total.term} className="flex items-center gap-1">
+                        <StatusPill tone={total.override_reason ? "ok" : "warn"}>
+                          {total.override_reason
+                            ? t("conduct.corrected", {
+                                term: total.term_name,
+                                count: total.points,
+                                calculated: total.calculated,
+                                grade: total.grade,
+                              })
+                            : t("conduct.proposed", {
+                                term: total.term_name,
+                                count: total.points,
+                                grade: total.grade,
+                              })}
+                        </StatusPill>
+                        {mayCorrect && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setNewGrade(total.grade as Grade);
+                              setCorrectReason(total.override_reason);
+                              setCorrecting(total);
+                            }}
+                          >
+                            {t("conduct.correct")}
+                          </Button>
+                        )}
+                      </span>
                     ))}
                   </div>
                   {history.data.incidents.length === 0 ? (
@@ -303,6 +361,58 @@ export function ConductPage() {
             )}
           </Field>
           {cancel.isError && <Banner tone="due">{firstErrorMessage(cancel.error, t)}</Banner>}
+        </div>
+      </ConfirmDialog>
+      <ConfirmDialog
+        open={correcting !== null}
+        onOpenChange={(open) => {
+          if (!open) setCorrecting(null);
+        }}
+        title={t("conduct.correctTitle")}
+        confirmLabel={t("conduct.confirmCorrect")}
+        cancelLabel={t("conduct.keep")}
+        pending={correct.isPending || correctReason.trim() === ""}
+        onConfirm={() => correcting && correct.mutate(correcting)}
+      >
+        <div className="flex flex-col gap-3">
+          <p className="text-ink-3">{t("conduct.correctHelp")}</p>
+          <Field id="conduct-new-grade" label={t("conduct.newGrade")}>
+            {(control) => (
+              <Select
+                {...control}
+                value={newGrade}
+                onChange={(event) => setNewGrade(event.target.value as Grade)}
+              >
+                {GRADES.map((grade) => (
+                  <option key={grade} value={grade}>
+                    {t(`conduct.grade${grade}`)}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+          <Field id="conduct-correct-reason" label={t("conduct.reason")} required>
+            {(control) => (
+              <Textarea
+                {...control}
+                maxLength={300}
+                value={correctReason}
+                onChange={(event) => setCorrectReason(event.target.value)}
+              />
+            )}
+          </Field>
+          {correcting?.override_reason && (
+            <Button
+              variant="outline"
+              disabled={restore.isPending}
+              onClick={() => restore.mutate(correcting)}
+            >
+              {t("conduct.restore")}
+            </Button>
+          )}
+          {(correct.isError || restore.isError) && (
+            <Banner tone="due">{firstErrorMessage(correct.error ?? restore.error, t)}</Banner>
+          )}
         </div>
       </ConfirmDialog>
     </>
