@@ -16,6 +16,7 @@ from apps.academics.models import (
     GradeSheet,
 )
 from apps.core.documents import PrintOptionsSerializer
+from apps.schools import grading
 from apps.schools.models import AcademicYear, ClassGroup
 from apps.schools.serializers import PersonSerializer, TermSerializer
 from apps.students.models import Enrollment
@@ -23,6 +24,12 @@ from apps.students.models import Enrollment
 
 class CourseSerializer(serializers.ModelSerializer):
     teacher = PersonSerializer(read_only=True, allow_null=True)
+    grade_entry = serializers.ChoiceField(
+        choices=grading.ENTRIES,
+        allow_blank=True,
+        read_only=True,
+        help_text="Saisie des points de ce cours ; vide : réglage de l'école (8.4.0).",
+    )
 
     class Meta:
         model = Course
@@ -33,6 +40,7 @@ class CourseSerializer(serializers.ModelSerializer):
             "period_max",
             "has_exam",
             "is_taught",
+            "grade_entry",
             "weekly_hours",
             "teacher",
         ]
@@ -49,6 +57,13 @@ class CourseInputSerializer(serializers.Serializer):
     has_exam = serializers.BooleanField(default=True)
     is_taught = serializers.BooleanField(
         default=True, help_text="Faux : cours du formulaire barré sur le bulletin, jamais noté."
+    )
+    grade_entry = serializers.ChoiceField(
+        choices=grading.ENTRIES,
+        allow_blank=True,
+        required=False,
+        default="",
+        help_text="Saisie des points de ce cours ; vide : réglage de l'école (8.4.0).",
     )
     weekly_hours = serializers.IntegerField(
         min_value=1, max_value=MAX_WEEKLY_HOURS, required=False, allow_null=True, default=None
@@ -227,6 +242,10 @@ class HistoryEntrySerializer(serializers.Serializer):
 
 
 class SheetSerializer(serializers.Serializer):
+    entry = serializers.ChoiceField(
+        choices=grading.ENTRIES,
+        help_text="totals : une seule évaluation « Total » au maximum de la période (8.4.0).",
+    )
     status = serializers.ChoiceField(choices=GradeSheet.Status.choices)
     reopened = serializers.BooleanField(help_text="Rouverte : la date limite ne la ferme plus.")
     due_on = serializers.DateField(

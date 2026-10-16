@@ -13,7 +13,7 @@ from apps.accounts.models import User
 from apps.core import health
 from apps.core.images import CleanedFileField, clean_signature
 from apps.core.money import Currency
-from apps.schools import organisation, receipts, signatures
+from apps.schools import grading, organisation, receipts, signatures
 from apps.schools.matricule import MAX_LENGTH as MAX_MATRICULE_LENGTH
 from apps.schools.models import (
     TRACK_CODE_PATTERN,
@@ -116,6 +116,15 @@ class PortalSettingsSerializer(serializers.Serializer):
     )
 
 
+class GradingSettingsSerializer(serializers.Serializer):
+    """Saisie des points de l'école (`grading.py`, 8.4.0)."""
+
+    entry = serializers.ChoiceField(
+        choices=grading.ENTRIES,
+        help_text="detailed : une note par devoir ; totals : seulement le total de la période.",
+    )
+
+
 class ReminderSettingsSerializer(serializers.Serializer):
     """Relances aux parents (`reminders.py`, 5.6.2). Écriture partielle : les autres restent."""
 
@@ -201,6 +210,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
     alerts = AlertSettingsSerializer(required=False)
     reminders = ReminderSettingsSerializer(required=False)
     portal = PortalSettingsSerializer(required=False)
+    grading = GradingSettingsSerializer(required=False)
 
     class Meta:
         model = School
@@ -228,6 +238,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
             "alerts",
             "reminders",
             "portal",
+            "grading",
         ]
         read_only_fields = ["code"]
 
@@ -248,7 +259,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
         # l'école, couleur écrite `#RRGGBB`.
         school = copy(self.instance)
         for field, value in data.items():
-            if field not in ("receipt", "alerts", "reminders", "portal"):
+            if field not in ("receipt", "alerts", "reminders", "portal", "grading"):
                 setattr(school, field, value)
         try:
             school.clean()

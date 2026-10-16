@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from apps.core.models import BaseModel, TenantModel
 from apps.core.money import Currency
 from apps.core.tenancy import RESERVED_SUBDOMAINS
-from apps.schools import alerts, colors, matricule, portal, receipts, reminders
+from apps.schools import alerts, colors, grading, matricule, portal, receipts, reminders
 from apps.schools.logos import logo_path, monochrome_logo_path, validate_logo
 from apps.schools.signatures import head_signature_path, stamp_path
 
@@ -295,6 +295,11 @@ class School(BaseModel):
     def reminders(self) -> dict:
         """Relances aux parents, valeurs par défaut comprises (`reminders.py`)."""
         return reminders.reminder_settings(self.settings)
+
+    @property
+    def grading(self) -> dict:
+        """Saisie des points : devoirs détaillés ou total de la période (`grading.py`)."""
+        return grading.grading_settings(self.settings)
 
     @property
     def portal(self) -> dict:

@@ -5651,6 +5651,13 @@ export interface components {
             readonly has_exam: boolean;
             /** Taught in this class */
             readonly is_taught: boolean;
+            /**
+             * @description Saisie des points de ce cours ; vide : réglage de l'école (8.4.0).
+             *
+             *     * `detailed` - detailed
+             *     * `totals` - totals
+             */
+            readonly grade_entry: components["schemas"]["GradeEntryEnum"] | components["schemas"]["BlankEnum"];
             /** Hours per week */
             readonly weekly_hours: number | null;
             readonly teacher: components["schemas"]["Person"] | null;
@@ -5672,6 +5679,14 @@ export interface components {
              * @default true
              */
             is_taught: boolean;
+            /**
+             * @description Saisie des points de ce cours ; vide : réglage de l'école (8.4.0).
+             *
+             *     * `detailed` - detailed
+             *     * `totals` - totals
+             * @default
+             */
+            grade_entry: components["schemas"]["GradeEntryEnum"] | components["schemas"]["BlankEnum"];
             weekly_hours?: number | null;
             /**
              * Format: uuid
@@ -6390,6 +6405,12 @@ export interface components {
             code: string;
             detail: string;
         };
+        /**
+         * @description * `detailed` - detailed
+         *     * `totals` - totals
+         * @enum {string}
+         */
+        GradeEntryEnum: "detailed" | "totals";
         GradeInputRequest: {
             /** Format: uuid */
             enrollment_id: string;
@@ -6429,6 +6450,26 @@ export interface components {
             readonly period_max: number;
             /** With exam */
             readonly has_exam: boolean;
+        };
+        /** @description Saisie des points de l'école (`grading.py`, 8.4.0). */
+        GradingSettings: {
+            /**
+             * @description detailed : une note par devoir ; totals : seulement le total de la période.
+             *
+             *     * `detailed` - detailed
+             *     * `totals` - totals
+             */
+            entry: components["schemas"]["GradeEntryEnum"];
+        };
+        /** @description Saisie des points de l'école (`grading.py`, 8.4.0). */
+        GradingSettingsRequest: {
+            /**
+             * @description detailed : une note par devoir ; totals : seulement le total de la période.
+             *
+             *     * `detailed` - detailed
+             *     * `totals` - totals
+             */
+            entry: components["schemas"]["GradeEntryEnum"];
         };
         Guardian: {
             /** Format: uuid */
@@ -7766,6 +7807,7 @@ export interface components {
             alerts?: components["schemas"]["AlertSettingsRequest"];
             reminders?: components["schemas"]["ReminderSettingsRequest"];
             portal?: components["schemas"]["PortalSettingsRequest"];
+            grading?: components["schemas"]["GradingSettingsRequest"];
         };
         /** @description Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`. */
         PatchedStaffUpdateRequest: {
@@ -8758,6 +8800,7 @@ export interface components {
             alerts: components["schemas"]["AlertSettings"];
             reminders: components["schemas"]["ReminderSettings"];
             portal: components["schemas"]["PortalSettings"];
+            grading: components["schemas"]["GradingSettings"];
         };
         /**
          * @description * `trial` - Free trial
@@ -8817,6 +8860,13 @@ export interface components {
          */
         SexEnum: "M" | "F";
         Sheet: {
+            /**
+             * @description totals : une seule évaluation « Total » au maximum de la période (8.4.0).
+             *
+             *     * `detailed` - detailed
+             *     * `totals` - totals
+             */
+            entry: components["schemas"]["GradeEntryEnum"];
             status: components["schemas"]["SheetStatusEnum"];
             /** @description Rouverte : la date limite ne la ferme plus. */
             reopened: boolean;

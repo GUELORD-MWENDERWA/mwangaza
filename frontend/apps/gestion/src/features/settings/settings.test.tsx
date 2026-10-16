@@ -24,6 +24,7 @@ const settings = {
   },
   reminders: { enabled: false, days_before: 3, overdue_every_days: 7 },
   portal: { teacher_phone: false },
+  grading: { entry: "detailed" },
 };
 
 function routes(extra: Routes = {}): Routes {
@@ -101,6 +102,7 @@ describe("Paramètres de l'école (M5)", () => {
       },
       reminders: { enabled: true, days_before: 5, overdue_every_days: 7 },
       portal: { teacher_phone: false },
+      grading: { entry: "detailed" },
     });
     // Le nom de l'école (menu, connexion) est relu.
     await waitFor(() =>

@@ -315,3 +315,69 @@ def test_a_graded_period_keeps_its_kind_and_its_place(api, school, head, secreta
     with use_school(school):
         organisation.set_terms(data["year"], tree(dated), actor=head)
         assert Term.objects.get(pk=data["p1"].pk).name == "P1"
+
+
+def test_totals_only_sheet_has_one_total_at_the_period_maximum(api, school, head, secretary):
+    """Saisie sans devoirs (8.4.0) : réglage de l'école, dérogation d'un cours ; une feuille aux
+    devoirs détaillés les garde ; le bulletin lit le total comme une note de période."""
+    data = setup(school, head)
+    client = api(head)
+    saved = client.patch("/api/school/settings/", {"grading": {"entry": "totals"}})
+    assert saved.status_code == 200, saved.json()
+    with use_school(school):
+        assert AuditLog.objects.filter(after__grading_entry="totals").exists()
+    url = sheet_url(data["physics"], data["p1"])
+    sheet = api(secretary).get(url).json()
+    assert sheet["entry"] == "totals" and sheet["evaluations"] == []
+
+    total = str(uuid7())
+    one = {"id": total, "name": "Total", "max_score": 20}
+    grade = {"enrollment_id": data["amani"], "evaluation_id": total, "score": "15.5"}
+    response = api(secretary).put(url, {"evaluations": [one], "grades": [grade]})
+    assert response.status_code == 200, response.json()
+    assert response.json()["students"][0]["total"] == "15.5"
+
+    # Un devoir de plus, un autre maximum ou aucune évaluation : refusés.
+    for evaluations in (
+        [one, {"name": "TP", "max_score": 20}],
+        [{"id": total, "name": "Total", "max_score": 10}],
+    ):
+        refused = api(secretary).put(url, {"evaluations": evaluations, "grades": []})
+        assert refused.status_code == 400
+        assert refused.json()["code"] == "totals_only"
+    # Les examens : le double du maximum du cours.
+    exam = sheet_url(data["physics"], data["exam"])
+    ok = api(secretary).put(
+        exam, {"evaluations": [{"name": "Total", "max_score": 40}], "grades": []}
+    )
+    assert ok.status_code == 200 and ok.json()["maximum"] == 40
+
+    # Le cours peut déroger au réglage de l'école : devoirs détaillés.
+    with use_school(school):
+        Course.objects.filter(pk=data["workshop"].pk).update(grade_entry="detailed")
+    detailed = sheet_url(data["workshop"], data["p1"])
+    assert api(secretary).get(detailed).json()["entry"] == "detailed"
+    two = [{"name": "A", "max_score": 50}, {"name": "B", "max_score": 50}]
+    assert api(secretary).put(detailed, {"evaluations": two, "grades": []}).status_code == 200
+
+
+def test_a_sheet_with_several_evaluations_stays_detailed_when_the_school_changes(
+    api, school, head, secretary
+):
+    data = setup(school, head)
+    url = sheet_url(data["physics"], data["p1"])
+    two = [{"name": "A", "max_score": 10}, {"name": "B", "max_score": 10}]
+    assert api(secretary).put(url, {"evaluations": two, "grades": []}).status_code == 200
+    api(head).patch("/api/school/settings/", {"grading": {"entry": "totals"}})
+    assert api(secretary).get(url).json()["entry"] == "detailed"
+
+
+def test_the_grading_setting_of_a_school_does_not_reach_another(
+    api, school, other_school, head, secretary
+):
+    api(head).patch("/api/school/settings/", {"grading": {"entry": "totals"}})
+    other_school.refresh_from_db()
+    assert other_school.grading["entry"] == "detailed"
+    # Réglage de l'école : droit `school.configure` seulement.
+    refused = api(secretary).patch("/api/school/settings/", {"grading": {"entry": "totals"}})
+    assert refused.status_code == 403

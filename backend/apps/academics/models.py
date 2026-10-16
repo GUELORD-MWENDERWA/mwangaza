@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import TenantModel
+from apps.schools.grading import DETAILED, TOTALS
 from apps.schools.models import ClassGroup, Term
 from apps.students.models import Enrollment
 
@@ -40,6 +41,13 @@ class Course(TenantModel):
     # Cours du formulaire que la classe ne suit pas (autre option) : barré sur le bulletin (tirets),
     # ni noté ni compté dans les maxima.
     is_taught = models.BooleanField(_("taught in this class"), default=True)
+    # Saisie des points de ce cours (8.4.0) : vide = réglage de l'école (`grading.py`).
+    grade_entry = models.CharField(
+        _("grade entry"),
+        max_length=10,
+        choices=[(DETAILED, _("Detailed")), (TOTALS, _("Period total only"))],
+        blank=True,
+    )
     # Vide tant que l'école ne l'a pas saisi ; servira à l'emploi du temps (EDT).
     weekly_hours = models.PositiveSmallIntegerField(
         _("hours per week"),

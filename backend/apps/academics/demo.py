@@ -121,6 +121,12 @@ EVALUATIONS = (("Interrogation 1", 0.25), ("Interrogation 2", 0.25), ("Devoir", 
 EMPTY_SHARE = 0.01
 
 
+def demo_evaluations(school) -> tuple:
+    """Évaluations d'une période : trois devoirs, ou le seul total pour une école qui saisit sans
+    devoirs (8.4.0)."""
+    return (("Total", 1),) if school.grading["entry"] == "totals" else EVALUATIONS
+
+
 def create_demo_grades(spaces: list[DemoSpace]) -> None:
     for space in spaces:
         draw = random.Random(f"grades-{space.school.code}")
@@ -157,7 +163,7 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
                 for course in Course.objects.filter(
                     class_group__academic_year=year, is_taught=True
                 ).order_by("pk")
-                for order, (name, share) in enumerate(EVALUATIONS)
+                for order, (name, share) in enumerate(demo_evaluations(space.school))
             ]
             Evaluation.objects.bulk_create(evaluations, batch_size=2000)
             grades = []
@@ -250,7 +256,7 @@ def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
                             )
                         )
                     continue
-                for order, (name, share) in enumerate(EVALUATIONS):
+                for order, (name, share) in enumerate(demo_evaluations(group.school)):
                     evaluations.append(
                         Evaluation(
                             course=course,

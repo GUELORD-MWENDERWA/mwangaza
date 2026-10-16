@@ -39,6 +39,7 @@ const sheet = {
   class_group: "3e Électricité A",
   term: PERIOD,
   maximum: 20,
+  entry: "detailed",
   status: "draft",
   reopened: false,
   due_on: null,
@@ -144,5 +145,37 @@ describe("saisie des notes", () => {
 
     await screen.findByText(/Corrigez les cases en rouge/);
     expect(requests.some((request) => request.method === "PUT")).toBe(false);
+  });
+
+  it("sans devoirs : une seule colonne « Total » au maximum de la période", async () => {
+    const totals = {
+      ...sheet,
+      entry: "totals",
+      evaluations: [],
+      students: sheet.students.map((row) => ({ ...row, scores: [], total: null })),
+    };
+    const requests = mockApi(
+      routes({
+        [`GET /api/courses/${COURSE}/terms/${PERIOD}/grades/`]: totals,
+        [`PUT /api/courses/${COURSE}/terms/${PERIOD}/grades/`]: totals,
+      }),
+    );
+    const { user } = renderApp("/grades");
+
+    const box = await screen.findByLabelText("Total — KAMBALE MUHINDO Josué");
+    expect(screen.queryByRole("button", { name: /Ajouter une évaluation/ })).toBeNull();
+    await user.type(box, "15,5");
+    await user.click(screen.getByRole("button", { name: "Enregistrer" }));
+    await waitFor(() => expect(requests.some((r) => r.method === "PUT")).toBe(true));
+    const put = requests.find((request) => request.method === "PUT")!.body as {
+      evaluations: { id: string; name: string; max_score: number }[];
+      grades: { evaluation_id: string; score: string }[];
+    };
+    // Une évaluation « Total » à 20, créée côté appareil, et la note rattachée à elle.
+    expect(put.evaluations).toHaveLength(1);
+    expect(put.evaluations[0]).toMatchObject({ name: "Total", max_score: 20 });
+    expect(put.grades).toEqual([
+      { enrollment_id: JOSUE, evaluation_id: put.evaluations[0]!.id, score: "15.5" },
+    ]);
   });
 });
