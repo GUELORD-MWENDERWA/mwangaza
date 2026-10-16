@@ -46,7 +46,7 @@ def test_create_enroll_and_read_a_student(api, head, alpha):
     assert (created.status_code, replayed.status_code, enrollment.status_code) == (201, 200, 201)
     assert detail["matricule"] == "ALPHA-2026-0001"
     assert detail["family"]["guardians"][0]["phone"] == "+243971234567"
-    assert detail["enrollments"][0]["class_group_name"] == "3e Électricité A"
+    assert detail["enrollments"][0]["class_group_name"] == "3E ÉLECTRICITÉ A"
 
 
 def test_search_and_filters(api, school, head, alpha, beta):
@@ -72,7 +72,7 @@ def test_search_and_filters(api, school, head, alpha, beta):
     # Une option d'une autre école n'est pas un filtre valable.
     assert client.get(STUDENTS, track=str(beta["track"].pk)).status_code == 400
     [row] = client.get(STUDENTS, search="jean").json()["results"]
-    assert row["enrollment"]["class_group_name"] == "3e Électricité A"
+    assert row["enrollment"]["class_group_name"] == "3E ÉLECTRICITÉ A"
     with use_all_schools():
         assert row["family_code"] == jean.family.code
     assert row["primary_guardian"]["full_name"] == "Kahindo Neema"

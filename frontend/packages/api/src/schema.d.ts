@@ -6637,6 +6637,8 @@ export interface components {
             /** Format: uuid */
             readonly id: string;
             name: string;
+            /** Report card title */
+            report_title: string;
             cycle: components["schemas"]["CycleEnum"];
             readonly order: number;
             /**
@@ -6651,6 +6653,8 @@ export interface components {
         };
         LevelRequest: {
             name: string;
+            /** Report card title */
+            report_title?: string;
             cycle: components["schemas"]["CycleEnum"];
             /**
              * Ends with the state exam
@@ -7554,6 +7558,7 @@ export interface components {
         };
         PatchedLevelUpdateRequest: {
             name?: string;
+            report_title?: string;
             cycle?: components["schemas"]["CycleEnum"];
             has_state_exam?: boolean;
         };

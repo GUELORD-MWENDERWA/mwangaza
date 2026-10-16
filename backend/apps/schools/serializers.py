@@ -409,12 +409,13 @@ class TermsUpdateSerializer(serializers.Serializer):
 class LevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Level
-        fields = ["id", "name", "cycle", "order", "has_state_exam"]
+        fields = ["id", "name", "report_title", "cycle", "order", "has_state_exam"]
         read_only_fields = ["id", "order"]
 
 
 class LevelUpdateSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=40, required=False)
+    report_title = serializers.CharField(max_length=80, required=False, allow_blank=True)
     cycle = serializers.ChoiceField(choices=Level.Cycle.choices, required=False)
     has_state_exam = serializers.BooleanField(required=False)
 

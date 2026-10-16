@@ -15,7 +15,7 @@ test("super-admin : session support « en tant qu'école » (A3)", async ({ page
   await page.getByRole("button", { name: "Ouvrir la session support" }).click();
 
   const banner = page.getByRole("region", { name: "Session support" });
-  await expect(banner).toContainText("vous agissez en tant que ITIG Don Bosco Goma (démo)");
+  await expect(banner).toContainText("vous agissez en tant que ITIG DON BOSCO");
   await expect(banner).toContainText("Motif : Parcours de test : vérifier les rôles");
   // Droits de l'école sauf la caisse.
   await expect(mainMenu(page).getByRole("link", { name: "Paramètres de l'école" })).toBeVisible();

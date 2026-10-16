@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-16 03:34+0200\n"
+"POT-Creation-Date: 2026-10-16 03:55+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -47,7 +47,7 @@ msgstr "Cette classe a déjà ce cours."
 msgid "Unknown course."
 msgstr "Cours inconnu."
 
-#: apps/academics/courses.py:99 apps/schools/organisation.py:520
+#: apps/academics/courses.py:99 apps/schools/organisation.py:531
 msgid "Choose a member of the school's staff."
 msgstr "Choisissez un membre du personnel de l'école."
 
@@ -224,7 +224,7 @@ msgid "A grade is above this maximum."
 msgstr "Une note dépasse ce maximum."
 
 #: apps/academics/models.py:28 apps/notifications/models.py:129
-#: apps/schools/models.py:559 apps/students/models.py:173
+#: apps/schools/models.py:562 apps/students/models.py:173
 msgid "class"
 msgstr "classe"
 
@@ -233,7 +233,7 @@ msgstr "classe"
 #: apps/finance/models.py:35 apps/finance/models.py:371
 #: apps/schools/models.py:97 apps/schools/models.py:364
 #: apps/schools/models.py:422 apps/schools/models.py:461
-#: apps/schools/models.py:491 apps/sync/models.py:27
+#: apps/schools/models.py:494 apps/sync/models.py:27
 msgid "name"
 msgstr "nom"
 
@@ -2795,7 +2795,7 @@ msgid "School code"
 msgstr "Code de l'école"
 
 #: apps/core/templates/core/site/home.html:283 apps/finance/models.py:373
-#: apps/schools/models.py:81 apps/schools/models.py:493
+#: apps/schools/models.py:81 apps/schools/models.py:496
 msgid "code"
 msgstr "code"
 
@@ -4194,7 +4194,7 @@ msgstr "message"
 msgid "recipients"
 msgstr "destinataires"
 
-#: apps/notifications/models.py:27 apps/schools/models.py:560
+#: apps/notifications/models.py:27 apps/schools/models.py:563
 msgid "classes"
 msgstr "classes"
 
@@ -5093,7 +5093,7 @@ msgid "current year"
 msgstr "année en cours"
 
 #: apps/schools/models.py:374 apps/schools/models.py:409
-#: apps/schools/models.py:530 apps/students/models.py:170
+#: apps/schools/models.py:533 apps/students/models.py:170
 #: apps/students/models.py:205 apps/students/models.py:231
 msgid "school year"
 msgstr "année scolaire"
@@ -5151,49 +5151,53 @@ msgid "cycle"
 msgstr "cycle"
 
 #: apps/schools/models.py:466
+msgid "report card title"
+msgstr "titre du bulletin"
+
+#: apps/schools/models.py:469
 msgid "ends with the state exam"
 msgstr "finit par l'Examen d'État"
 
-#: apps/schools/models.py:468
+#: apps/schools/models.py:471
 msgid "The report card shows the state exam block instead of the resit exam."
 msgstr ""
 "Le bulletin montre le bloc de l'Examen d'État à la place de l'examen de "
 "repêchage."
 
-#: apps/schools/models.py:473 apps/schools/models.py:533
+#: apps/schools/models.py:476 apps/schools/models.py:536
 msgid "level"
 msgstr "niveau"
 
-#: apps/schools/models.py:474
+#: apps/schools/models.py:477
 msgid "levels"
 msgstr "niveaux"
 
-#: apps/schools/models.py:497 apps/schools/serializers.py:444
+#: apps/schools/models.py:500 apps/schools/serializers.py:445
 msgid "1 to 10 capital letters or digits."
 msgstr "1 à 10 lettres majuscules ou chiffres."
 
-#: apps/schools/models.py:500
+#: apps/schools/models.py:503
 #, python-brace-format
 msgid "Used in the student number ({OPT}), e.g. ELEC."
 msgstr "Sert dans le matricule ({OPT}), ex. ELEC."
 
-#: apps/schools/models.py:505 apps/schools/models.py:541
+#: apps/schools/models.py:508 apps/schools/models.py:544
 msgid "track"
 msgstr "option"
 
-#: apps/schools/models.py:506
+#: apps/schools/models.py:509
 msgid "tracks"
 msgstr "options"
 
-#: apps/schools/models.py:543
+#: apps/schools/models.py:546
 msgid "section"
 msgstr "section"
 
-#: apps/schools/models.py:545
+#: apps/schools/models.py:548
 msgid "capacity"
 msgstr "capacité"
 
-#: apps/schools/models.py:554
+#: apps/schools/models.py:557
 msgid "homeroom teacher"
 msgstr "titulaire"
 
@@ -5291,7 +5295,7 @@ msgstr "Cette date est en dehors de l'année scolaire."
 msgid "Outside its semester or term."
 msgstr "En dehors de son semestre ou trimestre."
 
-#: apps/schools/organisation.py:414
+#: apps/schools/organisation.py:425
 msgid "Give every level of the school once."
 msgstr "Donnez chaque niveau de l'école une seule fois."
 

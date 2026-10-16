@@ -260,11 +260,11 @@ test("super-admin", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Tableau de bord" })).toBeVisible();
   await page.goto(`${CONSOLE}schools`);
   await page.getByRole("tab", { name: "Démonstration" }).click();
-  await expect(page.getByText("ITIG Don Bosco Goma (démo)")).toBeVisible();
+  await expect(page.getByText("ITIG DON BOSCO")).toBeVisible();
   await page.waitForLoadState("networkidle");
   await shot(page, "console-ecoles");
   // Modules de l'école (M.2) : la carte seule, sur la fiche de l'école.
-  await page.getByRole("link", { name: "ITIG Don Bosco Goma (démo)" }).click();
+  await page.getByRole("link", { name: "ITIG DON BOSCO" }).click();
   const modules = page
     .locator("section")
     .filter({ has: page.getByRole("heading", { name: "Fonctions de l'école" }) })

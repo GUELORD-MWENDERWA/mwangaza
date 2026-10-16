@@ -49,7 +49,7 @@ def test_the_portal_shows_the_accounts_families_only_each_with_its_schools_balan
 
     assert family["school_name"] == school.name and family["status"] == "active"
     [child] = family["children"]
-    assert child["full_name"] == "Kasereka Jean" and child["class_name"] == "3e Électricité A"
+    assert child["full_name"] == "Kasereka Jean" and child["class_name"] == "3E ÉLECTRICITÉ A"
     # Minerval 3 x 120,00 $ (1re tranche au 15/10), fonctionnement 25 000 FC au 30/09 : par
     # devise, jamais additionnés.
     assert [

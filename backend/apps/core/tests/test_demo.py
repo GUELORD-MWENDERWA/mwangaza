@@ -45,7 +45,7 @@ def roles_of(phone: str, school: School) -> set[str]:
 
 def test_demo_creates_the_two_demo_schools(demo):
     assert set(demo) == {"itig", "volcans"}
-    assert demo["itig"].name == "ITIG Don Bosco Goma (démo)"
+    assert demo["itig"].name == "ITIG DON BOSCO"
     assert demo["itig"].primary_color == "#003C6C"
     assert demo["itig"].status == School.Status.TRIAL
     assert demo["volcans"].status == School.Status.ACTIVE
@@ -372,7 +372,7 @@ def test_demo_organisation_of_the_itig(demo):
     titulars = {
         group.name: group.homeroom_teacher.phone for group in groups if group.homeroom_teacher
     }
-    assert titulars["3e Électricité A"] == "+243000001008"
+    assert titulars["3E ÉLECTRICITÉ A"] == "+243000001008"
     # 5.7 : la classe de l'enfant du compte du portail a aussi un titulaire (le portail le
     # montre), l'enseignant de démonstration faute d'autre.
     assert set(titulars.values()) == {"+243000001008"}

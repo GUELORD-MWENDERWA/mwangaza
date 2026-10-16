@@ -18575,6 +18575,10 @@ components:
         name:
           type: string
           maxLength: 40
+        report_title:
+          type: string
+          title: Report card title
+          maxLength: 80
         cycle:
           $ref: '#/components/schemas/CycleEnum'
         order:
@@ -18588,6 +18592,7 @@ components:
       required:
       - id
       - name
+      - report_title
       - cycle
       - order
       - has_state_exam
@@ -18609,6 +18614,10 @@ components:
           type: string
           minLength: 1
           maxLength: 40
+        report_title:
+          type: string
+          title: Report card title
+          maxLength: 80
         cycle:
           $ref: '#/components/schemas/CycleEnum'
         has_state_exam:
@@ -20259,6 +20268,9 @@ components:
           type: string
           minLength: 1
           maxLength: 40
+        report_title:
+          type: string
+          maxLength: 80
         cycle:
           $ref: '#/components/schemas/CycleEnum'
         has_state_exam:

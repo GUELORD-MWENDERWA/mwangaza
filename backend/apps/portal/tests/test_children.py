@@ -56,7 +56,7 @@ def test_a_childs_fees_and_payments_are_shown_to_its_familys_account_only(
 
     child = client.get(child_url(enrollment)).json()
 
-    assert (child["full_name"], child["class_name"]) == ("Kasereka Jean", "3e Électricité A")
+    assert (child["full_name"], child["class_name"]) == ("Kasereka Jean", "3E ÉLECTRICITÉ A")
     assert child["school_name"] == school.name and child["photo"] is None
     # Le 20/10 : 1re tranche payée, 2e payée d'avance, 3e entamée, fonctionnement (30/09) en
     # retard ; le paiement annulé ne compte pas.

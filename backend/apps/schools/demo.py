@@ -83,8 +83,8 @@ def _make_demo_schools() -> dict[str, dict]:
     today = timezone.localdate()
     return {
         "itig": {
-            "name": "ITIG Don Bosco Goma (démo)",
-            "official_name": "Institut Technique Industriel de Goma — ITIG Don Bosco (démo)",
+            "name": "ITIG DON BOSCO",
+            "official_name": "INSTITUT TECHNIQUE INDUSTRIEL DE GOMA - ITIG DON BOSCO",
             "status": School.Status.TRIAL,
             "plan": "Essai",
             "trial_ends_on": today + timedelta(days=90),
@@ -248,21 +248,31 @@ class DemoOrganisation:
 
 
 def _itig_classes() -> list[tuple[str, str, str, int]]:
-    classes = [("7e EB", "", "ABC", 45), ("8e EB", "", "ABC", 45)]
+    classes = [("7EB", "", "ABC", 45), ("8EB", "", "ABC", 45)]
     for code in ("ELEC", "ELO", "MG", "MA"):
-        for level in ("1re", "2e", "3e", "4e"):
-            sections = "AB" if (code, level) == ("ELEC", "1re") else "A"
+        for level in ("1HT", "2HT", "3HT", "4HT"):
+            sections = "AB" if (code, level) == ("ELEC", "1HT") else "A"
             classes.append((level, code, sections, 45 if code == "ELEC" else 40))
     return classes
 
+
+# Titre du bulletin de chaque niveau de l'ITIG, tel que l'école l'écrit (HT : humanité technique).
+REPORT_TITLES = {
+    "7EB": "7ème Éducation de Base",
+    "8EB": "8ème Éducation de Base",
+    "1HT": "1ère Humanité Technique",
+    "2HT": "2ème Humanité Technique",
+    "3HT": "3ème Humanité Technique",
+    "4HT": "4ème Humanité Technique",
+}
 
 DEMO_ORGANISATIONS = {
     "itig": DemoOrganisation(
         matricule_format="ITIG-{AAAA}-{0000}",
         levels=[
-            ("7e EB", Level.Cycle.BASIC),
-            ("8e EB", Level.Cycle.BASIC),
-            *[(name, Level.Cycle.SECONDARY_TECHNICAL) for name in ("1re", "2e", "3e", "4e")],
+            ("7EB", Level.Cycle.BASIC),
+            ("8EB", Level.Cycle.BASIC),
+            *[(name, Level.Cycle.SECONDARY_TECHNICAL) for name in ("1HT", "2HT", "3HT", "4HT")],
         ],
         tracks=[
             ("Électricité", "ELEC"),
@@ -271,7 +281,7 @@ DEMO_ORGANISATIONS = {
             ("Mécanique automobile", "MA"),
         ],
         classes=_itig_classes(),
-        homeroom_class=("3e", "ELEC", "A"),
+        homeroom_class=("3HT", "ELEC", "A"),
         term_dates=ITIG_TERMS,
     ),
     # Dates du découpage laissées vides : l'école les saisit (« Modifier les dates »).
@@ -351,6 +361,7 @@ def create_demo_organisation(spaces: list[DemoSpace]) -> None:
                     name=level_name,
                     defaults={
                         "cycle": cycle,
+                        "report_title": REPORT_TITLES.get(level_name, ""),
                         "order": order,
                         # La dernière année du modèle finit par l'Examen d'État (8.3.3).
                         "has_state_exam": order == len(demo.levels) - 1,

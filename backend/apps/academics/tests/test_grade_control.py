@@ -81,7 +81,7 @@ def test_a_sheet_goes_from_draft_to_sent_then_validated_and_is_then_closed(
     assert client.post(submit).json()["code"] == "sheet_not_draft"
     pending = boss.get(VALIDATION).json()["sheets"]
     assert [(row["course_name"], row["class_group"]) for row in pending] == [
-        ("Physique", "1re Électricité A")
+        ("Physique", "1RE ÉLECTRICITÉ A")
     ]
 
     # Envoyée : changer une note demande un motif, gardé dans l'historique de la feuille.

@@ -78,7 +78,7 @@ def test_teachers_grade_their_courses_and_homeroom_teachers_their_class(api, sch
     assert client.put(sheet_url(data["workshop"], data["p1"]), {}).status_code == 403
     listed = client.get(GRADING).json()
     assert [(c["name"], [x["name"] for x in c["courses"]]) for c in listed["classes"]] == [
-        ("1re Électricité A", ["Physique"])
+        ("1RE ÉLECTRICITÉ A", ["Physique"])
     ]
     assert listed["academic_year"] == str(data["year"].pk) and listed["terms"]
 
@@ -174,7 +174,7 @@ def test_the_sheet_is_saved_in_one_go_and_noted_once_per_save(
     sheet = response.json()
     tp = sheet["evaluations"][2]["id"]
     assert [e["id"] for e in sheet["evaluations"][:2]] == [first, second]
-    assert sheet["maximum"] == 20 and sheet["class_group"] == "1re Électricité A"
+    assert sheet["maximum"] == 20 and sheet["class_group"] == "1RE ÉLECTRICITÉ A"
     # Les élèves de la classe seulement, par nom ; « incomplet » tant qu'une case manque.
     assert [(row["full_name"], row["total"]) for row in sheet["students"]] == [
         ("Bahati X", None),
@@ -208,7 +208,7 @@ def test_the_sheet_is_saved_in_one_go_and_noted_once_per_save(
     logs = grades_log(school)
     assert len(logs) == 3
     assert logs[0].actor_id == secretary.pk and logs[0].entity_type == "academics.gradesheet"
-    assert logs[0].entity_label == "Physique · 1re Électricité A · Période 1"
+    assert logs[0].entity_label == "Physique · 1RE ÉLECTRICITÉ A · Période 1"
     assert len(logs[0].after["evaluations"]) == 3 and len(logs[0].after["grades"]) == 3
     assert logs[0].before is None
     assert logs[2].before["grades"] == [

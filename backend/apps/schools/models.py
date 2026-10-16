@@ -461,6 +461,9 @@ class Level(TenantModel):
     name = models.CharField(_("name"), max_length=40)
     cycle = models.CharField(_("cycle"), max_length=20, choices=Cycle.choices)
     order = models.PositiveSmallIntegerField(_("order"), default=0)
+    # Texte complet du titre du bulletin (« 3ème Humanité Technique »), que l'école écrit ; vide :
+    # le bulletin reprend le nom du niveau (« 3HT »).
+    report_title = models.CharField(_("report card title"), max_length=80, blank=True)
     # Dernière année avant l'Examen d'État : le bulletin en reprend le bloc (8.3.3).
     has_state_exam = models.BooleanField(
         _("ends with the state exam"),
@@ -572,6 +575,6 @@ class ClassGroup(TenantModel):
 
     @property
     def name(self) -> str:
-        """« 3e Électricité A », « 7e EB B »."""
+        """« 3HT ÉLECTRICITÉ A » : en majuscules, comme sur les documents de l'école."""
         parts = [self.level.name, self.track.name if self.track else "", self.section]
-        return " ".join(part for part in parts if part)
+        return " ".join(part for part in parts if part).upper()

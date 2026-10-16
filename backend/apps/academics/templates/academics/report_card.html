@@ -81,7 +81,7 @@ table.bul td.pn.bot { border-bottom: .5pt solid #000; }
     <div class="left">
       <div class="line"><b class="lbl">{% translate "TOWN" %}&nbsp;:&nbsp;</b><span class="value" style="width:60mm">{{ school.city }}</span></div>
       <div class="line"><b class="lbl">{% translate "COMMUNE / TERRITORY" %}&nbsp;:&nbsp;</b><span class="value" style="width:40mm">{{ school.commune }}</span></div>
-      <div class="line"><b class="lbl">{% translate "SCHOOL" %}&nbsp;:&nbsp;</b><span class="value" style="width:68mm">{{ school_name }}</span></div>
+      <div class="line"><b class="lbl">{% translate "SCHOOL" %}&nbsp;:&nbsp;</b><span class="value" style="width:68mm">{{ school.name|upper }}</span></div>
       <div class="line"><b class="lbl">{% translate "CODE" %}&nbsp;:&nbsp;</b><span class="boxes">{% for c in code_boxes %}<span>{{ c }}</span>{% endfor %}</span></div>
     </div>
     <div class="right">

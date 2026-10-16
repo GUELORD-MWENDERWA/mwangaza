@@ -29,7 +29,7 @@ import {
   cn,
 } from "@mwangaza/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Link } from "react-router";
 
 import { errorMessage, fieldMessage } from "../../lib/errors";
@@ -215,6 +215,37 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
     ["name", "id", "period_max", "weekly_hours", "teacher_id", "domain", "has_exam", "is_taught"]
       .flatMap((field) => fields[`courses.${index}.${field}`] ?? [])
       .map((error) => fieldMessage(error.code, t));
+  // Bandeau de domaine devant chaque série de cours du même domaine (l'ordre du bulletin ne change
+  // pas) : nombre de cours et total des maxima de la période de la série.
+  const bands = new Map<number, { domain: string; count: number; period: number }>();
+  let band: { domain: string; count: number; period: number } | undefined;
+  rows.forEach((draft, index) => {
+    const domain = draft.domain.trim();
+    if (domain === "") {
+      band = undefined;
+      return;
+    }
+    if (!band || band.domain !== domain) {
+      band = { domain, count: 0, period: 0 };
+      bands.set(index, band);
+    }
+    band.count += 1;
+    band.period += Number(draft.period_max) || 0;
+  });
+  const domains = [...new Set(rows.map((draft) => draft.domain.trim()).filter(Boolean))];
+  const grouped = () => {
+    const first = new Map<string, number>();
+    rows.forEach((draft, index) => {
+      if (!first.has(draft.domain.trim())) first.set(draft.domain.trim(), index);
+    });
+    // Tri stable : seuls les cours d'un même domaine se rapprochent, les autres gardent leur ordre.
+    edit(
+      rows
+        .map((draft, index) => ({ draft, index, key: first.get(draft.domain.trim()) ?? index }))
+        .sort((a, b) => a.key - b.key || a.index - b.index)
+        .map((item) => item.draft),
+    );
+  };
   const placed = Object.keys(fields).some((path) => /^courses\.\d+\./.test(path));
   const choose = (id: string) => (dirty ? setLeaving(id) : onChoose(id));
 
@@ -392,105 +423,120 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
               const row = toRow(draft);
               const label = draft.name || t("courses.newCourse");
               const errors = errorsOf(index);
+              const band = bands.get(index);
               return (
-                <tr key={draft.key}>
-                  <td>
-                    <Input
-                      aria-label={t("courses.columns.name")}
-                      value={draft.name}
-                      onChange={(event) => update(draft, { name: event.target.value })}
-                      className="min-w-[220px] font-bold"
-                    />
-                    {errors.map((error) => (
-                      <p key={error} role="alert" className="mt-1 text-xs text-due">
-                        {error}
-                      </p>
-                    ))}
-                  </td>
-                  <td>
-                    <Input
-                      aria-label={`${t("courses.columns.domain")} — ${label}`}
-                      value={draft.domain}
-                      onChange={(event) => update(draft, { domain: event.target.value })}
-                      className="min-w-[120px]"
-                    />
-                  </td>
-                  <td className="text-right">
-                    <Input
-                      aria-label={`${t("courses.columns.periodMax")} — ${label}`}
-                      inputMode="numeric"
-                      value={draft.period_max}
-                      onChange={(event) =>
-                        update(draft, { period_max: event.target.value.replace(/\D/g, "") })
-                      }
-                      className="ml-auto w-[76px] text-right"
-                    />
-                  </td>
-                  <td>
-                    <Switch
-                      aria-label={`${t("courses.columns.exam")} — ${label}`}
-                      checked={draft.has_exam}
-                      onCheckedChange={(checked) => update(draft, { has_exam: checked })}
-                    />
-                  </td>
-                  <td className="text-right whitespace-nowrap tabular-nums">
-                    {row.period_max ? (
-                      row.has_exam ? (
-                        number(examMax(row)!)
-                      ) : (
-                        <span className="text-ink-2">{t("courses.noExam")}</span>
-                      )
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td className="text-right font-bold tabular-nums">
-                    {row.period_max && counts.periods ? number(yearMax(row, counts)) : "—"}
-                  </td>
-                  <td>
-                    <Switch
-                      aria-label={`${t("courses.columns.taught")} — ${label}`}
-                      checked={draft.is_taught}
-                      onCheckedChange={(checked) => update(draft, { is_taught: checked })}
-                    />
-                  </td>
-                  <td className="text-right">
-                    <Input
-                      aria-label={`${t("courses.columns.hours")} — ${label}`}
-                      inputMode="numeric"
-                      value={draft.weekly_hours}
-                      onChange={(event) =>
-                        update(draft, { weekly_hours: event.target.value.replace(/\D/g, "") })
-                      }
-                      className="ml-auto w-[64px] text-right"
-                    />
-                  </td>
-                  <td>
-                    <Select
-                      aria-label={`${t("courses.columns.teacher")} — ${label}`}
-                      value={draft.teacher_id}
-                      onChange={(event) => update(draft, { teacher_id: event.target.value })}
-                      className="min-w-[180px]"
-                    >
-                      <option value="">{t("courses.unassigned")}</option>
-                      {staff.data.loads.map(({ teacher }) => (
-                        <option key={teacher.id} value={teacher.id}>
-                          {fullName(teacher)}
-                        </option>
+                <Fragment key={draft.key}>
+                  {band && (
+                    <tr className="[&_td]:bg-lake-50">
+                      <td colSpan={10} className="text-sm font-bold text-lake-700">
+                        {t("courses.band", {
+                          domain: band.domain,
+                          count: band.count,
+                          period: number(band.period),
+                        })}
+                      </td>
+                    </tr>
+                  )}
+                  <tr>
+                    <td>
+                      <Input
+                        aria-label={t("courses.columns.name")}
+                        value={draft.name}
+                        onChange={(event) => update(draft, { name: event.target.value })}
+                        className="min-w-[220px] font-bold"
+                      />
+                      {errors.map((error) => (
+                        <p key={error} role="alert" className="mt-1 text-xs text-due">
+                          {error}
+                        </p>
                       ))}
-                    </Select>
-                  </td>
-                  <td className="w-10">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={t("courses.remove", { name: label })}
-                      onClick={() => edit(rows.filter((other) => other !== draft))}
-                    >
-                      <Icon name="x" size={16} />
-                    </Button>
-                  </td>
-                </tr>
+                    </td>
+                    <td>
+                      <Input
+                        aria-label={`${t("courses.columns.domain")} — ${label}`}
+                        list="course-domains"
+                        value={draft.domain}
+                        onChange={(event) => update(draft, { domain: event.target.value })}
+                        className="min-w-[120px]"
+                      />
+                    </td>
+                    <td className="text-right">
+                      <Input
+                        aria-label={`${t("courses.columns.periodMax")} — ${label}`}
+                        inputMode="numeric"
+                        value={draft.period_max}
+                        onChange={(event) =>
+                          update(draft, { period_max: event.target.value.replace(/\D/g, "") })
+                        }
+                        className="ml-auto w-[76px] text-right"
+                      />
+                    </td>
+                    <td>
+                      <Switch
+                        aria-label={`${t("courses.columns.exam")} — ${label}`}
+                        checked={draft.has_exam}
+                        onCheckedChange={(checked) => update(draft, { has_exam: checked })}
+                      />
+                    </td>
+                    <td className="text-right whitespace-nowrap tabular-nums">
+                      {row.period_max ? (
+                        row.has_exam ? (
+                          number(examMax(row)!)
+                        ) : (
+                          <span className="text-ink-2">{t("courses.noExam")}</span>
+                        )
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td className="text-right font-bold tabular-nums">
+                      {row.period_max && counts.periods ? number(yearMax(row, counts)) : "—"}
+                    </td>
+                    <td>
+                      <Switch
+                        aria-label={`${t("courses.columns.taught")} — ${label}`}
+                        checked={draft.is_taught}
+                        onCheckedChange={(checked) => update(draft, { is_taught: checked })}
+                      />
+                    </td>
+                    <td className="text-right">
+                      <Input
+                        aria-label={`${t("courses.columns.hours")} — ${label}`}
+                        inputMode="numeric"
+                        value={draft.weekly_hours}
+                        onChange={(event) =>
+                          update(draft, { weekly_hours: event.target.value.replace(/\D/g, "") })
+                        }
+                        className="ml-auto w-[64px] text-right"
+                      />
+                    </td>
+                    <td>
+                      <Select
+                        aria-label={`${t("courses.columns.teacher")} — ${label}`}
+                        value={draft.teacher_id}
+                        onChange={(event) => update(draft, { teacher_id: event.target.value })}
+                        className="min-w-[180px]"
+                      >
+                        <option value="">{t("courses.unassigned")}</option>
+                        {staff.data.loads.map(({ teacher }) => (
+                          <option key={teacher.id} value={teacher.id}>
+                            {fullName(teacher)}
+                          </option>
+                        ))}
+                      </Select>
+                    </td>
+                    <td className="w-10">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        aria-label={t("courses.remove", { name: label })}
+                        onClick={() => edit(rows.filter((other) => other !== draft))}
+                      >
+                        <Icon name="x" size={16} />
+                      </Button>
+                    </td>
+                  </tr>
+                </Fragment>
               );
             })}
           </tbody>
@@ -510,11 +556,21 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
             </tfoot>
           )}
         </Table>
-        <CardFooter>
+        <datalist id="course-domains">
+          {domains.map((domain) => (
+            <option key={domain} value={domain} />
+          ))}
+        </datalist>
+        <CardFooter className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={() => edit([...rows, blank()])}>
             <Icon name="plus" size={14} />
             {t("courses.add")}
           </Button>
+          {domains.length > 0 && (
+            <Button variant="outline" size="sm" onClick={grouped}>
+              {t("courses.groupByDomain")}
+            </Button>
+          )}
         </CardFooter>
       </Card>
       <ConfirmDialog
