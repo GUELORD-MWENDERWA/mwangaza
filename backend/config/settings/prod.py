@@ -5,6 +5,7 @@ from django.core.exceptions import ImproperlyConfigured
 from config.sentry import init_sentry
 
 from .base import *  # noqa: F403
+from .base import CELERY_BROKER_URL as REDIS_URL
 from .base import SECRET_KEY, env, env_bool
 
 if not SECRET_KEY:
@@ -26,6 +27,15 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 DEMO_DATA = env_bool("DJANGO_DEMO_DATA", False)
 DEMO_PASSWORD = env("DJANGO_DEMO_PASSWORD", "")
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Compteurs de limite de débit (`core/throttling.py`), partagés entre les travailleurs de Gunicorn.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": REDIS_URL,
+        "TIMEOUT": 300,
+    }
+}
 
 # Suivi d'erreurs : vide, rien n'est envoyé (`config/sentry.py`).
 init_sentry(env("SENTRY_DSN"))

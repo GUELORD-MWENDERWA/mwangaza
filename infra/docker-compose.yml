@@ -11,6 +11,11 @@ x-logging: &logging
     max-size: 10m
     max-file: "5"
 
+# Mémoire (PERF.5a) : serveur de 2 Go, 2 Go de swap. Chaque conteneur a une limite ET la même
+# limite swap comprise (`memswap_limit`) : un conteneur qui déborde est arrêté et relancé seul au
+# lieu de ralentir toute la machine. Somme des limites ≈ 1,78 Go, ≈ 300 Mo laissés au système
+# (`migrate`, 384m, ne tourne qu'au démarrage). Ces limites valent aussi pour `make prod-local`,
+# pour mesurer comme sur le serveur (`make perf`).
 x-backend: &backend
   build:
     context: ..
@@ -30,7 +35,8 @@ x-backend: &backend
     DJANGO_HSTS_SECONDS: ${DJANGO_HSTS_SECONDS:-2592000}
     DJANGO_LOG_LEVEL: ${DJANGO_LOG_LEVEL:-INFO}
     SENTRY_DSN: ${SENTRY_DSN:-}
-    GUNICORN_WORKERS: ${GUNICORN_WORKERS:-3}
+    GUNICORN_WORKERS: ${GUNICORN_WORKERS:-2}
+    GUNICORN_THREADS: ${GUNICORN_THREADS:-2}
     POSTGRES_DB: mwangaza
     # Compte de l'application (S.5) : ni superutilisateur ni propriétaire des tables, des lignes
     # seulement. Le mot de passe du propriétaire (`POSTGRES_PASSWORD`) n'est que dans `migrate`.
@@ -64,6 +70,8 @@ services:
       dockerfile: infra/Dockerfile
       target: caddy
     image: mwangaza-caddy
+    mem_limit: 64m
+    memswap_limit: 64m
     restart: unless-stopped
     logging: *logging
     ports:
@@ -84,6 +92,8 @@ services:
 
   django:
     <<: *backend
+    mem_limit: 576m
+    memswap_limit: 576m
     environment:
       <<: *backend-env
       # Garde-fou (PERF.1) : une requête de la base de plus de 25 s est coupée, jamais de
@@ -101,23 +111,40 @@ services:
       retries: 5
       start_period: 60s
 
-  celery:
+  # Tâches courantes (PERF.5a) : file `celery` (notifications, purges, passage du planificateur),
+  # 2 travailleurs. Un travailleur est renouvelé après 100 tâches ou si sa mémoire dépasse 150 Mo
+  # (le seuil est lu sur la mémoire du travailleur, qui partage déjà ≈ 60 Mo avec le processus
+  # principal : 75 + 2 × ≈ 110 reste sous la limite du conteneur, 288 Mo, avec de la marge).
+  worker:
     <<: *backend
-    # Tâches courantes (notifications, synchronisation, import, démonstrations) : file `celery`,
-    # le travailleur qui dépasse 300 Mo est recyclé après sa tâche. Le planificateur (`-B`) est ici.
-    command: celery -A config worker -B -s /tmp/celerybeat-schedule -Q celery --loglevel=info --concurrency=2 --max-memory-per-child=300000
+    mem_limit: 288m
+    memswap_limit: 288m
+    command: celery -A config worker -Q celery -n worker@%h --loglevel=info --concurrency=2 --max-tasks-per-child=100 --max-memory-per-child=150000
 
-  # Impression des PDF lourds (PERF.1) : file `print` à part, UN seul travail à la fois, mémoire
-  # plafonnée, travailleur renouvelé tous les 5 travaux : aucune impression ne ralentit le site.
-  celery-print:
+  # Tâches lourdes : file `heavy` (PDF, import d'une liste, espaces de démonstration), UN seul
+  # travail à la fois, renouvelé tous les 5 travaux ou au-delà de 240 Mo ; limite du conteneur
+  # 384 Mo : processus principal ≈ 75 Mo + un travail (une tranche de 8 pages ≈ 220 Mo).
+  worker-heavy:
     <<: *backend
-    command: celery -A config worker -Q print -n print@%h --loglevel=info --concurrency=1 --max-tasks-per-child=5 --max-memory-per-child=450000
+    mem_limit: 384m
+    memswap_limit: 384m
+    command: celery -A config worker -Q heavy -n heavy@%h --loglevel=info --concurrency=1 --max-tasks-per-child=5 --max-memory-per-child=240000
+
+  # Planificateur (relances, purges de la nuit) : un petit service à part, qu'aucun travailleur
+  # ne peut plus emporter en s'arrêtant. Il ne fait qu'envoyer les tâches aux travailleurs.
+  scheduler:
+    <<: *backend
+    mem_limit: 144m
+    memswap_limit: 144m
+    command: celery -A config beat -s /tmp/celerybeat-schedule --loglevel=info
 
   # Migrations (un seul serveur), puis droits du compte de l'application : seul conteneur qui a le
   # compte propriétaire des tables. Il tourne à chaque `up`, avant `django` et `celery`, et s'arrête.
   migrate:
     <<: *backend
     restart: "no"
+    mem_limit: 384m
+    memswap_limit: 384m
     command: sh -c "python manage.py migrate --noinput && python manage.py setup_app_role"
     environment:
       <<: *backend-env
@@ -133,6 +160,21 @@ services:
     image: postgres:16
     restart: unless-stopped
     logging: *logging
+    mem_limit: 256m
+    memswap_limit: 256m
+    # Réglé pour 256 Mo (PERF.5a) : tampons 96 Mo, tri 4 Mo par opération, 40 connexions au plus
+    # (django 2 × 4 fils, travailleurs, migrations) ; `pg_stat_statements` garde les requêtes les
+    # plus lentes (extension créée par `setup_app_role`).
+    command: >
+      postgres
+      -c shared_buffers=96MB
+      -c work_mem=4MB
+      -c maintenance_work_mem=32MB
+      -c effective_cache_size=448MB
+      -c max_connections=40
+      -c shared_preload_libraries=pg_stat_statements
+      -c pg_stat_statements.max=1000
+      -c track_io_timing=on
     environment:
       POSTGRES_DB: mwangaza
       POSTGRES_USER: mwangaza
@@ -149,6 +191,14 @@ services:
     image: redis:7-alpine
     restart: unless-stopped
     logging: *logging
+    mem_limit: 64m
+    memswap_limit: 64m
+    # Plafond de 48 Mo : file des tâches, compteurs de limite de débit et mesures de santé. Jamais
+    # d'éviction d'une clé sans durée de vie : la file des tâches et les dates de sauvegarde ne
+    # disparaissent pas ; seuls les compteurs (qui expirent seuls) peuvent être évincés. Copie sur
+    # disque (RDB) gardée : les dates de sauvegarde survivent à un redémarrage, et à ce volume (quelques
+    # Mo) la copie du processus tient largement dans la marge de 16 Mo.
+    command: redis-server --maxmemory 48mb --maxmemory-policy volatile-lru --save 900 1 --save 300 100
     volumes:
       - redis-data:/data
 

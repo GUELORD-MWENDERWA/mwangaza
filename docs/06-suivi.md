@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (8.5.1b faite le 2026-10-16, PR en attente de fusion ; PERF.1 à PERF.4 à mettre en ligne avec `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | 8.5.1c (Application) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #271 (8.5.1b) ; #282 (8.5.1c) |
-| Branche | `tache/8.5.1b-conduite-parents-bulletin` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-16 (8.5.1b faite) |
+| Tâche en cours | aucune (PERF.5a faite le 2026-10-16, PR en attente de fusion ; PERF.1 à PERF.5a à mettre en ligne avec `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | **PERF.5b** (tableau de santé compréhensible, prioritaire) puis PERF.5c, puis 8.5.1c ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #284 (PERF.5a) ; #282 (8.5.1c) |
+| Branche | `tache/PERF.5a-memoire-taches-de-fond` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-16 (PERF.5a faite) |
 
 ## Avancement
 
@@ -60,6 +60,13 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-16 — Tâche PERF.5a : mémoire et tâches de fond
+
+- Fait : trois tâches PERF.5a/b/c dans `05` (nommées 5 car PERF.2 existait) ; deux files (`celery`, `heavy`), routes et limites de temps sur chaque tâche, planificateur dans son service, services renommés `worker`, `worker-heavy`, `scheduler` ; limites de mémoire + `memswap_limit` dans `docker-compose.yml` (≈ 1,78 Go), Redis 48 Mo, PostgreSQL réglé + `pg_stat_statements`, Gunicorn `gthread` 2 × 2 `--preload`, limites de débit DRF (Redis), `vm.swappiness` et swap déjà dans `preparer.sh`, Caddy 10 Mo déjà posé.
+- Mesuré sur `make prod-local` (note dans `docs/claude/recherches/`) : Argon2 ≈ 100 Mo par connexion tuait Gunicorn → hachage un à la fois ; `make perf` corrigé (bulletins sans notes validées : lettres d'invitation, `--print-phone`). Aucun arrêt mémoire sous 5 utilisateurs.
+- Décisions : Redis `volatile-lru` (et non `noeviction`), 2 × 2 fils (pas 2 × 4), django 576 Mo ; « Impayés » et « Tableau de bord » restent gourmands (à alléger). Tests : files et limites de chaque tâche, débit, hachage.
+- Suite : PERF.5b (tableau de santé compréhensible), puis PERF.5c.
 
 ### 2026-10-16 — Tâche 8.5.1b : conduite, parents et bulletin
 

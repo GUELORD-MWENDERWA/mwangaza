@@ -174,9 +174,10 @@ PHONE_DEFAULT_COUNTRY_CODE = "243"
 # Connexion par téléphone, avec la limitation des tentatives (API et administration Django).
 AUTHENTICATION_BACKENDS = ["apps.accounts.backends.PhoneBackend"]
 
-# Argon2 ; un ancien mot de passe (PBKDF2, avant la 1.3) est converti à la connexion suivante.
+# Argon2, un hachage à la fois par processus (`core/hashers.py`) ;
+# un ancien mot de passe (PBKDF2, avant la 1.3) est converti à la connexion suivante.
 PASSWORD_HASHERS = [
-    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "apps.core.hashers.SerialArgon2PasswordHasher",
     "django.contrib.auth.hashers.PBKDF2PasswordHasher",
 ]
 
@@ -220,6 +221,12 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 50,
+    # Recherche et sorties lourdes (PDF, Excel, exports), par compte (`core/throttling.py`).
+    "DEFAULT_THROTTLE_CLASSES": [
+        "apps.core.throttling.SearchThrottle",
+        "apps.core.throttling.OutputThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {"search": "120/min", "output": "20/min"},
     # Erreurs au format `{code, detail}` (`apps/core/errors.py`).
     "EXCEPTION_HANDLER": "apps.core.errors.api_exception_handler",
 }
@@ -272,13 +279,36 @@ CELERY_BROKER_URL = env("REDIS_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = None
 CELERY_TASK_ALWAYS_EAGER = env_bool("CELERY_TASK_ALWAYS_EAGER", False)
 CELERY_TIMEZONE = TIME_ZONE
-# Les PDF lourds ont leur file et leur travailleur (un à la fois, mémoire plafonnée) : une
-# impression ne retarde jamais les notifications, la synchronisation ni les autres tâches.
-CELERY_TASK_ROUTES = {"apps.core.tasks.render_print_job": {"queue": "print"}}
-# Un travailleur qui plante en route rend sa tâche : la prochaine demande la reprend à zéro.
+# Deux files, deux travailleurs (PERF.5a) : `celery` (rapide : notifications, purges, passage du
+# planificateur) et `heavy` (lourde : PDF, import d'une liste, création et remise à zéro d'un espace
+# de démonstration). Un travail lourd ne retarde jamais une tâche courte. Chaque tâche est routée
+# ici, nommément : un test refuse une tâche sans route ni limites de temps.
+FAST_QUEUE, HEAVY_QUEUE = "celery", "heavy"
+CELERY_TASK_DEFAULT_QUEUE = FAST_QUEUE
+CELERY_TASK_ROUTES = {
+    "apps.core.tasks.render_print_job": {"queue": HEAVY_QUEUE},
+    "apps.students.tasks.run_student_import": {"queue": HEAVY_QUEUE},
+    "apps.schools.tasks.delete_space": {"queue": HEAVY_QUEUE},
+    "apps.schools.tasks.fill_demonstration": {"queue": HEAVY_QUEUE},
+    "apps.notifications.tasks.deliver": {"queue": FAST_QUEUE},
+    "apps.notifications.tasks.alert_console": {"queue": FAST_QUEUE},
+    "apps.notifications.tasks.tick": {"queue": FAST_QUEUE},
+    "apps.notifications.tasks.purge": {"queue": FAST_QUEUE},
+    "apps.core.tasks.purge_print_jobs": {"queue": FAST_QUEUE},
+    "apps.sync.tasks.purge": {"queue": FAST_QUEUE},
+}
+# Filet de sécurité pour une tâche future qui oublierait ses limites (secondes) ; chaque tâche
+# d'aujourd'hui a les siennes, dans son décorateur.
+CELERY_TASK_SOFT_TIME_LIMIT = 120
+CELERY_TASK_TIME_LIMIT = 150
+# Un travailleur à la fois sur un message : jamais de tâches mises de côté pendant qu'une longue
+# tourne (un travailleur plante en route : la prochaine demande reprend à zéro).
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
-# Planificateur (beat, lancé dans le worker : `celery worker -B`). Les heures propres à chaque
-# école (relances, clôture) sont décidées dans le passage, pas ici (`notifications/scheduled.py`).
+# Pas de stockage des résultats (`CELERY_RESULT_BACKEND = None`) : rien à faire expirer dans Redis.
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+# Planificateur (beat), un service à part (`scheduler`) : il ne meurt plus avec un travailleur.
+# Les heures propres à chaque école (relances, clôture) sont décidées dans le passage, pas ici
+# (`notifications/scheduled.py`).
 CELERY_BEAT_SCHEDULE = {
     "notifications-tick": {
         "task": "apps.notifications.tasks.tick",
