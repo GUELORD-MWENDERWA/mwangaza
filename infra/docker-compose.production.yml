@@ -14,8 +14,10 @@ services:
       CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN manque dans serveur.env}
       ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL manque dans serveur.env}
   django:
-    mem_limit: 768m
+    mem_limit: 640m
   celery:
+    mem_limit: 320m
+  celery-print:
     mem_limit: 512m
   migrate:
     mem_limit: 512m

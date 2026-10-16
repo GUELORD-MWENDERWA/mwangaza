@@ -9,7 +9,7 @@
 #                    temps), migrations et droits du compte PostgreSQL de l'application par le
 #                    conteneur `migrate`, avant Django ; tâche de chaque nuit installée
 #   superuser        créer un compte super-admin (questions posées sur le serveur)
-#   logs [SERVICE]   derniers journaux (caddy, django, celery, db, redis)
+#   logs [SERVICE]   derniers journaux (caddy, django, celery, celery-print, db, redis)
 #   backup [ARGS]    sauvegarde.sh sur le serveur : `backup` (sauvegarde du jour, copie hors du
 #                    serveur comprise), `fetch` (rapatrier la dernière copie), `restore` (essai)
 #   ssh              ouvrir une session sur le serveur
