@@ -1,0 +1,102 @@
+# Images de production construites ici, pas sur le serveur de 2 Go (PERF.5c). Lancé par
+# `make deploy` (workflow_dispatch) seulement quand le code contenu dans les images a changé : jamais
+# à chaque PR ni à chaque fusion, pour ménager les 2 000 minutes par mois d'un dépôt privé.
+# Publiées sur GitHub Container Registry, étiquette = empreinte du contenu (`etiquette.sh`).
+name: Images
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit à construire (empreinte complète)
+        required: true
+
+# Une seule construction à la fois, jamais interrompue : un déploiement l'attend.
+concurrency:
+  group: images
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  images:
+    name: Construire et publier les images
+    runs-on: ubuntu-24.04
+    # Construction à froid ≈ 10 à 15 min (Go compile Caddy) ; bloquée, elle échoue vite.
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 1
+      - name: Étiquette
+        id: tag
+        # Extraction superficielle : l'empreinte ne lit que les arbres du commit extrait.
+        run: echo "value=$(bash infra/serveur/etiquette.sh HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Images déjà publiées ?
+        id: exists
+        run: |
+          if docker manifest inspect "$REGISTRY/mwangaza-backend:${{ steps.tag.outputs.value }}" >/dev/null 2>&1 \
+            && docker manifest inspect "$REGISTRY/mwangaza-caddy-production:${{ steps.tag.outputs.value }}" >/dev/null 2>&1; then
+            echo "done=true" >> "$GITHUB_OUTPUT"
+            echo "Images ${{ steps.tag.outputs.value }} déjà publiées : rien à construire."
+          fi
+      # Cache de couches dans le cache d'Actions (10 Go, gratuit), pas dans Packages (500 Mo).
+      - name: Backend (Django, Celery)
+        if: steps.exists.outputs.done != 'true'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: infra/Dockerfile
+          target: backend
+          push: true
+          tags: ${{ env.REGISTRY }}/mwangaza-backend:${{ steps.tag.outputs.value }}
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,scope=backend,mode=max
+          provenance: false
+      - name: Caddy (HTTPS, PWA, fichiers statiques)
+        if: steps.exists.outputs.done != 'true'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: infra/Dockerfile
+          target: caddy-production
+          push: true
+          tags: ${{ env.REGISTRY }}/mwangaza-caddy-production:${{ steps.tag.outputs.value }}
+          cache-from: type=gha,scope=caddy
+          cache-to: type=gha,scope=caddy,mode=max
+          provenance: false
+      - name: Taille des images publiées
+        if: steps.exists.outputs.done != 'true'
+        run: |
+          for image in mwangaza-backend mwangaza-caddy-production; do
+            docker buildx imagetools inspect "$REGISTRY/$image:${{ steps.tag.outputs.value }}" --format '{{json .Manifest}}' \
+              | python3 -c "import json,sys; m=json.load(sys.stdin); print('$image', m.get('size'), 'octets (manifeste)')" || true
+          done
+      # Garder les 3 dernières versions de chaque image (500 Mo de Packages en privé). Le jeton
+      # d'Actions suffit pour les paquets liés au dépôt ; sinon l'étape échoue sans bloquer (voir le
+      # guide d'exploitation) et le nettoyage se fait à la main dans GitHub > Packages.
+      - name: Nettoyage du registre (3 dernières versions)
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for image in mwangaza-backend mwangaza-caddy-production; do
+            gh api --paginate "/users/${{ github.repository_owner }}/packages/container/$image/versions" \
+              --jq 'sort_by(.created_at) | reverse | .[3:] | .[].id' \
+              | while read -r id; do
+                  echo "Suppression de $image version $id"
+                  gh api -X DELETE "/users/${{ github.repository_owner }}/packages/container/$image/versions/$id"
+                done
+          done

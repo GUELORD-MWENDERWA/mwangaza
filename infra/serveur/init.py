@@ -28,6 +28,11 @@ SSH_KEY=~/.ssh/LightsailDefaultKey-eu-west-3.pem
 MWANGAZA_DOMAIN=mwangazaschool.com
 ACME_EMAIL=
 CLOUDFLARE_API_TOKEN=
+# Images de production (PERF.5c) : construites par GitHub Actions, téléchargées par le serveur sur
+# ghcr.io. GHCR_USER : ton compte GitHub ; GHCR_TOKEN : jeton « classic » avec le seul droit
+# read:packages (A-FAIRE.md § 9 quinquies). Il est copié sur le serveur (lecture seule).
+GHCR_USER=
+GHCR_TOKEN=
 # La suite est remplie toute seule.
 CADDY_TLS=unused
 DJANGO_SECRET_KEY={secret}
@@ -55,6 +60,8 @@ REQUIRED = ("SERVEUR", "SSH_KEY", "MWANGAZA_DOMAIN", "ACME_EMAIL", "CLOUDFLARE_A
 # Secrets apparus après la création des premiers `serveur.env`. `POSTGRES_APP_PASSWORD` (S.5) :
 # compte PostgreSQL de l'application, remis à cette valeur à chaque mise en ligne.
 ADDED_LATER = ("POSTGRES_APP_PASSWORD",)
+# Valeurs que l'utilisateur remplit lui-même (PERF.5c) : ajoutées vides à un fichier plus ancien.
+ADDED_EMPTY = ("GHCR_USER", "GHCR_TOKEN")
 
 
 def read_env() -> dict[str, str]:
@@ -86,6 +93,12 @@ def init() -> None:
             text = ENV_FILE.read_text()
             ENV_FILE.write_text(f"{text.rstrip()}\n{key}={secrets.token_urlsafe(24)}\n")
             print(f"{key} ajouté à infra/serveur/serveur.env : mets à jour ta copie en lieu sûr.")
+    for key in ADDED_EMPTY:
+        if key not in values:
+            text = ENV_FILE.read_text()
+            ENV_FILE.write_text(f"{text.rstrip()}\n{key}=\n")
+            values[key] = ""
+            print(f"{key} ajouté (vide) à infra/serveur/serveur.env : A-FAIRE.md § 9 quinquies.")
     missing = [key for key in REQUIRED if not values.get(key)]
     if missing:
         sys.exit(f"Remplis {', '.join(missing)} dans infra/serveur/serveur.env.")

@@ -19,6 +19,7 @@ jobs:
   changes:
     name: Fichiers changés
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     outputs:
       backend: ${{ steps.areas.outputs.backend }}
       frontend: ${{ steps.areas.outputs.frontend }}
@@ -169,9 +170,25 @@ jobs:
         run: |
           (cd backend && uv sync --locked)
           (cd frontend && pnpm install --frozen-lockfile)
+      # Chromium (≈ 150 Mo) gardé entre deux passages tant que la version de Playwright ne change pas :
+      # moins de minutes d'Actions (quota d'un dépôt privé).
+      - name: Version de Playwright
+        id: playwright
+        working-directory: frontend
+        run: echo "version=$(pnpm exec playwright --version | tr -d ' ')" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v6
+        id: chromium
+        with:
+          path: ~/.cache/ms-playwright
+          key: chromium-${{ runner.os }}-${{ steps.playwright.outputs.version }}
       - name: Chromium de Playwright
         working-directory: frontend
-        run: pnpm exec playwright install --with-deps chromium
+        run: |
+          if [ "${{ steps.chromium.outputs.cache-hit }}" = true ]; then
+            pnpm exec playwright install-deps chromium
+          else
+            pnpm exec playwright install --with-deps chromium
+          fi
       - name: Base de données
         run: make migrate
       - name: Parcours

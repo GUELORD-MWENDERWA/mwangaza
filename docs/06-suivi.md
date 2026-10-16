@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (PERF.5a et PERF.5b faites le 2026-10-16, PR en attente de fusion ; à mettre en ligne avec `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | **PERF.5c** (images construites hors du serveur, dépôt privé), puis 8.5.1c ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
-| Branche | `tache/PERF.5b-tableau-de-sante` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-16 (PERF.5b faite) |
+| Tâche en cours | aucune (PERF.5a, PERF.5b et PERF.5c faites le 2026-10-16, PR en attente de fusion ; mise en ligne : `A-FAIRE.md` § 9 quinquies puis `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | **8.5.1c** ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #288 (PERF.5c) ; #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
+| Branche | `tache/PERF.5c-images-hors-serveur` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-16 (PERF.5c faite) |
 
 ## Avancement
 
@@ -60,6 +60,13 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-16 — Tâche PERF.5c : images construites hors du serveur
+
+- Fait : `images.yml` (lancé par `make deploy`) construit backend et caddy-production dans Actions et les publie sur GHCR, étiquette = empreinte du code des images (`etiquette.sh` : documents et scripts du serveur ne reconstruisent rien) ; le serveur `pull`, re-étiquette, `up --no-build`. Jeton `GHCR_TOKEN` en lecture seule, nettoyage à 3 versions, secours `CONSTRUIRE_SUR_SERVEUR=oui`. CI : timeouts partout, `concurrency` sur l'audit, cache de Chromium. Tests et caches hors de l'image.
+- Tests : empreinte stable pour un document, changeante pour `backend/` (`test_etiquette_images.py`). Le workflow et le déploiement ne se testent qu'en vrai : premier `make deploy` après la fusion.
+- Décisions : `docs/03` (Journal) ; tailles et minutes estimées, à relire après la première construction (`docs/claude/recherches/perf-5c-…`).
+- Suite : 8.5.1c ; toi : créer le jeton et remplir `serveur.env` (`A-FAIRE.md` § 9 quinquies).
 
 ### 2026-10-16 — Tâche PERF.5b : tableau de santé compréhensible
 

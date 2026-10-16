@@ -19,3 +19,8 @@ backend/staticfiles
 frontend/e2e
 frontend/test-results
 frontend/playwright-report
+# Tests et caches : inutiles en production, image plus petite (PERF.5c).
+backend/apps/*/tests
+backend/**/conftest.py
+backend/.pytest_cache
+backend/.ruff_cache

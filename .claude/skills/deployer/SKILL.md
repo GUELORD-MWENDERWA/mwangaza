@@ -18,11 +18,11 @@ Tâche 4.6.3. Pas à pas pour l'utilisateur : `A-FAIRE.md` § 9 ter ; commandes 
 
 ## Première fois
 
-`make deploy-init` (crée `serveur.env`, dit quoi remplir), `make deploy-setup` (une fois), `make deploy` (≈ 15 min : images construites sur le serveur), `make deploy-check`, puis `make deploy-superuser`.
+`make deploy-init` (crée `serveur.env`, dit quoi remplir), `make deploy-setup` (une fois), `make deploy` (images construites par GitHub Actions puis téléchargées : ≈ 15 min la première fois, quelques minutes ensuite ; `GHCR_USER` et `GHCR_TOKEN` de `serveur.env` d'abord, `A-FAIRE.md` § 9 quinquies), `make deploy-check`, puis `make deploy-superuser`.
 
 ## Mise à jour
 
-`git switch main && git pull`, puis `make deploy` : code envoyé, images construites pendant que l'ancienne version reste en ligne, migrations puis droits du compte PostgreSQL de l'application par le conteneur `migrate` (S.5 : Django et Celery n'ont que le compte `mwangaza_app`, lignes seulement), tâche de chaque nuit remise dans le crontab du compte (`infra/backup/sauvegarde.sh`). Puis `make deploy-check`.
+`git switch main && git pull`, puis `make deploy` : code envoyé, images publiées par GitHub Actions seulement si le code des images a changé (`gh` connecté ; secours `CONSTRUIRE_SUR_SERVEUR=oui make deploy`) et téléchargées pendant que l'ancienne version reste en ligne, migrations puis droits du compte PostgreSQL de l'application par le conteneur `migrate` (S.5 : Django et Celery n'ont que le compte `mwangaza_app`, lignes seulement), tâche de chaque nuit remise dans le crontab du compte (`infra/backup/sauvegarde.sh`). Puis `make deploy-check`.
 
 ## Panne
 
@@ -38,6 +38,7 @@ Tâche 4.6.3. Pas à pas pour l'utilisateur : `A-FAIRE.md` § 9 ter ; commandes 
 | Page blanche ou 502 | Django pas prêt (réglage) | `make deploy-logs service=django` |
 | Tout injoignable (HTTPS et SSH en délai dépassé), instance « Running » | machine figée : mémoire saturée (construction sans swap) | console Lightsail : *Metrics*, SSH du navigateur ; `free -h`, `swapon --show`, `sudo journalctl -k \| grep -iE 'oom\|killed process'`, `sudo iptables -S INPUT` (règle `--dport 22`) ; navigateur muet : *Reboot* (jamais Stop/Start sans IP statique) ; puis `make deploy-setup` (swap 2 Go, SSH protégé) |
 | Alerte « sauvegarde manquante » (Healthchecks) | clé B2 fausse, bucket plein, `rclone` absent (`make deploy-setup` le pose) | `make deploy-backup` : l'erreur s'affiche ; journal de la nuit : `make deploy-ssh` puis `journalctl -t mwangaza` ; serveur perdu : `make deploy-backup cmd=fetch` |
-| Disque plein | cache de construction (ramené à 2 Go par chaque `make deploy` depuis S.4) | `make deploy-ssh` puis `docker system df` ; tout le cache : `docker builder prune -f` (la construction suivante sera plus longue) |
+| `GHCR_USER et GHCR_TOKEN manquent` / `Construction en échec` | jeton absent ou expiré ; construction d'Actions en échec | `A-FAIRE.md` § 9 quinquies ; `gh run view <n> --log-failed` ; secours `CONSTRUIRE_SUR_SERVEUR=oui make deploy` |
+| Disque plein | anciennes images (supprimées à chaque `make deploy`) ou cache de construction du secours | `make deploy-ssh` puis `docker system df` ; tout le cache : `docker builder prune -f` (la construction suivante sera plus longue) |
 
 Après une mise en ligne ou une panne réglée : `/noter` (journal de `docs/06-suivi.md`) et `A-FAIRE.md` si l'utilisateur a quelque chose à faire.

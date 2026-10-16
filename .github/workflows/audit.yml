@@ -15,6 +15,10 @@ on:
       - frontend/pnpm-lock.yaml
       - .github/workflows/audit.yml
 
+concurrency:
+  group: audit-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
