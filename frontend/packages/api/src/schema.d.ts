@@ -8059,11 +8059,19 @@ export interface components {
             after: unknown;
         };
         PlatformContainer: {
+            /** @description Nom du service (django, worker, db…). */
             name: string;
             used_mb: number;
             limit_mb: number;
             percent: number;
             status: components["schemas"]["HealthStatusEnum"];
+            /** @description Arrêté faute de mémoire (dernier arrêt). */
+            oom_killed: boolean;
+            /**
+             * Format: date-time
+             * @description Dernier démarrage, si redémarré depuis moins de 24 h.
+             */
+            restarted_at: string | null;
         };
         PlatformHealth: {
             containers: components["schemas"]["PlatformContainer"][];

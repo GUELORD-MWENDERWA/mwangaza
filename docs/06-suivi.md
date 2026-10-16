@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (PERF.5a faite le 2026-10-16, PR en attente de fusion ; PERF.1 à PERF.5a à mettre en ligne avec `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | **PERF.5b** (tableau de santé compréhensible, prioritaire) puis PERF.5c, puis 8.5.1c ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #284 (PERF.5a) ; #282 (8.5.1c) |
-| Branche | `tache/PERF.5a-memoire-taches-de-fond` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-16 (PERF.5a faite) |
+| Tâche en cours | aucune (PERF.5a et PERF.5b faites le 2026-10-16, PR en attente de fusion ; à mettre en ligne avec `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | **PERF.5c** (images construites hors du serveur, dépôt privé), puis 8.5.1c ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
+| Branche | `tache/PERF.5b-tableau-de-sante` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-16 (PERF.5b faite) |
 
 ## Avancement
 
@@ -60,6 +60,13 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-16 — Tâche PERF.5b : tableau de santé compréhensible
+
+- Fait : chaque conteneur a un nom français, une phrase de rôle et son nom technique ; couleurs 70 % / 85 % ; arrêt faute de mémoire et redémarrage de moins de 24 h visibles ; « Ce que ça veut dire / Que faire » par indicateur (ouvert si pas vert) ; synchronisation vide expliquée ; `docs/exploitation.md` lié depuis l'écran. Maquette `console/tableau-de-bord` mise à jour.
+- Tests : `_containers` (noms de service, ordre, seuils, redémarrage, OOM) ; Vitest du tableau de bord ; aperçu à 390 et 1440 px sans débordement.
+- Décisions : l'état des conteneurs vient d'un second `docker inspect` dans le cron existant (clé Redis de 15 min, aucune requête de plus au serveur web) ; `OOMKilled` retombe à faux au redémarrage, donc on lit aussi le compteur de redémarrages. Aucune alerte envoyée toute seule (hors périmètre).
+- Suite : PERF.5c, puis 8.5.1c. Après la fusion : `make deploy` (le cron `conteneurs.sh` est reposé).
 
 ### 2026-10-16 — Tâche PERF.5a : mémoire et tâches de fond
 

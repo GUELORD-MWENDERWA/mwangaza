@@ -25,6 +25,10 @@ body{background:var(--surface)}
 .two{display:grid;gap:16px;grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
 .health li{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem}
 .health li:first-child{border-top:0}
+.health li{display:block}.health .row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.health .role{margin:2px 0 0 17px;font-size:.85rem;color:var(--ink-3)}.health .alert{margin:2px 0 0 17px;font-size:.85rem;font-weight:700;color:var(--due)}
+.health details{margin:4px 0 0 17px;font-size:.85rem;color:var(--ink-2)}.health summary{cursor:pointer;font-weight:700;color:var(--brand)}
+.health code{font-size:.8rem;color:var(--ink-3);margin-left:8px}.health .sub{padding:10px 16px;border-top:1px solid var(--line);background:var(--table-head,#F3F6FA)}.health .sub b{font-size:.85rem}.health .sub p{margin:0;font-size:.85rem;color:var(--ink-3)}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
 .dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.due{background:var(--due)}.dot.off{background:var(--ink-3)}
 @media (max-width:820px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:minmax(0,1fr)}.ctop .state,.ctop .me b{display:none}.cmain,.ctop .in{padding-left:16px;padding-right:16px}}
@@ -59,6 +63,19 @@ body{background:var(--surface)}
         <li><span><i class="dot warn"></i>Disque des fichiers</span><span class="muted">18 % libre</span></li>
       </ul></div>
   </div>
+  <div class="card"><div class="hd"><h2>Plateforme</h2></div>
+    <ul class="health" style="list-style:none;margin:0;padding:0">
+      <li><div class="row"><span><i class="dot ok"></i>Dernière sauvegarde</span><span class="muted">hier 02:00</span></div><details><summary>Ce que ça veut dire</summary><p>Dernière sauvegarde faite sur le serveur, chaque nuit. Orange après 30 h, rouge après 54 h.</p><p><b>Que faire si c'est orange ou rouge</b><br>Lancer « make deploy-backup ».</p></details></li>
+      <li><div class="row"><span><i class="dot warn"></i>Impression</span><span class="muted">0 en cours · 2 en attente · attente la plus longue 12 min</span></div><details open><summary>Ce que ça veut dire</summary><p>Impressions en attente ou en cours. Orange si l'une attend plus de 10 minutes.</p><p><b>Que faire si c'est orange ou rouge</b><br>Patienter ; sinon redémarrer « Tâches lourdes ».</p></details></li>
+      <li class="sub"><b>Mémoire des conteneurs</b><p>Orange au-dessus de 70 % de sa mémoire, rouge au-dessus de 85 %.</p></li>
+      <li><div class="row"><span><i class="dot due"></i>Application web<code>django</code></span><span class="muted">752 / 768 Mo (98 %)</span></div><p class="role">Ce que voient les écoles et les parents.</p><p class="alert">Redémarré le 13 oct. 2026, 10:30</p></li>
+      <li><div class="row"><span><i class="dot ok"></i>Tâches lourdes<code>worker-heavy</code></span><span class="muted">120 / 384 Mo (31 %)</span></div><p class="role">Impressions PDF, imports et exports.</p></li>
+      <li><div class="row"><span><i class="dot ok"></i>Base de données<code>db</code></span><span class="muted">150 / 320 Mo (47 %)</span></div><p class="role">Toutes les informations des écoles.</p></li>
+      <li class="sub"><b>Dernière synchronisation des écoles</b><p>Les écoles qui n'ont pas synchronisé depuis le plus longtemps sont en premier : ce sont celles à appeler.</p></li>
+      <li><div class="row"><span>Institut Bahati <span class="small muted">bahati</span></span><span class="muted">jamais synchronisée</span></div></li>
+      <li style="font-size:.85rem"><a href="#"><b>Guide d'exploitation (pas à pas, commandes exactes)</b></a></li>
+    </ul></div>
+  <div class="note"><b>PERF.5b :</b> chaque conteneur a un nom français, une phrase de rôle et son nom technique en petit ; couleurs 70 % / 85 % ; « Ce que ça veut dire / Que faire » repliable, ouvert d'office dès que ce n'est pas vert ; synchronisation vide : « Aucune école n'a encore synchronisé ».</div>
   <div class="note"><b>5.2 :</b> réservée au super-admin, à <code>admin.&lt;domaine&gt;</code>, après mot de passe et code (jamais d'appareil de confiance). Chiffres de toutes les écoles ; montants par devise, jamais additionnés ; paiements annulés exclus ; « aujourd'hui » dans le fuseau de la plateforme. Santé : point vert, orange (disque sous 20 % libre), rouge (panne, disque sous 10 %), gris (sans objet). Entrées du menu ajoutées avec leur tâche (5.2.2, 5.3, 5.4).</div>
 </main>
 </body></html>

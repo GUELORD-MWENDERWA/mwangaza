@@ -21374,6 +21374,7 @@ components:
       properties:
         name:
           type: string
+          description: Nom du service (django, worker, db…).
         used_mb:
           type: integer
         limit_mb:
@@ -21382,12 +21383,22 @@ components:
           type: integer
         status:
           $ref: '#/components/schemas/HealthStatusEnum'
+        oom_killed:
+          type: boolean
+          description: Arrêté faute de mémoire (dernier arrêt).
+        restarted_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Dernier démarrage, si redémarré depuis moins de 24 h.
       required:
       - name
       - used_mb
       - limit_mb
       - percent
       - status
+      - oom_killed
+      - restarted_at
     PlatformHealth:
       type: object
       properties:

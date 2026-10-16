@@ -48,8 +48,24 @@ const DASHBOARD = {
   },
   platform: {
     containers: [
-      { name: "django", used_mb: 752, limit_mb: 768, percent: 98, status: "warning" },
-      { name: "redis", used_mb: 4, limit_mb: 96, percent: 4, status: "ok" },
+      {
+        name: "django",
+        used_mb: 752,
+        limit_mb: 768,
+        percent: 98,
+        status: "error",
+        oom_killed: false,
+        restarted_at: "2026-10-13T08:30:00Z",
+      },
+      {
+        name: "redis",
+        used_mb: 4,
+        limit_mb: 96,
+        percent: 4,
+        status: "ok",
+        oom_killed: false,
+        restarted_at: null,
+      },
     ],
     print: { status: "warning", queued: 2, running: 1, longest_wait_seconds: 720 },
     scheduler: { status: "ok", last_tick_at: "2026-10-13T10:00:00Z", queue_size: 2 },
@@ -78,8 +94,18 @@ describe("console : tableau de bord", () => {
     const redis = screen.getByText("Redis (file des tâches)").closest("li")!;
     expect(within(redis).getByText("en panne")).toBeTruthy();
     expect(screen.getByText("18 % libre")).toBeTruthy();
-    const django = screen.getByText("django").closest("li")!;
+    // Nom clair, rôle en une phrase, nom technique en petit, redémarrage récent.
+    const django = screen.getByText("Application web").closest("li")!;
+    expect(within(django).getByText("django")).toBeTruthy();
     expect(within(django).getByText("752 / 768 Mo (98 %)")).toBeTruthy();
+    expect(within(django).getByText("Ce que voient les écoles et les parents.")).toBeTruthy();
+    expect(within(django).getByText(/Redémarré le/)).toBeTruthy();
+    // « Que faire » déjà ouvert pour ce qui n'est pas vert.
+    expect(
+      within(redis)
+        .getByText(/make deploy-logs service=redis/)
+        .closest("details")!.open,
+    ).toBe(true);
     expect(
       screen.getByText(/1 en cours · 2 en attente · attente la plus longue 12 min/),
     ).toBeTruthy();
@@ -88,7 +114,8 @@ describe("console : tableau de bord", () => {
     const backup = screen.getByText("Dernière sauvegarde").closest("li")!;
     expect(within(backup).getByText("jamais notée")).toBeTruthy();
     // … et l'école qui ne s'est jamais synchronisée aussi.
-    expect(screen.getAllByText("jamais notée")).toHaveLength(2);
+    expect(screen.getAllByText("jamais notée")).toHaveLength(1);
+    expect(screen.getByText("jamais synchronisée")).toBeTruthy();
   });
 
   it("renvoie vers la connexion sans session, puis demande le code", async () => {
