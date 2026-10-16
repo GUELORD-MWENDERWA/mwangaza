@@ -3,6 +3,7 @@
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.phone import PhoneNumberField
@@ -239,3 +240,31 @@ class PrintJob(TenantModel):
 
     def __str__(self) -> str:
         return self.name
+
+
+def kept_path(document: "KeptDocument", filename: str) -> str:
+    return f"kept/{document.school_id}/{document.pk}-{filename}"
+
+
+class KeptDocument(TenantModel):
+    """PDF d'une pièce (un bulletin) gardé pour être servi sans nouveau calcul (PERF.2). `key` est
+    l'empreinte de tout ce qui fait le document (notes, élève, gabarit, réglages de l'école) : si
+    l'un d'eux change, la clé change et l'ancien fichier (même `subject` et `variant`) est effacé
+    à la fabrication du nouveau. Un fichier non relu depuis longtemps est purgé."""
+
+    kind = models.CharField(max_length=24)
+    subject = models.UUIDField()  # l'inscription du bulletin
+    variant = models.CharField(max_length=24, blank=True)
+    key = models.CharField(max_length=64)
+    file = models.FileField(upload_to=kept_path)
+    size = models.PositiveIntegerField(default=0)
+    last_used_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["school", "key"], name="kept_key_unique")]
+        indexes = [
+            models.Index(fields=["school", "kind", "subject", "variant"], name="kept_subject")
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.kind} {self.subject}"

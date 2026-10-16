@@ -121,7 +121,7 @@ def test_a_failed_job_is_shown_then_forgotten_so_the_next_request_starts_again(
     def broken(*args, **kwargs):
         raise RuntimeError("boom")
 
-    monkeypatch.setattr(printing, "build_pdf", broken)
+    monkeypatch.setattr(printing, "build_kept", broken)
     client = api(chief)
     failed = client.get(url(klass), output="pdf")
     assert (

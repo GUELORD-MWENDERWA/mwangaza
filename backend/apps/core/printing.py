@@ -29,6 +29,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
+from apps.core import kept
 from apps.core.models import PrintJob
 from apps.core.tenancy import use_all_schools, use_school
 
@@ -172,11 +173,11 @@ def answer(job: PrintJob) -> HttpResponse:
     )
 
 
-def submit(head: str, bodies: list[str], name: str) -> HttpResponse:
+def submit(head: str, bodies: list, name: str, entries: list[dict] | None = None) -> HttpResponse:
     """Dépose le document (début du HTML avec ses polices, puis le corps de chaque page) et répond
     tout de suite ; refus lisible si l'école ou la plateforme a déjà trop de travaux en attente."""
     key, user_id = _asked.get()  # type: ignore[misc]  # `is_heavy` l'a vérifié
-    if len(bodies) > MAX_PAGES or sum(map(len, bodies)) > MAX_SOURCE:
+    if len(bodies) > MAX_PAGES or sum(len(b or "") for b in bodies) > MAX_SOURCE:
         return _page(
             "busy",
             _("Document too large"),
@@ -195,7 +196,7 @@ def submit(head: str, bodies: list[str], name: str) -> HttpResponse:
     job = PrintJob(key=key, name=name[:120], pages=len(bodies), created_by_id=user_id)
     job.source.save(
         "source.json",
-        ContentFile(json.dumps({"head": head, "bodies": bodies}).encode()),
+        ContentFile(json.dumps({"head": head, "bodies": bodies, "entries": entries}).encode()),
         save=False,
     )
     job.save()
@@ -233,6 +234,34 @@ def build_pdf(head: str, bodies: list[str], on_chunk=None) -> bytes:
     return out.getvalue()
 
 
+def build_kept(
+    head: str, bodies: list, entries: list[dict], found: dict, on_page=None
+) -> list[bytes]:
+    """Le PDF de chaque page, dans l'ordre (PERF.2) : une page déjà gardée (`body` vide) est lue,
+    les autres sont mises en page une à une puis gardées pour la prochaine fois. Une page gardée
+    qui a disparu entre-temps (purge) fait échouer le travail : la demande suivante la refera."""
+    from weasyprint import HTML
+    from weasyprint.urls import URLFetcher
+
+    pdfs = []
+    for index, (body, entry) in enumerate(zip(bodies, entries, strict=True), start=1):
+        if body is None:
+            document = found.get(entry["key"]) or kept.lookup([entry["key"]]).get(entry["key"])
+            if document is None:
+                raise RuntimeError("Kept page missing")
+            pdf = kept.read(document)
+        else:
+            html = head + f'<div class="next">{body}</div></body></html>'
+            pdf = HTML(string=html, url_fetcher=URLFetcher(allowed_protocols=["data"])).write_pdf()
+            kept.store(entry["kind"], entry["subject"], entry["variant"], entry["key"], pdf)
+            del html
+            gc.collect()
+        pdfs.append(pdf)
+        if on_page:
+            on_page(index)
+    return pdfs
+
+
 def run(job_id: str) -> None:
     """Tâche du travailleur d'impression : met le travail en PDF ; tout échec est noté sur le
     travail (la personne le voit), jamais perdu en silence."""
@@ -253,7 +282,11 @@ def run(job_id: str) -> None:
             def progress(done: int) -> None:
                 PrintJob.objects.filter(pk=job.pk).update(pages_done=done)
 
-            pdf = build_pdf(data["head"], data["bodies"], progress)
+            if data.get("entries"):
+                pages = build_kept(data["head"], data["bodies"], data["entries"], {}, progress)
+                pdf = kept.merge(pages)
+            else:
+                pdf = build_pdf(data["head"], data["bodies"], progress)
             job.pdf.save(job.name, ContentFile(pdf), save=False)
             job.status, job.pages_done = PrintJob.Status.DONE, job.pages
         except SoftTimeLimitExceeded:
@@ -271,7 +304,7 @@ def run(job_id: str) -> None:
 
 def purge() -> int:
     """Effacer les travaux et leurs fichiers de plus d'un jour ; retourne leur nombre."""
-    count = 0
+    count = kept.purge()
     with use_all_schools():
         old = list(PrintJob.all_schools.filter(created_at__lt=timezone.now() - KEEP)[:500])
         for job in old:

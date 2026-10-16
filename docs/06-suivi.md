@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (PERF.1 faite le 2026-10-16, à mettre en ligne avec `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | PERF.2 (PDF gardés) puis 8.5.1b (conduite : parents et bulletin) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #274 (PERF.1) ; #271 (8.5.1b) |
-| Branche | `tache/PERF.1-impression-en-fond` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-16 (8.5.1a faite) |
+| Tâche en cours | aucune (PERF.1 et PERF.2 faites le 2026-10-16, à mettre en ligne avec `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | PERF.4 (mesure et surveillance) puis 8.5.1b (conduite : parents et bulletin) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #276 (PERF.2) ; #274 (PERF.1) ; #271 (8.5.1b) |
+| Branche | `tache/PERF.2-pdf-gardes` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-16 (PERF.2 faite) |
 
 ## Avancement
 
@@ -60,6 +60,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-16 — Tâche PERF.2 : PDF gardés
+
+- Fait : un bulletin n'est mis en page qu'une fois. `KeptDocument` (migration `core` 0006) et `apps/core/kept.py` ; `render(..., keep=Keep(...))` calcule l'empreinte du HTML de chaque bulletin (notes, élève, gabarit, réglages, décalages ; sans QR signé ni date), lit les PDF déjà gardés et ne met en page que les manquants (dans la requête si ≤ 3, sinon tâche de fond de PERF.1). Note ou gabarit modifié : nouvelle clé, ancien fichier effacé (un par inscription et par mode) ; purge des fichiers non relus depuis 60 jours (tâche quotidienne existante). Audit inchangé.
+- Tests : `test_kept_documents.py` (réimpression sans mise en page, note changée, classe partielle en tâche de fond, isolation entre écoles, purge) ; `test_printing.py` adapté.
+- Décisions : le PDF gardé garde le QR et la date du premier tirage (même contenu, donc toujours valable) ; écran de bulletin du Portail non fait (n'existe pas), le service est prêt. Suite : PERF.4, puis 8.5.1b.
 
 ### 2026-10-16 — Tâche PERF.1 : impression en tâche de fond et garde-fous
 

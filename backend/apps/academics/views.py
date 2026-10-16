@@ -47,6 +47,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.documents import PRINT_RESPONSE, print_options, render
 from apps.core.errors import ApiError, BusinessError, ErrorSerializer
+from apps.core.kept import Keep
 from apps.schools import organisation
 from apps.schools.models import ClassGroup, Term
 from apps.schools.serializers import term_tree
@@ -452,6 +453,14 @@ class ReportCardView(APIView):
             "dx": params.validated_data["dx"],
             "dy": params.validated_data["dy"],
         }
+        # PERF.2 : chaque bulletin est un PDF gardé ; le QR code signé et la date changent à chaque
+        # tirage, ils ne comptent pas dans l'empreinte (les notes, elles, comptent).
+        keep = Keep(
+            kind="report_card",
+            subjects=[s.enrollment.pk for s in students],
+            variant="grades_only" if extra["grades_only"] else "full",
+            volatile={"qr": "", "day": None, "printed_at": None},
+        )
         contexts = [
             {
                 **report_card_documents.report_card_document(
@@ -470,6 +479,7 @@ class ReportCardView(APIView):
             output,
             f"bulletin-{name}.pdf",
             more=contexts[1:],
+            keep=keep,
         )
 
 
