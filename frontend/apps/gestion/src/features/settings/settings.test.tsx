@@ -32,6 +32,9 @@ const settings = {
     resit_floor_percent: 45,
     resit_failures_to_fail: 2,
     max_resit_courses: 4,
+    orientation_percent: 40,
+    conduct_ma_to_exclude: 2,
+    conduct_me_to_exclude: 3,
   },
 };
 
@@ -118,6 +121,9 @@ describe("Paramètres de l'école (M5)", () => {
         resit_floor_percent: 45,
         resit_failures_to_fail: 2,
         max_resit_courses: 4,
+        orientation_percent: 40,
+        conduct_ma_to_exclude: 2,
+        conduct_me_to_exclude: 3,
       },
     });
     // Le nom de l'école (menu, connexion) est relu.

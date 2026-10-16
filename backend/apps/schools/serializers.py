@@ -149,6 +149,21 @@ class PassRulesSettingsSerializer(serializers.Serializer):
         max_value=60,
         help_text="Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec.",
     )
+    orientation_percent = serializers.IntegerField(
+        min_value=0,
+        max_value=99,
+        help_text="Sous ce pourcentage de l'année, orientation ailleurs ; 0 : jamais.",
+    )
+    conduct_ma_to_exclude = serializers.IntegerField(
+        min_value=0,
+        max_value=12,
+        help_text="Périodes de conduite notées MA qui font proposer le renvoi ; 0 : jamais.",
+    )
+    conduct_me_to_exclude = serializers.IntegerField(
+        min_value=0,
+        max_value=12,
+        help_text="Périodes de conduite notées ME qui font proposer le renvoi ; 0 : jamais.",
+    )
 
 
 class LevelPassRulesSerializer(PassRulesSettingsSerializer):

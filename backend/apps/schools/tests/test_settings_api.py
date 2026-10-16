@@ -85,6 +85,9 @@ def test_head_reads_the_settings(api, school, head):
             "resit_floor_percent": 45,
             "resit_failures_to_fail": 2,
             "max_resit_courses": 4,
+            "orientation_percent": 40,
+            "conduct_ma_to_exclude": 2,
+            "conduct_me_to_exclude": 3,
         },
     }
 

@@ -102,6 +102,11 @@ function useSchema() {
           (value) => /^\d{1,2}$/.test(value) && Number(value) >= 1 && Number(value) <= max,
           t("settings.reminders.invalidDays", { max }),
         );
+    // Nombre de périodes de conduite (0 : règle désactivée).
+    const count = z
+      .string()
+      .trim()
+      .refine((value) => /^\d{1,2}$/.test(value), t("settings.passRules.invalidCount"));
     // Pourcentage entier de 0 à 100 (règles de réussite).
     const percent = z
       .string()
@@ -169,6 +174,9 @@ function useSchema() {
           course_pass_percent: percent,
           resit_mode: z.enum(["band", "any_failed"]),
           resit_floor_percent: percent,
+          orientation_percent: percent,
+          conduct_ma_to_exclude: count,
+          conduct_me_to_exclude: count,
           max_resit_courses: z
             .string()
             .trim()
@@ -202,6 +210,9 @@ function useSchema() {
           resit_floor_percent: Number(rules.resit_floor_percent),
           resit_failures_to_fail: Number(rules.resit_failures_to_fail),
           max_resit_courses: Number(rules.max_resit_courses),
+          orientation_percent: Number(rules.orientation_percent),
+          conduct_ma_to_exclude: Number(rules.conduct_ma_to_exclude),
+          conduct_me_to_exclude: Number(rules.conduct_me_to_exclude),
         },
       }));
   }, [t]);
@@ -272,6 +283,9 @@ function SettingsForm({ settings }: { settings: Settings }) {
         resit_floor_percent: String(settings.pass_rules.resit_floor_percent),
         resit_failures_to_fail: String(settings.pass_rules.resit_failures_to_fail),
         max_resit_courses: String(settings.pass_rules.max_resit_courses),
+        orientation_percent: String(settings.pass_rules.orientation_percent),
+        conduct_ma_to_exclude: String(settings.pass_rules.conduct_ma_to_exclude),
+        conduct_me_to_exclude: String(settings.pass_rules.conduct_me_to_exclude),
       },
     },
   });

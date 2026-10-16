@@ -27,6 +27,9 @@ const FIELDS = [
   "course_pass_percent",
   "resit_floor_percent",
   "max_resit_courses",
+  "orientation_percent",
+  "conduct_ma_to_exclude",
+  "conduct_me_to_exclude",
   "resit_failures_to_fail",
 ] as const;
 type Field_ = (typeof FIELDS)[number];

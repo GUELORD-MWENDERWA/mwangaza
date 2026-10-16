@@ -19,7 +19,10 @@ export function PassRulesCard({ form }: CardProps) {
       | "course_pass_percent"
       | "resit_floor_percent"
       | "resit_failures_to_fail"
-      | "max_resit_courses",
+      | "max_resit_courses"
+      | "orientation_percent"
+      | "conduct_ma_to_exclude"
+      | "conduct_me_to_exclude",
     label: string,
     help?: string,
   ) => (
@@ -80,6 +83,19 @@ export function PassRulesCard({ form }: CardProps) {
           t("settings.passRules.maxCourses"),
           t("settings.passRules.maxCoursesHelp"),
         )}
+        {number(
+          "orientation_percent",
+          t("settings.passRules.orientation"),
+          t("settings.passRules.orientationHelp"),
+        )}
+        <div className="grid gap-4 sm:grid-cols-2">
+          {number(
+            "conduct_ma_to_exclude",
+            t("settings.passRules.conductMa"),
+            t("settings.passRules.conductHelp"),
+          )}
+          {number("conduct_me_to_exclude", t("settings.passRules.conductMe"))}
+        </div>
         {number(
           "resit_failures_to_fail",
           t("settings.passRules.failures"),

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-16 22:34+0200\n"
+"POT-Creation-Date: 2026-10-16 22:48+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -640,19 +640,19 @@ msgstr "Le chef d'établissement"
 msgid "School seal"
 msgstr "Sceau de l'école"
 
-#: apps/academics/resits.py:32
+#: apps/academics/resits.py:35
 msgid "This course does not open a resit exam for this student."
 msgstr "Ce cours n'ouvre pas d'examen de repêchage pour cet élève."
 
-#: apps/academics/resits.py:34
+#: apps/academics/resits.py:37
 msgid "A resit grade is a percentage from 0 to 100."
 msgstr "Une note de repêchage est un pourcentage de 0 à 100."
 
-#: apps/academics/resits_views.py:117
+#: apps/academics/resits_views.py:130
 msgid "You cannot see the resit exams of this class."
 msgstr "Vous ne pouvez pas voir les examens de repêchage de cette classe."
 
-#: apps/academics/resits_views.py:136
+#: apps/academics/resits_views.py:149
 msgid "Only the teacher of the course enters its resit grade."
 msgstr "Seul l'enseignant du cours saisit sa note de repêchage."
 
@@ -5375,7 +5375,7 @@ msgstr "niveau"
 msgid "levels"
 msgstr "niveaux"
 
-#: apps/schools/models.py:523 apps/schools/serializers.py:503
+#: apps/schools/models.py:523 apps/schools/serializers.py:518
 msgid "1 to 10 capital letters or digits."
 msgstr "1 à 10 lettres majuscules ou chiffres."
 
@@ -5416,7 +5416,7 @@ msgstr "L'année scolaire en cours ne peut pas être supprimée."
 msgid "This school year has classes: delete them first."
 msgstr "Cette année scolaire a des classes : supprimez-les d'abord."
 
-#: apps/schools/organisation.py:40 apps/schools/serializers.py:305
+#: apps/schools/organisation.py:40 apps/schools/serializers.py:320
 msgid "The resit floor must be below the course pass mark."
 msgstr ""
 "Le plancher du repêchage doit rester sous la note de réussite d'un cours."
@@ -5517,7 +5517,7 @@ msgstr "Au plus %(count)d lignes d'en-tête."
 msgid "Unknown currency: %(codes)s."
 msgstr "Devise inconnue : %(codes)s."
 
-#: apps/schools/serializers.py:422
+#: apps/schools/serializers.py:437
 msgid "Choose the school year to copy from."
 msgstr "Choisissez l'année scolaire à reprendre."
 

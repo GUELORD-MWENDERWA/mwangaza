@@ -4,8 +4,9 @@ ouvrent un repêchage, et propose l'issue de l'élève. L'enseignant du cours sa
 note de repêchage de chaque cours échoué. Rien n'est stocké que cette note : la proposition suit
 les notes et les règles. La décision prise (admis, doublant…) est celle de la délibération (8.4.2).
 
-Issues proposées : `incomplete` (une note de l'année manque), `passed`, `resit` (notes de
-repêchage attendues), `failed`.
+Issues proposées : `exclude` (conduite : trop de périodes MA ou ME), `unranked` (non classé : aucune
+note), `incomplete` (une note de l'année manque), `orient` (sous le seuil d'orientation), `failed`,
+`resit` (notes de repêchage attendues), `passed`. Tout est réglable par l'école et par niveau.
 """
 
 from dataclasses import dataclass, field
@@ -15,7 +16,7 @@ from uuid import UUID
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 
-from apps.academics import report_cards
+from apps.academics import discipline, report_cards
 from apps.academics.grades import gradable_courses
 from apps.academics.models import Course, ResitGrade
 from apps.accounts.models import User
@@ -23,10 +24,12 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.schools import pass_rules as rules_module
-from apps.schools.models import ClassGroup
+from apps.schools.models import ClassGroup, Term
 from apps.students.models import Enrollment
 
 INCOMPLETE, PASSED, RESIT, FAILED = "incomplete", "passed", "resit", "failed"
+# Sans aucune note : non classé. Sous le seuil d'orientation : orienté ailleurs. Conduite : renvoi.
+UNRANKED, ORIENT, EXCLUDE = "unranked", "orient", "exclude"
 
 NOT_A_RESIT_COURSE = ApiError(
     "not_a_resit_course", _("This course does not open a resit exam for this student."), 400
@@ -57,9 +60,34 @@ class StudentResits:
     failed: list[CourseResit] = field(default_factory=list)
 
 
-def _outcome(rules: dict, percent: Decimal | None, complete: bool, failed: list[CourseResit]):
+def _excluded(rules: dict, conduct: list[str]) -> bool:
+    """Conduite : assez de périodes notées MA, ou ME (0 : règle désactivée)."""
+    for grade, limit in (
+        ("MA", rules["conduct_ma_to_exclude"]),
+        ("ME", rules["conduct_me_to_exclude"]),
+    ):
+        if limit and conduct.count(grade) >= limit:
+            return True
+    return False
+
+
+def _outcome(
+    rules: dict,
+    percent: Decimal | None,
+    complete: bool,
+    failed: list[CourseResit],
+    *,
+    noted: bool,
+    conduct: list[str],
+):
+    if _excluded(rules, conduct):
+        return EXCLUDE
+    if not noted:
+        return UNRANKED
     if percent is None or not complete:
         return INCOMPLETE
+    if percent < rules["orientation_percent"]:
+        return ORIENT
     if percent < rules["pass_percent"] or any(not f.eligible for f in failed):
         return FAILED
     if not failed:
@@ -95,8 +123,13 @@ def class_overview(
             .filter(class_group=report.class_group)
             .values_list("pk", flat=True)
         )
+    terms = [c.term for c in report.columns if c.kind == "leaf" and c.term.kind == Term.Kind.PERIOD]
+    conduct = discipline.grades_of_class([s.enrollment.pk for s in report.students], terms)
     result = []
     for student in report.students:
+        noted = any(
+            cell.score is not None for row in student.cells.values() for cell in row.values()
+        )
         total = student.totals.get(report_cards.YEAR_KEY)
         failed, complete = [], True
         for course in report.courses:
@@ -131,7 +164,14 @@ def class_overview(
             StudentResits(
                 student.enrollment,
                 year_percent,
-                _outcome(rules, year_percent, complete, failed),
+                _outcome(
+                    rules,
+                    year_percent,
+                    complete,
+                    failed,
+                    noted=noted,
+                    conduct=[conduct[(student.enrollment.pk, t.pk)] for t in terms],
+                ),
                 failed,
             )
         )

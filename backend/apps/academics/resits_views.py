@@ -49,7 +49,15 @@ class StudentResitsSerializer(serializers.Serializer):
         max_digits=5, decimal_places=1, allow_null=True, help_text="Pourcentage de l'année."
     )
     outcome = serializers.ChoiceField(
-        choices=[resits.INCOMPLETE, resits.PASSED, resits.RESIT, resits.FAILED],
+        choices=[
+            resits.INCOMPLETE,
+            resits.PASSED,
+            resits.RESIT,
+            resits.FAILED,
+            resits.UNRANKED,
+            resits.ORIENT,
+            resits.EXCLUDE,
+        ],
         help_text="Issue proposée d'après les règles de l'école.",
     )
     courses = ResitCourseSerializer(source="failed", many=True)
@@ -62,6 +70,9 @@ class RulesSerializer(serializers.Serializer):
     resit_floor_percent = serializers.IntegerField()
     resit_failures_to_fail = serializers.IntegerField()
     max_resit_courses = serializers.IntegerField()
+    orientation_percent = serializers.IntegerField()
+    conduct_ma_to_exclude = serializers.IntegerField()
+    conduct_me_to_exclude = serializers.IntegerField()
 
 
 class ClassResitsSerializer(serializers.Serializer):
@@ -96,7 +107,9 @@ def _class_data(group: ClassGroup, request: Request) -> dict:
     return {
         "class_name": group.name,
         "rules": rules,
-        "students": [r for r in rows if r.failed or r.outcome == resits.FAILED],
+        "students": [
+            r for r in rows if r.failed or r.outcome not in (resits.PASSED, resits.INCOMPLETE)
+        ],
     }
 
 

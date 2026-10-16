@@ -6871,6 +6871,12 @@ export interface components {
             resit_failures_to_fail?: number;
             /** @description Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec. */
             max_resit_courses?: number;
+            /** @description Sous ce pourcentage de l'année, orientation ailleurs ; 0 : jamais. */
+            orientation_percent?: number;
+            /** @description Périodes de conduite notées MA qui font proposer le renvoi ; 0 : jamais. */
+            conduct_ma_to_exclude?: number;
+            /** @description Périodes de conduite notées ME qui font proposer le renvoi ; 0 : jamais. */
+            conduct_me_to_exclude?: number;
         };
         LevelReorderRequest: {
             /** @description Tous les niveaux de l'école, dans l'ordre voulu. */
@@ -7172,9 +7178,12 @@ export interface components {
          *     * `passed` - passed
          *     * `resit` - resit
          *     * `failed` - failed
+         *     * `unranked` - unranked
+         *     * `orient` - orient
+         *     * `exclude` - exclude
          * @enum {string}
          */
-        OutcomeEnum: "incomplete" | "passed" | "resit" | "failed";
+        OutcomeEnum: "incomplete" | "passed" | "resit" | "failed" | "unranked" | "orient" | "exclude";
         /**
          * @description * `applied` - applied
          *     * `duplicate` - duplicate
@@ -7693,6 +7702,12 @@ export interface components {
             resit_failures_to_fail: number;
             /** @description Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec. */
             max_resit_courses: number;
+            /** @description Sous ce pourcentage de l'année, orientation ailleurs ; 0 : jamais. */
+            orientation_percent: number;
+            /** @description Périodes de conduite notées MA qui font proposer le renvoi ; 0 : jamais. */
+            conduct_ma_to_exclude: number;
+            /** @description Périodes de conduite notées ME qui font proposer le renvoi ; 0 : jamais. */
+            conduct_me_to_exclude: number;
         };
         /** @description Règles de réussite et de repêchage (`pass_rules.py`, 8.4.1). Écriture partielle. */
         PassRulesSettingsRequest: {
@@ -7713,6 +7728,12 @@ export interface components {
             resit_failures_to_fail: number;
             /** @description Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec. */
             max_resit_courses: number;
+            /** @description Sous ce pourcentage de l'année, orientation ailleurs ; 0 : jamais. */
+            orientation_percent: number;
+            /** @description Périodes de conduite notées MA qui font proposer le renvoi ; 0 : jamais. */
+            conduct_ma_to_exclude: number;
+            /** @description Périodes de conduite notées ME qui font proposer le renvoi ; 0 : jamais. */
+            conduct_me_to_exclude: number;
         };
         /**
          * @description Connexion en cours avec un mot de passe provisoire : `new_password` seul. Compte connecté :
@@ -8786,6 +8807,9 @@ export interface components {
             resit_floor_percent: number;
             resit_failures_to_fail: number;
             max_resit_courses: number;
+            orientation_percent: number;
+            conduct_ma_to_exclude: number;
+            conduct_me_to_exclude: number;
         };
         Scale: {
             scale: components["schemas"]["ScaleRow"][];
@@ -9554,6 +9578,9 @@ export interface components {
              *     * `passed` - passed
              *     * `resit` - resit
              *     * `failed` - failed
+             *     * `unranked` - unranked
+             *     * `orient` - orient
+             *     * `exclude` - exclude
              */
             outcome: components["schemas"]["OutcomeEnum"];
             courses: components["schemas"]["ResitCourse"][];

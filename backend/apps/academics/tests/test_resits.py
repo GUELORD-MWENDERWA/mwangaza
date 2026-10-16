@@ -11,6 +11,7 @@ from apps.academics.tests.test_grades import setup
 from apps.audit.models import AuditLog
 from apps.core.tenancy import use_school
 from apps.schools.models import Term
+from apps.students.models import Enrollment
 from tests.factories import MembershipFactory
 
 pytestmark = pytest.mark.django_db
@@ -186,3 +187,39 @@ def test_a_level_has_its_own_rules_and_a_workshop_course_has_no_resit(
     assert api(physics_teacher).put(resit_url(data), {"percent": "60"}).json()["code"] == (
         "not_a_resit_course"
     )
+
+
+def test_orientation_conduct_and_unranked_students_follow_the_school_rules(api, school, head, data):
+    from apps.academics.models import ConductGrade
+
+    director = api(MembershipFactory(school=school, roles=["study_director"]).user)
+    level_url = f"/api/levels/{data['a'].level_id}/"
+
+    # Sous le seuil d'orientation (réglable, par niveau) : orienté ailleurs.
+    api(head).patch(level_url, {"pass_rules": {"orientation_percent": 75}})
+    assert student(director, data)["outcome"] == "orient"
+    api(head).patch(level_url, {"pass_rules": {}})
+
+    # Conduite : 2 périodes MA font proposer le renvoi, même avec de bonnes notes ; 0 = jamais.
+    with use_school(school):
+        terms = Term.objects.filter(academic_year=data["year"], kind="period").order_by("order")
+        for term in terms[:2]:
+            ConductGrade.objects.create(
+                enrollment_id=data["amani"],
+                term=term,
+                grade="MA",
+                reason="Fraude",
+                overridden_by=head,
+            )
+    rows = director.get(class_url(data)).json()["students"]
+    assert {r["enrollment"]: r["outcome"] for r in rows}[data["amani"]] == "exclude"
+    api(head).patch(SETTINGS, {"pass_rules": {"conduct_ma_to_exclude": 0}})
+    assert data["amani"] not in [
+        r["enrollment"] for r in director.get(class_url(data)).json()["students"]
+    ]
+
+    # Un élève sans aucune note est « non classé » (pas d'échec).
+    with use_school(school):
+        group_b = Enrollment.objects.get(pk=data["b"]).class_group_id
+    other = director.get(f"/api/class-groups/{group_b}/resits/").json()["students"]
+    assert [r["outcome"] for r in other] == ["unranked"]

@@ -19228,6 +19228,24 @@ components:
           minimum: 0
           description: Cours échoués au plus qui peuvent être repêchés ; au-delà,
             l'échec.
+        orientation_percent:
+          type: integer
+          maximum: 99
+          minimum: 0
+          description: 'Sous ce pourcentage de l''année, orientation ailleurs ; 0
+            : jamais.'
+        conduct_ma_to_exclude:
+          type: integer
+          maximum: 12
+          minimum: 0
+          description: 'Périodes de conduite notées MA qui font proposer le renvoi
+            ; 0 : jamais.'
+        conduct_me_to_exclude:
+          type: integer
+          maximum: 12
+          minimum: 0
+          description: 'Périodes de conduite notées ME qui font proposer le renvoi
+            ; 0 : jamais.'
     LevelReorderRequest:
       type: object
       properties:
@@ -19863,12 +19881,18 @@ components:
       - passed
       - resit
       - failed
+      - unranked
+      - orient
+      - exclude
       type: string
       description: |-
         * `incomplete` - incomplete
         * `passed` - passed
         * `resit` - resit
         * `failed` - failed
+        * `unranked` - unranked
+        * `orient` - orient
+        * `exclude` - exclude
     OutcomeStatusEnum:
       enum:
       - applied
@@ -20748,6 +20772,24 @@ components:
           minimum: 0
           description: Cours échoués au plus qui peuvent être repêchés ; au-delà,
             l'échec.
+        orientation_percent:
+          type: integer
+          maximum: 99
+          minimum: 0
+          description: 'Sous ce pourcentage de l''année, orientation ailleurs ; 0
+            : jamais.'
+        conduct_ma_to_exclude:
+          type: integer
+          maximum: 12
+          minimum: 0
+          description: 'Périodes de conduite notées MA qui font proposer le renvoi
+            ; 0 : jamais.'
+        conduct_me_to_exclude:
+          type: integer
+          maximum: 12
+          minimum: 0
+          description: 'Périodes de conduite notées ME qui font proposer le renvoi
+            ; 0 : jamais.'
       required:
       - pass_percent
       - course_pass_percent
@@ -20755,6 +20797,9 @@ components:
       - resit_floor_percent
       - resit_failures_to_fail
       - max_resit_courses
+      - orientation_percent
+      - conduct_ma_to_exclude
+      - conduct_me_to_exclude
     PassRulesSettingsRequest:
       type: object
       description: Règles de réussite et de repêchage (`pass_rules.py`, 8.4.1). Écriture
@@ -20794,9 +20839,30 @@ components:
           minimum: 0
           description: Cours échoués au plus qui peuvent être repêchés ; au-delà,
             l'échec.
+        orientation_percent:
+          type: integer
+          maximum: 99
+          minimum: 0
+          description: 'Sous ce pourcentage de l''année, orientation ailleurs ; 0
+            : jamais.'
+        conduct_ma_to_exclude:
+          type: integer
+          maximum: 12
+          minimum: 0
+          description: 'Périodes de conduite notées MA qui font proposer le renvoi
+            ; 0 : jamais.'
+        conduct_me_to_exclude:
+          type: integer
+          maximum: 12
+          minimum: 0
+          description: 'Périodes de conduite notées ME qui font proposer le renvoi
+            ; 0 : jamais.'
       required:
+      - conduct_ma_to_exclude
+      - conduct_me_to_exclude
       - course_pass_percent
       - max_resit_courses
+      - orientation_percent
       - pass_percent
       - resit_failures_to_fail
       - resit_floor_percent
@@ -23058,6 +23124,12 @@ components:
           type: integer
         max_resit_courses:
           type: integer
+        orientation_percent:
+          type: integer
+        conduct_ma_to_exclude:
+          type: integer
+        conduct_me_to_exclude:
+          type: integer
       required:
       - pass_percent
       - course_pass_percent
@@ -23065,6 +23137,9 @@ components:
       - resit_floor_percent
       - resit_failures_to_fail
       - max_resit_courses
+      - orientation_percent
+      - conduct_ma_to_exclude
+      - conduct_me_to_exclude
     Scale:
       type: object
       properties:
@@ -24770,6 +24845,9 @@ components:
             * `passed` - passed
             * `resit` - resit
             * `failed` - failed
+            * `unranked` - unranked
+            * `orient` - orient
+            * `exclude` - exclude
         courses:
           type: array
           items:

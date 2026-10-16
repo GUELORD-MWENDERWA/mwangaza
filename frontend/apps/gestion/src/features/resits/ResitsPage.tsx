@@ -30,6 +30,9 @@ const TONES: Record<string, "ok" | "warn" | "due" | "gray"> = {
   resit: "warn",
   failed: "due",
   incomplete: "gray",
+  unranked: "gray",
+  orient: "warn",
+  exclude: "due",
 };
 
 type Target = { enrollment: string; course: string };
