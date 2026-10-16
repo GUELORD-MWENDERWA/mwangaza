@@ -3350,8 +3350,86 @@ export const fr = {
         "{{running}} en cours · {{queued}} en attente · attente la plus longue {{wait}} min",
       never: "jamais notée",
       noCopy: "aucune copie notée",
-      syncs: "Dernière synchronisation (écoles les plus silencieuses d'abord)",
-      noSchool: "Aucune école réelle ouverte.",
+      syncs: "Dernière synchronisation des écoles",
+      noSchool:
+        "Aucune école n'a encore synchronisé : aucune école réelle n'est ouverte pour l'instant.",
+      containersHint:
+        "Chaque conteneur est une partie du serveur. Orange au-dessus de 70 % de sa mémoire, rouge au-dessus de 85 %.",
+      services: {
+        django: { label: "Application web", role: "Ce que voient les écoles et les parents." },
+        worker: {
+          label: "Tâches de fond rapides",
+          role: "Notifications et synchronisation des caisses.",
+        },
+        "worker-heavy": { label: "Tâches lourdes", role: "Impressions PDF, imports et exports." },
+        scheduler: { label: "Planificateur", role: "Relances et tâches à heure fixe." },
+        db: { label: "Base de données", role: "Toutes les informations des écoles." },
+        redis: {
+          label: "File d'attente des tâches",
+          role: "Passe les travaux d'une partie à l'autre.",
+        },
+        caddy: {
+          label: "Porte d'entrée sécurisée",
+          role: "HTTPS : reçoit chaque visite et la transmet.",
+        },
+      },
+      oom: "Arrêté faute de mémoire",
+      restarted: "Redémarré le {{at}}",
+      meaning: "Ce que ça veut dire",
+      todo: "Que faire si c'est orange ou rouge",
+      guide: "Guide d'exploitation (pas à pas, commandes exactes)",
+      syncsHint:
+        "Les écoles qui n'ont pas synchronisé depuis le plus longtemps sont en premier : ce sont celles à appeler.",
+      neverSynced: "jamais synchronisée",
+      help: {
+        database: {
+          meaning:
+            "Temps de réponse de la base où sont toutes les données. Quelques millisecondes : normal.",
+          todo: "En panne : lancer « make deploy-check » puis « make deploy-logs service=db ». Ne rien supprimer.",
+        },
+        redis: {
+          meaning:
+            "La file d'attente qui passe les travaux (impression, notifications) aux tâches de fond.",
+          todo: "En panne : « make deploy-logs service=redis ». Les impressions et notifications attendent, les paiements restent enregistrés.",
+        },
+        workers: {
+          meaning: "Nombre de tâches de fond qui répondent. Au moins une : normal.",
+          todo: "Zéro : « make deploy-logs service=worker », puis redémarrer ce service (guide, § Redémarrer).",
+        },
+        disk: {
+          meaning:
+            "Place libre pour les fichiers (logos, photos, pièces jointes). Orange sous 20 %, rouge sous 10 %.",
+          todo: "Libérer de la place : anciennes sauvegardes du serveur, images Docker inutiles (guide, § Disque).",
+        },
+        memory: {
+          meaning: "Mémoire encore utilisable par le serveur. Orange sous 15 %, rouge sous 7 %.",
+          todo: "Regarder quel conteneur est le plus plein ci-dessous ; le redémarrer ; si cela revient chaque jour, prévenir le développeur.",
+        },
+        swap: {
+          meaning:
+            "Mémoire de secours sur le disque, lente. Utilisée à plus de 60 % : le serveur manque de mémoire.",
+          todo: "Même démarche que « Mémoire disponible » ; prévenir le développeur si cela dure.",
+        },
+        backup: {
+          meaning:
+            "Dernière sauvegarde de la base et des fichiers sur le serveur, faite chaque nuit. Orange après 30 h, rouge après 54 h.",
+          todo: "Lancer « make deploy-backup » ; si cela échoue, prévenir le développeur le jour même.",
+        },
+        copy: {
+          meaning:
+            "Copie de cette sauvegarde hors du serveur (stockage objet). « Aucune copie notée » : copie non configurée.",
+          todo: "Rouge : « make deploy-backup » puis « make deploy-logs » ; sans copie hors du serveur, une panne du serveur perdrait tout.",
+        },
+        scheduler: {
+          meaning:
+            "Passe toutes les 15 minutes pour les relances et les clôtures. Rouge si aucun passage depuis 35 minutes.",
+          todo: "Redémarrer le planificateur : « make deploy-logs service=scheduler » puis guide, § Redémarrer.",
+        },
+        print: {
+          meaning: "Impressions en attente ou en cours. Orange si l'une attend plus de 10 minutes.",
+          todo: "Patienter si une grosse impression tourne ; sinon redémarrer « Tâches lourdes ». Souvent : prévoir une machine plus grosse (guide).",
+        },
+      },
     },
     identity: {
       title: "Identité de la plateforme",

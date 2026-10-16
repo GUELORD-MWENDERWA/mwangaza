@@ -36,7 +36,15 @@ QUEUE_KEY = "celery"
 # Mémoire de chaque conteneur (PERF.4) : un conteneur ne voit pas les autres, donc
 # `infra/serveur/conteneurs.sh` (cron, toutes les 5 minutes) note `docker stats` dans Redis.
 CONTAINERS_KEY = "mwangaza:containers"
-CONTAINER_WARNING_PERCENT = 85
+# État (arrêt pour manque de mémoire, redémarrages, dernier démarrage), noté par le même cron.
+CONTAINER_STATE_KEY = "mwangaza:containers:state"
+# Au-dessus de 70 % de sa limite : attention ; au-dessus de 85 % : alerte (Docker l'arrêtera).
+CONTAINER_WARNING_PERCENT = 70
+CONTAINER_ERROR_PERCENT = 85
+# Un redémarrage de moins de 24 heures se voit encore sur l'écran.
+RESTART_VISIBLE = timedelta(hours=24)
+# Ordre d'affichage : du plus visible par les écoles à ce qui les soutient.
+SERVICE_ORDER = ["django", "worker", "worker-heavy", "scheduler", "db", "redis", "caddy"]
 # Impression (PERF.1) : au-delà de 10 minutes d'attente, il faut une machine plus grosse (`03` § 9).
 PRINT_WAIT_WARNING = timedelta(minutes=10)
 UNITS = {"b": 1 / 1024**2, "kib": 1 / 1024, "kb": 1 / 1000, "mib": 1, "mb": 1}
@@ -188,9 +196,35 @@ def _megabytes(text: str) -> float:
     return float(number) * UNITS[unit.lower()]
 
 
-def _containers(raw: str | None) -> list[dict]:
-    """Lignes `nom;utilisé / limite` (`docker stats`) → mémoire en Mo et en %, la plus pleine
-    d'abord. Une ligne illisible est ignorée."""
+def _service(name: str) -> str:
+    """Nom Docker (`mwangaza-worker-heavy-1`) → nom du service (`worker-heavy`)."""
+    return re.sub(r"^mwangaza(?:-dev)?-|-\d+$", "", name.strip().lstrip("/"))
+
+
+def _states(raw: str | None, now: datetime) -> dict[str, dict]:
+    """Lignes `nom;OOMKilled;redémarrages;démarré à` (`docker inspect`) → par service : l'heure
+    du dernier démarrage si le conteneur a redémarré depuis moins de 24 h, et s'il a été arrêté
+    faute de mémoire. (`OOMKilled` retombe à faux au redémarrage : on lit aussi le compteur.)"""
+    states = {}
+    for line in (raw or "").splitlines():
+        try:
+            name, oom, restarts, started = line.split(";")
+            at = datetime.fromisoformat(started[:19]).replace(tzinfo=UTC)
+            restarted = int(restarts) > 0 and now - at < RESTART_VISIBLE
+        except (ValueError, TypeError):
+            continue
+        oom_killed = oom.strip().lower() == "true"
+        states[_service(name)] = {
+            "oom_killed": oom_killed,
+            "restarted_at": at if (restarted or oom_killed) else None,
+        }
+    return states
+
+
+def _containers(raw: str | None, states_raw: str | None = None, now: datetime | None = None):
+    """Lignes `nom;utilisé / limite` (`docker stats`) → mémoire en Mo et en %, dans l'ordre de
+    `SERVICE_ORDER` (les inconnus à la fin), avec l'état de `_states`. Ligne illisible ignorée."""
+    states = _states(states_raw, now or datetime.now(UTC))
     rows = []
     for line in (raw or "").splitlines():
         try:
@@ -198,18 +232,26 @@ def _containers(raw: str | None) -> list[dict]:
             used, limit = (_megabytes(part) for part in usage.split("/"))
         except (ValueError, AttributeError, KeyError):
             continue
+        service = _service(name)
         percent = round(used * 100 / limit) if limit else 0
-        status = "warning" if percent > CONTAINER_WARNING_PERCENT else "ok"
+        state = states.get(service, {"oom_killed": False, "restarted_at": None})
+        status = "ok"
+        if percent > CONTAINER_ERROR_PERCENT or state["oom_killed"]:
+            status = "error"
+        elif percent > CONTAINER_WARNING_PERCENT:
+            status = "warning"
         rows.append(
             {
-                "name": name,
+                "name": service,
                 "used_mb": round(used),
                 "limit_mb": round(limit),
                 "percent": percent,
                 "status": status,
+                **state,
             }
         )
-    return sorted(rows, key=lambda row: -row["percent"])
+    rank = {name: index for index, name in enumerate(SERVICE_ORDER)}
+    return sorted(rows, key=lambda row: (rank.get(row["name"], len(rank)), row["name"]))
 
 
 def print_queue(now: datetime) -> dict:
@@ -235,13 +277,15 @@ def platform(now: datetime | None = None) -> dict:
     """Planificateur (dernier passage, travaux en attente) et sauvegardes (dernière faite, dernière
     copie hors du serveur), lus dans Redis. Redis en panne : `error` partout, la page reste."""
     now = now or datetime.now(UTC)
-    ticked, queue, backup, containers = None, None, dict.fromkeys(BACKUP_KEYS), None
+    ticked, queue, backup = None, None, dict.fromkeys(BACKUP_KEYS)
+    containers = states = None
     try:
         client = _redis()
         try:
             ticked = _stamp(client.get(TICK_KEY))
             queue = client.llen(QUEUE_KEY)
             containers = client.get(CONTAINERS_KEY)
+            states = client.get(CONTAINER_STATE_KEY)
             backup = {name: _stamp(client.get(key)) for name, key in BACKUP_KEYS.items()}
         finally:
             client.close()
@@ -254,7 +298,7 @@ def platform(now: datetime | None = None) -> dict:
     )
     copied = backup["copied_at"]
     return {
-        "containers": _containers(containers),
+        "containers": _containers(containers, states, now),
         "print": print_queue(now),
         "scheduler": {"status": scheduler_status, "last_tick_at": ticked, "queue_size": queue},
         "backup": {

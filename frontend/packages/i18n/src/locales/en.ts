@@ -3329,8 +3329,77 @@ export const en: Messages<typeof fr> = {
       printQueue: "{{running}} running · {{queued}} waiting · longest wait {{wait}} min",
       never: "never recorded",
       noCopy: "no copy recorded",
-      syncs: "Last sync (quietest schools first)",
-      noSchool: "No live school open.",
+      syncs: "Last sync of each school",
+      noSchool: "No school has synced yet: no live school is open for now.",
+      containersHint:
+        "Each container is one part of the server. Orange above 70% of its memory, red above 85%.",
+      services: {
+        django: { label: "Web application", role: "What schools and parents see." },
+        worker: { label: "Quick background tasks", role: "Notifications and cash desk sync." },
+        "worker-heavy": { label: "Heavy tasks", role: "PDF printing, imports and exports." },
+        scheduler: { label: "Scheduler", role: "Reminders and timed tasks." },
+        db: { label: "Database", role: "All the schools' information." },
+        redis: { label: "Task queue", role: "Hands jobs from one part to another." },
+        caddy: {
+          label: "Secure front door",
+          role: "HTTPS: receives every visit and passes it on.",
+        },
+      },
+      oom: "Stopped for lack of memory",
+      restarted: "Restarted on {{at}}",
+      meaning: "What it means",
+      todo: "What to do if it is orange or red",
+      guide: "Operations guide (step by step, exact commands)",
+      syncsHint:
+        "Schools that have not synced for the longest time come first: those are the ones to call.",
+      neverSynced: "never synced",
+      help: {
+        database: {
+          meaning:
+            "Response time of the database holding all the data. A few milliseconds: normal.",
+          todo: 'Down: run "make deploy-check" then "make deploy-logs service=db". Delete nothing.',
+        },
+        redis: {
+          meaning: "The queue that hands jobs (printing, notifications) to the background tasks.",
+          todo: 'Down: "make deploy-logs service=redis". Printing and notifications wait; payments stay recorded.',
+        },
+        workers: {
+          meaning: "Number of background workers answering. At least one: normal.",
+          todo: 'Zero: "make deploy-logs service=worker", then restart that service (guide, Restart).',
+        },
+        disk: {
+          meaning:
+            "Free space for files (logos, photos, attachments). Orange under 20%, red under 10%.",
+          todo: "Free some space: old backups on the server, unused Docker images (guide, Disk).",
+        },
+        memory: {
+          meaning: "Memory the server can still use. Orange under 15%, red under 7%.",
+          todo: "See which container is fullest below; restart it; if it returns daily, tell the developer.",
+        },
+        swap: {
+          meaning: "Slow backup memory on disk. Above 60%: the server lacks memory.",
+          todo: 'Same as "Available memory"; tell the developer if it lasts.',
+        },
+        backup: {
+          meaning:
+            "Last backup of the database and files on the server, made every night. Orange after 30 h, red after 54 h.",
+          todo: 'Run "make deploy-backup"; if it fails, tell the developer the same day.',
+        },
+        copy: {
+          meaning:
+            'Copy of that backup off the server (object storage). "No copy recorded": copy not set up.',
+          todo: 'Red: "make deploy-backup" then "make deploy-logs"; without an off-server copy a server failure would lose everything.',
+        },
+        scheduler: {
+          meaning:
+            "Runs every 15 minutes for reminders and closings. Red if no run for 35 minutes.",
+          todo: 'Restart the scheduler: "make deploy-logs service=scheduler" then guide, Restart.',
+        },
+        print: {
+          meaning: "Prints waiting or running. Orange if one waits more than 10 minutes.",
+          todo: 'Wait if a big print is running; otherwise restart "Heavy tasks". Often: plan a bigger machine (guide).',
+        },
+      },
     },
     identity: {
       title: "Platform identity",

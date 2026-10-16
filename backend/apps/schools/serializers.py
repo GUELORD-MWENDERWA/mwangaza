@@ -610,11 +610,15 @@ class PlatformSyncSerializer(serializers.Serializer):
 
 
 class PlatformContainerSerializer(serializers.Serializer):
-    name = serializers.CharField()
+    name = serializers.CharField(help_text="Nom du service (django, worker, db…).")
     used_mb = serializers.IntegerField()
     limit_mb = serializers.IntegerField()
     percent = serializers.IntegerField()
     status = serializers.ChoiceField(choices=health.STATUSES)
+    oom_killed = serializers.BooleanField(help_text="Arrêté faute de mémoire (dernier arrêt).")
+    restarted_at = serializers.DateTimeField(
+        allow_null=True, help_text="Dernier démarrage, si redémarré depuis moins de 24 h."
+    )
 
 
 class PlatformPrintSerializer(serializers.Serializer):

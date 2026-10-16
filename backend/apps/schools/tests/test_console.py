@@ -148,15 +148,30 @@ def test_health_judges_available_memory_and_swap(monkeypatch, free, swap_used, m
 def test_platform_health_reads_container_memory_and_the_print_queue(school):
     from apps.core.models import PrintJob
 
-    raw = "django;752MiB / 768MiB\ncaddy;20.5MiB / 192MiB\nbroken\nredis;4MiB / 0B"
-    containers = health._containers(raw)
-    assert [(c["name"], c["percent"], c["status"]) for c in containers] == [
-        ("django", 98, "warning"),
-        ("caddy", 11, "ok"),
-        ("redis", 0, "ok"),
-    ]
-
     now = timezone.now()
+    raw = (
+        "mwangaza-redis-1;4MiB / 0B\nmwangaza-django-1;752MiB / 768MiB\nbroken\n"
+        "mwangaza-worker-heavy-1;300MiB / 384MiB\nmwangaza-caddy-1;20.5MiB / 192MiB"
+    )
+    stamp = (now - timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%S.123456789Z")
+    old = (now - timedelta(days=3)).strftime("%Y-%m-%dT%H:%M:%S.0Z")
+    states = (
+        f"/mwangaza-caddy-1;false;1;{stamp}\n/mwangaza-django-1;false;4;{old}\n"
+        f"/mwangaza-redis-1;true;0;{old}"
+    )
+    containers = health._containers(raw, states, now)
+    # Ordre lisible, noms de service, seuils 70 / 85 %, redémarrage de moins de 24 h seulement.
+    assert [(c["name"], c["percent"], c["status"]) for c in containers] == [
+        ("django", 98, "error"),
+        ("worker-heavy", 78, "warning"),
+        ("redis", 0, "error"),
+        ("caddy", 11, "ok"),
+    ]
+    by_name = {c["name"]: c for c in containers}
+    assert by_name["django"]["restarted_at"] is None
+    assert by_name["caddy"]["restarted_at"] is not None
+    assert by_name["redis"]["oom_killed"] is True
+
     with use_school(school):
         job = PrintJob.objects.create(key="k", name="Bulletins")
         PrintJob.objects.filter(pk=job.pk).update(created_at=now - timedelta(minutes=12))
