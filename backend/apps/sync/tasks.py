@@ -5,6 +5,6 @@ from celery import shared_task
 from apps.sync import operations
 
 
-@shared_task(ignore_result=True)
+@shared_task(ignore_result=True, soft_time_limit=300, time_limit=360)
 def purge() -> None:
     operations.purge()

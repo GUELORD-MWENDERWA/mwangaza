@@ -77,7 +77,15 @@ def print_class(base: str, phone: str, password: str) -> tuple[str, float]:
     path = f"/api/class-groups/{biggest['id']}/report-card/?output=pdf"
     start = time.perf_counter()
     while time.perf_counter() - start < PRINT_TIMEOUT:
-        _status, kind, _body = session.request(path)
+        try:
+            _status, kind, _body = session.request(path)
+        except urllib.error.HTTPError as error:
+            if error.code != 409:
+                raise
+            # Notes pas encore validées (données de la démo) : lettres d'invitation de la classe,
+            # un PDF lourd lui aussi (même file de tâches, même travailleur).
+            path = f"/api/families/letters/?class_group={biggest['id']}&output=pdf"
+            continue
         if kind == "application/pdf":
             return biggest.get("name", "?"), time.perf_counter() - start
         time.sleep(2)  # page d'attente : le travail est en cours
@@ -90,13 +98,15 @@ def main() -> None:
     parser.add_argument("--users", type=int, default=5)
     parser.add_argument("--rounds", type=int, default=5)
     parser.add_argument("--phone", default="0000001007")
+    # Les bulletins demandent un droit sur les notes : la directrice des études de la démo.
+    parser.add_argument("--print-phone", default="0000001002")
     parser.add_argument("--password", default="mwangaza-demo")
     parser.add_argument("--out", default=None)
     args = parser.parse_args()
 
     started = time.perf_counter()
     with ThreadPoolExecutor(args.users + 1) as pool:
-        printing = pool.submit(print_class, args.base, args.phone, args.password)
+        printing = pool.submit(print_class, args.base, args.print_phone, args.password)
         runs = list(
             pool.map(
                 lambda _: user_run(args.base, args.phone, args.password, args.rounds),

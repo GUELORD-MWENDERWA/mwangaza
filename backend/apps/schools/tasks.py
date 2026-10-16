@@ -6,13 +6,14 @@ from celery import shared_task
 from apps.schools import deletion, demonstrations
 
 
-@shared_task(ignore_result=True)
+# Limites (secondes, PERF.5a) : une démonstration complète se crée en moins d'une minute.
+@shared_task(ignore_result=True, soft_time_limit=540, time_limit=600)
 def delete_space(school_id: str) -> None:
     """Remise à zéro demandée : l'espace est recréé à l'instant où sa ligne part, puis rempli
     par `fill_demonstration`."""
     deletion.run(school_id, then=demonstrations.recreation(school_id))
 
 
-@shared_task(ignore_result=True)
+@shared_task(ignore_result=True, soft_time_limit=540, time_limit=600)
 def fill_demonstration(school_id: str) -> None:
     demonstrations.fill(school_id)

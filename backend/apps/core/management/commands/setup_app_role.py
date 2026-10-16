@@ -4,6 +4,7 @@ d'aplomb après chaque `migrate` par le compte des migrations (`apps/core/db_rol
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management.base import BaseCommand, CommandError
+from django.db import connection
 
 from apps.core.db_roles import setup_app_role
 
@@ -20,3 +21,10 @@ class Command(BaseCommand):
         except ImproperlyConfigured as error:
             raise CommandError(str(error)) from error
         self.stdout.write(f"Compte PostgreSQL « {role} » : droits de l'application à jour.")
+        # Requêtes les plus lentes (PERF.5a) : extension de PostgreSQL (contrib), chargée au
+        # démarrage par `docker-compose.yml`. Sans elle, le site marche pareil.
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("CREATE EXTENSION IF NOT EXISTS pg_stat_statements")
+        except Exception as error:
+            self.stderr.write(f"pg_stat_statements non activée : {error}")

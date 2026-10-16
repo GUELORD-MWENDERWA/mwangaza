@@ -5,7 +5,7 @@ bloquaient un des travailleurs du site pendant une à trois minutes et montaient
 saturer un serveur de 2 Go. Garde-fous :
 
 - au-delà de `INLINE_MAX_PAGES` pages, la requête ne fait que déposer le document (`submit`) ; un
-  travailleur Celery à part (file `print`, un seul travail à la fois, mémoire et durée plafonnées)
+  travailleur Celery à part (file `heavy`, un seul travail à la fois, mémoire et durée plafonnées)
   le met en PDF par paquets de `CHUNK_PAGES` pages réunis avec pypdf : ≈ 350 Mo au plus (mesuré :
   351 Mo pour 35 bulletins, au lieu de 700 Mo), quelle que soit la taille de la classe ;
 - le navigateur n'a rien de nouveau à faire : la même adresse (`…?output=pdf`) répond une page

@@ -33,7 +33,13 @@ def test_passwords_are_hashed_with_argon2():
     # Les tests hachent vite (MD5) ; les autres réglages hachent avec Argon2 (`03` § 8).
     from config.settings import base
 
-    assert base.PASSWORD_HASHERS[0] == "django.contrib.auth.hashers.Argon2PasswordHasher"
+    # Argon2 de Django, un hachage à la fois par processus (`core/hashers.py`, PERF.5a).
+    assert base.PASSWORD_HASHERS[0] == "apps.core.hashers.SerialArgon2PasswordHasher"
+    from django.contrib.auth.hashers import Argon2PasswordHasher
+
+    from apps.core.hashers import SerialArgon2PasswordHasher
+
+    assert issubclass(SerialArgon2PasswordHasher, Argon2PasswordHasher)
     # Anciens mots de passe (avant la 1.3) : lus, puis convertis à la connexion.
     assert "django.contrib.auth.hashers.PBKDF2PasswordHasher" in base.PASSWORD_HASHERS
 

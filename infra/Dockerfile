@@ -58,11 +58,14 @@ RUN DJANGO_SECRET_KEY=collectstatic-seulement python manage.py collectstatic --n
     && mkdir -p media && chown app media
 USER app
 EXPOSE 8000
-# Garde-fous (PERF.1) : un travailleur est recyclé après ~400 requêtes (il rend sa mémoire), une
-# requête de plus de 60 s est coupée (les PDF lourds sont faits par le travailleur d'impression).
+# Garde-fous (PERF.1, PERF.5a) : 2 processus de 2 fils (`gthread`), Django chargé une fois pour tous
+# (`--preload`, `backend/gunicorn.conf.py`) ; un processus est recyclé après ~400 requêtes (il rend
+# sa mémoire). Les PDF lourds sont faits par le travailleur lourd ; une requête d'un fil n'est plus
+# coupée au bout de 60 s par Gunicorn (le délai ne surveille que la vie du processus) : la base
+# coupe les requêtes SQL de plus de 25 s (`DB_STATEMENT_TIMEOUT_MS`).
 # Les migrations tournent avant, dans le service `migrate` (`docker-compose.yml`) : ce conteneur-ci
 # n'a que le compte PostgreSQL à droits réduits (S.5).
-CMD ["sh", "-c", "exec gunicorn config.wsgi --bind 0.0.0.0:8000 --workers ${GUNICORN_WORKERS:-3} --timeout ${GUNICORN_TIMEOUT:-60} --graceful-timeout 20 --max-requests ${GUNICORN_MAX_REQUESTS:-400} --max-requests-jitter 80 --worker-tmp-dir /dev/shm"]
+CMD ["sh", "-c", "exec gunicorn config.wsgi --bind 0.0.0.0:8000 --preload --worker-class gthread --workers ${GUNICORN_WORKERS:-2} --threads ${GUNICORN_THREADS:-2} --timeout ${GUNICORN_TIMEOUT:-60} --graceful-timeout 20 --max-requests ${GUNICORN_MAX_REQUESTS:-400} --max-requests-jitter 80 --worker-tmp-dir /dev/shm"]
 
 # --- Caddy : HTTPS, PWA et fichiers statiques
 FROM caddy:2-alpine AS caddy

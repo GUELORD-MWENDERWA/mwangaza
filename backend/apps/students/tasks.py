@@ -13,7 +13,7 @@ from apps.students.models import StudentImport
 logger = logging.getLogger(__name__)
 
 
-@shared_task
+@shared_task(soft_time_limit=840, time_limit=900)
 def run_student_import(import_id: str, actor_id: str, request: dict) -> None:
     """Import confirmé par `actor_id`. Le journal garde l'adresse, le navigateur et la session
     support de la requête qui l'a lancé (`imports.confirm`)."""

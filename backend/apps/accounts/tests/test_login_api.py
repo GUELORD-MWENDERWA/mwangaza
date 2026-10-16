@@ -434,7 +434,7 @@ def test_teacher_is_not_asked(api, teacher):
 
 @override_settings(
     PASSWORD_HASHERS=[
-        "django.contrib.auth.hashers.Argon2PasswordHasher",
+        "apps.core.hashers.SerialArgon2PasswordHasher",
         "django.contrib.auth.hashers.PBKDF2PasswordHasher",
     ]
 )
