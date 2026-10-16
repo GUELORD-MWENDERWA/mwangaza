@@ -104,7 +104,11 @@ def rules_of(group: ClassGroup) -> dict:
 
 
 def class_overview(
-    report: report_cards.ClassReport, *, user: User | None = None, permissions=()
+    report: report_cards.ClassReport,
+    *,
+    user: User | None = None,
+    permissions=(),
+    with_conduct: bool = True,
 ) -> list[StudentResits]:
     """Pour chaque élève de la classe : pourcentage de l'année, cours échoués (avec la note de
     repêchage éventuelle) et issue proposée. Une requête pour les notes de repêchage de toute la
@@ -124,7 +128,13 @@ def class_overview(
             .values_list("pk", flat=True)
         )
     terms = [c.term for c in report.columns if c.kind == "leaf" and c.term.kind == Term.Kind.PERIOD]
-    conduct = discipline.grades_of_class([s.enrollment.pk for s in report.students], terms)
+    # La démonstration (`make demo`) n'en a pas besoin et la requête des points de conduite est
+    # lente sur une base toute neuve.
+    conduct = (
+        discipline.grades_of_class([s.enrollment.pk for s in report.students], terms)
+        if with_conduct
+        else {}
+    )
     result = []
     for student in report.students:
         noted = any(
@@ -170,7 +180,7 @@ def class_overview(
                     complete,
                     failed,
                     noted=noted,
-                    conduct=[conduct[(student.enrollment.pk, t.pk)] for t in terms],
+                    conduct=[conduct.get((student.enrollment.pk, t.pk), "") for t in terms],
                 ),
                 failed,
             )

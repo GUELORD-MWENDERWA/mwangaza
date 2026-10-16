@@ -300,7 +300,7 @@ def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
 def _create_demo_resits(group: ClassGroup, draw: random.Random, now) -> None:
     """Repêchage (8.4.1) : un cours échoué sur deux a déjà sa note de repêchage, signée par son
     enseignant ; les autres l'attendent (l'élève est « en repêchage »)."""
-    rows = resits.class_overview(report_cards.class_report(group))
+    rows = resits.class_overview(report_cards.class_report(group), with_conduct=False)
     ResitGrade.objects.bulk_create(
         ResitGrade(
             enrollment=student.enrollment,
