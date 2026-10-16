@@ -1,0 +1,94 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% translate "Grade sheet" %} — {{ class_group.name }}{% endblock %}
+{% block style %}
+td.score, th.score { text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
+th.score small { display: block; font-weight: 400; }
+td.mat { white-space: nowrap; }
+td.blank, th.blank { width: 16mm; }
+tr.stat td { background: #F7F9FC; font-size: .9em; }
+tr.stat td.label { text-align: right; font-weight: 700; }
+.provisional { text-align: center; font-weight: 700; color: #7A2E0E; border: .8pt solid #7A2E0E; padding: .3em; margin-top: 3mm; }
+.signature { margin-top: 12mm; text-align: right; }
+.signature span { display: inline-block; min-width: 60mm; border-top: .6pt solid #101828; padding-top: 1mm; text-align: center; }
+.legend { columns: 3; column-gap: 8mm; margin-top: 4mm; font-size: .85em; }
+.legend div { break-inside: avoid; }
+table.class { table-layout: fixed; }
+table.class td, table.class th { padding: .25em .2em; font-size: .85em; }
+table.class td.name, table.class th.name { padding-left: .4em; white-space: nowrap; }
+{% endblock %}
+{% block content %}
+{% include "core/_document_header.html" with service=_("Studies") %}
+<div class="lh-extra">{% blocktranslate with year=year.name date=printed_at|date:"d/m/Y" %}School year {{ year }} · printed on {{ date }}{% endblocktranslate %}</div>
+
+{% if kind == "class" %}
+<h1>{% blocktranslate with name=class_group.name column=column_label %}TABLE OF THE CLASS — {{ name }} ({{ column }}){% endblocktranslate %}</h1>
+<p class="center small">{% if titular %}{% blocktranslate %}Homeroom teacher: {{ titular }}{% endblocktranslate %} · {% endif %}{% blocktranslate %}Enrolment: <b>{{ size }}</b>{% endblocktranslate %}</p>
+{% else %}
+<h1>{% if kind == "blank" %}{% blocktranslate with course=course.name %}BLANK GRADE SHEET — {{ course }}{% endblocktranslate %}{% else %}{% blocktranslate with course=course.name %}GRADE SHEET — {{ course }}{% endblocktranslate %}{% endif %}</h1>
+<p class="center small">{{ class_group.name }}{% if teacher %} · {% blocktranslate %}Teacher: {{ teacher }}{% endblocktranslate %}{% endif %}</p>
+{% endif %}
+{% if provisional %}<div class="provisional">{% translate "Provisional: some grades are not validated yet." %}</div>{% endif %}
+
+{% if kind == "class" %}
+<table class="class">
+  <colgroup><col style="width:8mm">{% if "matricule" in columns %}<col style="width:26mm">{% endif %}<col style="width:46mm">{% for item in shown %}<col>{% endfor %}<col style="width:12mm"><col style="width:10mm"><col style="width:10mm"></colgroup>
+  <thead><tr>
+    <th class="num">{% translate "No." %}</th>
+    {% if "matricule" in columns %}<th>{% translate "Student number" %}</th>{% endif %}
+    <th class="name">{% translate "Last name, middle name, first name" %}</th>
+    {% for item in shown %}<th class="score">{{ forloop.counter }}<small>/{{ item.maximum }}</small></th>{% endfor %}
+    <th class="score">{% translate "Total" %}<small>/{{ maximum }}</small></th>
+    <th class="score">%</th>
+    <th class="score">{% translate "Place" %}</th>
+  </tr></thead>
+  <tbody>
+  {% for row in rows %}
+  <tr>
+    <td class="num">{{ row.number }}</td>
+    {% if "matricule" in columns %}<td class="mat">{{ row.matricule }}</td>{% endif %}
+    <td class="name"><b>{{ row.surname|upper }}</b> {{ row.first_name }}</td>
+    {% for score in row.scores %}<td class="score">{% if score is not None %}{{ score|floatformat:"-1" }}{% endif %}</td>{% endfor %}
+    <td class="score"><b>{% if row.total.score is not None %}{{ row.total.score|floatformat:"-1" }}{% endif %}</b></td>
+    <td class="score">{% if row.total.percent is not None %}{{ row.total.percent|floatformat:"-1" }}{% endif %}</td>
+    <td class="score">{% if row.total.place %}{{ row.total.place }}{% endif %}</td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="9" class="center muted">{% translate "No active student in this class." %}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+<div class="legend">{% for item in shown %}<div><b>{{ forloop.counter }}</b> {{ item.course.name }}</div>{% endfor %}</div>
+{% else %}
+<table>
+  <thead><tr>
+    <th class="num">{% translate "No." %}</th>
+    {% if "matricule" in columns %}<th>{% translate "Student number" %}</th>{% endif %}
+    <th>{% translate "Last name, middle name, first name" %}</th>
+    {% for column in shown %}<th class="score">{{ column.label }}<small>/{{ column.maximum }}</small></th>{% endfor %}
+    {% for blank in blank_columns %}<th class="blank"></th>{% endfor %}
+  </tr></thead>
+  <tbody>
+  {% for row in rows %}
+  <tr>
+    <td class="num">{{ row.number }}</td>
+    {% if "matricule" in columns %}<td class="mat">{{ row.matricule }}</td>{% endif %}
+    <td><b>{{ row.surname|upper }}</b> {{ row.first_name }}</td>
+    {% for score in row.scores %}<td class="score">{% if score is not None %}{{ score|floatformat:"-1" }}{% endif %}</td>{% endfor %}
+    {% for blank in blank_columns %}<td class="blank"></td>{% endfor %}
+  </tr>
+  {% empty %}
+  <tr><td colspan="9" class="center muted">{% translate "No active student in this class." %}</td></tr>
+  {% endfor %}
+  </tbody>
+  {% if statistics %}
+  <tfoot>
+  <tr class="stat"><td class="label" colspan="{% if "matricule" in columns %}3{% else %}2{% endif %}">{% translate "Average" %}</td>{% for stat in statistics %}<td class="score">{% if stat.average is not None %}{{ stat.average|floatformat:"-1" }}{% endif %}</td>{% endfor %}</tr>
+  <tr class="stat"><td class="label" colspan="{% if "matricule" in columns %}3{% else %}2{% endif %}">{% translate "Highest" %}</td>{% for stat in statistics %}<td class="score">{% if stat.high is not None %}{{ stat.high|floatformat:"-1" }}{% endif %}</td>{% endfor %}</tr>
+  <tr class="stat"><td class="label" colspan="{% if "matricule" in columns %}3{% else %}2{% endif %}">{% translate "Lowest" %}</td>{% for stat in statistics %}<td class="score">{% if stat.low is not None %}{{ stat.low|floatformat:"-1" }}{% endif %}</td>{% endfor %}</tr>
+  <tr class="stat"><td class="label" colspan="{% if "matricule" in columns %}3{% else %}2{% endif %}">{% translate "Below half" %}</td>{% for stat in statistics %}<td class="score">{% if stat.below is not None %}{{ stat.below }}{% endif %}</td>{% endfor %}</tr>
+  </tfoot>
+  {% endif %}
+</table>
+<div class="signature"><span>{% translate "Teacher's signature" %}</span></div>
+{% endif %}
+{% endblock %}

@@ -3,6 +3,7 @@ from decimal import Decimal
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from apps.academics import gradebook
 from apps.academics.courses import CourseInput
 from apps.academics.grades import MAX_EVALUATIONS, EvaluationInput, GradeInput
 from apps.academics.models import (
@@ -14,6 +15,7 @@ from apps.academics.models import (
     Evaluation,
     GradeSheet,
 )
+from apps.core.documents import PrintOptionsSerializer
 from apps.schools.models import AcademicYear, ClassGroup
 from apps.schools.serializers import PersonSerializer, TermSerializer
 from apps.students.models import Enrollment
@@ -157,6 +159,9 @@ class GradingClassSerializer(serializers.Serializer):
     id = serializers.UUIDField()
     name = serializers.CharField(help_text="« 3e Électricité A ».")
     courses = GradingCourseSerializer(many=True, help_text="Cours que le compte peut noter.")
+    is_homeroom = serializers.BooleanField(
+        help_text="Le compte est titulaire de la classe (tableau de la classe, 8.3.6)."
+    )
 
 
 class GradingSerializer(serializers.Serializer):
@@ -359,3 +364,37 @@ class ReportCardStatusSerializer(serializers.Serializer):
 
     missing_count = serializers.IntegerField()
     missing = MissingSheetSerializer(many=True, help_text="Les premières seulement.")
+
+
+class GradeSheetPrintSerializer(PrintOptionsSerializer):
+    """Fiche de cotes (8.3.6) d'une classe : d'un cours, vierge, ou tableau de toute la classe."""
+
+    kind = serializers.ChoiceField(choices=["course", "blank", "class"])
+    course = serializers.PrimaryKeyRelatedField(
+        queryset=Course.objects,
+        required=False,
+        help_text="Cours de la classe (`kind` : `course` ou `blank`).",
+    )
+    column = serializers.CharField(
+        default="year",
+        help_text="`kind=class` : `year`, ou l'identifiant d'une période, d'un examen ou d'un "
+        "semestre de l'année.",
+    )
+    columns = serializers.MultipleChoiceField(
+        choices=gradebook.COLUMNS,
+        required=False,
+        help_text="Colonnes en plus du N° et du nom (paramètre répété) : `matricule`, `totals` "
+        "(totaux des semestres et de l'année, fiche d'un cours).",
+    )
+    blank_columns = serializers.IntegerField(
+        min_value=1,
+        max_value=gradebook.MAX_BLANK_COLUMNS,
+        default=8,
+        help_text="`kind=blank` : colonnes vides à remplir.",
+    )
+    output = serializers.ChoiceField(choices=["pdf", "html"], default="pdf")
+
+    def validate(self, attrs):
+        if attrs["kind"] != "class" and "course" not in attrs:
+            raise serializers.ValidationError({"course": "Required for this kind of sheet."})
+        return attrs

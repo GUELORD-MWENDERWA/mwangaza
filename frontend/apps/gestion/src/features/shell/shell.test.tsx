@@ -89,7 +89,7 @@ describe("coquille et menu (M7)", () => {
       within(menu)
         .getAllByRole("link")
         .map((link) => link.textContent),
-    ).toEqual(["Saisie des notes", "Annonces au personnel", "Calendrier"]);
+    ).toEqual(["Saisie des notes", "Fiches de cotes", "Annonces au personnel", "Calendrier"]);
   });
 
   it("hors ligne : indiqué en haut", async () => {

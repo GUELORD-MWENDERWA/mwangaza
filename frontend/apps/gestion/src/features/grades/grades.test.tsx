@@ -28,6 +28,7 @@ const grading = {
     {
       id: fakeId(20),
       name: "3e Électricité A",
+      is_homeroom: false,
       courses: [{ id: COURSE, name: "Électrotechnique", period_max: 20, has_exam: true }],
     },
   ],
