@@ -68,7 +68,7 @@ def _grid_key(group: ClassGroup) -> str | None:
         return BASIC
     code = group.track.code if group.track else ""
     if code == "ELO":
-        return {"1HT": "electronics_1", "3HT": "electronics_3"}.get(
+        return {"1HT": "electronics_1", "3HT": "electronics_3", "4HT": "electronics_3"}.get(
             group.level.name, "electronics_2"
         )
     return TRACK_GRIDS.get(code)
