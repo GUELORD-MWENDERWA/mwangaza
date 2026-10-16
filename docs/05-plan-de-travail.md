@@ -47,6 +47,7 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 10 | ~~**M.3.1**~~ ✓ Rôles : codes de rôle remplacés par des permissions | P0 | M | 🤖 |
 | 11 | ~~**M.3.2**~~ ✓ Rôles entièrement libres | P0 | M | 🤖 |
 | 12 | ~~**S.5**~~ ✓ Base de données : droits minimaux, paiements non effaçables | P0 | S | 🤖 |
+| 12 bis | **PERF.1 → PERF.4** Impression en tâche de fond, PDF gardés, bulletin plus léger, mesure et surveillance (§ 4 ter) | P0 | M à L | 🤖 |
 | 13 | ~~**L.4** Essai sur de vrais téléphones et imprimantes~~ (fait 2026-10-15) | P0 | S | 👤 |
 | 14 | ~~**L.5**~~ ✓ Guide régénéré, version déclarée prête | P0 | S | 🤖 |
 | 15 | **🚀 Premier espace réel** (`A-FAIRE.md`, « Le jour du lancement ») | — | — | 👤 |
@@ -178,6 +179,15 @@ Demande du 2026-10-13 : « la partie sécurité est à renforcer au maximum ». 
 **Pour toutes les tâches** : la définition de « fini » (§ 8.2) gagne une ligne sécurité (aucune donnée d'une autre école, permission vérifiée côté serveur, entrée de l'utilisateur jamais affichée comme du HTML, envoi de fichier contrôlé, point public limité en nombre d'essais).
 
 ---
+
+## 4 ter. Performance et capacité (bloc PERF) — P0 avant la première école réelle
+
+Mesures du 2026-10-16 : `docs/claude/recherches/perf-impression-capacite-2026-10-16.md` (un bulletin ≈ 1,9 s et 13 Mo ; 35 bulletins ≈ 1 à 3 min et 700 Mo, dans une requête web ; conteneur Django à 98 % de sa mémoire ; une classe de 45 dépasse le délai de 120 s). Estimation : le serveur actuel (2 Go) tient ≈ 10 à 15 écoles en usage courant mais **2 écoles qui impriment ensemble le saturent**. Rien à acheter tant qu'aucune école réelle : d'abord le logiciel.
+
+- [ ] **PERF.1** Impression en tâche de fond *(P0, M)* — tout document lourd (bulletins d'une classe, fiches de cotes, registre des reçus) devient une tâche Celery à part (file `print`, un seul travail à la fois sur le serveur, par paquets de 10 pages réunies sans nouvelle dépendance par `Document.copy`) : l'écran affiche l'avancement puis le lien du PDF ; plus de PDF de classe dans une requête web. Gunicorn : `--max-requests 300 --max-requests-jitter 60` (le travailleur qui garde 593 Mo est recyclé). Test : classe de 45 sans 502, mémoire du conteneur sous 70 %
+- [ ] **PERF.2** PDF gardés *(P0, M)* — un bulletin se produit une fois, est gardé dans le stockage de fichiers (clé = empreinte des notes, de l'élève et du gabarit), servi comme un simple fichier : réimpression et **Portail des parents** sans calcul ; effacé ou refait quand une note ou le gabarit change ; nettoyage des anciens. Isolation entre écoles prouvée par test
+- [ ] **PERF.3** Bulletin plus léger *(P1, S à M)* — profiler la mise en page (le tableau compte pour ≈ 80 %), essayer `table-layout: fixed` et un CSS plus simple ; cible ≤ 1 s par page et ≤ 5 Mo par page ; même contrôle pour les autres documents
+- [ ] **PERF.4** Mesure et surveillance *(P0, S à M)* — `make perf` : temps de l'impression et des écrans lourds sur `make prod-local`, plusieurs utilisateurs à la fois (résultats dans `docs/claude/recherches/`) ; carte « Santé » de la console : mémoire par conteneur, longueur de la file d'impression, plus longue attente, nombre d'écoles et d'élèves ; alerte au-dessus de 85 % de mémoire ou 60 % de swap ; tableau de capacité à jour dans `03` § 9 à chaque version. Règle : toute fonction lourde annonce son coût (secondes de processeur, Mo) dans son plan
 
 ## 5. Améliorations des modules existants
 
@@ -422,7 +432,7 @@ Isolation des écoles (TenantModel + test) · argent en entiers + devise + taux 
 
 ### 8.5 Garde-fous de performance (serveur de 2 cœurs, 2 Go, partagé)
 
-Aucune écriture en base ajoutée à chaque requête · tout ce qui est lourd en tâche de fond, par paquets, une à la fois · rien d'ajouté à la première synchronisation des appareils · pas de nouveau processus sans raison mesurée · temps de réponse mesurés sur le vrai serveur pour tout écran qui parcourt tous les élèves (seuil : 2 s pour 1 200 élèves).
+Aucune écriture en base ajoutée à chaque requête · tout ce qui est lourd en tâche de fond, par paquets, une à la fois · rien d'ajouté à la première synchronisation des appareils · pas de nouveau processus sans raison mesurée · temps de réponse mesurés sur le vrai serveur pour tout écran qui parcourt tous les élèves (seuil : 2 s pour 1 200 élèves) · **aucun PDF de plusieurs pages dans une requête web** (un bulletin ≈ 1,9 s et 13 Mo : bloc PERF, § 4 ter).
 
 ---
 

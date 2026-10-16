@@ -61,6 +61,11 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 
 ## Journal
 
+### 2026-10-16 — Performance : mesures et bloc PERF au plan
+
+- Fait : mesures du serveur et de l'impression (`docs/claude/recherches/perf-impression-capacite-2026-10-16.md`) : Django à 98 % de sa mémoire, un bulletin ≈ 1,9 s et 13 Mo, 35 bulletins ≈ 1 à 3 min dans une requête web ; capacité estimée et seuils pour changer de machine. Tâches PERF.1 à PERF.4 ajoutées au plan (`05` § 4 ter, P0 avant la première école réelle).
+- Suite : à planifier avec 8.5.1b ; rien à acheter pour l'instant.
+
 ### 2026-10-16 — Tâche 8.5.1a : conduite, barème et incidents
 
 - Fait : 8.5.1 découpée (8.5.1a ici, 8.5.1b parents et bulletin). Modèles `DisciplineRule`, `ConductScale`, `DisciplineIncident`, `IncidentCancellation` ; API `/api/discipline/…` (infractions, seuils, classes et élèves à choisir, incidents, annulation) ; droits `discipline.configure` et `discipline.record` ; écrans « Conduite » et « Barème de conduite » (maquettes dessinées) ; `make demo` : liste proposée et incidents.
