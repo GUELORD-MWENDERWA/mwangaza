@@ -22,7 +22,7 @@ from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
 from rest_framework import serializers
 
-from apps.core import printing
+from apps.core import kept, printing
 from apps.core.models import PlatformSettings
 from apps.schools import signatures
 from apps.schools.logos import CONTENT_TYPES as LOGO_TYPES
@@ -165,10 +165,12 @@ def render(
     name: str,
     options: dict | None = None,
     more: list[dict] | None = None,
+    keep: kept.Keep | None = None,
 ) -> HttpResponse:
     """`html` : aperçu dans la page (même origine seulement) ; `pdf` : fichier ouvert dans le
     navigateur, qui l'imprime ou l'enregistre. `options` : `print_options(...)`. `more` : autres
-    contextes du même gabarit (bulletins de toute la classe), chacun sur sa propre page."""
+    contextes du même gabarit (bulletins de toute la classe), chacun sur sa propre page. `keep` :
+    chaque page est un PDF gardé (PERF.2), refait seulement si ses données ont changé."""
     options = options or print_options({})
     shared = {
         "platform": PlatformSettings.load(),
@@ -176,6 +178,8 @@ def render(
         "serif_fonts": serif_fonts(),
         **options,
     }
+    if keep and output == "pdf" and options["per_sheet"] == 1:
+        return _render_kept(template, [context, *(more or [])], shared, name, keep)
     html = render_to_string(template, {**shared, **context})
     bodies: list[str] = []
     if more:
@@ -204,6 +208,33 @@ def render(
 
     content = Document(string=html, url_fetcher=URLFetcher(allowed_protocols=["data"])).write_pdf()
     return file_response(content, PDF, name, inline=True)
+
+
+def _render_kept(
+    template: str, contexts: list[dict], shared: dict, name: str, keep: kept.Keep
+) -> HttpResponse:
+    """PDF de pièces gardées une à une : les pages déjà gardées sont lues, seules les autres sont
+    mises en page (dans la requête si elles sont peu nombreuses, sinon en tâche de fond)."""
+    stable = [
+        render_to_string(template, {**shared, **context, **keep.volatile}) for context in contexts
+    ]
+    keys = [kept.fingerprint(html) for html in stable]
+    found = kept.lookup(keys)
+    start = stable[0].index("<body>") + 6
+    head = stable[0][:start]
+    todo = [i for i, key in enumerate(keys) if key not in found]
+    entries = [
+        {"key": key, "subject": str(subject), "kind": keep.kind, "variant": keep.variant}
+        for key, subject in zip(keys, keep.subjects, strict=True)
+    ]
+    bodies: list[str | None] = [None] * len(keys)
+    for i in todo:
+        page = render_to_string(template, {**shared, **contexts[i]})
+        bodies[i] = page[page.index("<body>") + 6 : page.rindex("</body>")]
+    if printing.is_heavy(len(todo), sum(len(bodies[i]) for i in todo)):
+        return printing.submit(head, bodies, name, entries)
+    pdfs = printing.build_kept(head, bodies, entries, found)
+    return file_response(kept.merge(pdfs), PDF, name, inline=True)
 
 
 def workbook(
