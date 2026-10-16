@@ -110,7 +110,7 @@ Le jeton expire dans un an : le refaire alors (même chemin) et relancer l'étap
 
 **Le jour où le dépôt repasse en privé** :
 1. Dépôt → *Settings* → *General* → tout en bas, *Danger Zone* → *Change repository visibility* → *Make private*.
-2. Les images sont déjà privées et le serveur a déjà son jeton : rien à changer côté serveur. Vérifier : *Packages* de ton profil → chaque image doit afficher « Private ».
+2. **Rendre les deux images privées** (elles sont publiques tant que le dépôt l'est, et ne deviennent pas privées toutes seules) : GitHub → ton profil → *Packages* → `mwangaza-backend` → *Package settings* → *Danger Zone* → *Change visibility* → *Private* ; pareil pour `mwangaza-caddy-production`. Le serveur a déjà son jeton : rien à changer côté serveur. Tant qu'elles sont publiques, elles ne comptent pas dans les 500 Mo ; privées, elles comptent.
 3. `make deploy-check`, puis un `make deploy` quelconque : il doit finir sans erreur.
 4. Le plan gratuit d'un dépôt privé : 2 000 minutes d'Actions et 500 Mo de Packages par mois. Où regarder : *Settings* (ton compte) → *Billing and plans* → *Usage* (minutes d'Actions, stockage des paquets). Estimation : ≈ 300 minutes par mois (`docs/claude/recherches/perf-5c-…`). Une alerte à 75 % se règle dans *Billing* → *Budgets and alerts*.
 5. **Quota épuisé** : en secours, `CONSTRUIRE_SUR_SERVEUR=oui make deploy` construit sur le serveur (lent, 15 minutes, serveur chargé : à faire de nuit).

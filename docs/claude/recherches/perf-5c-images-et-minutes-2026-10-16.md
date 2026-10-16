@@ -11,6 +11,11 @@ Sources : `docker images` local, `.github/workflows/*.yml`, durées observées d
 - Réduction faite : tests et caches Python exclus de l'image (`.dockerignore`). Si le quota se rapproche : garder 2 versions
   (`.[3:]` → `.[2:]` dans `images.yml`).
 
+## Mesure réelle (première construction, 2026-10-16)
+Construction à froid : 7 min 23 s. Taille compressée dans le registre : backend 135,5 Mo (11 couches), caddy-production 45,8 Mo (12 couches),
+soit ≈ 181 Mo pour une version complète. Trois versions : au pire 540 Mo sans partage, nettement moins en pratique (couches de base
+communes) ; à relire quand 3 versions existeront. Les paquets sont **publics** tant que le dépôt l'est (à rendre privés au passage en privé).
+
 ## Minutes d'Actions par mois en privé (plafond 2 000)
 | Poste | Minutes | Fréquence | Total |
 |---|---|---|---|
