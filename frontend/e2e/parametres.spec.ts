@@ -33,14 +33,14 @@ test("directeur des études : organisation scolaire, classe ajoutée puis retir�
   await expect(classes.getByText("23 classes")).toBeVisible();
   await classes.getByRole("button", { name: "Ajouter une classe" }).click();
   let dialog = page.getByRole("dialog");
-  await dialog.getByLabel("Niveau").selectOption({ label: "4e" });
+  await dialog.getByLabel("Niveau").selectOption({ label: "4HT" });
   await dialog.getByLabel("Option").selectOption({ label: "Électricité" });
   await dialog.getByLabel("Section").fill("b");
   await dialog.getByLabel("Capacité").fill("40");
   await dialog.getByRole("button", { name: "Ajouter" }).click();
   await expect(classes.getByText("24 classes")).toBeVisible();
 
-  await classes.getByRole("button", { name: "Ouvrir la classe 4e Électricité B" }).click();
+  await classes.getByRole("button", { name: "Ouvrir la classe 4HT ÉLECTRICITÉ B" }).click();
   dialog = page.getByRole("dialog");
   await dialog.getByRole("button", { name: "Supprimer la classe" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Supprimer" }).click();
@@ -134,7 +134,7 @@ test("isolation : Volcans ne voit que ses classes", async ({ page }) => {
   await page.getByRole("tab", { name: "Classes" }).click();
   await expect(page.getByText("4 classes")).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Ouvrir la classe 1re Scientifique A" }),
+    page.getByRole("button", { name: "Ouvrir la classe 1RE SCIENTIFIQUE A" }),
   ).toBeVisible();
   await expect(page.getByText("Électricité")).toHaveCount(0);
   await page.getByRole("tab", { name: "Matricule" }).click();

@@ -199,7 +199,7 @@ test("école neuve de bout en bout : espace créé dans la console, mise en rout
     await head.getByRole("link", { name: "Nouvel élève" }).click();
     // L'année chargée d'abord : le formulaire est alors complet.
     await expect(head.getByRole("heading", { name: `Scolarité ${YEAR}` })).toBeVisible();
-    await head.getByLabel(/^Classe/).selectOption({ label: "7e EB A" });
+    await head.getByLabel(/^Classe/).selectOption({ label: "7E EB A" });
     await head.getByLabel(/^Nom/).fill("Mugisho");
     await head.getByLabel(/^Post-nom/).fill("Bahati");
     await head.getByLabel(/^Prénom/).fill("Daniel");
@@ -210,7 +210,7 @@ test("école neuve de bout en bout : espace créé dans la console, mise en rout
     await head.getByLabel(/^Lien/).selectOption("mère");
     await head.getByLabel(/^Téléphone/).fill(GUARDIAN);
     await head.getByRole("button", { name: "Enregistrer et inscrire" }).click();
-    const enrolled = head.getByText(/est inscrit en 7e EB A/);
+    const enrolled = head.getByText(/est inscrit en 7E EB A/);
     await expect(enrolled).toBeVisible();
     const familyCode = /code famille ([A-Z0-9]{8})/.exec(await enrolled.innerText())![1]!;
 
