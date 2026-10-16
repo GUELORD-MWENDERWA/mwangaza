@@ -8,7 +8,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (PERF.1 à PERF.4 faites le 2026-10-16, à mettre en ligne avec `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Tâche en cours | **8.5.1b** (conduite : parents et bulletin), branche `tache/8.5.1b-conduite-parents-bulletin`, issue #271, 2026-10-16 ; PERF.1 à PERF.4 faites, à mettre en ligne avec `make deploy` ; vrai serveur : https://admin.mwangazaschool.com/ |
 | Prochaine tâche | 8.5.1b (conduite : parents et bulletin) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
 | Issue GitHub | #280 (PERF.3) ; #278 (PERF.4) ; #276 (PERF.2) ; #274 (PERF.1) ; #271 (8.5.1b) |
 | Branche | `tache/PERF.3-bulletin-leger` ; dossier local : `~/Projets/mwangaza` |
