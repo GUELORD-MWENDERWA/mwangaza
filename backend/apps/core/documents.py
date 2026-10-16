@@ -22,6 +22,7 @@ from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
 from rest_framework import serializers
 
+from apps.core import printing
 from apps.core.models import PlatformSettings
 from apps.schools import signatures
 from apps.schools.logos import CONTENT_TYPES as LOGO_TYPES
@@ -176,11 +177,18 @@ def render(
         **options,
     }
     html = render_to_string(template, {**shared, **context})
+    bodies: list[str] = []
     if more:
-        bodies = []
         for extra in more:
             page = render_to_string(template, {**shared, **extra})
             bodies.append(page[page.index("<body>") + 6 : page.rindex("</body>")])
+    if output == "pdf" and options["per_sheet"] == 1:
+        start = html.index("<body>") + 6
+        pages = [html[start : html.rindex("</body>")], *bodies]
+        # Document lourd : jamais dans la requête web, un travailleur à part le fait (PERF.1).
+        if printing.is_heavy(len(pages), sum(map(len, pages))):
+            return printing.submit(html[:start], pages, name)
+    if bodies:
         end = html.rindex("</body>")
         html = (
             html[:end] + "".join(f'<div class="next">{body}</div>' for body in bodies) + html[end:]

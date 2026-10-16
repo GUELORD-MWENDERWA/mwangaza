@@ -84,6 +84,11 @@ services:
 
   django:
     <<: *backend
+    environment:
+      <<: *backend-env
+      # Garde-fou (PERF.1) : une requête de la base de plus de 25 s est coupée, jamais de
+      # transaction ouverte sans rien faire plus de 30 s : le site ne reste pas bloqué dessus.
+      DB_STATEMENT_TIMEOUT_MS: "25000"
     healthcheck:
       # Sonde de l'API (base comprise), comme si la requête venait de Caddy en HTTPS.
       test:
@@ -98,7 +103,15 @@ services:
 
   celery:
     <<: *backend
-    command: celery -A config worker -B -s /tmp/celerybeat-schedule --loglevel=info --concurrency=2
+    # Tâches courantes (notifications, synchronisation, import, démonstrations) : file `celery`,
+    # le travailleur qui dépasse 300 Mo est recyclé après sa tâche. Le planificateur (`-B`) est ici.
+    command: celery -A config worker -B -s /tmp/celerybeat-schedule -Q celery --loglevel=info --concurrency=2 --max-memory-per-child=300000
+
+  # Impression des PDF lourds (PERF.1) : file `print` à part, UN seul travail à la fois, mémoire
+  # plafonnée, travailleur renouvelé tous les 5 travaux : aucune impression ne ralentit le site.
+  celery-print:
+    <<: *backend
+    command: celery -A config worker -Q print -n print@%h --loglevel=info --concurrency=1 --max-tasks-per-child=5 --max-memory-per-child=450000
 
   # Migrations (un seul serveur), puis droits du compte de l'application : seul conteneur qui a le
   # compte propriétaire des tables. Il tourne à chaque `up`, avant `django` et `celery`, et s'arrête.

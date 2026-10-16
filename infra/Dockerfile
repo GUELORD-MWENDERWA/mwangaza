@@ -58,9 +58,11 @@ RUN DJANGO_SECRET_KEY=collectstatic-seulement python manage.py collectstatic --n
     && mkdir -p media && chown app media
 USER app
 EXPOSE 8000
+# Garde-fous (PERF.1) : un travailleur est recyclé après ~400 requêtes (il rend sa mémoire), une
+# requête de plus de 60 s est coupée (les PDF lourds sont faits par le travailleur d'impression).
 # Les migrations tournent avant, dans le service `migrate` (`docker-compose.yml`) : ce conteneur-ci
 # n'a que le compte PostgreSQL à droits réduits (S.5).
-CMD ["sh", "-c", "exec gunicorn config.wsgi --bind 0.0.0.0:8000 --workers ${GUNICORN_WORKERS:-3} --timeout 120"]
+CMD ["sh", "-c", "exec gunicorn config.wsgi --bind 0.0.0.0:8000 --workers ${GUNICORN_WORKERS:-3} --timeout ${GUNICORN_TIMEOUT:-60} --graceful-timeout 20 --max-requests ${GUNICORN_MAX_REQUESTS:-400} --max-requests-jitter 80 --worker-tmp-dir /dev/shm"]
 
 # --- Caddy : HTTPS, PWA et fichiers statiques
 FROM caddy:2-alpine AS caddy

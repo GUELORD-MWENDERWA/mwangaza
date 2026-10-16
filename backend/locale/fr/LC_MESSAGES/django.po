@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-16 03:55+0200\n"
+"POT-Creation-Date: 2026-10-16 10:36+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -2309,6 +2309,27 @@ msgstr "mentions légales"
 msgid "platform identity"
 msgstr "identité de la plateforme"
 
+#: apps/core/models.py:219
+msgid "Queued"
+msgstr "En attente"
+
+#: apps/core/models.py:220
+msgid "Running"
+msgstr "En cours"
+
+#: apps/core/models.py:221
+msgid "Done"
+msgstr "Terminé"
+
+#: apps/core/models.py:222 apps/schools/models.py:325
+#: apps/students/models.py:227
+msgid "Failed"
+msgstr "Échec"
+
+#: apps/core/models.py:227 apps/students/models.py:233
+msgid "file name"
+msgstr "nom du fichier"
+
 #: apps/core/money.py:17
 msgid "US dollar"
 msgstr "Dollar américain"
@@ -2341,6 +2362,48 @@ msgstr ""
 msgid "This colour is too dark: it is not readable on the dark menu."
 msgstr ""
 "Cette couleur est trop sombre : elle n'est pas lisible sur le menu sombre."
+
+#: apps/core/printing.py:131
+msgid "The document could not be prepared."
+msgstr "Le document n'a pas pu être préparé."
+
+#: apps/core/printing.py:135
+msgid "The document could not be prepared"
+msgstr "Le document n'a pas pu être préparé"
+
+#: apps/core/printing.py:136
+msgid "Reload this page to try again."
+msgstr "Rechargez cette page pour réessayer."
+
+#: apps/core/printing.py:154 apps/core/printing.py:262
+msgid "The document took too long to prepare."
+msgstr "Le document a pris trop de temps à préparer."
+
+#: apps/core/printing.py:164
+msgid "Your document is being prepared"
+msgstr "Votre document se prépare"
+
+#: apps/core/printing.py:165
+#, python-format
+msgid "%(name)s will open as soon as it is ready."
+msgstr "%(name)s s'ouvrira dès qu'il sera prêt."
+
+#: apps/core/printing.py:182
+msgid "Document too large"
+msgstr "Document trop volumineux"
+
+#: apps/core/printing.py:183
+msgid "Print this class in smaller parts (a few students at a time)."
+msgstr ""
+"Imprimez cette classe en plusieurs parties (quelques élèves à la fois)."
+
+#: apps/core/printing.py:191
+msgid "Too many documents in preparation"
+msgstr "Trop de documents en préparation"
+
+#: apps/core/printing.py:192
+msgid "Wait for the documents already requested to finish, then try again."
+msgstr "Attendez la fin des documents déjà demandés, puis réessayez."
 
 #: apps/core/site.py:59
 #, python-format
@@ -2637,6 +2700,22 @@ msgstr "République Démocratique du Congo"
 #: apps/core/templates/core/print_base.html:13
 msgid "page"
 msgstr "page"
+
+#: apps/core/templates/core/print_wait.html:17
+#, python-format
+msgid "%(done)s of %(total)s pages ready."
+msgstr "%(done)s pages sur %(total)s sont prêtes."
+
+#: apps/core/templates/core/print_wait.html:17
+#, python-format
+msgid "%(n)s document before yours."
+msgid_plural "%(n)s documents before yours."
+msgstr[0] "%(n)s document avant le vôtre."
+msgstr[1] "%(n)s documents avant le vôtre."
+
+#: apps/core/templates/core/print_wait.html:18
+msgid "You can leave this tab open: the document opens here by itself."
+msgstr "Laissez cet onglet ouvert : le document s'y ouvre tout seul."
 
 #: apps/core/templates/core/site/home.html:167
 msgid "Skip to content"
@@ -5044,10 +5123,6 @@ msgstr "Remplissage en cours"
 msgid "Ready"
 msgstr "Prêt"
 
-#: apps/schools/models.py:325 apps/students/models.py:227
-msgid "Failed"
-msgstr "Échec"
-
 #: apps/schools/models.py:330
 msgid "profile"
 msgstr "profil"
@@ -5861,10 +5936,6 @@ msgstr "Import en cours"
 #: apps/students/models.py:226
 msgid "Imported"
 msgstr "Importé"
-
-#: apps/students/models.py:233
-msgid "file name"
-msgstr "nom du fichier"
 
 #: apps/students/models.py:234
 msgid "sheet"

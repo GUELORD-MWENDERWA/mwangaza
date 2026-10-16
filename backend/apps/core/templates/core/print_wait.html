@@ -1,0 +1,19 @@
+{% load i18n %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'fr' }}"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% if refresh %}<meta http-equiv="refresh" content="{{ refresh }}">{% endif %}
+<title>{{ title }}</title>
+<style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#F4F7FB;color:#0B1F3A;font-family:system-ui,sans-serif}
+main{max-width:460px;margin:16px;padding:28px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(11,31,58,.12)}
+h1{font-size:1.25rem;margin:0 0 8px}p{margin:8px 0;color:#41536B;line-height:1.5}
+.bar{height:8px;border-radius:6px;background:#E3EAF3;overflow:hidden;margin:16px 0}
+.bar i{display:block;height:100%;background:#1A6FB5;width:{{ percent }}%}
+.err{color:#B3261E}
+</style></head><body><main>
+<h1{% if state == "failed" or state == "busy" %} class="err"{% endif %}>{{ title }}</h1>
+<p>{{ message }}</p>
+{% if state == "waiting" %}<div class="bar" role="progressbar" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+<p>{% blocktranslate with done=done total=pages %}{{ done }} of {{ total }} pages ready.{% endblocktranslate %}{% if ahead %} {% blocktranslate count n=ahead %}{{ n }} document before yours.{% plural %}{{ n }} documents before yours.{% endblocktranslate %}{% endif %}</p>
+<p>{% translate "You can leave this tab open: the document opens here by itself." %}</p>{% endif %}
+</main></body></html>

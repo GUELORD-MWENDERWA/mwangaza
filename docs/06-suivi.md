@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (8.5.1a faite le 2026-10-16) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | 8.5.1b (conduite : parents et bulletin) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #270 (8.5.1a) ; #271 (8.5.1b) |
-| Branche | `tache/8.5.1a-conduite-bareme-incidents` ; dossier local : `~/Projets/mwangaza` |
+| Tâche en cours | aucune (PERF.1 faite le 2026-10-16, à mettre en ligne avec `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | PERF.2 (PDF gardés) puis 8.5.1b (conduite : parents et bulletin) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #274 (PERF.1) ; #271 (8.5.1b) |
+| Branche | `tache/PERF.1-impression-en-fond` ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-16 (8.5.1a faite) |
 
 ## Avancement
@@ -60,6 +60,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-16 — Tâche PERF.1 : impression en tâche de fond et garde-fous
+
+- Fait : tout PDF de plus de 3 pages (bulletins d'une classe…) est fait par le travailleur `celery-print`, par paquets de 8 pages réunis avec pypdf (nouvelle dépendance, validée) ; la même adresse montre une page d'attente qui se recharge seule, puis le PDF ; recharger ne relance rien ; limites par école (3) et totale (20). Garde-fous : gunicorn recyclé et délai 60 s, base coupée à 25 s, mémoire des conteneurs revue, travailleurs plafonnés.
+- Mesures : 35 bulletins, 351 Mo au lieu de 700, 68 s hors du site ; test local, serveur à confirmer après `make deploy`.
+- Tests : classe en tâche de fond, rechargement, travail propre à chaque personne, limite par école, échec repris, paquets sans page perdue, purge. Suite : PERF.2 (PDF gardés), PERF.4 (mesure).
 
 ### 2026-10-16 — Performance : mesures et bloc PERF au plan
 

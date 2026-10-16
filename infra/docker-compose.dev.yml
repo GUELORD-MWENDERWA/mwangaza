@@ -58,7 +58,7 @@ services:
 
   celery:
     <<: *backend
-    command: celery -A config worker -B -s /tmp/celerybeat-schedule --loglevel=info
+    command: celery -A config worker -B -s /tmp/celerybeat-schedule -Q celery,print --loglevel=info
 
   frontend:
     image: node:22-slim

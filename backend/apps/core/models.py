@@ -203,3 +203,39 @@ class PlatformSettings(models.Model):
     def load(cls) -> "PlatformSettings":
         """La ligne de la plateforme, créée avec les valeurs de départ si elle manque."""
         return cls.objects.get_or_create(pk=1)[0]
+
+
+def print_path(job: "PrintJob", filename: str) -> str:
+    return f"print/{job.school_id}/{job.pk}-{filename}"
+
+
+class PrintJob(TenantModel):
+    """Document lourd en cours de fabrication ou prêt (PERF.1) : un PDF de plusieurs dizaines de
+    pages ne se fait jamais dans la requête web. La requête dépose le document (`source`), un
+    travailleur à part le met en PDF par paquets, et la même adresse rend le PDF une fois prêt.
+    Propre à la personne qui l'a demandé (`created_by`) ; effacé au bout d'un jour."""
+
+    class Status(models.TextChoices):
+        QUEUED = "queued", _("Queued")
+        RUNNING = "running", _("Running")
+        DONE = "done", _("Done")
+        FAILED = "failed", _("Failed")
+
+    # Empreinte de la demande (personne, école, adresse et filtres) : recharger l'adresse retrouve
+    # le même travail au lieu d'en lancer un autre.
+    key = models.CharField(max_length=64)
+    name = models.CharField(_("file name"), max_length=120)
+    status = models.CharField(max_length=8, choices=Status.choices, default=Status.QUEUED)
+    pages = models.PositiveIntegerField(default=0)
+    pages_done = models.PositiveIntegerField(default=0)
+    source = models.FileField(upload_to=print_path, blank=True)
+    pdf = models.FileField(upload_to=print_path, blank=True)
+    error = models.CharField(max_length=200, blank=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["school", "created_by", "key"], name="printjob_lookup")]
+
+    def __str__(self) -> str:
+        return self.name

@@ -78,6 +78,8 @@ MIDDLEWARE = [
     "apps.accounts.privileged.PrivilegedAccountMiddleware",
     # Portée de la base (S.6) des requêtes sans école : console, administration, Portail.
     "apps.core.middleware.RowSecurityMiddleware",
+    # PDF lourds en tâche de fond (PERF.1) : après l'école et le compte de la requête.
+    "apps.core.printing.PrintJobMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -120,7 +122,17 @@ DATABASES = {
         "CONN_MAX_AGE": 60,
         # Sans la compilation JIT de PostgreSQL : sur les rapports (impayés, des milliers de
         # frais dus), elle coûtait plus que la requête elle-même (0,75 s sur 0,85 s).
-        "OPTIONS": {"options": "-c jit=off"},
+        # Garde-fou (PERF.1, réglé en production pour le site seulement) : une requête ou une
+        # transaction qui traîne est coupée au lieu de garder la base.
+        "OPTIONS": {
+            "options": "-c jit=off"
+            + (
+                f" -c statement_timeout={env('DB_STATEMENT_TIMEOUT_MS')}"
+                " -c idle_in_transaction_session_timeout=30000"
+                if env("DB_STATEMENT_TIMEOUT_MS", "")
+                else ""
+            )
+        },
     }
 }
 # Production (S.5) : `POSTGRES_USER` est un compte à droits réduits, que le compte des migrations
@@ -260,6 +272,11 @@ CELERY_BROKER_URL = env("REDIS_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = None
 CELERY_TASK_ALWAYS_EAGER = env_bool("CELERY_TASK_ALWAYS_EAGER", False)
 CELERY_TIMEZONE = TIME_ZONE
+# Les PDF lourds ont leur file et leur travailleur (un à la fois, mémoire plafonnée) : une
+# impression ne retarde jamais les notifications, la synchronisation ni les autres tâches.
+CELERY_TASK_ROUTES = {"apps.core.tasks.render_print_job": {"queue": "print"}}
+# Un travailleur qui plante en route rend sa tâche : la prochaine demande la reprend à zéro.
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 # Planificateur (beat, lancé dans le worker : `celery worker -B`). Les heures propres à chaque
 # école (relances, clôture) sont décidées dans le passage, pas ici (`notifications/scheduled.py`).
 CELERY_BEAT_SCHEDULE = {
@@ -271,6 +288,10 @@ CELERY_BEAT_SCHEDULE = {
     "notifications-purge": {
         "task": "apps.notifications.tasks.purge",
         "schedule": crontab(hour=3, minute=30),
+    },
+    "print-purge": {
+        "task": "apps.core.tasks.purge_print_jobs",
+        "schedule": crontab(hour=3, minute=50),
     },
     "sync-purge": {
         "task": "apps.sync.tasks.purge",
