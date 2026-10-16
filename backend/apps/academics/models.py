@@ -355,3 +355,38 @@ class ConductGrade(TenantModel):
 
     def __str__(self) -> str:
         return f"{self.enrollment} · {self.term} · {self.grade}"
+
+
+class ApplicationGrade(TenantModel):
+    """Correction de la cote d'application d'une inscription pour une période [T] (8.5.1c). Même
+    forme que `ConductGrade` : sans ligne, la cote est celle que propose le pourcentage de la
+    période (elle suit donc une note changée). Le titulaire (ou la délibération, 8.4) la pose avec
+    un motif ; la reprendre la supprime, le journal d'audit garde chaque étape."""
+
+    enrollment = models.ForeignKey(
+        Enrollment,
+        on_delete=models.PROTECT,
+        related_name="application_grades",
+        verbose_name=_("enrolment"),
+    )
+    term = models.ForeignKey(
+        Term, on_delete=models.PROTECT, related_name="application_grades", verbose_name=_("term")
+    )
+    grade = models.CharField(_("grade"), max_length=2, choices=ConductScale.Grade.choices)
+    reason = models.CharField(_("reason"), max_length=300)
+    corrected_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("corrected by"),
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["enrollment", "term"], name="application_grade_enrollment_term_unique"
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.enrollment} · {self.term} · {self.grade}"

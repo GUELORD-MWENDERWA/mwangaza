@@ -18,7 +18,7 @@ from django.utils import timezone
 from django.utils.translation import get_language, gettext
 from django.utils.translation import gettext_lazy as _
 
-from apps.academics import discipline
+from apps.academics import application, discipline
 from apps.academics.report_cards import ClassReport, StudentReport, class_report
 from apps.core.documents import qr_code, school_header
 from apps.core.tenancy import require_current_school
@@ -244,6 +244,22 @@ def _conduct(report: ClassReport, student: StudentReport, columns: list[dict]) -
     ]
 
 
+def _application(report: ClassReport, student: StudentReport, columns: list[dict]) -> list[dict]:
+    """Ligne Application (8.5.1c) : la cote retenue de chaque colonne de période, vide ailleurs
+    (et vide tant que la période n'a pas de note)."""
+    if not hasattr(report, "application"):
+        report.application = application.grades_of_report(report)
+    return [
+        {
+            "kind": c["kind"],
+            "grade": report.application.get((student.enrollment.pk, UUID(c["key"])), "")
+            if c["kind"] == "period"
+            else "",
+        }
+        for c in columns
+    ]
+
+
 def student_report(class_group: ClassGroup, enrollment_id) -> tuple[ClassReport, StudentReport]:
     """Le bulletin de la classe et celui de l'élève ; `None` si l'élève n'y est pas inscrit."""
     report = class_report(class_group)
@@ -386,6 +402,7 @@ def report_card_document(
         **head,
         "columns": columns,
         "conduct": _conduct(report, student, columns),
+        "application": _application(report, student, columns),
         "lines": lines,
         "footer_state": state[len(lines) :],
         "row_height": row_height,

@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (PERF.5a, PERF.5b et PERF.5c faites le 2026-10-16, PR en attente de fusion ; mise en ligne : `A-FAIRE.md` § 9 quinquies puis `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | **8.5.1c** ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Tâche en cours | aucune (8.5.1c faite le 2026-10-16, PR en attente de fusion ; PERF.5a, PERF.5b et PERF.5c faites le 2026-10-16, PR en attente de fusion ; mise en ligne : `A-FAIRE.md` § 9 quinquies puis `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | **8.4** (délibération) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
 | Issue GitHub | #288 (PERF.5c) ; #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
-| Branche | `tache/PERF.5c-images-hors-serveur` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-16 (PERF.5c faite) |
+| Branche | `tache/8.5.1c-application` (avant : `tache/PERF.5c-images-hors-serveur`) ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-16 (8.5.1c faite) |
 
 ## Avancement
 
@@ -81,6 +81,12 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 - Mesuré sur `make prod-local` (note dans `docs/claude/recherches/`) : Argon2 ≈ 100 Mo par connexion tuait Gunicorn → hachage un à la fois ; `make perf` corrigé (bulletins sans notes validées : lettres d'invitation, `--print-phone`). Aucun arrêt mémoire sous 5 utilisateurs.
 - Décisions : Redis `volatile-lru` (et non `noeviction`), 2 × 2 fils (pas 2 × 4), django 576 Mo ; « Impayés » et « Tableau de bord » restent gourmands (à alléger). Tests : files et limites de chaque tâche, débit, hachage.
 - Suite : PERF.5b (tableau de santé compréhensible), puis PERF.5c.
+
+### 2026-10-16 — Tâche 8.5.1c : application
+
+- Fait : `ApplicationGrade` (seule la correction est gardée, comme la conduite) ; cote proposée d'après le pourcentage de la période (80 % TB, 70 B, 60 AB, 50 ME, sinon MA ; sans note, pas de cote) ; correction par le titulaire ou `grades.enter_any`, motif obligatoire, journal `application.grade_overridden` ; ligne Application du bulletin remplie ; écran « Application » (maquette `application`), démo.
+- Tests : proposition, droit (autre enseignant 403), motif, journal, retour à la proposition, bulletin, isolation entre écoles ; annulation d'import prend en compte les cotes.
+- Décisions : seuils = ceux des mentions (à confirmer, `07` I15) ; pourcentages lus du rapport de classe (aucun calcul de plus). Suite : 8.4 (délibération, qui réutilisera `application.override_grade`).
 
 ### 2026-10-16 — Tâche 8.5.1b : conduite, parents et bulletin
 

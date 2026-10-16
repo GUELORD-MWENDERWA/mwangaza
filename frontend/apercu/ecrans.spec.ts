@@ -155,6 +155,8 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     await visit(teacher, `${ITIG}conduct`, "gestion", "conduct");
     const discipline = await staff(browser, "0000001003", false);
     await visit(discipline, `${ITIG}conduct-scale`, "gestion", "conduct-scale");
+    // Application (8.5.1c) : le directeur des études corrige la cote de n'importe quelle classe.
+    await visit(director, `${ITIG}application`, "gestion", "application");
   }
 
   if (!ONLY || ONLY.startsWith("portail")) {

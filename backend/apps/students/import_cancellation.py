@@ -25,7 +25,7 @@ from django.db.models import Count, Exists, OuterRef, Q, QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from apps.academics.models import ConductGrade, DisciplineIncident, Grade
+from apps.academics.models import ApplicationGrade, ConductGrade, DisciplineIncident, Grade
 from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import Action
@@ -95,12 +95,13 @@ def _touches() -> dict[str, tuple[str, Exists]]:
             PORTAL,
             Exists(Family.objects.filter(pk=OuterRef("family_id"), primary_user__isnull=False)),
         ),
-        # Notes, fautes de conduite (8.5.1a) et cotes de conduite corrigées (8.5.1b).
+        # Notes, fautes de conduite (8.5.1a), cotes de conduite (8.5.1b) et d'application (8.5.1c).
         "graded": (
             GRADES,
             Exists(Grade.objects.filter(enrollment__student=student))
             | Exists(DisciplineIncident.objects.filter(enrollment__student=student))
-            | Exists(ConductGrade.objects.filter(enrollment__student=student)),
+            | Exists(ConductGrade.objects.filter(enrollment__student=student))
+            | Exists(ApplicationGrade.objects.filter(enrollment__student=student)),
         ),
     }
 

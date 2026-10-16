@@ -23,6 +23,7 @@ from django.utils.translation import gettext
 from apps.academics.discipline import DEFAULT_RULES
 from apps.academics.grades import term_maximum
 from apps.academics.models import (
+    ApplicationGrade,
     ConductGrade,
     Course,
     DisciplineIncident,
@@ -293,6 +294,7 @@ DEMO_INCIDENT_SHARE = 0.1
 
 def _create_demo_discipline(term: Term, students: dict, draw: random.Random) -> None:
     ConductGrade.objects.filter(term=term).delete()
+    ApplicationGrade.objects.filter(term=term).delete()
     DisciplineIncident.objects.filter(term=term).delete()
     DisciplineRule.objects.all().delete()
     with translation.override(settings.LANGUAGE_CODE):
@@ -335,4 +337,12 @@ def _create_demo_discipline(term: Term, students: dict, draw: random.Random) -> 
             grade="B",
             reason=reason,
             overridden_by=author,
+        )
+    # Une cote d'application corrigée par le titulaire (8.5.1c), pour voir « corrigée » à l'écran.
+    with translation.override(settings.LANGUAGE_CODE):
+        reason = gettext("Very attentive in class, grade raised by the homeroom teacher")
+    first = Enrollment.objects.filter(status=Enrollment.Status.ACTIVE).order_by("pk").first()
+    if first is not None:
+        ApplicationGrade.objects.create(
+            enrollment=first, term=term, grade="TB", reason=reason, corrected_by=author
         )
