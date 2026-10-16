@@ -103,6 +103,17 @@ def test_the_state_exam_column_spreads_over_any_number_of_rows():
         assert column[0].get("cols") and column[rows - 2]  # du haut au bas, sans trou à la fin
 
 
+def test_the_block_under_the_table_gets_what_the_fixed_blocks_leave():
+    from apps.academics.report_card_documents import SHEET_HEIGHT, _spread, _under_height
+
+    # Mesuré avec l'ancienne colonne flex : 22,66 mm (feuille de 261,66 mm, 30 lignes de 4,54 mm).
+    assert abs(_under_height(261.66, 30, 4.54) - 22.66) < 0.5
+    for rows in (10, 20, 30, 35, 40, 60):
+        height, outside = _spread(rows)
+        under = _under_height(SHEET_HEIGHT - outside, rows, height)
+        assert 15 < under < 90  # ni écrasé ni débordant, au moins de quoi signer
+
+
 def test_free_space_goes_below_the_frame_first_then_inside_little_by_little():
     from apps.academics.report_card_documents import BODY_HEIGHT, _signature, _spread
 
@@ -191,6 +202,21 @@ def test_the_whole_class_prints_in_one_pdf_and_each_student_is_audited(
     assert client.get(url(card), output="html").status_code == 400
     foreign = MembershipFactory(school=other_school, roles=["study_director"]).user
     assert api(foreign, host="beta.localhost").get(url(card), output="pdf").status_code == 404
+
+
+def test_the_pdf_gets_its_fonts_aside_while_the_preview_carries_them(api, school, director, card):
+    validate_all(school, card)
+    client = api(director)
+    preview = client.get(url(card), enrollment=card["josue"], output="html").content.decode()
+    assert '@font-face { font-family: "Liberation Serif"' in preview
+    pdf = client.get(url(card), enrollment=card["josue"], output="pdf").content
+    from io import BytesIO
+
+    from pypdf import PdfReader
+
+    fonts = PdfReader(BytesIO(pdf)).pages[0]["/Resources"]["/Font"]
+    # La police est bien dans le fichier, sans être dans le HTML envoyé à WeasyPrint.
+    assert any("Liberation" in str(font.get_object()["/BaseFont"]) for font in fonts.values())
 
 
 def test_grades_only_keeps_the_values_and_hides_what_the_form_already_prints(api, director, card):

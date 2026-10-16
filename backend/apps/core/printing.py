@@ -21,6 +21,7 @@ import json
 import logging
 from contextvars import ContextVar
 from datetime import timedelta
+from functools import cache
 
 from celery.exceptions import SoftTimeLimitExceeded
 from django.core.files.base import ContentFile
@@ -209,12 +210,41 @@ def submit(head: str, bodies: list, name: str, entries: list[dict] | None = None
     return answer(job)
 
 
+@cache
+def _fonts():
+    """Polices du PDF, lues une seule fois par processus (PERF.3) : les relire dans chaque document
+    coûtait ≈ 0,35 s par page (un million d'octets de base64 à décoder et à enregistrer)."""
+    from weasyprint import CSS
+    from weasyprint.text.fonts import FontConfiguration
+    from weasyprint.urls import URLFetcher
+
+    from apps.core.documents import print_fonts, serif_fonts
+
+    config = FontConfiguration()
+    css = CSS(
+        string=print_fonts() + serif_fonts(),
+        font_config=config,
+        url_fetcher=URLFetcher(allowed_protocols=["data"]),
+    )
+    return config, css
+
+
+def to_pdf(html: str) -> bytes:
+    """Le PDF d'un document HTML ; il ne porte pas ses polices (`fonts=False` dans le contexte) :
+    elles viennent de `_fonts()`. Aucun fichier ni adresse n'est chargé, seulement du `data:`."""
+    from weasyprint import HTML
+    from weasyprint.urls import URLFetcher
+
+    config, css = _fonts()
+    return HTML(string=html, url_fetcher=URLFetcher(allowed_protocols=["data"])).write_pdf(
+        stylesheets=[css], font_config=config
+    )
+
+
 def build_pdf(head: str, bodies: list[str], on_chunk=None) -> bytes:
     """Le PDF de toutes les pages, `CHUNK_PAGES` à la fois : la mise en page d'un paquet est
     libérée avant le suivant, les paquets sont réunis par pypdf (polices identiques regroupées)."""
     from pypdf import PdfReader, PdfWriter
-    from weasyprint import HTML
-    from weasyprint.urls import URLFetcher
 
     writer = PdfWriter()
     for start in range(0, len(bodies), CHUNK_PAGES):
@@ -222,7 +252,7 @@ def build_pdf(head: str, bodies: list[str], on_chunk=None) -> bytes:
         html = (
             head + "".join(f'<div class="next">{body}</div>' for body in chunk) + "</body></html>"
         )
-        part = HTML(string=html, url_fetcher=URLFetcher(allowed_protocols=["data"])).write_pdf()
+        part = to_pdf(html)
         writer.append(PdfReader(io.BytesIO(part)))
         del html, part
         gc.collect()
@@ -240,9 +270,6 @@ def build_kept(
     """Le PDF de chaque page, dans l'ordre (PERF.2) : une page déjà gardée (`body` vide) est lue,
     les autres sont mises en page une à une puis gardées pour la prochaine fois. Une page gardée
     qui a disparu entre-temps (purge) fait échouer le travail : la demande suivante la refera."""
-    from weasyprint import HTML
-    from weasyprint.urls import URLFetcher
-
     pdfs = []
     for index, (body, entry) in enumerate(zip(bodies, entries, strict=True), start=1):
         if body is None:
@@ -252,7 +279,7 @@ def build_kept(
             pdf = kept.read(document)
         else:
             html = head + f'<div class="next">{body}</div></body></html>'
-            pdf = HTML(string=html, url_fetcher=URLFetcher(allowed_protocols=["data"])).write_pdf()
+            pdf = to_pdf(html)
             kept.store(entry["kind"], entry["subject"], entry["variant"], entry["key"], pdf)
             del html
             gc.collect()
