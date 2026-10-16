@@ -47,6 +47,11 @@ const DASHBOARD = {
     ],
   },
   platform: {
+    containers: [
+      { name: "django", used_mb: 752, limit_mb: 768, percent: 98, status: "warning" },
+      { name: "redis", used_mb: 4, limit_mb: 96, percent: 4, status: "ok" },
+    ],
+    print: { status: "warning", queued: 2, running: 1, longest_wait_seconds: 720 },
     scheduler: { status: "ok", last_tick_at: "2026-10-13T10:00:00Z", queue_size: 2 },
     backup: {
       status: "error",
@@ -73,6 +78,11 @@ describe("console : tableau de bord", () => {
     const redis = screen.getByText("Redis (file des tâches)").closest("li")!;
     expect(within(redis).getByText("en panne")).toBeTruthy();
     expect(screen.getByText("18 % libre")).toBeTruthy();
+    const django = screen.getByText("django").closest("li")!;
+    expect(within(django).getByText("752 / 768 Mo (98 %)")).toBeTruthy();
+    expect(
+      screen.getByText(/1 en cours · 2 en attente · attente la plus longue 12 min/),
+    ).toBeTruthy();
     expect(screen.getByText("62 % utilisé")).toBeTruthy();
     // Une sauvegarde jamais notée se voit : jamais « bonne » sans preuve.
     const backup = screen.getByText("Dernière sauvegarde").closest("li")!;

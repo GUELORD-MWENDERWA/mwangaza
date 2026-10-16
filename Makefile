@@ -25,7 +25,7 @@ MANAGE := cd backend && uv run python manage.py
 .DEFAULT_GOAL := help
 .PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp relances messages superuser shell \
 	test test-back test-front test-e2e apercu lint lint-back lint-front format api api-schema build \
-	prod-local prod-local-stop \
+	prod-local prod-local-stop perf \
 	deploy-init deploy-check deploy-setup deploy deploy-superuser deploy-logs deploy-backup deploy-ssh backup restore
 
 help: ## Afficher les commandes
@@ -143,6 +143,9 @@ prod-local: ## Essayer la production sur la machine (images du serveur, Caddy) :
 	mkdir -p infra/certs
 	$(PROD_LOCAL) up --build --detach --wait
 	@echo "Prêt : https://itig.localhost/app/ · https://parents.localhost/ · https://admin.localhost/admin/ (certificat local : accepter l'avertissement)"
+
+perf: ## Mesurer les écrans lourds et l'impression sur make prod-local (n=5 utilisateurs) : tableau dans docs/claude/recherches/
+	python3 scripts/perf.py --users $(or $(n),5)
 
 prod-local-stop: ## Arrêter l'essai de la production (données gardées ; tout effacer : ajouter --volumes à la commande)
 	$(PROD_LOCAL) down

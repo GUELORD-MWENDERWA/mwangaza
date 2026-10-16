@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (PERF.1 et PERF.2 faites le 2026-10-16, à mettre en ligne avec `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | PERF.4 (mesure et surveillance) puis 8.5.1b (conduite : parents et bulletin) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #276 (PERF.2) ; #274 (PERF.1) ; #271 (8.5.1b) |
-| Branche | `tache/PERF.2-pdf-gardes` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-16 (PERF.2 faite) |
+| Tâche en cours | aucune (PERF.1, PERF.2 et PERF.4 faites le 2026-10-16, à mettre en ligne avec `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | PERF.3 (bulletin plus léger, P1) ou 8.5.1b (conduite : parents et bulletin) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #278 (PERF.4) ; #276 (PERF.2) ; #274 (PERF.1) ; #271 (8.5.1b) |
+| Branche | `tache/PERF.4-mesure-surveillance` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-16 (PERF.4 faite) |
 
 ## Avancement
 
@@ -60,6 +60,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-16 — Tâche PERF.4 : mesure et surveillance
+
+- Fait : `make perf` (`scripts/perf.py`, bibliothèque standard) mesure les écrans lourds à plusieurs utilisateurs et l'impression d'une classe ; carte « Plateforme » de la console : mémoire de chaque conteneur (`infra/serveur/conteneurs.sh`, cron de 5 min posé par `make deploy`, valeur Redis qui s'efface en 15 min), file d'impression et plus longue attente (`health.print_queue`) ; swap : avertissement à 60 % ; tableau de capacité dans `03` § 9.
+- Tests : lecture des conteneurs et de la file (attente de 12 min → avertissement) ; carte de la console. `make perf` non lancé ici (machine de 8 Go chargée) : à lancer après `make prod-local` + `make demo`, ou sur le vrai serveur.
+- Décisions : pas de socket Docker donné à Django ; l'alerte est la pastille de la console. Suite : mettre en ligne (`make deploy`, le cron se pose seul), PERF.3.
 
 ### 2026-10-16 — Tâche PERF.2 : PDF gardés
 

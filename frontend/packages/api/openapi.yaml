@@ -21163,9 +21163,34 @@ components:
       - actor
       - before
       - after
+    PlatformContainer:
+      type: object
+      properties:
+        name:
+          type: string
+        used_mb:
+          type: integer
+        limit_mb:
+          type: integer
+        percent:
+          type: integer
+        status:
+          $ref: '#/components/schemas/HealthStatusEnum'
+      required:
+      - name
+      - used_mb
+      - limit_mb
+      - percent
+      - status
     PlatformHealth:
       type: object
       properties:
+        containers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformContainer'
+        print:
+          $ref: '#/components/schemas/PlatformPrint'
         scheduler:
           $ref: '#/components/schemas/PlatformScheduler'
         backup:
@@ -21175,6 +21200,8 @@ components:
           items:
             $ref: '#/components/schemas/PlatformSync'
       required:
+      - containers
+      - print
       - scheduler
       - backup
       - syncs
@@ -21285,6 +21312,22 @@ components:
           maxItems: 100
       required:
       - ids
+    PlatformPrint:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/HealthStatusEnum'
+        queued:
+          type: integer
+        running:
+          type: integer
+        longest_wait_seconds:
+          type: integer
+      required:
+      - status
+      - queued
+      - running
+      - longest_wait_seconds
     PlatformScheduler:
       type: object
       properties:

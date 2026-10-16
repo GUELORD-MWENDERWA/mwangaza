@@ -3326,6 +3326,11 @@ export const fr = {
       copy: "Dernière copie hors du serveur",
       scheduler: "Planificateur",
       tick: "dernier passage {{at}} · {{queue}} en attente",
+      containers: "Mémoire des conteneurs",
+      memory: "{{used}} / {{limit}} Mo ({{percent}} %)",
+      print: "Impression",
+      printQueue:
+        "{{running}} en cours · {{queued}} en attente · attente la plus longue {{wait}} min",
       never: "jamais notée",
       noCopy: "aucune copie notée",
       syncs: "Dernière synchronisation (écoles les plus silencieuses d'abord)",
