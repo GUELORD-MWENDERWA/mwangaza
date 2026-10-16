@@ -20,8 +20,6 @@ permissions:
   contents: read
   packages: write
 
-env:
-  REGISTRY: ghcr.io/${{ github.repository_owner }}
 
 jobs:
   images:
@@ -34,6 +32,8 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 1
+      - name: Registre (nom du propriétaire en minuscules, exigé par ghcr.io)
+        run: echo "REGISTRY=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
       - name: Étiquette
         id: tag
         # Extraction superficielle : l'empreinte ne lit que les arbres du commit extrait.
