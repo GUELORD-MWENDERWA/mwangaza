@@ -1,5 +1,6 @@
 from django.urls import path
 
+from apps.academics import application_views as application
 from apps.academics import discipline_views as conduct
 from apps.academics import views
 
@@ -81,5 +82,15 @@ urlpatterns = [
         "discipline/enrollments/<uuid:pk>/grade/",
         conduct.GradeOverrideView.as_view(),
         name="discipline-grade",
+    ),
+    path(
+        "class-groups/<uuid:pk>/application/",
+        application.ClassApplicationView.as_view(),
+        name="class-application",
+    ),
+    path(
+        "application/enrollments/<uuid:pk>/",
+        application.ApplicationOverrideView.as_view(),
+        name="application-grade",
     ),
 ]

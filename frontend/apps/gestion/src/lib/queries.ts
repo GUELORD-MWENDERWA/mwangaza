@@ -26,6 +26,7 @@ export const keys = {
   gradeSheet: ["grade-sheet"],
   gradeValidation: ["grade-validation"],
   conduct: ["conduct"],
+  application: ["application"],
   matricule: ["matricule-format"],
   roles: ["roles"],
   staff: ["staff"],

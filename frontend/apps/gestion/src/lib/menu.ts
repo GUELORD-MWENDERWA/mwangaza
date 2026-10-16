@@ -99,6 +99,13 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         permissions: ["discipline.configure"],
         task: "8.5.1a",
       },
+      {
+        key: "application",
+        path: "application",
+        icon: "tag",
+        permissions: ["grades.enter", "grades.enter_any", "grades.validate"],
+        task: "8.5.1c",
+      },
     ],
   },
   {

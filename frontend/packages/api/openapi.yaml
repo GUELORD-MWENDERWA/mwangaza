@@ -613,6 +613,97 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/application/enrollments/{id}/:
+    put:
+      operationId: application_enrollments_update
+      description: Corrige la cote d'une période, avec un motif (titulaire ou `grades.enter_any`).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - application
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationOverrideRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApplicationOverrideRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ApplicationOverrideRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentApplication'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: application_enrollments_destroy
+      description: Reprend la cote proposée par le pourcentage.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: term
+        schema:
+          type: string
+        description: Période.
+        required: true
+      tags:
+      - application
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentApplication'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/audit/:
     get:
       operationId: audit_list
@@ -680,6 +771,7 @@ paths:
           - discipline.incident_recorded
           - discipline.incident_cancelled
           - discipline.grade_overridden
+          - application.grade_overridden
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -797,6 +889,7 @@ paths:
           * `discipline.incident_recorded` - Offence recorded
           * `discipline.incident_cancelled` - Offence cancelled
           * `discipline.grade_overridden` - Conduct grade corrected
+          * `application.grade_overridden` - Application grade corrected
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -866,6 +959,7 @@ paths:
           enum:
           - account
           - announcements
+          - application
           - audit
           - auth
           - courses
@@ -885,6 +979,7 @@ paths:
         description: |-
           * `account` - account
           * `announcements` - announcements
+          * `application` - application
           * `audit` - audit
           * `auth` - auth
           * `courses` - courses
@@ -1087,6 +1182,7 @@ paths:
           - discipline.incident_recorded
           - discipline.incident_cancelled
           - discipline.grade_overridden
+          - application.grade_overridden
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -1204,6 +1300,7 @@ paths:
           * `discipline.incident_recorded` - Offence recorded
           * `discipline.incident_cancelled` - Offence cancelled
           * `discipline.grade_overridden` - Conduct grade corrected
+          * `application.grade_overridden` - Application grade corrected
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -1273,6 +1370,7 @@ paths:
           enum:
           - account
           - announcements
+          - application
           - audit
           - auth
           - courses
@@ -1292,6 +1390,7 @@ paths:
         description: |-
           * `account` - account
           * `announcements` - announcements
+          * `application` - application
           * `audit` - audit
           * `auth` - auth
           * `courses` - courses
@@ -3067,6 +3166,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/application/:
+    get:
+      operationId: class_groups_application_retrieve
+      description: |-
+        Cote d'application de chaque élève de la classe, par période : pourcentage, cote
+        proposée et cote retenue. `may_correct` : la personne peut la corriger.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - application
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassApplication'
           description: ''
         '403':
           content:
@@ -13535,6 +13670,7 @@ components:
       - discipline.incident_recorded
       - discipline.incident_cancelled
       - discipline.grade_overridden
+      - application.grade_overridden
       - students.family_created
       - students.family_updated
       - students.family_deleted
@@ -13651,6 +13787,7 @@ components:
         * `discipline.incident_recorded` - Offence recorded
         * `discipline.incident_cancelled` - Offence cancelled
         * `discipline.grade_overridden` - Conduct grade corrected
+        * `application.grade_overridden` - Application grade corrected
         * `students.family_created` - Family created
         * `students.family_updated` - Family changed
         * `students.family_deleted` - Family deleted
@@ -13908,6 +14045,22 @@ components:
       - audience
       - body
       - title
+    ApplicationOverrideRequest:
+      type: object
+      properties:
+        term:
+          type: string
+          format: uuid
+        grade:
+          $ref: '#/components/schemas/ConductGradeEnum'
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 300
+      required:
+      - grade
+      - reason
+      - term
     AudienceEnum:
       enum:
       - all_families
@@ -14996,6 +15149,21 @@ components:
       - families
       - activated
       - invitable
+    ClassApplication:
+      type: object
+      properties:
+        class_name:
+          type: string
+        may_correct:
+          type: boolean
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentApplication'
+      required:
+      - class_name
+      - may_correct
+      - students
     ClassGroup:
       type: object
       properties:
@@ -15192,6 +15360,20 @@ components:
           maxLength: 20
       required:
       - code
+    ConductGradeEnum:
+      enum:
+      - TB
+      - B
+      - AB
+      - ME
+      - MA
+      type: string
+      description: |-
+        * `TB` - Very good
+        * `B` - Good
+        * `AB` - Fairly good
+        * `ME` - Mediocre
+        * `MA` - Poor
     ConsoleAccount:
       type: object
       description: |-
@@ -17249,6 +17431,7 @@ components:
       enum:
       - account
       - announcements
+      - application
       - audit
       - auth
       - courses
@@ -19407,20 +19590,6 @@ components:
         * `applied` - applied
         * `duplicate` - duplicate
         * `rejected` - rejected
-    OverrideGradeEnum:
-      enum:
-      - TB
-      - B
-      - AB
-      - ME
-      - MA
-      type: string
-      description: |-
-        * `TB` - Very good
-        * `B` - Good
-        * `AB` - Fairly good
-        * `ME` - Mediocre
-        * `MA` - Poor
     OverrideRequest:
       type: object
       properties:
@@ -19428,7 +19597,7 @@ components:
           type: string
           format: uuid
         grade:
-          $ref: '#/components/schemas/OverrideGradeEnum'
+          $ref: '#/components/schemas/ConductGradeEnum'
         reason:
           type: string
           minLength: 1
@@ -23443,6 +23612,22 @@ components:
       - family
       - enrollments
       - created_at
+    StudentApplication:
+      type: object
+      properties:
+        enrollment:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        terms:
+          type: array
+          items:
+            $ref: '#/components/schemas/TermApplication'
+      required:
+      - enrollment
+      - full_name
+      - terms
     StudentCharge:
       type: object
       properties:
@@ -24681,6 +24866,40 @@ components:
       - starts_on
       - ends_on
       - children
+    TermApplication:
+      type: object
+      properties:
+        term:
+          type: string
+          format: uuid
+        term_name:
+          type: string
+          readOnly: true
+        percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+        proposed:
+          type: string
+          description: Cote d'après le pourcentage ; vide sans note.
+        grade:
+          type: string
+          description: 'Cote retenue : la correction si elle existe.'
+        override_reason:
+          type: string
+          readOnly: true
+        override_by:
+          type: string
+          readOnly: true
+      required:
+      - term
+      - term_name
+      - percent
+      - proposed
+      - grade
+      - override_reason
+      - override_by
     TermConduct:
       type: object
       properties:
