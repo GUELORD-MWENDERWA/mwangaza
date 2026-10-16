@@ -494,6 +494,7 @@ export const en: Messages<typeof fr> = {
       discipline: {
         configure: "Manage the offences list and the conduct scale",
         record: "Record an offence of a student",
+        override: "Correct the conduct grade of a student",
       },
       roles: {
         manage: "Manage roles and accounts",
@@ -1051,6 +1052,19 @@ export const en: Messages<typeof fr> = {
     pickStudent: "Choose a student to see their incidents.",
     none: "No incident.",
     proposed: "{{term}}: {{count}} point(s) · {{grade}}",
+    corrected: "{{term}}: {{count}} point(s) · {{calculated}}, corrected to {{grade}}",
+    correct: "Correct",
+    correctTitle: "Correct the conduct grade",
+    correctHelp:
+      "The corrected grade replaces the one from the points on the report card. The correction is written to the log.",
+    newGrade: "New grade",
+    confirmCorrect: "Correct the grade",
+    restore: "Go back to the grade from the points",
+    gradeTB: "TB · Very good",
+    gradeB: "B · Good",
+    gradeAB: "AB · Fairly good",
+    gradeME: "ME · Mediocre",
+    gradeMA: "MA · Poor",
     columns: { date: "Date", offence: "Offence", points: "Points", by: "Recorded by" },
     cancelled: "Cancelled: {{reason}}",
     cancel: "Cancel",
@@ -1549,6 +1563,7 @@ export const en: Messages<typeof fr> = {
         scale_changed: "Conduct scale changed",
         incident_recorded: "Offence recorded",
         incident_cancelled: "Offence cancelled",
+        grade_overridden: "Conduct grade corrected",
       },
       students: {
         family_created: "Family created",
@@ -3186,6 +3201,7 @@ export const en: Messages<typeof fr> = {
       register_open: "Register still open",
       staff_announcement: "Staff announcements",
       summons: "Summons",
+      discipline_incident: "Conduct",
       sensitive_rights: "Sensitive rights",
     },
     kindHelp: {
@@ -3200,6 +3216,8 @@ export const en: Messages<typeof fr> = {
       register_open: "A register is still open at the school's closing time",
       staff_announcement: "As soon as the school publishes an announcement for its staff",
       summons: "As soon as the school summons you about one of your children",
+      discipline_incident:
+        "As soon as the school records a conduct offence of one of your children",
       sensitive_rights: "An account is given the right to manage roles or a right over money",
     },
     kindsTitle: "What to receive on screen",
@@ -3978,6 +3996,9 @@ export const en: Messages<typeof fr> = {
       prior: "Paid before {{platform}}",
       pdf: "PDF",
       pdfLabel: "Receipt {{number}} as PDF",
+      conductTitle: "Conduct",
+      conductTerm: "{{term}}: {{grade}} · {{count}} point(s)",
+      conductPoints: "{{count}} point(s)",
       cancelled: "Cancelled",
       photo: "Photo of {{name}}",
       teacher: "Homeroom teacher",

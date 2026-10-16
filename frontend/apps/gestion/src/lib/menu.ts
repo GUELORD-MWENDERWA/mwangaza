@@ -89,7 +89,7 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         key: "conduct",
         path: "conduct",
         icon: "alert",
-        permissions: ["discipline.record"],
+        permissions: ["discipline.record", "discipline.override"],
         task: "8.5.1a",
       },
       {

@@ -107,7 +107,14 @@ def test_the_browser_subscribes_without_a_school_and_alone_gets_the_portal(
     preferences = client.get(f"{NOTIFICATIONS}preferences/").json()
     assert preferences == {
         "vapid_public_key": "public-key",
-        "kinds": ["payment_received", "announcement", "summons", "payment_due", "payment_overdue"],
+        "kinds": [
+            "payment_received",
+            "announcement",
+            "summons",
+            "discipline_incident",
+            "payment_due",
+            "payment_overdue",
+        ],
         "muted": [],
     }
     # Le même compte travaille aussi à l'école : ce qu'il a coupé dans la Gestion ne se règle

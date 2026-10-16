@@ -95,6 +95,7 @@ class Action(models.TextChoices):
     DISCIPLINE_SCALE_CHANGED = "discipline.scale_changed", _("Conduct scale changed")
     DISCIPLINE_INCIDENT_RECORDED = "discipline.incident_recorded", _("Offence recorded")
     DISCIPLINE_INCIDENT_CANCELLED = "discipline.incident_cancelled", _("Offence cancelled")
+    DISCIPLINE_GRADE_OVERRIDDEN = "discipline.grade_overridden", _("Conduct grade corrected")
 
     # Élèves et familles (D2-D4).
     STUDENTS_FAMILY_CREATED = "students.family_created", _("Family created")

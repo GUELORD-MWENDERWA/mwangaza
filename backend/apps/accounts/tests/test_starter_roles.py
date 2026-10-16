@@ -40,6 +40,7 @@ TABLE = {
     "grades.validate": ". ✔ . . . . . .",
     "discipline.configure": "✔ . ✔ . . . . .",
     "discipline.record": "✔ ✔ ✔ . . . . ✔",
+    "discipline.override": "✔ . ✔ . . . . .",
     "roles.manage": "✔ . . . . . . .",
     "students.view": "✔ ✔ ✔ ✔ ✔ ✔ ✔ .",
     "students.edit": "✔ ✔ . . . ✔ . .",

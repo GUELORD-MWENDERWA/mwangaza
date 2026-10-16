@@ -679,6 +679,7 @@ paths:
           - discipline.scale_changed
           - discipline.incident_recorded
           - discipline.incident_cancelled
+          - discipline.grade_overridden
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -795,6 +796,7 @@ paths:
           * `discipline.scale_changed` - Conduct scale changed
           * `discipline.incident_recorded` - Offence recorded
           * `discipline.incident_cancelled` - Offence cancelled
+          * `discipline.grade_overridden` - Conduct grade corrected
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -1084,6 +1086,7 @@ paths:
           - discipline.scale_changed
           - discipline.incident_recorded
           - discipline.incident_cancelled
+          - discipline.grade_overridden
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -1200,6 +1203,7 @@ paths:
           * `discipline.scale_changed` - Conduct scale changed
           * `discipline.incident_recorded` - Offence recorded
           * `discipline.incident_cancelled` - Offence cancelled
+          * `discipline.grade_overridden` - Conduct grade corrected
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -5722,6 +5726,97 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/discipline/enrollments/{id}/grade/:
+    put:
+      operationId: discipline_enrollments_grade_update
+      description: Corrige la cote de conduite d'une période, avec un motif.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - discipline
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OverrideRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OverrideRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OverrideRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentIncidents'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: discipline_enrollments_grade_destroy
+      description: Reprend la cote donnée par les points.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: term
+        schema:
+          type: string
+        description: Période.
+        required: true
+      tags:
+      - discipline
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentIncidents'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/discipline/incidents/:
     post:
       operationId: discipline_incidents_create
@@ -9160,6 +9255,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ChildPayments'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/children/{id}/conduct/:
+    get:
+      operationId: portal_children_conduct_retrieve
+      description: 'Conduite d''un enfant (8.5.1b) : cote de chaque période et fautes
+        ; 404 comme `ChildView`.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChildConduct'
           description: ''
         '403':
           content:
@@ -13404,6 +13534,7 @@ components:
       - discipline.scale_changed
       - discipline.incident_recorded
       - discipline.incident_cancelled
+      - discipline.grade_overridden
       - students.family_created
       - students.family_updated
       - students.family_deleted
@@ -13519,6 +13650,7 @@ components:
         * `discipline.scale_changed` - Conduct scale changed
         * `discipline.incident_recorded` - Offence recorded
         * `discipline.incident_cancelled` - Offence cancelled
+        * `discipline.grade_overridden` - Conduct grade corrected
         * `students.family_created` - Family created
         * `students.family_updated` - Family changed
         * `students.family_deleted` - Family deleted
@@ -14654,6 +14786,28 @@ components:
       - first_overdue
       - last_payment
       - photo
+    ChildConduct:
+      type: object
+      description: Conduite d'un enfant (8.5.1b).
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        terms:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChildTermConduct'
+        incidents:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChildIncident'
+      required:
+      - id
+      - full_name
+      - terms
+      - incidents
     ChildFee:
       type: object
       description: Un frais dû de l'année (« Minerval · 1re tranche »), après réductions.
@@ -14706,6 +14860,24 @@ components:
         * `partial` - partial
         * `overdue` - overdue
         * `upcoming` - upcoming
+    ChildIncident:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        offence:
+          type: string
+        points:
+          type: integer
+        occurred_on:
+          type: string
+          format: date
+      required:
+      - id
+      - offence
+      - points
+      - occurred_on
     ChildPayment:
       type: object
       properties:
@@ -14789,6 +14961,20 @@ components:
       - balance
       - fees
       - payments
+    ChildTermConduct:
+      type: object
+      properties:
+        term_name:
+          type: string
+        points:
+          type: integer
+        grade:
+          type: string
+          description: TB, B, AB, ME ou MA.
+      required:
+      - term_name
+      - points
+      - grade
     ClassActivation:
       type: object
       properties:
@@ -17734,20 +17920,6 @@ components:
       required:
       - code
       - detail
-    GradeEnum:
-      enum:
-      - TB
-      - B
-      - AB
-      - ME
-      - MA
-      type: string
-      description: |-
-        * `TB` - TB
-        * `B` - B
-        * `AB` - AB
-        * `ME` - ME
-        * `MA` - MA
     GradeInputRequest:
       type: object
       properties:
@@ -19057,6 +19229,7 @@ components:
       - register_open
       - staff_announcement
       - summons
+      - discipline_incident
       - sensitive_rights
       type: string
       description: |-
@@ -19071,6 +19244,7 @@ components:
         * `register_open` - Register still open
         * `staff_announcement` - Announcement to the staff
         * `summons` - Summons
+        * `discipline_incident` - Conduct
         * `sensitive_rights` - Sensitive rights given
     NotificationPreferences:
       type: object
@@ -19233,6 +19407,36 @@ components:
         * `applied` - applied
         * `duplicate` - duplicate
         * `rejected` - rejected
+    OverrideGradeEnum:
+      enum:
+      - TB
+      - B
+      - AB
+      - ME
+      - MA
+      type: string
+      description: |-
+        * `TB` - Very good
+        * `B` - Good
+        * `AB` - Fairly good
+        * `ME` - Mediocre
+        * `MA` - Poor
+    OverrideRequest:
+      type: object
+      properties:
+        term:
+          type: string
+          format: uuid
+        grade:
+          $ref: '#/components/schemas/OverrideGradeEnum'
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 300
+      required:
+      - grade
+      - reason
+      - term
     PaginatedAnnouncementList:
       type: object
       required:
@@ -20910,6 +21114,7 @@ components:
       - grades.validate
       - discipline.configure
       - discipline.record
+      - discipline.override
       - roles.manage
       - students.view
       - students.edit
@@ -20935,6 +21140,7 @@ components:
         * `grades.validate` - Validate the grades sent by teachers and set the entry deadlines
         * `discipline.configure` - Configure the offences, their points and the conduct scale
         * `discipline.record` - Record an offence of a student
+        * `discipline.override` - Correct the conduct grade of a student
         * `roles.manage` - Manage staff accounts and roles
         * `students.view` - View students
         * `students.edit` - Edit students
@@ -22236,7 +22442,7 @@ components:
       type: object
       properties:
         grade:
-          $ref: '#/components/schemas/GradeEnum'
+          $ref: '#/components/schemas/ScaleRowGradeEnum'
         min_points:
           type: integer
           maximum: 1000
@@ -22244,11 +22450,25 @@ components:
       required:
       - grade
       - min_points
+    ScaleRowGradeEnum:
+      enum:
+      - TB
+      - B
+      - AB
+      - ME
+      - MA
+      type: string
+      description: |-
+        * `TB` - TB
+        * `B` - B
+        * `AB` - AB
+        * `ME` - ME
+        * `MA` - MA
     ScaleRowRequest:
       type: object
       properties:
         grade:
-          $ref: '#/components/schemas/GradeEnum'
+          $ref: '#/components/schemas/ScaleRowGradeEnum'
         min_points:
           type: integer
           maximum: 1000
@@ -24461,14 +24681,26 @@ components:
         points:
           type: integer
           description: Points des incidents non annulés.
+        calculated:
+          type: string
+          description: Cote d'après les points et les seuils de l'école.
         grade:
           type: string
-          description: Cote proposée d'après les seuils de l'école.
+          description: 'Cote retenue : la correction si elle existe.'
+        override_reason:
+          type: string
+          readOnly: true
+        override_by:
+          type: string
+          readOnly: true
       required:
       - term
       - term_name
       - points
+      - calculated
       - grade
+      - override_reason
+      - override_by
     TermInputLeafRequest:
       type: object
       properties:

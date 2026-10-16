@@ -23,6 +23,7 @@ from django.utils.translation import gettext
 from apps.academics.discipline import DEFAULT_RULES
 from apps.academics.grades import term_maximum
 from apps.academics.models import (
+    ConductGrade,
     Course,
     DisciplineIncident,
     DisciplineRule,
@@ -291,6 +292,7 @@ DEMO_INCIDENT_SHARE = 0.1
 
 
 def _create_demo_discipline(term: Term, students: dict, draw: random.Random) -> None:
+    ConductGrade.objects.filter(term=term).delete()
     DisciplineIncident.objects.filter(term=term).delete()
     DisciplineRule.objects.all().delete()
     with translation.override(settings.LANGUAGE_CODE):
@@ -322,3 +324,15 @@ def _create_demo_discipline(term: Term, students: dict, draw: random.Random) -> 
                     )
                 )
     DisciplineIncident.objects.bulk_create(incidents, batch_size=2000)
+    # Une cote corrigée par le directeur de discipline (8.5.1b), pour voir « corrigée » à l'écran.
+    corrected = {i.enrollment_id for i in incidents}
+    if corrected:
+        with translation.override(settings.LANGUAGE_CODE):
+            reason = gettext("Improved behaviour after a talk with the parents")
+        ConductGrade.objects.create(
+            enrollment_id=sorted(corrected)[0],
+            term=term,
+            grade="B",
+            reason=reason,
+            overridden_by=author,
+        )

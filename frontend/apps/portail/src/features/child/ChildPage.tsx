@@ -22,7 +22,13 @@ import {
 } from "@mwangaza/ui";
 import { useParams } from "react-router";
 
-import { type ChildFee, type ChildPayments, receiptUrl, useChild } from "../../lib/families";
+import {
+  type ChildFee,
+  type ChildPayments,
+  receiptUrl,
+  useChild,
+  useChildConduct,
+} from "../../lib/families";
 import { PortalFrame } from "../home/PortalFrame";
 import { ChildAvatar } from "./ChildAvatar";
 
@@ -61,7 +67,52 @@ export function ChildPage() {
         </div>
       )}
       {data && <Payments child={data} />}
+      {data && <Conduct id={id} />}
     </PortalFrame>
+  );
+}
+
+/** Conduite (8.5.1b, maquette `enfant-scolarite`) : cote de chaque période commencée et fautes
+ *  retenues (libellé, points, date) ; rien tant qu'il n'y a ni faute ni période commencée. */
+function Conduct({ id }: { id: string }) {
+  const { t, i18n } = useTranslation();
+  const conduct = useChildConduct(id);
+  const data = conduct.data;
+  if (!data || (data.terms.length === 0 && data.incidents.length === 0)) return null;
+  return (
+    <Card className="mt-4">
+      <CardHeader>
+        <CardTitle>{t("portal.child.conductTitle")}</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        <div className="flex flex-wrap gap-2">
+          {data.terms.map((term) => (
+            <StatusPill key={term.term_name} tone={term.points > 0 ? "warn" : "ok"}>
+              {t("portal.child.conductTerm", {
+                term: term.term_name,
+                grade: term.grade,
+                count: term.points,
+              })}
+            </StatusPill>
+          ))}
+        </div>
+        <ul className="flex flex-col divide-y divide-line">
+          {data.incidents.map((incident) => (
+            <li key={incident.id} className="flex items-center justify-between gap-3 py-2">
+              <span className="min-w-0">
+                {incident.offence}
+                <span className="block text-xs text-ink-3">
+                  {formatDay(incident.occurred_on, i18n.language)}
+                </span>
+              </span>
+              <b className="whitespace-nowrap text-sm tabular-nums">
+                {t("portal.child.conductPoints", { count: incident.points })}
+              </b>
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
   );
 }
 

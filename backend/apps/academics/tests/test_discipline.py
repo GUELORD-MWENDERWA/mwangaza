@@ -187,3 +187,61 @@ def test_another_school_sees_and_changes_nothing(
         == 200
     )
     assert beta.get(SCALE).json()["scale"][1]["min_points"] == 5
+
+
+# Cote de conduite et correction (8.5.1b)
+
+
+def grade_url(data) -> str:
+    return f"/api/discipline/enrollments/{data['amani']}/grade/"
+
+
+def test_override_needs_its_right_a_reason_and_is_logged_then_cleared(
+    api, school, master, teacher, data
+):
+    client = api(master)
+    incident(client, data, add_rule(client, points=12))
+    body = {"term": str(data["p1"].pk), "grade": "B", "reason": "Délibération du conseil"}
+    # L'enseignant attribue des fautes mais ne corrige pas la cote.
+    assert api(teacher).put(grade_url(data), body).status_code == 403
+    assert client.put(grade_url(data), {**body, "reason": " "}).status_code == 400
+    assert client.put(grade_url(data), {**body, "grade": "ZZ"}).status_code == 400
+    exam = {**body, "term": str(data["exam"].pk)}
+    assert client.put(grade_url(data), exam).json()["code"] == "bad_term_grade"
+
+    changed = client.put(grade_url(data), body).json()
+    first = next(t for t in changed["totals"] if t["term"] == str(data["p1"].pk))
+    assert (first["calculated"], first["grade"]) == ("AB", "B")
+    assert first["override_reason"] == "Délibération du conseil"
+    [entry] = log(school, "discipline.grade_overridden")
+    assert (entry.before["grade"], entry.after["grade"]) == ("AB", "B")
+
+    # Reprendre la cote rend celle des points.
+    cleared = client.delete(f"{grade_url(data)}?term={data['p1'].pk}").json()
+    assert next(t for t in cleared["totals"] if t["term"] == str(data["p1"].pk))["grade"] == "AB"
+    assert len(log(school, "discipline.grade_overridden")) == 2
+
+
+def test_the_report_card_shows_the_retained_conduct_grade_of_each_period(api, school, master, data):
+    director = MembershipFactory(school=school, roles=["study_director"]).user
+    client = api(master)
+    incident(client, data, add_rule(client, points=12))
+    client.put(grade_url(data), {"term": str(data["p1"].pk), "grade": "TB", "reason": "Conseil"})
+    page = api(director).get(
+        f"/api/class-groups/{data['a'].pk}/report-card/", enrollment=data["amani"], output="html"
+    )
+    amani = [c["grade"] for c in page.context["conduct"] if c["kind"] == "period"]
+    other = api(director).get(
+        f"/api/class-groups/{data['a'].pk}/report-card/", enrollment=data["josue"], output="html"
+    )
+    assert amani[0] == "TB" and amani[1:] == ["TB"] * (len(amani) - 1)
+    assert {c["grade"] for c in other.context["conduct"] if c["kind"] == "period"} == {"TB"}
+    assert all(c["grade"] == "" for c in page.context["conduct"] if c["kind"] != "period")
+
+
+def test_another_school_cannot_read_or_correct_a_conduct_grade(api, other_school, data, master):
+    other_master = MembershipFactory(school=other_school, roles=["discipline_master"]).user
+    other = api(other_master, host="beta.localhost")
+    body = {"term": str(data["p1"].pk), "grade": "B", "reason": "x"}
+    assert other.put(grade_url(data), body).status_code == 404
+    assert other.get(f"/api/discipline/enrollments/{data['amani']}/").status_code == 404

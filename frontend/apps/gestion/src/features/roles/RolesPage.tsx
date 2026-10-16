@@ -52,6 +52,7 @@ const GROUPS: {
       "grades.validate",
       "discipline.configure",
       "discipline.record",
+      "discipline.override",
     ],
   },
   {

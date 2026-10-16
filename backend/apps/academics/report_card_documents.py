@@ -10,6 +10,7 @@ Ce que disait le bulletin à la date d'impression : une note corrigée ensuite n
 la page l'indique."""
 
 from datetime import date
+from uuid import UUID
 
 from django.core import signing
 from django.urls import reverse
@@ -17,6 +18,7 @@ from django.utils import timezone
 from django.utils.translation import get_language, gettext
 from django.utils.translation import gettext_lazy as _
 
+from apps.academics import discipline
 from apps.academics.report_cards import ClassReport, StudentReport, class_report
 from apps.core.documents import qr_code, school_header
 from apps.core.tenancy import require_current_school
@@ -220,6 +222,28 @@ def _total_rows(student: StudentReport, keys: list[str], size: int) -> dict:
     }
 
 
+def _conduct(report: ClassReport, student: StudentReport, columns: list[dict]) -> list[dict]:
+    """Ligne Conduite (8.5.1b) : la cote de chaque colonne de période, vide ailleurs. Les cotes
+    de toute la classe se lisent en deux requêtes, la première fois, puis restent sur le
+    rapport."""
+    if not hasattr(report, "conduct"):
+        terms = [
+            c.term for c in report.columns if c.kind == "leaf" and c.term.kind == Term.Kind.PERIOD
+        ]
+        report.conduct = discipline.grades_of_class(
+            [s.enrollment.pk for s in report.students], terms
+        )
+    return [
+        {
+            "kind": c["kind"],
+            "grade": report.conduct.get((student.enrollment.pk, UUID(c["key"])), "")
+            if c["kind"] == "period"
+            else "",
+        }
+        for c in columns
+    ]
+
+
 def student_report(class_group: ClassGroup, enrollment_id) -> tuple[ClassReport, StudentReport]:
     """Le bulletin de la classe et celui de l'élève ; `None` si l'élève n'y est pas inscrit."""
     report = class_report(class_group)
@@ -361,6 +385,7 @@ def report_card_document(
         "day": day,
         **head,
         "columns": columns,
+        "conduct": _conduct(report, student, columns),
         "lines": lines,
         "footer_state": state[len(lines) :],
         "row_height": row_height,

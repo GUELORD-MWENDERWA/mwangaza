@@ -33,6 +33,7 @@ from apps.portal import (
 )
 from apps.portal.serializers import (
     AnnouncementsQuerySerializer,
+    ChildConductSerializer,
     ChildPaymentsSerializer,
     FamilyCodeSerializer,
     LinkedFamilySerializer,
@@ -188,6 +189,17 @@ class ChildView(APIView):
     @extend_schema(responses={200: ChildPaymentsSerializer, **READ_ERRORS})
     def get(self, request: Request, pk) -> Response:
         return Response(ChildPaymentsSerializer(children.child_payments(request.user, pk)).data)
+
+
+@extend_schema(tags=["portal"])
+class ChildConductView(APIView):
+    """Conduite d'un enfant (8.5.1b) : cote de chaque période et fautes ; 404 comme `ChildView`."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(responses={200: ChildConductSerializer, **READ_ERRORS})
+    def get(self, request: Request, pk) -> Response:
+        return Response(ChildConductSerializer(children.child_conduct(request.user, pk)).data)
 
 
 @extend_schema(tags=["portal"])

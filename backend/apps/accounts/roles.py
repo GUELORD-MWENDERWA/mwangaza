@@ -26,6 +26,7 @@ PERMISSIONS: dict[str, Promise] = {
     "grades.validate": _("Validate the grades sent by teachers and set the entry deadlines"),
     "discipline.configure": _("Configure the offences, their points and the conduct scale"),
     "discipline.record": _("Record an offence of a student"),
+    "discipline.override": _("Correct the conduct grade of a student"),
     "roles.manage": _("Manage staff accounts and roles"),
     "students.view": _("View students"),
     "students.edit": _("Edit students"),
@@ -62,6 +63,8 @@ GRADES_ENTER_ANY = "grades.enter_any"
 # infraction à un élève (tout enseignant).
 DISCIPLINE_CONFIGURE = "discipline.configure"
 DISCIPLINE_RECORD = "discipline.record"
+# Corriger la cote de conduite d'une période, avec motif (8.5.1b ; la délibération, 8.4).
+DISCIPLINE_OVERRIDE = "discipline.override"
 # Valider les notes envoyées, les rouvrir, fixer la date limite de saisie (8.2.2).
 GRADES_VALIDATE = "grades.validate"
 # Gérer les rôles et les comptes du personnel : une école garde toujours un compte actif qui l'a.
@@ -126,6 +129,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "courses.configure",
             "discipline.configure",
             "discipline.record",
+            "discipline.override",
             "roles.manage",
             "students.view",
             "students.edit",
@@ -155,7 +159,13 @@ STARTER_ROLES: dict[str, StarterRole] = {
     ),
     "discipline_master": StarterRole(
         _("Discipline master"),
-        ("discipline.configure", "discipline.record", "students.view", "announcements.publish"),
+        (
+            "discipline.configure",
+            "discipline.record",
+            "discipline.override",
+            "students.view",
+            "announcements.publish",
+        ),
     ),
     "accountant": StarterRole(
         _("Accountant"),
