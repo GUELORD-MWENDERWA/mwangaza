@@ -62,7 +62,7 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 ### 2026-10-16 — Tâche 8.4.1 : règles de réussite et repêchage
-- Fait : carte « Réussite et repêchage » des paramètres (`School.settings["pass_rules"]`, départ 50 / 50 / repêchage dès 45 % ou tout cours échoué / 2 échecs au repêchage) ; `ResitGrade` (note de repêchage signée, journal) ; cours échoués et issue proposée calculés d'après le bulletin de la classe ; écran « Repêchage » (maquette `repechage`) ; démo : un cours échoué sur deux a sa note.
+- Fait : règles **par niveau** (7e/8e 50 %, 3e/4e 52 %… : carte « Règles par niveau », `Level.pass_rules`), « cours repêchés au plus », cours d'atelier ou laboratoire sans seconde session (colonne « Repêchage » de la grille) ; carte « Réussite et repêchage » des paramètres (`School.settings["pass_rules"]`, départ 50 / 50 / repêchage dès 45 % ou tout cours échoué / 2 échecs au repêchage) ; `ResitGrade` (note de repêchage signée, journal) ; cours échoués et issue proposée calculés d'après le bulletin de la classe ; écran « Repêchage » (maquette `repechage`) ; démo : un cours échoué sur deux a sa note.
 - Tests : règles (bande, tout cours, plancher refusé, droit des paramètres), saisie par l'enseignant du cours seulement (autre enseignant et cours non éligible refusés), journal, isolation ; paramètres et menu.
 - Décisions : rien de stocké que la note (pourcentage 0-100) ; échec proposé « à partir de N » cours échoués au repêchage (I16 à confirmer) ; impression de la colonne du bulletin et décision prise : 8.4.2. Suite : 8.4.2.
 

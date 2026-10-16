@@ -23,7 +23,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.schools import pass_rules as rules_module
-from apps.schools.models import School
+from apps.schools.models import ClassGroup
 from apps.students.models import Enrollment
 
 INCOMPLETE, PASSED, RESIT, FAILED = "incomplete", "passed", "resit", "failed"
@@ -70,13 +70,18 @@ def _outcome(rules: dict, percent: Decimal | None, complete: bool, failed: list[
     return FAILED if lost >= rules["resit_failures_to_fail"] else PASSED
 
 
+def rules_of(group: ClassGroup) -> dict:
+    """Règles de la classe : celles de l'école, que son niveau peut remplacer (7e, 3e…)."""
+    return rules_module.class_rules(group.school.settings, group.level.pass_rules)
+
+
 def class_overview(
-    report: report_cards.ClassReport, school: School, *, user: User | None = None, permissions=()
+    report: report_cards.ClassReport, *, user: User | None = None, permissions=()
 ) -> list[StudentResits]:
     """Pour chaque élève de la classe : pourcentage de l'année, cours échoués (avec la note de
     repêchage éventuelle) et issue proposée. Une requête pour les notes de repêchage de toute la
     classe ; `user` et `permissions` disent quels cours la personne peut noter."""
-    rules = school.pass_rules
+    rules = rules_of(report.class_group)
     resits = {
         (r.enrollment_id, r.course_id): r
         for r in ResitGrade.objects.filter(
@@ -104,7 +109,7 @@ def class_overview(
             percent = report_cards._percent(cell.score, cell.maximum)
             if percent >= rules["course_pass_percent"]:
                 continue
-            eligible = (
+            eligible = course.resit_allowed and (
                 rules["resit_mode"] == rules_module.ANY_FAILED
                 or percent >= rules["resit_floor_percent"]
             )
@@ -117,6 +122,10 @@ def class_overview(
                     course.pk in enterable,
                 )
             )
+        if sum(f.eligible for f in failed) > rules["max_resit_courses"]:
+            # Trop de cours à repêcher : aucun repêchage, l'année est reprise.
+            for row in failed:
+                row.eligible = False
         year_percent = total.percent if total else None
         result.append(
             StudentResits(
@@ -178,8 +187,7 @@ def _failed_course(enrollment, course, actor, permissions) -> CourseResit:
     if course.class_group_id != enrollment.class_group_id:
         raise BusinessError(NOT_A_RESIT_COURSE)
     report = report_cards.class_report(enrollment.class_group)
-    school = enrollment.class_group.school
-    for student in class_overview(report, school, user=actor, permissions=permissions):
+    for student in class_overview(report, user=actor, permissions=permissions):
         if student.enrollment.pk == enrollment.pk:
             for row in student.failed:
                 if row.course.pk == course.pk and row.eligible:

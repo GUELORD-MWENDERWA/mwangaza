@@ -58,6 +58,7 @@ type Draft = {
   has_exam: boolean;
   is_taught: boolean;
   grade_entry: GradeEntry;
+  resit_allowed: boolean;
   weekly_hours: string;
   teacher_id: string;
 };
@@ -74,6 +75,7 @@ const toDraft = (course: Course): Draft => ({
   has_exam: course.has_exam,
   is_taught: course.is_taught,
   grade_entry: course.grade_entry,
+  resit_allowed: course.resit_allowed,
   weekly_hours: course.weekly_hours ? String(course.weekly_hours) : "",
   teacher_id: course.teacher?.id ?? "",
 });
@@ -93,6 +95,7 @@ const blank = (): Draft => ({
   has_exam: true,
   is_taught: true,
   grade_entry: "",
+  resit_allowed: true,
   weekly_hours: "",
   teacher_id: "",
 });
@@ -112,6 +115,7 @@ function fromGrid(grid: OfficialGrid, current: Draft[]): Draft[] {
       has_exam: course.has_exam,
       is_taught: course.is_taught,
       grade_entry: kept?.grade_entry ?? "",
+      resit_allowed: kept?.resit_allowed ?? true,
       weekly_hours: course.weekly_hours ? String(course.weekly_hours) : (kept?.weekly_hours ?? ""),
       teacher_id: kept?.teacher_id ?? "",
     };
@@ -185,6 +189,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
               has_exam: draft.has_exam,
               is_taught: draft.is_taught,
               grade_entry: draft.grade_entry,
+              resit_allowed: draft.resit_allowed,
               weekly_hours: draft.weekly_hours ? Number(draft.weekly_hours) : null,
               teacher_id: draft.teacher_id || null,
             })),
@@ -229,6 +234,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
       "has_exam",
       "is_taught",
       "grade_entry",
+      "resit_allowed",
     ]
       .flatMap((field) => fields[`courses.${index}.${field}`] ?? [])
       .map((error) => fieldMessage(error.code, t));
@@ -424,6 +430,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
               <th className="text-right">{t("courses.columns.year")}</th>
               <th>{t("courses.columns.taught")}</th>
               <th>{t("courses.columns.entry")}</th>
+              <th>{t("courses.columns.resit")}</th>
               <th className="text-right">{t("courses.columns.hours")}</th>
               <th>{t("courses.columns.teacher")}</th>
               <th />
@@ -432,7 +439,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={10} className="text-center text-ink-2">
+                <td colSpan={11} className="text-center text-ink-2">
                   {t("courses.empty")}
                 </td>
               </tr>
@@ -446,7 +453,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
                 <Fragment key={draft.key}>
                   {band && (
                     <tr className="[&_td]:bg-lake-50">
-                      <td colSpan={11} className="text-sm font-bold text-lake-700">
+                      <td colSpan={12} className="text-sm font-bold text-lake-700">
                         {t("courses.band", {
                           domain: band.domain,
                           count: band.count,
@@ -531,6 +538,13 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
                         <option value="totals">{t("courses.entry.totals")}</option>
                       </Select>
                     </td>
+                    <td>
+                      <Switch
+                        aria-label={`${t("courses.columns.resit")} — ${label}`}
+                        checked={draft.resit_allowed}
+                        onCheckedChange={(checked) => update(draft, { resit_allowed: checked })}
+                      />
+                    </td>
                     <td className="text-right">
                       <Input
                         aria-label={`${t("courses.columns.hours")} — ${label}`}
@@ -582,7 +596,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
                 <td className="text-right tabular-nums">
                   {counts.periods ? number(summary.year) : "—"}
                 </td>
-                <td />
+                <td colSpan={3} />
                 <td className="text-right tabular-nums">{number(summary.hours)}</td>
                 <td colSpan={2} />
               </tr>

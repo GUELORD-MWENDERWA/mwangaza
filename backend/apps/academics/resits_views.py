@@ -61,6 +61,7 @@ class RulesSerializer(serializers.Serializer):
     resit_mode = serializers.CharField()
     resit_floor_percent = serializers.IntegerField()
     resit_failures_to_fail = serializers.IntegerField()
+    max_resit_courses = serializers.IntegerField()
 
 
 class ClassResitsSerializer(serializers.Serializer):
@@ -88,9 +89,9 @@ class _ResitView(APIView):
 def _class_data(group: ClassGroup, request: Request) -> dict:
     """Élèves ayant un cours échoué, ou dont l'issue est l'échec."""
     permissions = school_access(request).permissions
-    rules = group.school.pass_rules
+    rules = resits.rules_of(group)
     rows = resits.class_overview(
-        report_cards.class_report(group), group.school, user=request.user, permissions=permissions
+        report_cards.class_report(group), user=request.user, permissions=permissions
     )
     return {
         "class_name": group.name,
@@ -106,7 +107,7 @@ class ClassResitsView(_ResitView):
         """Élèves de la classe qui ont un cours échoué : cours, pourcentage de l'année, repêchage
         ouvert ou non, note de repêchage signée et issue proposée. `can_enter` : la personne peut
         saisir la note de ce cours."""
-        group = get_object_or_404(ClassGroup.objects.select_related("school"), pk=pk)
+        group = get_object_or_404(ClassGroup.objects.select_related("school", "level"), pk=pk)
         permissions = school_access(request).permissions
         if (
             GRADES_ENTER_ANY not in permissions
@@ -123,7 +124,10 @@ class ClassResitsView(_ResitView):
 class ResitGradeView(_ResitView):
     def _target(self, request: Request, pk, course_pk) -> tuple[Enrollment, Course]:
         enrollment = get_object_or_404(
-            Enrollment.objects.select_related("student", "class_group__school"), pk=pk
+            Enrollment.objects.select_related(
+                "student", "class_group__school", "class_group__level"
+            ),
+            pk=pk,
         )
         course = get_object_or_404(Course, pk=course_pk)
         permissions = school_access(request).permissions

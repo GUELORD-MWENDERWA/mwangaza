@@ -149,3 +149,40 @@ def test_another_school_cannot_read_or_enter_a_resit_grade(api, other_school, da
     )
     assert other.get(class_url(data)).status_code == 404
     assert other.put(resit_url(data), {"percent": "60"}).status_code == 404
+
+
+def test_a_level_has_its_own_rules_and_a_workshop_course_has_no_resit(
+    api, school, head, physics_teacher, data
+):
+    director = api(MembershipFactory(school=school, roles=["study_director"]).user)
+    level_url = f"/api/levels/{data['a'].level_id}/"
+    assert student(director, data)["outcome"] == "resit"
+
+    # Règles du niveau : plancher à 49 % (le cours à 48 % n'ouvre plus de repêchage). L'école garde
+    # ses valeurs.
+    level = api(head).patch(level_url, {"pass_rules": {"resit_floor_percent": 49}})
+    assert level.json()["pass_rules"] == {"resit_floor_percent": 49}
+    assert student(director, data)["outcome"] == "failed"
+    rules = director.get(class_url(data)).json()["rules"]
+    assert (rules["resit_floor_percent"], rules["pass_percent"]) == (49, 50)
+    # Plancher au niveau de la note de réussite du cours : refusé ; `{}` rend les règles de l'école.
+    assert (
+        api(head).patch(level_url, {"pass_rules": {"resit_floor_percent": 50}}).status_code == 400
+    )
+    assert api(head).patch(level_url, {"pass_rules": {}}).json()["pass_rules"] == {}
+    assert student(director, data)["outcome"] == "resit"
+
+    # Pas plus de cours repêchés que la limite du niveau : au-delà, l'année est reprise.
+    api(head).patch(level_url, {"pass_rules": {"max_resit_courses": 0}})
+    failed = student(director, data)
+    assert (failed["outcome"], failed["courses"][0]["eligible"]) == ("failed", False)
+    api(head).patch(level_url, {"pass_rules": {}})
+
+    # Un cours d'atelier ou de laboratoire n'a pas de seconde session : l'échec reprend la classe.
+    with use_school(school):
+        data["physics"].__class__.objects.filter(pk=data["physics"].pk).update(resit_allowed=False)
+    failed = student(director, data)
+    assert (failed["outcome"], failed["courses"][0]["eligible"]) == ("failed", False)
+    assert api(physics_teacher).put(resit_url(data), {"percent": "60"}).json()["code"] == (
+        "not_a_resit_course"
+    )

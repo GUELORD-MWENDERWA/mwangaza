@@ -31,6 +31,7 @@ const settings = {
     resit_mode: "band",
     resit_floor_percent: 45,
     resit_failures_to_fail: 2,
+    max_resit_courses: 4,
   },
 };
 
@@ -116,6 +117,7 @@ describe("Paramètres de l'école (M5)", () => {
         resit_mode: "band",
         resit_floor_percent: 45,
         resit_failures_to_fail: 2,
+        max_resit_courses: 4,
       },
     });
     // Le nom de l'école (menu, connexion) est relu.

@@ -16674,6 +16674,9 @@ components:
           oneOf:
           - $ref: '#/components/schemas/GradeEntryEnum'
           - $ref: '#/components/schemas/BlankEnum'
+        resit_allowed:
+          type: boolean
+          readOnly: true
         weekly_hours:
           type: integer
           readOnly: true
@@ -16692,6 +16695,7 @@ components:
       - has_exam
       - is_taught
       - grade_entry
+      - resit_allowed
       - weekly_hours
       - teacher
     CourseInputRequest:
@@ -16731,6 +16735,11 @@ components:
           oneOf:
           - $ref: '#/components/schemas/GradeEntryEnum'
           - $ref: '#/components/schemas/BlankEnum'
+        resit_allowed:
+          type: boolean
+          default: true
+          description: 'Faux (atelier, laboratoire) : pas de seconde session, l''échec
+            reprend l''année.'
         weekly_hours:
           type: integer
           maximum: 40
@@ -19168,6 +19177,9 @@ components:
           title: Ends with the state exam
           description: The report card shows the state exam block instead of the resit
             exam.
+        pass_rules:
+          readOnly: true
+          title: Passing rules
       required:
       - id
       - name
@@ -19175,6 +19187,47 @@ components:
       - cycle
       - order
       - has_state_exam
+      - pass_rules
+    LevelPassRulesRequest:
+      type: object
+      description: |-
+        Règles propres à un niveau : seulement les champs qui diffèrent de l'école ; `{}` : celles
+        de l'école.
+      properties:
+        pass_percent:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Pourcentage de l'année pour réussir.
+        course_pass_percent:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Un cours est échoué sous ce pourcentage.
+        resit_mode:
+          allOf:
+          - $ref: '#/components/schemas/ResitModeEnum'
+          description: |-
+            band : repêchage de plancher à seuil ; any_failed : tout cours échoué.
+
+            * `band` - band
+            * `any_failed` - any_failed
+        resit_floor_percent:
+          type: integer
+          maximum: 99
+          minimum: 0
+          description: Plancher du repêchage (mode band).
+        resit_failures_to_fail:
+          type: integer
+          maximum: 20
+          minimum: 1
+          description: Cours échoués au repêchage qui font échouer.
+        max_resit_courses:
+          type: integer
+          maximum: 60
+          minimum: 0
+          description: Cours échoués au plus qui peuvent être repêchés ; au-delà,
+            l'échec.
     LevelReorderRequest:
       type: object
       properties:
@@ -20689,12 +20742,19 @@ components:
           maximum: 20
           minimum: 1
           description: Cours échoués au repêchage qui font échouer.
+        max_resit_courses:
+          type: integer
+          maximum: 60
+          minimum: 0
+          description: Cours échoués au plus qui peuvent être repêchés ; au-delà,
+            l'échec.
       required:
       - pass_percent
       - course_pass_percent
       - resit_mode
       - resit_floor_percent
       - resit_failures_to_fail
+      - max_resit_courses
     PassRulesSettingsRequest:
       type: object
       description: Règles de réussite et de repêchage (`pass_rules.py`, 8.4.1). Écriture
@@ -20728,8 +20788,15 @@ components:
           maximum: 20
           minimum: 1
           description: Cours échoués au repêchage qui font échouer.
+        max_resit_courses:
+          type: integer
+          maximum: 60
+          minimum: 0
+          description: Cours échoués au plus qui peuvent être repêchés ; au-delà,
+            l'échec.
       required:
       - course_pass_percent
+      - max_resit_courses
       - pass_percent
       - resit_failures_to_fail
       - resit_floor_percent
@@ -20962,6 +21029,8 @@ components:
           $ref: '#/components/schemas/CycleEnum'
         has_state_exam:
           type: boolean
+        pass_rules:
+          $ref: '#/components/schemas/LevelPassRulesRequest'
     PatchedMatriculeSettingsInputRequest:
       type: object
       properties:
@@ -22987,12 +23056,15 @@ components:
           type: integer
         resit_failures_to_fail:
           type: integer
+        max_resit_courses:
+          type: integer
       required:
       - pass_percent
       - course_pass_percent
       - resit_mode
       - resit_floor_percent
       - resit_failures_to_fail
+      - max_resit_courses
     Scale:
       type: object
       properties:

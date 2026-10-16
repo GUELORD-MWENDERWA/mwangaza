@@ -48,6 +48,8 @@ class Course(TenantModel):
         choices=[(DETAILED, _("Detailed")), (TOTALS, _("Period total only"))],
         blank=True,
     )
+    # Atelier, laboratoire : pas de seconde session. Cours échoué = reprise de la classe (8.4.1).
+    resit_allowed = models.BooleanField(_("resit allowed"), default=True)
     # Vide tant que l'école ne l'a pas saisi ; servira à l'emploi du temps (EDT).
     weekly_hours = models.PositiveSmallIntegerField(
         _("hours per week"),

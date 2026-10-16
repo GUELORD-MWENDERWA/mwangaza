@@ -144,6 +144,22 @@ class PassRulesSettingsSerializer(serializers.Serializer):
     resit_failures_to_fail = serializers.IntegerField(
         min_value=1, max_value=20, help_text="Cours échoués au repêchage qui font échouer."
     )
+    max_resit_courses = serializers.IntegerField(
+        min_value=0,
+        max_value=60,
+        help_text="Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec.",
+    )
+
+
+class LevelPassRulesSerializer(PassRulesSettingsSerializer):
+    """Règles propres à un niveau : seulement les champs qui diffèrent de l'école ; `{}` : celles
+    de l'école."""
+
+    def get_fields(self):
+        fields = super().get_fields()
+        for field in fields.values():
+            field.required = False
+        return fields
 
 
 class ReminderSettingsSerializer(serializers.Serializer):
@@ -450,8 +466,8 @@ class TermsUpdateSerializer(serializers.Serializer):
 class LevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Level
-        fields = ["id", "name", "report_title", "cycle", "order", "has_state_exam"]
-        read_only_fields = ["id", "order"]
+        fields = ["id", "name", "report_title", "cycle", "order", "has_state_exam", "pass_rules"]
+        read_only_fields = ["id", "order", "pass_rules"]
 
 
 class LevelUpdateSerializer(serializers.Serializer):
@@ -459,6 +475,7 @@ class LevelUpdateSerializer(serializers.Serializer):
     report_title = serializers.CharField(max_length=80, required=False, allow_blank=True)
     cycle = serializers.ChoiceField(choices=Level.Cycle.choices, required=False)
     has_state_exam = serializers.BooleanField(required=False)
+    pass_rules = LevelPassRulesSerializer(required=False)
 
 
 class LevelReorderSerializer(serializers.Serializer):

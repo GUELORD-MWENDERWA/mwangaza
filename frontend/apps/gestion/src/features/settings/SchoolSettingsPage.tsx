@@ -36,6 +36,7 @@ import { AlertsCard } from "./AlertsCard";
 import { CashRegistersCard } from "./CashRegistersCard";
 import { HEADER_MAX_LINES, headerLines, ReceiptCard } from "./ReceiptCard";
 import { GradingCard } from "./GradingCard";
+import { LevelRulesCard } from "./LevelRulesCard";
 import { PassRulesCard } from "./PassRulesCard";
 import { PortalCard } from "./PortalCard";
 import { RemindersCard } from "./RemindersCard";
@@ -168,6 +169,10 @@ function useSchema() {
           course_pass_percent: percent,
           resit_mode: z.enum(["band", "any_failed"]),
           resit_floor_percent: percent,
+          max_resit_courses: z
+            .string()
+            .trim()
+            .refine((value) => /^\d{1,2}$/.test(value), t("settings.passRules.invalidCount")),
           resit_failures_to_fail: z
             .string()
             .trim()
@@ -196,6 +201,7 @@ function useSchema() {
           resit_mode: rules.resit_mode,
           resit_floor_percent: Number(rules.resit_floor_percent),
           resit_failures_to_fail: Number(rules.resit_failures_to_fail),
+          max_resit_courses: Number(rules.max_resit_courses),
         },
       }));
   }, [t]);
@@ -265,6 +271,7 @@ function SettingsForm({ settings }: { settings: Settings }) {
         resit_mode: settings.pass_rules.resit_mode,
         resit_floor_percent: String(settings.pass_rules.resit_floor_percent),
         resit_failures_to_fail: String(settings.pass_rules.resit_failures_to_fail),
+        max_resit_courses: String(settings.pass_rules.max_resit_courses),
       },
     },
   });
@@ -319,6 +326,7 @@ function SettingsForm({ settings }: { settings: Settings }) {
           <PortalCard form={form} />
           <GradingCard form={form} />
           <PassRulesCard form={form} />
+          <LevelRulesCard />
         </div>
       </div>
     </form>

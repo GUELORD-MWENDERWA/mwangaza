@@ -14,12 +14,21 @@ DEFAULTS = {
     "resit_mode": BAND,
     "resit_floor_percent": 45,
     "resit_failures_to_fail": 2,
+    # Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec est proposé.
+    "max_resit_courses": 4,
 }
+FIELDS = tuple(DEFAULTS)
 
 
 def pass_rules_settings(settings: dict) -> dict:
     """Règles d'après `School.settings`, valeurs par défaut comprises."""
     return {**DEFAULTS, **(settings or {}).get("pass_rules", {})}
+
+
+def class_rules(settings: dict, level_rules: dict | None) -> dict:
+    """Règles d'une classe : celles de l'école, que le niveau de la classe (7e, 3e…) peut
+    remplacer champ par champ (`Level.pass_rules`, vide : celles de l'école)."""
+    return {**pass_rules_settings(settings), **(level_rules or {})}
 
 
 def journal_fields(settings: dict) -> dict:

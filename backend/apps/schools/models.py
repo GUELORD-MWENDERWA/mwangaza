@@ -490,6 +490,10 @@ class Level(TenantModel):
         help_text=_("The report card shows the state exam block instead of the resit exam."),
     )
 
+    # Règles de réussite propres au niveau (8.4.1) : seulement les champs qui diffèrent de ceux de
+    # l'école (`pass_rules.py`) ; vide : celles de l'école.
+    pass_rules = models.JSONField(_("passing rules"), default=dict, blank=True)
+
     class Meta:
         ordering = ["order", "name"]
         verbose_name = _("level")

@@ -14,7 +14,12 @@ export function PassRulesCard({ form }: CardProps) {
   const errors = form.formState.errors.pass_rules;
   const mode = form.watch("pass_rules.resit_mode");
   const number = (
-    name: "pass_percent" | "course_pass_percent" | "resit_floor_percent" | "resit_failures_to_fail",
+    name:
+      | "pass_percent"
+      | "course_pass_percent"
+      | "resit_floor_percent"
+      | "resit_failures_to_fail"
+      | "max_resit_courses",
     label: string,
     help?: string,
   ) => (
@@ -70,6 +75,11 @@ export function PassRulesCard({ form }: CardProps) {
             t("settings.passRules.floor"),
             t("settings.passRules.floorHelp"),
           )}
+        {number(
+          "max_resit_courses",
+          t("settings.passRules.maxCourses"),
+          t("settings.passRules.maxCoursesHelp"),
+        )}
         {number(
           "resit_failures_to_fail",
           t("settings.passRules.failures"),

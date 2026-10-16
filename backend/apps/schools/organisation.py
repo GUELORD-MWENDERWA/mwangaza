@@ -26,7 +26,7 @@ from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import require_current_school
 from apps.finance import services as finance
-from apps.schools import matricule
+from apps.schools import matricule, pass_rules
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Term, Track
 from apps.sync import changes as sync_changes
 
@@ -35,6 +35,11 @@ YEAR_NAME_TAKEN = ApiError(
 )
 YEAR_IS_CURRENT = ApiError("year_is_current", _("The current school year cannot be deleted."), 409)
 YEAR_IN_USE = ApiError("year_in_use", _("This school year has classes: delete them first."), 409)
+BAD_FLOOR = ApiError(
+    "bad_resit_floor",
+    _("The resit floor must be below the course pass mark."),
+    400,
+)
 LEVEL_NAME_TAKEN = ApiError(
     "level_name_taken", _("The school already has a level with this name."), 409
 )
@@ -359,7 +364,17 @@ def _level_data(level: Level) -> dict:
         "report_title": level.report_title,
         "cycle": level.cycle,
         "has_state_exam": level.has_state_exam,
+        "pass_rules": level.pass_rules,
     }
+
+
+def _level_rules(level: Level, rules: dict) -> dict:
+    """Règles propres au niveau : vides = celles de l'école ; le plancher du repêchage reste sous
+    la note de réussite d'un cours."""
+    merged = pass_rules.class_rules(level.school.settings, rules)
+    if merged["resit_floor_percent"] >= merged["course_pass_percent"]:
+        raise BusinessError(BAD_FLOOR)
+    return rules
 
 
 def _check_level_name(name: str, *, level_id=None) -> None:
@@ -398,6 +413,7 @@ def update_level(
     cycle: str | None = None,
     has_state_exam: bool | None = None,
     report_title: str | None = None,
+    pass_rules: dict | None = None,
 ) -> Level:
     name = level.name if name is None else name.strip()
     _check_level_name(name, level_id=level.pk)
@@ -409,6 +425,8 @@ def update_level(
             level.report_title = report_title.strip()
         if has_state_exam is not None:
             level.has_state_exam = has_state_exam
+        if pass_rules is not None:
+            level.pass_rules = _level_rules(level, pass_rules)
         level.save()
         old, new = audit.changes(before, _level_data(level))
         if new:

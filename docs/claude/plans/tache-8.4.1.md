@@ -4,6 +4,8 @@
 
 **Choix (regard senior)** : rien de stocké que la note de repêchage (`ResitGrade` : élève, cours, pourcentage, signataire) ; cours échoués et issue se calculent à la demande avec le bulletin de la classe (une lecture, pas de N+1), comme l'Application. La note est un pourcentage 0-100 (le maximum du cours varie selon les périodes). Signature = nom du signataire et journal ; l'impression de la colonne du bulletin et la décision prise sont en 8.4.2 / 8.4.x.
 
+**Ajout du 2026-10-16** (demande de l'utilisateur) : règles **par niveau** (`Level.pass_rules` sur celles de l'école), « repêchés au plus » (`max_resit_courses`), cours sans seconde session (`Course.resit_allowed`, atelier/labo). Section de classe : non, le niveau suffit.
+
 **Hors périmètre** : décision de délibération (8.4.2), impression de la note sur le bulletin, signature manuscrite (image).
 
 **Critères d'acceptation**

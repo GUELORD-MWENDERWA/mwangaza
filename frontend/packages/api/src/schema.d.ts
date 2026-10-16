@@ -5703,6 +5703,7 @@ export interface components {
              *     * `totals` - totals
              */
             readonly grade_entry: components["schemas"]["GradeEntryEnum"] | components["schemas"]["BlankEnum"];
+            readonly resit_allowed: boolean;
             /** Hours per week */
             readonly weekly_hours: number | null;
             readonly teacher: components["schemas"]["Person"] | null;
@@ -5732,6 +5733,11 @@ export interface components {
              * @default
              */
             grade_entry: components["schemas"]["GradeEntryEnum"] | components["schemas"]["BlankEnum"];
+            /**
+             * @description Faux (atelier, laboratoire) : pas de seconde session, l'échec reprend l'année.
+             * @default true
+             */
+            resit_allowed: boolean;
             weekly_hours?: number | null;
             /**
              * Format: uuid
@@ -6840,6 +6846,31 @@ export interface components {
              * @description The report card shows the state exam block instead of the resit exam.
              */
             has_state_exam: boolean;
+            /** Passing rules */
+            readonly pass_rules: unknown;
+        };
+        /**
+         * @description Règles propres à un niveau : seulement les champs qui diffèrent de l'école ; `{}` : celles
+         *     de l'école.
+         */
+        LevelPassRulesRequest: {
+            /** @description Pourcentage de l'année pour réussir. */
+            pass_percent?: number;
+            /** @description Un cours est échoué sous ce pourcentage. */
+            course_pass_percent?: number;
+            /**
+             * @description band : repêchage de plancher à seuil ; any_failed : tout cours échoué.
+             *
+             *     * `band` - band
+             *     * `any_failed` - any_failed
+             */
+            resit_mode?: components["schemas"]["ResitModeEnum"];
+            /** @description Plancher du repêchage (mode band). */
+            resit_floor_percent?: number;
+            /** @description Cours échoués au repêchage qui font échouer. */
+            resit_failures_to_fail?: number;
+            /** @description Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec. */
+            max_resit_courses?: number;
         };
         LevelReorderRequest: {
             /** @description Tous les niveaux de l'école, dans l'ordre voulu. */
@@ -7660,6 +7691,8 @@ export interface components {
             resit_floor_percent: number;
             /** @description Cours échoués au repêchage qui font échouer. */
             resit_failures_to_fail: number;
+            /** @description Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec. */
+            max_resit_courses: number;
         };
         /** @description Règles de réussite et de repêchage (`pass_rules.py`, 8.4.1). Écriture partielle. */
         PassRulesSettingsRequest: {
@@ -7678,6 +7711,8 @@ export interface components {
             resit_floor_percent: number;
             /** @description Cours échoués au repêchage qui font échouer. */
             resit_failures_to_fail: number;
+            /** @description Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec. */
+            max_resit_courses: number;
         };
         /**
          * @description Connexion en cours avec un mot de passe provisoire : `new_password` seul. Compte connecté :
@@ -7806,6 +7841,7 @@ export interface components {
             report_title?: string;
             cycle?: components["schemas"]["CycleEnum"];
             has_state_exam?: boolean;
+            pass_rules?: components["schemas"]["LevelPassRulesRequest"];
         };
         PatchedMatriculeSettingsInputRequest: {
             /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
@@ -8749,6 +8785,7 @@ export interface components {
             resit_mode: string;
             resit_floor_percent: number;
             resit_failures_to_fail: number;
+            max_resit_courses: number;
         };
         Scale: {
             scale: components["schemas"]["ScaleRow"][];

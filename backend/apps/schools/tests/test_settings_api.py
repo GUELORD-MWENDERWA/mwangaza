@@ -84,6 +84,7 @@ def test_head_reads_the_settings(api, school, head):
             "resit_mode": "band",
             "resit_floor_percent": 45,
             "resit_failures_to_fail": 2,
+            "max_resit_courses": 4,
         },
     }
 
