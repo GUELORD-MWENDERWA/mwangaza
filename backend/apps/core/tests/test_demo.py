@@ -365,14 +365,14 @@ def test_demo_organisation_of_the_itig(demo):
         terms = list(year.terms.all())
 
     assert (year.name, year.is_current) == ("2026-2027", True)
-    assert levels == ["7e EB", "8e EB", "1re", "2e", "3e", "4e"]
+    assert levels == ["7EB", "8EB", "1HT", "2HT", "3HT", "4HT"]
     assert tracks == {"ELEC", "ELO", "MG", "MA"}
     assert len(groups) == 23
-    assert [group.name for group in groups[:3]] == ["7e EB A", "7e EB B", "7e EB C"]
+    assert [group.name for group in groups[:3]] == ["7EB A", "7EB B", "7EB C"]
     titulars = {
         group.name: group.homeroom_teacher.phone for group in groups if group.homeroom_teacher
     }
-    assert titulars["3E ÉLECTRICITÉ A"] == "+243000001008"
+    assert titulars["3HT ÉLECTRICITÉ A"] == "+243000001008"
     # 5.7 : la classe de l'enfant du compte du portail a aussi un titulaire (le portail le
     # montre), l'enseignant de démonstration faute d'autre.
     assert set(titulars.values()) == {"+243000001008"}
@@ -387,7 +387,7 @@ def test_demo_organisation_of_volcans_is_separate(demo):
         groups = [group.name for group in ClassGroup.objects.all()]
         terms = list(AcademicYear.objects.get().terms.all())
 
-    assert groups == ["7e EB A", "8e EB A", "1re Scientifique A", "2e Pédagogie générale A"]
+    assert groups == ["7E EB A", "8E EB A", "1RE SCIENTIFIQUE A", "2E PÉDAGOGIE GÉNÉRALE A"]
     assert not any(term.starts_on for term in terms)  # dates à saisir par l'école
     assert demo["volcans"].matricule_format == "LV/{AA}/{0000}"
 
