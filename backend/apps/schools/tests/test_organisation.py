@@ -120,7 +120,7 @@ def test_copy_the_classes_of_another_year_without_their_homeroom_teachers(in_sch
     )
 
     [group] = ClassGroup.objects.filter(academic_year=copy)
-    assert (group.name, group.capacity, group.homeroom_teacher) == ("3e Électricité A", 45, None)
+    assert (group.name, group.capacity, group.homeroom_teacher) == ("3E ÉLECTRICITÉ A", 45, None)
     entry = journal("organisation.year_created")[-1]
     assert entry.after["copied_from"] == "2026-2027"
     assert entry.after["class_count"] == 1
@@ -305,8 +305,8 @@ def test_levels_are_created_in_order_with_unique_names(in_school, head):
     assert (seventh.name, seventh.order, eighth.order) == ("7e EB", 0, 1)
     assert taken.value.error.code == "level_name_taken"
     assert [entry.after for entry in journal("organisation.level_created")] == [
-        {"name": "7e EB", "cycle": "basic", "has_state_exam": False},
-        {"name": "8e EB", "cycle": "basic", "has_state_exam": False},
+        {"name": "7e EB", "report_title": "", "cycle": "basic", "has_state_exam": False},
+        {"name": "8e EB", "report_title": "", "cycle": "basic", "has_state_exam": False},
     ]
     [entry] = journal("organisation.level_updated")
     assert (entry.before, entry.after) == ({"name": "8e EB"}, {"name": "8e"})
@@ -383,10 +383,10 @@ def test_class_name_section_and_audit(setup, head):
     seventh = organisation.create_level(actor=head, name="7e EB", cycle="basic")
     single = organisation.create_class_group(actor=head, academic_year=year, level=seventh)
 
-    assert group.name == "3e Électricité A"
-    assert single.name == "7e EB"
+    assert group.name == "3E ÉLECTRICITÉ A"
+    assert single.name == "7E EB"
     [entry, _] = journal("organisation.class_created")
-    assert entry.entity_label == "3e Électricité A"
+    assert entry.entity_label == "3E ÉLECTRICITÉ A"
     assert entry.after == {
         "level": "3e",
         "track": "Électricité",
@@ -442,7 +442,7 @@ def test_delete_a_class(setup, head):
 
     assert not ClassGroup.objects.exists()
     [entry] = journal("organisation.class_deleted")
-    assert entry.entity_label == "3e"
+    assert entry.entity_label == "3E"
 
 
 def test_a_class_cannot_use_a_level_of_another_school(setup, head, other_school):

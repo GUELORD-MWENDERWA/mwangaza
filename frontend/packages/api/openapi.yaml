@@ -675,6 +675,10 @@ paths:
           - grades.deadline_set
           - grades.report_card_printed
           - grades.sheet_printed
+          - discipline.rule_changed
+          - discipline.scale_changed
+          - discipline.incident_recorded
+          - discipline.incident_cancelled
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -787,6 +791,10 @@ paths:
           * `grades.deadline_set` - Grade entry deadline set
           * `grades.report_card_printed` - Report card printed
           * `grades.sheet_printed` - Grade sheet printed
+          * `discipline.rule_changed` - Offence list changed
+          * `discipline.scale_changed` - Conduct scale changed
+          * `discipline.incident_recorded` - Offence recorded
+          * `discipline.incident_cancelled` - Offence cancelled
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -860,6 +868,7 @@ paths:
           - auth
           - courses
           - devices
+          - discipline
           - finance
           - grades
           - organisation
@@ -878,6 +887,7 @@ paths:
           * `auth` - auth
           * `courses` - courses
           * `devices` - devices
+          * `discipline` - discipline
           * `finance` - finance
           * `grades` - grades
           * `organisation` - organisation
@@ -1070,6 +1080,10 @@ paths:
           - grades.deadline_set
           - grades.report_card_printed
           - grades.sheet_printed
+          - discipline.rule_changed
+          - discipline.scale_changed
+          - discipline.incident_recorded
+          - discipline.incident_cancelled
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -1182,6 +1196,10 @@ paths:
           * `grades.deadline_set` - Grade entry deadline set
           * `grades.report_card_printed` - Report card printed
           * `grades.sheet_printed` - Grade sheet printed
+          * `discipline.rule_changed` - Offence list changed
+          * `discipline.scale_changed` - Conduct scale changed
+          * `discipline.incident_recorded` - Offence recorded
+          * `discipline.incident_cancelled` - Offence cancelled
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -1255,6 +1273,7 @@ paths:
           - auth
           - courses
           - devices
+          - discipline
           - finance
           - grades
           - organisation
@@ -1273,6 +1292,7 @@ paths:
           * `auth` - auth
           * `courses` - courses
           * `devices` - devices
+          * `discipline` - discipline
           * `finance` - finance
           * `grades` - grades
           * `organisation` - organisation
@@ -5590,6 +5610,460 @@ paths:
       responses:
         '204':
           description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/discipline/classes/:
+    get:
+      operationId: discipline_classes_list
+      description: Classes de l'année en cours, pour choisir l'élève.
+      tags:
+      - discipline
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PickClass'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/discipline/classes/{id}/students/:
+    get:
+      operationId: discipline_classes_students_list
+      description: Élèves inscrits dans la classe, avec l'inscription à envoyer.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - discipline
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PickStudent'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/discipline/enrollments/{id}/:
+    get:
+      operationId: discipline_enrollments_retrieve
+      description: Incidents d'un élève (annulés marqués) et points par période avec
+        la cote proposée.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - discipline
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentIncidents'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/discipline/incidents/:
+    post:
+      operationId: discipline_incidents_create
+      description: Attribue une infraction à un élève.
+      tags:
+      - discipline
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncidentCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/IncidentCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/IncidentCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/discipline/incidents/{id}/cancel/:
+    post:
+      operationId: discipline_incidents_cancel_create
+      description: Annule l'incident, avec un motif ; il reste visible, ses points
+        ne comptent plus.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - discipline
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CancelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CancelRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/discipline/rules/:
+    get:
+      operationId: discipline_rules_list
+      description: Liste des infractions et leurs points ; les retirées seulement
+        avec `?all=1`.
+      parameters:
+      - in: query
+        name: all
+        schema:
+          type: boolean
+        description: Avec les infractions retirées.
+      tags:
+      - discipline
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rule'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: discipline_rules_create
+      description: Ajoute une infraction à la liste.
+      tags:
+      - discipline
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RuleCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RuleCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RuleCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rule'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/discipline/rules/{id}/:
+    patch:
+      operationId: discipline_rules_partial_update
+      description: Change le libellé ou les points, ou retire l'infraction de la liste
+        (`is_active`).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - discipline
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRuleUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRuleUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRuleUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rule'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/discipline/rules/defaults/:
+    post:
+      operationId: discipline_rules_defaults_create
+      description: Charge la liste proposée, si la liste est encore vide.
+      tags:
+      - discipline
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rule'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/discipline/scale/:
+    get:
+      operationId: discipline_scale_retrieve
+      description: Points minimum de chaque cote de conduite (TB, B, AB, ME, MA).
+      tags:
+      - discipline
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scale'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    put:
+      operationId: discipline_scale_update
+      description: Enregistre les cinq seuils.
+      tags:
+      - discipline
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScaleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ScaleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ScaleRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scale'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
         '403':
           content:
             application/json:
@@ -12926,6 +13400,10 @@ components:
       - grades.deadline_set
       - grades.report_card_printed
       - grades.sheet_printed
+      - discipline.rule_changed
+      - discipline.scale_changed
+      - discipline.incident_recorded
+      - discipline.incident_cancelled
       - students.family_created
       - students.family_updated
       - students.family_deleted
@@ -13037,6 +13515,10 @@ components:
         * `grades.deadline_set` - Grade entry deadline set
         * `grades.report_card_printed` - Report card printed
         * `grades.sheet_printed` - Grade sheet printed
+        * `discipline.rule_changed` - Offence list changed
+        * `discipline.scale_changed` - Conduct scale changed
+        * `discipline.incident_recorded` - Offence recorded
+        * `discipline.incident_cancelled` - Offence cancelled
         * `students.family_created` - Family created
         * `students.family_updated` - Family changed
         * `students.family_deleted` - Family deleted
@@ -13465,6 +13947,15 @@ components:
     BlankEnum:
       enum:
       - ''
+    CancelRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 300
+      required:
+      - reason
     CancellationAlert:
       type: object
       properties:
@@ -16576,6 +17067,7 @@ components:
       - auth
       - courses
       - devices
+      - discipline
       - finance
       - grades
       - organisation
@@ -17242,6 +17734,20 @@ components:
       required:
       - code
       - detail
+    GradeEnum:
+      enum:
+      - TB
+      - B
+      - AB
+      - ME
+      - MA
+      type: string
+      description: |-
+        * `TB` - TB
+        * `B` - B
+        * `AB` - AB
+        * `ME` - ME
+        * `MA` - MA
     GradeInputRequest:
       type: object
       properties:
@@ -17822,6 +18328,77 @@ components:
       - permanent_number
       - guardian_name
       - guardian_phone
+    Incident:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        offence:
+          type: string
+        points:
+          type: integer
+          readOnly: true
+        occurred_on:
+          type: string
+          format: date
+          readOnly: true
+          title: Date
+        term:
+          type: string
+          format: uuid
+          readOnly: true
+        term_name:
+          type: string
+        note:
+          type: string
+          readOnly: true
+        recorded_by_name:
+          type: string
+          readOnly: true
+        cancelled:
+          type: boolean
+          readOnly: true
+        cancel_reason:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - offence
+      - points
+      - occurred_on
+      - term
+      - term_name
+      - note
+      - recorded_by_name
+      - cancelled
+      - cancel_reason
+    IncidentCreateRequest:
+      type: object
+      properties:
+        enrollment:
+          type: string
+          format: uuid
+        rule:
+          type: string
+          format: uuid
+        occurred_on:
+          type: string
+          format: date
+        note:
+          type: string
+          default: ''
+          maxLength: 300
+        term:
+          type: string
+          format: uuid
+          nullable: true
+          description: Période ; sinon celle qui contient la date.
+      required:
+      - enrollment
+      - occurred_on
+      - rule
     IncomingRequest:
       type: object
       properties:
@@ -17998,6 +18575,10 @@ components:
         name:
           type: string
           maxLength: 40
+        report_title:
+          type: string
+          title: Report card title
+          maxLength: 80
         cycle:
           $ref: '#/components/schemas/CycleEnum'
         order:
@@ -18011,6 +18592,7 @@ components:
       required:
       - id
       - name
+      - report_title
       - cycle
       - order
       - has_state_exam
@@ -18032,6 +18614,10 @@ components:
           type: string
           minLength: 1
           maxLength: 40
+        report_title:
+          type: string
+          title: Report card title
+          maxLength: 80
         cycle:
           $ref: '#/components/schemas/CycleEnum'
         has_state_exam:
@@ -19682,6 +20268,9 @@ components:
           type: string
           minLength: 1
           maxLength: 40
+        report_title:
+          type: string
+          maxLength: 80
         cycle:
           $ref: '#/components/schemas/CycleEnum'
         has_state_exam:
@@ -19716,6 +20305,19 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PermissionsEnum'
+    PatchedRuleUpdateRequest:
+      type: object
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 120
+        points:
+          type: integer
+          maximum: 100
+          minimum: 1
+        is_active:
+          type: boolean
     PatchedSchoolEventRequest:
       type: object
       properties:
@@ -20306,6 +20908,8 @@ components:
       - grades.enter
       - grades.enter_any
       - grades.validate
+      - discipline.configure
+      - discipline.record
       - roles.manage
       - students.view
       - students.edit
@@ -20329,6 +20933,8 @@ components:
         * `grades.enter` - Enter the grades of one's courses and of one's homeroom class
         * `grades.enter_any` - Enter the grades of every class
         * `grades.validate` - Validate the grades sent by teachers and set the entry deadlines
+        * `discipline.configure` - Configure the offences, their points and the conduct scale
+        * `discipline.record` - Record an offence of a student
         * `roles.manage` - Manage staff accounts and roles
         * `students.view` - View students
         * `students.edit` - Edit students
@@ -20374,6 +20980,32 @@ components:
           description: PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus.
       required:
       - photo
+    PickClass:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+      - id
+      - name
+    PickStudent:
+      type: object
+      properties:
+        enrollment:
+          type: string
+          format: uuid
+          description: Inscription de l'élève (à envoyer avec l'incident).
+        full_name:
+          type: string
+        matricule:
+          type: string
+      required:
+      - enrollment
+      - full_name
+      - matricule
     Platform:
       type: object
       description: 'Identité de la plateforme, publique : écrans de connexion, menus,
@@ -21502,6 +22134,85 @@ components:
       required:
       - id
       - name
+    Rule:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        label:
+          type: string
+          title: Offence
+          maxLength: 120
+        points:
+          type: integer
+          maximum: 100
+          minimum: 1
+        is_active:
+          type: boolean
+          title: In the list
+      required:
+      - id
+      - label
+      - points
+      - is_active
+    RuleCreateRequest:
+      type: object
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 120
+        points:
+          type: integer
+          maximum: 100
+          minimum: 1
+      required:
+      - label
+      - points
+    Scale:
+      type: object
+      properties:
+        scale:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScaleRow'
+      required:
+      - scale
+    ScaleRequest:
+      type: object
+      properties:
+        scale:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScaleRowRequest'
+      required:
+      - scale
+    ScaleRow:
+      type: object
+      properties:
+        grade:
+          $ref: '#/components/schemas/GradeEnum'
+        min_points:
+          type: integer
+          maximum: 1000
+          minimum: 0
+      required:
+      - grade
+      - min_points
+    ScaleRowRequest:
+      type: object
+      properties:
+        grade:
+          $ref: '#/components/schemas/GradeEnum'
+        min_points:
+          type: integer
+          maximum: 1000
+          minimum: 0
+      required:
+      - grade
+      - min_points
     ScheduleKindEnum:
       enum:
       - installments
@@ -23015,6 +23726,26 @@ components:
         * `done` - Imported
         * `failed` - Failed
         * `cancelled` - Cancelled
+    StudentIncidents:
+      type: object
+      properties:
+        full_name:
+          type: string
+        class_name:
+          type: string
+        incidents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Incident'
+        totals:
+          type: array
+          items:
+            $ref: '#/components/schemas/TermConduct'
+      required:
+      - full_name
+      - class_name
+      - incidents
+      - totals
     StudentList:
       type: object
       properties:
@@ -23676,6 +24407,25 @@ components:
       - starts_on
       - ends_on
       - children
+    TermConduct:
+      type: object
+      properties:
+        term:
+          type: string
+          format: uuid
+        term_name:
+          type: string
+        points:
+          type: integer
+          description: Points des incidents non annulés.
+        grade:
+          type: string
+          description: Cote proposée d'après les seuils de l'école.
+      required:
+      - term
+      - term_name
+      - points
+      - grade
     TermInputLeafRequest:
       type: object
       properties:

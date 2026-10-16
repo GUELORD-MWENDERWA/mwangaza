@@ -331,6 +331,7 @@ def report_card_document(
         line["state"] = item
     row_height, outside = _spread(rows)
     track = class_group.track.name if class_group.track_id else ""
+    level_title = class_group.level.report_title or class_group.level.name
     return {
         **school_header(school),
         "epst_code": _code(school.epst_code),
@@ -341,7 +342,7 @@ def report_card_document(
         "school": school,
         "student": person,
         "class_group": class_group.name,
-        "class_title": f"{class_group.level.name} {track}".strip(),
+        "class_title": f"{level_title} {track}".strip().upper(),
         "state_exam": class_group.level.has_state_exam,
         "year": class_group.academic_year.name,
         "day": day,

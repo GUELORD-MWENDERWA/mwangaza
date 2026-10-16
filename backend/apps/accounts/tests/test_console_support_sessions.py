@@ -25,7 +25,7 @@ def open_session(client, reason: str) -> None:
 def rename_teacher_role(client, school, name: str) -> None:
     # Le rôle d'enseignant du modèle de départ, quel que soit son nom du moment.
     with use_school(school):
-        role = Role.objects.get(permissions=["grades.enter"])
+        role = Role.objects.get(permissions=["grades.enter", "discipline.record"])
     assert client.patch(f"/api/roles/{role.id}/", {"name": name}).status_code == 200
 
 

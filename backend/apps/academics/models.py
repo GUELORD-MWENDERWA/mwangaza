@@ -13,6 +13,8 @@ MAX_PERIOD_MAX = 1000
 MAX_WEEKLY_HOURS = 40
 # Une note : une décimale (7,5), de 0 au maximum de son évaluation (décision du 2026-10-15).
 SCORE_DIGITS, SCORE_DECIMALS = 5, 1
+# Points d'une infraction : de 1 à 100 (l'exclusion se décide autrement qu'avec des points).
+MAX_RULE_POINTS = 100
 
 
 class Course(TenantModel):
@@ -214,3 +216,107 @@ class GradeDeadline(TenantModel):
 
     def __str__(self) -> str:
         return f"{self.term} · {self.due_on}"
+
+
+class DisciplineRule(TenantModel):
+    """Infraction de la liste du directeur de discipline [T] (8.5.1a) : un libellé et des points.
+    Une infraction retirée de la liste est désactivée, jamais effacée : les incidents passés la
+    gardent."""
+
+    label = models.CharField(_("offence"), max_length=120)
+    points = models.PositiveSmallIntegerField(
+        _("points"), validators=[MinValueValidator(1), MaxValueValidator(MAX_RULE_POINTS)]
+    )
+    is_active = models.BooleanField(_("in the list"), default=True)
+    order = models.PositiveSmallIntegerField(_("order"), default=0)
+
+    class Meta:
+        ordering = ["order", "label"]
+        verbose_name = _("offence")
+        verbose_name_plural = _("offences")
+
+    def __str__(self) -> str:
+        return self.label
+
+
+class ConductScale(TenantModel):
+    """Seuil d'une cote de conduite [T] : points minimum à partir desquels la cote s'applique
+    (TB, B, AB, ME, MA). Sans ligne, l'école a les seuils de départ (`discipline.DEFAULT_SCALE`)."""
+
+    class Grade(models.TextChoices):
+        TB = "TB", _("Very good")
+        B = "B", _("Good")
+        AB = "AB", _("Fairly good")
+        ME = "ME", _("Mediocre")
+        MA = "MA", _("Poor")
+
+    grade = models.CharField(_("grade"), max_length=2, choices=Grade.choices)
+    min_points = models.PositiveSmallIntegerField(_("from points"))
+
+    class Meta:
+        ordering = ["min_points"]
+        constraints = [
+            models.UniqueConstraint(fields=["school", "grade"], name="conduct_scale_grade_unique")
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.grade} ≥ {self.min_points}"
+
+
+class DisciplineIncident(TenantModel):
+    """Faute d'un élève [T] : les points sont copiés de l'infraction à cet instant (changer la
+    liste ne réécrit pas le passé). Jamais modifié ni effacé : une annulation est un
+    enregistrement lié (`IncidentCancellation`), avec motif."""
+
+    enrollment = models.ForeignKey(
+        Enrollment,
+        on_delete=models.PROTECT,
+        related_name="incidents",
+        verbose_name=_("enrolment"),
+    )
+    term = models.ForeignKey(
+        Term, on_delete=models.PROTECT, related_name="incidents", verbose_name=_("term")
+    )
+    rule = models.ForeignKey(
+        DisciplineRule,
+        on_delete=models.PROTECT,
+        related_name="incidents",
+        verbose_name=_("offence"),
+    )
+    points = models.PositiveSmallIntegerField(_("points"))
+    occurred_on = models.DateField(_("date"))
+    note = models.CharField(_("note"), max_length=300, blank=True)
+    recorded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("recorded by"),
+    )
+
+    class Meta:
+        ordering = ["-occurred_on", "-created_at"]
+        indexes = [
+            models.Index(fields=["school", "enrollment", "term"], name="incident_enrollment_term")
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.enrollment} · {self.rule} · {self.occurred_on}"
+
+
+class IncidentCancellation(TenantModel):
+    """Annulation d'un incident [T] : l'incident reste, sa ligne dit qui l'a annulé et pourquoi ;
+    ses points ne comptent plus."""
+
+    incident = models.OneToOneField(
+        DisciplineIncident,
+        on_delete=models.PROTECT,
+        related_name="cancellation",
+        verbose_name=_("incident"),
+    )
+    reason = models.CharField(_("reason"), max_length=300)
+    cancelled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("cancelled by"),
+    )

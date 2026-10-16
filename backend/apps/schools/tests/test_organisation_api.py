@@ -64,7 +64,7 @@ def test_study_director_manages_the_organisation(api, school, alpha):
     response = api(director).get(CLASSES)
 
     assert response.status_code == 200
-    assert [group["name"] for group in response.json()] == ["3e Électricité A"]
+    assert [group["name"] for group in response.json()] == ["3E ÉLECTRICITÉ A"]
 
 
 @pytest.mark.parametrize(
@@ -95,7 +95,7 @@ def test_students_view_reads_years_levels_tracks_and_classes_of_its_school_only(
     client = api(cashier)
     for url in (YEARS, LEVELS, TRACKS, CLASSES, f"{CLASSES}{alpha['group'].id}/"):
         assert client.get(url).status_code == 200, url
-    assert [group["name"] for group in client.get(CLASSES).json()] == ["3e Électricité A"]
+    assert [group["name"] for group in client.get(CLASSES).json()] == ["3E ÉLECTRICITÉ A"]
     assert client.get(f"{CLASSES}{beta['group'].id}/").status_code == 404
     assert client.get(f"{YEARS}{beta['year'].id}/").status_code == 404
 
@@ -146,7 +146,7 @@ def test_create_a_year_from_a_template_with_the_classes_of_another(api, head, al
         "ends_on": None,
     }
     classes = api(head).get(CLASSES, academic_year=data["id"]).json()
-    assert [group["name"] for group in classes] == ["3e Électricité A"]
+    assert [group["name"] for group in classes] == ["3E ÉLECTRICITÉ A"]
 
 
 def test_list_years_newest_first_with_their_terms(api, head, alpha):
@@ -241,6 +241,7 @@ def test_levels(api, head, school, alpha):
     assert created.json() | {"id": None} == {
         "id": None,
         "name": "7e EB",
+        "report_title": "",
         "cycle": "basic",
         "order": 2,
         "has_state_exam": False,
@@ -289,7 +290,7 @@ def test_list_classes_of_the_current_year_by_default(api, head, alpha):
             "level": str(alpha["level"].id),
             "track": str(alpha["track"].id),
             "section": "A",
-            "name": "3e Électricité A",
+            "name": "3E ÉLECTRICITÉ A",
             "capacity": 45,
             "student_count": 0,
             "homeroom_teacher": None,
@@ -318,7 +319,7 @@ def test_create_update_and_delete_a_class(api, head, school, alpha):
     deleted = client.delete(f"{CLASSES}{group_id}/")
 
     assert created.status_code == 201, created.content
-    assert created.json()["name"] == "3e Électricité B"
+    assert created.json()["name"] == "3E ÉLECTRICITÉ B"
     assert created.json()["homeroom_teacher"] == {
         "id": str(teacher.id),
         "last_name": teacher.last_name,
@@ -330,7 +331,7 @@ def test_create_update_and_delete_a_class(api, head, school, alpha):
     assert updated.json()["homeroom_teacher"] is None
     assert deleted.status_code == 204
     assert [e.entity_label for e in entries(school, "organisation.class_deleted")] == [
-        "3e Électricité B"
+        "3E ÉLECTRICITÉ B"
     ]
 
 

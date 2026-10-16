@@ -24,6 +24,8 @@ PERMISSIONS: dict[str, Promise] = {
     "grades.enter": _("Enter the grades of one's courses and of one's homeroom class"),
     "grades.enter_any": _("Enter the grades of every class"),
     "grades.validate": _("Validate the grades sent by teachers and set the entry deadlines"),
+    "discipline.configure": _("Configure the offences, their points and the conduct scale"),
+    "discipline.record": _("Record an offence of a student"),
     "roles.manage": _("Manage staff accounts and roles"),
     "students.view": _("View students"),
     "students.edit": _("Edit students"),
@@ -56,6 +58,10 @@ COURSES_CONFIGURE = "courses.configure"
 # Notes (8.2.1) : celles de ses cours et de la classe dont on est titulaire, ou de toutes.
 GRADES_ENTER = "grades.enter"
 GRADES_ENTER_ANY = "grades.enter_any"
+# Conduite (8.5.1a) : tenir la liste des infractions et les seuils des cotes ; attribuer une
+# infraction à un élève (tout enseignant).
+DISCIPLINE_CONFIGURE = "discipline.configure"
+DISCIPLINE_RECORD = "discipline.record"
 # Valider les notes envoyées, les rouvrir, fixer la date limite de saisie (8.2.2).
 GRADES_VALIDATE = "grades.validate"
 # Gérer les rôles et les comptes du personnel : une école garde toujours un compte actif qui l'a.
@@ -118,6 +124,8 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "school.configure",
             "classes.manage",
             "courses.configure",
+            "discipline.configure",
+            "discipline.record",
             "roles.manage",
             "students.view",
             "students.edit",
@@ -139,13 +147,15 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "courses.configure",
             "grades.enter_any",
             "grades.validate",
+            "discipline.record",
             "students.view",
             "students.edit",
             "announcements.publish",
         ),
     ),
     "discipline_master": StarterRole(
-        _("Discipline master"), ("students.view", "announcements.publish")
+        _("Discipline master"),
+        ("discipline.configure", "discipline.record", "students.view", "announcements.publish"),
     ),
     "accountant": StarterRole(
         _("Accountant"),
@@ -184,7 +194,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
     "promoter": StarterRole(_("Promoter"), ("students.view", "finance.view_reports", "audit.view")),
     # Enseignant : les notes de ses cours et de la classe dont il est titulaire (8.2.1). Parent :
     # rien dans la Gestion, le portail lui montre ses enfants.
-    "teacher": StarterRole(_("Teacher"), ("grades.enter",)),
+    "teacher": StarterRole(_("Teacher"), ("grades.enter", "discipline.record")),
     "parent": StarterRole(_("Parent"), ()),
 }
 

@@ -83,7 +83,7 @@ def test_a_family_sees_its_schools_announcements_for_all_or_its_childrens_classe
     assert (first["title"], first["school_name"], first["classes"]) == (
         "Réunion des parents de 3e",
         school.name,
-        ["3e Électricité A"],
+        ["3E ÉLECTRICITÉ A"],
     )
     assert (second["title"], second["classes"], second["read"]) == (
         "Rentrée le 1er septembre",

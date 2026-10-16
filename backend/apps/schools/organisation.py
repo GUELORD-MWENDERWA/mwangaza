@@ -354,7 +354,12 @@ def set_terms(year: AcademicYear, nodes: list[TermNode], *, actor: User) -> Acad
 
 
 def _level_data(level: Level) -> dict:
-    return {"name": level.name, "cycle": level.cycle, "has_state_exam": level.has_state_exam}
+    return {
+        "name": level.name,
+        "report_title": level.report_title,
+        "cycle": level.cycle,
+        "has_state_exam": level.has_state_exam,
+    }
 
 
 def _check_level_name(name: str, *, level_id=None) -> None:
@@ -362,7 +367,9 @@ def _check_level_name(name: str, *, level_id=None) -> None:
         raise BusinessError(LEVEL_NAME_TAKEN)
 
 
-def create_level(*, actor: User, name: str, cycle: str, has_state_exam: bool = False) -> Level:
+def create_level(
+    *, actor: User, name: str, cycle: str, has_state_exam: bool = False, report_title: str = ""
+) -> Level:
     """Nouveau niveau, placé après les autres."""
     require_current_school()
     name = name.strip()
@@ -371,6 +378,7 @@ def create_level(*, actor: User, name: str, cycle: str, has_state_exam: bool = F
         last = Level.objects.aggregate(last=Max("order"))["last"]
         level = Level.objects.create(
             name=name,
+            report_title=report_title.strip(),
             cycle=cycle,
             has_state_exam=has_state_exam,
             order=0 if last is None else last + 1,
@@ -389,6 +397,7 @@ def update_level(
     name: str | None = None,
     cycle: str | None = None,
     has_state_exam: bool | None = None,
+    report_title: str | None = None,
 ) -> Level:
     name = level.name if name is None else name.strip()
     _check_level_name(name, level_id=level.pk)
@@ -396,6 +405,8 @@ def update_level(
         before = _level_data(level)
         level.name = name
         level.cycle = cycle or level.cycle
+        if report_title is not None:
+            level.report_title = report_title.strip()
         if has_state_exam is not None:
             level.has_state_exam = has_state_exam
         level.save()

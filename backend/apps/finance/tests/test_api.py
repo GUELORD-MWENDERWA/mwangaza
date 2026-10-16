@@ -235,7 +235,7 @@ def test_one_fee_rule_per_fee_type_and_scope_in_a_year(api, alpha, head):
     assert client.post(RULES, rule_body(alpha)).json()["code"] == "fee_rule_exists"
     response = client.post(RULES, rule_body(alpha, level=None, class_group=str(alpha["group"].pk)))
     assert response.status_code == 201
-    assert response.json()["scope_name"] == "3e Électricité A"
+    assert response.json()["scope_name"] == "3E ÉLECTRICITÉ A"
 
 
 # Taux de l'année (E5)
@@ -330,8 +330,8 @@ def test_a_new_year_copies_the_fee_rules_with_shifted_dates(api, alpha, head, sc
     with use_school(school):
         year = AcademicYear.objects.get(pk=response.json()["id"])
         rules = {rule.scope_name: rule for rule in year.fee_rules.all()}
-        assert set(rules) == {"3e", "3e Électricité A"}
-        assert rules["3e Électricité A"].class_group == ClassGroup.objects.get(academic_year=year)
+        assert set(rules) == {"3e", "3E ÉLECTRICITÉ A"}
+        assert rules["3E ÉLECTRICITÉ A"].class_group == ClassGroup.objects.get(academic_year=year)
         dues = [i.due_on for i in rules["3e"].installments.all()]
         assert dues == [date(2027, 10, 15), date(2028, 1, 15), date(2028, 4, 15)]
     [copied] = entries(school, "finance.fee_rules_copied")

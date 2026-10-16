@@ -120,15 +120,17 @@ TYPES = {
 
 RULES = {
     "itig": [
-        *[DemoRule(MINERVAL, level=level, total=30000) for level in ("7e EB", "8e EB")],
-        *[DemoRule(MINERVAL, level=level, total=36000) for level in ("1re", "2e", "3e")],
-        DemoRule(MINERVAL, level="4e", total=39000),
+        *[DemoRule(MINERVAL, level=level, total=30000) for level in ("7EB", "8EB")],
+        *[DemoRule(MINERVAL, level=level, total=36000) for level in ("1HT", "2HT", "3HT")],
+        DemoRule(MINERVAL, level="4HT", total=39000),
         DemoRule("Frais de fonctionnement", total=5000, kind=FeeRule.ScheduleKind.SINGLE),
         DemoRule("Frais connexes", total=2500, kind=FeeRule.ScheduleKind.SINGLE),
         *[DemoRule(ATELIER, track=code, total=6000) for code in ("ELEC", "ELO")],
         *[DemoRule(ATELIER, track=code, total=7500) for code in ("MG", "MA")],
         DemoRule(MOTIVATION, currency="CDF", total=150000, kind=FeeRule.ScheduleKind.MONTHLY),
-        DemoRule("Frais d'État (Exetat)", level="4e", total=4000, kind=FeeRule.ScheduleKind.SINGLE),
+        DemoRule(
+            "Frais d'État (Exetat)", level="4HT", total=4000, kind=FeeRule.ScheduleKind.SINGLE
+        ),
     ],
     "volcans": [
         DemoRule(MINERVAL, total=24000),

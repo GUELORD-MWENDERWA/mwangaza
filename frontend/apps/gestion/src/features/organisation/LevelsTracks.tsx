@@ -48,6 +48,7 @@ function useLevelSchema() {
     () =>
       z.object({
         name: z.string().trim().min(1, t("validation.nameRequired")).max(40),
+        report_title: z.string().trim().max(80),
         cycle: z.string(),
         has_state_exam: z.boolean(),
       }),
@@ -252,6 +253,21 @@ function LevelFields({
           </Select>
         )}
       </Field>
+      <Field
+        id={`${idPrefix}-report-title`}
+        label={t("organisation.levels.reportTitle")}
+        help={t("organisation.levels.reportTitleHelp")}
+        error={errors.report_title?.message}
+        className="min-[600px]:col-span-3"
+      >
+        {(control) => (
+          <Input
+            {...control}
+            placeholder={t("organisation.levels.reportTitlePlaceholder")}
+            {...form.register("report_title")}
+          />
+        )}
+      </Field>
       <Controller
         control={form.control}
         name="has_state_exam"
@@ -275,6 +291,7 @@ function useLevelForm(level?: Level | null) {
     resolver: zodResolver(schema),
     values: {
       name: level?.name ?? "",
+      report_title: level?.report_title ?? "",
       cycle: level?.cycle ?? "secondary_general",
       has_state_exam: level?.has_state_exam ?? false,
     },
@@ -287,10 +304,19 @@ function LevelForm() {
   const form = useLevelForm();
   const [general, setGeneral] = useState<string | null>(null);
   const create = useMutation({
-    mutationFn: (body: { name: string; cycle: string; has_state_exam: boolean }) =>
-      call(api.POST("/api/levels/", { body: { ...body, cycle: body.cycle as Cycle } })),
+    mutationFn: (body: {
+      name: string;
+      report_title: string;
+      cycle: string;
+      has_state_exam: boolean;
+    }) => call(api.POST("/api/levels/", { body: { ...body, cycle: body.cycle as Cycle } })),
     onSuccess: async () => {
-      form.reset({ name: "", cycle: form.getValues("cycle"), has_state_exam: false });
+      form.reset({
+        name: "",
+        report_title: "",
+        cycle: form.getValues("cycle"),
+        has_state_exam: false,
+      });
       await refresh(keys.levels);
     },
     onError: (error) => setGeneral(applyServerErrors(error, ["name", "cycle"], form.setError, t)),
@@ -324,7 +350,12 @@ function LevelDialog({ level, onClose }: { level: Level | null; onClose: () => v
   const form = useLevelForm(level);
   const [general, setGeneral] = useState<string | null>(null);
   const save = useMutation({
-    mutationFn: (body: { name: string; cycle: string; has_state_exam: boolean }) =>
+    mutationFn: (body: {
+      name: string;
+      report_title: string;
+      cycle: string;
+      has_state_exam: boolean;
+    }) =>
       call(
         api.PATCH("/api/levels/{id}/", {
           params: { path: { id: level!.id } },

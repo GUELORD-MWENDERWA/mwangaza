@@ -16,10 +16,21 @@ from collections import defaultdict
 from datetime import timedelta
 from decimal import Decimal
 
-from django.utils import timezone
+from django.conf import settings
+from django.utils import timezone, translation
+from django.utils.translation import gettext
 
+from apps.academics.discipline import DEFAULT_RULES
 from apps.academics.grades import term_maximum
-from apps.academics.models import Course, Evaluation, Grade, GradeDeadline, GradeSheet
+from apps.academics.models import (
+    Course,
+    DisciplineIncident,
+    DisciplineRule,
+    Evaluation,
+    Grade,
+    GradeDeadline,
+    GradeSheet,
+)
 from apps.academics.official import BY_KEY
 from apps.accounts.models import User
 from apps.core.tenancy import use_school
@@ -38,15 +49,15 @@ TEACHERS = {
         # L'enseignant des deux écoles, le chef d'atelier, la directrice des études.
         "+243000001008": [
             (level, "ELEC", section, course)
-            for level, section in (("1re", "A"), ("1re", "B"), ("2e", "A"))
+            for level, section in (("1HT", "A"), ("1HT", "B"), ("2HT", "A"))
             for course in ("Mathématique", "Physique")
         ],
         "+243000001010": [
-            ("1re", "ELEC", "A", "Atelier électrique"),
-            ("1re", "ELEC", "B", "Atelier électrique"),
-            ("2e", "ELEC", "A", "Atelier électrique"),
+            ("1HT", "ELEC", "A", "Atelier électrique"),
+            ("1HT", "ELEC", "B", "Atelier électrique"),
+            ("2HT", "ELEC", "A", "Atelier électrique"),
         ],
-        "+243000001002": [("1re", "ELEC", "A", "Français")],
+        "+243000001002": [("1HT", "ELEC", "A", "Français")],
     },
     "volcans": {"+243000001008": [("7e EB", "", "A", "Mathématique")]},
 }
@@ -57,7 +68,7 @@ def _grid_key(group: ClassGroup) -> str | None:
         return BASIC
     code = group.track.code if group.track else ""
     if code == "ELO":
-        return {"1re": "electronics_1", "3e": "electronics_3"}.get(
+        return {"1HT": "electronics_1", "3HT": "electronics_3"}.get(
             group.level.name, "electronics_2"
         )
     return TRACK_GRIDS.get(code)
@@ -90,7 +101,10 @@ def create_demo_courses(spaces: list[DemoSpace]) -> None:
                     else:
                         updated.append(course)
                     course.period_max, course.has_exam, course.order = maximum, exam, order
-                    course.is_taught = name not in BY_KEY[key].untaught
+                    # Démonstration : tous les cours sont donnés, même ceux que le formulaire barre
+                    # pour l'option, pour que chaque bulletin ait tous ses totaux (décision du
+                    # 2026-10-16) ; l'école barre ce qu'elle ne donne pas (`is_taught`).
+                    course.is_taught = True
                     # Inventées d'après le maximum : de 1 h (sur 10 ou 20) à 7 h (atelier sur 100).
                     course.weekly_hours = hours or max(1, round(maximum / 15))
                     course.teacher = assigned.get((group.level.name, code, group.section, name))
@@ -159,6 +173,7 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
                     )
             Grade.objects.bulk_create(grades, batch_size=5000)
             _create_demo_control(first)
+            _create_demo_discipline(first, students, draw)
             if space.profile == "itig":
                 _complete_demo_classes(year, students, draw)
 
@@ -197,8 +212,8 @@ def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
         ClassGroup.objects.filter(academic_year=year, track__isnull=False).select_related(
             "level", "track"
         ),
-        # La 3e Électronique, classe du bulletin fourni, d'abord.
-        key=lambda g: (g.track.code != "ELO" or g.level.name != "3e", g.level.name, g.name),
+        # La 3HT Électronique, classe du bulletin fourni, d'abord.
+        key=lambda g: (g.track.code != "ELO" or g.level.name != "3HT", g.level.name, g.name),
     )
     chosen = [
         next((g for g in groups if g.level.has_state_exam is flag and students.get(g.pk)), None)
@@ -268,3 +283,42 @@ def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
                 if term.kind != Term.Kind.EXAM or course.has_exam
             ]
         )
+
+
+# Conduite (8.5.1a) : la liste proposée et quelques incidents dans la 1re période, pour qu'un
+# élève sur dix environ ait déjà des points (de quoi voir les cotes TB à MA).
+DEMO_INCIDENT_SHARE = 0.1
+
+
+def _create_demo_discipline(term: Term, students: dict, draw: random.Random) -> None:
+    DisciplineIncident.objects.filter(term=term).delete()
+    DisciplineRule.objects.all().delete()
+    with translation.override(settings.LANGUAGE_CODE):
+        rules = DisciplineRule.objects.bulk_create(
+            DisciplineRule(label=gettext(label), points=points, order=order)
+            for order, (label, points) in enumerate(DEFAULT_RULES, start=1)
+        )
+    author = User.objects.filter(phone="+243000001008").first()
+    if author is None:
+        return
+    today = timezone.localdate()
+    start = term.starts_on or today - timedelta(days=60)
+    span = max(1, (min(term.ends_on or today, today) - start).days)
+    incidents = []
+    for group in students.values():
+        for enrollment in group:
+            if draw.random() >= DEMO_INCIDENT_SHARE:
+                continue
+            for _ in range(draw.choice((1, 1, 2, 3, 6))):
+                rule = draw.choice(rules)
+                incidents.append(
+                    DisciplineIncident(
+                        enrollment_id=enrollment.pk,
+                        term=term,
+                        rule=rule,
+                        points=rule.points,
+                        occurred_on=start + timedelta(days=draw.randrange(span)),
+                        recorded_by=author,
+                    )
+                )
+    DisciplineIncident.objects.bulk_create(incidents, batch_size=2000)

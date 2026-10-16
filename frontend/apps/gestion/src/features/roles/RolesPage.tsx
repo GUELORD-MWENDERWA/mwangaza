@@ -45,7 +45,14 @@ const GROUPS: {
   { key: "students", permissions: ["students.view", "students.edit", "students.import"] },
   {
     key: "teaching",
-    permissions: ["courses.configure", "grades.enter", "grades.enter_any", "grades.validate"],
+    permissions: [
+      "courses.configure",
+      "grades.enter",
+      "grades.enter_any",
+      "grades.validate",
+      "discipline.configure",
+      "discipline.record",
+    ],
   },
   {
     key: "finance",

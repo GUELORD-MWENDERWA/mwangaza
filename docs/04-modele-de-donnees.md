@@ -45,7 +45,7 @@ Changée avec `classes.manage` (directeur, directeur des études), en ligne seul
 
 **Term [T]** — `academic_year`, `kind` (`semester`, `trimester`, `period`, `exam`), `parent` (semestre ou trimestre, seulement pour une période ou des examens), `order` (place dans l'année, tous niveaux confondus ; unique par année, vérifiée à la fin de la transaction), `name` (**vide = nom traduit par l'interface** d'après le genre et la place : « Semestre 2 », « 3e période », « Examens du 1er semestre » ; l'école peut renommer), `starts_on`, `ends_on` (vides tant que l'école ne les a pas saisis ; dans l'année, début ≤ fin, dans leur semestre ou trimestre). Le découpage se remplace d'un seul envoi (`PUT …/terms/`) : 40 éléments au plus.
 
-**Level [T]** — `name` (« 7e EB », « 3e », unique dans l'école sans tenir compte des majuscules), `cycle` (`primary`, `basic`, `secondary_general`, `secondary_technical`, `higher`, `vocational`), `order` (ordre choisi par l'école ; un nouveau niveau va à la fin), `has_state_exam` (dernière année : le bulletin imprime le bloc « Examen d'État » au lieu de « Examen de repêchage », 8.3.3).
+**Level [T]** — `name` (« 7EB », « 3HT » : HT humanité technique, EB éducation de base, HTC… : l'école complète ; `ClassGroup.name` est écrit en majuscules, « 3HT ÉLECTRONIQUE A » ;  unique dans l'école sans tenir compte des majuscules), `cycle` (`primary`, `basic`, `secondary_general`, `secondary_technical`, `higher`, `vocational`), `order` (ordre choisi par l'école ; un nouveau niveau va à la fin), `report_title` (facultatif, 2026-10-16 : texte complet du titre du bulletin, « 3ème Humanité Technique », écrit par l'école ; vide : le nom du niveau), `has_state_exam` (dernière année : le bulletin imprime le bloc « Examen d'État » au lieu de « Examen de repêchage », 8.3.3).
 
 **Track [T]** — option : `name` (« Électricité », unique), `code` (`ELEC` : 1 à 10 majuscules ou chiffres, unique ; sert au matricule `{OPT}`).
 
@@ -187,6 +187,8 @@ Règles :
 | `grades.enter` (notes de ses cours et de la classe dont on est titulaire, 8.2.1) | | | | | | | | ✔ |
 | `grades.enter_any` (notes de toutes les classes, 8.2.1) | | ✔ | | | | ✔ | | |
 | `grades.validate` (valider les notes envoyées, les rouvrir, fixer la date limite de saisie, changer le maximum d'un cours noté, 8.2.2 ; double authentification) | | ✔ | | | | | | |
+| `discipline.configure` (liste des infractions et points, seuils des cotes de conduite, annuler un incident, 8.5.1a) | ✔ | | ✔ | | | | | |
+| `discipline.record` (attribuer une infraction à un élève, 8.5.1a) | ✔ | ✔ | ✔ | | | | | ✔ |
 | `roles.manage` (rôles et comptes du personnel) | ✔ | | | | | | | |
 | `students.view` | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ | |
 | `students.edit` | ✔ | ✔ | | | | ✔ | | |
@@ -211,10 +213,11 @@ Règles :
 - Permissions des deux rôles ajoutés le 2026-09-26 (proposition de Claude, validée par la fusion de la PR) : en V1.0, le directeur des études s'occupe des classes et des inscriptions, le directeur de discipline consulte les élèves ; aucun des deux ne touche à l'argent. Prévu ensuite : `attendance.manage` (pointage, V1.1–V1.2) et `discipline.manage` (V1.2) pour le directeur de discipline ; `grades.validate`, `report_cards.publish` et `deliberation.manage` (V1.2) pour le directeur des études (`courses.configure` donné en 8.1, aussi aux rôles des écoles existantes qui avaient `classes.manage`), avec double authentification obligatoire dès qu'il valide des notes.
 
 
-## Conduite et discipline (8.5.1, proposition du 2026-10-15, à valider)
+## Conduite et discipline (8.5.1a faite le 2026-10-16 ; `ConductGrade` et `ApplicationGrade` : 8.5.1b)
 
 **Infraction [T]** (`DisciplineRule`) — liste tenue par le directeur de discipline : `label`, `points` (entier ≥ 1), `is_active` (une infraction retirée de la liste reste lisible sur les incidents passés).
 **Incident [T]** — une faute d'un élève : `enrollment`, `term` (période), `rule`, `points` (copiés de l'infraction à l'instant : changer le barème ne réécrit pas le passé), `occurred_on`, `note`, `recorded_by` ; jamais modifié ni effacé, seulement annulé par un nouvel enregistrement avec motif ; le parent est prévenu (notification, Portail) ; journal d'audit.
 **ConductScale [T]** — seuils de l'école : cotes `TB`, `B`, `AB`, `ME`, `MA` et points minimum de chacune (départ proposé : 0–4 TB, 5–9 B, 10–14 AB, 15–24 ME, 25 et plus MA).
 **ConductGrade [T]** — cote de conduite d'une inscription et d'une période : calculée d'après les points ; `override`, `reason`, `overridden_by` quand le directeur de discipline ou la délibération (8.4) la corrige (journal d'audit). Application : proposée d'après le pourcentage de la période, corrigée par le titulaire (`ApplicationGrade`, même forme).
-Droits : `discipline.configure` (barème, infractions, seuils), `discipline.record` (attribuer une infraction : tout enseignant), `discipline.override` (corriger une cote).
+Réalisé en 8.5.1a : `DisciplineRule`, `ConductScale`, `DisciplineIncident`, `IncidentCancellation` (incident annulé par une ligne liée : motif, auteur) ; la période d'un incident est celle qui contient sa date.
+Droits : `discipline.configure` (barème, infractions, seuils, annuler un incident), `discipline.record` (attribuer une infraction : tout enseignant), `discipline.override` (corriger une cote).

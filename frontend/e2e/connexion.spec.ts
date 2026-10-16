@@ -17,7 +17,7 @@ test("directeur : mot de passe puis code, menu complet, Mon compte, menu tiroir"
 }) => {
   await page.goto(`${ITIG}account`);
   await expect(page).toHaveURL(/\/app\/login\?next=%2Faccount$/);
-  await expect(page.getByRole("heading", { name: "ITIG Don Bosco Goma (démo)" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "ITIG DON BOSCO" })).toBeVisible();
 
   await enterPassword(page, "0000001001");
   await enterCode(page);

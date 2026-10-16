@@ -56,7 +56,10 @@ AVENUES = [
     "du Lac", "des Écoles", "de la Paix", "Kituku", "Mont Goma", "des Palmiers", "Nyiragongo",
 ]  # fmt: skip
 # Âge à la rentrée selon le niveau (7e EB : 12 ans).
-LEVEL_AGE = {"7e EB": 12, "8e EB": 13, "1re": 14, "2e": 15, "3e": 16, "4e": 17}
+LEVEL_AGE = {
+    "7e EB": 12, "8e EB": 13, "1re": 14, "2e": 15,
+    "7EB": 12, "8EB": 13, "1HT": 14, "2HT": 15, "3HT": 16, "4HT": 17,
+}  # fmt: skip
 
 
 def _family_code(rng: random.Random, taken: set[str]) -> str:

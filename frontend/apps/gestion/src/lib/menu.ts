@@ -85,6 +85,20 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         permissions: ["grades.enter", "grades.enter_any", "grades.validate"],
         task: "8.3.6",
       },
+      {
+        key: "conduct",
+        path: "conduct",
+        icon: "alert",
+        permissions: ["discipline.record"],
+        task: "8.5.1a",
+      },
+      {
+        key: "conductScale",
+        path: "conduct-scale",
+        icon: "tag",
+        permissions: ["discipline.configure"],
+        task: "8.5.1a",
+      },
     ],
   },
   {

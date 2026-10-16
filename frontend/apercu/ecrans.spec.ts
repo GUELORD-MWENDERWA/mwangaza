@@ -151,6 +151,10 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     await visit(director, `${ITIG}grade-validation`, "gestion", "grade-validation");
     await visit(director, `${ITIG}report-cards`, "gestion", "report-cards");
     await visit(director, `${ITIG}grade-sheets`, "gestion", "grade-sheets");
+    // Conduite (8.5.1a) : l'enseignant attribue, le directeur de discipline tient le barème.
+    await visit(teacher, `${ITIG}conduct`, "gestion", "conduct");
+    const discipline = await staff(browser, "0000001003", false);
+    await visit(discipline, `${ITIG}conduct-scale`, "gestion", "conduct-scale");
   }
 
   if (!ONLY || ONLY.startsWith("portail")) {
