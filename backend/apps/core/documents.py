@@ -172,10 +172,12 @@ def render(
     contextes du même gabarit (bulletins de toute la classe), chacun sur sa propre page. `keep` :
     chaque page est un PDF gardé (PERF.2), refait seulement si ses données ont changé."""
     options = options or print_options({})
+    # Les polices ne vont dans le HTML que pour l'aperçu du navigateur ; le PDF les reçoit à part.
+    preview = output == "html"
     shared = {
         "platform": PlatformSettings.load(),
-        "print_fonts": print_fonts(),
-        "serif_fonts": serif_fonts(),
+        "print_fonts": print_fonts() if preview else "",
+        "serif_fonts": serif_fonts() if preview else "",
         **options,
     }
     if keep and output == "pdf" and options["per_sheet"] == 1:
@@ -203,11 +205,7 @@ def render(
         response = HttpResponse(html, content_type=f"{HTML}; charset=utf-8")
         response["X-Frame-Options"] = "SAMEORIGIN"
         return response
-    from weasyprint import HTML as Document
-    from weasyprint.urls import URLFetcher
-
-    content = Document(string=html, url_fetcher=URLFetcher(allowed_protocols=["data"])).write_pdf()
-    return file_response(content, PDF, name, inline=True)
+    return file_response(printing.to_pdf(html), PDF, name, inline=True)
 
 
 def _render_kept(

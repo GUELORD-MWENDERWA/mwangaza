@@ -94,6 +94,13 @@ MAX_ROW_HEIGHT = 9.0
 OUTSIDE_FIRST = 15.0
 OUTSIDE_SHARE = 0.4
 SHEET_HEIGHT = 279.5  # mm, hauteur du formulaire
+# PERF.3 : la feuille n'est plus une colonne flex (WeasyPrint mesurait le tableau deux fois, +45 %
+# de temps) ; les hauteurs des blocs sont connues, le bloc sous le tableau reçoit la place restante.
+TOP_BLOCKS = 19.9 + 12.3 + 8.8 + 28.2 + 5.8  # mm, de l'en-tête d'État à la barre de titre
+TABLE_HEAD = 4.4 + 7.8 + 4.4  # mm, les trois lignes d'en-tête du tableau
+TABLE_BORDER = 0.2  # mm, bordures fusionnées du tableau
+FOOT_HEIGHT = 11.0  # mm, note, rappel légal et bandeau du bas
+SAFETY = 0.3  # mm : trop court = un blanc invisible, trop long = le bas déborde du cadre
 FOOTER_ROWS = 7  # maxima généraux, totaux, pourcentage, place, application, conduite, signature
 
 
@@ -281,6 +288,12 @@ def _spread(rows: int) -> tuple[float, float]:
     return round(ROW_HEIGHT + inside / rows, 2), round(free - inside, 2)
 
 
+def _under_height(sheet_height: float, rows: int, row_height: float) -> float:
+    """Hauteur (mm) du bloc des mentions et de la signature, sous le tableau."""
+    used = TOP_BLOCKS + TABLE_HEAD + rows * row_height + TABLE_BORDER + FOOT_HEIGHT + SAFETY
+    return round(sheet_height - used, 2)
+
+
 def _signature(kinds: list[str], with_year: bool) -> list[int]:
     """Cases de la ligne « signature du responsable » : une par période, mais l'examen, le total
     du semestre (et le T.G. pour le dernier) se voient en même temps : une seule case."""
@@ -352,6 +365,7 @@ def report_card_document(
         "footer_state": state[len(lines) :],
         "row_height": row_height,
         "sheet_height": round(SHEET_HEIGHT - outside, 2),
+        "under_height": _under_height(SHEET_HEIGHT - outside, rows, row_height),
         "signature": _signature([c["kind"] for c in columns], year is not None),
         "font_size": round(min(9.0, row_height * 2.835 * 0.72), 2),
         "totals": _total_rows(student, keys, size),

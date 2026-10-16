@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (PERF.1, PERF.2 et PERF.4 faites le 2026-10-16, à mettre en ligne avec `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | PERF.3 (bulletin plus léger, P1) ou 8.5.1b (conduite : parents et bulletin) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #278 (PERF.4) ; #276 (PERF.2) ; #274 (PERF.1) ; #271 (8.5.1b) |
-| Branche | `tache/PERF.4-mesure-surveillance` ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-16 (PERF.4 faite) |
+| Tâche en cours | aucune (PERF.1 à PERF.4 faites le 2026-10-16, à mettre en ligne avec `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | 8.5.1b (conduite : parents et bulletin) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #280 (PERF.3) ; #278 (PERF.4) ; #276 (PERF.2) ; #274 (PERF.1) ; #271 (8.5.1b) |
+| Branche | `tache/PERF.3-bulletin-leger` ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-16 (PERF.3 faite) |
 
 ## Avancement
 
@@ -60,6 +60,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-16 — Tâche PERF.3 : bulletin plus léger
+
+- Fait : profil WeasyPrint du bulletin (23 cours) : 80 % de la mise en page était dans la colonne flex de la feuille (tableau mesuré deux fois) et 0,35 s partaient à décoder 1 Mo de polices en base64 à chaque document. Feuille en bloc (`_under_height` calcule la place du bas) ; polices lues une fois par processus (`printing.to_pdf`), absentes du HTML du PDF (l'aperçu les garde). Résultat : 2,1 s → 0,8 s par page, PDF ≈ 92 Ko, géométrie identique à 0,3 mm.
+- Tests : hauteur du bas de feuille, polices du PDF et de l'aperçu ; 250 tests de `core` et du bulletin verts. Mémoire ≈ 10 Mo par page (paquets de 10 = ≈ 100 Mo) : cible de 5 Mo non tenue, sans cumul.
+- Décisions : petits flex de l'en-tête laissés (gain < 0,1 s). Les clés des PDF gardés changent une fois (plus de polices dans le HTML) : bulletins refaits à la prochaine impression. Suite : 8.5.1b ; `make deploy`.
 
 ### 2026-10-16 — Tâche PERF.4 : mesure et surveillance
 

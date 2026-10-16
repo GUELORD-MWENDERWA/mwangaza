@@ -6,8 +6,7 @@
    199,5 mm de large, hauteur du formulaire 279,5 mm. */
 @page { margin: 5mm; @bottom-right { content: none; } }
 body { font-family: "Liberation Serif", "Times New Roman", serif; font-size: 8pt; line-height: 1.15; color: #000; }
-.sheet { box-sizing: content-box; width: 199.5mm; height: {{ sheet_height|unlocalize }}mm; display: flex; flex-direction: column; border: .9pt solid #000; }
-.sheet > * { flex: none; }
+.sheet { box-sizing: content-box; width: 199.5mm; height: {{ sheet_height|unlocalize }}mm; border: .9pt solid #000; }
 .sec { border-bottom: .8pt solid #000; }
 .top { height: 19.9mm; display: flex; align-items: center; padding: 0 3mm; }
 .top svg { width: 24mm; height: 16mm; flex: none; }
@@ -44,14 +43,14 @@ table.bul td.low { color: #B42318; }
 table.bul td.dash { color: #333; }
 table.bul td.tot { font-weight: 700; }
 .dots { display: inline-block; border-bottom: .5pt dotted #000; min-width: 22mm; height: 1em; vertical-align: baseline; }
-.under { flex: 1; display: flex; padding: 1.2mm 3mm 0; font-size: 7.5pt; line-height: 1.25; min-height: 0; overflow: hidden; border-top: .8pt solid #000; }
+.under { box-sizing: border-box; display: flex; padding: 1.2mm 3mm 0; font-size: 7.5pt; line-height: 1.25; min-height: 0; overflow: hidden; border-top: .8pt solid #000; }
 .under .uleft { flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding-bottom: 1.5mm; }
 .under .uright { width: 62mm; text-align: center; padding-top: 3mm; }
 .under .signer { min-width: 0; width: 100%; }
 .under .signer__marks { height: 12mm; }
 .under .signer__stamp { max-height: 12mm; max-width: 22mm; }
 .under .signer__signature { max-height: 10mm; }
-.foot { padding: 0 3mm 1.5mm; font-size: 7pt; flex: none; }
+.foot { box-sizing: border-box; height: 11mm; padding: 0 3mm 1.5mm; font-size: 7pt; }
 .legal { margin-top: .5mm; font-size: 6.5pt; color: #333; }
 .ban { margin-top: .5mm; text-align: center; font-weight: 700; font-style: italic; font-size: 7.5pt; }
 table.bul td.bold { font-weight: 700; }
@@ -128,7 +127,7 @@ table.bul td.pn.bot { border-bottom: .5pt solid #000; }
     <tr class="b"><td class="name mx lbl" style="font-size:7.3pt">{% translate "HEAD'S SIGNATURE" %}</td>{% for span in signature %}<td{% if span > 1 %} colspan="{{ span }}"{% endif %}></td>{% endfor %}{% include "academics/_report_card_side.html" with footer=6 %}{% if state_exam %}{% include "academics/_report_card_state.html" with item=footer_state.6 footer=6 %}{% endif %}</tr>
   </table></div>
 
-  <div class="under">
+  <div class="under" style="height:{{ under_height|unlocalize }}mm">
     <div class="uleft">
       <div>
         <div>- {% translate "The student may move up to the next class only after passing a resit exam in" %} <span class="dots" style="min-width:45mm"></span> (1)</div>
