@@ -1,4 +1,6 @@
-# Production : images construites sur le serveur par `docker compose build` (`docker-compose.yml`).
+# Production : images construites par GitHub Actions (`.github/workflows/images.yml`, PERF.5c) et
+# téléchargées par le serveur ; `docker compose build` (`docker-compose.yml`) pour `make prod-local`,
+# et pour le secours `CONSTRUIRE_SUR_SERVEUR=oui make deploy`.
 # Contexte : la racine du dépôt, filtrée par `.dockerignore` (jamais `prive/`, `depot/` ni `.env`).
 #   backend : Django (gunicorn) et Celery
 #   caddy   : HTTPS, les deux PWA construites et les fichiers statiques de Django
