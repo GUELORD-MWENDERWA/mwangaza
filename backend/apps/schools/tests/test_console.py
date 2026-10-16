@@ -11,7 +11,7 @@ from django.utils.dateparse import parse_datetime
 
 from apps.accounts.login import TRUSTED_DEVICE_COOKIE
 from apps.core import health
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.finance import services
 from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.schools.models import School
@@ -134,7 +134,7 @@ def test_health_reports_a_broken_redis(monkeypatch):
 
 @pytest.mark.parametrize(
     ("free", "swap_used", "memory", "swap"),
-    [(50, 0, "ok", "ok"), (14, 60, "warning", "warning"), (6, 90, "error", "error")],
+    [(50, 0, "ok", "ok"), (14, 61, "warning", "warning"), (6, 90, "error", "error")],
     ids=["ok", "low", "critical"],
 )
 def test_health_judges_available_memory_and_swap(monkeypatch, free, swap_used, memory, swap):
@@ -143,6 +143,26 @@ def test_health_judges_available_memory_and_swap(monkeypatch, free, swap_used, m
     checks = {c["name"]: c["status"] for c in health.report()["checks"]}
 
     assert (checks["memory"], checks["swap"]) == (memory, swap)
+
+
+def test_platform_health_reads_container_memory_and_the_print_queue(school):
+    from apps.core.models import PrintJob
+
+    raw = "django;752MiB / 768MiB\ncaddy;20.5MiB / 192MiB\nbroken\nredis;4MiB / 0B"
+    containers = health._containers(raw)
+    assert [(c["name"], c["percent"], c["status"]) for c in containers] == [
+        ("django", 98, "warning"),
+        ("caddy", 11, "ok"),
+        ("redis", 0, "ok"),
+    ]
+
+    now = timezone.now()
+    with use_school(school):
+        job = PrintJob.objects.create(key="k", name="Bulletins")
+        PrintJob.objects.filter(pk=job.pk).update(created_at=now - timedelta(minutes=12))
+    with use_all_schools():
+        queue = health.print_queue(now)
+    assert (queue["queued"], queue["status"], queue["longest_wait_seconds"]) == (1, "warning", 720)
 
 
 def test_platform_health_never_calls_a_missing_backup_good(monkeypatch, settings):

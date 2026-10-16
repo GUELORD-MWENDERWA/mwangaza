@@ -5,6 +5,7 @@ Chaque contrôle donne `status` (`ok`, `warning`, `error`, ou `off` : sans objet
 exécutées tout de suite en développement) et `value` (millisecondes, nombre de travailleurs,
 pourcentage libre). Un contrôle en panne ne fait jamais échouer la page."""
 
+import re
 import shutil
 import time
 from datetime import UTC, datetime, timedelta
@@ -21,7 +22,7 @@ TIMEOUT_SECONDS = 1
 # Mémoire disponible (libre ou récupérable) et swap utilisé : la panne du 2026-10-13 venait de là.
 MEMORY_WARNING_PERCENT = 15
 MEMORY_ERROR_PERCENT = 7
-SWAP_WARNING_PERCENT = 50
+SWAP_WARNING_PERCENT = 60
 SWAP_ERROR_PERCENT = 80
 # Le planificateur passe toutes les 15 minutes ; la sauvegarde, chaque nuit.
 SCHEDULER_ERROR_AFTER = timedelta(minutes=35)
@@ -32,6 +33,14 @@ BACKUP_ERROR_AFTER = timedelta(hours=54)
 TICK_KEY = "mwangaza:scheduler:tick"
 BACKUP_KEYS = {"done_at": "mwangaza:backup:done", "copied_at": "mwangaza:backup:copied"}
 QUEUE_KEY = "celery"
+# Mémoire de chaque conteneur (PERF.4) : un conteneur ne voit pas les autres, donc
+# `infra/serveur/conteneurs.sh` (cron, toutes les 5 minutes) note `docker stats` dans Redis.
+CONTAINERS_KEY = "mwangaza:containers"
+CONTAINER_WARNING_PERCENT = 85
+# Impression (PERF.1) : au-delà de 10 minutes d'attente, il faut une machine plus grosse (`03` § 9).
+PRINT_WAIT_WARNING = timedelta(minutes=10)
+UNITS = {"b": 1 / 1024**2, "kib": 1 / 1024, "kb": 1 / 1000, "mib": 1, "mb": 1}
+UNITS |= {"gib": 1024, "gb": 1000}
 CHECKS = ["database", "redis", "workers", "disk", "memory", "swap"]
 STATUSES = ["ok", "warning", "error", "off"]
 
@@ -174,16 +183,65 @@ def _age_status(at: datetime | None, now: datetime, warning, error) -> str:
     return "warning" if warning and now - at > warning else "ok"
 
 
+def _megabytes(text: str) -> float:
+    number, unit = re.fullmatch(r"([\d.]+)\s*([A-Za-z]+)", text.strip()).groups()
+    return float(number) * UNITS[unit.lower()]
+
+
+def _containers(raw: str | None) -> list[dict]:
+    """Lignes `nom;utilisé / limite` (`docker stats`) → mémoire en Mo et en %, la plus pleine
+    d'abord. Une ligne illisible est ignorée."""
+    rows = []
+    for line in (raw or "").splitlines():
+        try:
+            name, _, usage = line.partition(";")
+            used, limit = (_megabytes(part) for part in usage.split("/"))
+        except (ValueError, AttributeError, KeyError):
+            continue
+        percent = round(used * 100 / limit) if limit else 0
+        status = "warning" if percent > CONTAINER_WARNING_PERCENT else "ok"
+        rows.append(
+            {
+                "name": name,
+                "used_mb": round(used),
+                "limit_mb": round(limit),
+                "percent": percent,
+                "status": status,
+            }
+        )
+    return sorted(rows, key=lambda row: -row["percent"])
+
+
+def print_queue(now: datetime) -> dict:
+    """Travaux d'impression en attente ou en cours, toutes écoles confondues, et la plus longue
+    attente (du dépôt au début du travail, ou jusqu'à maintenant s'il attend encore)."""
+    from apps.core.models import PrintJob
+
+    status = PrintJob.Status
+    waiting = PrintJob.all_schools.filter(status__in=[status.QUEUED, status.RUNNING])
+    pending = waiting.filter(status=status.QUEUED)
+    oldest = pending.order_by("created_at").values_list("created_at", flat=True).first()
+    longest = round((now - oldest).total_seconds()) if oldest else 0
+    late = longest > PRINT_WAIT_WARNING.total_seconds()
+    return {
+        "status": "warning" if late else "ok",
+        "queued": pending.count(),
+        "running": waiting.filter(status=status.RUNNING).count(),
+        "longest_wait_seconds": longest,
+    }
+
+
 def platform(now: datetime | None = None) -> dict:
     """Planificateur (dernier passage, travaux en attente) et sauvegardes (dernière faite, dernière
     copie hors du serveur), lus dans Redis. Redis en panne : `error` partout, la page reste."""
     now = now or datetime.now(UTC)
-    ticked, queue, backup = None, None, dict.fromkeys(BACKUP_KEYS)
+    ticked, queue, backup, containers = None, None, dict.fromkeys(BACKUP_KEYS), None
     try:
         client = _redis()
         try:
             ticked = _stamp(client.get(TICK_KEY))
             queue = client.llen(QUEUE_KEY)
+            containers = client.get(CONTAINERS_KEY)
             backup = {name: _stamp(client.get(key)) for name, key in BACKUP_KEYS.items()}
         finally:
             client.close()
@@ -196,6 +254,8 @@ def platform(now: datetime | None = None) -> dict:
     )
     copied = backup["copied_at"]
     return {
+        "containers": _containers(containers),
+        "print": print_queue(now),
         "scheduler": {"status": scheduler_status, "last_tick_at": ticked, "queue_size": queue},
         "backup": {
             "status": _age_status(backup["done_at"], now, BACKUP_WARNING_AFTER, BACKUP_ERROR_AFTER),

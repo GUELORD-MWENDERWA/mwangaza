@@ -40,6 +40,8 @@ SSH=(ssh "${SSH_OPTS[@]}" "$SERVEUR")
 # BACKUP_PASSPHRASE. Journal sur le serveur : journalctl -t mwangaza.
 CRON="30 0 * * * cd \$HOME/mwangaza/code && COMPOSE='$COMPOSE' VALEURS=infra/serveur/serveur.env \
 BACKUP_DIR=\$HOME/mwangaza/sauvegardes infra/backup/sauvegarde.sh backup 2>&1 | logger -t mwangaza"
+# Mémoire des conteneurs, toutes les 5 minutes (carte « Santé » de la console, PERF.4).
+CRON_MEMORY="*/5 * * * * cd \$HOME/mwangaza/code && COMPOSE='$COMPOSE' infra/serveur/conteneurs.sh 2>&1 | logger -t mwangaza"
 
 case "${1:-}" in
   setup)
@@ -71,7 +73,7 @@ case "${1:-}" in
       && { docker builder prune --force --reserved-space 2GB >/dev/null \
         || echo 'Cache de construction non purgé (option de docker builder prune à revoir).'; }"
     # Crontab du compte, remis à chaque mise en ligne (pas de planificateur Celery).
-    "${SSH[@]}" "(crontab -l 2>/dev/null | grep -v sauvegarde.sh; echo \"$CRON\") | crontab -"
+    "${SSH[@]}" "(crontab -l 2>/dev/null | grep -v -e sauvegarde.sh -e conteneurs.sh; echo \"$CRON\"; echo \"$CRON_MEMORY\") | crontab -"
     echo "Vérification : make deploy-check"
     ;;
   check)

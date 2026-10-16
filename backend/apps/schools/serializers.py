@@ -609,7 +609,24 @@ class PlatformSyncSerializer(serializers.Serializer):
     last_sync_at = serializers.DateTimeField(allow_null=True)
 
 
+class PlatformContainerSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    used_mb = serializers.IntegerField()
+    limit_mb = serializers.IntegerField()
+    percent = serializers.IntegerField()
+    status = serializers.ChoiceField(choices=health.STATUSES)
+
+
+class PlatformPrintSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=health.STATUSES)
+    queued = serializers.IntegerField()
+    running = serializers.IntegerField()
+    longest_wait_seconds = serializers.IntegerField()
+
+
 class PlatformHealthSerializer(serializers.Serializer):
+    containers = PlatformContainerSerializer(many=True)
+    print = PlatformPrintSerializer()
     scheduler = PlatformSchedulerSerializer()
     backup = PlatformBackupSerializer()
     syncs = PlatformSyncSerializer(many=True)

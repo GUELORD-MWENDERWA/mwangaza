@@ -222,6 +222,15 @@ function PlatformCard({ platform }: { platform: Platform }) {
               queue: platform.scheduler.queue_size ?? "?",
             }),
     },
+    {
+      key: "print",
+      status: platform.print.status,
+      value: t("console.platform.printQueue", {
+        queued: platform.print.queued,
+        running: platform.print.running,
+        wait: Math.round(platform.print.longest_wait_seconds / 60),
+      }),
+    },
   ] as const;
   return (
     <Card>
@@ -245,6 +254,36 @@ function PlatformCard({ platform }: { platform: Platform }) {
           </li>
         ))}
       </ul>
+      {platform.containers.length > 0 && (
+        <>
+          <p className="border-t border-line bg-table-head px-4 py-2.5 text-sm font-bold text-ink-2">
+            {t("console.platform.containers")}
+          </p>
+          <ul>
+            {platform.containers.map((container) => (
+              <li
+                key={container.name}
+                className="flex flex-wrap items-center gap-x-3 gap-y-0.5 border-t border-line px-4 py-2.5 text-md"
+              >
+                <span className="flex items-center gap-2">
+                  <i
+                    aria-hidden="true"
+                    className={cn("size-2 shrink-0 rounded-full", DOTS[container.status])}
+                  />
+                  {container.name}
+                </span>
+                <span className="ml-auto text-right text-ink-3">
+                  {t("console.platform.memory", {
+                    used: container.used_mb,
+                    limit: container.limit_mb,
+                    percent: container.percent,
+                  })}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
       <p className="border-t border-line bg-table-head px-4 py-2.5 text-sm font-bold text-ink-2">
         {t("console.platform.syncs")}
       </p>

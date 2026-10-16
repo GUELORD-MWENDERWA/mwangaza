@@ -7992,7 +7992,16 @@ export interface components {
             before: unknown;
             after: unknown;
         };
+        PlatformContainer: {
+            name: string;
+            used_mb: number;
+            limit_mb: number;
+            percent: number;
+            status: components["schemas"]["HealthStatusEnum"];
+        };
         PlatformHealth: {
+            containers: components["schemas"]["PlatformContainer"][];
+            print: components["schemas"]["PlatformPrint"];
             scheduler: components["schemas"]["PlatformScheduler"];
             backup: components["schemas"]["PlatformBackup"];
             syncs: components["schemas"]["PlatformSync"][];
@@ -8041,6 +8050,12 @@ export interface components {
         };
         PlatformNewsReadRequest: {
             ids: string[];
+        };
+        PlatformPrint: {
+            status: components["schemas"]["HealthStatusEnum"];
+            queued: number;
+            running: number;
+            longest_wait_seconds: number;
         };
         PlatformScheduler: {
             status: components["schemas"]["HealthStatusEnum"];
