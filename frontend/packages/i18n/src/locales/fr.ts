@@ -143,6 +143,7 @@ export const fr = {
       conduct: "Conduite",
       conductScale: "Barème de conduite",
       application: "Application",
+      resits: "Repêchage",
       cash: "Caisse",
       unpaid: "Impayés",
       fees: "Frais et barèmes",
@@ -591,6 +592,24 @@ export const fr = {
       overdueEvery: "Retard : un rappel tous les (jours)",
       overdueEveryHelp: "Un parent reçoit au plus un rappel dans cet intervalle. Entre 1 et 60.",
       invalidDays: "Un nombre entre 1 et {{max}}.",
+    },
+    passRules: {
+      title: "Réussite et repêchage",
+      intro:
+        "Valeurs de départ proposées, à confirmer par l'école. Elles donnent l'issue proposée ; la délibération décide.",
+      passPercent: "Réussite de l'élève (% de l'année)",
+      coursePassPercent: "Cours échoué sous (%)",
+      band: "Repêchage à partir d'un plancher",
+      bandHelp:
+        "Un cours échoué ouvre un repêchage à partir du plancher ; en dessous, l'échec est proposé tout de suite.",
+      any_failed: "Repêchage de tout cours échoué",
+      any_failedHelp: "Le repêchage s'ouvre quel que soit le pourcentage du cours.",
+      floor: "Plancher du repêchage (%)",
+      floorHelp: "Doit rester sous la note de réussite d'un cours.",
+      failures: "Cours échoués au repêchage qui font échouer",
+      failuresHelp: "L'échec est proposé à partir de ce nombre de cours échoués au repêchage.",
+      invalidPercent: "Un pourcentage entier de 0 à 100.",
+      invalidCount: "Un nombre entier d'au moins 1.",
     },
     grading: {
       title: "Saisie des points",
@@ -1090,6 +1109,31 @@ export const fr = {
     confirmCancel: "Annuler l'infraction",
     keep: "Garder",
   },
+  resits: {
+    title: "Examens de repêchage",
+    subtitle:
+      "Cours échoués de la classe, d'après les règles de l'école, et note de repêchage de chacun.",
+    class: "Classe",
+    noClass: "Aucune classe à afficher.",
+    none: "Aucun élève n'a de cours échoué dans cette classe.",
+    student: "Élève",
+    year: "Année",
+    courses: "Cours échoués",
+    outcome: "Issue proposée",
+    percent: "{{value}} %",
+    notOpenList: "Pas de repêchage : {{list}}",
+    courseAt: "{{course}} ({{value}} %)",
+    waiting: "note attendue",
+    gradeFor: "Note de repêchage en {{course}} (%)",
+    save: "Enregistrer",
+    clear: "Reprendre",
+    signedBy: "signé : {{name}}",
+    outcome_passed: "Admis",
+    outcome_resit: "Repêchage",
+    outcome_failed: "Échec",
+    outcome_incomplete: "Notes manquantes",
+    help: "Réussite à {{pass}} % de l'année ; un cours est échoué sous {{course}} %. La note de repêchage est un pourcentage de 0 à 100, signée par l'enseignant du cours. La décision est prise à la délibération.",
+  },
   application: {
     title: "Application",
     subtitle:
@@ -1533,6 +1577,7 @@ export const fr = {
       grades: "Notes",
       discipline: "Conduite",
       application: "Application",
+      resit: "Repêchage",
       students: "Élèves",
       portal: "Portail des familles",
       finance: "Frais et finances",
@@ -1624,6 +1669,9 @@ export const fr = {
       },
       application: {
         grade_overridden: "Cote d'application corrigée",
+      },
+      resit: {
+        grade_changed: "Note de repêchage modifiée",
       },
       students: {
         family_created: "Famille créée",
