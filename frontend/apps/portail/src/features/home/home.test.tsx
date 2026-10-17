@@ -72,7 +72,7 @@ describe("accueil du portail", () => {
       answer: "",
       answered_at: null,
     };
-    const routes: Record<string, unknown> = {
+    const routes: Record<string, object> = {
       "GET /api/portal/me/": ACCOUNT,
       "GET /api/portal/families/": [ITIG],
       "GET /api/portal/places/": [place],
