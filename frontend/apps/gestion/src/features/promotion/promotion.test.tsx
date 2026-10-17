@@ -92,4 +92,15 @@ describe("passage de classe (8.4.5)", () => {
     await user.click(screen.getByRole("button", { name: "Inscrire en 2027-2028 (1)" }));
     expect(posted("enroll/")).toEqual({ enrollments: ["e-josue"] });
   });
+
+  it("n'apparaît pas dans le menu d'une école sans le module des notes", async () => {
+    const head = me("head");
+    mockApi({
+      "GET /api/school/": school,
+      "GET /api/me/": { ...head, school: { ...head.school!, modules: ["students", "finance"] } },
+    });
+    renderApp("/");
+    expect(await screen.findByRole("link", { name: /Élèves/ })).toBeTruthy();
+    expect(screen.queryByRole("link", { name: /Passage de classe/ })).toBeNull();
+  });
 });
