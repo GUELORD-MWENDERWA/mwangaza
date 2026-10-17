@@ -66,7 +66,8 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 - Fait : tableau « Comptes de la plateforme » (`A-FAIRE.md` § 9 octies : rôle, risque, accès, coût, case de double authentification ; aucun secret) ; `make deploy-check` affiche l'expiration du domaine et le verrou de transfert (`infra/serveur/domaine.py`, annuaire RDAP).
 - Constat (annuaire public) : registraire LWS, expire le 12/10/2027, DNS Cloudflare, **verrou de transfert absent**, DNSSEC absent.
 - Tests : `make deploy-check` réel (avertissement affiché) et annuaire coupé (« non vérifié », sans échec) ; pas de test automatique (outil sur ta machine). Décision : ni DNSSEC ni CAA (`03`).
-- Suite : toi, verrou chez LWS et double authentification (5 ter) ; Claude : OPS.4, puis 8.4.6.
+- Ajouté à ta demande : guide pas à pas de tout ce qui t'attend hors du code (`A-FAIRE.md` § 9 nonies) ; constaté : dépôt public sans protection des clés, serveur en retard de 48 commits. E-mail des comptes : ta boîte personnelle, pas `contact@` (`03`).
+- Suite : toi, § 9 nonies (5 ter) ; Claude : OPS.4, puis 8.4.6.
 
 ### 2026-10-17 — Tâche OPS.2 : instantanés et alarmes Lightsail, retour d'un serveur entier
 
