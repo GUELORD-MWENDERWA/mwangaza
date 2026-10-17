@@ -6,6 +6,7 @@ Référence visuelle et fonctionnelle de chaque écran. **Toutes les données so
 - `gestion/*.html` et `portail/*.html` : maquettes HTML statiques, lisibles comme code de référence.
 - `captures/desktop/*.png` (1440 px) et `captures/mobile/*.png` (390 px) : captures d'écran.
 - `assets/styles.css` : le système de design (couleurs, typographie, composants).
+- `site/*.html` (site public de la plateforme, WEB.1a) : feuille `assets/site.css` en plus, photos dans `assets/photos/` (crédits dans son `README.md`), captures aussi à 820 px dans `captures/tablet/`, en **WebP** (les photos rendraient chaque PNG trop lourd pour Git).
 
 Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore `mwangaza.cd` : lire `mwangaza.school`.
 
@@ -138,6 +139,20 @@ Pas de menu latéral comme la Gestion : barre du haut bleu nuit (lignes de relie
 | Appareils | `console/appareils.html` | V1.1 | 5.4.2 | dessinée par Claude en 5.4.2 d'après `console/comptes` (à valider) ; codée en 5.4.2 (`/devices`) ; sans compteur d'appareils sous la liste |
 | Journal et sessions support | `console/journal.html` | V1.1 | 5.4.2 | dessinée par Claude en 5.4.2 (à valider) ; codée en 5.4.2 en deux onglets (`/journal`, `/journal/support`) ; sans compteur d'entrées sous la liste ; S.3.2 : carte « Alertes sur cet appareil » ajoutée au-dessus des onglets (pas dans la maquette), filtre « Type » complété (« Annonces », « Accès du super-admin ») |
 
+### Site public de la plateforme — domaine nu (WEB.1a, 2026-10-17)
+
+Dessiné par Claude d'après l'étude de 13 sites (`docs/claude/recherches/2026-10-17-site-public.md`) ; à valider. En-tête nuit collé en haut (menu par public, « Trouver mon école », « Demander une démo », menu `<details>` sous 1 024 px), pied nuit complet (contact, liens, langues, « © DTMS »), tous deux réécrits par `maquettes.py site`. Chaque animation est décrite dans un `.note` avec son rôle.
+
+| Page | Fichier | Lot | Réf. | État |
+|---|---|---|---|---|
+| Accueil | `site/accueil.html` | Lancement | WEB.1a | à valider |
+| Pour les écoles (direction, comptable, caissier, enseignant ; mise en route) | `site/ecoles.html` | Lancement | WEB.1a | à valider |
+| Pour les parents (ce qu'ils voient, activation, installation) | `site/parents.html` | Lancement | WEB.1a | à valider |
+| Modules (catalogue, socle, prochainement) | `site/modules.html` | Lancement | WEB.1a | à valider |
+| Démonstration et contact (formulaire, état « envoyée ») | `site/demonstration.html` | Lancement | WEB.1a | à valider |
+| Trouver mon école | `site/trouver-mon-ecole.html` | Lancement | WEB.1a | à valider |
+| Mentions légales et confidentialité | `site/mentions.html` | Lancement | WEB.1a | à valider (texte à faire relire par un juriste) |
+
 ### Menu de la Gestion
 
 Depuis le 2026-10-12 (5.7), la section Communication du menu compte trois entrées de plus (**Annonces au personnel**, **Calendrier**, **Convocations**) et la barre du portail une (**Calendrier**) ; `gestion/annonces` a le destinataire « Personnel » et « Circulaire à imprimer ». Le HTML de toutes les maquettes est à jour ; les captures PNG n'ont été refaites que pour les écrans nouveaux ou changés (les autres gardent l'ancien menu jusqu'à un passage complet de `node maquettes/outils/captures.mjs`). Depuis le 2026-09-26, le menu latéral compte 5 entrées de plus, pour les nouveaux écrans : **Crédits d'élèves** (Finances), **Demandes des parents** (Communication), **Paramètres de l'école**, **Comptes du personnel** et **Journal d'audit** (Paramètres). Le menu est identique sur toutes les maquettes (voir « Outils »). Le super-admin garde son propre menu.
@@ -149,8 +164,9 @@ Aucune dépendance à installer (Python 3, Node 22 et Google Chrome de la machin
 | Commande | Effet |
 |---|---|
 | `python3 maquettes/outils/maquettes.py menu` | réécrit le menu latéral de toutes les pages Gestion depuis `MENU` (à lancer après avoir ajouté une entrée) |
-| `python3 maquettes/outils/maquettes.py index` | régénère `index.html` depuis le catalogue `GESTION` / `PORTAIL` / `CONSOLE` |
-| `node maquettes/outils/captures.mjs [fichier.html …]` | refait les captures PNG (téléphone 390 px et bureau 1440 px, pour les trois applications — le portail aussi depuis le 2026-10-14) et **sort en erreur si un élément dépasse de l'écran** ; sans argument : toutes |
+| `python3 maquettes/outils/maquettes.py index` | régénère `index.html` depuis le catalogue `GESTION` / `PORTAIL` / `CONSOLE` / `SITE` |
+| `python3 maquettes/outils/maquettes.py site` | réécrit l'en-tête (`<header class="sh">`), le pied (`<footer class="sf">`) et les icônes (`<svg data-ic="…"></svg>`) de chaque page `site/` |
+| `node maquettes/outils/captures.mjs [fichier.html …]` | refait les captures PNG (téléphone 390 px et bureau 1440 px, pour les trois applications — le portail aussi depuis le 2026-10-14 ; tablette 820 px en plus pour le site public, en WebP) et **sort en erreur si un élément dépasse de l'écran** ; sans argument : toutes |
 
 Pour dessiner un nouvel écran : d'abord regarder comment les grands logiciels font (skill `design`, « Méthode ») ; écrire la page avec la même coquille (`page_gestion`, `page_auth`, `page_portail` et `ic` dans `maquettes.py` ; une page du portail porte aussi la barre d'ordinateur `.dtop`), l'ajouter au catalogue, puis `index` et `captures`, et regarder les deux captures.
 

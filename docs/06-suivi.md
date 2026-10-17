@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (OPS.4 faite le 2026-10-17, PR en attente de fusion ; ta part : `A-FAIRE.md` § 9 nonies 3 c, 4 b-c) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | **toi : mettre en ligne `main`** (`A-FAIRE.md` 6 duodecies), puis **WEB.1a → WEB.1c** (site public et visibilité, avancés le 2026-10-17), puis **8.4.6** (proclamation et frais, avec 8.8) ; toi : OPS.1 (compte AWS), ta part d'OPS.4 (boîtes LWS, essai d'envoi, rapports DMARC, puis `p=reject` vers le 2026-10-31) et ta part d'OPS.3 (verrou de transfert chez LWS, double authentification partout), `A-FAIRE.md` § 9 octies ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #325 (OPS.4) ; #323 (L.6) ; #321 (OPS.3) ; #319 (OPS.2) ; #298 (8.4.5) ; #300 (8.4.7) ; #297 (8.4.4) ; #296 (8.4.3) ; #295 (8.4.2) ; #294 (8.4.1) ; #293 (8.4.0) ; #288 (PERF.5c) ; #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
-| Branche | `tache/OPS.4-email-pro` (avant : `tache/L.6-pin-propose`, puis `tache/OPS.3-comptes-proteges`, puis `tache/OPS.2-instantanes`, puis `tache/8.4.5-passage-classe`, puis `tache/8.4.7-reprise-resultats`, puis `tache/8.4.4-situations`, puis `tache/8.4.3-bulletin-complete`, puis `tache/8.4.2-deliberation`, puis `tache/8.4.1-regles-reussite-repechage` (avant : `tache/8.4.0-points-sans-devoirs`, puis `tache/8.5.1c-application`, puis `tache/PERF.5c-images-hors-serveur`) ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-17 (OPS.4 faite, part de Claude) |
+| Tâche en cours | aucune (WEB.1a faite le 2026-10-17, PR en attente de fusion) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | **toi : mettre en ligne `main`** (`A-FAIRE.md` 6 duodecies), puis **WEB.1b → WEB.1c** (pages du site public d'après les maquettes de WEB.1a, puis visibilité), puis **8.4.6** (proclamation et frais, avec 8.8) ; toi : OPS.1 (compte AWS), ta part d'OPS.4 (boîtes LWS, essai d'envoi, rapports DMARC, puis `p=reject` vers le 2026-10-31) et ta part d'OPS.3 (verrou de transfert chez LWS, double authentification partout), `A-FAIRE.md` § 9 octies ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #327 (WEB.1a) ; #325 (OPS.4) ; #323 (L.6) ; #321 (OPS.3) ; #319 (OPS.2) ; #298 (8.4.5) ; #300 (8.4.7) ; #297 (8.4.4) ; #296 (8.4.3) ; #295 (8.4.2) ; #294 (8.4.1) ; #293 (8.4.0) ; #288 (PERF.5c) ; #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
+| Branche | `tache/WEB.1a-etude-maquettes-site` (avant : `tache/OPS.4-email-pro`, puis `tache/L.6-pin-propose`, puis `tache/OPS.3-comptes-proteges`, puis `tache/OPS.2-instantanes`, puis `tache/8.4.5-passage-classe`, puis `tache/8.4.7-reprise-resultats`, puis `tache/8.4.4-situations`, puis `tache/8.4.3-bulletin-complete`, puis `tache/8.4.2-deliberation`, puis `tache/8.4.1-regles-reussite-repechage` (avant : `tache/8.4.0-points-sans-devoirs`, puis `tache/8.5.1c-application`, puis `tache/PERF.5c-images-hors-serveur`) ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-17 (WEB.1a faite) |
 
 ## Avancement
 
@@ -31,7 +31,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 8 | 11 |
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.6, 8.5.1a–8.5.1c, 8.4.0–8.4.7, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 20 | 23 |
 | Exploitation — AWS, domaine, e-mail (OPS.1–OPS.5, PERF.7 ; ajoutés le 2026-10-17) | 3 | 6 |
-| Site public et visibilité (WEB.1a–WEB.1c ; avancés le 2026-10-17) | 0 | 3 |
+| Site public et visibilité (WEB.1a–WEB.1c ; avancés le 2026-10-17) | 1 | 3 |
 | V1.3 — plateforme commerciale (ABO.1–3, page des prix WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
 | V1.5 — carte et présences (avec A.5) | 0 | 7 |
@@ -62,6 +62,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-17 — Tâche WEB.1a : étude des grands sites et maquettes du site public
+- Fait : 13 sites étudiés (Stripe, Linear, Notion, PowerSchool, Toddle, Fedena, Classe365, Pronote, Zeraki, Edves, Wave, M-Pesa, le nôtre), poids du premier écran mesuré au téléphone (Wave 51 Ko, Stripe 409, Notion 740, Linear 806) : `docs/claude/recherches/2026-10-17-site-public.md`. Puis 7 maquettes dans `maquettes/site/` (accueil, écoles, parents, modules, démonstration, « Trouver mon école », mentions et confidentialité), captures à 390, 820 et 1440 px sans débordement.
+- Photos à ta demande : ateliers et cour de l'ITIG (avec son accord, à avoir par écrit avant la mise en ligne), Goma et le lac Kivu (Wikimedia, CC BY-SA 4.0) ; crédits dans `maquettes/assets/photos/README.md`.
+- Décisions : une page Écoles avec une section par rôle ; titres du site de 2 à 3,4 rem ; budget 150 Ko pour le premier écran ; chiffres réels affichés seulement à partir de 5 écoles réelles ; aucun chiffre ni témoignage inventé ; « Trouver mon école » sans recherche en base. Outils : `maquettes.py site`, captures à 820 px pour le site.
+- Suite : WEB.1b (les pages en Django), puis WEB.1c.
 
 ### 2026-10-17 — Tâche OPS.4 : e-mail professionnel et domaine protégé contre l'usurpation
 - Constat (`dig`) : les enregistrements e-mail de LWS étaient déjà copiés dans Cloudflare — MX `mail.mwangazaschool.com`, SPF unique en `-all`, DKIM (sélecteur `dkim`), DMARC `quarantine` sans rapports ; relevé dans `infra/README.md` « E-mail du domaine ». 2 boîtes comprises chez LWS : pas d'offre à comparer.
