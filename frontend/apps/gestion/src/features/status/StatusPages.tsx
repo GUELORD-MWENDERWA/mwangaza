@@ -78,7 +78,9 @@ export function ErrorState({ status, onRetry }: { status?: number; onRetry: () =
   );
 }
 
-export function Offline({ onRetry }: { onRetry: () => void }) {
+/** Sans réseau. `prepare` : aucun compte de ce navigateur n'a de code PIN, on dit comment
+ *  préparer l'appareil (maquette `hors-ligne-preparer`, L.6). */
+export function Offline({ onRetry, prepare = false }: { onRetry: () => void; prepare?: boolean }) {
   const { t } = useTranslation();
   return (
     <StateCard
@@ -92,6 +94,16 @@ export function Offline({ onRetry }: { onRetry: () => void }) {
       }
     >
       {t("status.offline.text")}
+      {prepare && (
+        <div className="mt-4 text-left">
+          <p className="font-semibold text-ink">{t("status.offline.prepare")}</p>
+          <ol className="mt-1 list-decimal pl-5 text-sm">
+            <li>{t("status.offline.step1")}</li>
+            <li>{t("status.offline.step2")}</li>
+          </ol>
+          <p className="mt-1 text-sm text-ink-3">{t("status.offline.then")}</p>
+        </div>
+      )}
     </StateCard>
   );
 }

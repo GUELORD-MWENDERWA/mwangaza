@@ -27,6 +27,7 @@ import { NotificationBell } from "../notifications/NotificationBell";
 import { PlatformNewsBanner } from "../platform-news/PlatformNewsBanner";
 import { PlatformNewsLink } from "../platform-news/PlatformNewsLink";
 import { SearchPalette } from "./SearchPalette";
+import { PinBanner } from "./PinBanner";
 import { Nav, SchoolSwitcher, Sidebar } from "./Sidebar";
 import { SpaceBanner } from "./SpaceBanner";
 import { SupportBanner } from "./SupportBanner";
@@ -54,6 +55,7 @@ export function AppShell() {
           <main className="mx-auto flex w-full max-w-[1400px] flex-col gap-6 p-4 min-[900px]:p-8 min-[900px]:pt-7">
             <PlatformNewsBanner />
             <StorageBanner />
+            <PinBanner me={me} />
             <Outlet />
           </main>
         </div>

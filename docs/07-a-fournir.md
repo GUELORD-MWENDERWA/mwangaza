@@ -36,6 +36,7 @@ Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, compt
 | M18 | Changements de coordonnées faits par les parents, à prendre en compte par le secrétariat | Gestion | H5 | 4.4 | `gestion/changements-coordonnees` | [ ] |
 | M19 | Portail : se connecter, mot de passe oublié, installer l'application | Portail | H1, H6 | 4.4 | `portail/connexion`, `portail/mot-de-passe-oublie`, `portail/installer` | [ ] |
 | M20 | Guides de première connexion : caissier, comptable, parent | Gestion, Portail | I3 | 4.5.1 | `gestion/guide-premiere-connexion`, `portail/guide` | [ ] |
+| M21 | Préparer le hors-ligne : bandeau du code PIN, page hors ligne qui explique (dessinée par Claude le 2026-10-17) | Gestion | B5 | L.6 | `gestion/hors-ligne-preparer` | [x] |
 
 ### V1.0 — clôture
 

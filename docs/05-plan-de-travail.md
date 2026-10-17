@@ -55,6 +55,7 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 14 ter | ~~**OPS.2**~~ ✓ Instantanés automatiques et alarmes Lightsail, retour d'un serveur entier essayé une fois | P0 | S | 🤖 + 👤 |
 | 14 quater | ~~**OPS.3**~~ ✓ Domaine et comptes de la plateforme protégés (LWS, Cloudflare, AWS, B2, GitHub) ; ta part : `A-FAIRE.md` 5 ter | P0 | S | 👤 + 🤖 |
 | 14 quinquies | **OPS.4** E-mail professionnel `@mwangazaschool.com` et domaine protégé contre l'usurpation (SPF, DKIM, DMARC) | P0 | S | 👤 + 🤖 |
+| 14 sexies | ~~**L.6**~~ ✓ Travailler sans internet : code PIN proposé après la connexion (constaté le 2026-10-17) | P0 | S | 🤖 |
 | 15 | **🚀 Premier espace réel** (`A-FAIRE.md`, « Le jour du lancement ») | — | — | 👤 |
 | | **V1.2 — Notes, bulletins et finances de l'école** (§ 7) | | | |
 | 16 | ~~**A.2**~~ ✓ Purge des opérations de synchronisation (`SyncOperation` ; `ChangeLog` gardé) | P1 | S | 🤖 |
@@ -102,6 +103,7 @@ La V1.0 et la V1.1 sont faites (annexe). Il reste à fermer ce qui touche la sé
 - [x] **L.4** Essai sur de vrais téléphones *(P0, S, 👤)* — ce que la recette 4.21 n'a pas pu faire : sur le vrai serveur, un Android et un iPhone ; installation obligatoire de la Gestion (4.24) ; caisse hors ligne (couper le réseau, encaisser, reconnecter) ; impression sur une vraie imprimante thermique 58 / 80 mm et en A4 ; Portail installé, notifications sur iPhone ; scan du QR d'un reçu imprimé. Chaque défaut trouvé devient une tâche L.4.x en tête de file.
 
 - [x] **L.5** Clôture de la version *(P0, S, 🤖)* — après M.3 : texte du guide mis à jour (modules, rôles libres), `make guide` → `docs/guide/guide-v1.1.pdf`, « Le jour du lancement » de `A-FAIRE.md` relu avec le vrai domaine `mwangazaschool.com`.
+- [x] **L.6** Travailler sans internet *(P0, S, 🤖 ; fait le 2026-10-17, constaté par l'utilisateur : la Gestion installée affichait « Pas de connexion au serveur » sans réseau)* — le démarrage sans réseau (B5, 3.7.1) exige un appareil mémorisé **et** un code PIN, que rien ne proposait (carte cachée dans « Mon compte »). Bandeau « Travailler sans internet sur cet appareil » sur un appareil mémorisé sans PIN (ni en session support, ni sur « Mon compte » ; « Plus tard » jusqu'à la prochaine ouverture), qui ouvre la carte PIN prête à la saisie ; la page hors ligne dit comment préparer l'appareil quand aucun compte n'a de PIN. Maquette `gestion/hors-ligne-preparer`.
 
 **Documents de l'école (demande de l'utilisateur du 2026-10-15, avant L.4 : l'essai des imprimantes en dépend).** Maquettes d'abord (390 et 1440 px pour les écrans, chaque format pour les documents), une PR chacune.
 
