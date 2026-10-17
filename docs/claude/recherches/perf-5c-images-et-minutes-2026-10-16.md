@@ -19,7 +19,7 @@ communes) ; à relire quand 3 versions existeront. Les paquets sont **publics** 
 ## Minutes d'Actions par mois en privé (plafond 2 000)
 | Poste | Minutes | Fréquence | Total |
 |---|---|---|---|
-| Contrôles d'une PR (serveur + front + parcours, en parallèle ≈ 15 min de calcul) | 15 | 8 PR | 120 |
+| Contrôles d'une PR (serveur + front + parcours, en parallèle ≈ 15 min de calcul ; mesuré le 2026-10-17 : 31 min, dont 25 pour le serveur à cause de `test_demo.py`, ramené à ≈ 12) | 15 | 8 PR | 120 |
 | `main` après fusion (tout relancé) | 15 | 8 | 120 |
 | Construction des images (à froid 15, avec cache 5) | 8 | 4 déploiements | 32 |
 | Audit des dépendances (lundi) | 3 | 4 | 12 |
