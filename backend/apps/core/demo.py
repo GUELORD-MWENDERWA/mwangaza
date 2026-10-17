@@ -5,7 +5,7 @@ paramètres de la plateforme."""
 
 from collections.abc import Callable
 
-from django.db import connection, transaction
+from django.db import transaction
 
 from apps.academics.demo import create_demo_courses, create_demo_grades
 from apps.accounts.demo import create_demo_accounts
@@ -58,12 +58,6 @@ STEPS: list[Callable[[list[DemoSpace]], None]] = [
 ]
 
 
-# Étapes qui chargent beaucoup de lignes d'un coup : PostgreSQL ne connaît pas encore la taille des
-# tables (sur une base neuve, les jointures des annonces prenaient 20 s au lieu de 1 s), on le lui
-# apprend avant l'étape suivante.
-BULK_STEPS = {create_demo_students, create_demo_grades}
-
-
 def fill(spaces: list[DemoSpace], on_step: Callable[[int, int], None] | None = None) -> None:
     """Écrit les données fictives dans `spaces` (écoles déjà créées, de démonstration), ou les
     remet comme au départ. Une transaction par étape : des écritures courtes, et `on_step(faites,
@@ -76,9 +70,6 @@ def fill(spaces: list[DemoSpace], on_step: Callable[[int, int], None] | None = N
     for done, step in enumerate(STEPS, start=1):
         with use_all_schools(), transaction.atomic():
             step(spaces)
-        if step in BULK_STEPS:
-            with connection.cursor() as cursor:
-                cursor.execute("ANALYZE")
         if on_step is not None:
             on_step(done, len(STEPS))
 

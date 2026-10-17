@@ -66,7 +66,7 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 - Fait : le bas du bulletin se remplit d'après la **dernière version proclamée** de la délibération (jamais le brouillon) : mention gardée (passe, double, repêchage avec les cours, réorienté) et les autres biffées, date de délibération (aussi dans « Fait à… »), colonne du repêchage avec le pourcentage et l'enseignant qui a signé ; classe pas proclamée ou élève arrivé après : bas vierge comme avant. Nom, signature et cachet du chef : déjà en place.
 - Tests : 2 (bulletin lu sur la version figée jusqu'à la nouvelle proclamation ; autre école = 404) ; PDF regardé.
 - Décisions : l'instantané garde aussi les cours à repêcher (`resit_courses`) ; pas de nouveau modèle ni de migration ; maquette `gestion/bulletin` complétée d'une note. Suite : 8.4.4.
-- Correction en cours de PR : la suite serveur dépassait 30 min en CI (annulée) à cause de `make demo` rejoué par ~23 tests (36 s chacun). Cause : sur une base neuve, PostgreSQL ne connaît pas la taille des tables et les jointures de la publication d'annonces prenaient 20 s ; `ANALYZE` après les étapes élèves et notes (`core/demo.py`, `BULK_STEPS`) ramène la démo à 15 s.
+- Correction en cours de PR : la suite serveur dépassait 30 min en CI (annulée deux fois) à cause de `make demo` rejoué par ~23 tests. Cause : sur une base neuve (démo, tests), PostgreSQL ne connaît pas la taille des tables et les jointures des familles destinataires d'une annonce prenaient 20 s ; en CI le rôle de l'application ne peut pas `ANALYZE`. `recipient_families` lit d'abord les identifiants (jointure simple) puis `pk__in` : démo de 36 s à 15 s, sans statistiques.
 
 ### 2026-10-17 — Tâche 8.4.2 : délibération d'une classe
 
