@@ -265,3 +265,22 @@ def incident_recorded(incident: DisciplineIncident) -> None:
             },
         ),
     )
+
+
+def places_offered(family_ids: Iterable, year_name: str) -> None:
+    """Places de l'année suivante proposées (8.4.5) : un envoi pour toutes les familles de la
+    classe ; le parent ouvre l'accueil du portail, où il répond pour chaque enfant."""
+    send(
+        _parents(Family.objects.filter(pk__in=family_ids)),
+        app=App.PORTAIL,
+        kind=Kind.PLACE_OFFERED,
+        url="/",
+        text=lambda: (
+            _("Place for %(year)s") % {"year": year_name},
+            _(
+                "The school is keeping a place for your child in %(year)s. "
+                "Tell it whether they are coming back."
+            )
+            % {"year": year_name},
+        ),
+    )

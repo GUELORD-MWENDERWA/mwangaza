@@ -31,6 +31,7 @@ from apps.academics.models import (
     DeliberationDecision,
     DisciplineIncident,
     Grade,
+    PlaceConfirmation,
     ResitGrade,
 )
 from apps.accounts.models import User
@@ -102,7 +103,8 @@ def _touches() -> dict[str, tuple[str, Exists]]:
             PORTAL,
             Exists(Family.objects.filter(pk=OuterRef("family_id"), primary_user__isnull=False)),
         ),
-        # Notes, fautes de conduite (8.5.1a), cotes de conduite (8.5.1b) et d'application (8.5.1c).
+        # Notes, fautes de conduite (8.5.1a), cotes de conduite (8.5.1b) et d'application (8.5.1c),
+        # délibération (8.4.2) et place de l'année suivante (8.4.5).
         "graded": (
             GRADES,
             Exists(Grade.objects.filter(enrollment__student=student))
@@ -110,7 +112,8 @@ def _touches() -> dict[str, tuple[str, Exists]]:
             | Exists(ConductGrade.objects.filter(enrollment__student=student))
             | Exists(ApplicationGrade.objects.filter(enrollment__student=student))
             | Exists(ResitGrade.objects.filter(enrollment__student=student))
-            | Exists(DeliberationDecision.objects.filter(enrollment__student=student)),
+            | Exists(DeliberationDecision.objects.filter(enrollment__student=student))
+            | Exists(PlaceConfirmation.objects.filter(enrollment__student=student)),
         ),
     }
 

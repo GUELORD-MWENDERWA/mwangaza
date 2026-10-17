@@ -784,6 +784,9 @@ paths:
           - students.student_updated
           - students.enrolled
           - students.enrollment_updated
+          - students.place_offered
+          - students.place_withdrawn
+          - students.place_answered
           - students.student_imported
           - students.import_cancelled
           - students.student_removed
@@ -907,6 +910,9 @@ paths:
           * `students.student_updated` - Student changed
           * `students.enrolled` - Student enrolled
           * `students.enrollment_updated` - Enrollment changed
+          * `students.place_offered` - Place offered for next year
+          * `students.place_withdrawn` - Place for next year withdrawn
+          * `students.place_answered` - Parent answered about the place
           * `students.student_imported` - Student imported from a file
           * `students.import_cancelled` - Student import cancelled
           * `students.student_removed` - Student removed (import cancelled)
@@ -1209,6 +1215,9 @@ paths:
           - students.student_updated
           - students.enrolled
           - students.enrollment_updated
+          - students.place_offered
+          - students.place_withdrawn
+          - students.place_answered
           - students.student_imported
           - students.import_cancelled
           - students.student_removed
@@ -1332,6 +1341,9 @@ paths:
           * `students.student_updated` - Student changed
           * `students.enrolled` - Student enrolled
           * `students.enrollment_updated` - Enrollment changed
+          * `students.place_offered` - Place offered for next year
+          * `students.place_withdrawn` - Place for next year withdrawn
+          * `students.place_answered` - Parent answered about the place
           * `students.student_imported` - Student imported from a file
           * `students.import_cancelled` - Student import cancelled
           * `students.student_removed` - Student removed (import cancelled)
@@ -3746,6 +3758,208 @@ paths:
               schema:
                 type: string
           description: Document PDF (`output=pdf`).
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/promotion/:
+    get:
+      operationId: class_groups_promotion_retrieve
+      description: |-
+        Élèves de la classe : décision figée, place proposée d'après elle, place déjà proposée
+        et réponse du parent, inscription de l'année suivante.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - promotion
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassPassage'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/promotion/enroll/:
+    post:
+      operationId: class_groups_promotion_enroll_create
+      description: |-
+        Inscrit l'année suivante, dans la classe proposée, les élèves dont la place est
+        proposée : frais dus d'après les barèmes de cette année-là, matricule gardé.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - promotion
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollmentsRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EnrollmentsRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EnrollmentsRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassPassage'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/promotion/offer/:
+    post:
+      operationId: class_groups_promotion_offer_create
+      description: |-
+        Propose (ou change) la place de ces élèves ; le parent la voit au Portail et en est
+        prévenu. Admis, doublant ou réorienté seulement.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - promotion
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfferRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OfferRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OfferRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassPassage'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/promotion/withdraw/:
+    post:
+      operationId: class_groups_promotion_withdraw_create
+      description: Retire les places encore proposées de ces élèves.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - promotion
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollmentsRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EnrollmentsRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EnrollmentsRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassPassage'
+          description: ''
         '400':
           content:
             application/json:
@@ -10382,6 +10596,91 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/portal/places/:
+    get:
+      operationId: portal_places_list
+      description: |-
+        Places de l'année suivante proposées aux enfants du compte (8.4.5), tant que l'école ne
+        les a pas inscrits.
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PortalPlace'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/places/{id}/:
+    put:
+      operationId: portal_places_update
+      description: |-
+        Réponse du parent : l'enfant revient (`yes`) ou non (`no`) ; modifiable jusqu'à
+        l'inscription par l'école. Place d'une autre famille ou déjà inscrite : 404.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceAnswerRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PlaceAnswerRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PlaceAnswerRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalPlace'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/portal/profile/:
     get:
       operationId: portal_profile_retrieve
@@ -10572,6 +10871,42 @@ paths:
                 format: binary
           description: Classeur Excel.
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/promotion/:
+    get:
+      operationId: promotion_retrieve
+      description: |-
+        Classes de l'année finie : proclamée ou non, élèves, places proposées et réponses,
+        inscrits l'année suivante. Année finie = la dernière qui a une année suivante, sans
+        dépasser l'année en cours.
+      tags:
+      - promotion
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+          description: ''
+        '400':
           content:
             application/json:
               schema:
@@ -14462,6 +14797,9 @@ components:
       - students.student_updated
       - students.enrolled
       - students.enrollment_updated
+      - students.place_offered
+      - students.place_withdrawn
+      - students.place_answered
       - students.student_imported
       - students.import_cancelled
       - students.student_removed
@@ -14584,6 +14922,9 @@ components:
         * `students.student_updated` - Student changed
         * `students.enrolled` - Student enrolled
         * `students.enrollment_updated` - Enrollment changed
+        * `students.place_offered` - Place offered for next year
+        * `students.place_withdrawn` - Place for next year withdrawn
+        * `students.place_answered` - Parent answered about the place
         * `students.student_imported` - Student imported from a file
         * `students.import_cancelled` - Student import cancelled
         * `students.student_removed` - Student removed (import cancelled)
@@ -14834,6 +15175,12 @@ components:
       - audience
       - body
       - title
+    AnswerEnum:
+      enum:
+      - 'yes'
+      - 'no'
+      type: string
+      description: "* `yes` - yes\n* `no` - no\n* `` - "
     ApplicationOverrideRequest:
       type: object
       properties:
@@ -16094,6 +16441,51 @@ components:
       required:
       - id
       - name
+    ClassPassage:
+      type: object
+      properties:
+        class_name:
+          type: string
+        year:
+          $ref: '#/components/schemas/Year'
+        following:
+          allOf:
+          - $ref: '#/components/schemas/Year'
+          nullable: true
+        proclaimed_on:
+          type: string
+          format: date
+          nullable: true
+        targets:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClassRef'
+          description: Classes de l'année suivante.
+        counts:
+          $ref: '#/components/schemas/Counts'
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/PassageRow'
+      required:
+      - class_name
+      - year
+      - following
+      - proclaimed_on
+      - targets
+      - counts
+      - students
+    ClassRef:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+      - id
+      - name
     ClassResits:
       type: object
       properties:
@@ -16109,6 +16501,26 @@ components:
       - class_name
       - rules
       - students
+    ClassSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        proclaimed_on:
+          type: string
+          format: date
+          nullable: true
+          description: 'Date de la dernière proclamation ; vide : pas proclamée.'
+        counts:
+          $ref: '#/components/schemas/Counts'
+      required:
+      - id
+      - name
+      - proclaimed_on
+      - counts
     ClosingCurrency:
       type: object
       properties:
@@ -17323,6 +17735,38 @@ components:
       required:
       - amount_minor
       - currency
+    Counts:
+      type: object
+      properties:
+        students:
+          type: integer
+          default: 0
+        offered:
+          type: integer
+          default: 0
+          description: Places proposées, pas inscrites.
+        'yes':
+          type: integer
+          default: 0
+          description: 'Le parent a répondu : revient.'
+        'no':
+          type: integer
+          default: 0
+          description: 'Le parent a répondu : ne revient pas.'
+        no_answer:
+          type: integer
+          default: 0
+        enrolled:
+          type: integer
+          default: 0
+          description: Inscrits l'année suivante.
+      required:
+      - students
+      - offered
+      - 'yes'
+      - 'no'
+      - no_answer
+      - enrolled
     Course:
       type: object
       properties:
@@ -18491,6 +18935,17 @@ components:
         * `dropped` - Dropped out
         * `excluded` - Excluded
         * `graduated` - Graduated
+    EnrollmentsRequest:
+      type: object
+      properties:
+        enrollments:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 500
+      required:
+      - enrollments
     EntityTypeEnum:
       enum:
       - enrollment
@@ -20434,6 +20889,7 @@ components:
       - staff_announcement
       - summons
       - discipline_incident
+      - place_offered
       - sensitive_rights
       type: string
       description: |-
@@ -20449,6 +20905,7 @@ components:
         * `staff_announcement` - Announcement to the staff
         * `summons` - Summons
         * `discipline_incident` - Conduct
+        * `place_offered` - Place for next year
         * `sensitive_rights` - Sensitive rights given
     NotificationPreferences:
       type: object
@@ -20497,6 +20954,28 @@ components:
     NullEnum:
       enum:
       - null
+    OfferItemRequest:
+      type: object
+      properties:
+        enrollment:
+          type: string
+          format: uuid
+        class_group:
+          type: string
+          format: uuid
+          description: Classe de l'année suivante.
+      required:
+      - class_group
+      - enrollment
+    OfferRequest:
+      type: object
+      properties:
+        places:
+          type: array
+          items:
+            $ref: '#/components/schemas/OfferItemRequest'
+      required:
+      - places
     OfficialCourse:
       type: object
       properties:
@@ -21593,6 +22072,61 @@ components:
       - resit_failures_to_fail
       - resit_floor_percent
       - resit_mode
+    PassageRow:
+      type: object
+      properties:
+        enrollment:
+          type: string
+          format: uuid
+        student:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        matricule:
+          type: string
+        decision:
+          description: "Décision de la dernière proclamation ; vide : pas encore proclamée.\n\n*
+            `pass` - pass\n* `repeat` - repeat\n* `resit` - resit\n* `orient` - orient\n*
+            `exclude` - exclude\n* `dropped` - dropped\n* `` - "
+          oneOf:
+          - $ref: '#/components/schemas/DecisionEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+        proposal:
+          $ref: '#/components/schemas/ProposalEnum'
+        proposed_class:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Vide : à choisir ou sans place.'
+        place:
+          allOf:
+          - $ref: '#/components/schemas/Place'
+          nullable: true
+        enrolled_class:
+          type: string
+          nullable: true
+          description: Classe de l'inscription de l'année suivante, si elle existe.
+        on_portal:
+          type: boolean
+          description: La famille a un compte du Portail actif.
+      required:
+      - enrollment
+      - student
+      - full_name
+      - matricule
+      - decision
+      - percent
+      - proposal
+      - proposed_class
+      - place
+      - enrolled_class
+      - on_portal
     PasswordRequest:
       type: object
       description: |-
@@ -22560,6 +23094,47 @@ components:
       - enrollment
       - full_name
       - matricule
+    Place:
+      type: object
+      properties:
+        class_group:
+          type: string
+          format: uuid
+        class_name:
+          type: string
+        status:
+          $ref: '#/components/schemas/PlaceStatusEnum'
+        answer:
+          oneOf:
+          - $ref: '#/components/schemas/AnswerEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        answered_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - class_group
+      - class_name
+      - status
+      - answer
+      - answered_at
+    PlaceAnswerRequest:
+      type: object
+      properties:
+        answer:
+          $ref: '#/components/schemas/AnswerEnum'
+      required:
+      - answer
+    PlaceStatusEnum:
+      enum:
+      - offered
+      - enrolled
+      - withdrawn
+      type: string
+      description: |-
+        * `offered` - Offered
+        * `enrolled` - Enrolled next year
+        * `withdrawn` - Withdrawn
     Platform:
       type: object
       description: 'Identité de la plateforme, publique : écrans de connexion, menus,
@@ -23100,6 +23675,45 @@ components:
       - read_at
       - school_name
       - school_timezone
+    PortalPlace:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        student:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        school_name:
+          type: string
+        year_name:
+          type: string
+        starts_on:
+          type: string
+          format: date
+          description: Rentrée de l'année suivante.
+        class_name:
+          type: string
+        answer:
+          oneOf:
+          - $ref: '#/components/schemas/AnswerEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        answered_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - student
+      - full_name
+      - school_name
+      - year_name
+      - starts_on
+      - class_name
+      - answer
+      - answered_at
     PortalProfile:
       type: object
       description: |-
@@ -23507,6 +24121,45 @@ components:
       description: |-
         * `small` - Small school
         * `large` - Large school
+    Promotion:
+      type: object
+      properties:
+        year:
+          allOf:
+          - $ref: '#/components/schemas/Year'
+          nullable: true
+          description: Année finie.
+        following:
+          allOf:
+          - $ref: '#/components/schemas/Year'
+          nullable: true
+          description: 'Année suivante ; vide : à créer.'
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClassSummary'
+      required:
+      - year
+      - following
+      - classes
+    ProposalEnum:
+      enum:
+      - next_level
+      - same_level
+      - choose
+      - finished
+      - waiting
+      - no_place
+      - undecided
+      type: string
+      description: |-
+        * `next_level` - next_level
+        * `same_level` - same_level
+        * `choose` - choose
+        * `finished` - finished
+        * `waiting` - waiting
+        * `no_place` - no_place
+        * `undecided` - undecided
     Pull:
       type: object
       properties:
@@ -26805,6 +27458,21 @@ components:
       - terms
       - deadlines
       - sheets
+    Year:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        starts_on:
+          type: string
+          format: date
+      required:
+      - id
+      - name
+      - starts_on
     YearStatusEnum:
       enum:
       - open

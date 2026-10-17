@@ -1,7 +1,13 @@
 from django.urls import path
 
 from apps.academics import application_views as application
-from apps.academics import deliberation_views, resits_views, situation_views, views
+from apps.academics import (
+    deliberation_views,
+    promotion_views,
+    resits_views,
+    situation_views,
+    views,
+)
 from apps.academics import discipline_views as conduct
 
 urlpatterns = [
@@ -122,6 +128,27 @@ urlpatterns = [
         "class-groups/<uuid:pk>/deliberation/reopen/",
         deliberation_views.ReopenView.as_view(),
         name="deliberation-reopen",
+    ),
+    path("promotion/", promotion_views.PromotionView.as_view(), name="promotion"),
+    path(
+        "class-groups/<uuid:pk>/promotion/",
+        promotion_views.ClassPromotionView.as_view(),
+        name="class-promotion",
+    ),
+    path(
+        "class-groups/<uuid:pk>/promotion/offer/",
+        promotion_views.OfferPlacesView.as_view(),
+        name="promotion-offer",
+    ),
+    path(
+        "class-groups/<uuid:pk>/promotion/withdraw/",
+        promotion_views.WithdrawPlacesView.as_view(),
+        name="promotion-withdraw",
+    ),
+    path(
+        "class-groups/<uuid:pk>/promotion/enroll/",
+        promotion_views.EnrollPlacesView.as_view(),
+        name="promotion-enroll",
     ),
     path(
         "deliberation/prior-results/",

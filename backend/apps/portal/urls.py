@@ -16,6 +16,8 @@ urlpatterns = [
     path("children/<uuid:pk>/conduct/", views.ChildConductView.as_view(), name="child-conduct"),
     path("children/<uuid:pk>/photo/", views.ChildPhotoView.as_view(), name="child-photo"),
     path("payments/<uuid:pk>/receipt/", views.ReceiptView.as_view(), name="receipt"),
+    path("places/", views.PlacesView.as_view(), name="places"),
+    path("places/<uuid:pk>/", views.PlaceAnswerView.as_view(), name="place-answer"),
     path("announcements/", views.AnnouncementsView.as_view(), name="announcements"),
     path("announcements/read/", views.AnnouncementsReadView.as_view(), name="announcements-read"),
     path(

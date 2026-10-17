@@ -2,7 +2,7 @@ from django.conf import settings
 from django.utils.text import slugify
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import BasePermission, IsAuthenticated
@@ -10,6 +10,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.academics.models import PlaceConfirmation
 from apps.accounts import login
 from apps.accounts.views import AuthView
 from apps.core.documents import PDF, render
@@ -28,6 +29,7 @@ from apps.portal import (
     children,
     families,
     notifications,
+    places,
     receipts,
     services,
 )
@@ -454,3 +456,51 @@ class PushUnsubscribeView(APIView):
             endpoint=serializer.validated_data["endpoint"],
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PortalPlaceSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    student = serializers.UUIDField(source="enrollment.student_id")
+    full_name = serializers.CharField(source="enrollment.student.full_name")
+    school_name = serializers.CharField(source="school.name")
+    year_name = serializers.CharField(source="class_group.academic_year.name")
+    starts_on = serializers.DateField(
+        source="class_group.academic_year.starts_on", help_text="Rentrée de l'année suivante."
+    )
+    class_name = serializers.CharField(source="class_group.name")
+    answer = serializers.ChoiceField(choices=[*PlaceConfirmation.Answer.values, ""])
+    answered_at = serializers.DateTimeField(allow_null=True)
+
+
+class PlaceAnswerSerializer(serializers.Serializer):
+    answer = serializers.ChoiceField(choices=PlaceConfirmation.Answer.values)
+
+
+@extend_schema(tags=["portal"])
+class PlacesView(APIView):
+    """Places de l'année suivante proposées aux enfants du compte (8.4.5), tant que l'école ne
+    les a pas inscrits."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(responses={200: PortalPlaceSerializer(many=True), **READ_ERRORS})
+    def get(self, request: Request) -> Response:
+        return Response(PortalPlaceSerializer(places.places(request.user), many=True).data)
+
+
+@extend_schema(tags=["portal"])
+class PlaceAnswerView(APIView):
+    """Réponse du parent : l'enfant revient (`yes`) ou non (`no`) ; modifiable jusqu'à
+    l'inscription par l'école. Place d'une autre famille ou déjà inscrite : 404."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(
+        request=PlaceAnswerSerializer,
+        responses={200: PortalPlaceSerializer, 400: ErrorSerializer, **READ_ERRORS},
+    )
+    def put(self, request: Request, pk) -> Response:
+        serializer = PlaceAnswerSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        place = places.answer(request.user, pk, serializer.validated_data["answer"])
+        return Response(PortalPlaceSerializer(place).data)
