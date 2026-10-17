@@ -61,6 +61,12 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 
 ## Journal
 
+### 2026-10-17 — CI : le job serveur passe de 25 min à quelques minutes
+
+- Constat (à ta demande, après 24 min 40 d'attente sur la PR de 8.4.4) : 87 % du job serveur venait d'un seul fichier, `core/tests/test_demo.py` (23 tests, 20 min 51) : chaque test refaisait `make demo` en entier (24 fois, ≈ 54 s chacune) ; les 1 151 autres tests prennent 3 min. Coût caché : ≈ 63 min de quota GitHub Actions par tâche (PR + `main`), quota privé de 2 000 min/mois.
+- Fait : les 16 tests de la démonstration deviennent un scénario en trois temps (première fois, seconde fois qui remet tout, passage « serveur ») : 3 démonstrations au lieu de 24, les 92 vérifications gardées. En local : 11 min → 44 s. CI : délai du job serveur 30 → 15 min, les 10 tests les plus lents affichés à chaque passage. Règle ajoutée à `CLAUDE.md` : un test ne refait jamais `make demo`.
+- Pas fait (nouvelle dépendance à accepter) : `pytest-xdist` (tests sur plusieurs cœurs), gain d'environ une minute de plus.
+
 ### 2026-10-17 — Tâche 8.4.4 : situations de fin d'année
 
 - Fait : écran « Situations de fin d'année » (`grades.validate`) et deux documents (PDF, aperçu, options d'impression) : situation d'une classe (inscrits, abandons, délibérés, admis, repêchage, doublants, réorientés, exclus, échecs, taux, écarts ; par cours ; palmarès avec ex æquo) et situation de l'école (lauréat et sa classe, par classe avec meilleur élève, sous-totaux par niveau, total, liste des écarts), au critère choisi à chaque édition : règles de la classe ou moyenne seule (50 %). `make demo` proclame la 4HT Mécanique automobile A (un écart motivé) ; la 3HT reste à proclamer.

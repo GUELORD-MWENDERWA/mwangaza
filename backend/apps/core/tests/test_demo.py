@@ -1,4 +1,9 @@
-"""make demo : données fictives pour le développement et les démonstrations."""
+"""make demo : données fictives pour le développement et les démonstrations.
+
+Une démonstration complète coûte près d'une minute en CI : le scénario principal la fait trois
+fois seulement (première fois, seconde fois qui remet tout comme au départ, passage « serveur »)
+au lieu d'un `make demo` par vérification (24 fois, 21 minutes de CI). Une vérification de plus
+s'ajoute à l'étape qui lui correspond, pas dans un nouveau test qui refait la démonstration."""
 
 import re
 from io import StringIO
@@ -43,12 +48,20 @@ def roles_of(phone: str, school: School) -> set[str]:
         return {role.name for role in membership.roles.all()}
 
 
-def test_demo_creates_the_two_demo_schools(demo):
+def test_demo_creates_the_spaces_puts_them_back_and_runs_on_a_server(demo, settings):
+    created(demo)
+    rerun_puts_everything_back(demo, settings)
+    server_run(settings)
+
+
+def created(demo) -> None:
+    """Première fois : écoles, comptes, élèves, organisation, double authentification."""
+    itig, volcans = demo["itig"], demo["volcans"]
     assert set(demo) == {"itig", "volcans"}
-    assert demo["itig"].name == "ITIG DON BOSCO"
-    assert demo["itig"].primary_color == "#003C6C"
-    assert demo["itig"].status == School.Status.TRIAL
-    assert demo["volcans"].status == School.Status.ACTIVE
+    assert itig.name == "ITIG DON BOSCO"
+    assert itig.primary_color == "#003C6C"
+    assert itig.status == School.Status.TRIAL
+    assert volcans.status == School.Status.ACTIVE
     # Données fictives : jamais dans un espace réel (`03` § 4 bis).
     assert {school.environment for school in demo.values()} == {School.Environment.DEMO}
     # Conduite (8.5.1a) : liste proposée et incidents dans chaque espace.
@@ -57,126 +70,188 @@ def test_demo_creates_the_two_demo_schools(demo):
             assert DisciplineRule.objects.count() == 10
             assert DisciplineIncident.objects.exists()
 
-
-def test_demo_puts_back_the_demo_logos(demo, settings):
-    from pathlib import Path
-
-    from django.core.files.base import ContentFile
-
-    media = Path(settings.MEDIA_ROOT)
-    volcans = demo["volcans"]
-    volcans.logo.save("logo.png", ContentFile(b"\x89PNG\r\n\x1a\n" + b"\x00" * 8))
-    stored = volcans.logo.name
-
-    call_command("demo")
-
-    volcans.refresh_from_db()
-    itig = School.objects.get(code="itig")
-    assert not volcans.logo
-    assert not (media / stored).exists()
-    # Logo public de l'ITIG, un seul fichier gardé même après plusieurs `make demo`.
-    assert itig.logo.name.endswith(".png")
-    folder = media / "schools" / str(itig.pk)
-    assert len([f for f in folder.iterdir() if f.name.startswith("logo")]) == 1
-
-
-def test_demo_puts_back_a_suspended_school(demo):
-    demo["volcans"].status = School.Status.SUSPENDED
-    demo["volcans"].primary_color = "#000000"
-    demo["volcans"].save()
-
-    call_command("demo")
-
-    volcans = School.objects.get(code="volcans")
-    assert volcans.status == School.Status.ACTIVE
-    assert volcans.is_demo
-    assert volcans.primary_color == "#7A3E00"
-
-
-def test_demo_creates_one_account_per_role_named_by_each_school(demo):
-    itig, volcans = demo["itig"], demo["volcans"]
+    # Un compte par rôle, chaque école nomme ses rôles à sa façon : pas de « Directeur » à l'ITIG.
     names = [
         role
         for membership in Membership.objects.filter(school=itig)
         for role in roles_of(membership.user.phone, itig)
     ]
-
-    # Chaque école fictive nomme ses rôles à sa façon : pas de « Directeur » à l'ITIG.
     with use_school(itig):
         assert sorted(names) == sorted(Role.objects.values_list("name", flat=True))
+        assert Role.objects.get(name="Chef d'atelier").permissions == ["students.view"]
+    with use_school(volcans):
+        assert not Role.objects.filter(name="Chef d'atelier").exists()
     assert {"Préfet des études", "Caissier", "Chef d'atelier"} <= set(names)
     assert "Directeur" not in names
     assert roles_of("+243000002001", volcans) == {"Directeur"}
     assert roles_of("+243000002005", volcans) == {"Caissière"}
-    assert Membership.objects.filter(school=demo["volcans"]).count() == 4
-
-
-def test_demo_accounts_log_in_with_the_local_number(demo):
+    assert Membership.objects.filter(school=volcans).count() == 4
+    # Connexion avec le numéro local ; l'enseignant de démonstration travaille dans les deux.
     head = authenticate(username="0000001001", password=DEMO_PASSWORD)
-
     assert head is not None
-    assert roles_of(head.phone, demo["itig"]) == {"Préfet des études"}
+    assert roles_of(head.phone, itig) == {"Préfet des études"}
     assert authenticate(username="0000000000", password=DEMO_PASSWORD).is_platform_admin
-
-
-def test_one_demo_teacher_works_in_both_schools(demo):
     teacher = User.objects.get(phone="+243000001008")
-
     assert {m.school.code for m in teacher.memberships.all()} == {"itig", "volcans"}
-    assert roles_of(teacher.phone, demo["volcans"]) == {"Enseignant"}
+    assert roles_of(teacher.phone, volcans) == {"Enseignant"}
+
+    # Double authentification : super-admin, directeur, directeur des études (ITIG : valide les
+    # notes), comptable, caissière ; pas le promoteur de l'ITIG (activation à essayer), ni
+    # l'enseignant, la secrétaire…
+    enabled = set(
+        User.objects.filter(totp_enabled_at__isnull=False).values_list("phone", flat=True)
+    )
+    assert enabled == {
+        "+243000000000",
+        "+243000001001",
+        "+243000001002",
+        "+243000001004",
+        "+243000001005",
+        "+243000002001",
+        "+243000002004",
+        "+243000002005",
+    }
+    assert decrypt(head.totp_secret) == DEMO_TOTP_SECRET
+
+    # Élèves : fratries, une famille dans les deux écoles, numéros fictifs.
+    with use_school(itig):
+        assert Enrollment.objects.filter(status="active").count() == 800
+        families = Student.objects.values_list("family", flat=True)
+        assert len(set(families)) < 800  # des fratries
+        assert Student.objects.filter(matricule="ITIG-2026-0001").exists()
+        phones = set(Guardian.objects.values_list("phone", flat=True))
+    with use_school(volcans):
+        assert Student.objects.count() == 150
+        assert phones & set(Guardian.objects.values_list("phone", flat=True))
+    assert all(phone.startswith("+24300") for phone in phones)
+
+    # Organisation scolaire (1.7) de l'ITIG.
+    with use_school(itig):
+        year = AcademicYear.objects.get()
+        levels = list(Level.objects.values_list("name", flat=True))
+        tracks = set(Track.objects.values_list("code", flat=True))
+        groups = list(ClassGroup.objects.select_related("level", "track", "homeroom_teacher"))
+        terms = list(year.terms.all())
+    assert (year.name, year.is_current) == ("2026-2027", True)
+    assert levels == ["7EB", "8EB", "1HT", "2HT", "3HT", "4HT"]
+    assert tracks == {"ELEC", "ELO", "MG", "MA"}
+    assert len(groups) == 23
+    assert [group.name for group in groups[:3]] == ["7EB A", "7EB B", "7EB C"]
+    titulars = {
+        group.name: group.homeroom_teacher.phone for group in groups if group.homeroom_teacher
+    }
+    assert titulars["3HT ÉLECTRICITÉ A"] == "+243000001008"
+    # 5.7 : la classe de l'enfant du compte du portail a aussi un titulaire (le portail le
+    # montre), l'enseignant de démonstration faute d'autre.
+    assert set(titulars.values()) == {"+243000001008"}
+    assert len(titulars) <= 2
+    assert [term.kind for term in terms] == ["semester", "period", "period", "exam"] * 2
+    assert all(term.starts_on for term in terms)
+    assert itig.matricule_format == "ITIG-{AAAA}-{0000}"
+    # Celle des Volcans, à part.
+    with use_school(volcans):
+        groups = [group.name for group in ClassGroup.objects.all()]
+        terms = list(AcademicYear.objects.get().terms.all())
+    assert groups == ["7E EB A", "8E EB A", "1RE SCIENTIFIQUE A", "2E PÉDAGOGIE GÉNÉRALE A"]
+    assert not any(term.starts_on for term in terms)  # dates à saisir par l'école
+    assert volcans.matricule_format == "LV/{AA}/{0000}"
 
 
-def test_workshop_head_is_a_role_of_the_itig_demo_only(demo):
-    with use_school(demo["itig"]):
-        assert Role.objects.get(name="Chef d'atelier").permissions == ["students.view"]
-    with use_school(demo["volcans"]):
-        assert not Role.objects.filter(name="Chef d'atelier").exists()
+def rerun_puts_everything_back(demo, settings) -> None:
+    """Seconde fois : tout ce qu'on a changé en essayant est remis comme au départ, sans double."""
+    from pathlib import Path
 
+    from django.core.files.base import ContentFile
 
-def test_demo_can_run_twice_and_resets_the_demo(demo):
-    itig = demo["itig"]
+    itig, volcans = demo["itig"], demo["volcans"]
+    media = Path(settings.MEDIA_ROOT)
+    volcans.logo.save("logo.png", ContentFile(b"\x89PNG\r\n\x1a\n" + b"\x00" * 8))
+    stored = volcans.logo.name
+    volcans.status = School.Status.SUSPENDED
+    volcans.primary_color = "#000000"
+    volcans.save()
     with use_school(itig):
         cashier = Role.objects.get(name="Caissier")
         cashier.permissions = []
         cashier.save()
+        extra = AcademicYear.objects.create(
+            name="2027-2028", starts_on="2027-09-01", ends_on="2028-07-01"
+        )
+        AcademicYear.objects.filter(name="2026-2027").update(is_current=False)
+        AcademicYear.objects.filter(pk=extra.pk).update(is_current=True)
     head = User.objects.get(phone="+243000001001")
     head.set_password("changé")
     head.save()
+    services.reset_totp(head)
+    promoter = User.objects.get(phone="+243000001007")
+    enable_totp(promoter)
     kept = User.objects.get(phone="+243000001002").password
     PlatformSettings.objects.update(name="Lumière", primary_color="#000000")
+    for _ in range(5):
+        attempts.record_failure("+243000001005", "127.0.0.1")
 
     call_command("demo")
 
+    # Logos : celui ajouté aux Volcans effacé ; logo public de l'ITIG, un seul fichier gardé.
+    volcans.refresh_from_db()
+    itig = School.objects.get(code="itig")
+    assert not volcans.logo
+    assert not (media / stored).exists()
+    assert itig.logo.name.endswith(".png")
+    folder = media / "schools" / str(itig.pk)
+    assert len([f for f in folder.iterdir() if f.name.startswith("logo")]) == 1
+    # École suspendue remise en service, sa couleur aussi.
+    assert volcans.status == School.Status.ACTIVE
+    assert volcans.is_demo
+    assert volcans.primary_color == "#7A3E00"
+    # Plateforme, comptes et rôles remis, sans double.
     platform = PlatformSettings.load()
     assert (platform.name, platform.primary_color) == ("Mwangaza", "#0B5FCC")
     assert platform.support_phone and platform.legal_notice
-
     assert School.objects.count() == 2
     assert User.objects.filter(phone="+243000001001").count() == 1
     assert Membership.objects.filter(school=itig).count() == 10
     with use_school(itig):
         assert Role.objects.count() == 10
         cashier = Role.objects.get(name="Caissier")
+        assert Student.objects.count() == 800
     assert cashier.permissions == list(STARTER_ROLES["cashier"].permissions)
     assert authenticate(username="0000001001", password=DEMO_PASSWORD) == head
     # Mot de passe déjà le bon : hachage gardé, `make demo` ne ferme pas les sessions ouvertes.
     assert User.objects.get(phone="+243000001002").password == kept
+    # Double authentification remise : le directeur l'a, le promoteur ne l'a plus.
+    head.refresh_from_db()
+    promoter.refresh_from_db()
+    assert head.totp_enabled
+    assert not promoter.totp_enabled
+    # Essais ratés débloqués.
+    assert attempts.retry_after("+243000001005", "127.0.0.1") == 0
+    # Organisation : pas de double ni de journal ; l'année ajoutée en essayant est gardée.
+    with use_school(itig):
+        assert ClassGroup.objects.count() == 23
+        assert AcademicYear.objects.get(is_current=True).name == "2026-2027"
+        assert AcademicYear.objects.get(name="2026-2027").terms.count() == 8
+        assert AcademicYear.objects.filter(pk=extra.pk).exists()
+    assert not AuditLog.all_schools.filter(action__startswith="organisation.").exists()
 
 
-def test_demo_students_with_siblings_and_a_family_in_both_schools(demo):
-    with use_school(demo["itig"]):
-        assert Enrollment.objects.filter(status="active").count() == 800
-        families = Student.objects.values_list("family", flat=True)
-        assert len(set(families)) < 800  # des fratries
-        assert Student.objects.filter(matricule="ITIG-2026-0001").exists()
-        phones = set(Guardian.objects.values_list("phone", flat=True))
-    with use_school(demo["volcans"]):
-        assert Student.objects.count() == 150
-        assert phones & set(Guardian.objects.values_list("phone", flat=True))
-    assert all(phone.startswith("+24300") for phone in phones)
+def server_run(settings) -> None:
+    """Essai sur plusieurs appareils, serveur de démonstration en ligne : mot de passe propre au
+    serveur, ni clé commune ni code demandé (comptes partagés entre visiteurs), et plus de
+    super-admin fictif, dont le mot de passe et la clé sont écrits dans le dépôt."""
+    settings.DEBUG = False
+    settings.DEMO_PASSWORD = "propre-au-serveur"
+    enable_totp(User.objects.get(phone="+243000001007"))
+
     call_command("demo")
-    with use_school(demo["itig"]):
-        assert Student.objects.count() == 800
+
+    cashier = User.objects.get(phone="+243000001005")
+    assert authenticate(username="0000001005", password="propre-au-serveur") == cashier
+    assert authenticate(username="0000001005", password=DEMO_PASSWORD) is None
+    assert not User.objects.filter(totp_enabled_at__isnull=False).exists()
+    assert not services.totp_required(cashier)
+    admin = User.objects.get(phone="+243000000000")
+    assert not admin.is_platform_admin and not admin.is_active
 
 
 def test_demo_is_refused_outside_development_and_the_essai(settings):
@@ -225,61 +300,6 @@ def test_demo_never_changes_the_kind_of_an_existing_space(settings):
     spaces = School.objects.values_list("code", "name", "environment")
     assert list(spaces) == [("volcans", "Essai des Volcans", "test")]
     assert not User.objects.exists()
-
-
-def test_demo_accounts_that_require_it_have_two_factor_authentication(demo):
-    enabled = set(
-        User.objects.filter(totp_enabled_at__isnull=False).values_list("phone", flat=True)
-    )
-
-    # Super-admin, directeur, directeur des études (ITIG : valide les notes), comptable, caissière ;
-    # pas le promoteur de l'ITIG (activation à essayer), ni l'enseignant, la secrétaire…
-    assert enabled == {
-        "+243000000000",
-        "+243000001001",
-        "+243000001002",
-        "+243000001004",
-        "+243000001005",
-        "+243000002001",
-        "+243000002004",
-        "+243000002005",
-    }
-    head = User.objects.get(phone="+243000001001")
-    assert decrypt(head.totp_secret) == DEMO_TOTP_SECRET
-
-
-def test_demo_resets_two_factor_authentication(demo):
-    head = User.objects.get(phone="+243000001001")
-    services.reset_totp(head)
-    promoter = User.objects.get(phone="+243000001007")
-    enable_totp(promoter)
-
-    call_command("demo")
-
-    head.refresh_from_db()
-    promoter.refresh_from_db()
-    assert head.totp_enabled
-    assert not promoter.totp_enabled
-
-
-def test_outside_development_own_password_no_code_and_no_demo_super_admin(demo, settings):
-    """Essai sur plusieurs appareils, serveur de démonstration en ligne : mot de passe propre au
-    serveur, ni clé commune ni code demandé (comptes partagés entre visiteurs), et plus de
-    super-admin fictif, dont le mot de passe et la clé sont écrits dans le dépôt."""
-    settings.DEBUG = False
-    settings.DEMO_PASSWORD = "propre-au-serveur"
-    promoter = User.objects.get(phone="+243000001007")
-    enable_totp(promoter)
-
-    call_command("demo")
-
-    cashier = User.objects.get(phone="+243000001005")
-    assert authenticate(username="0000001005", password="propre-au-serveur") == cashier
-    assert authenticate(username="0000001005", password=DEMO_PASSWORD) is None
-    assert not User.objects.filter(totp_enabled_at__isnull=False).exists()
-    assert not services.totp_required(cashier)
-    admin = User.objects.get(phone="+243000000000")
-    assert not admin.is_platform_admin and not admin.is_active
 
 
 def test_another_demo_space_gets_the_same_data_in_its_own_numbers(db):
@@ -342,70 +362,3 @@ def test_demo_code_is_refused_outside_development(settings):
 
     with pytest.raises(CommandError):
         call_command("totp")
-
-
-def test_demo_unblocks_logins(demo):
-    for _ in range(5):
-        attempts.record_failure("+243000001005", "127.0.0.1")
-
-    call_command("demo")
-
-    assert attempts.retry_after("+243000001005", "127.0.0.1") == 0
-
-
-# Organisation scolaire (1.7)
-
-
-def test_demo_organisation_of_the_itig(demo):
-    with use_school(demo["itig"]):
-        year = AcademicYear.objects.get()
-        levels = list(Level.objects.values_list("name", flat=True))
-        tracks = set(Track.objects.values_list("code", flat=True))
-        groups = list(ClassGroup.objects.select_related("level", "track", "homeroom_teacher"))
-        terms = list(year.terms.all())
-
-    assert (year.name, year.is_current) == ("2026-2027", True)
-    assert levels == ["7EB", "8EB", "1HT", "2HT", "3HT", "4HT"]
-    assert tracks == {"ELEC", "ELO", "MG", "MA"}
-    assert len(groups) == 23
-    assert [group.name for group in groups[:3]] == ["7EB A", "7EB B", "7EB C"]
-    titulars = {
-        group.name: group.homeroom_teacher.phone for group in groups if group.homeroom_teacher
-    }
-    assert titulars["3HT ÉLECTRICITÉ A"] == "+243000001008"
-    # 5.7 : la classe de l'enfant du compte du portail a aussi un titulaire (le portail le
-    # montre), l'enseignant de démonstration faute d'autre.
-    assert set(titulars.values()) == {"+243000001008"}
-    assert len(titulars) <= 2
-    assert [term.kind for term in terms] == ["semester", "period", "period", "exam"] * 2
-    assert all(term.starts_on for term in terms)
-    assert demo["itig"].matricule_format == "ITIG-{AAAA}-{0000}"
-
-
-def test_demo_organisation_of_volcans_is_separate(demo):
-    with use_school(demo["volcans"]):
-        groups = [group.name for group in ClassGroup.objects.all()]
-        terms = list(AcademicYear.objects.get().terms.all())
-
-    assert groups == ["7E EB A", "8E EB A", "1RE SCIENTIFIQUE A", "2E PÉDAGOGIE GÉNÉRALE A"]
-    assert not any(term.starts_on for term in terms)  # dates à saisir par l'école
-    assert demo["volcans"].matricule_format == "LV/{AA}/{0000}"
-
-
-def test_demo_organisation_runs_twice_without_duplicates_nor_journal(demo):
-    itig = demo["itig"]
-    with use_school(itig):
-        extra = AcademicYear.objects.create(
-            name="2027-2028", starts_on="2027-09-01", ends_on="2028-07-01"
-        )
-        AcademicYear.objects.filter(name="2026-2027").update(is_current=False)
-        AcademicYear.objects.filter(pk=extra.pk).update(is_current=True)
-
-    call_command("demo")
-
-    with use_school(itig):
-        assert ClassGroup.objects.count() == 23
-        assert AcademicYear.objects.get(is_current=True).name == "2026-2027"
-        assert AcademicYear.objects.get(name="2026-2027").terms.count() == 8
-        assert AcademicYear.objects.filter(pk=extra.pk).exists()  # ajoutée en essayant : gardée
-    assert not AuditLog.all_schools.filter(action__startswith="organisation.").exists()
