@@ -65,6 +65,7 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 
 - Constat (à ta demande, après 24 min 40 d'attente sur la PR de 8.4.4) : 87 % du job serveur venait d'un seul fichier, `core/tests/test_demo.py` (23 tests, 20 min 51) : chaque test refaisait `make demo` en entier (24 fois, ≈ 54 s chacune) ; les 1 151 autres tests prennent 3 min. Coût caché : ≈ 63 min de quota GitHub Actions par tâche (PR + `main`), quota privé de 2 000 min/mois.
 - Fait : les 16 tests de la démonstration deviennent un scénario en trois temps (première fois, seconde fois qui remet tout, passage « serveur ») : 3 démonstrations au lieu de 24, les 92 vérifications gardées. En local : 11 min → 44 s. CI : délai du job serveur 30 → 15 min, les 10 tests les plus lents affichés à chaque passage. Règle ajoutée à `CLAUDE.md` : un test ne refait jamais `make demo`.
+- Second temps : le scénario prenait encore 47 s ou 264 s selon le passage. La CI note maintenant les requêtes de plus de 2 s : la lecture des notes d'une classe (`report_cards.class_report`, jointure notes → évaluations → cours) prenait parfois 30 s sur une base neuve (mauvais plan sans statistiques). Elle filtre désormais sur les évaluations déjà lues, sans jointure (aussi plus sûr en production). Job serveur ≈ 4 min.
 - Pas fait (nouvelle dépendance à accepter) : `pytest-xdist` (tests sur plusieurs cœurs), gain d'environ une minute de plus.
 
 ### 2026-10-17 — Tâche 8.4.4 : situations de fin d'année

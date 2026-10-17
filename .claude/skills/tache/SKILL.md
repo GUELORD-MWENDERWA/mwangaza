@@ -42,7 +42,7 @@ Tout ce qui est fait pendant la tâche va sur cette branche, dans la PR de la t�
 ## 4. Vérifier
 
 0. Passer la **définition de « fini »** (`05` § 8.2), sécurité comprise : une case non remplie = tâche pas finie.
-1. **Une seule fois à la fin** : `make lint` (sortie filtrée avec `tail`) ; les tests des modules touchés sont déjà verts. **Pas de `make test` en local** : la CI lance la suite complète (≈ 6 min, en parallèle ; un test lent apparaît dans ses « slowest durations », jamais un nouveau `make demo` dans un test). `make test-e2e` en local seulement si un parcours Playwright a changé (sinon la CI le fait). Un échec → corriger.
+1. **Une seule fois à la fin** : `make lint` (sortie filtrée avec `tail`) ; les tests des modules touchés sont déjà verts. **Pas de `make test` en local** : la CI lance la suite complète (≈ 5 min, en parallèle ; un test lent apparaît dans ses « slowest durations », jamais un nouveau `make demo` dans un test). `make test-e2e` en local seulement si un parcours Playwright a changé (sinon la CI le fait). Un échec → corriger.
 2. Skill `verifier` : résultat en quelques lignes, mis dans la PR.
 3. Nouvel écran : une capture à 390 px et une à 1440 px, comparées à la maquette (aucun débordement). Pas de rejeu des étapes « À tester toi-même ».
 

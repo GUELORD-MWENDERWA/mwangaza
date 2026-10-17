@@ -173,10 +173,14 @@ def class_report(class_group: ClassGroup) -> ClassReport:
     evaluations: dict[tuple[UUID, UUID], list[Evaluation]] = defaultdict(list)
     for evaluation in Evaluation.objects.filter(course__class_group=class_group):
         evaluations[(evaluation.course_id, evaluation.term_id)].append(evaluation)
+    # Sans jointure : les évaluations de la classe viennent d'être lues. Sur une base qui ne
+    # connaît pas encore la taille de ses tables (démonstration, tests), la jointure notes →
+    # évaluations → cours prenait parfois un plan de 30 s au lieu de quelques millisecondes.
+    evaluation_ids = [e.pk for sheet in evaluations.values() for e in sheet]
     scores: dict[tuple[UUID, UUID], Decimal] = {
         (enrollment_id, evaluation_id): score
         for enrollment_id, evaluation_id, score in Grade.objects.filter(
-            evaluation__course__class_group=class_group, enrollment__in=enrollments
+            evaluation_id__in=evaluation_ids, enrollment__in=enrollments
         ).values_list("enrollment_id", "evaluation_id", "score")
     }
 
