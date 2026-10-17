@@ -1856,8 +1856,54 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** @description Décision prise pour un élève ; un écart avec la proposition demande un motif. */
+        /**
+         * @description Décision prise pour un élève ; un écart avec la proposition demande un motif. Élève
+         *     sans aucune note cette année : pourcentage repris, de 0 à 100 (8.4.7).
+         */
         put: operations["deliberation_enrollments_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/deliberation/prior-results/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Reprise des résultats d'une année sans notes dans Mwangaza (8.4.7) : décision finale et
+         *     pourcentage de chaque élève de l'année en cours, importés d'un fichier. Sans `expected` :
+         *     aperçu (200), rien n'est écrit. Avec le nombre de lignes prêtes de l'aperçu et la date :
+         *     décisions écrites dans la délibération de chaque classe, à proclamer ensuite (201) ; 409
+         *     `preview_outdated` si le résultat n'est plus celui de l'aperçu.
+         */
+        post: operations["deliberation_prior_results_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/deliberation/prior-results/template/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Modèle Excel de la reprise des résultats, déjà garni : les élèves de l'année sans aucune
+         *     note, dans une classe pas encore proclamée, avec ce qui est déjà repris.
+         */
+        get: operations["deliberation_prior_results_template_retrieve"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -6174,6 +6220,11 @@ export interface components {
         DecisionRequest: {
             decision: components["schemas"]["DecisionEnum"];
             reason?: string;
+            /**
+             * Format: decimal
+             * @description Pourcentage repris (8.4.7) : seulement pour un élève sans aucune note cette année (issue `unranked`) ; absent ou nul : aucun.
+             */
+            percent?: string | null;
         };
         /** @description Espace de démonstration créé depuis la console (4.17.2) : où en est son remplissage. */
         Demonstration: {
@@ -8748,6 +8799,69 @@ export interface components {
             file: string;
             /** @description Totaux de l'aperçu (`totals`, en JSON) : présents, le fichier est enregistré. */
             expected?: unknown;
+        };
+        PriorResultIssue: {
+            code: components["schemas"]["PriorResultIssueCodeEnum"];
+        };
+        /**
+         * @description * `missing_matricule` - missing_matricule
+         *     * `unknown_student` - unknown_student
+         *     * `duplicate` - duplicate
+         *     * `missing_decision` - missing_decision
+         *     * `unknown_decision` - unknown_decision
+         *     * `invalid_percent` - invalid_percent
+         *     * `has_grades` - has_grades
+         *     * `class_proclaimed` - class_proclaimed
+         * @enum {string}
+         */
+        PriorResultIssueCodeEnum: "missing_matricule" | "unknown_student" | "duplicate" | "missing_decision" | "unknown_decision" | "invalid_percent" | "has_grades" | "class_proclaimed";
+        PriorResultLine: {
+            /** @description Numéro de la ligne du fichier. */
+            line: number;
+            matricule: string;
+            student: string | null;
+            class_group: string | null;
+            /** @description Décision telle qu'elle est écrite. */
+            decision_text: string;
+            /** @description Décision reconnue (valeurs de `decision`), ou vide. */
+            decision: string;
+            /** @description Pourcentage tel qu'il est écrit. */
+            percent_text: string;
+            /** Format: decimal */
+            percent: string | null;
+            issues: components["schemas"]["PriorResultIssue"][];
+        };
+        /** @description Aperçu d'un fichier de résultats repris, ou son résultat une fois enregistré. */
+        PriorResultPreview: {
+            recorded: boolean;
+            /** @description Lignes prêtes (ou enregistrées). */
+            ready_count: number;
+            /** @description Lignes en erreur : jamais enregistrées. */
+            error_count: number;
+            /** @description Lignes sans décision : ignorées. */
+            empty_count: number;
+            /** @description Classes des lignes prêtes. */
+            class_count: number;
+            /** @description Décisions écrites (0 : le fichier était déjà enregistré tel quel). */
+            changed_count: number;
+            /** @description Les 300 premières. */
+            errors: components["schemas"]["PriorResultLine"][];
+            /** @description Les 20 premières. */
+            ready: components["schemas"]["PriorResultLine"][];
+        };
+        PriorResultUploadRequest: {
+            /**
+             * Format: binary
+             * @description Excel (.xlsx) ou CSV, 5 Mo au plus.
+             */
+            file: string;
+            /** @description Nombre de lignes prêtes de l'aperçu : présent, le fichier est enregistré. */
+            expected?: number;
+            /**
+             * Format: date
+             * @description Date de délibération des classes qui n'en ont pas.
+             */
+            held_on?: string;
         };
         Proclamation: {
             version: number;
@@ -16131,6 +16245,121 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    deliberation_prior_results_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["PriorResultUploadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriorResultPreview"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PriorResultPreview"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    deliberation_prior_results_template_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Classeur Excel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

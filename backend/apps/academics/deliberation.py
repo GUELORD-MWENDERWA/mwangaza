@@ -6,11 +6,16 @@ proclamation suivante crée la version suivante.
 
 La proposition n'est jamais stockée comme vérité : elle suit les notes (recalculée à la lecture).
 La ligne d'un élève garde seulement celle qu'il y avait quand la décision a été prise.
+
+Reprise (8.4.7) : un élève sans aucune note cette année (année passée créée à l'arrivée, année
+tenue sur papier) reçoit, avec sa décision, le pourcentage obtenu hors de Mwangaza ; il compte
+comme un pourcentage calculé (situations, passage de classe), jamais à la place de l'un d'eux.
 """
 
 from collections import Counter
 from dataclasses import dataclass
 from datetime import date
+from decimal import Decimal
 
 from django.db import transaction
 from django.utils import timezone
@@ -48,6 +53,12 @@ UNDECIDED = ApiError(
     "undecided", _("Every student needs a decision before the results are proclaimed."), 400
 )
 CORRECTION_REASON = ApiError("correction_reason", _("Say why the results are corrected."), 400)
+HAS_GRADES = ApiError(
+    "has_grades",
+    _("This student has grades: the percentage is calculated from them."),
+    400,
+)
+BAD_PERCENT = ApiError("bad_percent", _("A percentage is a number from 0 to 100."), 400)
 
 
 @dataclass
@@ -97,10 +108,13 @@ def overview(group: ClassGroup) -> ClassDeliberation:
     rows = []
     for student in students:
         found = decided.get(student.enrollment.pk)
+        percent = student.percent
+        if student.outcome == resits.UNRANKED and found and found.prior_percent is not None:
+            percent = found.prior_percent
         rows.append(
             StudentRow(
                 student.enrollment,
-                student.percent,
+                percent,
                 student.outcome,
                 PROPOSAL.get(student.outcome, ""),
                 found.decision if found else "",
@@ -139,12 +153,29 @@ def set_date(group: ClassGroup, held_on: date, *, actor: User) -> Deliberation:
     return deliberation
 
 
+def prior_percent(value) -> Decimal | None:
+    """Pourcentage repris, au dixième, de 0 à 100 ; `None` : aucun."""
+    if value is None:
+        return None
+    percent = Decimal(value).quantize(resits.STEP)
+    if not Decimal(0) <= percent <= Decimal(100):
+        raise BusinessError(BAD_PERCENT)
+    return percent
+
+
 def decide(
-    enrollment: Enrollment, decision: str, reason: str, *, actor: User
+    enrollment: Enrollment,
+    decision: str,
+    reason: str,
+    *,
+    actor: User,
+    percent: Decimal | None = None,
 ) -> DeliberationDecision:
-    """Décision prise pour un élève. Un écart avec la proposition demande un motif."""
+    """Décision prise pour un élève. Un écart avec la proposition demande un motif. `percent` :
+    pourcentage repris d'un élève sans aucune note cette année (8.4.7), refusé sinon."""
     if decision not in Decision.values:
         raise BusinessError(BAD_DECISION)
+    percent = prior_percent(percent)
     group = enrollment.class_group
     reason = reason.strip()
     with transaction.atomic():
@@ -155,23 +186,40 @@ def decide(
             raise BusinessError(NOT_IN_CLASS)
         if row.proposed and decision != row.proposed and not reason:
             raise BusinessError(REASON_REQUIRED)
+        if percent is not None and row.outcome != resits.UNRANKED:
+            raise BusinessError(HAS_GRADES)
         before = DeliberationDecision.objects.filter(
             deliberation=deliberation, enrollment=enrollment
         ).first()
         saved, _created = DeliberationDecision.objects.update_or_create(
             deliberation=deliberation,
             enrollment=enrollment,
-            defaults={"decision": decision, "proposed": row.proposed, "reason": reason},
+            defaults={
+                "decision": decision,
+                "proposed": row.proposed,
+                "reason": reason,
+                "prior_percent": percent,
+            },
         )
+        after = {"decision": decision, "proposed": row.proposed, "reason": reason}
+        if percent is not None or (before and before.prior_percent is not None):
+            after["prior_percent"] = str(percent) if percent is not None else None
         audit.record(
             Action.DELIBERATION_DECIDED,
             saved,
             actor=actor,
-            before={"decision": before.decision, "reason": before.reason} if before else None,
-            after={"decision": decision, "proposed": row.proposed, "reason": reason},
+            before=_logged(before) if before else None,
+            after=after,
             label=f"{enrollment.student.full_name} · {group.name}",
         )
     return saved
+
+
+def _logged(decision: DeliberationDecision) -> dict:
+    logged = {"decision": decision.decision, "reason": decision.reason}
+    if decision.prior_percent is not None:
+        logged["prior_percent"] = str(decision.prior_percent)
+    return logged
 
 
 def apply_proposals(group: ClassGroup, *, actor: User) -> int:

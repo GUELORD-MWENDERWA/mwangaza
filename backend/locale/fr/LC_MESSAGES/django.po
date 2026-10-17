@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-17 09:42+0200\n"
+"POT-Creation-Date: 2026-10-17 11:19+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -75,44 +75,52 @@ msgstr "Cours inconnu."
 msgid "Choose a member of the school's staff."
 msgstr "Choisissez un membre du personnel de l'école."
 
-#: apps/academics/deliberation.py:39
+#: apps/academics/deliberation.py:44
 msgid "The results are proclaimed: reopen them first."
 msgstr "Les résultats sont proclamés : rouvrez-les d'abord."
 
-#: apps/academics/deliberation.py:40
+#: apps/academics/deliberation.py:45
 msgid "The results are not proclaimed."
 msgstr "Les résultats ne sont pas proclamés."
 
-#: apps/academics/deliberation.py:41
+#: apps/academics/deliberation.py:46
 msgid "This is not a deliberation decision."
 msgstr "Ce n'est pas une décision de délibération."
 
-#: apps/academics/deliberation.py:43
+#: apps/academics/deliberation.py:48
 msgid "Say why the decision differs from the proposal."
 msgstr "Indiquez pourquoi la décision diffère de la proposition."
 
-#: apps/academics/deliberation.py:45
+#: apps/academics/deliberation.py:50
 msgid "This student is not in this class."
 msgstr "Cet élève n'est pas dans cette classe."
 
-#: apps/academics/deliberation.py:46
+#: apps/academics/deliberation.py:51
 msgid "Set the deliberation date first."
 msgstr "Fixez d'abord la date de la délibération."
 
-#: apps/academics/deliberation.py:48
+#: apps/academics/deliberation.py:53
 msgid "Every student needs a decision before the results are proclaimed."
 msgstr ""
 "Chaque élève doit avoir une décision avant la proclamation des résultats."
 
-#: apps/academics/deliberation.py:50
+#: apps/academics/deliberation.py:55
 msgid "Say why the results are corrected."
 msgstr "Indiquez pourquoi les résultats sont corrigés."
 
-#: apps/academics/demo.py:385
+#: apps/academics/deliberation.py:58
+msgid "This student has grades: the percentage is calculated from them."
+msgstr "Cet élève a des notes : son pourcentage se calcule d'après elles."
+
+#: apps/academics/deliberation.py:61
+msgid "A percentage is a number from 0 to 100."
+msgstr "Un pourcentage est un nombre de 0 à 100."
+
+#: apps/academics/demo.py:470
 msgid "Improved behaviour after a talk with the parents"
 msgstr "Comportement amélioré après un entretien avec les parents"
 
-#: apps/academics/demo.py:395
+#: apps/academics/demo.py:480
 msgid "Very attentive in class, grade raised by the homeroom teacher"
 msgstr "Très attentif en classe, cote relevée par le titulaire"
 
@@ -572,20 +580,20 @@ msgstr "En cours"
 msgid "Proclaimed"
 msgstr "Proclamée"
 
-#: apps/academics/models.py:464 apps/academics/models.py:522
+#: apps/academics/models.py:464 apps/academics/models.py:532
 msgid "deliberation date"
 msgstr "date de délibération"
 
-#: apps/academics/models.py:468 apps/academics/models.py:521
+#: apps/academics/models.py:468 apps/academics/models.py:531
 msgid "version"
 msgstr "version"
 
-#: apps/academics/models.py:470 apps/academics/models.py:530
+#: apps/academics/models.py:470 apps/academics/models.py:540
 msgid "correction reason"
 msgstr "motif de la correction"
 
 #: apps/academics/models.py:481
-#: apps/academics/templates/academics/situation.html:30
+#: apps/academics/templates/academics/situation.html:31
 msgid "Admitted"
 msgstr "Admis"
 
@@ -617,17 +625,67 @@ msgstr "décision"
 msgid "proposed decision"
 msgstr "décision proposée"
 
-#: apps/academics/models.py:523
+#: apps/academics/models.py:503
+msgid "prior percentage"
+msgstr "pourcentage repris"
+
+#: apps/academics/models.py:533
 msgid "proclaimed at"
 msgstr "proclamée le"
 
-#: apps/academics/models.py:528
+#: apps/academics/models.py:538
 msgid "proclaimed by"
 msgstr "proclamée par"
 
-#: apps/academics/models.py:531
+#: apps/academics/models.py:541
 msgid "results"
 msgstr "résultats"
+
+#: apps/academics/prior_results.py:72 apps/finance/prior_payments.py:63
+msgid "No current school year: choose one before this import."
+msgstr ""
+"Aucune année scolaire en cours : choisissez-en une avant cette reprise."
+
+#: apps/academics/prior_results.py:76
+msgid ""
+"The file needs a student number column and a decision column: use the "
+"template."
+msgstr ""
+"Le fichier doit avoir une colonne matricule et une colonne décision : "
+"utilisez le modèle."
+
+#: apps/academics/prior_results.py:79 apps/finance/prior_payments.py:70
+msgid "No row can be recorded."
+msgstr "Aucune ligne ne peut être enregistrée."
+
+#: apps/academics/prior_results.py:82
+msgid "The file or the classes changed since the preview: check it again."
+msgstr ""
+"Le fichier ou les classes ont changé depuis l'aperçu : vérifiez-le de "
+"nouveau."
+
+#: apps/academics/prior_results.py:348 apps/finance/prior_payments.py:377
+msgid "STUDENT NUMBER"
+msgstr "MATRICULE"
+
+#: apps/academics/prior_results.py:349 apps/finance/prior_payments.py:378
+msgid "NAME"
+msgstr "NOM"
+
+#: apps/academics/prior_results.py:350
+#: apps/academics/templates/academics/report_card.html:91
+#: apps/finance/prior_payments.py:379
+msgid "CLASS"
+msgstr "CLASSE"
+
+#: apps/academics/prior_results.py:351
+msgid "DECISION"
+msgstr "DÉCISION"
+
+#: apps/academics/prior_results.py:352
+#: apps/academics/templates/academics/report_card.html:125
+msgid "PERCENTAGE"
+msgstr "POURCENTAGE"
 
 #: apps/academics/report_card_documents.py:29
 msgid "Excellent"
@@ -731,7 +789,7 @@ msgstr "Pour témoignage"
 #: apps/academics/report_card_documents.py:348
 #: apps/academics/templates/academics/_report_card_side.html:2
 #: apps/academics/templates/academics/report_card.html:144
-#: apps/academics/templates/academics/situation.html:215
+#: apps/academics/templates/academics/situation.html:216
 #: apps/schools/signatures.py:68
 msgid "The head of the school"
 msgstr "Le chef d'établissement"
@@ -781,12 +839,12 @@ msgid "Grade sheet"
 msgstr "Fiche de cotes"
 
 #: apps/academics/templates/academics/grade_sheet.html:20
-#: apps/academics/templates/academics/situation.html:13
+#: apps/academics/templates/academics/situation.html:14
 msgid "Studies"
 msgstr "Études"
 
 #: apps/academics/templates/academics/grade_sheet.html:21
-#: apps/academics/templates/academics/situation.html:14
+#: apps/academics/templates/academics/situation.html:15
 #: apps/students/templates/students/class_list.html:9
 #, python-format
 msgid "School year %(year)s · printed on %(date)s"
@@ -837,7 +895,7 @@ msgstr "N°"
 
 #: apps/academics/templates/academics/grade_sheet.html:37
 #: apps/academics/templates/academics/grade_sheet.html:65
-#: apps/academics/templates/academics/situation.html:96
+#: apps/academics/templates/academics/situation.html:97
 #: apps/finance/documents.py:144 apps/finance/documents.py:399
 #: apps/finance/templates/finance/statement.html:24
 #: apps/portal/templates/portal/receipt.html:24 apps/students/documents.py:225
@@ -849,7 +907,7 @@ msgstr "Matricule"
 
 #: apps/academics/templates/academics/grade_sheet.html:38
 #: apps/academics/templates/academics/grade_sheet.html:66
-#: apps/academics/templates/academics/situation.html:97
+#: apps/academics/templates/academics/situation.html:98
 #: apps/students/documents.py:227
 #: apps/students/templates/students/class_list.html:18
 #: apps/students/templates/students/registration_form.html:22
@@ -863,7 +921,7 @@ msgid "Total"
 msgstr "Total"
 
 #: apps/academics/templates/academics/grade_sheet.html:42
-#: apps/academics/templates/academics/situation.html:95
+#: apps/academics/templates/academics/situation.html:96
 msgid "Place"
 msgstr "Place"
 
@@ -874,7 +932,7 @@ msgid "No active student in this class."
 msgstr "Aucun élève actif dans cette classe."
 
 #: apps/academics/templates/academics/grade_sheet.html:85
-#: apps/academics/templates/academics/situation.html:74
+#: apps/academics/templates/academics/situation.html:75
 msgid "Average"
 msgstr "Moyenne"
 
@@ -963,11 +1021,6 @@ msgstr "NÉ(E) À"
 msgid "ON"
 msgstr "LE"
 
-#: apps/academics/templates/academics/report_card.html:91
-#: apps/finance/prior_payments.py:379
-msgid "CLASS"
-msgstr "CLASSE"
-
 #: apps/academics/templates/academics/report_card.html:92
 msgid "PERM. NO."
 msgstr "N° PERM."
@@ -1007,10 +1060,6 @@ msgstr "MAXIMA GÉNÉRAUX"
 #: apps/academics/templates/academics/report_card.html:124
 msgid "TOTALS"
 msgstr "TOTAUX"
-
-#: apps/academics/templates/academics/report_card.html:125
-msgid "PERCENTAGE"
-msgstr "POURCENTAGE"
 
 #: apps/academics/templates/academics/report_card.html:126
 msgid "PLACE / NUMBER OF STUDENTS"
@@ -1057,7 +1106,7 @@ msgid "Done at %(city)s, on %(date)s"
 msgstr "Fait à %(city)s, le %(date)s"
 
 #: apps/academics/templates/academics/report_card.html:144
-#: apps/academics/templates/academics/situation.html:215
+#: apps/academics/templates/academics/situation.html:216
 msgid "Name and signature"
 msgstr "Nom et signature"
 
@@ -1124,7 +1173,7 @@ msgid "School"
 msgstr "École"
 
 #: apps/academics/templates/academics/report_card_verification.html:20
-#: apps/academics/templates/academics/situation.html:193
+#: apps/academics/templates/academics/situation.html:194
 #: apps/core/templates/core/site/home.html:205 apps/finance/documents.py:145
 #: apps/finance/documents.py:400
 #: apps/finance/templates/finance/receipt_register.html:27
@@ -1141,7 +1190,7 @@ msgid "School year"
 msgstr "Année scolaire"
 
 #: apps/academics/templates/academics/report_card_verification.html:22
-#: apps/academics/templates/academics/situation.html:99
+#: apps/academics/templates/academics/situation.html:100
 msgid "Result"
 msgstr "Résultat"
 
@@ -1158,141 +1207,141 @@ msgstr "Situation de la classe"
 msgid "Situation of the school"
 msgstr "Situation de l'école"
 
-#: apps/academics/templates/academics/situation.html:16
+#: apps/academics/templates/academics/situation.html:17
 #, python-format
 msgid "SITUATION OF THE CLASS — %(name)s"
 msgstr "SITUATION DE LA CLASSE — %(name)s"
 
-#: apps/academics/templates/academics/situation.html:18
+#: apps/academics/templates/academics/situation.html:19
 msgid "SITUATION OF THE SCHOOL"
 msgstr "SITUATION DE L'ÉCOLE"
 
-#: apps/academics/templates/academics/situation.html:20
+#: apps/academics/templates/academics/situation.html:21
 #, python-format
 msgid "Deliberation of %(date)s (version %(version)s)"
 msgstr "Délibération du %(date)s (version %(version)s)"
 
-#: apps/academics/templates/academics/situation.html:20
+#: apps/academics/templates/academics/situation.html:21
 msgid "Criterion: rules of the class, resit included"
 msgstr "Critère : règles de la classe, repêchage compris"
 
-#: apps/academics/templates/academics/situation.html:20
+#: apps/academics/templates/academics/situation.html:21
 #, python-format
 msgid "Criterion: average only (50 %% and above)"
 msgstr "Critère : moyenne seule (50 %% et plus)"
 
-#: apps/academics/templates/academics/situation.html:21
+#: apps/academics/templates/academics/situation.html:22
 msgid "Provisional: the results of this class are not proclaimed yet."
 msgstr ""
 "Provisoire : les résultats de cette classe ne sont pas encore proclamés."
 
-#: apps/academics/templates/academics/situation.html:26
-#: apps/academics/templates/academics/situation.html:123
+#: apps/academics/templates/academics/situation.html:27
+#: apps/academics/templates/academics/situation.html:124
 msgid "Enrolled"
 msgstr "Inscrits"
 
-#: apps/academics/templates/academics/situation.html:27
-#: apps/academics/templates/academics/situation.html:124
+#: apps/academics/templates/academics/situation.html:28
+#: apps/academics/templates/academics/situation.html:125
 msgid "Dropouts"
 msgstr "Abandons"
 
-#: apps/academics/templates/academics/situation.html:29
-#: apps/academics/templates/academics/situation.html:125
+#: apps/academics/templates/academics/situation.html:30
+#: apps/academics/templates/academics/situation.html:126
 msgid "Deliberated"
 msgstr "Délibérés"
 
-#: apps/academics/templates/academics/situation.html:31
-#: apps/academics/templates/academics/situation.html:127
+#: apps/academics/templates/academics/situation.html:32
+#: apps/academics/templates/academics/situation.html:128
 msgid "Resit"
 msgstr "Repêchage"
 
-#: apps/academics/templates/academics/situation.html:32
+#: apps/academics/templates/academics/situation.html:33
 msgid "Repeating"
 msgstr "Doublants"
 
-#: apps/academics/templates/academics/situation.html:33
+#: apps/academics/templates/academics/situation.html:34
 msgid "Redirected"
 msgstr "Réorientés"
 
-#: apps/academics/templates/academics/situation.html:34
+#: apps/academics/templates/academics/situation.html:35
 msgid "Expelled"
 msgstr "Exclus"
 
-#: apps/academics/templates/academics/situation.html:35
-#: apps/academics/templates/academics/situation.html:39
-#: apps/academics/templates/academics/situation.html:128
+#: apps/academics/templates/academics/situation.html:36
+#: apps/academics/templates/academics/situation.html:40
+#: apps/academics/templates/academics/situation.html:129
 msgid "Failures"
 msgstr "Échecs"
 
-#: apps/academics/templates/academics/situation.html:37
-#: apps/academics/templates/academics/situation.html:125
+#: apps/academics/templates/academics/situation.html:38
+#: apps/academics/templates/academics/situation.html:126
 msgid "Ranked"
 msgstr "Classés"
 
-#: apps/academics/templates/academics/situation.html:38
-#: apps/academics/templates/academics/situation.html:126
+#: apps/academics/templates/academics/situation.html:39
+#: apps/academics/templates/academics/situation.html:127
 msgid "Successes"
 msgstr "Réussites"
 
-#: apps/academics/templates/academics/situation.html:40
+#: apps/academics/templates/academics/situation.html:41
 msgid "No result"
 msgstr "Sans résultat"
 
-#: apps/academics/templates/academics/situation.html:42
+#: apps/academics/templates/academics/situation.html:43
 msgid "Pass rate"
 msgstr "Taux de réussite"
 
-#: apps/academics/templates/academics/situation.html:43
-#: apps/academics/templates/academics/situation.html:130
+#: apps/academics/templates/academics/situation.html:44
+#: apps/academics/templates/academics/situation.html:131
 msgid "Deviations"
 msgstr "Écarts"
 
-#: apps/academics/templates/academics/situation.html:66
+#: apps/academics/templates/academics/situation.html:67
 msgid "By course"
 msgstr "Par cours"
 
-#: apps/academics/templates/academics/situation.html:69
+#: apps/academics/templates/academics/situation.html:70
 msgid "Course"
 msgstr "Cours"
 
-#: apps/academics/templates/academics/situation.html:70
+#: apps/academics/templates/academics/situation.html:71
 msgid "Graded"
 msgstr "Notés"
 
-#: apps/academics/templates/academics/situation.html:71
+#: apps/academics/templates/academics/situation.html:72
 msgid "Students passed"
 msgstr "Réussis"
 
-#: apps/academics/templates/academics/situation.html:72
+#: apps/academics/templates/academics/situation.html:73
 msgid "Students failed"
 msgstr "Échoués"
 
-#: apps/academics/templates/academics/situation.html:73
-#: apps/academics/templates/academics/situation.html:129
+#: apps/academics/templates/academics/situation.html:74
+#: apps/academics/templates/academics/situation.html:130
 msgid "Rate"
 msgstr "Taux"
 
-#: apps/academics/templates/academics/situation.html:92
+#: apps/academics/templates/academics/situation.html:93
 msgid "Ranking"
 msgstr "Palmarès"
 
-#: apps/academics/templates/academics/situation.html:99
+#: apps/academics/templates/academics/situation.html:100
 msgid "Decision"
 msgstr "Décision"
 
-#: apps/academics/templates/academics/situation.html:108
+#: apps/academics/templates/academics/situation.html:109
 msgid "Pass"
 msgstr "Réussi"
 
-#: apps/academics/templates/academics/situation.html:108
+#: apps/academics/templates/academics/situation.html:109
 msgid "Fail"
 msgstr "Échoué"
 
-#: apps/academics/templates/academics/situation.html:111
+#: apps/academics/templates/academics/situation.html:112
 msgid "No student in this class."
 msgstr "Aucun élève dans cette classe."
 
-#: apps/academics/templates/academics/situation.html:118
+#: apps/academics/templates/academics/situation.html:119
 #, python-format
 msgid "%(count)s class is not proclaimed yet: it stays out of the totals."
 msgid_plural ""
@@ -1303,12 +1352,12 @@ msgstr[1] ""
 "%(count)s classes ne sont pas encore proclamées : elles restent hors des "
 "totaux."
 
-#: apps/academics/templates/academics/situation.html:119
+#: apps/academics/templates/academics/situation.html:120
 msgid "Laureate of the school:"
 msgstr "Lauréat de l'école :"
 
-#: apps/academics/templates/academics/situation.html:122
-#: apps/academics/templates/academics/situation.html:192
+#: apps/academics/templates/academics/situation.html:123
+#: apps/academics/templates/academics/situation.html:193
 #: apps/core/templates/core/site/home.html:206 apps/finance/documents.py:143
 #: apps/finance/documents.py:401
 #: apps/finance/templates/finance/receipt_register.html:28
@@ -1319,41 +1368,41 @@ msgstr "Lauréat de l'école :"
 msgid "Class"
 msgstr "Classe"
 
-#: apps/academics/templates/academics/situation.html:131
+#: apps/academics/templates/academics/situation.html:132
 msgid "Best student"
 msgstr "Meilleur élève"
 
-#: apps/academics/templates/academics/situation.html:150
+#: apps/academics/templates/academics/situation.html:151
 msgid "not proclaimed: outside the totals"
 msgstr "non proclamée : hors des totaux"
 
-#: apps/academics/templates/academics/situation.html:169
+#: apps/academics/templates/academics/situation.html:170
 msgid "No class this school year."
 msgstr "Aucune classe cette année scolaire."
 
-#: apps/academics/templates/academics/situation.html:173
+#: apps/academics/templates/academics/situation.html:174
 #: apps/finance/services.py:225 apps/finance/services.py:237
 msgid "Whole school"
 msgstr "Toute l'école"
 
-#: apps/academics/templates/academics/situation.html:189
+#: apps/academics/templates/academics/situation.html:190
 msgid "Deliberation deviations"
 msgstr "Écarts de délibération"
 
-#: apps/academics/templates/academics/situation.html:194
+#: apps/academics/templates/academics/situation.html:195
 msgid "Proposed"
 msgstr "Proposé"
 
-#: apps/academics/templates/academics/situation.html:195
+#: apps/academics/templates/academics/situation.html:196
 msgid "Decided"
 msgstr "Décidé"
 
-#: apps/academics/templates/academics/situation.html:196
+#: apps/academics/templates/academics/situation.html:197
 #: apps/notifications/templates/notifications/summons.html:23
 msgid "Reason"
 msgstr "Motif"
 
-#: apps/academics/templates/academics/situation.html:208
+#: apps/academics/templates/academics/situation.html:209
 msgid "No deviation: every decision follows the proposal."
 msgstr "Aucun écart : chaque décision suit la proposition."
 
@@ -3987,11 +4036,6 @@ msgstr "clôture de caisse"
 msgid "cash closings"
 msgstr "clôtures de caisse"
 
-#: apps/finance/prior_payments.py:63
-msgid "No current school year: choose one before this import."
-msgstr ""
-"Aucune année scolaire en cours : choisissez-en une avant cette reprise."
-
 #: apps/finance/prior_payments.py:67
 msgid ""
 "The file needs a student number column and an amount paid column: use the "
@@ -4000,24 +4044,12 @@ msgstr ""
 "Le fichier doit avoir une colonne matricule et une colonne montant payé : "
 "utilisez le modèle."
 
-#: apps/finance/prior_payments.py:70
-msgid "No row can be recorded."
-msgstr "Aucune ligne ne peut être enregistrée."
-
 #: apps/finance/prior_payments.py:73
 msgid ""
 "The file or the students' accounts changed since the preview: check it again."
 msgstr ""
 "Le fichier ou les comptes des élèves ont changé depuis l'aperçu : vérifiez-"
 "le de nouveau."
-
-#: apps/finance/prior_payments.py:377
-msgid "STUDENT NUMBER"
-msgstr "MATRICULE"
-
-#: apps/finance/prior_payments.py:378
-msgid "NAME"
-msgstr "NOM"
 
 #: apps/finance/prior_payments.py:380
 msgid "LEFT TO PAY"

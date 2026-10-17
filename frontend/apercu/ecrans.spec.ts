@@ -176,6 +176,19 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       await page.waitForLoadState("networkidle").catch(() => undefined);
       await page.waitForTimeout(500);
     });
+    // Reprise des résultats (8.4.7) : la 8EB C, sans aucune note, la moitié de ses élèves repris.
+    await visit(
+      director,
+      `${ITIG}deliberation`,
+      "gestion",
+      "deliberation-reprise",
+      async (page) => {
+        await page.getByLabel("Classe").selectOption({ label: "8EB C" });
+        await page.waitForLoadState("networkidle").catch(() => undefined);
+        await page.waitForTimeout(500);
+      },
+    );
+    await visit(director, `${ITIG}deliberation/prior-results`, "gestion", "reprise-resultats");
     // Situations (8.4.4) : la classe que la démonstration proclame.
     await visit(director, `${ITIG}situations`, "gestion", "situations", async (page) => {
       await page.getByLabel("Classe").selectOption({ label: "4HT MÉCANIQUE AUTOMOBILE A" });
