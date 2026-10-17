@@ -1,6 +1,7 @@
 // Captures PNG des maquettes avec Chrome sans interface (protocole DevTools, aucune dépendance).
 // Usage : node maquettes/outils/captures.mjs [fichier.html …]   (sans argument : toutes les maquettes)
 // Bureau : 1440 px de large, page entière (toutes les applications : le portail aussi, 2026-10-14). Téléphone : 390 px, densité 1 (assez pour lire la mise en page, léger dans Git).
+// Site public (`site/`, WEB.1a) : aussi la tablette, 820 px (`captures/tablet/`), et en WebP (photos : un PNG pèserait ~1,5 Mo).
 // Chaque capture est contrôlée : un élément qui dépasse de l'écran (hors conteneur qui défile) est signalé
 // et la commande sort en erreur (code 2) — une maquette qui déborde n'est pas finie.
 import { spawn } from "node:child_process";
@@ -21,7 +22,7 @@ function pages(args) {
     return files;
   }
   const out = [];
-  for (const app of ["gestion", "portail", "console"]) {
+  for (const app of ["gestion", "portail", "console", "site"]) {
     for (const f of readdirSync(join(ROOT, app)).sort()) if (f.endsWith(".html")) out.push(join(ROOT, app, f));
   }
   return out;
@@ -32,8 +33,10 @@ function targets(file) {
   const name = basename(file, ".html");
   const t = [];
   t.push({ kind: "desktop", width: 1440, height: 900, scale: 1 });
+  if (app === "site") t.push({ kind: "tablet", width: 820, height: 1180, scale: 1 });
   t.push({ kind: "mobile", width: 390, height: 844, scale: 1 });
-  return t.map((x) => ({ ...x, out: join(ROOT, "captures", x.kind, `${app}-${name}.png`) }));
+  const ext = app === "site" ? "webp" : "png";
+  return t.map((x) => ({ ...x, ext, out: join(ROOT, "captures", x.kind, `${app}-${name}.${ext}`) }));
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -95,7 +98,7 @@ async function main() {
   for (const file of pages(process.argv.slice(2))) {
     for (const t of targets(file)) {
       await send("Emulation.setDeviceMetricsOverride",
-        { width: t.width, height: t.height, deviceScaleFactor: t.scale, mobile: t.kind === "mobile" }, sessionId);
+        { width: t.width, height: t.height, deviceScaleFactor: t.scale, mobile: t.kind !== "desktop" }, sessionId);
       await send("Page.navigate", { url: pathToFileURL(file).href }, sessionId);
       await sleep(300);
       await send("Runtime.evaluate", { expression: "document.fonts.ready.then(() => true)", awaitPromise: true }, sessionId);
@@ -106,10 +109,10 @@ async function main() {
       const { result: over } = await send("Runtime.evaluate", { expression: OVERFLOW, returnByValue: true }, sessionId);
       if (over.value.length) overflows.push(`${relative(ROOT, file)} (${t.width} px) : ${over.value.join(", ")}`);
       await send("Emulation.setDeviceMetricsOverride",
-        { width: t.width, height, deviceScaleFactor: t.scale, mobile: t.kind === "mobile" }, sessionId);
+        { width: t.width, height, deviceScaleFactor: t.scale, mobile: t.kind !== "desktop" }, sessionId);
       await sleep(150);
       const { data } = await send("Page.captureScreenshot",
-        { format: "png", clip: { x: 0, y: 0, width: t.width, height, scale: 1 }, captureBeyondViewport: true }, sessionId);
+        { format: t.ext, ...(t.ext === "webp" ? { quality: 82 } : {}), clip: { x: 0, y: 0, width: t.width, height, scale: 1 }, captureBeyondViewport: true }, sessionId);
       writeFileSync(t.out, Buffer.from(data, "base64"));
       console.log(`${relative(ROOT, t.out)}  ${t.width * t.scale}×${height * t.scale}`);
     }

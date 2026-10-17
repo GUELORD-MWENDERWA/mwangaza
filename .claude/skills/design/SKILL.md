@@ -12,7 +12,7 @@ Sources de vérité, dans cet ordre : `maquettes/assets/styles.css` (bloc `:root
 1. **Références d'abord** : avant de dessiner un écran nouveau (ou une page publique), regarder comment les grands logiciels font (Stripe, Linear, Shopify Polaris, GitHub, logiciels scolaires ; sites marketing actuels pour une page publique) et noter les sources dans `docs/claude/recherches/`.
 2. **Maquette ensuite**, à 390 px **et** 1440 px (et l'état tablette dans la feuille de style), dans `maquettes/` — jamais une page codée sans maquette.
 3. **Code**, puis `make apercu` (ou `ecran=…`) : regarder l'écran réel à 390, 820 et 1440 px, `rapport.json` vide.
-4. Pages publiques (site de la plateforme WEB.1, sites des écoles) : vrai design marketing aux normes actuelles — photos (écoles, intérieurs), animations sobres (`prefers-reduced-motion` respecté), pied de page complet (liens, contact, langues, mentions, « © DTMS. Tous droits réservés. »), l'auteur seulement en `<meta name="author">`.
+4. Pages publiques (site de la plateforme WEB.1, sites des écoles) — maquettes : `maquettes/site/` + `assets/site.css` (WEB.1a : titres de 2 à 3,4 rem, seul ajout à l'échelle ; premier écran ≤ 150 Ko ; photos d'une vraie école ou libres, crédits dans `assets/photos/README.md`) : vrai design marketing aux normes actuelles — photos (écoles, intérieurs), animations sobres (`prefers-reduced-motion` respecté), pied de page complet (liens, contact, langues, mentions, « © DTMS. Tous droits réservés. »), l'auteur seulement en `<meta name="author">`.
 
 ## Intention
 

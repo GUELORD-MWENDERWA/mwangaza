@@ -117,7 +117,7 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 | `make backup` · `make restore` | sauvegarde chiffrée de la base et des fichiers dans `sauvegardes/` (sessions expirées purgées, rotation) ; essai de restauration dans une base à part, `file=<sauvegarde>`, `remplacer=oui` pour la remettre en service ; `pile=essai` : images de l'essai de la production ; sur le serveur, chaque nuit par cron (posé par `make deploy`) |
 | `make superuser` · `make shell` | compte super-admin ; console Django |
 | GitHub Actions | à chaque PR et sur `main` : lint + tests du serveur + schéma OpenAPI à jour ; types du client + lint + tests du front + build ; `make test-e2e`. Une PR ne lance que les contrôles concernés par ses fichiers (`.github/scripts/changes.sh` : documents et maquettes → rien ; `frontend/` → front + parcours ; `backend/` → serveur + parcours ; le reste → tout) ; `main` relance toujours tout |
-| `python3 maquettes/outils/maquettes.py menu` · `… index` · `node maquettes/outils/captures.mjs` | maquettes : menu latéral commun, galerie, captures PNG |
+| `python3 maquettes/outils/maquettes.py menu` · `… index` · `… site` · `node maquettes/outils/captures.mjs` | maquettes : menu latéral commun, galerie, en-tête et pied du site public, captures PNG |
 
 Détail de chaque commande (dont tout ce que crée `make demo`) : `docs/claude/reference.md`.
 

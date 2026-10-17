@@ -2,6 +2,7 @@
 
     python3 maquettes/outils/maquettes.py menu    # réécrit le menu latéral de toutes les pages Gestion depuis MENU
     python3 maquettes/outils/maquettes.py index   # régénère maquettes/index.html depuis CATALOGUE
+    python3 maquettes/outils/maquettes.py site    # réécrit l'en-tête, le pied et les icônes des pages du site public
 
 Les fonctions `page_gestion`, `page_auth`, `page_portail` et `ic` servent à écrire une nouvelle maquette
 avec la même coquille que les autres. Captures PNG : `node maquettes/outils/captures.mjs`.
@@ -72,6 +73,13 @@ ICONS = {
     "dots": '<circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/>',
     "globe": '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/>',
     "database": '<ellipse cx="12" cy="5.5" rx="7.5" ry="2.8"/><path d="M4.5 5.5v13c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8v-13M4.5 12c0 1.5 3.4 2.8 7.5 2.8s7.5-1.3 7.5-2.8"/>',
+    # site public (WEB.1a)
+    "chat": '<path d="M4 19.5 5.4 15.6A8 8 0 1 1 8.4 18.4z"/><path d="M8.5 11.5h.1M12 11.5h.1M15.5 11.5h.1"/>',
+    "mail": '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/>',
+    "pin": '<path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
+    "arrow": '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    "receipt": '<path d="M6 3h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+    "chart": '<path d="M4 4v16h16"/><path d="M8.5 16v-4M12.5 16V8M16.5 16v-6"/>',
 }
 
 
@@ -377,9 +385,104 @@ CONSOLE = [
 ]
 
 
+# Site public de la plateforme (domaine nu, WEB.1a) : pages marketing, captures à 390, 820 et 1440 px.
+SITE = [
+    ("accueil", "Accueil", "Lancement", "WEB.1a", True),
+    ("ecoles", "Pour les écoles (direction, comptable, caissier, enseignant)", "Lancement", "WEB.1a", True),
+    ("parents", "Pour les parents", "Lancement", "WEB.1a", True),
+    ("modules", "Modules", "Lancement", "WEB.1a", True),
+    ("demonstration", "Demande de démonstration et contact", "Lancement", "WEB.1a", True),
+    ("trouver-mon-ecole", "Trouver mon école", "Lancement", "WEB.1a", True),
+    ("mentions", "Mentions légales et confidentialité", "Lancement", "WEB.1a", True),
+]
+
+# (lien, libellé) du menu du site ; l'entrée active est celle de la page (SITE_ACTIVE).
+SITE_NAV = [
+    ("ecoles.html", "Écoles"),
+    ("parents.html", "Parents"),
+    ("modules.html", "Modules"),
+    ("accueil.html#questions", "Questions"),
+    ("demonstration.html", "Contact"),
+]
+SITE_ACTIVE = {"ecoles.html": "ecoles.html", "parents.html": "parents.html", "modules.html": "modules.html",
+               "demonstration.html": "demonstration.html"}
+
+
+def site_header(active: str | None) -> str:
+    def link(href: str, label: str) -> str:
+        on = ' class="on" aria-current="page"' if href == active else ""
+        return f'<a href="{href}"{on}>{label}</a>'
+
+    links = "".join(link(h, t) for h, t in SITE_NAV)
+    return (
+        '<header class="sh"><div class="wrap shin">'
+        '<a class="sbrand" href="accueil.html"><span class="mark"></span><b>Mwangaza</b><span>School</span></a>'
+        f'<nav class="snav" aria-label="Menu principal">{links}</nav>'
+        '<div class="sact">'
+        '<a class="slang" href="#" hreflang="en" lang="en">English</a>'
+        '<a class="slink" href="trouver-mon-ecole.html">Trouver mon école</a>'
+        '<a class="btn lamp sm" href="demonstration.html"><span class="hide-s">Demander une démo</span>'
+        '<span class="show-s">Démo</span></a>'
+        f'<details class="smenu"><summary aria-label="Ouvrir le menu">{ic("menu", 22)}</summary>'
+        f'<nav class="smpanel relief" aria-label="Menu principal">{links}'
+        f'<a href="trouver-mon-ecole.html">{ic("search", 18)} Trouver mon école</a>'
+        f'<a href="https://parents.mwangazaschool.com/">{ic("users", 18)} Espace parents</a>'
+        f'<a href="#" hreflang="en" lang="en">{ic("globe", 18)} English</a></nav></details>'
+        "</div></div></header>"
+    )
+
+
+def site_footer() -> str:
+    def col(title: str, links: list[tuple[str, str]]) -> str:
+        items = "".join(f'<li><a href="{h}">{t}</a></li>' for h, t in links)
+        return f'<div><h2>{title}</h2><ul>{items}</ul></div>'
+
+    return (
+        '<footer class="sf relief"><div class="wrap">'
+        '<div class="sfgrid">'
+        '<div class="sfabout"><a class="sbrand" href="accueil.html"><span class="mark"></span><b>Mwangaza</b>'
+        "<span>School</span></a>"
+        "<p>Logiciel de gestion scolaire pour les écoles de la RDC, conçu à Goma.</p>"
+        '<ul class="sfcontact">'
+        f'<li><a href="https://wa.me/243970000000">{ic("chat", 18)} WhatsApp +243 97 000 00 00</a></li>'
+        f'<li><a href="mailto:contact@mwangazaschool.com">{ic("mail", 18)} contact@mwangazaschool.com</a></li>'
+        f'<li>{ic("pin", 18)} Goma, Nord-Kivu, RDC</li></ul></div>'
+        + col("Le logiciel", [("ecoles.html", "Pour les écoles"), ("parents.html", "Pour les parents"),
+                              ("modules.html", "Modules"), ("accueil.html#questions", "Questions fréquentes")])
+        + col("Accès", [("trouver-mon-ecole.html", "Trouver mon école"),
+                        ("https://parents.mwangazaschool.com/", "Espace parents"),
+                        ("demonstration.html", "Demander une démonstration")])
+        + col("Informations", [("mentions.html", "Mentions légales"), ("mentions.html#confidentialite", "Confidentialité"),
+                               ("demonstration.html", "Contact")])
+        + "</div>"
+        '<div class="sfbottom"><p class="sflang"><a href="accueil.html" lang="fr" aria-current="true">Français</a>'
+        ' · <a href="#" hreflang="en" lang="en">English</a></p>'
+        '<p>© 2026 <a href="https://dtms.site">DTMS</a>. Tous droits réservés.</p></div>'
+        "</div></footer>"
+    )
+
+
+ICON_TAG = re.compile(r'<svg\b([^>]*?)\bdata-ic="([a-z0-9]+)"([^>]*)>.*?</svg>', re.S)
+
+
+def expand_icons(html: str) -> str:
+    """`<svg class="…" data-ic="cash"></svg>` → icône complète (idempotent)."""
+    def repl(m: re.Match) -> str:
+        attrs = m.group(1) + m.group(3)
+        cls = re.search(r'class="([^"]*)"', attrs)
+        return (
+            f'<svg class="{cls.group(1) if cls else "ic"}" data-ic="{m.group(2)}" viewBox="0 0 24 24" fill="none" '
+            'stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" '
+            f'aria-hidden="true">{ICONS[m.group(2)]}</svg>'
+        )
+
+    return ICON_TAG.sub(repl, html)
+
+
 def _card(app: str, name: str, title: str, lot: str, ref: str, new: bool) -> str:
     mobile = app == "portail"
-    img = f"captures/{'mobile' if mobile else 'desktop'}/{app}-{name}.png"
+    ext = "webp" if app == "site" else "png"  # site public : photos, WebP bien plus léger
+    img = f"captures/{'mobile' if mobile else 'desktop'}/{app}-{name}.{ext}"
     height = 300 if mobile else 170
     lot_cls = "" if lot == "V1.0" else "v"
     todo = ' <span class="pill warn">à valider</span>' if new else ""
@@ -394,10 +497,11 @@ def _card(app: str, name: str, title: str, lot: str, ref: str, new: bool) -> str
 
 
 def build_index() -> str:
-    todo = sum(1 for *_, new in GESTION + PORTAIL + CONSOLE if new)
+    todo = sum(1 for *_, new in GESTION + PORTAIL + CONSOLE + SITE if new)
     gestion = "".join(_card("gestion", *row) for row in GESTION)
     portail = "".join(_card("portail", *row) for row in PORTAIL)
     console = "".join(_card("console", *row) for row in CONSOLE)
+    site = "".join(_card("site", *row) for row in SITE)
     return (
         head("Maquettes", "assets/styles.css")
         + '<body><div style="background:var(--night);color:var(--night-ink);padding:36px 32px">'
@@ -413,6 +517,8 @@ def build_index() -> str:
         f'style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">{portail}</div>\n'
         f'<h2 style="margin-top:12px">Console de la plateforme — {len(CONSOLE)} écrans</h2><div class="grid" '
         f'style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">{console}</div>\n'
+        f'<h2 style="margin-top:12px">Site public de la plateforme — {len(SITE)} pages (390, 820 et 1440 px)</h2>'
+        f'<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">{site}</div>\n'
         "</main></body></html>"
     )
 
@@ -439,13 +545,26 @@ def cmd_menu() -> None:
             print(f"menu mis à jour : gestion/{path.name} (actif : {active})")
 
 
+def cmd_site() -> None:
+    """Réécrit l'en-tête, le pied de page et les icônes (`data-ic`) de chaque page du site public."""
+    for path in sorted((ROOT / "site").glob("*.html")):
+        html = path.read_text(encoding="utf-8")
+        header, footer = site_header(SITE_ACTIVE.get(path.name)), site_footer()
+        new = re.sub(r'<header class="sh">.*?</header>', lambda _m, h=header: h, html, count=1, flags=re.S)
+        new = re.sub(r'<footer class="sf[^"]*">.*?</footer>', lambda _m, f=footer: f, new, count=1, flags=re.S)
+        new = expand_icons(new)
+        if new != html:
+            path.write_text(new, encoding="utf-8")
+            print(f"site mis à jour : site/{path.name}")
+
+
 def cmd_index() -> None:
     (ROOT / "index.html").write_text(build_index(), encoding="utf-8")
     print("index.html régénéré")
 
 
 if __name__ == "__main__":
-    commands = {"menu": cmd_menu, "index": cmd_index}
+    commands = {"menu": cmd_menu, "index": cmd_index, "site": cmd_site}
     if len(sys.argv) != 2 or sys.argv[1] not in commands:
         sys.exit(__doc__)
     commands[sys.argv[1]]()

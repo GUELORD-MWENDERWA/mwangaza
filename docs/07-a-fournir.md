@@ -52,7 +52,7 @@ Dessinées par Claude (à valider) : console de la plateforme, tableau de bord e
 
 ### Lancement — modules, rôles, sécurité (plan du 2026-10-13)
 
-À dessiner ou mettre à jour : message « Aucun module activé » et cases des modules à la création d'une école (M.2.2) ; rôle de départ modifiable à la création d'une école (M.3.2). La carte « Fonctions de l'école » de `console/ecoles` est déjà dessinée.
+À dessiner ou mettre à jour : message « Aucun module activé » et cases des modules à la création d'une école (M.2.2) ; rôle de départ modifiable à la création d'une école (M.3.2). La carte « Fonctions de l'école » de `console/ecoles` est déjà dessinée. **Site public (WEB.1a, 2026-10-17)** : 7 pages dessinées par Claude dans `maquettes/site/` (à valider), à 390, 820 et 1440 px.
 
 ### V1.2 — notes, bulletins, finances de l'école
 
@@ -60,7 +60,7 @@ Déjà dessinés le 2026-09-26 d'après les **formulaires officiels** trouvés e
 
 ### V1.3 — plateforme commerciale
 
-À dessiner : offres et contrat d'une école, factures (`console`, ABO.1–ABO.2), factures vues par l'école (paramètres), bandeau « lecture seule » (ABO.3) ; site de la plateforme (WEB.1).
+À dessiner : offres et contrat d'une école, factures (`console`, ABO.1–ABO.2), factures vues par l'école (paramètres), bandeau « lecture seule » (ABO.3) ; page des prix du site (WEB.1).
 
 ### V1.4 — emploi du temps et IA
 
