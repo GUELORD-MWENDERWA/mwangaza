@@ -1,6 +1,7 @@
 // Menu de la Gestion (maquettes, `maquettes/outils/maquettes.py`, MENU) : chaque entrée n'apparaît
 // qu'avec un de ses droits (`04` § 8). Entrées V1.1 et V1.2 (notes, présences, paie) : absentes
 // en V1.0. Écran pas encore construit (`SCREENS` de `routes.tsx`) : « bientôt disponible ».
+import type { Schemas } from "@mwangaza/api";
 import type { fr } from "@mwangaza/i18n";
 import type { IconName } from "@mwangaza/ui";
 
@@ -20,7 +21,7 @@ export type MenuItem = {
   task: string;
   /** Module de l'école sans lequel l'écran ne sert à rien, en plus du droit (passage de classe :
    *  droit des élèves, décisions de la délibération). */
-  module?: string;
+  module?: Schemas["ModulesEnum"];
 };
 
 export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
