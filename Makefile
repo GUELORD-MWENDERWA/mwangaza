@@ -153,8 +153,8 @@ prod-local-stop: ## Arrêter l'essai de la production (données gardées ; tout 
 deploy-init: ## Vrai serveur AWS (4.6.3) : créer infra/serveur/serveur.env (MODE=production, secrets neufs) à remplir
 	$(DEPLOYER) init
 
-deploy-check: ## Vrai serveur : HTTPS, certificat et santé de l'API depuis cette machine
-	$(DEPLOYER) check
+deploy-check: ## Vrai serveur : HTTPS, certificat et santé de l'API depuis cette machine ; make deploy-check ip=<IP> pour une instance pas encore derrière le DNS
+	$(DEPLOYER) check $(ip)
 
 deploy-setup: ## Vrai serveur : le préparer, une seule fois
 	$(DEPLOYER) setup
