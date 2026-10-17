@@ -170,6 +170,12 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       await page.waitForLoadState("networkidle").catch(() => undefined);
       await page.waitForTimeout(500);
     });
+    // Délibération (8.4.2) : même classe, décisions proposées reprises par la démonstration.
+    await visit(director, `${ITIG}deliberation`, "gestion", "deliberation", async (page) => {
+      await page.getByLabel("Classe").selectOption({ label: "3HT ÉLECTRONIQUE A" });
+      await page.waitForLoadState("networkidle").catch(() => undefined);
+      await page.waitForTimeout(500);
+    });
   }
 
   if (!ONLY || ONLY.startsWith("portail")) {

@@ -20,6 +20,7 @@ from django.conf import settings
 from django.utils import timezone, translation
 from django.utils.translation import gettext
 
+from apps.academics import deliberation as deliberation_module
 from apps.academics import report_cards, resits
 from apps.academics.discipline import DEFAULT_RULES
 from apps.academics.grades import term_maximum
@@ -27,6 +28,8 @@ from apps.academics.models import (
     ApplicationGrade,
     ConductGrade,
     Course,
+    Deliberation,
+    DeliberationDecision,
     DisciplineIncident,
     DisciplineRule,
     Evaluation,
@@ -242,6 +245,7 @@ def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
         enrolled = students[group.pk]
         level = {e.pk: draw.uniform(0.4, 0.92) for e in enrolled}
         ResitGrade.objects.filter(course__in=courses).delete()
+        Deliberation.objects.filter(class_group=group).delete()
         GradeSheet.objects.filter(course__in=courses).delete()
         Evaluation.objects.filter(course__in=courses).delete()
         evaluations = []
@@ -295,6 +299,7 @@ def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
             ]
         )
         _create_demo_resits(group, draw, now)
+        _create_demo_deliberation(group, year)
 
 
 def _create_demo_resits(group: ClassGroup, draw: random.Random, now) -> None:
@@ -311,6 +316,26 @@ def _create_demo_resits(group: ClassGroup, draw: random.Random, now) -> None:
         for student in rows
         for row in student.failed
         if row.eligible and row.course.teacher_id and draw.random() < 0.5
+    )
+
+
+def _create_demo_deliberation(group: ClassGroup, year) -> None:
+    """Délibération (8.4.2) : date posée et décision proposée prise pour chaque élève qui en a
+    une, la classe reste à proclamer (de quoi essayer écart, motif et proclamation)."""
+    rows = resits.class_overview(report_cards.class_report(group), with_conduct=False)
+    deliberation = Deliberation.objects.create(
+        class_group=group, held_on=year.ends_on - timedelta(days=5)
+    )
+    proposals = deliberation_module.PROPOSAL
+    DeliberationDecision.objects.bulk_create(
+        DeliberationDecision(
+            deliberation=deliberation,
+            enrollment=student.enrollment,
+            decision=proposals[student.outcome],
+            proposed=proposals[student.outcome],
+        )
+        for student in rows
+        if student.outcome in proposals
     )
 
 

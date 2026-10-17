@@ -98,6 +98,10 @@ class Action(models.TextChoices):
     DISCIPLINE_GRADE_OVERRIDDEN = "discipline.grade_overridden", _("Conduct grade corrected")
     APPLICATION_GRADE_OVERRIDDEN = "application.grade_overridden", _("Application grade corrected")
     RESIT_GRADE_CHANGED = "resit.grade_changed", _("Resit grade changed")
+    # Délibération (8.4.2) : décision d'un élève, date, proclamation des résultats, réouverture.
+    DELIBERATION_DECIDED = "deliberation.decided", _("Deliberation decision recorded")
+    DELIBERATION_PROCLAIMED = "deliberation.proclaimed", _("Class results proclaimed")
+    DELIBERATION_REOPENED = "deliberation.reopened", _("Class results reopened")
 
     # Élèves et familles (D2-D4).
     STUDENTS_FAMILY_CREATED = "students.family_created", _("Family created")

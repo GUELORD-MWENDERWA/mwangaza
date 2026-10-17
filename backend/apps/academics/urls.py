@@ -1,8 +1,8 @@
 from django.urls import path
 
 from apps.academics import application_views as application
+from apps.academics import deliberation_views, resits_views, views
 from apps.academics import discipline_views as conduct
-from apps.academics import resits_views, views
 
 urlpatterns = [
     path("class-groups/<uuid:pk>/courses/", views.ClassCoursesView.as_view(), name="class-courses"),
@@ -102,5 +102,30 @@ urlpatterns = [
         "resits/enrollments/<uuid:pk>/courses/<uuid:course_pk>/",
         resits_views.ResitGradeView.as_view(),
         name="resit-grade",
+    ),
+    path(
+        "class-groups/<uuid:pk>/deliberation/",
+        deliberation_views.ClassDeliberationView.as_view(),
+        name="class-deliberation",
+    ),
+    path(
+        "class-groups/<uuid:pk>/deliberation/apply-proposals/",
+        deliberation_views.ApplyProposalsView.as_view(),
+        name="deliberation-apply",
+    ),
+    path(
+        "class-groups/<uuid:pk>/deliberation/proclaim/",
+        deliberation_views.ProclaimView.as_view(),
+        name="deliberation-proclaim",
+    ),
+    path(
+        "class-groups/<uuid:pk>/deliberation/reopen/",
+        deliberation_views.ReopenView.as_view(),
+        name="deliberation-reopen",
+    ),
+    path(
+        "deliberation/enrollments/<uuid:pk>/",
+        deliberation_views.EnrollmentDecisionView.as_view(),
+        name="deliberation-decision",
     ),
 ]
