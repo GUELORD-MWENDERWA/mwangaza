@@ -5,7 +5,7 @@ Claude ne peut pas : installer avec `sudo`, fusionner une PR, parler à l'ITIG, 
 
 Ce qui manque en détail (maquettes, informations ITIG, décisions) : [`docs/07-a-fournir.md`](docs/07-a-fournir.md). Ici : **quoi faire, dans quel ordre, avec quelles commandes**.
 
-Dernière mise à jour : 2026-10-14 (logo M-flamme, alignements au téléphone et site public pour la visibilité sur Google et les IA : action 6 octies).
+Dernière mise à jour : 2026-10-17 (compte AWS, domaine, e-mail pro : action 5 ter et § 9 octies).
 
 ## Maintenant
 
@@ -16,6 +16,7 @@ Dernière mise à jour : 2026-10-14 (logo M-flamme, alignements au téléphone e
 | 3 | ~~Clés du serveur gardées hors du serveur~~ : fait (L.2, 2026-10-13) — garder hors du serveur `BACKUP_PASSPHRASE` (sans elle, les sauvegardes B2 sont illisibles) et une copie de `infra/serveur/serveur.env`** dans un gestionnaire de mots de passe ; changement de chaque clé : [§ 9 septies](#9-septies-garder-et-changer-les-clés-du-serveur-s2) | 2 min | [x] |
 | 4 | **Lire le guide de la version** (`docs/guide/guide-v1.1.pdf`, remis à jour pour le lancement : modules, rôles libres, sécurité) et préparer ta présentation (`docs/guide/presentation-v1.1.pdf`) : sur le vrai serveur, dans deux espaces de démonstration créés depuis la console (une grande école, une petite), fiches d'accès imprimées | 1 h | [ ] |
 | 5 | **Avant la première vraie école** : ~~essai sur de vrais téléphones et imprimantes (L.4)~~ fait le 2026-10-15, sans défaut ; reste les étapes non cochées du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) | 2 h | [ ] |
+| 5 ter | **Compte AWS, domaine et e-mail pro (OPS.1 à OPS.4), avant la première vraie école** : les étapes du [§ 9 octies](#9-octies-compte-aws-domaine-et-e-mail-pro-ops) — budget de 15 $, double authentification partout, adresse du compte AWS, instantanés Lightsail, domaine LWS protégé, adresses `contact@` et `support@` | 1 h en tout | [ ] |
 | 5 bis | **Pour DOC.1 et DOC.2 (avant L.4)** : préparer, pour une école d'essai, une photo ou un scan net du **cachet** et de la **signature du chef** (et d'un caissier), à l'encre foncée sur papier blanc, en PNG ou JPEG ; avoir quelques feuilles **demi A4** (A5, 21 × 14,8 cm) ou **tiers d'A4** (une feuille A4 coupée en trois, 21 × 9,9 cm) pour essayer l'impression d'un reçu | 15 min | [ ] |
 | 6 | **GitHub › Settings › Code security** du dépôt : activer « Secret scanning » et « Push protection » (tâche S.2 : une clé poussée par erreur est bloquée) ; puis **Dependabot** : Settings › Code security › « Dependabot alerts » activé | 5 min | [ ] |
 | 6 ter | **PR de Dependabot du 2026-10-13**, après la fusion de S.3.1 : fusionner **#225** (Actions, verte) ; **fermer #223, #226, #221 et #222** si Dependabot ne les a pas fermées lui-même (bouton « Close pull request ») — Django 6.1, TypeScript 7 et Python 3.14 ne se prennent pas ainsi. Il rouvrira des PR propres, sans versions majeures | 5 min | [ ] |
@@ -188,6 +189,25 @@ Achats, serveur et sauvegardes sont faits ; le code du lancement est fini (L.5, 
 **GitHub** : « Secret scanning » et « Push protection » (Settings › Code security) bloquent le `git push` qui contient une clé connue. Les mises à jour de dépendances arrivent chaque lundi en PR « Bump… » (groupées, sans les versions majeures) : coches vertes → tu peux fusionner ; une coche rouge → ne fusionne pas, montre-la à Claude. Une PR qui change `python` ou `node` dans un `Dockerfile` ne se fusionne pas sur ses coches (la CI ne construit pas l'image). L'audit des failles (`audit.yml`) tourne le lundi et sur `main`.
 
 ---
+
+## 9 octies. Compte AWS, domaine et e-mail pro (OPS)
+
+Vérifié avec toi le 2026-10-17 : compte AWS ouvert le 12/10/2026, **plan payant** (il ne se fermera pas), **100 $ de crédits jusqu'au 12/10/2027**. Les crédits sont une réduction automatique sur les factures AWS : la facture arrive au début de chaque mois, AWS retire d'abord les crédits, ta carte paie le reste (0 $ tant qu'il reste des crédits). Le serveur coûte 12 $ / mois après son essai gratuit Lightsail ; 100 $ ne suffisent pas pour toute l'année, **180 $ oui** (avec les 4 activités sûres ci-dessous). Ensuite ≈ 12 à 13 $ / mois sur ta carte. Le domaine (LWS), Cloudflare et Backblaze ne sont pas payés par ces crédits. Détail et sources : `docs/claude/recherches/serveur-et-credits-aws-2026-10-17.md`.
+
+| # | Où | Quoi | Fait |
+|:-:|---|---|:-:|
+| 1 | AWS › accueil, carte « Earn AWS credits » › Budgets | **Budget de coûts mensuels**, 15 $, ton e-mail (+20 $ de crédits) | [ ] |
+| 2 | même carte | Bedrock (une question dans le terrain de jeu) et Lambda (application guidée) : +40 $. EC2 : +20 $, mais **résilier l'instance tout de suite**. **Pas** Aurora / RDS (une base oubliée coûte plusieurs dollars par jour). Ne jamais toucher à l'instance Lightsail `mwangaza-vps-prod` | [ ] |
+| 3 | AWS › menu Guels_01 › Informations d'identification de sécurité | **Attribuer un appareil MFA** (application d'authentification) | [ ] |
+| 4 | AWS › menu Guels_01 › Compte › Informations de contact | pays de l'adresse : RDC (aujourd'hui « TZ ») | [ ] |
+| 5 | AWS › chercher « Secrets Manager », région Paris | regarder ce qui y est et le montrer à Claude, **sans rien supprimer** (Mwangaza ne s'en sert pas ; 0,40 $ / mois par secret après 30 jours) | [ ] |
+| 6 | AWS › Facturation › Factures › Lightsail | noter ici la date de fin de l'essai Lightsail : … ; solde des crédits (page Crédits) : … | [ ] |
+| 7 | Lightsail › `mwangaza-vps-prod` › Snapshots | **Automatic snapshots : activer** (≈ 0,5 à 1 $ / mois) ; onglet Metrics : alarmes « Status check failed » et « CPU > 90 % pendant 15 min » vers ton e-mail (OPS.2) | [ ] |
+| 8 | LWS (ton compte) | renouvellement automatique de `mwangazaschool.com`, carte valide, date d'expiration notée ici : … ; verrou de transfert ; protection des données du titulaire ; double authentification (OPS.3) | [ ] |
+| 9 | Cloudflare, Backblaze, GitHub, Sentry, Healthchecks, UptimeRobot | double authentification sur chacun (OPS.3) | [ ] |
+| 10 | LWS, puis Cloudflare › DNS | adresses `contact@` et `support@mwangazaschool.com` : boîte comprise dans l'offre LWS si elle existe ; enregistrements MX, SPF, DKIM, DMARC **dans Cloudflare** (pas chez LWS : c'est Cloudflare qui tient le DNS) — avec Claude (OPS.4) | [ ] |
+
+À ne pas faire : acheter des « Savings Plans » ou des « Réservations », passer l'instance en « IPv6 seulement », ajouter un service AWS sans en parler. Une instance arrêtée (Stop) est facturée pareil : seule la suppression arrête la facture.
 
 ## 10. Comment relire et fusionner une PR
 

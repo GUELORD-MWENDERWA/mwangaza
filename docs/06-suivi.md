@@ -30,6 +30,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
 | Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 8 | 11 |
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.6, 8.5.1a–8.5.1c, 8.4.0–8.4.7, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 19 | 23 |
+| Exploitation — AWS, domaine, e-mail (OPS.1–OPS.5, PERF.7 ; ajoutés le 2026-10-17) | 0 | 6 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
 | V1.5 — carte et présences (avec A.5) | 0 | 7 |
@@ -60,6 +61,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-17 — Serveur, crédits AWS, domaine et e-mail pro : bloc OPS ajouté au plan
+
+- Vérifié avec toi dans la console AWS : compte ouvert le 12/10/2026, plan payant (le plan gratuit aurait fermé le compte vers le 12/04/2027), 100 $ de crédits jusqu'au 12/10/2027, 0,11 $ consommés (instance en essai gratuit Lightsail) ; Secrets Manager apparaît sur la facture alors que Mwangaza ne l'utilise pas : à regarder.
+- Ajouté au plan (`05` § 4 quater) : OPS.1 compte AWS sans piège, OPS.2 instantanés et alarmes, OPS.3 domaine LWS et comptes protégés, OPS.4 e-mail pro (P0, avant la première vraie école), OPS.5 passage à 4 Go préparé et PERF.7 écrans plus légers (P1). Marche à suivre : `A-FAIRE.md` § 9 octies ; note avec sources : `docs/claude/recherches/serveur-et-credits-aws-2026-10-17.md`.
+- Décision (Journal de `03`) : plan payant, budget 15 $, pas de nouveau service AWS sans son coût ; tableau « Capacité » aux vrais prix (4 Go = 24 $).
 
 ### 2026-10-17 — Tâche 8.4.7 : reprise des résultats de l'année précédente
 
