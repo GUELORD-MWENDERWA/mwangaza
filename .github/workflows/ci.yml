@@ -85,11 +85,18 @@ jobs:
         run: uv sync --locked
       - name: Lint
         run: make lint-back
+      - name: Requêtes lentes notées par la base (plus de 2 s)
+        run: >-
+          psql "postgresql://mwangaza:mwangaza@localhost:5432/mwangaza"
+          -c "ALTER SYSTEM SET log_min_duration_statement = 2000" -c "SELECT pg_reload_conf()"
       - name: Tests
         # Les 10 tests les plus lents en fin de journal : une régression de durée se voit tout de suite.
         env:
           PYTEST_ADDOPTS: --durations=10
         run: make test-back
+      - name: Requêtes lentes pendant les tests
+        if: always()
+        run: docker logs "${{ job.services.postgres.id }}" 2>&1 | grep -A2 "duration:" | cut -c1-600 | tail -80 || true
       - name: Schéma OpenAPI commité à jour
         run: |
           make api-schema
