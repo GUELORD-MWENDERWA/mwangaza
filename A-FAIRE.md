@@ -5,7 +5,7 @@ Claude ne peut pas : installer avec `sudo`, fusionner une PR, parler à l'ITIG, 
 
 Ce qui manque en détail (maquettes, informations ITIG, décisions) : [`docs/07-a-fournir.md`](docs/07-a-fournir.md). Ici : **quoi faire, dans quel ordre, avec quelles commandes**.
 
-Dernière mise à jour : 2026-10-17 (compte AWS, domaine, e-mail pro : action 5 ter et § 9 octies).
+Dernière mise à jour : 2026-10-17 (comptes de la plateforme et domaine protégés, OPS.3 : action 5 ter et § 9 octies).
 
 ## Maintenant
 
@@ -16,7 +16,7 @@ Dernière mise à jour : 2026-10-17 (compte AWS, domaine, e-mail pro : action 5 
 | 3 | ~~Clés du serveur gardées hors du serveur~~ : fait (L.2, 2026-10-13) — garder hors du serveur `BACKUP_PASSPHRASE` (sans elle, les sauvegardes B2 sont illisibles) et une copie de `infra/serveur/serveur.env`** dans un gestionnaire de mots de passe ; changement de chaque clé : [§ 9 septies](#9-septies-garder-et-changer-les-clés-du-serveur-s2) | 2 min | [x] |
 | 4 | **Lire le guide de la version** (`docs/guide/guide-v1.1.pdf`, remis à jour pour le lancement : modules, rôles libres, sécurité) et préparer ta présentation (`docs/guide/presentation-v1.1.pdf`) : sur le vrai serveur, dans deux espaces de démonstration créés depuis la console (une grande école, une petite), fiches d'accès imprimées | 1 h | [ ] |
 | 5 | **Avant la première vraie école** : ~~essai sur de vrais téléphones et imprimantes (L.4)~~ fait le 2026-10-15, sans défaut ; reste les étapes non cochées du [§ 9 quater « Le jour du lancement »](#9-quater-le-jour-du-lancement-première-vraie-école) | 2 h | [ ] |
-| 5 ter | **Compte AWS, domaine et e-mail pro (OPS.1 à OPS.4), avant la première vraie école** : les étapes du [§ 9 octies](#9-octies-compte-aws-domaine-et-e-mail-pro-ops) — budget de 15 $, double authentification partout, adresse du compte AWS, ~~instantanés Lightsail~~ (faits le 2026-10-17), domaine LWS protégé, adresses `contact@` et `support@` | 1 h en tout | [ ] |
+| 5 ter | **Compte AWS, domaine et e-mail pro (OPS.1 à OPS.4), avant la première vraie école** : les étapes du [§ 9 octies](#9-octies-compte-aws-domaine-et-e-mail-pro-ops) — budget de 15 $, double authentification partout, adresse du compte AWS, ~~instantanés Lightsail~~ (faits le 2026-10-17), domaine LWS protégé (**verrou de transfert absent le 2026-10-17**), double authentification sur chaque compte du tableau « Comptes de la plateforme », adresses `contact@` et `support@` | 1 h en tout | [ ] |
 | 5 bis | **Pour DOC.1 et DOC.2 (avant L.4)** : préparer, pour une école d'essai, une photo ou un scan net du **cachet** et de la **signature du chef** (et d'un caissier), à l'encre foncée sur papier blanc, en PNG ou JPEG ; avoir quelques feuilles **demi A4** (A5, 21 × 14,8 cm) ou **tiers d'A4** (une feuille A4 coupée en trois, 21 × 9,9 cm) pour essayer l'impression d'un reçu | 15 min | [ ] |
 | 6 | **GitHub › Settings › Code security** du dépôt : activer « Secret scanning » et « Push protection » (tâche S.2 : une clé poussée par erreur est bloquée) ; puis **Dependabot** : Settings › Code security › « Dependabot alerts » activé | 5 min | [ ] |
 | 6 ter | **PR de Dependabot du 2026-10-13**, après la fusion de S.3.1 : fusionner **#225** (Actions, verte) ; **fermer #223, #226, #221 et #222** si Dependabot ne les a pas fermées lui-même (bouton « Close pull request ») — Django 6.1, TypeScript 7 et Python 3.14 ne se prennent pas ainsi. Il rouvrira des PR propres, sans versions majeures | 5 min | [ ] |
@@ -74,7 +74,7 @@ Fait **avant** qu'une école saisisse ses vraies données : changer d'adresse en
 
 | Quoi | Comment | Fait |
 |---|---|:-:|
-| Domaine **`mwangazaschool.com`** | acheté ; renouvellement automatique | [x] |
+| Domaine **`mwangazaschool.com`** | acheté chez LWS, expire le 12/10/2027 ; renouvellement automatique et verrou de transfert : § 9 octies, ligne 8 (OPS.3) | [x] |
 | Cloudflare (gratuit) | DNS fait ; reste le passage en proxy, nuage orange (« Maintenant » 6 bis, avec Claude) | [x] |
 | Serveur | AWS Lightsail (§ 9 ter) | [x] |
 | Stockage objet des sauvegardes | **Backblaze B2** (10 Go gratuits, compte séparé d'AWS) : § 9 bis, étapes 1 et 2 | [x] |
@@ -83,7 +83,7 @@ Fait **avant** qu'une école saisisse ses vraies données : changer d'adresse en
 | Documents (T5, avant les vraies données d'une école) | conditions d'utilisation, confidentialité, contrat avec chaque école : Claude peut rédiger un brouillon, à faire relire | [ ] |
 | Tarif des écoles (T6, avant les abonnements, 9.2) | décider : essai gratuit ? prix par élève ? | [ ] |
 
-Partout : activer la double authentification et garder les codes de secours. Les mots de passe et clés vont dans le fichier de valeurs du serveur, jamais dans une conversation ni dans le dépôt : Claude te dira quel nom de variable remplir.
+Partout : activer la double authentification et garder les codes de secours (liste des comptes : § 9 octies, « Comptes de la plateforme »). Les mots de passe et clés vont dans le fichier de valeurs du serveur, jamais dans une conversation ni dans le dépôt : Claude te dira quel nom de variable remplir.
 
 ---
 
@@ -220,11 +220,36 @@ Vérifié avec toi le 2026-10-17 : compte AWS ouvert le 12/10/2026, **plan payan
 | 5 | AWS › chercher « Secrets Manager », région Paris | regarder ce qui y est et le montrer à Claude, **sans rien supprimer** (Mwangaza ne s'en sert pas ; 0,40 $ / mois par secret après 30 jours) | [ ] |
 | 6 | AWS › Facturation › Factures › Lightsail | noter ici la date de fin de l'essai Lightsail : … ; solde des crédits (page Crédits) : … | [ ] |
 | 7 | Lightsail › `mwangaza-vps-prod` (clic sur le nom) › onglet Snapshots | ~~**Automatic snapshots : activer**~~ fait le 2026-10-17 (2:00 heure de Goma, 7 gardés, ≈ 0,5 à 1 $ / mois) ; ~~onglet Metrics : alarmes « Status check failed » et « CPU > 90 % pendant 15 min » vers ton e-mail~~ faites (OPS.2) ; retour du serveur entier : § 9 ter | [x] |
-| 8 | LWS (ton compte) | renouvellement automatique de `mwangazaschool.com`, carte valide, date d'expiration notée ici : … ; verrou de transfert ; protection des données du titulaire ; double authentification (OPS.3) | [ ] |
-| 9 | Cloudflare, Backblaze, GitHub, Sentry, Healthchecks, UptimeRobot | double authentification sur chacun (OPS.3) | [ ] |
+| 8 | LWS (ton compte) › le domaine | renouvellement automatique de `mwangazaschool.com` avec une carte valide (expire le **12/10/2027**) ; **verrou de transfert : absent le 2026-10-17, à activer** ; protection des données du titulaire ; double authentification (OPS.3). Vérifier : `make deploy-check`, ligne « domaine » → « verrou de transfert actif », sans « ATTENTION » | [ ] |
+| 9 | chaque compte du tableau ci-dessous | double authentification, case par case dans la dernière colonne (OPS.3) | [ ] |
 | 10 | LWS, puis Cloudflare › DNS | adresses `contact@` et `support@mwangazaschool.com` : boîte comprise dans l'offre LWS si elle existe ; enregistrements MX, SPF, DKIM, DMARC **dans Cloudflare** (pas chez LWS : c'est Cloudflare qui tient le DNS) — avec Claude (OPS.4) | [ ] |
 
 À ne pas faire : acheter des « Savings Plans » ou des « Réservations », passer l'instance en « IPv6 seulement », ajouter un service AWS sans en parler. Une instance arrêtée (Stop) est facturée pareil : seule la suppression arrête la facture.
+
+### Comptes de la plateforme (OPS.3)
+
+Chaque compte dont dépend Mwangaza en ligne. **Aucun mot de passe ni code ici** : ils vont dans ton gestionnaire de mots de passe, avec les codes de secours de chaque double authentification.
+
+- **Ta boîte e-mail et ton gestionnaire de mots de passe d'abord** : qui les prend peut réinitialiser tous les autres comptes.
+- Double authentification par **application** (Google Authenticator, Aegis, 2FAS…), pas par SMS : une carte SIM peut être dupliquée chez l'opérateur. Codes de secours rangés dans le gestionnaire de mots de passe.
+- E-mail de secours de chaque compte : ta boîte personnelle aujourd'hui, l'adresse pro après OPS.4 ; jamais une boîte que personne ne lit.
+- Si tu perds ton téléphone : les codes de secours du gestionnaire suffisent. Une personne de confiance devrait savoir où le trouver et comment l'ouvrir si tu n'es plus joignable (accès d'urgence, si ton gestionnaire en propose un).
+
+| Service | À quoi il sert | Si on le perd | Qui y accède | Renouvellement, coût | Double auth. |
+|---|---|---|---|---|:-:|
+| Ta boîte e-mail | reçoit les réinitialisations et les alertes de tous les comptes | tous les comptes ci-dessous | toi | — | [ ] |
+| Gestionnaire de mots de passe | copie de `serveur.env`, `BACKUP_PASSPHRASE`, codes de secours (§ 9 septies) | sauvegardes illisibles, comptes perdus | toi | selon ton offre | [ ] |
+| LWS | registraire de `mwangazaschool.com` | toutes les écoles coupées (domaine expiré ou transféré) | toi | chaque année, expire le **12/10/2027** ; renouvellement automatique, carte valide (ligne 8) | [ ] |
+| Cloudflare | DNS du domaine (plus tard : proxy, nuage orange) | adresses détournées vers un autre serveur | toi | gratuit | [ ] |
+| AWS (compte Guels_01) | serveur Lightsail `mwangaza-vps-prod`, IP statique, instantanés | serveur et base | toi (compte racine) | chaque mois, ≈ 12 $ après l'essai ; crédits jusqu'au 12/10/2027 (haut du § 9 octies) | [ ] |
+| Backblaze B2 | copie chiffrée de la sauvegarde de chaque nuit, hors d'AWS (§ 9 bis) | plus de copie hors du serveur | toi ; le serveur : une clé limitée au bucket | gratuit jusqu'à 10 Go | [ ] |
+| GitHub | code (dépôt privé), contrôles des PR (Actions), images du serveur (ghcr.io), Dependabot | du code d'un autre mis en ligne au prochain `make deploy` | toi (propriétaire) ; Claude Code avec ta session `gh` sur ta machine ; le serveur lit les images avec `GHCR_TOKEN` (§ 9 quinquies) | gratuit : 2 000 minutes d'Actions par mois, 500 Mo d'images (`docs/claude/recherches/perf-5c-images-et-minutes-2026-10-16.md`) | [ ] |
+| Sentry | erreurs du serveur | plus d'alerte (rien ne s'arrête) | toi | gratuit | [ ] |
+| Healthchecks.io | alerte si la sauvegarde de la nuit manque | plus d'alerte (rien ne s'arrête) | toi | gratuit | [ ] |
+| UptimeRobot | alerte si le site ne répond plus (toutes les 5 min) | plus d'alerte (rien ne s'arrête) | toi | gratuit | [ ] |
+| Google Search Console, Bing Webmaster | page publique trouvée sur Google et les IA (« Maintenant » 6 octies) | rien pour les écoles | toi (compte Google) | gratuit | — |
+
+Pas pris maintenant (regard senior, OPS.3) : **DNSSEC** et l'enregistrement **CAA**. Tout passe en HTTPS avec HSTS, ils protègent donc peu ici ; une erreur de saisie chez LWS ou Cloudflare rendrait le domaine injoignable pour toutes les écoles.
 
 ## 10. Comment relire et fusionner une PR
 
@@ -291,7 +316,7 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make guide` | écrit deux PDF : le guide de la version, `docs/guide/guide-v1.1.pdf` (le guide de la V1.0 reste à côté ; ce qu'elle fait, rôle par rôle, avec des captures des écrans sur les données fictives ; ce qu'elle ne fait pas encore ; la suite), et le **guide de présentation**, `docs/guide/presentation-v1.1.pdf` (pour toi, quand tu montres la plateforme à une école : commandes de l'essai sur plusieurs appareils, adresses, comptes de test, déroulé en 20 minutes écran par écran, questions de la fin) : se connecte avec chaque compte fictif, prend les captures, puis imprime le guide ; **remet les données de `make demo` à zéro, avant et après** ; lance Django, la Gestion et le Portail, ou réutilise ceux de `make dev` / `make dev-local` (≈ 3 min) | à la fin de chaque version (Claude met le texte des deux à jour) ; les PDF sont dans Git : le guide de la version est prêt à envoyer, le guide de présentation reste pour toi |
 | `make prod-local` | essaie la production sur ta machine : construit les mêmes images que le serveur (Gestion et Portail construits, Django avec gunicorn, Caddy en HTTPS) et les lance ; puis https://itig.localhost/app/, https://parents.localhost/, https://admin.localhost/ (console ; administration de dépannage à `/admin/`) (certificat local : accepter l'avertissement du navigateur). Base vide : `make demo` y est refusé | pour voir la production avant la mise en ligne ; la première fois ≈ 10 min (téléchargements) |
 | `make prod-local-stop` | arrête cet essai ; ses données sont gardées (`docker compose -p mwangaza-essai down --volumes` pour tout effacer) | après l'essai |
-| `make deploy-init` · `make deploy-check` | vrai serveur AWS (§ 9 ter) : créer `serveur.env` de production, ou y ajouter une clé apparue depuis (`POSTGRES_APP_PASSWORD`, S.5 ; `GHCR_USER` et `GHCR_TOKEN`, § 9 quinquies) ; vérifier HTTPS et la santé de l'API ; `make deploy-check ip=<IP>` : la même chose sur une instance pas encore derrière le DNS (copie depuis un instantané, § 9 ter) | une fois / après chaque mise en ligne |
+| `make deploy-init` · `make deploy-check` | vrai serveur AWS (§ 9 ter) : créer `serveur.env` de production, ou y ajouter une clé apparue depuis (`POSTGRES_APP_PASSWORD`, S.5 ; `GHCR_USER` et `GHCR_TOKEN`, § 9 quinquies) ; vérifier HTTPS, la santé de l'API et le domaine (date d'expiration, verrou de transfert : un avertissement s'il manque) ; `make deploy-check ip=<IP>` : la même chose sur une instance pas encore derrière le DNS (copie depuis un instantané, § 9 ter) | une fois / après chaque mise en ligne |
 | `make deploy-setup` | prépare le serveur (mises à jour automatiques, Docker, pare-feu, SSH par clé) | une seule fois |
 | `make deploy` | met en ligne la dernière version de `main` sur le vrai serveur : envoie le code, construit l'application sur le serveur et la relance (`make deploy ref=origin/<branche>` pour une autre branche) | après une PR fusionnée que tu veux montrer |
 | `make deploy-superuser` | crée un compte super-administrateur sur le vrai serveur | pour ton propre compte |

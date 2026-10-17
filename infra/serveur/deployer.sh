@@ -16,7 +16,8 @@
 #                    serveur comprise), `fetch` (rapatrier la dernière copie), `restore` (essai)
 #   ssh              ouvrir une session sur le serveur
 #   check [IP]       HTTPS, certificat et santé de l'API, depuis cette machine ; avec IP : une
-#                    instance pas encore derrière le DNS (copie depuis un instantané Lightsail)
+#                    instance pas encore derrière le DNS (copie depuis un instantané Lightsail) ;
+#                    puis l'état public du domaine (domaine.py : expiration, verrou de transfert)
 #
 set -euo pipefail
 cd "$(dirname "$0")/../.."
@@ -143,6 +144,8 @@ case "${1:-}" in
     done
     printf 'santé : '
     curl -fsS --max-time 15 "${resolve[@]}" "https://admin.$DOMAIN/api/health/" && echo || ok=
+    printf 'domaine : '
+    python3 infra/serveur/domaine.py "$DOMAIN" || true
     [ -n "$ok" ] || { echo "Vérification en échec."; exit 1; }
     ;;
   superuser)

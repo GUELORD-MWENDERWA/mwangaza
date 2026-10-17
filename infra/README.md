@@ -18,7 +18,7 @@ Essayer la production sur la machine : `make prod-local`, puis https://itig.loca
 
 
 
-Vrai serveur (AWS Lightsail, 4.6.3) : `serveur/serveur.env` (créé par `make deploy-init`) ; `docker-compose.production.yml` + `production/Caddyfile` (certificat joker par DNS Cloudflare, IP réelle du visiteur lue par Caddy) ; `make deploy-setup`, `make deploy`, `make deploy-check` (`A-FAIRE.md` § 9 ter, skill `/deployer`). Les démonstrations se créent dans la console, pas par `make demo`.
+Vrai serveur (AWS Lightsail, 4.6.3) : `serveur/serveur.env` (créé par `make deploy-init`) ; `docker-compose.production.yml` + `production/Caddyfile` (certificat joker par DNS Cloudflare, IP réelle du visiteur lue par Caddy) ; `make deploy-setup`, `make deploy`, `make deploy-check` (`A-FAIRE.md` § 9 ter, skill `/deployer` ; il lit aussi l'état public du domaine avec `serveur/domaine.py` : expiration, verrou de transfert, OPS.3). Les démonstrations se créent dans la console, pas par `make demo`.
 
 Serveur entier (OPS.2) : instantané automatique Lightsail de tout le disque chaque jour à 2:00 (heure de Goma), 7 gardés, réglé dans la console (rien dans ce dossier) ; en cas de perte : nouvelle instance depuis l'instantané, `make deploy-check ip=<IP provisoire>` (`curl --resolve`, certificat vérifié, DNS ignoré), puis IP statique déplacée (`A-FAIRE.md` § 9 ter, « Serveur perdu ou cassé »). Essai réel : 2026-10-17.
 
