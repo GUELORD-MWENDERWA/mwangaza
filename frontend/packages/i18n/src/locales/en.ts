@@ -210,6 +210,12 @@ export const en: Messages<typeof fr> = {
       text: "Without this permission, the cash desk cannot work without internet. Install the app (⊕ icon in the address bar of Chrome or Edge), do not use private browsing, then try again.",
       onlineOnly: "Continue online only",
     },
+    pin: {
+      title: "Work without internet on this device",
+      text: "Choose a 4-digit PIN: the app will reopen here even without a connection, with the cash desk and the students.",
+      choose: "Choose my PIN",
+      later: "Later",
+    },
   },
   guide: {
     help: "Help and guide",
@@ -435,6 +441,10 @@ export const en: Messages<typeof fr> = {
     offline: {
       title: "No connection to the server",
       text: "Check the internet, then try again.",
+      prepare: "To open the app without internet on this device",
+      step1: "Sign in once with internet, with “Remember this device” ticked.",
+      step2: "Choose your PIN: it is offered right after, and in “My account”.",
+      then: "After that, without a connection, the app only asks for this code.",
     },
     suspended: {
       title: "Access to this school is suspended",

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Préparer le hors-ligne — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css"></head>
+<body style="background:var(--bg)">
+<div class="col" style="gap:28px;max-width:1100px;margin:0 auto;padding:24px 16px">
+
+ <h3>1 · Bandeau sous la barre du haut (appareil mémorisé, pas de code PIN)</h3>
+ <div class="banner info" role="region" aria-label="Travailler sans internet sur cet appareil">
+  <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
+  <div>
+   <b>Travailler sans internet sur cet appareil</b>
+   <p style="margin:2px 0 0">Choisissez un code PIN à 4 chiffres : l'application rouvrira ici même sans connexion, avec la caisse et les élèves.</p>
+   <div class="row" style="margin-top:8px;flex-wrap:wrap;gap:8px">
+    <a class="btn sm primary" href="mon-compte.html#pin">Choisir mon code PIN</a>
+    <a class="btn sm ghost" href="#">Plus tard</a>
+   </div>
+  </div>
+ </div>
+
+ <h3>2 · Démarrage sans réseau, aucun compte prêt sur cet appareil</h3>
+ <div style="display:grid;place-items:center;background:var(--night);padding:32px 16px;border-radius:16px">
+  <div class="card" style="width:min(440px,100%);padding:28px">
+   <div class="col" style="gap:12px">
+    <div class="banner warn"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8.5a15 15 0 0 1 4-2.5M9.5 5.2A15 15 0 0 1 22 8.5M5 12a10 10 0 0 1 3.5-2.2M13 9.5A10 10 0 0 1 19 12M8.5 15.5a5 5 0 0 1 7 0M12 19.5v.1M3 3l18 18"/></svg><span><b>Pas de connexion au serveur</b><br>Vérifiez internet, puis réessayez.</span></div>
+    <p class="b" style="margin:0">Pour ouvrir l'application sans internet sur cet appareil</p>
+    <ol class="small" style="margin:0;padding-left:20px">
+     <li>Connectez-vous une fois avec internet, « Se souvenir de cet appareil » coché.</li>
+     <li>Choisissez votre code PIN : il est proposé juste après, et dans « Mon compte ».</li>
+    </ol>
+    <p class="muted small" style="margin:0">Ensuite, sans réseau, l'application demande seulement ce code.</p>
+    <a class="btn" href="#">Réessayer</a>
+   </div>
+  </div>
+ </div>
+</div>
+<div style="position:fixed;right:24px;bottom:24px;width:min(320px,calc(100% - 48px))"><div class="note"><b>Règles (B5) :</b> bandeau seulement sur un appareil mémorisé dont le compte n'a pas de PIN ; jamais pendant une session support ni sur « Mon compte » (la carte PIN y est) ; « Plus tard » le cache jusqu'à la prochaine ouverture de l'application ; disparaît dès que le PIN est enregistré. Page 2 : seulement quand aucun compte de ce navigateur n'a de PIN (sinon : déverrouillage).</div></div>
+</body></html>

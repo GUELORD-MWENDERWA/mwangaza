@@ -209,6 +209,12 @@ export const fr = {
       text: "Sans cette autorisation, la caisse ne peut pas fonctionner sans internet. Installez l'application (icône ⊕ dans la barre d'adresse de Chrome ou Edge), n'utilisez pas la navigation privée, puis réessayez.",
       onlineOnly: "Continuer en ligne seulement",
     },
+    pin: {
+      title: "Travailler sans internet sur cet appareil",
+      text: "Choisissez un code PIN à 4 chiffres : l'application rouvrira ici même sans connexion, avec la caisse et les élèves.",
+      choose: "Choisir mon code PIN",
+      later: "Plus tard",
+    },
   },
   guide: {
     help: "Aide et guide",
@@ -437,6 +443,10 @@ export const fr = {
     offline: {
       title: "Pas de connexion au serveur",
       text: "Vérifiez internet, puis réessayez.",
+      prepare: "Pour ouvrir l'application sans internet sur cet appareil",
+      step1: "Connectez-vous une fois avec internet, « Se souvenir de cet appareil » coché.",
+      step2: "Choisissez votre code PIN : il est proposé juste après, et dans « Mon compte ».",
+      then: "Ensuite, sans réseau, l'application demande seulement ce code.",
     },
     suspended: {
       title: "L'accès à cette école est suspendu",

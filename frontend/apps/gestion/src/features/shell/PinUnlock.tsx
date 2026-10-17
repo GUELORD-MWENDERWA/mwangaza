@@ -60,7 +60,7 @@ export function OfflineStart({ onRetry }: { onRetry: () => void }) {
   if (!accounts.data?.length) {
     return (
       <StandaloneStatus>
-        <Offline onRetry={onRetry} />
+        <Offline onRetry={onRetry} prepare />
       </StandaloneStatus>
     );
   }

@@ -25,9 +25,9 @@ import {
 } from "@mwangaza/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { z } from "zod";
 
 import { localDevice } from "../../lib/device";
@@ -280,12 +280,18 @@ function PasswordCard() {
 function PinCard({ me }: { me: Me }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [editing, setEditing] = useState(false);
+  // Venu du bandeau « Travailler sans internet » (L.6) : la carte s'ouvre, prête à la saisie.
+  const fromBanner = useLocation().hash === "#pin";
+  const [editing, setEditing] = useState(fromBanner);
   const device = useQuery({
     queryKey: [...keys.localDevice, me.id],
     queryFn: async () => (await localDevice(me.id)) ?? null,
     retry: false,
   });
+  const ready = !!device.data;
+  useEffect(() => {
+    if (fromBanner && ready) document.getElementById("pin")?.scrollIntoView({ block: "start" });
+  }, [fromBanner, ready]);
   const schema = useMemo(
     () =>
       z
@@ -319,7 +325,7 @@ function PinCard({ me }: { me: Me }) {
   } as const;
 
   return (
-    <Card>
+    <Card id="pin" className="scroll-mt-24">
       <form
         noValidate
         onSubmit={form.handleSubmit((values) => {
