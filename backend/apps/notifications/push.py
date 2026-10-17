@@ -55,6 +55,7 @@ PREFERENCE_KINDS = {
         Kind.ANNOUNCEMENT,
         Kind.SUMMONS,
         Kind.DISCIPLINE_INCIDENT,
+        Kind.PLACE_OFFERED,
         Kind.PAYMENT_DUE,
         Kind.PAYMENT_OVERDUE,
     ],

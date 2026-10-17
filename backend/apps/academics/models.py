@@ -549,3 +549,56 @@ class DeliberationSnapshot(TenantModel):
 
     def __str__(self) -> str:
         return f"{self.deliberation} · v{self.version}"
+
+
+class PlaceConfirmation(TenantModel):
+    """Place de l'année suivante proposée à un ancien [T] (8.4.5), d'après la décision proclamée :
+    le parent répond au Portail (revient ou non), puis l'école inscrit. Rien n'est inscrit sans
+    l'école ; la réponse se change tant qu'elle n'a pas inscrit."""
+
+    class Status(models.TextChoices):
+        OFFERED = "offered", _("Offered")
+        ENROLLED = "enrolled", _("Enrolled next year")
+        WITHDRAWN = "withdrawn", _("Withdrawn")
+
+    class Answer(models.TextChoices):
+        YES = "yes", _("Coming back")
+        NO = "no", _("Not coming back")
+
+    # Inscription de l'année finie : une place au plus par ancien.
+    enrollment = models.OneToOneField(
+        Enrollment,
+        on_delete=models.PROTECT,
+        related_name="place_confirmation",
+        verbose_name=_("enrolment"),
+    )
+    # Classe de l'année suivante.
+    class_group = models.ForeignKey(
+        ClassGroup,
+        on_delete=models.PROTECT,
+        related_name="place_confirmations",
+        verbose_name=_("class"),
+    )
+    status = models.CharField(
+        _("status"), max_length=10, choices=Status.choices, default=Status.OFFERED
+    )
+    answer = models.CharField(_("answer"), max_length=3, choices=Answer.choices, blank=True)
+    answered_at = models.DateTimeField(_("answered at"), null=True, blank=True)
+    answered_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("answered by"),
+    )
+
+    class Meta:
+        verbose_name = _("place confirmation")
+        verbose_name_plural = _("place confirmations")
+        indexes = [
+            models.Index(fields=["school", "class_group"], name="place_school_class"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.enrollment} → {self.class_group}"

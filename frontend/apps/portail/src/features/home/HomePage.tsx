@@ -22,6 +22,7 @@ import { useAnnouncements } from "../announcements/data";
 import { LanguageLinks } from "../auth/AuthFrame";
 import { useSummons } from "../calendar/data";
 import { ChildAvatar } from "../child/ChildAvatar";
+import { PlaceOffers } from "./PlaceOffers";
 import { PortalFrame } from "./PortalFrame";
 
 /** Accueil (maquette `accueil`, H2) : une carte par enfant, toutes écoles reliées ; chaque carte
@@ -53,6 +54,7 @@ export function HomePage() {
       {/* Ordinateur : enfants à gauche (deux par rangée dès la tablette), annonces à droite. */}
       <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-6">
         <div className="flex flex-col gap-4">
+          <PlaceOffers />
           <h2 className="text-xl">{t("portal.home.children")}</h2>
           {families.isPending && <Skeleton label={t("common.loading")} />}
           {families.isError && (

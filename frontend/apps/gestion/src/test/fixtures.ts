@@ -6,6 +6,7 @@ import type { Permission } from "../lib/permissions";
 const ALL_MODULES: Schemas["ModulesEnum"][] = [
   "students",
   "finance",
+  "academics",
   "communication",
   "portal",
   "notifications",

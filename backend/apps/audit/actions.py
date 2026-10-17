@@ -113,6 +113,10 @@ class Action(models.TextChoices):
     STUDENTS_STUDENT_UPDATED = "students.student_updated", _("Student changed")
     STUDENTS_ENROLLED = "students.enrolled", _("Student enrolled")
     STUDENTS_ENROLLMENT_UPDATED = "students.enrollment_updated", _("Enrollment changed")
+    # Passage de classe (8.4.5) : place de l'année suivante, réponse du parent.
+    STUDENTS_PLACE_OFFERED = "students.place_offered", _("Place offered for next year")
+    STUDENTS_PLACE_WITHDRAWN = "students.place_withdrawn", _("Place for next year withdrawn")
+    STUDENTS_PLACE_ANSWERED = "students.place_answered", _("Parent answered about the place")
     STUDENTS_STUDENT_IMPORTED = "students.student_imported", _("Student imported from a file")
     STUDENTS_IMPORT_CANCELLED = "students.import_cancelled", _("Student import cancelled")
     STUDENTS_STUDENT_REMOVED = "students.student_removed", _("Student removed (import cancelled)")

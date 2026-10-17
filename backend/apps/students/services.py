@@ -34,6 +34,7 @@ from apps.students.models import (
     Student,
 )
 from apps.students.photos import photo_kind
+from apps.sync import changes as sync_changes
 
 POSSIBLE_DUPLICATE = ApiError(
     "possible_duplicate",
@@ -438,6 +439,44 @@ def enroll(
         )
         finance.sync_charges(Enrollment.objects.filter(pk=enrollment.pk), actor=actor)
     return enrollment, True
+
+
+def enroll_many(places: list[tuple[Student, ClassGroup]], *, actor: User) -> list[Enrollment]:
+    """Inscrit d'un seul envoi des élèves déjà connus (passage de classe, 8.4.5), mêmes règles que
+    `enroll` : une inscription par élève et par année (la base refuse un doublon), matricule à la
+    première inscription, frais dus d'après les barèmes, appareils prévenus. Quelques requêtes quel
+    que soit le nombre d'élèves ; classes chargées avec leur année, niveau et option."""
+    if not places:
+        return []
+    today = timezone.localdate()
+    with transaction.atomic():
+        enrollments = Enrollment.objects.bulk_create(
+            [
+                Enrollment(
+                    student=student,
+                    academic_year=group.academic_year,
+                    class_group=group,
+                    enrolled_on=today,
+                    created_by=actor,
+                )
+                for student, group in places
+            ],
+            batch_size=500,
+        )
+        for student, group in places:
+            if not student.matricule and (number := _give_matricule(group.academic_year, group)):
+                student.matricule = number
+                student.save(update_fields=["matricule", "updated_at"])
+        sync_changes.touch_enrollments(e.pk for e in enrollments)
+        audit.record_many(
+            Action.STUDENTS_ENROLLED,
+            [(e, {**_enrollment_data(e), "matricule": e.student.matricule}) for e in enrollments],
+            actor=actor,
+        )
+        finance.sync_charges(
+            Enrollment.objects.filter(pk__in=[e.pk for e in enrollments]), actor=actor
+        )
+    return enrollments
 
 
 def update_enrollment(

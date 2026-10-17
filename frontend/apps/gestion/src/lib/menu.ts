@@ -1,6 +1,7 @@
 // Menu de la Gestion (maquettes, `maquettes/outils/maquettes.py`, MENU) : chaque entrée n'apparaît
 // qu'avec un de ses droits (`04` § 8). Entrées V1.1 et V1.2 (notes, présences, paie) : absentes
 // en V1.0. Écran pas encore construit (`SCREENS` de `routes.tsx`) : « bientôt disponible ».
+import type { Schemas } from "@mwangaza/api";
 import type { fr } from "@mwangaza/i18n";
 import type { IconName } from "@mwangaza/ui";
 
@@ -18,6 +19,9 @@ export type MenuItem = {
   permissions: readonly Permission[];
   /** Tâche du plan qui construit l'écran. */
   task: string;
+  /** Module de l'école sans lequel l'écran ne sert à rien, en plus du droit (passage de classe :
+   *  droit des élèves, décisions de la délibération). */
+  module?: Schemas["ModulesEnum"];
 };
 
 export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
@@ -126,6 +130,14 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         icon: "print",
         permissions: ["grades.validate"],
         task: "8.4.4",
+      },
+      {
+        key: "promotion",
+        path: "promotion",
+        icon: "users",
+        permissions: ["students.edit"],
+        module: "academics",
+        task: "8.4.5",
       },
     ],
   },
@@ -262,6 +274,7 @@ export const MENU_ITEMS = MENU.flatMap(({ items }) => items);
 
 /** L'entrée est-elle permise au compte ? Sans droit demandé : à tout le personnel. */
 export function canOpen(me: Me, item: MenuItem): boolean {
+  if (item.module && !me.school?.modules.includes(item.module)) return false;
   return item.permissions.length === 0 || can(me, item.permissions);
 }
 
