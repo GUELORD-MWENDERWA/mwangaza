@@ -25,18 +25,17 @@ import { firstErrorMessage } from "../../lib/errors";
 import { keys } from "../../lib/queries";
 import { useGrading } from "../grades/data";
 import { LoadError } from "../status/StatusPages";
-import { DECISIONS, useClassDeliberation, type Decision, type DeliberationRow } from "./data";
+import {
+  DECISIONS,
+  priorPercent,
+  TONES,
+  useClassDeliberation,
+  type Decision,
+  type DeliberationRow,
+} from "./data";
 
-const TONES: Record<string, "ok" | "warn" | "due" | "gray"> = {
-  pass: "ok",
-  resit: "warn",
-  repeat: "due",
-  orient: "warn",
-  exclude: "due",
-  dropped: "gray",
-};
-
-type Draft = { decision: string; reason: string };
+// `percent` : pourcentage repris d'un élève sans aucune note cette année (8.4.7).
+type Draft = { decision: string; reason: string; percent: string };
 
 export function DeliberationPage() {
   const { t, i18n } = useTranslation();
@@ -62,11 +61,15 @@ export function DeliberationPage() {
     },
   });
   const decide = useMutation({
-    mutationFn: ({ id, draft }: { id: string; draft: Draft }) =>
+    mutationFn: ({ id, draft, unranked }: { id: string; draft: Draft; unranked: boolean }) =>
       call(
         api.PUT("/api/deliberation/enrollments/{id}/", {
           params: { path: { id } },
-          body: { decision: draft.decision as Decision, reason: draft.reason },
+          body: {
+            decision: draft.decision as Decision,
+            reason: draft.reason,
+            percent: unranked ? priorPercent(draft.percent) : null,
+          },
         }),
       ),
     onSuccess: (_data, { id }) => {
@@ -113,16 +116,46 @@ export function DeliberationPage() {
     ) : null;
 
   const studentRow = (row: DeliberationRow, closed: boolean) => {
-    const draft = drafts[row.enrollment] ?? { decision: row.decision, reason: row.reason };
+    // Sans aucune note cette année : le pourcentage se reprend (8.4.7), il ne se calcule pas.
+    const unranked = row.outcome === "unranked";
+    const saved = { decision: row.decision, reason: row.reason, percent: row.percent ?? "" };
+    const draft = drafts[row.enrollment] ?? saved;
     const gap = Boolean(row.proposed && draft.decision && draft.decision !== row.proposed);
-    const changed = draft.decision !== row.decision || draft.reason !== row.reason;
+    const changed =
+      draft.decision !== row.decision ||
+      draft.reason !== row.reason ||
+      (unranked && priorPercent(draft.percent) !== row.percent);
     return (
       <tr key={row.enrollment}>
         <td data-label={t("deliberation.student")} data-wrap>
-          {row.full_name}
+          <span className="flex flex-wrap items-center gap-2">
+            {row.full_name}
+            {unranked && <StatusPill tone="gray">{t("deliberation.noGrades")}</StatusPill>}
+          </span>
         </td>
         <td data-label={t("deliberation.year")} className="whitespace-nowrap tabular-nums">
-          {row.percent === null ? "—" : t("deliberation.percent", { value: row.percent })}
+          {unranked && !closed ? (
+            <span className="flex items-center gap-2">
+              <Input
+                aria-label={t("deliberation.priorPercentFor", { name: row.full_name })}
+                inputMode="decimal"
+                maxLength={5}
+                className="w-20"
+                value={draft.percent}
+                onChange={(event) =>
+                  setDrafts({
+                    ...drafts,
+                    [row.enrollment]: { ...draft, percent: event.target.value },
+                  })
+                }
+              />
+              <span className="text-xs text-ink-3">{t("deliberation.priorPercent")}</span>
+            </span>
+          ) : row.percent === null ? (
+            "—"
+          ) : (
+            t("deliberation.percent", { value: row.percent })
+          )}
         </td>
         <td data-label={t("deliberation.proposed")}>
           {row.proposed ? (
@@ -188,7 +221,7 @@ export function DeliberationPage() {
               variant="outline"
               className="mt-2"
               disabled={decide.isPending || (gap && draft.reason.trim() === "")}
-              onClick={() => decide.mutate({ id: row.enrollment, draft })}
+              onClick={() => decide.mutate({ id: row.enrollment, draft, unranked })}
             >
               {t("deliberation.save")}
             </Button>
@@ -343,6 +376,9 @@ export function DeliberationPage() {
                     </Button>
                     <Button asChild variant="ghost">
                       <Link to="/application">{t("deliberation.fixApplication")}</Link>
+                    </Button>
+                    <Button asChild variant="ghost">
+                      <Link to="/deliberation/prior-results">{t("deliberation.importPrior")}</Link>
                     </Button>
                   </div>
                 )}

@@ -10,7 +10,7 @@ import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from apps.academics.models import DeliberationSnapshot
-from apps.academics.tests import test_resits
+from apps.academics.tests import test_courses, test_resits
 from apps.academics.tests.test_deliberation import decide
 from apps.academics.tests.test_grades import setup
 from apps.audit.models import AuditLog
@@ -56,7 +56,6 @@ def send(client, data, rows, *, expected=None, held_on="2026-06-30"):
         "file": SimpleUploadedFile(
             "resultats.xlsx", workbook(["MATRICULE", "DÉCISION", "%", "POURCENTAGE"], rows)
         ),
-        "academic_year": str(data["year"].pk),
     }
     if expected is not None:
         body |= {"expected": expected, "held_on": held_on}
@@ -113,7 +112,7 @@ def test_the_school_imports_last_years_results_from_its_template(api, school, he
     sikuli, kahindo, muhindo = (matricule[data[k]] for k in ("b", "kahindo", "muhindo"))
 
     # Le modèle ne liste que les élèves sans note (classe B), pas ceux de la classe A.
-    template = director.get(f"{URL}template/?academic_year={data['year'].pk}")
+    template = director.get(f"{URL}template/")
     assert template.status_code == 200
     sheet = openpyxl.load_workbook(io.BytesIO(template.content)).active
     listed = {cells[0] for cells in sheet.iter_rows(min_row=2, values_only=True)}
@@ -173,15 +172,21 @@ def test_the_school_imports_last_years_results_from_its_template(api, school, he
 
 
 def test_only_the_direction_of_studies_and_only_its_school(
-    api, school, other_school, physics_teacher, data
+    api, school, other_school, other_head, physics_teacher, data
 ):
     teacher = api(physics_teacher)
-    assert teacher.get(f"{URL}template/?academic_year={data['year'].pk}").status_code == 403
+    assert teacher.get(f"{URL}template/").status_code == 403
     assert send(teacher, data, [["X", "Admis", "", ""]]).status_code == 403
 
-    # L'autre école ne voit pas l'année : ni modèle (donc ni noms ni matricules), ni import.
+    # L'autre école, dans son année : nos élèves lui sont inconnus, son modèle ne les liste pas.
+    test_courses.classes(other_school, other_head)
     other = api(
         MembershipFactory(school=other_school, roles=["study_director"]).user, host="beta.localhost"
     )
-    assert other.get(f"{URL}template/?academic_year={data['year'].pk}").status_code == 404
-    assert send(other, data, [["X", "Admis", "", ""]]).status_code == 404
+    with use_school(school):
+        ours = [[e.student.matricule, "Admis", "", ""] for e in Enrollment.objects.all()]
+    preview = send(other, data, ours).json()
+    assert preview["ready_count"] == 0
+    assert {i["code"] for line in preview["errors"] for i in line["issues"]} == {"unknown_student"}
+    sheet = openpyxl.load_workbook(io.BytesIO(other.get(f"{URL}template/").content)).active
+    assert sheet.max_row == 1

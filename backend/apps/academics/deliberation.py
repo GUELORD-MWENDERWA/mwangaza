@@ -55,7 +55,7 @@ UNDECIDED = ApiError(
 CORRECTION_REASON = ApiError("correction_reason", _("Say why the results are corrected."), 400)
 HAS_GRADES = ApiError(
     "has_grades",
-    _("This student has grades in Mwangaza: the percentage is calculated from them."),
+    _("This student has grades: the percentage is calculated from them."),
     400,
 )
 BAD_PERCENT = ApiError("bad_percent", _("A percentage is a number from 0 to 100."), 400)

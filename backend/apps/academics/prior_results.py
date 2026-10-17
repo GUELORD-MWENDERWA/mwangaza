@@ -27,6 +27,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.documents import workbook
 from apps.core.errors import ApiError, BusinessError
+from apps.schools import organisation
 from apps.schools.models import AcademicYear
 from apps.students import imports
 from apps.students.models import Enrollment
@@ -67,6 +68,9 @@ WORDS = {
 DECISIONS = {word: decision for decision, words in WORDS.items() for word in words}
 PERCENT = re.compile(r"\d{1,3}(\.\d)?")
 
+NO_CURRENT_YEAR = ApiError(
+    "no_current_year", _("No current school year: choose one before this import."), 409
+)
 MISSING_COLUMN = ApiError(
     "missing_column",
     _("The file needs a student number column and a decision column: use the template."),
@@ -205,17 +209,28 @@ def _check(lines: list[Line], year: AcademicYear, *, lock: bool = False) -> dict
     return by_group
 
 
-def check(file, year: AcademicYear) -> Preview:
+def current_year() -> AcademicYear:
+    """Année des résultats : l'année en cours, celle que la délibération montre (une école qui
+    arrive reprend l'année qu'elle clôt avant de créer la suivante)."""
+    year = organisation.current_year()
+    if year is None:
+        raise BusinessError(NO_CURRENT_YEAR)
+    return year
+
+
+def check(file) -> Preview:
     """Aperçu d'un fichier : rien n'est écrit."""
+    year = current_year()
     lines, empty = _read(file)
     _check(lines, year)
     return Preview(lines, empty)
 
 
-def record(file, *, actor: User, year: AcademicYear, held_on: date, expected: int) -> Preview:
+def record(file, *, actor: User, held_on: date, expected: int) -> Preview:
     """Écrit les lignes prêtes dans la délibération de leur classe, en une transaction ; les
     lignes en erreur sont laissées. `expected` : nombre de lignes prêtes de l'aperçu validé ;
     409 `preview_outdated` s'il a changé. `held_on` : date posée aux classes qui n'en ont pas."""
+    year = current_year()
     lines, empty = _read(file)
     with transaction.atomic():
         by_group = _check(lines, year, lock=True)
@@ -294,9 +309,10 @@ def record(file, *, actor: User, year: AcademicYear, held_on: date, expected: in
     return preview
 
 
-def template_workbook(year: AcademicYear) -> bytes:
+def template_workbook() -> bytes:
     """Modèle à remplir, déjà garni : chaque élève de l'année sans aucune note, dans une classe
     pas encore proclamée, avec la décision et le pourcentage déjà repris. Quatre requêtes."""
+    year = current_year()
     enrollments = sorted(
         _enrolled(year),
         key=lambda e: (e.class_group.name, e.student.last_name, e.student.first_name),

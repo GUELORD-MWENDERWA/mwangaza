@@ -6109,8 +6109,9 @@ paths:
   /api/deliberation/enrollments/{id}/:
     put:
       operationId: deliberation_enrollments_update
-      description: Décision prise pour un élève ; un écart avec la proposition demande
-        un motif.
+      description: |-
+        Décision prise pour un élève ; un écart avec la proposition demande un motif. Élève
+        sans aucune note cette année : pourcentage repris, de 0 à 100 (8.4.7).
       parameters:
       - in: path
         name: id
@@ -6140,6 +6141,104 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClassDeliberation'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/deliberation/prior-results/:
+    post:
+      operationId: deliberation_prior_results_create
+      description: |-
+        Reprise des résultats d'une année sans notes dans Mwangaza (8.4.7) : décision finale et
+        pourcentage de chaque élève de l'année en cours, importés d'un fichier. Sans `expected` :
+        aperçu (200), rien n'est écrit. Avec le nombre de lignes prêtes de l'aperçu et la date :
+        décisions écrites dans la délibération de chaque classe, à proclamer ensuite (201) ; 409
+        `preview_outdated` si le résultat n'est plus celui de l'aperçu.
+      tags:
+      - deliberation
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PriorResultUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriorResultPreview'
+          description: ''
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriorResultPreview'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/deliberation/prior-results/template/:
+    get:
+      operationId: deliberation_prior_results_template_retrieve
+      description: |-
+        Modèle Excel de la reprise des résultats, déjà garni : les élèves de l'année sans aucune
+        note, dans une classe pas encore proclamée, avec ce qui est déjà repris.
+      tags:
+      - deliberation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: Classeur Excel.
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
         '400':
           content:
@@ -17930,6 +18029,13 @@ components:
         reason:
           type: string
           maxLength: 300
+        percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,1})?$
+          nullable: true
+          description: 'Pourcentage repris (8.4.7) : seulement pour un élève sans
+            aucune note cette année (issue `unranked`) ; absent ou nul : aucun.'
       required:
       - decision
     Demonstration:
@@ -23241,6 +23347,135 @@ components:
         expected:
           description: 'Totaux de l''aperçu (`totals`, en JSON) : présents, le fichier
             est enregistré.'
+      required:
+      - file
+    PriorResultIssue:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/PriorResultIssueCodeEnum'
+      required:
+      - code
+    PriorResultIssueCodeEnum:
+      enum:
+      - missing_matricule
+      - unknown_student
+      - duplicate
+      - missing_decision
+      - unknown_decision
+      - invalid_percent
+      - has_grades
+      - class_proclaimed
+      type: string
+      description: |-
+        * `missing_matricule` - missing_matricule
+        * `unknown_student` - unknown_student
+        * `duplicate` - duplicate
+        * `missing_decision` - missing_decision
+        * `unknown_decision` - unknown_decision
+        * `invalid_percent` - invalid_percent
+        * `has_grades` - has_grades
+        * `class_proclaimed` - class_proclaimed
+    PriorResultLine:
+      type: object
+      properties:
+        line:
+          type: integer
+          description: Numéro de la ligne du fichier.
+        matricule:
+          type: string
+        student:
+          type: string
+          nullable: true
+        class_group:
+          type: string
+          nullable: true
+        decision_text:
+          type: string
+          description: Décision telle qu'elle est écrite.
+        decision:
+          type: string
+          description: Décision reconnue (valeurs de `decision`), ou vide.
+        percent_text:
+          type: string
+          description: Pourcentage tel qu'il est écrit.
+        percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,1})?$
+          nullable: true
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriorResultIssue'
+      required:
+      - line
+      - matricule
+      - student
+      - class_group
+      - decision_text
+      - decision
+      - percent_text
+      - percent
+      - issues
+    PriorResultPreview:
+      type: object
+      description: Aperçu d'un fichier de résultats repris, ou son résultat une fois
+        enregistré.
+      properties:
+        recorded:
+          type: boolean
+        ready_count:
+          type: integer
+          description: Lignes prêtes (ou enregistrées).
+        error_count:
+          type: integer
+          description: 'Lignes en erreur : jamais enregistrées.'
+        empty_count:
+          type: integer
+          description: 'Lignes sans décision : ignorées.'
+        class_count:
+          type: integer
+          description: Classes des lignes prêtes.
+        changed_count:
+          type: integer
+          description: 'Décisions écrites (0 : le fichier était déjà enregistré tel
+            quel).'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriorResultLine'
+          description: Les 300 premières.
+        ready:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriorResultLine'
+          description: Les 20 premières.
+      required:
+      - recorded
+      - ready_count
+      - error_count
+      - empty_count
+      - class_count
+      - changed_count
+      - errors
+      - ready
+    PriorResultUploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Excel (.xlsx) ou CSV, 5 Mo au plus.
+        expected:
+          type: integer
+          minimum: 1
+          description: 'Nombre de lignes prêtes de l''aperçu : présent, le fichier
+            est enregistré.'
+        held_on:
+          type: string
+          format: date
+          description: Date de délibération des classes qui n'en ont pas.
       required:
       - file
     Proclamation:

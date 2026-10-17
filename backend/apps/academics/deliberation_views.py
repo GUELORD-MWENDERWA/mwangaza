@@ -3,9 +3,9 @@ décision d'un élève, application des propositions, proclamation et réouvertu
 résultats d'une année sans notes, importés d'un fichier (8.4.7). Droit : `grades.validate`
 (direction des études) ; comme partout, le serveur vérifie."""
 
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import OpenApiParameter, extend_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import serializers, status
 from rest_framework.parsers import MultiPartParser
 from rest_framework.request import Request
@@ -18,7 +18,7 @@ from apps.accounts.permissions import HasSchoolPermission
 from apps.accounts.roles import GRADES_VALIDATE
 from apps.core.documents import XLSX, XLSX_RESPONSE, file_response
 from apps.core.errors import ErrorSerializer
-from apps.schools.models import AcademicYear, ClassGroup
+from apps.schools.models import ClassGroup
 from apps.students.models import Enrollment
 
 ERRORS = {400: ErrorSerializer, 403: ErrorSerializer, 404: ErrorSerializer}
@@ -214,7 +214,6 @@ PRIOR_RESULT_ISSUES = [
 
 class PriorResultUploadSerializer(serializers.Serializer):
     file = serializers.FileField(help_text="Excel (.xlsx) ou CSV, 5 Mo au plus.")
-    academic_year = serializers.UUIDField(help_text="Année des résultats.")
     expected = serializers.IntegerField(
         required=False,
         min_value=1,
@@ -266,10 +265,10 @@ class PriorResultPreviewSerializer(serializers.Serializer):
 @extend_schema(tags=["deliberation"])
 class PriorResultsView(_View):
     """Reprise des résultats d'une année sans notes dans Mwangaza (8.4.7) : décision finale et
-    pourcentage de chaque élève, importés d'un fichier. Sans `expected` : aperçu (200), rien
-    n'est écrit. Avec le nombre de lignes prêtes de l'aperçu et la date : décisions écrites dans
-    la délibération de chaque classe, à proclamer ensuite (201) ; 409 `preview_outdated` si le
-    résultat n'est plus celui de l'aperçu."""
+    pourcentage de chaque élève de l'année en cours, importés d'un fichier. Sans `expected` :
+    aperçu (200), rien n'est écrit. Avec le nombre de lignes prêtes de l'aperçu et la date :
+    décisions écrites dans la délibération de chaque classe, à proclamer ensuite (201) ; 409
+    `preview_outdated` si le résultat n'est plus celui de l'aperçu."""
 
     parser_classes = [MultiPartParser]
 
@@ -286,17 +285,12 @@ class PriorResultsView(_View):
         params = PriorResultUploadSerializer(data=request.data)
         params.is_valid(raise_exception=True)
         data = params.validated_data
-        year = get_object_or_404(AcademicYear, pk=data["academic_year"])
         expected = data.get("expected")
         if expected is None:
-            preview = prior_results.check(data["file"], year)
+            preview = prior_results.check(data["file"])
         else:
             preview = prior_results.record(
-                data["file"],
-                actor=request.user,
-                year=year,
-                held_on=data["held_on"],
-                expected=expected,
+                data["file"], actor=request.user, held_on=data["held_on"], expected=expected
             )
         errors = preview.errors
         body = {
@@ -320,20 +314,6 @@ class PriorResultsTemplateView(_View):
     """Modèle Excel de la reprise des résultats, déjà garni : les élèves de l'année sans aucune
     note, dans une classe pas encore proclamée, avec ce qui est déjà repris."""
 
-    @extend_schema(
-        parameters=[OpenApiParameter("academic_year", str, required=True)],
-        responses={**XLSX_RESPONSE, **ERRORS},
-    )
+    @extend_schema(responses={**XLSX_RESPONSE, 409: ErrorSerializer, **ERRORS})
     def get(self, request: Request) -> HttpResponse:
-        year = get_object_or_404(AcademicYear, pk=_uuid(request.query_params.get("academic_year")))
-        return file_response(
-            prior_results.template_workbook(year), XLSX, f"resultats-{year.name}.xlsx"
-        )
-
-
-def _uuid(value):
-    field = serializers.UUIDField()
-    try:
-        return field.to_internal_value(value)
-    except serializers.ValidationError:
-        raise Http404 from None
+        return file_response(prior_results.template_workbook(), XLSX, "reprise-resultats.xlsx")
