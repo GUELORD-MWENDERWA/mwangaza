@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (OPS.2 faite le 2026-10-17, PR en attente de fusion) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | **OPS.3** (domaine et comptes protégés, P0, avec toi), puis **8.4.6** (proclamation et frais, avec 8.8) ; toi : OPS.1 (compte AWS, `A-FAIRE.md` § 9 octies) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #319 (OPS.2) ; #298 (8.4.5) ; #300 (8.4.7) ; #297 (8.4.4) ; #296 (8.4.3) ; #295 (8.4.2) ; #294 (8.4.1) ; #293 (8.4.0) ; #288 (PERF.5c) ; #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
-| Branche | `tache/OPS.2-instantanes` (avant : `tache/8.4.5-passage-classe`, puis `tache/8.4.7-reprise-resultats`, puis `tache/8.4.4-situations`, puis `tache/8.4.3-bulletin-complete`, puis `tache/8.4.2-deliberation`, puis `tache/8.4.1-regles-reussite-repechage` (avant : `tache/8.4.0-points-sans-devoirs`, puis `tache/8.5.1c-application`, puis `tache/PERF.5c-images-hors-serveur`) ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-17 (OPS.2 faite) |
+| Tâche en cours | aucune (OPS.3 faite le 2026-10-17, PR en attente de fusion) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | **OPS.4** (e-mail pro et SPF / DKIM / DMARC, P0, avec toi), puis **8.4.6** (proclamation et frais, avec 8.8) ; toi : OPS.1 (compte AWS) et ta part d'OPS.3 (verrou de transfert chez LWS, double authentification partout), `A-FAIRE.md` § 9 octies ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #321 (OPS.3) ; #319 (OPS.2) ; #298 (8.4.5) ; #300 (8.4.7) ; #297 (8.4.4) ; #296 (8.4.3) ; #295 (8.4.2) ; #294 (8.4.1) ; #293 (8.4.0) ; #288 (PERF.5c) ; #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
+| Branche | `tache/OPS.3-comptes-proteges` (avant : `tache/OPS.2-instantanes`, puis `tache/8.4.5-passage-classe`, puis `tache/8.4.7-reprise-resultats`, puis `tache/8.4.4-situations`, puis `tache/8.4.3-bulletin-complete`, puis `tache/8.4.2-deliberation`, puis `tache/8.4.1-regles-reussite-repechage` (avant : `tache/8.4.0-points-sans-devoirs`, puis `tache/8.5.1c-application`, puis `tache/PERF.5c-images-hors-serveur`) ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-17 (OPS.3 faite) |
 
 ## Avancement
 
@@ -30,7 +30,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
 | Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 8 | 11 |
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.6, 8.5.1a–8.5.1c, 8.4.0–8.4.7, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 20 | 23 |
-| Exploitation — AWS, domaine, e-mail (OPS.1–OPS.5, PERF.7 ; ajoutés le 2026-10-17) | 1 | 6 |
+| Exploitation — AWS, domaine, e-mail (OPS.1–OPS.5, PERF.7 ; ajoutés le 2026-10-17) | 2 | 6 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
 | V1.5 — carte et présences (avec A.5) | 0 | 7 |
@@ -61,6 +61,13 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-17 — Tâche OPS.3 : domaine et comptes de la plateforme protégés
+- Fait : tableau « Comptes de la plateforme » (`A-FAIRE.md` § 9 octies : rôle, risque, accès, coût, case de double authentification ; aucun secret) ; `make deploy-check` affiche l'expiration du domaine et le verrou de transfert (`infra/serveur/domaine.py`, annuaire RDAP).
+- Constat (annuaire public) : registraire LWS, expire le 12/10/2027, DNS Cloudflare, **verrou de transfert absent**, DNSSEC absent.
+- Tests : `make deploy-check` réel (avertissement affiché) et annuaire coupé (« non vérifié », sans échec) ; pas de test automatique (outil sur ta machine). Décision : ni DNSSEC ni CAA (`03`).
+- Ajouté à ta demande : guide pas à pas de tout ce qui t'attend hors du code (`A-FAIRE.md` § 9 nonies) ; constaté : dépôt public sans protection des clés, serveur en retard de 48 commits. E-mail des comptes : ta boîte personnelle, pas `contact@` (`03`).
+- Suite : toi, § 9 nonies (5 ter) ; Claude : OPS.4, puis 8.4.6.
 
 ### 2026-10-17 — Tâche OPS.2 : instantanés et alarmes Lightsail, retour d'un serveur entier
 

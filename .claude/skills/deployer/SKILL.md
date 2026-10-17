@@ -18,7 +18,7 @@ Tâche 4.6.3. Pas à pas pour l'utilisateur : `A-FAIRE.md` § 9 ter ; commandes 
 
 ## Première fois
 
-`make deploy-init` (crée `serveur.env`, dit quoi remplir), `make deploy-setup` (une fois), `make deploy` (images construites par GitHub Actions puis téléchargées : ≈ 15 min la première fois, quelques minutes ensuite ; `GHCR_USER` et `GHCR_TOKEN` de `serveur.env` d'abord, `A-FAIRE.md` § 9 quinquies), `make deploy-check` (`ip=<IP>` : une instance pas encore derrière le DNS), puis `make deploy-superuser`.
+`make deploy-init` (crée `serveur.env`, dit quoi remplir), `make deploy-setup` (une fois), `make deploy` (images construites par GitHub Actions puis téléchargées : ≈ 15 min la première fois, quelques minutes ensuite ; `GHCR_USER` et `GHCR_TOKEN` de `serveur.env` d'abord, `A-FAIRE.md` § 9 quinquies), `make deploy-check` (`ip=<IP>` : une instance pas encore derrière le DNS ; ligne « domaine » : expiration et verrou de transfert, avertissement seulement), puis `make deploy-superuser`.
 
 ## Mise à jour
 
