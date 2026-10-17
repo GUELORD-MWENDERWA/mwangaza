@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-17 06:24+0200\n"
+"POT-Creation-Date: 2026-10-17 06:58+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -223,7 +223,7 @@ msgstr "Période %(n)d"
 msgid "T.G."
 msgstr "T.G."
 
-#: apps/academics/gradebook.py:37 apps/academics/report_card_documents.py:136
+#: apps/academics/gradebook.py:37 apps/academics/report_card_documents.py:137
 msgid "EXAM."
 msgstr "EXAM."
 
@@ -492,11 +492,11 @@ msgstr "dans la liste"
 msgid "offences"
 msgstr "infractions"
 
-#: apps/academics/models.py:257 apps/academics/report_card_documents.py:29
+#: apps/academics/models.py:257 apps/academics/report_card_documents.py:30
 msgid "Very good"
 msgstr "Très bien"
 
-#: apps/academics/models.py:258 apps/academics/report_card_documents.py:30
+#: apps/academics/models.py:258 apps/academics/report_card_documents.py:31
 msgid "Good"
 msgstr "Bien"
 
@@ -628,113 +628,113 @@ msgstr "proclamée par"
 msgid "results"
 msgstr "résultats"
 
-#: apps/academics/report_card_documents.py:28
+#: apps/academics/report_card_documents.py:29
 msgid "Excellent"
 msgstr "Excellent"
 
-#: apps/academics/report_card_documents.py:31
+#: apps/academics/report_card_documents.py:32
 msgid "Satisfactory"
 msgstr "Satisfaisant"
 
-#: apps/academics/report_card_documents.py:32
+#: apps/academics/report_card_documents.py:33
 msgid "Insufficient"
 msgstr "Insuffisant"
 
-#: apps/academics/report_card_documents.py:77
+#: apps/academics/report_card_documents.py:78
 msgid "FIRST"
 msgstr "PREMIER"
 
-#: apps/academics/report_card_documents.py:77
+#: apps/academics/report_card_documents.py:78
 msgid "SECOND"
 msgstr "SECOND"
 
-#: apps/academics/report_card_documents.py:77
+#: apps/academics/report_card_documents.py:78
 msgid "THIRD"
 msgstr "TROISIÈME"
 
-#: apps/academics/report_card_documents.py:78
+#: apps/academics/report_card_documents.py:79
 msgid "SEMESTER"
 msgstr "SEMESTRE"
 
-#: apps/academics/report_card_documents.py:78
+#: apps/academics/report_card_documents.py:79
 msgid "TERM"
 msgstr "TRIMESTRE"
 
-#: apps/academics/report_card_documents.py:118
+#: apps/academics/report_card_documents.py:119
 msgid "1st P."
 msgstr "1ère P."
 
-#: apps/academics/report_card_documents.py:118
+#: apps/academics/report_card_documents.py:119
 #, python-format
 msgid "P%(n)d"
 msgstr "%(n)de P."
 
-#: apps/academics/report_card_documents.py:134
+#: apps/academics/report_card_documents.py:135
 msgid "TOT."
 msgstr "TOT."
 
-#: apps/academics/report_card_documents.py:146
-#: apps/academics/report_card_documents.py:153
+#: apps/academics/report_card_documents.py:147
+#: apps/academics/report_card_documents.py:154
 msgid "DAILY WORK."
 msgstr "TRAVAUX JOURNAL."
 
-#: apps/academics/report_card_documents.py:275
+#: apps/academics/report_card_documents.py:329
 msgid "Points"
 msgstr "Points obtenus"
 
-#: apps/academics/report_card_documents.py:275
+#: apps/academics/report_card_documents.py:329
 msgid "MAX"
 msgstr "MAX"
 
-#: apps/academics/report_card_documents.py:276
+#: apps/academics/report_card_documents.py:330
 msgid "Exam"
 msgstr "Exam."
 
-#: apps/academics/report_card_documents.py:280
+#: apps/academics/report_card_documents.py:334
 msgid "For checking"
 msgstr "Pour le contrôle"
 
-#: apps/academics/report_card_documents.py:281
-#: apps/academics/report_card_documents.py:293
+#: apps/academics/report_card_documents.py:335
+#: apps/academics/report_card_documents.py:347
 msgid "On ...../...../....."
 msgstr "Le ...../...../....."
 
-#: apps/academics/report_card_documents.py:282
+#: apps/academics/report_card_documents.py:336
 msgid "The head of the centre"
 msgstr "Le chef du centre"
 
-#: apps/academics/report_card_documents.py:284
+#: apps/academics/report_card_documents.py:338
 msgid "Centre code"
 msgstr "Le code du centre"
 
-#: apps/academics/report_card_documents.py:286
+#: apps/academics/report_card_documents.py:340
 msgid "FINAL RESULT"
 msgstr "RÉSULTAT FINAL"
 
-#: apps/academics/report_card_documents.py:287
+#: apps/academics/report_card_documents.py:341
 msgid "Diploma (1)"
 msgstr "Diplôme (1)"
 
-#: apps/academics/report_card_documents.py:288
+#: apps/academics/report_card_documents.py:342
 msgid "With ......... (%)"
 msgstr "Avec ......... (%)"
 
-#: apps/academics/report_card_documents.py:289
+#: apps/academics/report_card_documents.py:343
 msgid "Failed (1)"
 msgstr "A échoué (1)"
 
-#: apps/academics/report_card_documents.py:292
+#: apps/academics/report_card_documents.py:346
 msgid "As evidence"
 msgstr "Pour témoignage"
 
-#: apps/academics/report_card_documents.py:294
+#: apps/academics/report_card_documents.py:348
 #: apps/academics/templates/academics/_report_card_side.html:2
-#: apps/academics/templates/academics/report_card.html:142
+#: apps/academics/templates/academics/report_card.html:144
 #: apps/schools/signatures.py:68
 msgid "The head of the school"
 msgstr "Le chef d'établissement"
 
-#: apps/academics/report_card_documents.py:295
+#: apps/academics/report_card_documents.py:349
 #: apps/academics/templates/academics/_report_card_side.html:2
 #: apps/students/templates/students/registration_form.html:61
 msgid "School seal"
@@ -763,6 +763,12 @@ msgstr "- PASSE (1)"
 #: apps/academics/templates/academics/_report_card_side.html:2
 msgid "- REPEATS (1)"
 msgstr "- DOUBLE (1)"
+
+#: apps/academics/templates/academics/_report_card_side.html:2
+#, python-format
+msgctxt "report card"
+msgid "ON %(date)s"
+msgstr "LE %(date)s"
 
 #: apps/academics/templates/academics/_report_card_side.html:2
 msgid "ON ...../...../20"
@@ -884,7 +890,7 @@ msgstr "Signature de l'enseignant"
 msgid "Report card"
 msgstr "Bulletin"
 
-#: apps/academics/templates/academics/report_card.html:70
+#: apps/academics/templates/academics/report_card.html:72
 #, python-format
 msgid ""
 "Preview: %(n)s grade sheet is not validated yet. The report card cannot be "
@@ -899,166 +905,166 @@ msgstr[1] ""
 "Aperçu : %(n)s feuilles de notes ne sont pas encore validées. Le bulletin ne "
 "peut pas s'imprimer tant qu'elles ne le sont pas."
 
-#: apps/academics/templates/academics/report_card.html:74
+#: apps/academics/templates/academics/report_card.html:76
 msgid "DEMOCRATIC REPUBLIC OF THE CONGO"
 msgstr "RÉPUBLIQUE DÉMOCRATIQUE DU CONGO"
 
-#: apps/academics/templates/academics/report_card.html:74
+#: apps/academics/templates/academics/report_card.html:76
 #: apps/core/templates/core/_document_header.html:6
 msgid "MINISTRY OF PRIMARY, SECONDARY AND TECHNICAL EDUCATION"
 msgstr "MINISTÈRE DE L'ENSEIGNEMENT PRIMAIRE, SECONDAIRE ET TECHNIQUE"
 
-#: apps/academics/templates/academics/report_card.html:77
+#: apps/academics/templates/academics/report_card.html:79
 msgid "ID NO."
 msgstr "N° ID"
 
-#: apps/academics/templates/academics/report_card.html:78
+#: apps/academics/templates/academics/report_card.html:80
 msgid "PROVINCE"
 msgstr "PROVINCE"
 
-#: apps/academics/templates/academics/report_card.html:81
+#: apps/academics/templates/academics/report_card.html:83
 msgid "TOWN"
 msgstr "VILLE"
 
-#: apps/academics/templates/academics/report_card.html:82
+#: apps/academics/templates/academics/report_card.html:84
 msgid "COMMUNE / TERRITORY"
 msgstr "COMMUNE / TERRITOIRE"
 
-#: apps/academics/templates/academics/report_card.html:83
+#: apps/academics/templates/academics/report_card.html:85
 msgid "SCHOOL"
 msgstr "ÉCOLE"
 
-#: apps/academics/templates/academics/report_card.html:84
+#: apps/academics/templates/academics/report_card.html:86
 msgid "CODE"
 msgstr "CODE"
 
-#: apps/academics/templates/academics/report_card.html:87
+#: apps/academics/templates/academics/report_card.html:89
 #: apps/students/templates/students/registration_form.html:21
 msgid "STUDENT"
 msgstr "ÉLÈVE"
 
-#: apps/academics/templates/academics/report_card.html:87
+#: apps/academics/templates/academics/report_card.html:89
 msgid "SEX"
 msgstr "SEXE"
 
-#: apps/academics/templates/academics/report_card.html:88
+#: apps/academics/templates/academics/report_card.html:90
 msgid "BORN AT"
 msgstr "NÉ(E) À"
 
-#: apps/academics/templates/academics/report_card.html:88
+#: apps/academics/templates/academics/report_card.html:90
 msgid "ON"
 msgstr "LE"
 
-#: apps/academics/templates/academics/report_card.html:89
+#: apps/academics/templates/academics/report_card.html:91
 #: apps/finance/prior_payments.py:379
 msgid "CLASS"
 msgstr "CLASSE"
 
-#: apps/academics/templates/academics/report_card.html:90
+#: apps/academics/templates/academics/report_card.html:92
 msgid "PERM. NO."
 msgstr "N° PERM."
 
-#: apps/academics/templates/academics/report_card.html:93
+#: apps/academics/templates/academics/report_card.html:95
 msgid "REPORT CARD OF"
 msgstr "BULLETIN DE LA"
 
-#: apps/academics/templates/academics/report_card.html:93
+#: apps/academics/templates/academics/report_card.html:95
 msgid "SCHOOL YEAR"
 msgstr "ANNÉE SCOLAIRE"
 
-#: apps/academics/templates/academics/report_card.html:100
+#: apps/academics/templates/academics/report_card.html:102
 msgid "SUBJECTS"
 msgstr "BRANCHES"
 
-#: apps/academics/templates/academics/report_card.html:104
+#: apps/academics/templates/academics/report_card.html:106
 msgid "STATE EXAM"
 msgstr "EXAMEN D'ÉTAT"
 
-#: apps/academics/templates/academics/report_card.html:104
+#: apps/academics/templates/academics/report_card.html:106
 msgid "RESIT EXAM"
 msgstr "EXAMEN DE REPÊCHAGE"
 
-#: apps/academics/templates/academics/report_card.html:107
+#: apps/academics/templates/academics/report_card.html:109
 msgid "Teacher's sign."
 msgstr "Sign. prof."
 
-#: apps/academics/templates/academics/report_card.html:111
+#: apps/academics/templates/academics/report_card.html:113
 msgid "MAXIMA"
 msgstr "MAXIMA"
 
-#: apps/academics/templates/academics/report_card.html:119
+#: apps/academics/templates/academics/report_card.html:121
 msgid "GENERAL MAXIMA"
 msgstr "MAXIMA GÉNÉRAUX"
 
-#: apps/academics/templates/academics/report_card.html:122
+#: apps/academics/templates/academics/report_card.html:124
 msgid "TOTALS"
 msgstr "TOTAUX"
 
-#: apps/academics/templates/academics/report_card.html:123
+#: apps/academics/templates/academics/report_card.html:125
 msgid "PERCENTAGE"
 msgstr "POURCENTAGE"
 
-#: apps/academics/templates/academics/report_card.html:124
+#: apps/academics/templates/academics/report_card.html:126
 msgid "PLACE / NUMBER OF STUDENTS"
 msgstr "PLACE / NBRE D'ÉLÈVES"
 
-#: apps/academics/templates/academics/report_card.html:125
+#: apps/academics/templates/academics/report_card.html:127
 msgid "APPLICATION"
 msgstr "APPLICATION"
 
-#: apps/academics/templates/academics/report_card.html:126
+#: apps/academics/templates/academics/report_card.html:128
 msgid "CONDUCT"
 msgstr "CONDUITE"
 
-#: apps/academics/templates/academics/report_card.html:127
+#: apps/academics/templates/academics/report_card.html:129
 msgid "HEAD'S SIGNATURE"
 msgstr "SIGNATURE DU RESPONSABLE"
 
-#: apps/academics/templates/academics/report_card.html:133
+#: apps/academics/templates/academics/report_card.html:135
 msgid ""
 "The student may move up to the next class only after passing a resit exam in"
 msgstr ""
 "L'élève ne pourra passer dans la classe supérieure s'il ne subit avec succès "
 "un examen de repêchage en"
 
-#: apps/academics/templates/academics/report_card.html:134
+#: apps/academics/templates/academics/report_card.html:136
 msgid "The student moves up to the next class (1)"
 msgstr "L'élève passe dans la classe supérieure (1)"
 
-#: apps/academics/templates/academics/report_card.html:135
+#: apps/academics/templates/academics/report_card.html:137
 msgid "The student repeats the class (1)"
 msgstr "L'élève double sa classe (1)"
 
-#: apps/academics/templates/academics/report_card.html:136
+#: apps/academics/templates/academics/report_card.html:138
 msgid "The student failed and is to be redirected to"
 msgstr "L'élève a échoué et est à réorienter vers"
 
-#: apps/academics/templates/academics/report_card.html:138
+#: apps/academics/templates/academics/report_card.html:140
 msgid "Student's signature"
 msgstr "Signature de l'élève"
 
-#: apps/academics/templates/academics/report_card.html:141
+#: apps/academics/templates/academics/report_card.html:143
 #, python-format
 msgid "Done at %(city)s, on %(date)s"
 msgstr "Fait à %(city)s, le %(date)s"
 
-#: apps/academics/templates/academics/report_card.html:142
+#: apps/academics/templates/academics/report_card.html:144
 msgid "Name and signature"
 msgstr "Nom et signature"
 
-#: apps/academics/templates/academics/report_card.html:146
+#: apps/academics/templates/academics/report_card.html:148
 msgid "Strike out what does not apply."
 msgstr "Biffer la mention inutile."
 
-#: apps/academics/templates/academics/report_card.html:146
+#: apps/academics/templates/academics/report_card.html:148
 msgid "IMPORTANT NOTE"
 msgstr "NOTE IMPORTANTE"
 
-#: apps/academics/templates/academics/report_card.html:146
+#: apps/academics/templates/academics/report_card.html:148
 msgid "This report card is void if it is crossed out or overwritten."
 msgstr "Le bulletin est sans valeur s'il est raturé ou surchargé."
 
-#: apps/academics/templates/academics/report_card.html:147
+#: apps/academics/templates/academics/report_card.html:149
 msgid ""
 "Reproducing this report card is strictly forbidden, under the penalties set "
 "by law."
@@ -1066,7 +1072,7 @@ msgstr ""
 "Interdiction formelle de reproduire ce bulletin sous peine des sanctions "
 "prévues par la loi."
 
-#: apps/academics/templates/academics/report_card.html:148
+#: apps/academics/templates/academics/report_card.html:150
 msgid "Scan the QR code to check this report card."
 msgstr "Scannez le QR code pour vérifier ce bulletin."
 

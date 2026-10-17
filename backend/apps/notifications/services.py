@@ -3,7 +3,7 @@ familles ou personnes touchées."""
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Q, QuerySet
+from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
@@ -24,13 +24,16 @@ def recipient_families(audience: str, class_groups=()) -> QuerySet[Family]:
     au personnel."""
     if audience == Announcement.Audience.STAFF:
         return Family.objects.none()
-    enrolled = Q(
-        students__enrollments__status=Enrollment.Status.ACTIVE,
-        students__enrollments__academic_year__is_current=True,
+    enrolled = Enrollment.objects.filter(
+        status=Enrollment.Status.ACTIVE, academic_year__is_current=True
     )
     if audience == Announcement.Audience.CLASS_GROUPS:
-        enrolled &= Q(students__enrollments__class_group__in=list(class_groups))
-    return Family.objects.filter(enrolled).distinct()
+        enrolled = enrolled.filter(class_group__in=list(class_groups))
+    # Les identifiants se lisent d'abord (une jointure simple), puis `pk__in` : des sous-requêtes
+    # imbriquées ou un DISTINCT sur trois tables prennent un mauvais plan tant que PostgreSQL ne
+    # connaît pas la taille des tables (base neuve de la démo et des tests : 20 s la requête).
+    ids = set(enrolled.values_list("student__family", flat=True))
+    return Family.objects.filter(pk__in=ids)
 
 
 def staff_members() -> QuerySet[User]:

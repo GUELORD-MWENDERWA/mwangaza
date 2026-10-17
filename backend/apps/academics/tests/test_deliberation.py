@@ -14,6 +14,7 @@ pytestmark = pytest.mark.django_db
 # Mêmes élèves, cours et notes que le repêchage.
 data = test_resits.data
 physics_teacher = test_resits.physics_teacher
+resit_url = test_resits.resit_url
 
 
 def url(data, tail="") -> str:
@@ -101,3 +102,50 @@ def test_another_school_cannot_read_or_decide(api, other_school, data):
     assert other.get(url(data)).status_code == 404
     assert decide(other, data, "amani", "pass").status_code == 404
     assert other.post(url(data, "proclaim/")).status_code == 404
+
+
+def card(client, data, key):
+    page = client.get(
+        f"/api/class-groups/{data['a'].pk}/report-card/", enrollment=data[key], output="html"
+    )
+    return page.context
+
+
+def test_the_report_card_reads_the_proclaimed_results_only(api, director, physics_teacher, data):
+    # Pas proclamée : le bas du bulletin reste vierge.
+    assert card(director, data, "josue")["end"] == {"proclaimed": False}
+
+    api(physics_teacher).put(resit_url(data), {"percent": "55"})
+    director.put(url(data), {"held_on": "2027-06-21"})
+    director.post(url(data, "apply-proposals/"))
+    director.post(url(data, "proclaim/"))
+
+    josue, amani = card(director, data, "josue"), card(director, data, "amani")
+    # Repêchage réussi : il passe, la mention « double » est biffée.
+    assert (josue["end"]["keep"], josue["end"]["repeats_struck"]) == ("move", True)
+    assert (amani["end"]["keep"], amani["end"]["passed_struck"]) == ("move", False)
+    assert amani["end"]["repeats_struck"] is True
+    assert str(josue["end"]["date"]) == "2027-06-21"
+    # La note de repêchage et l'enseignant qui l'a signée remplissent la ligne du cours.
+    physics = next(line for line in josue["lines"] if line.get("name") == "Physique")
+    assert str(physics["resit"]["percent"]) == "55.0"
+    assert physics["resit"]["signer"].endswith(physics_teacher.last_name)
+
+    # Rouverte puis corrigée, mais pas reproclamée : le bulletin garde la version figée.
+    director.post(url(data, "reopen/"), {"reason": "Échec au repêchage"})
+    decide(director, data, "josue", "repeat", "Échec au repêchage")
+    assert card(director, data, "josue")["end"]["keep"] == "move"
+    director.post(url(data, "proclaim/"))
+    assert card(director, data, "josue")["end"]["keep"] == "repeat"
+
+
+def test_another_school_does_not_see_the_proclaimed_card(api, other_school, director, data):
+    director.put(url(data), {"held_on": "2027-06-21"})
+    director.post(url(data, "apply-proposals/"))
+    director.post(url(data, "proclaim/"))
+    other = api(
+        MembershipFactory(school=other_school, roles=["study_director"]).user, host="beta.localhost"
+    )
+    assert (
+        other.get(f"/api/class-groups/{data['a'].pk}/report-card/", output="pdf").status_code == 404
+    )

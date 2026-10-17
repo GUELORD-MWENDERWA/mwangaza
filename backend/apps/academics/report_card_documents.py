@@ -18,7 +18,8 @@ from django.utils import timezone
 from django.utils.translation import get_language, gettext
 from django.utils.translation import gettext_lazy as _
 
-from apps.academics import application, discipline
+from apps.academics import application, deliberation, discipline, resits
+from apps.academics.models import DeliberationDecision
 from apps.academics.report_cards import ClassReport, StudentReport, class_report
 from apps.core.documents import qr_code, school_header
 from apps.core.tenancy import require_current_school
@@ -205,7 +206,13 @@ def _body(report: ClassReport, student: StudentReport, keys: list[str]) -> list[
             lines.append({"maxima": group_maxima[group]})
             previous = group
         if course.is_taught:
-            lines.append({"name": course.name, "cells": _row(student.cells[course.pk], keys)})
+            lines.append(
+                {
+                    "name": course.name,
+                    "course": course.pk,
+                    "cells": _row(student.cells[course.pk], keys),
+                }
+            )
         else:
             lines.append({"name": course.name, "struck": True, "cells": [{}] * len(keys)})
     return lines
@@ -258,6 +265,53 @@ def _application(report: ClassReport, student: StudentReport, columns: list[dict
         }
         for c in columns
     ]
+
+
+def _short_name(user) -> str:
+    """« J. Mbula » : l'initiale et le nom, ce qui tient dans la case de signature."""
+    return f"{user.first_name[:1]}. {user.last_name}" if user.first_name else user.last_name
+
+
+def _resit(report: ClassReport, student: StudentReport, course_id) -> dict | None:
+    """Note de repêchage (8.4.3) de l'élève dans ce cours et enseignant qui l'a signée ; les notes
+    de toute la classe se lisent en une requête, la première fois."""
+    if not hasattr(report, "resits"):
+        report.resits = resits.grades_of_class([s.enrollment.pk for s in report.students])
+    grade = report.resits.get((student.enrollment.pk, course_id))
+    if grade is None:
+        return None
+    return {"percent": grade.percent, "signer": _short_name(grade.signed_by)}
+
+
+# Mention du bas du formulaire qui reste (les autres sont biffées) selon la décision proclamée.
+KEPT = {
+    DeliberationDecision.Decision.PASS: "move",
+    DeliberationDecision.Decision.REPEAT: "repeat",
+    DeliberationDecision.Decision.RESIT: "resit",
+    DeliberationDecision.Decision.ORIENT: "orient",
+}
+
+
+def _conclusion(report: ClassReport, student: StudentReport) -> dict:
+    """Bas du bulletin (8.4.3) d'après la dernière version proclamée de la délibération : date,
+    mention gardée (« passe », « double », repêchage, réorientation), cours à repêcher. Une classe
+    pas encore proclamée, ou un élève arrivé après, laisse le bas vierge."""
+    if not hasattr(report, "proclaimed"):
+        report.proclaimed = deliberation.proclaimed_rows(report.class_group)
+    snapshot, rows = report.proclaimed
+    row = rows.get(str(student.enrollment.pk))
+    if row is None:
+        return {"proclaimed": False}
+    keep = KEPT.get(row["decision"], "")
+    return {
+        "proclaimed": True,
+        "date": snapshot.held_on,
+        "keep": keep,
+        "resit_courses": ", ".join(row.get("resit_courses", [])),
+        # Colonne du repêchage : « passe » ou « double » seulement une fois le sort connu.
+        "passed_struck": keep not in ("move", "resit"),
+        "repeats_struck": keep not in ("repeat", "resit"),
+    }
 
 
 def student_report(class_group: ClassGroup, enrollment_id) -> tuple[ClassReport, StudentReport]:
@@ -382,6 +436,8 @@ def report_card_document(
     state = _state_column(rows) if class_group.level.has_state_exam else [{}] * rows
     for line, item in zip(lines, state, strict=False):
         line["state"] = item
+        if "course" in line:
+            line["resit"] = _resit(report, student, line["course"])
     row_height, outside = _spread(rows)
     track = class_group.track.name if class_group.track_id else ""
     level_title = class_group.level.report_title or class_group.level.name
@@ -404,6 +460,7 @@ def report_card_document(
         "conduct": _conduct(report, student, columns),
         "application": _application(report, student, columns),
         "lines": lines,
+        "end": _conclusion(report, student),
         "footer_state": state[len(lines) :],
         "row_height": row_height,
         "sheet_height": round(SHEET_HEIGHT - outside, 2),

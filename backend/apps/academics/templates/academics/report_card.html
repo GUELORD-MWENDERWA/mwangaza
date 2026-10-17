@@ -54,6 +54,8 @@ table.bul td.tot { font-weight: 700; }
 .legal { margin-top: .5mm; font-size: 6.5pt; color: #333; }
 .ban { margin-top: .5mm; text-align: center; font-weight: 700; font-style: italic; font-size: 7.5pt; }
 table.bul td.bold { font-weight: 700; }
+table.bul td.sig { font-size: 6.4pt; }
+.str { text-decoration: line-through; }
 table.bul td.pn .boxes span { width: 3.6mm; height: 3.6mm; line-height: 3.6mm; font-size: 7pt; }
 table.bul td.pn { border-top: 0; border-bottom: 0; text-align: left; padding-left: 1.2mm; font-size: 6.4pt; letter-spacing: -.02em; }
 table.bul td.pn.top { border-top: .5pt solid #000; background: #fff; }
@@ -112,7 +114,7 @@ table.bul td.pn.bot { border-bottom: .5pt solid #000; }
       {% else %}
       {% if line.struck %}<td class="name">{{ line.name }}</td>{% for cell in line.cells %}<td class="dash">&mdash;</td>{% endfor %}{% else %}<td class="name">{{ line.name }}</td>{% for cell in line.cells %}<td class="{% if not cell.maximum %}k{% elif cell.low %}low{% endif %}">{% if cell.maximum %}{{ cell.score|default_if_none:""|floatformat:"-1" }}{% endif %}</td>{% endfor %}{% endif %}
       {% endif %}
-      {% if state_exam %}{% include "academics/_report_card_state.html" with item=line.state footer=None %}{% else %}{% include "academics/_report_card_side.html" with maxima=line.maxima footer=None %}{% endif %}
+      {% if state_exam %}{% include "academics/_report_card_state.html" with item=line.state footer=None %}{% else %}{% include "academics/_report_card_side.html" with maxima=line.maxima resit=line.resit footer=None %}{% endif %}
     </tr>
     {% endfor %}
     <tr class="b">
@@ -130,15 +132,15 @@ table.bul td.pn.bot { border-bottom: .5pt solid #000; }
   <div class="under" style="height:{{ under_height|unlocalize }}mm">
     <div class="uleft">
       <div>
-        <div>- {% translate "The student may move up to the next class only after passing a resit exam in" %} <span class="dots" style="min-width:45mm"></span> (1)</div>
-        <div>- {% translate "The student moves up to the next class (1)" %}</div>
-        <div>- {% translate "The student repeats the class (1)" %}</div>
-        {% if state_exam %}<div>- {% translate "The student failed and is to be redirected to" %} <span class="dots" style="min-width:40mm"></span> (1)</div>{% endif %}
+        <div{% if end.proclaimed and end.keep != "resit" %} class="str"{% endif %}>- {% translate "The student may move up to the next class only after passing a resit exam in" %} <span class="dots" style="min-width:45mm">{{ end.resit_courses }}</span> (1)</div>
+        <div{% if end.proclaimed and end.keep != "move" %} class="str"{% endif %}>- {% translate "The student moves up to the next class (1)" %}</div>
+        <div{% if end.proclaimed and end.keep != "repeat" %} class="str"{% endif %}>- {% translate "The student repeats the class (1)" %}</div>
+        {% if state_exam or end.keep == "orient" %}<div{% if end.proclaimed and end.keep != "orient" %} class="str"{% endif %}>- {% translate "The student failed and is to be redirected to" %} <span class="dots" style="min-width:40mm"></span> (1)</div>{% endif %}
       </div>
       <div>{% translate "Student's signature" %}</div>
     </div>
     <div class="uright">
-      <div>{% blocktranslate with city=school.city date=day|date:"d/m/Y" %}Done at {{ city }}, on {{ date }}{% endblocktranslate %}</div>
+      <div>{% blocktranslate with city=school.city date=end.date|default:day|date:"d/m/Y" %}Done at {{ city }}, on {{ date }}{% endblocktranslate %}</div>
       {% if signer or stamp %}{% include "core/_signer.html" %}{% else %}<div>{% translate "The head of the school" %}</div><div style="height:15mm"></div><div>{% translate "Name and signature" %}</div>{% endif %}
     </div>
   </div>
