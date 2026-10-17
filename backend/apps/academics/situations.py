@@ -272,7 +272,9 @@ def school_situation(year: AcademicYear, criterion: str) -> dict:
     deviations: list[dict] = []
     for group in groups:
         if not levels or levels[-1]["level"] != group.level:
-            levels.append({"level": group.level, "classes": [], "counts": Counts()})
+            levels.append(
+                {"level": group.level, "classes": [], "counts": Counts(), "proclaimed": 0}
+            )
         snapshot = latest.get(group.pk)
         if snapshot is None:
             active = sum(1 for _pk, status in by_class[group.pk] if status not in LEFT)
@@ -285,6 +287,7 @@ def school_situation(year: AcademicYear, criterion: str) -> dict:
             {"group": group, "proclaimed": True, "counts": counts, "best": top}
         )
         levels[-1]["counts"].add(counts)
+        levels[-1]["proclaimed"] += 1
         total.add(counts)
         candidates += [{"line": line, "group": group} for line in top]
         deviations += [{"line": line, "group": group} for line in lines if line.deviates]

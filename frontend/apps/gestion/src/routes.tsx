@@ -33,6 +33,7 @@ import { GradeValidationPage } from "./features/grades/GradeValidationPage";
 import { OrganisationPage } from "./features/organisation/OrganisationPage";
 import { PriorPaymentsPage } from "./features/prior-payments/PriorPaymentsPage";
 import { DeliberationPage } from "./features/deliberation/DeliberationPage";
+import { SituationsPage } from "./features/deliberation/SituationsPage";
 import { ResitsPage } from "./features/resits/ResitsPage";
 import { RolesPage } from "./features/roles/RolesPage";
 import { SchoolChoicePage } from "./features/schools/SchoolChoicePage";
@@ -80,6 +81,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   application: <ApplicationPage />,
   resits: <ResitsPage />,
   deliberation: <DeliberationPage />,
+  situations: <SituationsPage />,
   schoolSettings: <SchoolSettingsPage />,
   organisation: <OrganisationPage />,
   cash: <CashPage />,

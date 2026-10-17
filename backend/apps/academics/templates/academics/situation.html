@@ -7,7 +7,8 @@ tr.sub td { font-weight: 700; background: #F7F9FC; }
 tr.all td { font-weight: 800; background: #EEF2F7; }
 .laureate { border: .8pt solid #0B1C35; padding: 2mm 3mm; margin: 3mm 0; }
 .provisional { text-align: center; font-weight: 700; color: #7A2E0E; border: .8pt solid #7A2E0E; padding: .3em; margin-top: 3mm; }
-.foot { margin-top: 10mm; text-align: right; break-inside: avoid; }
+td.cls { white-space: nowrap; }
+.foot { margin-top: 4mm; text-align: right; break-inside: avoid; }
 {% endblock %}
 {% block content %}
 {% include "core/_document_header.html" with service=_("Studies") %}
@@ -24,19 +25,19 @@ tr.all td { font-weight: 800; background: #EEF2F7; }
 <table class="counts">
   <thead><tr>
     <th class="n">{% translate "Enrolled" %}</th>
-    <th class="n">{% translate "Dropped out" %}</th>
+    <th class="n">{% translate "Dropouts" %}</th>
     {% if criterion == "rules" %}
     <th class="n">{% translate "Deliberated" %}</th>
     <th class="n">{% translate "Admitted" %}</th>
     <th class="n">{% translate "Resit" %}</th>
     <th class="n">{% translate "Repeating" %}</th>
-    <th class="n">{% translate "Reoriented" %}</th>
-    <th class="n">{% translate "Excluded" %}</th>
-    <th class="n">{% translate "Failed" %}</th>
+    <th class="n">{% translate "Redirected" %}</th>
+    <th class="n">{% translate "Expelled" %}</th>
+    <th class="n">{% translate "Failures" %}</th>
     {% else %}
     <th class="n">{% translate "Ranked" %}</th>
-    <th class="n">{% translate "Passed" %}</th>
-    <th class="n">{% translate "Failed" %}</th>
+    <th class="n">{% translate "Successes" %}</th>
+    <th class="n">{% translate "Failures" %}</th>
     <th class="n">{% translate "No result" %}</th>
     {% endif %}
     <th class="n">{% translate "Pass rate" %}</th>
@@ -68,8 +69,8 @@ tr.all td { font-weight: 800; background: #EEF2F7; }
   <thead><tr>
     <th>{% translate "Course" %}</th>
     <th class="n">{% translate "Graded" %}</th>
-    <th class="n">{% translate "Passed" %}</th>
-    <th class="n">{% translate "Failed" %}</th>
+    <th class="n">{% translate "Students passed" %}</th>
+    <th class="n">{% translate "Students failed" %}</th>
     <th class="n">{% translate "Rate" %}</th>
     <th class="n">{% translate "Average" %}</th>
   </tr></thead>
@@ -105,7 +106,7 @@ tr.all td { font-weight: 800; background: #EEF2F7; }
     {% if "matricule" in columns %}<td>{{ person.matricule }}</td>{% endif %}
     <td>{% if person %}<b>{{ person.last_name|upper }}{% if person.middle_name %} {{ person.middle_name|upper }}{% endif %}</b> {{ person.first_name }}{% else %}{{ row.line.name }}{% endif %}</td>
     <td class="n">{% if row.line.percent is not None %}{{ row.line.percent|floatformat:1 }}{% else %}—{% endif %}</td>
-    <td>{% if criterion == "rules" or row.line.decision == "dropped" %}{{ row.line.decision_label }}{% elif row.passed %}{% translate "Passed" %}{% elif row.passed is False %}{% translate "Failed" %}{% endif %}</td>
+    <td>{% if criterion == "rules" or row.line.decision == "dropped" %}{{ row.line.decision_label }}{% elif row.passed %}{% translate "Pass" %}{% elif row.passed is False %}{% translate "Fail" %}{% endif %}</td>
   </tr>
   {% endwith %}{% empty %}
   <tr><td colspan="5" class="center muted">{% translate "No student in this class." %}</td></tr>
@@ -121,11 +122,11 @@ tr.all td { font-weight: 800; background: #EEF2F7; }
   <thead><tr>
     <th>{% translate "Class" %}</th>
     <th class="n">{% translate "Enrolled" %}</th>
-    <th class="n">{% translate "Dropped out" %}</th>
+    <th class="n">{% translate "Dropouts" %}</th>
     <th class="n">{% if criterion == "rules" %}{% translate "Deliberated" %}{% else %}{% translate "Ranked" %}{% endif %}</th>
-    <th class="n">{% translate "Passed" %}</th>
+    <th class="n">{% translate "Successes" %}</th>
     {% if criterion == "rules" %}<th class="n">{% translate "Resit" %}</th>{% endif %}
-    <th class="n">{% translate "Failed" %}</th>
+    <th class="n">{% translate "Failures" %}</th>
     <th class="n">{% translate "Rate" %}</th>
     <th class="n">{% translate "Deviations" %}</th>
     <th>{% translate "Best student" %}</th>
@@ -134,7 +135,7 @@ tr.all td { font-weight: 800; background: #EEF2F7; }
   {% for level in levels %}
   {% for item in level.classes %}
   <tr>
-    <td>{{ item.group.name }}</td>
+    <td class="cls">{{ item.group.name }}</td>
     {% if item.proclaimed %}{% with c=item.counts %}
     <td class="n">{{ c.enrolled }}</td>
     <td class="n">{{ c.dropped }}</td>
@@ -151,9 +152,9 @@ tr.all td { font-weight: 800; background: #EEF2F7; }
     {% endif %}
   </tr>
   {% endfor %}
-  {% with c=level.counts %}
+  {% if level.proclaimed %}{% with c=level.counts %}
   <tr class="sub">
-    <td>{{ level.level.name }}</td>
+    <td class="cls">{{ level.level.name }}</td>
     <td class="n">{{ c.enrolled }}</td>
     <td class="n">{{ c.dropped }}</td>
     <td class="n">{{ c.deliberated }}</td>
@@ -164,7 +165,7 @@ tr.all td { font-weight: 800; background: #EEF2F7; }
     <td class="n">{{ c.deviations }}</td>
     <td></td>
   </tr>
-  {% endwith %}
+  {% endwith %}{% endif %}
   {% empty %}
   <tr><td colspan="10" class="center muted">{% translate "No class this school year." %}</td></tr>
   {% endfor %}

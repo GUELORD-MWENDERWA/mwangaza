@@ -145,6 +145,7 @@ export const fr = {
       application: "Application",
       resits: "Repêchage",
       deliberation: "Délibération",
+      situations: "Situations de fin d'année",
       cash: "Caisse",
       unpaid: "Impayés",
       fees: "Frais et barèmes",
@@ -1172,6 +1173,29 @@ export const fr = {
     outcome_incomplete: "Notes manquantes",
     help: "Réussite à {{pass}} % de l'année ; un cours est échoué sous {{course}} %. La note de repêchage est un pourcentage de 0 à 100, signée par l'enseignant du cours. La décision est prise à la délibération.",
   },
+  situations: {
+    title: "Situations de fin d'année",
+    subtitle: "Résultats de chaque classe et de toute l'école, d'après la délibération.",
+    document: "Document",
+    kind: { class: "Situation d'une classe", school: "Situation de l'école" },
+    class: "Classe",
+    criterion: "Critère de réussite",
+    criteria: { rules: "Règles de la classe", average: "Moyenne seule (50 %)" },
+    criterionHelp:
+      "Règles de la classe : la décision de la délibération (repêchage compris). Moyenne seule : 50 % de l'année et plus.",
+    parts: "Parties",
+    courses: "Résultats par cours",
+    ranking: "Palmarès",
+    matricule: "Numéro matricule",
+    deviations: "Liste des écarts de délibération",
+    print: "Impression",
+    printHelp:
+      "Une classe pas encore proclamée sort « provisoire » ; dans la situation de l'école, elle reste hors des totaux.",
+    printButton: "Imprimer",
+    pdf: "Télécharger le PDF",
+    preview: "Aperçu de la situation",
+    noClass: "Aucune classe cette année.",
+  },
   deliberation: {
     title: "Délibération",
     subtitle:
@@ -1741,6 +1765,7 @@ export const fr = {
         deadline_set: "Date limite de saisie fixée",
         report_card_printed: "Bulletin imprimé",
         sheet_printed: "Fiche de cotes imprimée",
+        situation_printed: "Situation de fin d'année imprimée",
       },
       discipline: {
         rule_changed: "Liste des infractions modifiée",

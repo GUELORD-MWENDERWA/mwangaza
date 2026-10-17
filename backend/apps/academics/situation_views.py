@@ -71,7 +71,8 @@ class _View(APIView):
             context,
             data["output"],
             f"{name}.pdf",
-            print_options(data, "portrait"),
+            # Le tableau de l'école a dix colonnes : en paysage, sauf choix contraire.
+            print_options(data, "landscape" if context["kind"] == "school" else "portrait"),
         )
 
 

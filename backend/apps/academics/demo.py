@@ -30,6 +30,7 @@ from apps.academics.models import (
     Course,
     Deliberation,
     DeliberationDecision,
+    DeliberationSnapshot,
     DisciplineIncident,
     DisciplineRule,
     Evaluation,
@@ -40,6 +41,7 @@ from apps.academics.models import (
 )
 from apps.academics.official import BY_KEY
 from apps.accounts.models import User
+from apps.accounts.roles import GRADES_VALIDATE
 from apps.core.tenancy import use_school
 from apps.schools.demo import DemoSpace
 from apps.schools.models import ClassGroup, Term
@@ -299,7 +301,7 @@ def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
             ]
         )
         _create_demo_resits(group, draw, now)
-        _create_demo_deliberation(group, year)
+        _create_demo_deliberation(group, year, proclaim=group.level.has_state_exam)
 
 
 def _create_demo_resits(group: ClassGroup, draw: random.Random, now) -> None:
@@ -319,23 +321,66 @@ def _create_demo_resits(group: ClassGroup, draw: random.Random, now) -> None:
     )
 
 
-def _create_demo_deliberation(group: ClassGroup, year) -> None:
+def _create_demo_deliberation(group: ClassGroup, year, *, proclaim: bool) -> None:
     """Délibération (8.4.2) : date posée et décision proposée prise pour chaque élève qui en a
-    une, la classe reste à proclamer (de quoi essayer écart, motif et proclamation)."""
+    une ; la première classe reste à proclamer (de quoi essayer écart, motif et proclamation).
+    La classe de dernière année est proclamée (8.4.4 : situations de la classe et de l'école),
+    avec un écart motivé : un élève proposé au repêchage est admis."""
     rows = resits.class_overview(report_cards.class_report(group), with_conduct=False)
     deliberation = Deliberation.objects.create(
         class_group=group, held_on=year.ends_on - timedelta(days=5)
     )
     proposals = deliberation_module.PROPOSAL
+    Decision = DeliberationDecision.Decision
+    # Signataire : un membre de l'école qui proclame (direction des études).
+    director = User.objects.filter(
+        memberships__school=group.school,
+        memberships__roles__permissions__contains=[GRADES_VALIDATE],
+    ).first()
+    proclaim = proclaim and director is not None
+    decided = []
+    gap = proclaim
+    for student in rows:
+        proposed = proposals.get(student.outcome, "")
+        decision, reason = proposed, ""
+        if gap and proposed == Decision.RESIT:
+            decision, reason, gap = Decision.PASS, "Excellent en atelier", False
+        if proclaim and not decision:
+            decision = Decision.DROPPED
+        if decision:
+            decided.append(
+                deliberation_module.StudentRow(
+                    student.enrollment,
+                    student.percent,
+                    student.outcome,
+                    proposed,
+                    decision,
+                    reason,
+                    [f.course.name for f in student.failed if f.eligible],
+                )
+            )
     DeliberationDecision.objects.bulk_create(
         DeliberationDecision(
             deliberation=deliberation,
-            enrollment=student.enrollment,
-            decision=proposals[student.outcome],
-            proposed=proposals[student.outcome],
+            enrollment=row.enrollment,
+            decision=row.decision,
+            proposed=row.proposed,
+            reason=row.reason,
         )
-        for student in rows
-        if student.outcome in proposals
+        for row in decided
+    )
+    if not proclaim:
+        return
+    deliberation.status = Deliberation.Status.PROCLAIMED
+    deliberation.version = 1
+    deliberation.save(update_fields=["status", "version", "updated_at"])
+    DeliberationSnapshot.objects.create(
+        deliberation=deliberation,
+        version=1,
+        held_on=deliberation.held_on,
+        proclaimed_at=timezone.now(),
+        proclaimed_by=director,
+        rows=[deliberation_module._frozen(row) for row in decided],
     )
 
 
