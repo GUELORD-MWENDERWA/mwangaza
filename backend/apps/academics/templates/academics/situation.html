@@ -1,0 +1,216 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% if kind == "class" %}{% translate "Situation of the class" %} — {{ class_group.name }}{% else %}{% translate "Situation of the school" %}{% endif %}{% endblock %}
+{% block style %}
+td.n, th.n { text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
+table.counts th { font-size: .85em; }
+tr.sub td { font-weight: 700; background: #F7F9FC; }
+tr.all td { font-weight: 800; background: #EEF2F7; }
+.laureate { border: .8pt solid #0B1C35; padding: 2mm 3mm; margin: 3mm 0; }
+.provisional { text-align: center; font-weight: 700; color: #7A2E0E; border: .8pt solid #7A2E0E; padding: .3em; margin-top: 3mm; }
+.foot { margin-top: 10mm; text-align: right; break-inside: avoid; }
+{% endblock %}
+{% block content %}
+{% include "core/_document_header.html" with service=_("Studies") %}
+<div class="lh-extra">{% if year %}{% blocktranslate with year=year.name date=printed_at|date:"d/m/Y" %}School year {{ year }} · printed on {{ date }}{% endblocktranslate %}{% endif %}</div>
+{% if kind == "class" %}
+<h1>{% blocktranslate with name=class_group.name %}SITUATION OF THE CLASS — {{ name }}{% endblocktranslate %}</h1>
+{% else %}
+<h1>{% translate "SITUATION OF THE SCHOOL" %}</h1>
+{% endif %}
+<p class="center small">{% if snapshot %}{% blocktranslate with date=snapshot.held_on|date:"d/m/Y" version=snapshot.version %}Deliberation of {{ date }} (version {{ version }}){% endblocktranslate %} · {% endif %}{% if criterion == "rules" %}{% translate "Criterion: rules of the class, resit included" %}{% else %}{% translate "Criterion: average only (50 % and above)" %}{% endif %}</p>
+{% if provisional %}<div class="provisional">{% translate "Provisional: the results of this class are not proclaimed yet." %}</div>{% endif %}
+
+{% if kind == "class" %}
+<table class="counts">
+  <thead><tr>
+    <th class="n">{% translate "Enrolled" %}</th>
+    <th class="n">{% translate "Dropped out" %}</th>
+    {% if criterion == "rules" %}
+    <th class="n">{% translate "Deliberated" %}</th>
+    <th class="n">{% translate "Admitted" %}</th>
+    <th class="n">{% translate "Resit" %}</th>
+    <th class="n">{% translate "Repeating" %}</th>
+    <th class="n">{% translate "Reoriented" %}</th>
+    <th class="n">{% translate "Excluded" %}</th>
+    <th class="n">{% translate "Failed" %}</th>
+    {% else %}
+    <th class="n">{% translate "Ranked" %}</th>
+    <th class="n">{% translate "Passed" %}</th>
+    <th class="n">{% translate "Failed" %}</th>
+    <th class="n">{% translate "No result" %}</th>
+    {% endif %}
+    <th class="n">{% translate "Pass rate" %}</th>
+    <th class="n">{% translate "Deviations" %}</th>
+  </tr></thead>
+  <tbody><tr>
+    <td class="n">{{ counts.enrolled }}</td>
+    <td class="n">{{ counts.dropped }}</td>
+    <td class="n">{{ counts.deliberated }}</td>
+    <td class="n">{{ counts.passed }}</td>
+    {% if criterion == "rules" %}
+    <td class="n">{{ counts.resit }}</td>
+    <td class="n">{{ counts.repeat }}</td>
+    <td class="n">{{ counts.orient }}</td>
+    <td class="n">{{ counts.excluded }}</td>
+    <td class="n">{{ counts.failed }}</td>
+    {% else %}
+    <td class="n">{{ counts.failed }}</td>
+    <td class="n">{{ counts.unranked }}</td>
+    {% endif %}
+    <td class="n"><b>{% if counts.rate is not None %}{{ counts.rate|floatformat:1 }} %{% endif %}</b></td>
+    <td class="n">{{ counts.deviations }}</td>
+  </tr></tbody>
+</table>
+
+{% if courses %}
+<h2>{% translate "By course" %}</h2>
+<table>
+  <thead><tr>
+    <th>{% translate "Course" %}</th>
+    <th class="n">{% translate "Graded" %}</th>
+    <th class="n">{% translate "Passed" %}</th>
+    <th class="n">{% translate "Failed" %}</th>
+    <th class="n">{% translate "Rate" %}</th>
+    <th class="n">{% translate "Average" %}</th>
+  </tr></thead>
+  <tbody>
+  {% for course in courses %}
+  <tr>
+    <td>{{ course.name }}</td>
+    <td class="n">{{ course.graded }}</td>
+    <td class="n">{{ course.passed }}</td>
+    <td class="n">{{ course.failed }}</td>
+    <td class="n">{% if course.rate is not None %}{{ course.rate|floatformat:1 }} %{% endif %}</td>
+    <td class="n">{% if course.average is not None %}{{ course.average|floatformat:1 }} %{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{% if "ranking" in columns %}
+<h2>{% translate "Ranking" %}</h2>
+<table>
+  <thead><tr>
+    <th class="n">{% translate "Place" %}</th>
+    {% if "matricule" in columns %}<th>{% translate "Student number" %}</th>{% endif %}
+    <th>{% translate "Last name, middle name, first name" %}</th>
+    <th class="n">%</th>
+    <th>{% if criterion == "rules" %}{% translate "Decision" %}{% else %}{% translate "Result" %}{% endif %}</th>
+  </tr></thead>
+  <tbody>
+  {% for row in ranking %}{% with person=row.enrollment.student %}
+  <tr>
+    <td class="n">{{ row.line.place|default_if_none:"" }}</td>
+    {% if "matricule" in columns %}<td>{{ person.matricule }}</td>{% endif %}
+    <td>{% if person %}<b>{{ person.last_name|upper }}{% if person.middle_name %} {{ person.middle_name|upper }}{% endif %}</b> {{ person.first_name }}{% else %}{{ row.line.name }}{% endif %}</td>
+    <td class="n">{% if row.line.percent is not None %}{{ row.line.percent|floatformat:1 }}{% else %}—{% endif %}</td>
+    <td>{% if criterion == "rules" or row.line.decision == "dropped" %}{{ row.line.decision_label }}{% elif row.passed %}{% translate "Passed" %}{% elif row.passed is False %}{% translate "Failed" %}{% endif %}</td>
+  </tr>
+  {% endwith %}{% empty %}
+  <tr><td colspan="5" class="center muted">{% translate "No student in this class." %}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{% else %}
+{% if pending %}<p class="center small muted">{% blocktranslate count count=pending %}{{ count }} class is not proclaimed yet: it stays out of the totals.{% plural %}{{ count }} classes are not proclaimed yet: they stay out of the totals.{% endblocktranslate %}</p>{% endif %}
+{% if laureates %}<div class="laureate"><b>{% translate "Laureate of the school:" %}</b> {% for item in laureates %}{{ item.line.name }} — {{ item.group.name }} — {{ item.line.percent|floatformat:1 }} %{% if not forloop.last %} ; {% endif %}{% endfor %}</div>{% endif %}
+<table class="counts">
+  <thead><tr>
+    <th>{% translate "Class" %}</th>
+    <th class="n">{% translate "Enrolled" %}</th>
+    <th class="n">{% translate "Dropped out" %}</th>
+    <th class="n">{% if criterion == "rules" %}{% translate "Deliberated" %}{% else %}{% translate "Ranked" %}{% endif %}</th>
+    <th class="n">{% translate "Passed" %}</th>
+    {% if criterion == "rules" %}<th class="n">{% translate "Resit" %}</th>{% endif %}
+    <th class="n">{% translate "Failed" %}</th>
+    <th class="n">{% translate "Rate" %}</th>
+    <th class="n">{% translate "Deviations" %}</th>
+    <th>{% translate "Best student" %}</th>
+  </tr></thead>
+  <tbody>
+  {% for level in levels %}
+  {% for item in level.classes %}
+  <tr>
+    <td>{{ item.group.name }}</td>
+    {% if item.proclaimed %}{% with c=item.counts %}
+    <td class="n">{{ c.enrolled }}</td>
+    <td class="n">{{ c.dropped }}</td>
+    <td class="n">{{ c.deliberated }}</td>
+    <td class="n">{{ c.passed }}</td>
+    {% if criterion == "rules" %}<td class="n">{{ c.resit }}</td>{% endif %}
+    <td class="n">{{ c.failed }}</td>
+    <td class="n">{% if c.rate is not None %}{{ c.rate|floatformat:1 }} %{% endif %}</td>
+    <td class="n">{{ c.deviations }}</td>
+    <td>{% for line in item.best %}{{ line.name }} ({{ line.percent|floatformat:1 }}){% if not forloop.last %}, {% endif %}{% endfor %}</td>
+    {% endwith %}{% else %}
+    <td class="n">{{ item.enrolled }}</td>
+    <td colspan="{% if criterion == "rules" %}8{% else %}7{% endif %}" class="muted">{% translate "not proclaimed: outside the totals" %}</td>
+    {% endif %}
+  </tr>
+  {% endfor %}
+  {% with c=level.counts %}
+  <tr class="sub">
+    <td>{{ level.level.name }}</td>
+    <td class="n">{{ c.enrolled }}</td>
+    <td class="n">{{ c.dropped }}</td>
+    <td class="n">{{ c.deliberated }}</td>
+    <td class="n">{{ c.passed }}</td>
+    {% if criterion == "rules" %}<td class="n">{{ c.resit }}</td>{% endif %}
+    <td class="n">{{ c.failed }}</td>
+    <td class="n">{% if c.rate is not None %}{{ c.rate|floatformat:1 }} %{% endif %}</td>
+    <td class="n">{{ c.deviations }}</td>
+    <td></td>
+  </tr>
+  {% endwith %}
+  {% empty %}
+  <tr><td colspan="10" class="center muted">{% translate "No class this school year." %}</td></tr>
+  {% endfor %}
+  {% if levels %}{% with c=total %}
+  <tr class="all">
+    <td>{% translate "Whole school" %}</td>
+    <td class="n">{{ c.enrolled }}</td>
+    <td class="n">{{ c.dropped }}</td>
+    <td class="n">{{ c.deliberated }}</td>
+    <td class="n">{{ c.passed }}</td>
+    {% if criterion == "rules" %}<td class="n">{{ c.resit }}</td>{% endif %}
+    <td class="n">{{ c.failed }}</td>
+    <td class="n">{% if c.rate is not None %}{{ c.rate|floatformat:1 }} %{% endif %}</td>
+    <td class="n">{{ c.deviations }}</td>
+    <td></td>
+  </tr>
+  {% endwith %}{% endif %}
+  </tbody>
+</table>
+
+{% if "deviations" in columns %}
+<h2>{% translate "Deliberation deviations" %}</h2>
+<table>
+  <thead><tr>
+    <th>{% translate "Class" %}</th>
+    <th>{% translate "Student" %}</th>
+    <th>{% translate "Proposed" %}</th>
+    <th>{% translate "Decided" %}</th>
+    <th>{% translate "Reason" %}</th>
+  </tr></thead>
+  <tbody>
+  {% for item in deviations %}
+  <tr>
+    <td>{{ item.group.name }}</td>
+    <td>{{ item.line.name }}</td>
+    <td>{{ item.line.proposed_label }}</td>
+    <td>{{ item.line.decision_label }}</td>
+    <td>{{ item.line.reason }}</td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="5" class="center muted">{% translate "No deviation: every decision follows the proposal." %}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endif %}
+
+<div class="foot">{% if signer or stamp %}{% include "core/_signer.html" %}{% else %}<div>{% translate "The head of the school" %}</div><div style="height:15mm"></div><div>{% translate "Name and signature" %}</div>{% endif %}</div>
+{% endblock %}

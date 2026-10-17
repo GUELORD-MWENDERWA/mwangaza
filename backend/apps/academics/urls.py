@@ -1,7 +1,7 @@
 from django.urls import path
 
 from apps.academics import application_views as application
-from apps.academics import deliberation_views, resits_views, views
+from apps.academics import deliberation_views, resits_views, situation_views, views
 from apps.academics import discipline_views as conduct
 
 urlpatterns = [
@@ -128,4 +128,10 @@ urlpatterns = [
         deliberation_views.EnrollmentDecisionView.as_view(),
         name="deliberation-decision",
     ),
+    path(
+        "class-groups/<uuid:pk>/situation/",
+        situation_views.ClassSituationView.as_view(),
+        name="class-situation",
+    ),
+    path("situation/", situation_views.SchoolSituationView.as_view(), name="school-situation"),
 ]
