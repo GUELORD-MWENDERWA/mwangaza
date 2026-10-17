@@ -443,3 +443,99 @@ class ResitGrade(TenantModel):
 
     def __str__(self) -> str:
         return f"{self.enrollment} · {self.course} · {self.percent} %"
+
+
+class Deliberation(TenantModel):
+    """Délibération d'une classe [T] (8.4.2) : une par section de classe. Brouillon tant que les
+    décisions se prennent ; « proclamée » après validation : les résultats sont alors figés dans un
+    `DeliberationSnapshot`. La rouvrir (motif obligatoire) puis la proclamer de nouveau crée la
+    version suivante ; les anciennes restent."""
+
+    class Status(models.TextChoices):
+        DRAFT = "draft", _("In progress")
+        PROCLAIMED = "proclaimed", _("Proclaimed")
+
+    class_group = models.OneToOneField(
+        ClassGroup,
+        on_delete=models.PROTECT,
+        related_name="deliberation",
+        verbose_name=_("class"),
+    )
+    held_on = models.DateField(_("deliberation date"), null=True, blank=True)
+    status = models.CharField(
+        _("status"), max_length=12, choices=Status.choices, default=Status.DRAFT
+    )
+    version = models.PositiveIntegerField(_("version"), default=0)
+    # Motif donné en rouvrant la classe ; repris par la proclamation suivante.
+    correction_reason = models.CharField(_("correction reason"), max_length=300, blank=True)
+
+    def __str__(self) -> str:
+        return f"{self.class_group} · v{self.version}"
+
+
+class DeliberationDecision(TenantModel):
+    """Décision prise pour un élève [T] : issue choisie, issue que le système proposait quand elle
+    a été prise, et motif quand les deux diffèrent (écart signalé, compté à part)."""
+
+    class Decision(models.TextChoices):
+        PASS = "pass", _("Admitted")
+        REPEAT = "repeat", _("Repeats the year")
+        RESIT = "resit", _("Resit exam")
+        ORIENT = "orient", _("Reoriented")
+        EXCLUDE = "exclude", _("Excluded")
+        DROPPED = "dropped", _("Dropped out")
+
+    deliberation = models.ForeignKey(
+        Deliberation, on_delete=models.CASCADE, related_name="decisions"
+    )
+    enrollment = models.ForeignKey(
+        Enrollment,
+        on_delete=models.PROTECT,
+        related_name="deliberation_decisions",
+        verbose_name=_("enrolment"),
+    )
+    decision = models.CharField(_("decision"), max_length=10, choices=Decision.choices)
+    proposed = models.CharField(_("proposed decision"), max_length=10, blank=True)
+    reason = models.CharField(_("reason"), max_length=300, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["deliberation", "enrollment"], name="deliberation_decision_unique"
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.enrollment} · {self.decision}"
+
+
+class DeliberationSnapshot(TenantModel):
+    """Résultats proclamés, figés [T] : une ligne par proclamation. `rows` garde, pour chaque
+    élève, le pourcentage, l'issue proposée, la décision, le motif et l'écart au moment de la
+    proclamation. Le bulletin et les situations lisent la dernière version ; une correction
+    ensuite n'en modifie aucune ancienne."""
+
+    deliberation = models.ForeignKey(
+        Deliberation, on_delete=models.CASCADE, related_name="snapshots"
+    )
+    version = models.PositiveIntegerField(_("version"))
+    held_on = models.DateField(_("deliberation date"))
+    proclaimed_at = models.DateTimeField(_("proclaimed at"))
+    proclaimed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("proclaimed by"),
+    )
+    reason = models.CharField(_("correction reason"), max_length=300, blank=True)
+    rows = models.JSONField(_("results"), default=list)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["deliberation", "version"], name="deliberation_snapshot_version_unique"
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.deliberation} · v{self.version}"

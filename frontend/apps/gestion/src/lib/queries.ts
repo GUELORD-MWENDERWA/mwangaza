@@ -28,6 +28,7 @@ export const keys = {
   conduct: ["conduct"],
   application: ["application"],
   resits: ["resits"],
+  deliberation: ["deliberation"],
   matricule: ["matricule-format"],
   roles: ["roles"],
   staff: ["staff"],

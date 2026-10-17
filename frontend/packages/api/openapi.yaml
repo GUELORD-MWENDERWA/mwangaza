@@ -773,6 +773,9 @@ paths:
           - discipline.grade_overridden
           - application.grade_overridden
           - resit.grade_changed
+          - deliberation.decided
+          - deliberation.proclaimed
+          - deliberation.reopened
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -892,6 +895,9 @@ paths:
           * `discipline.grade_overridden` - Conduct grade corrected
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
+          * `deliberation.decided` - Deliberation decision recorded
+          * `deliberation.proclaimed` - Class results proclaimed
+          * `deliberation.reopened` - Class results reopened
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -965,6 +971,7 @@ paths:
           - audit
           - auth
           - courses
+          - deliberation
           - devices
           - discipline
           - finance
@@ -986,6 +993,7 @@ paths:
           * `audit` - audit
           * `auth` - auth
           * `courses` - courses
+          * `deliberation` - deliberation
           * `devices` - devices
           * `discipline` - discipline
           * `finance` - finance
@@ -1188,6 +1196,9 @@ paths:
           - discipline.grade_overridden
           - application.grade_overridden
           - resit.grade_changed
+          - deliberation.decided
+          - deliberation.proclaimed
+          - deliberation.reopened
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -1307,6 +1318,9 @@ paths:
           * `discipline.grade_overridden` - Conduct grade corrected
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
+          * `deliberation.decided` - Deliberation decision recorded
+          * `deliberation.proclaimed` - Class results proclaimed
+          * `deliberation.reopened` - Class results reopened
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -1380,6 +1394,7 @@ paths:
           - audit
           - auth
           - courses
+          - deliberation
           - devices
           - discipline
           - finance
@@ -1401,6 +1416,7 @@ paths:
           * `audit` - audit
           * `auth` - auth
           * `courses` - courses
+          * `deliberation` - deliberation
           * `devices` - devices
           * `discipline` - discipline
           * `finance` - finance
@@ -3362,6 +3378,236 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: ''
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/deliberation/:
+    get:
+      operationId: class_groups_deliberation_retrieve
+      description: |-
+        Tableau de la classe : pourcentage de l'année, décision proposée d'après les règles de
+        l'école, décision prise, écart et motif ; statut, date et dernière version proclamée.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - deliberation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassDeliberation'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    put:
+      operationId: class_groups_deliberation_update
+      description: Fixe la date de la délibération (classe non proclamée).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - deliberation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassDeliberation'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/deliberation/apply-proposals/:
+    post:
+      operationId: class_groups_deliberation_apply_proposals_create
+      description: Prend la proposition du système pour chaque élève qui n'a pas encore
+        de décision.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - deliberation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassDeliberation'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/deliberation/proclaim/:
+    post:
+      operationId: class_groups_deliberation_proclaim_create
+      description: |-
+        Proclame les résultats et les fige : date posée, une décision par élève, un motif par
+        écart. Une proclamation après correction crée la version suivante.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - deliberation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassDeliberation'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/deliberation/reopen/:
+    post:
+      operationId: class_groups_deliberation_reopen_create
+      description: |-
+        Rouvre une classe proclamée pour corriger (motif obligatoire). Les résultats figés
+        restent ceux de la dernière proclamation jusqu'à la suivante.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - deliberation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasonRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReasonRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReasonRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassDeliberation'
+          description: ''
+        '400':
           content:
             application/json:
               schema:
@@ -5726,6 +5972,59 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Dashboard'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/deliberation/enrollments/{id}/:
+    put:
+      operationId: deliberation_enrollments_update
+      description: Décision prise pour un élève ; un écart avec la proposition demande
+        un motif.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - deliberation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecisionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DecisionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DecisionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassDeliberation'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
         '403':
           content:
@@ -13821,6 +14120,9 @@ components:
       - discipline.grade_overridden
       - application.grade_overridden
       - resit.grade_changed
+      - deliberation.decided
+      - deliberation.proclaimed
+      - deliberation.reopened
       - students.family_created
       - students.family_updated
       - students.family_deleted
@@ -13939,6 +14241,9 @@ components:
         * `discipline.grade_overridden` - Conduct grade corrected
         * `application.grade_overridden` - Application grade corrected
         * `resit.grade_changed` - Resit grade changed
+        * `deliberation.decided` - Deliberation decision recorded
+        * `deliberation.proclaimed` - Class results proclaimed
+        * `deliberation.reopened` - Class results reopened
         * `students.family_created` - Family created
         * `students.family_updated` - Family changed
         * `students.family_deleted` - Family deleted
@@ -15315,6 +15620,52 @@ components:
       - class_name
       - may_correct
       - students
+    ClassDeliberation:
+      type: object
+      properties:
+        class_name:
+          type: string
+        status:
+          $ref: '#/components/schemas/ClassDeliberationStatusEnum'
+        held_on:
+          type: string
+          format: date
+          nullable: true
+        version:
+          type: integer
+          description: 'Dernière version proclamée (0 : aucune).'
+        counts:
+          type: object
+          additionalProperties:
+            type: integer
+        deviations:
+          type: integer
+        latest:
+          allOf:
+          - $ref: '#/components/schemas/Proclamation'
+          nullable: true
+          description: Dernière proclamation figée.
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/Row'
+      required:
+      - class_name
+      - status
+      - held_on
+      - version
+      - counts
+      - deviations
+      - latest
+      - students
+    ClassDeliberationStatusEnum:
+      enum:
+      - draft
+      - proclaimed
+      type: string
+      description: |-
+        * `draft` - draft
+        * `proclaimed` - proclaimed
     ClassGroup:
       type: object
       properties:
@@ -17281,6 +17632,14 @@ components:
       - student
       - class_group
       - cash_register
+    DateRequest:
+      type: object
+      properties:
+        held_on:
+          type: string
+          format: date
+      required:
+      - held_on
     Deadline:
       type: object
       properties:
@@ -17313,6 +17672,32 @@ components:
       required:
       - term
       - due_on
+    DecisionEnum:
+      enum:
+      - pass
+      - repeat
+      - resit
+      - orient
+      - exclude
+      - dropped
+      type: string
+      description: |-
+        * `pass` - pass
+        * `repeat` - repeat
+        * `resit` - resit
+        * `orient` - orient
+        * `exclude` - exclude
+        * `dropped` - dropped
+    DecisionRequest:
+      type: object
+      properties:
+        decision:
+          $ref: '#/components/schemas/DecisionEnum'
+        reason:
+          type: string
+          maxLength: 300
+      required:
+      - decision
     Demonstration:
       type: object
       description: 'Espace de démonstration créé depuis la console (4.17.2) : où en
@@ -17631,6 +18016,7 @@ components:
       - audit
       - auth
       - courses
+      - deliberation
       - devices
       - discipline
       - finance
@@ -19877,19 +20263,19 @@ components:
       - error
     OutcomeEnum:
       enum:
-      - incomplete
       - passed
       - resit
       - failed
+      - incomplete
       - unranked
       - orient
       - exclude
       type: string
       description: |-
-        * `incomplete` - incomplete
         * `passed` - passed
         * `resit` - resit
         * `failed` - failed
+        * `incomplete` - incomplete
         * `unranked` - unranked
         * `orient` - orient
         * `exclude` - exclude
@@ -22623,6 +23009,27 @@ components:
             est enregistré.'
       required:
       - file
+    Proclamation:
+      type: object
+      properties:
+        version:
+          type: integer
+        held_on:
+          type: string
+          format: date
+        proclaimed_at:
+          type: string
+          format: date-time
+        proclaimed_by:
+          type: string
+        reason:
+          type: string
+      required:
+      - version
+      - held_on
+      - proclaimed_at
+      - proclaimed_by
+      - reason
     ProfileEnum:
       enum:
       - small
@@ -22736,6 +23143,15 @@ components:
         * `scholarship` - Scholarship
         * `waiver` - Waiver from the head
         * `other` - Other
+    ReasonRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 300
+      required:
+      - reason
     ReasonsEnum:
       enum:
       - payment
@@ -23072,6 +23488,58 @@ components:
       required:
       - id
       - name
+    Row:
+      type: object
+      properties:
+        enrollment:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+          description: Pourcentage de l'année.
+        outcome:
+          allOf:
+          - $ref: '#/components/schemas/OutcomeEnum'
+          description: |-
+            Issue des règles (8.4.1).
+
+            * `passed` - passed
+            * `resit` - resit
+            * `failed` - failed
+            * `incomplete` - incomplete
+            * `unranked` - unranked
+            * `orient` - orient
+            * `exclude` - exclude
+        proposed:
+          type: string
+          description: Décision proposée (mêmes valeurs que `decision`) ; vide sans
+            proposition.
+        decision:
+          description: "Vide : pas encore prise.\n\n* `pass` - pass\n* `repeat` -
+            repeat\n* `resit` - resit\n* `orient` - orient\n* `exclude` - exclude\n*
+            `dropped` - dropped\n* `` - "
+          oneOf:
+          - $ref: '#/components/schemas/DecisionEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        reason:
+          type: string
+        deviates:
+          type: boolean
+          description: La décision diffère de la proposition.
+      required:
+      - enrollment
+      - full_name
+      - percent
+      - outcome
+      - proposed
+      - decision
+      - reason
+      - deviates
     Rule:
       type: object
       properties:

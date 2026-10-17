@@ -1,0 +1,357 @@
+// Délibération d'une classe (8.4.2, maquette `deliberation`) : pour chaque élève, la décision
+// proposée d'après les règles de l'école (8.4.1) et la décision prise ; un écart demande un motif.
+// Proclamer fige les résultats ; les corriger ensuite demande de rouvrir la classe (motif). La
+// conduite et l'application se corrigent dans leurs écrans.
+import { api, call } from "@mwangaza/api";
+import { formatDay, useTranslation } from "@mwangaza/i18n";
+import {
+  Banner,
+  Button,
+  Card,
+  CardContent,
+  Field,
+  Input,
+  PageHeader,
+  Select,
+  Skeleton,
+  StatusPill,
+  Table,
+} from "@mwangaza/ui";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { Link } from "react-router";
+
+import { firstErrorMessage } from "../../lib/errors";
+import { keys } from "../../lib/queries";
+import { useGrading } from "../grades/data";
+import { LoadError } from "../status/StatusPages";
+import { DECISIONS, useClassDeliberation, type Decision, type DeliberationRow } from "./data";
+
+const TONES: Record<string, "ok" | "warn" | "due" | "gray"> = {
+  pass: "ok",
+  resit: "warn",
+  repeat: "due",
+  orient: "warn",
+  exclude: "due",
+  dropped: "gray",
+};
+
+type Draft = { decision: string; reason: string };
+
+export function DeliberationPage() {
+  const { t, i18n } = useTranslation();
+  const queryClient = useQueryClient();
+  const grading = useGrading();
+  const [classId, setClassId] = useState("");
+  const [drafts, setDrafts] = useState<Record<string, Draft>>({});
+  const [day, setDay] = useState<string | null>(null);
+  const [reopenReason, setReopenReason] = useState("");
+
+  const classes = grading.data?.classes ?? [];
+  const groupId = classId || classes[0]?.id || "";
+  const table = useClassDeliberation(groupId);
+  const refresh = () => void queryClient.invalidateQueries({ queryKey: keys.deliberation });
+  const path = { params: { path: { id: groupId } } };
+
+  const saveDate = useMutation({
+    mutationFn: (heldOn: string) =>
+      call(api.PUT("/api/class-groups/{id}/deliberation/", { ...path, body: { held_on: heldOn } })),
+    onSuccess: () => {
+      setDay(null);
+      refresh();
+    },
+  });
+  const decide = useMutation({
+    mutationFn: ({ id, draft }: { id: string; draft: Draft }) =>
+      call(
+        api.PUT("/api/deliberation/enrollments/{id}/", {
+          params: { path: { id } },
+          body: { decision: draft.decision as Decision, reason: draft.reason },
+        }),
+      ),
+    onSuccess: (_data, { id }) => {
+      setDrafts((current) => {
+        const rest = { ...current };
+        delete rest[id];
+        return rest;
+      });
+      refresh();
+    },
+  });
+  const apply = useMutation({
+    mutationFn: () => call(api.POST("/api/class-groups/{id}/deliberation/apply-proposals/", path)),
+    onSuccess: refresh,
+  });
+  const proclaim = useMutation({
+    mutationFn: () => call(api.POST("/api/class-groups/{id}/deliberation/proclaim/", path)),
+    onSuccess: refresh,
+  });
+  const reopen = useMutation({
+    mutationFn: () =>
+      call(
+        api.POST("/api/class-groups/{id}/deliberation/reopen/", {
+          ...path,
+          body: { reason: reopenReason },
+        }),
+      ),
+    onSuccess: () => {
+      setReopenReason("");
+      refresh();
+    },
+  });
+
+  if (grading.isPending) return <Skeleton label={t("common.loading")} />;
+  if (grading.isError) {
+    return <LoadError error={grading.error} onRetry={() => void grading.refetch()} />;
+  }
+
+  const decisionPill = (value: string) =>
+    value ? (
+      <StatusPill tone={TONES[value] ?? "gray"}>
+        {t(`deliberation.decision_${value as Decision}`)}
+      </StatusPill>
+    ) : null;
+
+  const studentRow = (row: DeliberationRow, closed: boolean) => {
+    const draft = drafts[row.enrollment] ?? { decision: row.decision, reason: row.reason };
+    const gap = Boolean(row.proposed && draft.decision && draft.decision !== row.proposed);
+    const changed = draft.decision !== row.decision || draft.reason !== row.reason;
+    return (
+      <tr key={row.enrollment}>
+        <td data-label={t("deliberation.student")} data-wrap>
+          {row.full_name}
+        </td>
+        <td data-label={t("deliberation.year")} className="whitespace-nowrap tabular-nums">
+          {row.percent === null ? "—" : t("deliberation.percent", { value: row.percent })}
+        </td>
+        <td data-label={t("deliberation.proposed")}>
+          {row.proposed ? (
+            decisionPill(row.proposed)
+          ) : (
+            <span className="text-xs text-ink-3">{t("deliberation.noProposal")}</span>
+          )}
+        </td>
+        <td data-label={t("deliberation.decision")} data-wrap>
+          {closed ? (
+            <span className="flex flex-wrap items-center gap-2">
+              {decisionPill(row.decision)}
+              {row.deviates && <StatusPill tone="warn">{t("deliberation.gap")}</StatusPill>}
+            </span>
+          ) : (
+            <span className="flex flex-wrap items-center gap-2">
+              <Select
+                aria-label={t("deliberation.decision")}
+                className="w-44"
+                value={draft.decision}
+                onChange={(event) =>
+                  setDrafts({
+                    ...drafts,
+                    [row.enrollment]: { ...draft, decision: event.target.value },
+                  })
+                }
+              >
+                <option value="">{t("deliberation.choose")}</option>
+                {DECISIONS.map((value) => (
+                  <option key={value} value={value}>
+                    {t(`deliberation.decision_${value}`)}
+                  </option>
+                ))}
+              </Select>
+              {gap && <StatusPill tone="warn">{t("deliberation.gap")}</StatusPill>}
+            </span>
+          )}
+        </td>
+        <td data-label={t("deliberation.reason")} data-wrap>
+          {closed ? (
+            <span className="text-sm">{row.reason || "—"}</span>
+          ) : gap || row.reason ? (
+            <span className="flex flex-wrap items-center gap-2">
+              <Input
+                aria-label={t("deliberation.reasonFor", { name: row.full_name })}
+                maxLength={300}
+                className="min-w-48"
+                value={draft.reason}
+                onChange={(event) =>
+                  setDrafts({
+                    ...drafts,
+                    [row.enrollment]: { ...draft, reason: event.target.value },
+                  })
+                }
+              />
+            </span>
+          ) : (
+            <span className="text-ink-3">—</span>
+          )}
+          {!closed && changed && draft.decision && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="mt-2"
+              disabled={decide.isPending || (gap && draft.reason.trim() === "")}
+              onClick={() => decide.mutate({ id: row.enrollment, draft })}
+            >
+              {t("deliberation.save")}
+            </Button>
+          )}
+        </td>
+      </tr>
+    );
+  };
+
+  const board = table.data;
+  const closed = board?.status === "proclaimed";
+  const failure = [saveDate, decide, apply, proclaim, reopen].find((m) => m.isError)?.error;
+
+  return (
+    <>
+      <PageHeader title={t("deliberation.title")} subtitle={t("deliberation.subtitle")} />
+      {classes.length === 0 ? (
+        <Banner tone="info">{t("deliberation.noClass")}</Banner>
+      ) : (
+        <Card>
+          <CardContent className="flex flex-col gap-4">
+            <div className="max-w-xs">
+              <Field id="deliberation-class" label={t("deliberation.class")}>
+                {(control) => (
+                  <Select
+                    {...control}
+                    value={groupId}
+                    onChange={(event) => {
+                      setClassId(event.target.value);
+                      setDrafts({});
+                      setDay(null);
+                    }}
+                  >
+                    {classes.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Field>
+            </div>
+            {table.isPending ? (
+              <Skeleton label={t("common.loading")} />
+            ) : table.isError || !board ? (
+              <LoadError error={table.error} onRetry={() => void table.refetch()} />
+            ) : (
+              <>
+                <div className="flex flex-wrap items-end gap-3">
+                  <Field id="deliberation-date" label={t("deliberation.date")}>
+                    {(control) => (
+                      <Input
+                        {...control}
+                        type="date"
+                        disabled={closed}
+                        value={day ?? board.held_on ?? ""}
+                        onChange={(event) => setDay(event.target.value)}
+                      />
+                    )}
+                  </Field>
+                  {!closed && day !== null && day !== "" && day !== board.held_on && (
+                    <Button
+                      variant="outline"
+                      disabled={saveDate.isPending}
+                      onClick={() => saveDate.mutate(day)}
+                    >
+                      {t("deliberation.saveDate")}
+                    </Button>
+                  )}
+                  <StatusPill tone={closed ? "ok" : "warn"}>
+                    {t(`deliberation.status_${board.status}`)}
+                  </StatusPill>
+                  <span className="text-sm text-ink-3">
+                    {board.latest
+                      ? t("deliberation.latest", {
+                          version: board.latest.version,
+                          date: formatDay(board.latest.proclaimed_at.slice(0, 10), i18n.language),
+                          name: board.latest.proclaimed_by,
+                        })
+                      : t("deliberation.noneYet")}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {DECISIONS.filter((value) => board.counts[value]).map((value) => (
+                    <StatusPill key={value} tone={TONES[value] ?? "gray"}>
+                      {t(`deliberation.decision_${value}`)} {board.counts[value]}
+                    </StatusPill>
+                  ))}
+                  {board.deviations > 0 && (
+                    <StatusPill tone="warn">
+                      {t("deliberation.gaps", { count: board.deviations })}
+                    </StatusPill>
+                  )}
+                </div>
+                <Table stacked>
+                  <thead>
+                    <tr>
+                      <th>{t("deliberation.student")}</th>
+                      <th>{t("deliberation.year")}</th>
+                      <th>{t("deliberation.proposed")}</th>
+                      <th>{t("deliberation.decision")}</th>
+                      <th>{t("deliberation.reason")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>{board.students.map((row) => studentRow(row, closed))}</tbody>
+                </Table>
+                {failure && <Banner tone="due">{firstErrorMessage(failure, t)}</Banner>}
+                {closed ? (
+                  <div className="flex flex-col gap-3">
+                    <Banner tone="info">
+                      {t("deliberation.proclaimedHelp")}
+                      {board.latest?.reason && (
+                        <> {t("deliberation.correction", { reason: board.latest.reason })}</>
+                      )}
+                    </Banner>
+                    <div className="flex flex-wrap items-end gap-3">
+                      <div className="min-w-64">
+                        <Field id="deliberation-reopen" label={t("deliberation.reopenReason")}>
+                          {(control) => (
+                            <Input
+                              {...control}
+                              maxLength={300}
+                              value={reopenReason}
+                              onChange={(event) => setReopenReason(event.target.value)}
+                            />
+                          )}
+                        </Field>
+                      </div>
+                      <Button
+                        variant="outline"
+                        disabled={reopen.isPending || reopenReason.trim() === ""}
+                        onClick={() => reopen.mutate()}
+                      >
+                        {t("deliberation.reopen")}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      disabled={apply.isPending}
+                      onClick={() => apply.mutate()}
+                    >
+                      {t("deliberation.applyProposals")}
+                    </Button>
+                    <Button disabled={proclaim.isPending} onClick={() => proclaim.mutate()}>
+                      {t("deliberation.proclaim")}
+                    </Button>
+                    <Button asChild variant="ghost">
+                      <Link to="/conduct">{t("deliberation.fixConduct")}</Link>
+                    </Button>
+                    <Button asChild variant="ghost">
+                      <Link to="/application">{t("deliberation.fixApplication")}</Link>
+                    </Button>
+                  </div>
+                )}
+                <p className="text-xs text-ink-3">{t("deliberation.help")}</p>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </>
+  );
+}

@@ -28,6 +28,7 @@ from django.utils.translation import gettext_lazy as _
 from apps.academics.models import (
     ApplicationGrade,
     ConductGrade,
+    DeliberationDecision,
     DisciplineIncident,
     Grade,
     ResitGrade,
@@ -108,7 +109,8 @@ def _touches() -> dict[str, tuple[str, Exists]]:
             | Exists(DisciplineIncident.objects.filter(enrollment__student=student))
             | Exists(ConductGrade.objects.filter(enrollment__student=student))
             | Exists(ApplicationGrade.objects.filter(enrollment__student=student))
-            | Exists(ResitGrade.objects.filter(enrollment__student=student)),
+            | Exists(ResitGrade.objects.filter(enrollment__student=student))
+            | Exists(DeliberationDecision.objects.filter(enrollment__student=student)),
         ),
     }
 
