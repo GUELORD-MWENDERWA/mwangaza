@@ -58,6 +58,7 @@ class StudentRow:
     proposed: str
     decision: str
     reason: str
+    resit_courses: list[str]
 
     @property
     def deviates(self) -> bool:
@@ -104,6 +105,7 @@ def overview(group: ClassGroup) -> ClassDeliberation:
                 PROPOSAL.get(student.outcome, ""),
                 found.decision if found else "",
                 found.reason if found else "",
+                [f.course.name for f in student.failed if f.eligible],
             )
         )
     return ClassDeliberation(deliberation, rows, latest)
@@ -199,6 +201,17 @@ def apply_proposals(group: ClassGroup, *, actor: User) -> int:
     return len(todo)
 
 
+def proclaimed_rows(group: ClassGroup) -> tuple[DeliberationSnapshot | None, dict[str, dict]]:
+    """Dernière version figée de la classe et ses lignes par inscription (texte) : seul ce que le
+    bulletin lit de la délibération, jamais le brouillon en cours."""
+    snapshot = (
+        DeliberationSnapshot.objects.filter(deliberation__class_group=group)
+        .order_by("-version")
+        .first()
+    )
+    return snapshot, {row["enrollment"]: row for row in snapshot.rows} if snapshot else {}
+
+
 def _frozen(row: StudentRow) -> dict:
     return {
         "enrollment": str(row.enrollment.pk),
@@ -209,6 +222,7 @@ def _frozen(row: StudentRow) -> dict:
         "decision": row.decision,
         "reason": row.reason,
         "deviates": row.deviates,
+        "resit_courses": row.resit_courses,
     }
 
 

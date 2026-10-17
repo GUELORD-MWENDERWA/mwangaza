@@ -98,6 +98,17 @@ def _outcome(
     return FAILED if lost >= rules["resit_failures_to_fail"] else PASSED
 
 
+def grades_of_class(enrollment_ids: list[UUID]) -> dict[tuple[UUID, UUID], ResitGrade]:
+    """Notes de repêchage de la classe, par (inscription, cours), avec l'enseignant qui a signé :
+    une requête, pour le bulletin."""
+    return {
+        (r.enrollment_id, r.course_id): r
+        for r in ResitGrade.objects.filter(enrollment__in=enrollment_ids).select_related(
+            "signed_by"
+        )
+    }
+
+
 def rules_of(group: ClassGroup) -> dict:
     """Règles de la classe : celles de l'école, que son niveau peut remplacer (7e, 3e…)."""
     return rules_module.class_rules(group.school.settings, group.level.pass_rules)
