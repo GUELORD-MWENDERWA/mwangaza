@@ -52,9 +52,9 @@ jobs:
     needs: changes
     if: needs.changes.outputs.backend != 'false'
     runs-on: ubuntu-24.04
-    # Un contrôle dure environ 5 minutes : bloqué (requête sans fin…), il échoue vite au lieu de
-    # tourner jusqu'à 6 heures.
-    timeout-minutes: 20
+    # Le serveur dure environ 16 à 19 minutes (démonstration refaite par une vingtaine de tests) :
+    # bloqué (requête sans fin…), il échoue au lieu de tourner jusqu'à 6 heures.
+    timeout-minutes: 30
     services:
       postgres:
         image: postgres:16

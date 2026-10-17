@@ -14,7 +14,16 @@ from django.utils.translation import gettext_lazy as _
 from apps.core.models import BaseModel, TenantModel
 from apps.core.money import Currency
 from apps.core.tenancy import RESERVED_SUBDOMAINS
-from apps.schools import alerts, colors, grading, matricule, portal, receipts, reminders
+from apps.schools import (
+    alerts,
+    colors,
+    grading,
+    matricule,
+    pass_rules,
+    portal,
+    receipts,
+    reminders,
+)
 from apps.schools.logos import logo_path, monochrome_logo_path, validate_logo
 from apps.schools.signatures import head_signature_path, stamp_path
 
@@ -302,6 +311,11 @@ class School(BaseModel):
         return grading.grading_settings(self.settings)
 
     @property
+    def pass_rules(self) -> dict:
+        """Règles de réussite et de repêchage (`pass_rules.py`)."""
+        return pass_rules.pass_rules_settings(self.settings)
+
+    @property
     def portal(self) -> dict:
         """Ce que le portail montre aux parents, valeurs par défaut comprises (`portal.py`)."""
         return portal.portal_settings(self.settings)
@@ -475,6 +489,10 @@ class Level(TenantModel):
         default=False,
         help_text=_("The report card shows the state exam block instead of the resit exam."),
     )
+
+    # Règles de réussite propres au niveau (8.4.1) : seulement les champs qui diffèrent de ceux de
+    # l'école (`pass_rules.py`) ; vide : celles de l'école.
+    pass_rules = models.JSONField(_("passing rules"), default=dict, blank=True)
 
     class Meta:
         ordering = ["order", "name"]

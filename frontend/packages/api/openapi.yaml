@@ -772,6 +772,7 @@ paths:
           - discipline.incident_cancelled
           - discipline.grade_overridden
           - application.grade_overridden
+          - resit.grade_changed
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -890,6 +891,7 @@ paths:
           * `discipline.incident_cancelled` - Offence cancelled
           * `discipline.grade_overridden` - Conduct grade corrected
           * `application.grade_overridden` - Application grade corrected
+          * `resit.grade_changed` - Resit grade changed
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -969,6 +971,7 @@ paths:
           - grades
           - organisation
           - portal
+          - resit
           - roles
           - school
           - staff
@@ -989,6 +992,7 @@ paths:
           * `grades` - grades
           * `organisation` - organisation
           * `portal` - portal
+          * `resit` - resit
           * `roles` - roles
           * `school` - school
           * `staff` - staff
@@ -1183,6 +1187,7 @@ paths:
           - discipline.incident_cancelled
           - discipline.grade_overridden
           - application.grade_overridden
+          - resit.grade_changed
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -1301,6 +1306,7 @@ paths:
           * `discipline.incident_cancelled` - Offence cancelled
           * `discipline.grade_overridden` - Conduct grade corrected
           * `application.grade_overridden` - Application grade corrected
+          * `resit.grade_changed` - Resit grade changed
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -1380,6 +1386,7 @@ paths:
           - grades
           - organisation
           - portal
+          - resit
           - roles
           - school
           - staff
@@ -1400,6 +1407,7 @@ paths:
           * `grades` - grades
           * `organisation` - organisation
           * `portal` - portal
+          * `resit` - resit
           * `roles` - roles
           * `school` - school
           * `staff` - staff
@@ -3630,6 +3638,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ReportCardStatus'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/resits/:
+    get:
+      operationId: class_groups_resits_retrieve
+      description: |-
+        Élèves de la classe qui ont un cours échoué : cours, pourcentage de l'année, repêchage
+        ouvert ou non, note de repêchage signée et issue proposée. `can_enter` : la personne peut
+        saisir la note de ce cours.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - resits
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassResits'
           description: ''
         '403':
           content:
@@ -10131,6 +10176,110 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/resits/enrollments/{id}/courses/{course_pk}/:
+    put:
+      operationId: resits_enrollments_courses_update
+      description: Saisit la note de repêchage d'un cours échoué ; l'enseignant la
+        signe (son nom reste).
+      parameters:
+      - in: path
+        name: course_pk
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - resits
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResitGradeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResitGradeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResitGradeRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResits'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: resits_enrollments_courses_destroy
+      description: Reprend la note de repêchage saisie.
+      parameters:
+      - in: path
+        name: course_pk
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - resits
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentResits'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/roles/:
     get:
       operationId: roles_list
@@ -13671,6 +13820,7 @@ components:
       - discipline.incident_cancelled
       - discipline.grade_overridden
       - application.grade_overridden
+      - resit.grade_changed
       - students.family_created
       - students.family_updated
       - students.family_deleted
@@ -13788,6 +13938,7 @@ components:
         * `discipline.incident_cancelled` - Offence cancelled
         * `discipline.grade_overridden` - Conduct grade corrected
         * `application.grade_overridden` - Application grade corrected
+        * `resit.grade_changed` - Resit grade changed
         * `students.family_created` - Family created
         * `students.family_updated` - Family changed
         * `students.family_deleted` - Family deleted
@@ -15259,6 +15410,21 @@ components:
       required:
       - id
       - name
+    ClassResits:
+      type: object
+      properties:
+        class_name:
+          type: string
+        rules:
+          $ref: '#/components/schemas/Rules'
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentResits'
+      required:
+      - class_name
+      - rules
+      - students
     ClosingCurrency:
       type: object
       properties:
@@ -16508,6 +16674,9 @@ components:
           oneOf:
           - $ref: '#/components/schemas/GradeEntryEnum'
           - $ref: '#/components/schemas/BlankEnum'
+        resit_allowed:
+          type: boolean
+          readOnly: true
         weekly_hours:
           type: integer
           readOnly: true
@@ -16526,6 +16695,7 @@ components:
       - has_exam
       - is_taught
       - grade_entry
+      - resit_allowed
       - weekly_hours
       - teacher
     CourseInputRequest:
@@ -16565,6 +16735,11 @@ components:
           oneOf:
           - $ref: '#/components/schemas/GradeEntryEnum'
           - $ref: '#/components/schemas/BlankEnum'
+        resit_allowed:
+          type: boolean
+          default: true
+          description: 'Faux (atelier, laboratoire) : pas de seconde session, l''échec
+            reprend l''année.'
         weekly_hours:
           type: integer
           maximum: 40
@@ -17462,6 +17637,7 @@ components:
       - grades
       - organisation
       - portal
+      - resit
       - roles
       - school
       - staff
@@ -19001,6 +19177,9 @@ components:
           title: Ends with the state exam
           description: The report card shows the state exam block instead of the resit
             exam.
+        pass_rules:
+          readOnly: true
+          title: Passing rules
       required:
       - id
       - name
@@ -19008,6 +19187,65 @@ components:
       - cycle
       - order
       - has_state_exam
+      - pass_rules
+    LevelPassRulesRequest:
+      type: object
+      description: |-
+        Règles propres à un niveau : seulement les champs qui diffèrent de l'école ; `{}` : celles
+        de l'école.
+      properties:
+        pass_percent:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Pourcentage de l'année pour réussir.
+        course_pass_percent:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Un cours est échoué sous ce pourcentage.
+        resit_mode:
+          allOf:
+          - $ref: '#/components/schemas/ResitModeEnum'
+          description: |-
+            band : repêchage de plancher à seuil ; any_failed : tout cours échoué.
+
+            * `band` - band
+            * `any_failed` - any_failed
+        resit_floor_percent:
+          type: integer
+          maximum: 99
+          minimum: 0
+          description: Plancher du repêchage (mode band).
+        resit_failures_to_fail:
+          type: integer
+          maximum: 20
+          minimum: 1
+          description: Cours échoués au repêchage qui font échouer.
+        max_resit_courses:
+          type: integer
+          maximum: 60
+          minimum: 0
+          description: Cours échoués au plus qui peuvent être repêchés ; au-delà,
+            l'échec.
+        orientation_percent:
+          type: integer
+          maximum: 99
+          minimum: 0
+          description: 'Sous ce pourcentage de l''année, orientation ailleurs ; 0
+            : jamais.'
+        conduct_ma_to_exclude:
+          type: integer
+          maximum: 12
+          minimum: 0
+          description: 'Périodes de conduite notées MA qui font proposer le renvoi
+            ; 0 : jamais.'
+        conduct_me_to_exclude:
+          type: integer
+          maximum: 12
+          minimum: 0
+          description: 'Périodes de conduite notées ME qui font proposer le renvoi
+            ; 0 : jamais.'
     LevelReorderRequest:
       type: object
       properties:
@@ -19637,6 +19875,24 @@ components:
       - status
       - result
       - error
+    OutcomeEnum:
+      enum:
+      - incomplete
+      - passed
+      - resit
+      - failed
+      - unranked
+      - orient
+      - exclude
+      type: string
+      description: |-
+        * `incomplete` - incomplete
+        * `passed` - passed
+        * `resit` - resit
+        * `failed` - failed
+        * `unranked` - unranked
+        * `orient` - orient
+        * `exclude` - exclude
     OutcomeStatusEnum:
       enum:
       - applied
@@ -20477,6 +20733,140 @@ components:
       required:
       - received_minor
       - student_charge
+    PassRulesSettings:
+      type: object
+      description: Règles de réussite et de repêchage (`pass_rules.py`, 8.4.1). Écriture
+        partielle.
+      properties:
+        pass_percent:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Pourcentage de l'année pour réussir.
+        course_pass_percent:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Un cours est échoué sous ce pourcentage.
+        resit_mode:
+          allOf:
+          - $ref: '#/components/schemas/ResitModeEnum'
+          description: |-
+            band : repêchage de plancher à seuil ; any_failed : tout cours échoué.
+
+            * `band` - band
+            * `any_failed` - any_failed
+        resit_floor_percent:
+          type: integer
+          maximum: 99
+          minimum: 0
+          description: Plancher du repêchage (mode band).
+        resit_failures_to_fail:
+          type: integer
+          maximum: 20
+          minimum: 1
+          description: Cours échoués au repêchage qui font échouer.
+        max_resit_courses:
+          type: integer
+          maximum: 60
+          minimum: 0
+          description: Cours échoués au plus qui peuvent être repêchés ; au-delà,
+            l'échec.
+        orientation_percent:
+          type: integer
+          maximum: 99
+          minimum: 0
+          description: 'Sous ce pourcentage de l''année, orientation ailleurs ; 0
+            : jamais.'
+        conduct_ma_to_exclude:
+          type: integer
+          maximum: 12
+          minimum: 0
+          description: 'Périodes de conduite notées MA qui font proposer le renvoi
+            ; 0 : jamais.'
+        conduct_me_to_exclude:
+          type: integer
+          maximum: 12
+          minimum: 0
+          description: 'Périodes de conduite notées ME qui font proposer le renvoi
+            ; 0 : jamais.'
+      required:
+      - pass_percent
+      - course_pass_percent
+      - resit_mode
+      - resit_floor_percent
+      - resit_failures_to_fail
+      - max_resit_courses
+      - orientation_percent
+      - conduct_ma_to_exclude
+      - conduct_me_to_exclude
+    PassRulesSettingsRequest:
+      type: object
+      description: Règles de réussite et de repêchage (`pass_rules.py`, 8.4.1). Écriture
+        partielle.
+      properties:
+        pass_percent:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Pourcentage de l'année pour réussir.
+        course_pass_percent:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Un cours est échoué sous ce pourcentage.
+        resit_mode:
+          allOf:
+          - $ref: '#/components/schemas/ResitModeEnum'
+          description: |-
+            band : repêchage de plancher à seuil ; any_failed : tout cours échoué.
+
+            * `band` - band
+            * `any_failed` - any_failed
+        resit_floor_percent:
+          type: integer
+          maximum: 99
+          minimum: 0
+          description: Plancher du repêchage (mode band).
+        resit_failures_to_fail:
+          type: integer
+          maximum: 20
+          minimum: 1
+          description: Cours échoués au repêchage qui font échouer.
+        max_resit_courses:
+          type: integer
+          maximum: 60
+          minimum: 0
+          description: Cours échoués au plus qui peuvent être repêchés ; au-delà,
+            l'échec.
+        orientation_percent:
+          type: integer
+          maximum: 99
+          minimum: 0
+          description: 'Sous ce pourcentage de l''année, orientation ailleurs ; 0
+            : jamais.'
+        conduct_ma_to_exclude:
+          type: integer
+          maximum: 12
+          minimum: 0
+          description: 'Périodes de conduite notées MA qui font proposer le renvoi
+            ; 0 : jamais.'
+        conduct_me_to_exclude:
+          type: integer
+          maximum: 12
+          minimum: 0
+          description: 'Périodes de conduite notées ME qui font proposer le renvoi
+            ; 0 : jamais.'
+      required:
+      - conduct_ma_to_exclude
+      - conduct_me_to_exclude
+      - course_pass_percent
+      - max_resit_courses
+      - orientation_percent
+      - pass_percent
+      - resit_failures_to_fail
+      - resit_floor_percent
+      - resit_mode
     PasswordRequest:
       type: object
       description: |-
@@ -20705,6 +21095,8 @@ components:
           $ref: '#/components/schemas/CycleEnum'
         has_state_exam:
           type: boolean
+        pass_rules:
+          $ref: '#/components/schemas/LevelPassRulesRequest'
     PatchedMatriculeSettingsInputRequest:
       type: object
       properties:
@@ -20861,6 +21253,8 @@ components:
           $ref: '#/components/schemas/PortalSettingsRequest'
         grading:
           $ref: '#/components/schemas/GradingSettingsRequest'
+        pass_rules:
+          $ref: '#/components/schemas/PassRulesSettingsRequest'
     PatchedStaffUpdateRequest:
       type: object
       description: Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`.
@@ -22574,6 +22968,62 @@ components:
       - fee_type
       - installments
       - reason
+    ResitCourse:
+      type: object
+      properties:
+        course:
+          type: string
+          format: uuid
+        course_name:
+          type: string
+        percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          description: Année du cours.
+        eligible:
+          type: boolean
+          description: Le cours ouvre un repêchage.
+        resit_percent:
+          type: string
+          nullable: true
+          readOnly: true
+        signed_by:
+          type: string
+          readOnly: true
+        passed:
+          type: boolean
+          nullable: true
+          readOnly: true
+        can_enter:
+          type: boolean
+      required:
+      - course
+      - course_name
+      - percent
+      - eligible
+      - resit_percent
+      - signed_by
+      - passed
+      - can_enter
+    ResitGradeRequest:
+      type: object
+      properties:
+        percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,1})?$
+          description: Pourcentage, 0 à 100.
+      required:
+      - percent
+    ResitModeEnum:
+      enum:
+      - band
+      - any_failed
+      type: string
+      description: |-
+        * `band` - band
+        * `any_failed` - any_failed
     Role:
       type: object
       description: 'Rôle de l''école : un nom et des permissions.'
@@ -22659,6 +23109,37 @@ components:
       required:
       - label
       - points
+    Rules:
+      type: object
+      properties:
+        pass_percent:
+          type: integer
+        course_pass_percent:
+          type: integer
+        resit_mode:
+          type: string
+        resit_floor_percent:
+          type: integer
+        resit_failures_to_fail:
+          type: integer
+        max_resit_courses:
+          type: integer
+        orientation_percent:
+          type: integer
+        conduct_ma_to_exclude:
+          type: integer
+        conduct_me_to_exclude:
+          type: integer
+      required:
+      - pass_percent
+      - course_pass_percent
+      - resit_mode
+      - resit_floor_percent
+      - resit_failures_to_fail
+      - max_resit_courses
+      - orientation_percent
+      - conduct_ma_to_exclude
+      - conduct_me_to_exclude
     Scale:
       type: object
       properties:
@@ -22999,6 +23480,8 @@ components:
           $ref: '#/components/schemas/PortalSettings'
         grading:
           $ref: '#/components/schemas/GradingSettings'
+        pass_rules:
+          $ref: '#/components/schemas/PassRulesSettings'
       required:
       - code
       - name
@@ -23024,6 +23507,7 @@ components:
       - reminders
       - portal
       - grading
+      - pass_rules
     SchoolStatusEnum:
       enum:
       - trial
@@ -24337,6 +24821,43 @@ components:
       - enrollment
       - primary_guardian
       - finance
+    StudentResits:
+      type: object
+      properties:
+        enrollment:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+          description: Pourcentage de l'année.
+        outcome:
+          allOf:
+          - $ref: '#/components/schemas/OutcomeEnum'
+          description: |-
+            Issue proposée d'après les règles de l'école.
+
+            * `incomplete` - incomplete
+            * `passed` - passed
+            * `resit` - resit
+            * `failed` - failed
+            * `unranked` - unranked
+            * `orient` - orient
+            * `exclude` - exclude
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResitCourse'
+      required:
+      - enrollment
+      - full_name
+      - percent
+      - outcome
+      - courses
     StudentWriteRequest:
       type: object
       description: |-

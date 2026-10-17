@@ -56,12 +56,19 @@ async function shoot(page: Page, app: string, name: string) {
   }
 }
 
-async function visit(page: Page, url: string, app: string, name: string) {
+async function visit(
+  page: Page,
+  url: string,
+  app: string,
+  name: string,
+  before?: (page: Page) => Promise<void>,
+) {
   if (ONLY && !`${app}/${name}`.startsWith(ONLY) && ONLY !== app) return;
   await page.setViewportSize(WIDTHS[2]!);
   await page.goto(url);
   await page.waitForLoadState("networkidle").catch(() => undefined);
   await page.waitForTimeout(500);
+  await before?.(page);
   await shoot(page, app, name);
 }
 
@@ -157,6 +164,12 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     await visit(discipline, `${ITIG}conduct-scale`, "gestion", "conduct-scale");
     // Application (8.5.1c) : le directeur des études corrige la cote de n'importe quelle classe.
     await visit(director, `${ITIG}application`, "gestion", "application");
+    // Repêchage (8.4.1) : une classe complète de la démonstration, qui a des cours échoués.
+    await visit(director, `${ITIG}resits`, "gestion", "resits", async (page) => {
+      await page.getByLabel("Classe").selectOption({ label: "3HT ÉLECTRONIQUE A" });
+      await page.waitForLoadState("networkidle").catch(() => undefined);
+      await page.waitForTimeout(500);
+    });
   }
 
   if (!ONLY || ONLY.startsWith("portail")) {

@@ -36,6 +36,8 @@ import { AlertsCard } from "./AlertsCard";
 import { CashRegistersCard } from "./CashRegistersCard";
 import { HEADER_MAX_LINES, headerLines, ReceiptCard } from "./ReceiptCard";
 import { GradingCard } from "./GradingCard";
+import { LevelRulesCard } from "./LevelRulesCard";
+import { PassRulesCard } from "./PassRulesCard";
 import { PortalCard } from "./PortalCard";
 import { RemindersCard } from "./RemindersCard";
 import { SigningCard } from "./SigningCard";
@@ -100,6 +102,19 @@ function useSchema() {
           (value) => /^\d{1,2}$/.test(value) && Number(value) >= 1 && Number(value) <= max,
           t("settings.reminders.invalidDays", { max }),
         );
+    // Nombre de périodes de conduite (0 : règle désactivée).
+    const count = z
+      .string()
+      .trim()
+      .refine((value) => /^\d{1,2}$/.test(value), t("settings.passRules.invalidCount"));
+    // Pourcentage entier de 0 à 100 (règles de réussite).
+    const percent = z
+      .string()
+      .trim()
+      .refine(
+        (value) => /^\d{1,3}$/.test(value) && Number(value) <= 100,
+        t("settings.passRules.invalidPercent"),
+      );
     return z
       .object({
         name: z.string().trim().min(1, t("validation.nameRequired")).max(200),
@@ -154,8 +169,28 @@ function useSchema() {
         }),
         portal: z.object({ teacher_phone: z.boolean() }),
         grading: z.object({ entry: z.enum(["detailed", "totals"]) }),
+        pass_rules: z.object({
+          pass_percent: percent,
+          course_pass_percent: percent,
+          resit_mode: z.enum(["band", "any_failed"]),
+          resit_floor_percent: percent,
+          orientation_percent: percent,
+          conduct_ma_to_exclude: count,
+          conduct_me_to_exclude: count,
+          max_resit_courses: z
+            .string()
+            .trim()
+            .refine((value) => /^\d{1,2}$/.test(value), t("settings.passRules.invalidCount")),
+          resit_failures_to_fail: z
+            .string()
+            .trim()
+            .refine(
+              (value) => /^\d{1,2}$/.test(value) && Number(value) >= 1,
+              t("settings.passRules.invalidCount"),
+            ),
+        }),
       })
-      .transform(({ alerts, reminders, ...values }) => ({
+      .transform(({ alerts, reminders, pass_rules: rules, ...values }) => ({
         ...values,
         primary_color: normalizeColor(values.primary_color) ?? values.primary_color,
         alerts: {
@@ -167,6 +202,17 @@ function useSchema() {
           enabled: reminders.enabled,
           days_before: Number(reminders.days_before),
           overdue_every_days: Number(reminders.overdue_every_days),
+        },
+        pass_rules: {
+          pass_percent: Number(rules.pass_percent),
+          course_pass_percent: Number(rules.course_pass_percent),
+          resit_mode: rules.resit_mode,
+          resit_floor_percent: Number(rules.resit_floor_percent),
+          resit_failures_to_fail: Number(rules.resit_failures_to_fail),
+          max_resit_courses: Number(rules.max_resit_courses),
+          orientation_percent: Number(rules.orientation_percent),
+          conduct_ma_to_exclude: Number(rules.conduct_ma_to_exclude),
+          conduct_me_to_exclude: Number(rules.conduct_me_to_exclude),
         },
       }));
   }, [t]);
@@ -230,6 +276,17 @@ function SettingsForm({ settings }: { settings: Settings }) {
       },
       portal: settings.portal,
       grading: settings.grading,
+      pass_rules: {
+        pass_percent: String(settings.pass_rules.pass_percent),
+        course_pass_percent: String(settings.pass_rules.course_pass_percent),
+        resit_mode: settings.pass_rules.resit_mode,
+        resit_floor_percent: String(settings.pass_rules.resit_floor_percent),
+        resit_failures_to_fail: String(settings.pass_rules.resit_failures_to_fail),
+        max_resit_courses: String(settings.pass_rules.max_resit_courses),
+        orientation_percent: String(settings.pass_rules.orientation_percent),
+        conduct_ma_to_exclude: String(settings.pass_rules.conduct_ma_to_exclude),
+        conduct_me_to_exclude: String(settings.pass_rules.conduct_me_to_exclude),
+      },
     },
   });
   const save = useMutation({
@@ -282,6 +339,8 @@ function SettingsForm({ settings }: { settings: Settings }) {
           <RemindersCard form={form} />
           <PortalCard form={form} />
           <GradingCard form={form} />
+          <PassRulesCard form={form} />
+          <LevelRulesCard />
         </div>
       </div>
     </form>

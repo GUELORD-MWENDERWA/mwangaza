@@ -41,6 +41,7 @@ class CourseSerializer(serializers.ModelSerializer):
             "has_exam",
             "is_taught",
             "grade_entry",
+            "resit_allowed",
             "weekly_hours",
             "teacher",
         ]
@@ -64,6 +65,10 @@ class CourseInputSerializer(serializers.Serializer):
         required=False,
         default="",
         help_text="Saisie des points de ce cours ; vide : réglage de l'école (8.4.0).",
+    )
+    resit_allowed = serializers.BooleanField(
+        default=True,
+        help_text="Faux (atelier, laboratoire) : pas de seconde session, l'échec reprend l'année.",
     )
     weekly_hours = serializers.IntegerField(
         min_value=1, max_value=MAX_WEEKLY_HOURS, required=False, allow_null=True, default=None

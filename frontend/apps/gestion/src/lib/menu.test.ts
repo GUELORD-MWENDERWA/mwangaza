@@ -62,6 +62,7 @@ describe("menu selon les permissions (04 § 8)", () => {
       "grades",
       "gradeSheets",
       "application",
+      "resits",
       "staffNews",
       "calendar",
     ]);

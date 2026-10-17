@@ -97,6 +97,7 @@ class Action(models.TextChoices):
     DISCIPLINE_INCIDENT_CANCELLED = "discipline.incident_cancelled", _("Offence cancelled")
     DISCIPLINE_GRADE_OVERRIDDEN = "discipline.grade_overridden", _("Conduct grade corrected")
     APPLICATION_GRADE_OVERRIDDEN = "application.grade_overridden", _("Application grade corrected")
+    RESIT_GRADE_CHANGED = "resit.grade_changed", _("Resit grade changed")
 
     # Élèves et familles (D2-D4).
     STUDENTS_FAMILY_CREATED = "students.family_created", _("Family created")

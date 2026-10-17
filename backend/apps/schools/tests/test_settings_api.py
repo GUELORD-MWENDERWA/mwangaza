@@ -78,6 +78,17 @@ def test_head_reads_the_settings(api, school, head):
         # Téléphone du titulaire : caché aux parents tant que l'école ne l'a pas choisi.
         "portal": {"teacher_phone": False},
         "grading": {"entry": "detailed"},
+        "pass_rules": {
+            "pass_percent": 50,
+            "course_pass_percent": 50,
+            "resit_mode": "band",
+            "resit_floor_percent": 45,
+            "resit_failures_to_fail": 2,
+            "max_resit_courses": 4,
+            "orientation_percent": 40,
+            "conduct_ma_to_exclude": 2,
+            "conduct_me_to_exclude": 3,
+        },
     }
 
 

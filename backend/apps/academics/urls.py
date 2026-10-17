@@ -2,7 +2,7 @@ from django.urls import path
 
 from apps.academics import application_views as application
 from apps.academics import discipline_views as conduct
-from apps.academics import views
+from apps.academics import resits_views, views
 
 urlpatterns = [
     path("class-groups/<uuid:pk>/courses/", views.ClassCoursesView.as_view(), name="class-courses"),
@@ -92,5 +92,15 @@ urlpatterns = [
         "application/enrollments/<uuid:pk>/",
         application.ApplicationOverrideView.as_view(),
         name="application-grade",
+    ),
+    path(
+        "class-groups/<uuid:pk>/resits/",
+        resits_views.ClassResitsView.as_view(),
+        name="class-resits",
+    ),
+    path(
+        "resits/enrollments/<uuid:pk>/courses/<uuid:course_pk>/",
+        resits_views.ResitGradeView.as_view(),
+        name="resit-grade",
     ),
 ]

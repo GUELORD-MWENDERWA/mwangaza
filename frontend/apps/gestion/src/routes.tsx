@@ -32,6 +32,7 @@ import { ReportCardPage } from "./features/grades/ReportCardPage";
 import { GradeValidationPage } from "./features/grades/GradeValidationPage";
 import { OrganisationPage } from "./features/organisation/OrganisationPage";
 import { PriorPaymentsPage } from "./features/prior-payments/PriorPaymentsPage";
+import { ResitsPage } from "./features/resits/ResitsPage";
 import { RolesPage } from "./features/roles/RolesPage";
 import { SchoolChoicePage } from "./features/schools/SchoolChoicePage";
 import { SchoolSettingsPage } from "./features/settings/SchoolSettingsPage";
@@ -76,6 +77,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   conduct: <ConductPage />,
   conductScale: <ConductScalePage />,
   application: <ApplicationPage />,
+  resits: <ResitsPage />,
   schoolSettings: <SchoolSettingsPage />,
   organisation: <OrganisationPage />,
   cash: <CashPage />,

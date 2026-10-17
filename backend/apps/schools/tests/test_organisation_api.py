@@ -245,6 +245,7 @@ def test_levels(api, head, school, alpha):
         "cycle": "basic",
         "order": 2,
         "has_state_exam": False,
+        "pass_rules": {},
     }
     assert renamed.json()["name"] == "7e"
     last_year = client.patch(f"{LEVELS}{alpha['level'].id}/", {"has_state_exam": True})

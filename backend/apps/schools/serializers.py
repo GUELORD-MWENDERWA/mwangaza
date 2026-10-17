@@ -13,7 +13,7 @@ from apps.accounts.models import User
 from apps.core import health
 from apps.core.images import CleanedFileField, clean_signature
 from apps.core.money import Currency
-from apps.schools import grading, organisation, receipts, signatures
+from apps.schools import grading, organisation, pass_rules, receipts, signatures
 from apps.schools.matricule import MAX_LENGTH as MAX_MATRICULE_LENGTH
 from apps.schools.models import (
     TRACK_CODE_PATTERN,
@@ -125,6 +125,58 @@ class GradingSettingsSerializer(serializers.Serializer):
     )
 
 
+class PassRulesSettingsSerializer(serializers.Serializer):
+    """Règles de réussite et de repêchage (`pass_rules.py`, 8.4.1). Écriture partielle."""
+
+    pass_percent = serializers.IntegerField(
+        min_value=1, max_value=100, help_text="Pourcentage de l'année pour réussir."
+    )
+    course_pass_percent = serializers.IntegerField(
+        min_value=1, max_value=100, help_text="Un cours est échoué sous ce pourcentage."
+    )
+    resit_mode = serializers.ChoiceField(
+        choices=pass_rules.MODES,
+        help_text="band : repêchage de plancher à seuil ; any_failed : tout cours échoué.",
+    )
+    resit_floor_percent = serializers.IntegerField(
+        min_value=0, max_value=99, help_text="Plancher du repêchage (mode band)."
+    )
+    resit_failures_to_fail = serializers.IntegerField(
+        min_value=1, max_value=20, help_text="Cours échoués au repêchage qui font échouer."
+    )
+    max_resit_courses = serializers.IntegerField(
+        min_value=0,
+        max_value=60,
+        help_text="Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec.",
+    )
+    orientation_percent = serializers.IntegerField(
+        min_value=0,
+        max_value=99,
+        help_text="Sous ce pourcentage de l'année, orientation ailleurs ; 0 : jamais.",
+    )
+    conduct_ma_to_exclude = serializers.IntegerField(
+        min_value=0,
+        max_value=12,
+        help_text="Périodes de conduite notées MA qui font proposer le renvoi ; 0 : jamais.",
+    )
+    conduct_me_to_exclude = serializers.IntegerField(
+        min_value=0,
+        max_value=12,
+        help_text="Périodes de conduite notées ME qui font proposer le renvoi ; 0 : jamais.",
+    )
+
+
+class LevelPassRulesSerializer(PassRulesSettingsSerializer):
+    """Règles propres à un niveau : seulement les champs qui diffèrent de l'école ; `{}` : celles
+    de l'école."""
+
+    def get_fields(self):
+        fields = super().get_fields()
+        for field in fields.values():
+            field.required = False
+        return fields
+
+
 class ReminderSettingsSerializer(serializers.Serializer):
     """Relances aux parents (`reminders.py`, 5.6.2). Écriture partielle : les autres restent."""
 
@@ -211,6 +263,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
     reminders = ReminderSettingsSerializer(required=False)
     portal = PortalSettingsSerializer(required=False)
     grading = GradingSettingsSerializer(required=False)
+    pass_rules = PassRulesSettingsSerializer(required=False)
 
     class Meta:
         model = School
@@ -239,6 +292,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
             "reminders",
             "portal",
             "grading",
+            "pass_rules",
         ]
         read_only_fields = ["code"]
 
@@ -258,8 +312,15 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
         # Mêmes règles que l'administration (`School.clean`) : devise principale parmi celles de
         # l'école, couleur écrite `#RRGGBB`.
         school = copy(self.instance)
+        if "pass_rules" in data:
+            # Le plancher du repêchage reste sous la note de réussite d'un cours.
+            rules = {**school.pass_rules, **data["pass_rules"]}
+            if rules["resit_floor_percent"] >= rules["course_pass_percent"]:
+                raise serializers.ValidationError(
+                    {"pass_rules": _("The resit floor must be below the course pass mark.")}
+                )
         for field, value in data.items():
-            if field not in ("receipt", "alerts", "reminders", "portal", "grading"):
+            if field not in ("receipt", "alerts", "reminders", "portal", "grading", "pass_rules"):
                 setattr(school, field, value)
         try:
             school.clean()
@@ -420,8 +481,8 @@ class TermsUpdateSerializer(serializers.Serializer):
 class LevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Level
-        fields = ["id", "name", "report_title", "cycle", "order", "has_state_exam"]
-        read_only_fields = ["id", "order"]
+        fields = ["id", "name", "report_title", "cycle", "order", "has_state_exam", "pass_rules"]
+        read_only_fields = ["id", "order", "pass_rules"]
 
 
 class LevelUpdateSerializer(serializers.Serializer):
@@ -429,6 +490,7 @@ class LevelUpdateSerializer(serializers.Serializer):
     report_title = serializers.CharField(max_length=80, required=False, allow_blank=True)
     cycle = serializers.ChoiceField(choices=Level.Cycle.choices, required=False)
     has_state_exam = serializers.BooleanField(required=False)
+    pass_rules = LevelPassRulesSerializer(required=False)
 
 
 class LevelReorderSerializer(serializers.Serializer):

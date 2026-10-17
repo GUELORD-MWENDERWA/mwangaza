@@ -999,6 +999,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/class-groups/{id}/resits/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Élèves de la classe qui ont un cours échoué : cours, pourcentage de l'année, repêchage
+         *     ouvert ou non, note de repêchage signée et issue proposée. `can_enter` : la personne peut
+         *     saisir la note de ce cours.
+         */
+        get: operations["class_groups_resits_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/class-groups/homeroom-candidates/": {
         parameters: {
             query?: never;
@@ -3285,6 +3306,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/resits/enrollments/{id}/courses/{course_pk}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Saisit la note de repêchage d'un cours échoué ; l'enseignant la signe (son nom reste). */
+        put: operations["resits_enrollments_courses_update"];
+        post?: never;
+        /** @description Reprend la note de repêchage saisie. */
+        delete: operations["resits_enrollments_courses_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/roles/": {
         parameters: {
             query?: never;
@@ -4437,6 +4476,7 @@ export interface components {
          *     * `discipline.incident_cancelled` - Offence cancelled
          *     * `discipline.grade_overridden` - Conduct grade corrected
          *     * `application.grade_overridden` - Application grade corrected
+         *     * `resit.grade_changed` - Resit grade changed
          *     * `students.family_created` - Family created
          *     * `students.family_updated` - Family changed
          *     * `students.family_deleted` - Family deleted
@@ -4496,7 +4536,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.report_card_printed" | "grades.sheet_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "application.grade_overridden" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.report_card_printed" | "grades.sheet_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "application.grade_overridden" | "resit.grade_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         /** @description Comptes du portail activés (H7) : école, puis chaque classe de l'année en cours. */
         ActivationSummary: {
             families: number;
@@ -5097,6 +5137,11 @@ export interface components {
             /** @description « 4e Électricité A ». */
             readonly name: string;
         };
+        ClassResits: {
+            class_name: string;
+            rules: components["schemas"]["Rules"];
+            students: components["schemas"]["StudentResits"][];
+        };
         ClosingCurrency: {
             currency: components["schemas"]["CurrencyEnum"];
             /** @description Paiements de la session pas annulés à l'heure de clôture. */
@@ -5658,6 +5703,7 @@ export interface components {
              *     * `totals` - totals
              */
             readonly grade_entry: components["schemas"]["GradeEntryEnum"] | components["schemas"]["BlankEnum"];
+            readonly resit_allowed: boolean;
             /** Hours per week */
             readonly weekly_hours: number | null;
             readonly teacher: components["schemas"]["Person"] | null;
@@ -5687,6 +5733,11 @@ export interface components {
              * @default
              */
             grade_entry: components["schemas"]["GradeEntryEnum"] | components["schemas"]["BlankEnum"];
+            /**
+             * @description Faux (atelier, laboratoire) : pas de seconde session, l'échec reprend l'année.
+             * @default true
+             */
+            resit_allowed: boolean;
             weekly_hours?: number | null;
             /**
              * Format: uuid
@@ -6078,7 +6129,7 @@ export interface components {
             signature: string | null;
         };
         /** @enum {string} */
-        DomainEnum: "account" | "announcements" | "application" | "audit" | "auth" | "courses" | "devices" | "discipline" | "finance" | "grades" | "organisation" | "portal" | "roles" | "school" | "staff" | "students" | "support";
+        DomainEnum: "account" | "announcements" | "application" | "audit" | "auth" | "courses" | "devices" | "discipline" | "finance" | "grades" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support";
         EmailChange: {
             before: string;
             after: string;
@@ -6795,6 +6846,37 @@ export interface components {
              * @description The report card shows the state exam block instead of the resit exam.
              */
             has_state_exam: boolean;
+            /** Passing rules */
+            readonly pass_rules: unknown;
+        };
+        /**
+         * @description Règles propres à un niveau : seulement les champs qui diffèrent de l'école ; `{}` : celles
+         *     de l'école.
+         */
+        LevelPassRulesRequest: {
+            /** @description Pourcentage de l'année pour réussir. */
+            pass_percent?: number;
+            /** @description Un cours est échoué sous ce pourcentage. */
+            course_pass_percent?: number;
+            /**
+             * @description band : repêchage de plancher à seuil ; any_failed : tout cours échoué.
+             *
+             *     * `band` - band
+             *     * `any_failed` - any_failed
+             */
+            resit_mode?: components["schemas"]["ResitModeEnum"];
+            /** @description Plancher du repêchage (mode band). */
+            resit_floor_percent?: number;
+            /** @description Cours échoués au repêchage qui font échouer. */
+            resit_failures_to_fail?: number;
+            /** @description Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec. */
+            max_resit_courses?: number;
+            /** @description Sous ce pourcentage de l'année, orientation ailleurs ; 0 : jamais. */
+            orientation_percent?: number;
+            /** @description Périodes de conduite notées MA qui font proposer le renvoi ; 0 : jamais. */
+            conduct_ma_to_exclude?: number;
+            /** @description Périodes de conduite notées ME qui font proposer le renvoi ; 0 : jamais. */
+            conduct_me_to_exclude?: number;
         };
         LevelReorderRequest: {
             /** @description Tous les niveaux de l'école, dans l'ordre voulu. */
@@ -7091,6 +7173,17 @@ export interface components {
             /** @description Raison du refus. */
             error: components["schemas"]["Error"] | null;
         };
+        /**
+         * @description * `incomplete` - incomplete
+         *     * `passed` - passed
+         *     * `resit` - resit
+         *     * `failed` - failed
+         *     * `unranked` - unranked
+         *     * `orient` - orient
+         *     * `exclude` - exclude
+         * @enum {string}
+         */
+        OutcomeEnum: "incomplete" | "passed" | "resit" | "failed" | "unranked" | "orient" | "exclude";
         /**
          * @description * `applied` - applied
          *     * `duplicate` - duplicate
@@ -7590,6 +7683,58 @@ export interface components {
             /** Format: int64 */
             received_minor: number;
         };
+        /** @description Règles de réussite et de repêchage (`pass_rules.py`, 8.4.1). Écriture partielle. */
+        PassRulesSettings: {
+            /** @description Pourcentage de l'année pour réussir. */
+            pass_percent: number;
+            /** @description Un cours est échoué sous ce pourcentage. */
+            course_pass_percent: number;
+            /**
+             * @description band : repêchage de plancher à seuil ; any_failed : tout cours échoué.
+             *
+             *     * `band` - band
+             *     * `any_failed` - any_failed
+             */
+            resit_mode: components["schemas"]["ResitModeEnum"];
+            /** @description Plancher du repêchage (mode band). */
+            resit_floor_percent: number;
+            /** @description Cours échoués au repêchage qui font échouer. */
+            resit_failures_to_fail: number;
+            /** @description Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec. */
+            max_resit_courses: number;
+            /** @description Sous ce pourcentage de l'année, orientation ailleurs ; 0 : jamais. */
+            orientation_percent: number;
+            /** @description Périodes de conduite notées MA qui font proposer le renvoi ; 0 : jamais. */
+            conduct_ma_to_exclude: number;
+            /** @description Périodes de conduite notées ME qui font proposer le renvoi ; 0 : jamais. */
+            conduct_me_to_exclude: number;
+        };
+        /** @description Règles de réussite et de repêchage (`pass_rules.py`, 8.4.1). Écriture partielle. */
+        PassRulesSettingsRequest: {
+            /** @description Pourcentage de l'année pour réussir. */
+            pass_percent: number;
+            /** @description Un cours est échoué sous ce pourcentage. */
+            course_pass_percent: number;
+            /**
+             * @description band : repêchage de plancher à seuil ; any_failed : tout cours échoué.
+             *
+             *     * `band` - band
+             *     * `any_failed` - any_failed
+             */
+            resit_mode: components["schemas"]["ResitModeEnum"];
+            /** @description Plancher du repêchage (mode band). */
+            resit_floor_percent: number;
+            /** @description Cours échoués au repêchage qui font échouer. */
+            resit_failures_to_fail: number;
+            /** @description Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec. */
+            max_resit_courses: number;
+            /** @description Sous ce pourcentage de l'année, orientation ailleurs ; 0 : jamais. */
+            orientation_percent: number;
+            /** @description Périodes de conduite notées MA qui font proposer le renvoi ; 0 : jamais. */
+            conduct_ma_to_exclude: number;
+            /** @description Périodes de conduite notées ME qui font proposer le renvoi ; 0 : jamais. */
+            conduct_me_to_exclude: number;
+        };
         /**
          * @description Connexion en cours avec un mot de passe provisoire : `new_password` seul. Compte connecté :
          *     `current_password` aussi.
@@ -7717,6 +7862,7 @@ export interface components {
             report_title?: string;
             cycle?: components["schemas"]["CycleEnum"];
             has_state_exam?: boolean;
+            pass_rules?: components["schemas"]["LevelPassRulesRequest"];
         };
         PatchedMatriculeSettingsInputRequest: {
             /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
@@ -7808,6 +7954,7 @@ export interface components {
             reminders?: components["schemas"]["ReminderSettingsRequest"];
             portal?: components["schemas"]["PortalSettingsRequest"];
             grading?: components["schemas"]["GradingSettingsRequest"];
+            pass_rules?: components["schemas"]["PassRulesSettingsRequest"];
         };
         /** @description Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`. */
         PatchedStaffUpdateRequest: {
@@ -8592,6 +8739,35 @@ export interface components {
             parent_signed: boolean;
             installments: components["schemas"]["InstallmentRequest"][];
         };
+        ResitCourse: {
+            /** Format: uuid */
+            course: string;
+            course_name: string;
+            /**
+             * Format: decimal
+             * @description Année du cours.
+             */
+            percent: string;
+            /** @description Le cours ouvre un repêchage. */
+            eligible: boolean;
+            readonly resit_percent: string | null;
+            readonly signed_by: string;
+            readonly passed: boolean | null;
+            can_enter: boolean;
+        };
+        ResitGradeRequest: {
+            /**
+             * Format: decimal
+             * @description Pourcentage, 0 à 100.
+             */
+            percent: string;
+        };
+        /**
+         * @description * `band` - band
+         *     * `any_failed` - any_failed
+         * @enum {string}
+         */
+        ResitModeEnum: "band" | "any_failed";
         /** @description Rôle de l'école : un nom et des permissions. */
         Role: {
             /** Format: uuid */
@@ -8623,6 +8799,17 @@ export interface components {
         RuleCreateRequest: {
             label: string;
             points: number;
+        };
+        Rules: {
+            pass_percent: number;
+            course_pass_percent: number;
+            resit_mode: string;
+            resit_floor_percent: number;
+            resit_failures_to_fail: number;
+            max_resit_courses: number;
+            orientation_percent: number;
+            conduct_ma_to_exclude: number;
+            conduct_me_to_exclude: number;
         };
         Scale: {
             scale: components["schemas"]["ScaleRow"][];
@@ -8801,6 +8988,7 @@ export interface components {
             reminders: components["schemas"]["ReminderSettings"];
             portal: components["schemas"]["PortalSettings"];
             grading: components["schemas"]["GradingSettings"];
+            pass_rules: components["schemas"]["PassRulesSettings"];
         };
         /**
          * @description * `trial` - Free trial
@@ -9373,6 +9561,29 @@ export interface components {
             readonly enrollment: components["schemas"]["Enrollment"] | null;
             readonly primary_guardian: components["schemas"]["Guardian"] | null;
             readonly finance: components["schemas"]["Balance"] | null;
+        };
+        StudentResits: {
+            /** Format: uuid */
+            enrollment: string;
+            full_name: string;
+            /**
+             * Format: decimal
+             * @description Pourcentage de l'année.
+             */
+            percent: string | null;
+            /**
+             * @description Issue proposée d'après les règles de l'école.
+             *
+             *     * `incomplete` - incomplete
+             *     * `passed` - passed
+             *     * `resit` - resit
+             *     * `failed` - failed
+             *     * `unranked` - unranked
+             *     * `orient` - orient
+             *     * `exclude` - exclude
+             */
+            outcome: components["schemas"]["OutcomeEnum"];
+            courses: components["schemas"]["ResitCourse"][];
         };
         /**
          * @description Création : `family` (famille existante de l'école) ou `guardians` (nouvelle famille).
@@ -10607,6 +10818,7 @@ export interface operations {
                  *     * `discipline.incident_cancelled` - Offence cancelled
                  *     * `discipline.grade_overridden` - Conduct grade corrected
                  *     * `application.grade_overridden` - Application grade corrected
+                 *     * `resit.grade_changed` - Resit grade changed
                  *     * `students.family_created` - Family created
                  *     * `students.family_updated` - Family changed
                  *     * `students.family_deleted` - Family deleted
@@ -10665,7 +10877,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.report_card_printed" | "grades.sheet_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "application.grade_overridden" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.report_card_printed" | "grades.sheet_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "application.grade_overridden" | "resit.grade_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -10681,13 +10893,14 @@ export interface operations {
                  *     * `grades` - grades
                  *     * `organisation` - organisation
                  *     * `portal` - portal
+                 *     * `resit` - resit
                  *     * `roles` - roles
                  *     * `school` - school
                  *     * `staff` - staff
                  *     * `students` - students
                  *     * `support` - support
                  */
-                domain?: "account" | "announcements" | "application" | "audit" | "auth" | "courses" | "devices" | "discipline" | "finance" | "grades" | "organisation" | "portal" | "roles" | "school" | "staff" | "students" | "support";
+                domain?: "account" | "announcements" | "application" | "audit" | "auth" | "courses" | "devices" | "discipline" | "finance" | "grades" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description A page number within the paginated result set. */
@@ -10866,6 +11079,7 @@ export interface operations {
                  *     * `discipline.incident_cancelled` - Offence cancelled
                  *     * `discipline.grade_overridden` - Conduct grade corrected
                  *     * `application.grade_overridden` - Application grade corrected
+                 *     * `resit.grade_changed` - Resit grade changed
                  *     * `students.family_created` - Family created
                  *     * `students.family_updated` - Family changed
                  *     * `students.family_deleted` - Family deleted
@@ -10924,7 +11138,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.report_card_printed" | "grades.sheet_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "application.grade_overridden" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.report_card_printed" | "grades.sheet_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "application.grade_overridden" | "resit.grade_changed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -10940,13 +11154,14 @@ export interface operations {
                  *     * `grades` - grades
                  *     * `organisation` - organisation
                  *     * `portal` - portal
+                 *     * `resit` - resit
                  *     * `roles` - roles
                  *     * `school` - school
                  *     * `staff` - staff
                  *     * `students` - students
                  *     * `support` - support
                  */
-                domain?: "account" | "announcements" | "application" | "audit" | "auth" | "courses" | "devices" | "discipline" | "finance" | "grades" | "organisation" | "portal" | "roles" | "school" | "staff" | "students" | "support";
+                domain?: "account" | "announcements" | "application" | "audit" | "auth" | "courses" | "devices" | "discipline" | "finance" | "grades" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description Dans le nom de l'objet. */
@@ -13146,6 +13361,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReportCardStatus"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    class_groups_resits_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassResits"];
                 };
             };
             403: {
@@ -19868,6 +20120,104 @@ export interface operations {
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
                     "application/pdf": string;
                     "text/html": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    resits_enrollments_courses_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                course_pk: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResitGradeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ResitGradeRequest"];
+                "multipart/form-data": components["schemas"]["ResitGradeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentResits"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    resits_enrollments_courses_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                course_pk: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentResits"];
                 };
             };
             400: {

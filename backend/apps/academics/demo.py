@@ -20,6 +20,7 @@ from django.conf import settings
 from django.utils import timezone, translation
 from django.utils.translation import gettext
 
+from apps.academics import report_cards, resits
 from apps.academics.discipline import DEFAULT_RULES
 from apps.academics.grades import term_maximum
 from apps.academics.models import (
@@ -32,6 +33,7 @@ from apps.academics.models import (
     Grade,
     GradeDeadline,
     GradeSheet,
+    ResitGrade,
 )
 from apps.academics.official import BY_KEY
 from apps.accounts.models import User
@@ -239,6 +241,7 @@ def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
         )
         enrolled = students[group.pk]
         level = {e.pk: draw.uniform(0.4, 0.92) for e in enrolled}
+        ResitGrade.objects.filter(course__in=courses).delete()
         GradeSheet.objects.filter(course__in=courses).delete()
         Evaluation.objects.filter(course__in=courses).delete()
         evaluations = []
@@ -291,6 +294,24 @@ def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
                 if term.kind != Term.Kind.EXAM or course.has_exam
             ]
         )
+        _create_demo_resits(group, draw, now)
+
+
+def _create_demo_resits(group: ClassGroup, draw: random.Random, now) -> None:
+    """Repêchage (8.4.1) : un cours échoué sur deux a déjà sa note de repêchage, signée par son
+    enseignant ; les autres l'attendent (l'élève est « en repêchage »)."""
+    rows = resits.class_overview(report_cards.class_report(group), with_conduct=False)
+    ResitGrade.objects.bulk_create(
+        ResitGrade(
+            enrollment=student.enrollment,
+            course=row.course,
+            percent=Decimal(draw.randint(300, 800)) / 10,
+            signed_by=row.course.teacher,
+        )
+        for student in rows
+        for row in student.failed
+        if row.eligible and row.course.teacher_id and draw.random() < 0.5
+    )
 
 
 # Conduite (8.5.1a) : la liste proposée et quelques incidents dans la 1re période, pour qu'un

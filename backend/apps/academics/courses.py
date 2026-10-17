@@ -43,6 +43,7 @@ FIELDS = (
     "has_exam",
     "is_taught",
     "grade_entry",
+    "resit_allowed",
     "weekly_hours",
     "teacher_id",
 )
@@ -57,6 +58,7 @@ class CourseInput:
     has_exam: bool = True
     is_taught: bool = True
     grade_entry: str = ""
+    resit_allowed: bool = True
     domain: str = ""
     weekly_hours: int | None = None
     teacher_id: UUID | None = None
@@ -121,6 +123,7 @@ def _snapshot(course: Course) -> dict:
         "has_exam": course.has_exam,
         "is_taught": course.is_taught,
         "grade_entry": course.grade_entry,
+        "resit_allowed": course.resit_allowed,
         "weekly_hours": course.weekly_hours,
         "teacher": str(teacher) if teacher else None,
     }
@@ -180,6 +183,7 @@ def set_courses(
             course.has_exam = item.has_exam
             course.is_taught = item.is_taught
             course.grade_entry = item.grade_entry
+            course.resit_allowed = item.resit_allowed
             course.weekly_hours = item.weekly_hours
             course.teacher = staff.get(item.teacher_id) if item.teacher_id else None
             course.order = order
@@ -218,6 +222,7 @@ def copy_courses(
             has_exam=course.has_exam,
             is_taught=course.is_taught,
             grade_entry=course.grade_entry,
+            resit_allowed=course.resit_allowed,
             weekly_hours=course.weekly_hours,
         )
         for course in courses_of(source)

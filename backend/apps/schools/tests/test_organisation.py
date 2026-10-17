@@ -305,8 +305,20 @@ def test_levels_are_created_in_order_with_unique_names(in_school, head):
     assert (seventh.name, seventh.order, eighth.order) == ("7e EB", 0, 1)
     assert taken.value.error.code == "level_name_taken"
     assert [entry.after for entry in journal("organisation.level_created")] == [
-        {"name": "7e EB", "report_title": "", "cycle": "basic", "has_state_exam": False},
-        {"name": "8e EB", "report_title": "", "cycle": "basic", "has_state_exam": False},
+        {
+            "name": "7e EB",
+            "report_title": "",
+            "cycle": "basic",
+            "has_state_exam": False,
+            "pass_rules": {},
+        },
+        {
+            "name": "8e EB",
+            "report_title": "",
+            "cycle": "basic",
+            "has_state_exam": False,
+            "pass_rules": {},
+        },
     ]
     [entry] = journal("organisation.level_updated")
     assert (entry.before, entry.after) == ({"name": "8e EB"}, {"name": "8e"})

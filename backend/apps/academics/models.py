@@ -48,6 +48,8 @@ class Course(TenantModel):
         choices=[(DETAILED, _("Detailed")), (TOTALS, _("Period total only"))],
         blank=True,
     )
+    # Atelier, laboratoire : pas de seconde session. Cours échoué = reprise de la classe (8.4.1).
+    resit_allowed = models.BooleanField(_("resit allowed"), default=True)
     # Vide tant que l'école ne l'a pas saisi ; servira à l'emploi du temps (EDT).
     weekly_hours = models.PositiveSmallIntegerField(
         _("hours per week"),
@@ -398,3 +400,46 @@ class ApplicationGrade(TenantModel):
 
     def __str__(self) -> str:
         return f"{self.enrollment} · {self.term} · {self.grade}"
+
+
+class ResitGrade(TenantModel):
+    """Note de repêchage d'un cours échoué [T] (8.4.1) : pourcentage obtenu à l'examen de
+    repêchage, saisi par l'enseignant du cours, qui la signe (son nom et l'heure restent). Elle
+    remplit la colonne « Examen de repêchage » du bulletin ; la reprendre la supprime, le journal
+    d'audit garde chaque étape."""
+
+    enrollment = models.ForeignKey(
+        Enrollment,
+        on_delete=models.PROTECT,
+        related_name="resit_grades",
+        verbose_name=_("enrolment"),
+    )
+    course = models.ForeignKey(
+        Course, on_delete=models.PROTECT, related_name="resit_grades", verbose_name=_("course")
+    )
+    percent = models.DecimalField(
+        _("percentage"),
+        max_digits=4,
+        decimal_places=SCORE_DECIMALS,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+    )
+    signed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("signed by"),
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["enrollment", "course"], name="resit_grade_enrollment_course_unique"
+            ),
+            models.CheckConstraint(
+                condition=models.Q(percent__gte=0, percent__lte=100),
+                name="resit_grade_percent_range",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.enrollment} · {self.course} · {self.percent} %"

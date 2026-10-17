@@ -25,6 +25,17 @@ const settings = {
   reminders: { enabled: false, days_before: 3, overdue_every_days: 7 },
   portal: { teacher_phone: false },
   grading: { entry: "detailed" },
+  pass_rules: {
+    pass_percent: 50,
+    course_pass_percent: 50,
+    resit_mode: "band",
+    resit_floor_percent: 45,
+    resit_failures_to_fail: 2,
+    max_resit_courses: 4,
+    orientation_percent: 40,
+    conduct_ma_to_exclude: 2,
+    conduct_me_to_exclude: 3,
+  },
 };
 
 function routes(extra: Routes = {}): Routes {
@@ -103,6 +114,17 @@ describe("Paramètres de l'école (M5)", () => {
       reminders: { enabled: true, days_before: 5, overdue_every_days: 7 },
       portal: { teacher_phone: false },
       grading: { entry: "detailed" },
+      pass_rules: {
+        pass_percent: 50,
+        course_pass_percent: 50,
+        resit_mode: "band",
+        resit_floor_percent: 45,
+        resit_failures_to_fail: 2,
+        max_resit_courses: 4,
+        orientation_percent: 40,
+        conduct_ma_to_exclude: 2,
+        conduct_me_to_exclude: 3,
+      },
     });
     // Le nom de l'école (menu, connexion) est relu.
     await waitFor(() =>
