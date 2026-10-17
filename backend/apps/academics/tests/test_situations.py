@@ -94,11 +94,14 @@ def test_ties_share_a_place_and_the_unranked_come_last():
 
 
 def test_a_class_not_proclaimed_is_provisional_and_out_of_the_school_totals(
-    school, director, proclaimed
+    school, director, proclaimed, django_assert_max_num_queries
 ):
     other_class = proclaimed["b_physics"].class_group_id
     assert page(director, f"/api/class-groups/{other_class}/situation/", "rules")["provisional"]
-    school_page = page(director, SCHOOL, "rules", "deviations")
+    # Connexion, droits, année, puis classes, instantanés figés et inscriptions : le nombre de
+    # lectures ne dépend ni du nombre de classes ni du nombre d'élèves.
+    with django_assert_max_num_queries(10):
+        school_page = page(director, SCHOOL, "rules", "deviations")
     assert school_page["pending"] == 1
     assert (school_page["total"].enrolled, school_page["total"].passed) == (3, 1)
     [laureate] = school_page["laureates"]
