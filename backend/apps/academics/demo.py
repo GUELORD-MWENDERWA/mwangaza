@@ -152,6 +152,7 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
             GradeSheet.objects.filter(term=first).delete()
             Evaluation.objects.filter(term=first).delete()
             students: dict = defaultdict(list)
+            paper = _paper_class(year) if space.profile == "itig" else None
             enrollments = Enrollment.objects.filter(
                 academic_year=year, status=Enrollment.Status.ACTIVE
             ).order_by("pk")
@@ -167,9 +168,9 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
                     max_score=max(1, round(course.period_max * share)),
                     order=order,
                 )
-                for course in Course.objects.filter(
-                    class_group__academic_year=year, is_taught=True
-                ).order_by("pk")
+                for course in Course.objects.filter(class_group__academic_year=year, is_taught=True)
+                .exclude(class_group=paper)
+                .order_by("pk")
                 for order, (name, share) in enumerate(demo_evaluations(space.school))
             ]
             Evaluation.objects.bulk_create(evaluations, batch_size=2000)
@@ -191,6 +192,45 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
             _create_demo_discipline(first, students, draw)
             if space.profile == "itig":
                 _complete_demo_classes(year, students, draw)
+            if paper is not None:
+                _create_demo_prior_results(paper, year, draw)
+
+
+# Reprise des résultats (8.4.7) : la 8EB C de l'ITIG tenue sur papier cette année, sans aucune
+# note ; la moitié de ses résultats déjà repris (décision et pourcentage), le reste à importer du
+# modèle Excel, puis la classe à proclamer.
+PAPER_CLASS = ("8EB", "C")
+
+
+def _paper_class(year) -> ClassGroup | None:
+    level, section = PAPER_CLASS
+    return ClassGroup.objects.filter(
+        academic_year=year, level__name=level, track__isnull=True, section=section
+    ).first()
+
+
+def _create_demo_prior_results(group: ClassGroup, year, draw: random.Random) -> None:
+    Deliberation.objects.filter(class_group=group).delete()
+    deliberation = Deliberation.objects.create(
+        class_group=group, held_on=year.ends_on - timedelta(days=5)
+    )
+    enrollments = Enrollment.objects.filter(
+        class_group=group, status=Enrollment.Status.ACTIVE
+    ).order_by("student__last_name", "student__first_name", "pk")
+    Decision = DeliberationDecision.Decision
+    decisions = []
+    for enrollment in list(enrollments)[::2]:
+        percent = Decimal(draw.randint(380, 820)) / 10
+        decision = Decision.PASS if percent >= 50 else Decision.REPEAT
+        decisions.append(
+            DeliberationDecision(
+                deliberation=deliberation,
+                enrollment=enrollment,
+                decision=decision,
+                prior_percent=percent,
+            )
+        )
+    DeliberationDecision.objects.bulk_create(decisions)
 
 
 # Contrôle des notes (8.2.2) : quelques feuilles envoyées (à valider) et validées, les autres en

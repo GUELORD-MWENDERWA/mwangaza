@@ -12,7 +12,7 @@ import pytest
 from django.contrib.auth import authenticate
 from django.core.management import CommandError, call_command
 
-from apps.academics.models import DisciplineIncident, DisciplineRule
+from apps.academics.models import Deliberation, DisciplineIncident, DisciplineRule, Grade
 from apps.accounts import attempts, services, totp
 from apps.accounts.demo import DEMO_PASSWORD, DEMO_TOTP_SECRET
 from apps.accounts.models import Membership, Role, User
@@ -69,6 +69,13 @@ def created(demo) -> None:
         with use_school(school):
             assert DisciplineRule.objects.count() == 10
             assert DisciplineIncident.objects.exists()
+    # Reprise des résultats (8.4.7) : la 8EB C sans aucune note, la moitié de ses élèves repris.
+    with use_school(itig):
+        paper = Deliberation.objects.get(class_group__level__name="8EB", class_group__section="C")
+        assert not Grade.objects.filter(enrollment__class_group=paper.class_group).exists()
+        repris = paper.decisions.filter(prior_percent__isnull=False).count()
+        enrolled = paper.class_group.enrollments.filter(status="active").count()
+        assert repris == (enrolled + 1) // 2
 
     # Un compte par rôle, chaque école nomme ses rôles à sa façon : pas de « Directeur » à l'ITIG.
     names = [

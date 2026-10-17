@@ -33,6 +33,7 @@ import { GradeValidationPage } from "./features/grades/GradeValidationPage";
 import { OrganisationPage } from "./features/organisation/OrganisationPage";
 import { PriorPaymentsPage } from "./features/prior-payments/PriorPaymentsPage";
 import { DeliberationPage } from "./features/deliberation/DeliberationPage";
+import { PriorResultsPage } from "./features/deliberation/PriorResultsPage";
 import { SituationsPage } from "./features/deliberation/SituationsPage";
 import { ResitsPage } from "./features/resits/ResitsPage";
 import { RolesPage } from "./features/roles/RolesPage";
@@ -114,6 +115,11 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
     path: "fees/prior-payments",
     item: { ...menuItem("fees"), permissions: ["finance.import_prior_payments"] },
     element: <PriorPaymentsPage />,
+  },
+  {
+    path: "deliberation/prior-results",
+    item: menuItem("deliberation"),
+    element: <PriorResultsPage />,
   },
   {
     path: "students/import/:importId?",

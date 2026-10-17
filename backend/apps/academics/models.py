@@ -497,12 +497,22 @@ class DeliberationDecision(TenantModel):
     decision = models.CharField(_("decision"), max_length=10, choices=Decision.choices)
     proposed = models.CharField(_("proposed decision"), max_length=10, blank=True)
     reason = models.CharField(_("reason"), max_length=300, blank=True)
+    # Reprise (8.4.7) : pourcentage obtenu hors de Mwangaza, seulement pour un élève sans aucune
+    # note cette année ; dès qu'une note existe, le pourcentage calculé reprend la main.
+    prior_percent = models.DecimalField(
+        _("prior percentage"), max_digits=4, decimal_places=1, null=True, blank=True
+    )
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=["deliberation", "enrollment"], name="deliberation_decision_unique"
-            )
+            ),
+            models.CheckConstraint(
+                condition=models.Q(prior_percent__gte=0, prior_percent__lte=100)
+                | models.Q(prior_percent__isnull=True),
+                name="deliberation_prior_percent_range",
+            ),
         ]
 
     def __str__(self) -> str:

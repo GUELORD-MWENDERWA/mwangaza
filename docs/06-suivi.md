@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (8.4.4 faite le 2026-10-17, PR en attente de fusion ; mise en ligne : `A-FAIRE.md` § 9 quinquies puis `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | **8.4.7** (reprise des résultats de l'année précédente, avant 8.4.5), puis **8.4.5** (passage de classe) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #297 (8.4.4) ; #296 (8.4.3) ; #295 (8.4.2) ; #294 (8.4.1) ; #293 (8.4.0) ; #288 (PERF.5c) ; #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
-| Branche | `tache/8.4.4-situations` (avant : `tache/8.4.3-bulletin-complete`, puis `tache/8.4.2-deliberation`, puis `tache/8.4.1-regles-reussite-repechage` (avant : `tache/8.4.0-points-sans-devoirs`, puis `tache/8.5.1c-application`, puis `tache/PERF.5c-images-hors-serveur`) ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-17 (8.4.4 faite) |
+| Tâche en cours | aucune (8.4.7 faite le 2026-10-17, PR en attente de fusion) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | **8.4.5** (passage de classe et confirmation de place) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
+| Issue GitHub | #300 (8.4.7) ; #297 (8.4.4) ; #296 (8.4.3) ; #295 (8.4.2) ; #294 (8.4.1) ; #293 (8.4.0) ; #288 (PERF.5c) ; #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
+| Branche | `tache/8.4.7-reprise-resultats` (avant : `tache/8.4.4-situations`, puis `tache/8.4.3-bulletin-complete`, puis `tache/8.4.2-deliberation`, puis `tache/8.4.1-regles-reussite-repechage` (avant : `tache/8.4.0-points-sans-devoirs`, puis `tache/8.5.1c-application`, puis `tache/PERF.5c-images-hors-serveur`) ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-17 (8.4.7 faite) |
 
 ## Avancement
 
@@ -29,7 +29,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Lancement (L.0 à L.5, DOC.1 à DOC.3 ; L.3 remplacée par S.1 et S.2) | 8 | 8 |
 | Modules et rôles libres (M.1, M.2.1, M.2.2, M.3.1, M.3.2) | 5 | 5 |
 | Sécurité (S.1 à S.9 ; S.3 et S.6 en deux) | 8 | 11 |
-| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.6, 8.5.1a–8.5.1c, 8.4.0–8.4.7, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 18 | 23 |
+| V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.6, 8.5.1a–8.5.1c, 8.4.0–8.4.7, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 19 | 23 |
 | V1.3 — plateforme commerciale (ABO.1–3, WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
 | V1.5 — carte et présences (avec A.5) | 0 | 7 |
@@ -60,6 +60,13 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
 
 ## Journal
+
+### 2026-10-17 — Tâche 8.4.7 : reprise des résultats de l'année précédente
+
+- Fait : un élève sans aucune note cette année reçoit, avec sa décision, le pourcentage obtenu hors de l'application (`DeliberationDecision.prior_percent`) : saisi dans la délibération (champ « % repris ») ou importé pour toute l'école (`/app/deliberation/prior-results` : modèle Excel garni, aperçu, enregistrement) ; la classe se proclame ensuite comme les autres, situations et passage de classe le lisent sans rien de plus.
+- Tests : pourcentage refusé pour un élève noté, figé à la proclamation ; import (modèle → fichier, sept cas d'erreur, aperçu périmé, fichier renvoyé sans effet, classe proclamée) ; droits et isolation ; `make demo` : 8EB C sans notes, la moitié reprise.
+- Décisions : pas de modèle à part (une seule source pour 8.4.4, 8.4.5 et le Portail) ; année en cours seulement (celle que montre la délibération) ; jamais à la place d'un pourcentage calculé.
+- Suite : 8.4.5 (passage de classe et confirmation de place).
 
 ### 2026-10-17 — CI : le job serveur passe de 25 min à quelques minutes
 
