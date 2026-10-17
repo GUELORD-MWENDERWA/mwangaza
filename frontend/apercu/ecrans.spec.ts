@@ -176,6 +176,12 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       await page.waitForLoadState("networkidle").catch(() => undefined);
       await page.waitForTimeout(500);
     });
+    // Situations (8.4.4) : la classe que la démonstration proclame.
+    await visit(director, `${ITIG}situations`, "gestion", "situations", async (page) => {
+      await page.getByLabel("Classe").selectOption({ label: "4HT MÉCANIQUE AUTOMOBILE A" });
+      await page.waitForLoadState("networkidle").catch(() => undefined);
+      await page.waitForTimeout(800);
+    });
   }
 
   if (!ONLY || ONLY.startsWith("portail")) {

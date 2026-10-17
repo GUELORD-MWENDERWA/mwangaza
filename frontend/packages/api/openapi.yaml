@@ -766,6 +766,7 @@ paths:
           - grades.deadline_set
           - grades.report_card_printed
           - grades.sheet_printed
+          - grades.situation_printed
           - discipline.rule_changed
           - discipline.scale_changed
           - discipline.incident_recorded
@@ -888,6 +889,7 @@ paths:
           * `grades.deadline_set` - Grade entry deadline set
           * `grades.report_card_printed` - Report card printed
           * `grades.sheet_printed` - Grade sheet printed
+          * `grades.situation_printed` - Year-end situation printed
           * `discipline.rule_changed` - Offence list changed
           * `discipline.scale_changed` - Conduct scale changed
           * `discipline.incident_recorded` - Offence recorded
@@ -1189,6 +1191,7 @@ paths:
           - grades.deadline_set
           - grades.report_card_printed
           - grades.sheet_printed
+          - grades.situation_printed
           - discipline.rule_changed
           - discipline.scale_changed
           - discipline.incident_recorded
@@ -1311,6 +1314,7 @@ paths:
           * `grades.deadline_set` - Grade entry deadline set
           * `grades.report_card_printed` - Report card printed
           * `grades.sheet_printed` - Grade sheet printed
+          * `grades.situation_printed` - Year-end situation printed
           * `discipline.rule_changed` - Offence list changed
           * `discipline.scale_changed` - Conduct scale changed
           * `discipline.incident_recorded` - Offence recorded
@@ -3921,6 +3925,123 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClassResits'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/situation/:
+    get:
+      operationId: class_groups_situation_retrieve
+      description: |-
+        Situation d'une classe en PDF ou en aperçu HTML : inscrits, abandons, délibérés,
+        admis, repêchage, doublants, réorientés, exclus, taux, écarts ; par cours et palmarès au
+        choix. Dernière proclamation figée, sinon la délibération en cours (« provisoire »).
+      parameters:
+      - in: query
+        name: columns
+        schema:
+          type: array
+          items:
+            enum:
+            - courses
+            - ranking
+            - matricule
+            - deviations
+            type: string
+            description: |-
+              * `courses` - courses
+              * `ranking` - ranking
+              * `matricule` - matricule
+              * `deviations` - deviations
+        description: 'Parties à imprimer (paramètre répété) : classe, `courses` (par
+          cours), `ranking` (palmarès), `matricule` ; école, `deviations` (liste des
+          écarts).'
+      - in: query
+        name: criterion
+        schema:
+          enum:
+          - rules
+          - average
+          type: string
+          default: rules
+          minLength: 1
+        description: |-
+          `rules` : décision de la délibération (repêchage compris) ; `average` : moyenne seule, 50 % de l'année et plus.
+
+          * `rules` - rules
+          * `average` - average
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
+        name: output
+        schema:
+          enum:
+          - pdf
+          - html
+          type: string
+          default: pdf
+          minLength: 1
+        description: |-
+          * `pdf` - pdf
+          * `html` - html
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
+      tags:
+      - deliberation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Document PDF (`output=pdf`).
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
         '403':
           content:
@@ -11196,6 +11317,117 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/situation/:
+    get:
+      operationId: situation_retrieve
+      description: |-
+        Situation de l'école pour l'année en cours, en PDF ou en aperçu HTML : lauréat et sa
+        classe, par classe (taux, écarts, meilleur élève), sous-totaux par niveau et total ; les
+        classes pas encore proclamées restent hors des totaux. Liste des écarts au choix.
+      parameters:
+      - in: query
+        name: columns
+        schema:
+          type: array
+          items:
+            enum:
+            - courses
+            - ranking
+            - matricule
+            - deviations
+            type: string
+            description: |-
+              * `courses` - courses
+              * `ranking` - ranking
+              * `matricule` - matricule
+              * `deviations` - deviations
+        description: 'Parties à imprimer (paramètre répété) : classe, `courses` (par
+          cours), `ranking` (palmarès), `matricule` ; école, `deviations` (liste des
+          écarts).'
+      - in: query
+        name: criterion
+        schema:
+          enum:
+          - rules
+          - average
+          type: string
+          default: rules
+          minLength: 1
+        description: |-
+          `rules` : décision de la délibération (repêchage compris) ; `average` : moyenne seule, 50 % de l'année et plus.
+
+          * `rules` - rules
+          * `average` - average
+      - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
+        name: output
+        schema:
+          enum:
+          - pdf
+          - html
+          type: string
+          default: pdf
+          minLength: 1
+        description: |-
+          * `pdf` - pdf
+          * `html` - html
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
+      tags:
+      - deliberation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Document PDF (`output=pdf`).
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/staff/:
     get:
       operationId: staff_list
@@ -14113,6 +14345,7 @@ components:
       - grades.deadline_set
       - grades.report_card_printed
       - grades.sheet_printed
+      - grades.situation_printed
       - discipline.rule_changed
       - discipline.scale_changed
       - discipline.incident_recorded
@@ -14234,6 +14467,7 @@ components:
         * `grades.deadline_set` - Grade entry deadline set
         * `grades.report_card_printed` - Report card printed
         * `grades.sheet_printed` - Grade sheet printed
+        * `grades.situation_printed` - Year-end situation printed
         * `discipline.rule_changed` - Offence list changed
         * `discipline.scale_changed` - Conduct scale changed
         * `discipline.incident_recorded` - Offence recorded

@@ -335,6 +335,7 @@ GESTION = [
     ("notes-saisie", "Saisie des notes", "V1.2", "Plus tard · 6.2", False),
     ("notes-validation", "Validation des notes", "V1.2", "Plus tard · 8.2.2", True),
     ("notes-fiches", "Fiches de cotes", "V1.2", "Plus tard · 8.3.6", True),
+    ("situations", "Situations de fin d'année", "V1.2", "Plus tard · 8.4.4", True),
     ("conduite-incidents", "Conduite : attribuer une infraction", "V1.2", "Plus tard · 8.5.1a", True),
     ("conduite-bareme", "Barème de conduite", "V1.2", "Plus tard · 8.5.1a", True),
     ("application", "Application : cote par période", "V1.2", "Plus tard · 8.5.1c", True),
