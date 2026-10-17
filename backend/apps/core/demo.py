@@ -7,7 +7,7 @@ from collections.abc import Callable
 
 from django.db import transaction
 
-from apps.academics.demo import create_demo_courses, create_demo_grades
+from apps.academics.demo import create_demo_courses, create_demo_grades, create_demo_promotion
 from apps.accounts.demo import create_demo_accounts
 from apps.core.models import PlatformSettings
 from apps.core.tenancy import use_all_schools
@@ -55,6 +55,7 @@ STEPS: list[Callable[[list[DemoSpace]], None]] = [
     create_demo_activations,
     create_demo_event_notifications,
     create_demo_communication,
+    create_demo_promotion,
 ]
 
 

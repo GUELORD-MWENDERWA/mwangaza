@@ -21,7 +21,7 @@ from django.utils import timezone, translation
 from django.utils.translation import gettext
 
 from apps.academics import deliberation as deliberation_module
-from apps.academics import report_cards, resits
+from apps.academics import promotion, report_cards, resits
 from apps.academics.discipline import DEFAULT_RULES
 from apps.academics.grades import term_maximum
 from apps.academics.models import (
@@ -37,16 +37,19 @@ from apps.academics.models import (
     Grade,
     GradeDeadline,
     GradeSheet,
+    PlaceConfirmation,
     ResitGrade,
 )
 from apps.academics.official import BY_KEY
 from apps.accounts.models import User
 from apps.accounts.roles import GRADES_VALIDATE
 from apps.core.tenancy import use_school
+from apps.finance import services as finance
+from apps.schools import organisation
 from apps.schools.demo import DemoSpace
-from apps.schools.models import ClassGroup, Term
+from apps.schools.models import AcademicYear, ClassGroup, Term
 from apps.schools.organisation import current_year
-from apps.students.models import Enrollment
+from apps.students.models import Enrollment, Family
 
 # (niveau, code de l'option) → grille ; une classe sans grille connue n'a pas de cours.
 BASIC = "basic_education"
@@ -483,3 +486,165 @@ def _create_demo_discipline(term: Term, students: dict, draw: random.Random) -> 
         ApplicationGrade.objects.create(
             enrollment=first, term=term, grade="TB", reason=reason, corrected_by=author
         )
+
+
+# Passage de classe (8.4.5) : l'année suivante préparée (classes et barèmes de l'année en cours,
+# sans journal), la classe de l'enfant du parent de démonstration proclamée et des places
+# proposées à la plupart des élèves, avec des réponses variées ; celle de l'enfant attend sa
+# réponse au Portail. Rien n'est inscrit : c'est à essayer.
+PROMOTION_DECISIONS = {"pass": 70, "repeat": 14, "resit": 8, "orient": 4, "dropped": 4}
+PROMOTION_OUTCOMES = {
+    "pass": "passed",
+    "repeat": "failed",
+    "resit": "resit",
+    "orient": "orient",
+    "dropped": "incomplete",
+}
+PERCENTS = {"pass": (52, 86), "repeat": (36, 49), "resit": (45, 50), "orient": (28, 40)}
+# Places pas encore proposées ; réponses des parents : une sur huit « ne revient pas », une sur
+# trois pas encore, les autres « revient ».
+NOT_OFFERED_SHARE = 0.15
+
+
+def _demo_answer(index: int) -> str:
+    return "no" if index % 8 == 3 else "" if index % 3 == 2 else "yes"
+
+
+def create_demo_promotion(spaces: list[DemoSpace]) -> None:
+    for space in spaces:
+        if space.profile != "itig":
+            continue
+        draw = random.Random(f"promotion-{space.school.code}")
+        with use_school(space.school):
+            year = current_year()
+            family = Family.objects.order_by("created_at", "id").first()
+            group = _promotion_class(year, family) if year and family else None
+            if group is None:
+                continue
+            following = _next_demo_year(year)
+            _proclaim_for_promotion(group, year, family, draw)
+            _offer_demo_places(group, following, family, draw)
+
+
+def _next_demo_year(year: AcademicYear) -> AcademicYear:
+    """L'année suivante, créée une fois (découpage du secondaire, classes et barèmes copiés) ;
+    ensuite gardée telle que l'école l'a peut-être changée."""
+    name = f"{year.starts_on.year + 1}-{year.ends_on.year + 1}"
+    following = AcademicYear.objects.filter(name=name).first()
+    if following is None:
+        following = AcademicYear.objects.create(
+            name=name,
+            starts_on=year.starts_on.replace(year=year.starts_on.year + 1),
+            ends_on=year.ends_on.replace(year=year.ends_on.year + 1),
+        )
+        organisation._write_terms(
+            following, organisation.template_terms(organisation.YearTemplate.SECONDARY), actor=None
+        )
+        organisation._copy_classes(year, following, actor=None)
+        finance.copy_fee_rules(year, following, actor=None)
+    return following
+
+
+def _promotion_class(year, family: Family) -> ClassGroup | None:
+    """La classe de l'enfant du compte du portail, sauf une classe déjà prise par une autre
+    démonstration (délibération en cours) ou de dernière année ; sinon la première libre."""
+    taken = set(
+        Deliberation.objects.filter(
+            class_group__academic_year=year, status=Deliberation.Status.DRAFT
+        ).values_list("class_group_id", flat=True)
+    )
+    usable = ClassGroup.objects.filter(academic_year=year, level__has_state_exam=False).exclude(
+        pk__in=taken
+    )
+    child = (
+        Enrollment.objects.filter(
+            academic_year=year, student__family=family, class_group__in=usable
+        )
+        .order_by("student__birth_date", "pk")
+        .first()
+    )
+    return child.class_group if child else usable.select_related("level", "track").first()
+
+
+def _proclaim_for_promotion(group: ClassGroup, year, family: Family, draw: random.Random) -> None:
+    Deliberation.objects.filter(class_group=group).delete()
+    director = User.objects.filter(
+        memberships__school=group.school,
+        memberships__roles__permissions__contains=[GRADES_VALIDATE],
+    ).first()
+    if director is None:
+        return
+    deliberation = Deliberation.objects.create(
+        class_group=group,
+        held_on=year.ends_on - timedelta(days=5),
+        status=Deliberation.Status.PROCLAIMED,
+        version=1,
+    )
+    enrollments = Enrollment.objects.filter(
+        class_group=group, status=Enrollment.Status.ACTIVE
+    ).select_related("student")
+    decisions, rows = [], []
+    for enrollment in enrollments.order_by("student__last_name", "student__first_name", "pk"):
+        mine = enrollment.student.family_id == family.pk
+        decision = (
+            "pass"
+            if mine
+            else draw.choices(list(PROMOTION_DECISIONS), list(PROMOTION_DECISIONS.values()))[0]
+        )
+        low, high = PERCENTS.get(decision, (None, None))
+        percent = Decimal(draw.randint(low * 10, high * 10)) / 10 if low else None
+        decisions.append(
+            DeliberationDecision(
+                deliberation=deliberation,
+                enrollment=enrollment,
+                decision=decision,
+                proposed=decision,
+            )
+        )
+        rows.append(
+            {
+                "enrollment": str(enrollment.pk),
+                "student": enrollment.student.full_name,
+                "percent": str(percent) if percent is not None else None,
+                "outcome": PROMOTION_OUTCOMES[decision],
+                "proposed": decision,
+                "decision": decision,
+                "reason": "",
+                "deviates": False,
+                "resit_courses": [],
+            }
+        )
+    DeliberationDecision.objects.bulk_create(decisions)
+    DeliberationSnapshot.objects.create(
+        deliberation=deliberation,
+        version=1,
+        held_on=deliberation.held_on,
+        proclaimed_at=timezone.now(),
+        proclaimed_by=director,
+        rows=rows,
+    )
+
+
+def _offer_demo_places(group: ClassGroup, following, family: Family, draw) -> None:
+    """Places proposées d'après la décision ; ce que l'école a inscrit en essayant est gardé."""
+    PlaceConfirmation.objects.filter(enrollment__class_group=group).exclude(
+        status=PlaceConfirmation.Status.ENROLLED
+    ).delete()
+    now = timezone.now()
+    places = []
+    for row in promotion.class_passage(group).rows:
+        if row.enrolled_class or row.place or row.proposed_class is None:
+            continue
+        mine = row.enrollment.student.family_id == family.pk
+        if not mine and draw.random() < NOT_OFFERED_SHARE:
+            continue
+        answer = "" if mine else _demo_answer(len(places))
+        places.append(
+            PlaceConfirmation(
+                enrollment=row.enrollment,
+                class_group=row.proposed_class,
+                answer=answer,
+                answered_at=now - timedelta(days=draw.randint(1, 9)) if answer else None,
+            )
+        )
+    PlaceConfirmation.objects.bulk_create(places)

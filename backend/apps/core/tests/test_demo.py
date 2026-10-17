@@ -12,7 +12,13 @@ import pytest
 from django.contrib.auth import authenticate
 from django.core.management import CommandError, call_command
 
-from apps.academics.models import Deliberation, DisciplineIncident, DisciplineRule, Grade
+from apps.academics.models import (
+    Deliberation,
+    DisciplineIncident,
+    DisciplineRule,
+    Grade,
+    PlaceConfirmation,
+)
 from apps.accounts import attempts, services, totp
 from apps.accounts.demo import DEMO_PASSWORD, DEMO_TOTP_SECRET
 from apps.accounts.models import Membership, Role, User
@@ -27,7 +33,7 @@ from apps.finance.models import Payment
 from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.schools.demo import DemoNumbers, DemoSpace
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
-from apps.students.models import Enrollment, Guardian, Student
+from apps.students.models import Enrollment, Family, Guardian, Student
 from tests.factories import SchoolFactory, enable_totp
 
 pytestmark = pytest.mark.django_db
@@ -76,6 +82,17 @@ def created(demo) -> None:
         repris = paper.decisions.filter(prior_percent__isnull=False).count()
         enrolled = paper.class_group.enrollments.filter(status="active").count()
         assert repris == (enrolled + 1) // 2
+    # Passage de classe (8.4.5) : 2027-2028 préparée (pas en cours), la classe de l'enfant du
+    # portail proclamée, des places proposées et des réponses ; la sienne attend le parent.
+    with use_school(itig):
+        following = AcademicYear.objects.get(name="2027-2028")
+        assert not following.is_current
+        assert following.class_groups.count() == 23
+        places = PlaceConfirmation.objects.select_related("enrollment__student__family")
+        assert {p.answer for p in places} == {"yes", "no", ""}
+        family = Family.objects.order_by("created_at", "id").first()
+        assert [p.answer for p in places if p.enrollment.student.family == family] == [""]
+        assert not Enrollment.objects.filter(academic_year=following).exists()
 
     # Un compte par rôle, chaque école nomme ses rôles à sa façon : pas de « Directeur » à l'ITIG.
     names = [
@@ -134,10 +151,14 @@ def created(demo) -> None:
 
     # Organisation scolaire (1.7) de l'ITIG.
     with use_school(itig):
-        year = AcademicYear.objects.get()
+        year = AcademicYear.objects.get(name="2026-2027")
         levels = list(Level.objects.values_list("name", flat=True))
         tracks = set(Track.objects.values_list("code", flat=True))
-        groups = list(ClassGroup.objects.select_related("level", "track", "homeroom_teacher"))
+        groups = list(
+            ClassGroup.objects.filter(academic_year=year).select_related(
+                "level", "track", "homeroom_teacher"
+            )
+        )
         terms = list(year.terms.all())
     assert (year.name, year.is_current) == ("2026-2027", True)
     assert levels == ["7EB", "8EB", "1HT", "2HT", "3HT", "4HT"]
@@ -181,9 +202,7 @@ def rerun_puts_everything_back(demo, settings) -> None:
         cashier = Role.objects.get(name="Caissier")
         cashier.permissions = []
         cashier.save()
-        extra = AcademicYear.objects.create(
-            name="2027-2028", starts_on="2027-09-01", ends_on="2028-07-01"
-        )
+        extra = AcademicYear.objects.get(name="2027-2028")
         AcademicYear.objects.filter(name="2026-2027").update(is_current=False)
         AcademicYear.objects.filter(pk=extra.pk).update(is_current=True)
     head = User.objects.get(phone="+243000001001")
@@ -233,9 +252,10 @@ def rerun_puts_everything_back(demo, settings) -> None:
     assert not promoter.totp_enabled
     # Essais ratés débloqués.
     assert attempts.retry_after("+243000001005", "127.0.0.1") == 0
-    # Organisation : pas de double ni de journal ; l'année ajoutée en essayant est gardée.
+    # Organisation : pas de double ni de journal ; l'année suivante n'est pas recréée.
     with use_school(itig):
-        assert ClassGroup.objects.count() == 23
+        assert ClassGroup.objects.filter(academic_year__name="2026-2027").count() == 23
+        assert ClassGroup.objects.filter(academic_year=extra).count() == 23
         assert AcademicYear.objects.get(is_current=True).name == "2026-2027"
         assert AcademicYear.objects.get(name="2026-2027").terms.count() == 8
         assert AcademicYear.objects.filter(pk=extra.pk).exists()

@@ -121,7 +121,7 @@ function ClassesCard({
           <Banner tone="info">{t("promotion.noClass")}</Banner>
         </CardContent>
       ) : (
-        <Table stacked>
+        <Table>
           <thead>
             <tr>
               <th>{t("promotion.class")}</th>
@@ -248,7 +248,7 @@ function ClassPlaces({ classId }: { classId: string }) {
     return (
       <Select
         aria-label={t("promotion.placeFor", { name: row.full_name })}
-        className="min-w-48"
+        className="min-w-48 flex-1 sm:flex-none"
         value={destination(row, drafts)}
         onChange={(event) => {
           setDrafts({ ...drafts, [row.enrollment]: event.target.value });
@@ -333,7 +333,7 @@ function ClassPlaces({ classId }: { classId: string }) {
             {t("promotion.noAnswer")} {board.counts.no_answer}
           </StatusPill>
           <StatusPill tone="ok">
-            {t("promotion.enrolled")} {board.counts.enrolled}
+            {t("promotion.enrolledCount")} {board.counts.enrolled}
           </StatusPill>
         </div>
       </CardContent>
@@ -385,7 +385,7 @@ function ClassPlaces({ classId }: { classId: string }) {
                 </span>
               </td>
               <td data-label={t("promotion.decision")}>{decisionPill(row)}</td>
-              <td data-label={t("promotion.placeIn", { year: following })}>{placeCell(row)}</td>
+              <td data-label={t("promotion.place")}>{placeCell(row)}</td>
               <td data-label={t("promotion.parent")}>{parentCell(row)}</td>
               <td data-label={t("promotion.state")}>{stateCell(row)}</td>
             </tr>

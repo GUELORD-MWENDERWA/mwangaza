@@ -126,6 +126,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "announcements",
       "summons",
       "parent-requests",
+      "promotion",
       "settings",
       "organisation",
       "staff",
