@@ -124,6 +124,16 @@ urlpatterns = [
         name="deliberation-reopen",
     ),
     path(
+        "deliberation/prior-results/",
+        deliberation_views.PriorResultsView.as_view(),
+        name="deliberation-prior-results",
+    ),
+    path(
+        "deliberation/prior-results/template/",
+        deliberation_views.PriorResultsTemplateView.as_view(),
+        name="deliberation-prior-results-template",
+    ),
+    path(
         "deliberation/enrollments/<uuid:pk>/",
         deliberation_views.EnrollmentDecisionView.as_view(),
         name="deliberation-decision",

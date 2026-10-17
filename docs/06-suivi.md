@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (8.4.4 faite le 2026-10-17, PR en attente de fusion ; mise en ligne : `A-FAIRE.md` § 9 quinquies puis `make deploy`) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Tâche en cours | **8.4.7** reprise des résultats de l'année précédente (commencée le 2026-10-17) ; vrai serveur : https://admin.mwangazaschool.com/ |
 | Prochaine tâche | **8.4.7** (reprise des résultats de l'année précédente, avant 8.4.5), puis **8.4.5** (passage de classe) ; toi : le premier espace réel (`A-FAIRE.md` § 9 quater) |
-| Issue GitHub | #297 (8.4.4) ; #296 (8.4.3) ; #295 (8.4.2) ; #294 (8.4.1) ; #293 (8.4.0) ; #288 (PERF.5c) ; #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
-| Branche | `tache/8.4.4-situations` (avant : `tache/8.4.3-bulletin-complete`, puis `tache/8.4.2-deliberation`, puis `tache/8.4.1-regles-reussite-repechage` (avant : `tache/8.4.0-points-sans-devoirs`, puis `tache/8.5.1c-application`, puis `tache/PERF.5c-images-hors-serveur`) ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-17 (8.4.4 faite) |
+| Issue GitHub | #300 (8.4.7) ; #297 (8.4.4) ; #296 (8.4.3) ; #295 (8.4.2) ; #294 (8.4.1) ; #293 (8.4.0) ; #288 (PERF.5c) ; #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
+| Branche | `tache/8.4.7-reprise-resultats` (avant : `tache/8.4.4-situations`, puis `tache/8.4.3-bulletin-complete`, puis `tache/8.4.2-deliberation`, puis `tache/8.4.1-regles-reussite-repechage` (avant : `tache/8.4.0-points-sans-devoirs`, puis `tache/8.5.1c-application`, puis `tache/PERF.5c-images-hors-serveur`) ; dossier local : `~/Projets/mwangaza` |
+| Dernière mise à jour | 2026-10-17 (8.4.7 commencée) |
 
 ## Avancement
 
