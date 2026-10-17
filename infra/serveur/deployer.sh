@@ -15,7 +15,8 @@
 #   backup [ARGS]    sauvegarde.sh sur le serveur : `backup` (sauvegarde du jour, copie hors du
 #                    serveur comprise), `fetch` (rapatrier la dernière copie), `restore` (essai)
 #   ssh              ouvrir une session sur le serveur
-#   check            HTTPS, certificat et santé de l'API, depuis cette machine
+#   check [IP]       HTTPS, certificat et santé de l'API, depuis cette machine ; avec IP : une
+#                    instance pas encore derrière le DNS (copie depuis un instantané Lightsail)
 #
 set -euo pipefail
 cd "$(dirname "$0")/../.."
@@ -124,17 +125,24 @@ case "${1:-}" in
     ;;
   check)
     ok=1
+    # check IP : une instance pas encore derrière le DNS (copie depuis un instantané, OPS.2),
+    # interrogée sous les vrais noms (certificat vérifié) sans passer par Cloudflare.
+    resolve=()
+    if [ -n "${2:-}" ]; then
+      echo "Instance $2 (DNS ignoré) :"
+      for host in "admin.$DOMAIN" "parents.$DOMAIN" "itig.$DOMAIN"; do resolve+=(--resolve "$host:443:$2"); done
+    fi
     for host in "admin.$DOMAIN" "parents.$DOMAIN" "itig.$DOMAIN"; do
       printf '%s : ' "$host"
       # Pas de -k : le certificat doit être valide. Code 000 = connexion ou certificat refusé.
-      if code=$(curl -sS --max-time 15 -o /dev/null -w '%{http_code}' "https://$host/") && [ "$code" != 000 ]; then
+      if code=$(curl -sS --max-time 15 "${resolve[@]}" -o /dev/null -w '%{http_code}' "https://$host/") && [ "$code" != 000 ]; then
         echo "HTTP $code, certificat valide"
       else
         echo "ÉCHEC (connexion ou certificat)"; ok=
       fi
     done
     printf 'santé : '
-    curl -fsS --max-time 15 "https://admin.$DOMAIN/api/health/" && echo || ok=
+    curl -fsS --max-time 15 "${resolve[@]}" "https://admin.$DOMAIN/api/health/" && echo || ok=
     [ -n "$ok" ] || { echo "Vérification en échec."; exit 1; }
     ;;
   superuser)
