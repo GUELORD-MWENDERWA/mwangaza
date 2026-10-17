@@ -6,7 +6,7 @@
 
 **Hors périmètre** : reprise des notes d'une période (déjà possible : saisie des totaux, 8.4.0) ; proclamation automatique à l'import (le préfet proclame chaque classe) ; passage de classe (8.4.5).
 
-**Critères d'acceptation** : délibération → élève sans note : champ « % repris » à côté de la décision, enregistré, figé à la proclamation ; écran « Reprise des résultats » : année, date de délibération, modèle Excel garni (élèves sans note des classes non proclamées), aperçu (prêtes, erreurs : matricule inconnu, décision illisible, pourcentage hors 0–100, élève qui a des notes, classe proclamée, élève en double), enregistrement ; date posée aux classes qui n'en ont pas ; fichier envoyé deux fois = rien de changé (journal seulement pour ce qui change).
+**Critères d'acceptation** : délibération → élève sans note : champ « % repris » à côté de la décision, enregistré, figé à la proclamation ; écran « Reprise des résultats » (année en cours, celle de la délibération) : date de délibération, modèle Excel garni (élèves sans note des classes non proclamées), aperçu (prêtes, erreurs : matricule inconnu, décision illisible, pourcentage hors 0–100, élève qui a des notes, classe proclamée, élève en double), enregistrement ; date posée aux classes qui n'en ont pas ; fichier envoyé deux fois = rien de changé (journal seulement pour ce qui change).
 
 **Tests obligatoires** : isolation (matricule d'une autre école = inconnu) ; permission `grades.validate` (403) ; refus du pourcentage d'un élève noté ; classe proclamée refusée ; journal `deliberation.decided` ; fichier renvoyé sans effet ; situation lit le pourcentage repris.
 
