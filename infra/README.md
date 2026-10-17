@@ -18,8 +18,25 @@ Essayer la production sur la machine : `make prod-local`, puis https://itig.loca
 
 
 
-Vrai serveur (AWS Lightsail, 4.6.3) : `serveur/serveur.env` (créé par `make deploy-init`) ; `docker-compose.production.yml` + `production/Caddyfile` (certificat joker par DNS Cloudflare, IP réelle du visiteur lue par Caddy) ; `make deploy-setup`, `make deploy`, `make deploy-check` (`A-FAIRE.md` § 9 ter, skill `/deployer` ; il lit aussi l'état public du domaine avec `serveur/domaine.py` : expiration, verrou de transfert, OPS.3). Les démonstrations se créent dans la console, pas par `make demo`.
+Vrai serveur (AWS Lightsail, 4.6.3) : `serveur/serveur.env` (créé par `make deploy-init`) ; `docker-compose.production.yml` + `production/Caddyfile` (certificat joker par DNS Cloudflare, IP réelle du visiteur lue par Caddy) ; `make deploy-setup`, `make deploy`, `make deploy-check` (`A-FAIRE.md` § 9 ter, skill `/deployer` ; il lit aussi l'état public du domaine avec `serveur/domaine.py` : expiration, verrou de transfert, OPS.3 ; enregistrements e-mail, OPS.4, ci-dessous). Les démonstrations se créent dans la console, pas par `make demo`.
 
 Serveur entier (OPS.2) : instantané automatique Lightsail de tout le disque chaque jour à 2:00 (heure de Goma), 7 gardés, réglé dans la console (rien dans ce dossier) ; en cas de perte : nouvelle instance depuis l'instantané, `make deploy-check ip=<IP provisoire>` (`curl --resolve`, certificat vérifié, DNS ignoré), puis IP statique déplacée (`A-FAIRE.md` § 9 ter, « Serveur perdu ou cassé »). Essai réel : 2026-10-17.
+
+## E-mail du domaine (OPS.4)
+
+Boîtes `contact@` et `support@mwangazaschool.com` chez **LWS** (2 comprises dans l'offre du domaine, 1 Go chacune) ; webmail : bouton « Webmail » du panneau LWS (`webmail.mwangazaschool.com` mène au serveur par le joker `*`). L'application n'envoie aucun e-mail (notifications dans l'app et push). DNS chez **Cloudflare**, nuage **gris** sur chaque ligne ; relevé du 2026-10-17 (`dig`), copié de la zone LWS à l'arrivée chez Cloudflare :
+
+| Type | Nom | Contenu | Rôle |
+|---|---|---|---|
+| MX | `@` | `mail.mwangazaschool.com`, priorité 10 | reçoit le courrier |
+| A | `mail` | `83.229.19.97` (LWS) | serveur de messagerie ; `smtp`, `imap`, `pop` : CNAME vers lui (réglages du téléphone) |
+| TXT | `@` | `v=spf1 mx:mwangazaschool.com a:mail.mwangazaschool.com a:mailphp.lws-hosting.com -all` | SPF : seuls les serveurs de LWS écrivent au nom du domaine ; **un seul** TXT `v=spf1` |
+| TXT | `dkim._domainkey` | `v=DKIM1; k=rsa; p=MIGf…` (clé publique de LWS, RSA 1024) | signature de chaque message envoyé |
+| TXT | `_dmarc` | `v=DMARC1; p=quarantine;` + `rua=…` ajouté par la gestion DMARC de Cloudflare (gratuite) | message qui échoue SPF et DKIM : en indésirables ; `p=reject` après deux semaines de rapports propres ; sans `sp=`, les sous-domaines des écoles suivent la même règle |
+
+- `make deploy-check`, ligne « e-mail » (`serveur/domaine.py`, DNS sur HTTPS) : ATTENTION si MX, SPF ou DKIM manque, si deux SPF, ou si DMARC est absent ou en `none`.
+- Un jour, un envoi d'e-mails par l'application (Amazon SES ou autre) : ajouter son `include:` au **même** SPF et sa clé DKIM **avant** le premier envoi, sinon DMARC le bloque.
+- Autre fournisseur de boîtes : nouvelles valeurs MX, SPF et DKIM dans Cloudflare, et `DKIM_SELECTEUR` dans `serveur/domaine.py`.
+- Ligne `ftp` (nuage orange) : reste de l'import de la zone LWS, inutile, à supprimer.
 
 Voir `docs/03-architecture-technique.md` § 2 et § 9.
