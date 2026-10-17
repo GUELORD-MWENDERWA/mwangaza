@@ -462,7 +462,9 @@ class PortalPlaceSerializer(serializers.Serializer):
     id = serializers.UUIDField()
     student = serializers.UUIDField(source="enrollment.student_id")
     full_name = serializers.CharField(source="enrollment.student.full_name")
+    sex = serializers.CharField(source="enrollment.student.sex", help_text="M ou F (accords).")
     school_name = serializers.CharField(source="school.name")
+    school_timezone = serializers.CharField(source="school.timezone")
     year_name = serializers.CharField(source="class_group.academic_year.name")
     starts_on = serializers.DateField(
         source="class_group.academic_year.starts_on", help_text="Rentrée de l'année suivante."

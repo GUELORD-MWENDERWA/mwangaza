@@ -58,6 +58,40 @@ describe("accueil du portail", () => {
     expect(screen.queryByRole("link", { name: "Annonces" })).toBeNull();
   });
 
+  it("place de l'année suivante : le parent répond, puis peut changer d'avis", async () => {
+    const place = {
+      id: "p1",
+      student: "s1",
+      full_name: "MASIKA Ruth",
+      sex: "F",
+      school_name: "ITIG Don Bosco Goma",
+      school_timezone: "Africa/Lubumbashi",
+      year_name: "2027-2028",
+      starts_on: "2027-09-01",
+      class_name: "4HT Électronique A",
+      answer: "",
+      answered_at: null,
+    };
+    const routes: Record<string, unknown> = {
+      "GET /api/portal/me/": ACCOUNT,
+      "GET /api/portal/families/": [ITIG],
+      "GET /api/portal/places/": [place],
+      "PUT /api/portal/places/p1/": { ...place, answer: "no" },
+    };
+    const requests = mockApi(routes);
+    const { user } = renderApp("/");
+
+    expect(await screen.findByText(/Revient-elle \?/)).toBeTruthy();
+    routes["GET /api/portal/places/"] = [
+      { ...place, answer: "no", answered_at: "2027-07-12T08:00:00Z" },
+    ];
+    await user.click(screen.getByRole("button", { name: "Non, elle ne revient pas" }));
+    expect(requests.find((r) => r.method === "PUT")?.body).toEqual({ answer: "no" });
+    expect(await screen.findByText("Vous avez répondu : ne revient pas · 12/07/2027")).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "Changer" }));
+    expect(screen.getByRole("button", { name: "Oui, elle revient" })).toBeTruthy();
+  });
+
   it("ajouter une autre école : le code envoyé, l'erreur du serveur traduite", async () => {
     const requests = mockApi({
       "GET /api/portal/me/": ACCOUNT,

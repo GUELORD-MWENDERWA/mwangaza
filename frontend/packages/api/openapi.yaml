@@ -23686,7 +23686,12 @@ components:
           format: uuid
         full_name:
           type: string
+        sex:
+          type: string
+          description: M ou F (accords).
         school_name:
+          type: string
+        school_timezone:
           type: string
         year_name:
           type: string
@@ -23708,7 +23713,9 @@ components:
       - id
       - student
       - full_name
+      - sex
       - school_name
+      - school_timezone
       - year_name
       - starts_on
       - class_name

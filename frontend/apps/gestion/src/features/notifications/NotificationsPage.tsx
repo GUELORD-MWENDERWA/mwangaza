@@ -54,6 +54,7 @@ const KIND_ICONS: Record<NotificationKind, IconName> = {
   staff_announcement: "megaphone",
   summons: "file",
   discipline_incident: "alert",
+  place_offered: "users",
   sensitive_rights: "shield",
 };
 

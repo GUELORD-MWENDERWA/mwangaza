@@ -8960,7 +8960,10 @@ export interface components {
             /** Format: uuid */
             student: string;
             full_name: string;
+            /** @description M ou F (accords). */
+            sex: string;
             school_name: string;
+            school_timezone: string;
             year_name: string;
             /**
              * Format: date

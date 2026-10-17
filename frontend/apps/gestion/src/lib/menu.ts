@@ -127,6 +127,13 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         permissions: ["grades.validate"],
         task: "8.4.4",
       },
+      {
+        key: "promotion",
+        path: "promotion",
+        icon: "users",
+        permissions: ["students.edit"],
+        task: "8.4.5",
+      },
     ],
   },
   {

@@ -29,6 +29,7 @@ export const keys = {
   application: ["application"],
   resits: ["resits"],
   deliberation: ["deliberation"],
+  promotion: ["promotion"],
   matricule: ["matricule-format"],
   roles: ["roles"],
   staff: ["staff"],

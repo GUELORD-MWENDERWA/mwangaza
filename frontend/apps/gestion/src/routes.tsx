@@ -60,6 +60,7 @@ import { MenuScreen } from "./features/shell/MenuScreen";
 import { RequireAuth } from "./features/shell/RequireAuth";
 import { SchoolGate } from "./features/shell/SchoolGate";
 import { ParentRequestsPage } from "./features/parent-requests/ParentRequestsPage";
+import { PromotionPage } from "./features/promotion/PromotionPage";
 import { NotFound, RouteError } from "./features/status/StatusPages";
 import { SupportPage } from "./features/support/SupportPage";
 import { UnpaidExportPage } from "./features/unpaid/UnpaidExportPage";
@@ -83,6 +84,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   resits: <ResitsPage />,
   deliberation: <DeliberationPage />,
   situations: <SituationsPage />,
+  promotion: <PromotionPage />,
   schoolSettings: <SchoolSettingsPage />,
   organisation: <OrganisationPage />,
   cash: <CashPage />,
