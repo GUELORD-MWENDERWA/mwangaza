@@ -12,6 +12,7 @@ from apps.core.platform import clean_icon, clean_logo
 PUBLIC_FIELDS = [
     "name",
     "short_name",
+    "site_name",
     "logo",
     "icon",
     "primary_color",

@@ -40,6 +40,7 @@ type Change = Schemas["PlatformChange"];
 const FIELDS = [
   "name",
   "short_name",
+  "site_name",
   "primary_color",
   "accent_color",
   "support_phone",
@@ -56,6 +57,7 @@ function useSchema() {
     return z.object({
       name: z.string().trim().min(1, t("validation.nameRequired")).max(60),
       short_name: z.string().trim().min(1, t("validation.nameRequired")).max(20),
+      site_name: z.string().trim().min(1, t("validation.nameRequired")).max(60),
       primary_color: color,
       accent_color: color,
       support_phone: z.string().trim(),
@@ -71,6 +73,7 @@ type Form = UseFormReturn<Values>;
 const valuesOf = (identity: Identity): Values => ({
   name: identity.name,
   short_name: identity.short_name,
+  site_name: identity.site_name,
   primary_color: identity.primary_color,
   accent_color: identity.accent_color,
   support_phone: identity.support_phone,
@@ -181,6 +184,9 @@ function IdentityForm({ identity }: { identity: Identity }) {
             <CardContent className="grid gap-4 min-[820px]:grid-cols-2">
               {text("name", t("console.identity.nameHelp"), 60)}
               {text("short_name", t("console.identity.shortNameHelp"), 20)}
+              <div className="min-[820px]:col-span-2">
+                {text("site_name", t("console.identity.siteNameHelp"), 60)}
+              </div>
             </CardContent>
           </Card>
           <Card>

@@ -40,7 +40,12 @@ def test_only_the_platform_admin_changes_the_identity_at_the_console(api, platfo
 
 def test_each_change_is_journaled_once_with_only_what_changed(api, platform_admin, client):
     console = api(platform_admin, host=CONSOLE)
-    changes = {"name": "Lumière", "primary_color": "#1d4ed8", "support_phone": "0970000000"}
+    changes = {
+        "name": "Lumière",
+        "site_name": "Lumière École",
+        "primary_color": "#1d4ed8",
+        "support_phone": "0970000000",
+    }
 
     data = console.patch(IDENTITY, changes).json()
 
@@ -49,16 +54,23 @@ def test_each_change_is_journaled_once_with_only_what_changed(api, platform_admi
         "#1D4ED8",
         "+243970000000",
     )
-    assert client.get("/api/platform/", HTTP_HOST="alpha.localhost").json()["name"] == "Lumière"
+    public = client.get("/api/platform/", HTTP_HOST="alpha.localhost").json()
+    assert (public["name"], public["site_name"]) == ("Lumière", "Lumière École")
     log = PlatformAuditLog.objects.get()
     assert (log.action, log.actor, log.entity_label) == (
         "platform.updated",
         platform_admin,
         "Lumière",
     )
-    assert log.before == {"name": INITIAL_NAME, "primary_color": "#0B5FCC", "support_phone": ""}
+    assert log.before == {
+        "name": INITIAL_NAME,
+        "site_name": "Mwangaza School",
+        "primary_color": "#0B5FCC",
+        "support_phone": "",
+    }
     assert log.after == {
         "name": "Lumière",
+        "site_name": "Lumière École",
         "primary_color": "#1D4ED8",
         "support_phone": "+243970000000",
     }

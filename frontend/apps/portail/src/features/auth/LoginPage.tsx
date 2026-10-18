@@ -10,10 +10,11 @@ import {
   Icon,
   Input,
   PasswordInput,
+  usePlatform,
 } from "@mwangaza/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useLocation } from "react-router";
 import { z } from "zod";
@@ -51,9 +52,20 @@ export function LoginPage() {
     onError: () => form.resetField("password"),
   });
   const { errors } = form.formState;
+  const platform = usePlatform();
+  // Seule page du Portail dans les moteurs de recherche (WEB.1c, `infra/routes.caddy`) : titre
+  // avec le nom pour la recherche, description, adresse canonique.
+  useEffect(() => {
+    document.title = t("portal.login.pageTitle", { name: platform.site_name || platform.name });
+    return () => {
+      document.title = platform.name;
+    };
+  }, [t, platform.site_name, platform.name]);
 
   return (
     <AuthFrame title={t("portal.login.title")} subtitle={t("portal.login.subtitle")}>
+      <meta name="description" content={t("portal.login.pageDescription")} />
+      <link rel="canonical" href={`${window.location.origin}/login`} />
       <Card>
         <CardContent>
           <form

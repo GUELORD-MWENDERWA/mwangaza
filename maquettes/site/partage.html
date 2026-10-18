@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Images de partage — site public — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css"><link rel="stylesheet" href="../assets/site.css">
+<style>
+.ogpage{max-width:1280px;margin:0 auto;padding:24px 16px;display:flex;flex-direction:column;gap:20px}
+.ogpage h1{font-size:1.4rem;margin:0}
+.ogscroll{overflow-x:auto;border-radius:12px}
+/* Image de partage : 1200 x 630, mêmes mesures que `apps/core/share.py` (Pillow). */
+.og{position:relative;width:1200px;height:630px;background:var(--night);color:#fff;overflow:hidden;flex:none}
+.og .rel{position:absolute;left:560px;top:250px;width:900px;height:560px}
+.og .ogtop{position:absolute;left:72px;top:64px;display:flex;align-items:center;gap:18px;font-size:40px;line-height:1}
+.og .ogtop img{width:72px;height:72px}
+.og .ogtop b{font-weight:800}
+.og .ogtop span{color:var(--night-soft)}
+.og h2{position:absolute;left:72px;top:200px;width:600px;margin:0;font-size:60px;line-height:1.1;font-weight:800}
+.og.wide h2{width:1000px}
+.og .dom{position:absolute;left:72px;top:530px;display:flex;align-items:center;gap:16px;font-size:30px;font-weight:700;color:var(--lamp);line-height:36px}
+.og .dom i{display:block;width:48px;height:6px;background:var(--lamp);border-radius:3px}
+.og .ogshot{position:absolute;left:720px;top:150px;width:640px;height:400px;object-fit:cover;object-position:left top;border-radius:16px;border:2px solid var(--night-3)}
+.og .ogphone{position:absolute;left:830px;top:96px;width:300px;height:650px;object-fit:cover;object-position:top;border-radius:32px;border:8px solid #000}
+</style></head>
+<body>
+<main class="ogpage">
+<h1>Images de partage (WhatsApp, Facebook, LinkedIn) — 1200 × 630</h1>
+<div class="note"><b>Règles (WEB.1c) :</b> une image par page et par langue, dessinée par le serveur (Pillow, police du site) à partir de l'identité de la plateforme : <b>icône</b>, <b>nom pour la recherche</b> (« Mwangaza » en gras, la suite plus claire), <b>couleur d'accent</b> (domaine et trait) ; fond nuit et lignes de relief fixes (système de design). Titre = le grand titre de la page (4 lignes au plus, coupé aux mots). À droite : la capture principale de la page (Gestion en paysage, Portail en téléphone) ; mentions légales : sans capture, titre sur toute la largeur. JPEG &lt; 300 Ko (WhatsApp), gardée en cache et redessinée quand l'identité change (adresse avec <code>?v=</code>).</div>
+
+<div class="ogscroll"><div class="og">
+  <svg class="rel" viewBox="0 0 900 560" aria-hidden="true"><g fill="none" stroke="#fff" stroke-opacity=".09" stroke-width="2"><ellipse cx="450" cy="280" rx="90" ry="40"/><ellipse cx="450" cy="280" rx="170" ry="80"/><ellipse cx="450" cy="280" rx="250" ry="120"/><ellipse cx="450" cy="280" rx="330" ry="160"/><ellipse cx="450" cy="280" rx="410" ry="200"/><ellipse cx="450" cy="280" rx="490" ry="240"/></g></svg>
+  <div class="ogtop"><img src="../../backend/apps/core/static/core/site/icon-512.png" alt=""><b>Mwangaza</b><span>School</span></div>
+  <h2>Toute l'école dans une application, même sans internet</h2>
+  <img class="ogshot" src="../../backend/apps/core/static/core/site/captures/gestion-tableau-de-bord.webp" alt="">
+  <div class="dom"><i></i>mwangazaschool.com</div>
+</div></div>
+
+<div class="ogscroll"><div class="og">
+  <svg class="rel" viewBox="0 0 900 560" aria-hidden="true"><g fill="none" stroke="#fff" stroke-opacity=".09" stroke-width="2"><ellipse cx="450" cy="280" rx="90" ry="40"/><ellipse cx="450" cy="280" rx="170" ry="80"/><ellipse cx="450" cy="280" rx="250" ry="120"/><ellipse cx="450" cy="280" rx="330" ry="160"/><ellipse cx="450" cy="280" rx="410" ry="200"/><ellipse cx="450" cy="280" rx="490" ry="240"/></g></svg>
+  <div class="ogtop"><img src="../../backend/apps/core/static/core/site/icon-512.png" alt=""><b>Mwangaza</b><span>School</span></div>
+  <h2>Suivez l'école de vos enfants sur votre téléphone</h2>
+  <img class="ogphone" src="../../backend/apps/core/static/core/site/captures/portail-accueil-mobile.webp" alt="">
+  <div class="dom"><i></i>mwangazaschool.com</div>
+</div></div>
+
+<div class="ogscroll"><div class="og wide">
+  <svg class="rel" viewBox="0 0 900 560" aria-hidden="true"><g fill="none" stroke="#fff" stroke-opacity=".09" stroke-width="2"><ellipse cx="450" cy="280" rx="90" ry="40"/><ellipse cx="450" cy="280" rx="170" ry="80"/><ellipse cx="450" cy="280" rx="250" ry="120"/><ellipse cx="450" cy="280" rx="330" ry="160"/><ellipse cx="450" cy="280" rx="410" ry="200"/><ellipse cx="450" cy="280" rx="490" ry="240"/></g></svg>
+  <div class="ogtop"><img src="../../backend/apps/core/static/core/site/icon-512.png" alt=""><b>Mwangaza</b><span>School</span></div>
+  <h2>Mentions légales et confidentialité</h2>
+  <div class="dom"><i></i>mwangazaschool.com</div>
+</div></div>
+</main>
+</body></html>

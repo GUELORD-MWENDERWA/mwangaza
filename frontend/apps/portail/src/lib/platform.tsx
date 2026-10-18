@@ -2,7 +2,7 @@ import { cachedPlatform, loadPlatform } from "@mwangaza/api";
 import { setPlatformName } from "@mwangaza/i18n";
 import { applyPlatform, NO_PLATFORM, PlatformContext } from "@mwangaza/ui";
 import { useQuery } from "@tanstack/react-query";
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode, useLayoutEffect } from "react";
 
 /** Avant le premier affichage : l'identité gardée sur l'appareil (sans réseau aussi). */
 export function startPlatform() {
@@ -19,7 +19,8 @@ export function PlatformProvider({ children }: { children: ReactNode }) {
     initialData: cachedPlatform() ?? undefined,
     staleTime: 5 * 60_000,
   });
-  useEffect(() => {
+  // Avant les effets des pages : la connexion pose ensuite son propre titre (WEB.1c).
+  useLayoutEffect(() => {
     setPlatformName(data.name);
     applyPlatform(data);
     document.title = data.name;

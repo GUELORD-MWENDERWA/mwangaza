@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">{% for paths in pages %}{% for lang, path in paths.items %}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">{% for page in pages %}{% for lang, path in page.paths.items %}
   <url>
     <loc>{{ site }}{{ path }}</loc>
     <lastmod>{{ lastmod }}</lastmod>
-    <xhtml:link rel="alternate" hreflang="fr" href="{{ site }}{{ paths.fr }}"/>
-    <xhtml:link rel="alternate" hreflang="en" href="{{ site }}{{ paths.en }}"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="{{ site }}{{ paths.fr }}"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="{{ site }}{{ page.paths.fr }}"/>
+    <xhtml:link rel="alternate" hreflang="en" href="{{ site }}{{ page.paths.en }}"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="{{ site }}{{ page.paths.fr }}"/>{% for image in page.images %}
+    <image:image><image:loc>{{ image }}</image:loc></image:image>{% endfor %}
   </url>{% endfor %}{% endfor %}
 </urlset>

@@ -62,10 +62,8 @@
       <a class="more" href="{{ links.legal }}#confidentialite">{% translate "Read the privacy policy" %} {% icon "arrow" %}</a>
     </div>
     <div class="faq rv">
-      <details open><summary>{% translate "I lost my family code" %}{% icon "chevdown" %}</summary><p>{% translate "Ask the school office for a new one: the old one no longer works." %}</p></details>
-      <details><summary>{% translate "I changed my phone number" %}{% icon "chevdown" %}</summary><p>{% translate "Tell the school, or use your profile if you are still signed in: the school approves the change." %}</p></details>
-      <details><summary>{% translate "My children are in two schools" %}{% icon "chevdown" %}</summary><p>{% blocktranslate trimmed with name=platform.name %}One account is enough if both schools use {{ name }} with the same number.{% endblocktranslate %}</p></details>
-      <details><summary>{% translate "Can I pay online?" %}{% icon "chevdown" %}</summary><p>{% translate "Not yet: you pay at the school's cash desk. Mobile Money payment is planned." %}</p></details>
+      {% for question, answer in faq %}<details{% if forloop.first %} open{% endif %}><summary>{{ question }}{% icon "chevdown" %}</summary><p>{{ answer }}</p></details>
+      {% endfor %}
     </div>
   </div>
 </section>

@@ -154,6 +154,10 @@ SOFTWARE_AUTHOR = "Guelord Mwenderwa"
 SOFTWARE_AUTHOR_URL = "https://github.com/GUELORD-MWENDERWA"
 SOFTWARE_COPYRIGHT = "DTMS"
 SOFTWARE_COPYRIGHT_URL = "https://dtms.site"
+# Profils publics de l'auteur et de DTMS (`sameAs` des données structurées, WEB.1c) : relient le
+# site à ces pages pour les moteurs de recherche ; à compléter quand ils existent.
+SOFTWARE_AUTHOR_SAME_AS = ["https://github.com/GUELORD-MWENDERWA"]
+SOFTWARE_COPYRIGHT_SAME_AS: list[str] = []
 # Notifications sur l'écran (5.5, Web Push) : paire de clés VAPID de la plateforme, créée une fois
 # par `manage.py webpush_keys` et jamais changée (elle invaliderait tous les abonnements). Vides :
 # rien n'est envoyé sur les écrans ; le centre de notifications marche quand même.

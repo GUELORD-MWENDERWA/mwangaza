@@ -16,6 +16,7 @@ const ADMIN = {
 const IDENTITY = {
   name: "Lampe",
   short_name: "Lampe",
+  site_name: "Lampe School",
   logo: null,
   icon: null,
   primary_color: "#0B5FCC",

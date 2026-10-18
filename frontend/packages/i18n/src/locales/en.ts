@@ -3774,6 +3774,8 @@ export const en: Messages<typeof fr> = {
       nameTitle: "Name",
       nameHelp: "Sign-in screens, menus, receipts, e-mails.",
       shortNameHelp: "Under the home screen icon (12 characters is best).",
+      siteNameHelp:
+        "Public site titles, Google results, previews shared on WhatsApp. A common name gets lost in the results: add a word to it.",
       filesTitle: "Logo and icon",
       colorsTitle: "Colours",
       supportTitle: "Support and legal notice",
@@ -3782,6 +3784,7 @@ export const en: Messages<typeof fr> = {
       fields: {
         name: "Name",
         short_name: "Short name",
+        site_name: "Name in search results",
         primary_color: "Main colour",
         accent_color: "Accent colour",
         support_phone: "Support phone",
@@ -4211,6 +4214,9 @@ export const en: Messages<typeof fr> = {
     login: {
       title: "Welcome back",
       subtitle: "Payments, receipts and announcements from your children's schools.",
+      pageTitle: "Parent space — {{name}}",
+      pageDescription:
+        "Follow your children's school on your phone: payments, receipts, what is left to pay, notices and summons. Log in with the number given to the school.",
       heading: "Log in",
       phone: "Phone number",
       phonePlaceholder: "E.g. 0971234567",

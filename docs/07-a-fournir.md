@@ -54,6 +54,8 @@ Dessinées par Claude (à valider) : console de la plateforme, tableau de bord e
 
 À dessiner ou mettre à jour : message « Aucun module activé » et cases des modules à la création d'une école (M.2.2) ; rôle de départ modifiable à la création d'une école (M.3.2). La carte « Fonctions de l'école » de `console/ecoles` est déjà dessinée. **Site public (WEB.1a, 2026-10-17)** : 7 pages dessinées par Claude dans `maquettes/site/` (à valider), à 390, 820 et 1440 px ; **codées en WEB.1b** (2026-10-18 : accueil complété du bulletin officiel animé au nom de l'ITIG et de la carte « École pilote » ; page Démonstration sans son formulaire jusqu'à WEB.1d). À dessiner : écran console « Demandes de démonstration » (WEB.1d), « Équipe » (EQ.2), contenus du site (SITE.1 → SITE.3), actualités publiques (SITE.2).
 
+Site public (WEB.1c, dessinés par Claude, à valider) : images de partage (`site/partage`) ; champ « Nom pour la recherche » ajouté à `console/identite-plateforme`.
+
 ### V1.2 — notes, bulletins, finances de l'école
 
 À dessiner (bloc NB, 2026-10-18) : tableau du directeur des études (fiches par classe et par cours, « pas encore envoyé », tableau synthétique, palmarès, NB.2), espace du titulaire (fiches reçues, conduite et application, « bulletins prêts », NB.3), conseil de délibération et PV (NB.5), convocation de seconde session (NB.6).
