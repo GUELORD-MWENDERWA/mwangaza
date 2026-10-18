@@ -61,6 +61,8 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 14 nonies | **WEB.1c** Visibilité : images de partage, données structurées (DTMS, auteur), recherches courtes, Search Console (§ 6.3) | P0 | S | 🤖 + 👤 |
 | 14 decies | **WEB.1d** Site public : demande de démonstration rangée dans la console, alerte au super-admin, adresse de la plateforme dans son identité (§ 6.3) — *découpée de WEB.1b le 2026-10-18* | P0 | M | 🤖 |
 | 15 | **🚀 Premier espace réel** (`A-FAIRE.md`, « Le jour du lancement ») | — | — | 👤 |
+| 15 bis | **EQ.1 → EQ.2** Équipe de la plateforme : membres, rôles fixes (propriétaire, technique, support, commercial, communication, finance), droits vérifiés par le serveur sur chaque point de la console (§ 6.3 bis) — *demandée le 2026-10-18* | P1 | M | 🤖 |
+| 15 ter | **SITE.1 → SITE.3** Site public géré depuis la console par la communication : questions, témoignages avec accord écrit, écoles de référence, bandeau, actualités, photos (§ 6.3 ter) ; SITE.4 (offres) avec ABO — *demandée le 2026-10-18* | P1 | L | 🤖 |
 | | **V1.2 — Notes, bulletins et finances de l'école** (§ 7) | | | |
 | 16 | ~~**A.2**~~ ✓ Purge des opérations de synchronisation (`SyncOperation` ; `ChangeLog` gardé) | P1 | S | 🤖 |
 | 17 | ~~**S.6.1**~~ ✓ Row Level Security PostgreSQL : socle et tables de finance (ex-9.15, avancée) | P1 | M | 🤖 |
@@ -273,6 +275,35 @@ L'argent de la plateforme. M.1 et M.2 donnent déjà les modules ; il manque le 
 - [ ] **WEB.1c** Visibilité *(P0, S, 🤖 + 👤, avec WEB.1b)* — **image de partage** 1200 × 630 par page (WhatsApp, Facebook, LinkedIn), tirée de l'identité de la plateforme ; icônes du site complètes. **Données structurées** : éditeur DTMS (`Organization`, `url` https://dtms.site, `sameAs`), auteur Guelord Mwenderwa (`Person`, `sameAs` : GitHub et les profils que tu donnes), `SoftwareApplication` (application éducative, web, Android, iPhone), questions fréquentes, fil d'Ariane ; liens rangés dans les réglages (`SOFTWARE_*`), pas dans les gabarits. **Recherches courtes** : titre et description de chaque page écrits pour elles ; nom constant « Mwangaza School » en plus de « Mwangaza » (mot swahili très répandu : seul, il se perd dans les résultats) ; `hreflang` fr/en ; images dans le `sitemap.xml`. **Espace parents trouvable** : la page de connexion du Portail devient indexable (titre « Espace parents »), le reste du Portail, la Gestion et la console restent `noindex`. Toi : liens vers `mwangazaschool.com` depuis `dtms.site` et tes profils, fiche Google Business Profile ; Search Console : sitemap renvoyé, indexation demandée, couverture relue une semaine après.
 
 - [ ] **WEB.2** Site de chaque école *(L, V1.7)* : à la racine de `{code}.mwangazaschool.com/` (la Gestion reste à `/app/`). L'école remplit elle-même son contenu depuis la Gestion : présentation, options et sections, admissions, actualités (annonces marquées « publiques »), galerie, contact, frais affichés seulement si elle le choisit ; publié ou non. **Sécurité** : modèles de pages fixes, texte en Markdown limité et nettoyé, aucun HTML ni script fourni par l'école, images ré-encodées (S.4), formulaire de contact limité. Domaine propre à une école : P3 (certificats à la demande, risque d'abus). Design : comme WEB.1 (références, maquette aux trois tailles, photos de l'école, pied de page complet), les couleurs et le logo de chaque école.
+
+### 6.3 bis Équipe de la plateforme (EQ) — P1, demandée le 2026-10-18
+
+But : quand d'autres personnes rejoignent Mwangaza (support, commercial, communication), chacune n'a que les droits de son travail, pour qu'une mauvaise manipulation ne fasse pas tomber une école ni la plateforme. Aujourd'hui, la console n'a qu'un rôle : super-admin, qui peut tout (`IsPlatformAdmin`, 19 points d'API).
+
+**Regard senior** : pas de rôles libres comme ceux des écoles (M.3) : l'équipe restera petite, et des droits libres sur la console sont un risque. **Rôles fixes dans le code**, une liste de droits fins, plusieurs rôles possibles par personne. Les actions sans retour restent au seul propriétaire, avec confirmation. Tout ce qu'un membre fait est au journal de la plateforme sous son nom. Un membre du support qui ouvre les données d'une école passe par l'accès déjà noté et signalé à l'école (S.3.1).
+
+| Rôle | Peut | Ne peut pas |
+|---|---|---|
+| Propriétaire | tout, dont l'équipe, l'identité de la plateforme, l'arrêt d'un espace réel | — |
+| Technique | santé du serveur, appareils, tâches de fond, journal | changer une école, les comptes, le site |
+| Support | voir les écoles, réinitialiser un mot de passe ou une double authentification (noté, école prévenue), espaces de démonstration | arrêter un espace réel, l'identité, l'équipe |
+| Commercial | demandes de démonstration (WEB.1d), espaces d'essai et de démonstration, offres | données d'un espace réel |
+| Communication | contenus du site (SITE), nouveautés envoyées aux écoles (5.4.3), témoignages | écoles, comptes, santé |
+| Finance (V1.3) | abonnements, factures, échéances (ABO) | le reste |
+
+- [ ] **EQ.1** Équipe : serveur *(P1, M, 🤖)* — droits de la plateforme (`platform.schools.view`, `platform.schools.manage`, `platform.schools.stop`, `platform.accounts.support`, `platform.demos.manage`, `platform.leads.manage`, `platform.site.edit`, `platform.news.publish`, `platform.health.view`, `platform.audit.view`, `platform.billing.manage`, `platform.identity.edit`, `platform.team.manage`), rôles fixes ci-dessus, membre = compte avec un ou plusieurs rôles ; **double authentification obligatoire** pour tout membre ; `IsPlatformAdmin` remplacé par une vérification du droit sur **chaque** point de la console (test : chaque rôle reçoit 403 hors de ses droits) ; invitation, retrait (sessions coupées tout de suite) ; le propriétaire ne peut pas se retirer s'il est le seul ; journal de la plateforme avec l'auteur. Le super-admin d'aujourd'hui devient propriétaire.
+- [ ] **EQ.2** Équipe : écrans de la console *(P1, S à M, 🤖, après EQ.1)* — **maquettes d'abord** : « Équipe » (membres, rôles, dernière connexion, inviter, retirer), menu de la console réduit aux droits de chacun, confirmation renforcée des actions sans retour (taper le code de l'école pour l'arrêter).
+
+### 6.3 ter Site géré depuis la console (SITE) — P1, demandée le 2026-10-18
+
+But : la personne chargée de la communication tient le site à jour sans développeur : actualités, témoignages, questions fréquentes, écoles de référence, annonces, offres, photos.
+
+**Regard senior** : **pas de constructeur de pages libre** (mise en page cassée, failles par du HTML collé, pages lentes, référencement perdu). Les **modèles de pages restent fixes** (WEB.1b) ; ce qui change souvent devient des **contenus structurés** saisis dans la console, en français et en anglais, avec aperçu avant publication et journal. Texte mis en forme : paragraphes, listes, gras, liens, rendus par le serveur sans HTML fourni (pas de dépendance ; sinon la demander). Images ré-encodées (S.4), texte alternatif obligatoire, crédit. **Témoignage publié seulement avec l'accord écrit** déposé (fichier) ; **photo avec un élève reconnaissable seulement avec l'accord coché et déposé**. Coût serveur : une lecture par page, mise en cache, cache vidé à chaque publication (numéro de version du site). Les textes principaux des pages restent dans le code et ses traductions (relus dans une PR) ; leurs titres et descriptions pour la recherche deviennent modifiables (avec WEB.1c).
+
+- [ ] **SITE.1** Contenus du site *(P1, M, 🤖, après EQ.1)* — questions fréquentes, témoignages (école, personne, fonction, citation fr/en, accord écrit déposé), écoles de référence (nom, logo, chiffres, lien), « Prochainement », bandeau d'annonce du site (texte, lien, dates de début et de fin) : modèles de plateforme, écrans de la console (maquettes d'abord), droit `platform.site.edit` ; les listes de `core/site_content.py` (WEB.1b) y passent, données structurées comprises.
+- [ ] **SITE.2** Actualités *(P1, M, 🤖, après SITE.1)* — articles (titre, résumé, texte mis en forme, image, langue, brouillon / publié / programmé, auteur) ; pages `/actualites/` et `/en/news/`, liste paginée, dans le `sitemap.xml` ; maquettes d'abord.
+- [ ] **SITE.3** Photothèque *(P1, S, 🤖, après SITE.1)* — photos envoyées depuis la console (ré-encodées, WebP en deux tailles, métadonnées retirées), texte alternatif, crédit, case « élève reconnaissable » qui exige l'accord déposé ; choisies dans les pages et les articles.
+- [ ] **SITE.4** Offres *(P1, S, 🤖, avec ABO et WEB.1 prix)* — offres et prix affichés sur le site, saisis dans la console à partir du catalogue des abonnements.
 
 ### 6.4 Emploi du temps (EDT) — P1, V1.4
 
