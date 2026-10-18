@@ -1435,6 +1435,52 @@ export const fr = {
     editTitle: "Modifier l'infraction",
     cancel: "Annuler",
   },
+  gradeTotals: {
+    title: "Fiche de cotes",
+    subtitle: "{{course}} · {{className}} · {{term}} · maximum : {{max}}",
+    back: "Validation des notes",
+    missing: "Choisissez une fiche dans « Validation des notes ».",
+    print: "Imprimer",
+    status: {
+      draft: "Pas encore envoyée",
+      submitted: "Envoyée",
+      validated: "Validée",
+      returned: "Renvoyée",
+    },
+    signed:
+      "Envoyée et signée par {{name}} le {{date}}. Les interrogations et devoirs restent dans le carnet de l'enseignant : la fiche donne un total par élève.",
+    signedAt:
+      "Envoyée et signée le {{date}}. Les interrogations et devoirs restent dans le carnet de l'enseignant : la fiche donne un total par élève.",
+    validated: "Validée par {{name}} le {{date}}.",
+    notSent:
+      "Pas encore envoyée par l'enseignant : les totaux apparaîtront ici dès qu'il l'aura envoyée et signée.",
+    returned: "Renvoyée à l'enseignant par {{name}} le {{date}} : « {{remarks}} ».",
+    students_one: "{{count}} élève",
+    students_other: "{{count}} élèves",
+    studentsHelp: "Total de la période, au maximum du cours",
+    columns: {
+      student: "Élève",
+      total: "Total /{{max}}",
+      percent: "%",
+    },
+    hint: "Vérifiez les totaux ; une erreur : renvoyez avec vos remarques.",
+    validate: "Valider",
+    sendBack: "Renvoyer avec remarques",
+    done: {
+      validate: "Fiche validée : elle est fermée.",
+      reopen: "Fiche renvoyée à l'enseignant avec vos remarques.",
+    },
+    summary: {
+      title: "Résumé",
+      average: "Moyenne de la classe",
+      averageValue: "{{value}} / {{max}} · {{percent}} %",
+      highest: "Plus haute",
+      lowest: "Plus basse",
+      below: "Sous la moitié",
+      belowValue_one: "{{count}} élève",
+      belowValue_other: "{{count}} élèves",
+    },
+  },
   gradeValidation: {
     title: "Validation des notes",
     subtitle:
@@ -1493,45 +1539,53 @@ export const fr = {
     hint: "Entrée = case suivante · une case vide laisse la note de la période incomplète",
     save: "Enregistrer",
     saved: "Notes enregistrées.",
-    submit: "Envoyer pour validation",
-    validate: "Valider",
-    sendBack: "Renvoyer en saisie",
-    reopen: "Rouvrir",
+    submit: "Envoyer et signer",
     done: {
-      submit: "Notes envoyées au directeur des études.",
-      validate: "Notes validées : la feuille est fermée.",
-      reopen: "Feuille rouverte : la saisie est de nouveau possible.",
+      submit:
+        "Fiche de cotes envoyée et signée : le directeur des études et le titulaire sont avertis.",
     },
+    sign: {
+      title: "Envoyer et signer la fiche de cotes ?",
+      body: "Vous certifiez ces notes. La fiche (un total par élève) part au directeur des études et au titulaire de la classe ; vos évaluations restent dans votre carnet.",
+      confirm: "Envoyer et signer",
+    },
+    private:
+      "Les évaluations de ce cours sont tenues par son enseignant : vous n'y saisissez qu'un total par élève quand il n'a pas de devoirs. Vous voyez sa fiche de cotes.",
+    openTotals: "Ouvrir la fiche de cotes",
     control: {
       open: "Saisie ouverte jusqu'au {{date}}. Ensuite, la feuille est fermée.",
       closed:
-        "La date limite de saisie était le {{date}} : la feuille est fermée. Le directeur des études peut la rouvrir.",
-      reopened: "Feuille rouverte par le directeur des études : la date limite ne la ferme plus.",
-      sent: "Notes envoyées le {{date}} par {{name}} pour validation. Toute modification demande un motif.",
+        "La date limite de saisie était le {{date}} : la feuille est fermée. Le directeur des études peut vous la renvoyer.",
+      reopened: "Fiche renvoyée par le directeur des études : la date limite ne la ferme plus.",
+      returned:
+        "Fiche renvoyée par {{name}} le {{date}} : « {{remarks}} ». Corrigez, puis envoyez-la de nouveau.",
+      sent: "Fiche de cotes envoyée et signée le {{date}} par {{name}}. Toute modification demande un motif.",
       validated:
-        "Notes validées le {{date}} par {{name}}. Pour les modifier, le directeur des études doit les rouvrir.",
+        "Fiche de cotes validée le {{date}} par {{name}}. Pour la modifier, le directeur des études doit vous la renvoyer.",
     },
     reason: {
-      label: "Motif",
-      required: "Donnez un motif d'au moins 3 lettres.",
       edit: {
+        label: "Motif",
+        required: "Donnez un motif d'au moins 3 lettres.",
         title: "Motif de la modification",
         help: "Ces notes sont déjà envoyées au directeur des études : le motif est gardé dans l'historique de la feuille.",
         confirm: "Enregistrer",
       },
       reopen: {
-        title: "Rouvrir la feuille",
-        help: "La feuille revient en saisie ; le motif est gardé dans l'historique.",
-        confirm: "Rouvrir",
+        label: "Remarques",
+        required: "Écrivez vos remarques (au moins 3 lettres).",
+        title: "Renvoyer avec remarques",
+        help: "La fiche revient dans le carnet de l'enseignant, qui reçoit vos remarques ; elles restent dans l'historique.",
+        confirm: "Renvoyer",
       },
     },
     history: {
       title: "Historique de la feuille",
       changed_one: "{{count}} modification",
       changed_other: "{{count}} modifications",
-      submitted: "Envoyée pour validation",
+      submitted: "Envoyée et signée",
       validated: "Validée",
-      reopened: "Rouverte",
+      reopened: "Renvoyée avec remarques",
     },
     invalidCells:
       "Corrigez les cases en rouge : une note a au plus une décimale et ne dépasse pas le maximum de son évaluation.",
@@ -3594,6 +3648,8 @@ export const fr = {
       discipline_incident: "Conduite",
       place_offered: "Place de l'année suivante",
       sensitive_rights: "Droits sensibles",
+      grades_sent: "Fiche de cotes reçue",
+      grades_returned: "Fiche de cotes renvoyée",
     },
     kindHelp: {
       test: "Pour vérifier que cet appareil les reçoit.",
@@ -3610,6 +3666,8 @@ export const fr = {
       discipline_incident: "Dès que l'école écrit une faute de conduite de l'un de vos enfants",
       place_offered: "Quand l'école garde une place à l'un de vos enfants pour l'année suivante",
       sensitive_rights: "Un compte reçoit le droit de gérer les rôles ou un droit sur l'argent",
+      grades_sent: "Un enseignant envoie et signe la fiche de cotes d'un cours",
+      grades_returned: "Le directeur des études vous renvoie une fiche avec ses remarques",
     },
     kindsTitle: "Que recevoir sur l'écran",
     kindsHelp: "Vaut pour toutes vos écoles. Une sorte coupée reste dans la liste.",

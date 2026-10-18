@@ -17,6 +17,7 @@ from apps.accounts.models import Membership, User
 from apps.accounts.roles import (
     FINANCE_APPROVE_CANCELLATION,
     FINANCE_VIEW_REPORTS,
+    GRADES_VALIDATE,
     ROLES_MANAGE,
 )
 from apps.core.models import PlatformSettings
@@ -40,6 +41,8 @@ STAFF_KINDS = {
     Kind.CASH_DIFFERENCE: FINANCE_VIEW_REPORTS,
     Kind.REGISTER_OPEN: FINANCE_VIEW_REPORTS,
     Kind.SENSITIVE_RIGHTS: ROLES_MANAGE,
+    # Le titulaire la reçoit aussi (`events.grades_sent`), sans pouvoir la couper : une par cours.
+    Kind.GRADES_SENT: GRADES_VALIDATE,
 }
 # Alertes de sécurité : aucun compte ne peut les couper.
 ALWAYS_SENT = frozenset({Kind.SENSITIVE_RIGHTS})

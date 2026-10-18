@@ -6180,7 +6180,8 @@ paths:
       operationId: courses_terms_grades_retrieve
       description: |-
         Feuille de notes du cours dans une période ou des examens : évaluations, élèves de la
-        classe, notes, note de la période.
+        classe, notes, note de la période. L'enseignant du cours ; `grades.enter_any` : une
+        feuille « total » seulement (403 `notebook_private` si elle a des devoirs).
       parameters:
       - in: path
         name: id
@@ -6285,8 +6286,8 @@ paths:
     post:
       operationId: courses_terms_grades_reopen_create
       description: |-
-        Renvoie une feuille envoyée ou validée en brouillon, avec le motif ; la date limite ne
-        la ferme plus.
+        Renvoie une fiche envoyée ou validée à l'enseignant avec les remarques (`reason`) :
+        elle revient dans son carnet, que la date limite ne ferme plus ; il en est averti.
       parameters:
       - in: path
         name: id
@@ -6321,7 +6322,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Sheet'
+                $ref: '#/components/schemas/TotalsSheet'
           description: ''
         '400':
           content:
@@ -6345,8 +6346,9 @@ paths:
     post:
       operationId: courses_terms_grades_submit_create
       description: |-
-        Envoie la feuille au directeur des études : complète (400 `incomplete_sheet`), pas
-        déjà envoyée (409 `sheet_not_draft`).
+        Envoie et signe la fiche de cotes : complète (400 `incomplete_sheet`), pas déjà
+        envoyée (409 `sheet_not_draft`) ; le directeur des études et le titulaire en sont
+        avertis.
       parameters:
       - in: path
         name: id
@@ -6389,10 +6391,59 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/courses/{id}/terms/{term}/grades/totals/:
+    get:
+      operationId: courses_terms_grades_totals_retrieve
+      description: |-
+        Fiche de cotes du cours dans une période ou des examens : le total de chaque élève au
+        maximum de la période, sans les évaluations, une fois envoyée (avant : son état seul) ;
+        qui l'a envoyée et signée, validée ou renvoyée, et son historique.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotalsSheet'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/courses/{id}/terms/{term}/grades/validate/:
     post:
       operationId: courses_terms_grades_validate_create
-      description: 'Valide une feuille envoyée : elle est fermée (409 `sheet_not_sent`
+      description: 'Valide une fiche envoyée : elle est fermée (409 `sheet_not_sent`
         sinon).'
       parameters:
       - in: path
@@ -6416,7 +6467,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Sheet'
+                $ref: '#/components/schemas/TotalsSheet'
           description: ''
         '400':
           content:
@@ -8720,8 +8771,9 @@ paths:
     get:
       operationId: grading_retrieve
       description: |-
-        Ce que le compte peut noter dans l'année : son découpage (périodes, examens) et, par
-        classe, les cours qu'il donne, ceux de la classe dont il est titulaire, ou tous.
+        Ce que le compte voit dans les notes de l'année : son découpage (périodes, examens) et,
+        par classe, les cours qu'il donne, ceux de la classe dont il est titulaire, ou tous ;
+        `teaches` : il tient le carnet du cours (ses évaluations).
       parameters:
       - in: query
         name: academic_year
@@ -19815,6 +19867,16 @@ components:
       - enrollment_id
       - evaluation_id
       - score
+    GradeSheetStatusEnum:
+      enum:
+      - draft
+      - submitted
+      - validated
+      type: string
+      description: |-
+        * `draft` - Draft
+        * `submitted` - Sent for validation
+        * `validated` - Validated
     Grading:
       type: object
       properties:
@@ -19848,8 +19910,9 @@ components:
         courses:
           type: array
           items:
-            $ref: '#/components/schemas/GradingCourse'
-          description: Cours que le compte peut noter.
+            $ref: '#/components/schemas/GradingListCourse'
+          description: Cours qu'il donne, ceux de la classe dont il est titulaire,
+            ou tous (`grades.enter_any`).
         is_homeroom:
           type: boolean
           description: Le compte est titulaire de la classe (tableau de la classe,
@@ -19882,6 +19945,35 @@ components:
       - name
       - period_max
       - has_exam
+    GradingListCourse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        period_max:
+          type: integer
+          readOnly: true
+          title: Maximum per period
+        has_exam:
+          type: boolean
+          readOnly: true
+          title: With exam
+        teaches:
+          type: boolean
+          description: 'Le compte donne ce cours : il tient son carnet (évaluations
+            et notes, NB.1) ; sinon, fiche de cotes seulement, ou un total par élève
+            avec `grades.enter_any`.'
+      required:
+      - id
+      - name
+      - period_max
+      - has_exam
+      - teaches
     GradingSettings:
       type: object
       description: Saisie des points de l'école (`grading.py`, 8.4.0).
@@ -21198,6 +21290,8 @@ components:
       - discipline_incident
       - place_offered
       - sensitive_rights
+      - grades_sent
+      - grades_returned
       type: string
       description: |-
         * `test` - Test notification
@@ -21214,6 +21308,8 @@ components:
         * `discipline_incident` - Conduct
         * `place_offered` - Place for next year
         * `sensitive_rights` - Sensitive rights given
+        * `grades_sent` - Grade sheet received
+        * `grades_returned` - Grade sheet returned
     NotificationPreferences:
       type: object
       properties:
@@ -25736,20 +25832,14 @@ components:
         * `F` - Female
     Sheet:
       type: object
+      description: État commun du carnet et de la fiche de cotes.
       properties:
-        entry:
-          allOf:
-          - $ref: '#/components/schemas/GradeEntryEnum'
-          description: |-
-            totals : une seule évaluation « Total » au maximum de la période (8.4.0).
-
-            * `detailed` - detailed
-            * `totals` - totals
         status:
-          $ref: '#/components/schemas/SheetStatusEnum'
+          $ref: '#/components/schemas/GradeSheetStatusEnum'
         reopened:
           type: boolean
-          description: 'Rouverte : la date limite ne la ferme plus.'
+          description: 'Brouillon rouvert (renvoyé par le directeur des études) :
+            la date limite ne le ferme plus.'
         due_on:
           type: string
           format: date
@@ -25761,12 +25851,19 @@ components:
           nullable: true
         submitted_by:
           type: string
+          description: Qui l'a envoyée et signée.
         validated_at:
           type: string
           format: date-time
           nullable: true
         validated_by:
           type: string
+        returned:
+          allOf:
+          - $ref: '#/components/schemas/HistoryEntry'
+          nullable: true
+          description: Renvoyée avec remarques (`reason`) et pas encore renvoyée de
+            nouveau ; vide sinon.
         history:
           type: array
           items:
@@ -25782,6 +25879,14 @@ components:
         maximum:
           type: integer
           description: 'Maximum de la période (examens : deux fois celui du cours).'
+        entry:
+          allOf:
+          - $ref: '#/components/schemas/GradeEntryEnum'
+          description: |-
+            totals : une seule évaluation « Total » au maximum de la période (8.4.0) ; toujours pour `grades.enter_any` hors de ses cours (NB.1).
+
+            * `detailed` - detailed
+            * `totals` - totals
         evaluations:
           type: array
           items:
@@ -25791,7 +25896,6 @@ components:
           items:
             $ref: '#/components/schemas/SheetRow'
       required:
-      - entry
       - status
       - reopened
       - due_on
@@ -25799,11 +25903,13 @@ components:
       - submitted_by
       - validated_at
       - validated_by
+      - returned
       - history
       - course
       - class_group
       - term
       - maximum
+      - entry
       - evaluations
       - students
     SheetRow:
@@ -25855,16 +25961,6 @@ components:
       description: |-
         * `half` - half
         * `third` - third
-    SheetStatusEnum:
-      enum:
-      - draft
-      - submitted
-      - validated
-      type: string
-      description: |-
-        * `draft` - Draft
-        * `submitted` - Sent for validation
-        * `validated` - Validated
     SheetUpdateRequest:
       type: object
       description: |-
@@ -27735,6 +27831,103 @@ components:
             $ref: '#/components/schemas/TermInputRequest'
       required:
       - terms
+    TotalsRow:
+      type: object
+      properties:
+        enrollment_id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        matricule:
+          type: string
+        status:
+          $ref: '#/components/schemas/EnrollmentStatusEnum'
+        total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,1})?$
+          nullable: true
+      required:
+      - enrollment_id
+      - full_name
+      - matricule
+      - status
+      - total
+    TotalsSheet:
+      type: object
+      description: 'Fiche de cotes (NB.1) : un total par élève, sans les évaluations.'
+      properties:
+        status:
+          $ref: '#/components/schemas/GradeSheetStatusEnum'
+        reopened:
+          type: boolean
+          description: 'Brouillon rouvert (renvoyé par le directeur des études) :
+            la date limite ne le ferme plus.'
+        due_on:
+          type: string
+          format: date
+          nullable: true
+          description: 'Dernier jour de saisie de la période ; vide : sans limite.'
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+        submitted_by:
+          type: string
+          description: Qui l'a envoyée et signée.
+        validated_at:
+          type: string
+          format: date-time
+          nullable: true
+        validated_by:
+          type: string
+        returned:
+          allOf:
+          - $ref: '#/components/schemas/HistoryEntry'
+          nullable: true
+          description: Renvoyée avec remarques (`reason`) et pas encore renvoyée de
+            nouveau ; vide sinon.
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoryEntry'
+          description: Les plus récentes d'abord.
+        course:
+          $ref: '#/components/schemas/GradingCourse'
+        class_group:
+          type: string
+        term:
+          type: string
+          format: uuid
+        maximum:
+          type: integer
+          description: 'Maximum de la période (examens : deux fois celui du cours).'
+        term_label:
+          type: string
+          readOnly: true
+          description: « 1re période », « Examens · S1 ».
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/TotalsRow'
+          description: Vide tant que la fiche n'est pas envoyée.
+      required:
+      - status
+      - reopened
+      - due_on
+      - submitted_at
+      - submitted_by
+      - validated_at
+      - validated_by
+      - returned
+      - history
+      - course
+      - class_group
+      - term
+      - maximum
+      - term_label
+      - students
     TotpActivated:
       type: object
       properties:

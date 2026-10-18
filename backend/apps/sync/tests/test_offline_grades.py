@@ -11,6 +11,7 @@ from apps.academics.models import Evaluation, Grade, GradeDeadline
 from apps.academics.tests.test_grades import setup
 from apps.core.ids import uuid7
 from apps.core.tenancy import use_school
+from apps.schools.models import ClassGroup
 from apps.sync.models import SyncOperation
 from apps.sync.tests.test_devices import remember
 from tests.factories import MembershipFactory
@@ -88,6 +89,14 @@ def test_an_offline_sheet_follows_the_online_rules(api, school, head, teacher):
     clerk = api(promoter)
     remember(clerk)
     refused = clerk.post(PUSH, {"operations": [grades_op(data, uuid7(), term="exam")]})
+    assert refused.json()["results"][0]["error"]["code"] == "permission_denied"
+    # Le titulaire ne tient pas le carnet d'un cours qu'il ne donne pas (NB.1).
+    homeroom = MembershipFactory(school=school, roles=["teacher"]).user
+    with use_school(school):
+        ClassGroup.objects.filter(pk=data["a"].pk).update(homeroom_teacher=homeroom)
+    titular = api(homeroom)
+    remember(titular)
+    refused = titular.post(PUSH, {"operations": [grades_op(data, uuid7())]})
     assert refused.json()["results"][0]["error"]["code"] == "permission_denied"
 
 

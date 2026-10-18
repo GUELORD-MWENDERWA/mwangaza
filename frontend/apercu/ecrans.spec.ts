@@ -185,6 +185,18 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     await visit(director, `${ITIG}grade-validation`, "gestion", "grade-validation");
     await visit(director, `${ITIG}report-cards`, "gestion", "report-cards");
     await visit(director, `${ITIG}grade-sheets`, "gestion", "grade-sheets");
+    // Fiche de cotes (NB.1) : la première envoyée, lue par la directrice des études.
+    const sent = await json<{ sheets: { course: string; term: string }[] }>(
+      director,
+      "/api/grading/validation/",
+    );
+    const one = sent.sheets[0]!;
+    await visit(
+      director,
+      `${ITIG}grade-sheets/totals?course=${one.course}&term=${one.term}`,
+      "gestion",
+      "fiche-cotes",
+    );
     // Conduite (8.5.1a) : l'enseignant attribue, le directeur de discipline tient le barème.
     await visit(teacher, `${ITIG}conduct`, "gestion", "conduct");
     const discipline = await staff(browser, "0000001003", false);

@@ -1,6 +1,7 @@
-// Validation des notes (8.2.2, maquette `notes-validation`) : les feuilles que les enseignants ont
-// envoyées, à ouvrir pour les valider ou les renvoyer, et la date limite de saisie de chaque
-// période. Droit `grades.validate` (double authentification).
+// Validation des notes (8.2.2, maquette `notes-validation`) : les fiches de cotes que les
+// enseignants ont envoyées et signées, à ouvrir (`GradeTotalsPage`) pour les valider ou les renvoyer
+// avec remarques, et la date limite de saisie de chaque période. Droit `grades.validate` (double
+// authentification).
 import { api, call } from "@mwangaza/api";
 import { firstErrorMessage, formatDate, formatDateTime, useTranslation } from "@mwangaza/i18n";
 import {
@@ -109,7 +110,7 @@ export function GradeValidationPage() {
                     </td>
                     <td className="text-right">
                       <Button asChild size="sm">
-                        <Link to={`/grades?course=${row.course}&term=${row.term}`}>
+                        <Link to={`/grade-sheets/totals?course=${row.course}&term=${row.term}`}>
                           {t("gradeValidation.open")}
                         </Link>
                       </Button>

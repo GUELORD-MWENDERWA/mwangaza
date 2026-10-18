@@ -4,20 +4,27 @@ classe — se lit et s'enregistre d'un seul envoi.
 
 Note de la période = somme des notes ramenée au maximum de la période (examens : deux fois le
 maximum du cours) par une règle de trois, arrondie au dixième (décisions du 2026-10-15) ; calculée,
-jamais stockée. Droits `grades.enter` (ses cours et sa classe de titulaire) et `grades.enter_any`
-(toutes les classes), vérifiés par l'API avec `gradable_courses`. Chaque enregistrement qui change
-quelque chose écrit **une** entrée au journal (domaine `grades`), avec les seules cases changées.
+jamais stockée. Chaque enregistrement qui change quelque chose écrit **une** entrée au journal
+(domaine `grades`), avec les seules cases changées.
+
+Carnet de l'enseignant (NB.1, `notebook_access`) : les évaluations d'un cours et leurs notes ne sont
+lues et modifiées que par l'**enseignant du cours** ; `grades.enter_any` n'y saisit qu'**un total
+par élève** (feuille « total ») ; le directeur des études, le titulaire et tout autre compte n'ont
+que la **fiche de cotes** (`totals_sheet`) : le total de chaque élève, une fois la feuille envoyée.
+Pas de copie : la fiche est une vue des totaux de la même feuille.
 
 Saisie des points (8.4.0) : selon le réglage de l'école ou du cours, la feuille compte des devoirs
 détaillés ou **une seule évaluation « Total »** au maximum de la période (`entry_mode`) ; tout ce
 qui suit (note de la période, bulletin, fiches, délibération) lit les évaluations de la même
 façon. Une feuille qui a déjà plusieurs évaluations reste détaillée, quel que soit le réglage.
 
-Contrôle (8.2.2) : la feuille est un brouillon, puis envoyée (`submit_sheet`, complète), puis
-validée par le directeur des études (`validate_sheet`, droit `grades.validate`). Brouillon : saisie
+Contrôle (8.2.2) : la feuille est un brouillon, puis envoyée et signée par l'enseignant
+(`submit_sheet`, complète ; le directeur des études et le titulaire en sont avertis), puis validée
+par le directeur des études (`validate_sheet`, droit `grades.validate`) ou renvoyée avec ses
+remarques (`reopen_sheet` : brouillon « rouvert », l'enseignant en est averti). Brouillon : saisie
 libre jusqu'à la date limite de la période (`set_deadline`), passée : refusée, sauf feuille rouverte
 ou droit `grades.validate`. Envoyée : modifier demande un motif, gardé au journal. Validée :
-fermée ; `reopen_sheet` (avec motif) la renvoie en brouillon. Tout est dans le journal de la
+fermée ; `reopen_sheet` (avec remarques) la renvoie aussi. Tout est dans le journal de la
 feuille (`GradeSheet`), que `sheet()` relit comme historique.
 """
 
@@ -40,6 +47,7 @@ from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import require_current_school
+from apps.notifications import events
 from apps.schools.grading import DETAILED, TOTALS
 from apps.schools.models import Term
 from apps.students.models import Enrollment
@@ -60,6 +68,11 @@ TOTALS_ONLY = ApiError(
     "totals_only",
     _("This course is graded with the period total only: a single evaluation at the maximum."),
     400,
+)
+NOTEBOOK_PRIVATE = ApiError(
+    "notebook_private",
+    _("The evaluations of this course are kept by its teacher: open its grade sheet instead."),
+    403,
 )
 REASON_REQUIRED = ApiError(
     "reason_required", _("Give the reason for changing grades that are already sent."), 400
@@ -122,17 +135,45 @@ class Sheet:
     validated_at: datetime | None = None
     validated_by: str = ""
     history: list[HistoryEntry] = field(default_factory=list)
+    # Renvoyée par le directeur des études (brouillon rouvert) : qui, quand, ses remarques.
+    returned: HistoryEntry | None = None
+
+
+# Accès à la feuille d'un cours (NB.1) : le carnet complet, ou un total par élève.
+NOTEBOOK, TOTAL_ONLY = "notebook", "total"
 
 
 def gradable_courses(user: User, permissions) -> QuerySet[Course]:
-    """Cours de l'école courante dont `user` saisit les notes : tous avec `grades.enter_any` ;
-    avec `grades.enter`, ceux qu'il donne et ceux de la classe dont il est titulaire."""
+    """Cours de l'école courante que `user` voit dans les notes (liste, fiche de cotes, fiche
+    imprimée, repêchage) : tous avec `grades.enter_any` ; avec `grades.enter`, ceux qu'il donne et
+    ceux de la classe dont il est titulaire. Les évaluations d'un cours : `notebook_access`."""
     courses = Course.objects.filter(is_taught=True)
     if GRADES_ENTER_ANY in permissions:
         return courses
     if GRADES_ENTER in permissions:
         return courses.filter(Q(teacher=user) | Q(class_group__homeroom_teacher=user))
     return courses.none()
+
+
+def notebook_access(user: User, permissions, course: Course) -> str | None:
+    """Ce que `user` fait dans la feuille de `course` (NB.1) : `NOTEBOOK` pour l'enseignant du
+    cours (ses évaluations et leurs notes) ; `TOTAL_ONLY` avec `grades.enter_any` (un total par
+    élève, pour un enseignant qui rend sa fiche sur papier) ; sinon `None` : le directeur des
+    études, le titulaire, le préfet n'ont que la fiche de cotes. Un remplaçant passe par la
+    réattribution du cours (charges, 8.1)."""
+    if not course.is_taught:
+        return None
+    if course.teacher_id == user.pk and (
+        GRADES_ENTER in permissions or GRADES_ENTER_ANY in permissions
+    ):
+        return NOTEBOOK
+    return TOTAL_ONLY if GRADES_ENTER_ANY in permissions else None
+
+
+def _detailed(evaluations: list[Evaluation], maximum: int) -> bool:
+    """La feuille a des devoirs : plus d'une évaluation, ou une seule sous un autre maximum que
+    celui de la période (une seule au maximum, c'est le total lui-même)."""
+    return len(evaluations) > 1 or any(e.max_score != maximum for e in evaluations)
 
 
 def entry_mode(course: Course, evaluation_count: int) -> str:
@@ -225,12 +266,15 @@ def _history(state: GradeSheet) -> list[HistoryEntry]:
     ]
 
 
-def sheet(course: Course, term: Term) -> Sheet:
+def sheet(course: Course, term: Term, *, total_only: bool = False) -> Sheet:
     """Feuille de notes : évaluations dans l'ordre, élèves actifs de la classe (et ceux partis
     qui ont déjà une note ici) par nom, leurs notes et leur note de la période, son état, sa date
-    limite et son historique. Sept requêtes au plus."""
+    limite, son historique et les remarques d'un renvoi. Huit requêtes au plus. `total_only`
+    (`grades.enter_any`) : une feuille qui a des devoirs est refusée (403 `notebook_private`)."""
     _check_term(course, term)
     evaluations = _evaluations(course, term)
+    if total_only and _detailed(evaluations, term_maximum(course, term)):
+        raise BusinessError(NOTEBOOK_PRIVATE)
     graded_here = Grade.objects.filter(enrollment=OuterRef("pk"), evaluation__in=evaluations)
     enrollments = (
         Enrollment.objects.filter(class_group_id=course.class_group_id)
@@ -251,7 +295,7 @@ def sheet(course: Course, term: Term) -> Sheet:
         scores = [row.scores.get(evaluation.pk) for evaluation in evaluations]
         row.total = period_score(scores, maxima, maximum)
     result = Sheet(course, term, maximum, evaluations, list(rows.values()))
-    result.entry = entry_mode(course, len(evaluations))
+    result.entry = TOTALS if total_only else entry_mode(course, len(evaluations))
     deadline = GradeDeadline.objects.filter(term=term).values_list("due_on", flat=True).first()
     result.due_on = deadline
     state = _state(course, term)
@@ -260,6 +304,38 @@ def sheet(course: Course, term: Term) -> Sheet:
         result.submitted_at, result.submitted_by = state.submitted_at, str(state.submitted_by or "")
         result.validated_at, result.validated_by = state.validated_at, str(state.validated_by or "")
         result.history = _history(state)
+        if state.status == GradeSheet.Status.DRAFT and state.reopened:
+            result.returned = _returned(state)
+    return result
+
+
+def _returned(state: GradeSheet) -> HistoryEntry | None:
+    entry = (
+        AuditLog.objects.filter(
+            entity_type=state._meta.label_lower,
+            entity_id=state.pk,
+            action=Action.GRADES_REOPENED,
+        )
+        .select_related("actor")
+        .order_by("-created_at")
+        .first()
+    )
+    if entry is None:
+        return None
+    reason = (entry.after or {}).get("reason", "")
+    return HistoryEntry(entry.action, entry.created_at, str(entry.actor or ""), reason, 0)
+
+
+def totals_sheet(course: Course, term: Term) -> Sheet:
+    """Fiche de cotes (NB.1) : le total de chaque élève au maximum de la période, sans les
+    évaluations ni leurs notes, et seulement une fois la feuille envoyée (avant : son état seul).
+    Lue par l'enseignant, le titulaire, `grades.enter_any` et `grades.validate`."""
+    result = sheet(course, term)
+    result.evaluations = []
+    sent = result.status in (GradeSheet.Status.SUBMITTED, GradeSheet.Status.VALIDATED)
+    result.rows = result.rows if sent else []
+    for row in result.rows:
+        row.scores = {}
     return result
 
 
@@ -300,6 +376,7 @@ def save_sheet(
     actor: User,
     reason: str = "",
     may_validate: bool = False,
+    total_only: bool = False,
 ) -> Sheet:
     """Enregistre la feuille d'un seul envoi : évaluations ajoutées ou modifiées (`evaluations`,
     dans l'ordre ; celles qui ne sont pas envoyées restent), retirées avec leurs notes
@@ -308,7 +385,8 @@ def save_sheet(
     pour une même case, le dernier gagne. Contrôle (8.2.2) : feuille validée : 409
     `sheet_validated` ; date limite passée : 409 `deadline_passed` (sauf feuille rouverte ou
     `may_validate`) ; feuille envoyée : `reason` obligatoire (400 `reason_required`) s'il y a un
-    changement."""
+    changement. `total_only` (`grades.enter_any`, NB.1) : une feuille qui a des devoirs est
+    refusée (403 `notebook_private`), et on n'y met qu'un total."""
     _check_term(course, term)
     with transaction.atomic():
         # Verrou sur le cours : deux envois de la même feuille ne créent pas deux fois une note.
@@ -327,8 +405,10 @@ def save_sheet(
         reason = reason.strip()
         existing = {evaluation.pk: evaluation for evaluation in _evaluations(course, term)}
         removed_ids = {pk for pk in removed if pk in existing}
+        if total_only and _detailed(list(existing.values()), term_maximum(course, term)):
+            raise BusinessError(NOTEBOOK_PRIVATE)
         maxima = _plan_evaluations(existing, evaluations, removed_ids)
-        if entry_mode(course, len(existing)) == TOTALS and (
+        if (total_only or entry_mode(course, len(existing)) == TOTALS) and (
             len(maxima) + sum(item.id is None for item in evaluations) != 1
             or any(item.max_score != term_maximum(course, term) for item in evaluations)
         ):
@@ -487,7 +567,7 @@ def save_sheet(
                 after=after or None,
                 label=_label(course, term),
             )
-    return sheet(course, term)
+    return sheet(course, term, total_only=total_only)
 
 
 def _label(course: Course, term: Term) -> str:
@@ -509,16 +589,16 @@ def _move(state: GradeSheet, action: str, before: str, after: dict, actor: User,
     audit.record(action, state, actor=actor, before={"status": before}, after=after, label=label)
 
 
-def submit_sheet(course: Course, term: Term, *, actor: User) -> Sheet:
-    """Envoie la feuille au directeur des études : au moins une évaluation et une note pour chaque
-    élève actif dans chacune (400 `incomplete_sheet`) ; déjà envoyée ou validée : 409
-    `sheet_not_draft`."""
+def submit_sheet(course: Course, term: Term, *, actor: User, total_only: bool = False) -> Sheet:
+    """Envoie et signe la fiche de cotes (NB.1 : qui et quand) : au moins une évaluation et une
+    note pour chaque élève actif dans chacune (400 `incomplete_sheet`) ; déjà envoyée ou validée :
+    409 `sheet_not_draft`. Le directeur des études et le titulaire de la classe en sont avertis."""
     _check_term(course, term)
     with transaction.atomic():
         state = _locked_state(course, term, actor)
         if state.status != GradeSheet.Status.DRAFT:
             raise BusinessError(SHEET_NOT_DRAFT)
-        current = sheet(course, term)
+        current = sheet(course, term, total_only=total_only)
         active = Enrollment.Status.ACTIVE
         if not current.evaluations or any(
             row.total is None for row in current.rows if row.enrollment.status == active
@@ -534,7 +614,8 @@ def submit_sheet(course: Course, term: Term, *, actor: User) -> Sheet:
             actor,
             _label(course, term),
         )
-    return sheet(course, term)
+        events.grades_sent(state, actor=actor)
+    return sheet(course, term, total_only=total_only)
 
 
 def validate_sheet(course: Course, term: Term, *, actor: User) -> Sheet:
@@ -555,12 +636,13 @@ def validate_sheet(course: Course, term: Term, *, actor: User) -> Sheet:
             actor,
             _label(course, term),
         )
-    return sheet(course, term)
+    return totals_sheet(course, term)
 
 
 def reopen_sheet(course: Course, term: Term, *, reason: str, actor: User) -> Sheet:
-    """Renvoie une feuille envoyée ou validée en brouillon, avec le motif (droit
-    `grades.validate`) ; la date limite ne la ferme plus. Un brouillon : 409 `sheet_not_sent`."""
+    """Renvoie une fiche envoyée ou validée à l'enseignant avec les remarques du directeur des
+    études (droit `grades.validate`) : brouillon rouvert, que la date limite ne ferme plus ;
+    l'enseignant en est averti. Un brouillon : 409 `sheet_not_sent`."""
     _check_term(course, term)
     reason = reason.strip()
     if not reason:
@@ -569,7 +651,7 @@ def reopen_sheet(course: Course, term: Term, *, reason: str, actor: User) -> She
         state = _locked_state(course, term, actor)
         if state.status == GradeSheet.Status.DRAFT:
             raise BusinessError(SHEET_NOT_SENT)
-        before = state.status
+        before, sender = state.status, state.submitted_by
         state.status, state.reopened = GradeSheet.Status.DRAFT, True
         state.submitted_at = state.submitted_by = state.validated_at = state.validated_by = None
         _move(
@@ -580,7 +662,8 @@ def reopen_sheet(course: Course, term: Term, *, reason: str, actor: User) -> She
             actor,
             _label(course, term),
         )
-    return sheet(course, term)
+        events.grades_returned(state, reason, sender=sender, actor=actor)
+    return totals_sheet(course, term)
 
 
 def set_deadline(term: Term, due_on: date | None, *, actor: User) -> None:

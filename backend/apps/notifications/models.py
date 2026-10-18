@@ -251,6 +251,10 @@ class Notification(TenantModel):
         # Sécurité (S.3.1) : un compte reçoit le droit de gérer les rôles ou un droit sur
         # l'argent ; à ceux qui gèrent les rôles de l'école.
         SENSITIVE_RIGHTS = "sensitive_rights", _("Sensitive rights given")
+        # Notes (NB.1) : fiche de cotes envoyée, au directeur des études et au titulaire ; renvoyée
+        # avec remarques, à l'enseignant.
+        GRADES_SENT = "grades_sent", _("Grade sheet received")
+        GRADES_RETURNED = "grades_returned", _("Grade sheet returned")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

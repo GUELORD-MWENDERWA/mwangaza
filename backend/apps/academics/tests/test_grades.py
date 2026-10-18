@@ -1,6 +1,6 @@
-"""Notes (8.2.1) : feuille d'un cours dans une période ou des examens, d'un seul envoi ; droits
-`grades.enter` (ses cours, sa classe de titulaire) et `grades.enter_any`, module `academics`,
-isolation entre écoles, note de la période ramenée au maximum, journal."""
+"""Notes (8.2.1) : feuille d'un cours dans une période ou des examens, d'un seul envoi ; carnet de
+l'enseignant (NB.1 : lui seul voit ses évaluations, `grades.enter_any` n'y met qu'un total), module
+`academics`, isolation entre écoles, note de la période ramenée au maximum, journal."""
 
 from decimal import Decimal
 
@@ -60,6 +60,11 @@ def secretary(school):
     return MembershipFactory(school=school, roles=["secretary"]).user
 
 
+@pytest.fixture
+def teacher(school):
+    return MembershipFactory(school=school, roles=["teacher"]).user
+
+
 def grades_log(school) -> list[AuditLog]:
     with use_school(school):
         return list(AuditLog.objects.filter(action="grades.changed").order_by("created_at"))
@@ -68,11 +73,15 @@ def grades_log(school) -> list[AuditLog]:
 # Droits et isolation
 
 
-def test_teachers_grade_their_courses_and_homeroom_teachers_their_class(api, school, head):
-    teacher = MembershipFactory(school=school, roles=["teacher"]).user
+def test_only_the_teacher_of_a_course_keeps_its_notebook(api, school, head, teacher, secretary):
+    """NB.1 : les évaluations d'un cours et leurs notes ne sont lues et modifiées que par son
+    enseignant ; le directeur des études, le titulaire et le préfet : 403 ; `grades.enter_any`
+    n'y met qu'un total."""
     data = setup(school, head, teacher=teacher)
     client = api(teacher)
-    assert client.get(sheet_url(data["physics"], data["p1"])).status_code == 200
+    url = sheet_url(data["physics"], data["p1"])
+    two = [{"name": "Interro", "max_score": 10}, {"name": "TP", "max_score": 10}]
+    assert client.put(url, {"evaluations": two, "grades": []}).status_code == 200
     refused = client.get(sheet_url(data["workshop"], data["p1"]))
     assert refused.status_code == 403 and refused.json()["code"] == "not_your_course"
     assert client.put(sheet_url(data["workshop"], data["p1"]), {}).status_code == 403
@@ -80,22 +89,34 @@ def test_teachers_grade_their_courses_and_homeroom_teachers_their_class(api, sch
     assert [(c["name"], [x["name"] for x in c["courses"]]) for c in listed["classes"]] == [
         ("1RE ÉLECTRICITÉ A", ["Physique"])
     ]
+    assert listed["classes"][0]["courses"][0]["teaches"] is True
     assert listed["academic_year"] == str(data["year"].pk) and listed["terms"]
 
-    # Le titulaire note tous les cours de sa classe, pas ceux d'une autre.
+    # Le titulaire voit les cours de sa classe dans la liste, sans leur carnet.
     homeroom = MembershipFactory(school=school, roles=["teacher"]).user
     with use_school(school):
         ClassGroup.objects.filter(pk=data["a"].pk).update(homeroom_teacher=homeroom)
-    assert api(homeroom).get(sheet_url(data["workshop"], data["p1"])).status_code == 200
-    assert api(homeroom).get(sheet_url(data["b_physics"], data["p1"])).status_code == 403
-
-    # Sans droit sur les notes : 403 ; le secrétariat (`grades.enter_any`) voit toutes les classes.
-    assert api(head).get(sheet_url(data["physics"], data["p1"])).status_code == 403
-    secretary = MembershipFactory(school=school, roles=["secretary"]).user
+    courses = api(homeroom).get(GRADING).json()["classes"][0]["courses"]
+    assert {c["name"]: c["teaches"] for c in courses} == {"Physique": False, "Atelier": False}
+    director = MembershipFactory(school=school, roles=["study_director"]).user
+    for user, code in (
+        (homeroom, "not_your_course"),
+        (head, "permission_denied"),
+        (director, "notebook_private"),
+        (secretary, "notebook_private"),
+    ):
+        response = api(user).get(url)
+        assert response.status_code == 403, user
+        assert response.json()["code"] == code
+        assert api(user).put(url, {"evaluations": [], "grades": []}).status_code == 403
+    assert api(homeroom).get(sheet_url(data["workshop"], data["p1"])).status_code == 403
+    # `grades.enter_any` : toutes les classes dans la liste, un total seulement.
     assert len(api(secretary).get(GRADING).json()["classes"]) == 2
+    total = api(secretary).get(sheet_url(data["workshop"], data["p1"]))
+    assert total.status_code == 200 and total.json()["entry"] == "totals"
 
     School.objects.filter(pk=school.pk).update(modules=["students"])
-    response = client.get(sheet_url(data["physics"], data["p1"]))
+    response = client.get(url)
     assert response.status_code == 403 and response.json()["code"] == "module_missing"
 
 
@@ -146,10 +167,10 @@ def test_period_score_is_brought_back_to_the_maximum_to_a_tenth():
 
 
 def test_the_sheet_is_saved_in_one_go_and_noted_once_per_save(
-    api, school, head, secretary, django_assert_max_num_queries
+    api, school, head, teacher, django_assert_max_num_queries
 ):
-    data = setup(school, head)
-    client = api(secretary)
+    data = setup(school, head, teacher=teacher)
+    client = api(teacher)
     url = sheet_url(data["physics"], data["p1"])
     first, second = str(uuid7()), str(uuid7())
     amani, josue = data["amani"], data["josue"]
@@ -207,7 +228,7 @@ def test_the_sheet_is_saved_in_one_go_and_noted_once_per_save(
     client.put(url, {"grades": [{"enrollment_id": amani, "evaluation_id": first, "score": "8.0"}]})
     logs = grades_log(school)
     assert len(logs) == 3
-    assert logs[0].actor_id == secretary.pk and logs[0].entity_type == "academics.gradesheet"
+    assert logs[0].actor_id == teacher.pk and logs[0].entity_type == "academics.gradesheet"
     assert logs[0].entity_label == "Physique · 1RE ÉLECTRICITÉ A · Période 1"
     assert len(logs[0].after["evaluations"]) == 3 and len(logs[0].after["grades"]) == 3
     assert logs[0].before is None
@@ -222,9 +243,9 @@ def test_the_sheet_is_saved_in_one_go_and_noted_once_per_save(
     }
 
 
-def test_wrong_grades_change_nothing(api, school, head, secretary):
-    data = setup(school, head)
-    client = api(secretary)
+def test_wrong_grades_change_nothing(api, school, head, teacher):
+    data = setup(school, head, teacher=teacher)
+    client = api(teacher)
     url = sheet_url(data["physics"], data["p1"])
     interro = str(uuid7())
     new = [{"id": interro, "name": "Interrogation", "max_score": 10}]
@@ -255,6 +276,8 @@ def test_wrong_grades_change_nothing(api, school, head, secretary):
 
     # Examens : deux fois le maximum, seulement pour un cours avec examen ; jamais un semestre.
     assert client.get(sheet_url(data["physics"], data["exam"])).json()["maximum"] == 40
+    with use_school(school):
+        Course.objects.filter(pk=data["workshop"].pk).update(teacher=teacher)
     for course, term in ((data["workshop"], data["exam"]), (data["physics"], data["semester"])):
         response = client.get(sheet_url(course, term))
         assert response.status_code == 400 and response.json()["code"] == "not_graded_here"
@@ -276,10 +299,10 @@ def test_a_graded_course_keeps_its_place_and_its_exam(api, school, head, secreta
     assert response.status_code == 409 and response.json()["code"] == "course_in_use"
 
 
-def test_a_graded_period_keeps_its_kind_and_its_place(api, school, head, secretary):
-    data = setup(school, head)
+def test_a_graded_period_keeps_its_kind_and_its_place(api, school, head, teacher):
+    data = setup(school, head, teacher=teacher)
     sent = {"evaluations": [{"name": "Interro", "max_score": 10}]}
-    assert api(secretary).put(sheet_url(data["physics"], data["p1"]), sent).status_code == 200
+    assert api(teacher).put(sheet_url(data["physics"], data["p1"]), sent).status_code == 200
 
     def tree(change=None):
         with use_school(school):
@@ -317,7 +340,9 @@ def test_a_graded_period_keeps_its_kind_and_its_place(api, school, head, secreta
         assert Term.objects.get(pk=data["p1"].pk).name == "P1"
 
 
-def test_totals_only_sheet_has_one_total_at_the_period_maximum(api, school, head, secretary):
+def test_totals_only_sheet_has_one_total_at_the_period_maximum(
+    api, school, head, teacher, secretary
+):
     """Saisie sans devoirs (8.4.0) : réglage de l'école, dérogation d'un cours ; une feuille aux
     devoirs détaillés les garde ; le bulletin lit le total comme une note de période."""
     data = setup(school, head)
@@ -352,24 +377,32 @@ def test_totals_only_sheet_has_one_total_at_the_period_maximum(api, school, head
     )
     assert ok.status_code == 200 and ok.json()["maximum"] == 40
 
-    # Le cours peut déroger au réglage de l'école : devoirs détaillés.
+    # Le cours peut déroger au réglage de l'école : devoirs détaillés, pour son enseignant ; le
+    # secrétariat n'y met jamais qu'un total (NB.1).
     with use_school(school):
-        Course.objects.filter(pk=data["workshop"].pk).update(grade_entry="detailed")
+        Course.objects.filter(pk=data["workshop"].pk).update(
+            grade_entry="detailed", teacher=teacher
+        )
     detailed = sheet_url(data["workshop"], data["p1"])
-    assert api(secretary).get(detailed).json()["entry"] == "detailed"
+    assert api(secretary).get(detailed).json()["entry"] == "totals"
+    assert api(teacher).get(detailed).json()["entry"] == "detailed"
     two = [{"name": "A", "max_score": 50}, {"name": "B", "max_score": 50}]
-    assert api(secretary).put(detailed, {"evaluations": two, "grades": []}).status_code == 200
+    refused = api(secretary).put(detailed, {"evaluations": two, "grades": []})
+    assert refused.status_code == 400 and refused.json()["code"] == "totals_only"
+    assert api(teacher).put(detailed, {"evaluations": two, "grades": []}).status_code == 200
+    refused = api(secretary).get(detailed)
+    assert refused.status_code == 403 and refused.json()["code"] == "notebook_private"
 
 
 def test_a_sheet_with_several_evaluations_stays_detailed_when_the_school_changes(
-    api, school, head, secretary
+    api, school, head, teacher
 ):
-    data = setup(school, head)
+    data = setup(school, head, teacher=teacher)
     url = sheet_url(data["physics"], data["p1"])
     two = [{"name": "A", "max_score": 10}, {"name": "B", "max_score": 10}]
-    assert api(secretary).put(url, {"evaluations": two, "grades": []}).status_code == 200
+    assert api(teacher).put(url, {"evaluations": two, "grades": []}).status_code == 200
     api(head).patch("/api/school/settings/", {"grading": {"entry": "totals"}})
-    assert api(secretary).get(url).json()["entry"] == "detailed"
+    assert api(teacher).get(url).json()["entry"] == "detailed"
 
 
 def test_the_grading_setting_of_a_school_does_not_reach_another(

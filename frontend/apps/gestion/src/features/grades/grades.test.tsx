@@ -29,7 +29,9 @@ const grading = {
       id: fakeId(20),
       name: "3e Électricité A",
       is_homeroom: false,
-      courses: [{ id: COURSE, name: "Électrotechnique", period_max: 20, has_exam: true }],
+      courses: [
+        { id: COURSE, name: "Électrotechnique", period_max: 20, has_exam: true, teaches: true },
+      ],
     },
   ],
 };
@@ -47,6 +49,7 @@ const sheet = {
   submitted_by: "",
   validated_at: null,
   validated_by: "",
+  returned: null,
   history: [],
   evaluations: [
     { id: FIRST, name: "Interrogation 1", max_score: 10 },
@@ -177,5 +180,86 @@ describe("saisie des notes", () => {
     expect(put.grades).toEqual([
       { enrollment_id: JOSUE, evaluation_id: put.evaluations[0]!.id, score: "15.5" },
     ]);
+  });
+
+  it("envoie et signe la fiche seulement après confirmation", async () => {
+    const complete = {
+      ...sheet,
+      students: [{ ...sheet.students[0]!, total: "17.0" }],
+    };
+    const requests = mockApi(
+      routes({
+        [`GET /api/courses/${COURSE}/terms/${PERIOD}/grades/`]: complete,
+        [`POST /api/courses/${COURSE}/terms/${PERIOD}/grades/submit/`]: {
+          ...complete,
+          status: "submitted",
+        },
+      }),
+    );
+    const { user } = renderApp("/grades");
+
+    await user.click(await screen.findByRole("button", { name: "Envoyer et signer" }));
+    expect(requests.some((request) => request.method === "POST")).toBe(false);
+    await screen.findByText(/Vous certifiez ces notes/);
+    const buttons = screen.getAllByRole("button", { name: "Envoyer et signer" });
+    await user.click(buttons.at(-1)!);
+    await screen.findByText(/le directeur des études et le titulaire sont avertis/);
+    expect(requests.filter((request) => request.method === "POST")).toHaveLength(1);
+  });
+});
+
+describe("fiche de cotes", () => {
+  const totals = {
+    course: grading.classes[0]!.courses[0],
+    class_group: "3e Électricité A",
+    term: PERIOD,
+    term_label: "1re période",
+    maximum: 20,
+    status: "submitted",
+    reopened: false,
+    due_on: null,
+    submitted_at: "2026-11-04T08:12:00Z",
+    submitted_by: "Kasereka Mumbere",
+    validated_at: null,
+    validated_by: "",
+    returned: null,
+    history: [],
+    students: [
+      { ...sheet.students[0]!, scores: undefined, total: "17.0" },
+      { ...sheet.students[1]!, scores: undefined, total: "8.5" },
+    ],
+  };
+  const url = `/grade-sheets/totals?course=${COURSE}&term=${PERIOD}`;
+  const api = `/api/courses/${COURSE}/terms/${PERIOD}/grades`;
+
+  it("le directeur des études lit les totaux et renvoie avec remarques", async () => {
+    const requests = mockApi({
+      ...routes({ "GET /api/me/": me("study_director") }),
+      [`GET ${api}/totals/`]: totals,
+      [`POST ${api}/reopen/`]: { ...totals, status: "draft", students: [] },
+    });
+    const { user } = renderApp(url);
+
+    await screen.findByText(/Envoyée et signée par Kasereka Mumbere/);
+    expect(screen.getByText("85 %")).toBeTruthy();
+    expect(screen.getByText("1 élève")).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "Renvoyer avec remarques" }));
+    await user.click(screen.getByRole("button", { name: "Renvoyer" }));
+    await screen.findByText(/Écrivez vos remarques/);
+    await user.type(screen.getByRole("textbox", { name: /Remarques/ }), "TP manquant");
+    await user.click(screen.getByRole("button", { name: "Renvoyer" }));
+    await screen.findByText(/Fiche renvoyée à l'enseignant/);
+    expect(requests.find((request) => request.method === "POST")!.body).toEqual({
+      reason: "TP manquant",
+    });
+  });
+
+  it("le titulaire la lit sans pouvoir la valider", async () => {
+    mockApi({ ...routes(), [`GET ${api}/totals/`]: totals });
+    renderApp(url);
+
+    await screen.findByText(/Envoyée et signée par Kasereka Mumbere/);
+    expect(screen.queryByRole("button", { name: "Valider" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Renvoyer avec remarques" })).toBeNull();
   });
 });
