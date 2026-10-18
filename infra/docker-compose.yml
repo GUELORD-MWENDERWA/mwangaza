@@ -52,6 +52,12 @@ x-backend: &backend
     DJANGO_DEMO_SPACES_MAX: ${DJANGO_DEMO_SPACES_MAX:-}
     # Adresses d'où le compte super-admin peut être utilisé (S.3.1) ; vide : toutes.
     DJANGO_CONSOLE_ALLOWED_IPS: ${DJANGO_CONSOLE_ALLOWED_IPS:-}
+    # E-mail d'alerte des demandes de démonstration (WEB.1d) ; vides : aucun e-mail.
+    DJANGO_EMAIL_HOST: ${DJANGO_EMAIL_HOST:-}
+    DJANGO_EMAIL_PORT: ${DJANGO_EMAIL_PORT:-}
+    DJANGO_EMAIL_USER: ${DJANGO_EMAIL_USER:-}
+    DJANGO_EMAIL_PASSWORD: ${DJANGO_EMAIL_PASSWORD:-}
+    DJANGO_ALERT_EMAIL: ${DJANGO_ALERT_EMAIL:-}
   # Logos, photos, pièces jointes : sur le disque jusqu'au stockage objet (4.7).
   volumes:
     - media:/app/media

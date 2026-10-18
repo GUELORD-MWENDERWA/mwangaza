@@ -11,8 +11,10 @@ sombre du menu (bleu nuit). Une couleur illisible est refusée.
 """
 
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from django.core.exceptions import ValidationError
+from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.ids import uuid7
@@ -134,3 +136,37 @@ def file_url(file, field: str) -> str | None:
     if not file:
         return None
     return f"{ADDRESSES[field]}?v={Path(file.name).stem.rsplit('-', 1)[-1]}"
+
+
+# Réseaux de la plateforme (WEB.1d) : champ de l'identité → domaines permis. Un lien vers un autre
+# site (faute de frappe, page piégée) est refusé.
+SOCIAL_HOSTS = {
+    "whatsapp_url": ("whatsapp.com", "wa.me"),
+    "facebook_url": ("facebook.com", "fb.com"),
+    "instagram_url": ("instagram.com",),
+    "linkedin_url": ("linkedin.com",),
+    "youtube_url": ("youtube.com", "youtu.be"),
+    "tiktok_url": ("tiktok.com",),
+}
+
+
+@deconstructible
+class SocialLinkValidator:
+    def __init__(self, field: str):
+        self.field = field
+
+    def __call__(self, value: str) -> None:
+        parts = urlsplit(value)
+        host = (parts.hostname or "").lower()
+        hosts = SOCIAL_HOSTS[self.field]
+        if parts.scheme != "https" or not any(
+            host == allowed or host.endswith(f".{allowed}") for allowed in hosts
+        ):
+            raise ValidationError(
+                _("This link must start with https:// and lead to %(site)s."),
+                code="social_link",
+                params={"site": hosts[0]},
+            )
+
+    def __eq__(self, other) -> bool:
+        return isinstance(other, SocialLinkValidator) and other.field == self.field

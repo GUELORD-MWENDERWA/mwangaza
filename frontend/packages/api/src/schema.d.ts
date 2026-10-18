@@ -1430,6 +1430,53 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/demo-requests/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
+         *     d'abord : super-admin seulement, à l'adresse de la console. On change le suivi et la note
+         *     interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+         */
+        get: operations["console_demo_requests_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/demo-requests/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * @description Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
+         *     d'abord : super-admin seulement, à l'adresse de la console. On change le suivi et la note
+         *     interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+         */
+        delete: operations["console_demo_requests_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
+         *     d'abord : super-admin seulement, à l'adresse de la console. On change le suivi et la note
+         *     interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+         */
+        patch: operations["console_demo_requests_partial_update"];
+        trace?: never;
+    };
     "/api/console/devices/": {
         parameters: {
             query?: never;
@@ -5669,6 +5716,38 @@ export interface components {
             health: components["schemas"]["ServerHealth"];
             platform: components["schemas"]["PlatformHealth"];
         };
+        /**
+         * @description Demande de démonstration du site (WEB.1d), dans la console : seuls le suivi et la note
+         *     interne se modifient. Fonction, taille et langue : codes, traduits par la console.
+         */
+        ConsoleDemoRequest: {
+            /** Format: uuid */
+            readonly id: string;
+            /**
+             * Received at
+             * Format: date-time
+             */
+            readonly created_at: string;
+            /** Full name */
+            readonly name: string;
+            readonly role: components["schemas"]["RoleEnum"];
+            /** School */
+            readonly school_name: string;
+            readonly town: string;
+            readonly phone: string;
+            /** Number of pupils */
+            readonly size: components["schemas"]["SizeEnum"];
+            /** Format: email */
+            readonly email: string;
+            readonly message: string;
+            readonly language: string;
+            /** Follow-up */
+            status?: components["schemas"]["DemoRequestStatusEnum"];
+            /** Internal note */
+            notes?: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
         /** @description Un appareil enregistré dans une école (console de la plateforme, 5.4.2). */
         ConsoleDevice: {
             /** Format: uuid */
@@ -5759,6 +5838,24 @@ export interface components {
             support_phone: string;
             support_email: string;
             legal_notice: string;
+            /** @description Street, number, district. */
+            address: string;
+            /** Town */
+            city: string;
+            /** Province */
+            region: string;
+            /** WhatsApp */
+            whatsapp_url: string;
+            /** Facebook */
+            facebook_url: string;
+            /** Instagram */
+            instagram_url: string;
+            /** LinkedIn */
+            linkedin_url: string;
+            /** YouTube */
+            youtube_url: string;
+            /** TikTok */
+            tiktok_url: string;
             /** Format: date-time */
             readonly updated_at: string;
             /** @description Les dernières modifications, de la plus récente à la plus ancienne. */
@@ -6432,6 +6529,14 @@ export interface components {
              */
             percent?: string | null;
         };
+        /**
+         * @description * `new` - New
+         *     * `called` - Called back
+         *     * `trial` - Trial space opened
+         *     * `dropped` - No follow-up
+         * @enum {string}
+         */
+        DemoRequestStatusEnum: "new" | "called" | "trial" | "dropped";
         /** @description Espace de démonstration créé depuis la console (4.17.2) : où en est son remplissage. */
         Demonstration: {
             profile: components["schemas"]["ProfileEnum"];
@@ -7725,6 +7830,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["ConsoleAccount"][];
         };
+        PaginatedConsoleDemoRequestList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["ConsoleDemoRequest"][];
+        };
         PaginatedConsoleDeviceList: {
             /** @example 123 */
             count: number;
@@ -8269,6 +8389,16 @@ export interface components {
             is_active?: boolean;
         };
         /**
+         * @description Demande de démonstration du site (WEB.1d), dans la console : seuls le suivi et la note
+         *     interne se modifient. Fonction, taille et langue : codes, traduits par la console.
+         */
+        PatchedConsoleDemoRequestRequest: {
+            /** Follow-up */
+            status?: components["schemas"]["DemoRequestStatusEnum"];
+            /** Internal note */
+            notes?: string;
+        };
+        /**
          * @description Identité de la plateforme dans la console (5.2.2) : modifiable par le super-admin ;
          *     couleurs illisibles refusées (contraste 4,5 : 1). Logo et icône s'envoient à part.
          */
@@ -8295,6 +8425,24 @@ export interface components {
             support_phone?: string;
             support_email?: string;
             legal_notice?: string;
+            /** @description Street, number, district. */
+            address?: string;
+            /** Town */
+            city?: string;
+            /** Province */
+            region?: string;
+            /** WhatsApp */
+            whatsapp_url?: string;
+            /** Facebook */
+            facebook_url?: string;
+            /** Instagram */
+            instagram_url?: string;
+            /** LinkedIn */
+            linkedin_url?: string;
+            /** YouTube */
+            youtube_url?: string;
+            /** TikTok */
+            tiktok_url?: string;
         };
         /**
          * @description Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
@@ -8762,6 +8910,24 @@ export interface components {
             support_phone: string;
             support_email: string;
             legal_notice: string;
+            /** @description Street, number, district. */
+            address: string;
+            /** Town */
+            city: string;
+            /** Province */
+            region: string;
+            /** WhatsApp */
+            whatsapp_url: string;
+            /** Facebook */
+            facebook_url: string;
+            /** Instagram */
+            instagram_url: string;
+            /** LinkedIn */
+            linkedin_url: string;
+            /** YouTube */
+            youtube_url: string;
+            /** TikTok */
+            tiktok_url: string;
         };
         /**
          * @description * `platform.updated` - Platform identity changed
@@ -9406,6 +9572,15 @@ export interface components {
             /** @description Comptes actifs qui ont ce rôle dans l'école. */
             readonly member_count: number;
         };
+        /**
+         * @description * `prefect` - Prefect of studies
+         *     * `promoter` - Promoter
+         *     * `head` - Head teacher
+         *     * `accountant` - Accountant
+         *     * `other` - Other
+         * @enum {string}
+         */
+        RoleEnum: "prefect" | "promoter" | "head" | "accountant" | "other";
         /** @description Rôle de l'école : un nom et des permissions. */
         RoleRequest: {
             name?: string;
@@ -9812,6 +9987,14 @@ export interface components {
          * @enum {string}
          */
         SituationEnum: "up_to_date" | "partial" | "overdue";
+        /**
+         * @description * `lt300` - Fewer than 300
+         *     * `300-800` - 300 to 800
+         *     * `800-1500` - 800 to 1,500
+         *     * `gt1500` - More than 1,500
+         * @enum {string}
+         */
+        SizeEnum: "lt300" | "300-800" | "800-1500" | "gt1500";
         Snapshot: {
             /** @description Première page seulement : numéro à garder pour `pull` (pas celui d'une page suivante). */
             cursor: number | null;
@@ -15255,6 +15438,150 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConsoleDashboard"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_demo_requests_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                status?: "called" | "dropped" | "new" | "trial";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedConsoleDemoRequestList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_demo_requests_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this demo request. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_demo_requests_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this demo request. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsoleDemoRequestRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedConsoleDemoRequestRequest"];
+                "multipart/form-data": components["schemas"]["PatchedConsoleDemoRequestRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleDemoRequest"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             403: {

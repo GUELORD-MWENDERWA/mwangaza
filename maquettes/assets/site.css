@@ -316,6 +316,10 @@ a.sc:hover{transform:translateY(-3px);box-shadow:var(--shadow-raised);border-col
 .sfcontact li{display:flex;gap:10px;align-items:center}
 .sfcontact a{display:inline-flex;gap:10px;align-items:center}
 .sfcontact .ic{color:var(--lamp);width:18px;height:18px}
+.sfsocial{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.sfsocial a{display:inline-flex;align-items:center;min-height:36px;padding:4px 14px;border:1px solid rgba(255,255,255,.28);border-radius:var(--r-pill);font-size:.85rem;text-decoration:none}
+.sfsocial a:hover{border-color:var(--lamp)}
+.follow{margin:14px 0 0;font-size:.92rem;color:var(--ink-2)}
 .sfbottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;border-top:1px solid var(--night-3);margin-top:48px;padding-top:20px;font-size:.85rem}
 @media (max-width:1023px){.sfgrid{grid-template-columns:repeat(3,minmax(0,1fr))}.sfabout{grid-column:1/-1}}
 @media (max-width:599px){.sfgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}.sf{padding:48px 0 24px}}

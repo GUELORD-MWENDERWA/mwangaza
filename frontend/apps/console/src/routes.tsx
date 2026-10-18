@@ -8,6 +8,7 @@ import { FinishInAdminPage } from "./features/auth/FinishInAdminPage";
 import { LoginLayout } from "./features/auth/LoginLayout";
 import { LoginPage } from "./features/auth/LoginPage";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
+import { DemoRequestsPage } from "./features/demoRequests/DemoRequestsPage";
 import { DevicesPage } from "./features/devices/DevicesPage";
 import { IdentityPage } from "./features/identity/IdentityPage";
 import { JournalPage } from "./features/journal/JournalPage";
@@ -41,6 +42,7 @@ export const routes: RouteObject[] = [
           { path: "schools/new", element: <NewSchoolPage /> },
           { path: "schools/:id", element: <SchoolPage /> },
           { path: "schools/:id/access", element: <AccessSheetPage /> },
+          { path: "demo-requests", element: <DemoRequestsPage /> },
           { path: "accounts", element: <AccountsPage /> },
           { path: "accounts/:id", element: <AccountPage /> },
           { path: "announcements", element: <AnnouncementsPage /> },

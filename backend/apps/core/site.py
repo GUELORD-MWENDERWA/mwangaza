@@ -27,13 +27,14 @@ from django.utils import timezone, translation
 from django.utils.formats import number_format
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from django.views.decorators.cache import cache_control
-from django.views.decorators.http import require_GET
+from django.views.decorators.cache import cache_control, never_cache
+from django.views.decorators.http import require_GET, require_http_methods
 from PIL import Image
 
 from apps.accounts.modules import DEPENDENCIES, MODULES
 from apps.accounts.phone import format_phone
-from apps.core import share, site_content
+from apps.core import demo_requests, share, site_content
+from apps.core.http import client_ip
 from apps.core.models import PlatformSettings
 from apps.core.money import format_amount
 
@@ -347,13 +348,10 @@ def _structured_data(platform, context: dict) -> str:
         "logo": {"@type": "ImageObject", "url": context["icon"]},
         "parentOrganization": publisher_id,
         "areaServed": {"@type": "Country", "name": "Democratic Republic of the Congo"},
-        "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Goma",
-            "addressRegion": "Nord-Kivu",
-            "addressCountry": "CD",
-        },
+        "address": _postal_address(platform),
     }
+    if context["social"]:
+        organization["sameAs"] = [link for _name, link in context["social"]]
     contact = {"@type": "ContactPoint", "contactType": "customer support"}
     if platform.support_phone:
         contact["telephone"] = str(platform.support_phone)
@@ -526,7 +524,25 @@ def _meta(key: str, name: str) -> tuple[str, str]:
     }[key]
 
 
-def _render(request: HttpRequest, key: str, lang: str, build=None) -> HttpResponse:
+def _postal_address(platform) -> dict:
+    address = {
+        "@type": "PostalAddress",
+        "streetAddress": platform.address,
+        "addressLocality": platform.city,
+        "addressRegion": platform.region,
+    }
+    return {name: value for name, value in address.items() if value} | {"addressCountry": "CD"}
+
+
+def _address(platform) -> str:
+    """Adresse affichée (pied de page, page Démonstration) ; vide si rien n'est rempli."""
+    parts = [platform.address, platform.city, platform.region]
+    return ", ".join([part for part in parts if part] + [_("DRC")]) if any(parts) else ""
+
+
+def _render(
+    request: HttpRequest, key: str, lang: str, build=None, status: int = 200
+) -> HttpResponse:
     """Page `key` dans la langue `lang` : contexte commun (identité, liens, contact), plus celui
     de `build(platform)`, calculé dans la langue de la page."""
     platform = PlatformSettings.load()
@@ -560,6 +576,8 @@ def _render(request: HttpRequest, key: str, lang: str, build=None) -> HttpRespon
             + "/app/",
             "whatsapp": _whatsapp(platform),
             "phone": format_phone(str(platform.support_phone)) if platform.support_phone else "",
+            "address": _address(platform),
+            "social": platform.social_links(),
             "author": settings.SOFTWARE_AUTHOR,
             "copyright": settings.SOFTWARE_COPYRIGHT,
             "copyright_url": settings.SOFTWARE_COPYRIGHT_URL,
@@ -572,7 +590,7 @@ def _render(request: HttpRequest, key: str, lang: str, build=None) -> HttpRespon
         if build:
             context.update(build(platform, context))
         context["json_ld"] = _structured_data(platform, context)
-        return render(request, f"core/site/{key}.html", context)
+        return render(request, f"core/site/{key}.html", context, status=status)
 
 
 def _version(platform) -> int:
@@ -704,10 +722,21 @@ def modules(request: HttpRequest, lang: str = "fr") -> HttpResponse:
     return _render(request, "modules", lang, _modules)
 
 
-@require_GET
-@public
+@require_http_methods(["GET", "POST"])
+@never_cache  # jeton CSRF du formulaire : jamais une page gardée pour un autre visiteur
 def contact(request: HttpRequest, lang: str = "fr") -> HttpResponse:
-    return _render(request, "contact", lang)
+    """Démonstration et contact ; le formulaire range la demande dans la console (WEB.1d). Envoyée
+    (ou robot, ou doublon) : la carte « merci » remplace le formulaire, à la même adresse."""
+    form = demo_requests.DemoRequestForm(request.POST if request.method == "POST" else None)
+    sent = refused = False
+    if request.method == "POST" and form.is_valid():
+        if demo_requests.allow(client_ip(request)):
+            demo_requests.submit(form.cleaned_data, lang)
+            sent = True
+        else:
+            refused = True
+    extra = {"form": form, "sent": sent, "refused": refused}
+    return _render(request, "contact", lang, lambda *_args: extra, status=429 if refused else 200)
 
 
 @require_GET
@@ -807,6 +836,8 @@ def llms_txt(request: HttpRequest) -> HttpResponse:
                 "author": settings.SOFTWARE_AUTHOR,
                 "author_url": settings.SOFTWARE_AUTHOR_URL,
                 "copyright": settings.SOFTWARE_COPYRIGHT,
+                "address": _address(platform),
+                "social": platform.social_links(),
             },
             content_type="text/markdown; charset=utf-8",
         )

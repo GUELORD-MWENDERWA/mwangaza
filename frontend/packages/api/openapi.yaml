@@ -4889,6 +4889,152 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/console/demo-requests/:
+    get:
+      operationId: console_demo_requests_list
+      description: |-
+        Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
+        d'abord : super-admin seulement, à l'adresse de la console. On change le suivi et la note
+        interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - called
+          - dropped
+          - new
+          - trial
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedConsoleDemoRequestList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/demo-requests/{id}/:
+    patch:
+      operationId: console_demo_requests_partial_update
+      description: |-
+        Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
+        d'abord : super-admin seulement, à l'adresse de la console. On change le suivi et la note
+        interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this demo request.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleDemoRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleDemoRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleDemoRequestRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleDemoRequest'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: console_demo_requests_destroy
+      description: |-
+        Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
+        d'abord : super-admin seulement, à l'adresse de la console. On change le suivi et la note
+        interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this demo request.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/console/devices/:
     get:
       operationId: console_devices_list
@@ -16869,6 +17015,79 @@ components:
       - active_schools
       - health
       - platform
+    ConsoleDemoRequest:
+      type: object
+      description: |-
+        Demande de démonstration du site (WEB.1d), dans la console : seuls le suivi et la note
+        interne se modifient. Fonction, taille et langue : codes, traduits par la console.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Received at
+        name:
+          type: string
+          readOnly: true
+          title: Full name
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+        school_name:
+          type: string
+          readOnly: true
+          title: School
+        town:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+        size:
+          allOf:
+          - $ref: '#/components/schemas/SizeEnum'
+          readOnly: true
+          title: Number of pupils
+        email:
+          type: string
+          format: email
+          readOnly: true
+        message:
+          type: string
+          readOnly: true
+        language:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/DemoRequestStatusEnum'
+          title: Follow-up
+        notes:
+          type: string
+          title: Internal note
+          maxLength: 2000
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - id
+      - language
+      - message
+      - name
+      - phone
+      - role
+      - school_name
+      - size
+      - town
+      - updated_at
     ConsoleDevice:
       type: object
       description: Un appareil enregistré dans une école (console de la plateforme,
@@ -17056,6 +17275,66 @@ components:
             maxLength: 0
         legal_notice:
           type: string
+        address:
+          type: string
+          description: Street, number, district.
+          maxLength: 120
+        city:
+          type: string
+          title: Town
+          maxLength: 60
+        region:
+          type: string
+          title: Province
+          maxLength: 60
+        whatsapp_url:
+          title: WhatsApp
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        facebook_url:
+          title: Facebook
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        instagram_url:
+          title: Instagram
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        linkedin_url:
+          title: LinkedIn
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        youtube_url:
+          title: YouTube
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        tiktok_url:
+          title: TikTok
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
         updated_at:
           type: string
           format: date-time
@@ -17077,6 +17356,15 @@ components:
       - support_phone
       - support_email
       - legal_notice
+      - address
+      - city
+      - region
+      - whatsapp_url
+      - facebook_url
+      - instagram_url
+      - linkedin_url
+      - youtube_url
+      - tiktok_url
       - updated_at
       - history
     ConsolePlatformAnnouncement:
@@ -18489,6 +18777,18 @@ components:
             aucune note cette année (issue `unranked`) ; absent ou nul : aucun.'
       required:
       - decision
+    DemoRequestStatusEnum:
+      enum:
+      - new
+      - called
+      - trial
+      - dropped
+      type: string
+      description: |-
+        * `new` - New
+        * `called` - Called back
+        * `trial` - Trial space opened
+        * `dropped` - No follow-up
     Demonstration:
       type: object
       description: 'Espace de démonstration créé depuis la console (4.17.2) : où en
@@ -21256,6 +21556,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ConsoleAccount'
+    PaginatedConsoleDemoRequestList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleDemoRequest'
     PaginatedConsoleDeviceList:
       type: object
       required:
@@ -22220,6 +22545,20 @@ components:
         is_active:
           type: boolean
           title: Active
+    PatchedConsoleDemoRequestRequest:
+      type: object
+      description: |-
+        Demande de démonstration du site (WEB.1d), dans la console : seuls le suivi et la note
+        interne se modifient. Fonction, taille et langue : codes, traduits par la console.
+      properties:
+        status:
+          allOf:
+          - $ref: '#/components/schemas/DemoRequestStatusEnum'
+          title: Follow-up
+        notes:
+          type: string
+          title: Internal note
+          maxLength: 2000
     PatchedConsolePlatformRequest:
       type: object
       description: |-
@@ -22267,6 +22606,66 @@ components:
             maxLength: 0
         legal_notice:
           type: string
+        address:
+          type: string
+          description: Street, number, district.
+          maxLength: 120
+        city:
+          type: string
+          title: Town
+          maxLength: 60
+        region:
+          type: string
+          title: Province
+          maxLength: 60
+        whatsapp_url:
+          title: WhatsApp
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        facebook_url:
+          title: Facebook
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        instagram_url:
+          title: Instagram
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        linkedin_url:
+          title: LinkedIn
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        youtube_url:
+          title: YouTube
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        tiktok_url:
+          title: TikTok
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
     PatchedConsoleSchoolRequest:
       type: object
       description: |-
@@ -23198,6 +23597,66 @@ components:
             maxLength: 0
         legal_notice:
           type: string
+        address:
+          type: string
+          description: Street, number, district.
+          maxLength: 120
+        city:
+          type: string
+          title: Town
+          maxLength: 60
+        region:
+          type: string
+          title: Province
+          maxLength: 60
+        whatsapp_url:
+          title: WhatsApp
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        facebook_url:
+          title: Facebook
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        instagram_url:
+          title: Instagram
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        linkedin_url:
+          title: LinkedIn
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        youtube_url:
+          title: YouTube
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        tiktok_url:
+          title: TikTok
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
       required:
       - name
       - short_name
@@ -23209,6 +23668,15 @@ components:
       - support_phone
       - support_email
       - legal_notice
+      - address
+      - city
+      - region
+      - whatsapp_url
+      - facebook_url
+      - instagram_url
+      - linkedin_url
+      - youtube_url
+      - tiktok_url
     PlatformActionEnum:
       enum:
       - platform.updated
@@ -24614,6 +25082,20 @@ components:
       - name
       - permissions
       - member_count
+    RoleEnum:
+      enum:
+      - prefect
+      - promoter
+      - head
+      - accountant
+      - other
+      type: string
+      description: |-
+        * `prefect` - Prefect of studies
+        * `promoter` - Promoter
+        * `head` - Head teacher
+        * `accountant` - Accountant
+        * `other` - Other
     RoleRequest:
       type: object
       description: 'Rôle de l''école : un nom et des permissions.'
@@ -25428,6 +25910,18 @@ components:
         * `up_to_date` - up_to_date
         * `partial` - partial
         * `overdue` - overdue
+    SizeEnum:
+      enum:
+      - lt300
+      - 300-800
+      - 800-1500
+      - gt1500
+      type: string
+      description: |-
+        * `lt300` - Fewer than 300
+        * `300-800` - 300 to 800
+        * `800-1500` - 800 to 1,500
+        * `gt1500` - More than 1,500
     Snapshot:
       type: object
       properties:

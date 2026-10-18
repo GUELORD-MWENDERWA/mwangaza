@@ -28,7 +28,7 @@ import {
   Textarea,
 } from "@mwangaza/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type CSSProperties, useMemo, useRef, useState } from "react";
+import { type CSSProperties, Fragment, useMemo, useRef, useState } from "react";
 import { Controller, useForm, type UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
@@ -36,6 +36,16 @@ import { keys } from "../../lib/queries";
 
 type Identity = Schemas["ConsolePlatform"];
 type Change = Schemas["PlatformChange"];
+
+// Réseaux de la plateforme (WEB.1d) : lien vide = caché sur le site ; domaine vérifié par le serveur.
+const SOCIAL = [
+  "whatsapp_url",
+  "facebook_url",
+  "instagram_url",
+  "linkedin_url",
+  "youtube_url",
+  "tiktok_url",
+] as const;
 
 const FIELDS = [
   "name",
@@ -46,6 +56,10 @@ const FIELDS = [
   "support_phone",
   "support_email",
   "legal_notice",
+  "address",
+  "city",
+  "region",
+  ...SOCIAL,
 ] as const;
 const COLORS = ["primary_color", "accent_color"] as const;
 const COLOR = /^#[0-9A-F]{6}$/i;
@@ -54,6 +68,7 @@ function useSchema() {
   const { t } = useTranslation();
   return useMemo(() => {
     const color = z.string().trim().regex(COLOR, t("validation.colorFormat"));
+    const link = z.string().trim().max(200);
     return z.object({
       name: z.string().trim().min(1, t("validation.nameRequired")).max(60),
       short_name: z.string().trim().min(1, t("validation.nameRequired")).max(20),
@@ -63,6 +78,15 @@ function useSchema() {
       support_phone: z.string().trim(),
       support_email: z.union([z.literal(""), z.email(t("validation.emailInvalid"))]),
       legal_notice: z.string().trim(),
+      address: z.string().trim().max(120),
+      city: z.string().trim().max(60),
+      region: z.string().trim().max(60),
+      whatsapp_url: link,
+      facebook_url: link,
+      instagram_url: link,
+      linkedin_url: link,
+      youtube_url: link,
+      tiktok_url: link,
     });
   }, [t]);
 }
@@ -79,6 +103,15 @@ const valuesOf = (identity: Identity): Values => ({
   support_phone: identity.support_phone,
   support_email: identity.support_email,
   legal_notice: identity.legal_notice,
+  address: identity.address,
+  city: identity.city,
+  region: identity.region,
+  whatsapp_url: identity.whatsapp_url,
+  facebook_url: identity.facebook_url,
+  instagram_url: identity.instagram_url,
+  linkedin_url: identity.linkedin_url,
+  youtube_url: identity.youtube_url,
+  tiktok_url: identity.tiktok_url,
 });
 
 /** Après un changement : l'écran, et l'identité de toute la console (nom, couleurs, logo). */
@@ -224,6 +257,24 @@ function IdentityForm({ identity }: { identity: Identity }) {
               >
                 {(control) => <Textarea {...control} rows={4} {...form.register("legal_notice")} />}
               </Field>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("console.identity.reachTitle")}</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 min-[820px]:grid-cols-2">
+              <div className="min-[820px]:col-span-2">
+                {text("address", t("console.identity.addressHelp"), 120)}
+              </div>
+              {text("city", undefined, 60)}
+              {text("region", undefined, 60)}
+              {SOCIAL.map((field) => (
+                <Fragment key={field}>{text(field, undefined, 200)}</Fragment>
+              ))}
+              <p className="text-sm text-ink-3 min-[820px]:col-span-2">
+                {t("console.identity.socialHelp")}
+              </p>
             </CardContent>
           </Card>
         </div>

@@ -6,7 +6,7 @@ from apps.audit.actions import PlatformAction
 from apps.audit.models import PlatformAuditLog
 from apps.audit.serializers import AuditActorSerializer
 from apps.core.images import CleanedFileField
-from apps.core.models import PlatformSettings
+from apps.core.models import DemoRequest, PlatformSettings
 from apps.core.platform import clean_icon, clean_logo
 
 PUBLIC_FIELDS = [
@@ -20,6 +20,15 @@ PUBLIC_FIELDS = [
     "support_phone",
     "support_email",
     "legal_notice",
+    "address",
+    "city",
+    "region",
+    "whatsapp_url",
+    "facebook_url",
+    "instagram_url",
+    "linkedin_url",
+    "youtube_url",
+    "tiktok_url",
 ]
 
 
@@ -89,3 +98,28 @@ class PlatformIconUploadSerializer(serializers.Serializer):
     icon = CleanedFileField(
         clean=clean_icon, help_text="PNG carré de 512 à 2 048 pixels de côté, 1 Mo au plus."
     )
+
+
+class ConsoleDemoRequestSerializer(serializers.ModelSerializer):
+    """Demande de démonstration du site (WEB.1d), dans la console : seuls le suivi et la note
+    interne se modifient. Fonction, taille et langue : codes, traduits par la console."""
+
+    class Meta:
+        model = DemoRequest
+        fields = [
+            "id",
+            "created_at",
+            "name",
+            "role",
+            "school_name",
+            "town",
+            "phone",
+            "size",
+            "email",
+            "message",
+            "language",
+            "status",
+            "notes",
+            "updated_at",
+        ]
+        read_only_fields = [f for f in fields if f not in ("status", "notes")]

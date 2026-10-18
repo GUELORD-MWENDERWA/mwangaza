@@ -273,6 +273,7 @@ SPECTACULAR_SETTINGS = {
         "ClosingStateEnum": "apps.finance.serializers.CLOSING_STATES",
         "HealthCheckEnum": "apps.core.health.CHECKS",
         "HealthStatusEnum": "apps.core.health.STATUSES",
+        "DemoRequestStatusEnum": "apps.core.models.DemoRequest.Status",
         "DeviceKindEnum": "apps.sync.models.Device.Kind",
         "NotificationKindEnum": "apps.notifications.models.Notification.Kind",
         "EventKindEnum": "apps.notifications.models.SchoolEvent.Kind",
@@ -303,6 +304,8 @@ CELERY_TASK_ROUTES = {
     "apps.notifications.tasks.tick": {"queue": FAST_QUEUE},
     "apps.notifications.tasks.purge": {"queue": FAST_QUEUE},
     "apps.core.tasks.purge_print_jobs": {"queue": FAST_QUEUE},
+    "apps.core.tasks.email_demo_request": {"queue": FAST_QUEUE},
+    "apps.core.tasks.purge_demo_requests": {"queue": FAST_QUEUE},
     "apps.sync.tasks.purge": {"queue": FAST_QUEUE},
 }
 # Filet de sécurité pour une tâche future qui oublierait ses limites (secondes) ; chaque tâche
@@ -335,7 +338,24 @@ CELERY_BEAT_SCHEDULE = {
         "task": "apps.sync.tasks.purge",
         "schedule": crontab(hour=3, minute=45),
     },
+    "demo-requests-purge": {
+        "task": "apps.core.tasks.purge_demo_requests",
+        "schedule": crontab(hour=3, minute=55),
+    },
 }
+
+# E-mails de la plateforme (WEB.1d) : alertes au super-admin seulement (demande de démonstration),
+# envoyées par la boîte `contact@` du domaine (SMTP de LWS, OPS.4) à `DJANGO_ALERT_EMAIL` (ta
+# boîte personnelle, OPS.3 ; plusieurs : séparées par des virgules). Vides : aucun e-mail.
+EMAIL_HOST = env("DJANGO_EMAIL_HOST", "")
+EMAIL_PORT = int(env("DJANGO_EMAIL_PORT", "465"))
+EMAIL_HOST_USER = env("DJANGO_EMAIL_USER", "")
+EMAIL_HOST_PASSWORD = env("DJANGO_EMAIL_PASSWORD", "")
+EMAIL_USE_SSL = EMAIL_PORT == 465
+EMAIL_USE_TLS = EMAIL_PORT == 587
+EMAIL_TIMEOUT = 20
+DEFAULT_FROM_EMAIL = SERVER_EMAIL = EMAIL_HOST_USER or "webmaster@localhost"
+ALERT_EMAILS = env_list("DJANGO_ALERT_EMAIL")
 
 LOGGING = {
     "version": 1,
