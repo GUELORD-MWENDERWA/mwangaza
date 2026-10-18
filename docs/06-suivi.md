@@ -9,7 +9,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
 | Tâche en cours | aucune (WEB.1b faite le 2026-10-18, PR en attente de fusion) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | **WEB.1c** (visibilité), puis **WEB.1d** (demande de démonstration dans la console, adresse et réseaux sociaux dans l'identité), puis **8.4.6** ; **toi, avant `make deploy` des nouvelles pages** : l'accord écrit de l'ITIG (photos, logo, nom sur le bulletin d'exemple) et la relecture des mentions par un juriste (`A-FAIRE.md` 7 bis) ; toi : OPS.1, ta part d'OPS.3 et d'OPS.4 (`A-FAIRE.md` § 9 octies), le premier espace réel (§ 9 quater) ; ajoutés au plan le 2026-10-18 : EQ, SITE, HL (`05` § 5 bis, 6.3 bis, 6.3 ter) |
+| Prochaine tâche | **WEB.1c** (visibilité), puis **WEB.1d** (demande de démonstration dans la console, adresse et réseaux sociaux dans l'identité), puis **8.4.6** ; **toi, avant `make deploy` des nouvelles pages** : l'accord écrit de l'ITIG (photos, logo, nom sur le bulletin d'exemple) et la relecture des mentions par un juriste (`A-FAIRE.md` 7 bis) ; toi : OPS.1, ta part d'OPS.3 et d'OPS.4 (`A-FAIRE.md` § 9 octies), le premier espace réel (§ 9 quater) ; ajoutés au plan le 2026-10-18 : **NB** (notes et bulletins refaits, avant 8.4.6), EQ, SITE, HL (`05` § 5 bis, 5 ter, 6.3 bis, 6.3 ter) ; **toi : Q15** (règles de délibération par défaut) |
 | Issue GitHub | #328 (WEB.1b) ; #331 (WEB.1d) ; #327 (WEB.1a) ; #325 (OPS.4) ; #323 (L.6) ; #321 (OPS.3) ; #319 (OPS.2) ; #298 (8.4.5) ; #300 (8.4.7) ; #297 (8.4.4) ; #296 (8.4.3) ; #295 (8.4.2) ; #294 (8.4.1) ; #293 (8.4.0) ; #288 (PERF.5c) ; #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
 | Branche | `tache/WEB.1b-pages-site` (avant : `tache/WEB.1a-etude-maquettes-site`, puis `tache/OPS.4-email-pro`, puis `tache/L.6-pin-propose`, puis `tache/OPS.3-comptes-proteges`, puis `tache/OPS.2-instantanes`, puis `tache/8.4.5-passage-classe`, puis `tache/8.4.7-reprise-resultats`, puis `tache/8.4.4-situations`, puis `tache/8.4.3-bulletin-complete`, puis `tache/8.4.2-deliberation`, puis `tache/8.4.1-regles-reussite-repechage` (avant : `tache/8.4.0-points-sans-devoirs`, puis `tache/8.5.1c-application`, puis `tache/PERF.5c-images-hors-serveur`) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-18 (WEB.1b faite ; EQ, SITE, HL ajoutés au plan) |
@@ -32,6 +32,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.6, 8.5.1a–8.5.1c, 8.4.0–8.4.7, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 20 | 23 |
 | Exploitation — AWS, domaine, e-mail (OPS.1–OPS.5, PERF.7 ; ajoutés le 2026-10-17) | 3 | 6 |
 | Site public et visibilité (WEB.1a–WEB.1d ; avancés le 2026-10-17, WEB.1d découpée le 2026-10-18) | 2 | 4 |
+| Notes et bulletins comme à l'école (NB.1–NB.6 ; ajoutés le 2026-10-18) | 0 | 6 |
 | Plateforme : équipe, site géré, hors ligne (EQ.1–2, SITE.1–5, HL.0–3 ; ajoutés le 2026-10-18) | 1 | 11 |
 | V1.3 — plateforme commerciale (ABO.1–3, page des prix WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
@@ -58,11 +59,16 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 | # | Question | Pour | En attendant |
 |---|---|---|---|
 | Q12 | Découpage officiel de l'année au **primaire** (trimestres ? périodes et examens par trimestre ?) : pour proposer un modèle « primaire » à la création d'une année (C1) | avant la première école primaire (aucune en V1.0 : l'ITIG n'a pas de primaire) | pas de modèle « primaire » : une école du primaire part du modèle « 3 trimestres, 6 périodes, 3 examens » ou d'un découpage vide, et l'ajuste |
+| Q15 | **Règles de délibération par défaut** (préréglage proposé à une école neuve, NB.4) : « courant » — passe à 50 % du total **et** 50 % dans chaque cours, conduite acceptable ; repêchage si échecs partiels avec 50 % du total, 4 cours au plus, jamais mathématiques et français ensemble, jamais la pratique ou l'atelier ; double sinon ; ou « réseau catholique » — 53 % pour le repêchage, 55 % pour entrer en dernière classe. Lequel par défaut, et l'ITIG en suit-il un autre ? | avant NB.4 | préréglage « courant », modifiable par chaque école (recherche du 2026-10-18 : aucune règle nationale en ligne) |
 
-
-Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q15.
+Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q16.
 
 ## Journal
+
+### 2026-10-18 — Recherche et plan : notes et bulletins comme à l'école (bloc NB)
+- À ta demande : recherche sur le fonctionnement réel (`docs/claude/recherches/2026-10-18-notes-deliberation-rdc.md`) : aucune règle nationale de passage en ligne, chaque école suit son règlement des études ; circuit carnet de l'enseignant → fiche de cotes signée → contrôle du directeur des études (renvoi avec remarques) → bulletins du titulaire → tableau synthétique, palmarès → conseil de délibération à chaque période et en fin d'année, avec PV ; repêchage = seconde session.
+- Écarts relevés : le DE voit les interrogations ; règles par défaut fausses (repêchage de 45 à 50 %) ; pas de délibération par période ni de PV ; pas de seconde session complète.
+- Plan : **NB.1 → NB.6** avant 8.4.6 (`05` § 5 ter, file 15 a) ; horaire par le solveur et l'IA à partir des charges (EDT, IA.2) ; question **Q15** (règles par défaut) à trancher avant NB.4.
 
 ### 2026-10-18 — Tâche WEB.1b : pages du site public
 - Fait : 7 pages en français et en anglais d'après les maquettes de WEB.1a (accueil, écoles, parents, modules, démonstration et contact, « Trouver mon école », mentions et confidentialité), gabarit commun, animations en CSS et 2 Ko de script, captures du produit refaites par `make captures-site`, bande de chiffres (espaces réels, dès 5 écoles), sitemap des 14 adresses ; à ta demande en cours de route : **bulletin officiel animé au nom de l'ITIG** (points, totaux, place, puis QR « authentique ») et carte « École pilote » (sans citation tant que l'ITIG n'a pas donné ses mots).
