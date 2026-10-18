@@ -497,10 +497,7 @@ def _home(platform, context: dict) -> dict:
             context["site"], context["url"], context["lang"], platform, texts, context["image"]
         ),
         "stats": platform_stats(),
-        "references": [
-            {**school, "text": school["text"] % {"name": platform.name}}
-            for school in site_content.REFERENCES
-        ],
+        "references": site_content.REFERENCES,
         "sample": {
             "usd": format_amount(2000, "USD"),
             "cdf": format_amount(30000, "CDF"),

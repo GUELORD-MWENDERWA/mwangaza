@@ -84,9 +84,6 @@ REFERENCES = (
             ("4", _("technical options")),
             ("1981", _("founded")),
         ),
-        "text": _(
-            "Its levels, options, workshops and real report card served as a model for %(name)s."
-        ),
         "quote": "",
         "quote_by": "",
     },

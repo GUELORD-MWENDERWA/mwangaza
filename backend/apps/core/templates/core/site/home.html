@@ -155,7 +155,6 @@
         <div class="refschool"><img class="reflogo" src="{% static school.logo %}" alt="{% blocktranslate with name=school.name %}{{ name }} logo{% endblocktranslate %}" width="56" height="56" loading="lazy"><span><b>{{ school.name }}</b><small>{{ school.kind }}</small></span></div>
         {% if school.quote %}<blockquote>« {{ school.quote }} »<footer>{{ school.quote_by }} · {{ school.name }}</footer></blockquote>{% endif %}
         <ul class="reffacts">{% for value, label in school.facts %}<li><b>{{ value }}</b><span>{{ label }}</span></li>{% endfor %}</ul>
-        <p class="muted">{{ school.text }}</p>
       </div>
     </figure>
   </div>
@@ -178,7 +177,7 @@
 
 <section class="sec alt">
   <div class="wrap split">
-    <figure class="photo rv">{% translate "Goma and Lake Kivu seen from the heights" as alt %}{% photo "goma-lac-kivu" alt %}<figcaption>{% translate "Goma and Lake Kivu" %} · Ericnkurunziza, CC BY-SA 4.0</figcaption></figure>
+    <figure class="photo rv">{% translate "Goma and Lake Kivu seen from the heights" as alt %}{% photo "goma-lac-kivu" alt %}</figure>
     <div class="rv">
       <span class="eyebrow">{% translate "Made in Goma" %}</span>
       <h2 class="st">{% translate "With schools here, for them" %}</h2>

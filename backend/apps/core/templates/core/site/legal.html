@@ -28,9 +28,9 @@
         <dt>{% translate "Publisher" %}</dt><dd>{{ editor }}, {% translate "Goma, North Kivu, Democratic Republic of the Congo" %}{% if platform.support_email %} · {{ platform.support_email }}{% endif %}{% if phone %} · {{ phone }}{% endif %}</dd>
         {% if platform.legal_notice %}<dt>{% translate "Identifiers" %}</dt><dd class="pre">{{ platform.legal_notice }}</dd>{% endif %}
         <dt>{% translate "Software" %}</dt><dd>{% blocktranslate trimmed with name=platform.name %}{{ name }} School, school management software{% endblocktranslate %}</dd>
-        <dt>{% translate "Hosting" %}</dt><dd>{% translate "Amazon Web Services (Lightsail), data centre in Paris, France; encrypted backup copy at Backblaze" %}</dd>
+        <dt>{% translate "Hosting" %}</dt><dd>{% translate "Secure data centre in Europe; an encrypted backup copy is kept with a second provider." %}</dd>
         <dt>{% translate "Ownership" %}</dt><dd>{% blocktranslate trimmed with editor=editor %}The software, the name and the logo belong to {{ editor }}. Each school's data belongs to the school.{% endblocktranslate %}</dd>
-        <dt>{% translate "Photos" %}</dt><dd>{% translate "Goma and Lake Kivu: Ericnkurunziza, CC BY-SA 4.0 (Wikimedia Commons). Workshops and courtyard: ITIG Don Bosco Goma, with its consent." %}</dd>
+        <dt>{% translate "Photo credit" %}</dt><dd>{% translate "Goma and Lake Kivu: Ericnkurunziza, CC BY-SA 4.0." %}</dd>
       </dl>
 
       <h2 id="confidentialite">{% translate "Who is responsible for your data" %}</h2>
