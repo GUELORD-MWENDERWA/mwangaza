@@ -13,6 +13,7 @@ export type Grading = Schemas["Grading"];
 export type GradingClass = Schemas["GradingClass"];
 export type GradingCourse = Schemas["GradingCourse"];
 export type Sheet = Schemas["Sheet"];
+export type TotalsSheet = Schemas["TotalsSheet"];
 export type Validation = Schemas["Validation"];
 
 /** Lecture en ligne, gardée sur l'appareil (8.2.3) ; sans réponse du serveur, la copie gardée. */
@@ -79,6 +80,20 @@ export function useSheet(courseId: string, termId: string) {
         // Notes saisies ici pas encore reprises par le serveur : la copie de l'appareil est la
         // plus à jour.
         async () => (await sheetQueue(db!, courseId, termId)).waiting.length > 0,
+      ),
+    enabled: Boolean(courseId && termId),
+  });
+}
+
+/** Fiche de cotes d'un cours (NB.1) : le total de chaque élève, une fois envoyée ; en ligne. */
+export function useTotalsSheet(courseId: string, termId: string) {
+  return useQuery({
+    queryKey: [...keys.gradeSheet, "totals", courseId, termId],
+    queryFn: () =>
+      call(
+        api.GET("/api/courses/{id}/terms/{term}/grades/totals/", {
+          params: { path: { id: courseId, term: termId } },
+        }),
       ),
     enabled: Boolean(courseId && termId),
   });

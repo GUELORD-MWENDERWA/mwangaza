@@ -1,5 +1,6 @@
-// Contrôle de la feuille de notes (8.2.2) : bandeau d'état (brouillon, envoyée, validée, date
-// limite), motif d'une modification après envoi ou d'une réouverture, historique de la feuille.
+// Contrôle de la feuille de notes (8.2.2, NB.1) : bandeau d'état (brouillon, envoyée et signée,
+// validée, renvoyée avec remarques, date limite), motif d'une modification après envoi ou
+// remarques d'un renvoi, historique de la feuille (carnet et fiche de cotes).
 import { formatDate, formatDateTime, useTranslation } from "@mwangaza/i18n";
 import {
   Banner,
@@ -63,6 +64,17 @@ export function ControlBanner({
       </Banner>
     );
   }
+  if (sheet.reopened && sheet.returned) {
+    return (
+      <Banner tone="warn">
+        {t("grades.control.returned", {
+          name: sheet.returned.by,
+          date: day(sheet.returned.at),
+          remarks: sheet.returned.reason,
+        })}
+      </Banner>
+    );
+  }
   if (sheet.reopened) return <Banner tone="warn">{t("grades.control.reopened")}</Banner>;
   if (sheet.due_on === null) return null;
   return locked ? (
@@ -72,7 +84,7 @@ export function ControlBanner({
   );
 }
 
-/** Motif demandé avant d'enregistrer une feuille déjà envoyée, ou de la rouvrir. */
+/** Motif demandé avant d'enregistrer une feuille déjà envoyée, ou remarques pour la renvoyer. */
 export function ReasonDialog({
   kind,
   pending,
@@ -109,9 +121,9 @@ export function ReasonDialog({
       >
         <Field
           id="grades-reason"
-          label={t("grades.reason.label")}
+          label={t(`grades.reason.${kind}.label`)}
           required
-          error={missing ? t("grades.reason.required") : undefined}
+          error={missing ? t(`grades.reason.${kind}.required`) : undefined}
         >
           {(control) => (
             <Input
@@ -133,10 +145,12 @@ export function SheetHistory({
   sheet,
   language,
   timeZone,
+  className = "mt-4",
 }: {
-  sheet: Sheet;
+  sheet: Pick<Sheet, "history">;
   language: string;
   timeZone: string;
+  className?: string;
 }) {
   const { t } = useTranslation();
   if (sheet.history.length === 0) return null;
@@ -147,7 +161,7 @@ export function SheetHistory({
     return t("grades.history.changed", { count: changes });
   };
   return (
-    <Card className="mt-4">
+    <Card className={className}>
       <CardHeader>
         <CardTitle>{t("grades.history.title")}</CardTitle>
       </CardHeader>

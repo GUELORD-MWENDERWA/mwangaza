@@ -203,13 +203,20 @@ class OfflineGradesSerializer(SheetUpdateSerializer):
 
 
 def _save_grades(data: dict, device: Device, actor: User) -> dict:
-    """Mêmes règles qu'en ligne : un cours que le compte ne note pas est refusé ; date limite
-    passée, feuille validée ou envoyée sans motif : refusée, la feuille du serveur reste."""
+    """Mêmes règles qu'en ligne : seul l'enseignant du cours tient son carnet, `grades.enter_any`
+    n'y met qu'un total (NB.1), tout autre compte est refusé ; date limite passée, feuille validée
+    ou envoyée sans motif : refusée, la feuille du serveur reste."""
     course, term, permissions = data.pop("course"), data.pop("term"), data.pop("permissions")
-    if not grades.gradable_courses(actor, permissions).filter(pk=course.pk).exists():
+    access = grades.notebook_access(actor, permissions, course)
+    if access is None:
         raise PermissionDenied()
     grades.save_sheet(
-        course, term, actor=actor, may_validate=GRADES_VALIDATE in permissions, **data
+        course,
+        term,
+        actor=actor,
+        may_validate=GRADES_VALIDATE in permissions,
+        total_only=access == grades.TOTAL_ONLY,
+        **data,
     )
     return {"course": str(course.pk), "term": str(term.pk)}
 

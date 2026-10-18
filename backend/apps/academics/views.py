@@ -34,6 +34,7 @@ from apps.academics.serializers import (
     SheetUpdateSerializer,
     TeachingLoadsFilterSerializer,
     TeachingLoadsSerializer,
+    TotalsSheetSerializer,
     ValidationSerializer,
 )
 from apps.accounts.permissions import HasSchoolPermission, school_access
@@ -167,7 +168,8 @@ class TeachingLoadsView(_CoursesView):
 
 class _GradesView(APIView):
     """Module `academics`, droit `grades.enter` (ses cours, sa classe de titulaire) ou
-    `grades.enter_any` (toutes les classes) (8.2.1) ; en ligne (hors ligne : 8.2.3)."""
+    `grades.enter_any` (toutes les classes) (8.2.1) ; en ligne (hors ligne : 8.2.3). Les
+    évaluations d'un cours : son enseignant seul (NB.1, `grades.notebook_access`)."""
 
     permission_classes = [HasSchoolPermission]
     required_permission = (GRADES_ENTER, GRADES_ENTER_ANY)
@@ -183,8 +185,9 @@ class GradingView(_GradesView):
         parameters=[GradingFilterSerializer], responses={200: GradingSerializer, **ERRORS}
     )
     def get(self, request: Request) -> Response:
-        """Ce que le compte peut noter dans l'année : son découpage (périodes, examens) et, par
-        classe, les cours qu'il donne, ceux de la classe dont il est titulaire, ou tous."""
+        """Ce que le compte voit dans les notes de l'année : son découpage (périodes, examens) et,
+        par classe, les cours qu'il donne, ceux de la classe dont il est titulaire, ou tous ;
+        `teaches` : il tient le carnet du cours (ses évaluations)."""
         params = GradingFilterSerializer(data=request.query_params)
         params.is_valid(raise_exception=True)
         year = params.validated_data.get("academic_year") or organisation.current_year()
@@ -214,6 +217,7 @@ class GradingView(_GradesView):
                     "is_homeroom": group.homeroom_teacher_id == request.user.pk,
                 },
             )
+            course.teaches = course.teacher_id == request.user.pk
             entry["courses"].append(course)
         data = {
             "academic_year": year.pk,
@@ -223,23 +227,28 @@ class GradingView(_GradesView):
         return Response(GradingSerializer(data).data)
 
 
-class _SheetView(_GradesView):
-    required_permission = (GRADES_ENTER, GRADES_ENTER_ANY, GRADES_VALIDATE)
+def _course_and_term(pk, term_pk) -> tuple[Course, Term]:
+    # Manager de l'école de l'adresse : un cours ou une période d'une autre école est introuvable.
+    course = get_object_or_404(
+        Course.objects.select_related("class_group__level", "class_group__track"), pk=pk
+    )
+    return course, get_object_or_404(Term.objects.select_related("parent"), pk=term_pk)
 
-    def objects(self, pk, term_pk, *, read: bool = False) -> tuple[Course, Term]:
-        # Manager de l'école de l'adresse : un cours ou une période d'une autre école est
-        # introuvable ; un cours de l'école que le compte ne note pas : 403 (qui valide les notes
-        # les lit toutes).
-        course = get_object_or_404(
-            Course.objects.select_related("class_group__level", "class_group__track"), pk=pk
-        )
-        if read and GRADES_VALIDATE in school_access(self.request).permissions:
-            pass
-        elif not self.gradable().filter(pk=course.pk).exists():
+
+class _SheetView(_GradesView):
+    """Carnet de l'enseignant (NB.1) : l'enseignant du cours ; `grades.enter_any` n'y saisit
+    qu'un total par élève ; tout autre compte (directeur des études, titulaire) : 403
+    `not_your_course`, il lit la fiche de cotes."""
+
+    def objects(self, pk, term_pk) -> tuple[Course, Term, bool]:
+        course, term = _course_and_term(pk, term_pk)
+        permissions = school_access(self.request).permissions
+        access = grades.notebook_access(self.request.user, permissions, course)
+        if access is None:
             raise PermissionDenied(
-                _("You do not enter the grades of this course."), code="not_your_course"
+                _("Only the teacher of this course sees its evaluations."), code="not_your_course"
             )
-        return course, get_object_or_404(Term.objects.select_related("parent"), pk=term_pk)
+        return course, term, access == grades.TOTAL_ONLY
 
 
 @extend_schema(tags=["grades"])
@@ -249,8 +258,10 @@ class GradeSheetView(_SheetView):
     @extend_schema(responses={200: SheetSerializer, 400: ErrorSerializer, **ERRORS})
     def get(self, request: Request, pk, term) -> Response:
         """Feuille de notes du cours dans une période ou des examens : évaluations, élèves de la
-        classe, notes, note de la période."""
-        return Response(SheetSerializer(grades.sheet(*self.objects(pk, term, read=True))).data)
+        classe, notes, note de la période. L'enseignant du cours ; `grades.enter_any` : une
+        feuille « total » seulement (403 `notebook_private` si elle a des devoirs)."""
+        course, period, total_only = self.objects(pk, term)
+        return Response(SheetSerializer(grades.sheet(course, period, total_only=total_only)).data)
 
     @extend_schema(
         request=SheetUpdateSerializer,
@@ -259,7 +270,7 @@ class GradeSheetView(_SheetView):
     def put(self, request: Request, pk, term) -> Response:
         """Enregistre la feuille d'un seul envoi : évaluations ajoutées, modifiées ou retirées,
         cases changées ; renvoie la feuille à jour."""
-        course, period = self.objects(pk, term)
+        course, period, total_only = self.objects(pk, term)
         serializer = SheetUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         saved = grades.save_sheet(
@@ -267,6 +278,7 @@ class GradeSheetView(_SheetView):
             period,
             actor=request.user,
             may_validate=GRADES_VALIDATE in school_access(request).permissions,
+            total_only=total_only,
             **serializer.inputs(),
         )
         return Response(SheetSerializer(saved).data)
@@ -276,28 +288,53 @@ class GradeSheetView(_SheetView):
 class GradeSubmitView(_SheetView):
     @extend_schema(responses={200: SheetSerializer, 400: ErrorSerializer, **ERRORS})
     def post(self, request: Request, pk, term) -> Response:
-        """Envoie la feuille au directeur des études : complète (400 `incomplete_sheet`), pas
-        déjà envoyée (409 `sheet_not_draft`)."""
-        saved = grades.submit_sheet(*self.objects(pk, term), actor=request.user)
+        """Envoie et signe la fiche de cotes : complète (400 `incomplete_sheet`), pas déjà
+        envoyée (409 `sheet_not_draft`) ; le directeur des études et le titulaire en sont
+        avertis."""
+        course, period, total_only = self.objects(pk, term)
+        saved = grades.submit_sheet(course, period, actor=request.user, total_only=total_only)
         return Response(SheetSerializer(saved).data)
 
 
-class _ValidationView(_SheetView):
-    """Droit `grades.validate` (double authentification), sur toutes les feuilles de l'école."""
+@extend_schema(tags=["grades"])
+class GradeTotalsView(_GradesView):
+    """Fiche de cotes (NB.1) : l'enseignant du cours, le titulaire de la classe,
+    `grades.enter_any` et `grades.validate`."""
 
+    required_permission = (GRADES_ENTER, GRADES_ENTER_ANY, GRADES_VALIDATE)
+
+    @extend_schema(responses={200: TotalsSheetSerializer, 400: ErrorSerializer, **ERRORS})
+    def get(self, request: Request, pk, term) -> Response:
+        """Fiche de cotes du cours dans une période ou des examens : le total de chaque élève au
+        maximum de la période, sans les évaluations, une fois envoyée (avant : son état seul) ;
+        qui l'a envoyée et signée, validée ou renvoyée, et son historique."""
+        course, period = _course_and_term(pk, term)
+        if (
+            GRADES_VALIDATE not in school_access(request).permissions
+            and not self.gradable().filter(pk=course.pk).exists()
+        ):
+            raise PermissionDenied(
+                _("You cannot read the grade sheet of this course."), code="not_your_course"
+            )
+        return Response(TotalsSheetSerializer(grades.totals_sheet(course, period)).data)
+
+
+class _ValidationView(APIView):
+    """Droit `grades.validate` (double authentification), sur toutes les fiches de cotes de
+    l'école ; le carnet de l'enseignant reste fermé (NB.1)."""
+
+    permission_classes = [HasSchoolPermission]
     required_permission = GRADES_VALIDATE
-
-    def objects(self, pk, term_pk, *, read: bool = True) -> tuple[Course, Term]:
-        return super().objects(pk, term_pk, read=True)
+    required_module = "academics"
 
 
 @extend_schema(tags=["grades"], request=None)
 class GradeValidateView(_ValidationView):
-    @extend_schema(responses={200: SheetSerializer, 400: ErrorSerializer, **ERRORS})
+    @extend_schema(responses={200: TotalsSheetSerializer, 400: ErrorSerializer, **ERRORS})
     def post(self, request: Request, pk, term) -> Response:
-        """Valide une feuille envoyée : elle est fermée (409 `sheet_not_sent` sinon)."""
-        saved = grades.validate_sheet(*self.objects(pk, term), actor=request.user)
-        return Response(SheetSerializer(saved).data)
+        """Valide une fiche envoyée : elle est fermée (409 `sheet_not_sent` sinon)."""
+        saved = grades.validate_sheet(*_course_and_term(pk, term), actor=request.user)
+        return Response(TotalsSheetSerializer(saved).data)
 
 
 @extend_schema(tags=["grades"])
@@ -306,18 +343,18 @@ class GradeReopenView(_ValidationView):
 
     @extend_schema(
         request=ReopenSerializer,
-        responses={200: SheetSerializer, 400: ErrorSerializer, **ERRORS},
+        responses={200: TotalsSheetSerializer, 400: ErrorSerializer, **ERRORS},
     )
     def post(self, request: Request, pk, term) -> Response:
-        """Renvoie une feuille envoyée ou validée en brouillon, avec le motif ; la date limite ne
-        la ferme plus."""
-        course, period = self.objects(pk, term)
+        """Renvoie une fiche envoyée ou validée à l'enseignant avec les remarques (`reason`) :
+        elle revient dans son carnet, que la date limite ne ferme plus ; il en est averti."""
+        course, period = _course_and_term(pk, term)
         serializer = ReopenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         saved = grades.reopen_sheet(
             course, period, reason=serializer.validated_data["reason"], actor=request.user
         )
-        return Response(SheetSerializer(saved).data)
+        return Response(TotalsSheetSerializer(saved).data)
 
 
 @extend_schema(tags=["grades"])

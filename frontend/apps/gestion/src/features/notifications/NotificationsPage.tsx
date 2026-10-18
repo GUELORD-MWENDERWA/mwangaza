@@ -56,6 +56,8 @@ const KIND_ICONS: Record<NotificationKind, IconName> = {
   discipline_incident: "alert",
   place_offered: "users",
   sensitive_rights: "shield",
+  grades_sent: "file",
+  grades_returned: "undo",
 };
 
 export function NotificationsPage() {

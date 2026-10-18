@@ -1,7 +1,8 @@
 """Notifications des événements de l'école (5.6.1), écrites au moment de l'action, dans sa
 transaction : paiement reçu, annonce et convocation (5.7) pour le parent (Portail), écart de caisse
 et annulation à valider pour le personnel qui en a le droit, annonce de l'école pour tout son
-personnel (Gestion), droit sensible donné à un compte pour ceux qui gèrent les rôles (S.3.1). Le
+personnel (Gestion), droit sensible donné à un compte pour ceux qui gèrent les rôles (S.3.1), fiche
+de cotes envoyée ou renvoyée (NB.1). Le
 texte est écrit dans la langue de chaque destinataire ; l'envoi sur l'écran suit la validation
 (`push.notify`).
 
@@ -16,7 +17,7 @@ from django.utils import timezone, translation
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 
-from apps.academics.models import DisciplineIncident
+from apps.academics.models import DisciplineIncident, GradeSheet
 from apps.accounts.models import Role, User
 from apps.accounts.roles import PERMISSIONS, sorted_permissions
 from apps.core.models import PlatformSettings
@@ -283,4 +284,70 @@ def places_offered(family_ids: Iterable, year_name: str) -> None:
             )
             % {"year": year_name},
         ),
+    )
+
+
+# Notes : fiche de cotes (NB.1)
+
+
+def _members(*ids) -> QuerySet[User]:
+    """Comptes actifs du personnel de l'école parmi `ids`."""
+    return User.objects.filter(
+        pk__in=[pk for pk in ids if pk],
+        is_active=True,
+        memberships__school=require_current_school(),
+        memberships__is_active=True,
+    ).distinct()
+
+
+def _sheet_label(state: GradeSheet) -> tuple[str, str]:
+    from apps.academics.grades import term_label
+
+    course = state.course
+    return f"{course.name} · {course.class_group.name}", str(term_label(state.term))
+
+
+def grades_sent(state: GradeSheet, *, actor: User) -> None:
+    """Fiche envoyée et signée : à ceux qui valident les notes (le directeur des études) et au
+    titulaire de la classe, qui la lisent dans « Fiche de cotes »."""
+    users = {user.pk: user for user in staff(Kind.GRADES_SENT, but=actor)}
+    homeroom = state.course.class_group.homeroom_teacher_id
+    users.update({user.pk: user for user in _members(homeroom).exclude(pk=actor.pk)})
+    course, term = _sheet_label(state)
+
+    def text() -> tuple[str, str]:
+        title = _("Grade sheet received: %(course)s") % {"course": course}
+        body = _("%(term)s · sent and signed by %(teacher)s") % {"term": term, "teacher": actor}
+        return title, body
+
+    send(
+        users.values(),
+        app=App.GESTION,
+        kind=Kind.GRADES_SENT,
+        url=f"/grade-sheets/totals?course={state.course_id}&term={state.term_id}",
+        text=text,
+    )
+
+
+def grades_returned(state: GradeSheet, reason: str, *, sender: User | None, actor: User) -> None:
+    """Fiche renvoyée avec les remarques du directeur des études : à l'enseignant du cours (sinon
+    à qui l'avait envoyée), qui la retrouve dans son carnet."""
+    teacher = state.course.teacher_id or (sender.pk if sender else None)
+    course, term = _sheet_label(state)
+
+    def text() -> tuple[str, str]:
+        title = _("Grade sheet returned: %(course)s") % {"course": course}
+        body = _("%(term)s · %(by)s: %(remarks)s") % {
+            "term": term,
+            "by": _by(actor),
+            "remarks": reason,
+        }
+        return title, body
+
+    send(
+        _members(teacher).exclude(pk=actor.pk),
+        app=App.GESTION,
+        kind=Kind.GRADES_RETURNED,
+        url=f"/grades?course={state.course_id}&term={state.term_id}",
+        text=text,
     )

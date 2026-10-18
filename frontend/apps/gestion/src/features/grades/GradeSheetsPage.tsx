@@ -18,6 +18,7 @@ import {
   Skeleton,
 } from "@mwangaza/ui";
 import { useState } from "react";
+import { useSearchParams } from "react-router";
 
 import { can } from "../../lib/permissions";
 import { useCurrentMe } from "../../lib/queries";
@@ -46,8 +47,10 @@ export function GradeSheetsPage() {
   const me = useCurrentMe();
   const grading = useGrading();
   const [kind, setKind] = useState<SheetKind>("course");
+  // `?course=…` : la fiche de ce cours (bouton « Imprimer » de la fiche de cotes).
+  const [params] = useSearchParams();
   const [classId, setClassId] = useState("");
-  const [courseId, setCourseId] = useState("");
+  const [courseId, setCourseId] = useState(params.get("course") ?? "");
   const [column, setColumn] = useState("year");
   const [saved, save] = usePrintOptions("grade-sheets", {
     ...DEFAULT_LAYOUT,
@@ -62,7 +65,10 @@ export function GradeSheetsPage() {
   }
 
   const classes = grading.data.classes;
-  const group = classes.find((item) => item.id === classId) ?? classes[0];
+  const group =
+    classes.find((item) => item.id === classId) ??
+    classes.find((item) => item.courses.some((c) => c.id === courseId)) ??
+    classes[0];
   const course = group?.courses.find((item) => item.id === courseId) ?? group?.courses[0];
   // Le tableau de la classe : direction des études, ou titulaire de la classe.
   const tableAllowed =

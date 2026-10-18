@@ -25,6 +25,7 @@ import { CoursesPage } from "./features/courses/CoursesPage";
 import { TeachingLoadsPage } from "./features/courses/TeachingLoadsPage";
 import { GradesPage } from "./features/grades/GradesPage";
 import { GradeSheetsPage } from "./features/grades/GradeSheetsPage";
+import { GradeTotalsPage } from "./features/grades/GradeTotalsPage";
 import { ApplicationPage } from "./features/application/ApplicationPage";
 import { ConductPage } from "./features/conduct/ConductPage";
 import { ConductScalePage } from "./features/conduct/ConductScalePage";
@@ -133,6 +134,7 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
     item: { ...menuItem("students"), permissions: ["students.edit"] },
     element: <EditStudentPage />,
   },
+  { path: "grade-sheets/totals", item: menuItem("gradeSheets"), element: <GradeTotalsPage /> },
   { path: "students/class-list", item: menuItem("students"), element: <ClassListPage /> },
   { path: "students/invitations", item: menuItem("students"), element: <InvitationsPage /> },
   { path: "students/:id/form", item: menuItem("students"), element: <RegistrationFormPage /> },

@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from apps.academics import gradebook
 from apps.academics.courses import CourseInput
-from apps.academics.grades import MAX_EVALUATIONS, EvaluationInput, GradeInput
+from apps.academics.grades import MAX_EVALUATIONS, EvaluationInput, GradeInput, term_label
 from apps.academics.models import (
     MAX_PERIOD_MAX,
     MAX_WEEKLY_HOURS,
@@ -175,10 +175,25 @@ class GradingCourseSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class GradingListCourseSerializer(GradingCourseSerializer):
+    teaches = serializers.BooleanField(
+        help_text="Le compte donne ce cours : il tient son carnet (évaluations et notes, NB.1) ; "
+        "sinon, fiche de cotes seulement, ou un total par élève avec `grades.enter_any`."
+    )
+
+    class Meta(GradingCourseSerializer.Meta):
+        fields = [*GradingCourseSerializer.Meta.fields, "teaches"]
+        read_only_fields = fields
+
+
 class GradingClassSerializer(serializers.Serializer):
     id = serializers.UUIDField()
     name = serializers.CharField(help_text="« 3e Électricité A ».")
-    courses = GradingCourseSerializer(many=True, help_text="Cours que le compte peut noter.")
+    courses = GradingListCourseSerializer(
+        many=True,
+        help_text="Cours qu'il donne, ceux de la classe dont il est titulaire, ou tous "
+        "(`grades.enter_any`).",
+    )
     is_homeroom = serializers.BooleanField(
         help_text="Le compte est titulaire de la classe (tableau de la classe, 8.3.6)."
     )
@@ -246,26 +261,62 @@ class HistoryEntrySerializer(serializers.Serializer):
     changes = serializers.IntegerField(help_text="Cases et évaluations changées.")
 
 
-class SheetSerializer(serializers.Serializer):
-    entry = serializers.ChoiceField(
-        choices=grading.ENTRIES,
-        help_text="totals : une seule évaluation « Total » au maximum de la période (8.4.0).",
-    )
+class _SheetStateSerializer(serializers.Serializer):
+    """État commun du carnet et de la fiche de cotes."""
+
     status = serializers.ChoiceField(choices=GradeSheet.Status.choices)
-    reopened = serializers.BooleanField(help_text="Rouverte : la date limite ne la ferme plus.")
+    reopened = serializers.BooleanField(
+        help_text="Brouillon rouvert (renvoyé par le directeur des études) : la date limite ne le "
+        "ferme plus."
+    )
     due_on = serializers.DateField(
         allow_null=True, help_text="Dernier jour de saisie de la période ; vide : sans limite."
     )
     submitted_at = serializers.DateTimeField(allow_null=True)
-    submitted_by = serializers.CharField()
+    submitted_by = serializers.CharField(help_text="Qui l'a envoyée et signée.")
     validated_at = serializers.DateTimeField(allow_null=True)
     validated_by = serializers.CharField()
+    returned = HistoryEntrySerializer(
+        allow_null=True,
+        help_text="Renvoyée avec remarques (`reason`) et pas encore renvoyée de nouveau ; vide "
+        "sinon.",
+    )
     history = HistoryEntrySerializer(many=True, help_text="Les plus récentes d'abord.")
     course = GradingCourseSerializer()
     class_group = serializers.CharField(source="course.class_group.name")
     term = serializers.UUIDField(source="term.pk")
     maximum = serializers.IntegerField(
         help_text="Maximum de la période (examens : deux fois celui du cours)."
+    )
+
+
+class TotalsRowSerializer(serializers.Serializer):
+    enrollment_id = serializers.UUIDField(source="enrollment.pk")
+    full_name = serializers.CharField(source="enrollment.student.full_name")
+    matricule = serializers.CharField(source="enrollment.student.matricule")
+    status = serializers.ChoiceField(source="enrollment.status", choices=Enrollment.Status.choices)
+    total = serializers.DecimalField(
+        max_digits=SCORE_DIGITS + 2, decimal_places=SCORE_DECIMALS, allow_null=True
+    )
+
+
+class TotalsSheetSerializer(_SheetStateSerializer):
+    """Fiche de cotes (NB.1) : un total par élève, sans les évaluations."""
+
+    term_label = serializers.SerializerMethodField(help_text="« 1re période », « Examens · S1 ».")
+    students = TotalsRowSerializer(
+        source="rows", many=True, help_text="Vide tant que la fiche n'est pas envoyée."
+    )
+
+    def get_term_label(self, sheet) -> str:
+        return str(term_label(sheet.term))
+
+
+class SheetSerializer(_SheetStateSerializer):
+    entry = serializers.ChoiceField(
+        choices=grading.ENTRIES,
+        help_text="totals : une seule évaluation « Total » au maximum de la période (8.4.0) ; "
+        "toujours pour `grades.enter_any` hors de ses cours (NB.1).",
     )
     evaluations = EvaluationSerializer(many=True)
     students = SheetRowSerializer(source="rows", many=True)

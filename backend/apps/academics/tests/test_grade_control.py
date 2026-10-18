@@ -1,6 +1,7 @@
-"""Contrôle des notes (8.2.2) : état de la feuille (brouillon, envoyée, validée), date limite de
-saisie, motif d'une modification après envoi, validation et réouverture par `grades.validate`,
-maximum d'un cours déjà noté, historique et isolation entre écoles."""
+"""Contrôle des notes (8.2.2, NB.1) : état de la feuille (brouillon, envoyée et signée, validée,
+renvoyée avec remarques), fiche de cotes (totaux seuls) pour le directeur des études et le
+titulaire, notifications, date limite de saisie, motif d'une modification après envoi, maximum d'un
+cours déjà noté, historique et isolation entre écoles."""
 
 from datetime import timedelta
 
@@ -12,6 +13,8 @@ from apps.academics.tests.test_courses import courses_url
 from apps.academics.tests.test_grades import setup, sheet_url
 from apps.audit.models import AuditLog
 from apps.core.tenancy import use_school
+from apps.notifications.models import Notification
+from apps.schools.models import ClassGroup
 from tests.factories import MembershipFactory
 
 pytestmark = pytest.mark.django_db
@@ -28,8 +31,8 @@ def action_url(course, term, action) -> str:
 
 
 @pytest.fixture
-def secretary(school):
-    return MembershipFactory(school=school, roles=["secretary"]).user
+def teacher(school):
+    return MembershipFactory(school=school, roles=["teacher"]).user
 
 
 @pytest.fixture
@@ -52,19 +55,29 @@ def fill(client, data, *, amani="12", josue="15", reason=None) -> dict:
     return client.put(url, body)
 
 
-def test_a_sheet_goes_from_draft_to_sent_then_validated_and_is_then_closed(
-    api,
-    school,
-    head,
-    secretary,
-    director,
-):
-    data = setup(school, head)
-    client, boss = api(secretary), api(director)
-    submit = action_url(data["physics"], data["p1"], "submit")
-    assert fill(client, data).json()["status"] == "draft"
+def notified(school, kind) -> list[tuple[str, str]]:
+    with use_school(school):
+        rows = Notification.objects.filter(kind=kind).select_related("user").order_by("user_id")
+        return [(row.user_id, row.url) for row in rows]
 
-    # Une case manque : refusé ; complète : envoyée, et le directeur des études la voit à valider.
+
+def test_a_sheet_is_sent_and_signed_then_validated_or_returned_with_remarks(
+    api, school, head, teacher, director
+):
+    data = setup(school, head, teacher=teacher)
+    homeroom = MembershipFactory(school=school, roles=["teacher"]).user
+    with use_school(school):
+        ClassGroup.objects.filter(pk=data["a"].pk).update(homeroom_teacher=homeroom)
+    client, boss = api(teacher), api(director)
+    submit = action_url(data["physics"], data["p1"], "submit")
+    totals = f"{sheet_url(data['physics'], data['p1'])}totals/"
+    assert fill(client, data).json()["status"] == "draft"
+    # Pas encore envoyée : la fiche de cotes ne montre que son état.
+    early = boss.get(totals).json()
+    assert early["status"] == "draft" and early["students"] == []
+
+    # Une case manque : refusé ; complète : envoyée et signée, le directeur des études et le
+    # titulaire sont avertis et lisent les totaux, sans les évaluations.
     url = sheet_url(data["physics"], data["p1"])
     evaluation = client.get(url).json()["evaluations"][0]["id"]
     client.put(
@@ -77,12 +90,26 @@ def test_a_sheet_goes_from_draft_to_sent_then_validated_and_is_then_closed(
         url,
         {"grades": [{"enrollment_id": data["josue"], "evaluation_id": evaluation, "score": "15"}]},
     )
-    assert client.post(submit).json()["status"] == "submitted"
+    sent_sheet = client.post(submit).json()
+    assert sent_sheet["status"] == "submitted" and sent_sheet["submitted_by"] == str(teacher)
     assert client.post(submit).json()["code"] == "sheet_not_draft"
     pending = boss.get(VALIDATION).json()["sheets"]
     assert [(row["course_name"], row["class_group"]) for row in pending] == [
         ("Physique", "1RE ÉLECTRICITÉ A")
     ]
+    link = f"/grade-sheets/totals?course={data['physics'].pk}&term={data['p1'].pk}"
+    assert notified(school, "grades_sent") == sorted([(director.pk, link), (homeroom.pk, link)])
+    for reader in (boss, api(homeroom)):
+        fiche = reader.get(totals).json()
+        assert "evaluations" not in fiche and fiche["submitted_by"] == str(teacher)
+        assert [(row["full_name"], row["total"]) for row in fiche["students"]] == [
+            ("Bahati X", "12.0"),
+            ("Kambale X", "15.0"),
+        ]
+        assert all("scores" not in row for row in fiche["students"])
+    # Un autre enseignant, ni titulaire ni enseignant du cours : pas même la fiche.
+    other = api(MembershipFactory(school=school, roles=["teacher"]).user)
+    assert other.get(totals).status_code == 403
 
     # Envoyée : changer une note demande un motif, gardé dans l'historique de la feuille.
     sent = {
@@ -98,22 +125,23 @@ def test_a_sheet_goes_from_draft_to_sent_then_validated_and_is_then_closed(
 
     # Seul qui a `grades.validate` valide ; la feuille validée est fermée à tous.
     assert client.post(action_url(data["physics"], data["p1"], "validate")).status_code == 403
-    assert (
-        boss.post(action_url(data["physics"], data["p1"], "validate")).json()["status"]
-        == "validated"
-    )
+    validated = boss.post(action_url(data["physics"], data["p1"], "validate")).json()
+    assert validated["status"] == "validated" and "evaluations" not in validated
     closed = client.put(url, {**sent, "reason": "Encore"})
     assert closed.status_code == 409 and closed.json()["code"] == "sheet_validated"
 
-    # Rouverte avec un motif : brouillon de nouveau, et le motif est au journal.
-    assert (
-        boss.post(action_url(data["physics"], data["p1"], "reopen"), {"reason": ""}).status_code
-        == 400
-    )
-    reopened = boss.post(
-        action_url(data["physics"], data["p1"], "reopen"), {"reason": "Note à corriger"}
-    )
-    assert reopened.json()["status"] == "draft" and reopened.json()["reopened"] is True
+    # Renvoyée avec remarques (obligatoires) : brouillon rouvert, l'enseignant est averti et lit
+    # les remarques dans son carnet ; elles sont au journal.
+    reopen = action_url(data["physics"], data["p1"], "reopen")
+    assert boss.post(reopen, {"reason": ""}).status_code == 400
+    assert client.post(reopen, {"reason": "Moi"}).status_code == 403
+    returned = boss.post(reopen, {"reason": "Note à corriger"}).json()
+    assert returned["status"] == "draft" and returned["reopened"] is True
+    assert notified(school, "grades_returned") == [
+        (teacher.pk, f"/grades?course={data['physics'].pk}&term={data['p1'].pk}")
+    ]
+    remarks = client.get(url).json()["returned"]
+    assert (remarks["reason"], remarks["by"]) == ("Note à corriger", str(director))
     with use_school(school):
         actions = list(
             AuditLog.objects.filter(action__startswith="grades.")
@@ -124,17 +152,19 @@ def test_a_sheet_goes_from_draft_to_sent_then_validated_and_is_then_closed(
     assert "grades.submitted" in actions
     assert actions[-3:] == ["grades.changed", "grades.validated", "grades.reopened"]
     assert reason == "Note à corriger"
+    # Envoyée de nouveau : les remarques ne sont plus affichées.
+    assert client.post(submit).json()["returned"] is None
 
 
 def test_the_deadline_closes_the_entry_except_for_a_reopened_sheet_or_the_validator(
     api,
     school,
     head,
-    secretary,
+    teacher,
     director,
 ):
-    data = setup(school, head)
-    client, boss = api(secretary), api(director)
+    data = setup(school, head, teacher=teacher)
+    client, boss = api(teacher), api(director)
     fill(client, data)
     yesterday = (timezone.localdate() - timedelta(days=1)).isoformat()
     assert client.put(deadline_url(data["p1"]), {"due_on": yesterday}).status_code == 403
@@ -148,7 +178,7 @@ def test_the_deadline_closes_the_entry_except_for_a_reopened_sheet_or_the_valida
     refused = client.put(url, late)
     assert refused.status_code == 409 and refused.json()["code"] == "deadline_passed"
     assert client.get(url).json()["due_on"] == yesterday
-    # Le jour même est encore permis ; le directeur des études peut saisir après la date.
+    # Le jour même est encore permis ; le directeur des études peut saisir un total après la date.
     today = timezone.localdate().isoformat()
     boss.put(deadline_url(data["p1"]), {"due_on": today})
     assert client.put(url, late).status_code == 200
@@ -167,11 +197,11 @@ def test_the_maximum_of_a_graded_course_changes_only_with_validation_rights(
     api,
     school,
     head,
-    secretary,
+    teacher,
     director,
 ):
-    data = setup(school, head)
-    fill(api(secretary), data)
+    data = setup(school, head, teacher=teacher)
+    fill(api(teacher), data)
     grid = [
         {
             "id": str(c["id"]),
@@ -196,13 +226,13 @@ def test_another_school_cannot_see_validate_or_reopen_these_grades(
     other_school,
     head,
     other_head,
-    secretary,
+    teacher,
     director,
 ):
-    data = setup(school, head)
+    data = setup(school, head, teacher=teacher)
     setup(other_school, other_head)
-    fill(api(secretary), data)
-    api(secretary).post(action_url(data["physics"], data["p1"], "submit"))
+    fill(api(teacher), data)
+    api(teacher).post(action_url(data["physics"], data["p1"], "submit"))
     foreign = MembershipFactory(school=other_school, roles=["study_director"]).user
     beta = api(foreign, host="beta.localhost")
     assert beta.get(VALIDATION).json()["sheets"] == []
@@ -212,5 +242,7 @@ def test_another_school_cannot_see_validate_or_reopen_these_grades(
             == 404
         )
     assert beta.put(deadline_url(data["p1"]), {"due_on": None}).status_code == 404
+    totals = action_url(data["physics"], data["p1"], "totals")
     assert beta.get(sheet_url(data["physics"], data["p1"])).status_code == 404
-    assert api(director).get(sheet_url(data["physics"], data["p1"])).json()["status"] == "submitted"
+    assert beta.get(totals).status_code == 404
+    assert api(director).get(totals).json()["status"] == "submitted"

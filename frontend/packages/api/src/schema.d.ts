@@ -1879,7 +1879,8 @@ export interface paths {
         };
         /**
          * @description Feuille de notes du cours dans une période ou des examens : évaluations, élèves de la
-         *     classe, notes, note de la période.
+         *     classe, notes, note de la période. L'enseignant du cours ; `grades.enter_any` : une
+         *     feuille « total » seulement (403 `notebook_private` si elle a des devoirs).
          */
         get: operations["courses_terms_grades_retrieve"];
         /**
@@ -1904,8 +1905,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * @description Renvoie une feuille envoyée ou validée en brouillon, avec le motif ; la date limite ne
-         *     la ferme plus.
+         * @description Renvoie une fiche envoyée ou validée à l'enseignant avec les remarques (`reason`) :
+         *     elle revient dans son carnet, que la date limite ne ferme plus ; il en est averti.
          */
         post: operations["courses_terms_grades_reopen_create"];
         delete?: never;
@@ -1924,10 +1925,32 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * @description Envoie la feuille au directeur des études : complète (400 `incomplete_sheet`), pas
-         *     déjà envoyée (409 `sheet_not_draft`).
+         * @description Envoie et signe la fiche de cotes : complète (400 `incomplete_sheet`), pas déjà
+         *     envoyée (409 `sheet_not_draft`) ; le directeur des études et le titulaire en sont
+         *     avertis.
          */
         post: operations["courses_terms_grades_submit_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/courses/{id}/terms/{term}/grades/totals/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Fiche de cotes du cours dans une période ou des examens : le total de chaque élève au
+         *     maximum de la période, sans les évaluations, une fois envoyée (avant : son état seul) ;
+         *     qui l'a envoyée et signée, validée ou renvoyée, et son historique.
+         */
+        get: operations["courses_terms_grades_totals_retrieve"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1943,7 +1966,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Valide une feuille envoyée : elle est fermée (409 `sheet_not_sent` sinon). */
+        /** @description Valide une fiche envoyée : elle est fermée (409 `sheet_not_sent` sinon). */
         post: operations["courses_terms_grades_validate_create"];
         delete?: never;
         options?: never;
@@ -2634,8 +2657,9 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Ce que le compte peut noter dans l'année : son découpage (périodes, examens) et, par
-         *     classe, les cours qu'il donne, ceux de la classe dont il est titulaire, ou tous.
+         * @description Ce que le compte voit dans les notes de l'année : son découpage (périodes, examens) et,
+         *     par classe, les cours qu'il donne, ceux de la classe dont il est titulaire, ou tous ;
+         *     `teaches` : il tient le carnet du cours (ses évaluations).
          */
         get: operations["grading_retrieve"];
         put?: never;
@@ -7018,6 +7042,13 @@ export interface components {
              */
             score: string | null;
         };
+        /**
+         * @description * `draft` - Draft
+         *     * `submitted` - Sent for validation
+         *     * `validated` - Validated
+         * @enum {string}
+         */
+        GradeSheetStatusEnum: "draft" | "submitted" | "validated";
         Grading: {
             /**
              * Format: uuid
@@ -7033,8 +7064,8 @@ export interface components {
             id: string;
             /** @description « 3e Électricité A ». */
             name: string;
-            /** @description Cours que le compte peut noter. */
-            courses: components["schemas"]["GradingCourse"][];
+            /** @description Cours qu'il donne, ceux de la classe dont il est titulaire, ou tous (`grades.enter_any`). */
+            courses: components["schemas"]["GradingListCourse"][];
             /** @description Le compte est titulaire de la classe (tableau de la classe, 8.3.6). */
             is_homeroom: boolean;
         };
@@ -7046,6 +7077,17 @@ export interface components {
             readonly period_max: number;
             /** With exam */
             readonly has_exam: boolean;
+        };
+        GradingListCourse: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly name: string;
+            /** Maximum per period */
+            readonly period_max: number;
+            /** With exam */
+            readonly has_exam: boolean;
+            /** @description Le compte donne ce cours : il tient son carnet (évaluations et notes, NB.1) ; sinon, fiche de cotes seulement, ou un total par élève avec `grades.enter_any`. */
+            teaches: boolean;
         };
         /** @description Saisie des points de l'école (`grading.py`, 8.4.0). */
         GradingSettings: {
@@ -7648,9 +7690,11 @@ export interface components {
          *     * `discipline_incident` - Conduct
          *     * `place_offered` - Place for next year
          *     * `sensitive_rights` - Sensitive rights given
+         *     * `grades_sent` - Grade sheet received
+         *     * `grades_returned` - Grade sheet returned
          * @enum {string}
          */
-        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights";
+        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned";
         NotificationPreferences: {
             /** @description Clé publique Web Push ; vide : envoi sur l'écran indisponible. */
             readonly vapid_public_key: string;
@@ -9890,16 +9934,10 @@ export interface components {
          * @enum {string}
          */
         SexEnum: "M" | "F";
+        /** @description État commun du carnet et de la fiche de cotes. */
         Sheet: {
-            /**
-             * @description totals : une seule évaluation « Total » au maximum de la période (8.4.0).
-             *
-             *     * `detailed` - detailed
-             *     * `totals` - totals
-             */
-            entry: components["schemas"]["GradeEntryEnum"];
-            status: components["schemas"]["SheetStatusEnum"];
-            /** @description Rouverte : la date limite ne la ferme plus. */
+            status: components["schemas"]["GradeSheetStatusEnum"];
+            /** @description Brouillon rouvert (renvoyé par le directeur des études) : la date limite ne le ferme plus. */
             reopened: boolean;
             /**
              * Format: date
@@ -9908,10 +9946,13 @@ export interface components {
             due_on: string | null;
             /** Format: date-time */
             submitted_at: string | null;
+            /** @description Qui l'a envoyée et signée. */
             submitted_by: string;
             /** Format: date-time */
             validated_at: string | null;
             validated_by: string;
+            /** @description Renvoyée avec remarques (`reason`) et pas encore renvoyée de nouveau ; vide sinon. */
+            returned: components["schemas"]["HistoryEntry"] | null;
             /** @description Les plus récentes d'abord. */
             history: components["schemas"]["HistoryEntry"][];
             course: components["schemas"]["GradingCourse"];
@@ -9920,6 +9961,13 @@ export interface components {
             term: string;
             /** @description Maximum de la période (examens : deux fois celui du cours). */
             maximum: number;
+            /**
+             * @description totals : une seule évaluation « Total » au maximum de la période (8.4.0) ; toujours pour `grades.enter_any` hors de ses cours (NB.1).
+             *
+             *     * `detailed` - detailed
+             *     * `totals` - totals
+             */
+            entry: components["schemas"]["GradeEntryEnum"];
             evaluations: components["schemas"]["Evaluation"][];
             students: components["schemas"]["SheetRow"][];
         };
@@ -9952,13 +10000,6 @@ export interface components {
          * @enum {string}
          */
         SheetSizeEnum: "half" | "third";
-        /**
-         * @description * `draft` - Draft
-         *     * `submitted` - Sent for validation
-         *     * `validated` - Validated
-         * @enum {string}
-         */
-        SheetStatusEnum: "draft" | "submitted" | "validated";
         /**
          * @description Évaluations ajoutées ou modifiées (dans l'ordre ; les autres restent), retirées avec leurs
          *     notes, et les seules cases changées.
@@ -10783,6 +10824,47 @@ export interface components {
         /** @description Tout le découpage : ce qui n'y est plus est retiré. */
         TermsUpdateRequest: {
             terms: components["schemas"]["TermInputRequest"][];
+        };
+        TotalsRow: {
+            /** Format: uuid */
+            enrollment_id: string;
+            full_name: string;
+            matricule: string;
+            status: components["schemas"]["EnrollmentStatusEnum"];
+            /** Format: decimal */
+            total: string | null;
+        };
+        /** @description Fiche de cotes (NB.1) : un total par élève, sans les évaluations. */
+        TotalsSheet: {
+            status: components["schemas"]["GradeSheetStatusEnum"];
+            /** @description Brouillon rouvert (renvoyé par le directeur des études) : la date limite ne le ferme plus. */
+            reopened: boolean;
+            /**
+             * Format: date
+             * @description Dernier jour de saisie de la période ; vide : sans limite.
+             */
+            due_on: string | null;
+            /** Format: date-time */
+            submitted_at: string | null;
+            /** @description Qui l'a envoyée et signée. */
+            submitted_by: string;
+            /** Format: date-time */
+            validated_at: string | null;
+            validated_by: string;
+            /** @description Renvoyée avec remarques (`reason`) et pas encore renvoyée de nouveau ; vide sinon. */
+            returned: components["schemas"]["HistoryEntry"] | null;
+            /** @description Les plus récentes d'abord. */
+            history: components["schemas"]["HistoryEntry"][];
+            course: components["schemas"]["GradingCourse"];
+            class_group: string;
+            /** Format: uuid */
+            term: string;
+            /** @description Maximum de la période (examens : deux fois celui du cours). */
+            maximum: number;
+            /** @description « 1re période », « Examens · S1 ». */
+            readonly term_label: string;
+            /** @description Vide tant que la fiche n'est pas envoyée. */
+            students: components["schemas"]["TotalsRow"][];
         };
         TotpActivated: {
             /**
@@ -16908,7 +16990,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Sheet"];
+                    "application/json": components["schemas"]["TotalsSheet"];
                 };
             };
             400: {
@@ -16983,6 +17065,52 @@ export interface operations {
             };
         };
     };
+    courses_terms_grades_totals_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                term: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TotalsSheet"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     courses_terms_grades_validate_create: {
         parameters: {
             query?: never;
@@ -17000,7 +17128,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Sheet"];
+                    "application/json": components["schemas"]["TotalsSheet"];
                 };
             };
             400: {

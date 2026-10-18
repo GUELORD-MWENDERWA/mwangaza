@@ -1,10 +1,11 @@
 // Saisie des notes (8.2.1, maquette `notes-saisie`) : la feuille d'un cours dans une période ou
 // des examens — évaluations libres (nom, maximum) et notes des élèves — s'enregistre d'un seul
 // envoi. Note de la période et pourcentage recalculés à chaque frappe (`sheet.ts`, même règle que
-// le serveur). Droits `grades.enter` (ses cours, sa classe de titulaire) ou `grades.enter_any`
-// (toutes les classes) ; en ligne (hors ligne : 8.2.3). Contrôle (8.2.2) : date limite, envoi pour
-// validation, validation et réouverture par `grades.validate`, motif d'une modification après envoi.
-import { api, call } from "@mwangaza/api";
+// le serveur). Carnet de l'enseignant (NB.1) : ses cours seulement ; `grades.enter_any` : un total
+// par élève dans tout cours (une feuille qui a des devoirs lui est fermée) ; en ligne (hors ligne :
+// 8.2.3). Contrôle (8.2.2) : date limite, « Envoyer et signer », remarques d'un renvoi, motif d'une
+// modification après envoi ; validation et renvoi : fiche de cotes (`GradeTotalsPage`).
+import { api, ApiError, call } from "@mwangaza/api";
 import { firstErrorMessage, useTranslation } from "@mwangaza/i18n";
 import {
   Banner,
@@ -29,7 +30,7 @@ import {
 } from "@mwangaza/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
 import { uuidv7 } from "../../lib/ids";
 import { can } from "../../lib/permissions";
@@ -87,6 +88,7 @@ function currentPeriod(leaves: Leaf[]): Leaf | undefined {
 export function GradesPage() {
   const { t } = useTranslation();
   const grading = useGrading();
+  const me = useCurrentMe();
   // « À valider » ouvre la feuille voulue : `?course=…&term=…`.
   const [params] = useSearchParams();
   const [choice, setChoice] = useState<Choice | null>(null);
@@ -96,7 +98,13 @@ export function GradesPage() {
   if (grading.isError) {
     return <LoadError error={grading.error} onRetry={() => void grading.refetch()} />;
   }
-  const { classes, terms } = grading.data;
+  const { terms } = grading.data;
+  // Le titulaire voit aussi les cours de sa classe : seulement ceux qu'il donne, sauf
+  // `grades.enter_any` (un total par élève).
+  const enterAny = can(me, ["grades.enter_any"]);
+  const classes = grading.data.classes
+    .map((group) => ({ ...group, courses: group.courses.filter((c) => c.teaches || enterAny) }))
+    .filter((group) => group.courses.length > 0);
   const labels = termLabels(terms, t);
   const leaves = gradableTerms(terms, labels);
   if (!grading.data.academic_year || classes.length === 0 || leaves.length === 0) {
@@ -167,8 +175,9 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
   const [cells, setCells] = useState<Record<string, string>>({});
   const [editing, setEditing] = useState<Editing | null>(null);
   const [leaving, setLeaving] = useState<Choice | null>(null);
-  const [notice, setNotice] = useState<"saved" | "submit" | "validate" | "reopen" | null>(null);
-  const [reasonFor, setReasonFor] = useState<"edit" | "reopen" | null>(null);
+  const [notice, setNotice] = useState<"saved" | "submit" | null>(null);
+  const [reasonFor, setReasonFor] = useState<"edit" | null>(null);
+  const [signing, setSigning] = useState(false);
   const [pendingSave, setPendingSave] = useState<SaveBody | null>(null);
   const [invalid, setInvalid] = useState(false);
 
@@ -216,31 +225,84 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
       setNotice("saved");
     },
   });
-  // Envoi, validation, réouverture : la feuille revient à jour.
+  // Envoyée et signée : la feuille revient à jour.
   const act = useMutation({
-    mutationFn: (input: { action: "submit" | "validate" | "reopen"; reason?: string }) => {
-      if (input.action === "submit") {
-        return call(api.POST("/api/courses/{id}/terms/{term}/grades/submit/", path));
-      }
-      if (input.action === "validate") {
-        return call(api.POST("/api/courses/{id}/terms/{term}/grades/validate/", path));
-      }
-      return call(
-        api.POST("/api/courses/{id}/terms/{term}/grades/reopen/", {
-          ...path,
-          body: { reason: input.reason ?? "" },
-        }),
-      );
-    },
-    onSuccess: (saved, input) => {
+    mutationFn: () => call(api.POST("/api/courses/{id}/terms/{term}/grades/submit/", path)),
+    onSuccess: (saved) => {
       keep(saved);
       void queryClient.invalidateQueries({ queryKey: keys.gradeValidation });
-      setReasonFor(null);
-      setNotice(input.action);
+      setSigning(false);
+      setNotice("submit");
     },
   });
 
+  const dirty = evaluations !== null || removed.length > 0 || Object.keys(cells).length > 0;
+  const choose = (next: Partial<Choice>) => {
+    const target = { classId: groupId, courseId: course.id, termId: term.id, ...next };
+    if (next.classId && next.classId !== groupId) target.courseId = "";
+    if (dirty) setLeaving(target);
+    else onChoose(target);
+  };
+  const pickers = (
+    <>
+      <Select
+        aria-label={t("grades.classChoice")}
+        value={groupId}
+        onChange={(event) => choose({ classId: event.target.value })}
+        className="w-auto min-w-[180px]"
+      >
+        {classes.map((item) => (
+          <option key={item.id} value={item.id}>
+            {item.name}
+          </option>
+        ))}
+      </Select>
+      <Select
+        aria-label={t("grades.courseChoice")}
+        value={course.id}
+        onChange={(event) => choose({ courseId: event.target.value })}
+        className="w-auto min-w-[180px]"
+      >
+        {classes
+          .find((item) => item.id === groupId)
+          ?.courses.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
+            </option>
+          ))}
+      </Select>
+      <Select
+        aria-label={t("grades.termChoice")}
+        value={term.id}
+        onChange={(event) => choose({ termId: event.target.value })}
+        className="w-auto min-w-[150px]"
+      >
+        {terms.map((item) => (
+          <option key={item.id} value={item.id}>
+            {item.label}
+          </option>
+        ))}
+      </Select>
+    </>
+  );
+
   if (sheet.isPending) return <Skeleton label={t("common.loading")} />;
+  // Carnet d'un autre enseignant (NB.1) : `grades.enter_any` ne voit que sa fiche de cotes.
+  if (sheet.error instanceof ApiError && sheet.error.code === "notebook_private") {
+    return (
+      <>
+        <PageHeader title={t("grades.title")} actions={pickers} />
+        <Banner tone="info">{t("grades.private")}</Banner>
+        <div className="mt-4">
+          <Button asChild variant="outline">
+            <Link to={`/grade-sheets/totals?course=${course.id}&term=${term.id}`}>
+              {t("grades.openTotals")}
+            </Link>
+          </Button>
+        </div>
+      </>
+    );
+  }
   if (sheet.isError) return <LoadError error={sheet.error} onRetry={() => void sheet.refetch()} />;
 
   const data: Sheet = sheet.data;
@@ -257,7 +319,6 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
     : (evaluations ?? data.evaluations);
   const canValidate = can(me, ["grades.validate"]);
   const locked = isLocked(data, canValidate, todayIn(school.timezone));
-  const dirty = evaluations !== null || removed.length > 0 || Object.keys(cells).length > 0;
   const decimal = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 });
   const show = (tenths: number) => decimal.format(tenths / 10);
   const original = new Map(
@@ -279,12 +340,6 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
     setNotice(null);
     setInvalid(false);
     change();
-  };
-  const choose = (next: Partial<Choice>) => {
-    const target = { classId: groupId, courseId: course.id, termId: term.id, ...next };
-    if (next.classId && next.classId !== groupId) target.courseId = "";
-    if (dirty) setLeaving(target);
-    else onChoose(target);
   };
 
   const submit = () => {
@@ -334,48 +389,7 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
           max: data.maximum,
           term: term.label,
         })}
-        actions={
-          <>
-            <Select
-              aria-label={t("grades.classChoice")}
-              value={groupId}
-              onChange={(event) => choose({ classId: event.target.value })}
-              className="w-auto min-w-[180px]"
-            >
-              {classes.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </Select>
-            <Select
-              aria-label={t("grades.courseChoice")}
-              value={course.id}
-              onChange={(event) => choose({ courseId: event.target.value })}
-              className="w-auto min-w-[180px]"
-            >
-              {classes
-                .find((item) => item.id === groupId)
-                ?.courses.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-            </Select>
-            <Select
-              aria-label={t("grades.termChoice")}
-              value={term.id}
-              onChange={(event) => choose({ termId: event.target.value })}
-              className="w-auto min-w-[150px]"
-            >
-              {terms.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label}
-                </option>
-              ))}
-            </Select>
-          </>
-        }
+        actions={pickers}
       />
       <div className="mb-4">
         <ControlBanner
@@ -555,24 +569,6 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
         <CardFooter className="sticky bottom-0 z-10">
           <span className="text-sm text-ink-2">{t("grades.hint")}</span>
           <div className="flex flex-wrap justify-end gap-2">
-            {data.status === "validated" && canValidate && (
-              <Button variant="outline" onClick={() => setReasonFor("reopen")}>
-                {t("grades.reopen")}
-              </Button>
-            )}
-            {data.status === "submitted" && canValidate && (
-              <>
-                <Button variant="outline" disabled={dirty} onClick={() => setReasonFor("reopen")}>
-                  {t("grades.sendBack")}
-                </Button>
-                <Button
-                  disabled={dirty || act.isPending}
-                  onClick={() => act.mutate({ action: "validate" })}
-                >
-                  {t("grades.validate")}
-                </Button>
-              </>
-            )}
             {!locked && (
               <Button
                 variant={data.status === "draft" ? "outline" : "default"}
@@ -585,7 +581,7 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
             {data.status === "draft" && (
               <Button
                 disabled={dirty || act.isPending || columns.length === 0}
-                onClick={() => act.mutate({ action: "submit" })}
+                onClick={() => setSigning(true)}
               >
                 {t("grades.submit")}
               </Button>
@@ -599,11 +595,7 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
           kind={reasonFor}
           pending={save.isPending || act.isPending}
           onClose={() => setReasonFor(null)}
-          onConfirm={(reason) =>
-            reasonFor === "edit"
-              ? pendingSave && save.mutate({ ...pendingSave, reason })
-              : act.mutate({ action: "reopen", reason })
-          }
+          onConfirm={(reason) => pendingSave && save.mutate({ ...pendingSave, reason })}
         />
       )}
       {editing && (
@@ -643,6 +635,16 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
           }
         />
       )}
+      <ConfirmDialog
+        open={signing}
+        onOpenChange={(open) => !open && setSigning(false)}
+        title={t("grades.sign.title")}
+        confirmLabel={t("grades.sign.confirm")}
+        cancelLabel={t("common.cancel")}
+        onConfirm={() => act.mutate()}
+      >
+        {t("grades.sign.body")}
+      </ConfirmDialog>
       <ConfirmDialog
         open={leaving !== null}
         onOpenChange={(open) => !open && setLeaving(null)}
