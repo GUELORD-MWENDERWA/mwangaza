@@ -10,16 +10,39 @@
 
 <section class="sec">
   <div class="wrap dgrid">
-    <div class="card reach">
-      <h2>{% translate "Request a demo" %}</h2>
-      <p class="muted">{% translate "Write to us with your name, your role, your school and its town: we answer in French or in English." %}</p>
-      <div class="contacts">
-        {% if whatsapp %}<a href="{{ whatsapp }}" rel="noopener"><span class="chipic">{% icon "chat" %}</span><span><small>WhatsApp</small><b>{{ phone }}</b></span></a>
-        <a href="tel:{{ platform.support_phone }}"><span class="chipic">{% icon "phone" %}</span><span><small>{% translate "Phone" %}</small><b>{{ phone }}</b></span></a>{% endif %}
-        {% if platform.support_email %}<a href="mailto:{{ platform.support_email }}"><span class="chipic">{% icon "mail" %}</span><span><small>{% translate "Email" %}</small><b>{{ platform.support_email }}</b></span></a>{% endif %}
-        <div><span class="chipic">{% icon "pin" %}</span><span><small>{% translate "Address" %}</small><b>{% translate "Goma, North Kivu, DRC" %}</b></span></div>
-      </div>
-      {% if whatsapp %}<div><a class="btn primary lg" href="{{ whatsapp }}" rel="noopener">{% icon "chat" %}{% translate "Write on WhatsApp" %}</a></div>{% endif %}
+    <div class="col" style="gap:20px">
+      {% if sent %}
+      <div class="card" id="demande"><div class="sent" role="status"><span class="chipic">{% icon "check" %}</span><div>
+        <h2 style="font-size:1.15rem">{% translate "Request sent, thank you" %}</h2>
+        <p class="muted" style="margin-top:4px">{% translate "We call you or write to you on WhatsApp soon. To go faster, write to us directly." %}</p>
+        {% if whatsapp %}<a class="btn sm" style="margin-top:12px" href="{{ whatsapp }}" rel="noopener">{% icon "chat" %}{% translate "Write on WhatsApp" %}</a>{% endif %}
+      </div></div></div>
+      {% else %}
+      <form class="card" id="demande" action="#demande" method="post" novalidate>{% csrf_token %}
+        <div class="form" style="padding:28px">
+          <h2 style="font-size:1.3rem">{% translate "Request a demo" %}</h2>
+          {% if refused %}<p class="formerr" role="alert">{% translate "Too many requests from this connection. Try again in an hour, or write to us on WhatsApp." %}</p>{% elif form.errors %}<p class="formerr" role="alert">{% translate "Check the fields marked in red." %}</p>{% endif %}
+          <div class="two">
+            {% translate "Full name" as label %}{% include "core/site/_field.html" with field=form.name kind="text" label=label autocomplete="name" %}
+            {% translate "Job title" as label %}{% include "core/site/_field.html" with field=form.role kind="select" label=label %}
+          </div>
+          <div class="two">
+            {% translate "School" as label %}{% include "core/site/_field.html" with field=form.school_name kind="text" label=label autocomplete="organization" %}
+            {% translate "Town" as label %}{% include "core/site/_field.html" with field=form.town kind="text" label=label autocomplete="address-level2" %}
+          </div>
+          <div class="two">
+            {% translate "Phone (WhatsApp)" as label %}{% include "core/site/_field.html" with field=form.phone kind="tel" label=label autocomplete="tel" %}
+            {% translate "Number of pupils" as label %}{% include "core/site/_field.html" with field=form.size kind="select" label=label %}
+          </div>
+          {% translate "Email" as label %}{% include "core/site/_field.html" with field=form.email kind="email" label=label autocomplete="email" %}
+          {% translate "Your message" as label %}{% translate "What you want to see: cash desk, unpaid fees, report cards…" as placeholder %}{% include "core/site/_field.html" with field=form.message kind="textarea" label=label placeholder=placeholder %}
+          <label class="hp" aria-hidden="true">{% translate "Do not fill in" %}<input tabindex="-1" autocomplete="off" name="site_web"></label>
+          <div><label class="consent"><input type="checkbox" name="consent"{% if form.consent.value %} checked{% endif %}{% if form.consent.errors %} aria-invalid="true" aria-describedby="id_consent-err"{% endif %}><span>{% blocktranslate trimmed with name=platform.site_name %}I agree that {{ name }} contacts me about this request{% endblocktranslate %} (<a href="{{ links.legal }}#confidentialite">{% translate "privacy" %}</a>).</span></label>
+          {% if form.consent.errors %}<span class="errtxt" id="id_consent-err">{{ form.consent.errors.0 }}</span>{% endif %}</div>
+          <div><button class="btn primary lg" type="submit">{% translate "Send the request" %}</button></div>
+        </div>
+      </form>
+      {% endif %}
     </div>
     <aside class="col" style="gap:24px">
       <div>
@@ -31,6 +54,16 @@
         </ol>
       </div>
       <figure class="photo">{% translate "ITIG Don Bosco Goma students gathered in the courtyard, in front of the flag" as alt %}{% photo "itig-cour" alt %}</figure>
+      {% if whatsapp or platform.support_email or address or social %}<div>
+        <h2 style="font-size:1.15rem;margin-bottom:14px">{% translate "Reach us directly" %}</h2>
+        <div class="contacts">
+          {% if whatsapp %}<a href="{{ whatsapp }}" rel="noopener"><span class="chipic">{% icon "chat" %}</span><span><small>WhatsApp</small><b>{{ phone }}</b></span></a>
+          <a href="tel:{{ platform.support_phone }}"><span class="chipic">{% icon "phone" %}</span><span><small>{% translate "Phone" %}</small><b>{{ phone }}</b></span></a>{% endif %}
+          {% if platform.support_email %}<a href="mailto:{{ platform.support_email }}"><span class="chipic">{% icon "mail" %}</span><span><small>{% translate "Email" %}</small><b>{{ platform.support_email }}</b></span></a>{% endif %}
+          {% if address %}<div><span class="chipic">{% icon "pin" %}</span><span><small>{% translate "Address" %}</small><b>{{ address }}</b></span></div>{% endif %}
+        </div>
+        {% if social %}<p class="follow">{% translate "Follow us:" %} {% for name, link in social %}<a href="{{ link }}" rel="me noopener">{{ name }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}</p>{% endif %}
+      </div>{% endif %}
     </aside>
   </div>
 </section>

@@ -1,4 +1,5 @@
 from django.urls import path
+from rest_framework.routers import SimpleRouter
 
 from apps.core import views
 
@@ -15,3 +16,7 @@ console_urlpatterns = [
     path("logo/", views.ConsolePlatformLogoView.as_view(), name="console-platform-logo"),
     path("icon/", views.ConsolePlatformIconView.as_view(), name="console-platform-icon"),
 ]
+
+# Demandes de démonstration du site (WEB.1d), sous `/api/console/demo-requests/`.
+router = SimpleRouter()
+router.register("console/demo-requests", views.ConsoleDemoRequestViewSet, basename="console-demo")

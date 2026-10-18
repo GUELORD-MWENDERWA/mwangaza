@@ -186,6 +186,31 @@ class PlatformSettings(models.Model):
     support_phone = PhoneNumberField(_("support phone"), blank=True)
     support_email = models.EmailField(_("support email"), blank=True)
     legal_notice = models.TextField(_("legal notice"), blank=True)
+    # Adresse et réseaux (WEB.1d) : pied de page et page Démonstration du site, données
+    # structurées (`address`, `sameAs`). Vides : rien d'affiché. Pays : la RDC.
+    address = models.CharField(
+        _("address"), max_length=120, blank=True, help_text=_("Street, number, district.")
+    )
+    city = models.CharField(_("town"), max_length=60, blank=True, default="Goma")
+    region = models.CharField(_("province"), max_length=60, blank=True, default="Nord-Kivu")
+    whatsapp_url = models.URLField(
+        "WhatsApp", blank=True, validators=[platform.SocialLinkValidator("whatsapp_url")]
+    )
+    facebook_url = models.URLField(
+        "Facebook", blank=True, validators=[platform.SocialLinkValidator("facebook_url")]
+    )
+    instagram_url = models.URLField(
+        "Instagram", blank=True, validators=[platform.SocialLinkValidator("instagram_url")]
+    )
+    linkedin_url = models.URLField(
+        "LinkedIn", blank=True, validators=[platform.SocialLinkValidator("linkedin_url")]
+    )
+    youtube_url = models.URLField(
+        "YouTube", blank=True, validators=[platform.SocialLinkValidator("youtube_url")]
+    )
+    tiktok_url = models.URLField(
+        "TikTok", blank=True, validators=[platform.SocialLinkValidator("tiktok_url")]
+    )
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
 
     class Meta:
@@ -215,6 +240,65 @@ class PlatformSettings(models.Model):
     def load(cls) -> "PlatformSettings":
         """La ligne de la plateforme, créée avec les valeurs de départ si elle manque."""
         return cls.objects.get_or_create(pk=1)[0]
+
+    def social_links(self) -> list[tuple[str, str]]:
+        """(Nom du réseau, lien) des réseaux remplis, dans l'ordre de l'identité."""
+        return [
+            (str(self._meta.get_field(field).verbose_name), getattr(self, field))
+            for field in platform.SOCIAL_HOSTS
+            if getattr(self, field)
+        ]
+
+
+class DemoRequest(models.Model):
+    """Demande de démonstration envoyée par le site public (WEB.1d). Donnée de la plateforme, pas
+    d'une école (aucune n'existe encore) : lue par le super-admin dans la console seulement.
+    Aucune adresse IP gardée ; effacée un an après son envoi (`demo_requests.purge`)."""
+
+    class Role(models.TextChoices):
+        PREFECT = "prefect", _("Prefect of studies")
+        PROMOTER = "promoter", _("Promoter")
+        HEAD = "head", _("Head teacher")
+        ACCOUNTANT = "accountant", _("Accountant")
+        OTHER = "other", _("Other")
+
+    class Size(models.TextChoices):
+        SMALL = "lt300", _("Fewer than 300")
+        MEDIUM = "300-800", _("300 to 800")
+        LARGE = "800-1500", _("800 to 1,500")
+        XLARGE = "gt1500", _("More than 1,500")
+
+    class Status(models.TextChoices):
+        NEW = "new", _("New")
+        CALLED = "called", _("Called back")
+        TRIAL = "trial", _("Trial space opened")
+        DROPPED = "dropped", _("No follow-up")
+
+    id = models.UUIDField(primary_key=True, default=uuid7, editable=False)
+    created_at = models.DateTimeField(_("received at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+    name = models.CharField(_("full name"), max_length=120)
+    role = models.CharField(_("role"), max_length=12, choices=Role.choices)
+    school_name = models.CharField(_("school"), max_length=120)
+    town = models.CharField(_("town"), max_length=60)
+    phone = PhoneNumberField(_("phone"))
+    size = models.CharField(_("number of pupils"), max_length=8, choices=Size.choices, blank=True)
+    email = models.EmailField(_("email"), blank=True)
+    message = models.TextField(_("message"), max_length=1000, blank=True)
+    language = models.CharField(_("language"), max_length=2, default="fr")
+    status = models.CharField(
+        _("follow-up"), max_length=8, choices=Status.choices, default=Status.NEW
+    )
+    notes = models.TextField(_("internal note"), max_length=2000, blank=True)
+
+    class Meta:
+        verbose_name = _("demo request")
+        verbose_name_plural = _("demo requests")
+        ordering = ["-created_at"]
+        indexes = [models.Index(fields=["status", "-created_at"], name="demorequest_status")]
+
+    def __str__(self) -> str:
+        return f"{self.school_name} — {self.name}"
 
 
 def print_path(job: "PrintJob", filename: str) -> str:

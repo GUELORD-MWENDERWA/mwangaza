@@ -5,8 +5,10 @@ from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
+from rest_framework import mixins, viewsets
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
@@ -17,9 +19,10 @@ from apps.accounts.permissions import IsPlatformAdmin
 from apps.core import services
 from apps.core.errors import ErrorSerializer
 from apps.core.http import serve_image
-from apps.core.models import PlatformSettings
+from apps.core.models import DemoRequest, PlatformSettings
 from apps.core.platform import png_size
 from apps.core.serializers import (
+    ConsoleDemoRequestSerializer,
     ConsolePlatformSerializer,
     PlatformIconUploadSerializer,
     PlatformLogoUploadSerializer,
@@ -190,3 +193,39 @@ class ConsolePlatformIconView(ConsolePlatformLogoView):
     )
     def post(self, request: Request) -> Response:
         return super().post(request)
+
+
+class DemoRequestPagination(PageNumberPagination):
+    page_size = 20
+
+
+@extend_schema(tags=["console"])
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[OpenApiParameter("status", str, enum=DemoRequest.Status.values)],
+        responses={200: ConsoleDemoRequestSerializer(many=True), **CONSOLE_ERRORS},
+    ),
+    partial_update=extend_schema(responses={200: ConsoleDemoRequestSerializer, **CONSOLE_ERRORS}),
+    destroy=extend_schema(responses={204: None, **CONSOLE_ERRORS}),
+)
+class ConsoleDemoRequestViewSet(
+    mixins.ListModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    """Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
+    d'abord : super-admin seulement, à l'adresse de la console. On change le suivi et la note
+    interne ; on efface une demande quand la personne le demande (sinon : seule après un an)."""
+
+    permission_classes = [IsPlatformAdmin]
+    serializer_class = ConsoleDemoRequestSerializer
+    pagination_class = DemoRequestPagination
+    http_method_names = ["get", "patch", "delete", "head", "options"]
+
+    def get_queryset(self):
+        requests = DemoRequest.objects.all()
+        status = self.request.query_params.get("status")
+        if self.action == "list" and status in DemoRequest.Status.values:
+            requests = requests.filter(status=status)
+        return requests

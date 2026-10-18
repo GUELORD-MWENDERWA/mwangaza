@@ -16,7 +16,7 @@ from apps.accounts.demo import (
     demo_password,
 )
 from apps.accounts.models import User
-from apps.core.demo import create_demo_platform, fill
+from apps.core.demo import create_demo_platform, create_demo_requests, fill
 from apps.core.tenancy import use_all_schools
 from apps.notifications.demo import create_demo_platform_announcements
 from apps.portal.demo import demo_portal
@@ -61,6 +61,7 @@ class Command(BaseCommand):
             fill(spaces)
             if admin is not None:
                 create_demo_platform_announcements(spaces)
+                create_demo_requests()
         for space in spaces:
             school = space.school
             self.stdout.write(f"  {school.code:<8} {school.name} — {school.url}/app/")

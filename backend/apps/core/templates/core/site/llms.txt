@@ -40,8 +40,9 @@
 {% if platform.support_phone %}
 - {% translate "Phone and WhatsApp" %} : {{ platform.support_phone }}{% endif %}{% if platform.support_email %}
 - {% translate "Email" %} : {{ platform.support_email }}{% endif %}
-- {% translate "Goma, North Kivu, Democratic Republic of the Congo" %}
-
+{% if address %}- {% translate "Address" %} : {{ address }}
+{% endif %}{% for name, link in social %}- {{ name }} : {{ link }}
+{% endfor %}
 ## {% translate "Author" %}
 
 {% blocktranslate %}Author: {{ author }} ({{ author_url }}). © {{ copyright }}, all rights reserved.{% endblocktranslate %}

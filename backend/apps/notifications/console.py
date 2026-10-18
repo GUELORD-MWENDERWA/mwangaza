@@ -1,6 +1,7 @@
 """Alertes sur l'écran du super-admin (S.3.2) : chaque usage d'un compte super-admin (entrées
-`access.*` du journal de la plateforme) et chaque session support ouverte dans une école sont
-montrés sur les navigateurs abonnés dans la console, même console fermée.
+`access.*` du journal de la plateforme), chaque session support ouverte dans une école et chaque
+demande de démonstration du site (WEB.1d) sont montrés sur les navigateurs abonnés dans la
+console, même console fermée.
 
 Pas de centre de notifications ni de ligne `Notification` : l'alerte renvoie au journal de la
 console, qui garde tout. L'abonnement survit à la déconnexion et à la fin de la session (2 heures) :
@@ -13,6 +14,7 @@ from django.db import transaction
 from django.db.models import QuerySet
 from django.utils import translation
 from django.utils.text import Truncator
+from django.utils.translation import gettext_lazy as _
 
 from apps.audit.actions import Action, PlatformAction
 from apps.notifications import push
@@ -30,6 +32,10 @@ PAGES = {
     Action.SUPPORT_STARTED: "/journal/support",
 }
 TITLES = {action.value: action.label for action in PAGES}
+# Demande de démonstration (WEB.1d) : pas une entrée du journal, sa propre page.
+DEMO_REQUEST = "demo_request"
+PAGES[DEMO_REQUEST] = "/demo-requests"
+TITLES[DEMO_REQUEST] = _("New demo request")
 
 
 def alert(action: str, entry_id, detail: str) -> None:

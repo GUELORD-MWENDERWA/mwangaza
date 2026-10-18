@@ -20,6 +20,7 @@ import { ConsoleTag } from "./ConsoleTag";
 const MENU = [
   { to: "/", key: "dashboard", end: true },
   { to: "/schools", key: "schools", end: false },
+  { to: "/demo-requests", key: "demoRequests", end: true },
   { to: "/accounts", key: "accounts", end: false },
   { to: "/announcements", key: "announcements", end: true },
   { to: "/identity", key: "identity", end: true },

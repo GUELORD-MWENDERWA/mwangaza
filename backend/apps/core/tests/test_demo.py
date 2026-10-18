@@ -27,7 +27,7 @@ from apps.accounts.roles import STARTER_ROLES
 from apps.audit.models import AuditLog
 from apps.core.crypto import decrypt
 from apps.core.demo import STEPS, fill
-from apps.core.models import PlatformSettings
+from apps.core.models import DemoRequest, PlatformSettings
 from apps.core.tenancy import use_school
 from apps.finance.models import Payment
 from apps.finance.tests.test_payments import pay, school_with_fees
@@ -234,6 +234,8 @@ def rerun_puts_everything_back(demo, settings) -> None:
     platform = PlatformSettings.load()
     assert (platform.name, platform.primary_color) == ("Mwangaza", "#0B5FCC")
     assert platform.support_phone and platform.legal_notice
+    # Demandes de démonstration fictives pour la console (WEB.1d).
+    assert DemoRequest.objects.filter(status=DemoRequest.Status.NEW).count() == 2
     assert School.objects.count() == 2
     assert User.objects.filter(phone="+243000001001").count() == 1
     assert Membership.objects.filter(school=itig).count() == 10

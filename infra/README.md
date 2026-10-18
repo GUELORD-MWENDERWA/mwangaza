@@ -26,6 +26,8 @@ Serveur entier (OPS.2) : instantané automatique Lightsail de tout le disque cha
 
 Boîtes `contact@` et `support@mwangazaschool.com` chez **LWS** (2 comprises dans l'offre du domaine, 1 Go chacune) ; webmail : bouton « Webmail » du panneau LWS (`webmail.mwangazaschool.com` mène au serveur par le joker `*`). L'application n'envoie aucun e-mail (notifications dans l'app et push). DNS chez **Cloudflare**, nuage **gris** sur chaque ligne ; relevé du 2026-10-17 (`dig`), copié de la zone LWS à l'arrivée chez Cloudflare :
 
+**Envoi par l'application (WEB.1d)** : seulement l'alerte d'une demande de démonstration au super-admin, par la boîte `contact@` (SMTP de LWS, port 465, SSL ; serveur `smtp`/`mail` donné par LWS) : `DJANGO_EMAIL_HOST`, `DJANGO_EMAIL_USER`, `DJANGO_EMAIL_PASSWORD` et `DJANGO_ALERT_EMAIL` (destinataire, ta boîte personnelle) dans `serveur.env` (ajoutées vides par `make deploy-init`) ; vides : aucun e-mail. `DJANGO_EMAIL_PORT=587` passe en STARTTLS.
+
 | Type | Nom | Contenu | Rôle |
 |---|---|---|---|
 | MX | `@` | `mail.mwangazaschool.com`, priorité 10 | reçoit le courrier |

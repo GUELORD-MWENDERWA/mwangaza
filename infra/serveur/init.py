@@ -54,14 +54,28 @@ GUNICORN_WORKERS=2
 GUNICORN_THREADS=2
 DJANGO_HSTS_SECONDS=2592000
 DJANGO_LOG_LEVEL=INFO
+# E-mail d'alerte des demandes de démonstration (WEB.1d) : boîte contact@ chez LWS (serveur
+# mail.<domaine>, port 465) et ta boîte personnelle (A-FAIRE.md § 9 nonies). Vides : aucun e-mail.
+DJANGO_EMAIL_HOST=
+DJANGO_EMAIL_USER=
+DJANGO_EMAIL_PASSWORD=
+DJANGO_ALERT_EMAIL=
 """
 
 REQUIRED = ("SERVEUR", "SSH_KEY", "MWANGAZA_DOMAIN", "ACME_EMAIL", "CLOUDFLARE_API_TOKEN")
 # Secrets apparus après la création des premiers `serveur.env`. `POSTGRES_APP_PASSWORD` (S.5) :
 # compte PostgreSQL de l'application, remis à cette valeur à chaque mise en ligne.
 ADDED_LATER = ("POSTGRES_APP_PASSWORD",)
-# Valeurs que l'utilisateur remplit lui-même (PERF.5c) : ajoutées vides à un fichier plus ancien.
-ADDED_EMPTY = ("GHCR_USER", "GHCR_TOKEN")
+# Valeurs que l'utilisateur remplit lui-même (PERF.5c, WEB.1d) : ajoutées vides à un fichier plus
+# ancien.
+ADDED_EMPTY = (
+    "GHCR_USER",
+    "GHCR_TOKEN",
+    "DJANGO_EMAIL_HOST",
+    "DJANGO_EMAIL_USER",
+    "DJANGO_EMAIL_PASSWORD",
+    "DJANGO_ALERT_EMAIL",
+)
 
 
 def read_env() -> dict[str, str]:
@@ -98,7 +112,7 @@ def init() -> None:
             text = ENV_FILE.read_text()
             ENV_FILE.write_text(f"{text.rstrip()}\n{key}=\n")
             values[key] = ""
-            print(f"{key} ajouté (vide) à infra/serveur/serveur.env : A-FAIRE.md § 9 quinquies.")
+            print(f"{key} ajouté (vide) à infra/serveur/serveur.env : voir A-FAIRE.md.")
     missing = [key for key in REQUIRED if not values.get(key)]
     if missing:
         sys.exit(f"Remplis {', '.join(missing)} dans infra/serveur/serveur.env.")

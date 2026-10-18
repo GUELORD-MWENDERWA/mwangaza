@@ -30,7 +30,7 @@ const person = (n: number, last: string, first: string, extra = {}) => ({
   roles: [id(2)],
   is_active: true,
   totp: "enabled",
-  last_login_at: "2026-10-19T05:40:00Z",
+  last_login_at: "2026-09-14T05:40:00Z", // jour passé : une date, pas « aujourd'hui »
   account_managed_here: true,
   created_at: "2026-09-28T08:00:00Z",
   ...extra,

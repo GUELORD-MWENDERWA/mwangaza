@@ -73,7 +73,9 @@ def test_every_page_answers_in_both_languages_and_points_to_the_other(client, db
             response = client.get(paths[lang])
             html = response.content.decode()
             assert response.status_code == 200, (key, lang)
-            assert response["Cache-Control"] == "public, max-age=3600"
+            # La page Démonstration porte le jeton CSRF de son formulaire : jamais gardée.
+            cached = "no-store" if key == "contact" else "public, max-age=3600"
+            assert cached in response["Cache-Control"], key
             assert f'<html lang="{lang}">' in html
             assert f'hreflang="{other}" href="http://testserver{paths[other]}"' in html
             assert "{%" not in html and "{{" not in html  # gabarit mal fermé

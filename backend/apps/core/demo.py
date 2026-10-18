@@ -4,12 +4,15 @@ contact du support et mentions légales fictifs ; les vraies valeurs se saisisse
 paramètres de la plateforme."""
 
 from collections.abc import Callable
+from datetime import timedelta
 
 from django.db import transaction
+from django.utils import timezone
 
 from apps.academics.demo import create_demo_courses, create_demo_grades, create_demo_promotion
 from apps.accounts.demo import create_demo_accounts
-from apps.core.models import PlatformSettings
+from apps.accounts.phone import DEMO_PHONE_PREFIX
+from apps.core.models import DemoRequest, PlatformSettings
 from apps.core.tenancy import use_all_schools
 from apps.finance.demo import (
     create_demo_cancellations,
@@ -76,6 +79,65 @@ def fill(spaces: list[DemoSpace], on_step: Callable[[int, int], None] | None = N
 
 
 DEMO_SUPPORT_PHONE = "+243000000999"
+SOCIAL_FIELDS = (
+    "whatsapp_url",
+    "facebook_url",
+    "instagram_url",
+    "linkedin_url",
+    "youtube_url",
+    "tiktok_url",
+)
+# Demandes de démonstration fictives (WEB.1d) : (heures écoulées, champs). Numéros du bloc fictif.
+DEMO_REQUESTS = [
+    (
+        2,
+        {
+            "name": "MUHINDO KAKULE Jean-Paul",
+            "role": "prefect",
+            "school_name": "Institut Les Volcans",
+            "town": "Goma",
+            "phone": "+243000300001",
+            "size": "300-800",
+            "message": "Nous voulons voir la caisse et les impayés, avec notre comptable.",
+        },
+    ),
+    (
+        20,
+        {
+            "name": "KAVIRA MASIKA Esther",
+            "role": "promoter",
+            "school_name": "Complexe scolaire Mont Goma",
+            "town": "Goma",
+            "phone": "+243000300002",
+            "size": "lt300",
+            "email": "esther.kavira@example.com",
+        },
+    ),
+    (
+        96,
+        {
+            "name": "BAHATI MUSAFIRI Patrick",
+            "role": "head",
+            "school_name": "École primaire Kivu Lumière",
+            "town": "Gisenyi",
+            "phone": "+243000300003",
+            "size": "300-800",
+            "language": "en",
+            "status": "called",
+            "notes": "Rappelé le 15/10 : démonstration en ligne jeudi à 10 h.",
+        },
+    ),
+]
+
+
+def create_demo_requests() -> None:
+    """Demandes de démonstration fictives pour la console, remises comme au départ."""
+    DemoRequest.objects.filter(phone__startswith=DEMO_PHONE_PREFIX).delete()
+    now = timezone.now()
+    for hours, fields in DEMO_REQUESTS:
+        request = DemoRequest.objects.create(**fields)
+        # `auto_now_add` remplit la date à la création : on la recule ensuite.
+        DemoRequest.objects.filter(pk=request.pk).update(created_at=now - timedelta(hours=hours))
 
 
 def create_demo_platform() -> PlatformSettings:
@@ -93,6 +155,8 @@ def create_demo_platform() -> PlatformSettings:
             "icon": "",
             "support_phone": DEMO_SUPPORT_PHONE,
             "support_email": "support@example.com",
+            "address": "Avenue de la Paix n° 1, quartier Les Volcans",
+            **{field: "" for field in SOCIAL_FIELDS},
             "legal_notice": (
                 "Plateforme de démonstration : toutes les données sont fictives.\n"
                 "Éditeur, hébergeur et contact : à compléter dans les paramètres de la plateforme."

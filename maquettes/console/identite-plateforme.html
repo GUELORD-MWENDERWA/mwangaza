@@ -69,6 +69,18 @@ body{background:var(--surface)}
         <label class="f">E-mail du support<span class="inp">support@example.com</span></label>
         <label class="f span2">Mentions légales<span class="inp ta">Données fictives de démonstration. Éditeur, hébergeur et contact à compléter avant la mise en ligne.</span><span class="help">Lien « Mentions légales » des écrans de connexion et du portail.</span></label>
       </div></div>
+      <div class="card"><div class="hd"><h2>Adresse et réseaux sociaux</h2></div><div class="bd grid g2">
+        <label class="f span2">Adresse <span class="help">(rue, numéro, quartier ; facultatif)</span><span class="inp">Avenue du Lac n° 12, quartier Himbi</span></label>
+        <label class="f">Ville<span class="inp">Goma</span></label>
+        <label class="f">Province<span class="inp">Nord-Kivu</span></label>
+        <label class="f">WhatsApp (chaîne ou Business)<span class="inp"><span class="ph">https://whatsapp.com/channel/…</span></span></label>
+        <label class="f">Facebook<span class="inp">https://www.facebook.com/mwangazaschool</span></label>
+        <label class="f">Instagram<span class="inp"><span class="ph">https://www.instagram.com/…</span></span></label>
+        <label class="f">LinkedIn<span class="inp err">https://facebook.com/mwangaza</span><span class="errtxt">Ce lien ne mène pas à LinkedIn (linkedin.com).</span></label>
+        <label class="f">YouTube<span class="inp"><span class="ph">https://www.youtube.com/@…</span></span></label>
+        <label class="f">TikTok<span class="inp"><span class="ph">https://www.tiktok.com/@…</span></span></label>
+        <span class="help span2">Pied de page et page Démonstration du site, profils liés pour les moteurs de recherche. Un lien vide n'est pas affiché.</span>
+      </div></div>
     </div>
     <div class="stack">
       <div class="card preview"><div class="hd"><h2>Aperçu</h2></div><div class="bd col" style="gap:12px">
@@ -84,6 +96,6 @@ body{background:var(--surface)}
         </ul></div>
     </div>
   </div>
-  <div class="note"><b>5.2.2 :</b> super-admin seulement (console, après le code) ; le front ne fait que masquer, le serveur vérifie. Couleur trop claire (texte blanc illisible) ou accent trop sombre sur le menu : refusée avec un message sous le champ (contraste 4,5 : 1). Logo et icône s'enregistrent dès qu'on les choisit ; « Retirer » remet la lampe. Chaque changement va au journal de la plateforme (qui, quand, avant → après), jamais au journal d'une école ; ici, les 5 derniers. L'aperçu suit la saisie avant l'enregistrement. L'administration Django ne montre plus l'identité qu'en lecture.</div>
+  <div class="note"><b>5.2.2 :</b> super-admin seulement (console, après le code) ; le front ne fait que masquer, le serveur vérifie. Couleur trop claire (texte blanc illisible) ou accent trop sombre sur le menu : refusée avec un message sous le champ (contraste 4,5 : 1). Logo et icône s'enregistrent dès qu'on les choisit ; « Retirer » remet la lampe. Chaque changement va au journal de la plateforme (qui, quand, avant → après), jamais au journal d'une école ; ici, les 5 derniers. L'aperçu suit la saisie avant l'enregistrement. L'administration Django ne montre plus l'identité qu'en lecture. <b>WEB.1d :</b> adresse (ville et province préremplies : Goma, Nord-Kivu ; pays : RDC) et six liens de réseaux, chacun en <code>https://</code> sur le domaine du réseau (sinon refusé sous le champ) ; vides = cachés sur le site.</div>
 </main>
 </body></html>

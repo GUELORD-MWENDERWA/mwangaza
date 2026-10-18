@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console — demandes de démonstration — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+/* Console de la plateforme (5.2) : son propre design. Pas de menu latéral comme la Gestion :
+   une barre du haut bleu nuit, la navigation dessous, le contenu sur un fond clair et large. */
+body{background:var(--surface)}
+.ctop{background-color:var(--night);color:var(--night-ink)}
+.ctop .in{max-width:1240px;margin:0 auto;padding:12px 24px 0;display:flex;flex-direction:column;gap:10px}
+.ctop .row1{display:flex;align-items:center;gap:12px}
+.ctop .brand{padding:0}
+.ctop .chip{font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--night);background:var(--lamp);border-radius:var(--r-pill);padding:2px 9px}
+.ctop .grow{flex:1}
+.ctop .state{font-size:.85rem;display:flex;align-items:center;gap:6px;color:#C3CFE0}
+.ctop .state i{width:8px;height:8px;border-radius:50%;background:#4CC38A;display:inline-block}
+.ctop .me{display:flex;align-items:center;gap:8px;font-size:.85rem}
+.ctop .me .avatar{background:var(--night-2);color:var(--lamp)}
+.ctop nav{display:flex;gap:4px;overflow-x:auto}
+.ctop nav a{color:#C3CFE0;text-decoration:none;padding:10px 12px;border-bottom:3px solid transparent;white-space:nowrap;font-size:.92rem}
+.ctop nav a.on{color:#fff;border-bottom-color:var(--lamp);font-weight:700}
+.ctop nav a .soon{font-size:.8rem;color:#7A8699;margin-left:4px}
+.cmain{max-width:1240px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:20px}
+.g4{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.two{display:grid;gap:16px;grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.health li{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem}
+.health li:first-child{border-top:0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.due{background:var(--due)}.dot.off{background:var(--ink-3)}
+@media (max-width:820px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:minmax(0,1fr)}.ctop .state,.ctop .me b{display:none}.cmain,.ctop .in{padding-left:16px;padding-right:16px}}
+.filters{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:#fff}
+.seg span{padding:8px 14px;font-size:.85rem;font-weight:700;color:var(--ink-2)}.seg span.on{background:var(--lake);color:#fff}
+.form{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr));padding:16px}
+dl.brief{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 16px;padding:12px 16px 16px;margin:0;font-size:.92rem}dl.brief dt{color:var(--ink-3)}dl.brief dd{margin:0}
+.pwd{font-family:var(--mono);font-size:1.15rem;background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px 10px}
+@media (max-width:820px){.form{grid-template-columns:minmax(0,1fr)}}
+.roles{display:flex;flex-wrap:wrap;gap:4px}
+.acts{display:flex;flex-direction:column;gap:10px;padding:16px}
+.acts .row{justify-content:space-between;gap:12px;flex-wrap:wrap}
+ul.plain{list-style:none;margin:0;padding:0}ul.plain li{padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}ul.plain li:first-child{border-top:0}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line)}.tabs span{padding:10px 14px;font-weight:700;color:var(--ink-3);border-bottom:3px solid transparent}.tabs span.on{color:var(--ink);border-bottom-color:var(--lake)}
+.grid2{display:grid;gap:16px;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);align-items:start}
+@media (max-width:1100px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.gbanner{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--info-50);color:var(--lake-700);border-bottom:1px solid #C4D8F6;padding:10px 14px;font-size:.92rem}
+.gbanner .txt{flex:1;min-width:0}.gbanner .txt span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
+.news article{padding:14px 16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px}.news article:first-child{border-top:0}
+.req{display:grid;gap:16px;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);padding:16px}
+.req .hdline{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.req dl.brief{padding:0}
+.req .follow{display:flex;flex-direction:column;gap:12px}
+.req .acts2{display:flex;gap:8px;flex-wrap:wrap}
+.reqs{display:flex;flex-direction:column;gap:16px}
+.msg{margin:0;background:var(--surface);border-radius:var(--r-md);padding:10px 12px;font-size:.92rem}
+@media (max-width:820px){.req{grid-template-columns:minmax(0,1fr)}.seg{overflow-x:auto;max-width:100%}.seg span{white-space:nowrap}}
+</style></head>
+<body>
+
+<header class="ctop"><div class="in">
+  <div class="row1"><div class="brand"><span class="mark"></span><b>Mwangaza</b></div><span class="chip">Console</span><span class="grow"></span>
+    <span class="me"><span class="avatar">GM</span><b>Guelord Mwenderwa</b></span></div>
+  <nav><a href="#">Tableau de bord</a><a href="#">Écoles</a><a class="on" href="#">Demandes</a><a href="#">Comptes</a><a href="#">Annonces</a><a href="#">Identité de la plateforme</a><a href="#">Appareils</a><a href="#">Journal</a></nav>
+</div></header>
+<main class="cmain">
+  <div class="pagehead"><div><h1>Demandes de démonstration</h1><p>Envoyées par la page Démonstration du site. Rappelez chaque école, puis notez où elle en est.</p></div></div>
+  <div class="filters"><div class="seg"><span class="on">Nouvelles · 2</span><span>Rappelées</span><span>Espace d'essai ouvert</span><span>Sans suite</span><span>Toutes</span></div></div>
+  <div class="reqs">
+    <article class="card"><div class="req">
+      <div class="col" style="gap:12px">
+        <div class="hdline"><div><h2 style="margin:0;font-size:1.1rem">Institut Les Volcans</h2><span class="muted small">Goma · 300 à 800 élèves · reçue le 18/10/2026 à 09:42 · en français</span></div><span class="pill info">Nouvelle</span></div>
+        <dl class="brief"><dt>Contact</dt><dd><b>MUHINDO KAKULE Jean-Paul, préfet des études</b></dd><dt>Téléphone</dt><dd class="row wrap" style="gap:8px"><span class="mono">+243 97 123 45 67</span><a class="btn sm" href="#"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>Appeler</a><a class="btn sm" href="#"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5 5.4 15.6A8 8 0 1 1 8.4 18.4z"/></svg>WhatsApp</a></dd><dt>E-mail</dt><dd>—</dd></dl>
+        <p class="msg">Nous voulons voir la caisse et les impayés, avec notre comptable.</p>
+      </div>
+      <div class="follow">
+        <label class="f">Suivi<select class="inp"><option selected>Nouvelle</option><option>Rappelée</option><option>Espace d'essai ouvert</option><option>Sans suite</option></select></label>
+        <label class="f">Note interne <span class="help">(vue seulement dans la console)</span><span class="inp" style="min-height:72px;align-items:flex-start"></span></label>
+        <div class="acts2"><a class="btn primary sm" href="#">Enregistrer</a><a class="btn sm ghost" href="#">Créer l'espace d'essai</a><a class="btn sm ghost danger" href="#" style="margin-left:auto">Effacer</a></div>
+      </div>
+    </div></article>
+    <article class="card"><div class="req">
+      <div class="col" style="gap:12px">
+        <div class="hdline"><div><h2 style="margin:0;font-size:1.1rem">Complexe scolaire Mont Goma</h2><span class="muted small">Goma · moins de 300 élèves · reçue le 17/10/2026 à 16:05 · en français</span></div><span class="pill info">Nouvelle</span></div>
+        <dl class="brief"><dt>Contact</dt><dd><b>KAVIRA MASIKA Esther, promotrice</b></dd><dt>Téléphone</dt><dd class="row wrap" style="gap:8px"><span class="mono">+243 81 555 20 14</span><a class="btn sm" href="#"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>Appeler</a><a class="btn sm" href="#"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5 5.4 15.6A8 8 0 1 1 8.4 18.4z"/></svg>WhatsApp</a></dd><dt>E-mail</dt><dd>esther.kavira@example.com</dd></dl>
+        <span class="muted small">Pas de message.</span>
+      </div>
+      <div class="follow">
+        <label class="f">Suivi<select class="inp"><option selected>Nouvelle</option><option>Rappelée</option><option>Espace d'essai ouvert</option><option>Sans suite</option></select></label>
+        <label class="f">Note interne <span class="help">(vue seulement dans la console)</span><span class="inp" style="min-height:72px;align-items:flex-start"></span></label>
+        <div class="acts2"><a class="btn primary sm" href="#">Enregistrer</a><a class="btn sm ghost" href="#">Créer l'espace d'essai</a><a class="btn sm ghost danger" href="#" style="margin-left:auto">Effacer</a></div>
+      </div>
+    </div></article>
+  </div>
+  <div class="card"><div class="ft"><span class="small muted">2 demandes</span><span><a class="btn sm" href="#">Précédent</a> <a class="btn sm" href="#">Suivant</a></span></div></div>
+  <div class="card"><div class="bd" style="padding:24px;text-align:center"><b>Aucune demande dans ce suivi.</b><p class="muted small" style="margin:4px 0 0">Les demandes envoyées par le site arrivent ici, et sur l'écran si les alertes sont activées (Journal).</p></div></div>
+  <div class="note"><b>WEB.1d :</b> super-admin seulement (le serveur vérifie). Plus récentes d'abord, 20 par page ; « Nouvelles » s'ouvre par défaut, avec leur nombre. Chaque nouvelle demande prévient les super-admin abonnés (alerte sur l'écran, comme les connexions du Journal) et l'adresse d'alerte du serveur par e-mail, si elle est réglée. Suivi : nouvelle → rappelée → espace d'essai ouvert ou sans suite ; note interne libre, jamais montrée à l'école. « Créer l'espace d'essai » ouvre Nouvelle école. « Effacer » (la personne le demande) supprime la demande, après confirmation. Toute demande est effacée seule un an après son envoi (confidentialité). Rien n'est envoyé à un service tiers. Carte « Aucune demande » : état vide, montré à la place de la liste. Données fictives.</div>
+</main>
+</body></html>

@@ -382,6 +382,7 @@ CONSOLE = [
     ("appareils", "Appareils", "V1.1", "5.4.2", True),
     ("journal", "Journal (et sessions support)", "V1.1", "5.4.2", True),
     ("annonces", "Annonces aux écoles (et bandeau de la Gestion)", "V1.1", "5.4.3", True),
+    ("demandes", "Demandes de démonstration (site public)", "Lancement", "WEB.1d", True),
 ]
 
 
@@ -446,7 +447,12 @@ def site_footer() -> str:
         '<ul class="sfcontact">'
         f'<li><a href="https://wa.me/243970000000">{ic("chat", 18)} WhatsApp +243 97 000 00 00</a></li>'
         f'<li><a href="mailto:contact@mwangazaschool.com">{ic("mail", 18)} contact@mwangazaschool.com</a></li>'
-        f'<li>{ic("pin", 18)} Goma, Nord-Kivu, RDC</li></ul></div>'
+        f'<li>{ic("pin", 18)} Goma, Nord-Kivu, RDC</li></ul>'
+        # Réseaux de la plateforme (WEB.1d) : lus dans son identité, un lien vide n'apparaît pas.
+        '<ul class="sfsocial" aria-label="Réseaux sociaux">'
+        '<li><a href="https://www.facebook.com/" rel="me noopener">Facebook</a></li>'
+        '<li><a href="https://www.linkedin.com/" rel="me noopener">LinkedIn</a></li>'
+        '<li><a href="https://www.youtube.com/" rel="me noopener">YouTube</a></li></ul></div>'
         + col("Le logiciel", [("ecoles.html", "Pour les écoles"), ("parents.html", "Pour les parents"),
                               ("modules.html", "Modules"), ("accueil.html#questions", "Questions fréquentes")])
         + col("Accès", [("trouver-mon-ecole.html", "Trouver mon école"),

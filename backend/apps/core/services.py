@@ -18,6 +18,15 @@ TEXT_FIELDS = (
     "support_phone",
     "support_email",
     "legal_notice",
+    "address",
+    "city",
+    "region",
+    "whatsapp_url",
+    "facebook_url",
+    "instagram_url",
+    "linkedin_url",
+    "youtube_url",
+    "tiktok_url",
 )
 FILE_ACTIONS = {
     "logo": PlatformAction.PLATFORM_LOGO_CHANGED,

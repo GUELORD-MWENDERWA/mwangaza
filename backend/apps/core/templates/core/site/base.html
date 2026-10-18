@@ -71,8 +71,9 @@
         <ul class="sfcontact">
           {% if whatsapp %}<li><a href="{{ whatsapp }}" rel="noopener">{% icon "chat" %} WhatsApp {{ phone }}</a></li>{% endif %}
           {% if platform.support_email %}<li><a href="mailto:{{ platform.support_email }}">{% icon "mail" %} {{ platform.support_email }}</a></li>{% endif %}
-          <li>{% icon "pin" %} {% translate "Goma, North Kivu, DRC" %}</li>
+          {% if address %}<li>{% icon "pin" %} {{ address }}</li>{% endif %}
         </ul>
+        {% if social %}<ul class="sfsocial" aria-label="{% translate "Social networks" %}">{% for name, link in social %}<li><a href="{{ link }}" rel="me noopener">{{ name }}</a></li>{% endfor %}</ul>{% endif %}
       </div>
       <div>
         <h2>{% translate "The software" %}</h2>
