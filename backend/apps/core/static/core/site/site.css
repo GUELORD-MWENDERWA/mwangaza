@@ -379,16 +379,16 @@ a.sc:hover{transform:translateY(-3px);box-shadow:var(--shadow-raised);border-col
 .btab th{font-size:.7rem;font-weight:700}
 .btab .nm{text-align:left;width:38%;white-space:normal}
 .btab tr.mx td,.btab tr.b td{font-weight:700}
-.btab td.k{background:#000}
-.bfoot{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:6px 8px}
+.btab tr td.k{background:#000}
+.bfoot{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:6px 8px 26px}
 .bscan{font-size:.7rem;color:#333;max-width:45%}
 .bsign{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.72rem;text-align:center}
 .bsign svg{width:110px;height:30px}
-.bok{position:absolute;right:-12px;top:44%;display:flex;gap:10px;align-items:center;background:#fff;border:2px solid var(--ok);color:var(--ok);border-radius:12px;padding:8px 14px 8px 10px;box-shadow:var(--shadow-float);font-family:"Atkinson Hyperlegible Next",system-ui,sans-serif;line-height:1.3;transform:rotate(-4deg)}
+.bok{position:absolute;right:-12px;bottom:-22px;display:flex;gap:10px;align-items:center;background:#fff;border:2px solid var(--ok);color:var(--ok);border-radius:12px;padding:8px 14px 8px 10px;box-shadow:var(--shadow-float);font-family:"Atkinson Hyperlegible Next",system-ui,sans-serif;line-height:1.3;transform:rotate(-4deg)}
 .bok .ic{width:28px;height:28px;background:var(--ok);color:#fff;border-radius:50%;padding:5px}
 .bok b{display:block;font-size:.95rem}
 .bok small{color:var(--ink-2);font-size:.78rem}
-@media (max-width:599px){.bul{padding:8px;font-size:.66rem}.btop{gap:6px;padding:6px}.btop .flag{width:36px;height:24px}.bstate{font-size:.62rem}.bqr{width:44px;height:44px}.btab th{font-size:.56rem}.btab th,.btab td{padding:2px 1px}.bok{right:6px;top:auto;bottom:64px;padding:6px 10px 6px 8px}.bok b{font-size:.85rem}}
+@media (max-width:599px){.bul{padding:8px;font-size:.66rem}.btop{gap:6px;padding:6px}.btop .flag{width:36px;height:24px}.bstate{font-size:.62rem}.bqr{width:44px;height:44px}.btab th{font-size:.56rem}.btab th,.btab td{padding:2px 1px}.bok{right:4px;bottom:-20px;padding:6px 10px 6px 8px}.bok b{font-size:.85rem}}
 /* Le script ajoute .anim (valeurs cachées) puis .play quand le bulletin est à l'écran ; sans lui, ou
    avec prefers-reduced-motion : bulletin rempli, immobile. */
 .bul.anim:not(.play) .pt{opacity:0}

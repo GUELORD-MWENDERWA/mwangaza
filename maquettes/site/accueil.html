@@ -94,28 +94,47 @@
         <li><svg class="ic" data-ic="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5 10-11"/></svg>Code QR : parent ou autre école vérifie qu'il n'est pas falsifié</li>
       </ul>
     </div>
-    <div class="bul rv" role="img" aria-label="Exemple de bulletin : les points se remplissent, le total, le pourcentage et la place se calculent, puis le code QR d'authenticité apparaît">
-      <div class="bulhd"><span class="mark sm"></span><div><b>INSTITUT LES VOLCANS</b><small>Bulletin de l'élève · 1re période</small></div><span class="bulno">N° 2026-0412</span></div>
-      <div class="bulst"><span>Élève <b>KAMBALE Josué</b></span><span>Classe <b>3HT Électricité A</b></span></div>
-      <table class="bult">
-        <thead><tr><th>Cours</th><th>Max</th><th>Points</th></tr></thead>
-        <tbody>
-          <tr><td>Mathématiques</td><td>40</td><td><span class="pt" style="--i:1">32</span></td></tr>
-          <tr><td>Électricité</td><td>60</td><td><span class="pt" style="--i:2">51</span></td></tr>
-          <tr><td>Français</td><td>20</td><td><span class="pt" style="--i:3">14</span></td></tr>
-          <tr><td>Dessin technique</td><td>20</td><td><span class="pt" style="--i:4">17</span></td></tr>
-          <tr><td>Conduite</td><td>10</td><td><span class="pt" style="--i:5">8</span></td></tr>
-        </tbody>
-        <tfoot><tr><td>Total</td><td>150</td><td><span class="pt" style="--i:6">122</span></td></tr></tfoot>
-      </table>
-      <div class="bulres">
-        <div><small>Pourcentage</small><b class="pt" style="--i:7">81,3 %</b></div>
-        <div><small>Place</small><b class="pt" style="--i:8">3<sup>e</sup> / 42</b></div>
-        <div class="bulqr pt" style="--i:9"><svg class="ic qrbig" data-ic="qr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="14.5" y="3.5" width="6" height="6" rx="1"/><rect x="3.5" y="14.5" width="6" height="6" rx="1"/><path d="M14.5 14.5h2v2h-2zM18.5 18.5h2v2h-2zM18.5 14.5h2M14.5 18.5v2"/></svg><span><b>Authentique</b><small>vérifié par code QR</small></span></div>
+    <div class="bul rv" id="bulletin" role="img" aria-label="Exemple de bulletin au format officiel : les points se remplissent, les totaux, le pourcentage et la place se calculent, puis le code QR prouve qu'il est authentique">
+      <div class="btop"><svg class="flag" viewBox="0 0 30 20" aria-hidden="true">
+      <rect width="30" height="20" fill="#00A3E0"/>
+      <polygon points="0,16.6 24.9,0 30,0 30,3.4 5.1,20 0,20" fill="#F7D618"/>
+      <polygon points="0,17.8 26.7,0 30,0 30,2.2 3.3,20 0,20" fill="#CE1021"/>
+      <polygon points="6,2.4 6.9,4.7 9.4,4.8 7.4,6.3 8.1,8.7 6,7.3 3.9,8.7 4.6,6.3 2.6,4.8 5.1,4.7" fill="#F7D618"/>
+    </svg><div class="bstate">RÉPUBLIQUE DÉMOCRATIQUE DU CONGO<br>MINISTÈRE DE L'ENSEIGNEMENT PRIMAIRE, SECONDAIRE ET TECHNIQUE</div><span class="bqr"><svg class="qrimg" data-ic="qr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="14.5" y="3.5" width="6" height="6" rx="1"/><rect x="3.5" y="14.5" width="6" height="6" rx="1"/><path d="M14.5 14.5h2v2h-2zM18.5 18.5h2v2h-2zM18.5 14.5h2M14.5 18.5v2"/></svg><i class="scan"></i></span></div>
+      <div class="bline"><b>PROVINCE :</b> NORD-KIVU</div>
+      <div class="btwo">
+        <div><p><b>VILLE :</b> <u>Goma</u></p><p><b>ÉCOLE :</b> <u>ITIG DON BOSCO GOMA</u></p></div>
+        <div><p><b>ÉLÈVE :</b> <u>KAMBALE JOSUÉ</u> <b>SEXE :</b> M</p><p><b>CLASSE :</b> <u>3e Électricité A</u></p></div>
       </div>
+      <div class="btitle"><span>BULLETIN DE LA 3e ÉLECTRICITÉ</span><span>ANNÉE SCOLAIRE 2025-2026</span></div>
+      <table class="btab">
+        <thead><tr><th rowspan="2" class="nm">BRANCHES</th><th colspan="4">PREMIER SEMESTRE</th></tr><tr><th>1ère P.</th><th>2e P.</th><th>EXAM.</th><th>TOT.</th></tr></thead>
+        <tbody>
+          <tr class="mx"><td class="nm">MAXIMA</td><td>10</td><td>10</td><td>20</td><td>40</td></tr>
+          <tr><td class="nm">Religion</td><td><span class="pt" style="--i:1">7</span></td><td><span class="pt" style="--i:2">8</span></td><td><span class="pt" style="--i:3">15</span></td><td><span class="pt" style="--i:4">30</span></td></tr>
+          <tr><td class="nm">Français</td><td><span class="pt" style="--i:5">6</span></td><td><span class="pt" style="--i:6">7,5</span></td><td><span class="pt" style="--i:7">13</span></td><td><span class="pt" style="--i:8">26,5</span></td></tr>
+          <tr class="mx"><td class="nm">MAXIMA</td><td>20</td><td>20</td><td>40</td><td>80</td></tr>
+          <tr><td class="nm">Mathématiques</td><td><span class="pt" style="--i:9">15</span></td><td><span class="pt" style="--i:10">16</span></td><td><span class="pt" style="--i:11">31</span></td><td><span class="pt" style="--i:12">62</span></td></tr>
+          <tr><td class="nm">Électricité</td><td><span class="pt" style="--i:13">17</span></td><td><span class="pt" style="--i:14">15,5</span></td><td><span class="pt" style="--i:15">33</span></td><td><span class="pt" style="--i:16">65,5</span></td></tr>
+          <tr class="mx"><td class="nm">MAXIMA</td><td>50</td><td>50</td><td class="k"></td><td>100</td></tr>
+          <tr><td class="nm">Atelier électrique</td><td><span class="pt" style="--i:17">42</span></td><td><span class="pt" style="--i:18">44</span></td><td class="k"></td><td><span class="pt" style="--i:19">86</span></td></tr>
+        </tbody>
+        <tfoot>
+          <tr class="mx"><td class="nm">MAXIMA GÉNÉRAUX</td><td>110</td><td>110</td><td>120</td><td>340</td></tr>
+          <tr class="b"><td class="nm">TOTAUX</td><td><span class="pt" style="--i:21">87</span></td><td><span class="pt" style="--i:21">91</span></td><td><span class="pt" style="--i:21">92</span></td><td><span class="pt" style="--i:21">270</span></td></tr>
+          <tr><td class="nm">POURCENTAGE</td><td><span class="pt" style="--i:23">79,1</span></td><td><span class="pt" style="--i:23">82,7</span></td><td><span class="pt" style="--i:23">76,7</span></td><td><span class="pt" style="--i:23">79,4</span></td></tr>
+          <tr><td class="nm">PLACE / NBRE D'ÉLÈVES</td><td><span class="pt" style="--i:25">4e/42</span></td><td><span class="pt" style="--i:25">2e/42</span></td><td><span class="pt" style="--i:25">5e/42</span></td><td><span class="pt" style="--i:25">3e/42</span></td></tr>
+          <tr><td class="nm">CONDUITE</td><td><span class="pt" style="--i:27">TB</span></td><td><span class="pt" style="--i:27">B</span></td><td class="k"></td><td class="k"></td></tr>
+        </tfoot>
+      </table>
+      <div class="bfoot">
+        <p class="bscan">Scannez le QR code pour vérifier ce bulletin.</p>
+        <div class="bsign"><span>Fait à Goma, le 08/11/2025</span><span>Le chef d'établissement</span><svg class="pt" style="--i:29" viewBox="0 0 120 34" aria-hidden="true"><path d="M4 24c10-14 16-16 18-8s-4 12 2 6 10-18 16-12-2 12 4 10 8-14 14-10 4 10 10 6 12-8 18-4 10 4 26-2" fill="none" stroke="#1d3a8a" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+      </div>
+      <div class="bok pt" style="--i:38"><svg class="ic" data-ic="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5 10-11"/></svg><span><b>Bulletin authentique</b><small>vérifié par code QR, signé par l'école</small></span></div>
     </div>
   </div>
-  <div class="wrap"><div class="note"><b>Animation 8 — montrer le calcul du bulletin (demandée le 2026-10-18) :</b> bulletin dessiné en HTML (pas une image), au format du vrai bulletin (8.3) : les points apparaissent cours par cours, puis le total, le pourcentage, la place, et le cachet « Authentique » avec le code QR (<code>/v/b/…</code>, 8.3.2) ; la séquence (≈ 5 s) recommence après une pause tant que le bulletin est à l'écran. Sans JavaScript ou avec <code>prefers-reduced-motion</code> : bulletin rempli, immobile. Données fictives, total juste (122 / 150 = 81,3 %).</div></div>
+  <div class="wrap"><div class="note"><b>Animation 8 — montrer le calcul du bulletin (demandée le 2026-10-18) :</b> bulletin dessiné en HTML (pas une image), <b>au format officiel de l'EPST</b>, comme le PDF de Mwangaza (<code>academics/report_card.html</code>, 8.3.3) et <b>au nom de l'ITIG</b> (demandé le 2026-10-18) : les points apparaissent case par case, puis les totaux, le pourcentage, la place, la conduite, la signature ; une ligne verte balaie le code QR et la carte « Bulletin authentique » apparaît (<code>/v/b/…</code>, 8.3.2) ; la séquence (≈ 6 s) recommence après une pause tant que le bulletin est à l'écran. Sans JavaScript ou avec <code>prefers-reduced-motion</code> : bulletin rempli, immobile. Élève et points fictifs, calculs justes (270 / 340 = 79,4 %). Le QR du site mène à cette section (rien d'une vraie école).</div></div>
 </section>
 
 <section class="sec alt">
