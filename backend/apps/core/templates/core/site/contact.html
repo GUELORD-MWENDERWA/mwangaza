@@ -1,0 +1,37 @@
+{% extends "core/site/base.html" %}{% load i18n site_tags %}
+{% block main %}
+<section class="phero">
+  <div class="wrap">
+    <span class="eyebrow">{% translate "Demo and contact" %}</span>
+    <h1 class="display">{% blocktranslate trimmed with name=platform.name %}See {{ name }} with your school{% endblocktranslate %}</h1>
+    <p class="lead">{% translate "Tell us who you are: we call you back to set up a demo, online or at your school in Goma, with your classes and your fees." %}</p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap dgrid">
+    <div class="card reach">
+      <h2>{% translate "Request a demo" %}</h2>
+      <p class="muted">{% translate "Write to us with your name, your role, your school and its town: we answer in French or in English." %}</p>
+      <div class="contacts">
+        {% if whatsapp %}<a href="{{ whatsapp }}" rel="noopener"><span class="chipic">{% icon "chat" %}</span><span><small>WhatsApp</small><b>{{ phone }}</b></span></a>
+        <a href="tel:{{ platform.support_phone }}"><span class="chipic">{% icon "phone" %}</span><span><small>{% translate "Phone" %}</small><b>{{ phone }}</b></span></a>{% endif %}
+        {% if platform.support_email %}<a href="mailto:{{ platform.support_email }}"><span class="chipic">{% icon "mail" %}</span><span><small>{% translate "Email" %}</small><b>{{ platform.support_email }}</b></span></a>{% endif %}
+        <div><span class="chipic">{% icon "pin" %}</span><span><small>{% translate "Address" %}</small><b>{% translate "Goma, North Kivu, DRC" %}</b></span></div>
+      </div>
+      {% if whatsapp %}<div><a class="btn primary lg" href="{{ whatsapp }}" rel="noopener">{% icon "chat" %}{% translate "Write on WhatsApp" %}</a></div>{% endif %}
+    </div>
+    <aside class="col" style="gap:24px">
+      <div>
+        <h2 style="font-size:1.15rem;margin-bottom:14px">{% translate "What happens next" %}</h2>
+        <ol class="after">
+          <li><span><b>{% translate "We call you back" %}</b>{% translate "to understand your school: classes, fees, how parents pay." %}</span></li>
+          <li><span><b>{% translate "Demo" %}</b>{% translate "online or at your school, with your management and your accountant." %}</span></li>
+          <li><span><b>{% translate "Trial space" %}</b>{% translate "with your classes and fees, to try without risk." %}</span></li>
+        </ol>
+      </div>
+      <figure class="photo">{% translate "ITIG Don Bosco Goma students gathered in the courtyard, in front of the flag" as alt %}{% photo "itig-cour" alt %}</figure>
+    </aside>
+  </div>
+</section>
+{% endblock %}

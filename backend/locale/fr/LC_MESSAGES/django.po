@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-17 12:16+0200\n"
+"POT-Creation-Date: 2026-10-18 22:17+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -116,11 +116,11 @@ msgstr "Cet élève a des notes : son pourcentage se calcule d'après elles."
 msgid "A percentage is a number from 0 to 100."
 msgstr "Un pourcentage est un nombre de 0 à 100."
 
-#: apps/academics/demo.py:470
+#: apps/academics/demo.py:473
 msgid "Improved behaviour after a talk with the parents"
 msgstr "Comportement amélioré après un entretien avec les parents"
 
-#: apps/academics/demo.py:480
+#: apps/academics/demo.py:483
 msgid "Very attentive in class, grade raised by the homeroom teacher"
 msgstr "Très attentif en classe, cote relevée par le titulaire"
 
@@ -232,6 +232,7 @@ msgid "T.G."
 msgstr "T.G."
 
 #: apps/academics/gradebook.py:37 apps/academics/report_card_documents.py:137
+#: apps/core/templates/core/site/home.html:96
 msgid "EXAM."
 msgstr "EXAM."
 
@@ -715,6 +716,7 @@ msgstr "NOM"
 
 #: apps/academics/prior_results.py:350
 #: apps/academics/templates/academics/report_card.html:91
+#: apps/core/templates/core/site/home.html:92
 #: apps/finance/prior_payments.py:379
 msgid "CLASS"
 msgstr "CLASSE"
@@ -725,6 +727,7 @@ msgstr "DÉCISION"
 
 #: apps/academics/prior_results.py:352
 #: apps/academics/templates/academics/report_card.html:125
+#: apps/core/templates/core/site/home.html:110
 msgid "PERCENTAGE"
 msgstr "POURCENTAGE"
 
@@ -785,6 +788,7 @@ msgid "TERM"
 msgstr "TRIMESTRE"
 
 #: apps/academics/report_card_documents.py:119
+#: apps/core/templates/core/site/home.html:96
 msgid "1st P."
 msgstr "1ère P."
 
@@ -794,6 +798,7 @@ msgid "P%(n)d"
 msgstr "%(n)de P."
 
 #: apps/academics/report_card_documents.py:135
+#: apps/core/templates/core/site/home.html:96
 msgid "TOT."
 msgstr "TOT."
 
@@ -855,7 +860,7 @@ msgstr "Pour témoignage"
 #: apps/academics/templates/academics/_report_card_side.html:2
 #: apps/academics/templates/academics/report_card.html:144
 #: apps/academics/templates/academics/situation.html:216
-#: apps/schools/signatures.py:68
+#: apps/core/templates/core/site/home.html:117 apps/schools/signatures.py:68
 msgid "The head of the school"
 msgstr "Le chef d'établissement"
 
@@ -952,7 +957,6 @@ msgstr "Provisoire : des notes ne sont pas encore validées."
 #: apps/academics/templates/academics/grade_sheet.html:36
 #: apps/academics/templates/academics/grade_sheet.html:64
 #: apps/core/templates/core/_document_header.html:14
-#: apps/core/templates/core/site/home.html:201
 #: apps/finance/templates/finance/unpaid.html:25 apps/students/documents.py:222
 #: apps/students/templates/students/class_list.html:16
 msgid "No."
@@ -1037,11 +1041,13 @@ msgstr[1] ""
 "peut pas s'imprimer tant qu'elles ne le sont pas."
 
 #: apps/academics/templates/academics/report_card.html:76
+#: apps/core/templates/core/site/home.html:88
 msgid "DEMOCRATIC REPUBLIC OF THE CONGO"
 msgstr "RÉPUBLIQUE DÉMOCRATIQUE DU CONGO"
 
 #: apps/academics/templates/academics/report_card.html:76
 #: apps/core/templates/core/_document_header.html:6
+#: apps/core/templates/core/site/home.html:88
 msgid "MINISTRY OF PRIMARY, SECONDARY AND TECHNICAL EDUCATION"
 msgstr "MINISTÈRE DE L'ENSEIGNEMENT PRIMAIRE, SECONDAIRE ET TECHNIQUE"
 
@@ -1050,10 +1056,12 @@ msgid "ID NO."
 msgstr "N° ID"
 
 #: apps/academics/templates/academics/report_card.html:80
+#: apps/core/templates/core/site/home.html:89
 msgid "PROVINCE"
 msgstr "PROVINCE"
 
 #: apps/academics/templates/academics/report_card.html:83
+#: apps/core/templates/core/site/home.html:91
 msgid "TOWN"
 msgstr "VILLE"
 
@@ -1062,6 +1070,7 @@ msgid "COMMUNE / TERRITORY"
 msgstr "COMMUNE / TERRITOIRE"
 
 #: apps/academics/templates/academics/report_card.html:85
+#: apps/core/templates/core/site/home.html:91
 msgid "SCHOOL"
 msgstr "ÉCOLE"
 
@@ -1070,11 +1079,13 @@ msgid "CODE"
 msgstr "CODE"
 
 #: apps/academics/templates/academics/report_card.html:89
+#: apps/core/templates/core/site/home.html:92
 #: apps/students/templates/students/registration_form.html:21
 msgid "STUDENT"
 msgstr "ÉLÈVE"
 
 #: apps/academics/templates/academics/report_card.html:89
+#: apps/core/templates/core/site/home.html:92
 msgid "SEX"
 msgstr "SEXE"
 
@@ -1091,14 +1102,17 @@ msgid "PERM. NO."
 msgstr "N° PERM."
 
 #: apps/academics/templates/academics/report_card.html:95
+#: apps/core/templates/core/site/home.html:94
 msgid "REPORT CARD OF"
 msgstr "BULLETIN DE LA"
 
 #: apps/academics/templates/academics/report_card.html:95
+#: apps/core/templates/core/site/home.html:94
 msgid "SCHOOL YEAR"
 msgstr "ANNÉE SCOLAIRE"
 
 #: apps/academics/templates/academics/report_card.html:102
+#: apps/core/templates/core/site/home.html:96
 msgid "SUBJECTS"
 msgstr "BRANCHES"
 
@@ -1115,18 +1129,24 @@ msgid "Teacher's sign."
 msgstr "Sign. prof."
 
 #: apps/academics/templates/academics/report_card.html:113
+#: apps/core/templates/core/site/home.html:98
+#: apps/core/templates/core/site/home.html:101
+#: apps/core/templates/core/site/home.html:104
 msgid "MAXIMA"
 msgstr "MAXIMA"
 
 #: apps/academics/templates/academics/report_card.html:121
+#: apps/core/templates/core/site/home.html:108
 msgid "GENERAL MAXIMA"
 msgstr "MAXIMA GÉNÉRAUX"
 
 #: apps/academics/templates/academics/report_card.html:124
+#: apps/core/templates/core/site/home.html:109
 msgid "TOTALS"
 msgstr "TOTAUX"
 
 #: apps/academics/templates/academics/report_card.html:126
+#: apps/core/templates/core/site/home.html:111
 msgid "PLACE / NUMBER OF STUDENTS"
 msgstr "PLACE / NBRE D'ÉLÈVES"
 
@@ -1135,6 +1155,7 @@ msgid "APPLICATION"
 msgstr "APPLICATION"
 
 #: apps/academics/templates/academics/report_card.html:128
+#: apps/core/templates/core/site/home.html:112
 msgid "CONDUCT"
 msgstr "CONDUITE"
 
@@ -1166,6 +1187,7 @@ msgid "Student's signature"
 msgstr "Signature de l'élève"
 
 #: apps/academics/templates/academics/report_card.html:143
+#: apps/core/templates/core/site/home.html:117
 #, python-format
 msgid "Done at %(city)s, on %(date)s"
 msgstr "Fait à %(city)s, le %(date)s"
@@ -1196,6 +1218,7 @@ msgstr ""
 "prévues par la loi."
 
 #: apps/academics/templates/academics/report_card.html:150
+#: apps/core/templates/core/site/home.html:116
 msgid "Scan the QR code to check this report card."
 msgstr "Scannez le QR code pour vérifier ce bulletin."
 
@@ -1239,8 +1262,7 @@ msgstr "École"
 
 #: apps/academics/templates/academics/report_card_verification.html:20
 #: apps/academics/templates/academics/situation.html:194
-#: apps/core/templates/core/site/home.html:205 apps/finance/documents.py:145
-#: apps/finance/documents.py:400
+#: apps/finance/documents.py:145 apps/finance/documents.py:400
 #: apps/finance/templates/finance/receipt_register.html:27
 #: apps/finance/templates/finance/receipt_verification.html:73
 #: apps/finance/templates/finance/statement.html:24
@@ -1423,8 +1445,7 @@ msgstr "Lauréat de l'école :"
 
 #: apps/academics/templates/academics/situation.html:123
 #: apps/academics/templates/academics/situation.html:193
-#: apps/core/templates/core/site/home.html:206 apps/finance/documents.py:143
-#: apps/finance/documents.py:401
+#: apps/finance/documents.py:143 apps/finance/documents.py:401
 #: apps/finance/templates/finance/receipt_register.html:28
 #: apps/finance/templates/finance/statement.html:25
 #: apps/finance/templates/finance/unpaid.html:27
@@ -1491,7 +1512,7 @@ msgstr "Vous ne pouvez pas imprimer le tableau de cette classe."
 msgid "Name"
 msgstr "Nom"
 
-#: apps/accounts/admin.py:67
+#: apps/accounts/admin.py:67 apps/core/templates/core/site/base.html:84
 msgid "Access"
 msgstr "Accès"
 
@@ -1533,7 +1554,8 @@ msgstr ""
 "Numéro ou mot de passe incorrect, ou ce n'est pas un compte d'administration "
 "de la plateforme."
 
-#: apps/accounts/admin_site.py:39 apps/finance/documents.py:147
+#: apps/accounts/admin_site.py:39 apps/core/templates/core/site/contact.html:18
+#: apps/finance/documents.py:147
 #: apps/students/templates/students/registration_form.html:35
 msgid "Phone"
 msgstr "Téléphone"
@@ -1763,9 +1785,8 @@ msgstr "Annonces"
 msgid "Courses, grades and report cards"
 msgstr "Cours, notes et bulletins"
 
-#: apps/accounts/modules.py:40 apps/core/site.py:115
-#: apps/core/templates/core/site/home.html:196 apps/notifications/models.py:230
-#: apps/portal/apps.py:10
+#: apps/accounts/modules.py:40 apps/core/site.py:151
+#: apps/notifications/models.py:230 apps/portal/apps.py:10
 msgid "Parent portal"
 msgstr "Portail des parents"
 
@@ -1915,11 +1936,17 @@ msgstr "Directeur des études"
 msgid "Discipline master"
 msgstr "Directeur de discipline"
 
-#: apps/accounts/roles.py:171
+#: apps/accounts/roles.py:171 apps/core/templates/core/site/home.html:129
+#: apps/core/templates/core/site/schools.html:12
+#: apps/core/templates/core/site/schools.html:42
 msgid "Accountant"
 msgstr "Comptable"
 
-#: apps/accounts/roles.py:186 apps/finance/documents.py:68
+#: apps/accounts/roles.py:186 apps/core/templates/core/site/home.html:65
+#: apps/core/templates/core/site/home.html:66
+#: apps/core/templates/core/site/home.html:130
+#: apps/core/templates/core/site/schools.html:13
+#: apps/core/templates/core/site/schools.html:59 apps/finance/documents.py:68
 #: apps/finance/documents.py:404
 #: apps/finance/templates/finance/receipt_register.html:30
 msgid "Cashier"
@@ -1933,11 +1960,13 @@ msgstr "Secrétaire"
 msgid "Promoter"
 msgstr "Promoteur"
 
-#: apps/accounts/roles.py:207
+#: apps/accounts/roles.py:207 apps/core/templates/core/site/home.html:68
+#: apps/core/templates/core/site/home.html:131
+#: apps/core/templates/core/site/schools.html:14
 msgid "Teacher"
 msgstr "Enseignant"
 
-#: apps/accounts/roles.py:208
+#: apps/accounts/roles.py:208 apps/core/templates/core/site/home.html:67
 #: apps/schools/templates/schools/access_sheet.html:36
 msgid "Parent"
 msgstr "Parent"
@@ -2985,12 +3014,12 @@ msgstr "Trop de documents en préparation"
 msgid "Wait for the documents already requested to finish, then try again."
 msgstr "Attendez la fin des documents déjà demandés, puis réessayez."
 
-#: apps/core/site.py:59
+#: apps/core/site.py:96
 #, python-format
 msgid "%(name)s — school management software for schools in the DRC"
 msgstr "%(name)s — logiciel de gestion scolaire pour les écoles de la RDC"
 
-#: apps/core/site.py:61
+#: apps/core/site.py:98
 msgid ""
 "Students, school fees, cash desk and receipts, unpaid fees and a parent "
 "portal: one app that works even without internet. Made in Goma for schools "
@@ -3000,31 +3029,30 @@ msgstr ""
 "une seule application, même sans internet. Conçue à Goma pour les écoles de "
 "la RDC."
 
-#: apps/core/site.py:64
+#: apps/core/site.py:101
 msgid "For schools in the DRC · made in Goma"
 msgstr "Pour les écoles de la RDC · conçu à Goma"
 
-#: apps/core/site.py:65
-msgid "The school management software that works even without internet"
-msgstr "Le logiciel de gestion scolaire qui marche même sans internet"
+#: apps/core/site.py:102
+msgid "The whole school in one app, even without internet"
+msgstr "Toute l'école dans une application, même sans internet"
 
-#: apps/core/site.py:67
-#, python-format
+#: apps/core/site.py:104
 msgid ""
-"%(name)s brings students, school fees, the cash desk and receipts, unpaid "
-"fees and the parent portal together in one app. The cash desk keeps working "
-"when the internet is down; everything syncs as soon as the network is back."
+"Students, fees in dollars and francs, cash desk and receipts, unpaid fees, "
+"marks and report cards, and a space for parents. The cash desk keeps going "
+"when the internet is down; everything goes out as soon as the network is "
+"back."
 msgstr ""
-"%(name)s réunit les élèves, les frais scolaires, la caisse et les reçus, les "
-"impayés et le portail des parents dans une seule application. La caisse "
-"continue de fonctionner quand internet est coupé ; tout se synchronise dès "
-"le retour du réseau."
+"Élèves, frais en dollars et en francs, caisse et reçus, impayés, notes et "
+"bulletins, et un espace pour les parents. La caisse continue quand internet "
+"coupe ; tout part dès que le réseau revient."
 
-#: apps/core/site.py:75
+#: apps/core/site.py:111
 msgid "Students and enrolment"
 msgstr "Élèves et inscriptions"
 
-#: apps/core/site.py:77
+#: apps/core/site.py:113
 msgid ""
 "Excel import with an error report, registration form with the family code, "
 "families and siblings, class lists in PDF and Excel."
@@ -3032,11 +3060,11 @@ msgstr ""
 "Import Excel avec rapport d'erreurs, fiche d'inscription avec le code "
 "famille, familles et fratries, listes de classe en PDF et Excel."
 
-#: apps/core/site.py:83
+#: apps/core/site.py:119
 msgid "Fees in dollars and francs"
 msgstr "Frais en dollars et en francs"
 
-#: apps/core/site.py:85
+#: apps/core/site.py:121
 msgid ""
 "Fee scales by level, option or class, in USD or FC, split into instalments; "
 "discounts with a reason; the exchange rate of the school year."
@@ -3044,11 +3072,11 @@ msgstr ""
 "Barèmes par niveau, option ou classe, en USD ou en FC, découpés en "
 "tranches ; réductions avec motif ; taux de change de l'année scolaire."
 
-#: apps/core/site.py:91
+#: apps/core/site.py:127
 msgid "Cash desk and receipts"
 msgstr "Caisse et reçus"
 
-#: apps/core/site.py:93
+#: apps/core/site.py:129
 msgid ""
 "Full or partial payments, a receipt printed at once (58 or 80 mm thermal, or "
 "A4) with a verification QR code, and a daily cash count with its difference."
@@ -3057,11 +3085,11 @@ msgstr ""
 "A4) avec un QR code de vérification, et clôture de caisse chaque soir avec "
 "l'écart."
 
-#: apps/core/site.py:99
+#: apps/core/site.py:135 apps/core/templates/core/site/home.html:33
 msgid "Even without internet"
 msgstr "Même sans internet"
 
-#: apps/core/site.py:101
+#: apps/core/site.py:137
 msgid ""
 "The cash desk and student search work offline; payments sync by themselves "
 "when the network is back, never twice."
@@ -3069,11 +3097,11 @@ msgstr ""
 "La caisse et la recherche d'élèves fonctionnent hors ligne ; les paiements "
 "se synchronisent seuls au retour du réseau, jamais en double."
 
-#: apps/core/site.py:107
+#: apps/core/site.py:143
 msgid "Unpaid fees and dashboard"
 msgstr "Impayés et tableau de bord"
 
-#: apps/core/site.py:109
+#: apps/core/site.py:145
 msgid ""
 "Late payments by class, fee and instalment, printable statements, today's "
 "takings and the collection rate of each class."
@@ -3081,7 +3109,7 @@ msgstr ""
 "Retards par classe, frais et tranche, situations financières imprimables, "
 "encaissé du jour et taux de recouvrement de chaque classe."
 
-#: apps/core/site.py:117
+#: apps/core/site.py:153
 msgid ""
 "On their phone, parents follow the payments, receipts, due dates, notices "
 "and summons of each child, even in different schools."
@@ -3090,11 +3118,11 @@ msgstr ""
 "échéances, les annonces et les convocations de chaque enfant, même dans des "
 "écoles différentes."
 
-#: apps/core/site.py:123
+#: apps/core/site.py:159
 msgid "Roles, security and audit"
 msgstr "Rôles, sécurité et traçabilité"
 
-#: apps/core/site.py:125
+#: apps/core/site.py:161
 msgid ""
 "School roles and custom roles, two-factor sign-in for money, an audit log; a "
 "payment is never deleted, only cancelled with a reason."
@@ -3103,11 +3131,11 @@ msgstr ""
 "l'argent, journal d'audit ; un paiement n'est jamais supprimé, seulement "
 "annulé avec motif."
 
-#: apps/core/site.py:131
+#: apps/core/site.py:167
 msgid "School communication"
 msgstr "Communication de l'école"
 
-#: apps/core/site.py:133
+#: apps/core/site.py:169
 msgid ""
 "Notices to families and staff, the school calendar, parent summons and "
 "notifications on the phone screen."
@@ -3115,84 +3143,84 @@ msgstr ""
 "Annonces aux familles et au personnel, calendrier de l'école, convocations "
 "des parents et notifications sur l'écran du téléphone."
 
-#: apps/core/site.py:139
+#: apps/core/site.py:175
 msgid "Promoters and heads"
 msgstr "Promoteurs et directeurs"
 
-#: apps/core/site.py:139
+#: apps/core/site.py:175
 msgid "follow takings, unpaid fees and cash desks live."
 msgstr "suivent l'encaissé, les impayés et les caisses en temps réel."
 
-#: apps/core/site.py:140
+#: apps/core/site.py:176
 msgid "Accountants"
 msgstr "Comptables"
 
-#: apps/core/site.py:140
+#: apps/core/site.py:176
 msgid "set fee scales, discounts, cancellations and cash counts."
 msgstr "règlent barèmes, réductions, annulations et clôtures de caisse."
 
-#: apps/core/site.py:141
+#: apps/core/site.py:177
 msgid "Cashiers"
 msgstr "Caissiers"
 
-#: apps/core/site.py:141
+#: apps/core/site.py:177
 msgid "take a payment and print the receipt in seconds."
 msgstr "encaissent et impriment le reçu en quelques secondes."
 
-#: apps/core/site.py:142
+#: apps/core/site.py:178
 msgid "Secretaries"
 msgstr "Secrétariat"
 
-#: apps/core/site.py:142
+#: apps/core/site.py:178
 msgid "enrol students, manage families, print forms and lists."
 msgstr "inscrit les élèves, tient les familles, imprime fiches et listes."
 
-#: apps/core/site.py:143
+#: apps/core/site.py:179 apps/core/templates/core/site/_menu.html:1
 msgid "Parents"
 msgstr "Parents"
 
-#: apps/core/site.py:143
+#: apps/core/site.py:179
 msgid "see payments, receipts and school news on their phone."
 msgstr "voient paiements, reçus et nouvelles de l'école sur leur téléphone."
 
-#: apps/core/site.py:146
+#: apps/core/site.py:182
 msgid ""
 "Two currencies, the US dollar and the Congolese franc, with the year's rate."
 msgstr ""
 "Deux devises, le dollar américain et le franc congolais, avec le taux de "
 "l'année."
 
-#: apps/core/site.py:147
+#: apps/core/site.py:183
 msgid "Weak or no internet: the app stays usable and light."
 msgstr "Internet faible ou coupé : l'application reste utilisable et légère."
 
-#: apps/core/site.py:148
+#: apps/core/site.py:184
 msgid "A phone, a tablet or an old computer is enough; no app store needed."
 msgstr ""
 "Un téléphone, une tablette ou un vieil ordinateur suffisent ; pas besoin de "
 "magasin d'applications."
 
-#: apps/core/site.py:149
+#: apps/core/site.py:185
 msgid "Each school has its own address, logo, fees, receipts and roles."
 msgstr ""
 "Chaque école a son adresse, son logo, ses frais, ses reçus et ses rôles."
 
-#: apps/core/site.py:150
+#: apps/core/site.py:186
 msgid "Each school's data is kept apart; encrypted backups every night."
 msgstr ""
 "Les données de chaque école sont séparées ; sauvegardes chiffrées chaque "
 "nuit."
 
-#: apps/core/site.py:151
+#: apps/core/site.py:187
 msgid "In French and English."
 msgstr "En français et en anglais."
 
-#: apps/core/site.py:155
+#: apps/core/site.py:191
 #, python-format
 msgid "Does %(name)s work without internet?"
 msgstr "%(name)s fonctionne-t-il sans internet ?"
 
-#: apps/core/site.py:157
+#: apps/core/site.py:193
 msgid ""
 "Yes. On a device already signed in, the cash desk, student search and "
 "receipt printing keep working without a network. Payments sync automatically "
@@ -3202,11 +3230,11 @@ msgstr ""
 "l'impression des reçus continuent sans réseau. Les paiements se "
 "synchronisent automatiquement au retour de la connexion, jamais en double."
 
-#: apps/core/site.py:163
+#: apps/core/site.py:199
 msgid "Is there anything to install?"
 msgstr "Faut-il installer quelque chose ?"
 
-#: apps/core/site.py:165
+#: apps/core/site.py:201
 #, python-format
 msgid ""
 "No. %(name)s opens in the browser (Chrome, Edge, Safari) and can be added to "
@@ -3216,11 +3244,11 @@ msgstr ""
 "à l'écran d'accueil du téléphone ou de l'ordinateur comme une application, "
 "sans magasin d'applications."
 
-#: apps/core/site.py:171
+#: apps/core/site.py:207
 msgid "Can parents follow payments?"
 msgstr "Les parents peuvent-ils suivre les paiements ?"
 
-#: apps/core/site.py:173
+#: apps/core/site.py:209
 msgid ""
 "Yes. With the family code printed on the registration form, parents activate "
 "their account and see the payments, receipts, due dates and notices of each "
@@ -3230,11 +3258,11 @@ msgstr ""
 "active son compte et voit les paiements, les reçus, les échéances et les "
 "annonces de l'école de chacun de ses enfants."
 
-#: apps/core/site.py:179
+#: apps/core/site.py:215
 msgid "Are fees in US dollars and Congolese francs supported?"
 msgstr "Les frais en dollars et en francs congolais sont-ils gérés ?"
 
-#: apps/core/site.py:181
+#: apps/core/site.py:217
 msgid ""
 "Yes. Each fee has its currency (USD or FC), the school sets the exchange "
 "rate for the year, and each payment keeps the rate it used."
@@ -3242,11 +3270,27 @@ msgstr ""
 "Oui. Chaque frais a sa devise (USD ou FC), l'école fixe le taux de change de "
 "l'année et chaque paiement garde le taux utilisé."
 
-#: apps/core/site.py:186
+#: apps/core/site.py:222
+#, python-format
+msgid "Does %(name)s make the report cards?"
+msgstr "%(name)s fait-il les bulletins ?"
+
+#: apps/core/site.py:224
+#, python-format
+msgid ""
+"Yes. The teacher enters the marks; %(name)s works out the totals, "
+"percentages, ranks and conduct, then prints the report card in the school's "
+"format. Its QR code lets anyone check that it is genuine."
+msgstr ""
+"Oui. L'enseignant saisit les points ; %(name)s calcule les totaux, les "
+"pourcentages, les places et la conduite, puis imprime le bulletin au format "
+"de l'école. Son code QR permet à chacun de vérifier qu'il est authentique."
+
+#: apps/core/site.py:231
 msgid "Is my school's data protected?"
 msgstr "Les données de mon école sont-elles protégées ?"
 
-#: apps/core/site.py:188
+#: apps/core/site.py:233
 msgid ""
 "Each school only sees its own data. Accounts that handle money use two-"
 "factor sign-in, every sensitive action is written to a log, and the database "
@@ -3256,12 +3300,12 @@ msgstr ""
 "l'argent utilisent la double authentification, chaque action sensible est "
 "inscrite dans un journal, et la base est sauvegardée, chiffrée, chaque nuit."
 
-#: apps/core/site.py:194
+#: apps/core/site.py:239
 #, python-format
 msgid "How can my school try %(name)s?"
 msgstr "Comment essayer %(name)s dans mon école ?"
 
-#: apps/core/site.py:196
+#: apps/core/site.py:241
 msgid ""
 "Contact us: we open a trial space for your school, with your classes and "
 "fees, and help you get started."
@@ -3269,9 +3313,260 @@ msgstr ""
 "Contactez-nous : nous ouvrons un espace d'essai pour votre école, avec vos "
 "classes et vos frais, et nous vous accompagnons pour la mise en route."
 
-#: apps/core/site.py:273
+#: apps/core/site.py:318
 msgid "School management"
 msgstr "Gestion scolaire"
+
+#: apps/core/site.py:353
+#, python-format
+msgid "%(name)s for schools: fees, cash desk, marks and parents"
+msgstr "%(name)s pour les écoles : frais, caisse, notes et parents"
+
+#: apps/core/site.py:355
+msgid ""
+"Management, accountant, cashier and teacher each work on their own screen, "
+"with the same figures, up to date. Start even in the middle of the year."
+msgstr ""
+"Direction, comptable, caissier et enseignant travaillent chacun sur leur "
+"écran, avec les mêmes chiffres, à jour. On peut commencer en cours d'année."
+
+#: apps/core/site.py:360
+#, python-format
+msgid "Parent space — %(name)s"
+msgstr "Espace parents — %(name)s"
+
+#: apps/core/site.py:362
+msgid ""
+"Follow your children's school on your phone: payments, receipts, what is "
+"left to pay, notices and summons. Activate your account with the family code."
+msgstr ""
+"Suivez l'école de vos enfants sur votre téléphone : paiements, reçus, reste "
+"à payer, annonces et convocations. Activez votre compte avec le code famille."
+
+#: apps/core/site.py:367
+#, python-format
+msgid "Modules — %(name)s"
+msgstr "Modules — %(name)s"
+
+#: apps/core/site.py:369
+msgid ""
+"Each school chooses its modules: students, fees and cash desk, marks and "
+"report cards, parent space, notices, notifications, work without internet."
+msgstr ""
+"Chaque école choisit ses modules : élèves, frais et caisse, notes et "
+"bulletins, espace parents, annonces, notifications, travail sans internet."
+
+#: apps/core/site.py:374
+#, python-format
+msgid "Request a demo — %(name)s"
+msgstr "Demander une démonstration — %(name)s"
+
+#: apps/core/site.py:376
+#, python-format
+msgid ""
+"See %(name)s with your school's classes and fees, online or at your school "
+"in Goma. Contact us on WhatsApp, by phone or by email."
+msgstr ""
+"Voyez %(name)s avec les classes et les frais de votre école, en ligne ou "
+"chez vous à Goma. Écrivez-nous sur WhatsApp, par téléphone ou par e-mail."
+
+#: apps/core/site.py:382
+#, python-format
+msgid "Find my school — %(name)s"
+msgstr "Trouver mon école — %(name)s"
+
+#: apps/core/site.py:383
+msgid "School staff: type your school's code to open its space."
+msgstr ""
+"Personnel de l'école : tapez le code de votre école pour ouvrir son espace."
+
+#: apps/core/site.py:386
+#, python-format
+msgid "Legal notice and privacy — %(name)s"
+msgstr "Mentions légales et confidentialité — %(name)s"
+
+#: apps/core/site.py:387
+#, python-format
+msgid "Who publishes %(name)s, where the data is kept and what we do with it."
+msgstr "Qui édite %(name)s, où sont les données et ce que nous en faisons."
+
+#: apps/core/site.py:472 apps/notifications/models.py:172
+#: apps/schools/models.py:224
+msgid "schools"
+msgstr "écoles"
+
+#: apps/core/site.py:473
+msgid "students followed"
+msgstr "élèves suivis"
+
+#: apps/core/site.py:474
+msgid "receipts this year"
+msgstr "reçus cette année"
+
+#: apps/core/site.py:475
+msgid "families on the parent space"
+msgstr "familles sur l'espace parents"
+
+#: apps/core/site_content.py:20
+msgid "Excel import with an error report"
+msgstr "Import Excel avec rapport d'erreurs"
+
+#: apps/core/site_content.py:21
+msgid "Families, siblings and family code"
+msgstr "Familles, fratries et code famille"
+
+#: apps/core/site_content.py:22
+msgid "Registration forms and class lists"
+msgstr "Fiches d'inscription et listes de classe"
+
+#: apps/core/site_content.py:25
+msgid "Fee scales in USD and FC, instalments, discounts"
+msgstr "Barèmes en USD et en FC, tranches, réductions"
+
+#: apps/core/site_content.py:26
+msgid "Cash desk, 58 / 80 mm or A4 receipts, cash counts"
+msgstr "Caisse, reçus 58 / 80 mm ou A4, clôtures"
+
+#: apps/core/site_content.py:27
+msgid "Unpaid fees, statements, approved cancellations"
+msgstr "Impayés, relevés, annulations validées"
+
+#: apps/core/site_content.py:30
+msgid "Courses, maximum marks and marks by term"
+msgstr "Cours, maxima et points par période"
+
+#: apps/core/site_content.py:31
+msgid "Conduct, deliberation, resits"
+msgstr "Conduite, délibération, repêchage"
+
+#: apps/core/site_content.py:32
+msgid "Report cards with an authenticity QR code, mark sheets, summaries"
+msgstr "Bulletins avec code QR d'authenticité, fiches de cotes, situations"
+
+#: apps/core/site_content.py:35
+msgid "Payments, receipts and due dates"
+msgstr "Paiements, reçus et échéances"
+
+#: apps/core/site_content.py:36
+msgid "Notices, calendar, summons"
+msgstr "Annonces, calendrier, convocations"
+
+#: apps/core/site_content.py:37
+msgid "Several children, several schools"
+msgstr "Plusieurs enfants, plusieurs écoles"
+
+#: apps/core/site_content.py:40
+msgid "To families or to staff"
+msgstr "Aux familles ou au personnel"
+
+#: apps/core/site_content.py:41
+msgid "Printable circular"
+msgstr "Circulaire imprimable"
+
+#: apps/core/site_content.py:42
+msgid "School calendar"
+msgstr "Calendrier de l'école"
+
+#: apps/core/site_content.py:45
+msgid "Payment received alert on the phone"
+msgstr "Alerte de paiement reçu sur le téléphone"
+
+#: apps/core/site_content.py:46
+msgid "Due date reminder to parents, if the school wants it"
+msgstr "Rappel d'échéance aux parents, si l'école le veut"
+
+#: apps/core/site_content.py:47
+msgid "Cash desks left open"
+msgstr "Caisses restées ouvertes"
+
+#: apps/core/site_content.py:50
+msgid "Cash desk and student search offline"
+msgstr "Caisse et recherche des élèves hors ligne"
+
+#: apps/core/site_content.py:51
+msgid "Sent automatically, never twice"
+msgstr "Envoi automatique, jamais en double"
+
+#: apps/core/site_content.py:52
+msgid "PIN code on known devices"
+msgstr "Code PIN sur les appareils connus"
+
+#: apps/core/site_content.py:60
+msgid "Mobile Money payments"
+msgstr "Paiement par Mobile Money"
+
+#: apps/core/site_content.py:61
+msgid "Parents pay the fees from their phone; the receipt arrives by itself."
+msgstr ""
+"Les parents paient les frais depuis leur téléphone ; le reçu arrive tout "
+"seul."
+
+#: apps/core/site_content.py:63
+msgid "School finances"
+msgstr "Finances de l'école"
+
+#: apps/core/site_content.py:63
+msgid "Expenses, budget and the school's own cash, next to student fees."
+msgstr "Dépenses, budget et caisse de l'école, à côté des frais des élèves."
+
+#: apps/core/site_content.py:64
+msgid "Timetable"
+msgstr "Emploi du temps"
+
+#: apps/core/site_content.py:64
+msgid "Built with no room or teacher clash."
+msgstr "Construit sans conflit de salle ni d'enseignant."
+
+#: apps/core/site_content.py:65
+msgid "Attendance"
+msgstr "Présences"
+
+#: apps/core/site_content.py:65
+msgid "Roll call in class and student card."
+msgstr "Appel en classe et carte d'élève."
+
+#: apps/core/site_content.py:66
+msgid "Library and workshops"
+msgstr "Bibliothèque et ateliers"
+
+#: apps/core/site_content.py:66
+msgid "Lending of books, tools and workshop equipment."
+msgstr "Prêts de livres, outils et matériel d'atelier."
+
+#: apps/core/site_content.py:67
+msgid "School website"
+msgstr "Site de l'école"
+
+#: apps/core/site_content.py:67
+msgid "A public page kept by the school itself."
+msgstr "Une page publique tenue par l'école elle-même."
+
+#: apps/core/site_content.py:76
+msgid "Industrial technical institute · Goma, North Kivu"
+msgstr "Institut technique industriel · Goma, Nord-Kivu"
+
+#: apps/core/site_content.py:80 apps/core/templates/core/site/contact.html:33
+msgid ""
+"ITIG Don Bosco Goma students gathered in the courtyard, in front of the flag"
+msgstr ""
+"Élèves de l'ITIG Don Bosco Goma rassemblés dans la cour, devant le drapeau"
+
+#: apps/core/site_content.py:83
+msgid "1,000+"
+msgstr "1 000+"
+
+#: apps/core/site_content.py:83 apps/schools/admin.py:72
+#: apps/students/models.py:129
+msgid "students"
+msgstr "élèves"
+
+#: apps/core/site_content.py:84
+msgid "technical options"
+msgstr "options techniques"
+
+#: apps/core/site_content.py:85
+msgid "founded"
+msgstr "fondée"
 
 #: apps/core/templates/core/_document_header.html:5
 msgid "Democratic Republic of the Congo"
@@ -3297,186 +3592,992 @@ msgstr[1] "%(n)s documents avant le vôtre."
 msgid "You can leave this tab open: the document opens here by itself."
 msgstr "Laissez cet onglet ouvert : le document s'y ouvre tout seul."
 
-#: apps/core/templates/core/site/home.html:167
-msgid "Skip to content"
-msgstr "Aller au contenu"
+#: apps/core/templates/core/site/_cta.html:3
+#, python-format
+msgid "See %(name)s with your school's classes"
+msgstr "Voyez %(name)s avec les classes de votre école"
 
-#: apps/core/templates/core/site/home.html:174
-msgid "Main menu"
-msgstr "Menu principal"
+#: apps/core/templates/core/site/_cta.html:4
+msgid ""
+"We open a trial space with your classes and fees, and show you everything, "
+"online or on site in Goma."
+msgstr ""
+"Nous ouvrons un espace d'essai avec vos classes et vos frais, et nous vous "
+"montrons tout, en ligne ou sur place à Goma."
 
-#: apps/core/templates/core/site/home.html:175
-#: apps/core/templates/core/site/home.html:219
-#: apps/core/templates/core/site/llms.txt:9
-msgid "Features"
-msgstr "Fonctions"
+#: apps/core/templates/core/site/_cta.html:5
+#: apps/core/templates/core/site/base.html:46
+#: apps/core/templates/core/site/base.html:88
+#: apps/core/templates/core/site/contact.html:14
+#: apps/core/templates/core/site/home.html:10
+#: apps/core/templates/core/site/llms.txt:34
+#: apps/core/templates/core/site/modules.html:9
+#: apps/core/templates/core/site/modules.html:44
+#: apps/core/templates/core/site/schools.html:9
+msgid "Request a demo"
+msgstr "Demander une démonstration"
 
-#: apps/core/templates/core/site/home.html:176
-#: apps/core/templates/core/site/home.html:255
+#: apps/core/templates/core/site/_cta.html:5
+#: apps/core/templates/core/site/contact.html:22
+#: apps/core/templates/core/site/modules.html:44
+msgid "Write on WhatsApp"
+msgstr "Écrire sur WhatsApp"
+
+#: apps/core/templates/core/site/_menu.html:1 apps/schools/apps.py:10
+msgid "Schools"
+msgstr "Écoles"
+
+#: apps/core/templates/core/site/_menu.html:1
+#: apps/core/templates/core/site/base.html:79
+#: apps/core/templates/core/site/llms.txt:33
+#: apps/core/templates/core/site/modules.html:6
+msgid "Modules"
+msgstr "Modules"
+
+#: apps/core/templates/core/site/_menu.html:1
 msgid "Questions"
 msgstr "Questions"
 
-#: apps/core/templates/core/site/home.html:177
-#: apps/core/templates/core/site/llms.txt:33
+#: apps/core/templates/core/site/_menu.html:1
+#: apps/core/templates/core/site/base.html:96
+#: apps/core/templates/core/site/llms.txt:39
 msgid "Contact"
 msgstr "Contact"
 
-#: apps/core/templates/core/site/home.html:180
-#: apps/core/templates/core/site/home.html:288
-#: apps/core/templates/core/site/home.html:301
-#: apps/core/templates/core/site/llms.txt:31
+#: apps/core/templates/core/site/_sync.html:1
+msgid "Offline · 2 payments waiting"
+msgstr "Hors ligne · 2 paiements en attente"
+
+#: apps/core/templates/core/site/_sync.html:1
+msgid "Sending…"
+msgstr "Envoi en cours…"
+
+#: apps/core/templates/core/site/_sync.html:1
+msgid "Online · up to date"
+msgstr "En ligne · à jour"
+
+#: apps/core/templates/core/site/base.html:38
+msgid "Skip to content"
+msgstr "Aller au contenu"
+
+#: apps/core/templates/core/site/base.html:42
+#: apps/core/templates/core/site/base.html:49
+msgid "Main menu"
+msgstr "Menu principal"
+
+#: apps/core/templates/core/site/base.html:45
+#: apps/core/templates/core/site/base.html:51
+#: apps/core/templates/core/site/base.html:86
+#: apps/core/templates/core/site/find.html:8
+#: apps/core/templates/core/site/llms.txt:35
+msgid "Find my school"
+msgstr "Trouver mon école"
+
+#: apps/core/templates/core/site/base.html:46
+#: apps/core/templates/core/site/contact.html:29
+#: apps/core/templates/core/site/schools.html:109
+msgid "Demo"
+msgstr "Démo"
+
+#: apps/core/templates/core/site/base.html:48
+msgid "Open the menu"
+msgstr "Ouvrir le menu"
+
+#: apps/core/templates/core/site/base.html:52
+#: apps/core/templates/core/site/base.html:87
+#: apps/core/templates/core/site/llms.txt:37
+#: apps/core/templates/core/site/parents.html:6
 msgid "Parent space"
 msgstr "Espace parents"
 
-#: apps/core/templates/core/site/home.html:189
-msgid "Ask for a demonstration"
-msgstr "Demander une démonstration"
+#: apps/core/templates/core/site/base.html:67
+msgid "School management software for schools in the DRC, made in Goma."
+msgstr "Logiciel de gestion scolaire pour les écoles de la RDC, conçu à Goma."
 
-#: apps/core/templates/core/site/home.html:190
-msgid "Open my school's space"
-msgstr "Ouvrir l'espace de mon école"
+#: apps/core/templates/core/site/base.html:71
+#: apps/core/templates/core/site/contact.html:20
+msgid "Goma, North Kivu, DRC"
+msgstr "Goma, Nord-Kivu, RDC"
 
-#: apps/core/templates/core/site/home.html:193
-msgid "Works offline"
-msgstr "Marche hors ligne"
+#: apps/core/templates/core/site/base.html:75
+msgid "The software"
+msgstr "Le logiciel"
 
-#: apps/core/templates/core/site/home.html:194
-msgid "USD and FC"
-msgstr "USD et FC"
+#: apps/core/templates/core/site/base.html:77
+#: apps/core/templates/core/site/llms.txt:31
+#: apps/core/templates/core/site/schools.html:6
+msgid "For schools"
+msgstr "Pour les écoles"
 
-#: apps/core/templates/core/site/home.html:195
-msgid "Receipts with QR code"
-msgstr "Reçus avec QR code"
+#: apps/core/templates/core/site/base.html:78
+#: apps/core/templates/core/site/llms.txt:32
+msgid "For parents"
+msgstr "Pour les parents"
 
-#: apps/core/templates/core/site/home.html:199
-msgid "Example of a receipt (made-up data)"
-msgstr "Exemple de reçu (données inventées)"
-
-#: apps/core/templates/core/site/home.html:201
-msgid "Payment receipt"
-msgstr "Reçu de paiement"
-
-#: apps/core/templates/core/site/home.html:206
-msgid "3rd year Electricity A"
-msgstr "3e Électricité A"
-
-#: apps/core/templates/core/site/home.html:207 apps/finance/documents.py:148
-#: apps/finance/templates/finance/statement.html:30
-#: apps/portal/templates/portal/receipt.html:29
-msgid "Fee"
-msgstr "Frais"
-
-#: apps/core/templates/core/site/home.html:207
-msgid "Tuition · 1st instalment"
-msgstr "Minerval · 1re tranche"
-
-#: apps/core/templates/core/site/home.html:209
-msgid "Amount paid"
-msgstr "Montant payé"
-
-#: apps/core/templates/core/site/home.html:210
-msgid "Taken offline, synced"
-msgstr "Encaissé hors ligne, synchronisé"
-
-#: apps/core/templates/core/site/home.html:220
-msgid "Everything the school needs, in one place"
-msgstr "Tout ce dont l'école a besoin, au même endroit"
-
-#: apps/core/templates/core/site/home.html:221
-#, python-format
-msgid ""
-"From enrolment to the receipt in the parent's hands, %(name)s follows the "
-"whole school year."
-msgstr ""
-"De l'inscription au reçu entre les mains du parent, %(name)s suit toute "
-"l'année scolaire."
-
-#: apps/core/templates/core/site/home.html:237
-#: apps/core/templates/core/site/llms.txt:13
-msgid "For everyone at school"
-msgstr "Pour chacun à l'école"
-
-#: apps/core/templates/core/site/home.html:238
-msgid "Each person sees what concerns them"
-msgstr "Chacun voit ce qui le concerne"
-
-#: apps/core/templates/core/site/home.html:244
-#: apps/core/templates/core/site/llms.txt:17
-msgid "Made for the DRC"
-msgstr "Pensé pour la RDC"
-
-#: apps/core/templates/core/site/home.html:245
-msgid "Designed for schools as they really are"
-msgstr "Conçu pour les écoles telles qu'elles sont"
-
-#: apps/core/templates/core/site/home.html:256
+#: apps/core/templates/core/site/base.html:80
+#: apps/core/templates/core/site/home.html:196
 #: apps/core/templates/core/site/llms.txt:21
 msgid "Frequently asked questions"
 msgstr "Questions fréquentes"
 
-#: apps/core/templates/core/site/home.html:269
-#, python-format
-msgid "Try %(name)s in your school"
-msgstr "Essayez %(name)s dans votre école"
+#: apps/core/templates/core/site/base.html:92
+#: apps/core/templates/core/site/legal.html:5
+msgid "Information"
+msgstr "Informations"
 
-#: apps/core/templates/core/site/home.html:270
-msgid ""
-"We open a trial space with your classes and fees, and help your staff get "
-"started."
-msgstr ""
-"Nous ouvrons un espace d'essai avec vos classes et vos frais, et "
-"accompagnons votre personnel pour la mise en route."
-
-#: apps/core/templates/core/site/home.html:272
-msgid "Call"
-msgstr "Appeler le"
-
-#: apps/core/templates/core/site/home.html:279
-msgid "My school's space"
-msgstr "Espace de mon école"
-
-#: apps/core/templates/core/site/home.html:280
-msgid "Staff: type your school's address code."
-msgstr "Personnel : saisissez le code de l'adresse de votre école."
-
-#: apps/core/templates/core/site/home.html:283
-msgid "School code"
-msgstr "Code de l'école"
-
-#: apps/core/templates/core/site/home.html:283 apps/finance/models.py:373
-#: apps/schools/models.py:90 apps/schools/models.py:519
-msgid "code"
-msgstr "code"
-
-#: apps/core/templates/core/site/home.html:284
-msgctxt "website button"
-msgid "Open"
-msgstr "Ouvrir"
-
-#: apps/core/templates/core/site/home.html:289
-msgid "Payments, receipts and school news for your children."
-msgstr "Paiements, reçus et nouvelles de l'école de vos enfants."
-
-#: apps/core/templates/core/site/home.html:290
-msgid "Open the parent space"
-msgstr "Ouvrir l'espace parents"
-
-#: apps/core/templates/core/site/home.html:300
-msgid "All rights reserved."
-msgstr "Tous droits réservés."
-
-#: apps/core/templates/core/site/home.html:302
+#: apps/core/templates/core/site/base.html:94
+#: apps/core/templates/core/site/legal.html:15
+#: apps/core/templates/core/site/legal.html:26
 msgid "Legal notice"
 msgstr "Mentions légales"
 
+#: apps/core/templates/core/site/base.html:95
+#: apps/core/templates/core/site/legal.html:8
+msgid "Privacy"
+msgstr "Confidentialité"
+
+#: apps/core/templates/core/site/base.html:102
+msgid "All rights reserved."
+msgstr "Tous droits réservés."
+
+#: apps/core/templates/core/site/contact.html:5
+msgid "Demo and contact"
+msgstr "Démonstration et contact"
+
+#: apps/core/templates/core/site/contact.html:6
+#, python-format
+msgid "See %(name)s with your school"
+msgstr "Voyez %(name)s avec votre école"
+
+#: apps/core/templates/core/site/contact.html:7
+msgid ""
+"Tell us who you are: we call you back to set up a demo, online or at your "
+"school in Goma, with your classes and your fees."
+msgstr ""
+"Dites-nous qui vous êtes : nous vous rappelons pour fixer une démonstration, "
+"en ligne ou dans votre école à Goma, avec vos classes et vos frais."
+
+#: apps/core/templates/core/site/contact.html:15
+msgid ""
+"Write to us with your name, your role, your school and its town: we answer "
+"in French or in English."
+msgstr ""
+"Écrivez-nous avec votre nom, votre fonction, votre école et sa ville : nous "
+"répondons en français ou en anglais."
+
+#: apps/core/templates/core/site/contact.html:19
+#: apps/core/templates/core/site/llms.txt:42
+msgid "Email"
+msgstr "E-mail"
+
+#: apps/core/templates/core/site/contact.html:20
 #: apps/core/templates/core/site/llms.txt:7
 #: apps/students/templates/students/registration_form.html:25
 msgid "Address"
 msgstr "Adresse"
 
+#: apps/core/templates/core/site/contact.html:26
+msgid "What happens next"
+msgstr "Ce qui se passe ensuite"
+
+#: apps/core/templates/core/site/contact.html:28
+msgid "We call you back"
+msgstr "On vous rappelle"
+
+#: apps/core/templates/core/site/contact.html:28
+msgid "to understand your school: classes, fees, how parents pay."
+msgstr "pour comprendre votre école : classes, frais, façon de payer."
+
+#: apps/core/templates/core/site/contact.html:29
+msgid "online or at your school, with your management and your accountant."
+msgstr "en ligne ou chez vous, avec votre direction et votre comptable."
+
+#: apps/core/templates/core/site/contact.html:30
+#: apps/core/templates/core/site/schools.html:110
+msgid "Trial space"
+msgstr "Espace d'essai"
+
+#: apps/core/templates/core/site/contact.html:30
+msgid "with your classes and fees, to try without risk."
+msgstr "avec vos classes et vos frais, pour essayer sans risque."
+
+#: apps/core/templates/core/site/find.html:9
+msgid ""
+"For school staff: type your school's code, the start of the address it gave "
+"you."
+msgstr ""
+"Pour le personnel de l'école : tapez le code de votre école, c'est le début "
+"de l'adresse qu'elle vous a donnée."
+
+#: apps/core/templates/core/site/find.html:10
+msgid "School code"
+msgstr "Code de l'école"
+
+#: apps/core/templates/core/site/find.html:12
+msgid "Letters, numbers and hyphens only."
+msgstr "Lettres, chiffres et tirets seulement."
+
+#: apps/core/templates/core/site/find.html:13
+msgid "You are going to open"
+msgstr "Vous allez ouvrir"
+
+#: apps/core/templates/core/site/find.html:14
+msgid "Open my school"
+msgstr "Ouvrir mon école"
+
+#: apps/core/templates/core/site/find.html:15
+msgid "Forgot the code? Ask your school office."
+msgstr "Code oublié ? Demandez-le au secrétariat de votre école."
+
+#: apps/core/templates/core/site/find.html:16
+msgid "or"
+msgstr "ou"
+
+#: apps/core/templates/core/site/find.html:17
+msgid "Are you a parent?"
+msgstr "Vous êtes parent ?"
+
+#: apps/core/templates/core/site/find.html:18
+msgid "No school code needed: one space for all your children."
+msgstr "Pas besoin de code d'école : un seul espace pour tous vos enfants."
+
+#: apps/core/templates/core/site/find.html:19
+#: apps/core/templates/core/site/parents.html:10
+#: apps/core/templates/core/site/parents.html:77
+msgid "Open the parent space"
+msgstr "Ouvrir l'espace parents"
+
+#: apps/core/templates/core/site/home.html:11
+msgid "See how it works"
+msgstr "Voir comment ça marche"
+
+#: apps/core/templates/core/site/home.html:13
+#: apps/core/templates/core/site/home.html:31
+msgid "Dollars and francs"
+msgstr "Dollars et francs"
+
+#: apps/core/templates/core/site/home.html:13
+msgid "Receipt in 58 mm, 80 mm or A4"
+msgstr "Reçu en 58 mm, 80 mm ou A4"
+
+#: apps/core/templates/core/site/home.html:18
+msgid "Dashboard: today's takings, unpaid fees and collection by class"
+msgstr ""
+"Tableau de bord : encaissé aujourd'hui, impayés et recouvrement par classe"
+
+#: apps/core/templates/core/site/home.html:19
+msgid "Cash desk: taking a payment"
+msgstr "Caisse : encaissement d'un paiement"
+
+#: apps/core/templates/core/site/home.html:20
+msgid "Unpaid fees by class, fee and instalment"
+msgstr "Impayés par classe, frais et tranche"
+
+#: apps/core/templates/core/site/home.html:23
+msgid "Parent space on a phone: the children and their payments"
+msgstr "Espace parents sur un téléphone : les enfants et leurs paiements"
+
+#: apps/core/templates/core/site/home.html:29
+msgid "In short"
+msgstr "En bref"
+
+#: apps/core/templates/core/site/home.html:31
+msgid "each fee in its own currency"
+msgstr "chaque frais dans sa devise"
+
+#: apps/core/templates/core/site/home.html:32
+msgid "A receipt in seconds"
+msgstr "Reçu en quelques secondes"
+
+#: apps/core/templates/core/site/home.html:32
+msgid "58 mm, 80 mm or A4, QR code"
+msgstr "58 mm, 80 mm ou A4, code QR"
+
+#: apps/core/templates/core/site/home.html:33
+msgid "cash desk and student search"
+msgstr "caisse et recherche des élèves"
+
+#: apps/core/templates/core/site/home.html:34
+msgid "Parents follow along"
+msgstr "Les parents suivent"
+
+#: apps/core/templates/core/site/home.html:34
+msgid "on their phone"
+msgstr "sur leur téléphone"
+
+#: apps/core/templates/core/site/home.html:40
+msgid "Designed for schools here"
+msgstr "Pensé pour les écoles d'ici"
+
+#: apps/core/templates/core/site/home.html:40
+msgid "Made for power cuts, two currencies and busy parents"
+msgstr "Fait pour les coupures, les deux devises et les parents occupés"
+
+#: apps/core/templates/core/site/home.html:43
+msgid "Receipt C1-000482 printed without a network"
+msgstr "Reçu C1-000482 imprimé sans réseau"
+
+#: apps/core/templates/core/site/home.html:44
+msgid "The cash desk never stops"
+msgstr "La caisse ne s'arrête pas"
+
+#: apps/core/templates/core/site/home.html:45
+msgid ""
+"Internet down? The cashier takes the payment and prints the receipt. "
+"Payments go out by themselves when the network is back, never twice."
+msgstr ""
+"Internet coupé ? La caissière encaisse et imprime le reçu. Les paiements "
+"partent seuls au retour du réseau, jamais en double."
+
+#: apps/core/templates/core/site/home.html:48
+#, python-format
+msgid "Rate of the year: %(usd)s = %(cdf)s, kept on each payment"
+msgstr "Taux de l'année : %(usd)s = %(cdf)s, gardé sur chaque paiement"
+
+#: apps/core/templates/core/site/home.html:49
+msgid "Dollars and francs, never mixed"
+msgstr "Dollars et francs, sans mélange"
+
+#: apps/core/templates/core/site/home.html:50
+msgid ""
+"Each fee has its currency. Amounts are never added from one currency to the "
+"other, and each payment keeps its rate."
+msgstr ""
+"Chaque frais a sa devise. Les montants ne sont jamais additionnés d'une "
+"devise à l'autre, et chaque paiement garde son taux."
+
+#: apps/core/templates/core/site/home.html:53 apps/notifications/models.py:236
+msgid "Payment received"
+msgstr "Paiement reçu"
+
+#: apps/core/templates/core/site/home.html:53
+#, python-format
+msgid "%(amount)s for KAMBALE Josué · receipt C1-000482"
+msgstr "%(amount)s pour KAMBALE Josué · reçu C1-000482"
+
+#: apps/core/templates/core/site/home.html:54
+msgid "Parents are told"
+msgstr "Les parents sont prévenus"
+
+#: apps/core/templates/core/site/home.html:55
+msgid ""
+"On their phone, parents see the payments, receipts, due dates and notices of "
+"each child."
+msgstr ""
+"Sur leur téléphone, les parents voient les paiements, les reçus, les "
+"échéances et les annonces de chaque enfant."
+
+#: apps/core/templates/core/site/home.html:63
+#, python-format
+msgid "A day with %(name)s"
+msgstr "Une journée avec %(name)s"
+
+#: apps/core/templates/core/site/home.html:63
+msgid "From opening the cash desk to the evening dashboard"
+msgstr "De l'ouverture de la caisse au tableau de bord du soir"
+
+#: apps/core/templates/core/site/home.html:65
+msgid "The cash desk opens"
+msgstr "La caisse ouvre"
+
+#: apps/core/templates/core/site/home.html:65
+msgid ""
+"The cashier counts the opening float and opens the session, on the computer "
+"or the tablet."
+msgstr ""
+"La caissière compte son fonds de caisse et ouvre sa session, sur "
+"l'ordinateur ou la tablette."
+
+#: apps/core/templates/core/site/home.html:65
+msgid "Opening the cash desk"
+msgstr "Ouverture de la caisse"
+
+#: apps/core/templates/core/site/home.html:66
+msgid "A parent pays the 2nd instalment"
+msgstr "Un parent paie la 2e tranche"
+
+#: apps/core/templates/core/site/home.html:66
+msgid ""
+"In dollars or francs, in full or in part: the receipt comes out in seconds, "
+"with a QR code to check it."
+msgstr ""
+"En dollars ou en francs, en entier ou en partie : le reçu sort en quelques "
+"secondes, avec un code QR pour le vérifier."
+
+#: apps/core/templates/core/site/home.html:66
+msgid "Taking an instalment"
+msgstr "Encaissement d'une tranche"
+
+#: apps/core/templates/core/site/home.html:67
+msgid "The parent sees it on their phone"
+msgstr "Le parent le voit sur son téléphone"
+
+#: apps/core/templates/core/site/home.html:67
+msgid ""
+"The payment and the receipt appear in the parent space, with what is left to "
+"pay."
+msgstr ""
+"Le paiement et le reçu apparaissent dans l'espace parents, avec ce qui reste "
+"à payer."
+
+#: apps/core/templates/core/site/home.html:67
+msgid "A child's payments in the parent space"
+msgstr "Paiements d'un enfant dans l'espace parents"
+
+#: apps/core/templates/core/site/home.html:68
+msgid "The term's marks"
+msgstr "Les points de la période"
+
+#: apps/core/templates/core/site/home.html:68
+msgid ""
+"The teacher enters the class marks; the average, the rank and the conduct "
+"are worked out for the report card."
+msgstr ""
+"L'enseignant saisit les points de sa classe ; la moyenne, la place et la "
+"conduite se calculent seules pour le bulletin."
+
+#: apps/core/templates/core/site/home.html:68
+msgid "Entering a class's marks"
+msgstr "Saisie des points d'une classe"
+
+#: apps/core/templates/core/site/home.html:69
+msgid "Closing and dashboard"
+msgstr "Clôture et tableau de bord"
+
+#: apps/core/templates/core/site/home.html:69
+msgid ""
+"The cashier closes with any difference; the head sees the day's takings and "
+"the unpaid fees of each class."
+msgstr ""
+"La caissière clôture avec l'écart éventuel ; le préfet voit les recettes du "
+"jour et les impayés de chaque classe."
+
+#: apps/core/templates/core/site/home.html:69
+msgid "Cashier, head"
+msgstr "Caissière, préfet"
+
+#: apps/core/templates/core/site/home.html:69
+msgid "Closing the cash desk"
+msgstr "Clôture de la caisse"
+
+#: apps/core/templates/core/site/home.html:77
+msgid "Marks and report cards"
+msgstr "Notes et bulletins"
+
+#: apps/core/templates/core/site/home.html:78
+msgid "Marks become an authenticated report card"
+msgstr "Les points deviennent un bulletin authentifié"
+
+#: apps/core/templates/core/site/home.html:79
+#, python-format
+msgid ""
+"The teacher enters the marks. %(name)s works out the totals, the percentage, "
+"the rank and the conduct, then prints the report card in the school's "
+"format, with a QR code that proves it is genuine."
+msgstr ""
+"L'enseignant saisit les points. %(name)s calcule les totaux, le pourcentage, "
+"la place et la conduite, puis imprime le bulletin au format de l'école, avec "
+"un code QR qui prouve qu'il est vrai."
+
+#: apps/core/templates/core/site/home.html:81
+msgid ""
+"Totals, percentages and ranks worked out automatically, with no calculation "
+"errors"
+msgstr "Totaux, pourcentages et places calculés seuls, sans erreur de calcul"
+
+#: apps/core/templates/core/site/home.html:82
+msgid "Deliberation, resits and end-of-year summaries"
+msgstr "Délibération, repêchage et situations de fin d'année"
+
+#: apps/core/templates/core/site/home.html:83
+msgid "Full report card, or the marks alone on the official form"
+msgstr "Bulletin complet, ou les notes seules sur le formulaire officiel"
+
+#: apps/core/templates/core/site/home.html:84
+msgid "QR code: a parent or another school checks that it has not been forged"
+msgstr ""
+"Code QR : un parent ou une autre école vérifie qu'il n'est pas falsifié"
+
+#: apps/core/templates/core/site/home.html:87
+msgid ""
+"Sample report card in the official format: the marks fill in, the totals, "
+"percentage and rank are worked out, then the QR code proves it is genuine"
+msgstr ""
+"Exemple de bulletin au format officiel : les points se remplissent, les "
+"totaux, le pourcentage et la place se calculent, puis le code QR prouve "
+"qu'il est authentique"
+
+#: apps/core/templates/core/site/home.html:96
+msgid "FIRST SEMESTER"
+msgstr "PREMIER SEMESTRE"
+
+#: apps/core/templates/core/site/home.html:96
+msgid "2nd P."
+msgstr "2e P."
+
+#: apps/core/templates/core/site/home.html:99
+msgid "Religion"
+msgstr "Religion"
+
+#: apps/core/templates/core/site/home.html:100
+msgid "French"
+msgstr "Français"
+
+#: apps/core/templates/core/site/home.html:102
+msgid "Mathematics"
+msgstr "Mathématiques"
+
+#: apps/core/templates/core/site/home.html:103
+msgid "Electricity"
+msgstr "Électricité"
+
+#: apps/core/templates/core/site/home.html:105
+msgid "Electrical workshop"
+msgstr "Atelier électrique"
+
+#: apps/core/templates/core/site/home.html:112
+msgctxt "conduct grade"
+msgid "VG"
+msgstr "TB"
+
+#: apps/core/templates/core/site/home.html:112
+msgctxt "conduct grade"
+msgid "G"
+msgstr "B"
+
+#: apps/core/templates/core/site/home.html:119
+msgid "Genuine report card"
+msgstr "Bulletin authentique"
+
+#: apps/core/templates/core/site/home.html:119
+msgid "checked by QR code, signed by the school"
+msgstr "vérifié par code QR, signé par l'école"
+
+#: apps/core/templates/core/site/home.html:126
+msgid "A screen for each person"
+msgstr "Chacun son écran"
+
+#: apps/core/templates/core/site/home.html:126
+msgid "Each person sees what concerns them"
+msgstr "Chacun voit ce qui le concerne"
+
+#: apps/core/templates/core/site/home.html:126
+msgid ""
+"The school gives everyone a role: management, accountant, cashier, teacher, "
+"secretary. It can also create its own roles."
+msgstr ""
+"L'école donne à chacun un rôle : direction, comptable, caissier, enseignant, "
+"secrétaire. Elle peut aussi créer ses propres rôles."
+
+#: apps/core/templates/core/site/home.html:128
+#: apps/core/templates/core/site/schools.html:11
+#: apps/notifications/templates/notifications/circular.html:11
+#: apps/notifications/templates/notifications/summons.html:15
+msgid "Management"
+msgstr "Direction"
+
+#: apps/core/templates/core/site/home.html:128
+msgid "Takings, unpaid fees and today's cash desks, class results."
+msgstr "Recettes, impayés et caisses du jour, résultats des classes."
+
+#: apps/core/templates/core/site/home.html:128
+#: apps/core/templates/core/site/home.html:129
+#: apps/core/templates/core/site/home.html:130
+#: apps/core/templates/core/site/home.html:131
+msgid "See"
+msgstr "Voir"
+
+#: apps/core/templates/core/site/home.html:129
+msgid "Fee scales, instalments, discounts, cancellations and cash counts."
+msgstr "Barèmes, tranches, réductions, annulations et clôtures."
+
+#: apps/core/templates/core/site/home.html:130
+msgid "Take payments and print the receipt, even without internet."
+msgstr "Encaisser et imprimer le reçu, même sans internet."
+
+#: apps/core/templates/core/site/home.html:131
+msgid "Marks, conduct and report cards of their class."
+msgstr "Points, conduite et bulletins de sa classe."
+
+#: apps/core/templates/core/site/home.html:133
+msgid "And parents? See the parent space"
+msgstr "Et les parents ? Voir l'espace parents"
+
+#: apps/core/templates/core/site/home.html:140
+#, python-format
+msgid "%(name)s today"
+msgstr "%(name)s aujourd'hui"
+
+#: apps/core/templates/core/site/home.html:140
+msgid "Schools that use it every day"
+msgstr "Des écoles qui l'utilisent chaque jour"
+
+#: apps/core/templates/core/site/home.html:151
+msgid "Pilot school"
+msgstr "École pilote"
+
+#: apps/core/templates/core/site/home.html:151
+msgid "Designed with a real school in Goma"
+msgstr "Conçu avec une vraie école de Goma"
+
+#: apps/core/templates/core/site/home.html:155
+#, python-format
+msgid "%(name)s logo"
+msgstr "Logo de %(name)s"
+
+#: apps/core/templates/core/site/home.html:166
+#: apps/core/templates/core/site/legal.html:21
+#: apps/core/templates/core/site/legal.html:62
+msgid "Security"
+msgstr "Sécurité"
+
+#: apps/core/templates/core/site/home.html:166
+msgid "The school's data stays with the school"
+msgstr "Les données de l'école restent à l'école"
+
+#: apps/core/templates/core/site/home.html:168
+msgid "Each school on its own"
+msgstr "Chaque école à part"
+
+#: apps/core/templates/core/site/home.html:168
+msgid "A school never sees the students, payments or marks of another."
+msgstr ""
+"Une école ne voit jamais les élèves, les paiements ni les notes d'une autre."
+
+#: apps/core/templates/core/site/home.html:169
+msgid "Double check for money"
+msgstr "Double vérification pour l'argent"
+
+#: apps/core/templates/core/site/home.html:169
+msgid ""
+"Management, accountant and cashiers sign in with a code on top of the "
+"password."
+msgstr ""
+"Direction, comptable et caissiers entrent avec un code en plus du mot de "
+"passe."
+
+#: apps/core/templates/core/site/home.html:170
+msgid "A payment is never erased"
+msgstr "Un paiement ne s'efface jamais"
+
+#: apps/core/templates/core/site/home.html:170
+msgid ""
+"A mistake is fixed by a cancellation, with a reason and a manager's approval."
+msgstr ""
+"Une erreur se corrige par une annulation, avec un motif et la validation "
+"d'un responsable."
+
+#: apps/core/templates/core/site/home.html:171
+msgid "Everything is logged"
+msgstr "Tout est noté"
+
+#: apps/core/templates/core/site/home.html:171
+msgid "Payments, marks and staff rights: each change keeps who, when and what."
+msgstr ""
+"Paiements, notes et droits du personnel : chaque changement garde qui, quand "
+"et quoi."
+
+#: apps/core/templates/core/site/home.html:172
+msgid "Backup every night"
+msgstr "Sauvegarde chaque nuit"
+
+#: apps/core/templates/core/site/home.html:172
+msgid "An encrypted copy of all the data, kept away from the server."
+msgstr "Copie chiffrée de toutes les données, gardée hors du serveur."
+
+#: apps/core/templates/core/site/home.html:173
+msgid "Receipts you can check"
+msgstr "Reçu vérifiable"
+
+#: apps/core/templates/core/site/home.html:173
+msgid ""
+"The receipt's QR code shows whether it is genuine, with no account or "
+"password."
+msgstr "Le code QR du reçu montre s'il est vrai, sans compte ni mot de passe."
+
+#: apps/core/templates/core/site/home.html:180
+msgid "Goma and Lake Kivu seen from the heights"
+msgstr "Goma et le lac Kivu vus des hauteurs"
+
+#: apps/core/templates/core/site/home.html:182
+msgid "Made in Goma"
+msgstr "Conçu à Goma"
+
+#: apps/core/templates/core/site/home.html:183
+msgid "With schools here, for them"
+msgstr "Avec les écoles d'ici, pour elles"
+
+#: apps/core/templates/core/site/home.html:184
+#, python-format
+msgid ""
+"%(name)s is designed and supported in Goma. We help you get started: a trial "
+"space with your classes and fees, the import of your student list, training "
+"with your staff."
+msgstr ""
+"%(name)s est conçu et suivi à Goma. On vous aide à démarrer : un espace "
+"d'essai avec vos classes et vos frais, l'import de votre liste d'élèves, la "
+"prise en main avec votre personnel."
+
+#: apps/core/templates/core/site/home.html:186
+msgid "An answer on WhatsApp, in French or English"
+msgstr "Une réponse sur WhatsApp, en français ou en anglais"
+
+#: apps/core/templates/core/site/home.html:187
+msgid "A phone, a tablet or an old computer is enough"
+msgstr "Un téléphone, une tablette ou un vieil ordinateur suffit"
+
+#: apps/core/templates/core/site/home.html:188
+msgid "Nothing to install from an app store"
+msgstr "Rien à installer depuis un magasin d'applications"
+
+#: apps/core/templates/core/site/home.html:196
+msgid "What people often ask us"
+msgstr "Ce qu'on nous demande souvent"
+
+#: apps/core/templates/core/site/legal.html:6
+#: apps/core/templates/core/site/llms.txt:36
+msgid "Legal notice and privacy"
+msgstr "Mentions légales et confidentialité"
+
+#: apps/core/templates/core/site/legal.html:7
+#, python-format
+msgid ""
+"Who publishes %(name)s, where the data is kept, and what we do with it. "
+"Updated on %(date)s."
+msgstr ""
+"Qui édite %(name)s, où sont les données, et ce que nous en faisons. Mise à "
+"jour le %(date)s."
+
+#: apps/core/templates/core/site/legal.html:8
+#: apps/core/templates/core/site/schools.html:10
+msgid "On this page"
+msgstr "Dans cette page"
+
+#: apps/core/templates/core/site/legal.html:14
+msgid "Contents"
+msgstr "Sommaire"
+
+#: apps/core/templates/core/site/legal.html:16
+msgid "Who is responsible for the data"
+msgstr "Responsable des données"
+
+#: apps/core/templates/core/site/legal.html:17
+msgid "Data processed"
+msgstr "Données traitées"
+
+#: apps/core/templates/core/site/legal.html:18
+#: apps/core/templates/core/site/legal.html:49
+msgid "Why"
+msgstr "Pourquoi"
+
+#: apps/core/templates/core/site/legal.html:19
+#: apps/core/templates/core/site/legal.html:52
+msgid "Who has access"
+msgstr "Qui y a accès"
+
+#: apps/core/templates/core/site/legal.html:20
+#: apps/core/templates/core/site/legal.html:59
+msgid "How long it is kept"
+msgstr "Durée de conservation"
+
+#: apps/core/templates/core/site/legal.html:22
+#: apps/core/templates/core/site/legal.html:65
+msgid "Your rights"
+msgstr "Vos droits"
+
+#: apps/core/templates/core/site/legal.html:23
+#: apps/core/templates/core/site/legal.html:68
+msgid "Cookies"
+msgstr "Cookies"
+
+#: apps/core/templates/core/site/legal.html:28
+msgid "Publisher"
+msgstr "Éditeur"
+
+#: apps/core/templates/core/site/legal.html:28
+#: apps/core/templates/core/site/llms.txt:43
+msgid "Goma, North Kivu, Democratic Republic of the Congo"
+msgstr "Goma, Nord-Kivu, République démocratique du Congo"
+
+#: apps/core/templates/core/site/legal.html:29
+msgid "Identifiers"
+msgstr "Identifiants"
+
+#: apps/core/templates/core/site/legal.html:30
+msgid "Software"
+msgstr "Logiciel"
+
+#: apps/core/templates/core/site/legal.html:30
+#, python-format
+msgid "%(name)s School, school management software"
+msgstr "%(name)s School, logiciel de gestion scolaire"
+
+#: apps/core/templates/core/site/legal.html:31
+msgid "Hosting"
+msgstr "Hébergement"
+
+#: apps/core/templates/core/site/legal.html:31
+msgid "Secure data centre in Europe; an encrypted backup copy is kept with a second provider."
+msgstr "Centre de données sécurisé en Europe ; une copie de sauvegarde chiffrée est gardée chez un second prestataire."
+
+#: apps/core/templates/core/site/legal.html:32
+msgid "Ownership"
+msgstr "Propriété"
+
+#: apps/core/templates/core/site/legal.html:32
+#, python-format
+msgid ""
+"The software, the name and the logo belong to %(editor)s. Each school's data "
+"belongs to the school."
+msgstr ""
+"Le logiciel, le nom et le logo appartiennent à %(editor)s. Les données de "
+"chaque école appartiennent à l'école."
+
+#: apps/core/templates/core/site/legal.html:33
+msgid "Photo credit"
+msgstr "Crédit photo"
+
+#: apps/core/templates/core/site/legal.html:33
+msgid "Goma and Lake Kivu: Ericnkurunziza, CC BY-SA 4.0."
+msgstr "Goma et le lac Kivu : Ericnkurunziza, CC BY-SA 4.0."
+
+#: apps/core/templates/core/site/legal.html:36
+msgid "Who is responsible for your data"
+msgstr "Qui est responsable de vos données"
+
+#: apps/core/templates/core/site/legal.html:37
+#, python-format
+msgid ""
+"Each school is responsible for the data of its students, their families and "
+"its staff: it enters them and decides how they are used. %(editor)s hosts "
+"and runs %(name)s for it, and uses them for nothing else."
+msgstr ""
+"Chaque école est responsable des données de ses élèves, de leurs familles et "
+"de son personnel : elle les saisit et décide de leur usage. %(editor)s "
+"héberge et fait fonctionner %(name)s pour elle, et ne s'en sert pour rien "
+"d'autre."
+
+#: apps/core/templates/core/site/legal.html:38
+#, python-format
+msgid "For this website and demo requests, the controller is %(editor)s."
+msgstr ""
+"Pour ce site et les demandes de démonstration, le responsable est %(editor)s."
+
+#: apps/core/templates/core/site/legal.html:40
+msgid "The data processed"
+msgstr "Les données traitées"
+
+#: apps/core/templates/core/site/legal.html:42
+msgid "Students: identity, class, results, fees and payments."
+msgstr "Élèves : identité, classe, résultats, frais et paiements."
+
+#: apps/core/templates/core/site/legal.html:43
+msgid "Families: names, phone, link with the student."
+msgstr "Familles : noms, téléphone, lien avec l'élève."
+
+#: apps/core/templates/core/site/legal.html:44
+msgid "Staff: name, phone, role, actions taken in the app."
+msgstr "Personnel : nom, téléphone, rôle, actions faites dans l'application."
+
+#: apps/core/templates/core/site/legal.html:45
+msgid "Sign-ins: date, device, IP address, for security."
+msgstr "Connexions : date, appareil, adresse IP, pour la sécurité."
+
+#: apps/core/templates/core/site/legal.html:46
+msgid "Demo requests: name, role, school, phone, message."
+msgstr "Demandes de démonstration : nom, fonction, école, téléphone, message."
+
+#: apps/core/templates/core/site/legal.html:50
+msgid ""
+"To manage schooling and fees, inform families, protect access to accounts "
+"and answer your requests. Never advertising, never selling data."
+msgstr ""
+"Pour gérer la scolarité et les frais, informer les familles, protéger "
+"l'accès aux comptes et répondre à vos demandes. Jamais de publicité, jamais "
+"de vente de données."
+
+#: apps/core/templates/core/site/legal.html:54
+msgid "The school's staff, according to the role the school gives them."
+msgstr "Le personnel de l'école, selon le rôle que l'école lui donne."
+
+#: apps/core/templates/core/site/legal.html:55
+msgid "Each family, for its own children only."
+msgstr "Chaque famille, pour ses enfants seulement."
+
+#: apps/core/templates/core/site/legal.html:56
+#, python-format
+msgid ""
+"The %(name)s team, only to help the school and at its request; each access "
+"is logged."
+msgstr ""
+"L'équipe %(name)s, seulement pour aider l'école et à sa demande ; chaque "
+"accès est noté."
+
+#: apps/core/templates/core/site/legal.html:60
+#, python-format
+msgid ""
+"The data stays as long as the school uses %(name)s. Payments and receipts "
+"are accounting records: they are never erased during that time. "
+"Notifications are erased after 90 days, backups after 30 days. When a school "
+"leaves, it receives its data, then the data is erased."
+msgstr ""
+"Les données restent tant que l'école utilise %(name)s. Les paiements et les "
+"reçus sont des pièces comptables : ils ne sont jamais effacés pendant ce "
+"temps. Les notifications sont effacées après 90 jours, les sauvegardes après "
+"30 jours. Quand une école part, elle reçoit ses données, puis elles sont "
+"effacées."
+
+#: apps/core/templates/core/site/legal.html:63
+msgid ""
+"Encrypted connection (HTTPS), two-step sign-in for accounts that handle "
+"money, each school kept apart from the others, a log of sensitive actions, "
+"an encrypted backup every night, kept away from the server."
+msgstr ""
+"Connexion chiffrée (HTTPS), double vérification pour les comptes qui "
+"touchent à l'argent, chaque école séparée des autres, journal des actions "
+"sensibles, sauvegarde chiffrée chaque nuit, gardée hors du serveur."
+
+#: apps/core/templates/core/site/legal.html:66
+msgid ""
+"Under the DRC Digital Code (ordinance-law no. 23/010 of 13 March 2023), you "
+"can ask which data concern you, have them corrected, erased (except "
+"accounting records) or object to a use."
+msgstr ""
+"Selon le Code du numérique de la RDC (ordonnance-loi n° 23/010 du 13 mars "
+"2023), vous pouvez demander à savoir quelles données vous concernent, les "
+"faire corriger, effacer (sauf les pièces comptables) ou vous opposer à un "
+"usage."
+
+#: apps/core/templates/core/site/legal.html:66
+msgid "Parents and staff: contact the school first; otherwise, write to us."
+msgstr ""
+"Parents et personnel : adressez-vous d'abord à l'école ; sinon, écrivez-nous."
+
+#: apps/core/templates/core/site/legal.html:69
+msgid ""
+"Only the necessary ones: staying signed in, keeping the chosen language, "
+"protecting forms. No audience measurement, no advertising: no banner to "
+"accept."
+msgstr ""
+"Seulement ceux qui sont nécessaires : rester connecté, garder la langue "
+"choisie, protéger les formulaires. Aucune mesure d'audience, aucune "
+"publicité : pas de bandeau à accepter."
+
 #: apps/core/templates/core/site/llms.txt:7
 msgid "English"
 msgstr "Anglais"
+
+#: apps/core/templates/core/site/llms.txt:9
+msgid "Features"
+msgstr "Fonctions"
+
+#: apps/core/templates/core/site/llms.txt:13
+msgid "For everyone at school"
+msgstr "Pour chacun à l'école"
+
+#: apps/core/templates/core/site/llms.txt:17
+msgid "Made for the DRC"
+msgstr "Pensé pour la RDC"
 
 #: apps/core/templates/core/site/llms.txt:27
 msgid "Links"
@@ -3490,28 +4591,613 @@ msgstr "Présentation (français)"
 msgid "Presentation (English)"
 msgstr "Présentation (anglais)"
 
-#: apps/core/templates/core/site/llms.txt:35
+#: apps/core/templates/core/site/llms.txt:41
 msgid "Phone and WhatsApp"
 msgstr "Téléphone et WhatsApp"
 
-#: apps/core/templates/core/site/llms.txt:36
-msgid "Email"
-msgstr "E-mail"
-
-#: apps/core/templates/core/site/llms.txt:37
-msgid "Goma, North Kivu, Democratic Republic of the Congo"
-msgstr "Goma, Nord-Kivu, République démocratique du Congo"
-
-#: apps/core/templates/core/site/llms.txt:39
+#: apps/core/templates/core/site/llms.txt:45
 msgid "Author"
 msgstr "Auteur"
 
-#: apps/core/templates/core/site/llms.txt:41
+#: apps/core/templates/core/site/llms.txt:47
 #, python-format
 msgid ""
 "Author: %(author)s (%(author_url)s). © %(copyright)s, all rights reserved."
 msgstr ""
 "Auteur : %(author)s (%(author_url)s). © %(copyright)s, tous droits réservés."
+
+#: apps/core/templates/core/site/modules.html:7
+msgid "Each school chooses its modules"
+msgstr "Chaque école choisit ses modules"
+
+#: apps/core/templates/core/site/modules.html:8
+msgid ""
+"Start with fees and the cash desk, add marks or the parent space when you "
+"are ready. Nothing is lost when a module is removed: the data comes back "
+"when it is turned on again."
+msgstr ""
+"Commencez par les frais et la caisse, ajoutez les notes ou l'espace parents "
+"quand vous êtes prêts. Rien n'est perdu quand un module est retiré : les "
+"données reviennent quand il est remis."
+
+#: apps/core/templates/core/site/modules.html:11
+msgid "Students in the car mechanics workshop of ITIG Don Bosco Goma"
+msgstr "Élèves dans l'atelier de mécanique automobile de l'ITIG Don Bosco Goma"
+
+#: apps/core/templates/core/site/modules.html:19
+msgid "Always included: the core"
+msgstr "Toujours inclus : le socle"
+
+#: apps/core/templates/core/site/modules.html:19
+msgid ""
+"School settings, years, classes and options, staff accounts, roles and "
+"rights, two-step sign-in, action log, backup every night."
+msgstr ""
+"Paramètres de l'école, années, classes et options, comptes du personnel, "
+"rôles et droits, double vérification, journal des actions, sauvegarde chaque "
+"nuit."
+
+#: apps/core/templates/core/site/modules.html:24
+msgid "With:"
+msgstr "Avec :"
+
+#: apps/core/templates/core/site/modules.html:32
+#: apps/core/templates/core/site/modules.html:34
+msgid "Coming soon"
+msgstr "Prochainement"
+
+#: apps/core/templates/core/site/modules.html:32
+msgid "What comes next"
+msgstr "Ce qui arrive ensuite"
+
+#: apps/core/templates/core/site/modules.html:32
+#, python-format
+msgid ""
+"Planned, with no promised date. Schools that use %(name)s get it without "
+"changing app."
+msgstr ""
+"Prévu au plan, sans date promise. Les écoles qui utilisent %(name)s le "
+"reçoivent sans changer d'application."
+
+#: apps/core/templates/core/site/modules.html:42
+msgid "Which modules for your school?"
+msgstr "Quels modules pour votre école ?"
+
+#: apps/core/templates/core/site/modules.html:43
+msgid ""
+"Tell us how your school works: we suggest the useful modules, and nothing "
+"more."
+msgstr ""
+"Dites-nous comment travaille votre école : on vous propose les modules "
+"utiles, et rien de plus."
+
+#: apps/core/templates/core/site/parents.html:7
+msgid "Follow your children's school on your phone"
+msgstr "Suivez l'école de vos enfants sur votre téléphone"
+
+#: apps/core/templates/core/site/parents.html:8
+msgid ""
+"Payments, receipts, what is left to pay, notices and summons: everything the "
+"school shares with you, for each child, even in different schools."
+msgstr ""
+"Paiements, reçus, ce qui reste à payer, annonces et convocations : tout ce "
+"que l'école partage avec vous, pour chaque enfant, même dans des écoles "
+"différentes."
+
+#: apps/core/templates/core/site/parents.html:11
+msgid "Activate my account"
+msgstr "Activer mon compte"
+
+#: apps/core/templates/core/site/parents.html:15
+msgid "Home of the parent space: the children and their payments"
+msgstr "Accueil de l'espace parents : les enfants et leurs paiements"
+
+#: apps/core/templates/core/site/parents.html:21
+msgid "What you see"
+msgstr "Ce que vous voyez"
+
+#: apps/core/templates/core/site/parents.html:21
+msgid "The essentials of the school, without travelling"
+msgstr "L'essentiel de l'école, sans vous déplacer"
+
+#: apps/core/templates/core/site/parents.html:23
+msgid "Payments and receipts"
+msgstr "Paiements et reçus"
+
+#: apps/core/templates/core/site/parents.html:23
+msgid "Each payment, its receipt, and what is left to pay by instalment."
+msgstr "Chaque paiement, son reçu, et ce qui reste à payer par tranche."
+
+#: apps/core/templates/core/site/parents.html:24
+msgid "Notices"
+msgstr "Annonces"
+
+#: apps/core/templates/core/site/parents.html:24
+msgid "The school's notices, with no paper lost in the school bag."
+msgstr "Les communiqués de l'école, sans papier perdu dans le cartable."
+
+#: apps/core/templates/core/site/parents.html:25
+msgid "Calendar and summons"
+msgstr "Calendrier et convocations"
+
+#: apps/core/templates/core/site/parents.html:25
+msgid "Holidays, meetings, exams, and the summons that concern you."
+msgstr "Congés, réunions, examens, et les convocations qui vous concernent."
+
+#: apps/core/templates/core/site/parents.html:26
+msgid "Alerts on the screen"
+msgstr "Alertes sur l'écran"
+
+#: apps/core/templates/core/site/parents.html:26
+msgid "Payment received, due date coming: you are told on your phone."
+msgstr "Paiement reçu, échéance proche : vous êtes prévenu sur le téléphone."
+
+#: apps/core/templates/core/site/parents.html:33
+msgid "Activate your account"
+msgstr "Activer votre compte"
+
+#: apps/core/templates/core/site/parents.html:33
+msgid "Three steps, only once"
+msgstr "Trois étapes, une seule fois"
+
+#: apps/core/templates/core/site/parents.html:33
+msgid ""
+"Your account is created by the school. You activate it with the family code "
+"it gives you."
+msgstr ""
+"Votre compte est créé par l'école. Vous l'activez avec le code famille "
+"qu'elle vous donne."
+
+#: apps/core/templates/core/site/parents.html:35
+msgid "The family code"
+msgstr "Le code famille"
+
+#: apps/core/templates/core/site/parents.html:35
+msgid ""
+"It is printed on your child's registration form, or given by the school "
+"office."
+msgstr ""
+"Il est imprimé sur la fiche d'inscription de votre enfant, ou donné par le "
+"secrétariat."
+
+#: apps/core/templates/core/site/parents.html:35
+msgid "Family code"
+msgstr "Code famille"
+
+#: apps/core/templates/core/site/parents.html:36
+msgid "Your phone"
+msgstr "Votre téléphone"
+
+#: apps/core/templates/core/site/parents.html:36
+#, python-format
+msgid ""
+"Open <b>%(host)s</b>, type the number given to the school and the family "
+"code."
+msgstr ""
+"Ouvrez <b>%(host)s</b>, tapez le numéro donné à l'école et le code famille."
+
+#: apps/core/templates/core/site/parents.html:37
+msgid "Your password"
+msgstr "Votre mot de passe"
+
+#: apps/core/templates/core/site/parents.html:37
+msgid "Choose it. Next time, the number and the password are enough."
+msgstr ""
+"Choisissez-le. La prochaine fois, le numéro et le mot de passe suffisent."
+
+#: apps/core/templates/core/site/parents.html:44
+msgid "On your home screen"
+msgstr "Sur votre écran d'accueil"
+
+#: apps/core/templates/core/site/parents.html:44
+msgid "Like an app, without a store"
+msgstr "Comme une application, sans magasin"
+
+#: apps/core/templates/core/site/parents.html:44
+msgid ""
+"The parent space is added to the home screen and opens with one tap. It "
+"takes very little space."
+msgstr ""
+"L'espace parents s'ajoute à l'écran d'accueil et s'ouvre d'un geste. Il "
+"prend très peu de place."
+
+#: apps/core/templates/core/site/parents.html:46
+#, python-format
+msgid "Open %(host)s in Chrome."
+msgstr "Ouvrez %(host)s dans Chrome."
+
+#: apps/core/templates/core/site/parents.html:46
+msgid "Tap the ⋮ menu at the top right."
+msgstr "Touchez le menu ⋮ en haut à droite."
+
+#: apps/core/templates/core/site/parents.html:46
+msgid "Choose “Install app” or “Add to home screen”."
+msgstr ""
+"Choisissez « Installer l'application » ou « Ajouter à l'écran d'accueil »."
+
+#: apps/core/templates/core/site/parents.html:47
+#, python-format
+msgid "Open %(host)s in Safari."
+msgstr "Ouvrez %(host)s dans Safari."
+
+#: apps/core/templates/core/site/parents.html:47
+msgid "Tap the Share button."
+msgstr "Touchez le bouton Partager."
+
+#: apps/core/templates/core/site/parents.html:47
+msgid "Choose “Add to Home Screen”."
+msgstr "Choisissez « Sur l'écran d'accueil »."
+
+#: apps/core/templates/core/site/parents.html:55
+msgid "Your data"
+msgstr "Vos données"
+
+#: apps/core/templates/core/site/parents.html:56
+msgid "You only see your own children"
+msgstr "Vous ne voyez que vos enfants"
+
+#: apps/core/templates/core/site/parents.html:58
+msgid "The school decides what it shares; it can suspend an account."
+msgstr "L'école décide de ce qu'elle partage ; elle peut suspendre un compte."
+
+#: apps/core/templates/core/site/parents.html:59
+msgid "Only you know your password."
+msgstr "Votre mot de passe n'est connu que de vous."
+
+#: apps/core/templates/core/site/parents.html:60
+msgid "Each receipt has a QR code anyone can check."
+msgstr "Chaque reçu porte un code QR que tout le monde peut vérifier."
+
+#: apps/core/templates/core/site/parents.html:62
+msgid "Read the privacy policy"
+msgstr "Lire la politique de confidentialité"
+
+#: apps/core/templates/core/site/parents.html:65
+msgid "I lost my family code"
+msgstr "J'ai perdu mon code famille"
+
+#: apps/core/templates/core/site/parents.html:65
+msgid "Ask the school office for a new one: the old one no longer works."
+msgstr ""
+"Demandez-en un nouveau au secrétariat de l'école : l'ancien ne marche plus."
+
+#: apps/core/templates/core/site/parents.html:66
+msgid "I changed my phone number"
+msgstr "J'ai changé de numéro de téléphone"
+
+#: apps/core/templates/core/site/parents.html:66
+msgid ""
+"Tell the school, or use your profile if you are still signed in: the school "
+"approves the change."
+msgstr ""
+"Signalez-le à l'école, ou depuis votre profil si vous êtes encore connecté : "
+"l'école valide le changement."
+
+#: apps/core/templates/core/site/parents.html:67
+msgid "My children are in two schools"
+msgstr "Mes enfants sont dans deux écoles"
+
+#: apps/core/templates/core/site/parents.html:67
+#, python-format
+msgid ""
+"One account is enough if both schools use %(name)s with the same number."
+msgstr ""
+"Un seul compte suffit si les deux écoles utilisent %(name)s avec le même "
+"numéro."
+
+#: apps/core/templates/core/site/parents.html:68
+msgid "Can I pay online?"
+msgstr "Puis-je payer en ligne ?"
+
+#: apps/core/templates/core/site/parents.html:68
+msgid ""
+"Not yet: you pay at the school's cash desk. Mobile Money payment is planned."
+msgstr ""
+"Pas encore : on paie à la caisse de l'école. Le paiement par Mobile Money "
+"est prévu."
+
+#: apps/core/templates/core/site/parents.html:75
+#, python-format
+msgid "Does your school use %(name)s?"
+msgstr "Votre école utilise %(name)s ?"
+
+#: apps/core/templates/core/site/parents.html:76
+msgid ""
+"Open the parent space with the number given to the school. No code yet? Ask "
+"the school office."
+msgstr ""
+"Ouvrez l'espace parents avec le numéro donné à l'école. Pas encore de code ? "
+"Demandez-le au secrétariat."
+
+#: apps/core/templates/core/site/parents.html:77
+#, python-format
+msgid "Suggest %(name)s to the school"
+msgstr "Proposer %(name)s à l'école"
+
+#: apps/core/templates/core/site/schools.html:7
+msgid "Fees, cash desk, marks and parents, in one app"
+msgstr ""
+"Les frais, la caisse, les notes et les parents, dans une seule application"
+
+#: apps/core/templates/core/site/schools.html:8
+msgid ""
+"Everyone works on their own screen, with their own rights: management "
+"follows, the accountant sets, the cashier collects, the teacher marks. "
+"Everyone sees the same figures, up to date."
+msgstr ""
+"Chacun travaille sur son écran, avec ses droits : la direction suit, le "
+"comptable règle, la caissière encaisse, l'enseignant note. Tout le monde "
+"voit les mêmes chiffres, à jour."
+
+#: apps/core/templates/core/site/schools.html:9
+msgid "See the modules"
+msgstr "Voir les modules"
+
+#: apps/core/templates/core/site/schools.html:15
+#: apps/core/templates/core/site/schools.html:107
+msgid "Getting started"
+msgstr "Mise en route"
+
+#: apps/core/templates/core/site/schools.html:18
+msgid "Students in the electricity workshop of ITIG Don Bosco Goma"
+msgstr "Élèves dans l'atelier d'électricité de l'ITIG Don Bosco Goma"
+
+#: apps/core/templates/core/site/schools.html:25
+msgid "Head of studies, head, promoter"
+msgstr "Préfet, directeur, promoteur"
+
+#: apps/core/templates/core/site/schools.html:26
+msgid "Know where the school stands, every day"
+msgstr "Savoir où en est l'école, chaque jour"
+
+#: apps/core/templates/core/site/schools.html:27
+msgid ""
+"The dashboard shows what came in today, what is left to pay and which "
+"classes are behind, in dollars and in francs."
+msgstr ""
+"Le tableau de bord montre ce qui est entré aujourd'hui, ce qui reste à payer "
+"et quelles classes sont en retard, en dollars et en francs."
+
+#: apps/core/templates/core/site/schools.html:29
+msgid "Takings of the day, month and year, by currency"
+msgstr "Recettes du jour, du mois et de l'année, par devise"
+
+#: apps/core/templates/core/site/schools.html:30
+msgid "Collection by class and a printable list of unpaid fees"
+msgstr "Recouvrement par classe et liste des impayés, imprimable"
+
+#: apps/core/templates/core/site/schools.html:31
+msgid "Cash desks still open, cancellations to approve"
+msgstr "Caisses encore ouvertes, annulations à valider"
+
+#: apps/core/templates/core/site/schools.html:32
+msgid "Deliberation, report cards and end-of-year summaries"
+msgstr "Délibération, bulletins et situations de fin d'année"
+
+#: apps/core/templates/core/site/schools.html:35
+msgid "Management dashboard"
+msgstr "Tableau de bord de la direction"
+
+#: apps/core/templates/core/site/schools.html:43
+msgid "Fair fees, accounts that add up"
+msgstr "Des frais justes, des comptes qui tombent juste"
+
+#: apps/core/templates/core/site/schools.html:44
+msgid ""
+"Fee scales are set once by level, option or class; each student knows what "
+"they owe and when."
+msgstr ""
+"Les barèmes se règlent une fois par niveau, option ou classe ; chaque élève "
+"sait ce qu'il doit et quand."
+
+#: apps/core/templates/core/site/schools.html:46
+msgid "Tuition and other fees in USD or FC, in instalments"
+msgstr "Minerval et autres frais en USD ou en FC, en tranches"
+
+#: apps/core/templates/core/site/schools.html:47
+msgid "Discounts with a reason, a student's own payment plan"
+msgstr "Réductions avec motif, échéancier particulier d'un élève"
+
+#: apps/core/templates/core/site/schools.html:48
+msgid "Payment cancelled with a reason and approval, never erased"
+msgstr "Annulation d'un paiement avec motif et validation, jamais d'effacement"
+
+#: apps/core/templates/core/site/schools.html:49
+msgid "Cash counts with the difference, statements and Excel exports"
+msgstr "Clôtures de caisse avec écart, relevés et exports Excel"
+
+#: apps/core/templates/core/site/schools.html:52
+msgid "Fees and fee scales"
+msgstr "Frais et barèmes"
+
+#: apps/core/templates/core/site/schools.html:60
+msgid "Take a payment and print the receipt in seconds"
+msgstr "Encaisser et imprimer le reçu en quelques secondes"
+
+#: apps/core/templates/core/site/schools.html:61
+msgid ""
+"Find the student, type the amount, the receipt comes out. Even when the "
+"internet is down: payments go out as soon as the network is back."
+msgstr ""
+"On cherche l'élève, on tape le montant, le reçu sort. Même quand internet "
+"coupe : les paiements partent dès que le réseau revient."
+
+#: apps/core/templates/core/site/schools.html:63
+msgid "Full or partial payment, in dollars or francs"
+msgstr "Paiement complet ou partiel, en dollars ou en francs"
+
+#: apps/core/templates/core/site/schools.html:64
+msgid "58 mm, 80 mm or A4 receipt, with a verification QR code"
+msgstr "Reçu 58 mm, 80 mm ou A4, avec code QR de vérification"
+
+#: apps/core/templates/core/site/schools.html:65
+msgid "PIN code to work without internet on a known device"
+msgstr "Code PIN pour travailler sans internet sur un appareil connu"
+
+#: apps/core/templates/core/site/schools.html:66
+msgid "Evening count: counted, expected, difference"
+msgstr "Clôture du soir : compté, attendu, écart"
+
+#: apps/core/templates/core/site/schools.html:70
+msgid "Taking a payment at the cash desk"
+msgstr "Encaissement à la caisse"
+
+#: apps/core/templates/core/site/schools.html:71
+msgid "The cash desk on a phone"
+msgstr "La caisse sur un téléphone"
+
+#: apps/core/templates/core/site/schools.html:80
+msgid "Teacher, form teacher"
+msgstr "Enseignant, titulaire"
+
+#: apps/core/templates/core/site/schools.html:81
+msgid "Enter the marks, the report card follows"
+msgstr "Saisir les points, le bulletin suit"
+
+#: apps/core/templates/core/site/schools.html:82
+msgid ""
+"Each teacher only sees their own courses and classes. Totals, ranks and "
+"percentages are worked out automatically."
+msgstr ""
+"Chaque enseignant ne voit que ses cours et ses classes. Les totaux, les "
+"places et les pourcentages se calculent seuls."
+
+#: apps/core/templates/core/site/schools.html:84
+msgid "Marks by test or straight by term, as the school chooses"
+msgstr "Points par devoir ou directement par période, au choix de l'école"
+
+#: apps/core/templates/core/site/schools.html:85
+msgid "Conduct marked by the form teacher on the school's scale"
+msgstr "Conduite notée par le titulaire selon le barème de l'école"
+
+#: apps/core/templates/core/site/schools.html:86
+msgid ""
+"Mark sheets and report cards in the school's format, with an authenticity QR "
+"code"
+msgstr ""
+"Fiches de cotes et bulletins au format de l'école, avec code QR "
+"d'authenticité"
+
+#: apps/core/templates/core/site/schools.html:87
+msgid "Signed marks: a correction is written to the log"
+msgstr "Points signés : une correction est notée au journal"
+
+#: apps/core/templates/core/site/schools.html:90
+msgid "Entering marks"
+msgstr "Saisie des points"
+
+#: apps/core/templates/core/site/schools.html:96
+msgid "And also"
+msgstr "Et aussi"
+
+#: apps/core/templates/core/site/schools.html:96
+msgid "The office and discipline have their place"
+msgstr "Le secrétariat et la discipline ont leur place"
+
+#: apps/core/templates/core/site/schools.html:98
+msgid "Office"
+msgstr "Secrétariat"
+
+#: apps/core/templates/core/site/schools.html:98
+msgid ""
+"Enrolment, import of the Excel list with an error report, families and "
+"siblings, class lists."
+msgstr ""
+"Inscriptions, import de la liste Excel avec rapport d'erreurs, familles et "
+"fratries, listes de classe."
+
+#: apps/core/templates/core/site/schools.html:99
+msgid "Discipline"
+msgstr "Discipline"
+
+#: apps/core/templates/core/site/schools.html:99
+msgid "Student conduct, printable and tracked parent summons."
+msgstr "Conduite des élèves, convocations des parents imprimables et suivies."
+
+#: apps/core/templates/core/site/schools.html:100
+msgid "Your own roles"
+msgstr "Vos rôles à vous"
+
+#: apps/core/templates/core/site/schools.html:100
+msgid ""
+"The school creates its own roles and chooses what each one can see or do."
+msgstr ""
+"L'école crée ses propres rôles et choisit ce que chacun peut voir ou faire."
+
+#: apps/core/templates/core/site/schools.html:107
+msgid "Start in four steps"
+msgstr "Démarrer en quatre étapes"
+
+#: apps/core/templates/core/site/schools.html:107
+msgid ""
+"No need to wait for the new school year: you can start in the middle of the "
+"year, carrying over what has already been paid."
+msgstr ""
+"Pas besoin d'attendre la rentrée : on peut commencer en cours d'année, en "
+"reprenant ce qui a déjà été payé."
+
+#: apps/core/templates/core/site/schools.html:109
+#, python-format
+msgid "We show you %(name)s, online or at your school in Goma."
+msgstr "On vous montre %(name)s, en ligne ou dans votre école à Goma."
+
+#: apps/core/templates/core/site/schools.html:110
+msgid "Your classes, options and fees, to try without risk."
+msgstr "Vos classes, vos options et vos frais, pour essayer sans risque."
+
+#: apps/core/templates/core/site/schools.html:111
+msgid "Your students"
+msgstr "Vos élèves"
+
+#: apps/core/templates/core/site/schools.html:111
+msgid "Import of your Excel list; errors are flagged line by line."
+msgstr ""
+"Import de votre liste Excel ; les erreurs sont signalées ligne par ligne."
+
+#: apps/core/templates/core/site/schools.html:112
+msgid "Launch"
+msgstr "Lancement"
+
+#: apps/core/templates/core/site/schools.html:112
+msgid "Training with your staff, then the school's space goes live."
+msgstr ""
+"Prise en main avec votre personnel, puis l'espace de l'école passe en réel."
+
+#: apps/core/templates/core/site/schools.html:119
+msgid "What you need"
+msgstr "Ce qu'il faut"
+
+#: apps/core/templates/core/site/schools.html:119
+msgid "The equipment you already have is enough"
+msgstr "Le matériel que vous avez déjà suffit"
+
+#: apps/core/templates/core/site/schools.html:121
+msgid "A device"
+msgstr "Un appareil"
+
+#: apps/core/templates/core/site/schools.html:121
+msgid ""
+"Phone, tablet or computer, even an old one, with Chrome, Edge or Safari."
+msgstr ""
+"Téléphone, tablette ou ordinateur, même ancien, avec Chrome, Edge ou Safari."
+
+#: apps/core/templates/core/site/schools.html:122
+msgid "A printer, if you like"
+msgstr "Une imprimante, si vous voulez"
+
+#: apps/core/templates/core/site/schools.html:122
+msgid "58 or 80 mm ticket, or an ordinary A4 printer."
+msgstr "Ticket 58 ou 80 mm, ou imprimante A4 ordinaire."
+
+#: apps/core/templates/core/site/schools.html:123
+msgid "Internet, not all the time"
+msgstr "Internet, pas tout le temps"
+
+#: apps/core/templates/core/site/schools.html:123
+msgid ""
+"The cash desk works without a network; a connection now and then is enough."
+msgstr ""
+"La caisse marche sans réseau ; il suffit d'une connexion de temps en temps."
 
 #: apps/core/views.py:102
 #, python-format
@@ -3590,6 +5276,12 @@ msgstr "Clôtures de caisse"
 #: apps/finance/templates/finance/unpaid.html:28 apps/students/models.py:60
 msgid "Guardian"
 msgstr "Tuteur"
+
+#: apps/finance/documents.py:148
+#: apps/finance/templates/finance/statement.html:30
+#: apps/portal/templates/portal/receipt.html:29
+msgid "Fee"
+msgstr "Frais"
 
 #: apps/finance/documents.py:149
 msgid "Installment"
@@ -3898,6 +5590,11 @@ msgstr "taux de change"
 #: apps/finance/models.py:343
 msgid "exchange rates"
 msgstr "taux de change"
+
+#: apps/finance/models.py:373 apps/schools/models.py:90
+#: apps/schools/models.py:519
+msgid "code"
+msgstr "code"
 
 #: apps/finance/models.py:375
 msgid "Capital letters and digits only."
@@ -4971,10 +6668,6 @@ msgstr "Toutes les écoles"
 msgid "Some schools"
 msgstr "Certaines écoles"
 
-#: apps/notifications/models.py:172 apps/schools/models.py:224
-msgid "schools"
-msgstr "écoles"
-
 #: apps/notifications/models.py:187
 msgid "platform announcement"
 msgstr "annonce de la plateforme"
@@ -5002,10 +6695,6 @@ msgstr "Notification d'essai"
 #: apps/notifications/models.py:234
 msgid "Platform announcement"
 msgstr "Annonce de la plateforme"
-
-#: apps/notifications/models.py:236
-msgid "Payment received"
-msgstr "Paiement reçu"
 
 #: apps/notifications/models.py:237
 msgid "School announcement"
@@ -5158,11 +6847,6 @@ msgstr "L'adresse doit commencer par https://."
 #: apps/notifications/services.py:64
 msgid "Choose at least one class."
 msgstr "Choisissez au moins une classe."
-
-#: apps/notifications/templates/notifications/circular.html:11
-#: apps/notifications/templates/notifications/summons.html:15
-msgid "Management"
-msgstr "Direction"
 
 #: apps/notifications/templates/notifications/circular.html:13
 msgid "To the staff of the school"
@@ -5370,10 +7054,6 @@ msgstr "essai jusqu'au %(date)s"
 msgid "paid until %(date)s"
 msgstr "payé jusqu'au %(date)s"
 
-#: apps/schools/admin.py:72 apps/students/models.py:129
-msgid "students"
-msgstr "élèves"
-
 #: apps/schools/admin.py:76
 msgid "last activity"
 msgstr "dernière activité"
@@ -5385,10 +7065,6 @@ msgstr "support"
 #: apps/schools/admin.py:93
 msgid "Open as the school"
 msgstr "Ouvrir en tant qu'école"
-
-#: apps/schools/apps.py:10
-msgid "Schools"
-msgstr "Écoles"
 
 #: apps/schools/colors.py:87
 #, python-format

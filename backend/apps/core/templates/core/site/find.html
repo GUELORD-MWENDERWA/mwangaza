@@ -1,0 +1,23 @@
+{% extends "core/site/base.html" %}{% load i18n site_tags %}
+{% block robots %}{% if error %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block main %}
+<section class="finder night relief">
+  <div class="wrap">
+    <form class="findcard" action="{{ links.find }}" method="get" data-finder="{{ school_pattern }}">
+      <span class="chipic">{% icon "school" %}</span>
+      <h1>{% translate "Find my school" %}</h1>
+      <p class="muted" style="margin-top:8px">{% translate "For school staff: type your school's code, the start of the address it gave you." %}</p>
+      <label class="f" style="margin-top:22px" for="code">{% translate "School code" %}</label>
+      <div class="addr{% if error %} err{% endif %}"><input id="code" name="code" value="{{ code }}" required autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="url"{% if error %} aria-invalid="true" aria-describedby="code-err"{% else %} aria-describedby="goto"{% endif %}><span>{{ school_suffix }}</span></div>
+      {% if error %}<span class="errtxt" id="code-err">{% translate "Letters, numbers and hyphens only." %}</span>{% endif %}
+      <p class="goto" id="goto" data-goto hidden>{% icon "arrow" %}<span>{% translate "You are going to open" %} <b></b></span></p>
+      <button class="btn primary xl" type="submit" style="margin-top:20px">{% translate "Open my school" %}</button>
+      <p class="small muted" style="margin-top:12px">{% translate "Forgot the code? Ask your school office." %}</p>
+      <div class="or">{% translate "or" %}</div>
+      <p class="sb">{% translate "Are you a parent?" %}</p>
+      <p class="small muted" style="margin:4px 0 12px">{% translate "No school code needed: one space for all your children." %}</p>
+      <a class="btn lg" style="width:100%" href="{{ portal_url }}">{% icon "users" %}{% translate "Open the parent space" %}</a>
+    </form>
+  </div>
+</section>
+{% endblock %}

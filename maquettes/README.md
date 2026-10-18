@@ -145,13 +145,13 @@ Dessiné par Claude d'après l'étude de 13 sites (`docs/claude/recherches/2026-
 
 | Page | Fichier | Lot | Réf. | État |
 |---|---|---|---|---|
-| Accueil | `site/accueil.html` | Lancement | WEB.1a | à valider |
-| Pour les écoles (direction, comptable, caissier, enseignant ; mise en route) | `site/ecoles.html` | Lancement | WEB.1a | à valider |
-| Pour les parents (ce qu'ils voient, activation, installation) | `site/parents.html` | Lancement | WEB.1a | à valider |
-| Modules (catalogue, socle, prochainement) | `site/modules.html` | Lancement | WEB.1a | à valider |
-| Démonstration et contact (formulaire, état « envoyée ») | `site/demonstration.html` | Lancement | WEB.1a | à valider |
-| Trouver mon école | `site/trouver-mon-ecole.html` | Lancement | WEB.1a | à valider |
-| Mentions légales et confidentialité | `site/mentions.html` | Lancement | WEB.1a | à valider (texte à faire relire par un juriste) |
+| Accueil (+ bulletin officiel animé au nom de l'ITIG et carte « École pilote », 2026-10-18) | `site/accueil.html` | Lancement | WEB.1a | codé (WEB.1b) ; à valider |
+| Pour les écoles (direction, comptable, caissier, enseignant ; mise en route) | `site/ecoles.html` | Lancement | WEB.1a | codé (WEB.1b) ; à valider |
+| Pour les parents (ce qu'ils voient, activation, installation) | `site/parents.html` | Lancement | WEB.1a | codé (WEB.1b) ; à valider |
+| Modules (catalogue, socle, prochainement) | `site/modules.html` | Lancement | WEB.1a | codé (WEB.1b) ; à valider |
+| Démonstration et contact (formulaire, état « envoyée ») | `site/demonstration.html` | Lancement | WEB.1a | codé sans le formulaire (WEB.1b : contacts directs à sa place) ; formulaire en WEB.1d |
+| Trouver mon école | `site/trouver-mon-ecole.html` | Lancement | WEB.1a | codé (WEB.1b) ; à valider |
+| Mentions légales et confidentialité | `site/mentions.html` | Lancement | WEB.1a | codé (WEB.1b) : une seule adresse, `/confidentialite/` y mène ; texte dans les traductions, pas dans la console ; à faire relire par un juriste |
 
 ### Menu de la Gestion
 

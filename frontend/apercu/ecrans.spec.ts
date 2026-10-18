@@ -15,6 +15,7 @@ const WIDTHS = [
 ];
 const PORTAL = "http://localhost:5174/";
 const CONSOLE = "http://admin.localhost:5175/";
+const SITE = "http://localhost:8000/";
 // Une seule application ou un seul écran : `APERCU=gestion` ou `APERCU=gestion/dashboard`.
 const ONLY = process.env.APERCU ?? "";
 const report: Record<string, string[]> = {};
@@ -100,6 +101,31 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
   await visit(guest, `${PORTAL}activate`, "portail", "activation");
   await visit(guest, `${PORTAL}forgot-password`, "portail", "mot-de-passe-oublie");
   await visit(guest, `${CONSOLE}login`, "console", "connexion");
+  // Site public de la plateforme (WEB.1b), rendu par Django ; animations réduites : les sections
+  // qui apparaissent au défilement sont toutes visibles sur la capture pleine page.
+  await guest.emulateMedia({ reducedMotion: "reduce" });
+  for (const [path, name] of [
+    ["", "accueil"],
+    ["ecoles/", "ecoles"],
+    ["parents/", "parents"],
+    ["modules/", "modules"],
+    ["demonstration/", "demonstration"],
+    ["trouver-mon-ecole/", "trouver-mon-ecole"],
+    ["mentions-legales/", "mentions"],
+    ["en/", "accueil-en"],
+    ["en/schools/", "ecoles-en"],
+  ] as const) {
+    await visit(guest, `${SITE}${path}`, "site", name, async (page) => {
+      // Images en chargement différé : on descend jusqu'en bas pour qu'elles arrivent.
+      for (let y = 0; y < (await page.evaluate(() => document.body.scrollHeight)); y += 600) {
+        await page.evaluate((top) => window.scrollTo(0, top), y);
+        await page.waitForTimeout(60);
+      }
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.waitForLoadState("networkidle").catch(() => undefined);
+    });
+  }
+  await guest.emulateMedia({ reducedMotion: null });
 
   if (!ONLY || ONLY.startsWith("gestion")) {
     const head = await staff(browser, "0000001001", true);

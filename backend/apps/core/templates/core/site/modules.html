@@ -1,0 +1,47 @@
+{% extends "core/site/base.html" %}{% load i18n site_tags %}
+{% block main %}
+<section class="phero">
+  <div class="wrap split">
+    <div>
+      <span class="eyebrow">{% translate "Modules" %}</span>
+      <h1 class="display">{% translate "Each school chooses its modules" %}</h1>
+      <p class="lead">{% translate "Start with fees and the cash desk, add marks or the parent space when you are ready. Nothing is lost when a module is removed: the data comes back when it is turned on again." %}</p>
+      <div class="ctas"><a class="btn primary lg" href="{{ links.contact }}">{% translate "Request a demo" %}</a></div>
+    </div>
+    <figure class="photo">{% translate "Students in the car mechanics workshop of ITIG Don Bosco Goma" as alt %}{% photo "itig-atelier-mecanique-auto" alt %}</figure>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="sc base rv">
+      <span class="chipic">{% icon "shield" %}</span>
+      <div><h3>{% translate "Always included: the core" %}</h3><p>{% translate "School settings, years, classes and options, staff accounts, roles and rights, two-step sign-in, action log, backup every night." %}</p></div>
+    </div>
+    <div class="g3">
+      {% for module in modules %}<div class="sc rv"><span class="chipic">{% icon module.icon %}</span><h3>{{ module.name }}</h3>
+        {% if module.features %}<ul class="checks">{% for feature in module.features %}<li>{% icon "check" %}{{ feature }}</li>{% endfor %}</ul>{% endif %}
+        {% if module.needs %}<span class="tag">{% translate "With:" %} {{ module.needs|join:", " }}</span>{% endif %}</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="sec alt">
+  <div class="wrap">
+    <div class="sechd rv"><span class="eyebrow">{% translate "Coming soon" %}</span><h2 class="st">{% translate "What comes next" %}</h2><p class="lead">{% blocktranslate trimmed with name=platform.name %}Planned, with no promised date. Schools that use {{ name }} get it without changing app.{% endblocktranslate %}</p></div>
+    <div class="g3">
+      {% for title, text in upcoming %}<div class="sc rv"><span class="tag v">{% translate "Coming soon" %}</span><h3>{{ title }}</h3><p>{{ text }}</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="night relief">
+  <div class="wrap cta">
+    <h2 class="st">{% translate "Which modules for your school?" %}</h2>
+    <p class="lead">{% translate "Tell us how your school works: we suggest the useful modules, and nothing more." %}</p>
+    <div class="ctas"><a class="btn lamp lg" href="{{ links.contact }}">{% translate "Request a demo" %}</a>{% if whatsapp %}<a class="btn onnight lg" href="{{ whatsapp }}" rel="noopener">{% icon "chat" %}{% translate "Write on WhatsApp" %}</a>{% endif %}</div>
+  </div>
+</section>
+{% endblock %}

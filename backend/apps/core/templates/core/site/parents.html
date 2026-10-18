@@ -1,0 +1,80 @@
+{% extends "core/site/base.html" %}{% load i18n site_tags %}
+{% block main %}
+<section class="hero relief">
+  <div class="wrap heroin">
+    <div>
+      <span class="eyebrow">{% translate "Parent space" %}</span>
+      <h1 class="display">{% translate "Follow your children's school on your phone" %}</h1>
+      <p class="lead">{% translate "Payments, receipts, what is left to pay, notices and summons: everything the school shares with you, for each child, even in different schools." %}</p>
+      <div class="ctas">
+        <a class="btn lamp lg" href="{{ portal_url }}">{% translate "Open the parent space" %}</a>
+        <a class="btn onnight lg" href="#activer">{% translate "Activate my account" %}</a>
+      </div>
+      <div class="facts"><span>{% icon "check" %}Français · English</span></div>
+    </div>
+    <div class="phonef solo rv"><div class="scr">{% translate "Home of the parent space: the children and their payments" as alt %}{% capture "portail-accueil-mobile" alt first=True %}</div></div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="sechd rv"><span class="eyebrow">{% translate "What you see" %}</span><h2 class="st">{% translate "The essentials of the school, without travelling" %}</h2></div>
+    <div class="g4">
+      <div class="sc rv"><div class="thumb tall">{% capture "portail-enfant-paiements-mobile" %}</div><h3>{% translate "Payments and receipts" %}</h3><p>{% translate "Each payment, its receipt, and what is left to pay by instalment." %}</p></div>
+      <div class="sc rv"><div class="thumb tall">{% capture "portail-annonces-mobile" %}</div><h3>{% translate "Notices" %}</h3><p>{% translate "The school's notices, with no paper lost in the school bag." %}</p></div>
+      <div class="sc rv"><div class="thumb tall">{% capture "portail-calendrier-mobile" %}</div><h3>{% translate "Calendar and summons" %}</h3><p>{% translate "Holidays, meetings, exams, and the summons that concern you." %}</p></div>
+      <div class="sc rv"><div class="thumb tall">{% capture "portail-notifications-mobile" %}</div><h3>{% translate "Alerts on the screen" %}</h3><p>{% translate "Payment received, due date coming: you are told on your phone." %}</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt" id="activer">
+  <div class="wrap">
+    <div class="sechd rv"><span class="eyebrow">{% translate "Activate your account" %}</span><h2 class="st">{% translate "Three steps, only once" %}</h2><p class="lead">{% translate "Your account is created by the school. You activate it with the family code it gives you." %}</p></div>
+    <ol class="steps3">
+      <li class="rv"><h3>{% translate "The family code" %}</h3><p>{% translate "It is printed on your child's registration form, or given by the school office." %}</p><span class="codebox"><small class="muted">{% translate "Family code" %}</small><b>K7M4QP2A</b></span></li>
+      <li class="rv"><h3>{% translate "Your phone" %}</h3><p>{% blocktranslate trimmed with host=portal_host %}Open <b>{{ host }}</b>, type the number given to the school and the family code.{% endblocktranslate %}</p></li>
+      <li class="rv"><h3>{% translate "Your password" %}</h3><p>{% translate "Choose it. Next time, the number and the password are enough." %}</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="sechd rv"><span class="eyebrow">{% translate "On your home screen" %}</span><h2 class="st">{% translate "Like an app, without a store" %}</h2><p class="lead">{% translate "The parent space is added to the home screen and opens with one tap. It takes very little space." %}</p></div>
+    <div class="g2">
+      <div class="sc rv"><span class="chipic">{% icon "phone" %}</span><h3>Android (Chrome)</h3><ol class="small steps-list"><li>{% blocktranslate trimmed with host=portal_host %}Open {{ host }} in Chrome.{% endblocktranslate %}</li><li>{% translate "Tap the ⋮ menu at the top right." %}</li><li>{% translate "Choose “Install app” or “Add to home screen”." %}</li></ol></div>
+      <div class="sc rv"><span class="chipic">{% icon "phone" %}</span><h3>iPhone (Safari)</h3><ol class="small steps-list"><li>{% blocktranslate trimmed with host=portal_host %}Open {{ host }} in Safari.{% endblocktranslate %}</li><li>{% translate "Tap the Share button." %}</li><li>{% translate "Choose “Add to Home Screen”." %}</li></ol></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt">
+  <div class="wrap split">
+    <div class="rv">
+      <span class="eyebrow">{% translate "Your data" %}</span>
+      <h2 class="st">{% translate "You only see your own children" %}</h2>
+      <ul class="checks">
+        <li>{% icon "check" %}{% translate "The school decides what it shares; it can suspend an account." %}</li>
+        <li>{% icon "check" %}{% translate "Only you know your password." %}</li>
+        <li>{% icon "check" %}{% translate "Each receipt has a QR code anyone can check." %}</li>
+      </ul>
+      <a class="more" href="{{ links.legal }}#confidentialite">{% translate "Read the privacy policy" %} {% icon "arrow" %}</a>
+    </div>
+    <div class="faq rv">
+      <details open><summary>{% translate "I lost my family code" %}{% icon "chevdown" %}</summary><p>{% translate "Ask the school office for a new one: the old one no longer works." %}</p></details>
+      <details><summary>{% translate "I changed my phone number" %}{% icon "chevdown" %}</summary><p>{% translate "Tell the school, or use your profile if you are still signed in: the school approves the change." %}</p></details>
+      <details><summary>{% translate "My children are in two schools" %}{% icon "chevdown" %}</summary><p>{% blocktranslate trimmed with name=platform.name %}One account is enough if both schools use {{ name }} with the same number.{% endblocktranslate %}</p></details>
+      <details><summary>{% translate "Can I pay online?" %}{% icon "chevdown" %}</summary><p>{% translate "Not yet: you pay at the school's cash desk. Mobile Money payment is planned." %}</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="night relief">
+  <div class="wrap cta">
+    <h2 class="st">{% blocktranslate trimmed with name=platform.name %}Does your school use {{ name }}?{% endblocktranslate %}</h2>
+    <p class="lead">{% translate "Open the parent space with the number given to the school. No code yet? Ask the school office." %}</p>
+    <div class="ctas"><a class="btn lamp lg" href="{{ portal_url }}">{% translate "Open the parent space" %}</a><a class="btn onnight lg" href="{{ links.contact }}">{% blocktranslate trimmed with name=platform.name %}Suggest {{ name }} to the school{% endblocktranslate %}</a></div>
+  </div>
+</section>
+{% endblock %}

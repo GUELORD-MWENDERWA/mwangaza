@@ -1,306 +1,205 @@
-{% load i18n static %}<!doctype html>
-<html lang="{{ lang }}">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ texts.title }}</title>
-<meta name="description" content="{{ texts.description }}">
-<meta name="author" content="{{ author }}">
-<meta name="robots" content="index, follow, max-image-preview:large">
-<link rel="canonical" href="{{ url }}">
-<link rel="alternate" hreflang="fr" href="{{ site }}{{ paths.fr }}">
-<link rel="alternate" hreflang="en" href="{{ site }}{{ paths.en }}">
-<link rel="alternate" hreflang="x-default" href="{{ site }}{{ paths.fr }}">
-<link rel="alternate" type="text/markdown" title="llms.txt" href="{{ site }}/llms.txt">
-<meta name="theme-color" content="#0B1C35">
-{% if platform.icon_url %}<link rel="icon" href="{{ platform.icon_url }}">
-<link rel="apple-touch-icon" href="{{ platform.icon_url }}">{% else %}<link rel="icon" type="image/svg+xml" href="{% static 'core/site/symbole.svg' %}">
-<link rel="icon" type="image/png" sizes="192x192" href="{% static 'core/site/icon-192.png' %}">
-<link rel="apple-touch-icon" href="{% static 'core/site/apple-touch-icon.png' %}">{% endif %}
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="{{ platform.name }}">
-<meta property="og:title" content="{{ texts.title }}">
-<meta property="og:description" content="{{ texts.description }}">
-<meta property="og:url" content="{{ url }}">
-<meta property="og:image" content="{{ image }}">
-<meta property="og:image:alt" content="{{ platform.name }}">
-<meta property="og:locale" content="{{ og_locale }}">
-<meta property="og:locale:alternate" content="{{ og_alternate }}">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="{{ texts.title }}">
-<meta name="twitter:description" content="{{ texts.description }}">
-<meta name="twitter:image" content="{{ image }}">
-<link rel="preload" href="{% static 'core/site/atkinson-hyperlegible-latin-700-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
-<script type="application/ld+json">{{ json_ld }}</script>
-<style>
-@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 400; font-display: swap; src: url("{% static 'core/site/atkinson-hyperlegible-next-latin-400-normal.woff2' %}") format("woff2"); }
-@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 700; font-display: swap; src: url("{% static 'core/site/atkinson-hyperlegible-next-latin-700-normal.woff2' %}") format("woff2"); }
-@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 800; font-display: swap; src: url("{% static 'core/site/atkinson-hyperlegible-next-latin-800-normal.woff2' %}") format("woff2"); }
-:root {
-  --night: #0B1C35; --night-2: #15294B; --night-ink: #E6ECF5; --night-soft: #C3CFE0;
-  --lamp: {{ platform.accent_color }}; --lake: {{ platform.primary_color }};
-  --ink: #101828; --ink-2: #475467; --ink-3: #5B677A; --surface: #F3F5F9; --line: #E2E8F0; --ok: #127A48; --ok-50: #E8F6EE;
-}
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { margin: 0; background: var(--surface); color: var(--ink); font: 16px/1.55 "Atkinson Hyperlegible Next", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-a { color: var(--lake); }
-h1, h2, h3 { line-height: 1.15; letter-spacing: -.01em; margin: 0; }
-.wrap { max-width: 1160px; margin: 0 auto; padding: 0 16px; }
-.skip { position: absolute; left: -999px; }
-.skip:focus { left: 16px; top: 16px; background: #fff; padding: 8px 12px; border-radius: 8px; z-index: 2; }
-:focus-visible { outline: 3px solid var(--lamp); outline-offset: 2px; }
-
-/* En-tête et accroche, sur le bleu nuit (lignes de relief en filigrane). */
-.top { background: var(--night) url("{% static 'core/site/relief.svg' %}") center/cover; color: var(--night-ink); }
-.bar { display: flex; align-items: center; gap: 20px; min-height: 76px; }
-.brand { display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; font-weight: 700; font-size: 1.35rem; letter-spacing: -.01em; }
-.brand svg, .brand img.mark { width: 40px; height: 40px; flex: none; }
-.brand img.logo { height: 40px; max-width: 160px; object-fit: contain; }
-.nav { display: flex; gap: 22px; margin-left: auto; }
-.nav a, .lang { color: var(--night-soft); text-decoration: none; font-weight: 700; font-size: .95rem; }
-.nav a:hover, .lang:hover { color: #fff; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 12px 20px; border-radius: 10px; font: inherit; font-weight: 700; text-decoration: none; border: 1.5px solid transparent; cursor: pointer; }
-.btn.lamp { background: var(--lamp); color: var(--night); }
-.btn.lamp:hover { filter: brightness(1.06); }
-.btn.ghost { border-color: #6B635C; color: #fff; }
-.btn.ghost:hover { border-color: var(--night-soft); }
-.btn.lake { background: var(--lake); color: #fff; }
-.btn.line { border-color: var(--line); color: var(--ink); background: #fff; }
-.btn.sm { min-height: 40px; padding: 8px 14px; font-size: .95rem; }
-.hero { position: relative; overflow: hidden; padding: 56px 0 72px; }
-.hero::before { content: ""; position: absolute; width: 720px; height: 720px; right: -180px; top: -260px; background: radial-gradient(circle, color-mix(in srgb, var(--lamp) 22%, transparent), transparent 62%); pointer-events: none; }
-.hero .wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 56px; align-items: center; }
-.eyebrow { display: inline-block; background: color-mix(in srgb, var(--lamp) 16%, transparent); color: var(--lamp); border: 1px solid color-mix(in srgb, var(--lamp) 40%, transparent); border-radius: 999px; padding: 4px 14px; font-weight: 700; font-size: .9rem; }
-.hero h1 { font-size: 3rem; color: #fff; margin: 18px 0 18px; }
-.hero .lead { font-size: 1.18rem; color: var(--night-soft); max-width: 36em; margin: 0 0 28px; }
-.actions { display: flex; flex-wrap: wrap; gap: 12px; }
-.facts { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 30px 0 0; padding: 0; list-style: none; color: var(--night-ink); font-weight: 700; font-size: .95rem; }
-.facts li { display: flex; align-items: center; gap: 8px; }
-.facts li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--lamp); }
-
-/* Reçu d'exemple (données inventées). */
-.receipt { background: #fff; color: var(--ink); border-radius: 16px; padding: 22px 22px 18px; box-shadow: 0 24px 60px rgba(0,0,0,.35); max-width: 380px; justify-self: center; width: 100%; transform: rotate(1.5deg); }
-.receipt .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; border-bottom: 1px dashed var(--line); padding-bottom: 14px; }
-.receipt .head b { display: block; font-size: 1.05rem; }
-.receipt .head span { color: var(--ink-3); font-size: .85rem; }
-.receipt dl { margin: 14px 0; display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: .95rem; }
-.receipt dt { color: var(--ink-3); }
-.receipt dd { margin: 0; text-align: right; font-weight: 700; }
-.receipt .total { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px dashed var(--line); padding-top: 14px; }
-.receipt .total b { font-size: 1.6rem; font-variant-numeric: tabular-nums; }
-.pill { display: inline-flex; align-items: center; gap: 6px; background: var(--ok-50); color: var(--ok); border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: .85rem; margin-top: 14px; }
-
-/* Sections claires. */
-section.band { padding: 72px 0; }
-section.band.alt { background: #fff; border-block: 1px solid var(--line); }
-.kicker { color: var(--ink-3); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; }
-h2 { font-size: 2.1rem; margin: 8px 0 14px; }
-.intro { color: var(--ink-2); font-size: 1.1rem; max-width: 42em; margin: 0 0 36px; }
-.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-.card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
-.alt .card { background: var(--surface); }
-.card .ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--lamp) 22%, #fff); color: var(--night); margin-bottom: 14px; }
-.card h3 { font-size: 1.1rem; margin-bottom: 6px; }
-.card p { margin: 0; color: var(--ink-2); font-size: .97rem; }
-.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
-.roles, .checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-.roles li { background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--lamp); border-radius: 10px; padding: 14px 16px; }
-.roles b { display: block; }
-.roles span { color: var(--ink-2); }
-.checks li { display: flex; gap: 12px; align-items: flex-start; font-size: 1.02rem; }
-.checks svg { flex: none; margin-top: 2px; color: var(--ok); }
-.faq { display: grid; gap: 12px; max-width: 860px; }
-.faq details { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 0 20px; }
-.faq summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 0; font-weight: 700; font-size: 1.05rem; }
-.faq summary::-webkit-details-marker { display: none; }
-.faq summary::after { content: "+"; font-size: 1.5rem; line-height: 1; color: var(--ink-3); }
-.faq details[open] summary::after { content: "−"; }
-.faq details p { margin: 0 0 18px; color: var(--ink-2); }
-
-/* Contact et espaces. */
-.contact { background: var(--night); color: var(--night-ink); border-radius: 20px; padding: 40px; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 40px; align-items: center; }
-.contact h2 { color: #fff; }
-.contact p { color: var(--night-soft); margin: 0 0 24px; }
-.spaces { display: grid; gap: 14px; }
-.space { background: var(--night-2); border-radius: 14px; padding: 18px; }
-.space b { display: block; color: #fff; margin-bottom: 4px; }
-.space p { margin: 0 0 12px; font-size: .95rem; }
-.code { display: flex; gap: 8px; flex-wrap: wrap; }
-.code label { flex: 1 1 200px; display: flex; align-items: center; background: #fff; border-radius: 10px; padding: 0 12px; min-height: 48px; color: var(--ink-3); }
-.code input { border: 0; outline: 0; font: inherit; color: var(--ink); min-width: 0; flex: 1; background: transparent; }
-.code label:focus-within { box-shadow: 0 0 0 3px var(--lamp); }
-
-footer { background: var(--night); color: var(--night-soft); padding: 36px 0; margin-top: 72px; font-size: .95rem; }
-footer .wrap { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; justify-content: space-between; }
-footer a { color: var(--night-ink); }
-footer details { flex-basis: 100%; }
-footer summary { cursor: pointer; color: var(--night-ink); }
-footer details p { white-space: pre-line; max-width: 60em; }
-
-@media (max-width: 960px) {
-  .hero .wrap, .split, .contact { grid-template-columns: minmax(0, 1fr); }
-  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .receipt { transform: none; }
-  .nav { display: none; }
-  .bar .lang { margin-left: auto; }
-}
-@media (max-width: 560px) {
-  body { font-size: 15px; }
-  .bar { gap: 12px; min-height: 64px; }
-  .brand { font-size: 1.2rem; }
-  .brand svg, .brand img.mark { width: 36px; height: 36px; }
-  .bar .btn { display: none; }
-  .hero { padding: 32px 0 48px; }
-  .hero h1 { font-size: 2.05rem; }
-  .hero .lead { font-size: 1.05rem; }
-  .actions .btn { flex: 1 1 100%; }
-  section.band { padding: 48px 0; }
-  h2 { font-size: 1.6rem; }
-  .grid { grid-template-columns: minmax(0, 1fr); }
-  .contact { padding: 24px 18px; border-radius: 16px; }
-  footer { margin-top: 48px; }
-}
-</style>
-</head>
-<body>
-<a class="skip" href="#contenu">{% translate "Skip to content" %}</a>
-<div class="top">
-  <header class="wrap bar">
-    <a class="brand" href="{% if lang == 'en' %}{{ paths.en }}{% else %}{{ paths.fr }}{% endif %}" aria-label="{{ platform.name }}">
-      {% if platform.logo_url %}<img class="logo" src="{{ platform.logo_url }}" alt="">{% else %}<svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="var(--lamp)"/><g transform="translate(0 1.5)" fill="var(--night)"><path d="M15.5 49V24L32 40.5L48.5 24V49" fill="none" stroke="var(--night)" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M33.5 4.5C35 10 40 12.5 40 19.5A8 8 0 0 1 24 19.5C24 15.6 25.9 13.2 28.4 11.6C28.5 14 29.4 15.6 31 16.3C30.3 12 31.3 7.8 33.5 4.5Z"/><path d="M32 14.5C33.6 17 35 18.3 35 20.5A3 3 0 0 1 29 20.5C29 18.6 30.3 16.8 32 14.5Z" fill="var(--lamp)"/></g></svg>{% endif %}
-      <span>{{ platform.name }}</span>
-    </a>
-    <nav class="nav" aria-label="{% translate 'Main menu' %}">
-      <a href="#fonctions">{% translate "Features" %}</a>
-      <a href="#questions">{% translate "Questions" %}</a>
-      <a href="#contact">{% translate "Contact" %}</a>
-    </nav>
-    {% if other_lang == "en" %}<a class="lang" href="{{ paths.en }}" hreflang="en" lang="en">English</a>{% else %}<a class="lang" href="{{ paths.fr }}" hreflang="fr" lang="fr">Français</a>{% endif %}
-    <a class="btn ghost sm" href="{{ portal_url }}">{% translate "Parent space" %}</a>
-  </header>
-  <div class="hero" id="contenu">
-    <div class="wrap">
-      <div>
-        <span class="eyebrow">{{ texts.eyebrow }}</span>
-        <h1>{{ texts.headline }}</h1>
-        <p class="lead">{{ texts.lead }}</p>
-        <div class="actions">
-          <a class="btn lamp" href="#contact">{% translate "Ask for a demonstration" %}</a>
-          <a class="btn ghost" href="#ecole">{% translate "Open my school's space" %}</a>
-        </div>
-        <ul class="facts">
-          <li>{% translate "Works offline" %}</li>
-          <li>{% translate "USD and FC" %}</li>
-          <li>{% translate "Receipts with QR code" %}</li>
-          <li>{% translate "Parent portal" %}</li>
-        </ul>
+{% extends "core/site/base.html" %}{% load i18n static site_tags %}
+{% block main %}
+<section class="hero relief">
+  <div class="wrap heroin">
+    <div>
+      <span class="eyebrow">{{ texts.eyebrow }}</span>
+      <h1 class="display">{{ texts.headline }}</h1>
+      <p class="lead">{{ texts.lead }}</p>
+      <div class="ctas">
+        <a class="btn lamp lg" href="{{ links.contact }}">{% translate "Request a demo" %}</a>
+        <a class="btn onnight lg" href="{{ links.schools }}">{% translate "See how it works" %}</a>
       </div>
-      <figure class="receipt" aria-label="{% translate 'Example of a receipt (made-up data)' %}">
-        <div class="head">
-          <div><b>{% translate "Payment receipt" %}</b><span>{% translate "No." %} C1-26-000154 · 14:32</span></div>
-          <svg width="52" height="52" viewBox="0 0 21 21" aria-hidden="true" shape-rendering="crispEdges"><path fill="var(--ink)" d="M0 0h7v7H0zM14 0h7v7h-7zM0 14h7v7H0z"/><path fill="#fff" d="M1 1h5v5H1zM15 1h5v5h-5zM1 15h5v5H1z"/><path fill="var(--ink)" d="M2 2h3v3H2zM16 2h3v3h-3zM2 16h3v3H2zM8 1h1v2H8zM10 0h2v1h-2zM9 4h2v2H9zM12 3h1v3h-1zM8 8h2v1H8zM11 8h3v2h-3zM15 8h2v1h-2zM18 9h3v1h-3zM0 8h2v2H0zM3 9h3v1H3zM8 11h1v3H8zM10 12h2v2h-2zM13 11h1v1h-1zM15 11h1v3h-1zM17 12h2v1h-2zM19 14h2v2h-2zM8 15h3v1H8zM12 16h2v2h-2zM9 18h2v3H9zM15 16h1v2h-1zM17 17h2v1h-2zM14 19h3v2h-3zM19 19h2v1h-2z"/></svg>
+      <div class="facts"><span>{% icon "check" %}{% translate "Dollars and francs" %}</span><span>{% icon "check" %}{% translate "Receipt in 58 mm, 80 mm or A4" %}</span><span>{% icon "check" %}Français · English</span></div>
+    </div>
+    <div class="heroart">
+      <div class="win"><div class="wbar"><i></i><i></i><i></i><span class="url">{{ demo_address }}</span></div>
+        <div class="screens" data-cycle>
+          {% translate "Dashboard: today's takings, unpaid fees and collection by class" as alt %}{% capture "gestion-tableau-de-bord" alt first=True %}
+          {% translate "Cash desk: taking a payment" as alt %}{% capture "gestion-caisse-encaissement" alt later=True %}
+          {% translate "Unpaid fees by class, fee and instalment" as alt %}{% capture "gestion-impayes" alt later=True %}
         </div>
-        <dl>
-          <dt>{% translate "Student" %}</dt><dd>Amani K.</dd>
-          <dt>{% translate "Class" %}</dt><dd>{% translate "3rd year Electricity A" %}</dd>
-          <dt>{% translate "Fee" %}</dt><dd>{% translate "Tuition · 1st instalment" %}</dd>
-        </dl>
-        <div class="total"><span>{% translate "Amount paid" %}</span><b>{{ sample_amount }}</b></div>
-        <span class="pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>{% translate "Taken offline, synced" %}</span>
-      </figure>
+      </div>
+      <div class="phonef"><div class="scr">{% translate "Parent space on a phone: the children and their payments" as alt %}{% capture "portail-accueil-mobile" alt %}</div></div>
+      {% include "core/site/_sync.html" %}
     </div>
   </div>
-</div>
+</section>
 
-<main>
-  <section class="band" id="fonctions" aria-labelledby="fonctions-titre">
-    <div class="wrap">
-      <span class="kicker">{% translate "Features" %}</span>
-      <h2 id="fonctions-titre">{% translate "Everything the school needs, in one place" %}</h2>
-      <p class="intro">{% blocktranslate with name=platform.name %}From enrolment to the receipt in the parent's hands, {{ name }} follows the whole school year.{% endblocktranslate %}</p>
-      <div class="grid">
-        {% for icon, title, text in texts.features %}
-        <article class="card">
-          <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ icon }}"/></svg></div>
-          <h3>{{ title }}</h3>
-          <p>{{ text }}</p>
-        </article>
-        {% endfor %}
-      </div>
-    </div>
-  </section>
+<section class="band" aria-label="{% translate 'In short' %}">
+  <div class="wrap bandin">
+    <div><span class="chipic">{% icon "wallet" %}</span><span>{% translate "Dollars and francs" %}<small>{% translate "each fee in its own currency" %}</small></span></div>
+    <div><span class="chipic">{% icon "receipt" %}</span><span>{% translate "A receipt in seconds" %}<small>{% translate "58 mm, 80 mm or A4, QR code" %}</small></span></div>
+    <div><span class="chipic">{% icon "wifioff" %}</span><span>{% translate "Even without internet" %}<small>{% translate "cash desk and student search" %}</small></span></div>
+    <div><span class="chipic">{% icon "users" %}</span><span>{% translate "Parents follow along" %}<small>{% translate "on their phone" %}</small></span></div>
+  </div>
+</section>
 
-  <section class="band alt" aria-labelledby="roles-titre">
-    <div class="wrap split">
-      <div>
-        <span class="kicker">{% translate "For everyone at school" %}</span>
-        <h2 id="roles-titre">{% translate "Each person sees what concerns them" %}</h2>
-        <ul class="roles">
-          {% for role, text in texts.roles %}<li><b>{{ role }}</b><span>{{ text }}</span></li>{% endfor %}
-        </ul>
-      </div>
-      <div>
-        <span class="kicker">{% translate "Made for the DRC" %}</span>
-        <h2>{% translate "Designed for schools as they really are" %}</h2>
-        <ul class="checks">
-          {% for item in texts.local %}<li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>{{ item }}</span></li>{% endfor %}
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="band" id="questions" aria-labelledby="questions-titre">
-    <div class="wrap">
-      <span class="kicker">{% translate "Questions" %}</span>
-      <h2 id="questions-titre">{% translate "Frequently asked questions" %}</h2>
-      <div class="faq">
-        {% for question, answer in texts.faq %}
-        <details{% if forloop.first %} open{% endif %}><summary>{{ question }}</summary><p>{{ answer }}</p></details>
-        {% endfor %}
-      </div>
-    </div>
-  </section>
-
-  <section class="band" id="contact" aria-labelledby="contact-titre" style="padding-top:0">
-    <div class="wrap">
-      <div class="contact">
-        <div>
-          <h2 id="contact-titre">{% blocktranslate with name=platform.name %}Try {{ name }} in your school{% endblocktranslate %}</h2>
-          <p>{% translate "We open a trial space with your classes and fees, and help your staff get started." %}</p>
-          <div class="actions">
-            {% if platform.support_phone %}<a class="btn lamp" href="tel:{{ platform.support_phone }}">{% translate "Call" %} {{ phone }}</a>{% endif %}
-            {% if whatsapp %}<a class="btn ghost" href="{{ whatsapp }}" rel="noopener">WhatsApp</a>{% endif %}
-            {% if platform.support_email %}<a class="btn ghost" href="mailto:{{ platform.support_email }}">{{ platform.support_email }}</a>{% endif %}
-          </div>
-        </div>
-        <div class="spaces">
-          <div class="space" id="ecole">
-            <b>{% translate "My school's space" %}</b>
-            <p>{% translate "Staff: type your school's address code." %}</p>
-            <form class="code" action="/ecole/" method="get">
-              {% if lang == "en" %}<input type="hidden" name="lang" value="en">{% endif %}
-              <label><input name="code" required pattern="[a-z0-9\-]+" autocapitalize="none" autocomplete="off" spellcheck="false" aria-label="{% translate 'School code' %}" placeholder="{% translate 'code' %}"><span>{{ school_suffix }}</span></label>
-              <button class="btn lamp" type="submit">{% translate "Open" context "website button" %}</button>
-            </form>
-          </div>
-          <div class="space">
-            <b>{% translate "Parent space" %}</b>
-            <p>{% translate "Payments, receipts and school news for your children." %}</p>
-            <a class="btn ghost sm" href="{{ portal_url }}">{% translate "Open the parent space" %}</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer>
+<section class="sec alt">
   <div class="wrap">
-    <span>© {{ year }} {{ copyright }}. {% translate "All rights reserved." %}</span>
-    <span>{% if other_lang == "en" %}<a href="{{ paths.en }}" hreflang="en" lang="en">English</a>{% else %}<a href="{{ paths.fr }}" hreflang="fr" lang="fr">Français</a>{% endif %} · <a href="{{ portal_url }}">{% translate "Parent space" %}</a></span>
-    {% if platform.legal_notice %}<details><summary>{% translate "Legal notice" %}</summary><p>{{ platform.legal_notice }}</p></details>{% endif %}
+    <div class="sechd rv"><span class="eyebrow">{% translate "Designed for schools here" %}</span><h2 class="st">{% translate "Made for power cuts, two currencies and busy parents" %}</h2></div>
+    <div class="g3">
+      <div class="sc rv">
+        <div class="demo">{% include "core/site/_sync.html" with inline=True %}<span class="small muted">{% translate "Receipt C1-000482 printed without a network" %}</span></div>
+        <h3>{% translate "The cash desk never stops" %}</h3>
+        <p>{% translate "Internet down? The cashier takes the payment and prints the receipt. Payments go out by themselves when the network is back, never twice." %}</p>
+      </div>
+      <div class="sc rv">
+        <div class="demo"><span class="amt">{{ sample.usd }} + {{ sample.cdf }}</span><span class="rate">{% blocktranslate trimmed with usd=sample.one_usd cdf=sample.rate %}Rate of the year: {{ usd }} = {{ cdf }}, kept on each payment{% endblocktranslate %}</span></div>
+        <h3>{% translate "Dollars and francs, never mixed" %}</h3>
+        <p>{% translate "Each fee has its currency. Amounts are never added from one currency to the other, and each payment keeps its rate." %}</p>
+      </div>
+      <div class="sc rv">
+        <div class="demo"><div class="notif">{% include "core/site/_mark.html" %}<span><b>{% translate "Payment received" %}</b>{% blocktranslate trimmed with amount=sample.paid %}{{ amount }} for KAMBALE Josué · receipt C1-000482{% endblocktranslate %}</span></div></div>
+        <h3>{% translate "Parents are told" %}</h3>
+        <p>{% translate "On their phone, parents see the payments, receipts, due dates and notices of each child." %}</p>
+      </div>
+    </div>
   </div>
-</footer>
-</body>
-</html>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="sechd rv"><span class="eyebrow">{% blocktranslate trimmed with name=platform.name %}A day with {{ name }}{% endblocktranslate %}</span><h2 class="st">{% translate "From opening the cash desk to the evening dashboard" %}</h2></div>
+    <ol class="day">
+      <li class="rv"><span class="t">07:30</span><span class="dot"></span><div><h3>{% translate "The cash desk opens" %}</h3><p>{% translate "The cashier counts the opening float and opens the session, on the computer or the tablet." %}</p><span class="who">{% translate "Cashier" %}</span></div><figure>{% translate "Opening the cash desk" as alt %}{% capture "gestion-caisse-ouverture" alt %}</figure></li>
+      <li class="rv"><span class="t">08:10</span><span class="dot"></span><div><h3>{% translate "A parent pays the 2nd instalment" %}</h3><p>{% translate "In dollars or francs, in full or in part: the receipt comes out in seconds, with a QR code to check it." %}</p><span class="who">{% translate "Cashier" %}</span></div><figure>{% translate "Taking an instalment" as alt %}{% capture "gestion-caisse-encaissement" alt %}</figure></li>
+      <li class="rv"><span class="t">08:11</span><span class="dot"></span><div><h3>{% translate "The parent sees it on their phone" %}</h3><p>{% translate "The payment and the receipt appear in the parent space, with what is left to pay." %}</p><span class="who">{% translate "Parent" %}</span></div><figure>{% translate "A child's payments in the parent space" as alt %}{% capture "portail-enfant-paiements" alt %}</figure></li>
+      <li class="rv"><span class="t">11:00</span><span class="dot"></span><div><h3>{% translate "The term's marks" %}</h3><p>{% translate "The teacher enters the class marks; the average, the rank and the conduct are worked out for the report card." %}</p><span class="who">{% translate "Teacher" %}</span></div><figure>{% translate "Entering a class's marks" as alt %}{% capture "gestion-notes-saisie" alt %}</figure></li>
+      <li class="rv"><span class="t">16:30</span><span class="dot"></span><div><h3>{% translate "Closing and dashboard" %}</h3><p>{% translate "The cashier closes with any difference; the head sees the day's takings and the unpaid fees of each class." %}</p><span class="who">{% translate "Cashier, head" %}</span></div><figure>{% translate "Closing the cash desk" as alt %}{% capture "gestion-caisse-cloture" alt %}</figure></li>
+    </ol>
+  </div>
+</section>
+
+<section class="sec alt">
+  <div class="wrap split">
+    <div class="rv">
+      <span class="eyebrow">{% translate "Marks and report cards" %}</span>
+      <h2 class="st">{% translate "Marks become an authenticated report card" %}</h2>
+      <p class="lead">{% blocktranslate trimmed with name=platform.name %}The teacher enters the marks. {{ name }} works out the totals, the percentage, the rank and the conduct, then prints the report card in the school's format, with a QR code that proves it is genuine.{% endblocktranslate %}</p>
+      <ul class="checks">
+        <li>{% icon "check" %}{% translate "Totals, percentages and ranks worked out automatically, with no calculation errors" %}</li>
+        <li>{% icon "check" %}{% translate "Deliberation, resits and end-of-year summaries" %}</li>
+        <li>{% icon "check" %}{% translate "Full report card, or the marks alone on the official form" %}</li>
+        <li>{% icon "check" %}{% translate "QR code: a parent or another school checks that it has not been forged" %}</li>
+      </ul>
+    </div>
+    <div class="bul rv" id="bulletin" role="img" aria-label="{% translate 'Sample report card in the official format: the marks fill in, the totals, percentage and rank are worked out, then the QR code proves it is genuine' %}">
+      <div class="btop">{% include "core/_flag.html" %}<div class="bstate">{% translate "DEMOCRATIC REPUBLIC OF THE CONGO" %}<br>{% translate "MINISTRY OF PRIMARY, SECONDARY AND TECHNICAL EDUCATION" %}</div><span class="bqr"><img src="{{ sample.qr }}" alt="" width="64" height="64"><i class="scan"></i></span></div>
+      <div class="bline"><b>{% translate "PROVINCE" %} :</b> NORD-KIVU</div>
+      <div class="btwo">
+        <div><p><b>{% translate "TOWN" %} :</b> <u>Goma</u></p><p><b>{% translate "SCHOOL" %} :</b> <u>ITIG DON BOSCO GOMA</u></p></div>
+        <div><p><b>{% translate "STUDENT" %} :</b> <u>KAMBALE JOSUÉ</u> <b>{% translate "SEX" %} :</b> M</p><p><b>{% translate "CLASS" %} :</b> <u>3e Électricité A</u></p></div>
+      </div>
+      <div class="btitle"><span>{% translate "REPORT CARD OF" %} 3e ÉLECTRICITÉ</span><span>{% translate "SCHOOL YEAR" %} 2025-2026</span></div>
+      <table class="btab">
+        <thead><tr><th rowspan="2" class="nm">{% translate "SUBJECTS" %}</th><th colspan="4">{% translate "FIRST SEMESTER" %}</th></tr><tr><th>{% translate "1st P." %}</th><th>{% translate "2nd P." %}</th><th>{% translate "EXAM." %}</th><th>{% translate "TOT." %}</th></tr></thead>
+        <tbody>
+          <tr class="mx"><td class="nm">{% translate "MAXIMA" %}</td><td>10</td><td>10</td><td>20</td><td>40</td></tr>
+          <tr><td class="nm">{% translate "Religion" %}</td><td><span class="pt" style="--i:1">7</span></td><td><span class="pt" style="--i:2">8</span></td><td><span class="pt" style="--i:3">15</span></td><td><span class="pt" style="--i:4">30</span></td></tr>
+          <tr><td class="nm">{% translate "French" %}</td><td><span class="pt" style="--i:5">6</span></td><td><span class="pt" style="--i:6">7,5</span></td><td><span class="pt" style="--i:7">13</span></td><td><span class="pt" style="--i:8">26,5</span></td></tr>
+          <tr class="mx"><td class="nm">{% translate "MAXIMA" %}</td><td>20</td><td>20</td><td>40</td><td>80</td></tr>
+          <tr><td class="nm">{% translate "Mathematics" %}</td><td><span class="pt" style="--i:9">15</span></td><td><span class="pt" style="--i:10">16</span></td><td><span class="pt" style="--i:11">31</span></td><td><span class="pt" style="--i:12">62</span></td></tr>
+          <tr><td class="nm">{% translate "Electricity" %}</td><td><span class="pt" style="--i:13">17</span></td><td><span class="pt" style="--i:14">15,5</span></td><td><span class="pt" style="--i:15">33</span></td><td><span class="pt" style="--i:16">65,5</span></td></tr>
+          <tr class="mx"><td class="nm">{% translate "MAXIMA" %}</td><td>50</td><td>50</td><td class="k"></td><td>100</td></tr>
+          <tr><td class="nm">{% translate "Electrical workshop" %}</td><td><span class="pt" style="--i:17">42</span></td><td><span class="pt" style="--i:18">44</span></td><td class="k"></td><td><span class="pt" style="--i:19">86</span></td></tr>
+        </tbody>
+        <tfoot>
+          <tr class="mx"><td class="nm">{% translate "GENERAL MAXIMA" %}</td><td>110</td><td>110</td><td>120</td><td>340</td></tr>
+          <tr class="b"><td class="nm">{% translate "TOTALS" %}</td><td><span class="pt" style="--i:21">87</span></td><td><span class="pt" style="--i:21">91</span></td><td><span class="pt" style="--i:21">92</span></td><td><span class="pt" style="--i:21">270</span></td></tr>
+          <tr><td class="nm">{% translate "PERCENTAGE" %}</td><td><span class="pt" style="--i:23">{{ sample.p1 }}</span></td><td><span class="pt" style="--i:23">{{ sample.p2 }}</span></td><td><span class="pt" style="--i:23">{{ sample.exam }}</span></td><td><span class="pt" style="--i:23">{{ sample.percent }}</span></td></tr>
+          <tr><td class="nm">{% translate "PLACE / NUMBER OF STUDENTS" %}</td><td><span class="pt" style="--i:25">{{ sample.place4 }}</span></td><td><span class="pt" style="--i:25">{{ sample.place2 }}</span></td><td><span class="pt" style="--i:25">{{ sample.place5 }}</span></td><td><span class="pt" style="--i:25">{{ sample.place3 }}</span></td></tr>
+          <tr><td class="nm">{% translate "CONDUCT" %}</td><td><span class="pt" style="--i:27">{% translate "VG" context "conduct grade" %}</span></td><td><span class="pt" style="--i:27">{% translate "G" context "conduct grade" %}</span></td><td class="k"></td><td class="k"></td></tr>
+        </tfoot>
+      </table>
+      <div class="bfoot">
+        <p class="bscan">{% translate "Scan the QR code to check this report card." %}</p>
+        <div class="bsign"><span>{% blocktranslate with city="Goma" date="08/11/2025" %}Done at {{ city }}, on {{ date }}{% endblocktranslate %}</span><span>{% translate "The head of the school" %}</span><svg class="pt" style="--i:29" viewBox="0 0 120 34" aria-hidden="true"><path d="M4 24c10-14 16-16 18-8s-4 12 2 6 10-18 16-12-2 12 4 10 8-14 14-10 4 10 10 6 12-8 18-4 10 4 26-2" fill="none" stroke="#1d3a8a" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+      </div>
+      <div class="bok pt" style="--i:38">{% icon "check" %}<span><b>{% translate "Genuine report card" %}</b><small>{% translate "checked by QR code, signed by the school" %}</small></span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt">
+  <div class="wrap">
+    <div class="sechd rv"><span class="eyebrow">{% translate "A screen for each person" %}</span><h2 class="st">{% translate "Each person sees what concerns them" %}</h2><p class="lead">{% translate "The school gives everyone a role: management, accountant, cashier, teacher, secretary. It can also create its own roles." %}</p></div>
+    <div class="g4">
+      <a class="sc rv" href="{{ links.schools }}#direction"><div class="thumb">{% capture "gestion-tableau-de-bord" %}</div><h3>{% translate "Management" %}</h3><p>{% translate "Takings, unpaid fees and today's cash desks, class results." %}</p><span class="more">{% translate "See" %} {% icon "arrow" %}</span></a>
+      <a class="sc rv" href="{{ links.schools }}#comptable"><div class="thumb">{% capture "gestion-frais-baremes" %}</div><h3>{% translate "Accountant" %}</h3><p>{% translate "Fee scales, instalments, discounts, cancellations and cash counts." %}</p><span class="more">{% translate "See" %} {% icon "arrow" %}</span></a>
+      <a class="sc rv" href="{{ links.schools }}#caissier"><div class="thumb">{% capture "gestion-caisse-accueil" %}</div><h3>{% translate "Cashier" %}</h3><p>{% translate "Take payments and print the receipt, even without internet." %}</p><span class="more">{% translate "See" %} {% icon "arrow" %}</span></a>
+      <a class="sc rv" href="{{ links.schools }}#enseignant"><div class="thumb">{% capture "gestion-notes-saisie" %}</div><h3>{% translate "Teacher" %}</h3><p>{% translate "Marks, conduct and report cards of their class." %}</p><span class="more">{% translate "See" %} {% icon "arrow" %}</span></a>
+    </div>
+    <a class="more rv" href="{{ links.parents }}">{% translate "And parents? See the parent space" %} {% icon "arrow" %}</a>
+  </div>
+</section>
+
+{% if stats %}
+<section class="sec night relief">
+  <div class="wrap">
+    <div class="sechd rv"><span class="eyebrow">{% blocktranslate trimmed with name=platform.name %}{{ name }} today{% endblocktranslate %}</span><h2 class="st">{% translate "Schools that use it every day" %}</h2></div>
+    <div class="nums rv">
+      {% for value, number, label in stats %}<div><b data-count="{{ number }}">{{ value }}</b><span>{{ label }}</span></div>{% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% for school in references %}
+<section class="sec">
+  <div class="wrap">
+    {% if forloop.first %}<div class="sechd rv"><span class="eyebrow">{% translate "Pilot school" %}</span><h2 class="st">{% translate "Designed with a real school in Goma" %}</h2></div>{% endif %}
+    <figure class="ref rv">
+      <div class="refphoto">{% photo school.photo school.photo_alt %}</div>
+      <div class="refbody">
+        <div class="refschool"><img class="reflogo" src="{% static school.logo %}" alt="{% blocktranslate with name=school.name %}{{ name }} logo{% endblocktranslate %}" width="56" height="56" loading="lazy"><span><b>{{ school.name }}</b><small>{{ school.kind }}</small></span></div>
+        {% if school.quote %}<blockquote>« {{ school.quote }} »<footer>{{ school.quote_by }} · {{ school.name }}</footer></blockquote>{% endif %}
+        <ul class="reffacts">{% for value, label in school.facts %}<li><b>{{ value }}</b><span>{{ label }}</span></li>{% endfor %}</ul>
+      </div>
+    </figure>
+  </div>
+</section>
+{% endfor %}
+
+<section class="sec">
+  <div class="wrap">
+    <div class="sechd rv"><span class="eyebrow">{% translate "Security" %}</span><h2 class="st">{% translate "The school's data stays with the school" %}</h2></div>
+    <div class="g3">
+      <div class="sc rv"><span class="chipic">{% icon "school" %}</span><h3>{% translate "Each school on its own" %}</h3><p>{% translate "A school never sees the students, payments or marks of another." %}</p></div>
+      <div class="sc rv"><span class="chipic">{% icon "key" %}</span><h3>{% translate "Double check for money" %}</h3><p>{% translate "Management, accountant and cashiers sign in with a code on top of the password." %}</p></div>
+      <div class="sc rv"><span class="chipic">{% icon "undo" %}</span><h3>{% translate "A payment is never erased" %}</h3><p>{% translate "A mistake is fixed by a cancellation, with a reason and a manager's approval." %}</p></div>
+      <div class="sc rv"><span class="chipic">{% icon "journal" %}</span><h3>{% translate "Everything is logged" %}</h3><p>{% translate "Payments, marks and staff rights: each change keeps who, when and what." %}</p></div>
+      <div class="sc rv"><span class="chipic">{% icon "database" %}</span><h3>{% translate "Backup every night" %}</h3><p>{% translate "An encrypted copy of all the data, kept away from the server." %}</p></div>
+      <div class="sc rv"><span class="chipic">{% icon "qr" %}</span><h3>{% translate "Receipts you can check" %}</h3><p>{% translate "The receipt's QR code shows whether it is genuine, with no account or password." %}</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt">
+  <div class="wrap split">
+    <figure class="photo rv">{% translate "Goma and Lake Kivu seen from the heights" as alt %}{% photo "goma-lac-kivu" alt %}</figure>
+    <div class="rv">
+      <span class="eyebrow">{% translate "Made in Goma" %}</span>
+      <h2 class="st">{% translate "With schools here, for them" %}</h2>
+      <p class="lead">{% blocktranslate trimmed with name=platform.name %}{{ name }} is designed and supported in Goma. We help you get started: a trial space with your classes and fees, the import of your student list, training with your staff.{% endblocktranslate %}</p>
+      <ul class="checks">
+        <li>{% icon "check" %}{% translate "An answer on WhatsApp, in French or English" %}</li>
+        <li>{% icon "check" %}{% translate "A phone, a tablet or an old computer is enough" %}</li>
+        <li>{% icon "check" %}{% translate "Nothing to install from an app store" %}</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="questions">
+  <div class="wrap">
+    <div class="sechd c rv"><span class="eyebrow">{% translate "Frequently asked questions" %}</span><h2 class="st">{% translate "What people often ask us" %}</h2></div>
+    <div class="faq">
+      {% for question, answer in texts.faq %}<details{% if forloop.first %} open{% endif %}><summary>{{ question }}{% icon "chevdown" %}</summary><p>{{ answer }}</p></details>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% include "core/site/_cta.html" %}
+{% endblock %}

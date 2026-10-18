@@ -153,6 +153,7 @@ PORTAL_URL = env("DJANGO_PORTAL_URL", "https://parents.mwangaza.school")
 SOFTWARE_AUTHOR = "Guelord Mwenderwa"
 SOFTWARE_AUTHOR_URL = "https://github.com/GUELORD-MWENDERWA"
 SOFTWARE_COPYRIGHT = "DTMS"
+SOFTWARE_COPYRIGHT_URL = "https://dtms.site"
 # Notifications sur l'écran (5.5, Web Push) : paire de clés VAPID de la plateforme, créée une fois
 # par `manage.py webpush_keys` et jamais changée (elle invaliderait tous les abonnements). Vides :
 # rien n'est envoyé sur les écrans ; le centre de notifications marche quand même.
