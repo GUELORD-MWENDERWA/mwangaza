@@ -130,6 +130,8 @@ Décidé le 2026-10-10 (revu le même jour : au plus simple), codé par les tâc
 
 Consultation des élèves et de leur situation financière, encaissement, impression et réimpression des reçus, demande d'annulation (validée en ligne), clôture de caisse (envoyée à la reconnexion).
 
+Depuis : saisie des notes (8.2.3) et code PIN proposé (L.6). Ce qui doit marcher sans réseau, module par module, et pourquoi : `05` § 5 bis (bloc HL, 2026-10-18).
+
 ### 5.2 Principes
 
 1. **Chaque appareil est enregistré** (`Device`) lors de la première connexion en ligne, rattaché à une école et, pour la caisse, à une `CashRegister`. Il reçoit un préfixe court (ex : `C1`).
