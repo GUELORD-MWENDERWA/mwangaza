@@ -42,7 +42,7 @@ label.f{display:flex;flex-direction:column;gap:6px;font-size:.85rem;font-weight:
 @media (max-width:599px){:root{--gut:16px;--sec:56px;--head:60px}}
 html{scroll-behavior:smooth;scroll-padding-top:calc(var(--head) + 16px)}
 body.site{background:#fff;overflow-x:hidden}
-.site img{max-width:100%}
+.site img{max-width:100%;height:auto}
 .wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gut)}
 .site a:focus-visible,.site summary:focus-visible,.site .btn:focus-visible{outline:3px solid var(--lake-100);outline-offset:2px}
 .skip{position:absolute;left:-999px}.skip:focus{left:16px;top:8px;z-index:50;background:#fff;padding:8px 12px;border-radius:8px}
@@ -438,3 +438,6 @@ a.sc:hover{transform:translateY(-3px);box-shadow:var(--shadow-raised);border-col
 .reach{padding:28px;display:grid;gap:20px}
 .reach h2{font-size:1.3rem}
 .prose .pre{white-space:pre-line}
+.goto[hidden]{display:none}
+/* Vignettes du Portail (captures de téléphone) : plus hautes, pour voir l'écran et pas seulement son haut. */
+.sc .thumb.tall{aspect-ratio:4/5}

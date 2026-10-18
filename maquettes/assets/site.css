@@ -388,3 +388,5 @@ a.sc:hover{transform:translateY(-3px);box-shadow:var(--shadow-raised);border-col
 @media (max-width:1023px){.ref{grid-template-columns:minmax(0,1fr)}.refphoto{min-height:0;aspect-ratio:16/9}}
 @media (max-width:599px){.refbody{padding:20px}}
 .bqr .qrimg{width:100%;height:100%;color:#000}
+.goto[hidden]{display:none}
+.sc .thumb.tall{aspect-ratio:4/5}
