@@ -43,7 +43,7 @@ describe("Demandes de démonstration de la console", () => {
         results: [REQUEST],
       },
       "PATCH /api/console/demo-requests/r1/": { ...REQUEST, status: "called", notes: "Jeudi" },
-      "DELETE /api/console/demo-requests/r1/": null,
+      "DELETE /api/console/demo-requests/r1/": () => new Response(null, { status: 204 }),
     });
     const { user } = renderApp("/demo-requests");
 
