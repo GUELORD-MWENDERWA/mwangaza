@@ -142,6 +142,17 @@ class PlatformSettings(models.Model):
         default="Mwangaza",
         help_text=_("Under the application icon on the home screen (12 characters is best)."),
     )
+    # Le nom seul (« Mwangaza », mot swahili très répandu) se perd dans les résultats : le site
+    # public, ses aperçus partagés et l'espace parents prennent ce nom complet (WEB.1c).
+    site_name = models.CharField(
+        _("name in search results"),
+        max_length=60,
+        default="Mwangaza School",
+        help_text=_(
+            "Titles of the public site, search results, previews shared on WhatsApp. A common "
+            "name gets lost in the results: add a word to it."
+        ),
+    )
     logo = models.FileField(
         _("logo"),
         upload_to=platform.logo_path,

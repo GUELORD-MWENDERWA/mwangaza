@@ -15,7 +15,7 @@ class PlatformSettingsAdmin(admin.ModelAdmin):
         (
             None,
             {
-                "fields": ["name", "short_name", "logo", "icon"],
+                "fields": ["name", "short_name", "site_name", "logo", "icon"],
                 "description": _("To change it: Identity screen of the platform console."),
             },
         ),

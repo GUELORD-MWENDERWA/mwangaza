@@ -5738,6 +5738,11 @@ export interface components {
             name: string;
             /** @description Under the application icon on the home screen (12 characters is best). */
             short_name: string;
+            /**
+             * Name in search results
+             * @description Titles of the public site, search results, previews shared on WhatsApp. A common name gets lost in the results: add a word to it.
+             */
+            site_name: string;
             readonly logo: string | null;
             readonly icon: string | null;
             /**
@@ -8272,6 +8277,11 @@ export interface components {
             /** @description Under the application icon on the home screen (12 characters is best). */
             short_name?: string;
             /**
+             * Name in search results
+             * @description Titles of the public site, search results, previews shared on WhatsApp. A common name gets lost in the results: add a word to it.
+             */
+            site_name?: string;
+            /**
              * Main colour
              * @description Buttons and links of the interface.
              */
@@ -8730,6 +8740,11 @@ export interface components {
             name: string;
             /** @description Under the application icon on the home screen (12 characters is best). */
             short_name: string;
+            /**
+             * Name in search results
+             * @description Titles of the public site, search results, previews shared on WhatsApp. A common name gets lost in the results: add a word to it.
+             */
+            site_name: string;
             /** @description Adresse du logo ; vide : la lampe. */
             logo: string | null;
             /** @description Adresse de l'icône des applications ; vide : celle de l'application. */

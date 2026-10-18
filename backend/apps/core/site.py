@@ -1,7 +1,9 @@
 """Site public de la plateforme (domaine nu, WEB.1b) : sept pages en français et en anglais
 (accueil, écoles, parents, modules, démonstration et contact, « Trouver mon école », mentions et
 confidentialité), lisibles sans JavaScript par les moteurs de recherche et les assistants (IA),
-et leurs fichiers pour les robots (`robots.txt`, `sitemap.xml`, `llms.txt`).
+et leurs fichiers pour les robots (`robots.txt`, `sitemap.xml`, `llms.txt`). Visibilité (WEB.1c) :
+titres et descriptions écrits pour les recherches courtes, avec le nom pour la recherche
+(« Mwangaza School ») ; données structurées sur chaque page ; image de partage (`share.py`).
 
 Nom, logo, icône, couleurs et contact viennent de l'identité de la plateforme (règle 9) ; l'auteur
 du logiciel, des réglages ; ce qui change souvent, de `site_content.py`. Les espaces privés
@@ -12,12 +14,13 @@ gardées une heure par les navigateurs."""
 import json
 import re
 from datetime import date
+from pathlib import Path
 from urllib.parse import urlsplit
 
 import segno
 from django.conf import settings
 from django.core.cache import cache
-from django.http import HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.templatetags.static import static
 from django.utils import timezone, translation
@@ -26,10 +29,11 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import cache_control
 from django.views.decorators.http import require_GET
+from PIL import Image
 
 from apps.accounts.modules import DEPENDENCIES, MODULES
 from apps.accounts.phone import format_phone
-from apps.core import site_content
+from apps.core import share, site_content
 from apps.core.models import PlatformSettings
 from apps.core.money import format_amount
 
@@ -55,6 +59,47 @@ EXAMPLE_SCHOOL = "itig"
 STATS_MIN_SCHOOLS = 5
 STATS_CACHE = "site:stats"
 LEGAL_UPDATED = date(2026, 10, 18)
+STATIC_SITE = Path(__file__).parent / "static" / "core" / "site"
+SHARE_CACHE = 7 * 86400
+# Capture principale de chaque page, dans son image de partage (`maquettes/site/partage.html`).
+SHARE_CAPTURES = {
+    "home": "gestion-tableau-de-bord",
+    "schools": "gestion-caisse-encaissement",
+    "parents": "portail-accueil-mobile",
+    "modules": "gestion-notes-saisie",
+    "contact": "gestion-frais-baremes",
+    "find": "gestion-tableau-de-bord",
+    "legal": None,
+}
+# Images montrées par chaque page (`static/core/site/`) : `sitemap.xml`, et celles de l'accueil
+# comme captures du logiciel dans les données structurées.
+PAGE_IMAGES = {
+    "home": (
+        "captures/gestion-tableau-de-bord.webp",
+        "captures/gestion-caisse-encaissement.webp",
+        "captures/gestion-notes-saisie.webp",
+        "captures/portail-enfant-paiements.webp",
+        "photos/goma-lac-kivu.webp",
+    ),
+    "schools": (
+        "captures/gestion-caisse-encaissement.webp",
+        "captures/gestion-frais-baremes.webp",
+        "captures/gestion-notes-saisie.webp",
+        "captures/gestion-caisse-mobile.webp",
+        "photos/itig-atelier-electricite.webp",
+    ),
+    "parents": (
+        "captures/portail-accueil-mobile.webp",
+        "captures/portail-enfant-paiements-mobile.webp",
+        "captures/portail-annonces-mobile.webp",
+        "captures/portail-calendrier-mobile.webp",
+        "captures/portail-notifications-mobile.webp",
+    ),
+    "modules": ("photos/itig-atelier-mecanique-auto.webp",),
+    "contact": ("photos/itig-cour.webp",),
+    "find": (),
+    "legal": (),
+}
 # Vue de chaque page (`config/urls.py`).
 VIEWS = {
     "home": "home",
@@ -88,15 +133,16 @@ def _site(request: HttpRequest) -> str:
     return request.build_absolute_uri("/").rstrip("/")
 
 
-def _texts(name: str) -> dict:
-    """Textes de la page dans la langue active ; les mêmes servent aux données structurées et à
-    `llms.txt` (une seule source)."""
+def _texts(name: str, site_name: str) -> dict:
+    """Textes de l'accueil dans la langue active ; les mêmes servent aux données structurées et à
+    `llms.txt` (une seule source). Titre (60 signes au plus) et description (155) écrits pour les
+    recherches courtes (« gestion scolaire Goma »), avec le nom pour la recherche."""
     values = {"name": name}
     return {
-        "title": _("%(name)s — school management software for schools in the DRC") % values,
+        "title": _("%(name)s — school management software in Goma, DRC") % {"name": site_name},
         "description": _(
-            "Students, school fees, cash desk and receipts, unpaid fees and a parent portal: one "
-            "app that works even without internet. Made in Goma for schools in the DRC."
+            "School management software for DRC schools: students, fees in USD and FC, cash "
+            "desk and receipts, unpaid fees, report cards, parent space. Works offline."
         ),
         "eyebrow": _("For schools in the DRC · made in Goma"),
         "headline": _("The whole school in one app, even without internet"),
@@ -254,21 +300,52 @@ def _json_ld(data: dict) -> str:
     return mark_safe(text)  # échappé ci-dessus
 
 
-def _structured_data(site: str, url: str, lang: str, platform, texts: dict, image: str) -> str:
-    author = {
-        "@type": "Person",
-        "@id": f"{site}/#author",
-        "name": settings.SOFTWARE_AUTHOR,
-        "url": settings.SOFTWARE_AUTHOR_URL,
-        "sameAs": [settings.SOFTWARE_AUTHOR_URL],
+def _brand(platform) -> tuple[str, str]:
+    """Nom pour la recherche en deux parties : le nom de la plateforme (en gras) et la suite
+    (« Mwangaza », « School ») ; un nom pour la recherche sans rapport : tout en gras."""
+    if platform.site_name.startswith(platform.name):
+        return platform.name, platform.site_name[len(platform.name) :].strip()
+    return platform.site_name, ""
+
+
+def _crumb(key: str) -> str:
+    """Nom de la page dans le fil d'Ariane (celui du menu)."""
+    return {
+        "schools": _("Schools"),
+        "parents": _("Parents"),
+        "modules": _("Modules"),
+        "contact": _("Contact"),
+        "find": _("Find my school"),
+        "legal": _("Legal notice and privacy"),
+    }[key]
+
+
+def _structured_data(platform, context: dict) -> str:
+    """Données structurées (schema.org) de chaque page : la plateforme, son éditeur (titulaire des
+    droits), l'auteur du logiciel, le site, la page et son fil d'Ariane, le logiciel, et les
+    questions fréquentes de la page. Liens de l'auteur et de l'éditeur : réglages `SOFTWARE_*`."""
+    site, url, lang, key = context["site"], context["url"], context["lang"], context["page"]
+    texts = context["texts"]
+    publisher_id = {"@id": f"{settings.SOFTWARE_COPYRIGHT_URL}/#organization"}
+    author_id = {"@id": f"{site}/#author"}
+    names = {"name": platform.site_name}
+    if platform.name != platform.site_name:
+        names["alternateName"] = platform.name
+    publisher = {
+        "@type": "Organization",
+        **publisher_id,
+        "name": settings.SOFTWARE_COPYRIGHT,
+        "url": settings.SOFTWARE_COPYRIGHT_URL,
     }
+    if settings.SOFTWARE_COPYRIGHT_SAME_AS:
+        publisher["sameAs"] = list(settings.SOFTWARE_COPYRIGHT_SAME_AS)
     organization = {
         "@type": "Organization",
         "@id": f"{site}/#organization",
-        "name": platform.name,
+        **names,
         "url": f"{site}/",
-        "logo": {"@type": "ImageObject", "url": image},
-        "founder": {"@id": f"{site}/#author"},
+        "logo": {"@type": "ImageObject", "url": context["icon"]},
+        "parentOrganization": publisher_id,
         "areaServed": {"@type": "Country", "name": "Democratic Republic of the Congo"},
         "address": {
             "@type": "PostalAddress",
@@ -285,58 +362,117 @@ def _structured_data(site: str, url: str, lang: str, platform, texts: dict, imag
     if len(contact) > 2:
         contact["availableLanguage"] = ["fr", "en"]
         organization["contactPoint"] = contact
+    page = {
+        "@type": "WebPage",
+        "@id": url,
+        "url": url,
+        "name": context["title"],
+        "description": context["description"],
+        "inLanguage": lang,
+        "isPartOf": {"@id": f"{site}/#website"},
+        "about": {"@id": f"{site}/#software"},
+        "author": author_id,
+        "primaryImageOfPage": {
+            "@type": "ImageObject",
+            "url": context["image"],
+            "width": share.SIZE[0],
+            "height": share.SIZE[1],
+        },
+    }
     graph = [
         organization,
-        author,
+        publisher,
+        {
+            "@type": "Person",
+            **author_id,
+            "name": settings.SOFTWARE_AUTHOR,
+            "url": settings.SOFTWARE_AUTHOR_URL,
+            "sameAs": list(settings.SOFTWARE_AUTHOR_SAME_AS),
+        },
         {
             "@type": "WebSite",
             "@id": f"{site}/#website",
             "url": f"{site}/",
-            "name": platform.name,
+            **names,
             "inLanguage": ["fr", "en"],
-            "publisher": {"@id": f"{site}/#organization"},
+            "publisher": publisher_id,
+            "copyrightHolder": publisher_id,
         },
-        {
-            "@type": "WebPage",
-            "@id": url,
-            "url": url,
-            "name": texts["title"],
-            "description": texts["description"],
-            "inLanguage": lang,
-            "isPartOf": {"@id": f"{site}/#website"},
-            "about": {"@id": f"{site}/#software"},
-            "author": {"@id": f"{site}/#author"},
-        },
+        page,
         {
             "@type": "SoftwareApplication",
             "@id": f"{site}/#software",
-            "name": platform.name,
+            **names,
             "url": f"{site}/",
-            "image": image,
+            "image": context["icon"],
+            "screenshot": [context["static"](path) for path in PAGE_IMAGES["home"][:4]],
             "description": texts["description"],
-            "applicationCategory": "BusinessApplication",
+            "applicationCategory": "EducationalApplication",
             "applicationSubCategory": _("School management"),
-            "operatingSystem": "Web, Android, iOS, Windows, macOS, Linux",
+            "operatingSystem": "Web, Android, iOS",
             "inLanguage": ["fr", "en"],
             "featureList": [title for _icon, title, _text in texts["features"]],
-            "author": {"@id": f"{site}/#author"},
-            "publisher": {"@id": f"{site}/#organization"},
-        },
-        {
-            "@type": "FAQPage",
-            "@id": f"{url}#faq",
-            "inLanguage": lang,
-            "mainEntity": [
-                {
-                    "@type": "Question",
-                    "name": question,
-                    "acceptedAnswer": {"@type": "Answer", "text": answer},
-                }
-                for question, answer in texts["faq"]
-            ],
+            "author": author_id,
+            "publisher": publisher_id,
+            "copyrightHolder": publisher_id,
         },
     ]
+    if key != "home":
+        page["breadcrumb"] = {"@id": f"{url}#breadcrumb"}
+        crumbs = ((platform.site_name, site + PAGES["home"][lang]), (_crumb(key), url))
+        graph.append(
+            {
+                "@type": "BreadcrumbList",
+                "@id": f"{url}#breadcrumb",
+                "itemListElement": [
+                    {"@type": "ListItem", "position": n, "name": name, "item": item}
+                    for n, (name, item) in enumerate(crumbs, start=1)
+                ],
+            }
+        )
+    if context.get("faq"):
+        graph.append(
+            {
+                "@type": "FAQPage",
+                "@id": f"{url}#faq",
+                "inLanguage": lang,
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": question,
+                        "acceptedAnswer": {"@type": "Answer", "text": answer},
+                    }
+                    for question, answer in context["faq"]
+                ],
+            }
+        )
     return _json_ld({"@context": "https://schema.org", "@graph": graph})
+
+
+def _parents_faq(name: str) -> list[tuple[str, str]]:
+    """Questions des parents : la page et ses données structurées."""
+    return [
+        (
+            _("I lost my family code"),
+            _("Ask the school office for a new one: the old one no longer works."),
+        ),
+        (
+            _("I changed my phone number"),
+            _(
+                "Tell the school, or use your profile if you are still signed in: the school "
+                "approves the change."
+            ),
+        ),
+        (
+            _("My children are in two schools"),
+            _("One account is enough if both schools use %(name)s with the same number.")
+            % {"name": name},
+        ),
+        (
+            _("Can I pay online?"),
+            _("Not yet: you pay at the school's cash desk. Mobile Money payment is planned."),
+        ),
+    ]
 
 
 def _whatsapp(platform) -> str | None:
@@ -346,11 +482,12 @@ def _whatsapp(platform) -> str | None:
 
 
 def _meta(key: str, name: str) -> tuple[str, str]:
-    """Titre et description de chaque page (sauf l'accueil, dans `_texts`)."""
+    """Titre et description de chaque page (sauf l'accueil, dans `_texts`), avec le nom pour la
+    recherche."""
     values = {"name": name}
     return {
         "schools": (
-            _("%(name)s for schools: fees, cash desk, marks and parents") % values,
+            _("School management: fees, cash desk, marks — %(name)s") % values,
             _(
                 "Management, accountant, cashier and teacher each work on their own screen, with "
                 "the same figures, up to date. Start even in the middle of the year."
@@ -364,7 +501,7 @@ def _meta(key: str, name: str) -> tuple[str, str]:
             ),
         ),
         "modules": (
-            _("Modules — %(name)s") % values,
+            _("School management modules — %(name)s") % values,
             _(
                 "Each school chooses its modules: students, fees and cash desk, marks and report "
                 "cards, parent space, notices, notifications, work without internet."
@@ -396,6 +533,7 @@ def _render(request: HttpRequest, key: str, lang: str, build=None) -> HttpRespon
     site = _site(request)
     other = "en" if lang == "fr" else "fr"
     with translation.override(lang):
+        texts = _texts(platform.name, platform.site_name)
         context = {
             "lang": lang,
             "other_lang": other,
@@ -409,9 +547,13 @@ def _render(request: HttpRequest, key: str, lang: str, build=None) -> HttpRespon
             "links": {name: paths[lang] for name, paths in PAGES.items()},
             "og_locale": OG_LOCALES[lang],
             "og_alternate": OG_LOCALES[other],
-            "image": request.build_absolute_uri(
+            "texts": texts,
+            "brand": _brand(platform),
+            "icon": request.build_absolute_uri(
                 platform.icon_url or static("core/site/icon-512.png")
             ),
+            "image": f"{site}/partage/{key}-{lang}.jpg?v={_version(platform)}",
+            "static": lambda path: request.build_absolute_uri(static(f"core/site/{path}")),
             "portal_url": settings.PORTAL_URL,
             "portal_host": urlsplit(settings.PORTAL_URL).netloc,
             "demo_address": urlsplit(settings.SCHOOL_URL.format(code=EXAMPLE_SCHOOL)).netloc
@@ -423,11 +565,19 @@ def _render(request: HttpRequest, key: str, lang: str, build=None) -> HttpRespon
             "copyright_url": settings.SOFTWARE_COPYRIGHT_URL,
             "year": timezone.localdate().year,
         }
-        if key != "home":
-            context["title"], context["description"] = _meta(key, platform.name)
+        if key == "home":
+            context["title"], context["description"] = texts["title"], texts["description"]
+        else:
+            context["title"], context["description"] = _meta(key, platform.site_name)
         if build:
             context.update(build(platform, context))
+        context["json_ld"] = _structured_data(platform, context)
         return render(request, f"core/site/{key}.html", context)
+
+
+def _version(platform) -> int:
+    """Version de l'identité : change l'adresse de l'image de partage (les réseaux la relisent)."""
+    return int(platform.updated_at.timestamp() * 1_000_000)
 
 
 def _rounded(value: int) -> int:
@@ -488,14 +638,8 @@ def _ordinal(n: int) -> str:
 
 
 def _home(platform, context: dict) -> dict:
-    texts = _texts(platform.name)
     return {
-        "texts": texts,
-        "title": texts["title"],
-        "description": texts["description"],
-        "json_ld": _structured_data(
-            context["site"], context["url"], context["lang"], platform, texts, context["image"]
-        ),
+        "faq": context["texts"]["faq"],
         "stats": platform_stats(),
         "references": site_content.REFERENCES,
         "sample": {
@@ -549,7 +693,9 @@ def schools(request: HttpRequest, lang: str = "fr") -> HttpResponse:
 @require_GET
 @public
 def parents(request: HttpRequest, lang: str = "fr") -> HttpResponse:
-    return _render(request, "parents", lang)
+    return _render(
+        request, "parents", lang, lambda platform, _context: {"faq": _parents_faq(platform.name)}
+    )
 
 
 @require_GET
@@ -625,7 +771,16 @@ def sitemap_xml(request: HttpRequest) -> HttpResponse:
         "core/site/sitemap.xml",
         {
             "site": _site(request),
-            "pages": PAGES.values(),
+            "pages": [
+                {
+                    "paths": paths,
+                    "images": [
+                        request.build_absolute_uri(static(f"core/site/{path}"))
+                        for path in PAGE_IMAGES[key]
+                    ],
+                }
+                for key, paths in PAGES.items()
+            ],
             "lastmod": max(platform.updated_at.date(), LEGAL_UPDATED).isoformat(),
         },
         content_type="application/xml; charset=utf-8",
@@ -638,7 +793,7 @@ def llms_txt(request: HttpRequest) -> HttpResponse:
     """Résumé en Markdown pour les assistants (IA), selon la convention `llms.txt`."""
     platform = PlatformSettings.load()
     with translation.override("fr"):
-        texts = _texts(platform.name)
+        texts = _texts(platform.name, platform.site_name)
         return render(
             request,
             "core/site/llms.txt",
@@ -655,6 +810,60 @@ def llms_txt(request: HttpRequest) -> HttpResponse:
             },
             content_type="text/markdown; charset=utf-8",
         )
+
+
+def _headline(key: str, name: str) -> str:
+    """Grand titre de la page (celui de son gabarit), repris sur son image de partage."""
+    return {
+        "home": lambda: _("The whole school in one app, even without internet"),
+        "schools": lambda: _("Fees, cash desk, marks and parents, in one app"),
+        "parents": lambda: _("Follow your children's school on your phone"),
+        "modules": lambda: _("Each school chooses its modules"),
+        "contact": lambda: _("See %(name)s with your school") % {"name": name},
+        "find": lambda: _("Find my school"),
+        "legal": lambda: _("Legal notice and privacy"),
+    }[key]()
+
+
+def _icon(platform) -> Image.Image | None:
+    """Icône envoyée dans la console (PNG carré) ; illisible ou absente : le symbole."""
+    if not platform.icon:
+        return None
+    try:
+        with platform.icon.open("rb") as file:
+            image = Image.open(file)
+            image.load()
+            return image
+    except (OSError, ValueError):
+        return None
+
+
+@require_GET
+def share_image(request: HttpRequest, key: str, lang: str) -> HttpResponse:
+    """Image de partage de la page `key` (`share.py`) : dessinée une fois par version de
+    l'identité et par adresse du site, puis gardée en cache (une semaine)."""
+    if key not in PAGES:
+        raise Http404
+    platform = PlatformSettings.load()
+    domain = request.get_host()
+    cache_key = f"site:share:{key}:{lang}:{domain}:{_version(platform)}"
+    image = cache.get(cache_key)
+    if image is None:
+        with translation.override(lang):
+            headline = _headline(key, platform.name)
+        capture = SHARE_CAPTURES[key]
+        image = share.draw(
+            brand=_brand(platform),
+            headline=headline,
+            domain=domain,
+            accent=platform.accent_color,
+            icon=_icon(platform),
+            capture=STATIC_SITE / "captures" / f"{capture}.webp" if capture else None,
+        )
+        cache.set(cache_key, image, SHARE_CACHE)
+    response = HttpResponse(image, content_type="image/jpeg")
+    response["Cache-Control"] = "public, max-age=86400"
+    return response
 
 
 @require_GET

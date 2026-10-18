@@ -46,8 +46,9 @@
 }
 
 # Espaces privés (écoles, portail, console) : jamais dans les moteurs de recherche, seul le site
-# public (domaine nu) l'est. Leur `robots.txt` laisse lire les pages, pour que les robots voient
-# l'en-tête « noindex » (une adresse bloquée par robots.txt peut apparaître quand même, sans texte).
+# public (domaine nu) l'est, avec la page de connexion du portail (WEB.1c). Leur `robots.txt` laisse
+# lire les pages, pour que les robots voient l'en-tête « noindex » (une adresse bloquée par
+# robots.txt peut apparaître quand même, sans texte).
 (prive) {
 	header X-Robots-Tag "noindex, nofollow"
 	handle /robots.txt {
@@ -77,9 +78,19 @@ Disallow: /api/
 	}
 }
 
-# Portail des familles (une famille peut avoir des enfants dans plusieurs écoles).
+# Portail des familles (une famille peut avoir des enfants dans plusieurs écoles). Sa page de
+# connexion (« Espace parents », `/` y mène) est indexée, pour qu'un parent la trouve en cherchant ;
+# le reste ne l'est pas. Les robots lisent l'identité (`/api/platform/`) : le titre en dépend.
 (parents) {
-	import prive
+	@prive not path / /login
+	header @prive X-Robots-Tag "noindex, nofollow"
+	handle /robots.txt {
+		header Content-Type "text/plain; charset=utf-8"
+		respond `User-agent: *
+Allow: /api/platform/
+Disallow: /api/
+` 200
+	}
 	handle /api/* {
 		import django
 	}

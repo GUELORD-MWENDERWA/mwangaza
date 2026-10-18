@@ -18,15 +18,18 @@
 <link rel="icon" type="image/png" sizes="192x192" href="{% static 'core/site/icon-192.png' %}">
 <link rel="apple-touch-icon" href="{% static 'core/site/apple-touch-icon.png' %}">{% endif %}
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="{{ platform.name }}">
+<meta property="og:site_name" content="{{ platform.site_name }}">
 <meta property="og:title" content="{{ title }}">
 <meta property="og:description" content="{{ description }}">
 <meta property="og:url" content="{{ url }}">
 <meta property="og:image" content="{{ image }}">
-<meta property="og:image:alt" content="{{ platform.name }}">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{ title }}">
 <meta property="og:locale" content="{{ og_locale }}">
 <meta property="og:locale:alternate" content="{{ og_alternate }}">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="{% static 'core/site/atkinson-hyperlegible-next-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{% static 'core/site/atkinson-hyperlegible-next-latin-800-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{% static 'core/site/site.css' %}">

@@ -1,4 +1,4 @@
-{% load i18n %}{% autoescape off %}# {{ platform.name }}
+{% load i18n %}{% autoescape off %}# {{ platform.site_name }}
 
 > {{ texts.description }}
 

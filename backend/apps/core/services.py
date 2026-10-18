@@ -12,6 +12,7 @@ from apps.core.models import PlatformSettings
 TEXT_FIELDS = (
     "name",
     "short_name",
+    "site_name",
     "primary_color",
     "accent_color",
     "support_phone",

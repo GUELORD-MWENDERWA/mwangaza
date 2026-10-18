@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from apps.academics.verification import verify_report_card
@@ -42,6 +42,7 @@ urlpatterns = [
     path("robots.txt", site.robots_txt, name="site-robots"),
     path("sitemap.xml", site.sitemap_xml, name="site-sitemap"),
     path("llms.txt", site.llms_txt, name="site-llms"),
+    re_path(r"^partage/(?P<key>[a-z]+)-(?P<lang>fr|en)\.jpg$", site.share_image, name="site-share"),
     path("favicon.ico", site.favicon, name="site-favicon"),
     path("admin/", admin.site.urls),
     path("api/health/", health, name="health"),

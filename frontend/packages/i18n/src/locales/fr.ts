@@ -3810,6 +3810,8 @@ export const fr = {
       nameTitle: "Nom",
       nameHelp: "Écrans de connexion, menus, reçus, e-mails.",
       shortNameHelp: "Sous l'icône de l'écran d'accueil (12 caractères au mieux).",
+      siteNameHelp:
+        "Titres du site public, résultats de Google, aperçus partagés sur WhatsApp. Un nom courant se perd dans les résultats : ajoutez-lui un mot.",
       filesTitle: "Logo et icône",
       colorsTitle: "Couleurs",
       supportTitle: "Support et mentions légales",
@@ -3818,6 +3820,7 @@ export const fr = {
       fields: {
         name: "Nom",
         short_name: "Nom court",
+        site_name: "Nom pour la recherche",
         primary_color: "Couleur principale",
         accent_color: "Couleur d'accent",
         support_phone: "Téléphone du support",
@@ -4255,6 +4258,9 @@ export const fr = {
     login: {
       title: "Bon retour",
       subtitle: "Paiements, reçus et annonces des écoles de vos enfants.",
+      pageTitle: "Espace parents — {{name}}",
+      pageDescription:
+        "Suivez l'école de vos enfants sur votre téléphone : paiements, reçus, reste à payer, annonces et convocations. Connectez-vous avec le numéro donné à l'école.",
       heading: "Se connecter",
       phone: "Numéro de téléphone",
       phonePlaceholder: "Ex. 0971234567",

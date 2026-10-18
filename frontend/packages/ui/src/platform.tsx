@@ -10,6 +10,7 @@ import { cn } from "./lib/cn";
 export interface PlatformIdentity {
   name: string;
   short_name: string;
+  site_name: string;
   logo: string | null;
   icon: string | null;
   primary_color: string;
@@ -23,6 +24,7 @@ export interface PlatformIdentity {
 export const NO_PLATFORM: PlatformIdentity = {
   name: "",
   short_name: "",
+  site_name: "",
   logo: null,
   icon: null,
   primary_color: "",
