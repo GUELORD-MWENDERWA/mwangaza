@@ -82,6 +82,43 @@
 </section>
 
 <section class="sec alt">
+  <div class="wrap split">
+    <div class="rv">
+      <span class="eyebrow">Notes et bulletins</span>
+      <h2 class="st">Les points deviennent un bulletin authentifié</h2>
+      <p class="lead">L'enseignant saisit les points. Mwangaza calcule les totaux, le pourcentage, la place et la conduite, puis imprime le bulletin au format de l'école, avec un code QR qui prouve qu'il est vrai.</p>
+      <ul class="checks">
+        <li><svg class="ic" data-ic="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5 10-11"/></svg>Totaux, pourcentages et places calculés seuls, sans erreur de calcul</li>
+        <li><svg class="ic" data-ic="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5 10-11"/></svg>Délibération, repêchage et situations de fin d'année</li>
+        <li><svg class="ic" data-ic="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5 10-11"/></svg>Bulletin complet, ou les notes seules sur le formulaire officiel</li>
+        <li><svg class="ic" data-ic="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5 10-11"/></svg>Code QR : parent ou autre école vérifie qu'il n'est pas falsifié</li>
+      </ul>
+    </div>
+    <div class="bul rv" role="img" aria-label="Exemple de bulletin : les points se remplissent, le total, le pourcentage et la place se calculent, puis le code QR d'authenticité apparaît">
+      <div class="bulhd"><span class="mark sm"></span><div><b>INSTITUT LES VOLCANS</b><small>Bulletin de l'élève · 1re période</small></div><span class="bulno">N° 2026-0412</span></div>
+      <div class="bulst"><span>Élève <b>KAMBALE Josué</b></span><span>Classe <b>3HT Électricité A</b></span></div>
+      <table class="bult">
+        <thead><tr><th>Cours</th><th>Max</th><th>Points</th></tr></thead>
+        <tbody>
+          <tr><td>Mathématiques</td><td>40</td><td><span class="pt" style="--i:1">32</span></td></tr>
+          <tr><td>Électricité</td><td>60</td><td><span class="pt" style="--i:2">51</span></td></tr>
+          <tr><td>Français</td><td>20</td><td><span class="pt" style="--i:3">14</span></td></tr>
+          <tr><td>Dessin technique</td><td>20</td><td><span class="pt" style="--i:4">17</span></td></tr>
+          <tr><td>Conduite</td><td>10</td><td><span class="pt" style="--i:5">8</span></td></tr>
+        </tbody>
+        <tfoot><tr><td>Total</td><td>150</td><td><span class="pt" style="--i:6">122</span></td></tr></tfoot>
+      </table>
+      <div class="bulres">
+        <div><small>Pourcentage</small><b class="pt" style="--i:7">81,3 %</b></div>
+        <div><small>Place</small><b class="pt" style="--i:8">3<sup>e</sup> / 42</b></div>
+        <div class="bulqr pt" style="--i:9"><svg class="ic qrbig" data-ic="qr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="14.5" y="3.5" width="6" height="6" rx="1"/><rect x="3.5" y="14.5" width="6" height="6" rx="1"/><path d="M14.5 14.5h2v2h-2zM18.5 18.5h2v2h-2zM18.5 14.5h2M14.5 18.5v2"/></svg><span><b>Authentique</b><small>vérifié par code QR</small></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="wrap"><div class="note"><b>Animation 8 — montrer le calcul du bulletin (demandée le 2026-10-18) :</b> bulletin dessiné en HTML (pas une image), au format du vrai bulletin (8.3) : les points apparaissent cours par cours, puis le total, le pourcentage, la place, et le cachet « Authentique » avec le code QR (<code>/v/b/…</code>, 8.3.2) ; la séquence (≈ 5 s) recommence après une pause tant que le bulletin est à l'écran. Sans JavaScript ou avec <code>prefers-reduced-motion</code> : bulletin rempli, immobile. Données fictives, total juste (122 / 150 = 81,3 %).</div></div>
+</section>
+
+<section class="sec alt">
   <div class="wrap">
     <div class="sechd rv"><span class="eyebrow">Chacun son écran</span><h2 class="st">Chaque personne voit ce qui la concerne</h2><p class="lead">L'école donne à chacun un rôle : direction, comptable, caissier, enseignant, secrétaire. Elle peut aussi créer ses propres rôles.</p></div>
     <div class="g4">
@@ -105,6 +142,22 @@
       <div><b>3 100</b><span>parents connectés</span></div>
     </div>
     <div class="note" style="margin-top:28px"><b>Animation 6 — attirer l'œil sur des faits :</b> les chiffres montent de 0 à leur valeur en 1,2 s quand la bande arrive à l'écran (le vrai nombre est dans le HTML ; JavaScript ne fait que l'animer). Valeurs lues en base sur les <b>espaces réels</b> seulement (ni essai ni démonstration), arrondies, gardées en cache une heure ; <b>bande masquée tant qu'il y a moins de 5 écoles réelles</b>. Valeurs de la maquette : fictives. Aucun logo de client ni témoignage inventé : un témoignage nommé n'apparaît qu'avec l'accord écrit d'une école réelle.</div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="sechd rv"><span class="eyebrow">École pilote</span><h2 class="st">Conçu avec une vraie école de Goma</h2></div>
+    <figure class="ref rv">
+      <div class="refphoto"><img src="../assets/photos/itig-cour.jpg" alt="Élèves de l'ITIG Don Bosco Goma rassemblés dans la cour, devant le drapeau" loading="lazy"></div>
+      <div class="refbody">
+        <div class="refschool"><img class="reflogo" src="../assets/photos/itig-logo.png" alt="Logo de l'ITIG Don Bosco Goma" loading="lazy"><span><b>ITIG Don Bosco Goma</b><small>Institut technique industriel · Goma, Nord-Kivu</small></span></div>
+        <blockquote>« Citation de l'école, avec son accord écrit : ce que Mwangaza change pour sa caisse, ses bulletins ou ses parents. »<footer>Nom, fonction · ITIG Don Bosco Goma</footer></blockquote>
+        <ul class="reffacts"><li><b>1 000+</b><span>élèves</span></li><li><b>4</b><span>options techniques</span></li><li><b>1981</b><span>fondée</span></li></ul>
+        <p class="muted">Ses niveaux, ses options, ses ateliers et son vrai bulletin ont servi de modèle à Mwangaza.</p>
+      </div>
+    </figure>
+    <div class="note"><b>École pilote et témoignage (demandés le 2026-10-18) :</b> l'ITIG, école d'exemple, présentée avec des faits publics (fiche <code>docs/ecole-pilote/fiche-itig.md</code>) et son logo. <b>La citation n'apparaît qu'avec les vrais mots d'une personne de l'école, son nom, sa fonction et l'accord écrit de l'ITIG</b> ; jamais de citation inventée. Sans citation : la carte sans le bloc. Écoles et citations : liste du code du site (<code>core/site_content.py</code>), une carte par école ; « utilise Mwangaza chaque jour » seulement quand c'est vrai. Plus tard : console (WEB.1d ou suivante).</div>
   </div>
 </section>
 
@@ -146,6 +199,7 @@
       <details><summary>Faut-il installer quelque chose ?<svg class="ic" data-ic="chevdown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><p>Non. Mwangaza s'ouvre dans le navigateur (Chrome, Edge, Safari) et s'ajoute à l'écran d'accueil comme une application, sans magasin d'applications.</p></details>
       <details><summary>Les parents peuvent-ils suivre les paiements ?<svg class="ic" data-ic="chevdown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><p>Oui. Avec le code famille imprimé sur la fiche d'inscription, ils activent leur compte et voient les paiements, les reçus, les échéances et les annonces de chaque enfant.</p></details>
       <details><summary>Les frais en dollars et en francs sont-ils gérés ?<svg class="ic" data-ic="chevdown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><p>Oui. Chaque frais a sa devise, l'école fixe le taux de l'année, et chaque paiement garde le taux qu'il a utilisé.</p></details>
+      <details><summary>Mwangaza fait-il les bulletins ?<svg class="ic" data-ic="chevdown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><p>Oui. L'enseignant saisit les points ; Mwangaza calcule les totaux, les pourcentages, les places et la conduite, puis imprime le bulletin au format de l'école. Son code QR permet à chacun de vérifier qu'il est authentique.</p></details>
       <details><summary>Les données de mon école sont-elles protégées ?<svg class="ic" data-ic="chevdown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><p>Chaque école ne voit que ses données. Les comptes qui touchent à l'argent ont une double vérification, chaque action sensible est notée, et la base est sauvegardée, chiffrée, chaque nuit.</p></details>
       <details><summary>Comment essayer Mwangaza dans mon école ?<svg class="ic" data-ic="chevdown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><p>Demandez une démonstration : nous ouvrons un espace d'essai avec vos classes et vos frais, et nous vous aidons à démarrer.</p></details>
     </div>

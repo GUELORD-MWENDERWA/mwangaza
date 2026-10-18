@@ -24,9 +24,20 @@ from apps.schools.views import (
 from config.views import health
 
 urlpatterns = [
-    # Site public de la plateforme (domaine nu, `apps/core/site.py`).
-    path("", site.home, name="site-home"),
-    path("en/", site.home, {"lang": "en"}, name="site-home-en"),
+    # Site public de la plateforme (domaine nu, `apps/core/site.py`) : chaque page en français
+    # et en anglais (`site.PAGES`).
+    *[
+        path(
+            paths[lang][1:],
+            getattr(site, site.VIEWS[key]),
+            {"lang": lang},
+            name=f"site-{key}-{lang}",
+        )
+        for key, paths in site.PAGES.items()
+        for lang in ("fr", "en")
+    ],
+    path("confidentialite/", site.privacy, {"lang": "fr"}, name="site-privacy-fr"),
+    path("en/privacy/", site.privacy, {"lang": "en"}, name="site-privacy-en"),
     path("ecole/", site.school_space, name="site-school"),
     path("robots.txt", site.robots_txt, name="site-robots"),
     path("sitemap.xml", site.sitemap_xml, name="site-sitemap"),

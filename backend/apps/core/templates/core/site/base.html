@@ -1,0 +1,107 @@
+{% load i18n static site_tags %}<!doctype html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }}</title>
+<meta name="description" content="{{ description }}">
+<meta name="author" content="{{ author }}">
+<meta name="robots" content="{% block robots %}index, follow, max-image-preview:large{% endblock %}">
+<link rel="canonical" href="{{ url }}">
+<link rel="alternate" hreflang="fr" href="{{ site }}{{ alternates.fr }}">
+<link rel="alternate" hreflang="en" href="{{ site }}{{ alternates.en }}">
+<link rel="alternate" hreflang="x-default" href="{{ site }}{{ alternates.fr }}">
+<link rel="alternate" type="text/markdown" title="llms.txt" href="{{ site }}/llms.txt">
+<meta name="theme-color" content="#0B1C35">
+{% if platform.icon_url %}<link rel="icon" href="{{ platform.icon_url }}">
+<link rel="apple-touch-icon" href="{{ platform.icon_url }}">{% else %}<link rel="icon" type="image/svg+xml" href="{% static 'core/site/symbole.svg' %}">
+<link rel="icon" type="image/png" sizes="192x192" href="{% static 'core/site/icon-192.png' %}">
+<link rel="apple-touch-icon" href="{% static 'core/site/apple-touch-icon.png' %}">{% endif %}
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{ platform.name }}">
+<meta property="og:title" content="{{ title }}">
+<meta property="og:description" content="{{ description }}">
+<meta property="og:url" content="{{ url }}">
+<meta property="og:image" content="{{ image }}">
+<meta property="og:image:alt" content="{{ platform.name }}">
+<meta property="og:locale" content="{{ og_locale }}">
+<meta property="og:locale:alternate" content="{{ og_alternate }}">
+<meta name="twitter:card" content="summary">
+<link rel="preload" href="{% static 'core/site/atkinson-hyperlegible-next-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{% static 'core/site/atkinson-hyperlegible-next-latin-800-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{% static 'core/site/site.css' %}">
+<style>:root{--lake:{{ platform.primary_color }};--lamp:{{ platform.accent_color }}}</style>
+{% if json_ld %}<script type="application/ld+json">{{ json_ld }}</script>{% endif %}
+<script src="{% static 'core/site/site.js' %}" defer></script>
+</head>
+<body class="site">
+<a class="skip" href="#contenu">{% translate "Skip to content" %}</a>
+<header class="sh">
+  <div class="wrap shin">
+    {% include "core/site/_brand.html" %}
+    <nav class="snav" aria-label="{% translate 'Main menu' %}">{% include "core/site/_menu.html" %}</nav>
+    <div class="sact">
+      <a class="slang" href="{{ other_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">{{ other_lang_name }}</a>
+      <a class="slink" href="{{ links.find }}">{% translate "Find my school" %}</a>
+      <a class="btn lamp sm" href="{{ links.contact }}"><span class="hide-s">{% translate "Request a demo" %}</span><span class="show-s">{% translate "Demo" %}</span></a>
+      <details class="smenu">
+        <summary aria-label="{% translate 'Open the menu' %}">{% icon "menu" %}</summary>
+        <nav class="smpanel relief" aria-label="{% translate 'Main menu' %}">
+          {% include "core/site/_menu.html" %}
+          <a href="{{ links.find }}">{% icon "search" %} {% translate "Find my school" %}</a>
+          <a href="{{ portal_url }}">{% icon "users" %} {% translate "Parent space" %}</a>
+          <a href="{{ other_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">{% icon "globe" %} {{ other_lang_name }}</a>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+<main id="contenu">
+{% block main %}{% endblock %}
+</main>
+<footer class="sf relief">
+  <div class="wrap">
+    <div class="sfgrid">
+      <div class="sfabout">
+        {% include "core/site/_brand.html" %}
+        <p>{% translate "School management software for schools in the DRC, made in Goma." %}</p>
+        <ul class="sfcontact">
+          {% if whatsapp %}<li><a href="{{ whatsapp }}" rel="noopener">{% icon "chat" %} WhatsApp {{ phone }}</a></li>{% endif %}
+          {% if platform.support_email %}<li><a href="mailto:{{ platform.support_email }}">{% icon "mail" %} {{ platform.support_email }}</a></li>{% endif %}
+          <li>{% icon "pin" %} {% translate "Goma, North Kivu, DRC" %}</li>
+        </ul>
+      </div>
+      <div>
+        <h2>{% translate "The software" %}</h2>
+        <ul>
+          <li><a href="{{ links.schools }}">{% translate "For schools" %}</a></li>
+          <li><a href="{{ links.parents }}">{% translate "For parents" %}</a></li>
+          <li><a href="{{ links.modules }}">{% translate "Modules" %}</a></li>
+          <li><a href="{{ links.home }}#questions">{% translate "Frequently asked questions" %}</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>{% translate "Access" %}</h2>
+        <ul>
+          <li><a href="{{ links.find }}">{% translate "Find my school" %}</a></li>
+          <li><a href="{{ portal_url }}">{% translate "Parent space" %}</a></li>
+          <li><a href="{{ links.contact }}">{% translate "Request a demo" %}</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>{% translate "Information" %}</h2>
+        <ul>
+          <li><a href="{{ links.legal }}">{% translate "Legal notice" %}</a></li>
+          <li><a href="{{ links.legal }}#confidentialite">{% translate "Privacy" %}</a></li>
+          <li><a href="{{ links.contact }}">{% translate "Contact" %}</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="sfbottom">
+      <p class="sflang"><a href="{{ alternates.fr }}" hreflang="fr" lang="fr"{% if lang == "fr" %} aria-current="true"{% endif %}>Français</a> · <a href="{{ alternates.en }}" hreflang="en" lang="en"{% if lang == "en" %} aria-current="true"{% endif %}>English</a></p>
+      <p>© {{ year }} <a href="{{ copyright_url }}">{{ copyright }}</a>. {% translate "All rights reserved." %}</p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

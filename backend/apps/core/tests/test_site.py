@@ -1,12 +1,17 @@
 """Site public de la plateforme (`apps/core/site.py`) : identité lue dans les paramètres, auteur,
-fichiers pour les robots, accès à l'espace d'une école."""
+chaque page dans les deux langues, chiffres de la plateforme, fichiers pour les robots, accès à
+l'espace d'une école."""
 
 import json
 import re
 
 from django.conf import settings
+from django.core.cache import cache
 
+from apps.core import site
 from apps.core.models import PlatformSettings
+from apps.schools.models import School
+from tests.factories import SchoolFactory
 
 
 def structured_data(html: str) -> dict:
@@ -31,9 +36,12 @@ def test_home_page_uses_the_platform_identity_and_names_the_author(client, db):
     assert data["Person"]["name"] == settings.SOFTWARE_AUTHOR
     # L'auteur dans la balise meta seulement ; le pied de page porte le titulaire des droits.
     assert f'<meta name="author" content="{settings.SOFTWARE_AUTHOR}">' in french
-    assert f"{settings.SOFTWARE_COPYRIGHT}. Tous droits réservés." in french
+    copyright = f'<a href="{settings.SOFTWARE_COPYRIGHT_URL}">{settings.SOFTWARE_COPYRIGHT}</a>'
+    assert f"{copyright}. Tous droits réservés." in french
     assert "Conçu et développé" not in french
-    assert len(data["FAQPage"]["mainEntity"]) == 6
+    assert len(data["FAQPage"]["mainEntity"]) == 7
+    # Jamais de citation inventée : sans les vrais mots d'une école, pas de bloc de citation.
+    assert "<blockquote>" not in french
 
     english = client.get("/en/").content.decode()
     assert '<html lang="en">' in english
@@ -41,20 +49,60 @@ def test_home_page_uses_the_platform_identity_and_names_the_author(client, db):
     assert structured_data(english)["WebPage"]["inLanguage"] == "en"
 
 
+def test_every_page_answers_in_both_languages_and_points_to_the_other(client, db):
+    for key, paths in site.PAGES.items():
+        for lang, other in (("fr", "en"), ("en", "fr")):
+            response = client.get(paths[lang])
+            html = response.content.decode()
+            assert response.status_code == 200, (key, lang)
+            assert response["Cache-Control"] == "public, max-age=3600"
+            assert f'<html lang="{lang}">' in html
+            assert f'hreflang="{other}" href="http://testserver{paths[other]}"' in html
+            assert "{%" not in html and "{{" not in html  # gabarit mal fermé
+    assert client.get("/confidentialite/")["Location"] == "/mentions-legales/#confidentialite"
+    sitemap = client.get("/sitemap.xml").content.decode()
+    for paths in site.PAGES.values():
+        assert f"<loc>http://testserver{paths['fr']}</loc>" in sitemap
+        assert f"<loc>http://testserver{paths['en']}</loc>" in sitemap
+
+
+def test_platform_figures_count_live_schools_only_and_stay_hidden_below_five(client, db):
+    cache.delete(site.STATS_CACHE)
+    for _ in range(4):
+        SchoolFactory(environment=School.Environment.LIVE)
+    # Essai, démonstration et espace arrêté ne comptent pas (A7).
+    SchoolFactory(environment=School.Environment.TEST)
+    SchoolFactory(environment=School.Environment.DEMO)
+    SchoolFactory(environment=School.Environment.LIVE, status=School.Status.STOPPED)
+    assert site.platform_stats() == []
+    assert 'class="nums' not in client.get("/").content.decode()
+
+    cache.delete(site.STATS_CACHE)
+    SchoolFactory(environment=School.Environment.LIVE)
+    figures = site.platform_stats()
+    assert figures[0][1] == 5
+    assert [number for _value, number, _label in figures[1:]] == [0, 0, 0]
+    assert 'data-count="5"' in client.get("/").content.decode()
+    cache.delete(site.STATS_CACHE)
+
+
 def test_files_for_search_engines_and_assistants(client, db):
     robots = client.get("/robots.txt").content.decode()
     assert "Sitemap: http://testserver/sitemap.xml" in robots
-    sitemap = client.get("/sitemap.xml").content.decode()
-    assert "<loc>http://testserver/</loc>" in sitemap
-    assert "<loc>http://testserver/en/</loc>" in sitemap
     llms = client.get("/llms.txt")
     assert llms["Content-Type"].startswith("text/markdown")
     assert settings.SOFTWARE_AUTHOR in llms.content.decode()
 
 
-def test_school_space_leads_to_the_school_address_only(client, db):
-    response = client.get("/ecole/", {"code": " Itig "})
-    assert response["Location"] == settings.SCHOOL_URL.format(code="itig") + "/app/"
-    # Code mal formé (ou adresse d'un autre site) : retour au formulaire.
+def test_find_my_school_leads_to_the_school_address_only(client, db):
+    expected = settings.SCHOOL_URL.format(code="itig") + "/app/"
+    assert client.get("/trouver-mon-ecole/", {"code": " Itig "})["Location"] == expected
+    # Ancienne adresse du formulaire : même règle.
+    assert client.get("/ecole/", {"code": "itig"})["Location"] == expected
+    # Code mal formé (ou adresse d'un autre site) : la même page, l'erreur, rien d'indexé.
     for code in ["", "evil.com/x", "-itig", "a b"]:
-        assert client.get("/ecole/", {"code": code})["Location"] == "/#ecole"
+        response = client.get("/en/find-my-school/", {"code": code})
+        html = response.content.decode()
+        assert response.status_code == 200
+        assert 'aria-invalid="true"' in html
+        assert '<meta name="robots" content="noindex, follow">' in html

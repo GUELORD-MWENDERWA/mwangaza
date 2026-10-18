@@ -324,3 +324,47 @@ a.sc:hover{transform:translateY(-3px);box-shadow:var(--shadow-raised);border-col
 
 /* Les règles de la maquette (.note) restent visibles ici, jamais sur le vrai site. */
 .site .note{max-width:var(--wrap);margin:16px auto 0}
+
+/* Animation 8 — bulletin qui se remplit (demandé le 2026-10-18) : HTML, pas une image */
+.bul{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);box-shadow:var(--shadow-raised);padding:20px;min-width:0;max-width:520px;width:100%;justify-self:center;font-size:.92rem}
+.bulhd{display:flex;align-items:center;gap:12px;padding-bottom:12px;border-bottom:3px solid var(--night)}
+.bulhd b{display:block;font-size:.95rem;letter-spacing:.02em}
+.bulhd small{color:var(--ink-3)}
+.bulno{margin-left:auto;font-size:.8rem;color:var(--ink-3);white-space:nowrap}
+.bulst{display:flex;flex-wrap:wrap;gap:4px 20px;padding:10px 0;color:var(--ink-2);font-size:.85rem}
+.bulst b{color:var(--ink)}
+.bult{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.bult th{font-size:.8rem;text-align:left;color:var(--ink-3);font-weight:600;background:var(--table-head);padding:6px 8px;border-bottom:1px solid var(--line)}
+.bult td{padding:7px 8px;border-bottom:1px solid var(--line-soft)}
+.bult th:not(:first-child),.bult td:not(:first-child){text-align:right;width:70px}
+.bult tfoot td{font-weight:800;border-top:2px solid var(--ink);border-bottom:0}
+.bulres{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:12px 20px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.bulres small{display:block;color:var(--ink-3);font-size:.8rem}
+.bulres b{font-size:1.3rem;font-variant-numeric:tabular-nums}
+.bulqr{justify-self:end;display:flex;gap:10px;align-items:center;border:2px solid var(--ok);color:var(--ok);border-radius:10px;padding:6px 12px 6px 8px;transform:rotate(-3deg)}
+.bulqr .qrbig{width:36px;height:36px;color:var(--ink)}
+.bulqr b{font-size:.95rem;display:block}
+.bulqr small{color:var(--ok)}
+@media (max-width:599px){.bul{padding:16px}.bulres{grid-template-columns:auto auto}.bulqr{grid-column:1/-1;justify-self:start}.bulno{display:none}}
+/* Le script ajoute .anim (points cachés) puis .play quand le bulletin est à l'écran ; sans lui : rempli. */
+.bul.anim:not(.play) .pt{opacity:0}
+@media (prefers-reduced-motion:no-preference){.bul.play .pt{animation:pop .45s calc(var(--i) * .5s) both}.bul.play .bulqr{animation:stamp .5s calc(var(--i) * .5s) both}}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes stamp{from{opacity:0;transform:rotate(-3deg) scale(1.6)}to{opacity:1;transform:rotate(-3deg) scale(1)}}
+
+/* École pilote et témoignage */
+.ref{margin:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);background:#fff;border:1px solid var(--line);border-radius:var(--r-card);box-shadow:var(--shadow);overflow:hidden}
+.refphoto{position:relative;min-height:280px;background:var(--night-2)}
+.refphoto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.refbody{padding:32px;display:flex;flex-direction:column;gap:18px;min-width:0}
+.refschool{display:flex;gap:14px;align-items:center}
+.reflogo{width:56px;height:56px;border-radius:12px;border:1px solid var(--line);background:#fff;object-fit:contain;flex:none}
+.refschool b{display:block;font-size:1.15rem}
+.refschool small{color:var(--ink-3)}
+.ref blockquote{margin:0;font-size:1.15rem;line-height:1.5;color:var(--ink);border-left:3px solid var(--lamp);padding-left:16px}
+.ref blockquote footer{margin-top:8px;font-size:.85rem;color:var(--ink-3)}
+.reffacts{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:12px 32px}
+.reffacts b{display:block;font-size:1.6rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.reffacts span{color:var(--ink-3);font-size:.85rem}
+@media (max-width:1023px){.ref{grid-template-columns:minmax(0,1fr)}.refphoto{min-height:0;aspect-ratio:16/9}}
+@media (max-width:599px){.refbody{padding:20px}}

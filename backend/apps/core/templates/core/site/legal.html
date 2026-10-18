@@ -1,0 +1,73 @@
+{% extends "core/site/base.html" %}{% load i18n site_tags %}
+{% block main %}
+<section class="phero">
+  <div class="wrap">
+    <span class="eyebrow">{% translate "Information" %}</span>
+    <h1 class="display">{% translate "Legal notice and privacy" %}</h1>
+    <p class="lead">{% blocktranslate trimmed with name=platform.name date=updated|date:"d/m/Y" %}Who publishes {{ name }}, where the data is kept, and what we do with it. Updated on {{ date }}.{% endblocktranslate %}</p>
+    <nav class="jump" aria-label="{% translate 'On this page' %}"><a href="#confidentialite">{% icon "file" %}{% translate "Privacy" %}</a></nav>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap legal">
+    <nav class="toc" aria-label="{% translate 'Contents' %}">
+      <a href="#mentions">{% translate "Legal notice" %}</a>
+      <a href="#confidentialite">{% translate "Who is responsible for the data" %}</a>
+      <a href="#donnees">{% translate "Data processed" %}</a>
+      <a href="#pourquoi">{% translate "Why" %}</a>
+      <a href="#acces">{% translate "Who has access" %}</a>
+      <a href="#duree">{% translate "How long it is kept" %}</a>
+      <a href="#securite">{% translate "Security" %}</a>
+      <a href="#droits">{% translate "Your rights" %}</a>
+      <a href="#cookies">{% translate "Cookies" %}</a>
+    </nav>
+    <article class="prose">
+      <h2 id="mentions">{% translate "Legal notice" %}</h2>
+      <dl>
+        <dt>{% translate "Publisher" %}</dt><dd>{{ editor }}, {% translate "Goma, North Kivu, Democratic Republic of the Congo" %}{% if platform.support_email %} · {{ platform.support_email }}{% endif %}{% if phone %} · {{ phone }}{% endif %}</dd>
+        {% if platform.legal_notice %}<dt>{% translate "Identifiers" %}</dt><dd class="pre">{{ platform.legal_notice }}</dd>{% endif %}
+        <dt>{% translate "Software" %}</dt><dd>{% blocktranslate trimmed with name=platform.name %}{{ name }} School, school management software{% endblocktranslate %}</dd>
+        <dt>{% translate "Hosting" %}</dt><dd>{% translate "Amazon Web Services (Lightsail), data centre in Paris, France; encrypted backup copy at Backblaze" %}</dd>
+        <dt>{% translate "Ownership" %}</dt><dd>{% blocktranslate trimmed with editor=editor %}The software, the name and the logo belong to {{ editor }}. Each school's data belongs to the school.{% endblocktranslate %}</dd>
+        <dt>{% translate "Photos" %}</dt><dd>{% translate "Goma and Lake Kivu: Ericnkurunziza, CC BY-SA 4.0 (Wikimedia Commons). Workshops and courtyard: ITIG Don Bosco Goma, with its consent." %}</dd>
+      </dl>
+
+      <h2 id="confidentialite">{% translate "Who is responsible for your data" %}</h2>
+      <p>{% blocktranslate trimmed with editor=editor name=platform.name %}Each school is responsible for the data of its students, their families and its staff: it enters them and decides how they are used. {{ editor }} hosts and runs {{ name }} for it, and uses them for nothing else.{% endblocktranslate %}</p>
+      <p>{% blocktranslate trimmed with editor=editor %}For this website and demo requests, the controller is {{ editor }}.{% endblocktranslate %}</p>
+
+      <h2 id="donnees">{% translate "The data processed" %}</h2>
+      <ul>
+        <li>{% translate "Students: identity, class, results, fees and payments." %}</li>
+        <li>{% translate "Families: names, phone, link with the student." %}</li>
+        <li>{% translate "Staff: name, phone, role, actions taken in the app." %}</li>
+        <li>{% translate "Sign-ins: date, device, IP address, for security." %}</li>
+        <li>{% translate "Demo requests: name, role, school, phone, message." %}</li>
+      </ul>
+
+      <h2 id="pourquoi">{% translate "Why" %}</h2>
+      <p>{% translate "To manage schooling and fees, inform families, protect access to accounts and answer your requests. Never advertising, never selling data." %}</p>
+
+      <h2 id="acces">{% translate "Who has access" %}</h2>
+      <ul>
+        <li>{% translate "The school's staff, according to the role the school gives them." %}</li>
+        <li>{% translate "Each family, for its own children only." %}</li>
+        <li>{% blocktranslate trimmed with name=platform.name %}The {{ name }} team, only to help the school and at its request; each access is logged.{% endblocktranslate %}</li>
+      </ul>
+
+      <h2 id="duree">{% translate "How long it is kept" %}</h2>
+      <p>{% blocktranslate trimmed with name=platform.name %}The data stays as long as the school uses {{ name }}. Payments and receipts are accounting records: they are never erased during that time. Notifications are erased after 90 days, backups after 30 days. When a school leaves, it receives its data, then the data is erased.{% endblocktranslate %}</p>
+
+      <h2 id="securite">{% translate "Security" %}</h2>
+      <p>{% translate "Encrypted connection (HTTPS), two-step sign-in for accounts that handle money, each school kept apart from the others, a log of sensitive actions, an encrypted backup every night, kept away from the server." %}</p>
+
+      <h2 id="droits">{% translate "Your rights" %}</h2>
+      <p>{% translate "Under the DRC Digital Code (ordinance-law no. 23/010 of 13 March 2023), you can ask which data concern you, have them corrected, erased (except accounting records) or object to a use." %} {% translate "Parents and staff: contact the school first; otherwise, write to us." %}{% if platform.support_email %} <a href="mailto:{{ platform.support_email }}">{{ platform.support_email }}</a>{% endif %}</p>
+
+      <h2 id="cookies">{% translate "Cookies" %}</h2>
+      <p>{% translate "Only the necessary ones: staying signed in, keeping the chosen language, protecting forms. No audience measurement, no advertising: no banner to accept." %}</p>
+    </article>
+  </div>
+</section>
+{% endblock %}
