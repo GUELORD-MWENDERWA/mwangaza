@@ -240,10 +240,18 @@ def suspend(school: School, *, actor) -> School:
     return school
 
 
-def stop(school: School, *, actor, reason: str) -> School:
+def check_confirm(school: School, confirm: str) -> None:
+    """Action sans retour (arrêter, supprimer, remettre à zéro) : le code de l'espace, retapé."""
+    if confirm.strip().lower() != school.code:
+        message = _("Type the code of the space to confirm.")
+        raise ValidationError({"confirm": ValidationError(message, code="wrong_code")})
+
+
+def stop(school: School, *, actor, reason: str, confirm: str) -> School:
     """Espace arrêté (4.15) : l'école a quitté la plateforme, l'essai ou la démonstration est
     fini. Plus personne n'y entre, rien n'est supprimé ; le motif reste dans le journal de la
-    plateforme. Une erreur se rattrape par `reactivate`."""
+    plateforme. Une erreur se rattrape par `reactivate`. `confirm` : le code, retapé (EQ.2)."""
+    check_confirm(school, confirm)
     if school.status == School.Status.STOPPED:
         return school
     before = _platform_fields(school)
@@ -284,9 +292,7 @@ def delete_space(school: School, *, actor, confirm: str) -> None:
     (une panne l'avait interrompue)."""
     if school.environment == School.Environment.LIVE:
         raise BusinessError(LIVE_SPACE)
-    if confirm.strip().lower() != school.code:
-        message = _("Type the code of the space to confirm.")
-        raise ValidationError({"confirm": ValidationError(message, code="wrong_code")})
+    check_confirm(school, confirm)
     deleting = School.Status.DELETING
     with transaction.atomic():
         school = School.objects.select_for_update().get(pk=school.pk)

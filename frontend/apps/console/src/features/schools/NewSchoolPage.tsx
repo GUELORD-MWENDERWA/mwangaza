@@ -30,6 +30,7 @@ import { Link, useSearchParams } from "react-router";
 import { z } from "zod";
 
 import { keys } from "../../lib/queries";
+import { RIGHTS, spaceRight, useCan } from "../../lib/rights";
 import { NewDemoSpace } from "./Demonstration";
 import { MODULES, ModuleChoices } from "./ModulesCard";
 import {
@@ -83,12 +84,15 @@ export function NewSchoolPage() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [general, setGeneral] = useState<string | null>(null);
-  // Type de l'onglet d'où l'on vient (`?type=`) ; sinon un espace réel.
+  // Type de l'onglet d'où l'on vient (`?type=`) ; sinon un espace réel. Seulement les types que
+  // les rôles du membre permettent de créer (EQ.2).
   const asked = useSearchParams()[0].get("type");
+  const can = useCan();
+  const kinds = KINDS.filter((value) => can(spaceRight(value, RIGHTS.schoolsManage)));
   const form = useForm<Values>({
     resolver: zodResolver(useSchema()),
     defaultValues: {
-      environment: KINDS.find((kind) => kind === asked) ?? "live",
+      environment: kinds.find((kind) => kind === asked) ?? kinds[0],
       name: "",
       official_name: "",
       code: "",
@@ -152,7 +156,7 @@ export function NewSchoolPage() {
               label={t("console.schools.kindLabel")}
               value={field.value}
               onValueChange={field.onChange}
-              options={KINDS.map((value) => ({
+              options={kinds.map((value) => ({
                 value,
                 label: t(`console.schools.kind.${value}`),
               }))}

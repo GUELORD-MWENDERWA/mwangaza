@@ -1,7 +1,7 @@
 import { screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { mockApi, renderApp } from "../../test/render";
+import { OWNER, mockApi, renderApp } from "../../test/render";
 
 const ADMIN = {
   id: "a1",
@@ -11,6 +11,7 @@ const ADMIN = {
   first_name: "Guelord",
   language: "fr",
   is_platform_admin: true,
+  ...OWNER,
 };
 
 const REQUEST = {

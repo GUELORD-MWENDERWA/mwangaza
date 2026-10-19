@@ -1,7 +1,7 @@
 import { screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { apiError, mockApi, renderApp } from "../../test/render";
+import { OWNER, apiError, mockApi, renderApp } from "../../test/render";
 
 const ADMIN = {
   id: "a1",
@@ -11,6 +11,7 @@ const ADMIN = {
   first_name: "Guelord",
   language: "fr",
   is_platform_admin: true,
+  ...OWNER,
 };
 
 const GAMMA = {
@@ -172,11 +173,17 @@ describe("Écoles de la console", () => {
     expect(requests.some((r) => r.method === "POST")).toBe(false);
 
     await user.type(screen.getByLabelText("Motif"), "A quitté la plateforme");
+    // Action sans retour (EQ.2) : le code de l'école, retapé.
+    await user.click(screen.getByRole("button", { name: "Arrêter" }));
+    expect(await screen.findByText("Ce n'est pas le code de cet espace.")).toBeTruthy();
+    expect(requests.some((r) => r.method === "POST")).toBe(false);
+    await user.type(screen.getByLabelText(/tapez le code de l'espace : gamma/), "Gamma");
     await user.click(screen.getByRole("button", { name: "Arrêter" }));
 
     expect(await screen.findByText(/Espace arrêté : personne ne peut s'y connecter/)).toBeTruthy();
     expect(requests.find((r) => r.method === "POST")?.body).toEqual({
       reason: "A quitté la plateforme",
+      confirm: "Gamma",
     });
     // Arrêté : ni session support, ni « Arrêter » ; « Relancer » rattrape une erreur.
     expect(screen.getByRole("button", { name: "Relancer" })).toBeTruthy();

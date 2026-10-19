@@ -6230,8 +6230,9 @@ paths:
   /api/console/schools/{id}/stop/:
     post:
       operationId: console_schools_stop_create
-      description: 'Espace arrêté, avec un motif : plus personne n''y entre, les données
-        restent.'
+      description: |-
+        Espace arrêté, avec un motif et son code retapé (`confirm`, sinon 400 `wrong_code`) :
+        plus personne n'y entre, les données restent.
       parameters:
       - in: path
         name: id
@@ -27367,7 +27368,13 @@ components:
           minLength: 1
           description: Motif, gardé dans le journal de la plateforme.
           maxLength: 200
+        confirm:
+          type: string
+          minLength: 1
+          description: Code de l'espace, retapé pour confirmer.
+          maxLength: 63
       required:
+      - confirm
       - reason
     Score:
       type: object

@@ -10,6 +10,7 @@ import { useDeferredValue, useState, type ReactNode } from "react";
 import { Link, NavLink } from "react-router";
 
 import { keys } from "../../lib/queries";
+import { RIGHTS, useCan } from "../../lib/rights";
 import { Pager } from "../shell/Pager";
 import { AlertsCard } from "./AlertsCard";
 
@@ -33,9 +34,11 @@ function objectPage(entry: Entry): string | null {
   return null;
 }
 
-/** En-tête commun aux deux onglets du journal. */
+/** En-tête commun aux deux onglets du journal. Le support sans le journal (EQ.2) : seulement les
+ *  sessions support, sans les alertes. */
 export function JournalLayout({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
+  const can = useCan();
   const tab = ({ isActive }: { isActive: boolean }) =>
     `-mb-px border-b-[3px] px-3.5 py-2.5 font-bold ${
       isActive ? "border-lake text-ink" : "border-transparent text-ink-3 hover:text-ink"
@@ -43,11 +46,13 @@ export function JournalLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <PageHeader title={t("console.journal.title")} subtitle={t("console.journal.subtitle")} />
-      <AlertsCard />
+      {can(RIGHTS.auditView, RIGHTS.leadsManage) && <AlertsCard />}
       <nav className="flex gap-1 overflow-x-auto border-b border-line">
-        <NavLink to="/journal" end className={tab}>
-          {t("console.journal.tabs.log")}
-        </NavLink>
+        {can(RIGHTS.auditView) && (
+          <NavLink to="/journal" end className={tab}>
+            {t("console.journal.tabs.log")}
+          </NavLink>
+        )}
         <NavLink to="/journal/support" className={tab}>
           {t("console.journal.tabs.support")}
         </NavLink>

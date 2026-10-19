@@ -286,6 +286,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "devices",
       "identity",
       "journal",
+      "team",
     ]) {
       await visit(
         admin,

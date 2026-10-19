@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console — équipe — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+/* Console de la plateforme (5.2) : son propre design. Pas de menu latéral comme la Gestion :
+   une barre du haut bleu nuit, la navigation dessous, le contenu sur un fond clair et large. */
+body{background:var(--surface)}
+.ctop{background-color:var(--night);color:var(--night-ink)}
+.ctop .in{max-width:1240px;margin:0 auto;padding:12px 24px 0;display:flex;flex-direction:column;gap:10px}
+.ctop .row1{display:flex;align-items:center;gap:12px}
+.ctop .brand{padding:0}
+.ctop .chip{font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--night);background:var(--lamp);border-radius:var(--r-pill);padding:2px 9px}
+.ctop .grow{flex:1}
+.ctop .state{font-size:.85rem;display:flex;align-items:center;gap:6px;color:#C3CFE0}
+.ctop .state i{width:8px;height:8px;border-radius:50%;background:#4CC38A;display:inline-block}
+.ctop .me{display:flex;align-items:center;gap:8px;font-size:.85rem}
+.ctop .me .avatar{background:var(--night-2);color:var(--lamp)}
+.ctop nav{display:flex;gap:4px;overflow-x:auto}
+.ctop nav a{color:#C3CFE0;text-decoration:none;padding:10px 12px;border-bottom:3px solid transparent;white-space:nowrap;font-size:.92rem}
+.ctop nav a.on{color:#fff;border-bottom-color:var(--lamp);font-weight:700}
+.ctop nav a .soon{font-size:.8rem;color:#7A8699;margin-left:4px}
+.cmain{max-width:1240px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:20px}
+.g4{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.two{display:grid;gap:16px;grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.health li{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem}
+.health li:first-child{border-top:0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.due{background:var(--due)}.dot.off{background:var(--ink-3)}
+@media (max-width:820px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:minmax(0,1fr)}.ctop .state,.ctop .me b{display:none}.cmain,.ctop .in{padding-left:16px;padding-right:16px}}
+.filters{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:#fff}
+.seg span{padding:8px 14px;font-size:.85rem;font-weight:700;color:var(--ink-2)}.seg span.on{background:var(--lake);color:#fff}
+.form{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr));padding:16px}
+dl.brief{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 16px;padding:12px 16px 16px;margin:0;font-size:.92rem}dl.brief dt{color:var(--ink-3)}dl.brief dd{margin:0}
+.pwd{font-family:var(--mono);font-size:1.15rem;background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px 10px}
+@media (max-width:820px){.form{grid-template-columns:minmax(0,1fr)}}
+.roles{display:flex;flex-wrap:wrap;gap:4px}
+.acts{display:flex;flex-direction:column;gap:10px;padding:16px}
+.acts .row{justify-content:space-between;gap:12px;flex-wrap:wrap}
+ul.plain{list-style:none;margin:0;padding:0}ul.plain li{padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}ul.plain li:first-child{border-top:0}
+.dlg{position:static;max-width:none;width:auto}
+.dlgs{display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+.cap{font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:4px 0 -8px}
+.rl{display:flex;flex-direction:column;gap:10px}
+.rl .check{padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-md)}
+.rl .check.on{border-color:var(--lake);background:var(--lake-soft,#EEF4FB)}
+.rl .check small{display:block;color:var(--ink-3)}
+.box{width:18px;height:18px;border:1.5px solid var(--ink-3);border-radius:4px;flex:none;margin-top:2px}
+.on .box{background:var(--lake);border-color:var(--lake)}
+.mini .ctop .in{padding:10px 16px 0}
+@media (max-width:820px){.dlgs{grid-template-columns:minmax(0,1fr)}}
+</style></head>
+<body>
+<header class="ctop"><div class="in">
+  <div class="row1"><div class="brand"><span class="mark"></span><b>Mwangaza</b></div><span class="chip">Console</span><span class="grow"></span>
+    <span class="me"><span class="avatar">GM</span><b>Guelord Mwenderwa</b></span></div>
+  <nav><a href="#">Tableau de bord</a><a href="#">Écoles</a><a href="#">Demandes</a><a href="#">Comptes</a><a href="#">Annonces</a><a href="#">Identité de la plateforme</a><a href="#">Appareils</a><a href="#">Journal</a><a class="on" href="#">Équipe</a></nav>
+</div></header>
+<main class="cmain">
+  <div class="pagehead"><div><h1>Équipe de la plateforme</h1><p>Les personnes qui font tourner la plateforme. Chacune n'a que les droits de son travail.</p></div><a class="btn primary" href="#">Inviter un membre</a></div>
+  <div class="card"><div class="tblwrap"><table class="tbl"><thead><tr><th>Membre</th><th>Rôles</th><th>Double auth.</th><th>Dernière connexion</th><th></th></tr></thead><tbody>
+    <tr><td><b>Mwenderwa Guelord</b> <span class="pill info">Vous</span><br><span class="small muted">+243 970 000 001</span></td><td><div class="roles"><span class="tag">Propriétaire</span></div></td><td><span class="pill ok">Activée</span></td><td class="small muted">19/10/2026 08:12</td><td><a class="btn sm ghost" href="#">Rôles</a></td></tr>
+    <tr><td><b>Kahambu Esther</b><br><span class="small muted">+243 971 220 145</span></td><td><div class="roles"><span class="tag">Support</span><span class="tag">Technique</span></div></td><td><span class="pill ok">Activée</span></td><td class="small muted">18/10/2026 16:40</td><td><div class="row"><a class="btn sm ghost" href="#">Rôles</a><a class="btn sm danger" href="#">Retirer</a></div></td></tr>
+    <tr><td><b>Muhindo Patrick</b><br><span class="small muted">+243 812 004 377</span></td><td><div class="roles"><span class="tag">Commercial</span></div></td><td><span class="pill warn">À activer</span></td><td><span class="pill warn">Invitation pas encore utilisée</span></td><td><div class="row"><a class="btn sm ghost" href="#">Rôles</a><a class="btn sm danger" href="#">Retirer</a></div></td></tr>
+    <tr><td><b>Bisimwa Neema</b><br><span class="small muted">+243 990 310 552</span></td><td><div class="roles"><span class="tag">Communication</span></div></td><td><span class="pill ok">Activée</span></td><td class="small muted">12/10/2026 11:05</td><td><div class="row"><a class="btn sm ghost" href="#">Rôles</a><a class="btn sm danger" href="#">Retirer</a></div></td></tr>
+  </tbody></table></div></div>
+  <div class="card"><div class="hd"><h2>Rôles et droits</h2></div>
+    <ul class="plain">
+      <li><b>Propriétaire</b><span class="small muted">Tous les droits, dont l'équipe, l'identité de la plateforme et l'arrêt d'une école réelle</span></li>
+      <li><b>Technique</b><span class="small muted">Voir les écoles et le tableau de bord · Santé du serveur et appareils · Journal de la plateforme et ses alertes</span></li>
+      <li><b>Support</b><span class="small muted">Voir les écoles et le tableau de bord · Aider les comptes et ouvrir une session support · Espaces d'essai et de démonstration</span></li>
+      <li><b>Commercial</b><span class="small muted">Demandes de démonstration du site · Espaces d'essai et de démonstration</span></li>
+      <li><b>Communication</b><span class="small muted">Contenus du site · Annonces aux écoles</span></li>
+      <li><b>Finance</b><span class="small muted">Voir les écoles et le tableau de bord · Abonnements et factures</span></li>
+    </ul></div>
+  <p class="cap">Fenêtres</p>
+  <div class="dlgs">
+    <div class="dialog dlg"><div class="hd"><h2>Inviter un membre</h2></div>
+      <div class="bd col">
+        <div class="form" style="padding:0">
+          <label class="f"><span>Nom <span class="req">*</span></span><span class="inp">Muhindo</span></label>
+          <label class="f">Post-nom<span class="inp"></span></label>
+          <label class="f">Prénom<span class="inp">Patrick</span></label>
+          <label class="f"><span>Téléphone <span class="req">*</span></span><span class="inp">0812004377</span><span class="help">Son propre numéro : il s'en sert pour se connecter.</span></label>
+        </div>
+        <div class="f"><span>Rôles <span class="req">*</span></span>
+          <div class="rl">
+            <div class="check"><span class="box"></span><span><b>Technique</b><small>Santé du serveur, appareils, journal</small></span></div>
+            <div class="check"><span class="box"></span><span><b>Support</b><small>Aider les comptes, espaces de démonstration</small></span></div>
+            <div class="check on"><span class="box"></span><span><b>Commercial</b><small>Demandes de démonstration, espaces d'essai et de démonstration</small></span></div>
+            <div class="check"><span class="box"></span><span><b>Communication</b><small>Contenus du site, annonces aux écoles</small></span></div>
+            <div class="check"><span class="box"></span><span><b>Finance</b><small>Abonnements et factures</small></span></div>
+            <div class="check"><span class="box"></span><span><b>Propriétaire</b><small>Tous les droits, dont l'équipe</small></span></div>
+          </div></div>
+      </div>
+      <div class="ft"><a class="btn" href="#">Annuler</a><a class="btn primary" href="#">Inviter</a></div></div>
+    <div class="col" style="gap:16px">
+      <div class="dialog dlg"><div class="hd"><h2>Muhindo Patrick est invité</h2></div>
+        <div class="bd col">
+          <p>Mot de passe provisoire, affiché une seule fois : <span class="pwd">kivu-4tgw-81mz</span></p>
+          <p class="small muted">Donnez-le en personne ou par appel, jamais par un message. À sa première connexion à la console, il le change puis active la double authentification.</p>
+        </div>
+        <div class="ft"><a class="btn primary" href="#">J'ai noté le mot de passe</a></div></div>
+      <div class="dialog dlg"><div class="hd"><h2>Rôles de Kahambu Esther</h2></div>
+        <div class="bd col">
+          <div class="rl">
+            <div class="check on"><span class="box"></span><span><b>Technique</b><small>Santé du serveur, appareils, journal</small></span></div>
+            <div class="check on"><span class="box"></span><span><b>Support</b><small>Aider les comptes, espaces de démonstration</small></span></div>
+            <div class="check"><span class="box"></span><span><b>Commercial</b><small>…</small></span></div>
+          </div>
+          <div class="banner due"><div>La plateforme garde au moins un propriétaire.</div></div>
+        </div>
+        <div class="ft"><a class="btn" href="#">Annuler</a><a class="btn primary" href="#">Enregistrer</a></div></div>
+      <div class="dialog dlg"><div class="hd"><h2>Retirer Muhindo Patrick de l'équipe ?</h2></div>
+        <div class="bd"><p>Son compte est désactivé et ses sessions se ferment tout de suite. Ce qu'il a fait reste au journal. Pour le faire revenir, invitez-le de nouveau.</p></div>
+        <div class="ft"><a class="btn" href="#">Annuler</a><a class="btn dangerf" href="#">Retirer</a></div></div>
+    </div>
+  </div>
+  <p class="cap">Menu d'un membre « Commercial » · page sans droit</p>
+  <div class="card mini" style="overflow:hidden"><header class="ctop"><div class="in">
+    <div class="row1"><div class="brand"><span class="mark"></span><b>Mwangaza</b></div><span class="chip">Console</span><span class="grow"></span><span class="me"><span class="avatar">MP</span><b>Muhindo Patrick</b></span></div>
+    <nav><a class="on" href="#">Écoles</a><a href="#">Demandes</a></nav></div></header>
+    <div class="bd col" style="padding:20px"><h2>Cette page n'est pas dans vos rôles</h2><p class="muted">Demandez au propriétaire de la plateforme le rôle qu'il faut.</p><a class="btn" href="#" style="width:fit-content">Aller à l'accueil</a></div></div>
+  <div class="note"><b>EQ.2 :</b> page réservée au droit « Gérer l'équipe » (le propriétaire). Inviter, changer les rôles et retirer vont au journal de la plateforme sous le nom de leur auteur. Double authentification obligatoire : « À activer » tant que le membre ne l'a pas faite. Le mot de passe provisoire n'est montré qu'une fois. Au moins un rôle par membre ; le dernier propriétaire garde le sien. Pas de bouton « Retirer » sur sa propre ligne (un autre propriétaire le fait). Un membre retiré disparaît de la liste ; le réinviter avec le même numéro le fait revenir.</div>
+  <div class="note"><b>Menu :</b> chaque entrée n'apparaît qu'avec un de ses droits — Tableau de bord : voir les écoles ; Écoles : voir les écoles ou les espaces d'essai et de démonstration ; Demandes : demandes de démonstration ; Comptes : aider les comptes ; Annonces : annonces aux écoles ; Identité : identité de la plateforme ; Appareils : santé du serveur ; Journal : journal (ou aider les comptes : l'onglet « Sessions support » seul) ; Équipe : gérer l'équipe. Sans « voir les écoles », l'accueil mène à la première entrée permise. Sur une fiche d'école, les boutons sans le droit sont masqués (le serveur refuse de toute façon).</div>
+</main>
+</body></html>

@@ -84,7 +84,16 @@ export function ModuleChoices({
   );
 }
 
-export function ModulesCard({ school, onSaved }: { school: Detail; onSaved: (d: Detail) => void }) {
+/** `readOnly` : membre sans le droit de changer cette école (EQ.2) ; il voit les modules. */
+export function ModulesCard({
+  school,
+  onSaved,
+  readOnly = false,
+}: {
+  school: Detail;
+  onSaved: (d: Detail) => void;
+  readOnly?: boolean;
+}) {
   const { t } = useTranslation();
   const [chosen, setChosen] = useState<Module[]>(school.modules);
   const [saved, setSaved] = useState(false);
@@ -110,27 +119,31 @@ export function ModulesCard({ school, onSaved }: { school: Detail; onSaved: (d: 
       <CardHeader>
         <CardTitle>{t("console.schools.modulesTitle")}</CardTitle>
       </CardHeader>
-      <CardContent className="grid gap-3">
-        <p className="text-md text-ink-3">{t("console.schools.modulesHelp")}</p>
-        <ModuleChoices
-          chosen={chosen}
-          onChange={(modules) => {
-            setSaved(false);
-            setChosen(modules);
-          }}
-        />
-        {save.isError && <Banner tone="due">{errorMessage(save.error, t)}</Banner>}
-        {saved && !changed && (
-          <Banner tone="ok" role="status">
-            {t("console.schools.modulesSaved")}
-          </Banner>
-        )}
+      <CardContent>
+        <fieldset disabled={readOnly} className="grid min-w-0 gap-3">
+          <p className="text-md text-ink-3">{t("console.schools.modulesHelp")}</p>
+          <ModuleChoices
+            chosen={chosen}
+            onChange={(modules) => {
+              setSaved(false);
+              setChosen(modules);
+            }}
+          />
+          {save.isError && <Banner tone="due">{errorMessage(save.error, t)}</Banner>}
+          {saved && !changed && (
+            <Banner tone="ok" role="status">
+              {t("console.schools.modulesSaved")}
+            </Banner>
+          )}
+        </fieldset>
       </CardContent>
-      <CardFooter>
-        <Button disabled={!changed || save.isPending} onClick={() => save.mutate()}>
-          {t("console.schools.save")}
-        </Button>
-      </CardFooter>
+      {!readOnly && (
+        <CardFooter>
+          <Button disabled={!changed || save.isPending} onClick={() => save.mutate()}>
+            {t("console.schools.save")}
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }

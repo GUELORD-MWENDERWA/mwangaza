@@ -769,7 +769,8 @@ class ConsoleSchoolViewSet(
     )
     @action(detail=True, methods=["post"])
     def stop(self, request: Request, pk=None) -> Response:
-        """Espace arrêté, avec un motif : plus personne n'y entre, les données restent."""
+        """Espace arrêté, avec un motif et son code retapé (`confirm`, sinon 400 `wrong_code`) :
+        plus personne n'y entre, les données restent."""
         school = self._object(team.SCHOOLS_STOP)
         serializer = SchoolStopSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
