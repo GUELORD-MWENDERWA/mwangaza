@@ -650,7 +650,10 @@ def _promotion_class(year, family: Family) -> ClassGroup | None:
     démonstration (délibération en cours) ou de dernière année ; sinon la première libre."""
     taken = set(
         Deliberation.objects.filter(
-            class_group__academic_year=year, term__isnull=True, status=Deliberation.Status.DRAFT
+            class_group__academic_year=year,
+            term__isnull=True,
+            second_session=False,
+            status=Deliberation.Status.DRAFT,
         ).values_list("class_group_id", flat=True)
     )
     usable = ClassGroup.objects.filter(academic_year=year, level__has_state_exam=False).exclude(

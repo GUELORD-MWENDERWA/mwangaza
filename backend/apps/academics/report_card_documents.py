@@ -298,14 +298,15 @@ def _conclusion(report: ClassReport, student: StudentReport) -> dict:
     pas encore proclamée, ou un élève arrivé après, laisse le bas vierge."""
     if not hasattr(report, "proclaimed"):
         report.proclaimed = deliberation.proclaimed_rows(report.class_group)
-    snapshot, rows = report.proclaimed
-    row = rows.get(str(student.enrollment.pk))
+    result = report.proclaimed
+    row = result.rows.get(str(student.enrollment.pk)) if result else None
     if row is None:
         return {"proclaimed": False}
     keep = KEPT.get(row["decision"], "")
     return {
         "proclaimed": True,
-        "date": snapshot.held_on,
+        # Seconde session (NB.6) : sa date et sa décision, qui remplacent le repêchage.
+        "date": result.date_of(row),
         "keep": keep,
         "resit_courses": ", ".join(row.get("resit_courses", [])),
         # Colonne du repêchage : « passe » ou « double » seulement une fois le sort connu.

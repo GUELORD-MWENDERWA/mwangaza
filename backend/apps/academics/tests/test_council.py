@@ -117,7 +117,7 @@ def test_a_period_is_proclaimed_once_ready_and_freezes_results_and_council(
         assert {r["enrollment"] for r in snapshot.rows} == {str(data["amani"]), str(data["josue"])}
         # La fin d'année n'est pas touchée : le bulletin et le passage ne lisent qu'elle.
         group = ClassGroup.objects.get(pk=data["a"].pk)
-        assert deliberation.proclaimed_rows(group) == (None, {})
+        assert deliberation.proclaimed_rows(group) is None
         assert AuditLog.objects.filter(action="deliberation.council").count() == 1
         assert AuditLog.objects.filter(action="deliberation.proclaimed").count() == 1
     assert client.get(url(data)).json()["status"] == "draft"

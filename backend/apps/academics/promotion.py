@@ -15,10 +15,10 @@ from decimal import Decimal
 from itertools import pairwise
 
 from django.db import transaction
-from django.db.models import F
 from django.utils.translation import gettext_lazy as _
 
-from apps.academics.models import DeliberationDecision, DeliberationSnapshot, PlaceConfirmation
+from apps.academics import deliberation
+from apps.academics.models import DeliberationDecision, PlaceConfirmation
 from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import Action
@@ -67,19 +67,11 @@ def years() -> tuple[AcademicYear | None, AcademicYear | None]:
 
 
 def _latest_rows(groups) -> dict:
-    """Lignes figées de la dernière proclamation de chaque classe :
+    """Lignes figées de la dernière proclamation de chaque classe, seconde session comprise :
     {classe: {"held_on": date, "rows": {inscription: ligne}}}."""
-    snapshots = (
-        DeliberationSnapshot.objects.filter(
-            deliberation__class_group__in=groups, deliberation__term__isnull=True
-        )
-        .annotate(group_id=F("deliberation__class_group_id"))
-        .order_by("deliberation__class_group_id", "-version")
-        .distinct("deliberation__class_group_id")
-    )
     return {
-        s.group_id: {"held_on": s.held_on, "rows": {row["enrollment"]: row for row in s.rows}}
-        for s in snapshots
+        group_id: {"held_on": result.held_on, "rows": result.rows}
+        for group_id, result in deliberation.year_results(groups).items()
     }
 
 

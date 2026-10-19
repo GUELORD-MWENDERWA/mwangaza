@@ -1,7 +1,10 @@
 """API des examens de repêchage (8.4.1) : tableau de la classe (cours échoués, issue proposée) et
-note de repêchage d'un cours, saisie et signée par son enseignant (ou `grades.enter_any`)."""
+note de repêchage d'un cours, saisie et signée par son enseignant (ou `grades.enter_any`).
+Seconde session (NB.6) : date de l'examen et convocations des élèves envoyés au repêchage."""
 
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.text import slugify
 from django.utils.translation import gettext
 from drf_spectacular.utils import extend_schema
 from rest_framework import serializers
@@ -10,16 +13,24 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.academics import report_cards, resits
+from apps.academics import deliberation, report_cards, resits
 from apps.academics.grades import gradable_courses
-from apps.academics.models import Course
+from apps.academics.models import Course, Deliberation
 from apps.accounts.permissions import HasSchoolPermission, school_access
 from apps.accounts.roles import GRADES_ENTER, GRADES_ENTER_ANY, GRADES_VALIDATE
+from apps.core.documents import (
+    PRINT_RESPONSE,
+    PrintOptionsSerializer,
+    print_options,
+    render,
+    school_header,
+)
 from apps.core.errors import ErrorSerializer
+from apps.core.tenancy import require_current_school
 from apps.schools.models import ClassGroup
 from apps.students.models import Enrollment
 
-ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
+ERRORS = {400: ErrorSerializer, 403: ErrorSerializer, 404: ErrorSerializer}
 
 
 class ResitCourseSerializer(serializers.Serializer):
@@ -74,10 +85,32 @@ class RulesSerializer(serializers.Serializer):
     resit_failures_to_fail = serializers.IntegerField()
 
 
+class SecondSessionSerializer(serializers.Serializer):
+    students = serializers.IntegerField(
+        help_text="Élèves que la dernière proclamation de fin d'année envoie au repêchage."
+    )
+    exam_on = serializers.DateField(allow_null=True, help_text="Date de l'examen de repêchage.")
+    status = serializers.ChoiceField(choices=Deliberation.Status.choices)
+    version = serializers.IntegerField(help_text="Dernière version proclamée (0 : aucune).")
+    can_manage = serializers.BooleanField(help_text="Droit `grades.validate` : date, convocations.")
+
+
 class ClassResitsSerializer(serializers.Serializer):
     class_name = serializers.CharField()
     rules = RulesSerializer()
     students = StudentResitsSerializer(many=True)
+    second_session = SecondSessionSerializer()
+
+
+class ExamDateSerializer(serializers.Serializer):
+    exam_on = serializers.DateField()
+
+
+class ConvocationQuerySerializer(PrintOptionsSerializer):
+    output = serializers.ChoiceField(choices=["pdf", "html"], default="pdf")
+    enrollment = serializers.UUIDField(
+        required=False, help_text="Un seul élève ; absent : toute la classe."
+    )
 
 
 class ResitGradeSerializer(serializers.Serializer):
@@ -97,18 +130,37 @@ class _ResitView(APIView):
 
 
 def _class_data(group: ClassGroup, request: Request) -> dict:
-    """Élèves ayant un cours échoué, ou dont l'issue est l'échec."""
+    """Élèves ayant un cours échoué, ou dont l'issue est l'échec. Après la proclamation de fin
+    d'année, seuls ses élèves « repêchage » reçoivent une note ; plus aucun une fois la seconde
+    session proclamée."""
     permissions = school_access(request).permissions
     rules = resits.rules_of(group)
+    sent = resits.proclaimed_resits(group)
     rows = resits.class_overview(
-        report_cards.class_report(group), user=request.user, permissions=permissions
+        report_cards.class_report(group),
+        user=request.user,
+        permissions=permissions,
+        resit_decided=sent,
     )
+    current = deliberation.session_of(group, None, second=True)
+    closed = current is not None and current.status == Deliberation.Status.PROCLAIMED
+    for row in rows:
+        if closed or (sent is not None and row.enrollment.pk not in sent):
+            for course in row.failed:
+                course.can_enter = False
     return {
         "class_name": group.name,
         "rules": rules,
         "students": [
             r for r in rows if r.failed or r.outcome not in (resits.PASSED, resits.INCOMPLETE)
         ],
+        "second_session": {
+            "students": len(sent or ()),
+            "exam_on": current.exam_on if current else None,
+            "status": current.status if current else Deliberation.Status.DRAFT,
+            "version": current.version if current else 0,
+            "can_manage": GRADES_VALIDATE in permissions,
+        },
     }
 
 
@@ -130,6 +182,63 @@ class ClassResitsView(_ResitView):
         data = _class_data(group, request)
         context = {"rules": data["rules"]}
         return Response(ClassResitsSerializer(data, context=context).data)
+
+
+class _ManageView(APIView):
+    permission_classes = [HasSchoolPermission]
+    required_module = "academics"
+    required_permission = GRADES_VALIDATE
+
+
+def _group(pk) -> ClassGroup:
+    return get_object_or_404(
+        ClassGroup.objects.select_related("school", "level", "academic_year"), pk=pk
+    )
+
+
+@extend_schema(tags=["resits"])
+class ExamDateView(_ManageView):
+    @extend_schema(request=ExamDateSerializer, responses={200: ClassResitsSerializer, **ERRORS})
+    def put(self, request: Request, pk) -> Response:
+        """Date de l'examen de repêchage de la classe (seconde session, NB.6), imprimée sur les
+        convocations ; `no_second_session` sans élève envoyé au repêchage par la proclamation."""
+        group = _group(pk)
+        data = ExamDateSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        deliberation.set_exam_date(group, data.validated_data["exam_on"], actor=request.user)
+        data = _class_data(group, request)
+        return Response(ClassResitsSerializer(data, context={"rules": data["rules"]}).data)
+
+
+@extend_schema(tags=["resits"])
+class ConvocationsView(_ManageView):
+    @extend_schema(parameters=[ConvocationQuerySerializer], responses={**PRINT_RESPONSE, **ERRORS})
+    def get(self, request: Request, pk) -> HttpResponse:
+        """Convocations à l'examen de repêchage, en PDF ou en aperçu : une par élève envoyé en
+        seconde session (cours à repasser et leur pourcentage, pourcentage de l'année, gardé,
+        date de l'examen), deux par feuille A4. `exam_date_required` sans date fixée."""
+        group = _group(pk)
+        params = ConvocationQuerySerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        data = params.validated_data
+        exam_on, rows = deliberation.convocations(group)
+        if data.get("enrollment"):
+            rows = [r for r in rows if r.enrollment.pk == data["enrollment"]]
+        context = {
+            **school_header(require_current_school()),
+            "class_group": group,
+            "year": group.academic_year,
+            "exam_on": exam_on,
+            "rows": rows,
+            "signer": request.user.get_full_name(),
+        }
+        return render(
+            "academics/resit_convocations.html",
+            context,
+            data["output"],
+            f"convocations-repechage-{slugify(group.name)}.pdf",
+            print_options(data, "portrait"),
+        )
 
 
 @extend_schema(tags=["resits"])

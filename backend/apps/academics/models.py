@@ -498,6 +498,10 @@ class Deliberation(TenantModel):
     `DeliberationSnapshot`. La rouvrir (motif obligatoire) puis la proclamer de nouveau crée la
     version suivante ; les anciennes restent. Seule la fin d'année a des décisions par élève.
 
+    Seconde session (NB.6, `second_session`, `term` vide) : les élèves que la dernière proclamation
+    de fin d'année envoie au repêchage ; `exam_on`, date de l'examen (convocations). Sa décision
+    remplace « repêchage » pour ces élèves (bulletin, situations, passage de classe).
+
     `council` : membres présents (identifiants de comptes), président et secrétaire de séance,
     choisis parmi les membres calculés (`council.py`) ; figés avec les noms à la proclamation."""
 
@@ -529,14 +533,20 @@ class Deliberation(TenantModel):
     correction_reason = models.CharField(_("correction reason"), max_length=300, blank=True)
     council = models.JSONField(_("council"), default=dict, blank=True)
     remarks = models.TextField(_("remarks of the council"), max_length=2000, blank=True)
+    second_session = models.BooleanField(_("second session"), default=False)
+    exam_on = models.DateField(_("resit exam date"), null=True, blank=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["class_group", "term"],
+                fields=["class_group", "term", "second_session"],
                 nulls_distinct=False,
-                name="deliberation_class_session_unique",
-            )
+                name="deliberation_class_session_unique_v2",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(second_session=False) | models.Q(term__isnull=True),
+                name="deliberation_second_session_year",
+            ),
         ]
 
     def __str__(self) -> str:

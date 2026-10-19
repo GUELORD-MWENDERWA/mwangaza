@@ -2,13 +2,14 @@
 // échoués d'après les règles de l'école, la note de repêchage (saisie et signée par l'enseignant
 // du cours) et l'issue proposée. La décision prise est celle de la délibération (8.4.2).
 import { api, call } from "@mwangaza/api";
-import { useTranslation } from "@mwangaza/i18n";
+import { formatDay, useTranslation } from "@mwangaza/i18n";
 import {
   Banner,
   Button,
   Card,
   CardContent,
   Field,
+  Icon,
   Input,
   PageHeader,
   Select,
@@ -18,13 +19,14 @@ import {
 } from "@mwangaza/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { Link, useSearchParams } from "react-router";
 
 import { firstErrorMessage } from "../../lib/errors";
 import { keys } from "../../lib/queries";
 import { RuleCited } from "../deliberation/RuleCited";
 import { useGrading } from "../grades/data";
 import { LoadError } from "../status/StatusPages";
-import { useClassResits, type ResitCourse, type StudentResits } from "./data";
+import { convocationsUrl, useClassResits, type ResitCourse, type StudentResits } from "./data";
 
 const TONES: Record<string, "ok" | "warn" | "due" | "gray"> = {
   passed: "ok",
@@ -39,11 +41,13 @@ const TONES: Record<string, "ok" | "warn" | "due" | "gray"> = {
 type Target = { enrollment: string; course: string };
 
 export function ResitsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const grading = useGrading();
-  const [classId, setClassId] = useState("");
+  const [params] = useSearchParams();
+  const [classId, setClassId] = useState(params.get("class") ?? "");
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [examDay, setExamDay] = useState<string | null>(null);
 
   const classes = grading.data?.classes ?? [];
   const groupId = classId || classes[0]?.id || "";
@@ -51,6 +55,19 @@ export function ResitsPage() {
   const refresh = () => void queryClient.invalidateQueries({ queryKey: keys.resits });
   const draftKey = ({ enrollment, course }: Target) => `${enrollment}:${course}`;
 
+  const saveExamDay = useMutation({
+    mutationFn: (examOn: string) =>
+      call(
+        api.PUT("/api/class-groups/{id}/resits/exam-date/", {
+          params: { path: { id: groupId } },
+          body: { exam_on: examOn },
+        }),
+      ),
+    onSuccess: () => {
+      setExamDay(null);
+      refresh();
+    },
+  });
   const save = useMutation({
     mutationFn: (target: Target) =>
       call(
@@ -140,6 +157,83 @@ export function ResitsPage() {
     );
   };
 
+  // Seconde session (NB.6) : élèves proclamés « repêchage », date de l'examen, convocations.
+  const secondSession = (data: NonNullable<typeof table.data>) => {
+    const session = data.second_session;
+    const closed = session.status === "proclaimed";
+    const day = examDay ?? session.exam_on ?? "";
+    return (
+      <Card>
+        <CardContent className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg font-bold">{t("resits.secondTitle")}</h2>
+            <StatusPill tone={closed ? "ok" : "warn"}>
+              {t(`deliberation.status_${session.status}`)}
+            </StatusPill>
+          </div>
+          <p className="text-sm">{t("resits.secondIntro", { count: session.students })}</p>
+          {session.can_manage && !closed ? (
+            <div className="flex flex-wrap items-end gap-3">
+              <Field id="resits-exam-day" label={t("resits.examDay")}>
+                {(control) => (
+                  <Input
+                    {...control}
+                    type="date"
+                    value={day}
+                    onChange={(event) => setExamDay(event.target.value)}
+                  />
+                )}
+              </Field>
+              {examDay && examDay !== session.exam_on && (
+                <Button
+                  variant="outline"
+                  disabled={saveExamDay.isPending}
+                  onClick={() => saveExamDay.mutate(examDay)}
+                >
+                  {t("resits.saveExamDay")}
+                </Button>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm">
+              {session.exam_on
+                ? t("resits.examOn", { date: formatDay(session.exam_on, i18n.language) })
+                : t("resits.noExamDay")}
+            </p>
+          )}
+          {saveExamDay.isError && (
+            <Banner tone="due">{firstErrorMessage(saveExamDay.error, t)}</Banner>
+          )}
+          {session.can_manage && (
+            <div className="flex flex-wrap gap-2">
+              {session.exam_on ? (
+                <Button asChild>
+                  <a href={convocationsUrl(groupId)} target="_blank" rel="noreferrer">
+                    <Icon name="print" />
+                    {t("resits.convocations")}
+                  </a>
+                </Button>
+              ) : (
+                <Button disabled>
+                  <Icon name="print" />
+                  {t("resits.convocations")}
+                </Button>
+              )}
+              <Button asChild variant="outline">
+                <Link to={`/deliberation?class=${groupId}&session=second`}>
+                  {t("resits.openSecond")}
+                </Link>
+              </Button>
+            </div>
+          )}
+          <p className="text-xs text-ink-3">
+            {t(closed ? "resits.secondClosed" : "resits.secondHelp")}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <>
       <PageHeader title={t("resits.title")} subtitle={t("resits.subtitle")} />
@@ -154,7 +248,10 @@ export function ResitsPage() {
                   <Select
                     {...control}
                     value={groupId}
-                    onChange={(event) => setClassId(event.target.value)}
+                    onChange={(event) => {
+                      setClassId(event.target.value);
+                      setExamDay(null);
+                    }}
                   >
                     {classes.map((item) => (
                       <option key={item.id} value={item.id}>
@@ -244,6 +341,7 @@ export function ResitsPage() {
           </CardContent>
         </Card>
       )}
+      {table.data && table.data.second_session.students > 0 && secondSession(table.data)}
     </>
   );
 }
