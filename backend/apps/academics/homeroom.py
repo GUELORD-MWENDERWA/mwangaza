@@ -26,6 +26,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.notifications import events
+from apps.schools import pass_rules
 from apps.schools.models import ClassGroup, Term
 from apps.schools.organisation import current_year
 
@@ -34,7 +35,6 @@ SHEETS_MISSING = ApiError(
     _("Every grade sheet of this period must be validated before the report cards are ready."),
     409,
 )
-HALF = Decimal(50)
 
 
 @dataclass
@@ -99,13 +99,16 @@ def _percent(score: Decimal, maximum: int) -> Decimal:
     return (score * 100 / maximum).quantize(report_cards.PERCENT_STEP, rounding=ROUND_HALF_UP)
 
 
-def _course_stats(row: CourseRow, report: report_cards.ClassReport, key: str) -> None:
+def _course_stats(
+    row: CourseRow, report: report_cards.ClassReport, key: str, threshold: int
+) -> None:
     cells = [s.cells[row.course.id][key] for s in report.students if row.course.id in s.cells]
     scores = [cell.score for cell in cells if cell.score is not None]
     maximum = cells[0].maximum if cells else 0
     if scores and maximum:
         row.average = _percent(sum(scores, Decimal(0)) / len(scores), maximum)
-        row.below_half = sum(1 for score in scores if score * 2 < maximum)
+        # Sous le seuil d'un cours des règles de délibération (NB.4).
+        row.below_half = sum(1 for score in scores if score * 100 < threshold * maximum)
 
 
 def _mean(values: list[Decimal]) -> Decimal:
@@ -131,9 +134,10 @@ def space(group: ClassGroup, term: Term) -> Space:
     if not sent:
         return result
     report = report_cards.class_report(group)
+    rules = pass_rules.class_rules(group.school.settings, group.level.pass_rules)
     key = str(term.pk)
     for row in sent:
-        _course_stats(row, report, key)
+        _course_stats(row, report, key, rules["course_pass_percent"])
     if not complete:
         return result
     ids = [s.enrollment.pk for s in report.students]
@@ -159,7 +163,7 @@ def space(group: ClassGroup, term: Term) -> Space:
         _mean(percents) if percents else None,
         max(percents, default=None),
         min(percents, default=None),
-        sum(1 for percent in percents if percent >= HALF),
+        sum(1 for percent in percents if percent >= rules["pass_percent"]),
     )
     return result
 

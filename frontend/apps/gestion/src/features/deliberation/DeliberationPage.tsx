@@ -25,6 +25,7 @@ import { firstErrorMessage } from "../../lib/errors";
 import { keys } from "../../lib/queries";
 import { useGrading } from "../grades/data";
 import { LoadError } from "../status/StatusPages";
+import { RuleCited } from "./RuleCited";
 import {
   DECISIONS,
   priorPercent,
@@ -158,11 +159,14 @@ export function DeliberationPage() {
           )}
         </td>
         <td data-label={t("deliberation.proposed")}>
-          {row.proposed ? (
-            decisionPill(row.proposed)
-          ) : (
-            <span className="text-xs text-ink-3">{t("deliberation.noProposal")}</span>
-          )}
+          <span className="flex flex-col items-end min-[600px]:items-start">
+            {row.proposed ? (
+              decisionPill(row.proposed)
+            ) : (
+              <span className="text-xs text-ink-3">{t("deliberation.noProposal")}</span>
+            )}
+            <RuleCited rule={row.rule} params={row.rule_params} />
+          </span>
         </td>
         <td data-label={t("deliberation.decision")} data-wrap>
           {closed ? (

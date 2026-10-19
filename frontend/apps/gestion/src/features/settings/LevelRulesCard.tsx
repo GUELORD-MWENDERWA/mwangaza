@@ -22,15 +22,18 @@ import { firstErrorMessage } from "../../lib/errors";
 import { keys } from "../../lib/queries";
 import { useLevels, useRefresh, type Level } from "../organisation/data";
 
+// Ce qui varie d'un niveau à l'autre (les autres règles restent celles de l'école).
 const FIELDS = [
   "pass_percent",
   "course_pass_percent",
-  "resit_floor_percent",
+  "final_pass_percent",
+  "resit_percent",
   "max_resit_courses",
+  "max_main_resits",
+  "max_option_resits",
   "orientation_percent",
-  "conduct_ma_to_exclude",
-  "conduct_me_to_exclude",
-  "resit_failures_to_fail",
+  "max_repeats",
+  "age_limit",
 ] as const;
 type Field_ = (typeof FIELDS)[number];
 type Draft = Record<Field_, string>;
@@ -131,7 +134,7 @@ export function LevelRulesCard() {
             <Field
               key={name}
               id={`level-rules-${name}`}
-              label={t(`settings.levelRules.${name}`)}
+              label={t(`settings.passRules.fields.${name}`)}
               help={t("settings.levelRules.schoolValue", { value: school[name] })}
             >
               {(control) => (

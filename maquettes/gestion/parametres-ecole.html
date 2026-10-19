@@ -52,18 +52,26 @@
    <div><span>Caisse non clôturée à</span><span class="inp" style="min-height:32px;padding:4px 8px;width:80px">18:00</span></div>
   </div></div>
   <div class="card"><div class="hd"><h2>Règles par niveau</h2></div><div class="bd list small">
-    <div><b>7e EB</b> <span class="muted">Réussite 50 %, cours échoué sous 50 %, 4 cours repêchés au plus</span> <a class="btn" href="#">Modifier</a></div>
+    <div><b>7e EB</b> <span class="muted">Réussite 50 %, cours échoué sous 50 %, 4 cours repêchés au plus, âge limite 14 ans</span> <a class="btn" href="#">Modifier</a></div>
     <div><b>3e HT</b> <span class="muted">Réussite 52 %, cours échoué sous 52 %, 3 cours repêchés au plus</span> <a class="btn" href="#">Modifier</a></div>
     <div><b>4e HT</b> <span class="muted">Règles de l'école</span> <a class="btn" href="#">Modifier</a></div>
-    <span class="muted">« Modifier » ouvre les cinq critères ; un champ vide suit l'école ; « Reprendre les règles de l'école » efface les règles du niveau. Un cours d'atelier ou de laboratoire sans seconde session se règle dans la grille des cours (colonne « Repêchage »).</span>
+    <span class="muted">« Modifier » ouvre les critères des règles de délibération et l'âge limite du niveau ; un champ vide suit l'école ; « Reprendre les règles de l'école » efface les règles du niveau. La catégorie de chaque cours (générale, principale, option, pratique) se règle dans la grille des cours (colonne « Catégorie »).</span>
   </div></div>
   <div class="card"><div class="hd"><h2>Saisie des points</h2></div><div class="bd list small"><div><b>Devoirs détaillés</b> <span class="muted">une note par interrogation, devoir ou TP ; la période est calculée</span></div><div><b>Total de la période seulement</b> <span class="muted">une note par période et par examen, reportée sur la fiche de cotation ; un cours peut choisir autrement (Cours et maxima, colonne « Saisie »)</span></div></div></div>
-  <div class="card"><div class="hd"><h2>Réussite et repêchage</h2></div><div class="bd col small">
-    <div class="fgrid"><label class="f"><span>Réussite de l'élève (% de l'année)</span><span class="inp">50</span></label><label class="f"><span>Cours échoué sous (%)</span><span class="inp">50</span></label></div>
-    <div class="list"><div><b>Repêchage de 45 % à 50 %</b> <span class="muted">un cours échoué ouvre un repêchage à partir du plancher (45 %) ; en dessous, l'échec est proposé tout de suite</span></div><div><b>Tout cours échoué</b> <span class="muted">le repêchage s'ouvre quel que soit le pourcentage</span></div></div>
-    <div class="fgrid"><label class="f"><span>Cours repêchés au plus</span><span class="inp">4</span></label><label class="f"><span>Cours échoués au repêchage qui font échouer</span><span class="inp">2</span></label></div>
-    <div class="fgrid"><label class="f"><span>Orientation ailleurs sous (% de l'année)</span><span class="inp">40</span></label><label class="f"><span>Renvoi : périodes de conduite MA / ME</span><span class="inp">2 / 3</span></label></div>
-    <span class="muted">Valeurs de départ proposées, à confirmer par l'école. Ces règles donnent la décision proposée ; la délibération décide.</span>
+  <div class="card"><div class="hd"><h2>Règles de délibération</h2></div><div class="bd col small">
+    <span class="muted">Le règlement des études de l'école donne la décision proposée et la règle citée ; la délibération décide.</span>
+    <div class="list"><div><div><b>Préréglage « courant »</b><br><span class="muted">passe à 50 % ; repêchage à 50 %, 4 cours au plus, jamais deux cours principaux ensemble ni un cours pratique</span></div><a class="btn" href="#">Appliquer</a></div><div><div><b>Préréglage « réseau catholique »</b><br><span class="muted">repêchage à 53 %, 2 branches d'option au plus ; dernière classe : 55 % sans échec ; sous 50 %, orientation sauf exception d'âge</span></div><a class="btn" href="#">Appliquer</a></div></div>
+    <div class="b">Passer</div>
+    <div class="fgrid"><label class="f"><span>Total de l'année (%)</span><span class="inp">50</span></label><label class="f"><span>Chaque cours (%)</span><span class="inp">50</span></label><label class="f"><span>Entrer en dernière classe : total sans échec (%, 0 : comme les autres)</span><span class="inp">55</span></label></div>
+    <div class="b">Repêchage</div>
+    <div class="fgrid"><label class="f"><span>Total au moins (%)</span><span class="inp">53</span></label><label class="f"><span>Cours au plus</span><span class="inp">4</span></label><label class="f"><span>Cours principaux ensemble au plus</span><span class="inp">1</span></label><label class="f"><span>Branches d'option ensemble au plus</span><span class="inp">2</span></label><label class="f"><span>Cours perdus au repêchage qui font doubler</span><span class="inp">2</span></label></div>
+    <div class="list"><div><div><b>Repêchage d'un cours pratique</b><br><span class="muted">atelier, laboratoire, pratique professionnelle</span></div><span class="toggle"></span></div></div>
+    <div class="b">Doubler, orienter, exclure</div>
+    <div class="fgrid"><label class="f"><span>Orientation ailleurs sous (% de l'année)</span><span class="inp">50</span></label><label class="f"><span>Redoublements au plus (0 : sans limite)</span><span class="inp">2</span></label><label class="f"><span>Exclusion : périodes de suite MA / ME ou moins</span><span class="inp">2 / 3</span></label></div>
+    <div class="list"><div><div><b>Exclure qui a déjà fait la classe</b><br><span class="muted">il devrait la faire une troisième fois</span></div><span class="toggle on"></span></div><div><div><b>L'application compte comme la conduite</b><br><span class="muted">comptée à part</span></div><span class="toggle on"></span></div></div>
+    <div class="b">Exception d'âge</div>
+    <div class="fgrid"><label class="f"><span>Années sous l'âge limite (0 : jamais)</span><span class="inp">1</span></label><label class="f"><span>Total au moins (%)</span><span class="inp">40</span></label></div>
+    <span class="muted">L'élève jeune double au lieu d'être orienté ou exclu. L'âge limite (à la rentrée suivante) se règle par niveau, ci-dessus ; la catégorie de chaque cours dans la grille des cours.</span>
   </div></div>
   <div class="card"><div class="hd"><h2>Relances aux parents</h2></div><div class="bd list small">
    <div><div><b>Envoyer les relances</b><br><span class="muted">À activer quand les paiements déjà reçus sont tous saisis</span></div><span class="toggle on"></span></div>

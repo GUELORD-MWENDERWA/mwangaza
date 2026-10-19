@@ -3,10 +3,12 @@ from decimal import Decimal
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from apps.academics import board, gradebook
+from apps.academics import board, gradebook, official
 from apps.academics.courses import CourseInput
 from apps.academics.grades import MAX_EVALUATIONS, EvaluationInput, GradeInput, term_label
 from apps.academics.models import (
+    CATEGORIES,
+    GENERAL,
     MAX_PERIOD_MAX,
     MAX_WEEKLY_HOURS,
     SCORE_DECIMALS,
@@ -41,7 +43,7 @@ class CourseSerializer(serializers.ModelSerializer):
             "has_exam",
             "is_taught",
             "grade_entry",
-            "resit_allowed",
+            "category",
             "weekly_hours",
             "teacher",
         ]
@@ -66,9 +68,11 @@ class CourseInputSerializer(serializers.Serializer):
         default="",
         help_text="Saisie des points de ce cours ; vide : réglage de l'école (8.4.0).",
     )
-    resit_allowed = serializers.BooleanField(
-        default=True,
-        help_text="Faux (atelier, laboratoire) : pas de seconde session, l'échec reprend l'année.",
+    category = serializers.ChoiceField(
+        choices=CATEGORIES,
+        default=GENERAL,
+        help_text="general, main (cours principal), option (branche d'option), practical "
+        "(atelier, laboratoire) : pour les règles de délibération (NB.4).",
     )
     weekly_hours = serializers.IntegerField(
         min_value=1, max_value=MAX_WEEKLY_HOURS, required=False, allow_null=True, default=None
@@ -109,6 +113,7 @@ class OfficialCourseSerializer(serializers.Serializer):
     has_exam = serializers.BooleanField()
     is_taught = serializers.BooleanField()
     weekly_hours = serializers.IntegerField(allow_null=True)
+    category = serializers.ChoiceField(choices=CATEGORIES)
 
 
 class OfficialGridSerializer(serializers.Serializer):
@@ -126,6 +131,7 @@ class OfficialGridSerializer(serializers.Serializer):
                     "has_exam": e,
                     "is_taught": n not in grid.untaught,
                     "weekly_hours": h,
+                    "category": official.category_of(grid, n, e),
                 }
                 for n, m, e, h in grid.courses
             ],

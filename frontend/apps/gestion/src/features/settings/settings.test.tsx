@@ -5,6 +5,28 @@ import { apiError, mockApi, type Routes } from "../../test/api";
 import { me, school } from "../../test/fixtures";
 import { renderApp } from "../../test/render";
 
+// Règles de délibération : préréglage « courant » (NB.4).
+const RULES = {
+  pass_percent: 50,
+  course_pass_percent: 50,
+  resit_percent: 50,
+  max_resit_courses: 4,
+  max_main_resits: 1,
+  max_option_resits: 4,
+  practical_resit: false,
+  final_pass_percent: 0,
+  orientation_percent: 40,
+  age_exception_years: 0,
+  age_exception_percent: 40,
+  age_limit: 0,
+  exclude_repeated_class: true,
+  max_repeats: 0,
+  conduct_ma_to_exclude: 2,
+  conduct_me_to_exclude: 3,
+  application_counts: false,
+  resit_failures_to_fail: 2,
+};
+
 const settings = {
   code: "alpha",
   name: "École Alpha (fictive)",
@@ -25,17 +47,8 @@ const settings = {
   reminders: { enabled: false, days_before: 3, overdue_every_days: 7 },
   portal: { teacher_phone: false },
   grading: { entry: "detailed" },
-  pass_rules: {
-    pass_percent: 50,
-    course_pass_percent: 50,
-    resit_mode: "band",
-    resit_floor_percent: 45,
-    resit_failures_to_fail: 2,
-    max_resit_courses: 4,
-    orientation_percent: 40,
-    conduct_ma_to_exclude: 2,
-    conduct_me_to_exclude: 3,
-  },
+  pass_rules: RULES,
+  pass_rule_presets: { common: RULES, catholic: { ...RULES, resit_percent: 53 } },
 };
 
 function routes(extra: Routes = {}): Routes {
@@ -82,6 +95,9 @@ describe("Paramètres de l'école (M5)", () => {
     const before = reminders.getByLabelText(/Échéance proche/);
     await user.clear(before);
     await user.type(before, "5");
+    // Règles de délibération : le préréglage « réseau catholique » remplit le formulaire.
+    const rules = await card("Règles de délibération");
+    await user.click(rules.getAllByRole("button", { name: "Appliquer" })[1]!);
     all["PATCH /api/school/settings/"] = { ...settings, name: "Institut Alpha" };
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
 
@@ -114,17 +130,7 @@ describe("Paramètres de l'école (M5)", () => {
       reminders: { enabled: true, days_before: 5, overdue_every_days: 7 },
       portal: { teacher_phone: false },
       grading: { entry: "detailed" },
-      pass_rules: {
-        pass_percent: 50,
-        course_pass_percent: 50,
-        resit_mode: "band",
-        resit_floor_percent: 45,
-        resit_failures_to_fail: 2,
-        max_resit_courses: 4,
-        orientation_percent: 40,
-        conduct_ma_to_exclude: 2,
-        conduct_me_to_exclude: 3,
-      },
+      pass_rules: { ...RULES, resit_percent: 53 },
     });
     // Le nom de l'école (menu, connexion) est relu.
     await waitFor(() =>

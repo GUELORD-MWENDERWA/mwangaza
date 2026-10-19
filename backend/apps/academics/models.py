@@ -16,6 +16,8 @@ MAX_WEEKLY_HOURS = 40
 SCORE_DIGITS, SCORE_DECIMALS = 5, 1
 # Points d'une infraction : de 1 à 100 (l'exclusion se décide autrement qu'avec des points).
 MAX_RULE_POINTS = 100
+GENERAL, MAIN, OPTION, PRACTICAL = "general", "main", "option", "practical"
+CATEGORIES = (GENERAL, MAIN, OPTION, PRACTICAL)
 
 
 class Course(TenantModel):
@@ -48,8 +50,20 @@ class Course(TenantModel):
         choices=[(DETAILED, _("Detailed")), (TOTALS, _("Period total only"))],
         blank=True,
     )
-    # Atelier, laboratoire : pas de seconde session. Cours échoué = reprise de la classe (8.4.1).
-    resit_allowed = models.BooleanField(_("resit allowed"), default=True)
+    # Catégorie pour les règles de délibération (NB.4) : cours principaux (ex. mathématiques et
+    # français) et branches d'option repêchés ensemble au plus N ; pratique (atelier,
+    # laboratoire) : sans repêchage si l'école le règle ainsi.
+    category = models.CharField(
+        _("category"),
+        max_length=10,
+        choices=[
+            (GENERAL, _("General")),
+            (MAIN, _("Main course")),
+            (OPTION, _("Option course")),
+            (PRACTICAL, _("Practical")),
+        ],
+        default=GENERAL,
+    )
     # Vide tant que l'école ne l'a pas saisi ; servira à l'emploi du temps (EDT).
     weekly_hours = models.PositiveSmallIntegerField(
         _("hours per week"),

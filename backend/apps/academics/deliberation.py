@@ -13,7 +13,7 @@ comme un pourcentage calculé (situations, passage de classe), jamais à la plac
 """
 
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
 
@@ -70,6 +70,8 @@ class StudentRow:
     decision: str
     reason: str
     resit_courses: list[str]
+    rule: str = ""
+    rule_params: dict = field(default_factory=dict)
 
     @property
     def deviates(self) -> bool:
@@ -120,6 +122,8 @@ def overview(group: ClassGroup) -> ClassDeliberation:
                 found.decision if found else "",
                 found.reason if found else "",
                 [f.course.name for f in student.failed if f.eligible],
+                student.rule,
+                student.params,
             )
         )
     return ClassDeliberation(deliberation, rows, latest)
@@ -271,6 +275,8 @@ def _frozen(row: StudentRow) -> dict:
         "reason": row.reason,
         "deviates": row.deviates,
         "resit_courses": row.resit_courses,
+        "rule": row.rule,
+        "rule_params": row.rule_params,
     }
 
 

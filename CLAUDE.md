@@ -85,6 +85,8 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 | Circulaire | pas de modèle : vue imprimable d'une `Announcement` |
 | Prime / motivation enseignants | `TeacherBonus` |
 | Passage de classe, confirmation de place | `PlaceConfirmation` (`academics/promotion.py`) |
+| Règlement des études (règles de délibération) | `School.settings["pass_rules"]` et `Level.pass_rules` (`schools/pass_rules.py`), décision proposée : `academics/resits.py` |
+| Cours principal, branche d'option, pratique (atelier) | `Course.category` (`main`, `option`, `practical`, `general`) |
 
 - Backend : une app Django par domaine (`core`, `accounts`, `schools`, `students`, `finance`, `academics`, `payroll`, `portal`, `notifications`, `sync`, `audit`). Logique métier dans `services.py`, pas dans les vues.
 - Front : dossiers par fonctionnalité (`features/finance/...`). Client API typé généré depuis l'OpenAPI (`packages/api`).

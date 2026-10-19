@@ -21,6 +21,7 @@ import { useState } from "react";
 
 import { firstErrorMessage } from "../../lib/errors";
 import { keys } from "../../lib/queries";
+import { RuleCited } from "../deliberation/RuleCited";
 import { useGrading } from "../grades/data";
 import { LoadError } from "../status/StatusPages";
 import { useClassResits, type ResitCourse, type StudentResits } from "./data";
@@ -218,9 +219,12 @@ export function ResitsPage() {
                           </ul>
                         </td>
                         <td data-label={t("resits.outcome")}>
-                          <StatusPill tone={TONES[student.outcome] ?? "gray"}>
-                            {t(`resits.outcome_${student.outcome}`)}
-                          </StatusPill>
+                          <span className="flex flex-col items-end min-[600px]:items-start">
+                            <StatusPill tone={TONES[student.outcome] ?? "gray"}>
+                              {t(`resits.outcome_${student.outcome}`)}
+                            </StatusPill>
+                            <RuleCited rule={student.rule} params={student.rule_params} />
+                          </span>
                         </td>
                       </tr>
                     ))}

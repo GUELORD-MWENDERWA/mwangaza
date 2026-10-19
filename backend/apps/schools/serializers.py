@@ -125,44 +125,44 @@ class GradingSettingsSerializer(serializers.Serializer):
     )
 
 
-class PassRulesSettingsSerializer(serializers.Serializer):
-    """Règles de réussite et de repêchage (`pass_rules.py`, 8.4.1). Écriture partielle."""
+def _percent(help_text: str, minimum: int = 0) -> serializers.IntegerField:
+    return serializers.IntegerField(min_value=minimum, max_value=100, help_text=help_text)
 
-    pass_percent = serializers.IntegerField(
-        min_value=1, max_value=100, help_text="Pourcentage de l'année pour réussir."
+
+def _count(help_text: str, maximum: int = 60) -> serializers.IntegerField:
+    return serializers.IntegerField(min_value=0, max_value=maximum, help_text=help_text)
+
+
+class PassRulesSettingsSerializer(serializers.Serializer):
+    """Règles de délibération (`pass_rules.py`, 8.4.1, NB.4). Écriture partielle."""
+
+    pass_percent = _percent("Passe : total de l'année au moins à ce pourcentage.", 1)
+    course_pass_percent = _percent("Un cours est échoué sous ce pourcentage.", 1)
+    resit_percent = _percent("Repêchage : total au moins à ce pourcentage malgré des échecs.")
+    max_resit_courses = _count("Cours repêchés au plus ; au-delà, l'élève double.")
+    max_main_resits = _count("Cours principaux repêchés ensemble au plus.")
+    max_option_resits = _count("Branches d'option repêchées ensemble au plus.")
+    practical_resit = serializers.BooleanField(help_text="Un cours pratique ouvre un repêchage.")
+    final_pass_percent = _percent(
+        "Entrer dans la dernière classe : ce total et aucun cours échoué ; 0 : règles ordinaires."
     )
-    course_pass_percent = serializers.IntegerField(
-        min_value=1, max_value=100, help_text="Un cours est échoué sous ce pourcentage."
+    orientation_percent = _percent("Sous ce total, orientation ailleurs ; 0 : jamais.")
+    age_exception_years = _count("Exception d'âge : années sous l'âge limite ; 0 : jamais.", 10)
+    age_exception_percent = _percent("Exception d'âge : total au moins à ce pourcentage.")
+    age_limit = _count("Âge limite du niveau à la rentrée suivante ; 0 : aucun.", 30)
+    exclude_repeated_class = serializers.BooleanField(
+        help_text="Exclusion proposée à qui a déjà fait ce niveau et devrait doubler."
     )
-    resit_mode = serializers.ChoiceField(
-        choices=pass_rules.MODES,
-        help_text="band : repêchage de plancher à seuil ; any_failed : tout cours échoué.",
+    max_repeats = _count("Redoublements au plus ; au-delà, exclusion ; 0 : sans limite.", 12)
+    conduct_ma_to_exclude = _count("Périodes de suite notées MA : exclusion ; 0 : jamais.", 12)
+    conduct_me_to_exclude = _count(
+        "Périodes de suite notées ME ou MA : exclusion ; 0 : jamais.", 12
     )
-    resit_floor_percent = serializers.IntegerField(
-        min_value=0, max_value=99, help_text="Plancher du repêchage (mode band)."
+    application_counts = serializers.BooleanField(
+        help_text="L'application compte comme la conduite, à part."
     )
     resit_failures_to_fail = serializers.IntegerField(
-        min_value=1, max_value=20, help_text="Cours échoués au repêchage qui font échouer."
-    )
-    max_resit_courses = serializers.IntegerField(
-        min_value=0,
-        max_value=60,
-        help_text="Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec.",
-    )
-    orientation_percent = serializers.IntegerField(
-        min_value=0,
-        max_value=99,
-        help_text="Sous ce pourcentage de l'année, orientation ailleurs ; 0 : jamais.",
-    )
-    conduct_ma_to_exclude = serializers.IntegerField(
-        min_value=0,
-        max_value=12,
-        help_text="Périodes de conduite notées MA qui font proposer le renvoi ; 0 : jamais.",
-    )
-    conduct_me_to_exclude = serializers.IntegerField(
-        min_value=0,
-        max_value=12,
-        help_text="Périodes de conduite notées ME qui font proposer le renvoi ; 0 : jamais.",
+        min_value=1, max_value=20, help_text="Cours perdus au repêchage qui font doubler."
     )
 
 
@@ -264,6 +264,9 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
     portal = PortalSettingsSerializer(required=False)
     grading = GradingSettingsSerializer(required=False)
     pass_rules = PassRulesSettingsSerializer(required=False)
+    pass_rule_presets = serializers.SerializerMethodField(
+        help_text="Préréglages des règles de délibération (« courant », « réseau catholique »)."
+    )
 
     class Meta:
         model = School
@@ -293,12 +296,17 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
             "portal",
             "grading",
             "pass_rules",
+            "pass_rule_presets",
         ]
         read_only_fields = ["code"]
 
     @extend_schema_field(serializers.CharField(allow_null=True))
     def get_logo_monochrome(self, school: School) -> str | None:
         return logo_url(school, "logo_monochrome")
+
+    @extend_schema_field(serializers.DictField(child=PassRulesSettingsSerializer()))
+    def get_pass_rule_presets(self, school: School) -> dict:
+        return pass_rules.PRESETS
 
     @extend_schema_field(serializers.CharField(allow_null=True))
     def get_stamp(self, school: School) -> str | None:
@@ -312,13 +320,6 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
         # Mêmes règles que l'administration (`School.clean`) : devise principale parmi celles de
         # l'école, couleur écrite `#RRGGBB`.
         school = copy(self.instance)
-        if "pass_rules" in data:
-            # Le plancher du repêchage reste sous la note de réussite d'un cours.
-            rules = {**school.pass_rules, **data["pass_rules"]}
-            if rules["resit_floor_percent"] >= rules["course_pass_percent"]:
-                raise serializers.ValidationError(
-                    {"pass_rules": _("The resit floor must be below the course pass mark.")}
-                )
         for field, value in data.items():
             if field not in ("receipt", "alerts", "reminders", "portal", "grading", "pass_rules"):
                 setattr(school, field, value)
