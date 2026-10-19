@@ -250,7 +250,15 @@ class MeSerializer(serializers.Serializer):
         help_text="Codes de secours pas encore utilisés (alerte à 2 ou moins, M4)."
     )
     is_platform_admin = serializers.BooleanField(
-        help_text="Super-admin : aucun droit dans une école hors session support (A3)."
+        help_text="Compte de l'équipe de la plateforme : aucun droit dans une école hors session "
+        "support (A3)."
+    )
+    platform_roles = serializers.ListField(
+        child=serializers.CharField(), help_text="Rôles dans l'équipe de la plateforme (EQ.1)."
+    )
+    platform_permissions = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="Droits dans la console d'après ces rôles ; vide hors de l'équipe.",
     )
     schools = MeSchoolSerializer(
         many=True, help_text="Écoles où le compte a une appartenance active (choix de l'école)."

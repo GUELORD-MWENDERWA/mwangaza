@@ -74,18 +74,35 @@ class HasSchoolAccess(BasePermission):
         return school_access(request) is not None
 
 
-class IsPlatformAdmin(BasePermission):
-    """Console de la plateforme (5.2) : seulement à son adresse (`admin.mwangaza.school`), pour
-    un super-admin actif dont la session est passée par la double authentification. Ailleurs (une
-    école, le portail), ces points d'API n'existent pas."""
+def platform_rights_required(request, view) -> frozenset[str]:
+    """Droits que demande un point de la console (`platform_permission` de la vue) : un code,
+    plusieurs (un seul suffit), ou un dictionnaire par action (`list`, `suspend`…) ou par méthode
+    (`get`, `patch`) pour une vue simple. Rien de déclaré : personne n'y entre."""
+    required = getattr(view, "platform_permission", ())
+    if isinstance(required, dict):
+        required = required.get(getattr(view, "action", None) or request.method.lower(), ())
+    if isinstance(required, str):
+        required = (required,)
+    return frozenset(required)
+
+
+class HasPlatformPermission(BasePermission):
+    """Console de la plateforme (5.2, EQ.1) : seulement à son adresse (`admin.<domaine>`), pour un
+    membre actif de l'équipe dont la session est passée par la double authentification, et qui a
+    un des droits que demande la vue (`platform_roles.py`). Ailleurs (une école, le portail), ces
+    points d'API n'existent pas. Le rôle est relu avec le compte à chaque requête : un rôle retiré
+    ne sert plus dès la suivante."""
 
     def has_permission(self, request, view) -> bool:
         if not is_console_host(request.get_host()):
             raise NotFound
         user = request.user
-        return bool(
-            user.is_authenticated
-            and user.is_active
-            and user.is_platform_admin
-            and request.session.get(MFA_SESSION_KEY)
-        )
+        if not (user.is_authenticated and request.session.get(MFA_SESSION_KEY)):
+            return False
+        return not platform_rights_required(request, view).isdisjoint(user.platform_permissions)
+
+
+def ensure_platform_permission(request, permission: str) -> None:
+    """Droit qui dépend de l'objet (un espace réel ou non) : 403 sans lui."""
+    if permission not in request.user.platform_permissions:
+        raise PermissionDenied

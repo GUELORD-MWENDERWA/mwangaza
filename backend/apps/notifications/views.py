@@ -18,7 +18,8 @@ from rest_framework.permissions import SAFE_METHODS
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.accounts.permissions import HasSchoolAccess, IsPlatformAdmin, school_access
+from apps.accounts import platform_roles as team
+from apps.accounts.permissions import HasPlatformPermission, HasSchoolAccess, school_access
 from apps.accounts.roles import ANNOUNCEMENTS_PUBLISH
 from apps.accounts.views import SchoolViewSet
 from apps.core.documents import PRINT_RESPONSE, print_options, render
@@ -331,7 +332,8 @@ class ConsolePlatformAnnouncementViewSet(
     seulement, à l'adresse de la console. Publiées tout de suite, jamais modifiées, seulement
     archivées ; chaque publication et archivage va dans le journal de la plateforme."""
 
-    permission_classes = [IsPlatformAdmin]
+    permission_classes = [HasPlatformPermission]
+    platform_permission = team.NEWS_PUBLISH
     serializer_class = ConsolePlatformAnnouncementSerializer
     http_method_names = ["get", "post", "head", "options"]
 
@@ -402,7 +404,9 @@ class ConsoleAlertViewSet(viewsets.GenericViewSet):
     alertes sur l'usage des comptes super-admin et sur les sessions support ouvertes. Super-admin
     seulement, à l'adresse de la console."""
 
-    permission_classes = [IsPlatformAdmin]
+    permission_classes = [HasPlatformPermission]
+    # Chacun reçoit les alertes de son travail (`notifications/console.py`).
+    platform_permission = (team.AUDIT_VIEW, team.LEADS_MANAGE)
     serializer_class = ConsoleAlertsSerializer
     pagination_class = None
 

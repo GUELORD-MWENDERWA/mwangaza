@@ -9,9 +9,10 @@ from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from apps.accounts import platform_roles as team
 from apps.accounts.permissions import (
+    HasPlatformPermission,
     HasSchoolPermission,
-    IsPlatformAdmin,
     ensure_module,
     school_access,
 )
@@ -155,10 +156,11 @@ class SchoolDeviceViewSet(mixins.ListModelMixin, SchoolViewSet):
     )
 )
 class ConsoleDeviceViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    """Appareils enregistrés de toutes les écoles (5.4.2) : super-admin seulement, à l'adresse de
+    """Appareils enregistrés de toutes les écoles (5.4.2) : équipe selon ses droits, à l'adresse de
     la console ; les plus récemment vus d'abord."""
 
-    permission_classes = [IsPlatformAdmin]
+    permission_classes = [HasPlatformPermission]
+    platform_permission = team.HEALTH_VIEW
     serializer_class = ConsoleDeviceSerializer
 
     def get_queryset(self):

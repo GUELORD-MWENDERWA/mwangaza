@@ -133,19 +133,22 @@ def created(demo) -> None:
     head = authenticate(username="0000001001", password=DEMO_PASSWORD)
     assert head is not None
     assert roles_of(head.phone, itig) == {"Préfet des études"}
-    assert authenticate(username="0000000000", password=DEMO_PASSWORD).is_platform_admin
+    assert authenticate(username="0000000000", password=DEMO_PASSWORD).is_platform_owner
+    # Équipe fictive de la plateforme (EQ.1) : un compte par autre rôle, double authentification.
+    support = authenticate(username="0000000002", password=DEMO_PASSWORD)
+    assert support.platform_roles == ["support"] and support.totp_enabled
     teacher = User.objects.get(phone="+243000001008")
     assert {m.school.code for m in teacher.memberships.all()} == {"itig", "volcans"}
     assert roles_of(teacher.phone, volcans) == {"Enseignant"}
 
-    # Double authentification : super-admin, directeur, directeur des études (ITIG : valide les
-    # notes), comptable, caissière ; pas le promoteur de l'ITIG (activation à essayer), ni
-    # l'enseignant, la secrétaire…
+    # Double authentification : équipe de la plateforme, directeur, directeur des études (ITIG :
+    # valide les notes), comptable, caissière ; pas le promoteur de l'ITIG (activation à essayer),
+    # ni l'enseignant, la secrétaire…
     enabled = set(
         User.objects.filter(totp_enabled_at__isnull=False).values_list("phone", flat=True)
     )
     assert enabled == {
-        "+243000000000",
+        *(f"+24300000000{n}" for n in range(6)),
         "+243000001001",
         "+243000001002",
         "+243000001004",
@@ -298,8 +301,8 @@ def server_run(settings) -> None:
     assert authenticate(username="0000001005", password=DEMO_PASSWORD) is None
     assert not User.objects.filter(totp_enabled_at__isnull=False).exists()
     assert not services.totp_required(cashier)
-    admin = User.objects.get(phone="+243000000000")
-    assert not admin.is_platform_admin and not admin.is_active
+    for admin in User.objects.filter(phone__in=["+243000000000", "+243000000002"]):
+        assert not admin.is_platform_admin and not admin.is_active and not admin.platform_roles
 
 
 def test_demo_is_refused_outside_development_and_the_essai(settings):

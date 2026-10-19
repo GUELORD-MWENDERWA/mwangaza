@@ -33,6 +33,7 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.accounts import modules
 from apps.accounts.login import MFA_SESSION_KEY
+from apps.accounts.platform_roles import ACCOUNTS_SUPPORT
 from apps.accounts.roles import PERMISSIONS
 from apps.accounts.services import SchoolAccess
 from apps.audit import services as audit
@@ -91,8 +92,7 @@ def current(request) -> SupportSession | None:
     user = request.user
     valid = (
         user.is_authenticated
-        and user.is_active
-        and user.is_platform_admin
+        and ACCOUNTS_SUPPORT in user.platform_permissions
         and request.session.get(MFA_SESSION_KEY)
         and time.time() < data["expires"]
         and not school.is_closed
@@ -123,7 +123,7 @@ def start(request, reason: str) -> SupportSession:
     if school is None:
         raise BusinessError(SCHOOL_NOT_FOUND)
     user = request.user
-    if not user.is_platform_admin:
+    if ACCOUNTS_SUPPORT not in user.platform_permissions:
         raise BusinessError(NOT_PLATFORM_ADMIN)
     if not request.session.get(MFA_SESSION_KEY):
         raise BusinessError(SUPPORT_TOTP_REQUIRED)
@@ -144,7 +144,8 @@ def start(request, reason: str) -> SupportSession:
         after={"reason": reason, "expires_at": session.expires_at},
     )
     # Sur l'écran des super-admin abonnés dans la console (S.3.2).
-    console.alert(Action.SUPPORT_STARTED, entry.pk, " · ".join([str(user), school.name, reason]))
+    detail = " · ".join([str(user), school.name, reason])
+    console.alert(Action.SUPPORT_STARTED, entry.pk, detail, concerned=user.pk)
     return session
 
 

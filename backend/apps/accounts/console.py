@@ -1,6 +1,6 @@
-"""Comptes dans la console de la plateforme (5.4.1) : toutes les écoles à la fois, pour le
-super-admin seulement (`IsPlatformAdmin`). Un compte est unique sur la plateforme : il sert au
-personnel de plusieurs écoles (`Membership`) et aux parents de familles de plusieurs écoles
+"""Comptes dans la console de la plateforme (5.4.1) : toutes les écoles à la fois, pour
+l'équipe selon ses droits (`HasPlatformPermission`). Un compte est unique sur la plateforme : il
+sert au personnel de plusieurs écoles (`Membership`) et aux parents de familles de plusieurs écoles
 (`Family.primary_user`), lues ici hors de toute école (`all_schools`), toujours pour les
 comptes demandés."""
 

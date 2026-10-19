@@ -15,8 +15,8 @@ def deliver(notification_ids: list[str]) -> None:
 
 
 @shared_task(ignore_result=True, soft_time_limit=60, time_limit=90)
-def alert_console(action: str, entry_id: str, detail: str) -> None:
-    console.deliver(action, entry_id, detail)
+def alert_console(action: str, entry_id: str, detail: str, concerned: str | None = None) -> None:
+    console.deliver(action, entry_id, detail, concerned)
 
 
 @shared_task(ignore_result=True, soft_time_limit=300, time_limit=360)

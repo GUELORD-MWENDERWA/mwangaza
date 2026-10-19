@@ -4515,7 +4515,7 @@ paths:
     get:
       operationId: console_accounts_list
       description: |-
-        Comptes de toutes les écoles (5.4.1) : super-admin seulement, à l'adresse de la console.
+        Comptes de toutes les écoles (5.4.1) : équipe selon ses droits, à la console.
         Chaque changement va dans le journal de la plateforme et dans celui de chaque école où la
         personne est active. Un compte ne se supprime jamais : on le désactive.
       parameters:
@@ -4563,7 +4563,7 @@ paths:
     get:
       operationId: console_accounts_retrieve
       description: |-
-        Comptes de toutes les écoles (5.4.1) : super-admin seulement, à l'adresse de la console.
+        Comptes de toutes les écoles (5.4.1) : équipe selon ses droits, à la console.
         Chaque changement va dans le journal de la plateforme et dans celui de chaque école où la
         personne est active. Un compte ne se supprime jamais : on le désactive.
       parameters:
@@ -4998,7 +4998,7 @@ paths:
       operationId: console_audit_list
       description: |-
         Journal de la plateforme (5.4.2), le plus récent d'abord : actions du support dans la
-        console (identité, écoles, comptes, appareils). Super-admin seulement, en lecture seule.
+        console (identité, écoles, comptes, appareils, équipe). En lecture seule.
       parameters:
       - in: query
         name: domain
@@ -5010,6 +5010,7 @@ paths:
           - device
           - platform
           - school
+          - team
           type: string
           minLength: 1
         description: |-
@@ -5019,6 +5020,7 @@ paths:
           * `device` - device
           * `platform` - platform
           * `school` - school
+          * `team` - team
       - name: page
         required: false
         in: query
@@ -5107,7 +5109,7 @@ paths:
       operationId: console_demo_requests_list
       description: |-
         Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-        d'abord : super-admin seulement, à l'adresse de la console. On change le suivi et la note
+        d'abord : équipe selon ses droits, à la console. On change le suivi et la note
         interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
       parameters:
       - name: page
@@ -5159,7 +5161,7 @@ paths:
       operationId: console_demo_requests_partial_update
       description: |-
         Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-        d'abord : super-admin seulement, à l'adresse de la console. On change le suivi et la note
+        d'abord : équipe selon ses droits, à la console. On change le suivi et la note
         interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
       parameters:
       - in: path
@@ -5213,7 +5215,7 @@ paths:
       operationId: console_demo_requests_destroy
       description: |-
         Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-        d'abord : super-admin seulement, à l'adresse de la console. On change le suivi et la note
+        d'abord : équipe selon ses droits, à la console. On change le suivi et la note
         interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
       parameters:
       - in: path
@@ -5252,7 +5254,7 @@ paths:
     get:
       operationId: console_devices_list
       description: |-
-        Appareils enregistrés de toutes les écoles (5.4.2) : super-admin seulement, à l'adresse de
+        Appareils enregistrés de toutes les écoles (5.4.2) : équipe selon ses droits, à l'adresse de
         la console ; les plus récemment vus d'abord.
       parameters:
       - name: page
@@ -5579,10 +5581,14 @@ paths:
     get:
       operationId: console_schools_list
       description: |-
-        Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
+        Écoles de la plateforme (5.3) : équipe selon ses droits, à la console. Chaque
         changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
         Un espace réel ne se supprime jamais : on le suspend ou on l'arrête ; un espace d'essai ou de
         démonstration se supprime (4.16).
+
+        Droits (EQ.1) : un espace réel demande `platform.schools.*`, un espace d'essai ou de
+        démonstration `platform.demos.manage` ; sans `platform.schools.view`, les espaces réels
+        n'apparaissent pas (404).
       parameters:
       - in: query
         name: environment
@@ -5693,10 +5699,14 @@ paths:
     get:
       operationId: console_schools_retrieve
       description: |-
-        Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
+        Écoles de la plateforme (5.3) : équipe selon ses droits, à la console. Chaque
         changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
         Un espace réel ne se supprime jamais : on le suspend ou on l'arrête ; un espace d'essai ou de
         démonstration se supprime (4.16).
+
+        Droits (EQ.1) : un espace réel demande `platform.schools.*`, un espace d'essai ou de
+        démonstration `platform.demos.manage` ; sans `platform.schools.view`, les espaces réels
+        n'apparaissent pas (404).
       parameters:
       - in: path
         name: id
@@ -6169,7 +6179,7 @@ paths:
       operationId: console_support_sessions_list
       description: |-
         Sessions support de toutes les écoles (5.4.2), ouvertes et passées, la plus récente
-        d'abord : super-admin seulement, à l'adresse de la console.
+        d'abord : équipe selon ses droits, à la console.
       parameters:
       - name: page
         required: false
@@ -6192,6 +6202,241 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedConsoleSupportSessionList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/team/:
+    get:
+      operationId: console_team_list
+      description: |-
+        Équipe de la plateforme (EQ.1) : membres, rôles fixes, invitation et retrait, pour qui a
+        `platform.team.manage` (le propriétaire). Chaque changement va au journal de la plateforme.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTeamMemberList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: console_team_create
+      description: |-
+        Inviter : nouveau compte de la plateforme avec ses rôles et un mot de passe provisoire
+        renvoyé une seule fois ; double authentification à activer à la première connexion. Le
+        numéro d'un compte d'école ou de parent est refusé (`phone_in_use`).
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamInviteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TeamInviteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TeamInviteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamInvited'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/team/{id}/:
+    patch:
+      operationId: console_team_partial_update
+      description: |-
+        Changer les rôles (au moins un), effectifs dès la requête suivante du membre ; le
+        dernier propriétaire garde le sien (`last_owner`).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this account.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTeamMemberRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTeamMemberRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTeamMemberRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMember'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/team/{id}/remove/:
+    post:
+      operationId: console_team_remove_create
+      description: |-
+        Retirer de l'équipe : compte désactivé, sessions fermées tout de suite ; jamais le
+        dernier propriétaire (`last_owner`).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this account.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/team/roles/:
+    get:
+      operationId: console_team_roles_list
+      description: Rôles fixes de l'équipe et leurs droits.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlatformRole'
           description: ''
         '400':
           content:
@@ -17411,9 +17656,9 @@ components:
         is_platform_admin:
           type: boolean
           readOnly: true
-          title: Platform administrator
-          description: 'Platform super-administrator: Django administration only,
-            no school rights.'
+          title: Platform account
+          description: 'Account of the platform team: console with the rights of its
+            roles, two-factor authentication always required, no school rights.'
         totp_enabled:
           type: boolean
           readOnly: true
@@ -17476,9 +17721,9 @@ components:
         is_platform_admin:
           type: boolean
           readOnly: true
-          title: Platform administrator
-          description: 'Platform super-administrator: Django administration only,
-            no school rights.'
+          title: Platform account
+          description: 'Account of the platform team: console with the rights of its
+            roles, two-factor authentication always required, no school rights.'
         totp_enabled:
           type: boolean
           readOnly: true
@@ -21911,8 +22156,18 @@ components:
             M4).
         is_platform_admin:
           type: boolean
-          description: 'Super-admin : aucun droit dans une école hors session support
-            (A3).'
+          description: 'Compte de l''équipe de la plateforme : aucun droit dans une
+            école hors session support (A3).'
+        platform_roles:
+          type: array
+          items:
+            type: string
+          description: Rôles dans l'équipe de la plateforme (EQ.1).
+        platform_permissions:
+          type: array
+          items:
+            type: string
+          description: Droits dans la console d'après ces rôles ; vide hors de l'équipe.
         schools:
           type: array
           items:
@@ -21942,6 +22197,8 @@ components:
       - totp_required
       - recovery_codes_left
       - is_platform_admin
+      - platform_roles
+      - platform_permissions
       - schools
       - school
       - support
@@ -23195,6 +23452,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Summons'
+    PaginatedTeamMemberList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamMember'
     PaginatedUnpaidStudentList:
       type: object
       required:
@@ -24087,6 +24369,16 @@ components:
           default: false
           description: Créer même si un élève a les mêmes noms et la même date de
             naissance.
+    PatchedTeamMemberRequest:
+      type: object
+      description: 'Membre de l''équipe ; `must_change_password` : invitation pas
+        encore utilisée.'
+      properties:
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformRoleEnum'
+          minItems: 1
     PatchedTrackUpdateRequest:
       type: object
       properties:
@@ -24722,6 +25014,9 @@ components:
       - access.login
       - access.code_refused
       - access.address_refused
+      - team.member_invited
+      - team.roles_changed
+      - team.member_removed
       type: string
       description: |-
         * `platform.updated` - Platform identity changed
@@ -24744,6 +25039,9 @@ components:
         * `access.login` - Platform account logged in
         * `access.code_refused` - Two-factor code refused on a platform account
         * `access.address_refused` - Platform account refused from an unauthorised address
+        * `team.member_invited` - Team member invited
+        * `team.roles_changed` - Roles of a team member changed
+        * `team.member_removed` - Member removed from the team
     PlatformAudienceEnum:
       enum:
       - all_schools
@@ -24980,6 +25278,38 @@ components:
       - queued
       - running
       - longest_wait_seconds
+    PlatformRole:
+      type: object
+      description: Rôle fixe de l'équipe et ses droits (`platform_roles.py`).
+      properties:
+        code:
+          $ref: '#/components/schemas/PlatformRoleEnum'
+        label:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+      required:
+      - code
+      - label
+      - permissions
+    PlatformRoleEnum:
+      enum:
+      - owner
+      - technical
+      - support
+      - commercial
+      - communication
+      - finance
+      type: string
+      description: |-
+        * `owner` - Owner
+        * `technical` - Technical
+        * `support` - Support
+        * `commercial` - Sales
+        * `communication` - Communication
+        * `finance` - Finance
     PlatformScheduler:
       type: object
       properties:
@@ -28739,6 +29069,96 @@ components:
       - unassigned
       - unassigned_count
       - unassigned_hours
+    TeamInviteRequest:
+      type: object
+      properties:
+        phone:
+          type: string
+          minLength: 1
+          description: Son propre numéro, ex. 0971234567 ou +243971234567.
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        middle_name:
+          type: string
+          maxLength: 100
+        first_name:
+          type: string
+          maxLength: 100
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformRoleEnum'
+          minItems: 1
+      required:
+      - last_name
+      - phone
+      - roles
+    TeamInvited:
+      type: object
+      properties:
+        member:
+          $ref: '#/components/schemas/TeamMember'
+        temporary_password:
+          type: string
+          description: Renvoyé une seule fois, à changer à la première connexion.
+      required:
+      - member
+      - temporary_password
+    TeamMember:
+      type: object
+      description: 'Membre de l''équipe ; `must_change_password` : invitation pas
+        encore utilisée.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+          description: Identifies the person on the whole platform, e.g. +243971234567.
+        last_name:
+          type: string
+          readOnly: true
+        middle_name:
+          type: string
+          readOnly: true
+        first_name:
+          type: string
+          readOnly: true
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformRoleEnum'
+          minItems: 1
+        totp_enabled:
+          type: boolean
+          readOnly: true
+        must_change_password:
+          type: boolean
+          readOnly: true
+        last_login:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - phone
+      - last_name
+      - middle_name
+      - first_name
+      - roles
+      - totp_enabled
+      - must_change_password
+      - last_login
+      - created_at
     TemplateEnum:
       enum:
       - secondary

@@ -85,13 +85,14 @@ ADMIN_PATH = "/admin/"
 
 
 def _db_scope(request: HttpRequest):
-    """Portée de la base d'une requête sans école (S.6) : toutes les écoles pour le super-admin
-    (console, administration Django), les écoles de ses familles pour un parent (Portail), aucune
-    sinon."""
+    """Portée de la base d'une requête sans école (S.6) : toutes les écoles pour l'équipe de la
+    plateforme avec au moins un droit (console, administration Django), les écoles de ses familles
+    pour un parent (Portail), aucune sinon."""
     user = request.user
     if not user.is_authenticated:
         return nullcontext()
-    if user.is_platform_admin and (
+    # Membre de l'équipe avec au moins un droit (EQ.1) ; chaque point vérifie ensuite le sien.
+    if user.platform_permissions and (
         is_console_host(request.get_host()) or request.path.startswith(ADMIN_PATH)
     ):
         return use_all_schools()

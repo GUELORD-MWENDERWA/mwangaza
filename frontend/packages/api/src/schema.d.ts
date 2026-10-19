@@ -1267,7 +1267,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Comptes de toutes les écoles (5.4.1) : super-admin seulement, à l'adresse de la console.
+         * @description Comptes de toutes les écoles (5.4.1) : équipe selon ses droits, à la console.
          *     Chaque changement va dans le journal de la plateforme et dans celui de chaque école où la
          *     personne est active. Un compte ne se supprime jamais : on le désactive.
          */
@@ -1288,7 +1288,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Comptes de toutes les écoles (5.4.1) : super-admin seulement, à l'adresse de la console.
+         * @description Comptes de toutes les écoles (5.4.1) : équipe selon ses droits, à la console.
          *     Chaque changement va dans le journal de la plateforme et dans celui de chaque école où la
          *     personne est active. Un compte ne se supprime jamais : on le désactive.
          */
@@ -1445,7 +1445,7 @@ export interface paths {
         };
         /**
          * @description Journal de la plateforme (5.4.2), le plus récent d'abord : actions du support dans la
-         *     console (identité, écoles, comptes, appareils). Super-admin seulement, en lecture seule.
+         *     console (identité, écoles, comptes, appareils, équipe). En lecture seule.
          */
         get: operations["console_audit_list"];
         put?: never;
@@ -1485,7 +1485,7 @@ export interface paths {
         };
         /**
          * @description Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-         *     d'abord : super-admin seulement, à l'adresse de la console. On change le suivi et la note
+         *     d'abord : équipe selon ses droits, à la console. On change le suivi et la note
          *     interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
          */
         get: operations["console_demo_requests_list"];
@@ -1509,7 +1509,7 @@ export interface paths {
         post?: never;
         /**
          * @description Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-         *     d'abord : super-admin seulement, à l'adresse de la console. On change le suivi et la note
+         *     d'abord : équipe selon ses droits, à la console. On change le suivi et la note
          *     interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
          */
         delete: operations["console_demo_requests_destroy"];
@@ -1517,7 +1517,7 @@ export interface paths {
         head?: never;
         /**
          * @description Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-         *     d'abord : super-admin seulement, à l'adresse de la console. On change le suivi et la note
+         *     d'abord : équipe selon ses droits, à la console. On change le suivi et la note
          *     interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
          */
         patch: operations["console_demo_requests_partial_update"];
@@ -1531,7 +1531,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Appareils enregistrés de toutes les écoles (5.4.2) : super-admin seulement, à l'adresse de
+         * @description Appareils enregistrés de toutes les écoles (5.4.2) : équipe selon ses droits, à l'adresse de
          *     la console ; les plus récemment vus d'abord.
          */
         get: operations["console_devices_list"];
@@ -1643,10 +1643,14 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
+         * @description Écoles de la plateforme (5.3) : équipe selon ses droits, à la console. Chaque
          *     changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
          *     Un espace réel ne se supprime jamais : on le suspend ou on l'arrête ; un espace d'essai ou de
          *     démonstration se supprime (4.16).
+         *
+         *     Droits (EQ.1) : un espace réel demande `platform.schools.*`, un espace d'essai ou de
+         *     démonstration `platform.demos.manage` ; sans `platform.schools.view`, les espaces réels
+         *     n'apparaissent pas (404).
          */
         get: operations["console_schools_list"];
         put?: never;
@@ -1670,10 +1674,14 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
+         * @description Écoles de la plateforme (5.3) : équipe selon ses droits, à la console. Chaque
          *     changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
          *     Un espace réel ne se supprime jamais : on le suspend ou on l'arrête ; un espace d'essai ou de
          *     démonstration se supprime (4.16).
+         *
+         *     Droits (EQ.1) : un espace réel demande `platform.schools.*`, un espace d'essai ou de
+         *     démonstration `platform.demos.manage` ; sans `platform.schools.view`, les espaces réels
+         *     n'apparaissent pas (404).
          */
         get: operations["console_schools_retrieve"];
         put?: never;
@@ -1831,9 +1839,91 @@ export interface paths {
         };
         /**
          * @description Sessions support de toutes les écoles (5.4.2), ouvertes et passées, la plus récente
-         *     d'abord : super-admin seulement, à l'adresse de la console.
+         *     d'abord : équipe selon ses droits, à la console.
          */
         get: operations["console_support_sessions_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/team/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Équipe de la plateforme (EQ.1) : membres, rôles fixes, invitation et retrait, pour qui a
+         *     `platform.team.manage` (le propriétaire). Chaque changement va au journal de la plateforme.
+         */
+        get: operations["console_team_list"];
+        put?: never;
+        /**
+         * @description Inviter : nouveau compte de la plateforme avec ses rôles et un mot de passe provisoire
+         *     renvoyé une seule fois ; double authentification à activer à la première connexion. Le
+         *     numéro d'un compte d'école ou de parent est refusé (`phone_in_use`).
+         */
+        post: operations["console_team_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/team/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Changer les rôles (au moins un), effectifs dès la requête suivante du membre ; le
+         *     dernier propriétaire garde le sien (`last_owner`).
+         */
+        patch: operations["console_team_partial_update"];
+        trace?: never;
+    };
+    "/api/console/team/{id}/remove/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Retirer de l'équipe : compte désactivé, sessions fermées tout de suite ; jamais le
+         *     dernier propriétaire (`last_owner`).
+         */
+        post: operations["console_team_remove_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/team/roles/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Rôles fixes de l'équipe et leurs droits. */
+        get: operations["console_team_roles_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5852,8 +5942,8 @@ export interface components {
             /** Active */
             is_active: boolean;
             /**
-             * Platform administrator
-             * @description Platform super-administrator: Django administration only, no school rights.
+             * Platform account
+             * @description Account of the platform team: console with the rights of its roles, two-factor authentication always required, no school rights.
              */
             readonly is_platform_admin: boolean;
             readonly totp_enabled: boolean;
@@ -5878,8 +5968,8 @@ export interface components {
             /** Active */
             is_active: boolean;
             /**
-             * Platform administrator
-             * @description Platform super-administrator: Django administration only, no school rights.
+             * Platform account
+             * @description Account of the platform team: console with the rights of its roles, two-factor authentication always required, no school rights.
              */
             readonly is_platform_admin: boolean;
             readonly totp_enabled: boolean;
@@ -7902,8 +7992,12 @@ export interface components {
             totp_required: boolean;
             /** @description Codes de secours pas encore utilisés (alerte à 2 ou moins, M4). */
             recovery_codes_left: number;
-            /** @description Super-admin : aucun droit dans une école hors session support (A3). */
+            /** @description Compte de l'équipe de la plateforme : aucun droit dans une école hors session support (A3). */
             is_platform_admin: boolean;
+            /** @description Rôles dans l'équipe de la plateforme (EQ.1). */
+            platform_roles: string[];
+            /** @description Droits dans la console d'après ces rôles ; vide hors de l'équipe. */
+            platform_permissions: string[];
             /** @description Écoles où le compte a une appartenance active (choix de l'école). */
             schools: components["schemas"]["MeSchool"][];
             /** @description Rôles et permissions dans l'école de l'adresse ; null sans accès à cette école. */
@@ -8607,6 +8701,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["Summons"][];
         };
+        PaginatedTeamMemberList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["TeamMember"][];
+        };
         PaginatedUnpaidStudentList: {
             /** @example 123 */
             count: number;
@@ -9053,6 +9162,10 @@ export interface components {
              */
             allow_duplicate: boolean;
         };
+        /** @description Membre de l'équipe ; `must_change_password` : invitation pas encore utilisée. */
+        PatchedTeamMemberRequest: {
+            roles?: components["schemas"]["PlatformRoleEnum"][];
+        };
         PatchedTrackUpdateRequest: {
             name?: string;
             code?: string;
@@ -9337,9 +9450,12 @@ export interface components {
          *     * `access.login` - Platform account logged in
          *     * `access.code_refused` - Two-factor code refused on a platform account
          *     * `access.address_refused` - Platform account refused from an unauthorised address
+         *     * `team.member_invited` - Team member invited
+         *     * `team.roles_changed` - Roles of a team member changed
+         *     * `team.member_removed` - Member removed from the team
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed";
         /**
          * @description * `all_schools` - All schools
          *     * `schools` - Some schools
@@ -9438,6 +9554,22 @@ export interface components {
             running: number;
             longest_wait_seconds: number;
         };
+        /** @description Rôle fixe de l'équipe et ses droits (`platform_roles.py`). */
+        PlatformRole: {
+            code: components["schemas"]["PlatformRoleEnum"];
+            label: string;
+            permissions: string[];
+        };
+        /**
+         * @description * `owner` - Owner
+         *     * `technical` - Technical
+         *     * `support` - Support
+         *     * `commercial` - Sales
+         *     * `communication` - Communication
+         *     * `finance` - Finance
+         * @enum {string}
+         */
+        PlatformRoleEnum: "owner" | "technical" | "support" | "commercial" | "communication" | "finance";
         PlatformScheduler: {
             status: components["schemas"]["HealthStatusEnum"];
             /** Format: date-time */
@@ -11189,6 +11321,36 @@ export interface components {
             unassigned_count: number;
             /** @description Leurs heures par semaine. */
             unassigned_hours: number;
+        };
+        TeamInviteRequest: {
+            /** @description Son propre numéro, ex. 0971234567 ou +243971234567. */
+            phone: string;
+            last_name: string;
+            middle_name?: string;
+            first_name?: string;
+            roles: components["schemas"]["PlatformRoleEnum"][];
+        };
+        TeamInvited: {
+            member: components["schemas"]["TeamMember"];
+            /** @description Renvoyé une seule fois, à changer à la première connexion. */
+            temporary_password: string;
+        };
+        /** @description Membre de l'équipe ; `must_change_password` : invitation pas encore utilisée. */
+        TeamMember: {
+            /** Format: uuid */
+            readonly id: string;
+            /** @description Identifies the person on the whole platform, e.g. +243971234567. */
+            readonly phone: string;
+            readonly last_name: string;
+            readonly middle_name: string;
+            readonly first_name: string;
+            roles: components["schemas"]["PlatformRoleEnum"][];
+            readonly totp_enabled: boolean;
+            readonly must_change_password: boolean;
+            /** Format: date-time */
+            readonly last_login: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
         };
         /**
          * @description * `secondary` - RDC secondary: 2 semesters, 4 periods, 2 exam sessions
@@ -16069,8 +16231,9 @@ export interface operations {
                  *     * `device` - device
                  *     * `platform` - platform
                  *     * `school` - school
+                 *     * `team` - team
                  */
-                domain?: "access" | "account" | "announcement" | "device" | "platform" | "school";
+                domain?: "access" | "account" | "announcement" | "device" | "platform" | "school" | "team";
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Dans le nom de l'objet. */
@@ -17267,6 +17430,265 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PaginatedConsoleSupportSessionList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_team_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedTeamMemberList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_team_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TeamInviteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TeamInviteRequest"];
+                "multipart/form-data": components["schemas"]["TeamInviteRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamInvited"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_team_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this account. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedTeamMemberRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedTeamMemberRequest"];
+                "multipart/form-data": components["schemas"]["PatchedTeamMemberRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamMember"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_team_remove_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this account. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_team_roles_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformRole"][];
                 };
             };
             400: {

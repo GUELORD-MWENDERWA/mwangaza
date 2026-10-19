@@ -15,7 +15,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts.permissions import IsPlatformAdmin
+from apps.accounts import platform_roles as team
+from apps.accounts.permissions import HasPlatformPermission
 from apps.core import services
 from apps.core.errors import ErrorSerializer
 from apps.core.http import serve_image
@@ -119,7 +120,7 @@ def platform_manifest(request: HttpRequest, app: str) -> HttpResponse:
     return response
 
 
-# Console de la plateforme (5.2.2) : super-admin seulement, à l'adresse de la console ; ailleurs,
+# Console de la plateforme (5.2.2) : équipe selon ses droits, à la console ; ailleurs,
 # ces points d'API n'existent pas (404).
 CONSOLE_ERRORS = {400: ErrorSerializer, 403: ErrorSerializer, 404: ErrorSerializer}
 
@@ -133,7 +134,8 @@ class ConsolePlatformView(APIView):
     """Identité de la plateforme : nom, nom court, couleurs, support, mentions légales, et les
     dernières modifications. Chaque changement va dans le journal de la plateforme."""
 
-    permission_classes = [IsPlatformAdmin]
+    permission_classes = [HasPlatformPermission]
+    platform_permission = team.IDENTITY_EDIT
     serializer_class = ConsolePlatformSerializer
 
     @extend_schema(responses={200: ConsolePlatformSerializer, **CONSOLE_ERRORS})
@@ -158,7 +160,8 @@ class ConsolePlatformLogoView(APIView):
     """Logo de la plateforme : PNG ou JPEG (ré-encodé), ou SVG sans script, 1 Mo au plus ; sans
     lui, la lampe."""
 
-    permission_classes = [IsPlatformAdmin]
+    permission_classes = [HasPlatformPermission]
+    platform_permission = team.IDENTITY_EDIT
     parser_classes = [MultiPartParser, FormParser]
     serializer_class = PlatformLogoUploadSerializer
     field = "logo"
@@ -215,10 +218,11 @@ class ConsoleDemoRequestViewSet(
     viewsets.GenericViewSet,
 ):
     """Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-    d'abord : super-admin seulement, à l'adresse de la console. On change le suivi et la note
+    d'abord : équipe selon ses droits, à la console. On change le suivi et la note
     interne ; on efface une demande quand la personne le demande (sinon : seule après un an)."""
 
-    permission_classes = [IsPlatformAdmin]
+    permission_classes = [HasPlatformPermission]
+    platform_permission = team.LEADS_MANAGE
     serializer_class = ConsoleDemoRequestSerializer
     pagination_class = DemoRequestPagination
     http_method_names = ["get", "patch", "delete", "head", "options"]

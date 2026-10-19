@@ -15,6 +15,7 @@ from django.db.models.functions import Lower
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.phone import InvalidPhoneError, PhoneNumberField, normalize_phone
+from apps.accounts.platform_roles import OWNER, ROLE_CHOICES, permissions_of
 from apps.accounts.roles import PERMISSION_CHOICES
 from apps.core.models import BaseModel, TenantModel
 from apps.schools.signatures import member_signature_path
@@ -41,7 +42,10 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, phone, password=None, **fields):
+        """Propriétaire de la plateforme (`createsuperuser`) : le reste de l'équipe est invité
+        depuis la console (EQ.1)."""
         fields["is_platform_admin"] = True
+        fields.setdefault("platform_roles", [OWNER])
         return self.create_user(phone, password, **fields)
 
 
@@ -70,9 +74,19 @@ class User(BaseModel, AbstractBaseUser):
     )
     is_active = models.BooleanField(_("active"), default=True)
     is_platform_admin = models.BooleanField(
-        _("platform administrator"),
+        _("platform account"),
         default=False,
-        help_text=_("Platform super-administrator: Django administration only, no school rights."),
+        help_text=_(
+            "Account of the platform team: console with the rights of its roles, two-factor "
+            "authentication always required, no school rights."
+        ),
+    )
+    # Rôles fixes de l'équipe (`platform_roles.py`) ; vide hors de l'équipe ou une fois retiré.
+    platform_roles = ArrayField(
+        models.CharField(max_length=32, choices=ROLE_CHOICES),
+        verbose_name=_("platform roles"),
+        default=list,
+        blank=True,
     )
     # Mot de passe provisoire donné par l'école : à changer à la connexion.
     must_change_password = models.BooleanField(_("must change password"), default=False)
@@ -109,20 +123,33 @@ class User(BaseModel, AbstractBaseUser):
     def totp_enabled(self) -> bool:
         return self.totp_enabled_at is not None
 
-    # Administration Django : réservée au super-admin. Les droits dans une école viennent de ses
-    # rôles (`HasSchoolPermission`), jamais d'ici.
+    @property
+    def platform_permissions(self) -> frozenset[str]:
+        """Droits dans la console, d'après les rôles de l'équipe (lus avec le compte : aucune
+        requête de plus)."""
+        if not (self.is_active and self.is_platform_admin):
+            return frozenset()
+        return permissions_of(self.platform_roles)
+
+    @property
+    def is_platform_owner(self) -> bool:
+        return self.is_active and self.is_platform_admin and OWNER in self.platform_roles
+
+    # Administration Django (dépannage, elle peut tout changer) : réservée au propriétaire de la
+    # plateforme. Les droits dans une école viennent de ses rôles (`HasSchoolPermission`), jamais
+    # d'ici.
     @property
     def is_staff(self) -> bool:
-        return self.is_platform_admin
+        return self.is_platform_owner
 
     def has_perm(self, perm, obj=None) -> bool:
-        return self.is_active and self.is_platform_admin
+        return self.is_platform_owner
 
     def has_perms(self, perm_list, obj=None) -> bool:
         return all(self.has_perm(perm, obj) for perm in perm_list)
 
     def has_module_perms(self, app_label) -> bool:
-        return self.is_active and self.is_platform_admin
+        return self.is_platform_owner
 
 
 class Role(TenantModel):

@@ -78,11 +78,11 @@ def _next_step(user: User, *, second_factor_ok: bool) -> Step:
 def log_in(request, phone: str, password: str, *, admin_only: bool = False) -> Step:
     """Étape 1. Numéro inconnu, mauvais mot de passe ou compte désactivé : même réponse.
 
-    `admin_only` (administration Django) : même réponse pour un compte qui n'est pas super-admin,
-    et le code est toujours demandé (pas d'appareil de confiance)."""
+    `admin_only` (administration Django) : même réponse pour un compte qui n'est pas propriétaire
+    de la plateforme, et le code est toujours demandé (pas d'appareil de confiance)."""
     attempts.ensure_allowed(attempts.phone_key(phone), client_ip(request))
     user = authenticate(request, phone=phone, password=password)
-    if user is None or (admin_only and not user.is_platform_admin):
+    if user is None or (admin_only and not user.is_platform_owner):
         raise BusinessError(INVALID_CREDENTIALS)
     if user.is_platform_admin and not privileged.address_allowed(request):
         # Bon mot de passe, mais hors des adresses autorisées : même réponse qu'un mauvais mot
