@@ -347,6 +347,7 @@ GESTION = [
     ("notes-validation", "Suivi des notes (directeur des études)", "V1.2", "Plus tard · 8.2.2, NB.2", True),
     ("notes-fiches", "Fiches de cotes", "V1.2", "Plus tard · 8.3.6", True),
     ("notes-fiche-cotes", "Fiche de cotes reçue", "V1.2", "Plus tard · NB.1", True),
+    ("titulaire", "Ma classe (titulaire)", "V1.2", "Plus tard · NB.3", True),
     ("situations", "Situations de fin d'année", "V1.2", "Plus tard · 8.4.4", True),
     ("reprise-resultats", "Reprise des résultats (année sans notes)", "V1.2", "Plus tard · 8.4.7", True),
     ("passage-classe", "Passage de classe et confirmation de place", "V1.2", "Plus tard · 8.4.5", True),

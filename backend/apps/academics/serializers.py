@@ -410,6 +410,11 @@ class BoardClassSerializer(serializers.Serializer):
     name = serializers.CharField()
     homeroom_teacher = serializers.CharField()
     complete = serializers.BooleanField(help_text="Toutes les fiches de la période validées.")
+    ready_at = serializers.DateTimeField(
+        allow_null=True,
+        help_text="Bulletins déclarés prêts par le titulaire (NB.3), encore valable.",
+    )
+    ready_by = serializers.CharField(help_text="Titulaire qui les a déclarés prêts.")
     courses = BoardCourseSerializer(many=True)
 
 

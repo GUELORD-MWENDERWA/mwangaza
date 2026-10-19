@@ -402,6 +402,38 @@ class ApplicationGrade(TenantModel):
         return f"{self.enrollment} · {self.term} · {self.grade}"
 
 
+class ReportCardsReady(TenantModel):
+    """« Bulletins prêts » [T] (NB.3) : le titulaire d'une classe déclare les bulletins d'une
+    période (ou des examens) prêts, une fois toutes les fiches de cotes validées. Valable tant
+    qu'aucune fiche de la période n'est validée après `declared_at` (renvoi puis nouvelle
+    validation) : calculé à la lecture (`homeroom.ready_state`). Retirer la déclaration supprime la
+    ligne ; le journal d'audit garde chaque étape."""
+
+    class_group = models.ForeignKey(
+        ClassGroup, on_delete=models.CASCADE, related_name="+", verbose_name=_("class")
+    )
+    term = models.ForeignKey(
+        Term, on_delete=models.PROTECT, related_name="+", verbose_name=_("term")
+    )
+    declared_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("declared by"),
+    )
+    declared_at = models.DateTimeField(_("declared on"))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["class_group", "term"], name="report_cards_ready_class_term_unique"
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.class_group} · {self.term}"
+
+
 class ResitGrade(TenantModel):
     """Note de repêchage d'un cours échoué [T] (8.4.1) : pourcentage obtenu à l'examen de
     repêchage, saisi par l'enseignant du cours, qui la signe (son nom et l'heure restent). Elle

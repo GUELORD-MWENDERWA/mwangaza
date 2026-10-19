@@ -180,6 +180,10 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     // Saisie des notes (8.2.1) : l'enseignant, sur ses cours.
     const teacher = await staff(browser, "0000001008", false);
     await visit(teacher, `${ITIG}grades`, "gestion", "grades");
+    // Ma classe (NB.3) : le titulaire, dans la classe qui attend une dernière fiche.
+    const own = await json<{ classes: { id: string; name: string }[] }>(teacher, "/api/homeroom/");
+    const titular = own.classes.find((item) => item.name === "3HT ÉLECTRICITÉ A") ?? own.classes[0];
+    await visit(teacher, `${ITIG}homeroom?class=${titular!.id}`, "gestion", "homeroom");
     // Suivi des notes (8.2.2, NB.2) : la directrice des études (double authentification).
     const director = await staff(browser, "0000001002", true);
     await visit(director, `${ITIG}grade-validation`, "gestion", "grade-validation");

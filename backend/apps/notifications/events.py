@@ -382,3 +382,27 @@ def grades_reminders(by_teacher: dict, term) -> int:
             )
         )
     return len(push.create(school, drafts))
+
+
+def report_cards_ready(group, term, *, actor: User) -> None:
+    """Le titulaire déclare les bulletins de sa classe prêts (NB.3) : à ceux qui valident les
+    notes (le directeur des études), qui les voient dans « Suivi des notes »."""
+    from apps.academics.grades import term_label
+
+    label = str(term_label(term))
+
+    def text() -> tuple[str, str]:
+        title = _("Report cards ready: %(class)s") % {"class": group.name}
+        body = _("%(term)s · declared by %(teacher)s, homeroom teacher") % {
+            "term": label,
+            "teacher": actor,
+        }
+        return title, body
+
+    send(
+        staff(Kind.REPORT_CARDS_READY, but=actor),
+        app=App.GESTION,
+        kind=Kind.REPORT_CARDS_READY,
+        url=f"/grade-validation?term={term.pk}",
+        text=text,
+    )

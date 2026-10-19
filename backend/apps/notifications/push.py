@@ -43,6 +43,7 @@ STAFF_KINDS = {
     Kind.SENSITIVE_RIGHTS: ROLES_MANAGE,
     # Le titulaire la reçoit aussi (`events.grades_sent`), sans pouvoir la couper : une par cours.
     Kind.GRADES_SENT: GRADES_VALIDATE,
+    Kind.REPORT_CARDS_READY: GRADES_VALIDATE,
 }
 # Alertes de sécurité : aucun compte ne peut les couper.
 ALWAYS_SENT = frozenset({Kind.SENSITIVE_RIGHTS})

@@ -54,7 +54,7 @@ from apps.core.errors import BusinessError, ErrorSerializer
 from apps.core.middleware import is_console_host
 from apps.core.tenancy import use_all_schools
 from apps.schools import signatures
-from apps.schools.models import School
+from apps.schools.models import ClassGroup, School
 from apps.schools.serializers import SignatureUploadSerializer
 
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
@@ -155,6 +155,11 @@ def me_data(request: Request) -> dict:
             "permissions": sorted_permissions(access.permissions),
             "modules": request.school.modules,
             "documents": signatures.documents(request.school, here),
+            # Menu « Ma classe » (NB.3) : titulaire d'une classe de l'année en cours.
+            "homeroom": "academics" in request.school.modules
+            and ClassGroup.objects.filter(
+                academic_year__is_current=True, homeroom_teacher=user
+            ).exists(),
         }
     me = {
         "id": user.id,

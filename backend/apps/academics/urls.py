@@ -9,6 +9,7 @@ from apps.academics import (
     views,
 )
 from apps.academics import discipline_views as conduct
+from apps.academics import homeroom_views as homeroom
 
 urlpatterns = [
     path("class-groups/<uuid:pk>/courses/", views.ClassCoursesView.as_view(), name="class-courses"),
@@ -37,6 +38,8 @@ urlpatterns = [
     path("grading/", views.GradingView.as_view(), name="grading"),
     path("grading/validation/", views.GradingValidationView.as_view(), name="grading-validation"),
     path("grading/reminders/", views.GradeRemindersView.as_view(), name="grading-reminders"),
+    path("homeroom/", homeroom.HomeroomView.as_view(), name="homeroom"),
+    path("homeroom/ready/", homeroom.HomeroomReadyView.as_view(), name="homeroom-ready"),
     path(
         "terms/<uuid:term>/grades-deadline/",
         views.GradeDeadlineView.as_view(),

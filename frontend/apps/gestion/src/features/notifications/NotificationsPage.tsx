@@ -59,6 +59,7 @@ const KIND_ICONS: Record<NotificationKind, IconName> = {
   grades_sent: "file",
   grades_returned: "undo",
   grades_reminder: "bell",
+  report_cards_ready: "check",
 };
 
 export function NotificationsPage() {

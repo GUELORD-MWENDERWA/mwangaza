@@ -765,6 +765,8 @@ paths:
           - grades.reopened
           - grades.deadline_set
           - grades.reminded
+          - grades.report_cards_ready
+          - grades.report_cards_withdrawn
           - grades.report_card_printed
           - grades.sheet_printed
           - grades.situation_printed
@@ -892,6 +894,8 @@ paths:
           * `grades.reopened` - Grades reopened
           * `grades.deadline_set` - Grade entry deadline set
           * `grades.reminded` - Teachers reminded of their grade sheets
+          * `grades.report_cards_ready` - Report cards declared ready
+          * `grades.report_cards_withdrawn` - Report cards no longer declared ready
           * `grades.report_card_printed` - Report card printed
           * `grades.sheet_printed` - Grade sheet printed
           * `grades.situation_printed` - Year-end situation printed
@@ -1198,6 +1202,8 @@ paths:
           - grades.reopened
           - grades.deadline_set
           - grades.reminded
+          - grades.report_cards_ready
+          - grades.report_cards_withdrawn
           - grades.report_card_printed
           - grades.sheet_printed
           - grades.situation_printed
@@ -1325,6 +1331,8 @@ paths:
           * `grades.reopened` - Grades reopened
           * `grades.deadline_set` - Grade entry deadline set
           * `grades.reminded` - Teachers reminded of their grade sheets
+          * `grades.report_cards_ready` - Report cards declared ready
+          * `grades.report_cards_withdrawn` - Report cards no longer declared ready
           * `grades.report_card_printed` - Report card printed
           * `grades.sheet_printed` - Grade sheet printed
           * `grades.situation_printed` - Year-end situation printed
@@ -8924,6 +8932,146 @@ paths:
               schema:
                 $ref: '#/components/schemas/Health'
           description: ''
+  /api/homeroom/:
+    get:
+      operationId: homeroom_retrieve
+      description: |-
+        Espace du titulaire : sa classe dans une période ou des examens — état de chaque fiche
+        de cotes (moyenne et élèves sous la moitié une fois envoyée), puis, toutes validées, la
+        vérification élève par élève et les chiffres de la classe ; « Bulletins prêts ».
+      parameters:
+      - in: query
+        name: class_group
+        schema:
+          type: string
+          format: uuid
+        description: 'Absent : la première classe dont le compte est titulaire.'
+      - in: query
+        name: term
+        schema:
+          type: string
+          format: uuid
+        description: 'Absent : la période du jour, sinon la dernière commencée.'
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Homeroom'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/homeroom/ready/:
+    post:
+      operationId: homeroom_ready_create
+      description: |-
+        Déclare les bulletins de la période prêts (titulaire de la classe) : 409
+        `sheets_missing` tant qu'une fiche n'est pas validée. Journal, notification
+        `report_cards_ready` à ceux qui valident les notes.
+      tags:
+      - grades
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReadyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReadyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReadyRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: homeroom_ready_destroy
+      description: Retire la déclaration (`?class_group=&term=`) ; au journal.
+      parameters:
+      - in: query
+        name: class_group
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/levels/:
     get:
       operationId: levels_list
@@ -15039,6 +15187,8 @@ components:
       - grades.reopened
       - grades.deadline_set
       - grades.reminded
+      - grades.report_cards_ready
+      - grades.report_cards_withdrawn
       - grades.report_card_printed
       - grades.sheet_printed
       - grades.situation_printed
@@ -15165,6 +15315,8 @@ components:
         * `grades.reopened` - Grades reopened
         * `grades.deadline_set` - Grade entry deadline set
         * `grades.reminded` - Teachers reminded of their grade sheets
+        * `grades.report_cards_ready` - Report cards declared ready
+        * `grades.report_cards_withdrawn` - Report cards no longer declared ready
         * `grades.report_card_printed` - Report card printed
         * `grades.sheet_printed` - Grade sheet printed
         * `grades.situation_printed` - Year-end situation printed
@@ -15644,6 +15796,14 @@ components:
         complete:
           type: boolean
           description: Toutes les fiches de la période validées.
+        ready_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Bulletins déclarés prêts par le titulaire (NB.3), encore valable.
+        ready_by:
+          type: string
+          description: Titulaire qui les a déclarés prêts.
         courses:
           type: array
           items:
@@ -15653,6 +15813,8 @@ components:
       - name
       - homeroom_teacher
       - complete
+      - ready_at
+      - ready_by
       - courses
     BoardCourse:
       type: object
@@ -18677,6 +18839,10 @@ components:
           - $ref: '#/components/schemas/DocumentSigners'
           description: Cachet et signatures posés sur les documents que la Gestion
             imprime (DOC.1).
+        homeroom:
+          type: boolean
+          description: 'Titulaire d''une classe de l''année en cours : menu « Ma classe
+            » (NB.3).'
       required:
       - code
       - name
@@ -18684,6 +18850,7 @@ components:
       - permissions
       - modules
       - documents
+      - homeroom
     CycleEnum:
       enum:
       - primary
@@ -20322,6 +20489,150 @@ components:
       - by
       - reason
       - changes
+    Homeroom:
+      type: object
+      properties:
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/HomeroomClass'
+          description: Classes dont le compte est titulaire.
+        class_group:
+          allOf:
+          - $ref: '#/components/schemas/HomeroomClass'
+          nullable: true
+        terms:
+          type: array
+          items:
+            $ref: '#/components/schemas/Term'
+        term:
+          type: string
+          format: uuid
+          nullable: true
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/HomeroomCourse'
+        complete:
+          type: boolean
+          description: Toutes les fiches de la période validées.
+        ready_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Bulletins déclarés prêts.
+        ready_by:
+          type: string
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/HomeroomStudent'
+          description: Vide tant que pas complète.
+        stats:
+          allOf:
+          - $ref: '#/components/schemas/HomeroomStats'
+          nullable: true
+          description: Absent tant que pas complète.
+      required:
+      - classes
+      - class_group
+      - terms
+      - term
+      - courses
+      - complete
+      - ready_at
+      - ready_by
+      - students
+      - stats
+    HomeroomClass:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+      - id
+      - name
+    HomeroomCourse:
+      type: object
+      properties:
+        course:
+          $ref: '#/components/schemas/BoardCourse'
+        average:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+          description: '% moyen, fiche envoyée.'
+        below_half:
+          type: integer
+          nullable: true
+          description: Élèves sous la moitié.
+      required:
+      - course
+      - average
+      - below_half
+    HomeroomStats:
+      type: object
+      properties:
+        students:
+          type: integer
+        graded:
+          type: integer
+          description: Élèves avec toutes leurs notes.
+        average:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+        highest:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+        lowest:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+        at_least_half:
+          type: integer
+      required:
+      - students
+      - graded
+      - average
+      - highest
+      - lowest
+      - at_least_half
+    HomeroomStudent:
+      type: object
+      properties:
+        enrollment_id:
+          type: string
+          format: uuid
+        number:
+          type: integer
+        full_name:
+          type: string
+        total:
+          allOf:
+          - $ref: '#/components/schemas/HomeroomTotal'
+          description: 'Score vide : une note manque.'
+        conduct:
+          type: string
+          description: Vide pour les examens.
+        application:
+          type: string
+          description: Vide pour les examens ou sans note.
+      required:
+      - enrollment_id
+      - number
+      - full_name
+      - total
+      - conduct
+      - application
     HomeroomTeacher:
       type: object
       description: Titulaire de la classe de l'enfant (5.7).
@@ -20335,6 +20646,33 @@ components:
       required:
       - name
       - phone
+    HomeroomTotal:
+      type: object
+      properties:
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          nullable: true
+        maximum:
+          type: integer
+        percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+        place:
+          type: integer
+          nullable: true
+        mention:
+          type: string
+          nullable: true
+      required:
+      - score
+      - maximum
+      - percent
+      - place
+      - mention
     ImportCancelRequest:
       type: object
       properties:
@@ -21434,6 +21772,7 @@ components:
       - grades_sent
       - grades_returned
       - grades_reminder
+      - report_cards_ready
       type: string
       description: |-
         * `test` - Test notification
@@ -21453,6 +21792,7 @@ components:
         * `grades_sent` - Grade sheet received
         * `grades_returned` - Grade sheet returned
         * `grades_reminder` - Grade sheets expected
+        * `report_cards_ready` - Report cards ready
     NotificationPreferences:
       type: object
       properties:
@@ -24961,6 +25301,18 @@ components:
           maxItems: 100
       required:
       - ids
+    ReadyRequest:
+      type: object
+      properties:
+        class_group:
+          type: string
+          format: uuid
+        term:
+          type: string
+          format: uuid
+      required:
+      - class_group
+      - term
     ReasonCodeEnum:
       enum:
       - staff_child

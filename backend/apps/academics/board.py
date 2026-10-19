@@ -4,12 +4,13 @@ cotes de chaque cours de chaque classe, et le rappel des enseignants en retard.
 État d'un cours (calculé, rien de stocké) : `validated`, `submitted` (envoyée et signée, à
 valider), `returned` (renvoyée avec remarques : brouillon rouvert), `in_progress` (au moins une
 évaluation, ou un brouillon), `not_started`. Une classe est complète quand toutes ses fiches de la
-période sont validées.
+période sont validées. Ses bulletins sont prêts quand son titulaire l'a déclaré (NB.3) et qu'aucune
+fiche n'a été validée depuis (renvoi puis nouvelle validation : à déclarer de nouveau).
 
 Rappel : une notification par enseignant, avec ses cours en retard ; un cours déjà envoyé, sans
 enseignant ou déjà rappelé le jour même est ignoré. Chaque rappel est une entrée du journal sur la
 période (`grades.reminded`, cours rappelés) : le tableau y lit le dernier rappel de chaque cours,
-sans champ en base. Lectures bornées (cinq requêtes), quel que soit le nombre de classes.
+sans champ en base. Lectures bornées (six requêtes), quel que soit le nombre de classes.
 """
 
 from collections import defaultdict
@@ -22,7 +23,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.academics.grades import NOT_GRADED_HERE, term_label
-from apps.academics.models import Course, Evaluation, GradeSheet
+from apps.academics.models import Course, Evaluation, GradeSheet, ReportCardsReady
 from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import Action
@@ -30,7 +31,7 @@ from apps.audit.models import AuditLog
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import require_current_school
 from apps.notifications import events
-from apps.schools.models import AcademicYear, Term
+from apps.schools.models import AcademicYear, ClassGroup, Term
 
 NOT_STARTED, IN_PROGRESS, SUBMITTED, VALIDATED, RETURNED = (
     "not_started",
@@ -67,6 +68,9 @@ class BoardClass:
     name: str
     homeroom_teacher: str
     courses: list[BoardCourse] = field(default_factory=list)
+    # Bulletins déclarés prêts par le titulaire, encore valables (NB.3).
+    ready_at: datetime | None = None
+    ready_by: str = ""
 
     @property
     def complete(self) -> bool:
@@ -98,8 +102,10 @@ def default_term(year: AcademicYear, terms: list[Term]) -> Term | None:
     return next((t for t in reversed(terms) if t.pk in started), terms[0] if terms else None)
 
 
-def _courses(year_id, term: Term) -> list[Course]:
+def _courses(year_id, term: Term, group: ClassGroup | None) -> list[Course]:
     courses = Course.objects.filter(class_group__academic_year_id=year_id, is_taught=True)
+    if group is not None:
+        courses = courses.filter(class_group=group)
     if term.kind == Term.Kind.EXAM:
         courses = courses.filter(has_exam=True)
     return list(
@@ -137,15 +143,21 @@ def _today() -> datetime:
     return timezone.localtime().replace(hour=0, minute=0, second=0, microsecond=0)
 
 
-def board(term: Term) -> list[BoardClass]:
-    """Chaque classe de l'année de `term` et l'état de chacun de ses cours notés dans `term`."""
-    courses = _courses(term.academic_year_id, term)
+def board(term: Term, group: ClassGroup | None = None) -> list[BoardClass]:
+    """Chaque classe de l'année de `term` (ou la seule `group`) et l'état de chacun de ses cours
+    notés dans `term`."""
+    courses = _courses(term.academic_year_id, term, group)
     sheets = {
         row["course_id"]: row
         for row in GradeSheet.objects.filter(term=term, course__in=[c.pk for c in courses]).values(
-            "course_id", "status", "reopened", "submitted_at"
+            "course_id", "status", "reopened", "submitted_at", "validated_at"
         )
     }
+    declared = ReportCardsReady.objects.filter(term=term).select_related("declared_by")
+    if group is not None:
+        declared = declared.filter(class_group=group)
+    readiness = {row.class_group_id: row for row in declared}
+    last_validated: dict[UUID, datetime] = {}
     started = set(
         Evaluation.objects.filter(term=term, course__in=[c.pk for c in courses]).values_list(
             "course_id", flat=True
@@ -173,6 +185,10 @@ def board(term: Term) -> list[BoardClass]:
             status = IN_PROGRESS
         else:
             status = NOT_STARTED
+        if status == VALIDATED and sheet["validated_at"]:
+            last_validated[group.pk] = max(
+                sheet["validated_at"], last_validated.get(group.pk, sheet["validated_at"])
+            )
         last = reminded.get(str(course.pk))
         entry.courses.append(
             BoardCourse(
@@ -186,6 +202,14 @@ def board(term: Term) -> list[BoardClass]:
                 bool(last and last >= today),
             )
         )
+    for entry in classes.values():
+        row = readiness.get(entry.id)
+        if (
+            row
+            and entry.complete
+            and row.declared_at >= last_validated.get(entry.id, row.declared_at)
+        ):
+            entry.ready_at, entry.ready_by = row.declared_at, row.declared_by.get_full_name()
     return list(classes.values())
 
 

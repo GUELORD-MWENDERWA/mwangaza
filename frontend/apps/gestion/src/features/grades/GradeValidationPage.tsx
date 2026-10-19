@@ -2,7 +2,7 @@
 // Pour une période ou des examens, l'état de la fiche de cotes de chaque cours de chaque classe
 // (pas commencée, en cours, envoyée, validée, renvoyée), le rappel des enseignants en retard (une
 // notification par enseignant), le tableau synthétique, le palmarès et, classe complète, les
-// bulletins ; dates limites de saisie à côté. Droit `grades.validate` (double authentification).
+// bulletins quand le titulaire les dit prêts (NB.3) ; dates limites de saisie à côté. Droit `grades.validate` (double authentification).
 import { api, call } from "@mwangaza/api";
 import { firstErrorMessage, formatDate, formatTime, useTranslation } from "@mwangaza/i18n";
 import {
@@ -25,7 +25,7 @@ import {
 } from "@mwangaza/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
 import { keys, useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
@@ -64,7 +64,9 @@ export function GradeValidationPage() {
   const { t } = useTranslation();
   const me = useCurrentMe();
   const queryClient = useQueryClient();
-  const [termId, setTermId] = useState("");
+  const [params] = useSearchParams();
+  // Notification « Bulletins prêts » (NB.3) : la période dans l'adresse.
+  const [termId, setTermId] = useState(() => params.get("term") ?? "");
   const [filter, setFilter] = useState<Filter>("late");
   const [confirm, setConfirm] = useState<BoardCourse[] | null>(null);
   const validation = useValidation(termId);
@@ -325,6 +327,18 @@ function ClassBlock({
             </StatusPill>
           ) : null;
         })}
+        {group.ready_at ? (
+          <StatusPill tone="ok">
+            {t("gradeValidation.ready", {
+              date: formatDate(group.ready_at, i18n.language, school.timezone),
+            })}
+          </StatusPill>
+        ) : (
+          group.complete &&
+          group.homeroom_teacher && (
+            <StatusPill tone="info">{t("gradeValidation.waitingHomeroom")}</StatusPill>
+          )
+        )}
       </div>
       <div className="mt-2.5 flex flex-wrap gap-2">
         {canRemind && late.length > 0 && (
@@ -347,7 +361,8 @@ function ClassBlock({
             {t("gradeValidation.ranking")}
           </Link>
         </Button>
-        {group.complete && (
+        {/* Bulletins : quand le titulaire les dit prêts (NB.3) ; classe sans titulaire : complète. */}
+        {(group.ready_at || (group.complete && !group.homeroom_teacher)) && (
           <Button asChild size="sm">
             <Link to={`/report-cards?class=${group.id}`}>
               <Icon name="print" size={14} />
