@@ -6,8 +6,9 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from apps.accounts import platform_roles as team
 from apps.accounts.models import User
-from apps.accounts.permissions import IsPlatformAdmin
+from apps.accounts.permissions import HasPlatformPermission
 from apps.accounts.roles import AUDIT_VIEW
 from apps.accounts.views import CONSOLE_ERRORS, ERRORS, SchoolViewSet
 from apps.audit import services as audit
@@ -162,9 +163,10 @@ def _export_row(log: AuditLog, serializer: AuditLogSerializer, support: str) -> 
 )
 class ConsolePlatformLogViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """Journal de la plateforme (5.4.2), le plus récent d'abord : actions du support dans la
-    console (identité, écoles, comptes, appareils). Super-admin seulement, en lecture seule."""
+    console (identité, écoles, comptes, appareils, équipe). En lecture seule."""
 
-    permission_classes = [IsPlatformAdmin]
+    permission_classes = [HasPlatformPermission]
+    platform_permission = team.AUDIT_VIEW
     serializer_class = PlatformLogSerializer
 
     def get_queryset(self):

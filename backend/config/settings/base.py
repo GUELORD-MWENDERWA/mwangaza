@@ -253,6 +253,7 @@ SPECTACULAR_SETTINGS = {
         "GradeEntryEnum": "apps.schools.grading.ENTRY_CHOICES",
         "CourseCategoryEnum": "apps.academics.models.CATEGORIES",
         "ModulesEnum": "apps.accounts.modules.MODULE_CHOICES",
+        "PlatformRoleEnum": "apps.accounts.platform_roles.ROLE_CHOICES",
         "CurrencyEnum": "apps.core.money.Currency",
         "ActionEnum": "apps.audit.actions.Action",
         "PlatformActionEnum": "apps.audit.actions.PlatformAction",

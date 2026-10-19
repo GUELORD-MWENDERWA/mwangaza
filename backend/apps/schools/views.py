@@ -18,11 +18,13 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.accounts import platform_roles as team
 from apps.accounts.models import Membership
 from apps.accounts.permissions import (
+    HasPlatformPermission,
     HasSchoolAccess,
     HasSchoolPermission,
-    IsPlatformAdmin,
+    ensure_platform_permission,
     school_access,
 )
 from apps.accounts.roles import (
@@ -632,7 +634,8 @@ class ConsoleDashboardView(APIView):
     """Tableau de bord de la console de la plateforme (5.2) : toutes les écoles, super-admin
     seulement, à l'adresse de la console."""
 
-    permission_classes = [IsPlatformAdmin]
+    permission_classes = [HasPlatformPermission]
+    platform_permission = team.SCHOOLS_VIEW
 
     @extend_schema(
         responses={200: ConsoleDashboardSerializer, 403: ErrorSerializer, 404: ErrorSerializer}
@@ -659,16 +662,25 @@ CONSOLE_ERRORS = {400: ErrorSerializer, 403: ErrorSerializer, 404: ErrorSerializ
 class ConsoleSchoolViewSet(
     mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
 ):
-    """Écoles de la plateforme (5.3) : super-admin seulement, à l'adresse de la console. Chaque
+    """Écoles de la plateforme (5.3) : équipe selon ses droits, à la console. Chaque
     changement va dans le journal de la plateforme (et, pour l'identité, dans celui de l'école).
     Un espace réel ne se supprime jamais : on le suspend ou on l'arrête ; un espace d'essai ou de
-    démonstration se supprime (4.16)."""
+    démonstration se supprime (4.16).
 
-    permission_classes = [IsPlatformAdmin]
+    Droits (EQ.1) : un espace réel demande `platform.schools.*`, un espace d'essai ou de
+    démonstration `platform.demos.manage` ; sans `platform.schools.view`, les espaces réels
+    n'apparaissent pas (404)."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = (team.SCHOOLS_VIEW, team.DEMOS_MANAGE)
     http_method_names = ["get", "post", "patch", "head", "options"]
 
     def get_queryset(self):
         schools = console.schools()
+        if getattr(self, "swagger_fake_view", False):
+            return schools
+        if team.SCHOOLS_VIEW not in self.request.user.platform_permissions:
+            schools = schools.exclude(environment=School.Environment.LIVE)
         if self.action != "list":
             return schools
         params = self.request.query_params
@@ -692,6 +704,16 @@ class ConsoleSchoolViewSet(
     def _detail(self, school: School) -> Response:
         return Response(ConsoleSchoolDetailSerializer(console.schools().get(pk=school.pk)).data)
 
+    def _allowed(self, environment: str, live_right: str) -> None:
+        """Espace réel : `live_right` ; essai ou démonstration : `platform.demos.manage`."""
+        live = environment == School.Environment.LIVE
+        ensure_platform_permission(self.request, live_right if live else team.DEMOS_MANAGE)
+
+    def _object(self, live_right: str = team.SCHOOLS_MANAGE) -> School:
+        school = self.get_object()
+        self._allowed(school.environment, live_right)
+        return school
+
     @extend_schema(
         request=ConsoleSchoolCreateSerializer,
         responses={201: ConsoleSchoolCreatedSerializer, **CONSOLE_ERRORS},
@@ -700,6 +722,8 @@ class ConsoleSchoolViewSet(
         """Nouvelle école avec son premier directeur. Nouveau numéro : mot de passe provisoire
         renvoyé une seule fois (pas de SMS en V1) ; numéro connu : ajouté sans nouveau mot de
         passe."""
+        environment = request.data.get("environment") or School.Environment.LIVE
+        self._allowed(environment, team.SCHOOLS_MANAGE)
         serializer = ConsoleSchoolCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = dict(serializer.validated_data)
@@ -727,7 +751,7 @@ class ConsoleSchoolViewSet(
     )
     def partial_update(self, request: Request, pk=None) -> Response:
         """Noms, adresse (l'ancienne cesse de marcher) et abonnement."""
-        school = self.get_object()
+        school = self._object()
         serializer = ConsoleSchoolSerializer(school, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         services.change_school(school, actor=request.user, **serializer.validated_data)
@@ -737,7 +761,7 @@ class ConsoleSchoolViewSet(
     @action(detail=True, methods=["post"])
     def suspend(self, request: Request, pk=None) -> Response:
         """Plus personne ne se connecte à l'école ; rien n'est supprimé."""
-        return self._detail(services.suspend(self.get_object(), actor=request.user))
+        return self._detail(services.suspend(self._object(), actor=request.user))
 
     @extend_schema(
         request=SchoolStopSerializer,
@@ -746,9 +770,10 @@ class ConsoleSchoolViewSet(
     @action(detail=True, methods=["post"])
     def stop(self, request: Request, pk=None) -> Response:
         """Espace arrêté, avec un motif : plus personne n'y entre, les données restent."""
+        school = self._object(team.SCHOOLS_STOP)
         serializer = SchoolStopSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        school = services.stop(self.get_object(), actor=request.user, **serializer.validated_data)
+        school = services.stop(school, actor=request.user, **serializer.validated_data)
         return self._detail(school)
 
     @extend_schema(request=None, responses={200: ConsoleSchoolDetailSerializer, **CONSOLE_ERRORS})
@@ -756,7 +781,7 @@ class ConsoleSchoolViewSet(
     def reactivate(self, request: Request, pk=None) -> Response:
         """Suspendue ou arrêtée, de nouveau ouverte : en essai gratuit s'il n'est pas fini, sinon
         active."""
-        return self._detail(services.reactivate(self.get_object(), actor=request.user))
+        return self._detail(services.reactivate(self._object(), actor=request.user))
 
     @extend_schema(
         request=SchoolDeleteSerializer,
@@ -767,9 +792,10 @@ class ConsoleSchoolViewSet(
         """Espace d'essai ou de démonstration supprimé avec toutes ses données, en tâche de
         fond ; refusé pour un espace réel. `confirm` : le code de l'espace. Déjà en cours : la
         suppression est relancée."""
+        school = self._object(team.SCHOOLS_STOP)
         serializer = SchoolDeleteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        services.delete_space(self.get_object(), actor=request.user, **serializer.validated_data)
+        services.delete_space(school, actor=request.user, **serializer.validated_data)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @extend_schema(
@@ -781,6 +807,7 @@ class ConsoleSchoolViewSet(
         """Nouvel espace de démonstration (A6) : ouvert tout de suite, rempli de données fictives
         en tâche de fond (`demonstration` de la fiche : avancement). Refusé si la plateforme en a
         déjà son maximum, ou pendant qu'un autre espace se crée ou s'efface."""
+        ensure_platform_permission(request, team.DEMOS_MANAGE)
         serializer = DemonstrationCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         school = demonstrations.create(actor=request.user, **serializer.validated_data)
@@ -796,9 +823,9 @@ class ConsoleSchoolViewSet(
         """« Remettre à zéro » un espace de démonstration créé depuis la console : supprimé puis
         recréé (même adresse, mêmes numéros, nouveau mot de passe), en tâche de fond. `confirm` :
         le code de l'espace."""
+        school = self._object(team.SCHOOLS_STOP)
         serializer = SchoolDeleteSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        school = self.get_object()
         demonstrations.reset(school, actor=request.user, **serializer.validated_data)
         return self._detail(school)
 
@@ -810,9 +837,9 @@ class ConsoleSchoolViewSet(
     def access_sheet(self, request: Request, pk=None) -> HttpResponse:
         """Fiche d'accès d'un espace de démonstration prêt (A6), à remettre à un visiteur :
         adresses, mot de passe, un compte par rôle, parents du portail avec leur code famille."""
+        school = self._object()
         params = AccessSheetQuerySerializer(data=request.query_params)
         params.is_valid(raise_exception=True)
-        school = self.get_object()
         context = demonstrations.access_sheet(school)
         name = f"fiche-acces-{school.code}.pdf"
         return render("schools/access_sheet.html", context, params.validated_data["output"], name)

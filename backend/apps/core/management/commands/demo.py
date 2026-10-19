@@ -9,6 +9,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from apps.accounts.demo import (
+    DEMO_TEAM,
     DEMO_TOTP_SECRET,
     PLATFORM_ADMIN_PHONE,
     create_demo_admin,
@@ -68,9 +69,14 @@ class Command(BaseCommand):
         self.stdout.write(f"Comptes fictifs (mot de passe : {demo_password()}) :")
         if admin is not None:
             self.stdout.write(
-                f"  {_local(PLATFORM_ADMIN_PHONE)}  super-admin (console et administration "
-                "Django : http://localhost:8000/admin/) — code : make totp"
+                f"  {_local(PLATFORM_ADMIN_PHONE)}  propriétaire de la plateforme (console "
+                "http://admin.localhost:5175/ et administration Django "
+                "http://localhost:8000/admin/) — code : make totp"
             )
+            for phone, (role, _name) in DEMO_TEAM.items():
+                self.stdout.write(
+                    f"  {_local(phone)}  équipe : {role} (console) — code : make totp"
+                )
         accounts = {a.phone: a for space in spaces for a in demo_accounts(space)}
         with_code = set(
             User.objects.filter(phone__in=accounts, totp_enabled_at__isnull=False).values_list(

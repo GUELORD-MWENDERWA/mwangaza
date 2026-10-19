@@ -6,6 +6,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.accounts.models import Membership, User
+from apps.accounts.platform_roles import PLATFORM_ROLES, ROLE_CHOICES
 from apps.accounts.serializers import PhoneField
 from apps.accounts.support import SESSION_STATES
 from apps.audit.models import AuditLog, PlatformAuditLog
@@ -125,3 +126,66 @@ class ConsoleSupportSessionSerializer(serializers.ModelSerializer):
             "actions",
         ]
         read_only_fields = fields
+
+
+# Équipe de la plateforme (EQ.1)
+
+
+class PlatformRoleSerializer(serializers.Serializer):
+    """Rôle fixe de l'équipe et ses droits (`platform_roles.py`)."""
+
+    code = serializers.ChoiceField(choices=ROLE_CHOICES)
+    label = serializers.CharField()
+    permissions = serializers.ListField(child=serializers.CharField())
+
+    @staticmethod
+    def roles() -> list[dict]:
+        return [
+            {"code": code, "label": str(label), "permissions": sorted(rights)}
+            for code, (label, rights) in PLATFORM_ROLES.items()
+        ]
+
+
+class PlatformRolesField(serializers.ListField):
+    child = serializers.ChoiceField(choices=ROLE_CHOICES)
+
+    def __init__(self, **kwargs):
+        super().__init__(min_length=1, **kwargs)
+
+
+class TeamMemberSerializer(serializers.ModelSerializer):
+    """Membre de l'équipe ; `must_change_password` : invitation pas encore utilisée."""
+
+    roles = PlatformRolesField(source="platform_roles")
+    totp_enabled = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "phone",
+            "last_name",
+            "middle_name",
+            "first_name",
+            "roles",
+            "totp_enabled",
+            "must_change_password",
+            "last_login",
+            "created_at",
+        ]
+        read_only_fields = [field for field in fields if field != "roles"]
+
+
+class TeamInviteSerializer(serializers.Serializer):
+    phone = PhoneField(help_text="Son propre numéro, ex. 0971234567 ou +243971234567.")
+    last_name = serializers.CharField(max_length=100)
+    middle_name = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    first_name = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    roles = PlatformRolesField()
+
+
+class TeamInvitedSerializer(serializers.Serializer):
+    member = TeamMemberSerializer()
+    temporary_password = serializers.CharField(
+        help_text="Renvoyé une seule fois, à changer à la première connexion."
+    )

@@ -16,6 +16,7 @@ from django.utils import timezone
 
 from apps.accounts import services
 from apps.accounts.models import LoginFailure, Membership, Role, User
+from apps.accounts.platform_roles import OWNER
 from apps.accounts.roles import STARTER_ROLES, TOTP_PERMISSIONS, starter_role_name
 from apps.core.crypto import encrypt
 from apps.core.tenancy import use_school
@@ -43,6 +44,16 @@ def set_demo_password(user: User, password: str) -> None:
 
 
 PLATFORM_ADMIN_PHONE = "+243000000000"
+# Équipe fictive de la plateforme (EQ.1), un compte par rôle autre que propriétaire : numéro →
+# (rôle, prénom).
+DEMO_TEAM = {
+    "+243000000001": ("technical", "Technique"),
+    "+243000000002": ("support", "Support"),
+    "+243000000003": ("commercial", "Commercial"),
+    "+243000000004": ("communication", "Communication"),
+    "+243000000005": ("finance", "Finance"),
+}
+PLATFORM_PHONES = [PLATFORM_ADMIN_PHONE, *DEMO_TEAM]
 
 # Chaque école fictive nomme ses rôles à sa façon : ceux du modèle de départ qu'elle a renommés
 # (clé du modèle → son nom), et ceux qu'elle a créés (Q7 : nom → permissions).
@@ -178,26 +189,40 @@ def _account(phone: str, password: str, **fields) -> User:
 
 
 def create_demo_admin() -> User | None:
-    """Super-admin fictif, en développement seulement (`DEBUG`) : son mot de passe et sa clé sont
-    écrits dans le dépôt. Ailleurs il n'existe pas : celui qu'un ancien `make demo` a créé perd
-    ses droits et son accès (le vrai super-admin se crée par `createsuperuser`)."""
+    """Propriétaire fictif de la plateforme et un membre fictif par autre rôle de l'équipe
+    (`DEMO_TEAM`), en développement seulement (`DEBUG`) : leur mot de passe et leur clé sont écrits
+    dans le dépôt. Ailleurs ils n'existent pas : ceux qu'un ancien `make demo` a créés perdent
+    leurs droits et leur accès (le vrai propriétaire se crée par `createsuperuser`)."""
     if not settings.DEBUG:
-        former = User.objects.filter(phone=PLATFORM_ADMIN_PHONE).first()
-        if former is not None:
+        for former in User.objects.filter(phone__in=PLATFORM_PHONES):
             services.reset_totp(former)
             former.is_platform_admin = former.is_active = False
-            former.save(update_fields=["is_platform_admin", "is_active", "updated_at"])
+            former.platform_roles = []
+            former.save(
+                update_fields=["is_platform_admin", "is_active", "platform_roles", "updated_at"]
+            )
         return None
-    LoginFailure.objects.filter(phone=PLATFORM_ADMIN_PHONE).delete()
+    LoginFailure.objects.filter(phone__in=PLATFORM_PHONES).delete()
     admin = _account(
         PLATFORM_ADMIN_PHONE,
         demo_password(),
         last_name="Mwangaza",
         first_name="Admin",
         is_platform_admin=True,
+        platform_roles=[OWNER],
     )
-    # Double authentification obligatoire pour le super-admin (console, administration Django).
+    # Double authentification obligatoire pour toute l'équipe (console, administration Django).
     _set_demo_totp(admin, shared_key=True)
+    for phone, (role, first_name) in DEMO_TEAM.items():
+        member = _account(
+            phone,
+            demo_password(),
+            last_name="Équipe",
+            first_name=first_name,
+            is_platform_admin=True,
+            platform_roles=[role],
+        )
+        _set_demo_totp(member, shared_key=True)
     return admin
 
 

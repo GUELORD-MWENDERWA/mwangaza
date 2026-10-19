@@ -1,6 +1,6 @@
 """Tableau de bord de la console de la plateforme (5.2) : toutes les écoles à la fois, lues hors de
-toute école (`all_schools`), pour le super-admin seulement (`IsPlatformAdmin`). Liste des écoles
-(5.3) : élèves et dernière activité de chacune.
+toute école (`all_schools`), pour l'équipe selon ses droits (`HasPlatformPermission`). Liste des
+écoles (5.3) : élèves et dernière activité de chacune.
 
 Chiffres des espaces réels seulement (4.15) : un espace d'essai ou de démonstration n'y compte
 jamais. Écoles par statut (essais qui finissent bientôt), élèves (inscriptions actives de l'année

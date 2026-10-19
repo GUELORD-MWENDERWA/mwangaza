@@ -14,17 +14,23 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts import console, login, services, support, totp
+from apps.accounts import platform_roles as team
+from apps.accounts import team as team_services
 from apps.accounts.console_serializers import (
     ConsoleAccountDetailSerializer,
     ConsoleAccountSerializer,
     ConsoleSupportSessionSerializer,
+    PlatformRoleSerializer,
+    TeamInvitedSerializer,
+    TeamInviteSerializer,
+    TeamMemberSerializer,
 )
 from apps.accounts.login import MFA_SESSION_KEY, Step
 from apps.accounts.models import Membership, Role, User
 from apps.accounts.permissions import (
+    HasPlatformPermission,
     HasSchoolAccess,
     HasSchoolPermission,
-    IsPlatformAdmin,
     school_access,
 )
 from apps.accounts.roles import ROLES_MANAGE, sorted_permissions
@@ -173,6 +179,8 @@ def me_data(request: Request) -> dict:
         "totp_required": services.totp_required(user),
         "recovery_codes_left": services.recovery_codes_left(user),
         "is_platform_admin": user.is_platform_admin,
+        "platform_roles": sorted(user.platform_roles),
+        "platform_permissions": sorted(user.platform_permissions),
         "schools": memberships,
         "school": school,
         "support": support.current(request),
@@ -607,11 +615,12 @@ CONSOLE_ERRORS = {400: ErrorSerializer, 403: ErrorSerializer, 404: ErrorSerializ
 class ConsoleAccountViewSet(
     mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
 ):
-    """Comptes de toutes les écoles (5.4.1) : super-admin seulement, à l'adresse de la console.
+    """Comptes de toutes les écoles (5.4.1) : équipe selon ses droits, à la console.
     Chaque changement va dans le journal de la plateforme et dans celui de chaque école où la
     personne est active. Un compte ne se supprime jamais : on le désactive."""
 
-    permission_classes = [IsPlatformAdmin]
+    permission_classes = [HasPlatformPermission]
+    platform_permission = team.ACCOUNTS_SUPPORT
     serializer_class = ConsoleAccountSerializer
     http_method_names = ["get", "post", "patch", "head", "options"]
 
@@ -685,10 +694,70 @@ class ConsoleAccountViewSet(
 )
 class ConsoleSupportSessionViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """Sessions support de toutes les écoles (5.4.2), ouvertes et passées, la plus récente
-    d'abord : super-admin seulement, à l'adresse de la console."""
+    d'abord : équipe selon ses droits, à la console."""
 
-    permission_classes = [IsPlatformAdmin]
+    permission_classes = [HasPlatformPermission]
+    platform_permission = (team.ACCOUNTS_SUPPORT, team.AUDIT_VIEW)
     serializer_class = ConsoleSupportSessionSerializer
 
     def get_queryset(self):
         return support.sessions(self.request.query_params.get("search", ""))
+
+
+@extend_schema(tags=["console"])
+@extend_schema_view(
+    list=extend_schema(responses={200: TeamMemberSerializer(many=True), **CONSOLE_ERRORS}),
+)
+class ConsoleTeamViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """Équipe de la plateforme (EQ.1) : membres, rôles fixes, invitation et retrait, pour qui a
+    `platform.team.manage` (le propriétaire). Chaque changement va au journal de la plateforme."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = team.TEAM_MANAGE
+    serializer_class = TeamMemberSerializer
+    http_method_names = ["get", "post", "patch", "head", "options"]
+
+    def get_queryset(self):
+        return team_services.members()
+
+    @extend_schema(
+        request=TeamInviteSerializer,
+        responses={201: TeamInvitedSerializer, 409: ErrorSerializer, **CONSOLE_ERRORS},
+    )
+    def create(self, request: Request) -> Response:
+        """Inviter : nouveau compte de la plateforme avec ses rôles et un mot de passe provisoire
+        renvoyé une seule fois ; double authentification à activer à la première connexion. Le
+        numéro d'un compte d'école ou de parent est refusé (`phone_in_use`)."""
+        serializer = TeamInviteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        member, password = team_services.invite(actor=request.user, **serializer.validated_data)
+        data = {"member": member, "temporary_password": password}
+        return Response(TeamInvitedSerializer(data).data, status=201)
+
+    @extend_schema(
+        request=TeamMemberSerializer,
+        responses={200: TeamMemberSerializer, 409: ErrorSerializer, **CONSOLE_ERRORS},
+    )
+    def partial_update(self, request: Request, pk=None) -> Response:
+        """Changer les rôles (au moins un), effectifs dès la requête suivante du membre ; le
+        dernier propriétaire garde le sien (`last_owner`)."""
+        member = self.get_object()
+        serializer = TeamMemberSerializer(member, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        roles = serializer.validated_data.get("platform_roles", member.platform_roles)
+        member = team_services.set_roles(member, actor=request.user, roles=roles)
+        return Response(TeamMemberSerializer(member).data)
+
+    @extend_schema(request=None, responses={204: None, 409: ErrorSerializer, **CONSOLE_ERRORS})
+    @action(detail=True, methods=["post"])
+    def remove(self, request: Request, pk=None) -> Response:
+        """Retirer de l'équipe : compte désactivé, sessions fermées tout de suite ; jamais le
+        dernier propriétaire (`last_owner`)."""
+        team_services.remove(self.get_object(), actor=request.user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @extend_schema(responses={200: PlatformRoleSerializer(many=True), **CONSOLE_ERRORS})
+    @action(detail=False, pagination_class=None)
+    def roles(self, request: Request) -> Response:
+        """Rôles fixes de l'équipe et leurs droits."""
+        return Response(PlatformRoleSerializer(PlatformRoleSerializer.roles(), many=True).data)

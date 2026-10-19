@@ -154,7 +154,7 @@ Côté utilisateur, la marche à suivre est dans `A-FAIRE.md` § 10 « Comment r
 
 ## Données de démonstration
 
-On travaille avec des données **fictives et réalistes**, en développement, dans les essais et sur le serveur de démonstration en ligne (mot de passe propre au serveur, ni double authentification ni super-admin fictif) : `make demo` recrée, comme espaces de démonstration (`03` § 4 bis), l'école `itig` (démo : ~800 élèves avec familles, fratries et paiements sur plusieurs mois), une seconde école fictive `volcans`, plus petite, pour prouver l'isolation, et un compte par rôle (détail : `docs/07-a-fournir.md` § 4). Les vraies données, c'est l'école qui les saisit. Chaque tâche qui ajoute un modèle enrichit cette commande. Jamais de vraie donnée personnelle dans les données de démonstration ni dans les tests.
+On travaille avec des données **fictives et réalistes**, en développement, dans les essais et sur le serveur de démonstration en ligne (mot de passe propre au serveur, ni double authentification ni équipe fictive de la plateforme) : `make demo` recrée, comme espaces de démonstration (`03` § 4 bis), l'école `itig` (démo : ~800 élèves avec familles, fratries et paiements sur plusieurs mois), une seconde école fictive `volcans`, plus petite, pour prouver l'isolation, et un compte par rôle (détail : `docs/07-a-fournir.md` § 4). Les vraies données, c'est l'école qui les saisit. Chaque tâche qui ajoute un modèle enrichit cette commande. Jamais de vraie donnée personnelle dans les données de démonstration ni dans les tests.
 
 ## Suivi du projet (obligatoire)
 

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 15:38+0200\n"
+"POT-Creation-Date: 2026-10-19 16:57+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -154,7 +154,8 @@ msgstr "Cet élève n'est pas en seconde session."
 
 #: apps/academics/deliberation.py:90
 msgid "The second session gives a final decision: no new resit exam."
-msgstr "La seconde session donne une décision finale : pas de nouveau repêchage."
+msgstr ""
+"La seconde session donne une décision finale : pas de nouveau repêchage."
 
 #: apps/academics/deliberation.py:92
 msgid "Set the date of the resit exam first."
@@ -403,7 +404,7 @@ msgid "class"
 msgstr "classe"
 
 #: apps/academics/models.py:33 apps/academics/models.py:126
-#: apps/accounts/models.py:135 apps/core/models.py:138
+#: apps/accounts/models.py:162 apps/core/models.py:138
 #: apps/finance/models.py:35 apps/finance/models.py:371
 #: apps/schools/models.py:106 apps/schools/models.py:383
 #: apps/schools/models.py:441 apps/schools/models.py:480
@@ -1007,7 +1008,9 @@ msgstr "Une note de repêchage est un pourcentage de 0 à 100."
 #: apps/academics/resits.py:80
 msgid ""
 "The second session is proclaimed: reopen it before changing a resit grade."
-msgstr "La seconde session est proclamée : rouvrez-la avant de changer une note de repêchage."
+msgstr ""
+"La seconde session est proclamée : rouvrez-la avant de changer une note de "
+"repêchage."
 
 #: apps/academics/resits_views.py:181
 msgid "You cannot see the resit exams of this class."
@@ -1217,7 +1220,7 @@ msgid "Signatures of the members present"
 msgstr "Signatures des membres présents"
 
 #: apps/academics/templates/academics/deliberation_minutes.html:79
-#: apps/accounts/admin.py:65
+#: apps/accounts/admin.py:73
 #: apps/schools/templates/schools/access_sheet.html:25
 msgid "Name"
 msgstr "Nom"
@@ -1634,7 +1637,10 @@ msgid ""
 "The student <b>%(name)s</b> (student number %(matricule)s), of the class "
 "<b>%(class_name)s</b>, is summoned to the <b>second session</b> of the "
 "school year %(year)s, on <b>%(date)s</b>, for the following courses:"
-msgstr "L'élève <b>%(name)s</b> (matricule %(matricule)s), de la classe de <b>%(class_name)s</b>, est convoqué(e) à la <b>seconde session</b> de l'année scolaire %(year)s, le <b>%(date)s</b>, pour les cours suivants :"
+msgstr ""
+"L'élève <b>%(name)s</b> (matricule %(matricule)s), de la classe de "
+"<b>%(class_name)s</b>, est convoqué(e) à la <b>seconde session</b> de "
+"l'année scolaire %(year)s, le <b>%(date)s</b>, pour les cours suivants :"
 
 #: apps/academics/templates/academics/resit_convocations.html:16
 msgid "Course to resit"
@@ -1649,7 +1655,10 @@ msgstr "Obtenu à l'année"
 msgid ""
 "Percentage of the year: <b>%(percent)s %%</b>. It is kept: the resit exam "
 "only decides the promotion. Come to the school with this notice."
-msgstr "Pourcentage de l'année : <b>%(percent)s %%</b>. Il reste acquis : l'examen de repêchage décide seulement du passage. Se présenter à l'école muni(e) de cette convocation."
+msgstr ""
+"Pourcentage de l'année : <b>%(percent)s %%</b>. Il reste acquis : l'examen "
+"de repêchage décide seulement du passage. Se présenter à l'école muni(e) de "
+"cette convocation."
 
 #: apps/academics/templates/academics/resit_convocations.html:19
 msgid "The parent or guardian"
@@ -1857,38 +1866,38 @@ msgstr "Vous ne pouvez pas imprimer le tableau de cette classe."
 msgid "You do not enter the grades of this course."
 msgstr "Vous ne saisissez pas les notes de ce cours."
 
-#: apps/accounts/admin.py:67 apps/core/templates/core/site/base.html:88
+#: apps/accounts/admin.py:75 apps/core/templates/core/site/base.html:88
 msgid "Access"
 msgstr "Accès"
 
-#: apps/accounts/admin.py:77 apps/schools/admin.py:44
+#: apps/accounts/admin.py:86 apps/schools/admin.py:44
 msgid "Dates"
 msgstr "Dates"
 
-#: apps/accounts/admin.py:97
+#: apps/accounts/admin.py:106
 msgid "two-factor authentication"
 msgstr "double authentification"
 
-#: apps/accounts/admin.py:119
+#: apps/accounts/admin.py:128
 msgid "Temporary password"
 msgstr "Mot de passe provisoire"
 
-#: apps/accounts/admin.py:134
+#: apps/accounts/admin.py:143
 msgid "Reset two-factor authentication (lost phone)"
 msgstr "Réinitialiser la double authentification (téléphone perdu)"
 
-#: apps/accounts/admin.py:140
+#: apps/accounts/admin.py:149
 msgid ""
 "Two-factor authentication reset: to be turned on again at the next login."
 msgstr ""
 "Double authentification réinitialisée : à réactiver à la prochaine connexion."
 
-#: apps/accounts/admin.py:166 apps/accounts/models.py:138
+#: apps/accounts/admin.py:175 apps/accounts/models.py:165
 msgid "permissions"
 msgstr "droits"
 
-#: apps/accounts/admin.py:181 apps/accounts/models.py:148
-#: apps/accounts/models.py:176
+#: apps/accounts/admin.py:190 apps/accounts/models.py:175
+#: apps/accounts/models.py:203
 msgid "roles"
 msgstr "rôles"
 
@@ -1999,118 +2008,123 @@ msgid "Replace your temporary password at your school's address first."
 msgstr ""
 "Remplacez d'abord votre mot de passe provisoire à l'adresse de votre école."
 
-#: apps/accounts/models.py:60 apps/accounts/models.py:228
+#: apps/accounts/models.py:64 apps/accounts/models.py:255
 #: apps/core/models.py:284 apps/students/models.py:70
 msgid "phone"
 msgstr "téléphone"
 
-#: apps/accounts/models.py:62
+#: apps/accounts/models.py:66
 msgid "Identifies the person on the whole platform, e.g. +243971234567."
 msgstr "Identifie la personne sur toute la plateforme, ex. +243971234567."
 
-#: apps/accounts/models.py:64 apps/students/models.py:101
+#: apps/accounts/models.py:68 apps/students/models.py:101
 msgid "last name"
 msgstr "nom"
 
-#: apps/accounts/models.py:66 apps/students/models.py:102
+#: apps/accounts/models.py:70 apps/students/models.py:102
 msgid "middle name"
 msgstr "post-nom"
 
-#: apps/accounts/models.py:67 apps/students/models.py:103
+#: apps/accounts/models.py:71 apps/students/models.py:103
 msgid "first name"
 msgstr "prénom"
 
-#: apps/accounts/models.py:69 apps/core/models.py:288
+#: apps/accounts/models.py:73 apps/core/models.py:288
 msgid "language"
 msgstr "langue"
 
-#: apps/accounts/models.py:71 apps/accounts/models.py:179
+#: apps/accounts/models.py:75 apps/accounts/models.py:206
 #: apps/finance/models.py:40 apps/finance/models.py:377
 msgid "active"
 msgstr "actif"
 
-#: apps/accounts/models.py:73
-msgid "platform administrator"
-msgstr "administrateur de la plateforme"
+#: apps/accounts/models.py:77
+msgid "platform account"
+msgstr "compte de la plateforme"
 
-#: apps/accounts/models.py:75
+#: apps/accounts/models.py:80
 msgid ""
-"Platform super-administrator: Django administration only, no school rights."
+"Account of the platform team: console with the rights of its roles, two-"
+"factor authentication always required, no school rights."
 msgstr ""
-"Super-administrateur de la plateforme : administration Django seulement, "
-"aucun droit dans une école."
+"Compte de l'équipe de la plateforme : console avec les droits de ses rôles, "
+"double authentification toujours exigée, aucun droit dans une école."
 
-#: apps/accounts/models.py:78
+#: apps/accounts/models.py:87
+msgid "platform roles"
+msgstr "rôles dans l'équipe de la plateforme"
+
+#: apps/accounts/models.py:92
 msgid "must change password"
 msgstr "doit changer son mot de passe"
 
-#: apps/accounts/models.py:81
+#: apps/accounts/models.py:95
 msgid "TOTP key"
 msgstr "clé TOTP"
 
-#: apps/accounts/models.py:83
+#: apps/accounts/models.py:97
 msgid "two-factor authentication enabled on"
 msgstr "double authentification activée le"
 
-#: apps/accounts/models.py:94 apps/accounts/models.py:170
-#: apps/accounts/models.py:211 apps/notifications/models.py:208
+#: apps/accounts/models.py:108 apps/accounts/models.py:197
+#: apps/accounts/models.py:238 apps/notifications/models.py:208
 #: apps/notifications/models.py:267 apps/notifications/models.py:331
 #: apps/notifications/models.py:370 apps/sync/models.py:22
 msgid "account"
 msgstr "compte"
 
-#: apps/accounts/models.py:95
+#: apps/accounts/models.py:109
 msgid "accounts"
 msgstr "comptes"
 
-#: apps/accounts/models.py:147 apps/core/models.py:281
+#: apps/accounts/models.py:174 apps/core/models.py:281
 msgid "role"
 msgstr "rôle"
 
-#: apps/accounts/models.py:173 apps/core/models.py:52 apps/core/models.py:282
+#: apps/accounts/models.py:200 apps/core/models.py:52 apps/core/models.py:282
 #: apps/notifications/models.py:340 apps/schools/admin.py:59
 #: apps/schools/models.py:223 apps/schools/models.py:347
 msgid "school"
 msgstr "école"
 
-#: apps/accounts/models.py:181
+#: apps/accounts/models.py:208
 msgid "last login"
 msgstr "dernière connexion"
 
-#: apps/accounts/models.py:185
+#: apps/accounts/models.py:212
 msgid "signature"
 msgstr "signature"
 
-#: apps/accounts/models.py:190
+#: apps/accounts/models.py:217
 msgid "membership"
 msgstr "appartenance"
 
-#: apps/accounts/models.py:191
+#: apps/accounts/models.py:218
 msgid "memberships"
 msgstr "appartenances"
 
-#: apps/accounts/models.py:214
+#: apps/accounts/models.py:241
 msgid "used on"
 msgstr "utilisé le"
 
-#: apps/accounts/models.py:218
+#: apps/accounts/models.py:245
 msgid "recovery code"
 msgstr "code de secours"
 
-#: apps/accounts/models.py:219
+#: apps/accounts/models.py:246
 msgid "recovery codes"
 msgstr "codes de secours"
 
-#: apps/accounts/models.py:229 apps/audit/models.py:70 apps/audit/models.py:136
-#: apps/audit/views.py:112
+#: apps/accounts/models.py:256 apps/audit/models.py:70 apps/audit/models.py:136
+#: apps/audit/views.py:113
 msgid "IP address"
 msgstr "Adresse IP"
 
-#: apps/accounts/models.py:233
+#: apps/accounts/models.py:260
 msgid "failed login"
 msgstr "connexion ratée"
 
-#: apps/accounts/models.py:234
+#: apps/accounts/models.py:261
 msgid "failed logins"
 msgstr "connexions ratées"
 
@@ -2164,6 +2178,84 @@ msgid "Enter a valid phone number, for example 0971234567 or +243971234567."
 msgstr ""
 "Saisissez un numéro de téléphone valide, par exemple 0971234567 ou "
 "+243971234567."
+
+#: apps/accounts/platform_roles.py:29
+msgid "View the schools and the dashboard"
+msgstr "Voir les écoles et le tableau de bord"
+
+#: apps/accounts/platform_roles.py:30
+msgid "Create, change, suspend and reopen a live school"
+msgstr "Créer, modifier, suspendre et rouvrir un espace réel"
+
+#: apps/accounts/platform_roles.py:31
+msgid "Stop a live school"
+msgstr "Arrêter un espace réel"
+
+#: apps/accounts/platform_roles.py:32
+msgid "Help accounts (names, temporary password, two-factor) and open support"
+msgstr ""
+"Dépanner les comptes (noms, mot de passe provisoire, double "
+"authentification) et ouvrir une session support"
+
+#: apps/accounts/platform_roles.py:33
+msgid "Manage sandbox and demonstration spaces"
+msgstr "Gérer les espaces d'essai et de démonstration"
+
+#: apps/accounts/platform_roles.py:34
+msgid "Handle the demo requests of the website"
+msgstr "Traiter les demandes de démonstration du site"
+
+#: apps/accounts/platform_roles.py:35
+msgid "Edit the contents of the website"
+msgstr "Modifier les contenus du site"
+
+#: apps/accounts/platform_roles.py:36
+msgid "Publish announcements to schools"
+msgstr "Publier les annonces aux écoles"
+
+#: apps/accounts/platform_roles.py:37
+msgid "View the server health and the devices, disconnect a device"
+msgstr "Voir la santé du serveur et les appareils, déconnecter un appareil"
+
+#: apps/accounts/platform_roles.py:38
+msgid "View the platform log and receive its alerts"
+msgstr "Voir le journal de la plateforme et recevoir ses alertes"
+
+#: apps/accounts/platform_roles.py:39
+msgid "Manage subscriptions and invoices"
+msgstr "Gérer les abonnements et les factures"
+
+#: apps/accounts/platform_roles.py:40
+msgid "Change the identity of the platform"
+msgstr "Modifier l'identité de la plateforme"
+
+#: apps/accounts/platform_roles.py:41
+msgid "Manage the platform team"
+msgstr "Gérer l'équipe de la plateforme"
+
+#: apps/accounts/platform_roles.py:49
+msgid "Owner"
+msgstr "Propriétaire"
+
+#: apps/accounts/platform_roles.py:50
+msgid "Technical"
+msgstr "Technique"
+
+#: apps/accounts/platform_roles.py:52
+msgid "Support"
+msgstr "Support"
+
+#: apps/accounts/platform_roles.py:56
+msgid "Sales"
+msgstr "Commercial"
+
+#: apps/accounts/platform_roles.py:57
+msgid "Communication"
+msgstr "Communication"
+
+#: apps/accounts/platform_roles.py:59 apps/finance/apps.py:10
+msgid "Finance"
+msgstr "Finances"
 
 #: apps/accounts/privileged.py:39
 msgid "This account cannot be used from this network."
@@ -2317,7 +2409,7 @@ msgstr "Enseignant"
 msgid "Parent"
 msgstr "Parent"
 
-#: apps/accounts/serializers.py:345
+#: apps/accounts/serializers.py:353
 msgid "Choose a password different from the current one."
 msgstr "Choisissez un mot de passe différent de l'actuel."
 
@@ -2415,17 +2507,33 @@ msgstr ""
 "Un de vos rôles exige la double authentification : elle ne peut pas être "
 "désactivée."
 
-#: apps/accounts/support.py:60
+#: apps/accounts/support.py:61
 msgid "Only the platform support can open a support session."
 msgstr "Seul le support de la plateforme peut ouvrir une session support."
 
-#: apps/accounts/support.py:63
+#: apps/accounts/support.py:64
 msgid "Log in again with two-factor authentication."
 msgstr "Reconnectez-vous avec la double authentification."
 
-#: apps/accounts/support.py:66
+#: apps/accounts/support.py:67
 msgid "No support session is open in this school."
 msgstr "Aucune session support n'est ouverte dans cette école."
+
+#: apps/accounts/team.py:31
+msgid ""
+"This phone number belongs to a school or parent account: a team member needs "
+"a number of their own."
+msgstr ""
+"Ce numéro appartient à un compte d'école ou de parent : un membre de "
+"l'équipe a son propre numéro."
+
+#: apps/accounts/team.py:36
+msgid "This person is already in the team."
+msgstr "Cette personne fait déjà partie de l'équipe."
+
+#: apps/accounts/team.py:37
+msgid "The platform must keep at least one owner."
+msgstr "La plateforme doit garder au moins un propriétaire."
 
 #: apps/accounts/templates/admin/accounts/login.html:11
 msgid ""
@@ -2488,11 +2596,11 @@ msgstr ""
 msgid "Give a temporary password"
 msgstr "Donner un mot de passe provisoire"
 
-#: apps/accounts/views.py:69
+#: apps/accounts/views.py:75
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
-#: apps/accounts/views.py:111
+#: apps/accounts/views.py:117
 msgid "Only the staff of the school can sign its documents."
 msgstr "Seul le personnel de l'école peut signer ses documents."
 
@@ -3048,6 +3156,18 @@ msgstr "Code de double authentification refusé sur un compte de la plateforme"
 msgid "Platform account refused from an unauthorised address"
 msgstr "Compte de la plateforme refusé depuis une adresse non autorisée"
 
+#: apps/audit/actions.py:281
+msgid "Team member invited"
+msgstr "Membre de l'équipe invité"
+
+#: apps/audit/actions.py:282
+msgid "Roles of a team member changed"
+msgstr "Rôles d'un membre de l'équipe changés"
+
+#: apps/audit/actions.py:283
+msgid "Member removed from the team"
+msgstr "Membre retiré de l'équipe"
+
 #: apps/audit/admin.py:12 apps/audit/admin.py:50 apps/audit/admin.py:79
 #: apps/audit/models.py:43 apps/audit/models.py:121
 msgid "action"
@@ -3124,12 +3244,12 @@ msgstr "La date de fin est avant la date de début."
 msgid "Export at most one year at a time."
 msgstr "Exportez au plus une année à la fois."
 
-#: apps/audit/views.py:103 apps/notifications/events.py:200
+#: apps/audit/views.py:104 apps/notifications/events.py:200
 #, python-format
 msgid "%(platform)s support"
 msgstr "Support %(platform)s"
 
-#: apps/audit/views.py:106 apps/finance/documents.py:66
+#: apps/audit/views.py:107 apps/finance/documents.py:66
 #: apps/finance/documents.py:397
 #: apps/finance/templates/finance/receipt_register.html:26
 #: apps/finance/templates/finance/receipt_verification.html:72
@@ -3137,39 +3257,39 @@ msgstr "Support %(platform)s"
 msgid "Date"
 msgstr "Date"
 
-#: apps/audit/views.py:107
+#: apps/audit/views.py:108
 msgid "Person"
 msgstr "Personne"
 
-#: apps/audit/views.py:108
+#: apps/audit/views.py:109
 msgid "Action"
 msgstr "Action"
 
-#: apps/audit/views.py:109
+#: apps/audit/views.py:110
 msgid "Object"
 msgstr "Objet"
 
-#: apps/audit/views.py:110
+#: apps/audit/views.py:111
 msgid "Before"
 msgstr "Avant"
 
-#: apps/audit/views.py:111
+#: apps/audit/views.py:112
 msgid "After"
 msgstr "Après"
 
-#: apps/audit/views.py:113
+#: apps/audit/views.py:114
 msgid "Device"
 msgstr "Appareil"
 
-#: apps/audit/views.py:114
+#: apps/audit/views.py:115
 msgid "Device time"
 msgstr "Heure de l'appareil"
 
-#: apps/audit/views.py:117
+#: apps/audit/views.py:118
 msgid "Audit log"
 msgstr "Journal d'audit"
 
-#: apps/audit/views.py:142
+#: apps/audit/views.py:143
 msgid "System"
 msgstr "Système"
 
@@ -5788,14 +5908,10 @@ msgid ""
 msgstr ""
 "La caisse marche sans réseau ; il suffit d'une connexion de temps en temps."
 
-#: apps/core/views.py:105
+#: apps/core/views.py:106
 #, python-format
 msgid "%(platform)s — Parents"
 msgstr "%(platform)s — Parents"
-
-#: apps/finance/apps.py:10
-msgid "Finance"
-msgstr "Finances"
 
 #: apps/finance/documents.py:35 apps/schools/models.py:379
 msgid "Open"
@@ -6999,7 +7115,7 @@ msgstr "Cet élève n'est pas inscrit cette année."
 msgid "Choose a date and time to come."
 msgstr "Choisissez un jour et une heure à venir."
 
-#: apps/notifications/console.py:38
+#: apps/notifications/console.py:39
 msgid "New demo request"
 msgstr "Nouvelle demande de démonstration"
 
@@ -7535,19 +7651,19 @@ msgstr "Nom :"
 msgid "Signature:"
 msgstr "Signature :"
 
-#: apps/notifications/views.py:62
+#: apps/notifications/views.py:63
 msgid "Not available during a support session."
 msgstr "Indisponible pendant une session support."
 
-#: apps/notifications/views.py:63
+#: apps/notifications/views.py:64
 msgid "This announcement has no attachment."
 msgstr "Cette annonce n'a pas de pièce jointe."
 
-#: apps/notifications/views.py:495 apps/portal/notifications.py:57
+#: apps/notifications/views.py:499 apps/portal/notifications.py:57
 msgid "Notifications are working"
 msgstr "Les notifications fonctionnent"
 
-#: apps/notifications/views.py:496
+#: apps/notifications/views.py:500
 #, python-format
 msgid ""
 "Notifications from %(school)s will appear here, even with the app closed."
@@ -8357,11 +8473,11 @@ msgstr ""
 "Fiche du %(date)s. Une remise à zéro de l'espace donne un nouveau mot de "
 "passe : demandez la nouvelle fiche."
 
-#: apps/schools/views.py:81
+#: apps/schools/views.py:83
 msgid "This school has no logo."
 msgstr "Cette école n'a pas de logo."
 
-#: apps/schools/views.py:188
+#: apps/schools/views.py:190
 msgid "No image."
 msgstr "Aucune image."
 

@@ -58,7 +58,15 @@ class UserAdmin(DjangoUserAdmin):
     search_fields = ["phone", "last_name", "middle_name", "first_name"]
     ordering = ["last_name", "middle_name", "first_name"]
     filter_horizontal = []
-    readonly_fields = ["id", "totp_enabled_at", "last_login", "created_at", "updated_at"]
+    # Rôles de l'équipe : changés dans la console seulement (journal de la plateforme, EQ.1).
+    readonly_fields = [
+        "id",
+        "platform_roles",
+        "totp_enabled_at",
+        "last_login",
+        "created_at",
+        "updated_at",
+    ]
     actions = ["reset_totp"]
     fieldsets = [
         (None, {"fields": ["id", "phone", "password"]}),
@@ -69,6 +77,7 @@ class UserAdmin(DjangoUserAdmin):
                 "fields": [
                     "is_active",
                     "is_platform_admin",
+                    "platform_roles",
                     "must_change_password",
                     "totp_enabled_at",
                 ]

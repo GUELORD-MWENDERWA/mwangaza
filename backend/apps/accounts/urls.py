@@ -12,6 +12,7 @@ router.register(
     views.ConsoleSupportSessionViewSet,
     basename="console-support-session",
 )
+router.register("console/team", views.ConsoleTeamViewSet, basename="console-team")
 
 urlpatterns = [
     path("me/", views.MeView.as_view(), name="me"),

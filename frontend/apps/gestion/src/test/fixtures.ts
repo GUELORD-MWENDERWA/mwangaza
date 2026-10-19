@@ -136,6 +136,8 @@ export function me(code: Role = "head", overrides: Partial<Schemas["Me"]> = {}):
     totp_required: code !== "teacher",
     recovery_codes_left: 8,
     is_platform_admin: false,
+    platform_roles: [],
+    platform_permissions: [],
     schools: [schoolEntry({ roles: [role(code)] })],
     school: {
       code: school.code,
@@ -159,6 +161,7 @@ export function platformAdmin(overrides: Partial<Schemas["Me"]> = {}): Schemas["
     first_name: "Admin",
     middle_name: "",
     is_platform_admin: true,
+    platform_roles: ["owner"],
     totp_enabled: true,
     totp_required: true,
     schools: [],

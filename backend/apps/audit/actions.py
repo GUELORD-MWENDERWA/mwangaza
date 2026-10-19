@@ -243,8 +243,8 @@ DOMAINS = sorted({domain_of(action) for action in Action.values})
 
 
 class PlatformAction(models.TextChoices):
-    """Actions du journal de la plateforme (`PlatformAuditLog`, sans école) : console du
-    super-admin. À part de `Action` : le journal d'une école ne les propose pas."""
+    """Actions du journal de la plateforme (`PlatformAuditLog`, sans école) : console de
+    l'équipe. À part de `Action` : le journal d'une école ne les propose pas."""
 
     PLATFORM_UPDATED = "platform.updated", _("Platform identity changed")
     PLATFORM_LOGO_CHANGED = "platform.logo_changed", _("Platform logo changed")
@@ -277,6 +277,10 @@ class PlatformAction(models.TextChoices):
         "access.address_refused",
         _("Platform account refused from an unauthorised address"),
     )
+    # Équipe de la plateforme (EQ.1) : invitation, rôles, retrait.
+    TEAM_MEMBER_INVITED = "team.member_invited", _("Team member invited")
+    TEAM_ROLES_CHANGED = "team.roles_changed", _("Roles of a team member changed")
+    TEAM_MEMBER_REMOVED = "team.member_removed", _("Member removed from the team")
 
 
 PLATFORM_DOMAINS = sorted({domain_of(action) for action in PlatformAction.values})

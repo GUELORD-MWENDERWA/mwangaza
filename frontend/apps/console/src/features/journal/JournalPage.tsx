@@ -14,8 +14,16 @@ import { Pager } from "../shell/Pager";
 import { AlertsCard } from "./AlertsCard";
 
 type Entry = Schemas["PlatformLog"];
-type Domain = "platform" | "school" | "account" | "device" | "announcement" | "access";
-const DOMAINS: Domain[] = ["platform", "school", "account", "device", "announcement", "access"];
+type Domain = "platform" | "school" | "account" | "device" | "announcement" | "access" | "team";
+const DOMAINS: Domain[] = [
+  "platform",
+  "school",
+  "account",
+  "device",
+  "announcement",
+  "access",
+  "team",
+];
 
 /** Page de l'objet d'une entrée dans la console ; un appareil n'en a pas. */
 function objectPage(entry: Entry): string | null {

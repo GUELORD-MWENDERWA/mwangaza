@@ -68,7 +68,7 @@ def record(action: str, user: User, request, **after) -> None:
     sur quel site (console, administration, adresse d'une école) ; alerte aux super-admin."""
     label = " · ".join([str(user), client_ip(request) or "?", request.get_host()])
     entry = audit.record_platform(action, user, actor=user, after=after or None, label=label)
-    console.alert(action, entry.pk, label)
+    console.alert(action, entry.pk, label, concerned=user.pk)
 
 
 def keep_short(request) -> None:
