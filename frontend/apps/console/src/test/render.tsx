@@ -7,7 +7,11 @@ import { createMemoryRouter, RouterProvider } from "react-router";
 import { vi } from "vitest";
 
 import { createQueryClient } from "../lib/queryClient";
+import { ALL_RIGHTS } from "../lib/rights";
 import { routes } from "../routes";
+
+/** Rôle et droits du propriétaire de la plateforme (EQ.1) : le compte des tests d'écrans. */
+export const OWNER = { platform_roles: ["owner"], platform_permissions: ALL_RIGHTS };
 
 export function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {

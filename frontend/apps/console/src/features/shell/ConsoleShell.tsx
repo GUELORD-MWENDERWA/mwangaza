@@ -12,28 +12,19 @@ import {
 import { NavLink, Outlet } from "react-router";
 
 import { useMe } from "../../lib/queries";
+import { RIGHTS, menuFor, useCan } from "../../lib/rights";
 import { useLogout } from "../auth/useGoToStep";
 import { useAlertMessages } from "../journal/AlertsCard";
 import { ConsoleTag } from "./ConsoleTag";
 
-// Entrées du menu, ajoutées avec leur tâche.
-const MENU = [
-  { to: "/", key: "dashboard", end: true },
-  { to: "/schools", key: "schools", end: false },
-  { to: "/demo-requests", key: "demoRequests", end: true },
-  { to: "/accounts", key: "accounts", end: false },
-  { to: "/announcements", key: "announcements", end: true },
-  { to: "/identity", key: "identity", end: true },
-  { to: "/devices", key: "devices", end: true },
-  { to: "/journal", key: "journal", end: false },
-] as const;
-
 /** Design propre à la console (maquette `console/tableau-de-bord`) : pas de menu latéral comme la
- *  Gestion, une barre du haut en bleu nuit avec la navigation dessous, contenu large et clair. */
+ *  Gestion, une barre du haut en bleu nuit avec la navigation dessous, contenu large et clair. Le
+ *  menu ne montre que les pages des rôles du membre (EQ.2, `lib/rights.ts`). */
 export function ConsoleShell() {
   const { t } = useTranslation();
   const { data: me } = useMe();
   const logout = useLogout();
+  const can = useCan();
   useAlertMessages();
   const name = me ? [me.first_name, me.last_name].filter(Boolean).join(" ") : "";
 
@@ -57,10 +48,15 @@ export function ConsoleShell() {
                 <b className="hidden min-[820px]:inline">{name}</b>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <a href="/admin/">{t("console.troubleshooting")}</a>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                {/* Administration de dépannage : propriétaire seulement (EQ.1). */}
+                {can(RIGHTS.teamManage) && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <a href="/admin/">{t("console.troubleshooting")}</a>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 <DropdownMenuItem onSelect={() => void logout()}>
                   {t("common.logout")}
                 </DropdownMenuItem>
@@ -68,7 +64,7 @@ export function ConsoleShell() {
             </DropdownMenu>
           </div>
           <nav className="flex gap-1 overflow-x-auto">
-            {MENU.map((item) => (
+            {menuFor(can).map((item) => (
               <NavLink
                 key={item.key}
                 to={item.to}

@@ -32,6 +32,7 @@ import { useForm } from "react-hook-form";
 import { useParams } from "react-router";
 
 import { keys } from "../../lib/queries";
+import { RIGHTS, spaceRight, useCan } from "../../lib/rights";
 import { Differences, History } from "../shell/History";
 import { DeleteSpace, DeletingSpace } from "./DeleteSpace";
 import { DemoCard, DemoProgress, isWorking } from "./Demonstration";
@@ -100,8 +101,14 @@ function SchoolForm({ school }: { school: Detail }) {
   const [stopping, setStopping] = useState(false);
   const [reason, setReason] = useState("");
   const [reasonMissing, setReasonMissing] = useState(false);
+  const [typed, setTyped] = useState("");
+  const [wrongCode, setWrongCode] = useState(false);
   const closed = isClosed(school);
   const stopped = school.status === "stopped";
+  // Boutons selon les droits du membre (EQ.2) ; le serveur refuse de toute façon.
+  const can = useCan();
+  const canManage = can(spaceRight(school.environment, RIGHTS.schoolsManage));
+  const canStop = can(spaceRight(school.environment, RIGHTS.schoolsStop));
   const form = useForm<SchoolValues>({
     resolver: zodResolver(useSchoolSchema()),
     defaultValues: valuesOf(school),
@@ -149,13 +156,17 @@ function SchoolForm({ school }: { school: Detail }) {
   const stop = useMutation({
     mutationFn: () =>
       call(
-        api.POST("/api/console/schools/{id}/stop/", { ...path, body: { reason: reason.trim() } }),
+        api.POST("/api/console/schools/{id}/stop/", {
+          ...path,
+          body: { reason: reason.trim(), confirm: typed.trim() },
+        }),
       ),
     onSuccess: saved,
     onError: (error) => setGeneral(errorMessage(error, t)),
     onSettled: () => {
       setStopping(false);
       setReason("");
+      setTyped("");
     },
   });
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -167,22 +178,23 @@ function SchoolForm({ school }: { school: Detail }) {
         subtitle={school.url.replace(/^\w+:\/\//, "")}
         actions={
           <div className="flex flex-wrap gap-2">
-            <SupportLink school={school} />
-            {closed ? (
-              <Button variant="outline" size="sm" onClick={() => toggle.mutate()}>
-                {t(stopped ? "console.schools.restart" : "console.schools.reactivate")}
-              </Button>
-            ) : (
-              <Button variant="destructive" size="sm" onClick={() => setConfirm(true)}>
-                {t("console.schools.suspend")}
-              </Button>
-            )}
-            {!stopped && (
+            {can(RIGHTS.accountsSupport) && <SupportLink school={school} />}
+            {canManage &&
+              (closed ? (
+                <Button variant="outline" size="sm" onClick={() => toggle.mutate()}>
+                  {t(stopped ? "console.schools.restart" : "console.schools.reactivate")}
+                </Button>
+              ) : (
+                <Button variant="destructive" size="sm" onClick={() => setConfirm(true)}>
+                  {t("console.schools.suspend")}
+                </Button>
+              ))}
+            {canStop && !stopped && (
               <Button variant="destructive-outline" size="sm" onClick={() => setStopping(true)}>
                 {t("console.schools.stop")}
               </Button>
             )}
-            {school.environment !== "live" && <DeleteSpace school={school} />}
+            {canStop && school.environment !== "live" && <DeleteSpace school={school} />}
           </div>
         }
       />
@@ -207,44 +219,48 @@ function SchoolForm({ school }: { school: Detail }) {
             save.mutate(values);
           })}
         >
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("console.schools.identityTitle")}</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              <IdentityFields form={form} codeHelp={t("console.schools.fields.codeChangeHelp")} />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("console.schools.subscriptionTitle")}</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4 min-[820px]:grid-cols-2">
-              <SubscriptionFields
-                form={form}
-                lockedHelp={
-                  closed
-                    ? t(
-                        stopped
-                          ? "console.schools.fields.statusStopped"
-                          : "console.schools.fields.statusSuspended",
-                      )
-                    : undefined
-                }
-              />
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" disabled={save.isPending}>
-                {t("console.schools.save")}
-              </Button>
-            </CardFooter>
-          </Card>
+          <fieldset disabled={!canManage} className="flex min-w-0 flex-col gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("console.schools.identityTitle")}</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4">
+                <IdentityFields form={form} codeHelp={t("console.schools.fields.codeChangeHelp")} />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("console.schools.subscriptionTitle")}</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4 min-[820px]:grid-cols-2">
+                <SubscriptionFields
+                  form={form}
+                  lockedHelp={
+                    closed
+                      ? t(
+                          stopped
+                            ? "console.schools.fields.statusStopped"
+                            : "console.schools.fields.statusSuspended",
+                        )
+                      : undefined
+                  }
+                />
+              </CardContent>
+              {canManage && (
+                <CardFooter>
+                  <Button type="submit" disabled={save.isPending}>
+                    {t("console.schools.save")}
+                  </Button>
+                </CardFooter>
+              )}
+            </Card>
+          </fieldset>
         </form>
         <div className="flex flex-col gap-4">
-          {school.demonstration && (
+          {school.demonstration && canManage && (
             <DemoCard school={{ ...school, demonstration: school.demonstration }} />
           )}
-          <ModulesCard school={school} onSaved={saved} />
+          <ModulesCard school={school} onSaved={saved} readOnly={!canManage} />
           <Card>
             <CardHeader>
               <CardTitle>{t("console.schools.summaryTitle")}</CardTitle>
@@ -312,11 +328,21 @@ function SchoolForm({ school }: { school: Detail }) {
       </ConfirmDialog>
       <ConfirmDialog
         open={stopping}
-        onOpenChange={setStopping}
+        onOpenChange={(next) => {
+          setStopping(next);
+          setTyped("");
+          setWrongCode(false);
+        }}
         title={t("console.schools.stopTitle", { name: school.name })}
         confirmLabel={t("console.schools.stop")}
         cancelLabel={t("common.cancel")}
-        onConfirm={() => (reason.trim() ? stop.mutate() : setReasonMissing(true))}
+        onConfirm={() => {
+          // Action sans retour (EQ.2) : motif et code de l'école retapé, revérifié par le serveur.
+          const codeOk = typed.trim().toLowerCase() === school.code;
+          setReasonMissing(!reason.trim());
+          setWrongCode(!codeOk);
+          if (reason.trim() && codeOk) stop.mutate();
+        }}
         pending={stop.isPending}
         destructive
       >
@@ -336,6 +362,26 @@ function SchoolForm({ school }: { school: Detail }) {
                 onChange={(event) => {
                   setReason(event.target.value);
                   setReasonMissing(false);
+                }}
+              />
+            )}
+          </Field>
+          <Field
+            id="stop-code"
+            label={t("console.schools.deleteConfirm", { code: school.code })}
+            error={wrongCode ? t("console.schools.deleteConfirmWrong") : undefined}
+          >
+            {(control) => (
+              <Input
+                {...control}
+                autoComplete="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                maxLength={63}
+                value={typed}
+                onChange={(event) => {
+                  setTyped(event.target.value);
+                  setWrongCode(false);
                 }}
               />
             )}

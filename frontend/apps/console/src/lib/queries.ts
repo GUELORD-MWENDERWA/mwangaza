@@ -16,6 +16,7 @@ export const keys = {
   journal: ["console", "journal"],
   supportSessions: ["console", "support-sessions"],
   alerts: ["console", "alerts"],
+  team: ["console", "team"],
   platform: ["platform"],
 };
 

@@ -67,7 +67,7 @@ Maquettes marquées « à valider » dans `maquettes/README.md` : dessinées par
 - **Données** : client typé `frontend/packages/api` (généré depuis l'OpenAPI) + TanStack Query. Écran utilisable hors-ligne (caisse, élèves, reçus) : lire et écrire via Dexie selon la skill `hors-ligne`.
 - **Formulaires** : react-hook-form + zod ; mêmes schémas que la synchronisation quand ils existent.
 - **Montants** : skill `argent` ; formatage uniquement via `packages/money`.
-- **Permissions** : masquer les actions selon les codes de `docs/04-modele-de-donnees.md` § 8 ; le serveur vérifie de son côté.
+- **Permissions** : masquer les actions selon les codes de `docs/04-modele-de-donnees.md` § 8 ; le serveur vérifie de son côté. Console : droits `platform.*` de `useCan()` (`apps/console/src/lib/rights.ts`) ; une nouvelle page s'ajoute au `MENU` de ce fichier avec ses droits et se garde dans `routes.tsx` par `only([...], <Page />)` ; tests : `...OWNER` (`src/test/render.tsx`) dans le compte de `GET /api/me/`.
 - **États** que la maquette ne montre pas : chargement, liste vide, erreur, hors-ligne, opérations en attente — les traiter avec `Banner`, `StatusPill`, squelettes, dans le style du système.
 - **Clavier** : reprendre les raccourcis indiqués (caisse : `Ctrl K` rechercher, `F9` valider, `Échap` changer d'élève) ; double-clic / double envoi protégé sur les actions d'argent.
 - Téléphone et bureau : l'écran marche à 390 px et à 1440 px ; le Portail est conçu mobile d'abord. Tailles de texte de l'échelle et couleurs des jetons seulement (`design.test.ts`).

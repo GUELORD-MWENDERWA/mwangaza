@@ -386,6 +386,7 @@ CONSOLE = [
     ("journal", "Journal (et sessions support)", "V1.1", "5.4.2", True),
     ("annonces", "Annonces aux écoles (et bandeau de la Gestion)", "V1.1", "5.4.3", True),
     ("demandes", "Demandes de démonstration (site public)", "Lancement", "WEB.1d", True),
+    ("equipe", "Équipe de la plateforme", "Lancement", "EQ.2", True),
 ]
 
 

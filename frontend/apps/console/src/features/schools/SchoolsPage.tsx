@@ -25,6 +25,7 @@ import { useDeferredValue, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 
 import { keys } from "../../lib/queries";
+import { RIGHTS, spaceRight, useCan } from "../../lib/rights";
 import { KINDS, type School, type SchoolKind, SubscriptionPill, isClosed } from "./schoolForm";
 
 const FILTERS = ["all", "active", "trial", "suspended", "stopped"] as const;
@@ -50,9 +51,12 @@ export function SupportLink({ school, className }: { school: School; className?:
 export function SchoolsPage() {
   const { t, i18n } = useTranslation();
   const [params] = useSearchParams();
+  const can = useCan();
+  // Sans « voir les écoles » (commercial), pas d'onglet « Réels » : le serveur les cache (EQ.1).
+  const kinds = KINDS.filter((item) => item !== "live" || can(RIGHTS.schoolsView));
   // `?type=` : onglet d'arrivée (retour d'une fiche d'essai ou de démonstration supprimée).
   const [kind, setKind] = useState<SchoolKind>(
-    KINDS.find((item) => item === params.get("type")) ?? "live",
+    kinds.find((item) => item === params.get("type")) ?? kinds[0] ?? "test",
   );
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
@@ -81,6 +85,7 @@ export function SchoolsPage() {
   const dashboard = useQuery({
     queryKey: keys.dashboard,
     queryFn: () => call(api.GET("/api/console/dashboard/")),
+    enabled: can(RIGHTS.schoolsView),
   });
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const counts = dashboard.data?.schools;
@@ -187,7 +192,7 @@ export function SchoolsPage() {
                     </td>
                     <td>
                       <div className="flex justify-end gap-1.5">
-                        <SupportLink school={school} />
+                        {can(RIGHTS.accountsSupport) && <SupportLink school={school} />}
                         <Link
                           to={`/schools/${school.id}`}
                           className={buttonVariants({ variant: "ghost", size: "sm" })}
@@ -232,9 +237,11 @@ export function SchoolsPage() {
         title={t("console.schools.title")}
         subtitle={t("console.schools.subtitle")}
         actions={
-          <Link to={`/schools/new?type=${kind}`} className={buttonVariants({ size: "lg" })}>
-            {t("console.schools.new")}
-          </Link>
+          can(spaceRight(kind, RIGHTS.schoolsManage)) && (
+            <Link to={`/schools/new?type=${kind}`} className={buttonVariants({ size: "lg" })}>
+              {t("console.schools.new")}
+            </Link>
+          )
         }
       />
       <Tabs
@@ -245,7 +252,7 @@ export function SchoolsPage() {
         }}
       >
         <TabsList aria-label={t("console.schools.kindLabel")}>
-          {KINDS.map((value) => (
+          {kinds.map((value) => (
             <TabsTrigger key={value} value={value}>
               {t(`console.schools.kinds.${value}`)}
             </TabsTrigger>

@@ -204,6 +204,9 @@ class SchoolStopSerializer(serializers.Serializer):
     reason = serializers.CharField(
         max_length=200, help_text="Motif, gardé dans le journal de la plateforme."
     )
+    confirm = serializers.CharField(
+        max_length=63, help_text="Code de l'espace, retapé pour confirmer."
+    )
 
 
 class SchoolDeleteSerializer(serializers.Serializer):

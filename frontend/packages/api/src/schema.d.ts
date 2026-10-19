@@ -1829,7 +1829,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Espace arrêté, avec un motif : plus personne n'y entre, les données restent. */
+        /**
+         * @description Espace arrêté, avec un motif et son code retapé (`confirm`, sinon 400 `wrong_code`) :
+         *     plus personne n'y entre, les données restent.
+         */
         post: operations["console_schools_stop_create"];
         delete?: never;
         options?: never;
@@ -10509,6 +10512,8 @@ export interface components {
         SchoolStopRequest: {
             /** @description Motif, gardé dans le journal de la plateforme. */
             reason: string;
+            /** @description Code de l'espace, retapé pour confirmer. */
+            confirm: string;
         };
         Score: {
             /** Format: uuid */

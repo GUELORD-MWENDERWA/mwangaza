@@ -157,7 +157,10 @@ def test_a_space_being_deleted_is_closed_and_cannot_be_changed_but_the_deletion_
     for user in (head, teacher):
         user.refresh_from_db()
     assert (head.is_active, teacher.is_active) == (False, True)
-    for action, data in (("reactivate/", None), ("stop/", {"reason": "Erreur"})):
+    for action, data in (
+        ("reactivate/", None),
+        ("stop/", {"reason": "Erreur", "confirm": sandbox.code}),
+    ):
         refused = console.post(f"{detail}{action}", data)
         assert (refused.status_code, refused.json()["code"]) == (409, "space_being_deleted")
     assert console.patch(detail, {"name": "Gardé"}).status_code == 409

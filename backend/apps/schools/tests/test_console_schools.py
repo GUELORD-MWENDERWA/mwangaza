@@ -56,7 +56,7 @@ def test_only_the_platform_admin_manages_schools_at_the_console(api, platform_ad
         ("get", detail, None),
         ("patch", detail, {"name": "Piratée"}),
         ("post", f"{detail}suspend/", None),
-        ("post", f"{detail}stop/", {"reason": "Piratage"}),
+        ("post", f"{detail}stop/", {"reason": "Piratage", "confirm": "alpha"}),
         ("post", f"{detail}reactivate/", None),
         ("post", f"{detail}delete/", {"confirm": "alpha"}),
         ("post", f"{SCHOOLS}demo/", {"code": "gamma", "name": "Gamma", "profile": "small"}),
@@ -229,11 +229,17 @@ def test_stop_closes_the_space_keeps_its_data_and_needs_a_reason(
     MembershipFactory(user=head, school=other_school, roles=["teacher"])
     stop = f"{SCHOOLS}{school.pk}/stop/"
 
-    assert console.post(stop, {"reason": " "}).status_code == 400
+    reason = "L'école a quitté la plateforme"
+    assert console.post(stop, {"reason": " ", "confirm": school.code}).status_code == 400
+    # Action sans retour (EQ.2) : sans le code de l'école retapé, rien ne change.
+    assert console.post(stop, {"reason": reason}).status_code == 400
+    wrong = console.post(stop, {"reason": reason, "confirm": "beta"})
+    assert wrong.status_code == 400
+    assert "confirm" in wrong.json()["fields"]
     assert api(head).get("/api/school/").status_code == 200
 
-    reason = "L'école a quitté la plateforme"
-    assert console.post(stop, {"reason": reason}).json()["status"] == "stopped"
+    stopped = console.post(stop, {"reason": reason, "confirm": f" {school.code.upper()} "})
+    assert stopped.json()["status"] == "stopped"
 
     # Plus personne n'y entre, ni à son adresse ni depuis une autre école ; rien n'est supprimé.
     refused = api(head).get("/api/school/")
