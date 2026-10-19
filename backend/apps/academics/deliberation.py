@@ -10,6 +10,11 @@ La ligne d'un élève garde seulement celle qu'il y avait quand la décision a �
 Reprise (8.4.7) : un élève sans aucune note cette année (année passée créée à l'arrivée, année
 tenue sur papier) reçoit, avec sa décision, le pourcentage obtenu hors de Mwangaza ; il compte
 comme un pourcentage calculé (situations, passage de classe), jamais à la place de l'un d'eux.
+
+Sessions (NB.5) : le conseil délibère aussi à chaque période et chaque semestre (`term`). Rien à y
+décider par élève : il confirme les pourcentages, les places, la conduite et l'application, qui
+sont figés à la proclamation ; elle demande les bulletins dits prêts par le titulaire (NB.3). La
+fin d'année (`term` vide) reste seule lue par le bulletin, les situations et le passage de classe.
 """
 
 from collections import Counter
@@ -21,13 +26,14 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from apps.academics import report_cards, resits
+from apps.academics import application, board, council, discipline, report_cards, resits
 from apps.academics.models import Deliberation, DeliberationDecision, DeliberationSnapshot
 from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
-from apps.schools.models import ClassGroup
+from apps.schools import pass_rules
+from apps.schools.models import ClassGroup, Term
 from apps.students.models import Enrollment
 
 Decision = DeliberationDecision.Decision
@@ -59,6 +65,15 @@ HAS_GRADES = ApiError(
     400,
 )
 BAD_PERCENT = ApiError("bad_percent", _("A percentage is a number from 0 to 100."), 400)
+NOT_A_SESSION = ApiError(
+    "not_a_session", _("The council deliberates on a period, a semester or the year."), 400
+)
+NOT_READY = ApiError(
+    "report_cards_not_ready",
+    _("The homeroom teacher has not declared the report cards of this session ready."),
+    400,
+)
+SESSIONS = (Term.Kind.PERIOD, *Term.GROUPS)
 
 
 @dataclass
@@ -100,7 +115,7 @@ class ClassDeliberation:
 def overview(group: ClassGroup) -> ClassDeliberation:
     """Tableau de la classe : proposition recalculée, décision prise, écart. Une lecture du
     bulletin de la classe, une pour les décisions."""
-    deliberation = Deliberation.objects.filter(class_group=group).first()
+    deliberation = Deliberation.objects.filter(class_group=group, term__isnull=True).first()
     decided = {}
     latest = None
     if deliberation:
@@ -129,9 +144,96 @@ def overview(group: ClassGroup) -> ClassDeliberation:
     return ClassDeliberation(deliberation, rows, latest)
 
 
-def _get_or_create(group: ClassGroup) -> Deliberation:
-    deliberation, _created = Deliberation.objects.get_or_create(class_group=group)
+def _get_or_create(group: ClassGroup, term: Term | None = None) -> Deliberation:
+    deliberation, _created = Deliberation.objects.get_or_create(class_group=group, term=term)
     return deliberation
+
+
+def check_session(group: ClassGroup, term: Term | None) -> None:
+    """Une période, un semestre ou un trimestre de l'année de la classe ; `None` : fin d'année."""
+    if term is not None and (
+        term.kind not in SESSIONS or term.academic_year_id != group.academic_year_id
+    ):
+        raise BusinessError(NOT_A_SESSION)
+
+
+@dataclass
+class SessionRow:
+    enrollment: Enrollment
+    total: report_cards.Total
+    conduct: str
+    application: str
+    passed: bool
+
+
+@dataclass
+class SessionDeliberation:
+    """Une période ou un semestre de la classe : résultats de chaque élève et état."""
+
+    deliberation: Deliberation | None
+    rows: list[SessionRow]
+    latest: DeliberationSnapshot | None
+    ready: bool
+    pass_percent: int
+
+    @property
+    def status(self) -> str:
+        return self.deliberation.status if self.deliberation else Deliberation.Status.DRAFT
+
+
+def _leaves(term: Term) -> list[Term]:
+    if term.kind == Term.Kind.PERIOD:
+        return [term]
+    return list(term.children.filter(kind__in=(Term.Kind.PERIOD, Term.Kind.EXAM)))
+
+
+def is_ready(group: ClassGroup, term: Term) -> bool:
+    """Bulletins dits prêts par le titulaire pour la période, ou pour chaque période et examen
+    du semestre (une session sans cours noté n'en demande pas)."""
+    for leaf in _leaves(term):
+        entry = next(iter(board.board(leaf, group)), None)
+        if entry is not None and not entry.ready_at:
+            return False
+    return True
+
+
+def session_overview(group: ClassGroup, term: Term) -> SessionDeliberation:
+    """Résultats de la session : pourcentage, place, conduite et application (périodes)."""
+    check_session(group, term)
+    deliberation = Deliberation.objects.filter(class_group=group, term=term).first()
+    latest = deliberation.snapshots.order_by("-version").first() if deliberation else None
+    report = report_cards.class_report(group)
+    key = str(term.pk)
+    ids = [s.enrollment.pk for s in report.students]
+    period = term.kind == Term.Kind.PERIOD
+    conduct = discipline.grades_of_class(ids, [term]) if period else {}
+    applied = application.grades_of_report(report) if period else {}
+    threshold = pass_rules.class_rules(group.school.settings, group.level.pass_rules)[
+        "pass_percent"
+    ]
+    rows = []
+    for student in report.students:
+        total = student.totals.get(key) or report_cards.Total(None, 0, None, None, None)
+        pk = student.enrollment.pk
+        rows.append(
+            SessionRow(
+                student.enrollment,
+                total,
+                conduct.get((pk, term.pk), ""),
+                applied.get((pk, term.pk), ""),
+                total.percent is not None and total.percent >= threshold,
+            )
+        )
+    return SessionDeliberation(deliberation, rows, latest, is_ready(group, term), threshold)
+
+
+def session_of(group: ClassGroup, term: Term | None) -> Deliberation | None:
+    return Deliberation.objects.filter(class_group=group, term=term).first()
+
+
+def sessions(group: ClassGroup) -> list[Deliberation]:
+    """Les délibérations de la classe, toutes sessions : état et version de chacune."""
+    return list(Deliberation.objects.filter(class_group=group))
 
 
 def _open(deliberation: Deliberation) -> None:
@@ -139,9 +241,20 @@ def _open(deliberation: Deliberation) -> None:
         raise BusinessError(CLOSED)
 
 
-def set_date(group: ClassGroup, held_on: date, *, actor: User) -> Deliberation:
+def open_session(group: ClassGroup, term: Term | None) -> Deliberation:
+    """La délibération de la session, créée au besoin, refusée si elle est proclamée."""
+    check_session(group, term)
+    deliberation = _get_or_create(group, term)
+    _open(deliberation)
+    return deliberation
+
+
+def set_date(
+    group: ClassGroup, held_on: date, *, actor: User, term: Term | None = None
+) -> Deliberation:
+    check_session(group, term)
     with transaction.atomic():
-        deliberation = _get_or_create(group)
+        deliberation = _get_or_create(group, term)
         _open(deliberation)
         before = deliberation.held_on
         deliberation.held_on = held_on
@@ -257,7 +370,9 @@ def proclaimed_rows(group: ClassGroup) -> tuple[DeliberationSnapshot | None, dic
     """Dernière version figée de la classe et ses lignes par inscription (texte) : seul ce que le
     bulletin lit de la délibération, jamais le brouillon en cours."""
     snapshot = (
-        DeliberationSnapshot.objects.filter(deliberation__class_group=group)
+        DeliberationSnapshot.objects.filter(
+            deliberation__class_group=group, deliberation__term__isnull=True
+        )
         .order_by("-version")
         .first()
     )
@@ -280,21 +395,47 @@ def _frozen(row: StudentRow) -> dict:
     }
 
 
-def proclaim(group: ClassGroup, *, actor: User) -> DeliberationSnapshot:
-    """Proclame les résultats : date posée, chaque élève décidé, chaque écart motivé. Fige les
-    résultats (version suivante, avec le motif donné à la réouverture)."""
+def _session_frozen(row: SessionRow) -> dict:
+    total = row.total
+    return {
+        "enrollment": str(row.enrollment.pk),
+        "student": row.enrollment.student.full_name,
+        "percent": str(total.percent) if total.percent is not None else None,
+        "place": total.place,
+        "conduct": row.conduct,
+        "application": row.application,
+        "passed": row.passed,
+    }
+
+
+def _year_rows(group: ClassGroup) -> tuple[list[dict], int]:
+    rows = overview(group).rows
+    if any(not r.decision for r in rows):
+        raise BusinessError(UNDECIDED)
+    # La proposition a pu changer depuis la décision (notes corrigées) : l'écart se juge sur
+    # la proposition d'aujourd'hui.
+    if any(r.deviates and not r.reason for r in rows):
+        raise BusinessError(REASON_REQUIRED)
+    return [_frozen(r) for r in rows], sum(r.deviates for r in rows)
+
+
+def proclaim(group: ClassGroup, *, actor: User, term: Term | None = None) -> DeliberationSnapshot:
+    """Proclame les résultats de la session. Fin d'année : date posée, chaque élève décidé,
+    chaque écart motivé. Période ou semestre : date posée, bulletins dits prêts. Fige les
+    résultats et le conseil (version suivante, avec le motif donné à la réouverture)."""
+    check_session(group, term)
     with transaction.atomic():
-        deliberation = _get_or_create(group)
+        deliberation = _get_or_create(group, term)
         _open(deliberation)
         if deliberation.held_on is None:
             raise BusinessError(DATE_REQUIRED)
-        rows = overview(group).rows
-        if any(not r.decision for r in rows):
-            raise BusinessError(UNDECIDED)
-        # La proposition a pu changer depuis la décision (notes corrigées) : l'écart se juge sur
-        # la proposition d'aujourd'hui.
-        if any(r.deviates and not r.reason for r in rows):
-            raise BusinessError(REASON_REQUIRED)
+        if term is None:
+            frozen_rows, deviations = _year_rows(group)
+        else:
+            if not is_ready(group, term):
+                raise BusinessError(NOT_READY)
+            frozen_rows = [_session_frozen(r) for r in session_overview(group, term).rows]
+            deviations = 0
         now = timezone.now()
         deliberation.version += 1
         deliberation.status = Deliberation.Status.PROCLAIMED
@@ -307,16 +448,18 @@ def proclaim(group: ClassGroup, *, actor: User) -> DeliberationSnapshot:
             proclaimed_at=now,
             proclaimed_by=actor,
             reason=reason,
-            rows=[_frozen(r) for r in rows],
+            rows=frozen_rows,
+            council=council.frozen(deliberation),
         )
         audit.record(
             Action.DELIBERATION_PROCLAIMED,
             snapshot,
             actor=actor,
             after={
+                "term": str(term.pk) if term else None,
                 "version": deliberation.version,
-                "students": len(rows),
-                "deviations": sum(r.deviates for r in rows),
+                "students": len(frozen_rows),
+                "deviations": deviations,
                 "reason": snapshot.reason,
             },
             label=f"{group.name} · v{deliberation.version}",
@@ -324,14 +467,17 @@ def proclaim(group: ClassGroup, *, actor: User) -> DeliberationSnapshot:
     return snapshot
 
 
-def reopen(group: ClassGroup, reason: str, *, actor: User) -> Deliberation:
-    """Rouvre une classe proclamée pour corriger : motif obligatoire. Les résultats figés
+def reopen(
+    group: ClassGroup, reason: str, *, actor: User, term: Term | None = None
+) -> Deliberation:
+    """Rouvre une session proclamée pour corriger : motif obligatoire. Les résultats figés
     restent lus par le bulletin jusqu'à la proclamation suivante."""
+    check_session(group, term)
     reason = reason.strip()
     if not reason:
         raise BusinessError(CORRECTION_REASON)
     with transaction.atomic():
-        deliberation = _get_or_create(group)
+        deliberation = _get_or_create(group, term)
         if deliberation.status != Deliberation.Status.PROCLAIMED:
             raise BusinessError(NOT_PROCLAIMED)
         deliberation.status = Deliberation.Status.DRAFT

@@ -124,6 +124,16 @@ urlpatterns = [
         name="class-deliberation",
     ),
     path(
+        "class-groups/<uuid:pk>/deliberation/council/",
+        deliberation_views.CouncilView.as_view(),
+        name="deliberation-council",
+    ),
+    path(
+        "class-groups/<uuid:pk>/deliberation/minutes/",
+        deliberation_views.MinutesView.as_view(),
+        name="deliberation-minutes",
+    ),
+    path(
         "class-groups/<uuid:pk>/deliberation/apply-proposals/",
         deliberation_views.ApplyProposalsView.as_view(),
         name="deliberation-apply",

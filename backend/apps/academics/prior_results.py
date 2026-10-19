@@ -193,7 +193,9 @@ def _check(lines: list[Line], year: AcademicYear, *, lock: bool = False) -> dict
                 line.refuse("invalid_percent")
 
     groups = {line.enrollment.class_group_id for line in lines if line.enrollment}
-    deliberations = Deliberation.objects.filter(class_group_id__in=groups).order_by("pk")
+    deliberations = Deliberation.objects.filter(
+        class_group_id__in=groups, term__isnull=True
+    ).order_by("pk")
     if lock:
         deliberations = deliberations.select_for_update()
     by_group = {d.class_group_id: d for d in deliberations}
@@ -244,7 +246,7 @@ def record(file, *, actor: User, held_on: date, expected: int) -> Preview:
         for group_id in sorted(names):
             if group_id not in by_group:
                 by_group[group_id], _created = Deliberation.objects.get_or_create(
-                    class_group_id=group_id
+                    class_group_id=group_id, term=None
                 )
         now = timezone.now()
         dated = [by_group[g] for g in sorted(names) if by_group[g].held_on is None]
@@ -320,7 +322,9 @@ def template_workbook() -> bytes:
     noted = _noted([e.pk for e in enrollments])
     proclaimed = set(
         Deliberation.objects.filter(
-            class_group__academic_year=year, status=Deliberation.Status.PROCLAIMED
+            class_group__academic_year=year,
+            term__isnull=True,
+            status=Deliberation.Status.PROCLAIMED,
         ).values_list("class_group_id", flat=True)
     )
     decided = {

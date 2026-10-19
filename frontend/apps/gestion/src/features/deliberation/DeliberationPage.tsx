@@ -1,7 +1,9 @@
 // Délibération d'une classe (8.4.2, maquette `deliberation`) : pour chaque élève, la décision
 // proposée d'après les règles de l'école (8.4.1) et la décision prise ; un écart demande un motif.
 // Proclamer fige les résultats ; les corriger ensuite demande de rouvrir la classe (motif). La
-// conduite et l'application se corrigent dans leurs écrans.
+// conduite et l'application se corrigent dans leurs écrans. Conseil (NB.5) : une session par période,
+// semestre et fin d'année ; ses membres lisent le tableau (secret), la direction des études écrit ;
+// procès-verbal imprimable une fois la session proclamée.
 import { api, call } from "@mwangaza/api";
 import { formatDay, useTranslation } from "@mwangaza/i18n";
 import {
@@ -9,7 +11,9 @@ import {
   Button,
   Card,
   CardContent,
+  cn,
   Field,
+  Icon,
   Input,
   PageHeader,
   Select,
@@ -23,16 +27,21 @@ import { Link } from "react-router";
 
 import { firstErrorMessage } from "../../lib/errors";
 import { keys } from "../../lib/queries";
+import { termLabels } from "../../lib/terms";
 import { useGrading } from "../grades/data";
 import { LoadError } from "../status/StatusPages";
+import { CouncilCard } from "./CouncilCard";
 import { RuleCited } from "./RuleCited";
 import {
   DECISIONS,
+  minutesUrl,
   priorPercent,
+  sessionTerms,
   TONES,
   useClassDeliberation,
   type Decision,
   type DeliberationRow,
+  type SessionResult,
 } from "./data";
 
 // `percent` : pourcentage repris d'un élève sans aucune note cette année (8.4.7).
@@ -43,19 +52,31 @@ export function DeliberationPage() {
   const queryClient = useQueryClient();
   const grading = useGrading();
   const [classId, setClassId] = useState("");
+  // Vide : fin d'année ; sinon une période, un semestre ou un trimestre.
+  const [termId, setTermId] = useState("");
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [day, setDay] = useState<string | null>(null);
   const [reopenReason, setReopenReason] = useState("");
 
   const classes = grading.data?.classes ?? [];
   const groupId = classId || classes[0]?.id || "";
-  const table = useClassDeliberation(groupId);
+  const table = useClassDeliberation(groupId, termId);
   const refresh = () => void queryClient.invalidateQueries({ queryKey: keys.deliberation });
   const path = { params: { path: { id: groupId } } };
+  const sessionPath = {
+    params: { path: { id: groupId }, query: termId ? { term: termId } : {} },
+  };
+  const terms = grading.data?.terms ?? [];
+  const sessions = sessionTerms(terms, termLabels(terms, t));
 
   const saveDate = useMutation({
     mutationFn: (heldOn: string) =>
-      call(api.PUT("/api/class-groups/{id}/deliberation/", { ...path, body: { held_on: heldOn } })),
+      call(
+        api.PUT("/api/class-groups/{id}/deliberation/", {
+          ...sessionPath,
+          body: { held_on: heldOn },
+        }),
+      ),
     onSuccess: () => {
       setDay(null);
       refresh();
@@ -87,14 +108,14 @@ export function DeliberationPage() {
     onSuccess: refresh,
   });
   const proclaim = useMutation({
-    mutationFn: () => call(api.POST("/api/class-groups/{id}/deliberation/proclaim/", path)),
+    mutationFn: () => call(api.POST("/api/class-groups/{id}/deliberation/proclaim/", sessionPath)),
     onSuccess: refresh,
   });
   const reopen = useMutation({
     mutationFn: () =>
       call(
         api.POST("/api/class-groups/{id}/deliberation/reopen/", {
-          ...path,
+          ...sessionPath,
           body: { reason: reopenReason },
         }),
       ),
@@ -238,6 +259,52 @@ export function DeliberationPage() {
   const board = table.data;
   const closed = board?.status === "proclaimed";
   const failure = [saveDate, decide, apply, proclaim, reopen].find((m) => m.isError)?.error;
+  const readOnly = board ? !board.can_edit : true;
+  const year = !board || board.kind === "year";
+  const sessionLabel = (id: string, label: string) => {
+    const state = board?.sessions.find((item) => (item.term ?? "") === id);
+    return state ? `${label} · ${t(`deliberation.status_${state.status}`)}` : label;
+  };
+  const passed = board ? board.results.filter((row) => row.passed).length : 0;
+
+  const sessionTable = (rows: SessionResult[], period: boolean) => (
+    <Table stacked>
+      <thead>
+        <tr>
+          <th className="text-right">{t("deliberation.number")}</th>
+          <th>{t("deliberation.student")}</th>
+          <th className="text-right">%</th>
+          <th className="text-right">{t("deliberation.place")}</th>
+          {period && <th>{t("deliberation.conduct")}</th>}
+          {period && <th>{t("deliberation.application")}</th>}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, index) => (
+          <tr key={row.enrollment}>
+            <td className="text-right text-ink-3 tabular-nums">{index + 1}</td>
+            <td className="font-semibold" data-wrap>
+              {row.full_name}
+            </td>
+            <td
+              data-label="%"
+              className={cn(
+                "text-right tabular-nums",
+                row.percent !== null && !row.passed && "text-due",
+              )}
+            >
+              {row.percent === null ? "—" : t("deliberation.percent", { value: row.percent })}
+            </td>
+            <td data-label={t("deliberation.place")} className="text-right tabular-nums">
+              {row.place ?? "—"}
+            </td>
+            {period && <td data-label={t("deliberation.conduct")}>{row.conduct || "—"}</td>}
+            {period && <td data-label={t("deliberation.application")}>{row.application || "—"}</td>}
+          </tr>
+        ))}
+      </tbody>
+    </Table>
+  );
 
   return (
     <>
@@ -247,26 +314,50 @@ export function DeliberationPage() {
       ) : (
         <Card>
           <CardContent className="flex flex-col gap-4">
-            <div className="max-w-xs">
-              <Field id="deliberation-class" label={t("deliberation.class")}>
-                {(control) => (
-                  <Select
-                    {...control}
-                    value={groupId}
-                    onChange={(event) => {
-                      setClassId(event.target.value);
-                      setDrafts({});
-                      setDay(null);
-                    }}
-                  >
-                    {classes.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </Select>
-                )}
-              </Field>
+            <div className="flex flex-wrap gap-3">
+              <div className="min-w-56">
+                <Field id="deliberation-class" label={t("deliberation.class")}>
+                  {(control) => (
+                    <Select
+                      {...control}
+                      value={groupId}
+                      onChange={(event) => {
+                        setClassId(event.target.value);
+                        setDrafts({});
+                        setDay(null);
+                      }}
+                    >
+                      {classes.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
+                </Field>
+              </div>
+              <div className="min-w-56">
+                <Field id="deliberation-session" label={t("deliberation.session")}>
+                  {(control) => (
+                    <Select
+                      {...control}
+                      value={termId}
+                      onChange={(event) => {
+                        setTermId(event.target.value);
+                        setDrafts({});
+                        setDay(null);
+                      }}
+                    >
+                      {sessions.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {sessionLabel(item.id, item.label)}
+                        </option>
+                      ))}
+                      <option value="">{sessionLabel("", t("deliberation.endOfYear"))}</option>
+                    </Select>
+                  )}
+                </Field>
+              </div>
             </div>
             {table.isPending ? (
               <Skeleton label={t("common.loading")} />
@@ -274,19 +365,20 @@ export function DeliberationPage() {
               <LoadError error={table.error} onRetry={() => void table.refetch()} />
             ) : (
               <>
+                {readOnly && <Banner tone="info">{t("deliberation.secret")}</Banner>}
                 <div className="flex flex-wrap items-end gap-3">
                   <Field id="deliberation-date" label={t("deliberation.date")}>
                     {(control) => (
                       <Input
                         {...control}
                         type="date"
-                        disabled={closed}
+                        disabled={closed || readOnly}
                         value={day ?? board.held_on ?? ""}
                         onChange={(event) => setDay(event.target.value)}
                       />
                     )}
                   </Field>
-                  {!closed && day !== null && day !== "" && day !== board.held_on && (
+                  {!closed && !readOnly && day !== null && day !== "" && day !== board.held_on && (
                     <Button
                       variant="outline"
                       disabled={saveDate.isPending}
@@ -307,33 +399,65 @@ export function DeliberationPage() {
                         })
                       : t("deliberation.noneYet")}
                   </span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {DECISIONS.filter((value) => board.counts[value]).map((value) => (
-                    <StatusPill key={value} tone={TONES[value] ?? "gray"}>
-                      {t(`deliberation.decision_${value}`)} {board.counts[value]}
-                    </StatusPill>
-                  ))}
-                  {board.deviations > 0 && (
-                    <StatusPill tone="warn">
-                      {t("deliberation.gaps", { count: board.deviations })}
+                  {!year && (
+                    <StatusPill tone={board.ready ? "ok" : "warn"}>
+                      {t(board.ready ? "deliberation.ready" : "deliberation.notReady")}
                     </StatusPill>
                   )}
                 </div>
-                <Table stacked>
-                  <thead>
-                    <tr>
-                      <th>{t("deliberation.student")}</th>
-                      <th>{t("deliberation.year")}</th>
-                      <th>{t("deliberation.proposed")}</th>
-                      <th>{t("deliberation.decision")}</th>
-                      <th>{t("deliberation.reason")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>{board.students.map((row) => studentRow(row, closed))}</tbody>
-                </Table>
+                {!year && (
+                  <div className="flex flex-wrap gap-2">
+                    <StatusPill tone="gray">
+                      {t("deliberation.students", { count: board.results.length })}
+                    </StatusPill>
+                    <StatusPill tone="ok">
+                      {t("deliberation.passed", { count: passed, percent: board.pass_percent })}
+                    </StatusPill>
+                  </div>
+                )}
+                {year && (
+                  <div className="flex flex-wrap gap-2">
+                    {DECISIONS.filter((value) => board.counts[value]).map((value) => (
+                      <StatusPill key={value} tone={TONES[value] ?? "gray"}>
+                        {t(`deliberation.decision_${value}`)} {board.counts[value]}
+                      </StatusPill>
+                    ))}
+                    {board.deviations > 0 && (
+                      <StatusPill tone="warn">
+                        {t("deliberation.gaps", { count: board.deviations })}
+                      </StatusPill>
+                    )}
+                  </div>
+                )}
+                {!year && sessionTable(board.results, board.kind === "period")}
+                {year && (
+                  <Table stacked>
+                    <thead>
+                      <tr>
+                        <th>{t("deliberation.student")}</th>
+                        <th>{t("deliberation.year")}</th>
+                        <th>{t("deliberation.proposed")}</th>
+                        <th>{t("deliberation.decision")}</th>
+                        <th>{t("deliberation.reason")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {board.students.map((row) => studentRow(row, closed || readOnly))}
+                    </tbody>
+                  </Table>
+                )}
                 {failure && <Banner tone="due">{firstErrorMessage(failure, t)}</Banner>}
-                {closed ? (
+                {board.latest && (
+                  <div>
+                    <Button asChild variant={closed ? "default" : "outline"}>
+                      <a href={minutesUrl(groupId, termId)} target="_blank" rel="noreferrer">
+                        <Icon name="print" />
+                        {t("deliberation.minutes")}
+                      </a>
+                    </Button>
+                  </div>
+                )}
+                {readOnly ? null : closed ? (
                   <div className="flex flex-col gap-3">
                     <Banner tone="info">
                       {t("deliberation.proclaimedHelp")}
@@ -365,15 +489,20 @@ export function DeliberationPage() {
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-2">
+                    {year && (
+                      <Button
+                        variant="outline"
+                        disabled={apply.isPending}
+                        onClick={() => apply.mutate()}
+                      >
+                        {t("deliberation.applyProposals")}
+                      </Button>
+                    )}
                     <Button
-                      variant="outline"
-                      disabled={apply.isPending}
-                      onClick={() => apply.mutate()}
+                      disabled={proclaim.isPending || !board.ready}
+                      onClick={() => proclaim.mutate()}
                     >
-                      {t("deliberation.applyProposals")}
-                    </Button>
-                    <Button disabled={proclaim.isPending} onClick={() => proclaim.mutate()}>
-                      {t("deliberation.proclaim")}
+                      {t(year ? "deliberation.proclaim" : "deliberation.proclaimSession")}
                     </Button>
                     <Button asChild variant="ghost">
                       <Link to="/conduct">{t("deliberation.fixConduct")}</Link>
@@ -381,16 +510,32 @@ export function DeliberationPage() {
                     <Button asChild variant="ghost">
                       <Link to="/application">{t("deliberation.fixApplication")}</Link>
                     </Button>
-                    <Button asChild variant="ghost">
-                      <Link to="/deliberation/prior-results">{t("deliberation.importPrior")}</Link>
-                    </Button>
+                    {year && (
+                      <Button asChild variant="ghost">
+                        <Link to="/deliberation/prior-results">
+                          {t("deliberation.importPrior")}
+                        </Link>
+                      </Button>
+                    )}
                   </div>
                 )}
-                <p className="text-xs text-ink-3">{t("deliberation.help")}</p>
+                <p className="text-xs text-ink-3">
+                  {t(year ? "deliberation.help" : "deliberation.sessionHelp")}
+                </p>
               </>
             )}
           </CardContent>
         </Card>
+      )}
+      {board && (
+        <CouncilCard
+          key={`${groupId}-${termId}-${board.status}-${board.version}`}
+          classId={groupId}
+          termId={termId}
+          council={board.council}
+          editable={board.can_edit && !closed}
+          onSaved={refresh}
+        />
       )}
     </>
   );

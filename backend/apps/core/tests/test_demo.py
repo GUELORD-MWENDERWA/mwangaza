@@ -83,6 +83,11 @@ def created(demo) -> None:
         repris = paper.decisions.filter(prior_percent__isnull=False).count()
         enrolled = paper.class_group.enrollments.filter(status="active").count()
         assert repris == (enrolled + 1) // 2
+        # Conseil de délibération (NB.5) : la 1re période d'une classe proclamée, conseil figé.
+        session = Deliberation.objects.get(term__isnull=False, status="proclaimed")
+        frozen = session.snapshots.get().council
+        assert frozen["chair"] and frozen["remarks"]
+        assert any(m["present"] for m in frozen["members"])
     # Passage de classe (8.4.5) : 2027-2028 préparée (pas en cours), la classe de l'enfant du
     # portail proclamée, des places proposées et des réponses ; la sienne attend le parent.
     with use_school(itig):

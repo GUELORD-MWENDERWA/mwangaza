@@ -1,0 +1,88 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% translate "Deliberation minutes" %} — {{ class_group.name }} · {{ session }}{% endblock %}
+{% block style %}
+td.n, th.n { text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
+h2.part { font-size: 1em; margin: 4mm 0 1.5mm; }
+ul.members { margin: 0 0 1mm 5mm; padding: 0; }
+.muted { color: #555; }
+td.sign { height: 9mm; }
+.signers { display: flex; justify-content: space-between; margin-top: 6mm; break-inside: avoid; }
+.signers > div { text-align: center; min-width: 50mm; }
+.signers .space { height: 14mm; }
+.version { margin-top: 5mm; text-align: center; font-size: .8em; color: #666; }
+{% endblock %}
+{% block content %}
+{% translate "Deliberation minutes" as title %}{% include "core/_document_header.html" with service=_("Studies") service_code="DE" title=title reference=True %}
+<p>{% blocktranslate with date=snapshot.held_on|date:"d/m/Y" name=class_group.name session=session year=year.name %}On {{ date }}, the deliberation council of the class {{ name }} met for the session “{{ session }}” of the school year {{ year }}.{% endblocktranslate %}{% if chair %} {% blocktranslate %}Chaired by {{ chair }}.{% endblocktranslate %}{% endif %}</p>
+
+<h2 class="part">1. {% blocktranslate with present=present|length total=members_count %}Members present ({{ present }} of {{ total }}){% endblocktranslate %}</h2>
+<ul class="members">
+{% for member in present %}<li>{{ member.name }}{% if member.quality %} <span class="muted">— {{ member.quality }}</span>{% endif %}{% if member.name == chair %} <span class="muted">({% translate "chair" %})</span>{% endif %}{% if member.name == secretary %} <span class="muted">({% translate "secretary" %})</span>{% endif %}</li>
+{% empty %}<li class="muted">{% translate "No member recorded as present." %}</li>{% endfor %}
+</ul>
+{% if absent %}<p class="muted">{% translate "Absent:" %} {% for member in absent %}{{ member.name }}{% if not forloop.last %}, {% endif %}{% endfor %}.</p>{% endif %}
+
+<h2 class="part">2. {% translate "Results of the class" %}</h2>
+{% if kind == "year" %}
+<table>
+  <thead><tr>{% for code, label in decision_labels.items %}<th class="n">{{ label }}</th>{% endfor %}<th class="n">{% translate "Deviations" %}</th></tr></thead>
+  <tbody><tr>{% for code, label in decision_labels.items %}<td class="n">{% for key, count in figures.decisions.items %}{% if key == code %}{{ count }}{% endif %}{% endfor %}</td>{% endfor %}<td class="n">{{ deviations|length }}</td></tr></tbody>
+</table>
+{% else %}
+<table>
+  <thead><tr>
+    <th class="n">{% translate "Students" %}</th><th class="n">{% translate "Ranked" %}</th>
+    <th class="n">{% translate "Pass mark reached" %}</th><th class="n">{% translate "Below the pass mark" %}</th>
+    <th class="n">{% translate "Average" %}</th><th class="n">{% translate "Highest" %}</th><th class="n">{% translate "Lowest" %}</th>
+  </tr></thead>
+  <tbody><tr>
+    <td class="n">{{ figures.students }}</td><td class="n">{{ figures.ranked }}</td>
+    <td class="n">{{ figures.passed }}</td><td class="n">{{ figures.failed }}</td>
+    <td class="n">{% if figures.average is not None %}{{ figures.average }} %{% else %}—{% endif %}</td>
+    <td class="n">{% if figures.highest is not None %}{{ figures.highest }} %{% else %}—{% endif %}</td>
+    <td class="n">{% if figures.lowest is not None %}{{ figures.lowest }} %{% else %}—{% endif %}</td>
+  </tr></tbody>
+</table>
+{% endif %}
+
+<h2 class="part">3. {% translate "Results of the students" %}</h2>
+<table>
+  <thead><tr>
+    <th class="n">{% translate "No." %}</th><th>{% translate "Student" %}</th><th class="n">%</th>
+    {% if kind == "year" %}<th>{% translate "Decision" %}</th>{% else %}<th class="n">{% translate "Place" %}</th>{% if kind == "period" %}<th class="n">{% translate "Conduct" %}</th><th class="n">{% translate "Application" %}</th>{% endif %}{% endif %}
+  </tr></thead>
+  <tbody>
+  {% for row in rows %}<tr>
+    <td class="n">{{ forloop.counter }}</td><td>{{ row.student }}</td>
+    <td class="n">{% if row.percent %}{{ row.percent }} %{% else %}—{% endif %}</td>
+    {% if kind == "year" %}<td>{{ row.decision_label }}</td>{% else %}<td class="n">{{ row.place|default:"—" }}</td>{% if kind == "period" %}<td class="n">{{ row.conduct|default:"—" }}</td><td class="n">{{ row.application|default:"—" }}</td>{% endif %}{% endif %}
+  </tr>{% endfor %}
+  </tbody>
+</table>
+{% if kind == "period" %}<p class="muted small">{% translate "Conduct and application confirmed by the council." %}</p>{% endif %}
+
+{% if kind == "year" %}
+<h2 class="part">4. {% translate "Deviations with their reason" %}</h2>
+{% if deviations %}
+<table>
+  <thead><tr><th>{% translate "Student" %}</th><th>{% translate "Proposed" %}</th><th>{% translate "Decided" %}</th><th>{% translate "Reason" %}</th></tr></thead>
+  <tbody>{% for row in deviations %}<tr><td>{{ row.student }}</td><td>{% for code, label in decision_labels.items %}{% if code == row.proposed %}{{ label }}{% endif %}{% endfor %}</td><td>{{ row.decision_label }}</td><td>{{ row.reason }}</td></tr>{% endfor %}</tbody>
+</table>
+{% else %}<p class="muted">{% translate "No deviation: every decision follows the proposal." %}</p>{% endif %}
+{% endif %}
+
+<h2 class="part">{% if kind == "year" %}5{% else %}4{% endif %}. {% translate "Remarks of the council" %}</h2>
+<p>{% if remarks %}{{ remarks|linebreaksbr }}{% else %}<span class="muted">{% translate "None." %}</span>{% endif %}</p>
+
+<h2 class="part">{% if kind == "year" %}6{% else %}5{% endif %}. {% translate "Signatures of the members present" %}</h2>
+<table>
+  <thead><tr><th>{% translate "Name" %}</th><th>{% translate "Capacity" %}</th><th style="width:38%">{% translate "Signature" %}</th></tr></thead>
+  <tbody>{% for member in present %}<tr><td>{{ member.name }}</td><td class="muted">{{ member.quality }}</td><td class="sign"></td></tr>{% endfor %}</tbody>
+</table>
+
+<div class="signers">
+  <div>{% translate "The secretary" %}<div class="space"></div><b>{{ secretary|default:"……………………" }}</b></div>
+  <div>{% translate "The chair" %}<div class="space"></div><b>{{ chair|default:"……………………" }}</b></div>
+</div>
+<p class="version">{% blocktranslate with version=snapshot.version date=snapshot.proclaimed_at|date:"d/m/Y" name=snapshot.proclaimed_by.get_full_name printed=printed_at|date:"d/m/Y" %}Version {{ version }} · proclaimed on {{ date }} by {{ name }} · printed on {{ printed }}{% endblocktranslate %}</p>
+{% endblock %}

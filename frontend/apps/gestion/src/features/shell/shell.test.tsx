@@ -94,6 +94,7 @@ describe("coquille et menu (M7)", () => {
       "Fiches de cotes",
       "Application",
       "Repêchage",
+      "Délibération",
       "Annonces au personnel",
       "Calendrier",
     ]);

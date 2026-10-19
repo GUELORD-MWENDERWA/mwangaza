@@ -131,7 +131,8 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         key: "deliberation",
         path: "deliberation",
         icon: "tag",
-        permissions: ["grades.validate"],
+        // Membres du conseil (NB.5) : direction des études, titulaire, enseignants de la classe.
+        permissions: ["grades.enter", "grades.enter_any", "grades.validate"],
         task: "8.4.2",
       },
       {

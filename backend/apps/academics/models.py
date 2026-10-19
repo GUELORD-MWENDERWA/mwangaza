@@ -492,20 +492,33 @@ class ResitGrade(TenantModel):
 
 
 class Deliberation(TenantModel):
-    """Délibération d'une classe [T] (8.4.2) : une par section de classe. Brouillon tant que les
-    décisions se prennent ; « proclamée » après validation : les résultats sont alors figés dans un
+    """Délibération d'une classe [T] (8.4.2, NB.5) : une par section de classe et par session —
+    une période, un semestre (ou trimestre), ou la fin d'année (`term` vide). Brouillon tant que le
+    conseil délibère ; « proclamée » après validation : les résultats sont alors figés dans un
     `DeliberationSnapshot`. La rouvrir (motif obligatoire) puis la proclamer de nouveau crée la
-    version suivante ; les anciennes restent."""
+    version suivante ; les anciennes restent. Seule la fin d'année a des décisions par élève.
+
+    `council` : membres présents (identifiants de comptes), président et secrétaire de séance,
+    choisis parmi les membres calculés (`council.py`) ; figés avec les noms à la proclamation."""
 
     class Status(models.TextChoices):
         DRAFT = "draft", _("In progress")
         PROCLAIMED = "proclaimed", _("Proclaimed")
 
-    class_group = models.OneToOneField(
+    class_group = models.ForeignKey(
         ClassGroup,
         on_delete=models.PROTECT,
-        related_name="deliberation",
+        related_name="deliberations",
         verbose_name=_("class"),
+    )
+    # Vide : fin d'année (décisions de passage) ; sinon une période, un semestre ou un trimestre.
+    term = models.ForeignKey(
+        Term,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("session"),
     )
     held_on = models.DateField(_("deliberation date"), null=True, blank=True)
     status = models.CharField(
@@ -514,6 +527,17 @@ class Deliberation(TenantModel):
     version = models.PositiveIntegerField(_("version"), default=0)
     # Motif donné en rouvrant la classe ; repris par la proclamation suivante.
     correction_reason = models.CharField(_("correction reason"), max_length=300, blank=True)
+    council = models.JSONField(_("council"), default=dict, blank=True)
+    remarks = models.TextField(_("remarks of the council"), max_length=2000, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["class_group", "term"],
+                nulls_distinct=False,
+                name="deliberation_class_session_unique",
+            )
+        ]
 
     def __str__(self) -> str:
         return f"{self.class_group} · v{self.version}"
@@ -585,6 +609,9 @@ class DeliberationSnapshot(TenantModel):
     )
     reason = models.CharField(_("correction reason"), max_length=300, blank=True)
     rows = models.JSONField(_("results"), default=list)
+    # Conseil figé (NB.5) : membres avec nom, qualité et présence, président, secrétaire,
+    # observations ; lu par le procès-verbal.
+    council = models.JSONField(_("council"), default=dict, blank=True)
 
     class Meta:
         constraints = [

@@ -64,6 +64,8 @@ describe("menu selon les permissions (04 § 8)", () => {
       "gradeSheets",
       "application",
       "resits",
+      // Membre du conseil des classes où il enseigne (NB.5) : lecture seule.
+      "deliberation",
       "staffNews",
       "calendar",
     ]);

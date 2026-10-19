@@ -89,8 +89,9 @@ def test_proclaiming_needs_a_date_every_decision_and_freezes_the_results(directo
 
 
 def test_only_the_direction_of_studies_deliberates(api, school, physics_teacher, data):
+    # Membre du conseil (il enseigne dans la classe) : lecture seule, NB.5.
     teacher = api(physics_teacher)
-    assert teacher.get(url(data)).status_code == 403
+    assert teacher.get(url(data)).json()["can_edit"] is False
     assert decide(teacher, data, "amani", "pass").status_code == 403
     assert teacher.post(url(data, "proclaim/")).status_code == 403
 

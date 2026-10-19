@@ -94,35 +94,21 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 
 ## Commandes
 
-Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Docker. `make` seul affiche la liste. Version commentée pour l'utilisateur, avec le dépannage : `A-FAIRE.md` § 11–12 (à tenir à jour avec ce tableau et `docs/claude/reference.md`).
+Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Docker. `make` seul affiche la liste. **Détail de chaque commande** (dont tout ce que crée `make demo`, `make deploy…`, `make backup`) : `docs/claude/reference.md` ; version commentée pour l'utilisateur : `A-FAIRE.md` § 11–12 (les deux à tenir à jour ensemble ; ici, seulement l'essentiel).
 
 | Commande | Effet |
 |---|---|
-| `make install` | `uv sync` (backend) + `pnpm install` (frontend) + `make hooks` |
-| `make hooks` | installe les contrôles pre-commit (ruff, ESLint, Prettier, refus d'un `.env` ou d'une clé privée) |
-| `make dev` · `make dev-local` · `make stop` | tout dans Docker (PostgreSQL hôte 5433, Redis, Django :8000, Celery, Gestion :5173, Portail :5174, Console :5175) ; ou Django et Vite sur la machine (valeurs de `.env`) ; arrêter |
-| `make services` · `make reset-db` | PostgreSQL et Redis seuls (démarrés d'office par la cible cachée `db-up`, sauf en CI) ; base de développement effacée puis `make migrate demo` |
+| `make install` · `make hooks` | dépendances + contrôles pre-commit |
+| `make dev` · `make dev-local` · `make stop` · `make services` · `make reset-db` | tout dans Docker (PostgreSQL 5433, Redis, Django :8000, Gestion :5173, Portail :5174, Console :5175) ; ou sur la machine ; arrêter ; base et Redis seuls ; base effacée puis `migrate demo` |
 | `make migrate` · `make makemigrations app=<app> name=<nom>` | migrations |
-| `make demo` | données fictives, remises comme au départ : espaces de démonstration `itig` (800 élèves) et `volcans` (150), un compte par rôle (téléphones `0000001001`…, mot de passe `mwangaza-demo` ; en développement seulement : super-admin `0000000000`, et clé commune de double authentification pour directeur, comptable et caissière, les autres entrent sans code), parent du portail `0002000001` ; refusé sans le réglage `DEMO_DATA`, et dès qu'un espace réel existe (4.22) ; contenu complet : `docs/claude/reference.md` |
-| `make totp` · `make totp key=<clé>` | code de double authentification du moment (comptes de `make demo`) ; refusé hors `DEBUG` |
-| `make perf` · `make perf n=10` | temps des écrans lourds et de l'impression à plusieurs utilisateurs sur `make prod-local` (tableau dans `docs/claude/recherches/`) |
-| `make relances` | passage du planificateur lancé à la main : notifications à heure fixe du jour sans attendre l'heure (relances aux parents des écoles qui les ont activées, caisses encore ouvertes), puis purge à 90 jours ; en service et avec `make dev`, le worker Celery le fait seul toutes les 15 minutes |
-| `make demo-excel` | liste d'élèves fictive `eleves-fictifs.xlsx` (~800, erreurs glissées exprès) pour essayer l'import |
-| `make messages` | traductions du serveur (`makemessages` + `compilemessages`, `.po` et `.mo` dans Git) : texte source en anglais, **tout** traduit en français dans la même PR (test refuse vide, « fuzzy », `.mo` pas recompilé) |
-| `make test` · `make test-back` · `make test-front` · `make test-e2e` | pytest ; types puis Vitest (`*.test.ts` Node, `*.test.tsx` jsdom) ; Playwright dans Chromium (`frontend/e2e/`, `make demo` avant et après) |
-| `make lint` · `make format` | vérifier sans modifier (ruff ; ESLint + Prettier) ; corriger ce qui peut l'être |
-| `make api` · `make api-schema` | schéma OpenAPI → `frontend/packages/api/openapi.yaml`, puis types du client `src/schema.d.ts` (après tout changement d'API) ; `api-schema` : schéma seul (CI) |
-| `make apercu` · `make apercu ecran=gestion/dashboard` | captures de chaque écran des trois applications et du site public (`ecran=site`) à 390, 820 et 1440 px et des documents imprimables (`frontend/apercu/captures/`, hors Git) et `rapport.json` des débordements, sur les données de `make demo` ; ou d’un seul écran, d’une application, ou `ecran=documents` |
-| `make captures-site` | captures du produit pour le site public (vrais écrans sur les données de `make demo`, WebP dans `backend/apps/core/static/core/site/captures/`) |
-| `make build` · `make guide` | build des PWA ; guide de la version (pour les écoles) et guide de présentation (pour celui qui la montre : commandes, comptes de test, déroulé écran par écran) en PDF (`docs/guide/`, les deux mis à jour à la fin de chaque version) |
-| `make prod-local` | essai de la production sur la machine (mêmes images que le serveur) |
-| `make deploy-init` · `make deploy-check` · `make deploy-setup` · `make deploy` · `make deploy-superuser` · `make deploy-logs` · `make deploy-backup` · `make deploy-ssh` | vrai serveur en ligne (AWS Lightsail, `mwangazaschool.com`, `A-FAIRE.md` § 9 ter, skill `/deployer`) : créer `serveur.env` (ou y ajouter une clé apparue depuis) et préparer une fois, mettre en ligne `main` (images construites par GitHub Actions et téléchargées, `CONSTRUIRE_SUR_SERVEUR=oui` en secours ; jeton `GHCR_TOKEN`, `A-FAIRE.md` § 9 quinquies), vérifier HTTPS, santé, domaine (expiration, verrou de transfert) et e-mail du domaine (MX, SPF, DKIM, DMARC) ; `ip=<IP>` : une instance recréée depuis un instantané, avant le DNS), super-admin, journaux, sauvegarde du jour sur le serveur (`cmd=fetch` rapatrie la copie du stockage objet, `cmd=restore` l'essaie) ; pas de données fictives sur ce serveur : les démonstrations se créent dans la console |
-| `make backup` · `make restore` | sauvegarde chiffrée de la base et des fichiers dans `sauvegardes/` (sessions expirées purgées, rotation) ; essai de restauration dans une base à part, `file=<sauvegarde>`, `remplacer=oui` pour la remettre en service ; `pile=essai` : images de l'essai de la production ; sur le serveur, chaque nuit par cron (posé par `make deploy`) |
-| `make superuser` · `make shell` | compte super-admin ; console Django |
-| GitHub Actions | à chaque PR et sur `main` : lint + tests du serveur + schéma OpenAPI à jour ; types du client + lint + tests du front + build ; `make test-e2e`. Une PR ne lance que les contrôles concernés par ses fichiers (`.github/scripts/changes.sh` : documents et maquettes → rien ; `frontend/` → front + parcours ; `backend/` → serveur + parcours ; le reste → tout) ; `main` relance toujours tout |
-| `python3 maquettes/outils/maquettes.py menu` · `… index` · `… site` · `node maquettes/outils/captures.mjs` | maquettes : menu latéral commun, galerie, en-tête et pied du site public, captures PNG |
-
-Détail de chaque commande (dont tout ce que crée `make demo`) : `docs/claude/reference.md`.
+| `make demo` | données fictives : `itig` (800 élèves) et `volcans` (150), un compte par rôle (`0000001001`…, mot de passe `mwangaza-demo`), parent `0002000001` ; `make totp` : code de double authentification |
+| `make messages` | traductions du serveur ; **tout** traduit en français dans la même PR |
+| `make test-back` · `make test-front` · `make test-e2e` · `make lint` · `make format` | tests (en local : seulement le module touché, voir « Économie de tokens ») ; lint |
+| `make api` | schéma OpenAPI + types du client, après tout changement d'API (docstring de vue comprise) |
+| `make apercu ecran=<app/écran>` | captures à 390, 820, 1440 px + `rapport.json` des débordements |
+| `make deploy…` · `make backup` · `make guide` · `make perf` · `make relances` | serveur en ligne (skill `/deployer`), sauvegardes, guides PDF, mesures, planificateur : `reference.md` |
+| maquettes | `python3 maquettes/outils/maquettes.py menu` · `… index` ; `node maquettes/outils/captures.mjs <fichier.html>` |
+| GitHub Actions | lint, tests serveur et front, schéma à jour, build, parcours ; une PR ne lance que les contrôles de ses fichiers (`.github/scripts/changes.sh`) |
 
 Adresses en dev : Gestion `http://itig.localhost:5173/app/` (sous-domaine = code de l'école), Portail `http://localhost:5174/`, Console `http://admin.localhost:5175/` (super-admin), API `/api/…` par le proxy Vite, doc de l'API `/api/docs/` (`DEBUG`), administration Django `http://localhost:8000/admin/` (dépannage), site public de la plateforme `http://localhost:8000/` (7 pages en français et en anglais : `/ecoles/`, `/parents/`, `/modules/`, `/demonstration/`, `/trouver-mon-ecole/`, `/mentions-legales/`, et `/en/…` ; `/robots.txt`, `/sitemap.xml`, `/llms.txt`, image de partage `/partage/<page>-<langue>.jpg`). Chaque écran et chaque API : `docs/claude/reference.md` (à compléter à chaque nouvel écran ou API).
 
@@ -142,6 +128,7 @@ Le quota de tokens est limité et beaucoup de tâches restent (`05`) : une tâch
 - **Lancer peu.** Pendant le travail : les tests du module touché, depuis la racine — `set -a && . ./.env && set +a && cd backend && uv run pytest apps/<app> -q | tail -3` (variables de `.env`, que `make` charge d'habitude) ; `cd frontend && pnpm exec vitest run apps/gestion/src/features/<dossier> | tail -5` (depuis `frontend/` : sa configuration). **Pas de suite complète en local** : la CI la lance (≈ 5 min, trois jobs en parallèle). **Un test ne refait jamais `make demo`** (≈ 1 min en CI chacun ; 24 fois = 25 min d'attente jusqu'au 2026-10-17) : sa vérification s'ajoute au scénario de `core/tests/test_demo.py` ; la CI affiche les 10 tests les plus lents.
 - **Vérifier peu.** Nouvel écran : une capture à 390 px et une à 1440 px, comparées à la maquette. Pas de rejeu des étapes « À tester toi-même ».
 - **Documents courts.** Plan (`docs/claude/plans/`) : 20 lignes maximum. Suivi : voir « Suivi du projet ». Courts ne veut pas dire oubliés : **à chaque tâche, tous les `.md` que le changement rend faux ou incomplets sont mis à jour dans la même PR** (liste : « Suivi du projet », fin d'une tâche). Pas de fichier dans `docs/claude/revues/` : le résultat de `/verifier` tient en quelques lignes dans la PR. Description de PR et message de fin courts : ce qui change, « À valider », « À tester toi-même » (3 à 5 étapes), « Après la fusion ».
+- **Modèle et effort.** Ce qui coûte le plus : la réflexion (effort `high` par défaut, jamais `xhigh` ; Opus pour les tâches difficiles, Sonnet pour les simples) et le nombre d'appels d'outils (chacun relit tout le contexte) : regrouper les commandes, explorer en 5 à 10 appels au plus, une image seulement pour une vérification demandée.
 - **Lire peu.** Seulement les passages utiles (`grep -n`, `sed -n a,bp`), pas un fichier entier déjà connu ; ne pas relire un fichier qu'on vient de modifier ; filtrer les sorties longues (`tail`, `grep`). Pas de sous-agents sauf demande de l'utilisateur.
 - **Taille.** Une tâche qui dépasse à peu près un module serveur ou deux écrans : proposer de la découper dans `05` avant de coder.
 - **Une conversation par tâche.** Claude ne peut pas taper `/clear` ni `/compact` : à la fin d'une tâche, dire « Fusionne la PR, puis tape /clear et /tache X.Y » ; si la conversation devient longue en cours de tâche, dire « Tape /compact » juste après un commit. Tâche simple (écrans de saisie, documents) : rappeler que `/model` permet de passer à Sonnet.
@@ -175,7 +162,7 @@ Chaque étape doit être notée pour savoir à tout moment où en est le projet.
 
 - **Début d'une tâche** : dans `docs/06-suivi.md`, mettre à jour « État actuel » (tâche en cours, branche).
 - **Fin d'une tâche** : cocher dans `docs/05-plan-de-travail.md` ; dans `06`, « État actuel », le compteur du bloc dans « Avancement » et une entrée datée de 3 à 5 lignes au « Journal » (fait, tests, décisions, suite). **Puis passer en revue tous les autres `.md`** et mettre à jour, dans la même PR, chacun que la tâche rend faux ou incomplet :
-  - `docs/claude/reference.md` (commande en détail, contenu de `make demo`, nouvel écran, nouvelle API), `CLAUDE.md` (tableau « Commandes » si une commande apparaît ou change) et `A-FAIRE.md` § 11 (mêmes commandes et adresses, en langage simple) — ensemble ;
+  - `docs/claude/reference.md` (commande en détail, contenu de `make demo`, nouvel écran, nouvelle API), `CLAUDE.md` (tableau « Commandes » seulement pour une commande essentielle, il reste court) et `A-FAIRE.md` § 11 (mêmes commandes et adresses, en langage simple) — ensemble ;
   - `A-FAIRE.md` « Maintenant » et § 8–9 (action de l'utilisateur nouvelle, faite ou devenue urgente) ;
   - `docs/02` à `04` (règle précisée, entité ou champ, décision technique au « Journal des décisions » de `03`), `docs/07-a-fournir.md` (§ 1 maquette dessinée ou validée, § 2 information reçue, § 4 ce que crée `make demo`) ;
   - `maquettes/README.md` (écran codé avec un écart à sa maquette, nouvelle maquette) ;
