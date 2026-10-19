@@ -8,11 +8,11 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | **NB.2** tableau du directeur des études (démarrée le 2026-10-19) ; vrai serveur : https://admin.mwangazaschool.com/ |
-| Prochaine tâche | **NB.2** tableau du directeur des études (bloc NB, avant 8.4.6 ; file `05` § 2, ligne 15 a) ; **toi, après la fusion de WEB.1d** : boîte d'envoi et adresse (`A-FAIRE.md` 6 quaterdecies) ; **toi, avant `make deploy` des nouvelles pages** : l'accord écrit de l'ITIG (photos, logo, nom sur le bulletin d'exemple) et la relecture des mentions par un juriste (`A-FAIRE.md` 7 bis) ; toi : OPS.1, ta part d'OPS.3 et d'OPS.4 (`A-FAIRE.md` § 9 octies), le premier espace réel (§ 9 quater) ; ajoutés au plan le 2026-10-18 : **NB** (notes et bulletins refaits, avant 8.4.6), EQ, SITE, HL (`05` § 5 bis, 5 ter, 6.3 bis, 6.3 ter) ; **toi : Q15** (règles de délibération par défaut) |
+| Tâche en cours | aucune (NB.2 faite le 2026-10-19, PR en attente de fusion) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Prochaine tâche | **NB.3** espace du titulaire (bloc NB, avant 8.4.6 ; file `05` § 2, ligne 15 a) ; **toi, après la fusion de WEB.1d** : boîte d'envoi et adresse (`A-FAIRE.md` 6 quaterdecies) ; **toi, avant `make deploy` des nouvelles pages** : l'accord écrit de l'ITIG (photos, logo, nom sur le bulletin d'exemple) et la relecture des mentions par un juriste (`A-FAIRE.md` 7 bis) ; toi : OPS.1, ta part d'OPS.3 et d'OPS.4 (`A-FAIRE.md` § 9 octies), le premier espace réel (§ 9 quater) ; ajoutés au plan le 2026-10-18 : **NB** (notes et bulletins refaits, avant 8.4.6), EQ, SITE, HL (`05` § 5 bis, 5 ter, 6.3 bis, 6.3 ter) ; **toi : Q15** (règles de délibération par défaut) |
 | Issue GitHub | #343 (NB.2) ; #342 (NB.1) ; #331 (WEB.1d) ; #329 (WEB.1c) ; #328 (WEB.1b) ; #327 (WEB.1a) ; #325 (OPS.4) ; #323 (L.6) ; #321 (OPS.3) ; #319 (OPS.2) ; #298 (8.4.5) ; #300 (8.4.7) ; #297 (8.4.4) ; #296 (8.4.3) ; #295 (8.4.2) ; #294 (8.4.1) ; #293 (8.4.0) ; #288 (PERF.5c) ; #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
 | Branche | `tache/NB.2-tableau-de` (avant : `tache/NB.1-carnet-fiche-cotes`, puis `tache/WEB.1d-demande-demo`, puis `tache/WEB.1c-visibilite`, puis `tache/WEB.1b-pages-site`, puis `tache/WEB.1a-etude-maquettes-site`, puis `tache/OPS.4-email-pro`, puis `tache/L.6-pin-propose`, puis `tache/OPS.3-comptes-proteges`, puis `tache/OPS.2-instantanes`, puis `tache/8.4.5-passage-classe`, puis `tache/8.4.7-reprise-resultats`, puis `tache/8.4.4-situations`, puis `tache/8.4.3-bulletin-complete`, puis `tache/8.4.2-deliberation`, puis `tache/8.4.1-regles-reussite-repechage` (avant : `tache/8.4.0-points-sans-devoirs`, puis `tache/8.5.1c-application`, puis `tache/PERF.5c-images-hors-serveur`) ; dossier local : `~/Projets/mwangaza` |
-| Dernière mise à jour | 2026-10-19 (NB.1 faite) |
+| Dernière mise à jour | 2026-10-19 (NB.2 faite) |
 
 ## Avancement
 
@@ -32,7 +32,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.6, 8.5.1a–8.5.1c, 8.4.0–8.4.7, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 20 | 23 |
 | Exploitation — AWS, domaine, e-mail (OPS.1–OPS.5, PERF.7 ; ajoutés le 2026-10-17) | 3 | 6 |
 | Site public et visibilité (WEB.1a–WEB.1d ; avancés le 2026-10-17, WEB.1d découpée le 2026-10-18) | 4 | 4 |
-| Notes et bulletins comme à l'école (NB.1–NB.6 ; ajoutés le 2026-10-18) | 1 | 6 |
+| Notes et bulletins comme à l'école (NB.1–NB.6 ; ajoutés le 2026-10-18) | 2 | 6 |
 | Plateforme : équipe, site géré, hors ligne (EQ.1–2, SITE.1–5, HL.0–3 ; ajoutés le 2026-10-18) | 1 | 11 |
 | V1.3 — plateforme commerciale (ABO.1–3, page des prix WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
@@ -64,6 +64,13 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q16.
 
 ## Journal
+
+### 2026-10-19 — Tâche NB.2 : tableau du directeur des études
+
+- Fait : « Validation des notes » devient « Suivi des notes » (même adresse, `grades.validate`) : par période (par défaut celle du jour), l'état de la fiche de chaque cours de chaque classe (pas commencée, en cours, envoyée, validée, renvoyée), classes complètes, filtres, dates limites ; rappel aux enseignants en retard (`POST /api/grading/reminders/` : une notification par enseignant, un cours au plus une fois par jour, journal `grades.reminded`) ; palmarès imprimable (fiches de cotes, `kind=ranking`), tableau de la classe renommé « tableau synthétique » ; « Bulletins » quand la classe est complète. `Kpi` : pastille dans le coin (un libellé sur deux lignes ne passe plus sous le chiffre).
+- Tests : états, rappel groupé et pas deux fois le même jour, 403, 409 sans notifications, isolation, requêtes bornées, palmarès ex æquo et non classés ; scénario de `make demo` complété.
+- Décisions : pas de nouveau modèle (états calculés, rappels lus au journal) ; la file « à valider » de toutes les périodes est remplacée par le filtre « À valider » de la période.
+- Suite : NB.3 (espace du titulaire ; « Bulletins » suivra alors son signal « bulletins prêts »).
 
 ### 2026-10-19 — Tâche NB.1 : carnet de l'enseignant et fiche de cotes
 - Fait : les évaluations d'un cours ne sont lues et modifiées que par son enseignant (en ligne et hors ligne) ; `grades.enter_any` n'y met qu'un total par élève ; DE, titulaire, préfet : 403. Fiche de cotes `GET …/grades/totals/` (totaux seuls, après l'envoi) et écran `/grade-sheets/totals` ; « Envoyer et signer » ; « Renvoyer avec remarques » (remarques dans le carnet) ; notifications au DE et au titulaire, puis à l'enseignant. Maquettes d'abord (`notes-fiche-cotes`, saisie complétée).

@@ -106,22 +106,24 @@ export function GradeValidationPage() {
         subtitle={t("gradeValidation.subtitle")}
         actions={
           leaves.length > 0 && (
-            <Field id="board-term" label={t("gradeValidation.term")}>
-              {(control) => (
-                <Select
-                  {...control}
-                  value={term}
-                  onChange={(event) => setTermId(event.target.value)}
-                  className="min-w-52"
-                >
-                  {leaves.map((leaf) => (
-                    <option key={leaf.id} value={leaf.id}>
-                      {leaf.label}
-                    </option>
-                  ))}
-                </Select>
-              )}
-            </Field>
+            <div className="text-left!">
+              <Field id="board-term" label={t("gradeValidation.term")}>
+                {(control) => (
+                  <Select
+                    {...control}
+                    value={term}
+                    onChange={(event) => setTermId(event.target.value)}
+                    className="min-w-52"
+                  >
+                    {leaves.map((leaf) => (
+                      <option key={leaf.id} value={leaf.id}>
+                        {leaf.label}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              </Field>
+            </div>
           )
         }
       />
@@ -359,7 +361,7 @@ function ClassBlock({
           aria-expanded={expanded}
           onClick={() => setOpen(!expanded)}
         >
-          <Icon name={expanded ? "chevron" : "chevdown"} size={14} />
+          <Icon name="chevdown" size={14} className={expanded ? "rotate-180" : undefined} />
           {expanded ? t("gradeValidation.hideCourses") : t("gradeValidation.showCourses")}
         </Button>
       </div>
