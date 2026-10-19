@@ -255,6 +255,8 @@ class Notification(TenantModel):
         # avec remarques, à l'enseignant.
         GRADES_SENT = "grades_sent", _("Grade sheet received")
         GRADES_RETURNED = "grades_returned", _("Grade sheet returned")
+        # Tableau du directeur des études (NB.2) : fiches attendues, à l'enseignant.
+        GRADES_REMINDER = "grades_reminder", _("Grade sheets expected")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

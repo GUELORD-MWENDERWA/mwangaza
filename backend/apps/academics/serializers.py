@@ -3,7 +3,7 @@ from decimal import Decimal
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from apps.academics import gradebook
+from apps.academics import board, gradebook
 from apps.academics.courses import CourseInput
 from apps.academics.grades import MAX_EVALUATIONS, EvaluationInput, GradeInput, term_label
 from apps.academics.models import (
@@ -17,7 +17,7 @@ from apps.academics.models import (
 )
 from apps.core.documents import PrintOptionsSerializer
 from apps.schools import grading
-from apps.schools.models import AcademicYear, ClassGroup
+from apps.schools.models import AcademicYear, ClassGroup, Term
 from apps.schools.serializers import PersonSerializer, TermSerializer
 from apps.students.models import Enrollment
 
@@ -381,25 +381,59 @@ class DeadlineSerializer(serializers.Serializer):
     due_on = serializers.DateField(allow_null=True, help_text="Vide : plus de limite.")
 
 
-class PendingSheetSerializer(serializers.Serializer):
-    course = serializers.UUIDField(source="course.pk")
-    course_name = serializers.CharField(source="course.name")
-    class_group = serializers.CharField(source="course.class_group.name")
-    term = serializers.UUIDField(source="term.pk")
-    submitted_at = serializers.DateTimeField()
-    submitted_by = serializers.CharField()
-
-
 class DeadlineRowSerializer(serializers.Serializer):
     term = serializers.UUIDField()
     due_on = serializers.DateField()
+
+
+class BoardFilterSerializer(serializers.Serializer):
+    term = serializers.PrimaryKeyRelatedField(
+        queryset=Term.objects,
+        required=False,
+        help_text="Période ou examens ; par défaut, la dernière commencée de l'année en cours.",
+    )
+
+
+class BoardCourseSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    teacher_id = serializers.UUIDField(allow_null=True)
+    teacher = serializers.CharField(help_text="Vide : pas d'enseignant.")
+    status = serializers.ChoiceField(choices=board.STATUSES)
+    submitted_at = serializers.DateTimeField(allow_null=True, help_text="Envoyée ou validée.")
+    reminded_at = serializers.DateTimeField(allow_null=True, help_text="Dernier rappel.")
+    reminded_today = serializers.BooleanField(help_text="Déjà rappelé aujourd'hui.")
+
+
+class BoardClassSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    homeroom_teacher = serializers.CharField()
+    complete = serializers.BooleanField(help_text="Toutes les fiches de la période validées.")
+    courses = BoardCourseSerializer(many=True)
 
 
 class ValidationSerializer(serializers.Serializer):
     academic_year = serializers.UUIDField(allow_null=True)
     terms = TermSerializer(many=True)
     deadlines = DeadlineRowSerializer(many=True)
-    sheets = PendingSheetSerializer(many=True, help_text="Envoyées, les plus anciennes d'abord.")
+    term = serializers.UUIDField(allow_null=True, help_text="Période ou examens montrés.")
+    classes = BoardClassSerializer(many=True)
+
+
+class RemindersSerializer(serializers.Serializer):
+    term = serializers.PrimaryKeyRelatedField(queryset=Term.objects)
+    courses = serializers.ListField(
+        child=serializers.UUIDField(), max_length=1000, help_text="Cours à rappeler."
+    )
+
+
+class RemindersResultSerializer(serializers.Serializer):
+    notified = serializers.IntegerField(help_text="Enseignants avertis.")
+    reminded = serializers.IntegerField(help_text="Cours rappelés.")
+    skipped = serializers.IntegerField(
+        help_text="Cours ignorés : envoyés, sans enseignant ou déjà rappelés aujourd'hui."
+    )
 
 
 class ReportCardSerializer(serializers.Serializer):
@@ -442,9 +476,10 @@ class ReportCardStatusSerializer(serializers.Serializer):
 
 
 class GradeSheetPrintSerializer(PrintOptionsSerializer):
-    """Fiche de cotes (8.3.6) d'une classe : d'un cours, vierge, ou tableau de toute la classe."""
+    """Fiche de cotes (8.3.6) d'une classe : d'un cours, vierge, tableau synthétique de la classe
+    (`class`) ou palmarès (`ranking`, NB.2)."""
 
-    kind = serializers.ChoiceField(choices=["course", "blank", "class"])
+    kind = serializers.ChoiceField(choices=["course", "blank", "class", "ranking"])
     course = serializers.PrimaryKeyRelatedField(
         queryset=Course.objects,
         required=False,
@@ -452,8 +487,8 @@ class GradeSheetPrintSerializer(PrintOptionsSerializer):
     )
     column = serializers.CharField(
         default="year",
-        help_text="`kind=class` : `year`, ou l'identifiant d'une période, d'un examen ou d'un "
-        "semestre de l'année.",
+        help_text="`kind=class` ou `ranking` : `year`, ou l'identifiant d'une période, d'un examen "
+        "ou d'un semestre de l'année.",
     )
     columns = serializers.MultipleChoiceField(
         choices=gradebook.COLUMNS,
@@ -470,6 +505,6 @@ class GradeSheetPrintSerializer(PrintOptionsSerializer):
     output = serializers.ChoiceField(choices=["pdf", "html"], default="pdf")
 
     def validate(self, attrs):
-        if attrs["kind"] != "class" and "course" not in attrs:
+        if attrs["kind"] in ("course", "blank") and "course" not in attrs:
             raise serializers.ValidationError({"course": "Required for this kind of sheet."})
         return attrs

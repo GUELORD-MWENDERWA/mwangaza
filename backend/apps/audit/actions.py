@@ -86,6 +86,8 @@ class Action(models.TextChoices):
     GRADES_VALIDATED = "grades.validated", _("Grades validated")
     GRADES_REOPENED = "grades.reopened", _("Grades reopened")
     GRADES_DEADLINE_SET = "grades.deadline_set", _("Grade entry deadline set")
+    # Tableau du directeur des études (NB.2) : rappel des fiches pas encore envoyées.
+    GRADES_REMINDED = "grades.reminded", _("Teachers reminded of their grade sheets")
     # Bulletin (8.3.2) : chaque PDF est noté, il contient les résultats d'un élève.
     GRADES_REPORT_CARD_PRINTED = "grades.report_card_printed", _("Report card printed")
     # Fiche de cotes (8.3.6) : chaque PDF est noté, il contient des notes d'élèves.

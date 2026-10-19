@@ -344,7 +344,7 @@ GESTION = [
     ("paie", "Paie mensuelle", "V1.1", "Plus tard · 5.3", False),
     ("presences-pointage-qr", "Pointage QR à l'entrée", "V1.1", "Plus tard · 5.5", False),
     ("notes-saisie", "Saisie des notes", "V1.2", "Plus tard · 6.2", False),
-    ("notes-validation", "Validation des notes", "V1.2", "Plus tard · 8.2.2", True),
+    ("notes-validation", "Suivi des notes (directeur des études)", "V1.2", "Plus tard · 8.2.2, NB.2", True),
     ("notes-fiches", "Fiches de cotes", "V1.2", "Plus tard · 8.3.6", True),
     ("notes-fiche-cotes", "Fiche de cotes reçue", "V1.2", "Plus tard · NB.1", True),
     ("situations", "Situations de fin d'année", "V1.2", "Plus tard · 8.4.4", True),

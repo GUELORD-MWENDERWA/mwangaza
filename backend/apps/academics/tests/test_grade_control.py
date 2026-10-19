@@ -8,7 +8,7 @@ from datetime import timedelta
 import pytest
 from django.utils import timezone
 
-from apps.academics.models import GradeDeadline
+from apps.academics.models import Course, GradeDeadline
 from apps.academics.tests.test_courses import courses_url
 from apps.academics.tests.test_grades import setup, sheet_url
 from apps.audit.models import AuditLog
@@ -20,6 +20,16 @@ from tests.factories import MembershipFactory
 pytestmark = pytest.mark.django_db
 
 VALIDATION = "/api/grading/validation/"
+REMINDERS = "/api/grading/reminders/"
+
+
+def states(client, term=None) -> dict:
+    """Tableau du directeur des études (NB.2) : état de chaque cours, par classe."""
+    board = client.get(VALIDATION, **({"term": term.pk} if term else {})).json()
+    return {
+        group["name"]: {course["name"]: course["status"] for course in group["courses"]}
+        for group in board["classes"]
+    }
 
 
 def deadline_url(term) -> str:
@@ -93,10 +103,7 @@ def test_a_sheet_is_sent_and_signed_then_validated_or_returned_with_remarks(
     sent_sheet = client.post(submit).json()
     assert sent_sheet["status"] == "submitted" and sent_sheet["submitted_by"] == str(teacher)
     assert client.post(submit).json()["code"] == "sheet_not_draft"
-    pending = boss.get(VALIDATION).json()["sheets"]
-    assert [(row["course_name"], row["class_group"]) for row in pending] == [
-        ("Physique", "1RE ÉLECTRICITÉ A")
-    ]
+    assert states(boss, data["p1"])["1RE ÉLECTRICITÉ A"]["Physique"] == "submitted"
     link = f"/grade-sheets/totals?course={data['physics'].pk}&term={data['p1'].pk}"
     assert notified(school, "grades_sent") == sorted([(director.pk, link), (homeroom.pk, link)])
     for reader in (boss, api(homeroom)):
@@ -129,6 +136,7 @@ def test_a_sheet_is_sent_and_signed_then_validated_or_returned_with_remarks(
     assert validated["status"] == "validated" and "evaluations" not in validated
     closed = client.put(url, {**sent, "reason": "Encore"})
     assert closed.status_code == 409 and closed.json()["code"] == "sheet_validated"
+    assert states(boss)["1RE ÉLECTRICITÉ A"]["Physique"] == "validated"
 
     # Renvoyée avec remarques (obligatoires) : brouillon rouvert, l'enseignant est averti et lit
     # les remarques dans son carnet ; elles sont au journal.
@@ -140,6 +148,7 @@ def test_a_sheet_is_sent_and_signed_then_validated_or_returned_with_remarks(
     assert notified(school, "grades_returned") == [
         (teacher.pk, f"/grades?course={data['physics'].pk}&term={data['p1'].pk}")
     ]
+    assert states(boss)["1RE ÉLECTRICITÉ A"]["Physique"] == "returned"
     remarks = client.get(url).json()["returned"]
     assert (remarks["reason"], remarks["by"]) == ("Note à corriger", str(director))
     with use_school(school):
@@ -154,6 +163,49 @@ def test_a_sheet_is_sent_and_signed_then_validated_or_returned_with_remarks(
     assert reason == "Note à corriger"
     # Envoyée de nouveau : les remarques ne sont plus affichées.
     assert client.post(submit).json()["returned"] is None
+
+
+def test_the_board_shows_each_course_and_late_teachers_are_reminded_once_a_day(
+    api, school, head, teacher, director, django_assert_max_num_queries
+):
+    """NB.2 : pas commencée (aucune évaluation), en cours ; rappel groupé par enseignant (une
+    notification), cours sans enseignant ou déjà rappelé aujourd'hui ignoré, trace au journal."""
+    data = setup(school, head, teacher=teacher)
+    other = MembershipFactory(school=school, roles=["teacher"]).user
+    with use_school(school):
+        Course.objects.filter(pk=data["b_physics"].pk).update(teacher=other)
+    fill(api(teacher), data)
+    boss = api(director)
+    # Période par défaut : la dernière commencée ; requêtes bornées.
+    with django_assert_max_num_queries(16):
+        board = boss.get(VALIDATION).json()
+    assert board["term"] == str(data["p1"].pk)
+    assert states(boss, data["p1"]) == {
+        "1RE ÉLECTRICITÉ A": {"Physique": "in_progress", "Atelier": "not_started"},
+        "1RE ÉLECTRICITÉ B": {"Physique": "not_started"},
+    }
+    assert api(teacher).post(REMINDERS, {"term": data["p1"].pk, "courses": []}).status_code == 403
+
+    courses = [data["physics"].pk, data["workshop"].pk, data["b_physics"].pk]
+    body = {"term": data["p1"].pk, "courses": courses}
+    assert boss.post(REMINDERS, body).json() == {"notified": 2, "reminded": 2, "skipped": 1}
+    link = f"/grades?course={data['physics'].pk}&term={data['p1'].pk}"
+    other_link = f"/grades?course={data['b_physics'].pk}&term={data['p1'].pk}"
+    expected = sorted([(teacher.pk, link), (other.pk, other_link)])
+    assert notified(school, "grades_reminder") == expected
+    # Le même jour : personne n'est rappelé deux fois.
+    assert boss.post(REMINDERS, body).json() == {"notified": 0, "reminded": 0, "skipped": 3}
+    first = boss.get(VALIDATION).json()["classes"][0]["courses"]
+    assert {c["name"]: c["reminded_today"] for c in first} == {"Atelier": False, "Physique": True}
+    with use_school(school):
+        log = AuditLog.objects.get(action="grades.reminded")
+    assert sorted(log.after["courses"]) == sorted(str(pk) for pk in courses[::2])
+    # Sans le module Notifications, rien ne part.
+    with use_school(school):
+        school.modules = [m for m in school.modules if m != "notifications"]
+        school.save(update_fields=["modules"])
+    refused = boss.post(REMINDERS, body)
+    assert refused.status_code == 409 and refused.json()["code"] == "notifications_off"
 
 
 def test_the_deadline_closes_the_entry_except_for_a_reopened_sheet_or_the_validator(
@@ -235,7 +287,12 @@ def test_another_school_cannot_see_validate_or_reopen_these_grades(
     api(teacher).post(action_url(data["physics"], data["p1"], "submit"))
     foreign = MembershipFactory(school=other_school, roles=["study_director"]).user
     beta = api(foreign, host="beta.localhost")
-    assert beta.get(VALIDATION).json()["sheets"] == []
+    # Le tableau de l'autre école ne montre que ses propres cours ; une période d'ici : 400.
+    own = {c["id"] for g in beta.get(VALIDATION).json()["classes"] for c in g["courses"]}
+    assert own and str(data["physics"].pk) not in own
+    assert beta.get(VALIDATION, term=data["p1"].pk).status_code == 400
+    late = {"term": data["p1"].pk, "courses": [data["workshop"].pk]}
+    assert beta.post(REMINDERS, late).status_code == 400
     for action in ("validate", "reopen", "submit"):
         assert (
             beta.post(action_url(data["physics"], data["p1"], action), {"reason": "x"}).status_code

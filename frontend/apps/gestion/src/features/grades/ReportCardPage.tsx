@@ -17,6 +17,7 @@ import {
   Skeleton,
 } from "@mwangaza/ui";
 import { useState } from "react";
+import { useSearchParams } from "react-router";
 
 import { studentName } from "../../lib/people";
 import { LoadError } from "../status/StatusPages";
@@ -28,12 +29,14 @@ import { DEFAULT_CARD_PRINT, reportCardUrl, useGrading, useReportStatus } from "
 export function ReportCardPage() {
   const { t } = useTranslation();
   const grading = useGrading();
-  const [classId, setClassId] = useState("");
+  // `?class=…` : une classe complète, depuis le suivi des notes (NB.2).
+  const [params] = useSearchParams();
+  const [classId, setClassId] = useState(params.get("class") ?? "");
   const [search, setSearch] = useState("");
   const [enrollmentId, setEnrollmentId] = useState("");
   const [print, setPrint] = usePrintOptions("report-card", DEFAULT_CARD_PRINT);
   const classes = grading.data?.classes ?? [];
-  const groupId = classId || classes[0]?.id || "";
+  const groupId = classes.find((item) => item.id === classId)?.id ?? classes[0]?.id ?? "";
   const status = useReportStatus(groupId);
   const students = useStudents({ class_group: groupId, search: search || undefined }, 1);
 

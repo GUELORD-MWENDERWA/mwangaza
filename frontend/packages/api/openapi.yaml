@@ -764,6 +764,7 @@ paths:
           - grades.validated
           - grades.reopened
           - grades.deadline_set
+          - grades.reminded
           - grades.report_card_printed
           - grades.sheet_printed
           - grades.situation_printed
@@ -890,6 +891,7 @@ paths:
           * `grades.validated` - Grades validated
           * `grades.reopened` - Grades reopened
           * `grades.deadline_set` - Grade entry deadline set
+          * `grades.reminded` - Teachers reminded of their grade sheets
           * `grades.report_card_printed` - Report card printed
           * `grades.sheet_printed` - Grade sheet printed
           * `grades.situation_printed` - Year-end situation printed
@@ -1195,6 +1197,7 @@ paths:
           - grades.validated
           - grades.reopened
           - grades.deadline_set
+          - grades.reminded
           - grades.report_card_printed
           - grades.sheet_printed
           - grades.situation_printed
@@ -1321,6 +1324,7 @@ paths:
           * `grades.validated` - Grades validated
           * `grades.reopened` - Grades reopened
           * `grades.deadline_set` - Grade entry deadline set
+          * `grades.reminded` - Teachers reminded of their grade sheets
           * `grades.report_card_printed` - Report card printed
           * `grades.sheet_printed` - Grade sheet printed
           * `grades.situation_printed` - Year-end situation printed
@@ -3664,8 +3668,8 @@ paths:
           type: string
           minLength: 1
           default: year
-        description: '`kind=class` : `year`, ou l''identifiant d''une période, d''un
-          examen ou d''un semestre de l''année.'
+        description: '`kind=class` ou `ranking` : `year`, ou l''identifiant d''une
+          période, d''un examen ou d''un semestre de l''année.'
       - in: query
         name: columns
         schema:
@@ -3699,12 +3703,14 @@ paths:
           - course
           - blank
           - class
+          - ranking
           type: string
           minLength: 1
         description: |-
           * `course` - course
           * `blank` - blank
           * `class` - class
+          * `ranking` - ranking
         required: true
       - in: query
         name: orientation
@@ -8804,18 +8810,75 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/grading/reminders/:
+    post:
+      operationId: grading_reminders_create
+      description: |-
+        Rappelle aux enseignants les fiches pas encore envoyées de ces cours (NB.2) : une
+        notification par enseignant ; cours envoyés, sans enseignant ou déjà rappelés aujourd'hui
+        ignorés ; 409 `notifications_off` sans le module Notifications.
+      tags:
+      - grades
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RemindersRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RemindersRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RemindersRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemindersResult'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/grading/validation/:
     get:
       operationId: grading_validation_retrieve
-      description: Feuilles envoyées de l'année à valider, et la date limite de saisie
-        de chaque période.
+      description: |-
+        Découpage de l'année, dates limites de saisie, et pour une période ou des examens (par
+        défaut la dernière commencée) l'état de la fiche de chaque cours de chaque classe :
+        `not_started`, `in_progress`, `submitted`, `validated`, `returned` ; dernier rappel.
       parameters:
       - in: query
-        name: academic_year
+        name: term
         schema:
           type: string
           format: uuid
-        description: 'Par défaut : l''année en cours.'
+        description: Période ou examens ; par défaut, la dernière commencée de l'année
+          en cours.
       tags:
       - grades
       security:
@@ -14975,6 +15038,7 @@ components:
       - grades.validated
       - grades.reopened
       - grades.deadline_set
+      - grades.reminded
       - grades.report_card_printed
       - grades.sheet_printed
       - grades.situation_printed
@@ -15100,6 +15164,7 @@ components:
         * `grades.validated` - Grades validated
         * `grades.reopened` - Grades reopened
         * `grades.deadline_set` - Grade entry deadline set
+        * `grades.reminded` - Teachers reminded of their grade sheets
         * `grades.report_card_printed` - Report card printed
         * `grades.sheet_printed` - Grade sheet printed
         * `grades.situation_printed` - Year-end situation printed
@@ -15566,6 +15631,82 @@ components:
     BlankEnum:
       enum:
       - ''
+    BoardClass:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        homeroom_teacher:
+          type: string
+        complete:
+          type: boolean
+          description: Toutes les fiches de la période validées.
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoardCourse'
+      required:
+      - id
+      - name
+      - homeroom_teacher
+      - complete
+      - courses
+    BoardCourse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        teacher_id:
+          type: string
+          format: uuid
+          nullable: true
+        teacher:
+          type: string
+          description: 'Vide : pas d''enseignant.'
+        status:
+          $ref: '#/components/schemas/BoardCourseStatusEnum'
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Envoyée ou validée.
+        reminded_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Dernier rappel.
+        reminded_today:
+          type: boolean
+          description: Déjà rappelé aujourd'hui.
+      required:
+      - id
+      - name
+      - teacher_id
+      - teacher
+      - status
+      - submitted_at
+      - reminded_at
+      - reminded_today
+    BoardCourseStatusEnum:
+      enum:
+      - not_started
+      - in_progress
+      - submitted
+      - validated
+      - returned
+      type: string
+      description: |-
+        * `not_started` - not_started
+        * `in_progress` - in_progress
+        * `submitted` - submitted
+        * `validated` - validated
+        * `returned` - returned
     CancelRequest:
       type: object
       properties:
@@ -21292,6 +21433,7 @@ components:
       - sensitive_rights
       - grades_sent
       - grades_returned
+      - grades_reminder
       type: string
       description: |-
         * `test` - Test notification
@@ -21310,6 +21452,7 @@ components:
         * `sensitive_rights` - Sensitive rights given
         * `grades_sent` - Grade sheet received
         * `grades_returned` - Grade sheet returned
+        * `grades_reminder` - Grade sheets expected
     NotificationPreferences:
       type: object
       properties:
@@ -23470,31 +23613,6 @@ components:
       - id
       - full_name
       - matricule
-    PendingSheet:
-      type: object
-      properties:
-        course:
-          type: string
-          format: uuid
-        course_name:
-          type: string
-        class_group:
-          type: string
-        term:
-          type: string
-          format: uuid
-        submitted_at:
-          type: string
-          format: date-time
-        submitted_by:
-          type: string
-      required:
-      - course
-      - course_name
-      - class_group
-      - term
-      - submitted_at
-      - submitted_by
     PermissionsEnum:
       enum:
       - school.configure
@@ -25046,6 +25164,39 @@ components:
       - days_before
       - enabled
       - overdue_every_days
+    RemindersRequest:
+      type: object
+      properties:
+        term:
+          type: string
+          format: uuid
+        courses:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Cours à rappeler.
+          maxItems: 1000
+      required:
+      - courses
+      - term
+    RemindersResult:
+      type: object
+      properties:
+        notified:
+          type: integer
+          description: Enseignants avertis.
+        reminded:
+          type: integer
+          description: Cours rappelés.
+        skipped:
+          type: integer
+          description: 'Cours ignorés : envoyés, sans enseignant ou déjà rappelés
+            aujourd''hui.'
+      required:
+      - notified
+      - reminded
+      - skipped
     ReopenRequest:
       type: object
       properties:
@@ -28163,16 +28314,21 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DeadlineRow'
-        sheets:
+        term:
+          type: string
+          format: uuid
+          nullable: true
+          description: Période ou examens montrés.
+        classes:
           type: array
           items:
-            $ref: '#/components/schemas/PendingSheet'
-          description: Envoyées, les plus anciennes d'abord.
+            $ref: '#/components/schemas/BoardClass'
       required:
       - academic_year
       - terms
       - deadlines
-      - sheets
+      - term
+      - classes
     Year:
       type: object
       properties:

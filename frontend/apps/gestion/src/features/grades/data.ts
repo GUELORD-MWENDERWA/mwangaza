@@ -1,7 +1,7 @@
 // Notes (8.2.1), lues avec `grades.enter` ou `grades.enter_any` : ce que le compte peut noter, et
 // la feuille d'un cours dans une période ou des examens.
 import { api, call, type Schemas } from "@mwangaza/api";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import type { LocalDb } from "../../lib/sync/db";
 import { keys } from "../../lib/queries";
@@ -99,13 +99,40 @@ export function useTotalsSheet(courseId: string, termId: string) {
   });
 }
 
-/** Feuilles envoyées à valider et dates limites (droit `grades.validate`). */
-export function useValidation() {
+/** Tableau du directeur des études (NB.2) : dates limites et, pour `termId` (par défaut la
+ *  dernière période commencée), l'état de la fiche de chaque cours de chaque classe ; droit
+ *  `grades.validate`. */
+export function useValidation(termId: string) {
   return useQuery({
-    queryKey: keys.gradeValidation,
-    queryFn: () => call(api.GET("/api/grading/validation/")),
+    queryKey: [...keys.gradeValidation, termId],
+    queryFn: () =>
+      call(
+        api.GET("/api/grading/validation/", {
+          params: { query: termId ? { term: termId } : {} },
+        }),
+      ),
+    placeholderData: keepPreviousData,
   });
 }
+
+export type BoardData = Schemas["Validation"];
+export type BoardClass = BoardData["classes"][number];
+export type BoardCourse = BoardClass["courses"][number];
+
+/** Fiche que l'enseignant n'a pas encore envoyée (à rappeler). */
+export const isLate = (course: BoardCourse) =>
+  course.status === "not_started" ||
+  course.status === "in_progress" ||
+  course.status === "returned";
+
+/** Cours qu'un rappel atteindrait aujourd'hui : pas envoyés, avec un enseignant, pas encore
+ *  rappelés aujourd'hui (le serveur fait la même règle). */
+export const remindable = (courses: BoardCourse[]) =>
+  courses.filter((course) => isLate(course) && course.teacher_id && !course.reminded_today);
+
+/** Nombre d'enseignants distincts de ces cours. */
+export const teacherCount = (courses: BoardCourse[]) =>
+  new Set(courses.map((course) => course.teacher_id)).size;
 
 /** Réglages d'impression du bulletin (8.3.5) : notes seules sur le formulaire pré-imprimé, et
  *  calage en mm (chaque imprimante décale un peu). */
@@ -128,7 +155,7 @@ export function reportCardUrl(
   return `/api/class-groups/${classId}/report-card/?${query}`;
 }
 
-export type SheetKind = "course" | "blank" | "class";
+export type SheetKind = "course" | "blank" | "class" | "ranking";
 
 /** Fiche de cotes (8.3.6) d'une classe : d'un cours, vierge, ou tableau de la classe ; PDF ou son
  *  aperçu HTML. `layout` : papier et sens (8.3.4). */
@@ -146,7 +173,9 @@ export function gradeSheetUrl(
 ) {
   const query = new URLSearchParams({ kind: options.kind, output: options.output });
   if (options.kind !== "class") query.set("course", options.course ?? "");
-  if (options.kind === "class") query.set("column", options.column || "year");
+  if (options.kind === "class" || options.kind === "ranking") {
+    query.set("column", options.column || "year");
+  }
   if (options.kind === "blank") query.set("blank_columns", String(options.blankColumns));
   for (const column of options.columns) query.append("columns", column);
   for (const [key, value] of Object.entries(layoutQuery(options.layout))) query.set(key, value);
