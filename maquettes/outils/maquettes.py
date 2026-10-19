@@ -387,6 +387,7 @@ CONSOLE = [
     ("annonces", "Annonces aux écoles (et bandeau de la Gestion)", "V1.1", "5.4.3", True),
     ("demandes", "Demandes de démonstration (site public)", "Lancement", "WEB.1d", True),
     ("equipe", "Équipe de la plateforme", "Lancement", "EQ.2", True),
+    ("site", "Site public : questions, « Prochainement », bandeau", "V1.3", "SITE.1a", True),
 ]
 
 

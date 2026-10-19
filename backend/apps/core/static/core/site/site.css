@@ -451,3 +451,8 @@ label.f .req{color:var(--due)}
 .goto[hidden]{display:none}
 /* Vignettes du Portail (captures de téléphone) : plus hautes, pour voir l'écran et pas seulement son haut. */
 .sc .thumb.tall{aspect-ratio:4/5}
+/* Bandeau d'annonce (SITE.1a) : au-dessus de l'en-tête, couleur d'accent de la plateforme. */
+.sbanner{background:var(--lamp);color:var(--night);font-size:.92rem;font-weight:600;line-height:1.4}
+.sbanner p{max-width:var(--wrap);margin:0 auto;padding:9px var(--gut);text-align:center}
+.sbanner a{color:inherit;text-decoration:underline;text-underline-offset:3px;margin-left:6px;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.sbanner .ic{width:16px;height:16px}

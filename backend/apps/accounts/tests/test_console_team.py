@@ -83,6 +83,9 @@ def test_each_role_gets_403_outside_its_rights_on_every_console_endpoint(api, sc
         ("patch", "/api/console/platform/", {}, {team.IDENTITY_EDIT}),
         ("delete", "/api/console/platform/logo/", None, {team.IDENTITY_EDIT}),
         ("get", "/api/console/demo-requests/", None, {team.LEADS_MANAGE}),
+        ("get", "/api/console/site/entries/", None, {team.SITE_EDIT}),
+        ("post", "/api/console/site/entries/", {}, {team.SITE_EDIT}),
+        ("patch", "/api/console/site/banner/", {}, {team.SITE_EDIT}),
         ("get", "/api/console/announcements/", None, {team.NEWS_PUBLISH}),
         ("post", "/api/console/announcements/", {}, {team.NEWS_PUBLISH}),
         (

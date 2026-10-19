@@ -1,0 +1,138 @@
+[
+ {
+  "kind": "home_question",
+  "position": 1,
+  "title_fr": "{name} fonctionne-t-il sans internet ?",
+  "text_fr": "Oui. Sur un appareil déjà connecté, la caisse, la recherche d'élèves et l'impression des reçus continuent sans réseau. Les paiements se synchronisent automatiquement au retour de la connexion, jamais en double.",
+  "title_en": "Does {name} work without internet?",
+  "text_en": "Yes. On a device already signed in, the cash desk, student search and receipt printing keep working without a network. Payments sync automatically when the connection is back, never twice."
+ },
+ {
+  "kind": "home_question",
+  "position": 2,
+  "title_fr": "Faut-il installer quelque chose ?",
+  "text_fr": "Non. {name} s'ouvre dans le navigateur (Chrome, Edge, Safari) et s'ajoute à l'écran d'accueil du téléphone ou de l'ordinateur comme une application, sans magasin d'applications.",
+  "title_en": "Is there anything to install?",
+  "text_en": "No. {name} opens in the browser (Chrome, Edge, Safari) and can be added to the home screen of a phone or computer like an app, without an app store."
+ },
+ {
+  "kind": "home_question",
+  "position": 3,
+  "title_fr": "Les parents peuvent-ils suivre les paiements ?",
+  "text_fr": "Oui. Avec le code famille imprimé sur la fiche d'inscription, le parent active son compte et voit les paiements, les reçus, les échéances et les annonces de l'école de chacun de ses enfants.",
+  "title_en": "Can parents follow payments?",
+  "text_en": "Yes. With the family code printed on the registration form, parents activate their account and see the payments, receipts, due dates and notices of each child's school."
+ },
+ {
+  "kind": "home_question",
+  "position": 4,
+  "title_fr": "Les frais en dollars et en francs congolais sont-ils gérés ?",
+  "text_fr": "Oui. Chaque frais a sa devise (USD ou FC), l'école fixe le taux de change de l'année et chaque paiement garde le taux utilisé.",
+  "title_en": "Are fees in US dollars and Congolese francs supported?",
+  "text_en": "Yes. Each fee has its currency (USD or FC), the school sets the exchange rate for the year, and each payment keeps the rate it used."
+ },
+ {
+  "kind": "home_question",
+  "position": 5,
+  "title_fr": "{name} fait-il les bulletins ?",
+  "text_fr": "Oui. L'enseignant saisit les points ; {name} calcule les totaux, les pourcentages, les places et la conduite, puis imprime le bulletin au format de l'école. Son code QR permet à chacun de vérifier qu'il est authentique.",
+  "title_en": "Does {name} make the report cards?",
+  "text_en": "Yes. The teacher enters the marks; {name} works out the totals, percentages, ranks and conduct, then prints the report card in the school's format. Its QR code lets anyone check that it is genuine."
+ },
+ {
+  "kind": "home_question",
+  "position": 6,
+  "title_fr": "Les données de mon école sont-elles protégées ?",
+  "text_fr": "Chaque école ne voit que ses propres données. Les comptes qui touchent à l'argent utilisent la double authentification, chaque action sensible est inscrite dans un journal, et la base est sauvegardée, chiffrée, chaque nuit.",
+  "title_en": "Is my school's data protected?",
+  "text_en": "Each school only sees its own data. Accounts that handle money use two-factor sign-in, every sensitive action is written to a log, and the database is backed up, encrypted, every night."
+ },
+ {
+  "kind": "home_question",
+  "position": 7,
+  "title_fr": "Comment essayer {name} dans mon école ?",
+  "text_fr": "Contactez-nous : nous ouvrons un espace d'essai pour votre école, avec vos classes et vos frais, et nous vous accompagnons pour la mise en route.",
+  "title_en": "How can my school try {name}?",
+  "text_en": "Contact us: we open a trial space for your school, with your classes and fees, and help you get started."
+ },
+ {
+  "kind": "parent_question",
+  "position": 1,
+  "title_fr": "J'ai perdu mon code famille",
+  "text_fr": "Demandez-en un nouveau au secrétariat de l'école : l'ancien ne marche plus.",
+  "title_en": "I lost my family code",
+  "text_en": "Ask the school office for a new one: the old one no longer works."
+ },
+ {
+  "kind": "parent_question",
+  "position": 2,
+  "title_fr": "J'ai changé de numéro de téléphone",
+  "text_fr": "Signalez-le à l'école, ou depuis votre profil si vous êtes encore connecté : l'école valide le changement.",
+  "title_en": "I changed my phone number",
+  "text_en": "Tell the school, or use your profile if you are still signed in: the school approves the change."
+ },
+ {
+  "kind": "parent_question",
+  "position": 3,
+  "title_fr": "Mes enfants sont dans deux écoles",
+  "text_fr": "Un seul compte suffit si les deux écoles utilisent {name} avec le même numéro.",
+  "title_en": "My children are in two schools",
+  "text_en": "One account is enough if both schools use {name} with the same number."
+ },
+ {
+  "kind": "parent_question",
+  "position": 4,
+  "title_fr": "Puis-je payer en ligne ?",
+  "text_fr": "Pas encore : on paie à la caisse de l'école. Le paiement par Mobile Money est prévu.",
+  "title_en": "Can I pay online?",
+  "text_en": "Not yet: you pay at the school's cash desk. Mobile Money payment is planned."
+ },
+ {
+  "kind": "upcoming",
+  "position": 1,
+  "title_fr": "Paiement par Mobile Money",
+  "text_fr": "Les parents paient les frais depuis leur téléphone ; le reçu arrive tout seul.",
+  "title_en": "Mobile Money payments",
+  "text_en": "Parents pay the fees from their phone; the receipt arrives by itself."
+ },
+ {
+  "kind": "upcoming",
+  "position": 2,
+  "title_fr": "Finances de l'école",
+  "text_fr": "Dépenses, budget et caisse de l'école, à côté des frais des élèves.",
+  "title_en": "School finances",
+  "text_en": "Expenses, budget and the school's own cash, next to student fees."
+ },
+ {
+  "kind": "upcoming",
+  "position": 3,
+  "title_fr": "Emploi du temps",
+  "text_fr": "Construit sans conflit de salle ni d'enseignant.",
+  "title_en": "Timetable",
+  "text_en": "Built with no room or teacher clash."
+ },
+ {
+  "kind": "upcoming",
+  "position": 4,
+  "title_fr": "Présences",
+  "text_fr": "Appel en classe et carte d'élève.",
+  "title_en": "Attendance",
+  "text_en": "Roll call in class and student card."
+ },
+ {
+  "kind": "upcoming",
+  "position": 5,
+  "title_fr": "Bibliothèque et ateliers",
+  "text_fr": "Prêts de livres, outils et matériel d'atelier.",
+  "title_en": "Library and workshops",
+  "text_en": "Lending of books, tools and workshop equipment."
+ },
+ {
+  "kind": "upcoming",
+  "position": 6,
+  "title_fr": "Site de l'école",
+  "text_fr": "Une page publique tenue par l'école elle-même.",
+  "title_en": "School website",
+  "text_en": "A public page kept by the school itself."
+ }
+]

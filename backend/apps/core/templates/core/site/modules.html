@@ -27,15 +27,15 @@
   </div>
 </section>
 
-<section class="sec alt">
+{% if upcoming %}<section class="sec alt">
   <div class="wrap">
     <div class="sechd rv"><span class="eyebrow">{% translate "Coming soon" %}</span><h2 class="st">{% translate "What comes next" %}</h2><p class="lead">{% blocktranslate trimmed with name=platform.name %}Planned, with no promised date. Schools that use {{ name }} get it without changing app.{% endblocktranslate %}</p></div>
     <div class="g3">
-      {% for title, text in upcoming %}<div class="sc rv"><span class="tag v">{% translate "Coming soon" %}</span><h3>{{ title }}</h3><p>{{ text }}</p></div>
+      {% for title, text in upcoming %}<div class="sc rv"><span class="tag v">{% translate "Coming soon" %}</span><h3>{{ title }}</h3><p>{{ text|linebreaksbr }}</p></div>
       {% endfor %}
     </div>
   </div>
-</section>
+</section>{% endif %}
 
 <section class="night relief">
   <div class="wrap cta">

@@ -17,6 +17,8 @@ export const keys = {
   supportSessions: ["console", "support-sessions"],
   alerts: ["console", "alerts"],
   team: ["console", "team"],
+  siteEntries: ["console", "site", "entries"],
+  siteBanner: ["console", "site", "banner"],
   platform: ["platform"],
 };
 

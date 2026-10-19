@@ -1,8 +1,66 @@
-"""Contenus du site public qui changent plus souvent que la mise en page (WEB.1b) : ce que fait
-chaque module du catalogue, « Prochainement », écoles de référence. Ils passeront dans la console,
-tenus par la communication (SITE.1) ; d'ici là, une seule liste ici, jamais dans les gabarits."""
+"""Contenus du site public qui changent plus souvent que la mise en page (WEB.1b).
 
+Tenus dans la console par la communication (SITE.1a) : questions fréquentes, « Prochainement »,
+bandeau (`SiteEntry`, `SiteBanner`). Le site lit tout le contenu publié en une seule fois, gardé
+dans le cache et vidé à chaque changement (`clear`, après la transaction) : une page publique ne
+fait aucune requête de plus. Restent ici, relus dans une PR : ce que fait chaque module (il décrit
+le logiciel) et les écoles de référence (console en SITE.1b)."""
+
+from datetime import date
+
+from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
+
+from apps.core.models import SiteBanner, SiteEntry
+
+CACHE_KEY = "site:content"
+CACHE_TIMEOUT = 24 * 3600  # vidé à chaque changement ; la durée ne sert qu'à libérer la mémoire
+ENTRY_FIELDS = ("kind", "title_fr", "title_en", "text_fr", "text_en")
+BANNER_FIELDS = ("text_fr", "text_en", "link", "starts_on", "ends_on")
+
+
+def _load() -> dict:
+    entries: dict[str, list[dict]] = {kind: [] for kind in SiteEntry.Kind.values}
+    for entry in SiteEntry.objects.filter(published=True).values(*ENTRY_FIELDS):
+        entries[entry["kind"]].append(entry)
+    banner = SiteBanner.objects.filter(pk=1, active=True).exclude(text_fr="")
+    return {"entries": entries, "banner": banner.values(*BANNER_FIELDS).first()}
+
+
+def published() -> dict:
+    """Tout le contenu publié : `entries` par sorte (dans l'ordre), `banner` (ou `None`)."""
+    content = cache.get(CACHE_KEY)
+    if content is None:
+        content = _load()
+        cache.set(CACHE_KEY, content, CACHE_TIMEOUT)
+    return content
+
+
+def clear() -> None:
+    cache.delete(CACHE_KEY)
+
+
+def _in(row: dict, field: str, lang: str) -> str:
+    """Le texte dans la langue de la page ; l'anglais vide : le français."""
+    return row.get(f"{field}_{lang}") or row[f"{field}_fr"]
+
+
+def entries(kind: str, lang: str) -> list[tuple[str, str]]:
+    """(Titre, texte) publiés d'une sorte, dans la langue de la page."""
+    return [
+        (_in(row, "title", lang), _in(row, "text", lang)) for row in published()["entries"][kind]
+    ]
+
+
+def banner(lang: str, today: date) -> dict | None:
+    """Le bandeau à montrer aujourd'hui (texte et lien), ou `None`."""
+    row = published()["banner"]
+    if row is None or (row["starts_on"] and today < row["starts_on"]):
+        return None
+    if row["ends_on"] and today > row["ends_on"]:
+        return None
+    return {"text": _in(row, "text", lang), "link": row["link"]}
+
 
 # Ce que fait chaque module de `accounts/modules.py` (même clé). Un module ajouté au catalogue
 # apparaît seul sur la page Modules, avec son nom ; ses points s'ajoutent ici.
@@ -52,20 +110,6 @@ MODULE_FEATURES = {
         _("PIN code on known devices"),
     ),
 }
-
-# D'après la file de `docs/05-plan-de-travail.md`, jamais de date ; une ligne s'en va quand son
-# module entre au catalogue.
-UPCOMING = (
-    (
-        _("Mobile Money payments"),
-        _("Parents pay the fees from their phone; the receipt arrives by itself."),
-    ),
-    (_("School finances"), _("Expenses, budget and the school's own cash, next to student fees.")),
-    (_("Timetable"), _("Built with no room or teacher clash.")),
-    (_("Attendance"), _("Roll call in class and student card.")),
-    (_("Library and workshops"), _("Lending of books, tools and workshop equipment.")),
-    (_("School website"), _("A public page kept by the school itself.")),
-)
 
 # Écoles présentées sur l'accueil (faits publics, logo et photo avec l'accord de l'école).
 # `quote` : les vrais mots d'une personne de l'école, avec son nom, sa fonction et l'accord écrit

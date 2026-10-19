@@ -19,7 +19,7 @@
 - {{ item }}{% endfor %}
 
 ## {% translate "Frequently asked questions" %}
-{% for question, answer in texts.faq %}
+{% for question, answer in faq %}
 ### {{ question }}
 
 {{ answer }}

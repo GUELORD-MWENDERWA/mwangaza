@@ -281,6 +281,12 @@ class PlatformAction(models.TextChoices):
     TEAM_MEMBER_INVITED = "team.member_invited", _("Team member invited")
     TEAM_ROLES_CHANGED = "team.roles_changed", _("Roles of a team member changed")
     TEAM_MEMBER_REMOVED = "team.member_removed", _("Member removed from the team")
+    # Contenus du site public (SITE.1a) : questions, « Prochainement », bandeau.
+    SITE_ENTRY_CREATED = "site.entry_created", _("Site content added")
+    SITE_ENTRY_UPDATED = "site.entry_updated", _("Site content changed")
+    SITE_ENTRY_MOVED = "site.entry_moved", _("Site content moved")
+    SITE_ENTRY_DELETED = "site.entry_deleted", _("Site content deleted")
+    SITE_BANNER_UPDATED = "site.banner_updated", _("Site banner changed")
 
 
 PLATFORM_DOMAINS = sorted({domain_of(action) for action in PlatformAction.values})

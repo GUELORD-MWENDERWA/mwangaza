@@ -7,7 +7,12 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import mixins, viewsets
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.decorators import (
+    action,
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import AllowAny
@@ -20,14 +25,17 @@ from apps.accounts.permissions import HasPlatformPermission
 from apps.core import services
 from apps.core.errors import ErrorSerializer
 from apps.core.http import serve_image
-from apps.core.models import DemoRequest, PlatformSettings
+from apps.core.models import DemoRequest, PlatformSettings, SiteBanner, SiteEntry
 from apps.core.platform import png_size
 from apps.core.serializers import (
     ConsoleDemoRequestSerializer,
     ConsolePlatformSerializer,
+    ConsoleSiteBannerSerializer,
+    ConsoleSiteEntrySerializer,
     PlatformIconUploadSerializer,
     PlatformLogoUploadSerializer,
     PlatformSerializer,
+    SiteEntryMoveSerializer,
 )
 
 # Application installable : adresse de départ, portée et icônes par défaut (le symbole, dans
@@ -233,3 +241,82 @@ class ConsoleDemoRequestViewSet(
         if self.action == "list" and status in DemoRequest.Status.values:
             requests = requests.filter(status=status)
         return requests
+
+
+@extend_schema(tags=["console"])
+@extend_schema_view(
+    list=extend_schema(responses={200: ConsoleSiteEntrySerializer(many=True), **CONSOLE_ERRORS}),
+    create=extend_schema(responses={201: ConsoleSiteEntrySerializer, **CONSOLE_ERRORS}),
+    partial_update=extend_schema(responses={200: ConsoleSiteEntrySerializer, **CONSOLE_ERRORS}),
+    destroy=extend_schema(responses={204: None, **CONSOLE_ERRORS}),
+)
+class ConsoleSiteEntryViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    """Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
+    brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
+    sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = team.SITE_EDIT
+    serializer_class = ConsoleSiteEntrySerializer
+    pagination_class = None
+    queryset = SiteEntry.objects.all()
+    http_method_names = ["get", "post", "patch", "delete", "head", "options"]
+
+    def perform_create(self, serializer) -> None:
+        serializer.instance = services.create_site_entry(
+            actor=self.request.user, **serializer.validated_data
+        )
+
+    def perform_update(self, serializer) -> None:
+        serializer.instance = services.update_site_entry(
+            serializer.instance, actor=self.request.user, **serializer.validated_data
+        )
+
+    def perform_destroy(self, instance: SiteEntry) -> None:
+        services.delete_site_entry(instance, actor=self.request.user)
+
+    @extend_schema(
+        request=SiteEntryMoveSerializer,
+        responses={200: ConsoleSiteEntrySerializer(many=True), **CONSOLE_ERRORS},
+    )
+    @action(detail=True, methods=["post"])
+    def move(self, request: Request, pk=None) -> Response:
+        """Monte ou descend l'entrée d'un rang ; renvoie sa liste dans le nouvel ordre."""
+        entry = self.get_object()
+        serializer = SiteEntryMoveSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        services.move_site_entry(
+            entry, actor=request.user, up=serializer.validated_data["direction"] == "up"
+        )
+        siblings = SiteEntry.objects.filter(kind=entry.kind)
+        return Response(ConsoleSiteEntrySerializer(siblings, many=True).data)
+
+
+@extend_schema(tags=["console"])
+class ConsoleSiteBannerView(APIView):
+    """Bandeau d'annonce du site public (SITE.1a) : texte en français et en anglais, lien, dates
+    facultatives, affiché ou caché. Chaque changement va au journal de la plateforme."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = team.SITE_EDIT
+    serializer_class = ConsoleSiteBannerSerializer
+
+    @extend_schema(responses={200: ConsoleSiteBannerSerializer, **CONSOLE_ERRORS})
+    def get(self, request: Request) -> Response:
+        return Response(ConsoleSiteBannerSerializer(SiteBanner.load()).data)
+
+    @extend_schema(
+        request=ConsoleSiteBannerSerializer,
+        responses={200: ConsoleSiteBannerSerializer, **CONSOLE_ERRORS},
+    )
+    def patch(self, request: Request) -> Response:
+        serializer = ConsoleSiteBannerSerializer(SiteBanner.load(), data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        banner = services.update_site_banner(actor=request.user, **serializer.validated_data)
+        return Response(ConsoleSiteBannerSerializer(banner).data)

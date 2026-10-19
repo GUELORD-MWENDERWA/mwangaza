@@ -301,6 +301,74 @@ class DemoRequest(models.Model):
         return f"{self.school_name} — {self.name}"
 
 
+class SiteEntry(BaseModel):
+    """Contenu du site public tenu dans la console par la communication (SITE.1a) : question de
+    l'accueil ou des parents, fonction « Prochainement ». Titre et texte en français, et en
+    anglais (vide : la page anglaise montre le français) ; texte simple, toujours échappé. Aucune
+    école : c'est la plateforme. Lu par le site à travers le cache de `site_content.py`."""
+
+    class Kind(models.TextChoices):
+        HOME_QUESTION = "home_question", _("Home page question")
+        PARENT_QUESTION = "parent_question", _("Parents page question")
+        UPCOMING = "upcoming", _("Coming soon")
+
+    MAX_PER_KIND = 20  # liste courte : pas de pagination, et un site qui reste lisible
+
+    kind = models.CharField(_("kind"), max_length=20, choices=Kind.choices)
+    title_fr = models.CharField(_("title in French"), max_length=160)
+    title_en = models.CharField(_("title in English"), max_length=160, blank=True)
+    text_fr = models.TextField(_("text in French"), max_length=1500)
+    text_en = models.TextField(_("text in English"), max_length=1500, blank=True)
+    position = models.PositiveSmallIntegerField(_("position"), default=0)
+    published = models.BooleanField(_("published"), default=False)
+
+    class Meta:
+        ordering = ["kind", "position", "created_at"]
+        verbose_name = _("site content")
+        verbose_name_plural = _("site contents")
+
+    def __str__(self) -> str:
+        return self.title_fr
+
+
+class SiteBanner(models.Model):
+    """Bandeau d'annonce du site public (SITE.1a), au-dessus de l'en-tête de chaque page : une
+    seule ligne (clé 1). Affiché s'il est actif, entre `starts_on` et `ends_on` (bornes
+    comprises, facultatives). Lien : une page du site (`/…`) ou une adresse `https://`."""
+
+    text_fr = models.CharField(_("text in French"), max_length=160, blank=True)
+    text_en = models.CharField(_("text in English"), max_length=160, blank=True)
+    link = models.CharField(_("link"), max_length=300, blank=True)
+    starts_on = models.DateField(_("from"), null=True, blank=True)
+    ends_on = models.DateField(_("until"), null=True, blank=True)
+    active = models.BooleanField(_("shown"), default=False)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("site banner")
+        verbose_name_plural = _("site banner")
+        constraints = [
+            models.CheckConstraint(condition=models.Q(id=1), name="site_banner_single_row")
+        ]
+
+    def __str__(self) -> str:
+        return self.text_fr
+
+    @classmethod
+    def load(cls) -> "SiteBanner":
+        return cls.objects.get_or_create(pk=1)[0]
+
+    def state(self, today) -> str:
+        """`shown`, `scheduled` (pas encore), `ended` (passé) ou `hidden`."""
+        if not (self.active and self.text_fr):
+            return "hidden"
+        if self.starts_on and today < self.starts_on:
+            return "scheduled"
+        if self.ends_on and today > self.ends_on:
+            return "ended"
+        return "shown"
+
+
 def print_path(job: "PrintJob", filename: str) -> str:
     return f"print/{job.school_id}/{job.pk}-{filename}"
 
