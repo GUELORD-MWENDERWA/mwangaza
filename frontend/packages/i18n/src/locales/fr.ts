@@ -1193,6 +1193,21 @@ export const fr = {
     courses: "Cours échoués",
     outcome: "Issue proposée",
     percent: "{{value}} %",
+    secondTitle: "Seconde session",
+    secondIntro_one:
+      "La fin d'année proclamée envoie {{count}} élève en seconde session. Il garde son pourcentage de l'année ; les notes de repêchage décident du passage.",
+    secondIntro_other:
+      "La fin d'année proclamée envoie {{count}} élèves en seconde session. Ils gardent leur pourcentage de l'année ; les notes de repêchage décident du passage.",
+    examDay: "Date de l'examen de repêchage",
+    saveExamDay: "Enregistrer la date",
+    examOn: "Examen de repêchage le {{date}}.",
+    noExamDay: "Date de l'examen pas encore fixée.",
+    convocations: "Convocations",
+    openSecond: "Délibération de seconde session",
+    secondHelp:
+      "Une convocation par élève : cours à repasser, pourcentage obtenu, date de l'examen. La date se fixe avant d'imprimer ; elle ne se change plus une fois la seconde session proclamée.",
+    secondClosed:
+      "Seconde session proclamée : les notes de repêchage ne se changent plus sans la rouvrir (Délibération).",
     notOpenList: "Pas de repêchage : {{list}}",
     courseAt: "{{course}} ({{value}} %)",
     waiting: "note attendue",
@@ -1290,6 +1305,19 @@ export const fr = {
   deliberation: {
     session: "Session",
     endOfYear: "Fin d'année",
+    secondSession: "Seconde session",
+    secondStudents_one: "{{count}} élève en seconde session",
+    secondStudents_other: "{{count}} élèves en seconde session",
+    examOn: "Examen le {{date}}",
+    resits: "Repêchage",
+    resitCourse: "{{course}} {{value}} %",
+    resitAwaited: "note attendue",
+    resitPassed: "{{value}} % · réussi",
+    resitFailed: "{{value}} % · échoué",
+    resitGrades: "Notes de repêchage",
+    proclaimSecond: "Proclamer la seconde session",
+    secondHelp:
+      "Seconde session : les élèves proclamés « repêchage » en fin d'année, qui gardent leur pourcentage ; la proposition suit leurs notes de repêchage. Décision finale : admis, double l'année, réorienté, exclu ou abandon. La proclamation remplace « repêchage » sur le bulletin, dans les situations et au passage de classe.",
     secret:
       "Secret des délibérations : vous voyez ce tableau comme membre du conseil ; seule la direction des études le modifie. Rien ne se communique avant la proclamation.",
     ready: "Bulletins prêts",

@@ -1186,6 +1186,21 @@ export const en: Messages<typeof fr> = {
     courses: "Failed courses",
     outcome: "Suggested outcome",
     percent: "{{value}} %",
+    secondTitle: "Second session",
+    secondIntro_one:
+      "The proclaimed end of the year sends {{count}} student to the second session. They keep their percentage of the year; the resit grades decide the promotion.",
+    secondIntro_other:
+      "The proclaimed end of the year sends {{count}} students to the second session. They keep their percentage of the year; the resit grades decide the promotion.",
+    examDay: "Date of the resit exam",
+    saveExamDay: "Save the date",
+    examOn: "Resit exam on {{date}}.",
+    noExamDay: "Date of the exam not set yet.",
+    convocations: "Notices",
+    openSecond: "Second session deliberation",
+    secondHelp:
+      "One notice per student: courses to resit, percentage obtained, date of the exam. Set the date before printing; it no longer changes once the second session is proclaimed.",
+    secondClosed:
+      "Second session proclaimed: resit grades no longer change unless it is reopened (Deliberation).",
     notOpenList: "No resit: {{list}}",
     courseAt: "{{course}} ({{value}} %)",
     waiting: "grade awaited",
@@ -1282,6 +1297,19 @@ export const en: Messages<typeof fr> = {
   deliberation: {
     session: "Session",
     endOfYear: "End of the year",
+    secondSession: "Second session",
+    secondStudents_one: "{{count}} student in the second session",
+    secondStudents_other: "{{count}} students in the second session",
+    examOn: "Exam on {{date}}",
+    resits: "Resit",
+    resitCourse: "{{course}} {{value}} %",
+    resitAwaited: "grade awaited",
+    resitPassed: "{{value}} % · passed",
+    resitFailed: "{{value}} % · failed",
+    resitGrades: "Resit grades",
+    proclaimSecond: "Proclaim the second session",
+    secondHelp:
+      "Second session: the students proclaimed “resit” at the end of the year, who keep their percentage; the proposal follows their resit grades. Final decision: admitted, repeats the year, reoriented, excluded or dropped out. The proclamation replaces “resit” on the report card, in the situations and for the promotion.",
     secret:
       "Secrecy of deliberations: you see this table as a member of the council; only the direction of studies changes it. Nothing is shared before the proclamation.",
     ready: "Report cards ready",

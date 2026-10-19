@@ -19,7 +19,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { firstErrorMessage } from "../../lib/errors";
-import type { ClassDeliberation, CouncilMember } from "./data";
+import { type ClassDeliberation, type CouncilMember, sessionQuery } from "./data";
 
 type Props = {
   classId: string;
@@ -42,7 +42,7 @@ export function CouncilCard({ classId, termId, council, editable, onSaved }: Pro
     mutationFn: () =>
       call(
         api.PUT("/api/class-groups/{id}/deliberation/council/", {
-          params: { path: { id: classId }, query: termId ? { term: termId } : {} },
+          params: { path: { id: classId }, query: sessionQuery(termId) },
           body: {
             present: council.members.filter((m) => present.has(m.id)).map((m) => m.id),
             chair: chair || null,

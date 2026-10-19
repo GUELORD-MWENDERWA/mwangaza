@@ -8,10 +8,10 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 |---|---|
 | Phase | V1.0 en ligne (2026-10-13) ; **V1.1 finie** (2026-10-12) ; plan révisé et validé le 2026-10-13 (`05` : la file, priorités P0 à P3) |
 | Lot | **Lancement** (P0 : L, M.2, M.3, sécurité S.1 à S.5), puis V1.2 notes, bulletins et finances de l'école |
-| Tâche en cours | aucune (EQ.1 faite le 2026-10-19, PR en attente de fusion ; NB.6 en PR, #358) ; vrai serveur : https://admin.mwangazaschool.com/ |
+| Tâche en cours | aucune (EQ.1 faite le 2026-10-19, PR en attente de fusion ; bloc NB fini) ; vrai serveur : https://admin.mwangazaschool.com/ |
 | Prochaine tâche | **EQ.2** écrans de l'équipe dans la console (maquettes d'abord ; file `05` § 2, ligne 15 bis) ; **toi : `A-FAIRE.md` ligne 0** (effort « high », plugins LSP désactivés, mot de passe en clair) ; **toi, après la fusion de WEB.1d** : boîte d'envoi et adresse (`A-FAIRE.md` 6 quaterdecies) ; **toi, avant `make deploy` des nouvelles pages** : l'accord écrit de l'ITIG (photos, logo, nom sur le bulletin d'exemple) et la relecture des mentions par un juriste (`A-FAIRE.md` 7 bis) ; toi : OPS.1, ta part d'OPS.3 et d'OPS.4 (`A-FAIRE.md` § 9 octies), le premier espace réel (§ 9 quater) ; ajoutés au plan le 2026-10-18 : **NB** (notes et bulletins refaits, avant 8.4.6), EQ, SITE, HL (`05` § 5 bis, 5 ter, 6.3 bis, 6.3 ter) ; **toi : Q15** (préréglage par défaut : « courant » en attendant) |
-| Issue GitHub | #332 (EQ.1) ; #346 (NB.5) ; #345 (NB.4) ; #344 (NB.3) ; #343 (NB.2) ; #342 (NB.1) ; #331 (WEB.1d) ; #329 (WEB.1c) ; #328 (WEB.1b) ; #327 (WEB.1a) ; #325 (OPS.4) ; #323 (L.6) ; #321 (OPS.3) ; #319 (OPS.2) ; #298 (8.4.5) ; #300 (8.4.7) ; #297 (8.4.4) ; #296 (8.4.3) ; #295 (8.4.2) ; #294 (8.4.1) ; #293 (8.4.0) ; #288 (PERF.5c) ; #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
-| Branche | `tache/EQ.1-equipe-plateforme` (avant : `tache/NB.5-conseil-deliberation`, puis `tache/NB.4-regles-deliberation`, puis `tache/NB.3-espace-titulaire`, puis `tache/NB.2-tableau-de`, puis `tache/NB.1-carnet-fiche-cotes`, puis `tache/WEB.1d-demande-demo`, puis `tache/WEB.1c-visibilite`, puis `tache/WEB.1b-pages-site`, puis `tache/WEB.1a-etude-maquettes-site`, puis `tache/OPS.4-email-pro`, puis `tache/L.6-pin-propose`, puis `tache/OPS.3-comptes-proteges`, puis `tache/OPS.2-instantanes`, puis `tache/8.4.5-passage-classe`, puis `tache/8.4.7-reprise-resultats`, puis `tache/8.4.4-situations`, puis `tache/8.4.3-bulletin-complete`, puis `tache/8.4.2-deliberation`, puis `tache/8.4.1-regles-reussite-repechage` (avant : `tache/8.4.0-points-sans-devoirs`, puis `tache/8.5.1c-application`, puis `tache/PERF.5c-images-hors-serveur`) ; dossier local : `~/Projets/mwangaza` |
+| Issue GitHub | #332 (EQ.1) ; #347 (NB.6) ; #346 (NB.5) ; #345 (NB.4) ; #344 (NB.3) ; #343 (NB.2) ; #342 (NB.1) ; #331 (WEB.1d) ; #329 (WEB.1c) ; #328 (WEB.1b) ; #327 (WEB.1a) ; #325 (OPS.4) ; #323 (L.6) ; #321 (OPS.3) ; #319 (OPS.2) ; #298 (8.4.5) ; #300 (8.4.7) ; #297 (8.4.4) ; #296 (8.4.3) ; #295 (8.4.2) ; #294 (8.4.1) ; #293 (8.4.0) ; #288 (PERF.5c) ; #286 (PERF.5b) ; #284 (PERF.5a) ; #282 (8.5.1c) |
+| Branche | `tache/EQ.1-equipe-plateforme` (avant : `tache/NB.6-seconde-session`, puis `tache/NB.5-conseil-deliberation`, puis `tache/NB.4-regles-deliberation`, puis `tache/NB.3-espace-titulaire`, puis `tache/NB.2-tableau-de`, puis `tache/NB.1-carnet-fiche-cotes`, puis `tache/WEB.1d-demande-demo`, puis `tache/WEB.1c-visibilite`, puis `tache/WEB.1b-pages-site`, puis `tache/WEB.1a-etude-maquettes-site`, puis `tache/OPS.4-email-pro`, puis `tache/L.6-pin-propose`, puis `tache/OPS.3-comptes-proteges`, puis `tache/OPS.2-instantanes`, puis `tache/8.4.5-passage-classe`, puis `tache/8.4.7-reprise-resultats`, puis `tache/8.4.4-situations`, puis `tache/8.4.3-bulletin-complete`, puis `tache/8.4.2-deliberation`, puis `tache/8.4.1-regles-reussite-repechage` (avant : `tache/8.4.0-points-sans-devoirs`, puis `tache/8.5.1c-application`, puis `tache/PERF.5c-images-hors-serveur`) ; dossier local : `~/Projets/mwangaza` |
 | Dernière mise à jour | 2026-10-19 (EQ.1 faite) |
 
 ## Avancement
@@ -32,7 +32,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | V1.2 — notes, bulletins, finances de l'école (A.2, 8.1, 8.2.1–8.2.3, 8.3.1–8.3.6, 8.5.1a–8.5.1c, 8.4.0–8.4.7, 8.8, FIN.1–3 ; S.6 comptée en Sécurité) | 20 | 23 |
 | Exploitation — AWS, domaine, e-mail (OPS.1–OPS.5, PERF.7 ; ajoutés le 2026-10-17) | 3 | 6 |
 | Site public et visibilité (WEB.1a–WEB.1d ; avancés le 2026-10-17, WEB.1d découpée le 2026-10-18) | 4 | 4 |
-| Notes et bulletins comme à l'école (NB.1–NB.6 ; ajoutés le 2026-10-18) | 5 | 6 |
+| Notes et bulletins comme à l'école (NB.1–NB.6 ; ajoutés le 2026-10-18) | 6 | 6 |
 | Plateforme : équipe, site géré, hors ligne (EQ.1–2, SITE.1–5, HL.0–3 ; ajoutés le 2026-10-18) | 2 | 11 |
 | V1.3 — plateforme commerciale (ABO.1–3, page des prix WEB.1 ; S.7–S.9 comptés en Sécurité) | 0 | 4 |
 | V1.4 — emploi du temps et IA (EDT.1–4, IA.1.1, IA.1.2, IA.2–5) | 0 | 10 |
@@ -70,6 +70,12 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 - Tests : `test_console_team.py` (garde sur toutes les adresses de la console, matrice rôles × points → 403, commercial sans espaces réels, invitation / rôles / retrait au journal, dernier propriétaire, alertes) ; scénario de `make demo`.
 - Décisions : pas de modèle `PlatformMember` ; un membre a son propre numéro (`phone_in_use`) ; pas de remise à zéro d'un membre par le support (retirer puis réinviter).
 - Suite : EQ.2 (écrans de la console, maquettes d'abord).
+
+### 2026-10-19 — Tâche NB.6 : seconde session (repêchage)
+- Fait : après la proclamation de fin d'année, une délibération « seconde session » par classe pour ses élèves « repêchage » : date de l'examen et convocations PDF (deux par A4) depuis « Repêchage », décision finale (jamais un nouveau repêchage), conseil, proclamation et PV ; l'élève garde son pourcentage ; bulletin, situations et passage de classe lisent la décision finale (`deliberation.year_results`) ; maquettes `repechage`, `deliberation`, nouvelle `convocation-repechage`.
+- Tests : `test_second_session.py` (décision finale lue partout, note bloquée après proclamation, repêchage accordé par le conseil, droits, isolation, journal) ; PV de fin d'année réparé (chiffres des décisions vides).
+- Décisions : repêchage accordé par le conseil contre la proposition → chaque cours échoué se repasse ; après la proclamation, note seulement pour les élèves envoyés au repêchage ; heure et salle à la main.
+- Suite : EQ.1 ; bloc NB fini.
 
 ### 2026-10-19 — Tâche NB.5 : conseil de délibération par session, avec procès-verbal
 - Fait : une délibération par classe et par session (période, semestre, fin d'année) ; conseil calculé (direction des études, titulaire, enseignants), présents, président, secrétaire, observations ; secret (lecture par les membres seuls) ; proclamation de période après « bulletins prêts », figée avec le conseil ; procès-verbal PDF ; écran avec choix de la session ; maquettes `deliberation` et `deliberation-pv`.

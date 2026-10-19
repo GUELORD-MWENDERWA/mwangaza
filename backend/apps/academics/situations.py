@@ -18,10 +18,8 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, fields
 from decimal import ROUND_HALF_UP, Decimal
 
-from django.db.models import F
-
 from apps.academics import deliberation, report_cards, resits
-from apps.academics.models import DeliberationDecision, DeliberationSnapshot
+from apps.academics.models import DeliberationDecision
 from apps.academics.report_cards import YEAR_KEY
 from apps.schools.models import AcademicYear, ClassGroup
 from apps.students.models import Enrollment
@@ -206,9 +204,9 @@ def _course_rows(group: ClassGroup, criterion: str) -> list[dict]:
 
 def class_situation(group: ClassGroup, criterion: str, *, courses: bool, ranking: bool) -> dict:
     """Situation d'une classe : comptes, par cours (si demandé), palmarès (si demandé)."""
-    snapshot, _rows = deliberation.proclaimed_rows(group)
+    snapshot = deliberation.proclaimed_rows(group)
     if snapshot:
-        lines = _frozen(snapshot.rows)
+        lines = _frozen(snapshot.lines)
     else:
         lines = [
             Line(
@@ -251,15 +249,7 @@ def school_situation(year: AcademicYear, criterion: str) -> dict:
     """Situation de l'école pour l'année : les classes proclamées seulement (dernière version
     figée), par niveau, avec sous-totaux, total, lauréat(s) et écarts. Quatre lectures."""
     groups = list(ClassGroup.objects.filter(academic_year=year).select_related("level", "track"))
-    latest = {
-        s.group_id: s
-        for s in DeliberationSnapshot.objects.filter(
-            deliberation__class_group__in=groups, deliberation__term__isnull=True
-        )
-        .annotate(group_id=F("deliberation__class_group_id"))
-        .order_by("deliberation__class_group_id", "-version")
-        .distinct("deliberation__class_group_id")
-    }
+    latest = deliberation.year_results(groups)
     by_class = defaultdict(list)
     for group_id, pk, status in (
         Enrollment.objects.filter(class_group__in=groups)
@@ -282,7 +272,7 @@ def school_situation(year: AcademicYear, criterion: str) -> dict:
             active = sum(1 for _pk, status in by_class[group.pk] if status not in LEFT)
             levels[-1]["classes"].append({"group": group, "proclaimed": False, "enrolled": active})
             continue
-        lines = _frozen(snapshot.rows)
+        lines = _frozen(snapshot.lines)
         counts = count(lines, _left(by_class[group.pk], {x.enrollment for x in lines}), criterion)
         top = best(lines)
         levels[-1]["classes"].append(

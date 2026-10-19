@@ -1,6 +1,6 @@
 // Délibération d'une classe (8.4.2) : décision proposée, décision prise, écart motivé, résultats
-// proclamés ; conseil et sessions de période (NB.5). Lecture : membres du conseil ; écriture :
-// `grades.validate`. En ligne.
+// proclamés ; conseil et sessions de période (NB.5) ; seconde session (NB.6). Lecture : membres du
+// conseil ; écriture : `grades.validate`. En ligne.
 import { api, call, type Schemas } from "@mwangaza/api";
 import { useQuery } from "@tanstack/react-query";
 
@@ -23,16 +23,25 @@ export const TONES: Record<string, "ok" | "warn" | "due" | "gray"> = {
 };
 
 export type SessionResult = ClassDeliberation["results"][number];
+
+/** Seconde session (NB.6) dans le choix des sessions : élèves proclamés « repêchage ». */
+export const SECOND = "second";
+
+/** Paramètres de la session : vide = fin d'année, `SECOND`, sinon une période ou un semestre. */
+export function sessionQuery(termId: string): { term?: string; second?: boolean } {
+  if (termId === SECOND) return { second: true };
+  return termId ? { term: termId } : {};
+}
 export type CouncilMember = ClassDeliberation["council"]["members"][number];
 
-/** Tableau d'une session (NB.5) : `termId` vide = fin d'année, sinon période ou semestre. */
+/** Tableau d'une session (NB.5) : `termId` vide = fin d'année, `SECOND`, ou période, semestre. */
 export function useClassDeliberation(classId: string, termId: string) {
   return useQuery({
     queryKey: [...keys.deliberation, classId, termId],
     queryFn: () =>
       call(
         api.GET("/api/class-groups/{id}/deliberation/", {
-          params: { path: { id: classId }, query: termId ? { term: termId } : {} },
+          params: { path: { id: classId }, query: sessionQuery(termId) },
         }),
       ),
     enabled: Boolean(classId),
@@ -42,7 +51,8 @@ export function useClassDeliberation(classId: string, termId: string) {
 /** Procès-verbal de la dernière proclamation de la session (NB.5), PDF ou aperçu. */
 export function minutesUrl(classId: string, termId: string, output: "pdf" | "html" = "pdf") {
   const query = new URLSearchParams({ output });
-  if (termId) query.set("term", termId);
+  if (termId === SECOND) query.set("second", "true");
+  else if (termId) query.set("term", termId);
   return `/api/class-groups/${classId}/deliberation/minutes/?${query}`;
 }
 

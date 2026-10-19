@@ -3447,6 +3447,12 @@ paths:
           format: uuid
         required: true
       - in: query
+        name: second
+        schema:
+          type: boolean
+          default: false
+        description: Seconde session (NB.6), sans `term`.
+      - in: query
         name: term
         schema:
           type: string
@@ -3493,6 +3499,12 @@ paths:
           type: string
           format: uuid
         required: true
+      - in: query
+        name: second
+        schema:
+          type: boolean
+          default: false
+        description: Seconde session (NB.6), sans `term`.
       - in: query
         name: term
         schema:
@@ -3545,8 +3557,9 @@ paths:
   /api/class-groups/{id}/deliberation/apply-proposals/:
     post:
       operationId: class_groups_deliberation_apply_proposals_create
-      description: 'Fin d''année : prend la proposition du système pour chaque élève
-        sans décision.'
+      description: |-
+        Fin d'année ou seconde session : prend la proposition du système pour chaque élève
+        sans décision.
       parameters:
       - in: path
         name: id
@@ -3554,6 +3567,20 @@ paths:
           type: string
           format: uuid
         required: true
+      - in: query
+        name: second
+        schema:
+          type: boolean
+          default: false
+        description: Seconde session (NB.6), sans `term`.
+      - in: query
+        name: term
+        schema:
+          type: string
+          format: uuid
+          nullable: true
+        description: 'Session : une période, un semestre ou un trimestre ; absente
+          : fin d''année.'
       tags:
       - deliberation
       security:
@@ -3596,6 +3623,12 @@ paths:
           type: string
           format: uuid
         required: true
+      - in: query
+        name: second
+        schema:
+          type: boolean
+          default: false
+        description: Seconde session (NB.6), sans `term`.
       - in: query
         name: term
         schema:
@@ -3698,6 +3731,12 @@ paths:
           * `a4` - a4
           * `a5` - a5
       - in: query
+        name: second
+        schema:
+          type: boolean
+          default: false
+        description: Seconde session (NB.6), sans `term`.
+      - in: query
         name: term
         schema:
           type: string
@@ -3745,7 +3784,8 @@ paths:
         Proclame les résultats de la session et les fige avec le conseil. Fin d'année : date
         posée, une décision par élève, un motif par écart. Période ou semestre : date posée,
         bulletins dits prêts par le titulaire (`report_cards_not_ready`). Une proclamation après
-        correction crée la version suivante.
+        correction crée la version suivante. Seconde session : comme la fin d'année, pour ses
+        élèves ; sa décision remplace « repêchage » (bulletin, situations, passage de classe).
       parameters:
       - in: path
         name: id
@@ -3753,6 +3793,12 @@ paths:
           type: string
           format: uuid
         required: true
+      - in: query
+        name: second
+        schema:
+          type: boolean
+          default: false
+        description: Seconde session (NB.6), sans `term`.
       - in: query
         name: term
         schema:
@@ -3803,6 +3849,12 @@ paths:
           type: string
           format: uuid
         required: true
+      - in: query
+        name: second
+        schema:
+          type: boolean
+          default: false
+        description: Seconde session (NB.6), sans `term`.
       - in: query
         name: term
         schema:
@@ -4352,6 +4404,156 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClassResits'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/resits/convocations/:
+    get:
+      operationId: class_groups_resits_convocations_retrieve
+      description: |-
+        Convocations à l'examen de repêchage, en PDF ou en aperçu : une par élève envoyé en
+        seconde session (cours à repasser et leur pourcentage, pourcentage de l'année, gardé,
+        date de l'examen), deux par feuille A4. `exam_date_required` sans date fixée.
+      parameters:
+      - in: query
+        name: enrollment
+        schema:
+          type: string
+          format: uuid
+        description: 'Un seul élève ; absent : toute la classe.'
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
+        name: output
+        schema:
+          enum:
+          - pdf
+          - html
+          type: string
+          default: pdf
+          minLength: 1
+        description: |-
+          * `pdf` - pdf
+          * `html` - html
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
+      tags:
+      - resits
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Document PDF (`output=pdf`).
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/resits/exam-date/:
+    put:
+      operationId: class_groups_resits_exam_date_update
+      description: |-
+        Date de l'examen de repêchage de la classe (seconde session, NB.6), imprimée sur les
+        convocations ; `no_second_session` sans élève envoyé au repêchage par la proclamation.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - resits
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamDateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExamDateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExamDateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassResits'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
           description: ''
         '403':
           content:
@@ -6980,7 +7182,8 @@ paths:
       operationId: deliberation_enrollments_update
       description: |-
         Décision de fin d'année pour un élève ; un écart avec la proposition demande un motif.
-        Élève sans aucune note cette année : pourcentage repris, de 0 à 100 (8.4.7).
+        Élève sans aucune note cette année : pourcentage repris, de 0 à 100 (8.4.7). Avec
+        `second` : décision finale de seconde session (`resit_again` pour un nouveau repêchage).
       parameters:
       - in: path
         name: id
@@ -6988,6 +7191,20 @@ paths:
           type: string
           format: uuid
         required: true
+      - in: query
+        name: second
+        schema:
+          type: boolean
+          default: false
+        description: Seconde session (NB.6), sans `term`.
+      - in: query
+        name: term
+        schema:
+          type: string
+          format: uuid
+          nullable: true
+        description: 'Session : une période, un semestre ou un trimestre ; absente
+          : fin d''année.'
       tags:
       - deliberation
       requestBody:
@@ -17309,6 +17526,15 @@ components:
           items:
             $ref: '#/components/schemas/SessionState'
           description: État de chaque session ouverte.
+        has_second_session:
+          type: boolean
+          description: La dernière proclamation de fin d'année envoie des élèves au
+            repêchage.
+        exam_on:
+          type: string
+          format: date
+          nullable: true
+          description: 'Seconde session : date de l''examen de repêchage.'
       required:
       - class_name
       - term
@@ -17326,15 +17552,19 @@ components:
       - results
       - council
       - sessions
+      - has_second_session
+      - exam_on
     ClassDeliberationKindEnum:
       enum:
       - year
+      - second
       - period
       - semester
       - trimester
       type: string
       description: |-
         * `year` - year
+        * `second` - second
         * `period` - period
         * `semester` - semester
         * `trimester` - trimester
@@ -17489,10 +17719,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StudentResits'
+        second_session:
+          $ref: '#/components/schemas/SecondSession'
       required:
       - class_name
       - rules
       - students
+      - second_session
     ClassSummary:
       type: object
       properties:
@@ -20266,6 +20499,14 @@ components:
         * `meeting` - Meeting
         * `activity` - Activity
         * `other` - Other
+    ExamDateRequest:
+      type: object
+      properties:
+        exam_on:
+          type: string
+          format: date
+      required:
+      - exam_on
     ExchangeRate:
       type: object
       properties:
@@ -26448,6 +26689,30 @@ components:
           description: Pourcentage, 0 à 100.
       required:
       - percent
+    ResitLine:
+      type: object
+      properties:
+        course:
+          type: string
+        percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          description: Année du cours.
+        resit_percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+          description: 'Vide : note attendue.'
+        passed:
+          type: boolean
+          nullable: true
+      required:
+      - course
+      - percent
+      - resit_percent
+      - passed
     Role:
       type: object
       description: 'Rôle de l''école : un nom et des permissions.'
@@ -26586,6 +26851,11 @@ components:
         deviates:
           type: boolean
           description: La décision diffère de la proposition.
+        resits:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResitLine'
+          description: 'Seconde session : cours repassés.'
       required:
       - enrollment
       - full_name
@@ -26597,6 +26867,7 @@ components:
       - decision
       - reason
       - deviates
+      - resits
     Rule:
       type: object
       properties:
@@ -27111,6 +27382,32 @@ components:
       required:
       - evaluation_id
       - score
+    SecondSession:
+      type: object
+      properties:
+        students:
+          type: integer
+          description: Élèves que la dernière proclamation de fin d'année envoie au
+            repêchage.
+        exam_on:
+          type: string
+          format: date
+          nullable: true
+          description: Date de l'examen de repêchage.
+        status:
+          $ref: '#/components/schemas/DeliberationStatusEnum'
+        version:
+          type: integer
+          description: 'Dernière version proclamée (0 : aucune).'
+        can_manage:
+          type: boolean
+          description: 'Droit `grades.validate` : date, convocations.'
+      required:
+      - students
+      - exam_on
+      - status
+      - version
+      - can_manage
     ServerHealth:
       type: object
       properties:
@@ -27186,12 +27483,15 @@ components:
           format: uuid
           nullable: true
           description: 'Vide : fin d''année.'
+        second_session:
+          type: boolean
         status:
           $ref: '#/components/schemas/DeliberationStatusEnum'
         version:
           type: integer
       required:
       - term
+      - second_session
       - status
       - version
     SessionTotal:

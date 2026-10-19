@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 16:36+0200\n"
+"POT-Creation-Date: 2026-10-19 16:57+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -93,66 +93,87 @@ msgstr "Cours inconnu."
 msgid "Choose a member of the school's staff."
 msgstr "Choisissez un membre du personnel de l'école."
 
-#: apps/academics/deliberation.py:50
+#: apps/academics/deliberation.py:57
 msgid "The results are proclaimed: reopen them first."
 msgstr "Les résultats sont proclamés : rouvrez-les d'abord."
 
-#: apps/academics/deliberation.py:51
+#: apps/academics/deliberation.py:58
 msgid "The results are not proclaimed."
 msgstr "Les résultats ne sont pas proclamés."
 
-#: apps/academics/deliberation.py:52
+#: apps/academics/deliberation.py:59
 msgid "This is not a deliberation decision."
 msgstr "Ce n'est pas une décision de délibération."
 
-#: apps/academics/deliberation.py:54
+#: apps/academics/deliberation.py:61
 msgid "Say why the decision differs from the proposal."
 msgstr "Indiquez pourquoi la décision diffère de la proposition."
 
-#: apps/academics/deliberation.py:56 apps/academics/promotion.py:45
+#: apps/academics/deliberation.py:63 apps/academics/promotion.py:45
 msgid "This student is not in this class."
 msgstr "Cet élève n'est pas dans cette classe."
 
-#: apps/academics/deliberation.py:57
+#: apps/academics/deliberation.py:64
 msgid "Set the deliberation date first."
 msgstr "Fixez d'abord la date de la délibération."
 
-#: apps/academics/deliberation.py:59
+#: apps/academics/deliberation.py:66
 msgid "Every student needs a decision before the results are proclaimed."
 msgstr ""
 "Chaque élève doit avoir une décision avant la proclamation des résultats."
 
-#: apps/academics/deliberation.py:61
+#: apps/academics/deliberation.py:68
 msgid "Say why the results are corrected."
 msgstr "Indiquez pourquoi les résultats sont corrigés."
 
-#: apps/academics/deliberation.py:64
+#: apps/academics/deliberation.py:71
 msgid "This student has grades: the percentage is calculated from them."
 msgstr "Cet élève a des notes : son pourcentage se calcule d'après elles."
 
-#: apps/academics/deliberation.py:67
+#: apps/academics/deliberation.py:74
 msgid "A percentage is a number from 0 to 100."
 msgstr "Un pourcentage est un nombre de 0 à 100."
 
-#: apps/academics/deliberation.py:69
+#: apps/academics/deliberation.py:76
 msgid "The council deliberates on a period, a semester or the year."
 msgstr "Le conseil délibère sur une période, un semestre ou l'année."
 
-#: apps/academics/deliberation.py:73
+#: apps/academics/deliberation.py:80
 msgid ""
 "The homeroom teacher has not declared the report cards of this session ready."
 msgstr ""
 "Le titulaire n'a pas encore déclaré prêts les bulletins de cette session."
 
-#: apps/academics/deliberation_views.py:419
+#: apps/academics/deliberation.py:84
+msgid "No student of this class was sent to the second session."
+msgstr "Aucun élève de cette classe n'est envoyé en seconde session."
+
+#: apps/academics/deliberation.py:87
+msgid "This student is not in the second session."
+msgstr "Cet élève n'est pas en seconde session."
+
+#: apps/academics/deliberation.py:90
+msgid "The second session gives a final decision: no new resit exam."
+msgstr ""
+"La seconde session donne une décision finale : pas de nouveau repêchage."
+
+#: apps/academics/deliberation.py:92
+msgid "Set the date of the resit exam first."
+msgstr "Fixez d'abord la date de l'examen de repêchage."
+
+#: apps/academics/deliberation_views.py:452
 msgid "Studies management"
 msgstr "Direction des études"
 
-#: apps/academics/deliberation_views.py:421
+#: apps/academics/deliberation_views.py:454
 msgid "Homeroom teacher"
 msgstr "Titulaire"
 
-#: apps/academics/deliberation_views.py:468
+#: apps/academics/deliberation_views.py:505
+msgid "Second session"
+msgstr "Seconde session"
+
+#: apps/academics/deliberation_views.py:505
 msgid "End of the year"
 msgstr "Fin d'année"
 
@@ -376,7 +397,7 @@ msgid "Only the homeroom teacher of this class opens its space."
 msgstr "Seul le titulaire de cette classe ouvre son espace."
 
 #: apps/academics/models.py:31 apps/academics/models.py:427
-#: apps/academics/models.py:512 apps/academics/models.py:653
+#: apps/academics/models.py:516 apps/academics/models.py:663
 #: apps/notifications/models.py:129 apps/schools/models.py:585
 #: apps/students/models.py:173
 msgid "class"
@@ -513,8 +534,8 @@ msgstr "Envoyée pour validation"
 msgid "Validated"
 msgstr "Validée"
 
-#: apps/academics/models.py:195 apps/academics/models.py:525
-#: apps/academics/models.py:656 apps/finance/models.py:190
+#: apps/academics/models.py:195 apps/academics/models.py:529
+#: apps/academics/models.py:666 apps/finance/models.py:190
 #: apps/finance/models.py:638 apps/schools/models.py:206
 #: apps/schools/models.py:388 apps/students/models.py:176
 #: apps/students/models.py:242 apps/students/models.py:290
@@ -605,7 +626,7 @@ msgstr "à partir de (points)"
 
 #: apps/academics/models.py:299 apps/academics/models.py:359
 #: apps/academics/models.py:394 apps/academics/models.py:461
-#: apps/academics/models.py:565 apps/academics/models.py:646
+#: apps/academics/models.py:575 apps/academics/models.py:656
 msgid "enrolment"
 msgstr "inscription"
 
@@ -627,7 +648,7 @@ msgid "incident"
 msgstr "incident"
 
 #: apps/academics/models.py:340 apps/academics/models.py:365
-#: apps/academics/models.py:400 apps/academics/models.py:569
+#: apps/academics/models.py:400 apps/academics/models.py:579
 #: apps/finance/models.py:251 apps/finance/models.py:336
 #: apps/finance/models.py:621 apps/finance/models.py:682
 #: apps/notifications/models.py:130
@@ -659,125 +680,133 @@ msgstr "pourcentage"
 msgid "signed by"
 msgstr "signé par"
 
-#: apps/academics/models.py:505
+#: apps/academics/models.py:509
 msgid "In progress"
 msgstr "En cours"
 
-#: apps/academics/models.py:506
+#: apps/academics/models.py:510
 msgid "Proclaimed"
 msgstr "Proclamée"
 
-#: apps/academics/models.py:521 apps/finance/models.py:509
+#: apps/academics/models.py:525 apps/finance/models.py:509
 #: apps/finance/models.py:815
 msgid "session"
 msgstr "séance de caisse"
 
-#: apps/academics/models.py:523 apps/academics/models.py:602
+#: apps/academics/models.py:527 apps/academics/models.py:612
 msgid "deliberation date"
 msgstr "date de délibération"
 
-#: apps/academics/models.py:527 apps/academics/models.py:601
+#: apps/academics/models.py:531 apps/academics/models.py:611
 msgid "version"
 msgstr "version"
 
-#: apps/academics/models.py:529 apps/academics/models.py:610
+#: apps/academics/models.py:533 apps/academics/models.py:620
 msgid "correction reason"
 msgstr "motif de la correction"
 
-#: apps/academics/models.py:530 apps/academics/models.py:614
+#: apps/academics/models.py:534 apps/academics/models.py:624
 msgid "council"
 msgstr "conseil"
 
-#: apps/academics/models.py:531
+#: apps/academics/models.py:535
 msgid "remarks of the council"
 msgstr "observations du conseil"
 
-#: apps/academics/models.py:551
+#: apps/academics/models.py:536
+msgid "second session"
+msgstr "seconde session"
+
+#: apps/academics/models.py:537
+msgid "resit exam date"
+msgstr "date de l'examen de repêchage"
+
+#: apps/academics/models.py:561
 #: apps/academics/templates/academics/situation.html:31
 msgid "Admitted"
 msgstr "Admis"
 
-#: apps/academics/models.py:552
+#: apps/academics/models.py:562
 msgid "Repeats the year"
 msgstr "Double l'année"
 
-#: apps/academics/models.py:553
+#: apps/academics/models.py:563
 msgid "Resit exam"
 msgstr "Examen de repêchage"
 
-#: apps/academics/models.py:554
+#: apps/academics/models.py:564
 msgid "Reoriented"
 msgstr "Réorienté"
 
-#: apps/academics/models.py:555 apps/students/models.py:160
+#: apps/academics/models.py:565 apps/students/models.py:160
 msgid "Excluded"
 msgstr "Exclu"
 
-#: apps/academics/models.py:556 apps/students/models.py:159
+#: apps/academics/models.py:566 apps/students/models.py:159
 msgid "Dropped out"
 msgstr "Abandon"
 
-#: apps/academics/models.py:567
+#: apps/academics/models.py:577
 msgid "decision"
 msgstr "décision"
 
-#: apps/academics/models.py:568
+#: apps/academics/models.py:578
 msgid "proposed decision"
 msgstr "décision proposée"
 
-#: apps/academics/models.py:573
+#: apps/academics/models.py:583
 msgid "prior percentage"
 msgstr "pourcentage repris"
 
-#: apps/academics/models.py:603
+#: apps/academics/models.py:613
 msgid "proclaimed at"
 msgstr "proclamée le"
 
-#: apps/academics/models.py:608
+#: apps/academics/models.py:618
 msgid "proclaimed by"
 msgstr "proclamée par"
 
-#: apps/academics/models.py:611
+#: apps/academics/models.py:621
 msgid "results"
 msgstr "résultats"
 
-#: apps/academics/models.py:633
+#: apps/academics/models.py:643
 msgid "Offered"
 msgstr "Proposée"
 
-#: apps/academics/models.py:634
+#: apps/academics/models.py:644
 msgid "Enrolled next year"
 msgstr "Inscrit l'année suivante"
 
-#: apps/academics/models.py:635
+#: apps/academics/models.py:645
 msgid "Withdrawn"
 msgstr "Retirée"
 
-#: apps/academics/models.py:638
+#: apps/academics/models.py:648
 msgid "Coming back"
 msgstr "Revient"
 
-#: apps/academics/models.py:639
+#: apps/academics/models.py:649
 msgid "Not coming back"
 msgstr "Ne revient pas"
 
-#: apps/academics/models.py:658
+#: apps/academics/models.py:668
 msgid "answer"
 msgstr "réponse"
 
-#: apps/academics/models.py:659
+#: apps/academics/models.py:669
 msgid "answered at"
 msgstr "répondu le"
 
-#: apps/academics/models.py:666
+#: apps/academics/models.py:676
 msgid "answered by"
 msgstr "répondu par"
 
-#: apps/academics/models.py:670
+#: apps/academics/models.py:680
 msgid "place confirmation"
 msgstr "confirmation de place"
 
-#: apps/academics/models.py:671
+#: apps/academics/models.py:681
 msgid "place confirmations"
 msgstr "confirmations de place"
 
@@ -804,26 +833,26 @@ msgstr ""
 "Le fichier ou les classes ont changé depuis l'aperçu : vérifiez-le de "
 "nouveau."
 
-#: apps/academics/prior_results.py:352 apps/finance/prior_payments.py:377
+#: apps/academics/prior_results.py:353 apps/finance/prior_payments.py:377
 msgid "STUDENT NUMBER"
 msgstr "MATRICULE"
 
-#: apps/academics/prior_results.py:353 apps/finance/prior_payments.py:378
+#: apps/academics/prior_results.py:354 apps/finance/prior_payments.py:378
 msgid "NAME"
 msgstr "NOM"
 
-#: apps/academics/prior_results.py:354
+#: apps/academics/prior_results.py:355
 #: apps/academics/templates/academics/report_card.html:91
 #: apps/core/templates/core/site/home.html:92
 #: apps/finance/prior_payments.py:379
 msgid "CLASS"
 msgstr "CLASSE"
 
-#: apps/academics/prior_results.py:355
+#: apps/academics/prior_results.py:356
 msgid "DECISION"
 msgstr "DÉCISION"
 
-#: apps/academics/prior_results.py:356
+#: apps/academics/prior_results.py:357
 #: apps/academics/templates/academics/report_card.html:125
 #: apps/core/templates/core/site/home.html:110
 msgid "PERCENTAGE"
@@ -905,56 +934,56 @@ msgstr "TOT."
 msgid "DAILY WORK."
 msgstr "TRAVAUX JOURNAL."
 
-#: apps/academics/report_card_documents.py:329
+#: apps/academics/report_card_documents.py:330
 msgid "Points"
 msgstr "Points obtenus"
 
-#: apps/academics/report_card_documents.py:329
+#: apps/academics/report_card_documents.py:330
 msgid "MAX"
 msgstr "MAX"
 
-#: apps/academics/report_card_documents.py:330
+#: apps/academics/report_card_documents.py:331
 msgid "Exam"
 msgstr "Exam."
 
-#: apps/academics/report_card_documents.py:334
+#: apps/academics/report_card_documents.py:335
 msgid "For checking"
 msgstr "Pour le contrôle"
 
-#: apps/academics/report_card_documents.py:335
-#: apps/academics/report_card_documents.py:347
+#: apps/academics/report_card_documents.py:336
+#: apps/academics/report_card_documents.py:348
 msgid "On ...../...../....."
 msgstr "Le ...../...../....."
 
-#: apps/academics/report_card_documents.py:336
+#: apps/academics/report_card_documents.py:337
 msgid "The head of the centre"
 msgstr "Le chef du centre"
 
-#: apps/academics/report_card_documents.py:338
+#: apps/academics/report_card_documents.py:339
 msgid "Centre code"
 msgstr "Le code du centre"
 
-#: apps/academics/report_card_documents.py:340
+#: apps/academics/report_card_documents.py:341
 msgid "FINAL RESULT"
 msgstr "RÉSULTAT FINAL"
 
-#: apps/academics/report_card_documents.py:341
+#: apps/academics/report_card_documents.py:342
 msgid "Diploma (1)"
 msgstr "Diplôme (1)"
 
-#: apps/academics/report_card_documents.py:342
+#: apps/academics/report_card_documents.py:343
 msgid "With ......... (%)"
 msgstr "Avec ......... (%)"
 
-#: apps/academics/report_card_documents.py:343
+#: apps/academics/report_card_documents.py:344
 msgid "Failed (1)"
 msgstr "A échoué (1)"
 
-#: apps/academics/report_card_documents.py:346
+#: apps/academics/report_card_documents.py:347
 msgid "As evidence"
 msgstr "Pour témoignage"
 
-#: apps/academics/report_card_documents.py:348
+#: apps/academics/report_card_documents.py:349
 #: apps/academics/templates/academics/_report_card_side.html:2
 #: apps/academics/templates/academics/report_card.html:144
 #: apps/academics/templates/academics/situation.html:216
@@ -962,25 +991,32 @@ msgstr "Pour témoignage"
 msgid "The head of the school"
 msgstr "Le chef d'établissement"
 
-#: apps/academics/report_card_documents.py:349
+#: apps/academics/report_card_documents.py:350
 #: apps/academics/templates/academics/_report_card_side.html:2
 #: apps/students/templates/students/registration_form.html:61
 msgid "School seal"
 msgstr "Sceau de l'école"
 
-#: apps/academics/resits.py:63
+#: apps/academics/resits.py:75
 msgid "This course does not open a resit exam for this student."
 msgstr "Ce cours n'ouvre pas d'examen de repêchage pour cet élève."
 
-#: apps/academics/resits.py:65
+#: apps/academics/resits.py:77
 msgid "A resit grade is a percentage from 0 to 100."
 msgstr "Une note de repêchage est un pourcentage de 0 à 100."
 
-#: apps/academics/resits_views.py:129
+#: apps/academics/resits.py:80
+msgid ""
+"The second session is proclaimed: reopen it before changing a resit grade."
+msgstr ""
+"La seconde session est proclamée : rouvrez-la avant de changer une note de "
+"repêchage."
+
+#: apps/academics/resits_views.py:181
 msgid "You cannot see the resit exams of this class."
 msgstr "Vous ne pouvez pas voir les examens de repêchage de cette classe."
 
-#: apps/academics/resits_views.py:148
+#: apps/academics/resits_views.py:257
 msgid "Only the teacher of the course enters its resit grade."
 msgstr "Seul l'enseignant du cours saisit sa note de repêchage."
 
@@ -1009,6 +1045,7 @@ msgstr "Procès-verbal de délibération"
 
 #: apps/academics/templates/academics/deliberation_minutes.html:15
 #: apps/academics/templates/academics/grade_sheet.html:20
+#: apps/academics/templates/academics/resit_convocations.html:14
 #: apps/academics/templates/academics/situation.html:14
 msgid "Studies"
 msgstr "Études"
@@ -1320,6 +1357,7 @@ msgid "Ranked: %(ranked)s of %(size)s"
 msgstr "Classés : %(ranked)s sur %(size)s"
 
 #: apps/academics/templates/academics/grade_sheet.html:65
+#: apps/academics/templates/academics/resit_convocations.html:19
 msgid "The director of studies"
 msgstr "Le directeur des études"
 
@@ -1584,6 +1622,47 @@ msgstr "Résultat"
 #, python-format
 msgid "place %(place)s of %(size)s"
 msgstr "place %(place)s sur %(size)s"
+
+#: apps/academics/templates/academics/resit_convocations.html:2
+msgid "Resit exam notices"
+msgstr "Convocations à l'examen de repêchage"
+
+#: apps/academics/templates/academics/resit_convocations.html:13
+msgid "Resit exam notice"
+msgstr "Convocation à l'examen de repêchage"
+
+#: apps/academics/templates/academics/resit_convocations.html:15
+#, python-format
+msgid ""
+"The student <b>%(name)s</b> (student number %(matricule)s), of the class "
+"<b>%(class_name)s</b>, is summoned to the <b>second session</b> of the "
+"school year %(year)s, on <b>%(date)s</b>, for the following courses:"
+msgstr ""
+"L'élève <b>%(name)s</b> (matricule %(matricule)s), de la classe de "
+"<b>%(class_name)s</b>, est convoqué(e) à la <b>seconde session</b> de "
+"l'année scolaire %(year)s, le <b>%(date)s</b>, pour les cours suivants :"
+
+#: apps/academics/templates/academics/resit_convocations.html:16
+msgid "Course to resit"
+msgstr "Cours à repasser"
+
+#: apps/academics/templates/academics/resit_convocations.html:16
+msgid "Obtained in the year"
+msgstr "Obtenu à l'année"
+
+#: apps/academics/templates/academics/resit_convocations.html:18
+#, python-format
+msgid ""
+"Percentage of the year: <b>%(percent)s %%</b>. It is kept: the resit exam "
+"only decides the promotion. Come to the school with this notice."
+msgstr ""
+"Pourcentage de l'année : <b>%(percent)s %%</b>. Il reste acquis : l'examen "
+"de repêchage décide seulement du passage. Se présenter à l'école muni(e) de "
+"cette convocation."
+
+#: apps/academics/templates/academics/resit_convocations.html:19
+msgid "The parent or guardian"
+msgstr "Le parent ou tuteur"
 
 #: apps/academics/templates/academics/situation.html:2
 msgid "Situation of the class"

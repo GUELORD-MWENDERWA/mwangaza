@@ -114,6 +114,16 @@ urlpatterns = [
         name="class-resits",
     ),
     path(
+        "class-groups/<uuid:pk>/resits/exam-date/",
+        resits_views.ExamDateView.as_view(),
+        name="resit-exam-date",
+    ),
+    path(
+        "class-groups/<uuid:pk>/resits/convocations/",
+        resits_views.ConvocationsView.as_view(),
+        name="resit-convocations",
+    ),
+    path(
         "resits/enrollments/<uuid:pk>/courses/<uuid:course_pk>/",
         resits_views.ResitGradeView.as_view(),
         name="resit-grade",
