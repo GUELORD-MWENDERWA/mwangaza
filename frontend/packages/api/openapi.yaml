@@ -5212,6 +5212,7 @@ paths:
           - device
           - platform
           - school
+          - site
           - team
           type: string
           minLength: 1
@@ -5222,6 +5223,7 @@ paths:
           * `device` - device
           * `platform` - platform
           * `school` - school
+          * `site` - site
           * `team` - team
       - name: page
         required: false
@@ -6358,6 +6360,321 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/banner/:
+    get:
+      operationId: console_site_banner_retrieve
+      description: |-
+        Bandeau d'annonce du site public (SITE.1a) : texte en français et en anglais, lien, dates
+        facultatives, affiché ou caché. Chaque changement va au journal de la plateforme.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSiteBanner'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: console_site_banner_partial_update
+      description: |-
+        Bandeau d'annonce du site public (SITE.1a) : texte en français et en anglais, lien, dates
+        facultatives, affiché ou caché. Chaque changement va au journal de la plateforme.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleSiteBannerRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleSiteBannerRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleSiteBannerRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSiteBanner'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/entries/:
+    get:
+      operationId: console_site_entries_list
+      description: |-
+        Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
+        brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
+        sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsoleSiteEntry'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: console_site_entries_create
+      description: |-
+        Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
+        brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
+        sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsoleSiteEntryRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConsoleSiteEntryRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConsoleSiteEntryRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSiteEntry'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/entries/{id}/:
+    patch:
+      operationId: console_site_entries_partial_update
+      description: |-
+        Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
+        brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
+        sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this site content.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleSiteEntryRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleSiteEntryRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleSiteEntryRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSiteEntry'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: console_site_entries_destroy
+      description: |-
+        Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
+        brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
+        sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this site content.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/entries/{id}/move/:
+    post:
+      operationId: console_site_entries_move_create
+      description: Monte ou descend l'entrée d'un rang ; renvoie sa liste dans le
+        nouvel ordre.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this site content.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteEntryMoveRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SiteEntryMoveRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SiteEntryMoveRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsoleSiteEntry'
           description: ''
         '400':
           content:
@@ -18911,6 +19228,155 @@ components:
       required:
       - code
       - name
+    ConsoleSiteBanner:
+      type: object
+      description: 'Bandeau d''annonce du site (SITE.1a). `state` : affiché, programmé,
+        terminé ou caché.'
+      properties:
+        text_fr:
+          type: string
+          title: Text in French
+          maxLength: 160
+        text_en:
+          type: string
+          title: Text in English
+          maxLength: 160
+        link:
+          type: string
+          maxLength: 300
+        starts_on:
+          type: string
+          format: date
+          nullable: true
+          title: From
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+          title: Until
+        active:
+          type: boolean
+          title: Shown
+        state:
+          allOf:
+          - $ref: '#/components/schemas/ConsoleSiteBannerStateEnum'
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - text_fr
+      - text_en
+      - link
+      - starts_on
+      - ends_on
+      - active
+      - state
+      - updated_at
+    ConsoleSiteBannerStateEnum:
+      enum:
+      - shown
+      - scheduled
+      - ended
+      - hidden
+      type: string
+      description: |-
+        * `shown` - shown
+        * `scheduled` - scheduled
+        * `ended` - ended
+        * `hidden` - hidden
+    ConsoleSiteEntry:
+      type: object
+      description: |-
+        Question de l'accueil ou des parents, ou fonction « Prochainement » (SITE.1a). Français
+        obligatoire, anglais facultatif (vide : le français) ; la sorte ne change plus après la
+        création ; le rang se change par `move`.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        kind:
+          $ref: '#/components/schemas/ConsoleSiteEntryKindEnum'
+        title_fr:
+          type: string
+          title: Title in French
+          maxLength: 160
+        title_en:
+          type: string
+          title: Title in English
+          maxLength: 160
+        text_fr:
+          type: string
+          title: Text in French
+          maxLength: 1500
+        text_en:
+          type: string
+          title: Text in English
+          maxLength: 1500
+        position:
+          type: integer
+          readOnly: true
+        published:
+          type: boolean
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - kind
+      - title_fr
+      - title_en
+      - text_fr
+      - text_en
+      - position
+      - published
+      - updated_at
+    ConsoleSiteEntryKindEnum:
+      enum:
+      - home_question
+      - parent_question
+      - upcoming
+      type: string
+      description: |-
+        * `home_question` - Home page question
+        * `parent_question` - Parents page question
+        * `upcoming` - Coming soon
+    ConsoleSiteEntryRequest:
+      type: object
+      description: |-
+        Question de l'accueil ou des parents, ou fonction « Prochainement » (SITE.1a). Français
+        obligatoire, anglais facultatif (vide : le français) ; la sorte ne change plus après la
+        création ; le rang se change par `move`.
+      properties:
+        kind:
+          $ref: '#/components/schemas/ConsoleSiteEntryKindEnum'
+        title_fr:
+          type: string
+          minLength: 1
+          title: Title in French
+          maxLength: 160
+        title_en:
+          type: string
+          title: Title in English
+          maxLength: 160
+        text_fr:
+          type: string
+          minLength: 1
+          title: Text in French
+          maxLength: 1500
+        text_en:
+          type: string
+          title: Text in English
+          maxLength: 1500
+        published:
+          type: boolean
+      required:
+      - kind
+      - text_fr
+      - title_fr
     ConsoleSupportSession:
       type: object
       description: |-
@@ -20098,6 +20564,14 @@ components:
       - currency
       - difference_minor
       - closed_at
+    DirectionEnum:
+      enum:
+      - up
+      - down
+      type: string
+      description: |-
+        * `up` - up
+        * `down` - down
     Discount:
       type: object
       properties:
@@ -24290,6 +24764,64 @@ components:
           type: string
           format: date
           nullable: true
+    PatchedConsoleSiteBannerRequest:
+      type: object
+      description: 'Bandeau d''annonce du site (SITE.1a). `state` : affiché, programmé,
+        terminé ou caché.'
+      properties:
+        text_fr:
+          type: string
+          title: Text in French
+          maxLength: 160
+        text_en:
+          type: string
+          title: Text in English
+          maxLength: 160
+        link:
+          type: string
+          maxLength: 300
+        starts_on:
+          type: string
+          format: date
+          nullable: true
+          title: From
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+          title: Until
+        active:
+          type: boolean
+          title: Shown
+    PatchedConsoleSiteEntryRequest:
+      type: object
+      description: |-
+        Question de l'accueil ou des parents, ou fonction « Prochainement » (SITE.1a). Français
+        obligatoire, anglais facultatif (vide : le français) ; la sorte ne change plus après la
+        création ; le rang se change par `move`.
+      properties:
+        kind:
+          $ref: '#/components/schemas/ConsoleSiteEntryKindEnum'
+        title_fr:
+          type: string
+          minLength: 1
+          title: Title in French
+          maxLength: 160
+        title_en:
+          type: string
+          title: Title in English
+          maxLength: 160
+        text_fr:
+          type: string
+          minLength: 1
+          title: Text in French
+          maxLength: 1500
+        text_en:
+          type: string
+          title: Text in English
+          maxLength: 1500
+        published:
+          type: boolean
     PatchedEnrollmentUpdateRequest:
       type: object
       properties:
@@ -25259,6 +25791,11 @@ components:
       - team.member_invited
       - team.roles_changed
       - team.member_removed
+      - site.entry_created
+      - site.entry_updated
+      - site.entry_moved
+      - site.entry_deleted
+      - site.banner_updated
       type: string
       description: |-
         * `platform.updated` - Platform identity changed
@@ -25284,6 +25821,11 @@ components:
         * `team.member_invited` - Team member invited
         * `team.roles_changed` - Roles of a team member changed
         * `team.member_removed` - Member removed from the team
+        * `site.entry_created` - Site content added
+        * `site.entry_updated` - Site content changed
+        * `site.entry_moved` - Site content moved
+        * `site.entry_deleted` - Site content deleted
+        * `site.banner_updated` - Site banner changed
     PlatformAudienceEnum:
       enum:
       - all_schools
@@ -27722,6 +28264,13 @@ components:
             côté au plus ; enregistré en PNG, le fond blanc rendu transparent.'
       required:
       - image
+    SiteEntryMoveRequest:
+      type: object
+      properties:
+        direction:
+          $ref: '#/components/schemas/DirectionEnum'
+      required:
+      - direction
     SituationEnum:
       enum:
       - up_to_date

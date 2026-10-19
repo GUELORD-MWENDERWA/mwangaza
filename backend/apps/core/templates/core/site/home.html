@@ -191,15 +191,15 @@
   </div>
 </section>
 
-<section class="sec" id="questions">
+{% if faq %}<section class="sec" id="questions">
   <div class="wrap">
     <div class="sechd c rv"><span class="eyebrow">{% translate "Frequently asked questions" %}</span><h2 class="st">{% translate "What people often ask us" %}</h2></div>
     <div class="faq">
-      {% for question, answer in texts.faq %}<details{% if forloop.first %} open{% endif %}><summary>{{ question }}{% icon "chevdown" %}</summary><p>{{ answer }}</p></details>
+      {% for question, answer in faq %}<details{% if forloop.first %} open{% endif %}><summary>{{ question }}{% icon "chevdown" %}</summary><p>{{ answer|linebreaksbr }}</p></details>
       {% endfor %}
     </div>
   </div>
-</section>
+</section>{% endif %}
 
 {% include "core/site/_cta.html" %}
 {% endblock %}

@@ -39,7 +39,8 @@
 </head>
 <body class="site">
 <a class="skip" href="#contenu">{% translate "Skip to content" %}</a>
-<header class="sh">
+{% if banner %}<div class="sbanner" role="region" aria-label="{% translate 'Announcement' %}"><p>{{ banner.text }}{% if banner.link %} <a href="{{ banner.link }}">{% translate "Learn more" %}{% icon "arrow" %}</a>{% endif %}</p></div>
+{% endif %}<header class="sh">
   <div class="wrap shin">
     {% include "core/site/_brand.html" %}
     <nav class="snav" aria-label="{% translate 'Main menu' %}">{% include "core/site/_menu.html" %}</nav>

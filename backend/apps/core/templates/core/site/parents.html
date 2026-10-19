@@ -61,10 +61,10 @@
       </ul>
       <a class="more" href="{{ links.legal }}#confidentialite">{% translate "Read the privacy policy" %} {% icon "arrow" %}</a>
     </div>
-    <div class="faq rv">
-      {% for question, answer in faq %}<details{% if forloop.first %} open{% endif %}><summary>{{ question }}{% icon "chevdown" %}</summary><p>{{ answer }}</p></details>
+    {% if faq %}<div class="faq rv">
+      {% for question, answer in faq %}<details{% if forloop.first %} open{% endif %}><summary>{{ question }}{% icon "chevdown" %}</summary><p>{{ answer|linebreaksbr }}</p></details>
       {% endfor %}
-    </div>
+    </div>{% endif %}
   </div>
 </section>
 

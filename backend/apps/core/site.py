@@ -6,7 +6,8 @@ titres et descriptions écrits pour les recherches courtes, avec le nom pour la 
 (« Mwangaza School ») ; données structurées sur chaque page ; image de partage (`share.py`).
 
 Nom, logo, icône, couleurs et contact viennent de l'identité de la plateforme (règle 9) ; l'auteur
-du logiciel, des réglages ; ce qui change souvent, de `site_content.py`. Les espaces privés
+du logiciel, des réglages ; ce qui change souvent (questions, « Prochainement », bandeau : console,
+SITE.1a), de `site_content.py`, en cache. Les espaces privés
 (écoles, portail, console, vérification des reçus) ne sont jamais indexés (`infra/routes.caddy`).
 Une lecture en base par page (plus les chiffres de la plateforme, en cache une heure), pages
 gardées une heure par les navigateurs."""
@@ -35,7 +36,7 @@ from apps.accounts.modules import DEPENDENCIES, MODULES
 from apps.accounts.phone import format_phone
 from apps.core import demo_requests, share, site_content
 from apps.core.http import client_ip
-from apps.core.models import PlatformSettings
+from apps.core.models import PlatformSettings, SiteEntry
 from apps.core.money import format_amount
 
 # Adresse de chaque page dans chaque langue ; `config/urls.py` en fait les routes.
@@ -134,11 +135,10 @@ def _site(request: HttpRequest) -> str:
     return request.build_absolute_uri("/").rstrip("/")
 
 
-def _texts(name: str, site_name: str) -> dict:
+def _texts(site_name: str) -> dict:
     """Textes de l'accueil dans la langue active ; les mêmes servent aux données structurées et à
     `llms.txt` (une seule source). Titre (60 signes au plus) et description (155) écrits pour les
     recherches courtes (« gestion scolaire Goma »), avec le nom pour la recherche."""
-    values = {"name": name}
     return {
         "title": _("%(name)s — school management software in Goma, DRC") % {"name": site_name},
         "description": _(
@@ -232,63 +232,6 @@ def _texts(name: str, site_name: str) -> dict:
             _("Each school has its own address, logo, fees, receipts and roles."),
             _("Each school's data is kept apart; encrypted backups every night."),
             _("In French and English."),
-        ],
-        "faq": [
-            (
-                _("Does %(name)s work without internet?") % values,
-                _(
-                    "Yes. On a device already signed in, the cash desk, student search and "
-                    "receipt printing keep working without a network. Payments sync "
-                    "automatically when the connection is back, never twice."
-                ),
-            ),
-            (
-                _("Is there anything to install?"),
-                _(
-                    "No. %(name)s opens in the browser (Chrome, Edge, Safari) and can be added to "
-                    "the home screen of a phone or computer like an app, without an app store."
-                )
-                % values,
-            ),
-            (
-                _("Can parents follow payments?"),
-                _(
-                    "Yes. With the family code printed on the registration form, parents activate "
-                    "their account and see the payments, receipts, due dates and notices of each "
-                    "child's school."
-                ),
-            ),
-            (
-                _("Are fees in US dollars and Congolese francs supported?"),
-                _(
-                    "Yes. Each fee has its currency (USD or FC), the school sets the exchange rate "
-                    "for the year, and each payment keeps the rate it used."
-                ),
-            ),
-            (
-                _("Does %(name)s make the report cards?") % values,
-                _(
-                    "Yes. The teacher enters the marks; %(name)s works out the totals, "
-                    "percentages, ranks and conduct, then prints the report card in the school's "
-                    "format. Its QR code lets anyone check that it is genuine."
-                )
-                % values,
-            ),
-            (
-                _("Is my school's data protected?"),
-                _(
-                    "Each school only sees its own data. Accounts that handle money use two-factor "
-                    "sign-in, every sensitive action is written to a log, and the database is "
-                    "backed up, encrypted, every night."
-                ),
-            ),
-            (
-                _("How can my school try %(name)s?") % values,
-                _(
-                    "Contact us: we open a trial space for your school, with your classes and "
-                    "fees, and help you get started."
-                ),
-            ),
         ],
     }
 
@@ -447,32 +390,6 @@ def _structured_data(platform, context: dict) -> str:
     return _json_ld({"@context": "https://schema.org", "@graph": graph})
 
 
-def _parents_faq(name: str) -> list[tuple[str, str]]:
-    """Questions des parents : la page et ses données structurées."""
-    return [
-        (
-            _("I lost my family code"),
-            _("Ask the school office for a new one: the old one no longer works."),
-        ),
-        (
-            _("I changed my phone number"),
-            _(
-                "Tell the school, or use your profile if you are still signed in: the school "
-                "approves the change."
-            ),
-        ),
-        (
-            _("My children are in two schools"),
-            _("One account is enough if both schools use %(name)s with the same number.")
-            % {"name": name},
-        ),
-        (
-            _("Can I pay online?"),
-            _("Not yet: you pay at the school's cash desk. Mobile Money payment is planned."),
-        ),
-    ]
-
-
 def _whatsapp(platform) -> str | None:
     if not platform.support_phone:
         return None
@@ -549,7 +466,7 @@ def _render(
     site = _site(request)
     other = "en" if lang == "fr" else "fr"
     with translation.override(lang):
-        texts = _texts(platform.name, platform.site_name)
+        texts = _texts(platform.site_name)
         context = {
             "lang": lang,
             "other_lang": other,
@@ -582,6 +499,7 @@ def _render(
             "copyright": settings.SOFTWARE_COPYRIGHT,
             "copyright_url": settings.SOFTWARE_COPYRIGHT_URL,
             "year": timezone.localdate().year,
+            "banner": _banner(lang),
         }
         if key == "home":
             context["title"], context["description"] = texts["title"], texts["description"]
@@ -591,6 +509,16 @@ def _render(
             context.update(build(platform, context))
         context["json_ld"] = _structured_data(platform, context)
         return render(request, f"core/site/{key}.html", context, status=status)
+
+
+def _banner(lang: str) -> dict | None:
+    """Le bandeau du jour ; un lien vers une page du site mène à sa version dans la langue."""
+    banner = site_content.banner(lang, timezone.localdate())
+    if banner:
+        for paths in PAGES.values():
+            if banner["link"] in paths.values():
+                banner["link"] = paths[lang]
+    return banner
 
 
 def _version(platform) -> int:
@@ -657,7 +585,7 @@ def _ordinal(n: int) -> str:
 
 def _home(platform, context: dict) -> dict:
     return {
-        "faq": context["texts"]["faq"],
+        "faq": site_content.entries(SiteEntry.Kind.HOME_QUESTION, context["lang"]),
         "stats": platform_stats(),
         "references": site_content.REFERENCES,
         "sample": {
@@ -688,7 +616,7 @@ def _modules(platform, context: dict) -> dict:
             }
             for code, (label, _permissions) in MODULES.items()
         ],
-        "upcoming": site_content.UPCOMING,
+        "upcoming": site_content.entries(SiteEntry.Kind.UPCOMING, context["lang"]),
     }
 
 
@@ -712,7 +640,12 @@ def schools(request: HttpRequest, lang: str = "fr") -> HttpResponse:
 @public
 def parents(request: HttpRequest, lang: str = "fr") -> HttpResponse:
     return _render(
-        request, "parents", lang, lambda platform, _context: {"faq": _parents_faq(platform.name)}
+        request,
+        "parents",
+        lang,
+        lambda _platform, _context: {
+            "faq": site_content.entries(SiteEntry.Kind.PARENT_QUESTION, lang)
+        },
     )
 
 
@@ -822,7 +755,7 @@ def llms_txt(request: HttpRequest) -> HttpResponse:
     """Résumé en Markdown pour les assistants (IA), selon la convention `llms.txt`."""
     platform = PlatformSettings.load()
     with translation.override("fr"):
-        texts = _texts(platform.name, platform.site_name)
+        texts = _texts(platform.site_name)
         return render(
             request,
             "core/site/llms.txt",
@@ -832,6 +765,7 @@ def llms_txt(request: HttpRequest) -> HttpResponse:
                 "paths": PATHS,
                 "pages": PAGES,
                 "texts": texts,
+                "faq": site_content.entries(SiteEntry.Kind.HOME_QUESTION, "fr"),
                 "portal_url": settings.PORTAL_URL,
                 "author": settings.SOFTWARE_AUTHOR,
                 "author_url": settings.SOFTWARE_AUTHOR_URL,

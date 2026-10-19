@@ -20,3 +20,9 @@ console_urlpatterns = [
 # Demandes de démonstration du site (WEB.1d), sous `/api/console/demo-requests/`.
 router = SimpleRouter()
 router.register("console/demo-requests", views.ConsoleDemoRequestViewSet, basename="console-demo")
+# Contenus du site public (SITE.1a), sous `/api/console/site/`.
+router.register("console/site/entries", views.ConsoleSiteEntryViewSet, basename="console-site")
+api_urlpatterns = [
+    *router.urls,
+    path("console/site/banner/", views.ConsoleSiteBannerView.as_view(), name="console-site-banner"),
+]

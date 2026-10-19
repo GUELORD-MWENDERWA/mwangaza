@@ -1878,6 +1878,99 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/site/banner/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Bandeau d'annonce du site public (SITE.1a) : texte en français et en anglais, lien, dates
+         *     facultatives, affiché ou caché. Chaque changement va au journal de la plateforme.
+         */
+        get: operations["console_site_banner_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Bandeau d'annonce du site public (SITE.1a) : texte en français et en anglais, lien, dates
+         *     facultatives, affiché ou caché. Chaque changement va au journal de la plateforme.
+         */
+        patch: operations["console_site_banner_partial_update"];
+        trace?: never;
+    };
+    "/api/console/site/entries/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
+         *     brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
+         *     sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+         */
+        get: operations["console_site_entries_list"];
+        put?: never;
+        /**
+         * @description Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
+         *     brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
+         *     sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+         */
+        post: operations["console_site_entries_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/entries/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * @description Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
+         *     brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
+         *     sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+         */
+        delete: operations["console_site_entries_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
+         *     brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
+         *     sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+         */
+        patch: operations["console_site_entries_partial_update"];
+        trace?: never;
+    };
+    "/api/console/site/entries/{id}/move/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Monte ou descend l'entrée d'un rang ; renvoie sa liste dans le nouvel ordre. */
+        post: operations["console_site_entries_move_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/support-sessions/": {
         parameters: {
             query?: never;
@@ -6437,6 +6530,83 @@ export interface components {
             code: string;
             name: string;
         };
+        /** @description Bandeau d'annonce du site (SITE.1a). `state` : affiché, programmé, terminé ou caché. */
+        ConsoleSiteBanner: {
+            /** Text in French */
+            text_fr: string;
+            /** Text in English */
+            text_en: string;
+            link: string;
+            /**
+             * From
+             * Format: date
+             */
+            starts_on: string | null;
+            /**
+             * Until
+             * Format: date
+             */
+            ends_on: string | null;
+            /** Shown */
+            active: boolean;
+            readonly state: components["schemas"]["ConsoleSiteBannerStateEnum"];
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description * `shown` - shown
+         *     * `scheduled` - scheduled
+         *     * `ended` - ended
+         *     * `hidden` - hidden
+         * @enum {string}
+         */
+        ConsoleSiteBannerStateEnum: "shown" | "scheduled" | "ended" | "hidden";
+        /**
+         * @description Question de l'accueil ou des parents, ou fonction « Prochainement » (SITE.1a). Français
+         *     obligatoire, anglais facultatif (vide : le français) ; la sorte ne change plus après la
+         *     création ; le rang se change par `move`.
+         */
+        ConsoleSiteEntry: {
+            /** Format: uuid */
+            readonly id: string;
+            kind: components["schemas"]["ConsoleSiteEntryKindEnum"];
+            /** Title in French */
+            title_fr: string;
+            /** Title in English */
+            title_en: string;
+            /** Text in French */
+            text_fr: string;
+            /** Text in English */
+            text_en: string;
+            readonly position: number;
+            published: boolean;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description * `home_question` - Home page question
+         *     * `parent_question` - Parents page question
+         *     * `upcoming` - Coming soon
+         * @enum {string}
+         */
+        ConsoleSiteEntryKindEnum: "home_question" | "parent_question" | "upcoming";
+        /**
+         * @description Question de l'accueil ou des parents, ou fonction « Prochainement » (SITE.1a). Français
+         *     obligatoire, anglais facultatif (vide : le français) ; la sorte ne change plus après la
+         *     création ; le rang se change par `move`.
+         */
+        ConsoleSiteEntryRequest: {
+            kind: components["schemas"]["ConsoleSiteEntryKindEnum"];
+            /** Title in French */
+            title_fr: string;
+            /** Title in English */
+            title_en?: string;
+            /** Text in French */
+            text_fr: string;
+            /** Text in English */
+            text_en?: string;
+            published?: boolean;
+        };
         /**
          * @description Une session support « en tant qu'école » (5.4.2), reconstituée depuis le journal de
          *     l'école (`support.sessions`).
@@ -7006,6 +7176,12 @@ export interface components {
             /** Format: date-time */
             closed_at: string;
         };
+        /**
+         * @description * `up` - up
+         *     * `down` - down
+         * @enum {string}
+         */
+        DirectionEnum: "up" | "down";
         Discount: {
             /** Format: uuid */
             readonly id: string;
@@ -9046,6 +9222,43 @@ export interface components {
             /** Format: date */
             paid_until?: string | null;
         };
+        /** @description Bandeau d'annonce du site (SITE.1a). `state` : affiché, programmé, terminé ou caché. */
+        PatchedConsoleSiteBannerRequest: {
+            /** Text in French */
+            text_fr?: string;
+            /** Text in English */
+            text_en?: string;
+            link?: string;
+            /**
+             * From
+             * Format: date
+             */
+            starts_on?: string | null;
+            /**
+             * Until
+             * Format: date
+             */
+            ends_on?: string | null;
+            /** Shown */
+            active?: boolean;
+        };
+        /**
+         * @description Question de l'accueil ou des parents, ou fonction « Prochainement » (SITE.1a). Français
+         *     obligatoire, anglais facultatif (vide : le français) ; la sorte ne change plus après la
+         *     création ; le rang se change par `move`.
+         */
+        PatchedConsoleSiteEntryRequest: {
+            kind?: components["schemas"]["ConsoleSiteEntryKindEnum"];
+            /** Title in French */
+            title_fr?: string;
+            /** Title in English */
+            title_en?: string;
+            /** Text in French */
+            text_fr?: string;
+            /** Text in English */
+            text_en?: string;
+            published?: boolean;
+        };
         PatchedEnrollmentUpdateRequest: {
             /** Format: uuid */
             class_group?: string;
@@ -9515,9 +9728,14 @@ export interface components {
          *     * `team.member_invited` - Team member invited
          *     * `team.roles_changed` - Roles of a team member changed
          *     * `team.member_removed` - Member removed from the team
+         *     * `site.entry_created` - Site content added
+         *     * `site.entry_updated` - Site content changed
+         *     * `site.entry_moved` - Site content moved
+         *     * `site.entry_deleted` - Site content deleted
+         *     * `site.banner_updated` - Site banner changed
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated";
         /**
          * @description * `all_schools` - All schools
          *     * `schools` - Some schools
@@ -10683,6 +10901,9 @@ export interface components {
              * @description Cachet ou signature : PNG ou JPEG, 1 Mo et 2 048 pixels de côté au plus ; enregistré en PNG, le fond blanc rendu transparent.
              */
             image: string;
+        };
+        SiteEntryMoveRequest: {
+            direction: components["schemas"]["DirectionEnum"];
         };
         /**
          * @description * `up_to_date` - up_to_date
@@ -16469,9 +16690,10 @@ export interface operations {
                  *     * `device` - device
                  *     * `platform` - platform
                  *     * `school` - school
+                 *     * `site` - site
                  *     * `team` - team
                  */
-                domain?: "access" | "account" | "announcement" | "device" | "platform" | "school" | "team";
+                domain?: "access" | "account" | "announcement" | "device" | "platform" | "school" | "site" | "team";
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Dans le nom de l'objet. */
@@ -17639,6 +17861,339 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_banner_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSiteBanner"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_banner_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsoleSiteBannerRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedConsoleSiteBannerRequest"];
+                "multipart/form-data": components["schemas"]["PatchedConsoleSiteBannerRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSiteBanner"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_entries_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSiteEntry"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_entries_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsoleSiteEntryRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ConsoleSiteEntryRequest"];
+                "multipart/form-data": components["schemas"]["ConsoleSiteEntryRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSiteEntry"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_entries_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this site content. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_entries_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this site content. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsoleSiteEntryRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedConsoleSiteEntryRequest"];
+                "multipart/form-data": components["schemas"]["PatchedConsoleSiteEntryRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSiteEntry"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_entries_move_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this site content. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SiteEntryMoveRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SiteEntryMoveRequest"];
+                "multipart/form-data": components["schemas"]["SiteEntryMoveRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSiteEntry"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

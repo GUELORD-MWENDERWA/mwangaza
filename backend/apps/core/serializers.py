@@ -1,3 +1,7 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.validators import URLValidator
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -6,7 +10,7 @@ from apps.audit.actions import PlatformAction
 from apps.audit.models import PlatformAuditLog
 from apps.audit.serializers import AuditActorSerializer
 from apps.core.images import CleanedFileField
-from apps.core.models import DemoRequest, PlatformSettings
+from apps.core.models import DemoRequest, PlatformSettings, SiteBanner, SiteEntry
 from apps.core.platform import clean_icon, clean_logo
 
 PUBLIC_FIELDS = [
@@ -123,3 +127,94 @@ class ConsoleDemoRequestSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = [f for f in fields if f not in ("status", "notes")]
+
+
+class ConsoleSiteEntrySerializer(serializers.ModelSerializer):
+    """Question de l'accueil ou des parents, ou fonction « Prochainement » (SITE.1a). Français
+    obligatoire, anglais facultatif (vide : le français) ; la sorte ne change plus après la
+    création ; le rang se change par `move`."""
+
+    class Meta:
+        model = SiteEntry
+        fields = [
+            "id",
+            "kind",
+            "title_fr",
+            "title_en",
+            "text_fr",
+            "text_en",
+            "position",
+            "published",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "position", "updated_at"]
+
+    def validate_kind(self, kind: str) -> str:
+        if self.instance is not None and kind != self.instance.kind:
+            raise serializers.ValidationError(_("The kind of an entry cannot change."))
+        if self.instance is None and SiteEntry.objects.filter(kind=kind).count() >= (
+            SiteEntry.MAX_PER_KIND
+        ):
+            raise serializers.ValidationError(
+                _("This list is full (%(max)s at most): delete an entry first.")
+                % {"max": SiteEntry.MAX_PER_KIND}
+            )
+        return kind
+
+
+class SiteEntryMoveSerializer(serializers.Serializer):
+    direction = serializers.ChoiceField(choices=["up", "down"])
+
+
+BANNER_STATES = ["shown", "scheduled", "ended", "hidden"]
+HTTPS = URLValidator(schemes=["https"])
+
+
+class ConsoleSiteBannerSerializer(serializers.ModelSerializer):
+    """Bandeau d'annonce du site (SITE.1a). `state` : affiché, programmé, terminé ou caché."""
+
+    state = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SiteBanner
+        fields = [
+            "text_fr",
+            "text_en",
+            "link",
+            "starts_on",
+            "ends_on",
+            "active",
+            "state",
+            "updated_at",
+        ]
+        read_only_fields = ["updated_at"]
+
+    @extend_schema_field(serializers.ChoiceField(choices=BANNER_STATES))
+    def get_state(self, banner: SiteBanner) -> str:
+        return banner.state(timezone.localdate())
+
+    def validate_link(self, link: str) -> str:
+        """Une page du site (`/demonstration/`) ou une adresse `https://` ; rien d'autre (ni
+        `javascript:`, ni `//autre-site`)."""
+        if not link:
+            return link
+        if link.startswith("/") and not link.startswith("//") and " " not in link:
+            return link
+        try:
+            HTTPS(link)
+        except DjangoValidationError as error:
+            raise serializers.ValidationError(
+                _("Give a page of the site (/demonstration/) or an address starting with https://.")
+            ) from error
+        return link
+
+    def validate(self, attrs: dict) -> dict:
+        merged = {
+            field: attrs.get(field, getattr(self.instance, field, None))
+            for field in ("text_fr", "starts_on", "ends_on", "active")
+        }
+        if merged["active"] and not merged["text_fr"]:
+            raise serializers.ValidationError({"text_fr": _("Write the text to show.")})
+        if merged["starts_on"] and merged["ends_on"] and merged["ends_on"] < merged["starts_on"]:
+            raise serializers.ValidationError({"ends_on": _("The end comes before the start.")})
+        return attrs

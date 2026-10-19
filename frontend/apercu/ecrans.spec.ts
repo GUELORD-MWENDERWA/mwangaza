@@ -283,6 +283,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "demo-requests",
       "accounts",
       "announcements",
+      "site",
       "devices",
       "identity",
       "journal",

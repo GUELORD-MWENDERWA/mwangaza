@@ -21,6 +21,7 @@ import { RIGHTS, type Right } from "./lib/rights";
 import { Allowed, Home } from "./features/shell/Allowed";
 import { ConsoleShell } from "./features/shell/ConsoleShell";
 import { RequireAdmin } from "./features/shell/RequireAdmin";
+import { SitePage } from "./features/site/SitePage";
 import { TeamPage } from "./features/team/TeamPage";
 
 const { schoolsView, schoolsManage, demosManage, accountsSupport, auditView } = RIGHTS;
@@ -56,6 +57,7 @@ export const routes: RouteObject[] = [
           { path: "accounts", element: only([accountsSupport], <AccountsPage />) },
           { path: "accounts/:id", element: only([accountsSupport], <AccountPage />) },
           { path: "announcements", element: only([RIGHTS.newsPublish], <AnnouncementsPage />) },
+          { path: "site", element: only([RIGHTS.siteEdit], <SitePage />) },
           { path: "identity", element: only([RIGHTS.identityEdit], <IdentityPage />) },
           { path: "devices", element: only([RIGHTS.healthView], <DevicesPage />) },
           { path: "journal", element: only([auditView], <JournalPage />) },

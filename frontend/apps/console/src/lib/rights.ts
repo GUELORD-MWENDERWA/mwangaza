@@ -42,6 +42,7 @@ export const MENU = [
   { to: "/demo-requests", key: "demoRequests", end: true, rights: [RIGHTS.leadsManage] },
   { to: "/accounts", key: "accounts", end: false, rights: [RIGHTS.accountsSupport] },
   { to: "/announcements", key: "announcements", end: true, rights: [RIGHTS.newsPublish] },
+  { to: "/site", key: "site", end: true, rights: [RIGHTS.siteEdit] },
   { to: "/identity", key: "identity", end: true, rights: [RIGHTS.identityEdit] },
   { to: "/devices", key: "devices", end: true, rights: [RIGHTS.healthView] },
   {
