@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.academics import (
+    board,
     courses,
     gradebook,
     grades,
@@ -18,6 +19,7 @@ from apps.academics import (
 )
 from apps.academics.models import Course, GradeDeadline
 from apps.academics.serializers import (
+    BoardFilterSerializer,
     CoursesCopiedSerializer,
     CoursesCopySerializer,
     CourseSerializer,
@@ -27,6 +29,8 @@ from apps.academics.serializers import (
     GradingFilterSerializer,
     GradingSerializer,
     OfficialGridSerializer,
+    RemindersResultSerializer,
+    RemindersSerializer,
     ReopenSerializer,
     ReportCardSerializer,
     ReportCardStatusSerializer,
@@ -359,22 +363,30 @@ class GradeReopenView(_ValidationView):
 
 @extend_schema(tags=["grades"])
 class GradingValidationView(APIView):
-    """Droit `grades.validate`, module `academics` (8.2.2)."""
+    """Tableau du directeur des études (8.2.2, NB.2) : droit `grades.validate`, module
+    `academics`."""
 
     permission_classes = [HasSchoolPermission]
     required_permission = GRADES_VALIDATE
     required_module = "academics"
 
     @extend_schema(
-        parameters=[GradingFilterSerializer], responses={200: ValidationSerializer, **ERRORS}
+        parameters=[BoardFilterSerializer], responses={200: ValidationSerializer, **ERRORS}
     )
     def get(self, request: Request) -> Response:
-        """Feuilles envoyées de l'année à valider, et la date limite de saisie de chaque période."""
-        params = GradingFilterSerializer(data=request.query_params)
+        """Découpage de l'année, dates limites de saisie, et pour une période ou des examens (par
+        défaut la dernière commencée) l'état de la fiche de chaque cours de chaque classe :
+        `not_started`, `in_progress`, `submitted`, `validated`, `returned` ; dernier rappel."""
+        params = BoardFilterSerializer(data=request.query_params)
         params.is_valid(raise_exception=True)
-        year = params.validated_data.get("academic_year") or organisation.current_year()
+        term = params.validated_data.get("term")
+        year = term.academic_year if term else organisation.current_year()
         if year is None:
-            return Response({"academic_year": None, "terms": [], "deadlines": [], "sheets": []})
+            empty = {"academic_year": None, "terms": [], "deadlines": [], "term": None}
+            return Response({**empty, "classes": []})
+        terms = board.graded_terms(year)
+        if term is None or term.kind not in (Term.Kind.PERIOD, Term.Kind.EXAM):
+            term = board.default_term(year, terms)
         deadlines = GradeDeadline.objects.filter(term__academic_year=year).values(
             "term_id", "due_on"
         )
@@ -382,9 +394,42 @@ class GradingValidationView(APIView):
             "academic_year": year.pk,
             "terms": term_tree(year),
             "deadlines": [{"term": row["term_id"], "due_on": row["due_on"]} for row in deadlines],
-            "sheets": grades.awaiting_validation(year),
+            "term": term.pk if term else None,
+            "classes": board.board(term) if term else [],
         }
         return Response(ValidationSerializer(data).data)
+
+
+UNKNOWN_COURSE = ApiError("unknown_course", _("This course does not exist."), 400)
+
+
+@extend_schema(tags=["grades"])
+class GradeRemindersView(APIView):
+    permission_classes = [HasSchoolPermission]
+    required_permission = GRADES_VALIDATE
+    required_module = "academics"
+
+    @extend_schema(
+        request=RemindersSerializer,
+        responses={
+            200: RemindersResultSerializer,
+            400: ErrorSerializer,
+            409: ErrorSerializer,
+            **ERRORS,
+        },
+    )
+    def post(self, request: Request) -> Response:
+        """Rappelle aux enseignants les fiches pas encore envoyées de ces cours (NB.2) : une
+        notification par enseignant ; cours envoyés, sans enseignant ou déjà rappelés aujourd'hui
+        ignorés ; 409 `notifications_off` sans le module Notifications."""
+        serializer = RemindersSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        ids = set(serializer.validated_data["courses"])
+        courses = list(Course.objects.filter(pk__in=ids).select_related("class_group"))
+        if len(courses) != len(ids):
+            raise BusinessError(UNKNOWN_COURSE)
+        result = board.remind(serializer.validated_data["term"], courses, actor=request.user)
+        return Response(RemindersResultSerializer(result).data)
 
 
 @extend_schema(tags=["grades"])
@@ -543,7 +588,7 @@ class GradeSheetPrintView(_GradesView):
         )
         permissions = school_access(request).permissions
         kind, course = data["kind"], data.get("course")
-        if kind == "class":
+        if kind in ("class", "ranking"):
             if not (
                 permissions & {GRADES_ENTER_ANY, GRADES_VALIDATE}
                 or group.homeroom_teacher_id == request.user.pk
@@ -561,14 +606,16 @@ class GradeSheetPrintView(_GradesView):
             item for item in report_cards.missing_sheets(group) if not course or item[0] == course
         ]
         columns = set(data.get("columns", ()))
-        if kind == "class":
-            keys = {column.key for column in report.columns}
-            if data["column"] not in keys:
+        if kind in ("class", "ranking"):
+            column = next((c for c in report.columns if c.key == data["column"]), None)
+            if column is None:
                 raise ValidationError({"column": "Unknown column."})
-            context = gradebook.class_table(
-                report, data["column"], columns=columns, missing=bool(missing)
-            )
-            name = f"cotes-{slugify(group.name)}"
+            # « Provisoire » d'après les seules périodes de la colonne imprimée.
+            parts = set(column.parts)
+            missing = [item for item in missing if str(item[1].pk) in parts]
+            build = gradebook.class_table if kind == "class" else gradebook.ranking
+            context = build(report, column.key, columns=columns, missing=bool(missing))
+            name = f"{'cotes' if kind == 'class' else 'palmares'}-{slugify(group.name)}"
         else:
             context = gradebook.course_sheet(
                 report,

@@ -180,22 +180,30 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     // Saisie des notes (8.2.1) : l'enseignant, sur ses cours.
     const teacher = await staff(browser, "0000001008", false);
     await visit(teacher, `${ITIG}grades`, "gestion", "grades");
-    // Validation des notes (8.2.2) : la directrice des études (double authentification).
+    // Suivi des notes (8.2.2, NB.2) : la directrice des études (double authentification).
     const director = await staff(browser, "0000001002", true);
     await visit(director, `${ITIG}grade-validation`, "gestion", "grade-validation");
     await visit(director, `${ITIG}report-cards`, "gestion", "report-cards");
     await visit(director, `${ITIG}grade-sheets`, "gestion", "grade-sheets");
-    // Fiche de cotes (NB.1) : la première envoyée, lue par la directrice des études.
-    const sent = await json<{ sheets: { course: string; term: string }[] }>(
-      director,
-      "/api/grading/validation/",
-    );
-    const one = sent.sheets[0]!;
+    // Fiche de cotes (NB.1) : la première envoyée, lue par la directrice des études ; palmarès
+    // de sa classe pour la période (NB.2).
+    const board = await json<{
+      term: string;
+      classes: { id: string; courses: { id: string; status: string }[] }[];
+    }>(director, "/api/grading/validation/");
+    const group = board.classes.find((item) => item.courses.some((c) => c.status === "submitted"))!;
+    const one = group.courses.find((c) => c.status === "submitted")!;
     await visit(
       director,
-      `${ITIG}grade-sheets/totals?course=${one.course}&term=${one.term}`,
+      `${ITIG}grade-sheets/totals?course=${one.id}&term=${board.term}`,
       "gestion",
       "fiche-cotes",
+    );
+    await visit(
+      director,
+      `${ITIG}grade-sheets?class=${group.id}&kind=ranking&column=${board.term}`,
+      "gestion",
+      "palmares",
     );
     // Conduite (8.5.1a) : l'enseignant attribue, le directeur de discipline tient le barème.
     await visit(teacher, `${ITIG}conduct`, "gestion", "conduct");

@@ -36,6 +36,7 @@ urlpatterns = [
     path("teaching-loads/", views.TeachingLoadsView.as_view(), name="teaching-loads"),
     path("grading/", views.GradingView.as_view(), name="grading"),
     path("grading/validation/", views.GradingValidationView.as_view(), name="grading-validation"),
+    path("grading/reminders/", views.GradeRemindersView.as_view(), name="grading-reminders"),
     path(
         "terms/<uuid:term>/grades-deadline/",
         views.GradeDeadlineView.as_view(),

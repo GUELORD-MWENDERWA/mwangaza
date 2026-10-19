@@ -20,8 +20,11 @@ table.class td.name, table.class th.name { padding-left: .4em; white-space: nowr
 {% include "core/_document_header.html" with service=_("Studies") %}
 <div class="lh-extra">{% blocktranslate with year=year.name date=printed_at|date:"d/m/Y" %}School year {{ year }} · printed on {{ date }}{% endblocktranslate %}</div>
 
-{% if kind == "class" %}
-<h1>{% blocktranslate with name=class_group.name column=column_label %}TABLE OF THE CLASS — {{ name }} ({{ column }}){% endblocktranslate %}</h1>
+{% if kind == "ranking" %}
+<h1>{% blocktranslate with name=class_group.name column=column_label %}RANKING — {{ name }} ({{ column }}){% endblocktranslate %}</h1>
+<p class="center small">{% if titular %}{% blocktranslate %}Homeroom teacher: {{ titular }}{% endblocktranslate %} · {% endif %}{% blocktranslate %}Enrolment: <b>{{ size }}</b>{% endblocktranslate %}</p>
+{% elif kind == "class" %}
+<h1>{% blocktranslate with name=class_group.name column=column_label %}SUMMARY TABLE — {{ name }} ({{ column }}){% endblocktranslate %}</h1>
 <p class="center small">{% if titular %}{% blocktranslate %}Homeroom teacher: {{ titular }}{% endblocktranslate %} · {% endif %}{% blocktranslate %}Enrolment: <b>{{ size }}</b>{% endblocktranslate %}</p>
 {% else %}
 <h1>{% if kind == "blank" %}{% blocktranslate with course=course.name %}BLANK GRADE SHEET — {{ course }}{% endblocktranslate %}{% else %}{% blocktranslate with course=course.name %}GRADE SHEET — {{ course }}{% endblocktranslate %}{% endif %}</h1>
@@ -29,7 +32,38 @@ table.class td.name, table.class th.name { padding-left: .4em; white-space: nowr
 {% endif %}
 {% if provisional %}<div class="provisional">{% translate "Provisional: some grades are not validated yet." %}</div>{% endif %}
 
-{% if kind == "class" %}
+{% if kind == "ranking" %}
+<table>
+  <thead><tr>
+    <th class="score">{% translate "Place" %}</th>
+    {% if "matricule" in columns %}<th>{% translate "Student number" %}</th>{% endif %}
+    <th>{% translate "Last name, middle name, first name" %}</th>
+    <th class="score">{% translate "Total" %}<small>/{{ maximum }}</small></th>
+    <th class="score">%</th>
+    <th>{% translate "Mention" %}</th>
+  </tr></thead>
+  <tbody>
+  {% for row in rows %}
+  <tr>
+    <td class="score">{% if row.place %}{{ row.place }}{% if row.tie %} {% translate "tied" %}{% endif %}{% else %}—{% endif %}</td>
+    {% if "matricule" in columns %}<td class="mat">{{ row.matricule }}</td>{% endif %}
+    <td><b>{{ row.surname|upper }}</b> {{ row.first_name }}</td>
+    {% if row.place %}
+    <td class="score"><b>{{ row.total.score|floatformat:"-1" }}</b></td>
+    <td class="score">{{ row.total.percent|floatformat:"-1" }}</td>
+    <td>{{ row.mention }}</td>
+    {% else %}
+    <td colspan="3" class="muted">{% translate "Not ranked: a grade is missing" %}</td>
+    {% endif %}
+  </tr>
+  {% empty %}
+  <tr><td colspan="6" class="center muted">{% translate "No active student in this class." %}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p class="small">{% blocktranslate %}Ranked: {{ ranked }} of {{ size }}{% endblocktranslate %}</p>
+<div class="signature"><span>{% translate "The director of studies" %}</span></div>
+{% elif kind == "class" %}
 <table class="class">
   <colgroup><col style="width:8mm">{% if "matricule" in columns %}<col style="width:26mm">{% endif %}<col style="width:46mm">{% for item in shown %}<col>{% endfor %}<col style="width:12mm"><col style="width:10mm"><col style="width:10mm"></colgroup>
   <thead><tr>

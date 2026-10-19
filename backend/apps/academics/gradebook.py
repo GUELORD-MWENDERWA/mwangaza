@@ -11,7 +11,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from django.utils.translation import gettext
 
 from apps.academics.models import Course
-from apps.academics.report_card_documents import _period_label
+from apps.academics.report_card_documents import MENTION_LABELS, _period_label
 from apps.academics.report_cards import ClassReport, StudentReport
 from apps.core.documents import school_header
 from apps.core.tenancy import require_current_school
@@ -148,5 +148,37 @@ def class_table(report: ClassReport, key: str, *, columns: set[str], missing: bo
         "shown": shown,
         "rows": rows,
         "size": len(rows),
+        "maximum": rows[0]["total"].maximum if rows else 0,
+    }
+
+
+def ranking(report: ClassReport, key: str, *, columns: set[str], missing: bool) -> dict:
+    """Palmarès de la classe (NB.2) pour la colonne `key` : du premier au dernier, ex æquo à la
+    même place (puis par nom) ; les élèves sans total (une note manque) à la fin, non classés."""
+    rows = []
+    for student in report.students:
+        total = student.totals[key]
+        rows.append(
+            {
+                **_name(student),
+                "total": total,
+                "place": total.place,
+                "mention": MENTION_LABELS[total.mention] if total.mention else "",
+            }
+        )
+    rows.sort(key=lambda r: (r["place"] is None, r["place"] or 0, r["surname"], r["first_name"]))
+    places = [row["place"] for row in rows if row["place"]]
+    for row in rows:
+        row["tie"] = bool(row["place"]) and places.count(row["place"]) > 1
+    if not any(row["matricule"] for row in rows):
+        columns = columns - {MATRICULE}
+    return {
+        **_header(report, orientation="portrait", missing=missing),
+        "kind": "ranking",
+        "column_label": column_labels(report)[key],
+        "columns": columns,
+        "rows": rows,
+        "size": len(rows),
+        "ranked": len(places),
         "maximum": rows[0]["total"].maximum if rows else 0,
     }

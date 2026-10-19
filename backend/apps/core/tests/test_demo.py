@@ -12,6 +12,7 @@ import pytest
 from django.contrib.auth import authenticate
 from django.core.management import CommandError, call_command
 
+from apps.academics import board
 from apps.academics.models import (
     Deliberation,
     DisciplineIncident,
@@ -93,6 +94,14 @@ def created(demo) -> None:
         family = Family.objects.order_by("created_at", "id").first()
         assert [p.answer for p in places if p.enrollment.student.family == family] == [""]
         assert not Enrollment.objects.filter(academic_year=following).exists()
+    # Suivi des notes (NB.2) : la période du jour a des classes complètes et des fiches dans
+    # chaque état que le directeur des études doit voir.
+    with use_school(itig):
+        year = AcademicYear.objects.get(is_current=True)
+        classes = board.board(board.default_term(year, board.graded_terms(year)))
+        assert any(group.complete for group in classes)
+        states = {course.status for group in classes for course in group.courses}
+        assert {"validated", "submitted", "in_progress", "not_started"} <= states
 
     # Un compte par rôle, chaque école nomme ses rôles à sa façon : pas de « Directeur » à l'ITIG.
     names = [

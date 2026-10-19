@@ -691,14 +691,3 @@ def set_deadline(term: Term, due_on: date | None, *, actor: User) -> None:
             after={"due_on": str(due_on)} if due_on else None,
             label=str(term_label(term)),
         )
-
-
-def awaiting_validation(year) -> list[GradeSheet]:
-    """Feuilles envoyées de l'année, les plus anciennes d'abord."""
-    return list(
-        GradeSheet.objects.filter(
-            status=GradeSheet.Status.SUBMITTED, course__class_group__academic_year=year
-        )
-        .select_related("course__class_group", "term", "submitted_by")
-        .order_by("submitted_at")
-    )

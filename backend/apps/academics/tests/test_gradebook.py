@@ -5,12 +5,14 @@ from decimal import Decimal
 
 import pytest
 
+from apps.academics.models import Evaluation, Grade
 from apps.academics.tests.test_grades import setup
 from apps.academics.tests.test_report_cards import put
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.tenancy import use_school
 from apps.schools.models import ClassGroup
+from apps.students.tests.conftest import enrolled
 from tests.factories import MembershipFactory
 
 pytestmark = pytest.mark.django_db
@@ -90,6 +92,36 @@ def test_the_class_table_gives_total_percent_and_place_and_prints_in_landscape(
     unknown = api(director).get(url(sheets), kind="class", column="x", output="html")
     assert unknown.status_code == 400
     assert api(director).get(url(sheets), kind="class", output="html").status_code == 200
+
+
+def test_the_ranking_goes_from_first_to_last_ties_share_a_place_unranked_at_the_end(
+    api, school, head, director, sheets
+):
+    """Palmarès (NB.2) : du plus haut pourcentage au plus bas, ex æquo à la même place (puis par
+    nom), les élèves sans total à la fin, non classés."""
+    data, p1 = sheets, sheets["p1"]
+    zawadi = enrolled(school, head, data["a"], last_name="Zawadi", first_name="X")
+    enrolled(school, head, data["a"], last_name="Amina", first_name="X")
+    with use_school(school):
+        zawadi = zawadi.enrollments.get().pk
+        interro = Evaluation.objects.get(course=data["physics"], name="Interro")
+        Grade.objects.create(evaluation=interro, enrollment_id=zawadi, score="8")
+        workshop = Evaluation.objects.get(course=data["workshop"], name="TP")
+        Grade.objects.create(evaluation=workshop, enrollment_id=zawadi, score="80")
+    # Physique sur 20 : (18 + 0), (8 + 20), (8 + 20) sur 40 ; totaux 89, 94, 94 ; Amina sans note.
+    scores = {data["amani"]: "0", data["josue"]: "20", zawadi: "20"}
+    put(school, data["physics"], p1, "Devoir", 20, scores)
+    page = api(director).get(url(sheets), kind="ranking", column=str(p1.pk), output="html")
+    assert page.status_code == 200
+    rows = page.context["rows"]
+    assert [(row["surname"], row["place"], row["tie"]) for row in rows] == [
+        ("Kambale", 1, True),
+        ("Zawadi", 1, True),
+        ("Bahati", 3, False),
+        ("Amina", None, False),
+    ]
+    assert page.context["ranked"] == 3 and page.context["size"] == 4
+    assert "A4 portrait" in page.content.decode()
 
 
 def test_who_may_print_which_sheet(api, school, other_school, director, cashier, sheets, teacher):

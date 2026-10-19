@@ -12,8 +12,8 @@
   <div class="sync online"><span class="dot"></span>En ligne · à jour</div>
   <div class="user"><span class="hide-m" style="text-align:right"><b>Esther Kavugho</b><br><span class="muted small">Directrice des études</span></span><span class="avatar">EK</span></div>
 </header><main class="content">
-<div class="banner lampb"><span class="tag v">V1.2</span><span>Écran de la version 1.2 (8.3.6). Trois documents à imprimer : la fiche d'un cours (avec moyenne, plus haute et plus basse note, nombre sous la moitié, signature de l'enseignant), la fiche vierge à remplir à la main, et le tableau de toute la classe (qui servira à la délibération). Mêmes options d'impression que les autres documents.</span></div>
-<div class="pagehead"><div><h1>Fiches de cotes</h1><p>Imprimez les notes d'un cours, une fiche vierge ou le tableau de la classe.</p></div></div>
+<div class="banner lampb"><span class="tag v">V1.2</span><span>Écran de la version 1.2 (8.3.6). Quatre documents à imprimer : la fiche d'un cours (avec moyenne, plus haute et plus basse note, nombre sous la moitié, signature de l'enseignant), la fiche vierge à remplir à la main, le tableau synthétique de la classe (totaux de chaque cours, total, pourcentage, place) et le palmarès (NB.2 : du premier au dernier, ex æquo à la même place). Mêmes options d'impression que les autres documents.</span></div>
+<div class="pagehead"><div><h1>Fiches de cotes</h1><p>Imprimez les notes d'un cours, une fiche vierge, le tableau synthétique ou le palmarès de la classe.</p></div></div>
 <div class="row" style="align-items:flex-start;gap:24px;flex-wrap:wrap">
 <div class="paper a4" style="min-height:auto;padding:16px;max-width:760px;flex:1 1 420px;font-size:.78rem">
  <div class="center"><b>FICHE DE COTES — PHYSIQUE</b><br><span class="muted">1re Électricité A · 1re période · enseignant : Kasereka Mumbere</span></div>
@@ -26,10 +26,10 @@
 </div>
 <div style="max-width:320px;flex:1 1 280px" class="col">
 <div class="card"><div class="hd"><h2>Document</h2></div><div class="bd col small">
- <span class="seg"><span class="on">Fiche d'un cours</span><span>Fiche vierge</span><span>Tableau de la classe</span></span>
+ <span class="seg" style="flex-wrap:wrap"><span class="on">Fiche d'un cours</span><span>Fiche vierge</span><span>Tableau synthétique</span><span>Palmarès</span></span>
  <label class="f">Classe<span class="inp">1re Électricité A ▾</span></label>
  <label class="f">Cours<span class="inp">Physique ▾</span></label>
- <label class="f">Colonne <span class="muted">(tableau de la classe)</span><span class="inp">Année complète ▾</span></label>
+ <label class="f">Colonne <span class="muted">(tableau synthétique, palmarès)</span><span class="inp">Année complète ▾</span></label>
  <label class="f">Colonnes vides à remplir <span class="muted">(fiche vierge)</span><span class="inp">10</span></label>
  <label class="row"><input type="checkbox" checked> <span>Numéro matricule</span></label>
  <label class="row"><input type="checkbox" checked> <span>Totaux des semestres et de l'année</span></label>
@@ -37,8 +37,19 @@
 <div class="card"><div class="hd"><h2>Impression</h2></div><div class="bd col small">
  <div class="row"><span class="inp">Papier : A4</span><span class="inp">Sens : automatique</span></div>
  <a class="btn primary" href="#">Imprimer</a><a class="btn" href="#">PDF</a>
- <span class="muted">Le tableau de la classe sort en paysage ; ses cours sont des colonnes numérotées, avec la liste des cours dessous.</span>
+ <span class="muted">Le tableau synthétique sort en paysage (ses cours sont des colonnes numérotées, avec la liste des cours dessous) ; le palmarès, en portrait.</span>
 </div></div>
 </div></div>
-<div class="note"><b>Droits :</b> un enseignant imprime les fiches de ses cours (le titulaire, celles de sa classe) ; le tableau de la classe est réservé à la direction des études et au titulaire. Sur téléphone, l'aperçu passe sous les réglages.</div>
+<div class="row" style="align-items:flex-start;gap:24px;flex-wrap:wrap;margin-top:24px"><div class="paper a4" style="min-height:auto;padding:16px;max-width:520px;flex:1 1 320px;font-size:.78rem">
+ <div class="center"><b>PALMARÈS — 3E ÉLECTRICITÉ A (1re période)</b><br><span class="muted">Titulaire : Kahambu Neema · effectif : 47</span></div>
+ <div class="tblwrap"><table class="tbl" style="margin-top:12px"><tr><th>Place</th><th>Nom, post-nom, prénom</th><th>Total /320</th><th>%</th><th>Mention</th></tr>
+ <tr><td>1</td><td><b>BAHATI</b> Amani</td><td>262</td><td>81,9</td><td>Excellent</td></tr>
+ <tr><td>2 ex æquo</td><td><b>SIKULI</b> Grâce</td><td>240,5</td><td>75,2</td><td>Très bien</td></tr>
+ <tr><td>2 ex æquo</td><td><b>MASIKA</b> Furaha</td><td>240,5</td><td>75,2</td><td>Très bien</td></tr>
+ <tr><td>4</td><td><b>PALUKU</b> Daniel</td><td>201</td><td>62,8</td><td>Bien</td></tr>
+ <tr class="muted"><td>—</td><td><b>KAMBALE</b> Josué</td><td colspan="3">Non classé : une note manque</td></tr></table></div>
+ <div class="row between small" style="margin-top:14px"><span class="muted">Classés : 46 sur 47</span><span>Le directeur des études : ____________</span></div>
+</div>
+</div>
+<div class="note"><b>Droits :</b> un enseignant imprime les fiches de ses cours (le titulaire, celles de sa classe) ; le tableau synthétique et le palmarès sont réservés à la direction des études et au titulaire. Ouvert depuis le suivi des notes (NB.2), l'écran arrive avec la classe, le document et la période déjà choisis. Sur téléphone, l'aperçu passe sous les réglages.</div>
 </main></div></div></body></html>

@@ -351,3 +351,34 @@ def grades_returned(state: GradeSheet, reason: str, *, sender: User | None, acto
         url=f"/grades?course={state.course_id}&term={state.term_id}",
         text=text,
     )
+
+
+REMINDER_COURSES_LISTED = 3
+
+
+def grades_reminders(by_teacher: dict, term) -> int:
+    """Rappel du directeur des études (NB.2) : à chaque enseignant, une seule notification avec
+    ses fiches de cotes pas encore envoyées pour `term` ; elle ouvre son carnet (le cours, s'il
+    n'y en a qu'un). Rend le nombre d'enseignants avertis."""
+    from apps.academics.grades import term_label
+
+    school = require_current_school()
+    if not school.has_module("notifications"):
+        return 0
+    drafts = []
+    for user in _members(*by_teacher):
+        courses = by_teacher[user.pk]
+        names = [f"{c.name} · {c.class_group.name}" for c in courses[:REMINDER_COURSES_LISTED]]
+        more = len(courses) - len(names)
+        url = f"/grades?course={courses[0].pk}&term={term.pk}" if len(courses) == 1 else "/grades"
+        with translation.override(user.language):
+            title = _("Grade sheets expected: %(term)s") % {"term": term_label(term)}
+            body = ", ".join(names)
+            if more:
+                body = _("%(courses)s and %(count)d more") % {"courses": body, "count": more}
+        drafts.append(
+            push.draft(
+                user, app=App.GESTION, kind=Kind.GRADES_REMINDER, title=title, body=body, url=url
+            )
+        )
+    return len(push.create(school, drafts))

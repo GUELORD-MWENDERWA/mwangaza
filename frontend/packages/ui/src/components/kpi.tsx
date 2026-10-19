@@ -36,25 +36,25 @@ export function Kpi({
   children?: ReactNode;
 }) {
   return (
-    <Card className={cn("flex flex-col px-5 py-4", className)}>
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-semibold text-ink-2">{label}</p>
-        {icon && (
-          <span
-            aria-hidden="true"
-            className={cn(
-              "grid size-9 shrink-0 place-items-center rounded-box",
-              chips[chip ?? tone ?? "lake"],
-            )}
-          >
-            <Icon name={icon} size={18} />
-          </span>
-        )}
-      </div>
+    <Card className={cn("relative flex flex-col px-5 py-4", className)}>
+      {/* Pastille dans le coin (`.kpi .chip` des maquettes) : un libellé sur deux lignes ne
+          passe jamais sous le chiffre. */}
+      <p className={cn("text-sm font-semibold text-ink-2", icon && "min-h-7 pr-12")}>{label}</p>
+      {icon && (
+        <span
+          aria-hidden="true"
+          className={cn(
+            "absolute top-4 right-5 grid size-9 place-items-center rounded-box",
+            chips[chip ?? tone ?? "lake"],
+          )}
+        >
+          <Icon name={icon} size={18} />
+        </span>
+      )}
       <p
         className={cn(
           "text-2xl font-extrabold tracking-tight tabular-nums",
-          icon ? "-mt-2" : "mt-1",
+          !icon && "mt-1",
           tone && tones[tone],
         )}
       >

@@ -30,6 +30,9 @@ import { DocumentPreview } from "../students/DocumentPreview";
 import { gradeSheetUrl, type SheetKind, useGrading } from "./data";
 
 const BLANK_COLUMNS = [4, 6, 8, 10, 12, 16, 20];
+const KINDS: SheetKind[] = ["course", "blank", "class", "ranking"];
+const sheetKind = (value: string | null): SheetKind =>
+  KINDS.find((kind) => kind === value) ?? "course";
 
 /** Colonnes du tableau de la classe : l'année, puis chaque semestre, période et examen. */
 function columnChoices(terms: TermShape[], labels: Map<TermShape, string>, year: string) {
@@ -46,12 +49,14 @@ export function GradeSheetsPage() {
   const { t } = useTranslation();
   const me = useCurrentMe();
   const grading = useGrading();
-  const [kind, setKind] = useState<SheetKind>("course");
-  // `?course=…` : la fiche de ce cours (bouton « Imprimer » de la fiche de cotes).
+  // `?course=…` : la fiche de ce cours (bouton « Imprimer » de la fiche de cotes) ;
+  // `?class=…&kind=class|ranking&column=…` : tableau synthétique ou palmarès d'une classe pour
+  // une période (suivi des notes, NB.2).
   const [params] = useSearchParams();
-  const [classId, setClassId] = useState("");
+  const [kind, setKind] = useState<SheetKind>(sheetKind(params.get("kind")));
+  const [classId, setClassId] = useState(params.get("class") ?? "");
   const [courseId, setCourseId] = useState(params.get("course") ?? "");
-  const [column, setColumn] = useState("year");
+  const [column, setColumn] = useState(params.get("column") || "year");
   const [saved, save] = usePrintOptions("grade-sheets", {
     ...DEFAULT_LAYOUT,
     matricule: true,
@@ -73,7 +78,8 @@ export function GradeSheetsPage() {
   // Le tableau de la classe : direction des études, ou titulaire de la classe.
   const tableAllowed =
     can(me, ["grades.enter_any", "grades.validate"]) || Boolean(group?.is_homeroom);
-  const current: SheetKind = kind === "class" && !tableAllowed ? "course" : kind;
+  const classWide = kind === "class" || kind === "ranking";
+  const current: SheetKind = classWide && !tableAllowed ? "course" : kind;
   const labels = termLabels(grading.data.terms, t);
   const columns = [...(saved.matricule ? ["matricule"] : []), ...(saved.totals ? ["totals"] : [])];
   const options = {
@@ -84,7 +90,7 @@ export function GradeSheetsPage() {
     columns,
     blankColumns: saved.blankColumns,
   };
-  const ready = group && (current === "class" || course);
+  const ready = group && (current === "class" || current === "ranking" || course);
 
   return (
     <>
@@ -100,6 +106,7 @@ export function GradeSheetsPage() {
               </CardHeader>
               <CardContent className="flex flex-col gap-4">
                 <Segmented
+                  className="flex-wrap"
                   label={t("gradeSheets.document")}
                   value={current}
                   onValueChange={setKind}
@@ -107,7 +114,10 @@ export function GradeSheetsPage() {
                     { value: "course" as const, label: t("gradeSheets.kind.course") },
                     { value: "blank" as const, label: t("gradeSheets.kind.blank") },
                     ...(tableAllowed
-                      ? [{ value: "class" as const, label: t("gradeSheets.kind.class") }]
+                      ? [
+                          { value: "class" as const, label: t("gradeSheets.kind.class") },
+                          { value: "ranking" as const, label: t("gradeSheets.kind.ranking") },
+                        ]
                       : []),
                   ]}
                 />
@@ -129,7 +139,7 @@ export function GradeSheetsPage() {
                     </Select>
                   )}
                 </Field>
-                {current === "class" ? (
+                {current === "class" || current === "ranking" ? (
                   <Field id="sheet-column" label={t("gradeSheets.column")}>
                     {(control) => (
                       <Select
@@ -214,6 +224,9 @@ export function GradeSheetsPage() {
                 <PrintLayoutFields layout={saved} onChange={save} />
                 {current === "class" && (
                   <p className="text-sm text-ink-3">{t("gradeSheets.classHelp")}</p>
+                )}
+                {current === "ranking" && (
+                  <p className="text-sm text-ink-3">{t("gradeSheets.rankingHelp")}</p>
                 )}
                 {ready && (
                   <>
