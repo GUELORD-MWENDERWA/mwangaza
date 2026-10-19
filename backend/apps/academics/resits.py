@@ -6,6 +6,10 @@ l'application, les années déjà faites et l'âge de l'élève, et les règles 
 Rien n'est stocké que cette note : la proposition suit les notes et les règles. La décision prise
 (admis, doublant…) est celle de la délibération (8.4.2).
 
+Seconde session (NB.6) : après la proclamation de fin d'année, seuls les élèves qu'elle envoie au
+repêchage reçoivent une note, chaque cours échoué compris quand le conseil a accordé le repêchage
+contre la proposition ; une fois la seconde session proclamée, plus aucune note (la rouvrir).
+
 Issues proposées : `exclude` (conduite ou application, tripler, trop de redoublements), `unranked`
 (non classé : aucune note), `incomplete` (une note de l'année manque), `orient` (sous le seuil
 d'orientation), `failed` (double), `resit` (notes de repêchage attendues), `passed`.
@@ -21,7 +25,15 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.academics import application, discipline, report_cards
 from apps.academics.grades import gradable_courses
-from apps.academics.models import MAIN, OPTION, PRACTICAL, Course, ResitGrade
+from apps.academics.models import (
+    MAIN,
+    OPTION,
+    PRACTICAL,
+    Course,
+    Deliberation,
+    DeliberationSnapshot,
+    ResitGrade,
+)
 from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import Action
@@ -63,6 +75,11 @@ NOT_A_RESIT_COURSE = ApiError(
     "not_a_resit_course", _("This course does not open a resit exam for this student."), 400
 )
 BAD_PERCENT = ApiError("bad_percent", _("A resit grade is a percentage from 0 to 100."), 400)
+SESSION_CLOSED = ApiError(
+    "second_session_closed",
+    _("The second session is proclaimed: reopen it before changing a resit grade."),
+    400,
+)
 STEP = Decimal("0.1")
 
 
@@ -97,6 +114,9 @@ class Record:
     repeats: int = 0
     age: int | None = None
     enters_final: bool = False
+    # Envoyé au repêchage par la proclamation de fin d'année (NB.6) : chaque cours échoué se
+    # repasse, même contre la proposition ; seules les notes de repêchage décident.
+    resit_decided: bool = False
 
 
 @dataclass
@@ -157,6 +177,8 @@ def _resit_blocked(rules: dict, failed: list[CourseResit]) -> tuple[str, dict] |
 def _results(rules: dict, record: Record) -> Decided:
     """Passe, repêchage ou double, d'après les notes ; ouvre le repêchage des cours échoués."""
     percent, failed = record.percent, record.failed
+    if record.resit_decided and failed:
+        return _after_resits(rules, failed)
     if record.enters_final and rules["final_pass_percent"]:
         threshold = rules["final_pass_percent"]
         if percent >= threshold and not failed:
@@ -170,6 +192,12 @@ def _results(rules: dict, record: Record) -> Decided:
         return FAILED, "below_resit", {"percent": percent, "threshold": rules["resit_percent"]}
     if blocked := _resit_blocked(rules, failed):
         return FAILED, *blocked
+    return _after_resits(rules, failed)
+
+
+def _after_resits(rules: dict, failed: list[CourseResit]) -> Decided:
+    """Repêchage ouvert pour chaque cours échoué : attendu tant qu'une note manque, puis passe ou
+    double selon les cours perdus."""
     for row in failed:
         row.eligible = True
     if any(row.resit is None for row in failed):
@@ -270,11 +298,13 @@ def class_overview(
     user: User | None = None,
     permissions=(),
     with_history: bool = True,
+    resit_decided: set[UUID] | None = None,
 ) -> list[StudentResits]:
     """Pour chaque élève de la classe : pourcentage de l'année, cours échoués (avec la note de
     repêchage éventuelle), issue proposée et règle citée. Quelques requêtes pour toute la classe
     (notes de repêchage, conduite, application, années d'avant) ; `user` et `permissions` disent
-    quels cours la personne peut noter. `with_history=False` : notes seules (`make demo`)."""
+    quels cours la personne peut noter. `with_history=False` : notes seules (`make demo`).
+    `resit_decided` : élèves envoyés au repêchage par la proclamation (NB.6)."""
     group = report.class_group
     rules = rules_of(group)
     enrollment_ids = [s.enrollment.pk for s in report.students]
@@ -337,12 +367,39 @@ def class_overview(
             repeats=len(levels) - len(set(levels)),
             age=_age(enrollment.student.birth_date, next_start),
             enters_final=enters_final,
+            resit_decided=enrollment.pk in (resit_decided or ()),
         )
         outcome, rule, params = decide(rules, record)
         # Pourcentages en texte (« 48.5 ») : la ligne figée de la proclamation est du JSON.
         params = {k: str(v) if isinstance(v, Decimal) else v for k, v in params.items()}
         result.append(StudentResits(enrollment, record.percent, outcome, failed, rule, params))
     return result
+
+
+def proclaimed_resits(group: ClassGroup) -> set[UUID] | None:
+    """Élèves que la dernière proclamation de fin d'année envoie en seconde session ; `None` :
+    rien de proclamé encore."""
+    snapshot = (
+        DeliberationSnapshot.objects.filter(
+            deliberation__class_group=group,
+            deliberation__term__isnull=True,
+            deliberation__second_session=False,
+        )
+        .order_by("-version")
+        .only("rows")
+        .first()
+    )
+    if snapshot is None:
+        return None
+    return {UUID(row["enrollment"]) for row in snapshot.rows if row.get("decision") == RESIT}
+
+
+def second_session_closed(group: ClassGroup) -> bool:
+    return Deliberation.objects.filter(
+        class_group=group,
+        second_session=True,
+        status=Deliberation.Status.PROCLAIMED,
+    ).exists()
 
 
 def record(
@@ -391,10 +448,17 @@ def clear(enrollment: Enrollment, course: Course, *, actor: User, permissions) -
 
 
 def _failed_course(enrollment, course, actor, permissions) -> CourseResit:
+    group = enrollment.class_group
     if course.class_group_id != enrollment.class_group_id:
         raise BusinessError(NOT_A_RESIT_COURSE)
-    report = report_cards.class_report(enrollment.class_group)
-    for student in class_overview(report, user=actor, permissions=permissions):
+    if second_session_closed(group):
+        raise BusinessError(SESSION_CLOSED)
+    sent = proclaimed_resits(group)
+    if sent is not None and enrollment.pk not in sent:
+        raise BusinessError(NOT_A_RESIT_COURSE)
+    report = report_cards.class_report(group)
+    students = class_overview(report, user=actor, permissions=permissions, resit_decided=sent)
+    for student in students:
         if student.enrollment.pk == enrollment.pk:
             for row in student.failed:
                 if row.course.pk == course.pk and row.eligible:

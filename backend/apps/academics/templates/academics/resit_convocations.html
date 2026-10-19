@@ -1,0 +1,21 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% translate "Resit exam notices" %} — {{ class_group.name }}{% endblock %}
+{% block style %}
+.notice { break-inside: avoid; }
+.notice + .notice { margin-top: 5mm; padding-top: 5mm; border-top: .6pt dashed #A9B4C4; }
+table.courses { width: auto; min-width: 95mm; margin: 2mm 0; }
+td.n, th.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.notice-signs { display: flex; justify-content: space-between; margin-top: 3mm; }
+.notice-signs > div { text-align: center; min-width: 50mm; }
+.notice-signs .space { height: 11mm; }
+{% endblock %}
+{% block content %}
+{% translate "Resit exam notice" as title %}{% for row in rows %}<section class="notice">
+{% include "core/_document_header.html" with service=_("Studies") service_code="DE" title=title reference=True %}
+<p>{% blocktranslate with name=row.enrollment.student.full_name matricule=row.enrollment.student.matricule|default:"—" class_name=class_group.name year=year.name date=exam_on|date:"l j F Y" %}The student <b>{{ name }}</b> (student number {{ matricule }}), of the class <b>{{ class_name }}</b>, is summoned to the <b>second session</b> of the school year {{ year }}, on <b>{{ date }}</b>, for the following courses:{% endblocktranslate %}</p>
+<table class="courses"><thead><tr><th>{% translate "Course to resit" %}</th><th class="n">{% translate "Obtained in the year" %}</th></tr></thead>
+<tbody>{% for line in row.resits %}<tr><td>{{ line.course }}</td><td class="n">{{ line.percent|floatformat:1 }} %</td></tr>{% endfor %}</tbody></table>
+<p>{% blocktranslate with percent=row.percent|floatformat:1 %}Percentage of the year: <b>{{ percent }} %</b>. It is kept: the resit exam only decides the promotion. Come to the school with this notice.{% endblocktranslate %}</p>
+<div class="notice-signs"><div>{% translate "The parent or guardian" %}<div class="space"></div>&hellip;&hellip;&hellip;&hellip;&hellip;&hellip;</div><div>{% translate "The director of studies" %}<div class="space"></div><b>{{ signer }}</b></div></div>
+</section>{% endfor %}
+{% endblock %}

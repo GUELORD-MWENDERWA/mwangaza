@@ -58,7 +58,16 @@ OUTCOMES = [
 ]
 # Lire le tableau : tout compte qui peut être membre du conseil ; `council.check_member` tranche.
 COUNCIL_READ = (GRADES_ENTER, GRADES_ENTER_ANY, GRADES_VALIDATE)
-KINDS = ["year", Term.Kind.PERIOD, Term.Kind.SEMESTER, Term.Kind.TRIMESTER]
+KINDS = ["year", "second", Term.Kind.PERIOD, Term.Kind.SEMESTER, Term.Kind.TRIMESTER]
+
+
+class ResitLineSerializer(serializers.Serializer):
+    course = serializers.CharField()
+    percent = serializers.DecimalField(max_digits=5, decimal_places=1, help_text="Année du cours.")
+    resit_percent = serializers.DecimalField(
+        max_digits=5, decimal_places=1, allow_null=True, help_text="Vide : note attendue."
+    )
+    passed = serializers.BooleanField(allow_null=True)
 
 
 class RowSerializer(serializers.Serializer):
@@ -82,6 +91,7 @@ class RowSerializer(serializers.Serializer):
     )
     reason = serializers.CharField()
     deviates = serializers.BooleanField(help_text="La décision diffère de la proposition.")
+    resits = ResitLineSerializer(many=True, help_text="Seconde session : cours repassés.")
 
 
 class SessionResultSerializer(serializers.Serializer):
@@ -124,6 +134,7 @@ class CouncilSerializer(serializers.Serializer):
 
 class SessionStateSerializer(serializers.Serializer):
     term = serializers.UUIDField(source="term_id", allow_null=True, help_text="Vide : fin d'année.")
+    second_session = serializers.BooleanField()
     status = serializers.ChoiceField(choices=Deliberation.Status.choices)
     version = serializers.IntegerField()
 
@@ -152,6 +163,12 @@ class ClassDeliberationSerializer(serializers.Serializer):
     results = SessionResultSerializer(many=True, help_text="Période ou semestre ; vide sinon.")
     council = CouncilSerializer()
     sessions = SessionStateSerializer(many=True, help_text="État de chaque session ouverte.")
+    has_second_session = serializers.BooleanField(
+        help_text="La dernière proclamation de fin d'année envoie des élèves au repêchage."
+    )
+    exam_on = serializers.DateField(
+        allow_null=True, help_text="Seconde session : date de l'examen de repêchage."
+    )
 
 
 class SessionQuerySerializer(serializers.Serializer):
@@ -160,17 +177,19 @@ class SessionQuerySerializer(serializers.Serializer):
         allow_null=True,
         help_text="Session : une période, un semestre ou un trimestre ; absente : fin d'année.",
     )
+    second = serializers.BooleanField(
+        default=False, help_text="Seconde session (NB.6), sans `term`."
+    )
 
 
-def _session(request: Request, group: ClassGroup) -> Term | None:
+def _session(request: Request, group: ClassGroup) -> tuple[Term | None, bool]:
+    """(période ou semestre, seconde session) ; (None, False) : fin d'année."""
     params = SessionQuerySerializer(data=request.query_params)
     params.is_valid(raise_exception=True)
-    pk = params.validated_data.get("term")
-    if not pk:
-        return None
-    term = get_object_or_404(Term, pk=pk)
-    deliberation.check_session(group, term)
-    return term
+    pk, second = params.validated_data.get("term"), params.validated_data["second"]
+    term = get_object_or_404(Term, pk=pk) if pk else None
+    deliberation.check_session(group, term, second=second)
+    return term, second
 
 
 def _council(group: ClassGroup, current: Deliberation | None) -> dict:
@@ -194,9 +213,11 @@ def _council(group: ClassGroup, current: Deliberation | None) -> dict:
     }
 
 
-def _answer(request: Request, group: ClassGroup, term: Term | None = None) -> Response:
+def _answer(
+    request: Request, group: ClassGroup, term: Term | None = None, second: bool = False
+) -> Response:
     if term is None:
-        year = deliberation.overview(group)
+        year = deliberation.overview(group, second=second)
         current, latest, ready, threshold = year.deliberation, year.latest, True, None
         students, results, counts, deviations = year.rows, [], year.counts, year.deviations
         state = year.status
@@ -211,7 +232,7 @@ def _answer(request: Request, group: ClassGroup, term: Term | None = None) -> Re
             {
                 "class_name": group.name,
                 "term": term.pk if term else None,
-                "kind": term.kind if term else "year",
+                "kind": term.kind if term else "second" if second else "year",
                 "can_edit": GRADES_VALIDATE in school_access(request).permissions,
                 "status": state,
                 "held_on": current.held_on if current else None,
@@ -225,6 +246,8 @@ def _answer(request: Request, group: ClassGroup, term: Term | None = None) -> Re
                 "results": results,
                 "council": _council(group, current),
                 "sessions": deliberation.sessions(group),
+                "has_second_session": bool(resits.proclaimed_resits(group)),
+                "exam_on": current.exam_on if current else None,
             }
         ).data
     )
@@ -298,7 +321,7 @@ class ClassDeliberationView(_CouncilView):
         Période ou semestre : pourcentage, place, conduite, application. Avec l'état, la date, le
         conseil (membres et présents), la dernière version proclamée et l'état des sessions."""
         group = self.member_group(request, pk)
-        return _answer(request, group, _session(request, group))
+        return _answer(request, group, *_session(request, group))
 
     @extend_schema(
         **SESSION, request=DateSerializer, responses={200: ClassDeliberationSerializer, **ERRORS}
@@ -306,11 +329,12 @@ class ClassDeliberationView(_CouncilView):
     def put(self, request: Request, pk) -> Response:
         """Fixe la date de la délibération (session non proclamée)."""
         group = _group(pk)
-        term = _session(request, group)
+        term, second = _session(request, group)
         data = DateSerializer(data=request.data)
         data.is_valid(raise_exception=True)
-        deliberation.set_date(group, data.validated_data["held_on"], actor=request.user, term=term)
-        return _answer(request, group, term)
+        held_on = data.validated_data["held_on"]
+        deliberation.set_date(group, held_on, actor=request.user, term=term, second=second)
+        return _answer(request, group, term, second)
 
 
 @extend_schema(tags=["deliberation"])
@@ -324,29 +348,32 @@ class CouncilView(_View):
         """Présents, président et secrétaire de séance (parmi les présents), observations du
         conseil ; session non proclamée. Figés à la proclamation, repris au procès-verbal."""
         group = _group(pk)
-        term = _session(request, group)
+        term, second = _session(request, group)
         data = CouncilInputSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         values = data.validated_data
         council.set_council(
-            deliberation.open_session(group, term),
+            deliberation.open_session(group, term, second=second),
             present=values["present"],
             chair=values.get("chair"),
             secretary=values.get("secretary"),
             remarks=values.get("remarks", ""),
             actor=request.user,
         )
-        return _answer(request, group, term)
+        return _answer(request, group, term, second)
 
 
 @extend_schema(tags=["deliberation"])
 class EnrollmentDecisionView(_View):
     @extend_schema(
-        request=DecisionSerializer, responses={200: ClassDeliberationSerializer, **ERRORS}
+        **SESSION,
+        request=DecisionSerializer,
+        responses={200: ClassDeliberationSerializer, **ERRORS},
     )
     def put(self, request: Request, pk) -> Response:
         """Décision de fin d'année pour un élève ; un écart avec la proposition demande un motif.
-        Élève sans aucune note cette année : pourcentage repris, de 0 à 100 (8.4.7)."""
+        Élève sans aucune note cette année : pourcentage repris, de 0 à 100 (8.4.7). Avec
+        `second` : décision finale de seconde session (`resit_again` pour un nouveau repêchage)."""
         enrollment = get_object_or_404(
             Enrollment.objects.select_related(
                 "student",
@@ -357,6 +384,7 @@ class EnrollmentDecisionView(_View):
             ),
             pk=pk,
         )
+        _term, second = _session(request, enrollment.class_group)
         data = DecisionSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         deliberation.decide(
@@ -365,18 +393,21 @@ class EnrollmentDecisionView(_View):
             data.validated_data.get("reason", ""),
             actor=request.user,
             percent=data.validated_data.get("percent"),
+            second=second,
         )
-        return _answer(request, enrollment.class_group)
+        return _answer(request, enrollment.class_group, None, second)
 
 
 @extend_schema(tags=["deliberation"])
 class ApplyProposalsView(_View):
-    @extend_schema(request=None, responses={200: ClassDeliberationSerializer, **ERRORS})
+    @extend_schema(**SESSION, request=None, responses={200: ClassDeliberationSerializer, **ERRORS})
     def post(self, request: Request, pk) -> Response:
-        """Fin d'année : prend la proposition du système pour chaque élève sans décision."""
+        """Fin d'année ou seconde session : prend la proposition du système pour chaque élève
+        sans décision."""
         group = _group(pk)
-        deliberation.apply_proposals(group, actor=request.user)
-        return _answer(request, group)
+        _term, second = _session(request, group)
+        deliberation.apply_proposals(group, actor=request.user, second=second)
+        return _answer(request, group, None, second)
 
 
 @extend_schema(tags=["deliberation"])
@@ -386,11 +417,12 @@ class ProclaimView(_View):
         """Proclame les résultats de la session et les fige avec le conseil. Fin d'année : date
         posée, une décision par élève, un motif par écart. Période ou semestre : date posée,
         bulletins dits prêts par le titulaire (`report_cards_not_ready`). Une proclamation après
-        correction crée la version suivante."""
+        correction crée la version suivante. Seconde session : comme la fin d'année, pour ses
+        élèves ; sa décision remplace « repêchage » (bulletin, situations, passage de classe)."""
         group = _group(pk)
-        term = _session(request, group)
-        deliberation.proclaim(group, actor=request.user, term=term)
-        return _answer(request, group, term)
+        term, second = _session(request, group)
+        deliberation.proclaim(group, actor=request.user, term=term, second=second)
+        return _answer(request, group, term, second)
 
 
 @extend_schema(tags=["deliberation"])
@@ -402,11 +434,12 @@ class ReopenView(_View):
         """Rouvre une session proclamée pour corriger (motif obligatoire). Les résultats figés
         restent ceux de la dernière proclamation jusqu'à la suivante."""
         group = _group(pk)
-        term = _session(request, group)
+        term, second = _session(request, group)
         data = ReasonSerializer(data=request.data)
         data.is_valid(raise_exception=True)
-        deliberation.reopen(group, data.validated_data["reason"], actor=request.user, term=term)
-        return _answer(request, group, term)
+        reason = data.validated_data["reason"]
+        deliberation.reopen(group, reason, actor=request.user, term=term, second=second)
+        return _answer(request, group, term, second)
 
 
 class MinutesPrintSerializer(PrintOptionsSerializer, SessionQuerySerializer):
@@ -427,7 +460,8 @@ def _quality(member: dict) -> str:
 def _figures(kind: str, rows: list[dict]) -> dict:
     """Chiffres du procès-verbal, lus dans les lignes figées."""
     if kind == "year":
-        return {"decisions": Counter(row["decision"] for row in rows)}
+        # Un `Counter` répond 0 à `.items` dans un gabarit : un vrai dictionnaire.
+        return {"decisions": dict(Counter(row["decision"] for row in rows))}
     percents = [Decimal(row["percent"]) for row in rows if row["percent"] is not None]
     passed = sum(1 for row in rows if row["passed"])
     return {
@@ -453,8 +487,8 @@ class MinutesView(_CouncilView):
         params = MinutesPrintSerializer(data=request.query_params)
         params.is_valid(raise_exception=True)
         data = params.validated_data
-        term = _session(request, group)
-        current = deliberation.session_of(group, term)
+        term, second = _session(request, group)
+        current = deliberation.session_of(group, term, second=second)
         snapshot = current.snapshots.order_by("-version").first() if current else None
         if snapshot is None:
             raise BusinessError(deliberation.NOT_PROCLAIMED)
@@ -465,7 +499,10 @@ class MinutesView(_CouncilView):
         rows = [
             {**row, "decision_label": labels.get(row.get("decision"), "")} for row in snapshot.rows
         ]
-        session = term_label(term) if term else _("End of the year")
+        if term:
+            session = term_label(term)
+        else:
+            session = _("Second session") if second else _("End of the year")
         if data["output"] == "pdf":
             audit.record(
                 Action.DELIBERATION_MINUTES_PRINTED,

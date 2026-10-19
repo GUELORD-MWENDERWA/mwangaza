@@ -967,7 +967,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Fin d'année : prend la proposition du système pour chaque élève sans décision. */
+        /**
+         * @description Fin d'année ou seconde session : prend la proposition du système pour chaque élève
+         *     sans décision.
+         */
         post: operations["class_groups_deliberation_apply_proposals_create"];
         delete?: never;
         options?: never;
@@ -1030,7 +1033,8 @@ export interface paths {
          * @description Proclame les résultats de la session et les fige avec le conseil. Fin d'année : date
          *     posée, une décision par élève, un motif par écart. Période ou semestre : date posée,
          *     bulletins dits prêts par le titulaire (`report_cards_not_ready`). Une proclamation après
-         *     correction crée la version suivante.
+         *     correction crée la version suivante. Seconde session : comme la fin d'année, pour ses
+         *     élèves ; sa décision remplace « repêchage » (bulletin, situations, passage de classe).
          */
         post: operations["class_groups_deliberation_proclaim_create"];
         delete?: never;
@@ -1214,6 +1218,47 @@ export interface paths {
          */
         get: operations["class_groups_resits_retrieve"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/class-groups/{id}/resits/convocations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Convocations à l'examen de repêchage, en PDF ou en aperçu : une par élève envoyé en
+         *     seconde session (cours à repasser et leur pourcentage, pourcentage de l'année, gardé,
+         *     date de l'examen), deux par feuille A4. `exam_date_required` sans date fixée.
+         */
+        get: operations["class_groups_resits_convocations_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/class-groups/{id}/resits/exam-date/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * @description Date de l'examen de repêchage de la classe (seconde session, NB.6), imprimée sur les
+         *     convocations ; `no_second_session` sans élève envoyé au repêchage par la proclamation.
+         */
+        put: operations["class_groups_resits_exam_date_update"];
         post?: never;
         delete?: never;
         options?: never;
@@ -2051,7 +2096,8 @@ export interface paths {
         get?: never;
         /**
          * @description Décision de fin d'année pour un élève ; un écart avec la proposition demande un motif.
-         *     Élève sans aucune note cette année : pourcentage repris, de 0 à 100 (8.4.7).
+         *     Élève sans aucune note cette année : pourcentage repris, de 0 à 100 (8.4.7). Avec
+         *     `second` : décision finale de seconde session (`resit_again` pour un nouveau repêchage).
          */
         put: operations["deliberation_enrollments_update"];
         post?: never;
@@ -5699,15 +5745,23 @@ export interface components {
             council: components["schemas"]["Council"];
             /** @description État de chaque session ouverte. */
             sessions: components["schemas"]["SessionState"][];
+            /** @description La dernière proclamation de fin d'année envoie des élèves au repêchage. */
+            has_second_session: boolean;
+            /**
+             * Format: date
+             * @description Seconde session : date de l'examen de repêchage.
+             */
+            exam_on: string | null;
         };
         /**
          * @description * `year` - year
+         *     * `second` - second
          *     * `period` - period
          *     * `semester` - semester
          *     * `trimester` - trimester
          * @enum {string}
          */
-        ClassDeliberationKindEnum: "year" | "period" | "semester" | "trimester";
+        ClassDeliberationKindEnum: "year" | "second" | "period" | "semester" | "trimester";
         ClassGroup: {
             /** Format: uuid */
             readonly id: string;
@@ -5770,6 +5824,7 @@ export interface components {
             class_name: string;
             rules: components["schemas"]["Rules"];
             students: components["schemas"]["StudentResits"][];
+            second_session: components["schemas"]["SecondSession"];
         };
         ClassSummary: {
             /** Format: uuid */
@@ -7047,6 +7102,10 @@ export interface components {
          * @enum {string}
          */
         EventKindEnum: "holiday" | "exam" | "meeting" | "activity" | "other";
+        ExamDateRequest: {
+            /** Format: date */
+            exam_on: string;
+        };
         ExchangeRate: {
             /** Format: uuid */
             readonly id: string;
@@ -9964,6 +10023,20 @@ export interface components {
              */
             percent: string;
         };
+        ResitLine: {
+            course: string;
+            /**
+             * Format: decimal
+             * @description Année du cours.
+             */
+            percent: string;
+            /**
+             * Format: decimal
+             * @description Vide : note attendue.
+             */
+            resit_percent: string | null;
+            passed: boolean | null;
+        };
         /** @description Rôle de l'école : un nom et des permissions. */
         Role: {
             /** Format: uuid */
@@ -10061,6 +10134,8 @@ export interface components {
             reason: string;
             /** @description La décision diffère de la proposition. */
             deviates: boolean;
+            /** @description Seconde session : cours repassés. */
+            resits: components["schemas"]["ResitLine"][];
         };
         Rule: {
             /** Format: uuid */
@@ -10309,6 +10384,20 @@ export interface components {
             /** Format: decimal */
             score: string;
         };
+        SecondSession: {
+            /** @description Élèves que la dernière proclamation de fin d'année envoie au repêchage. */
+            students: number;
+            /**
+             * Format: date
+             * @description Date de l'examen de repêchage.
+             */
+            exam_on: string | null;
+            status: components["schemas"]["DeliberationStatusEnum"];
+            /** @description Dernière version proclamée (0 : aucune). */
+            version: number;
+            /** @description Droit `grades.validate` : date, convocations. */
+            can_manage: boolean;
+        };
         ServerHealth: {
             status: components["schemas"]["HealthStatusEnum"];
             checks: components["schemas"]["HealthCheck"][];
@@ -10342,6 +10431,7 @@ export interface components {
              * @description Vide : fin d'année.
              */
             term: string | null;
+            second_session: boolean;
             status: components["schemas"]["DeliberationStatusEnum"];
             version: number;
         };
@@ -14637,6 +14727,8 @@ export interface operations {
     class_groups_deliberation_retrieve: {
         parameters: {
             query?: {
+                /** @description Seconde session (NB.6), sans `term`. */
+                second?: boolean;
                 /** @description Session : une période, un semestre ou un trimestre ; absente : fin d'année. */
                 term?: string | null;
             };
@@ -14685,6 +14777,8 @@ export interface operations {
     class_groups_deliberation_update: {
         parameters: {
             query?: {
+                /** @description Seconde session (NB.6), sans `term`. */
+                second?: boolean;
                 /** @description Session : une période, un semestre ou un trimestre ; absente : fin d'année. */
                 term?: string | null;
             };
@@ -14738,7 +14832,12 @@ export interface operations {
     };
     class_groups_deliberation_apply_proposals_create: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Seconde session (NB.6), sans `term`. */
+                second?: boolean;
+                /** @description Session : une période, un semestre ou un trimestre ; absente : fin d'année. */
+                term?: string | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -14784,6 +14883,8 @@ export interface operations {
     class_groups_deliberation_council_update: {
         parameters: {
             query?: {
+                /** @description Seconde session (NB.6), sans `term`. */
+                second?: boolean;
                 /** @description Session : une période, un semestre ou un trimestre ; absente : fin d'année. */
                 term?: string | null;
             };
@@ -14855,6 +14956,8 @@ export interface operations {
                  *     * `a5` - a5
                  */
                 paper?: "a4" | "a5";
+                /** @description Seconde session (NB.6), sans `term`. */
+                second?: boolean;
                 /** @description Session : une période, un semestre ou un trimestre ; absente : fin d'année. */
                 term?: string | null;
             };
@@ -14905,6 +15008,8 @@ export interface operations {
     class_groups_deliberation_proclaim_create: {
         parameters: {
             query?: {
+                /** @description Seconde session (NB.6), sans `term`. */
+                second?: boolean;
                 /** @description Session : une période, un semestre ou un trimestre ; absente : fin d'année. */
                 term?: string | null;
             };
@@ -14953,6 +15058,8 @@ export interface operations {
     class_groups_deliberation_reopen_create: {
         parameters: {
             query?: {
+                /** @description Seconde session (NB.6), sans `term`. */
+                second?: boolean;
                 /** @description Session : une période, un semestre ou un trimestre ; absente : fin d'année. */
                 term?: string | null;
             };
@@ -15404,6 +15511,132 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ClassResits"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    class_groups_resits_convocations_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Un seul élève ; absent : toute la classe. */
+                enrollment?: string;
+                /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
+                 * @description * `pdf` - pdf
+                 *     * `html` - html
+                 */
+                output?: "pdf" | "html";
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document PDF (`output=pdf`). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                    "text/html": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    class_groups_resits_exam_date_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExamDateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExamDateRequest"];
+                "multipart/form-data": components["schemas"]["ExamDateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassResits"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             403: {
@@ -17809,7 +18042,12 @@ export interface operations {
     };
     deliberation_enrollments_update: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Seconde session (NB.6), sans `term`. */
+                second?: boolean;
+                /** @description Session : une période, un semestre ou un trimestre ; absente : fin d'année. */
+                term?: string | null;
+            };
             header?: never;
             path: {
                 id: string;

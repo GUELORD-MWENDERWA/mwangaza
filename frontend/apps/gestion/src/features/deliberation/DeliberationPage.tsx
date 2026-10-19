@@ -22,8 +22,8 @@ import {
   Table,
 } from "@mwangaza/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Link } from "react-router";
+import { Fragment, useState } from "react";
+import { Link, useSearchParams } from "react-router";
 
 import { firstErrorMessage } from "../../lib/errors";
 import { keys } from "../../lib/queries";
@@ -36,6 +36,8 @@ import {
   DECISIONS,
   minutesUrl,
   priorPercent,
+  SECOND,
+  sessionQuery,
   sessionTerms,
   TONES,
   useClassDeliberation,
@@ -51,9 +53,12 @@ export function DeliberationPage() {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const grading = useGrading();
-  const [classId, setClassId] = useState("");
-  // Vide : fin d'année ; sinon une période, un semestre ou un trimestre.
-  const [termId, setTermId] = useState("");
+  // Ouverte depuis « Repêchage » : la classe et la seconde session.
+  const [params] = useSearchParams();
+  const [classId, setClassId] = useState(params.get("class") ?? "");
+  // Vide : fin d'année ; `SECOND` : seconde session ; sinon une période, un semestre ou un trimestre.
+  const [termId, setTermId] = useState(params.get("session") === SECOND ? SECOND : "");
+  const second = termId === SECOND;
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [day, setDay] = useState<string | null>(null);
   const [reopenReason, setReopenReason] = useState("");
@@ -62,9 +67,8 @@ export function DeliberationPage() {
   const groupId = classId || classes[0]?.id || "";
   const table = useClassDeliberation(groupId, termId);
   const refresh = () => void queryClient.invalidateQueries({ queryKey: keys.deliberation });
-  const path = { params: { path: { id: groupId } } };
   const sessionPath = {
-    params: { path: { id: groupId }, query: termId ? { term: termId } : {} },
+    params: { path: { id: groupId }, query: sessionQuery(termId) },
   };
   const terms = grading.data?.terms ?? [];
   const sessions = sessionTerms(terms, termLabels(terms, t));
@@ -86,7 +90,7 @@ export function DeliberationPage() {
     mutationFn: ({ id, draft, unranked }: { id: string; draft: Draft; unranked: boolean }) =>
       call(
         api.PUT("/api/deliberation/enrollments/{id}/", {
-          params: { path: { id } },
+          params: { path: { id }, query: sessionQuery(termId) },
           body: {
             decision: draft.decision as Decision,
             reason: draft.reason,
@@ -104,7 +108,8 @@ export function DeliberationPage() {
     },
   });
   const apply = useMutation({
-    mutationFn: () => call(api.POST("/api/class-groups/{id}/deliberation/apply-proposals/", path)),
+    mutationFn: () =>
+      call(api.POST("/api/class-groups/{id}/deliberation/apply-proposals/", sessionPath)),
     onSuccess: refresh,
   });
   const proclaim = useMutation({
@@ -179,6 +184,34 @@ export function DeliberationPage() {
             t("deliberation.percent", { value: row.percent })
           )}
         </td>
+        {second && (
+          <td data-label={t("deliberation.resits")} data-wrap>
+            {/* Un cours par ligne ; le résultat du repêchage en colonne, aligné. */}
+            <span className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5">
+              {row.resits.map((line) => (
+                <Fragment key={line.course}>
+                  <span>
+                    {line.course}{" "}
+                    <span className="whitespace-nowrap text-ink-3 tabular-nums">
+                      {t("deliberation.percent", { value: line.percent })}
+                    </span>
+                  </span>
+                  {line.resit_percent === null ? (
+                    <span className="whitespace-nowrap text-xs text-ink-3">
+                      {t("deliberation.resitAwaited")}
+                    </span>
+                  ) : (
+                    <StatusPill tone={line.passed ? "ok" : "due"}>
+                      {t(line.passed ? "deliberation.resitPassed" : "deliberation.resitFailed", {
+                        value: line.resit_percent,
+                      })}
+                    </StatusPill>
+                  )}
+                </Fragment>
+              ))}
+            </span>
+          </td>
+        )}
         <td data-label={t("deliberation.proposed")}>
           <span className="flex flex-col items-end min-[600px]:items-start">
             {row.proposed ? (
@@ -209,7 +242,7 @@ export function DeliberationPage() {
                 }
               >
                 <option value="">{t("deliberation.choose")}</option>
-                {DECISIONS.map((value) => (
+                {DECISIONS.filter((value) => !second || value !== "resit").map((value) => (
                   <option key={value} value={value}>
                     {t(`deliberation.decision_${value}`)}
                   </option>
@@ -260,9 +293,12 @@ export function DeliberationPage() {
   const closed = board?.status === "proclaimed";
   const failure = [saveDate, decide, apply, proclaim, reopen].find((m) => m.isError)?.error;
   const readOnly = board ? !board.can_edit : true;
-  const year = !board || board.kind === "year";
+  // Fin d'année et seconde session : une décision par élève.
+  const year = !board || board.kind === "year" || board.kind === "second";
   const sessionLabel = (id: string, label: string) => {
-    const state = board?.sessions.find((item) => (item.term ?? "") === id);
+    const state = board?.sessions.find(
+      (item) => (item.second_session ? SECOND : (item.term ?? "")) === id,
+    );
     return state ? `${label} · ${t(`deliberation.status_${state.status}`)}` : label;
   };
   const passed = board ? board.results.filter((row) => row.passed).length : 0;
@@ -354,6 +390,11 @@ export function DeliberationPage() {
                         </option>
                       ))}
                       <option value="">{sessionLabel("", t("deliberation.endOfYear"))}</option>
+                      {(board?.has_second_session || second) && (
+                        <option value={SECOND}>
+                          {sessionLabel(SECOND, t("deliberation.secondSession"))}
+                        </option>
+                      )}
                     </Select>
                   )}
                 </Field>
@@ -417,6 +458,18 @@ export function DeliberationPage() {
                 )}
                 {year && (
                   <div className="flex flex-wrap gap-2">
+                    {second && (
+                      <StatusPill tone="gray">
+                        {t("deliberation.secondStudents", { count: board.students.length })}
+                      </StatusPill>
+                    )}
+                    {second && board.exam_on && (
+                      <StatusPill tone="gray">
+                        {t("deliberation.examOn", {
+                          date: formatDay(board.exam_on, i18n.language),
+                        })}
+                      </StatusPill>
+                    )}
                     {DECISIONS.filter((value) => board.counts[value]).map((value) => (
                       <StatusPill key={value} tone={TONES[value] ?? "gray"}>
                         {t(`deliberation.decision_${value}`)} {board.counts[value]}
@@ -436,6 +489,7 @@ export function DeliberationPage() {
                       <tr>
                         <th>{t("deliberation.student")}</th>
                         <th>{t("deliberation.year")}</th>
+                        {second && <th>{t("deliberation.resits")}</th>}
                         <th>{t("deliberation.proposed")}</th>
                         <th>{t("deliberation.decision")}</th>
                         <th>{t("deliberation.reason")}</th>
@@ -502,15 +556,30 @@ export function DeliberationPage() {
                       disabled={proclaim.isPending || !board.ready}
                       onClick={() => proclaim.mutate()}
                     >
-                      {t(year ? "deliberation.proclaim" : "deliberation.proclaimSession")}
+                      {t(
+                        second
+                          ? "deliberation.proclaimSecond"
+                          : year
+                            ? "deliberation.proclaim"
+                            : "deliberation.proclaimSession",
+                      )}
                     </Button>
-                    <Button asChild variant="ghost">
-                      <Link to="/conduct">{t("deliberation.fixConduct")}</Link>
-                    </Button>
-                    <Button asChild variant="ghost">
-                      <Link to="/application">{t("deliberation.fixApplication")}</Link>
-                    </Button>
-                    {year && (
+                    {!second && (
+                      <>
+                        <Button asChild variant="ghost">
+                          <Link to="/conduct">{t("deliberation.fixConduct")}</Link>
+                        </Button>
+                        <Button asChild variant="ghost">
+                          <Link to="/application">{t("deliberation.fixApplication")}</Link>
+                        </Button>
+                      </>
+                    )}
+                    {second && (
+                      <Button asChild variant="ghost">
+                        <Link to={`/resits?class=${groupId}`}>{t("deliberation.resitGrades")}</Link>
+                      </Button>
+                    )}
+                    {year && !second && (
                       <Button asChild variant="ghost">
                         <Link to="/deliberation/prior-results">
                           {t("deliberation.importPrior")}
@@ -520,7 +589,13 @@ export function DeliberationPage() {
                   </div>
                 )}
                 <p className="text-xs text-ink-3">
-                  {t(year ? "deliberation.help" : "deliberation.sessionHelp")}
+                  {t(
+                    second
+                      ? "deliberation.secondHelp"
+                      : year
+                        ? "deliberation.help"
+                        : "deliberation.sessionHelp",
+                  )}
                 </p>
               </>
             )}
