@@ -70,7 +70,9 @@ def _latest_rows(groups) -> dict:
     """Lignes figées de la dernière proclamation de chaque classe :
     {classe: {"held_on": date, "rows": {inscription: ligne}}}."""
     snapshots = (
-        DeliberationSnapshot.objects.filter(deliberation__class_group__in=groups)
+        DeliberationSnapshot.objects.filter(
+            deliberation__class_group__in=groups, deliberation__term__isnull=True
+        )
         .annotate(group_id=F("deliberation__class_group_id"))
         .order_by("deliberation__class_group_id", "-version")
         .distinct("deliberation__class_group_id")

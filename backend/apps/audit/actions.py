@@ -112,6 +112,11 @@ class Action(models.TextChoices):
     DELIBERATION_DECIDED = "deliberation.decided", _("Deliberation decision recorded")
     DELIBERATION_PROCLAIMED = "deliberation.proclaimed", _("Class results proclaimed")
     DELIBERATION_REOPENED = "deliberation.reopened", _("Class results reopened")
+    DELIBERATION_COUNCIL = "deliberation.council", _("Deliberation council recorded")
+    DELIBERATION_MINUTES_PRINTED = (
+        "deliberation.minutes_printed",
+        _("Deliberation minutes printed"),
+    )
 
     # Élèves et familles (D2-D4).
     STUDENTS_FAMILY_CREATED = "students.family_created", _("Family created")

@@ -1,9 +1,11 @@
 // Délibération d'une classe (8.4.2) : décision proposée, décision prise, écart motivé, résultats
-// proclamés. Droit `grades.validate` ; en ligne.
+// proclamés ; conseil et sessions de période (NB.5). Lecture : membres du conseil ; écriture :
+// `grades.validate`. En ligne.
 import { api, call, type Schemas } from "@mwangaza/api";
 import { useQuery } from "@tanstack/react-query";
 
 import { keys } from "../../lib/queries";
+import type { TermKind, TermShape } from "../../lib/terms";
 import { layoutQuery, type PrintLayout } from "../printing/printOptions";
 
 export type ClassDeliberation = Schemas["ClassDeliberation"];
@@ -20,13 +22,44 @@ export const TONES: Record<string, "ok" | "warn" | "due" | "gray"> = {
   dropped: "gray",
 };
 
-export function useClassDeliberation(classId: string) {
+export type SessionResult = ClassDeliberation["results"][number];
+export type CouncilMember = ClassDeliberation["council"]["members"][number];
+
+/** Tableau d'une session (NB.5) : `termId` vide = fin d'année, sinon période ou semestre. */
+export function useClassDeliberation(classId: string, termId: string) {
   return useQuery({
-    queryKey: [...keys.deliberation, classId],
+    queryKey: [...keys.deliberation, classId, termId],
     queryFn: () =>
-      call(api.GET("/api/class-groups/{id}/deliberation/", { params: { path: { id: classId } } })),
+      call(
+        api.GET("/api/class-groups/{id}/deliberation/", {
+          params: { path: { id: classId }, query: termId ? { term: termId } : {} },
+        }),
+      ),
     enabled: Boolean(classId),
   });
+}
+
+/** Procès-verbal de la dernière proclamation de la session (NB.5), PDF ou aperçu. */
+export function minutesUrl(classId: string, termId: string, output: "pdf" | "html" = "pdf") {
+  const query = new URLSearchParams({ output });
+  if (termId) query.set("term", termId);
+  return `/api/class-groups/${classId}/deliberation/minutes/?${query}`;
+}
+
+type SessionNode = { id: string; kind: TermKind; name: string; children?: SessionNode[] };
+
+/** Sessions du conseil dans l'ordre de l'année : chaque période, puis le semestre (ou le
+ *  trimestre) qui les regroupe ; les examens se délibèrent avec leur semestre. */
+export function sessionTerms(nodes: SessionNode[], labels: Map<TermShape, string>) {
+  const sessions: { id: string; label: string }[] = [];
+  const add = (node: SessionNode) => sessions.push({ id: node.id, label: labels.get(node) ?? "" });
+  for (const node of nodes) {
+    if (node.kind === "period") add(node);
+    if (node.kind !== "semester" && node.kind !== "trimester") continue;
+    for (const child of node.children ?? []) if (child.kind === "period") add(child);
+    add(node);
+  }
+  return sessions;
 }
 
 export type Decision = (typeof DECISIONS)[number];

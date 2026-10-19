@@ -943,11 +943,13 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Tableau de la classe : pourcentage de l'année, décision proposée d'après les règles de
-         *     l'école, décision prise, écart et motif ; statut, date et dernière version proclamée.
+         * @description Tableau de la session pour les membres du conseil. Fin d'année : pourcentage de
+         *     l'année, décision proposée d'après les règles de l'école, décision prise, écart et motif.
+         *     Période ou semestre : pourcentage, place, conduite, application. Avec l'état, la date, le
+         *     conseil (membres et présents), la dernière version proclamée et l'état des sessions.
          */
         get: operations["class_groups_deliberation_retrieve"];
-        /** @description Fixe la date de la délibération (classe non proclamée). */
+        /** @description Fixe la date de la délibération (session non proclamée). */
         put: operations["class_groups_deliberation_update"];
         post?: never;
         delete?: never;
@@ -965,8 +967,50 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Prend la proposition du système pour chaque élève qui n'a pas encore de décision. */
+        /** @description Fin d'année : prend la proposition du système pour chaque élève sans décision. */
         post: operations["class_groups_deliberation_apply_proposals_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/class-groups/{id}/deliberation/council/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * @description Présents, président et secrétaire de séance (parmi les présents), observations du
+         *     conseil ; session non proclamée. Figés à la proclamation, repris au procès-verbal.
+         */
+        put: operations["class_groups_deliberation_council_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/class-groups/{id}/deliberation/minutes/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Procès-verbal de la session, en PDF ou en aperçu HTML, pour les membres du conseil :
+         *     séance, président, présents et absents, chiffres de la classe, résultats des élèves
+         *     (décisions et écarts motivés en fin d'année), observations, signatures. Lu dans la
+         *     dernière version proclamée (`not_proclaimed` avant) ; chaque PDF est noté au journal.
+         */
+        get: operations["class_groups_deliberation_minutes_retrieve"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -983,8 +1027,10 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * @description Proclame les résultats et les fige : date posée, une décision par élève, un motif par
-         *     écart. Une proclamation après correction crée la version suivante.
+         * @description Proclame les résultats de la session et les fige avec le conseil. Fin d'année : date
+         *     posée, une décision par élève, un motif par écart. Période ou semestre : date posée,
+         *     bulletins dits prêts par le titulaire (`report_cards_not_ready`). Une proclamation après
+         *     correction crée la version suivante.
          */
         post: operations["class_groups_deliberation_proclaim_create"];
         delete?: never;
@@ -1003,7 +1049,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * @description Rouvre une classe proclamée pour corriger (motif obligatoire). Les résultats figés
+         * @description Rouvre une session proclamée pour corriger (motif obligatoire). Les résultats figés
          *     restent ceux de la dernière proclamation jusqu'à la suivante.
          */
         post: operations["class_groups_deliberation_reopen_create"];
@@ -2004,8 +2050,8 @@ export interface paths {
         };
         get?: never;
         /**
-         * @description Décision prise pour un élève ; un écart avec la proposition demande un motif. Élève
-         *     sans aucune note cette année : pourcentage repris, de 0 à 100 (8.4.7).
+         * @description Décision de fin d'année pour un élève ; un écart avec la proposition demande un motif.
+         *     Élève sans aucune note cette année : pourcentage repris, de 0 à 100 (8.4.7).
          */
         put: operations["deliberation_enrollments_update"];
         post?: never;
@@ -4944,6 +4990,8 @@ export interface components {
          *     * `deliberation.decided` - Deliberation decision recorded
          *     * `deliberation.proclaimed` - Class results proclaimed
          *     * `deliberation.reopened` - Class results reopened
+         *     * `deliberation.council` - Deliberation council recorded
+         *     * `deliberation.minutes_printed` - Deliberation minutes printed
          *     * `students.family_created` - Family created
          *     * `students.family_updated` - Family changed
          *     * `students.family_deleted` - Family deleted
@@ -5006,7 +5054,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         /** @description Comptes du portail activés (H7) : école, puis chaque classe de l'année en cours. */
         ActivationSummary: {
             families: number;
@@ -5621,25 +5669,45 @@ export interface components {
         };
         ClassDeliberation: {
             class_name: string;
-            status: components["schemas"]["ClassDeliberationStatusEnum"];
+            /**
+             * Format: uuid
+             * @description Session ; vide : fin d'année.
+             */
+            term: string | null;
+            kind: components["schemas"]["ClassDeliberationKindEnum"];
+            /** @description Droit `grades.validate` ; sinon lecture seule (membre du conseil). */
+            can_edit: boolean;
+            status: components["schemas"]["DeliberationStatusEnum"];
             /** Format: date */
             held_on: string | null;
             /** @description Dernière version proclamée (0 : aucune). */
             version: number;
+            /** @description Période ou semestre : bulletins dits prêts par le titulaire ; fin d'année : vrai. */
+            ready: boolean;
+            /** @description Seuil de passage (période ou semestre). */
+            pass_percent: number | null;
             counts: {
                 [key: string]: number;
             };
             deviations: number;
             /** @description Dernière proclamation figée. */
             latest: components["schemas"]["Proclamation"] | null;
+            /** @description Fin d'année : décisions ; vide sinon. */
             students: components["schemas"]["Row"][];
+            /** @description Période ou semestre ; vide sinon. */
+            results: components["schemas"]["SessionResult"][];
+            council: components["schemas"]["Council"];
+            /** @description État de chaque session ouverte. */
+            sessions: components["schemas"]["SessionState"][];
         };
         /**
-         * @description * `draft` - draft
-         *     * `proclaimed` - proclaimed
+         * @description * `year` - year
+         *     * `period` - period
+         *     * `semester` - semester
+         *     * `trimester` - trimester
          * @enum {string}
          */
-        ClassDeliberationStatusEnum: "draft" | "proclaimed";
+        ClassDeliberationKindEnum: "year" | "period" | "semester" | "trimester";
         ClassGroup: {
             /** Format: uuid */
             readonly id: string;
@@ -6307,6 +6375,30 @@ export interface components {
             email: string;
             emergency_contact: components["schemas"]["EmergencyContactRequest"];
         };
+        Council: {
+            members: components["schemas"]["Member"][];
+            /**
+             * Format: uuid
+             * @description Président de séance.
+             */
+            chair: string | null;
+            /**
+             * Format: uuid
+             * @description Secrétaire de séance.
+             */
+            secretary: string | null;
+            /** @description Observations du conseil. */
+            remarks: string;
+        };
+        CouncilInputRequest: {
+            /** @description Membres présents. */
+            present: string[];
+            /** Format: uuid */
+            chair?: string | null;
+            /** Format: uuid */
+            secretary?: string | null;
+            remarks?: string;
+        };
         CountedRequest: {
             currency: components["schemas"]["CurrencyEnum"];
             /** Format: int64 */
@@ -6686,6 +6778,12 @@ export interface components {
              */
             percent?: string | null;
         };
+        /**
+         * @description * `draft` - In progress
+         *     * `proclaimed` - Proclaimed
+         * @enum {string}
+         */
+        DeliberationStatusEnum: "draft" | "proclaimed";
         /**
          * @description * `new` - New
          *     * `called` - Called back
@@ -7833,6 +7931,18 @@ export interface components {
              * @description Dernière connexion du compte à cette école.
              */
             last_login_at: string | null;
+        };
+        Member: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** @description Valide les notes (direction des études). */
+            direction: boolean;
+            /** @description Titulaire de la classe. */
+            homeroom: boolean;
+            /** @description Cours qu'il donne dans la classe. */
+            courses: string[];
+            present: boolean;
         };
         /**
          * @description * `cash` - Cash
@@ -10212,6 +10322,29 @@ export interface components {
             /** @description Compté - attendu. */
             difference_minor: number | null;
         };
+        SessionResult: {
+            /** Format: uuid */
+            enrollment: string;
+            full_name: string;
+            /** Format: decimal */
+            percent: string | null;
+            place: number | null;
+            /** @description Cote de conduite retenue (période) ; vide sinon. */
+            conduct: string;
+            /** @description Cote d'application (période) ; vide sinon. */
+            application: string;
+            /** @description Pourcentage au seuil de passage au moins. */
+            passed: boolean;
+        };
+        SessionState: {
+            /**
+             * Format: uuid
+             * @description Vide : fin d'année.
+             */
+            term: string | null;
+            status: components["schemas"]["DeliberationStatusEnum"];
+            version: number;
+        };
         SessionTotal: {
             currency: components["schemas"]["CurrencyEnum"];
             amount_minor: number;
@@ -12104,6 +12237,8 @@ export interface operations {
                  *     * `deliberation.decided` - Deliberation decision recorded
                  *     * `deliberation.proclaimed` - Class results proclaimed
                  *     * `deliberation.reopened` - Class results reopened
+                 *     * `deliberation.council` - Deliberation council recorded
+                 *     * `deliberation.minutes_printed` - Deliberation minutes printed
                  *     * `students.family_created` - Family created
                  *     * `students.family_updated` - Family changed
                  *     * `students.family_deleted` - Family deleted
@@ -12165,7 +12300,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -12376,6 +12511,8 @@ export interface operations {
                  *     * `deliberation.decided` - Deliberation decision recorded
                  *     * `deliberation.proclaimed` - Class results proclaimed
                  *     * `deliberation.reopened` - Class results reopened
+                 *     * `deliberation.council` - Deliberation council recorded
+                 *     * `deliberation.minutes_printed` - Deliberation minutes printed
                  *     * `students.family_created` - Family created
                  *     * `students.family_updated` - Family changed
                  *     * `students.family_deleted` - Family deleted
@@ -12437,7 +12574,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -14499,7 +14636,10 @@ export interface operations {
     };
     class_groups_deliberation_retrieve: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Session : une période, un semestre ou un trimestre ; absente : fin d'année. */
+                term?: string | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -14544,7 +14684,10 @@ export interface operations {
     };
     class_groups_deliberation_update: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Session : une période, un semestre ou un trimestre ; absente : fin d'année. */
+                term?: string | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -14638,9 +14781,133 @@ export interface operations {
             };
         };
     };
+    class_groups_deliberation_council_update: {
+        parameters: {
+            query?: {
+                /** @description Session : une période, un semestre ou un trimestre ; absente : fin d'année. */
+                term?: string | null;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CouncilInputRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CouncilInputRequest"];
+                "multipart/form-data": components["schemas"]["CouncilInputRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassDeliberation"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    class_groups_deliberation_minutes_retrieve: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
+                 * @description * `pdf` - pdf
+                 *     * `html` - html
+                 */
+                output?: "pdf" | "html";
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
+                /** @description Session : une période, un semestre ou un trimestre ; absente : fin d'année. */
+                term?: string | null;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document PDF (`output=pdf`). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                    "text/html": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     class_groups_deliberation_proclaim_create: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Session : une période, un semestre ou un trimestre ; absente : fin d'année. */
+                term?: string | null;
+            };
             header?: never;
             path: {
                 id: string;
@@ -14685,7 +14952,10 @@ export interface operations {
     };
     class_groups_deliberation_reopen_create: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Session : une période, un semestre ou un trimestre ; absente : fin d'année. */
+                term?: string | null;
+            };
             header?: never;
             path: {
                 id: string;

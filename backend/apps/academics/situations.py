@@ -253,7 +253,9 @@ def school_situation(year: AcademicYear, criterion: str) -> dict:
     groups = list(ClassGroup.objects.filter(academic_year=year).select_related("level", "track"))
     latest = {
         s.group_id: s
-        for s in DeliberationSnapshot.objects.filter(deliberation__class_group__in=groups)
+        for s in DeliberationSnapshot.objects.filter(
+            deliberation__class_group__in=groups, deliberation__term__isnull=True
+        )
         .annotate(group_id=F("deliberation__class_group_id"))
         .order_by("deliberation__class_group_id", "-version")
         .distinct("deliberation__class_group_id")

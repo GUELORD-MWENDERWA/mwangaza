@@ -20,6 +20,7 @@ from django.conf import settings
 from django.utils import timezone, translation
 from django.utils.translation import gettext
 
+from apps.academics import council as council_module
 from apps.academics import deliberation as deliberation_module
 from apps.academics import promotion, report_cards, resits
 from apps.academics.discipline import DEFAULT_RULES
@@ -391,6 +392,8 @@ def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
         )
         _create_demo_resits(group, draw, now)
         _create_demo_deliberation(group, year, proclaim=group.level.has_state_exam)
+        if not group.level.has_state_exam:
+            _create_demo_council(group, terms, now)
 
 
 def _create_demo_resits(group: ClassGroup, draw: random.Random, now) -> None:
@@ -472,6 +475,55 @@ def _create_demo_deliberation(group: ClassGroup, year, *, proclaim: bool) -> Non
         proclaimed_at=timezone.now(),
         proclaimed_by=director,
         rows=[deliberation_module._frozen(row) for row in decided],
+    )
+
+
+def _create_demo_council(group: ClassGroup, terms: list[Term], now) -> None:
+    """Conseil de délibération (NB.5) : bulletins de chaque période et examen dits prêts, puis la
+    1re période délibérée et proclamée, avec ses présents (tous sauf le dernier enseignant),
+    président, secrétaire et observations : de quoi imprimer un procès-verbal. La 2e période
+    reste à délibérer. Rien au journal, comme le reste de la démonstration."""
+    members = council_module.members(group)
+    director = next((m for m in members if m.direction), None)
+    first = next((t for t in terms if t.kind == Term.Kind.PERIOD), None)
+    if director is None or first is None:
+        return
+    actor = User.objects.get(pk=director.user_id)
+    ReportCardsReady.objects.filter(class_group=group).delete()
+    ReportCardsReady.objects.bulk_create(
+        ReportCardsReady(
+            class_group=group,
+            term=term,
+            declared_by=group.homeroom_teacher or actor,
+            declared_at=now + timedelta(seconds=1),
+        )
+        for term in terms
+    )
+    present = members[:-1] if len(members) > 2 else members
+    secretary = next((m for m in present if m.homeroom), present[-1])
+    deliberation = Deliberation.objects.create(
+        class_group=group,
+        term=first,
+        held_on=first.ends_on or timezone.localdate(),
+        council={
+            "present": [str(m.user_id) for m in present],
+            "chair": str(director.user_id),
+            "secretary": str(secretary.user_id),
+        },
+        remarks="Classe sérieuse ; le français reste faible : remédiation avant la 2e période.",
+    )
+    rows = deliberation_module.session_overview(group, first).rows
+    deliberation.status = Deliberation.Status.PROCLAIMED
+    deliberation.version = 1
+    deliberation.save(update_fields=["status", "version", "updated_at"])
+    DeliberationSnapshot.objects.create(
+        deliberation=deliberation,
+        version=1,
+        held_on=deliberation.held_on,
+        proclaimed_at=now,
+        proclaimed_by=actor,
+        rows=[deliberation_module._session_frozen(row) for row in rows],
+        council=council_module.frozen(deliberation),
     )
 
 
@@ -598,7 +650,7 @@ def _promotion_class(year, family: Family) -> ClassGroup | None:
     démonstration (délibération en cours) ou de dernière année ; sinon la première libre."""
     taken = set(
         Deliberation.objects.filter(
-            class_group__academic_year=year, status=Deliberation.Status.DRAFT
+            class_group__academic_year=year, term__isnull=True, status=Deliberation.Status.DRAFT
         ).values_list("class_group_id", flat=True)
     )
     usable = ClassGroup.objects.filter(academic_year=year, level__has_state_exam=False).exclude(

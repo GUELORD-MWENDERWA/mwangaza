@@ -780,6 +780,8 @@ paths:
           - deliberation.decided
           - deliberation.proclaimed
           - deliberation.reopened
+          - deliberation.council
+          - deliberation.minutes_printed
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -909,6 +911,8 @@ paths:
           * `deliberation.decided` - Deliberation decision recorded
           * `deliberation.proclaimed` - Class results proclaimed
           * `deliberation.reopened` - Class results reopened
+          * `deliberation.council` - Deliberation council recorded
+          * `deliberation.minutes_printed` - Deliberation minutes printed
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -1217,6 +1221,8 @@ paths:
           - deliberation.decided
           - deliberation.proclaimed
           - deliberation.reopened
+          - deliberation.council
+          - deliberation.minutes_printed
           - students.family_created
           - students.family_updated
           - students.family_deleted
@@ -1346,6 +1352,8 @@ paths:
           * `deliberation.decided` - Deliberation decision recorded
           * `deliberation.proclaimed` - Class results proclaimed
           * `deliberation.reopened` - Class results reopened
+          * `deliberation.council` - Deliberation council recorded
+          * `deliberation.minutes_printed` - Deliberation minutes printed
           * `students.family_created` - Family created
           * `students.family_updated` - Family changed
           * `students.family_deleted` - Family deleted
@@ -3427,8 +3435,10 @@ paths:
     get:
       operationId: class_groups_deliberation_retrieve
       description: |-
-        Tableau de la classe : pourcentage de l'année, décision proposée d'après les règles de
-        l'école, décision prise, écart et motif ; statut, date et dernière version proclamée.
+        Tableau de la session pour les membres du conseil. Fin d'année : pourcentage de
+        l'année, décision proposée d'après les règles de l'école, décision prise, écart et motif.
+        Période ou semestre : pourcentage, place, conduite, application. Avec l'état, la date, le
+        conseil (membres et présents), la dernière version proclamée et l'état des sessions.
       parameters:
       - in: path
         name: id
@@ -3436,6 +3446,14 @@ paths:
           type: string
           format: uuid
         required: true
+      - in: query
+        name: term
+        schema:
+          type: string
+          format: uuid
+          nullable: true
+        description: 'Session : une période, un semestre ou un trimestre ; absente
+          : fin d''année.'
       tags:
       - deliberation
       security:
@@ -3467,7 +3485,7 @@ paths:
           description: ''
     put:
       operationId: class_groups_deliberation_update
-      description: Fixe la date de la délibération (classe non proclamée).
+      description: Fixe la date de la délibération (session non proclamée).
       parameters:
       - in: path
         name: id
@@ -3475,6 +3493,14 @@ paths:
           type: string
           format: uuid
         required: true
+      - in: query
+        name: term
+        schema:
+          type: string
+          format: uuid
+          nullable: true
+        description: 'Session : une période, un semestre ou un trimestre ; absente
+          : fin d''année.'
       tags:
       - deliberation
       requestBody:
@@ -3519,8 +3545,8 @@ paths:
   /api/class-groups/{id}/deliberation/apply-proposals/:
     post:
       operationId: class_groups_deliberation_apply_proposals_create
-      description: Prend la proposition du système pour chaque élève qui n'a pas encore
-        de décision.
+      description: 'Fin d''année : prend la proposition du système pour chaque élève
+        sans décision.'
       parameters:
       - in: path
         name: id
@@ -3557,12 +3583,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
-  /api/class-groups/{id}/deliberation/proclaim/:
-    post:
-      operationId: class_groups_deliberation_proclaim_create
+  /api/class-groups/{id}/deliberation/council/:
+    put:
+      operationId: class_groups_deliberation_council_update
       description: |-
-        Proclame les résultats et les fige : date posée, une décision par élève, un motif par
-        écart. Une proclamation après correction crée la version suivante.
+        Présents, président et secrétaire de séance (parmi les présents), observations du
+        conseil ; session non proclamée. Figés à la proclamation, repris au procès-verbal.
       parameters:
       - in: path
         name: id
@@ -3570,6 +3596,171 @@ paths:
           type: string
           format: uuid
         required: true
+      - in: query
+        name: term
+        schema:
+          type: string
+          format: uuid
+          nullable: true
+        description: 'Session : une période, un semestre ou un trimestre ; absente
+          : fin d''année.'
+      tags:
+      - deliberation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CouncilInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CouncilInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CouncilInputRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassDeliberation'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/deliberation/minutes/:
+    get:
+      operationId: class_groups_deliberation_minutes_retrieve
+      description: |-
+        Procès-verbal de la session, en PDF ou en aperçu HTML, pour les membres du conseil :
+        séance, président, présents et absents, chiffres de la classe, résultats des élèves
+        (décisions et écarts motivés en fin d'année), observations, signatures. Lu dans la
+        dernière version proclamée (`not_proclaimed` avant) ; chaque PDF est noté au journal.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
+        name: output
+        schema:
+          enum:
+          - pdf
+          - html
+          type: string
+          default: pdf
+          minLength: 1
+        description: |-
+          * `pdf` - pdf
+          * `html` - html
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
+      - in: query
+        name: term
+        schema:
+          type: string
+          format: uuid
+          nullable: true
+        description: 'Session : une période, un semestre ou un trimestre ; absente
+          : fin d''année.'
+      tags:
+      - deliberation
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Document PDF (`output=pdf`).
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/class-groups/{id}/deliberation/proclaim/:
+    post:
+      operationId: class_groups_deliberation_proclaim_create
+      description: |-
+        Proclame les résultats de la session et les fige avec le conseil. Fin d'année : date
+        posée, une décision par élève, un motif par écart. Période ou semestre : date posée,
+        bulletins dits prêts par le titulaire (`report_cards_not_ready`). Une proclamation après
+        correction crée la version suivante.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: term
+        schema:
+          type: string
+          format: uuid
+          nullable: true
+        description: 'Session : une période, un semestre ou un trimestre ; absente
+          : fin d''année.'
       tags:
       - deliberation
       security:
@@ -3603,7 +3794,7 @@ paths:
     post:
       operationId: class_groups_deliberation_reopen_create
       description: |-
-        Rouvre une classe proclamée pour corriger (motif obligatoire). Les résultats figés
+        Rouvre une session proclamée pour corriger (motif obligatoire). Les résultats figés
         restent ceux de la dernière proclamation jusqu'à la suivante.
       parameters:
       - in: path
@@ -3612,6 +3803,14 @@ paths:
           type: string
           format: uuid
         required: true
+      - in: query
+        name: term
+        schema:
+          type: string
+          format: uuid
+          nullable: true
+        description: 'Session : une période, un semestre ou un trimestre ; absente
+          : fin d''année.'
       tags:
       - deliberation
       requestBody:
@@ -6535,8 +6734,8 @@ paths:
     put:
       operationId: deliberation_enrollments_update
       description: |-
-        Décision prise pour un élève ; un écart avec la proposition demande un motif. Élève
-        sans aucune note cette année : pourcentage repris, de 0 à 100 (8.4.7).
+        Décision de fin d'année pour un élève ; un écart avec la proposition demande un motif.
+        Élève sans aucune note cette année : pourcentage repris, de 0 à 100 (8.4.7).
       parameters:
       - in: path
         name: id
@@ -15202,6 +15401,8 @@ components:
       - deliberation.decided
       - deliberation.proclaimed
       - deliberation.reopened
+      - deliberation.council
+      - deliberation.minutes_printed
       - students.family_created
       - students.family_updated
       - students.family_deleted
@@ -15330,6 +15531,8 @@ components:
         * `deliberation.decided` - Deliberation decision recorded
         * `deliberation.proclaimed` - Class results proclaimed
         * `deliberation.reopened` - Class results reopened
+        * `deliberation.council` - Deliberation council recorded
+        * `deliberation.minutes_printed` - Deliberation minutes printed
         * `students.family_created` - Family created
         * `students.family_updated` - Family changed
         * `students.family_deleted` - Family deleted
@@ -16806,8 +17009,18 @@ components:
       properties:
         class_name:
           type: string
+        term:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Session ; vide : fin d''année.'
+        kind:
+          $ref: '#/components/schemas/ClassDeliberationKindEnum'
+        can_edit:
+          type: boolean
+          description: Droit `grades.validate` ; sinon lecture seule (membre du conseil).
         status:
-          $ref: '#/components/schemas/ClassDeliberationStatusEnum'
+          $ref: '#/components/schemas/DeliberationStatusEnum'
         held_on:
           type: string
           format: date
@@ -16815,6 +17028,14 @@ components:
         version:
           type: integer
           description: 'Dernière version proclamée (0 : aucune).'
+        ready:
+          type: boolean
+          description: 'Période ou semestre : bulletins dits prêts par le titulaire
+            ; fin d''année : vrai.'
+        pass_percent:
+          type: integer
+          nullable: true
+          description: Seuil de passage (période ou semestre).
         counts:
           type: object
           additionalProperties:
@@ -16830,23 +17051,48 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Row'
+          description: 'Fin d''année : décisions ; vide sinon.'
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionResult'
+          description: Période ou semestre ; vide sinon.
+        council:
+          $ref: '#/components/schemas/Council'
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionState'
+          description: État de chaque session ouverte.
       required:
       - class_name
+      - term
+      - kind
+      - can_edit
       - status
       - held_on
       - version
+      - ready
+      - pass_percent
       - counts
       - deviations
       - latest
       - students
-    ClassDeliberationStatusEnum:
+      - results
+      - council
+      - sessions
+    ClassDeliberationKindEnum:
       enum:
-      - draft
-      - proclaimed
+      - year
+      - period
+      - semester
+      - trimester
       type: string
       description: |-
-        * `draft` - draft
-        * `proclaimed` - proclaimed
+        * `year` - year
+        * `period` - period
+        * `semester` - semester
+        * `trimester` - trimester
     ClassGroup:
       type: object
       properties:
@@ -18372,6 +18618,54 @@ components:
       - address
       - email
       - emergency_contact
+    Council:
+      type: object
+      properties:
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/Member'
+        chair:
+          type: string
+          format: uuid
+          nullable: true
+          description: Président de séance.
+        secretary:
+          type: string
+          format: uuid
+          nullable: true
+          description: Secrétaire de séance.
+        remarks:
+          type: string
+          description: Observations du conseil.
+      required:
+      - members
+      - chair
+      - secretary
+      - remarks
+    CouncilInputRequest:
+      type: object
+      properties:
+        present:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Membres présents.
+          maxItems: 200
+        chair:
+          type: string
+          format: uuid
+          nullable: true
+        secretary:
+          type: string
+          format: uuid
+          nullable: true
+        remarks:
+          type: string
+          maxLength: 2000
+      required:
+      - present
     CountedRequest:
       type: object
       properties:
@@ -19156,6 +19450,14 @@ components:
             aucune note cette année (issue `unranked`) ; absent ou nul : aucun.'
       required:
       - decision
+    DeliberationStatusEnum:
+      enum:
+      - draft
+      - proclaimed
+      type: string
+      description: |-
+        * `draft` - In progress
+        * `proclaimed` - Proclaimed
     DemoRequestStatusEnum:
       enum:
       - new
@@ -21687,6 +21989,34 @@ components:
       - logo
       - roles
       - last_login_at
+    Member:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        direction:
+          type: boolean
+          description: Valide les notes (direction des études).
+        homeroom:
+          type: boolean
+          description: Titulaire de la classe.
+        courses:
+          type: array
+          items:
+            type: string
+          description: Cours qu'il donne dans la classe.
+        present:
+          type: boolean
+      required:
+      - id
+      - name
+      - direction
+      - homeroom
+      - courses
+      - present
     MethodEnum:
       enum:
       - cash
@@ -26485,6 +26815,55 @@ components:
       - expected_minor
       - counted_minor
       - difference_minor
+    SessionResult:
+      type: object
+      properties:
+        enrollment:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+        place:
+          type: integer
+          nullable: true
+        conduct:
+          type: string
+          description: Cote de conduite retenue (période) ; vide sinon.
+        application:
+          type: string
+          description: Cote d'application (période) ; vide sinon.
+        passed:
+          type: boolean
+          description: Pourcentage au seuil de passage au moins.
+      required:
+      - enrollment
+      - full_name
+      - percent
+      - place
+      - conduct
+      - application
+      - passed
+    SessionState:
+      type: object
+      properties:
+        term:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Vide : fin d''année.'
+        status:
+          $ref: '#/components/schemas/DeliberationStatusEnum'
+        version:
+          type: integer
+      required:
+      - term
+      - status
+      - version
     SessionTotal:
       type: object
       properties:
