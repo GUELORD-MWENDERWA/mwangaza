@@ -31,6 +31,7 @@ import { ConductPage } from "./features/conduct/ConductPage";
 import { ConductScalePage } from "./features/conduct/ConductScalePage";
 import { ReportCardPage } from "./features/grades/ReportCardPage";
 import { GradeValidationPage } from "./features/grades/GradeValidationPage";
+import { HomeroomPage } from "./features/homeroom/HomeroomPage";
 import { OrganisationPage } from "./features/organisation/OrganisationPage";
 import { PriorPaymentsPage } from "./features/prior-payments/PriorPaymentsPage";
 import { DeliberationPage } from "./features/deliberation/DeliberationPage";
@@ -77,6 +78,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   teachingLoads: <TeachingLoadsPage />,
   grades: <GradesPage />,
   gradeValidation: <GradeValidationPage />,
+  homeroom: <HomeroomPage />,
   reportCards: <ReportCardPage />,
   gradeSheets: <GradeSheetsPage />,
   conduct: <ConductPage />,

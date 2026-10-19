@@ -213,6 +213,9 @@ class CurrentSchoolAccessSerializer(serializers.Serializer):
     documents = DocumentSignersSerializer(
         help_text="Cachet et signatures posés sur les documents que la Gestion imprime (DOC.1)."
     )
+    homeroom = serializers.BooleanField(
+        help_text="Titulaire d'une classe de l'année en cours : menu « Ma classe » (NB.3)."
+    )
 
 
 class SupportSessionSerializer(serializers.Serializer):

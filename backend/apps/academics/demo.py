@@ -38,6 +38,7 @@ from apps.academics.models import (
     GradeDeadline,
     GradeSheet,
     PlaceConfirmation,
+    ReportCardsReady,
     ResitGrade,
 )
 from apps.academics.official import BY_KEY
@@ -46,7 +47,7 @@ from apps.accounts.roles import GRADES_VALIDATE
 from apps.core.tenancy import use_school
 from apps.finance import services as finance
 from apps.schools import organisation
-from apps.schools.demo import DemoSpace
+from apps.schools.demo import DEMO_ORGANISATIONS, DemoSpace
 from apps.schools.models import AcademicYear, ClassGroup, Term
 from apps.schools.organisation import current_year
 from apps.students.models import Enrollment, Family
@@ -153,6 +154,7 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
                 continue
             # Les notes partent avec leurs évaluations.
             GradeSheet.objects.filter(term=first).delete()
+            ReportCardsReady.objects.filter(term=first).delete()
             Evaluation.objects.filter(term=first).delete()
             students: dict = defaultdict(list)
             paper = _paper_class(year) if space.profile == "itig" else None
@@ -192,6 +194,7 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
                     )
             Grade.objects.bulk_create(grades, batch_size=5000)
             _create_demo_control(first)
+            _create_demo_homeroom(space, first)
             _create_demo_discipline(first, students, draw)
             if space.profile == "itig":
                 _complete_demo_classes(year, students, draw)
@@ -261,6 +264,39 @@ def _create_demo_control(term: Term) -> None:
             )
         )
     GradeSheet.objects.bulk_create(sheets)
+
+
+def _create_demo_homeroom(space: DemoSpace, term: Term) -> None:
+    """Espace du titulaire (NB.3) : dans la classe du titulaire de la démonstration, toutes les
+    fiches de la période validées sauf la dernière, envoyée et signée : le directeur des études la
+    valide, puis le titulaire déclare les bulletins prêts."""
+    level, track, section = DEMO_ORGANISATIONS[space.profile].homeroom_class
+    group = ClassGroup.objects.filter(
+        academic_year_id=term.academic_year_id,
+        level__name=level,
+        section=section,
+        **({"track__code": track} if track else {"track__isnull": True}),
+    ).first()
+    if group is None:
+        return
+    courses = list(
+        Course.objects.filter(class_group=group, is_taught=True, evaluations__term=term)
+        .distinct()
+        .order_by("order", "name")
+    )
+    GradeSheet.objects.filter(term=term, course__in=courses).delete()
+    now = timezone.now()
+    GradeSheet.objects.bulk_create(
+        GradeSheet(
+            course=course,
+            term=term,
+            status=GradeSheet.Status.SUBMITTED if last else GradeSheet.Status.VALIDATED,
+            submitted_at=now - timedelta(days=2),
+            submitted_by=course.teacher,
+            validated_at=None if last else now - timedelta(days=1),
+        )
+        for last, course in ((i == len(courses) - 1, c) for i, c in enumerate(courses))
+    )
 
 
 def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:

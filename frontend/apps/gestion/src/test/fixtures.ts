@@ -144,6 +144,7 @@ export function me(code: Role = "head", overrides: Partial<Schemas["Me"]> = {}):
       permissions: PERMISSIONS[code],
       modules: ALL_MODULES,
       documents: NO_SIGNATURES,
+      homeroom: false,
     },
     support: null,
     ...overrides,

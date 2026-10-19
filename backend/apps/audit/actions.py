@@ -88,6 +88,12 @@ class Action(models.TextChoices):
     GRADES_DEADLINE_SET = "grades.deadline_set", _("Grade entry deadline set")
     # Tableau du directeur des études (NB.2) : rappel des fiches pas encore envoyées.
     GRADES_REMINDED = "grades.reminded", _("Teachers reminded of their grade sheets")
+    # Espace du titulaire (NB.3) : bulletins d'une période déclarés prêts, ou déclaration retirée.
+    GRADES_REPORT_CARDS_READY = "grades.report_cards_ready", _("Report cards declared ready")
+    GRADES_REPORT_CARDS_WITHDRAWN = (
+        "grades.report_cards_withdrawn",
+        _("Report cards no longer declared ready"),
+    )
     # Bulletin (8.3.2) : chaque PDF est noté, il contient les résultats d'un élève.
     GRADES_REPORT_CARD_PRINTED = "grades.report_card_printed", _("Report card printed")
     # Fiche de cotes (8.3.6) : chaque PDF est noté, il contient des notes d'élèves.

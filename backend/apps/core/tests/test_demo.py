@@ -102,6 +102,11 @@ def created(demo) -> None:
         assert any(group.complete for group in classes)
         states = {course.status for group in classes for course in group.courses}
         assert {"validated", "submitted", "in_progress", "not_started"} <= states
+        # Espace du titulaire (NB.3) : sa classe attend une seule fiche, puis « Bulletins prêts ».
+        titular = next(group for group in classes if group.name == "3HT ÉLECTRICITÉ A")
+        assert [c.status for c in titular.courses].count("submitted") == 1
+        assert {c.status for c in titular.courses} == {"validated", "submitted"}
+        assert titular.ready_at is None
 
     # Un compte par rôle, chaque école nomme ses rôles à sa façon : pas de « Directeur » à l'ITIG.
     names = [

@@ -73,7 +73,7 @@ Dans `frontend/packages/ui` (exportés par `@mwangaza/ui`), construits une fois,
 | `.seg` | `Segmented` | piste grise, choix actif en carte blanche (`shadow-raised`) |
 | `.tbl` `tr.sel` `.errrow` `.warnrow` `tfoot` | `Table` ; `Table stacked` + `data-label` | en-tête `table-head` en `ink-3` ; survol de ligne ; **`stacked`** : au téléphone (< 600 px) une carte par ligne — pour les grandes listes consultées au téléphone (élèves, impayés ; maquettes : `.tbl.stack`) ; case à cocher : `td.stack-check` |
 | `.pill` | `StatusPill` | point + texte, anneau intérieur `-200` |
-| `.banner` | `Banner` | icône à gauche sur la 1re ligne, action à droite |
+| `.banner` | `Banner` | icône à gauche sur la 1re ligne, action à droite (au téléphone : sous le texte, aligné avec lui) |
 | `.tabs` | `Tabs` | actif : texte lac, soulignement 2 px |
 | `.side` `.nav a.on` `.navlabel` | coquille `AppShell` de la Gestion | 256 px, nuit + relief ; libellés de section en capitales `night-muted` ; entrée active : `night-2`, texte blanc, icône `lamp`, barre `lamp` |
 | `.top` | barre du haut de la Gestion | 64 px, blanche translucide, recherche `Ctrl K`, `SyncIndicator` toujours visible |

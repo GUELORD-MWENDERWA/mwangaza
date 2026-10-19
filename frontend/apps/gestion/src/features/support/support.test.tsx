@@ -20,6 +20,7 @@ const inSession = platformAdmin({
     roles: [],
     permissions: PERMISSIONS.head,
     modules: ["students", "finance", "communication"],
+    homeroom: false,
     documents: NO_SIGNATURES,
   },
   support: session,

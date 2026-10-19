@@ -71,6 +71,10 @@ describe("menu selon les permissions (04 § 8)", () => {
       "schooling",
       "communication",
     ]);
+    // Titulaire d'une classe (NB.3) : « Ma classe » en plus.
+    const titular = me("teacher");
+    titular.school = { ...titular.school!, homeroom: true };
+    expect(keysOf(titular).slice(0, 2)).toEqual(["grades", "homeroom"]);
   });
 
   it("session support : droits de l'école sauf la caisse", () => {
@@ -92,6 +96,7 @@ describe("menu selon les permissions (04 § 8)", () => {
         permissions: support,
         modules: [],
         documents: NO_SIGNATURES,
+        homeroom: false,
       },
     });
 

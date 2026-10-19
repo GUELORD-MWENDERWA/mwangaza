@@ -19,6 +19,8 @@ export type MenuItem = {
   permissions: readonly Permission[];
   /** Tâche du plan qui construit l'écran. */
   task: string;
+  /** Seulement pour le titulaire d'une classe de l'année en cours (« Ma classe », NB.3). */
+  homeroom?: boolean;
   /** Module de l'école sans lequel l'écran ne sert à rien, en plus du droit (passage de classe :
    *  droit des élèves, décisions de la délibération). */
   module?: Schemas["ModulesEnum"];
@@ -67,6 +69,14 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         icon: "edit",
         permissions: ["grades.enter", "grades.enter_any"],
         task: "8.2.1",
+      },
+      {
+        key: "homeroom",
+        path: "homeroom",
+        icon: "users",
+        permissions: ["grades.enter", "grades.enter_any", "grades.validate"],
+        task: "NB.3",
+        homeroom: true,
       },
       {
         key: "gradeValidation",
@@ -275,6 +285,7 @@ export const MENU_ITEMS = MENU.flatMap(({ items }) => items);
 /** L'entrée est-elle permise au compte ? Sans droit demandé : à tout le personnel. */
 export function canOpen(me: Me, item: MenuItem): boolean {
   if (item.module && !me.school?.modules.includes(item.module)) return false;
+  if (item.homeroom && !me.school?.homeroom) return false;
   return item.permissions.length === 0 || can(me, item.permissions);
 }
 
