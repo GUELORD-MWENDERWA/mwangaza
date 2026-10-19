@@ -12,7 +12,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.academics import deliberation, prior_results
+from apps.academics import deliberation, prior_results, resits
 from apps.academics.models import DeliberationDecision
 from apps.accounts.permissions import HasSchoolPermission
 from apps.accounts.roles import GRADES_VALIDATE
@@ -43,6 +43,12 @@ class RowSerializer(serializers.Serializer):
     outcome = serializers.ChoiceField(choices=OUTCOMES, help_text="Issue des règles (8.4.1).")
     proposed = serializers.CharField(
         help_text="Décision proposée (mêmes valeurs que `decision`) ; vide sans proposition."
+    )
+    rule = serializers.ChoiceField(
+        choices=resits.RULES, help_text="Règle du règlement de l'école qui donne la proposition."
+    )
+    rule_params = serializers.DictField(
+        help_text="Valeurs citées avec la règle (percent, threshold, count, max, courses, age…)."
     )
     decision = serializers.ChoiceField(
         choices=[*DECISIONS, ""], help_text="Vide : pas encore prise."

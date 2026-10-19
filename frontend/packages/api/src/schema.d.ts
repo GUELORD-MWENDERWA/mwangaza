@@ -6356,11 +6356,19 @@ export interface components {
              *     * `totals` - totals
              */
             readonly grade_entry: components["schemas"]["GradeEntryEnum"] | components["schemas"]["BlankEnum"];
-            readonly resit_allowed: boolean;
+            readonly category: components["schemas"]["CourseCategoryEnum"];
             /** Hours per week */
             readonly weekly_hours: number | null;
             readonly teacher: components["schemas"]["Person"] | null;
         };
+        /**
+         * @description * `general` - General
+         *     * `main` - Main course
+         *     * `option` - Option course
+         *     * `practical` - Practical
+         * @enum {string}
+         */
+        CourseCategoryEnum: "general" | "main" | "option" | "practical";
         CourseInputRequest: {
             /**
              * Format: uuid
@@ -6387,10 +6395,15 @@ export interface components {
              */
             grade_entry: components["schemas"]["GradeEntryEnum"] | components["schemas"]["BlankEnum"];
             /**
-             * @description Faux (atelier, laboratoire) : pas de seconde session, l'échec reprend l'année.
-             * @default true
+             * @description general, main (cours principal), option (branche d'option), practical (atelier, laboratoire) : pour les règles de délibération (NB.4).
+             *
+             *     * `general` - general
+             *     * `main` - main
+             *     * `option` - option
+             *     * `practical` - practical
+             * @default general
              */
-            resit_allowed: boolean;
+            category: components["schemas"]["CourseCategoryEnum"];
             weekly_hours?: number | null;
             /**
              * Format: uuid
@@ -7630,29 +7643,42 @@ export interface components {
          *     de l'école.
          */
         LevelPassRulesRequest: {
-            /** @description Pourcentage de l'année pour réussir. */
+            /** @description Passe : total de l'année au moins à ce pourcentage. */
             pass_percent?: number;
             /** @description Un cours est échoué sous ce pourcentage. */
             course_pass_percent?: number;
-            /**
-             * @description band : repêchage de plancher à seuil ; any_failed : tout cours échoué.
-             *
-             *     * `band` - band
-             *     * `any_failed` - any_failed
-             */
-            resit_mode?: components["schemas"]["ResitModeEnum"];
-            /** @description Plancher du repêchage (mode band). */
-            resit_floor_percent?: number;
-            /** @description Cours échoués au repêchage qui font échouer. */
-            resit_failures_to_fail?: number;
-            /** @description Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec. */
+            /** @description Repêchage : total au moins à ce pourcentage malgré des échecs. */
+            resit_percent?: number;
+            /** @description Cours repêchés au plus ; au-delà, l'élève double. */
             max_resit_courses?: number;
-            /** @description Sous ce pourcentage de l'année, orientation ailleurs ; 0 : jamais. */
+            /** @description Cours principaux repêchés ensemble au plus. */
+            max_main_resits?: number;
+            /** @description Branches d'option repêchées ensemble au plus. */
+            max_option_resits?: number;
+            /** @description Un cours pratique ouvre un repêchage. */
+            practical_resit?: boolean;
+            /** @description Entrer dans la dernière classe : ce total et aucun cours échoué ; 0 : règles ordinaires. */
+            final_pass_percent?: number;
+            /** @description Sous ce total, orientation ailleurs ; 0 : jamais. */
             orientation_percent?: number;
-            /** @description Périodes de conduite notées MA qui font proposer le renvoi ; 0 : jamais. */
+            /** @description Exception d'âge : années sous l'âge limite ; 0 : jamais. */
+            age_exception_years?: number;
+            /** @description Exception d'âge : total au moins à ce pourcentage. */
+            age_exception_percent?: number;
+            /** @description Âge limite du niveau à la rentrée suivante ; 0 : aucun. */
+            age_limit?: number;
+            /** @description Exclusion proposée à qui a déjà fait ce niveau et devrait doubler. */
+            exclude_repeated_class?: boolean;
+            /** @description Redoublements au plus ; au-delà, exclusion ; 0 : sans limite. */
+            max_repeats?: number;
+            /** @description Périodes de suite notées MA : exclusion ; 0 : jamais. */
             conduct_ma_to_exclude?: number;
-            /** @description Périodes de conduite notées ME qui font proposer le renvoi ; 0 : jamais. */
+            /** @description Périodes de suite notées ME ou MA : exclusion ; 0 : jamais. */
             conduct_me_to_exclude?: number;
+            /** @description L'application compte comme la conduite, à part. */
+            application_counts?: boolean;
+            /** @description Cours perdus au repêchage qui font doubler. */
+            resit_failures_to_fail?: number;
         };
         LevelReorderRequest: {
             /** @description Tous les niveaux de l'école, dans l'ordre voulu. */
@@ -7922,6 +7948,7 @@ export interface components {
             has_exam: boolean;
             is_taught: boolean;
             weekly_hours: number | null;
+            category: components["schemas"]["CourseCategoryEnum"];
         };
         OfficialGrid: {
             /** @description Nom traduit par l'interface. */
@@ -8491,57 +8518,83 @@ export interface components {
             /** Format: int64 */
             received_minor: number;
         };
-        /** @description Règles de réussite et de repêchage (`pass_rules.py`, 8.4.1). Écriture partielle. */
+        /** @description Règles de délibération (`pass_rules.py`, 8.4.1, NB.4). Écriture partielle. */
         PassRulesSettings: {
-            /** @description Pourcentage de l'année pour réussir. */
+            /** @description Passe : total de l'année au moins à ce pourcentage. */
             pass_percent: number;
             /** @description Un cours est échoué sous ce pourcentage. */
             course_pass_percent: number;
-            /**
-             * @description band : repêchage de plancher à seuil ; any_failed : tout cours échoué.
-             *
-             *     * `band` - band
-             *     * `any_failed` - any_failed
-             */
-            resit_mode: components["schemas"]["ResitModeEnum"];
-            /** @description Plancher du repêchage (mode band). */
-            resit_floor_percent: number;
-            /** @description Cours échoués au repêchage qui font échouer. */
-            resit_failures_to_fail: number;
-            /** @description Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec. */
+            /** @description Repêchage : total au moins à ce pourcentage malgré des échecs. */
+            resit_percent: number;
+            /** @description Cours repêchés au plus ; au-delà, l'élève double. */
             max_resit_courses: number;
-            /** @description Sous ce pourcentage de l'année, orientation ailleurs ; 0 : jamais. */
+            /** @description Cours principaux repêchés ensemble au plus. */
+            max_main_resits: number;
+            /** @description Branches d'option repêchées ensemble au plus. */
+            max_option_resits: number;
+            /** @description Un cours pratique ouvre un repêchage. */
+            practical_resit: boolean;
+            /** @description Entrer dans la dernière classe : ce total et aucun cours échoué ; 0 : règles ordinaires. */
+            final_pass_percent: number;
+            /** @description Sous ce total, orientation ailleurs ; 0 : jamais. */
             orientation_percent: number;
-            /** @description Périodes de conduite notées MA qui font proposer le renvoi ; 0 : jamais. */
+            /** @description Exception d'âge : années sous l'âge limite ; 0 : jamais. */
+            age_exception_years: number;
+            /** @description Exception d'âge : total au moins à ce pourcentage. */
+            age_exception_percent: number;
+            /** @description Âge limite du niveau à la rentrée suivante ; 0 : aucun. */
+            age_limit: number;
+            /** @description Exclusion proposée à qui a déjà fait ce niveau et devrait doubler. */
+            exclude_repeated_class: boolean;
+            /** @description Redoublements au plus ; au-delà, exclusion ; 0 : sans limite. */
+            max_repeats: number;
+            /** @description Périodes de suite notées MA : exclusion ; 0 : jamais. */
             conduct_ma_to_exclude: number;
-            /** @description Périodes de conduite notées ME qui font proposer le renvoi ; 0 : jamais. */
+            /** @description Périodes de suite notées ME ou MA : exclusion ; 0 : jamais. */
             conduct_me_to_exclude: number;
+            /** @description L'application compte comme la conduite, à part. */
+            application_counts: boolean;
+            /** @description Cours perdus au repêchage qui font doubler. */
+            resit_failures_to_fail: number;
         };
-        /** @description Règles de réussite et de repêchage (`pass_rules.py`, 8.4.1). Écriture partielle. */
+        /** @description Règles de délibération (`pass_rules.py`, 8.4.1, NB.4). Écriture partielle. */
         PassRulesSettingsRequest: {
-            /** @description Pourcentage de l'année pour réussir. */
+            /** @description Passe : total de l'année au moins à ce pourcentage. */
             pass_percent: number;
             /** @description Un cours est échoué sous ce pourcentage. */
             course_pass_percent: number;
-            /**
-             * @description band : repêchage de plancher à seuil ; any_failed : tout cours échoué.
-             *
-             *     * `band` - band
-             *     * `any_failed` - any_failed
-             */
-            resit_mode: components["schemas"]["ResitModeEnum"];
-            /** @description Plancher du repêchage (mode band). */
-            resit_floor_percent: number;
-            /** @description Cours échoués au repêchage qui font échouer. */
-            resit_failures_to_fail: number;
-            /** @description Cours échoués au plus qui peuvent être repêchés ; au-delà, l'échec. */
+            /** @description Repêchage : total au moins à ce pourcentage malgré des échecs. */
+            resit_percent: number;
+            /** @description Cours repêchés au plus ; au-delà, l'élève double. */
             max_resit_courses: number;
-            /** @description Sous ce pourcentage de l'année, orientation ailleurs ; 0 : jamais. */
+            /** @description Cours principaux repêchés ensemble au plus. */
+            max_main_resits: number;
+            /** @description Branches d'option repêchées ensemble au plus. */
+            max_option_resits: number;
+            /** @description Un cours pratique ouvre un repêchage. */
+            practical_resit: boolean;
+            /** @description Entrer dans la dernière classe : ce total et aucun cours échoué ; 0 : règles ordinaires. */
+            final_pass_percent: number;
+            /** @description Sous ce total, orientation ailleurs ; 0 : jamais. */
             orientation_percent: number;
-            /** @description Périodes de conduite notées MA qui font proposer le renvoi ; 0 : jamais. */
+            /** @description Exception d'âge : années sous l'âge limite ; 0 : jamais. */
+            age_exception_years: number;
+            /** @description Exception d'âge : total au moins à ce pourcentage. */
+            age_exception_percent: number;
+            /** @description Âge limite du niveau à la rentrée suivante ; 0 : aucun. */
+            age_limit: number;
+            /** @description Exclusion proposée à qui a déjà fait ce niveau et devrait doubler. */
+            exclude_repeated_class: boolean;
+            /** @description Redoublements au plus ; au-delà, exclusion ; 0 : sans limite. */
+            max_repeats: number;
+            /** @description Périodes de suite notées MA : exclusion ; 0 : jamais. */
             conduct_ma_to_exclude: number;
-            /** @description Périodes de conduite notées ME qui font proposer le renvoi ; 0 : jamais. */
+            /** @description Périodes de suite notées ME ou MA : exclusion ; 0 : jamais. */
             conduct_me_to_exclude: number;
+            /** @description L'application compte comme la conduite, à part. */
+            application_counts: boolean;
+            /** @description Cours perdus au repêchage qui font doubler. */
+            resit_failures_to_fail: number;
         };
         PassageRow: {
             /** Format: uuid */
@@ -9801,12 +9854,6 @@ export interface components {
              */
             percent: string;
         };
-        /**
-         * @description * `band` - band
-         *     * `any_failed` - any_failed
-         * @enum {string}
-         */
-        ResitModeEnum: "band" | "any_failed";
         /** @description Rôle de l'école : un nom et des permissions. */
         Role: {
             /** Format: uuid */
@@ -9859,6 +9906,37 @@ export interface components {
             /** @description Décision proposée (mêmes valeurs que `decision`) ; vide sans proposition. */
             proposed: string;
             /**
+             * @description Règle du règlement de l'école qui donne la proposition.
+             *
+             *     * `passed` - passed
+             *     * `passed_final` - passed_final
+             *     * `resits_passed` - resits_passed
+             *     * `resit` - resit
+             *     * `below_pass` - below_pass
+             *     * `below_resit` - below_resit
+             *     * `final_class` - final_class
+             *     * `practical` - practical
+             *     * `too_many_resits` - too_many_resits
+             *     * `main_courses` - main_courses
+             *     * `option_courses` - option_courses
+             *     * `resits_lost` - resits_lost
+             *     * `age_exception` - age_exception
+             *     * `below_orientation` - below_orientation
+             *     * `repeated_class` - repeated_class
+             *     * `max_repeats` - max_repeats
+             *     * `conduct_ma` - conduct_ma
+             *     * `conduct_me` - conduct_me
+             *     * `application_ma` - application_ma
+             *     * `application_me` - application_me
+             *     * `no_grades` - no_grades
+             *     * `missing_grades` - missing_grades
+             */
+            rule: components["schemas"]["RuleEnum"];
+            /** @description Valeurs citées avec la règle (percent, threshold, count, max, courses, age…). */
+            rule_params: {
+                [key: string]: unknown;
+            };
+            /**
              * @description Vide : pas encore prise.
              *
              *     * `pass` - pass
@@ -9887,16 +9965,37 @@ export interface components {
             label: string;
             points: number;
         };
+        /**
+         * @description * `passed` - passed
+         *     * `passed_final` - passed_final
+         *     * `resits_passed` - resits_passed
+         *     * `resit` - resit
+         *     * `below_pass` - below_pass
+         *     * `below_resit` - below_resit
+         *     * `final_class` - final_class
+         *     * `practical` - practical
+         *     * `too_many_resits` - too_many_resits
+         *     * `main_courses` - main_courses
+         *     * `option_courses` - option_courses
+         *     * `resits_lost` - resits_lost
+         *     * `age_exception` - age_exception
+         *     * `below_orientation` - below_orientation
+         *     * `repeated_class` - repeated_class
+         *     * `max_repeats` - max_repeats
+         *     * `conduct_ma` - conduct_ma
+         *     * `conduct_me` - conduct_me
+         *     * `application_ma` - application_ma
+         *     * `application_me` - application_me
+         *     * `no_grades` - no_grades
+         *     * `missing_grades` - missing_grades
+         * @enum {string}
+         */
+        RuleEnum: "passed" | "passed_final" | "resits_passed" | "resit" | "below_pass" | "below_resit" | "final_class" | "practical" | "too_many_resits" | "main_courses" | "option_courses" | "resits_lost" | "age_exception" | "below_orientation" | "repeated_class" | "max_repeats" | "conduct_ma" | "conduct_me" | "application_ma" | "application_me" | "no_grades" | "missing_grades";
         Rules: {
             pass_percent: number;
             course_pass_percent: number;
-            resit_mode: string;
-            resit_floor_percent: number;
+            resit_percent: number;
             resit_failures_to_fail: number;
-            max_resit_courses: number;
-            orientation_percent: number;
-            conduct_ma_to_exclude: number;
-            conduct_me_to_exclude: number;
         };
         Scale: {
             scale: components["schemas"]["ScaleRow"][];
@@ -10076,6 +10175,10 @@ export interface components {
             portal: components["schemas"]["PortalSettings"];
             grading: components["schemas"]["GradingSettings"];
             pass_rules: components["schemas"]["PassRulesSettings"];
+            /** @description Préréglages des règles de délibération (« courant », « réseau catholique »). */
+            readonly pass_rule_presets: {
+                [key: string]: components["schemas"]["PassRulesSettings"];
+            };
         };
         /**
          * @description * `trial` - Free trial
@@ -10675,6 +10778,37 @@ export interface components {
              *     * `exclude` - exclude
              */
             outcome: components["schemas"]["OutcomeEnum"];
+            /**
+             * @description Règle du règlement de l'école qui donne l'issue.
+             *
+             *     * `passed` - passed
+             *     * `passed_final` - passed_final
+             *     * `resits_passed` - resits_passed
+             *     * `resit` - resit
+             *     * `below_pass` - below_pass
+             *     * `below_resit` - below_resit
+             *     * `final_class` - final_class
+             *     * `practical` - practical
+             *     * `too_many_resits` - too_many_resits
+             *     * `main_courses` - main_courses
+             *     * `option_courses` - option_courses
+             *     * `resits_lost` - resits_lost
+             *     * `age_exception` - age_exception
+             *     * `below_orientation` - below_orientation
+             *     * `repeated_class` - repeated_class
+             *     * `max_repeats` - max_repeats
+             *     * `conduct_ma` - conduct_ma
+             *     * `conduct_me` - conduct_me
+             *     * `application_ma` - application_ma
+             *     * `application_me` - application_me
+             *     * `no_grades` - no_grades
+             *     * `missing_grades` - missing_grades
+             */
+            rule: components["schemas"]["RuleEnum"];
+            /** @description Valeurs citées avec la règle. */
+            rule_params: {
+                [key: string]: unknown;
+            };
             courses: components["schemas"]["ResitCourse"][];
         };
         /**

@@ -200,3 +200,35 @@ GRIDS += (
 )
 
 BY_KEY = {grid.key: grid for grid in GRIDS}
+
+# Catégorie de chaque cours pour les règles de délibération (NB.4) : le français et les
+# mathématiques sont les cours principaux, un cours sans examen (atelier, laboratoire, pratique
+# professionnelle) est pratique, les branches d'option sont celles de la spécialité ; le reste
+# est général. L'école corrige dans sa grille.
+MAIN_COURSES = {"Français", "Mathématique", "Mathématiques"}
+OPTION_COURSES = {
+    "electricity": {
+        "Dessin électrique",
+        "Dessin industriel",
+        "Électricité générale",
+        "Mécanique générale",
+        "Technologie électrique",
+    },
+    "general_mechanics": {
+        "Dessin industriel",
+        "Mécanique générale",
+        "Résistance des matériaux",
+        "Technologie mécanique",
+    },
+    "electronics_1": {"Électricité générale"},
+    "electronics_2": {"Électricité générale", "Électronique générale"},
+    "electronics_3": {"Électricité", "Électronique", "Radio électronique"},
+}
+
+
+def category_of(grid: OfficialGrid, name: str, has_exam: bool) -> str:
+    if name in MAIN_COURSES:
+        return "main"
+    if not has_exam:
+        return "practical"
+    return "option" if name in OPTION_COURSES.get(grid.key, ()) else "general"

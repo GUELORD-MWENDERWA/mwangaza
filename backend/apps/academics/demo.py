@@ -41,7 +41,7 @@ from apps.academics.models import (
     ReportCardsReady,
     ResitGrade,
 )
-from apps.academics.official import BY_KEY
+from apps.academics.official import BY_KEY, category_of
 from apps.accounts.models import User
 from apps.accounts.roles import GRADES_VALIDATE
 from apps.core.tenancy import use_school
@@ -114,6 +114,7 @@ def create_demo_courses(spaces: list[DemoSpace]) -> None:
                     else:
                         updated.append(course)
                     course.period_max, course.has_exam, course.order = maximum, exam, order
+                    course.category = category_of(BY_KEY[key], name, exam)
                     # Démonstration : tous les cours sont donnés, même ceux que le formulaire barre
                     # pour l'option, pour que chaque bulletin ait tous ses totaux (décision du
                     # 2026-10-16) ; l'école barre ce qu'elle ne donne pas (`is_taught`).
@@ -123,7 +124,16 @@ def create_demo_courses(spaces: list[DemoSpace]) -> None:
                     course.teacher = assigned.get((group.level.name, code, group.section, name))
             Course.objects.bulk_create(created)
             Course.objects.bulk_update(
-                updated, ["period_max", "has_exam", "is_taught", "order", "weekly_hours", "teacher"]
+                updated,
+                [
+                    "period_max",
+                    "has_exam",
+                    "is_taught",
+                    "order",
+                    "weekly_hours",
+                    "teacher",
+                    "category",
+                ],
             )
 
 
@@ -386,7 +396,7 @@ def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
 def _create_demo_resits(group: ClassGroup, draw: random.Random, now) -> None:
     """Repêchage (8.4.1) : un cours échoué sur deux a déjà sa note de repêchage, signée par son
     enseignant ; les autres l'attendent (l'élève est « en repêchage »)."""
-    rows = resits.class_overview(report_cards.class_report(group), with_conduct=False)
+    rows = resits.class_overview(report_cards.class_report(group), with_history=False)
     ResitGrade.objects.bulk_create(
         ResitGrade(
             enrollment=student.enrollment,
@@ -405,7 +415,7 @@ def _create_demo_deliberation(group: ClassGroup, year, *, proclaim: bool) -> Non
     une ; la première classe reste à proclamer (de quoi essayer écart, motif et proclamation).
     La classe de dernière année est proclamée (8.4.4 : situations de la classe et de l'école),
     avec un écart motivé : un élève proposé au repêchage est admis."""
-    rows = resits.class_overview(report_cards.class_report(group), with_conduct=False)
+    rows = resits.class_overview(report_cards.class_report(group), with_history=False)
     deliberation = Deliberation.objects.create(
         class_group=group, held_on=year.ends_on - timedelta(days=5)
     )
@@ -436,6 +446,8 @@ def _create_demo_deliberation(group: ClassGroup, year, *, proclaim: bool) -> Non
                     decision,
                     reason,
                     [f.course.name for f in student.failed if f.eligible],
+                    student.rule,
+                    student.params,
                 )
             )
     DeliberationDecision.objects.bulk_create(

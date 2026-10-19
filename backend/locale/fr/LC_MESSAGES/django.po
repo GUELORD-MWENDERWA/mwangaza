@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 12:18+0200\n"
+"POT-Creation-Date: 2026-10-19 13:27+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -77,7 +77,7 @@ msgstr "Cette classe a déjà ce cours."
 msgid "Unknown course."
 msgstr "Cours inconnu."
 
-#: apps/academics/courses.py:111 apps/schools/organisation.py:549
+#: apps/academics/courses.py:111 apps/schools/organisation.py:540
 msgid "Choose a member of the school's staff."
 msgstr "Choisissez un membre du personnel de l'école."
 
@@ -122,11 +122,11 @@ msgstr "Cet élève a des notes : son pourcentage se calcule d'après elles."
 msgid "A percentage is a number from 0 to 100."
 msgstr "Un pourcentage est un nombre de 0 à 100."
 
-#: apps/academics/demo.py:509
+#: apps/academics/demo.py:521
 msgid "Improved behaviour after a talk with the parents"
 msgstr "Comportement amélioré après un entretien avec les parents"
 
-#: apps/academics/demo.py:519
+#: apps/academics/demo.py:531
 msgid "Very attentive in class, grade raised by the homeroom teacher"
 msgstr "Très attentif en classe, cote relevée par le titulaire"
 
@@ -333,20 +333,22 @@ msgstr "Une note dépasse ce maximum."
 msgid ""
 "Every grade sheet of this period must be validated before the report cards "
 "are ready."
-msgstr "Toutes les fiches de cotes de la période doivent être validées avant que les bulletins soient prêts."
+msgstr ""
+"Toutes les fiches de cotes de la période doivent être validées avant que les "
+"bulletins soient prêts."
 
 #: apps/academics/homeroom_views.py:102
 msgid "Only the homeroom teacher of this class opens its space."
 msgstr "Seul le titulaire de cette classe ouvre son espace."
 
-#: apps/academics/models.py:29 apps/academics/models.py:413
-#: apps/academics/models.py:494 apps/academics/models.py:612
+#: apps/academics/models.py:31 apps/academics/models.py:427
+#: apps/academics/models.py:508 apps/academics/models.py:626
 #: apps/notifications/models.py:129 apps/schools/models.py:585
 #: apps/students/models.py:173
 msgid "class"
 msgstr "classe"
 
-#: apps/academics/models.py:31 apps/academics/models.py:112
+#: apps/academics/models.py:33 apps/academics/models.py:126
 #: apps/accounts/models.py:135 apps/core/models.py:138
 #: apps/finance/models.py:35 apps/finance/models.py:371
 #: apps/schools/models.py:106 apps/schools/models.py:383
@@ -355,114 +357,130 @@ msgstr "classe"
 msgid "name"
 msgstr "nom"
 
-#: apps/academics/models.py:34
+#: apps/academics/models.py:36
 msgid "domain"
 msgstr "domaine"
 
-#: apps/academics/models.py:36
+#: apps/academics/models.py:38
 msgid "maximum per period"
 msgstr "maximum par période"
 
-#: apps/academics/models.py:40
+#: apps/academics/models.py:42
 msgid "with exam"
 msgstr "avec examen"
 
-#: apps/academics/models.py:43
+#: apps/academics/models.py:45
 msgid "taught in this class"
 msgstr "suivi par la classe"
 
-#: apps/academics/models.py:46
+#: apps/academics/models.py:48
 msgid "grade entry"
 msgstr "saisie des points"
 
-#: apps/academics/models.py:48
+#: apps/academics/models.py:50
 msgid "Detailed"
 msgstr "Détaillée"
 
-#: apps/academics/models.py:48
+#: apps/academics/models.py:50
 msgid "Period total only"
 msgstr "Total de la période seulement"
 
-#: apps/academics/models.py:52
-msgid "resit allowed"
-msgstr "repêchage permis"
+#: apps/academics/models.py:57 apps/finance/models.py:36
+msgid "category"
+msgstr "catégorie"
 
-#: apps/academics/models.py:55
+#: apps/academics/models.py:60
+msgid "General"
+msgstr "Général"
+
+#: apps/academics/models.py:61
+msgid "Main course"
+msgstr "Cours principal"
+
+#: apps/academics/models.py:62
+msgid "Option course"
+msgstr "Branche d'option"
+
+#: apps/academics/models.py:63
+msgid "Practical"
+msgstr "Pratique"
+
+#: apps/academics/models.py:69
 msgid "hours per week"
 msgstr "heures par semaine"
 
-#: apps/academics/models.py:67
+#: apps/academics/models.py:81
 msgid "teacher"
 msgstr "enseignant"
 
-#: apps/academics/models.py:69 apps/academics/models.py:116
-#: apps/academics/models.py:241 apps/finance/models.py:130
+#: apps/academics/models.py:83 apps/academics/models.py:130
+#: apps/academics/models.py:255 apps/finance/models.py:130
 #: apps/schools/models.py:440 apps/schools/models.py:482
 msgid "order"
 msgstr "ordre"
 
-#: apps/academics/models.py:73 apps/academics/models.py:106
-#: apps/academics/models.py:175 apps/academics/models.py:450
+#: apps/academics/models.py:87 apps/academics/models.py:120
+#: apps/academics/models.py:189 apps/academics/models.py:464
 msgid "course"
 msgstr "cours"
 
-#: apps/academics/models.py:74
+#: apps/academics/models.py:88
 msgid "courses"
 msgstr "cours"
 
-#: apps/academics/models.py:110 apps/academics/models.py:178
-#: apps/academics/models.py:219 apps/academics/models.py:288
-#: apps/academics/models.py:348 apps/academics/models.py:383
-#: apps/academics/models.py:416 apps/schools/models.py:447
+#: apps/academics/models.py:124 apps/academics/models.py:192
+#: apps/academics/models.py:233 apps/academics/models.py:302
+#: apps/academics/models.py:362 apps/academics/models.py:397
+#: apps/academics/models.py:430 apps/schools/models.py:447
 msgid "term"
 msgstr "période"
 
-#: apps/academics/models.py:114
+#: apps/academics/models.py:128
 msgid "maximum"
 msgstr "maximum"
 
-#: apps/academics/models.py:120 apps/academics/models.py:141
+#: apps/academics/models.py:134 apps/academics/models.py:155
 msgid "evaluation"
 msgstr "évaluation"
 
-#: apps/academics/models.py:121
+#: apps/academics/models.py:135
 msgid "evaluations"
 msgstr "évaluations"
 
-#: apps/academics/models.py:145 apps/finance/models.py:170
+#: apps/academics/models.py:159 apps/finance/models.py:170
 #: apps/finance/models.py:237 apps/finance/models.py:501
 #: apps/finance/models.py:723 apps/students/models.py:183
 #: apps/sync/models.py:98
 msgid "enrollment"
 msgstr "inscription"
 
-#: apps/academics/models.py:147
+#: apps/academics/models.py:161
 msgid "score"
 msgstr "note"
 
-#: apps/academics/models.py:150 apps/academics/models.py:263
-#: apps/academics/models.py:350 apps/academics/models.py:385
+#: apps/academics/models.py:164 apps/academics/models.py:277
+#: apps/academics/models.py:364 apps/academics/models.py:399
 msgid "grade"
 msgstr "note"
 
-#: apps/academics/models.py:151
+#: apps/academics/models.py:165
 msgid "grades"
 msgstr "notes"
 
-#: apps/academics/models.py:170
+#: apps/academics/models.py:184
 msgid "Draft"
 msgstr "Brouillon"
 
-#: apps/academics/models.py:171
+#: apps/academics/models.py:185
 msgid "Sent for validation"
 msgstr "Envoyée pour validation"
 
-#: apps/academics/models.py:172
+#: apps/academics/models.py:186
 msgid "Validated"
 msgstr "Validée"
 
-#: apps/academics/models.py:181 apps/academics/models.py:498
-#: apps/academics/models.py:615 apps/finance/models.py:190
+#: apps/academics/models.py:195 apps/academics/models.py:512
+#: apps/academics/models.py:629 apps/finance/models.py:190
 #: apps/finance/models.py:638 apps/schools/models.py:206
 #: apps/schools/models.py:388 apps/students/models.py:176
 #: apps/students/models.py:242 apps/students/models.py:290
@@ -470,249 +488,249 @@ msgstr "Validée"
 msgid "status"
 msgstr "statut"
 
-#: apps/academics/models.py:183
+#: apps/academics/models.py:197
 msgid "sent on"
 msgstr "envoyée le"
 
-#: apps/academics/models.py:190
+#: apps/academics/models.py:204
 msgid "sent by"
 msgstr "envoyée par"
 
-#: apps/academics/models.py:192
+#: apps/academics/models.py:206
 msgid "validated on"
 msgstr "validée le"
 
-#: apps/academics/models.py:199
+#: apps/academics/models.py:213
 msgid "validated by"
 msgstr "validée par"
 
-#: apps/academics/models.py:202
+#: apps/academics/models.py:216
 msgid "reopened"
 msgstr "rouverte"
 
-#: apps/academics/models.py:205
+#: apps/academics/models.py:219
 msgid "grade sheet"
 msgstr "feuille de notes"
 
-#: apps/academics/models.py:206
+#: apps/academics/models.py:220
 msgid "grade sheets"
 msgstr "feuilles de notes"
 
-#: apps/academics/models.py:221
+#: apps/academics/models.py:235
 msgid "deadline"
 msgstr "date limite"
 
-#: apps/academics/models.py:224
+#: apps/academics/models.py:238
 msgid "grade deadline"
 msgstr "date limite de saisie"
 
-#: apps/academics/models.py:225
+#: apps/academics/models.py:239
 msgid "grade deadlines"
 msgstr "dates limites de saisie"
 
-#: apps/academics/models.py:236 apps/academics/models.py:245
-#: apps/academics/models.py:294
+#: apps/academics/models.py:250 apps/academics/models.py:259
+#: apps/academics/models.py:308
 msgid "offence"
 msgstr "infraction"
 
-#: apps/academics/models.py:238 apps/academics/models.py:296
+#: apps/academics/models.py:252 apps/academics/models.py:310
 msgid "points"
 msgstr "points"
 
-#: apps/academics/models.py:240
+#: apps/academics/models.py:254
 msgid "in the list"
 msgstr "dans la liste"
 
-#: apps/academics/models.py:246
+#: apps/academics/models.py:260
 msgid "offences"
 msgstr "infractions"
 
-#: apps/academics/models.py:257 apps/academics/report_card_documents.py:30
+#: apps/academics/models.py:271 apps/academics/report_card_documents.py:30
 msgid "Very good"
 msgstr "Très bien"
 
-#: apps/academics/models.py:258 apps/academics/report_card_documents.py:31
+#: apps/academics/models.py:272 apps/academics/report_card_documents.py:31
 msgid "Good"
 msgstr "Bien"
 
-#: apps/academics/models.py:259
+#: apps/academics/models.py:273
 msgid "Fairly good"
 msgstr "Assez bien"
 
-#: apps/academics/models.py:260
+#: apps/academics/models.py:274
 msgid "Mediocre"
 msgstr "Médiocre"
 
-#: apps/academics/models.py:261
+#: apps/academics/models.py:275
 msgid "Poor"
 msgstr "Mauvaise"
 
-#: apps/academics/models.py:264
+#: apps/academics/models.py:278
 msgid "from points"
 msgstr "à partir de (points)"
 
-#: apps/academics/models.py:285 apps/academics/models.py:345
-#: apps/academics/models.py:380 apps/academics/models.py:447
-#: apps/academics/models.py:527 apps/academics/models.py:605
+#: apps/academics/models.py:299 apps/academics/models.py:359
+#: apps/academics/models.py:394 apps/academics/models.py:461
+#: apps/academics/models.py:541 apps/academics/models.py:619
 msgid "enrolment"
 msgstr "inscription"
 
-#: apps/academics/models.py:297
+#: apps/academics/models.py:311
 msgid "date"
 msgstr "date"
 
-#: apps/academics/models.py:298 apps/finance/models.py:252
+#: apps/academics/models.py:312 apps/finance/models.py:252
 #: apps/finance/models.py:532
 msgid "note"
 msgstr "remarque"
 
-#: apps/academics/models.py:303
+#: apps/academics/models.py:317
 msgid "recorded by"
 msgstr "saisi par"
 
-#: apps/academics/models.py:324
+#: apps/academics/models.py:338
 msgid "incident"
 msgstr "incident"
 
-#: apps/academics/models.py:326 apps/academics/models.py:351
-#: apps/academics/models.py:386 apps/academics/models.py:531
+#: apps/academics/models.py:340 apps/academics/models.py:365
+#: apps/academics/models.py:400 apps/academics/models.py:545
 #: apps/finance/models.py:251 apps/finance/models.py:336
 #: apps/finance/models.py:621 apps/finance/models.py:682
 #: apps/notifications/models.py:130
 msgid "reason"
 msgstr "motif"
 
-#: apps/academics/models.py:331 apps/notifications/models.py:142
+#: apps/academics/models.py:345 apps/notifications/models.py:142
 #: apps/students/models.py:261
 msgid "cancelled by"
 msgstr "annulé par"
 
-#: apps/academics/models.py:356 apps/academics/models.py:391
+#: apps/academics/models.py:370 apps/academics/models.py:405
 msgid "corrected by"
 msgstr "corrigée par"
 
-#: apps/academics/models.py:422
+#: apps/academics/models.py:436
 msgid "declared by"
 msgstr "déclarés par"
 
-#: apps/academics/models.py:424
+#: apps/academics/models.py:438
 msgid "declared on"
 msgstr "déclarés le"
 
-#: apps/academics/models.py:453 apps/finance/models.py:248
+#: apps/academics/models.py:467 apps/finance/models.py:248
 msgid "percentage"
 msgstr "pourcentage"
 
-#: apps/academics/models.py:462
+#: apps/academics/models.py:476
 msgid "signed by"
 msgstr "signé par"
 
-#: apps/academics/models.py:487
+#: apps/academics/models.py:501
 msgid "In progress"
 msgstr "En cours"
 
-#: apps/academics/models.py:488
+#: apps/academics/models.py:502
 msgid "Proclaimed"
 msgstr "Proclamée"
 
-#: apps/academics/models.py:496 apps/academics/models.py:564
+#: apps/academics/models.py:510 apps/academics/models.py:578
 msgid "deliberation date"
 msgstr "date de délibération"
 
-#: apps/academics/models.py:500 apps/academics/models.py:563
+#: apps/academics/models.py:514 apps/academics/models.py:577
 msgid "version"
 msgstr "version"
 
-#: apps/academics/models.py:502 apps/academics/models.py:572
+#: apps/academics/models.py:516 apps/academics/models.py:586
 msgid "correction reason"
 msgstr "motif de la correction"
 
-#: apps/academics/models.py:513
+#: apps/academics/models.py:527
 #: apps/academics/templates/academics/situation.html:31
 msgid "Admitted"
 msgstr "Admis"
 
-#: apps/academics/models.py:514
+#: apps/academics/models.py:528
 msgid "Repeats the year"
 msgstr "Double l'année"
 
-#: apps/academics/models.py:515
+#: apps/academics/models.py:529
 msgid "Resit exam"
 msgstr "Examen de repêchage"
 
-#: apps/academics/models.py:516
+#: apps/academics/models.py:530
 msgid "Reoriented"
 msgstr "Réorienté"
 
-#: apps/academics/models.py:517 apps/students/models.py:160
+#: apps/academics/models.py:531 apps/students/models.py:160
 msgid "Excluded"
 msgstr "Exclu"
 
-#: apps/academics/models.py:518 apps/students/models.py:159
+#: apps/academics/models.py:532 apps/students/models.py:159
 msgid "Dropped out"
 msgstr "Abandon"
 
-#: apps/academics/models.py:529
+#: apps/academics/models.py:543
 msgid "decision"
 msgstr "décision"
 
-#: apps/academics/models.py:530
+#: apps/academics/models.py:544
 msgid "proposed decision"
 msgstr "décision proposée"
 
-#: apps/academics/models.py:535
+#: apps/academics/models.py:549
 msgid "prior percentage"
 msgstr "pourcentage repris"
 
-#: apps/academics/models.py:565
+#: apps/academics/models.py:579
 msgid "proclaimed at"
 msgstr "proclamée le"
 
-#: apps/academics/models.py:570
+#: apps/academics/models.py:584
 msgid "proclaimed by"
 msgstr "proclamée par"
 
-#: apps/academics/models.py:573
+#: apps/academics/models.py:587
 msgid "results"
 msgstr "résultats"
 
-#: apps/academics/models.py:592
+#: apps/academics/models.py:606
 msgid "Offered"
 msgstr "Proposée"
 
-#: apps/academics/models.py:593
+#: apps/academics/models.py:607
 msgid "Enrolled next year"
 msgstr "Inscrit l'année suivante"
 
-#: apps/academics/models.py:594
+#: apps/academics/models.py:608
 msgid "Withdrawn"
 msgstr "Retirée"
 
-#: apps/academics/models.py:597
+#: apps/academics/models.py:611
 msgid "Coming back"
 msgstr "Revient"
 
-#: apps/academics/models.py:598
+#: apps/academics/models.py:612
 msgid "Not coming back"
 msgstr "Ne revient pas"
 
-#: apps/academics/models.py:617
+#: apps/academics/models.py:631
 msgid "answer"
 msgstr "réponse"
 
-#: apps/academics/models.py:618
+#: apps/academics/models.py:632
 msgid "answered at"
 msgstr "répondu le"
 
-#: apps/academics/models.py:625
+#: apps/academics/models.py:639
 msgid "answered by"
 msgstr "répondu par"
 
-#: apps/academics/models.py:629
+#: apps/academics/models.py:643
 msgid "place confirmation"
 msgstr "confirmation de place"
 
-#: apps/academics/models.py:630
+#: apps/academics/models.py:644
 msgid "place confirmations"
 msgstr "confirmations de place"
 
@@ -903,19 +921,19 @@ msgstr "Le chef d'établissement"
 msgid "School seal"
 msgstr "Sceau de l'école"
 
-#: apps/academics/resits.py:35
+#: apps/academics/resits.py:63
 msgid "This course does not open a resit exam for this student."
 msgstr "Ce cours n'ouvre pas d'examen de repêchage pour cet élève."
 
-#: apps/academics/resits.py:37
+#: apps/academics/resits.py:65
 msgid "A resit grade is a percentage from 0 to 100."
 msgstr "Une note de repêchage est un pourcentage de 0 à 100."
 
-#: apps/academics/resits_views.py:130
+#: apps/academics/resits_views.py:129
 msgid "You cannot see the resit exams of this class."
 msgstr "Vous ne pouvez pas voir les examens de repêchage de cette classe."
 
-#: apps/academics/resits_views.py:149
+#: apps/academics/resits_views.py:148
 msgid "Only the teacher of the course enters its resit grade."
 msgstr "Seul l'enseignant du cours saisit sa note de repêchage."
 
@@ -5729,10 +5747,6 @@ msgstr "Activités parascolaires"
 msgid "Official exam"
 msgstr "Examen officiel"
 
-#: apps/finance/models.py:36
-msgid "category"
-msgstr "catégorie"
-
 #: apps/finance/models.py:38
 msgid "funds the teacher bonus"
 msgstr "finance la prime des enseignants"
@@ -7856,7 +7870,7 @@ msgstr "niveau"
 msgid "levels"
 msgstr "niveaux"
 
-#: apps/schools/models.py:523 apps/schools/serializers.py:518
+#: apps/schools/models.py:523 apps/schools/serializers.py:519
 msgid "1 to 10 capital letters or digits."
 msgstr "1 à 10 lettres majuscules ou chiffres."
 
@@ -7897,94 +7911,89 @@ msgstr "L'année scolaire en cours ne peut pas être supprimée."
 msgid "This school year has classes: delete them first."
 msgstr "Cette année scolaire a des classes : supprimez-les d'abord."
 
-#: apps/schools/organisation.py:40 apps/schools/serializers.py:320
-msgid "The resit floor must be below the course pass mark."
-msgstr ""
-"Le plancher du repêchage doit rester sous la note de réussite d'un cours."
-
-#: apps/schools/organisation.py:44
+#: apps/schools/organisation.py:39
 msgid "The school already has a level with this name."
 msgstr "L'école a déjà un niveau de ce nom."
 
-#: apps/schools/organisation.py:46
+#: apps/schools/organisation.py:41
 msgid "This level is used by classes."
 msgstr "Ce niveau est utilisé par des classes."
 
-#: apps/schools/organisation.py:48
+#: apps/schools/organisation.py:43
 msgid "The school already has a track with this name."
 msgstr "L'école a déjà une option de ce nom."
 
-#: apps/schools/organisation.py:51
+#: apps/schools/organisation.py:46
 msgid "The school already has a track with this code."
 msgstr "L'école a déjà une option avec ce code."
 
-#: apps/schools/organisation.py:53
+#: apps/schools/organisation.py:48
 msgid "This track is used by classes."
 msgstr "Cette option est utilisée par des classes."
 
-#: apps/schools/organisation.py:54
+#: apps/schools/organisation.py:49
 msgid "This class already exists this school year."
 msgstr "Cette classe existe déjà cette année scolaire."
 
-#: apps/schools/organisation.py:55
+#: apps/schools/organisation.py:50
 msgid "This class has students: it cannot be deleted."
 msgstr "Cette classe a des élèves : elle ne peut pas être supprimée."
 
-#: apps/schools/organisation.py:56
+#: apps/schools/organisation.py:51
 msgid "A removed period is already used."
 msgstr "Une période retirée est déjà utilisée."
 
-#: apps/schools/organisation.py:73
+#: apps/schools/organisation.py:68
 msgid "RDC secondary: 2 semesters, 4 periods, 2 exam sessions"
 msgstr "Secondaire RDC — 2 semestres, 4 périodes, 2 examens"
 
-#: apps/schools/organisation.py:74
+#: apps/schools/organisation.py:69
 msgid "3 terms, 6 periods, 3 exam sessions"
 msgstr "3 trimestres, 6 périodes, 3 examens"
 
-#: apps/schools/organisation.py:75
+#: apps/schools/organisation.py:70
 msgid "Empty: enter the terms yourself"
 msgstr "Vide : je saisis le découpage moi-même"
 
-#: apps/schools/organisation.py:112 apps/schools/organisation.py:281
+#: apps/schools/organisation.py:107 apps/schools/organisation.py:276
 msgid "The end must come after the start."
 msgstr "La fin doit venir après le début."
 
-#: apps/schools/organisation.py:193
+#: apps/schools/organisation.py:188
 msgid "Some terms and periods would fall outside the year: change them first."
 msgstr ""
 "Des semestres, trimestres ou périodes tomberaient en dehors de l'année : "
 "modifiez-les d'abord."
 
-#: apps/schools/organisation.py:257
+#: apps/schools/organisation.py:252
 msgid "Too many terms and periods."
 msgstr "Trop de semestres, trimestres et périodes."
 
-#: apps/schools/organisation.py:268
+#: apps/schools/organisation.py:263
 msgid "Unknown term."
 msgstr "Semestre ou trimestre inconnu."
 
-#: apps/schools/organisation.py:270
+#: apps/schools/organisation.py:265
 msgid "This term appears twice."
 msgstr "Ce semestre ou trimestre apparaît deux fois."
 
-#: apps/schools/organisation.py:273
+#: apps/schools/organisation.py:268
 msgid "Only a semester or a term has periods."
 msgstr "Seul un semestre ou un trimestre contient des périodes."
 
-#: apps/schools/organisation.py:275
+#: apps/schools/organisation.py:270
 msgid "Only periods and exams go inside."
 msgstr "Seuls des périodes et des examens vont à l'intérieur."
 
-#: apps/schools/organisation.py:279
+#: apps/schools/organisation.py:274
 msgid "This date is outside the school year."
 msgstr "Cette date est en dehors de l'année scolaire."
 
-#: apps/schools/organisation.py:284 apps/schools/organisation.py:286
+#: apps/schools/organisation.py:279 apps/schools/organisation.py:281
 msgid "Outside its semester or term."
 msgstr "En dehors de son semestre ou trimestre."
 
-#: apps/schools/organisation.py:443
+#: apps/schools/organisation.py:434
 msgid "Give every level of the school once."
 msgstr "Donnez chaque niveau de l'école une seule fois."
 
@@ -7998,7 +8007,7 @@ msgstr "Au plus %(count)d lignes d'en-tête."
 msgid "Unknown currency: %(codes)s."
 msgstr "Devise inconnue : %(codes)s."
 
-#: apps/schools/serializers.py:437
+#: apps/schools/serializers.py:438
 msgid "Choose the school year to copy from."
 msgstr "Choisissez l'année scolaire à reprendre."
 

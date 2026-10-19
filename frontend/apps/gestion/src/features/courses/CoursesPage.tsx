@@ -48,6 +48,8 @@ import { examMax, type GridRow, gridSummary, termCounts, yearMax } from "./grid"
 
 /** Cours en cours de saisie ; `key` : repère local (un nouveau cours n'a pas encore d'`id`). */
 type GradeEntry = Course["grade_entry"];
+type Category = Course["category"];
+const CATEGORIES: Category[] = ["general", "main", "option", "practical"];
 
 type Draft = {
   key: string;
@@ -58,7 +60,7 @@ type Draft = {
   has_exam: boolean;
   is_taught: boolean;
   grade_entry: GradeEntry;
-  resit_allowed: boolean;
+  category: Category;
   weekly_hours: string;
   teacher_id: string;
 };
@@ -75,7 +77,7 @@ const toDraft = (course: Course): Draft => ({
   has_exam: course.has_exam,
   is_taught: course.is_taught,
   grade_entry: course.grade_entry,
-  resit_allowed: course.resit_allowed,
+  category: course.category,
   weekly_hours: course.weekly_hours ? String(course.weekly_hours) : "",
   teacher_id: course.teacher?.id ?? "",
 });
@@ -95,7 +97,7 @@ const blank = (): Draft => ({
   has_exam: true,
   is_taught: true,
   grade_entry: "",
-  resit_allowed: true,
+  category: "general",
   weekly_hours: "",
   teacher_id: "",
 });
@@ -115,7 +117,7 @@ function fromGrid(grid: OfficialGrid, current: Draft[]): Draft[] {
       has_exam: course.has_exam,
       is_taught: course.is_taught,
       grade_entry: kept?.grade_entry ?? "",
-      resit_allowed: kept?.resit_allowed ?? true,
+      category: course.category,
       weekly_hours: course.weekly_hours ? String(course.weekly_hours) : (kept?.weekly_hours ?? ""),
       teacher_id: kept?.teacher_id ?? "",
     };
@@ -189,7 +191,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
               has_exam: draft.has_exam,
               is_taught: draft.is_taught,
               grade_entry: draft.grade_entry,
-              resit_allowed: draft.resit_allowed,
+              category: draft.category,
               weekly_hours: draft.weekly_hours ? Number(draft.weekly_hours) : null,
               teacher_id: draft.teacher_id || null,
             })),
@@ -234,7 +236,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
       "has_exam",
       "is_taught",
       "grade_entry",
-      "resit_allowed",
+      "category",
     ]
       .flatMap((field) => fields[`courses.${index}.${field}`] ?? [])
       .map((error) => fieldMessage(error.code, t));
@@ -430,7 +432,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
               <th className="text-right">{t("courses.columns.year")}</th>
               <th>{t("courses.columns.taught")}</th>
               <th>{t("courses.columns.entry")}</th>
-              <th>{t("courses.columns.resit")}</th>
+              <th>{t("courses.columns.category")}</th>
               <th className="text-right">{t("courses.columns.hours")}</th>
               <th>{t("courses.columns.teacher")}</th>
               <th />
@@ -539,11 +541,20 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
                       </Select>
                     </td>
                     <td>
-                      <Switch
-                        aria-label={`${t("courses.columns.resit")} — ${label}`}
-                        checked={draft.resit_allowed}
-                        onCheckedChange={(checked) => update(draft, { resit_allowed: checked })}
-                      />
+                      <Select
+                        aria-label={`${t("courses.columns.category")} — ${label}`}
+                        value={draft.category}
+                        onChange={(event) =>
+                          update(draft, { category: event.target.value as Category })
+                        }
+                        className="min-w-[130px]"
+                      >
+                        {CATEGORIES.map((category) => (
+                          <option key={category} value={category}>
+                            {t(`courses.category.${category}`)}
+                          </option>
+                        ))}
+                      </Select>
                     </td>
                     <td className="text-right">
                       <Input

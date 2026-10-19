@@ -60,19 +60,18 @@ class StudentResitsSerializer(serializers.Serializer):
         ],
         help_text="Issue proposée d'après les règles de l'école.",
     )
+    rule = serializers.ChoiceField(
+        choices=resits.RULES, help_text="Règle du règlement de l'école qui donne l'issue."
+    )
+    rule_params = serializers.DictField(source="params", help_text="Valeurs citées avec la règle.")
     courses = ResitCourseSerializer(source="failed", many=True)
 
 
 class RulesSerializer(serializers.Serializer):
     pass_percent = serializers.IntegerField()
     course_pass_percent = serializers.IntegerField()
-    resit_mode = serializers.CharField()
-    resit_floor_percent = serializers.IntegerField()
+    resit_percent = serializers.IntegerField()
     resit_failures_to_fail = serializers.IntegerField()
-    max_resit_courses = serializers.IntegerField()
-    orientation_percent = serializers.IntegerField()
-    conduct_ma_to_exclude = serializers.IntegerField()
-    conduct_me_to_exclude = serializers.IntegerField()
 
 
 class ClassResitsSerializer(serializers.Serializer):
