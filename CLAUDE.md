@@ -18,7 +18,8 @@ Lire `docs/06-suivi.md` (état actuel, tâche en cours, bloquants) avant toute a
 5. `docs/05-plan-de-travail.md` — **la file** (§ 2 : l'ordre de travail, priorités P0 à P3), le détail de chaque tâche et la **définition de « fini »** (§ 8.2) ; cocher au fur et à mesure (ancien plan : `docs/archives/`, ne pas le relire)
 6. `docs/06-suivi.md` — état actuel du projet et journal de chaque étape
 7. `docs/07-a-fournir.md` — maquettes, informations et décisions encore manquantes (et ce qu'on utilise en attendant)
-8. `maquettes/README.md` — système de design et inventaire des écrans ; captures dans `maquettes/captures/`, structure et libellés dans `maquettes/gestion/*.html` et `maquettes/portail/*.html`
+8. `docs/specs/` — spécification détaillée d'un module quand le plan y renvoie (emploi du temps : `emploi-du-temps.md`)
+9. `maquettes/README.md` — système de design et inventaire des écrans ; captures dans `maquettes/captures/`, structure et libellés dans `maquettes/gestion/*.html` et `maquettes/portail/*.html`
 
 École pilote : `docs/ecole-pilote/fiche-itig.md` (ce qu'on sait), `depot/` (l'utilisateur y dépose ses fichiers, hors Git), `documents/` (rangés, sans données personnelles), `prive/` (données personnelles, hors Git).
 
