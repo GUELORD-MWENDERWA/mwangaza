@@ -22,7 +22,6 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from functools import partial
 
-import openpyxl
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
@@ -229,6 +228,8 @@ def _read_xlsx(file) -> tuple[str, list]:
     """Première feuille. La lecture s'arrête après 1 000 lignes vides de suite (une mise en
     forme peut étendre une feuille à un million de lignes) ou au-delà du maximum."""
     try:
+        import openpyxl  # chargé à la demande (PERF.8)
+
         book = openpyxl.load_workbook(file, read_only=True, data_only=True)
         sheet = book.worksheets[0]
         table, filled, empty = [], 0, 0

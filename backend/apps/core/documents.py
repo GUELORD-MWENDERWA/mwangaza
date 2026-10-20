@@ -10,16 +10,11 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-import openpyxl
-import segno
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils import timezone
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiResponse
-from openpyxl.cell import WriteOnlyCell
-from openpyxl.styles import Font
-from openpyxl.utils import get_column_letter
 from rest_framework import serializers
 
 from apps.core import kept, printing
@@ -133,6 +128,8 @@ def data_uri(field, kind: str | None, content_types: dict[str, str]) -> str:
 
 def qr_code(text: str) -> str:
     """QR code d'une adresse en SVG `data:`, net à toute taille dans le PDF (`segno`)."""
+    import segno  # chargé à la demande (PERF.8)
+
     return segno.make(text, error="m").svg_data_uri(border=0)
 
 
@@ -246,6 +243,12 @@ def workbook(
     """Classeur d'une feuille, titres en gras, écrit ligne à ligne (milliers de lignes) ;
     `formats` : format Excel de chaque colonne (`#,##0.00`, `dd/mm/yyyy`…), vide : aucun ; une
     valeur `Formatted` garde le sien."""
+    # openpyxl (≈ 17 Mo) chargé au premier classeur, pas au démarrage de chaque processus (PERF.8).
+    import openpyxl
+    from openpyxl.cell import WriteOnlyCell
+    from openpyxl.styles import Font
+    from openpyxl.utils import get_column_letter
+
     book = openpyxl.Workbook(write_only=True)
     # Excel refuse []:*?/\ dans le nom d'une feuille, et plus de 31 caractères.
     sheet = book.create_sheet(re.sub(r"[\[\]:*?/\\]", " ", title)[:31] or None)
@@ -283,6 +286,8 @@ def _formatted(sheet, value, number_format: str | None):
         value, number_format = value.value, value.number_format
     if number_format is None or value is None:
         return value
+    from openpyxl.cell import WriteOnlyCell
+
     cell = WriteOnlyCell(sheet, value=value)
     cell.number_format = number_format
     return cell

@@ -4,12 +4,13 @@ Rien de personnel ne part : ni adresse IP, ni cookies, ni corps de requête, ni 
 (qui pourraient contenir le nom d'un élève ou un montant), seulement la trace de l'erreur.
 """
 
-import sentry_sdk
-
 
 def init_sentry(dsn: str | None, release: str | None = None) -> bool:
     if not dsn:
         return False
+    # Chargé seulement s'il sert (≈ 18 Mo par processus sinon, PERF.8).
+    import sentry_sdk
+
     sentry_sdk.init(
         dsn=dsn,
         release=release,

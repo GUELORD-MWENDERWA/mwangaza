@@ -18,7 +18,6 @@ from datetime import date
 from pathlib import Path
 from urllib.parse import urlsplit
 
-import segno
 from django.conf import settings
 from django.core.cache import cache
 from django.http import Http404, HttpRequest, HttpResponse
@@ -584,6 +583,8 @@ def _ordinal(n: int) -> str:
 
 
 def _home(platform, context: dict) -> dict:
+    from apps.core.documents import qr_code  # segno chargé à la demande (PERF.8)
+
     return {
         "faq": site_content.entries(SiteEntry.Kind.HOME_QUESTION, context["lang"]),
         "stats": platform_stats(),
@@ -600,7 +601,7 @@ def _home(platform, context: dict) -> dict:
             "exam": number_format(76.7, 1),
             "percent": number_format(79.4, 1),
             **{f"place{n}": f"{_ordinal(n)}/42" for n in (2, 3, 4, 5)},
-            "qr": segno.make(context["url"] + "#bulletin", error="m").svg_data_uri(border=0),
+            "qr": qr_code(context["url"] + "#bulletin"),
         },
     }
 

@@ -15,6 +15,9 @@
 #   backup [ARGS]    sauvegarde.sh sur le serveur : `backup` (sauvegarde du jour, copie hors du
 #                    serveur comprise), `fetch` (rapatrier la dernière copie), `restore` (essai)
 #   ssh              ouvrir une session sur le serveur
+#   memoire          mémoire de la machine (`free`), de chaque conteneur (`docker stats`) et des
+#                    15 processus les plus lourds, conteneurs compris (PERF.8) : ce qui pèse hors
+#                    de l'application se voit
 #   check [IP]       HTTPS, certificat et santé de l'API, depuis cette machine ; avec IP : une
 #                    instance pas encore derrière le DNS (copie depuis un instantané Lightsail) ;
 #                    puis l'état public du domaine (domaine.py : expiration, verrou de transfert,
@@ -153,6 +156,10 @@ case "${1:-}" in
     ;;
   logs)
     "${SSH[@]}" "cd mwangaza/code && cat VERSION && $COMPOSE logs --tail 80 ${2:-}"
+    ;;
+  memoire)
+    "${SSH[@]}" "free -m && echo && docker stats --no-stream --format '{{.Name}}  {{.MemUsage}}' \
+      && echo && ps -eo rss=,comm= --sort=-rss | head -15 | awk '{printf \"%6d Mo  %s\\n\", \$1/1024, \$2}'"
     ;;
   backup)
     shift

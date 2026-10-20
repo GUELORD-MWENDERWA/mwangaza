@@ -6,7 +6,8 @@ Les valeurs propres à une machine viennent des variables d'environnement (voir 
 import os
 from pathlib import Path
 
-from celery.schedules import crontab
+from task_schedule import BEAT_SCHEDULE, FAST_QUEUE, TASK_ROUTES
+from task_schedule import TIME_ZONE as SCHEDULE_TIME_ZONE
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -206,7 +207,7 @@ LANGUAGES = [("fr", "Français"), ("en", "English")]
 LOCALE_PATHS = [BASE_DIR / "locale"]
 # Posé par la Gestion et le Portail (`packages/i18n`) : le serveur suit la langue de l'interface.
 LANGUAGE_COOKIE_NAME = "django_language"
-TIME_ZONE = "Africa/Lubumbashi"
+TIME_ZONE = SCHEDULE_TIME_ZONE
 USE_I18N = True
 USE_TZ = True
 
@@ -291,26 +292,9 @@ CELERY_BROKER_URL = env("REDIS_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = None
 CELERY_TASK_ALWAYS_EAGER = env_bool("CELERY_TASK_ALWAYS_EAGER", False)
 CELERY_TIMEZONE = TIME_ZONE
-# Deux files, deux travailleurs (PERF.5a) : `celery` (rapide : notifications, purges, passage du
-# planificateur) et `heavy` (lourde : PDF, import d'une liste, création et remise à zéro d'un espace
-# de démonstration). Un travail lourd ne retarde jamais une tâche courte. Chaque tâche est routée
-# ici, nommément : un test refuse une tâche sans route ni limites de temps.
-FAST_QUEUE, HEAVY_QUEUE = "celery", "heavy"
+# Files et routes : `task_schedule.py` (sans Django, lu aussi par le planificateur léger).
 CELERY_TASK_DEFAULT_QUEUE = FAST_QUEUE
-CELERY_TASK_ROUTES = {
-    "apps.core.tasks.render_print_job": {"queue": HEAVY_QUEUE},
-    "apps.students.tasks.run_student_import": {"queue": HEAVY_QUEUE},
-    "apps.schools.tasks.delete_space": {"queue": HEAVY_QUEUE},
-    "apps.schools.tasks.fill_demonstration": {"queue": HEAVY_QUEUE},
-    "apps.notifications.tasks.deliver": {"queue": FAST_QUEUE},
-    "apps.notifications.tasks.alert_console": {"queue": FAST_QUEUE},
-    "apps.notifications.tasks.tick": {"queue": FAST_QUEUE},
-    "apps.notifications.tasks.purge": {"queue": FAST_QUEUE},
-    "apps.core.tasks.purge_print_jobs": {"queue": FAST_QUEUE},
-    "apps.core.tasks.email_demo_request": {"queue": FAST_QUEUE},
-    "apps.core.tasks.purge_demo_requests": {"queue": FAST_QUEUE},
-    "apps.sync.tasks.purge": {"queue": FAST_QUEUE},
-}
+CELERY_TASK_ROUTES = TASK_ROUTES
 # Filet de sécurité pour une tâche future qui oublierait ses limites (secondes) ; chaque tâche
 # d'aujourd'hui a les siennes, dans son décorateur.
 CELERY_TASK_SOFT_TIME_LIMIT = 120
@@ -320,32 +304,9 @@ CELERY_TASK_TIME_LIMIT = 150
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 # Pas de stockage des résultats (`CELERY_RESULT_BACKEND = None`) : rien à faire expirer dans Redis.
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
-# Planificateur (beat), un service à part (`scheduler`) : il ne meurt plus avec un travailleur.
-# Les heures propres à chaque école (relances, clôture) sont décidées dans le passage, pas ici
-# (`notifications/scheduled.py`).
-CELERY_BEAT_SCHEDULE = {
-    "notifications-tick": {
-        "task": "apps.notifications.tasks.tick",
-        "schedule": crontab(minute="*/15"),
-        "options": {"expires": 10 * 60},
-    },
-    "notifications-purge": {
-        "task": "apps.notifications.tasks.purge",
-        "schedule": crontab(hour=3, minute=30),
-    },
-    "print-purge": {
-        "task": "apps.core.tasks.purge_print_jobs",
-        "schedule": crontab(hour=3, minute=50),
-    },
-    "sync-purge": {
-        "task": "apps.sync.tasks.purge",
-        "schedule": crontab(hour=3, minute=45),
-    },
-    "demo-requests-purge": {
-        "task": "apps.core.tasks.purge_demo_requests",
-        "schedule": crontab(hour=3, minute=55),
-    },
-}
+# Planificateur : un service à part et léger (`beat.py`, PERF.8), horaires dans
+# `task_schedule.py`. Gardé ici pour `celery -B` en développement.
+CELERY_BEAT_SCHEDULE = BEAT_SCHEDULE
 
 # E-mails de la plateforme (WEB.1d) : alertes au super-admin seulement (demande de démonstration),
 # envoyées par la boîte `contact@` du domaine (SMTP de LWS, OPS.4) à `DJANGO_ALERT_EMAIL` (ta
