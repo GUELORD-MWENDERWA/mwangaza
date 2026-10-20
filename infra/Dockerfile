@@ -29,6 +29,8 @@ RUN --mount=type=cache,id=mwangaza-pnpm,target=/pnpm-store \
 
 # --- Backend : Django, gunicorn, Celery
 # FORWARDED_ALLOW_IPS : seul Caddy joint gunicorn (réseau interne), ses en-têtes X-Forwarded-* sont crus.
+# MALLOC_ARENA_MAX=2 (PERF.8) : un processus à plusieurs fils (gunicorn `gthread`, Celery) ne se
+# crée plus une réserve de mémoire par fil, qui grossit sans jamais être rendue.
 FROM python:3.12-slim AS backend
 COPY --from=ghcr.io/astral-sh/uv:0.12.19 /uv /uvx /bin/
 ENV PYTHONUNBUFFERED=1 \
@@ -40,7 +42,8 @@ ENV PYTHONUNBUFFERED=1 \
     UV_HTTP_TIMEOUT=300 \
     PATH="/opt/venv/bin:$PATH" \
     DJANGO_SETTINGS_MODULE=config.settings.prod \
-    FORWARDED_ALLOW_IPS="*"
+    FORWARDED_ALLOW_IPS="*" \
+    MALLOC_ARENA_MAX=2
 
 # Pango, HarfBuzz et une police pour WeasyPrint (PDF).
 RUN apt-get update \

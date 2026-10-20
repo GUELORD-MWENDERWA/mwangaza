@@ -26,7 +26,7 @@ MANAGE := cd backend && uv run python manage.py
 .PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp relances messages superuser shell \
 	test test-back test-front test-e2e apercu captures-site lint lint-back lint-front format api api-schema build \
 	prod-local prod-local-stop perf \
-	deploy-init deploy-check deploy-setup deploy deploy-superuser deploy-logs deploy-backup deploy-ssh backup restore
+	deploy-init deploy-check deploy-setup deploy deploy-superuser deploy-logs deploy-memoire deploy-backup deploy-ssh backup restore
 
 help: ## Afficher les commandes
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  make %-15s %s\n", $$1, $$2}'
@@ -171,6 +171,9 @@ deploy-superuser: ## Créer un compte super-admin sur le vrai serveur
 
 deploy-logs: ## Derniers journaux du vrai serveur ; make deploy-logs service=django
 	$(DEPLOYER) logs $(service)
+
+deploy-memoire: ## Vrai serveur : mémoire de la machine, de chaque conteneur et des 15 processus les plus lourds
+	$(DEPLOYER) memoire
 
 deploy-backup: ## Sauvegarde sur le vrai serveur, copie hors du serveur comprise ; make deploy-backup cmd=fetch (rapatrier) ou cmd=restore (essai)
 	$(DEPLOYER) backup $(or $(cmd),backup)

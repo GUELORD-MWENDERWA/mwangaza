@@ -42,6 +42,37 @@ def test_heavy_work_never_shares_the_fast_queue():
     assert [n for n, t in ours().items() if t.acks_late] == ["apps.core.tasks.render_print_job"]
 
 
+def test_light_scheduler_sends_known_tasks_to_their_queue_without_django():
+    """Le planificateur (`beat.py`, PERF.8) ne charge pas Django : il pose des noms de tâches.
+    Chacun doit exister chez les travailleurs et partir dans sa file."""
+    import json
+    import os
+    import subprocess
+    import sys
+
+    from django.conf import settings
+
+    code = (
+        "import json, sys, beat\n"
+        "beat.app.loader.import_default_modules()\n"
+        "assert 'django.apps' not in sys.modules and 'django.conf' not in sys.modules\n"
+        "r = beat.app.amqp.router\n"
+        "print(json.dumps({e['task']: r.route({}, e['task'])['queue'].name\n"
+        "      for e in beat.app.conf.beat_schedule.values()}))"
+    )
+    env = {k: v for k, v in os.environ.items() if k != "DJANGO_SETTINGS_MODULE"}
+    result = subprocess.run(
+        [sys.executable, "-c", code], cwd=settings.BASE_DIR, env=env, capture_output=True, text=True
+    )
+    assert result.returncode == 0, result.stderr
+    sent = json.loads(result.stdout)
+    assert set(sent) == {e["task"] for e in settings.CELERY_BEAT_SCHEDULE.values()}
+    tasks = ours()
+    for name, queue in sent.items():
+        assert name in tasks, f"{name} : tâche inconnue des travailleurs"
+        assert queue == settings.CELERY_TASK_ROUTES[name]["queue"], name
+
+
 @pytest.fixture
 def clean_cache():
     cache.clear()
@@ -101,3 +132,28 @@ def test_password_hashing_waits_its_turn_and_keeps_the_argon2_format():
     finally:
         Argon2PasswordHasher.verify = original
     assert peak == 1
+
+
+def test_heavy_libraries_are_loaded_only_when_used():
+    """Chaque processus (site, travailleurs) charge Django et le code de toutes les tâches au
+    démarrage : une grosse bibliothèque importée en tête d'un module y pèse partout, toujours
+    (PERF.8, `05` § 8.5). Elles se chargent dans la fonction qui s'en sert."""
+    import os
+    import subprocess
+    import sys
+
+    from django.conf import settings
+
+    heavy = ["pywebpush", "aiohttp", "openpyxl", "segno", "pypdf", "weasyprint", "sentry_sdk"]
+    code = (
+        "import sys, django; django.setup()\n"
+        "from config.celery import app; app.loader.import_default_modules()\n"
+        "import config.urls\n"
+        f"print(' '.join(m for m in {heavy!r} if m in sys.modules))"
+    )
+    env = {**os.environ, "DJANGO_SETTINGS_MODULE": "config.settings.test"}
+    result = subprocess.run(
+        [sys.executable, "-c", code], cwd=settings.BASE_DIR, env=env, capture_output=True, text=True
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.split() == []

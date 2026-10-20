@@ -11,7 +11,6 @@ from django.db import transaction
 from django.db.models import QuerySet
 from django.utils import timezone
 from django.utils.text import Truncator
-from pywebpush import WebPushException, webpush
 
 from apps.accounts.models import Membership, User
 from apps.accounts.roles import (
@@ -247,8 +246,18 @@ def vapid_subject() -> str:
     return f"mailto:{email}" if email else settings.PORTAL_URL
 
 
+def webpush(**kwargs):
+    """`pywebpush` (≈ 40 Mo avec aiohttp) chargé au premier envoi, pas au démarrage de chaque
+    processus (PERF.8) : seul le travailleur qui envoie le paie."""
+    from pywebpush import webpush as send_push
+
+    return send_push(**kwargs)
+
+
 def send(subscription: PushSubscription, payload: dict, subject: str) -> None:
     """Un message (`id`, `title`, `body`, `url`) à un navigateur ; lu par `push-sw.js`."""
+    from pywebpush import WebPushException
+
     try:
         webpush(
             subscription_info={
