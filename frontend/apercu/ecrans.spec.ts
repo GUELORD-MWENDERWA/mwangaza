@@ -139,6 +139,8 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "students/import",
       "courses",
       "teaching-loads",
+      "time-grid",
+      "rooms",
       "unpaid",
       "unpaid/export",
       "cash-closings/register",

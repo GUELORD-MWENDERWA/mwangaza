@@ -40,6 +40,7 @@ PERMISSIONS: dict[str, Promise] = {
     "finance.close_register": _("Close a cash register"),
     "finance.view_reports": _("View financial reports"),
     "finance.import_prior_payments": _("Record what students paid before the school started here"),
+    "timetable.manage": _("Configure the timetable: time grids, rooms and rules"),
     "announcements.publish": _("Publish announcements"),
     "audit.view": _("View the audit log"),
 }
@@ -70,6 +71,7 @@ GRADES_VALIDATE = "grades.validate"
 # Gérer les rôles et les comptes du personnel : une école garde toujours un compte actif qui l'a.
 ROLES_MANAGE = "roles.manage"
 # Publier et archiver les annonces aux familles (H4).
+TIMETABLE_MANAGE = "timetable.manage"
 ANNOUNCEMENTS_PUBLISH = "announcements.publish"
 # Lire le journal d'audit de l'école (M6).
 AUDIT_VIEW = "audit.view"
@@ -140,6 +142,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "finance.approve_cancellation",
             "finance.view_reports",
             "finance.import_prior_payments",
+            "timetable.manage",
             "announcements.publish",
             "audit.view",
         ),
@@ -154,6 +157,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "discipline.record",
             "students.view",
             "students.edit",
+            "timetable.manage",
             "announcements.publish",
         ),
     ),

@@ -87,6 +87,7 @@ urlpatterns = [
     path("api/", include("apps.sync.urls")),
     path("api/", include("apps.notifications.urls")),
     path("api/", include("apps.academics.urls")),
+    path("api/", include("apps.timetable.urls")),
     path("api/portal/", include("apps.portal.urls")),
     # Vérification publique d'un reçu (QR code du reçu), sur l'adresse de l'école.
     path("v/<uuid:payment_id>", verify_receipt, name="receipt-verification"),

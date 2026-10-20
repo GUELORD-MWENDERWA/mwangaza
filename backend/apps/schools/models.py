@@ -571,6 +571,23 @@ class ClassGroup(TenantModel):
         _("capacity"), null=True, blank=True, validators=[MinValueValidator(1)]
     )
     # Une personne du personnel actif de l'école (vérifié par `organisation.py`).
+    # Emploi du temps (EDT.1a) : vide = grille par défaut de l'école ; salle facultative.
+    time_grid = models.ForeignKey(
+        "timetable.TimeGrid",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="class_groups",
+        verbose_name=_("time grid"),
+    )
+    home_room = models.ForeignKey(
+        "timetable.Room",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="class_groups",
+        verbose_name=_("home room"),
+    )
     homeroom_teacher = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,

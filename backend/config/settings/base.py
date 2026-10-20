@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "apps.notifications",
     "apps.portal",
     "apps.academics",
+    "apps.timetable",
 ]
 
 MIDDLEWARE = [
@@ -253,6 +254,8 @@ SPECTACULAR_SETTINGS = {
     "ENUM_NAME_OVERRIDES": {
         "GradeEntryEnum": "apps.schools.grading.ENTRY_CHOICES",
         "CourseCategoryEnum": "apps.academics.models.CATEGORIES",
+        "TimeSlotKindEnum": "apps.timetable.models.TimeSlot.Kind",
+        "RoomKindEnum": "apps.timetable.models.Room.Kind",
         "ModulesEnum": "apps.accounts.modules.MODULE_CHOICES",
         "PlatformRoleEnum": "apps.accounts.platform_roles.ROLE_CHOICES",
         "CurrencyEnum": "apps.core.money.Currency",

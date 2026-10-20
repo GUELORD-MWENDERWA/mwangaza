@@ -198,7 +198,7 @@ Les vraies heures données demandent de savoir ce qui ne s'est pas passé comme 
 | Modèle | Tâche | Champs principaux |
 |---|---|---|
 | `TimeGrid` [T] | EDT.1a | `name`, `lesson_minutes`, `start_time`, `is_default` |
-| `TimeSlot` [T] | EDT.1a | `grid`, `weekday` (1–7), `index` (1re heure…, vide pour une récréation), `start`, `end`, `kind` (`lesson`, `break`) ; unique (`grid`, `weekday`, `start`) |
+| `TimeSlot` [T] | EDT.1a | `grid`, `weekday` (1–7), `index` (1re heure…, vide pour une récréation), `start`, `end`, `kind` (`lesson`, `break`) ; unique (`grid`, `weekday`, `index`) pour une heure ; cases d'un jour contiguës, vérifiées par le serveur (EDT.1a) |
 | `ClassGroup.time_grid`, `ClassGroup.home_room` | EDT.1a | FK facultatives |
 | `Room` [T] | EDT.1a | `name`, `kind`, `capacity`, `is_active` |
 | `Course` (champs ajoutés) | EDT.1b | `lesson_pattern`, `max_per_day`, `room`, `room_kind`, `can_span_break`, `preferred_part` |

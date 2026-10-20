@@ -35,6 +35,8 @@ from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.schools.demo import DemoNumbers, DemoSpace
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment, Family, Guardian, Student
+from apps.timetable.models import Room
+from apps.timetable.services import class_rows
 from tests.factories import SchoolFactory, enable_totp
 
 pytestmark = pytest.mark.django_db
@@ -76,6 +78,17 @@ def created(demo) -> None:
         with use_school(school):
             assert DisciplineRule.objects.count() == 10
             assert DisciplineIncident.objects.exists()
+    # Emploi du temps (EDT.1a) : l'ITIG a la grille proposée (39 places), une salle par classe et
+    # ses quatre ateliers ; `volcans` travaille en deux vacations, une salle pour deux classes.
+    with use_school(itig):
+        rows = class_rows(AcademicYear.objects.get(is_current=True))
+        assert {row["capacity"] for row in rows} == {39}
+        assert all(row["home_room"] and row["course_hours"] for row in rows)
+        assert Room.objects.filter(kind="workshop").count() == 4
+    with use_school(volcans):
+        rows = class_rows(AcademicYear.objects.get(is_current=True))
+        assert {row["capacity"] for row in rows} == {39, 30}
+        assert len({row["home_room"] for row in rows}) == (len(rows) + 1) // 2
     # Reprise des résultats (8.4.7) : la 8EB C sans aucune note, la moitié de ses élèves repris.
     with use_school(itig):
         paper = Deliberation.objects.get(class_group__level__name="8EB", class_group__section="C")

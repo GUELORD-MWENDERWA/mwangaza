@@ -27,6 +27,7 @@ export const keys = {
   gradeValidation: ["grade-validation"],
   homeroom: ["homeroom"],
   conduct: ["conduct"],
+  timetable: ["timetable"],
   application: ["application"],
   resits: ["resits"],
   deliberation: ["deliberation"],

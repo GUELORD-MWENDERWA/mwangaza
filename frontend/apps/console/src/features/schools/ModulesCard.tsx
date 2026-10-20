@@ -22,6 +22,7 @@ export const MODULES: Module[] = [
   "finance",
   "communication",
   "academics",
+  "timetable",
   "portal",
   "notifications",
   "offline",
@@ -32,6 +33,7 @@ export const MODULES: Module[] = [
 const NEEDS: Partial<Record<Module, Module[]>> = {
   finance: ["students"],
   academics: ["students"],
+  timetable: ["academics", "students"],
   portal: ["students"],
 };
 

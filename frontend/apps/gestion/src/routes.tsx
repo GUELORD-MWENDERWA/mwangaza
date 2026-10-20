@@ -65,6 +65,8 @@ import { ParentRequestsPage } from "./features/parent-requests/ParentRequestsPag
 import { PromotionPage } from "./features/promotion/PromotionPage";
 import { NotFound, RouteError } from "./features/status/StatusPages";
 import { SupportPage } from "./features/support/SupportPage";
+import { RoomsPage } from "./features/timetable/RoomsPage";
+import { TimeGridPage } from "./features/timetable/TimeGridPage";
 import { UnpaidExportPage } from "./features/unpaid/UnpaidExportPage";
 import { UnpaidPage } from "./features/unpaid/UnpaidPage";
 import { MENU_ITEMS, type MenuItem, type MenuKey } from "./lib/menu";
@@ -76,6 +78,8 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   students: <StudentsPage />,
   courses: <CoursesPage />,
   teachingLoads: <TeachingLoadsPage />,
+  timeGrid: <TimeGridPage />,
+  rooms: <RoomsPage />,
   grades: <GradesPage />,
   gradeValidation: <GradeValidationPage />,
   homeroom: <HomeroomPage />,

@@ -5009,6 +5009,135 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/timetable/classes/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Classes de l'année en cours : grille, salle habituelle, heures de cours et places. */
+        get: operations["timetable_classes_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/classes/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Change la grille ou la salle habituelle d'une classe (vide : les retire). */
+        patch: operations["timetable_classes_partial_update"];
+        trace?: never;
+    };
+    "/api/timetable/grids/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Grilles horaires de l'école (par défaut en premier) avec leurs cases. */
+        get: operations["timetable_grids_list"];
+        put?: never;
+        /**
+         * @description Nouvelle grille ; sans cases, la semaine proposée (5 jours de 7 heures, samedi de 4,
+         *     récréations après la 3e et la 5e heure) calculée avec la durée et le début donnés.
+         */
+        post: operations["timetable_grids_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/grids/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Enregistre les réglages et toute la semaine d'une grille, d'un bloc. */
+        put: operations["timetable_grids_update"];
+        post?: never;
+        /**
+         * @description Supprime une grille (jamais celle par défaut) ; ses classes suivent la grille par
+         *     défaut.
+         */
+        delete: operations["timetable_grids_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/rooms/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Salles, ateliers et laboratoires, retirés compris. */
+        get: operations["timetable_rooms_list"];
+        put?: never;
+        /** @description Ajoute une salle. */
+        post: operations["timetable_rooms_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/rooms/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Change le nom, le type ou les places d'une salle, ou la retire (`is_active`). */
+        patch: operations["timetable_rooms_partial_update"];
+        trace?: never;
+    };
+    "/api/timetable/rules/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Règles générales de l'emploi du temps de l'école. */
+        get: operations["timetable_rules_retrieve"];
+        /** @description Enregistre les règles générales. */
+        put: operations["timetable_rules_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tracks/": {
         parameters: {
             query?: never;
@@ -5217,6 +5346,11 @@ export interface components {
          *     * `discipline.incident_recorded` - Offence recorded
          *     * `discipline.incident_cancelled` - Offence cancelled
          *     * `discipline.grade_overridden` - Conduct grade corrected
+         *     * `timetable.grid_changed` - Time grid changed
+         *     * `timetable.grid_deleted` - Time grid deleted
+         *     * `timetable.room_changed` - Room changed
+         *     * `timetable.class_changed` - Time grid or room of a class changed
+         *     * `timetable.rules_changed` - Timetable rules changed
          *     * `application.grade_overridden` - Application grade corrected
          *     * `resit.grade_changed` - Resit grade changed
          *     * `deliberation.decided` - Deliberation decision recorded
@@ -5286,7 +5420,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         /** @description Comptes du portail activés (H7) : école, puis chaque classe de l'année en cours. */
         ActivationSummary: {
             families: number;
@@ -7250,7 +7384,7 @@ export interface components {
             signature: string | null;
         };
         /** @enum {string} */
-        DomainEnum: "account" | "announcements" | "application" | "audit" | "auth" | "courses" | "deliberation" | "devices" | "discipline" | "finance" | "grades" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support";
+        DomainEnum: "account" | "announcements" | "application" | "audit" | "auth" | "courses" | "deliberation" | "devices" | "discipline" | "finance" | "grades" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
         EmailChange: {
             before: string;
             after: string;
@@ -8306,12 +8440,13 @@ export interface components {
          *     * `finance` - Fees, cash desk and payments
          *     * `communication` - Announcements
          *     * `academics` - Courses, grades and report cards
+         *     * `timetable` - Timetable
          *     * `portal` - Parent portal
          *     * `notifications` - Notifications and reminders
          *     * `offline` - Offline work and synchronisation
          * @enum {string}
          */
-        ModulesEnum: "students" | "finance" | "communication" | "academics" | "portal" | "notifications" | "offline";
+        ModulesEnum: "students" | "finance" | "communication" | "academics" | "timetable" | "portal" | "notifications" | "offline";
         MySchool: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
             code: string;
@@ -9299,6 +9434,12 @@ export interface components {
             name?: string;
             permissions?: components["schemas"]["PermissionsEnum"][];
         };
+        PatchedRoomUpdateRequest: {
+            name?: string;
+            kind?: components["schemas"]["RoomKindEnum"];
+            capacity?: number | null;
+            is_active?: boolean;
+        };
         PatchedRuleUpdateRequest: {
             label?: string;
             points?: number;
@@ -9440,6 +9581,12 @@ export interface components {
         /** @description Membre de l'équipe ; `must_change_password` : invitation pas encore utilisée. */
         PatchedTeamMemberRequest: {
             roles?: components["schemas"]["PlatformRoleEnum"][];
+        };
+        PatchedTimetableClassUpdateRequest: {
+            /** Format: uuid */
+            time_grid?: string | null;
+            /** Format: uuid */
+            home_room?: string | null;
         };
         PatchedTrackUpdateRequest: {
             name?: string;
@@ -9606,11 +9753,12 @@ export interface components {
          *     * `finance.close_register` - Close a cash register
          *     * `finance.view_reports` - View financial reports
          *     * `finance.import_prior_payments` - Record what students paid before the school started here
+         *     * `timetable.manage` - Configure the timetable: time grids, rooms and rules
          *     * `announcements.publish` - Publish announcements
          *     * `audit.view` - View the audit log
          * @enum {string}
          */
-        PermissionsEnum: "school.configure" | "classes.manage" | "courses.configure" | "grades.enter" | "grades.enter_any" | "grades.validate" | "discipline.configure" | "discipline.record" | "discipline.override" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.import_prior_payments" | "announcements.publish" | "audit.view";
+        PermissionsEnum: "school.configure" | "classes.manage" | "courses.configure" | "grades.enter" | "grades.enter_any" | "grades.validate" | "discipline.configure" | "discipline.record" | "discipline.override" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.import_prior_payments" | "timetable.manage" | "announcements.publish" | "audit.view";
         Person: {
             /** Format: uuid */
             readonly id: string;
@@ -10418,6 +10566,33 @@ export interface components {
             readonly id: string;
             name: string;
         };
+        Room: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            kind: components["schemas"]["RoomKindEnum"];
+            /** Places */
+            capacity: number | null;
+            /** In use */
+            is_active: boolean;
+            /** @description Classes de l'année en cours qui y ont leur salle habituelle. */
+            readonly classes: string[];
+        };
+        RoomCreateRequest: {
+            name: string;
+            kind: components["schemas"]["RoomKindEnum"];
+            capacity?: number | null;
+        };
+        /**
+         * @description * `classroom` - Classroom
+         *     * `workshop` - Workshop
+         *     * `lab` - Laboratory
+         *     * `computer` - Computer room
+         *     * `sports` - Sports ground
+         *     * `other` - Other
+         * @enum {string}
+         */
+        RoomKindEnum: "classroom" | "workshop" | "lab" | "computer" | "sports" | "other";
         Row: {
             /** Format: uuid */
             enrollment: string;
@@ -11770,6 +11945,102 @@ export interface components {
         TermsUpdateRequest: {
             terms: components["schemas"]["TermInputRequest"][];
         };
+        TimeGrid: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            /** Lesson length (minutes) */
+            lesson_minutes: number;
+            /**
+             * Start of the first lesson
+             * Format: time
+             */
+            start_time: string;
+            /** Default grid */
+            is_default: boolean;
+            /** @description Heures de cours par semaine (places). */
+            lesson_count: number;
+            /** @description Classes de l'année en cours qui la suivent. */
+            class_count: number;
+            readonly slots: components["schemas"]["TimeSlot"][];
+        };
+        TimeGridCreateRequest: {
+            name: string;
+            lesson_minutes?: number;
+            /** Format: time */
+            start_time?: string;
+            is_default?: boolean;
+            /** @description Sans cases : la semaine proposée, calculée avec cette durée et ce début. */
+            slots?: components["schemas"]["TimeSlotInputRequest"][];
+        };
+        TimeGridWriteRequest: {
+            name: string;
+            lesson_minutes: number;
+            /** Format: time */
+            start_time: string;
+            /** @default false */
+            is_default: boolean;
+            slots: components["schemas"]["TimeSlotInputRequest"][];
+        };
+        TimeSlot: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Day */
+            weekday: number;
+            /** Lesson number */
+            index: number | null;
+            kind: components["schemas"]["TimeSlotKindEnum"];
+            /** Format: time */
+            start: string;
+            /** Format: time */
+            end: string;
+        };
+        TimeSlotInputRequest: {
+            weekday: number;
+            /** @description Numéro de l'heure dans le jour ; vide pour une récréation. */
+            index?: number | null;
+            kind: components["schemas"]["TimeSlotKindEnum"];
+            /** Format: time */
+            start: string;
+            /** Format: time */
+            end: string;
+        };
+        /**
+         * @description * `lesson` - Lesson
+         *     * `break` - Break
+         * @enum {string}
+         */
+        TimeSlotKindEnum: "lesson" | "break";
+        TimetableClass: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /**
+             * Format: uuid
+             * @description Vide : grille par défaut.
+             */
+            time_grid: string | null;
+            /** Format: uuid */
+            home_room: string | null;
+            /** @description Heures par semaine des cours enseignés. */
+            course_hours: number;
+            /** @description Cours enseignés sans heures saisies. */
+            missing_hours: number;
+            /** @description Heures de cours de sa grille ; vide sans grille. */
+            capacity: number | null;
+        };
+        TimetableRules: {
+            max_same_course_per_day: number;
+            teacher_max_day_hours: number;
+            no_gaps: boolean;
+            main_courses_early: boolean;
+        };
+        TimetableRulesRequest: {
+            max_same_course_per_day: number;
+            teacher_max_day_hours: number;
+            no_gaps: boolean;
+            main_courses_early: boolean;
+        };
         TotalsRow: {
             /** Format: uuid */
             enrollment_id: string;
@@ -12710,6 +12981,11 @@ export interface operations {
                  *     * `discipline.incident_recorded` - Offence recorded
                  *     * `discipline.incident_cancelled` - Offence cancelled
                  *     * `discipline.grade_overridden` - Conduct grade corrected
+                 *     * `timetable.grid_changed` - Time grid changed
+                 *     * `timetable.grid_deleted` - Time grid deleted
+                 *     * `timetable.room_changed` - Room changed
+                 *     * `timetable.class_changed` - Time grid or room of a class changed
+                 *     * `timetable.rules_changed` - Timetable rules changed
                  *     * `application.grade_overridden` - Application grade corrected
                  *     * `resit.grade_changed` - Resit grade changed
                  *     * `deliberation.decided` - Deliberation decision recorded
@@ -12778,7 +13054,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -12801,8 +13077,9 @@ export interface operations {
                  *     * `staff` - staff
                  *     * `students` - students
                  *     * `support` - support
+                 *     * `timetable` - timetable
                  */
-                domain?: "account" | "announcements" | "application" | "audit" | "auth" | "courses" | "deliberation" | "devices" | "discipline" | "finance" | "grades" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support";
+                domain?: "account" | "announcements" | "application" | "audit" | "auth" | "courses" | "deliberation" | "devices" | "discipline" | "finance" | "grades" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description A page number within the paginated result set. */
@@ -12984,6 +13261,11 @@ export interface operations {
                  *     * `discipline.incident_recorded` - Offence recorded
                  *     * `discipline.incident_cancelled` - Offence cancelled
                  *     * `discipline.grade_overridden` - Conduct grade corrected
+                 *     * `timetable.grid_changed` - Time grid changed
+                 *     * `timetable.grid_deleted` - Time grid deleted
+                 *     * `timetable.room_changed` - Room changed
+                 *     * `timetable.class_changed` - Time grid or room of a class changed
+                 *     * `timetable.rules_changed` - Timetable rules changed
                  *     * `application.grade_overridden` - Application grade corrected
                  *     * `resit.grade_changed` - Resit grade changed
                  *     * `deliberation.decided` - Deliberation decision recorded
@@ -13052,7 +13334,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -13075,8 +13357,9 @@ export interface operations {
                  *     * `staff` - staff
                  *     * `students` - students
                  *     * `support` - support
+                 *     * `timetable` - timetable
                  */
-                domain?: "account" | "announcements" | "application" | "audit" | "auth" | "courses" | "deliberation" | "devices" | "discipline" | "finance" | "grades" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support";
+                domain?: "account" | "announcements" | "application" | "audit" | "auth" | "courses" | "deliberation" | "devices" | "discipline" | "finance" | "grades" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description Dans le nom de l'objet. */
@@ -27168,6 +27451,546 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_classes_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimetableClass"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_classes_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedTimetableClassUpdateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedTimetableClassUpdateRequest"];
+                "multipart/form-data": components["schemas"]["PatchedTimetableClassUpdateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimetableClass"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_grids_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimeGrid"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_grids_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TimeGridCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TimeGridCreateRequest"];
+                "multipart/form-data": components["schemas"]["TimeGridCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimeGrid"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_grids_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TimeGridWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TimeGridWriteRequest"];
+                "multipart/form-data": components["schemas"]["TimeGridWriteRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimeGrid"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_grids_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_rooms_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Room"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_rooms_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoomCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["RoomCreateRequest"];
+                "multipart/form-data": components["schemas"]["RoomCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Room"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_rooms_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedRoomUpdateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedRoomUpdateRequest"];
+                "multipart/form-data": components["schemas"]["PatchedRoomUpdateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Room"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_rules_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimetableRules"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_rules_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TimetableRulesRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TimetableRulesRequest"];
+                "multipart/form-data": components["schemas"]["TimetableRulesRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimetableRules"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

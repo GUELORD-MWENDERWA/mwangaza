@@ -13,6 +13,8 @@ describe("menu selon les permissions (04 § 8)", () => {
       "students",
       "courses",
       "teachingLoads",
+      "timeGrid",
+      "rooms",
       "promotion",
       "unpaid",
       "fees",
