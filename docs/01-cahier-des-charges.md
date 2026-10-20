@@ -184,7 +184,7 @@ Rôles proposés au départ (un modèle : l'école les renomme, les modifie et l
 - Contrôle : date limite de verrouillage, validation par le directeur des études, historique de toute modification, publication aux parents après validation seulement.
 - Bulletins : format officiel EPST, calcul automatique des totaux, pourcentages et places, mentions et appréciations automatiques, conduite, taux de présence, QR code d'authenticité, signature électronique du chef d'établissement, PDF téléchargeable par le parent. Deux modes d'impression : bulletin complet, ou notes seules sur le formulaire officiel pré-imprimé.
 - Délibération : tableau par classe, règles de réussite configurables, décisions (admis, ajourné, repêchage, réorienté, exclu), palmarès imprimable, statistiques de réussite par classe et par cours.
-- Emploi du temps : génération automatique sans conflit, modifiable à la main (V1.4, avec l'aide de l'IA).
+- Emploi du temps : génération automatique sans conflit, modifiable à la main, avec l'aide de l'IA (avancé le 2026-10-20).
 - Devoirs publiés pour les élèves (V2).
 
 ### 8.7 Présences
@@ -239,7 +239,7 @@ Précisés le 2026-10-13 (détail et découpage : `05` § 6) :
 - **Finances de l'école — V1.2** : dépenses avec justificatif et validation, sorties de caisse comprises dans les clôtures, budget prévu et réalisé, entrées / sorties, trésorerie par devise.
 - **Abonnements par module — V1.3** : la plateforme vend des modules (prix par module, par élève, par période), facture l'école, la passe en lecture seule si elle ne paie pas.
 - **Sites web** : site de la plateforme (V1.3) ; site de chaque école, rempli par elle, à `{code}.mwangazaschool.com/` (V1.7).
-- **Emploi du temps — V1.4** : grille horaire, salles, volumes horaires, charges et disponibilités des enseignants, contraintes ; calcul sans conflit par un solveur, retouches à la main, publication (PDF, Portail, enseignants).
+- **Emploi du temps — avancé le 2026-10-20** (avant la fin de la V1.2) : grille horaire (heures par jour, durée d'une heure, récréations, vacations), salles et ateliers, volumes horaires, charges et disponibilités des enseignants, heures verrouillées, règles (dont au plus N heures du même cours par jour) ; contrôles des surcharges avant le calcul ; calcul sans conflit par un solveur, retouches à la main, publication (PDF par classe, enseignant, salle, horaire général ; Portail, enseignants) ; heures prestées des enseignants. Détail : `docs/specs/emploi-du-temps.md`.
 - **Intelligence artificielle — V1.4** : Claude aide à l'emploi du temps (contraintes en phrases, explication des conflits), répond aux questions sur les données, rédige des brouillons ; il ne voit que ce que la personne peut voir et ne décide jamais seul. L'IA se vend avec l'abonnement et se pilote depuis la console de la plateforme : usages affectés à chaque école, crédits du mois, plafond, suivi de la consommation ; l'école ne la configure pas. À partir du PDF d'un bulletin, elle propose la grille de cours d'une section, que l'école corrige et enregistre.
 - **Bibliothèque — V1.6** : catalogue, exemplaires étiquetés, prêt avec bon et date de retour, parent prévenu, rappels, livre perdu ou abîmé facturé à l'élève.
 - **Ateliers — V1.6** (écoles techniques) : stock de matières d'œuvre et d'outillage, demande de matériel → validation → achat → réception → retrait à l'atelier, outils prêtés aux élèves ; évaluations d'atelier en V2.

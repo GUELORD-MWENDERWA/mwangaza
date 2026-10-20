@@ -65,6 +65,18 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 15 bis | ~~**EQ.1 → EQ.2**~~ ✓ (bloc fini le 2026-10-19) Équipe de la plateforme : membres, rôles fixes (propriétaire, technique, support, commercial, communication, finance), droits vérifiés par le serveur sur chaque point de la console (§ 6.3 bis) — *demandée le 2026-10-18* | P1 | M | 🤖 |
 | 15 ter | **SITE.1 → SITE.3** Site public géré depuis la console par la communication : questions, témoignages avec accord écrit, écoles de référence, bandeau, actualités, photos (§ 6.3 ter) ; SITE.4 (offres) avec ABO — *demandée le 2026-10-18* ; SITE.1a faite le 2026-10-19 | P1 | L | 🤖 |
 | 15 quater | **HL.1 → HL.3** Hors ligne là où le réseau manque : inscriptions de la rentrée, conduite, dernières données du Portail ; règle « hors ligne décidé dans chaque plan » (§ 5 bis) — *demandée le 2026-10-18* | P1 | M | 🤖 |
+| | **Aller vers les écoles : l'emploi du temps d'abord** (demandé le 2026-10-20 ; spécification complète : `docs/specs/emploi-du-temps.md`, § 6.4) | | | |
+| 15.1 | ~~**EDT.0**~~ ✓ Spécification du module et nouvel ordre de la file | P0 | S | 🤖 |
+| 15.2 | **EDT.1a** Grille horaire de l'école (jours, heures par jour, durée d'une heure, récréations, deux vacations) et salles ; capacité de chaque classe | P0 | M | 🤖 |
+| 15.3 | **EDT.1b** Séances des cours, profil des enseignants (charge maximale, indisponibilités), règles, **contrôles avant le calcul** (classes et enseignants surchargés) | P0 | M | 🤖 |
+| 15.4 | **EDT.2** Éditeur : par classe, par enseignant, par salle, horaire général ; conflits montrés tout de suite ; heures verrouillées | P0 | M à L | 🤖 |
+| 15.5 | **EDT.3** Calcul automatique (solveur), règle qui bloque nommée, recalcul d'une partie | P0 | L | 🤖 |
+| 15.6 | **EDT.4** Publication et impressions (classe, enseignant avec sa charge, salle, horaire général), Portail et espace de l'enseignant | P0 | M | 🤖 |
+| 15.7 | **IA.1.1** Socle IA : usages, cinq verrous, crédits, plafond de la plateforme | P0 | M | 🤖 |
+| 15.8 | **IA.2a → IA.2b** IA du directeur des études : consignes en phrases → règles ; analyse et propositions | P0 | M + M | 🤖 |
+| 15.9 | **EDT.6** Heures prestées : exceptions notées, fiche mensuelle imprimable, export pour la paie | P1 | M | 🤖 |
+| 15.10 | **IA.1.2** Console et crédits IA (avant de vendre l'IA à une école réelle) | P1 | M | 🤖 |
+| 15.11 | **EDT.5** Horaire des interrogations et des examens | P1 | S à M | 🤖 |
 | | **V1.2 — Notes, bulletins et finances de l'école** (§ 7) | | | |
 | 16 | ~~**A.2**~~ ✓ Purge des opérations de synchronisation (`SyncOperation` ; `ChangeLog` gardé) | P1 | S | 🤖 |
 | 17 | ~~**S.6.1**~~ ✓ Row Level Security PostgreSQL : socle et tables de finance (ex-9.15, avancée) | P1 | M | 🤖 |
@@ -82,14 +94,16 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 22 | ~~**WEB.1**~~ avancée en WEB.1a → WEB.1c (lignes 14 septies à 14 nonies) ; ici : page des **prix** quand ABO et le tarif (T6) existent | P1 | S | 🤖 |
 | 23 | **S.7 → S.9** Protection des données, détection, revue ASVS | P1 | M | 🤖 |
 | | **V1.4 — Emploi du temps et intelligence artificielle** | | | |
-| 24 | **EDT.1 → EDT.4** Emploi du temps (données, éditeur, génération, publication) | P1 | L | 🤖 |
-| 25 | **IA.1 → IA.5** Socle IA piloté par la console (usages, crédits), grille de cours depuis un PDF, aide à l'emploi du temps, assistant, rédaction | P1 / P2 | L | 🤖 |
+| 24 | ~~**EDT**~~ avancé en 15.1 → 15.11 (2026-10-20) | — | — | — |
+| 25 | **IA.5, IA.3, IA.4** Grille de cours depuis un PDF, assistant, rédaction (IA.1.1, IA.1.2 et IA.2 avancées en 15.7 → 15.10) | P1 / P2 | L | 🤖 |
 | | **V1.5 — Carte et présences** (QR d'abord) | P1 / P2 | L | 🤖 |
 | | **V1.6 — Bibliothèque et ateliers** (moteur commun INV) | P2 | L | 🤖 |
 | | **V1.7 — Sites des écoles, personnel et paie, vie scolaire** | P2 | L | 🤖 |
 | | **V2** (§ 7) | P2 / P3 | — | 🤖 |
 
-> **Pourquoi cet ordre** : d'abord ce qui protège les vraies données (P0), puis ce qu'une école utilise chaque trimestre (notes, bulletins), puis ce qui te fait vivre (abonnements, site de la plateforme), puis l'emploi du temps, qui a besoin des cours et des charges de la 8.1, et l'IA, qui a besoin d'un socle sûr. La bibliothèque et les ateliers partagent un même moteur de prêts et de stock : ils se font ensemble.
+> **Nouvel ordre du 2026-10-20** (demande de l'utilisateur : aller vers les écoles au plus vite) : après PERF.8 (mémoire du serveur), le bloc « Aller vers les écoles » (15.1 → 15.11) passe **avant tout le reste**. L'emploi du temps est ce qui distingue Mwangaza devant un préfet : la démonstration montre l'ITIG calculée en direct, l'atelier verrouillé, la classe surchargée détectée et l'IA qui explique. Il ne dépend que de la 8.1 (faite) ; l'IA.1.1 passe avec lui parce que l'IA.2 en dépend (crédits réglés par l'administration de dépannage jusqu'à l'IA.1.2, plafond de la plateforme actif dès l'IA.1.1). Ensuite la file reprend : **19 bis** (8.4.6 et 8.8 : bulletins aux parents, puis PERF.6, S.10), **15 ter** (SITE.1b…), **15 quater** (HL), 20 (FIN), 20 bis, puis la V1.3. Le bloc NB, EQ et SITE.1a sont faits.
+>
+> **Pourquoi cet ordre** (2026-10-13) : d'abord ce qui protège les vraies données (P0), puis ce qu'une école utilise chaque trimestre (notes, bulletins), puis ce qui te fait vivre (abonnements, site de la plateforme), puis l'emploi du temps, qui a besoin des cours et des charges de la 8.1, et l'IA, qui a besoin d'un socle sûr. La bibliothèque et les ateliers partagent un même moteur de prêts et de stock : ils se font ensemble.
 
 ---
 
@@ -252,7 +266,7 @@ But : que chacun ne voie et ne fasse que ce qui le concerne, comme dans une éco
 - [x] **NB.5** Conseil de délibération, par période et en fin d'année, avec PV *(P1, M, 🤖, après NB.2 et NB.4 ; fait le 2026-10-19 : une `Deliberation` par session, `term` vide = fin d'année ; pas de décision par élève à la période ; conduite toujours calculée, donc jamais « manquante » ; procès-verbal en PDF)* — membres (préfet qui préside, DE, titulaire, enseignants de la classe) : eux seuls voient le tableau avant la proclamation (secret) ; **délibération et proclamation de chaque période et semestre** (bulletin de la période remis aux parents, avec 8.8), en plus de la fin d'année (8.4.2 garde ses versions figées) ; **procès-verbal** imprimable (présents, décisions, écarts, signatures) ; conduite confirmée par le conseil.
 - [x] **NB.6** Seconde session (repêchage) *(P1, S à M, 🤖, après NB.5 ; fait le 2026-10-19 : une seconde délibération par classe, `Deliberation.second_session` ; repêchage accordé par le conseil contre la proposition : chaque cours échoué se repasse ; note de repêchage figée à la proclamation ; heure et salle de l'examen écrites à la main ; pas de nouvelle donnée dans `make demo`, proclamer la 3HT Électronique A suffit)* — après la proclamation de fin d'année : liste des élèves et des cours à repasser, **convocation** imprimable avec la date fixée par l'école ; note de l'examen de repêchage par l'enseignant du cours, signée (8.4.1) ; l'élève **garde son pourcentage** ; **délibération de seconde session** (décision finale : passe, double, réorienté) ; bulletin et passage de classe (8.4.5) suivent la nouvelle version.
 
-L'**horaire** (emploi du temps) reste dans EDT et IA : construit par le solveur à partir de la **grille horaire officielle** de chaque classe et des **charges** des enseignants (8.1), expliqué et ajusté avec l'IA (IA.2), validé par le directeur des études ; horaire des interrogations et des examens compris (EDT.4, complété le 2026-10-18).
+L'**horaire** (emploi du temps) reste dans EDT et IA : construit par le solveur à partir de la **grille horaire officielle** de chaque classe et des **charges** des enseignants (8.1), expliqué et ajusté avec l'IA (IA.2), validé par le directeur des études ; horaire des interrogations et des examens compris (EDT.5) ; spécification : `docs/specs/emploi-du-temps.md`.
 
 ---
 
@@ -356,14 +370,18 @@ But : la personne chargée de la communication tient le site à jour sans dével
 - [ ] **SITE.4** Offres *(P1, S, 🤖, avec ABO et WEB.1 prix)* — offres et prix affichés sur le site, saisis dans la console à partir du catalogue des abonnements.
 - [ ] **SITE.5** Réseaux sociaux *(P1, S, 🤖 + 👤, après EQ.1 et WEB.1d)* — les comptes de Mwangaza (WhatsApp Business, page Facebook, Instagram, page LinkedIn, YouTube, TikTok) sont tenus par le membre « communication » : il en modifie les liens dans la console (droit `platform.site.edit`), un lien vide disparaît du site ; chaque actualité (SITE.2) a son bouton de partage (WhatsApp, Facebook, LinkedIn : simples liens, aucun script ni traceur des réseaux). **Toi** : créer les comptes avec l'adresse `@mwangazaschool.com` (OPS.4), double authentification (OPS.3), et donner l'accès par les rôles de chaque réseau (Meta Business Suite, administrateurs de la page LinkedIn), **jamais un mot de passe partagé** ; quand le membre part, on retire son rôle.
 
-### 6.4 Emploi du temps (EDT) — P1, V1.4
+### 6.4 Emploi du temps (EDT) — P0 pour la prospection, avancé le 2026-10-20
 
-Faisable, et utile à toutes les écoles. **Avis de développeur senior** : un emploi du temps sans conflit est un problème de contraintes ; une IA seule ne garantit pas zéro conflit (elle peut placer un enseignant dans deux classes à la même heure sans le voir). Donc : un **solveur** calcule, et l'**IA aide** autour (IA.2). Solveur proposé : OR-Tools CP-SAT (Google, licence Apache 2.0, utilisé partout pour ce problème) — **dépendance acceptée le 2026-10-13**.
+**Lire d'abord `docs/specs/emploi-du-temps.md`** (EDT.0) : but, vocabulaire, paramètres, règles, contrôles, solveur, IA, impressions, modèle de données et tests ; chaque tâche ci-dessous renvoie à ses sections. **Avis de développeur senior** : un solveur garantit zéro conflit (OR-Tools CP-SAT, dépendance acceptée le 2026-10-13), des contrôles en code disent ce qui coince avant le calcul, l'IA aide autour (IA.2) sans jamais placer une heure ni valider. Une école sans IA a tout le reste. Hors ligne : la version publiée se lit sans réseau (instantané) ; l'édition et le calcul restent en ligne. Maquettes de chaque écran et document d'abord (390 et 1440 px). `make demo` : l'ITIG reçoit une grille, ses salles et ateliers, des règles et un horaire publié calculé une fois ; vérifié dans le scénario de `core/tests/test_demo.py`.
 
-- [ ] **EDT.1** Données *(M)* — après la 8.1 : grille horaire de l'école (jours, heures, récréations, demi-journées), salles et ateliers (type, capacité), volume horaire hebdomadaire de chaque cours par classe, enseignants (charge maximale, jours et heures où ils sont disponibles, cours qu'ils peuvent donner, enseignant partagé avec une autre école), contraintes (au plus N heures du même cours par jour, heures doubles pour les travaux pratiques d'atelier, cours à ne pas mettre en dernière heure…).
-- [ ] **EDT.2** Éditeur et contrôle des conflits *(M)* : grille par classe, par enseignant et par salle ; déplacer une heure à la main ; chaque conflit montré tout de suite (enseignant, salle, classe, charge dépassée) ; versions (brouillon, publiée), l'ancienne gardée.
-- [ ] **EDT.3** Génération automatique *(L)* : le solveur place tout en respectant les contraintes obligatoires et au mieux les souhaits ; en tâche de fond, une à la fois, temps limité (le serveur est partagé) ; s'il n'y a pas de solution, il dit **quelle contrainte bloque** ; on peut verrouiller des heures avant de relancer.
-- [ ] **EDT.4** Publication *(S)* : PDF par classe, par enseignant, par salle ; **horaire des interrogations et des examens** de chaque période, fait par le directeur des études (ajouté le 2026-10-18, § 5 ter) ; emploi du temps dans le Portail (parents) et pour chaque enseignant ; changement après publication notifié (5.6). Plus tard : heures prestées pour la paie (7.3), appel en classe (V1.5).
+- [x] **EDT.0** Spécification et nouvel ordre *(P0, S, 🤖 ; fait le 2026-10-20, docs seulement)*.
+- [ ] **EDT.1a** Grille horaire et salles *(P0, M, spec §§ 3, 13)* — `TimeGrid`, `TimeSlot`, `Room`, `ClassGroup.time_grid` et `home_room`, `School.settings["timetable"]` (règles générales), module `timetable` du catalogue et ses permissions ; écran « Grille horaire » (durée d'une heure et heure de début → cases calculées puis corrigeables, récréations, jours courts, deux vacations) et « Salles » ; capacité de chaque classe comparée à ses heures de cours (8.1). Préréglage = Q16 de `06`.
+- [ ] **EDT.1b** Cours, enseignants, règles et contrôles *(P0, M, après EDT.1a, spec §§ 4 à 6)* — champs de placement de `Course` (séances, au plus N par jour, salle exigée, récréation traversable, moment) dans la grille de cours existante (même envoi d'un bloc) ; `TeacherTimetableProfile` ; `TimetableRule` (liste fermée de kinds, schéma par kind) ; **diagnostic** (les 7 contrôles, chacun avec quoi, combien, où corriger) ; écran « Règles et contrôles ». Utilisable seul : montre déjà les classes et enseignants surchargés.
+- [ ] **EDT.2** Éditeur et conflits *(P0, M à L, après EDT.1b, spec §§ 8, 10)* — `Timetable` (brouillon) et `TimetableEntry` ; vues par classe, enseignant, salle, horaire général (téléphone : un jour à la fois) ; déplacer, échanger, verrouiller ; heures restant à placer ; conflits recalculés par les contrôles du diagnostic ; charges placées / dues. Découper en EDT.2a (serveur et vue classe) et EDT.2b (autres vues) si la fiche dépasse deux écrans.
+- [ ] **EDT.3** Calcul automatique *(P0, L, après EDT.2, spec § 7)* — CP-SAT, départs impossibles non créés, règles O1–O7 toujours, souhaits pondérés ; `TimetableRun` idempotent ; file `heavy` (OR-Tools importé dans la tâche seulement, `num_workers=1`), un calcul à la fois pour la plateforme, temps limité ; résultat dans un brouillon ; **règle qui bloque** nommée en phrase (hypothèses CP-SAT) ; recalcul d'une classe ou d'un enseignant, le reste verrouillé ; stabilité par rapport à la version publiée ; temps et pic de mémoire mesurés sur l'ITIG de `make demo` (au-delà de 250 Mo : grille par grille, sinon OPS.5).
+- [ ] **EDT.4** Publication et impressions *(P0, M, après EDT.3, spec §§ 10, 11)* — publier (bloqué si une règle obligatoire est violée ; version publiée immuable, l'ancienne archivée ; journal) ; notification groupée des enseignants et parents touchés (5.6) ; PDF classe, enseignant (avec charge), salle, horaire général (file `heavy`, gardés) ; Portail (horaire de la classe de l'enfant) et « Mon horaire » de l'enseignant ; lecture sans réseau dans la Gestion.
+- [ ] **EDT.5** Horaire des interrogations et des examens *(P1, S à M, après EDT.4, spec § 11.6)* — par période, fait par le directeur des études (§ 5 ter) ; mêmes contrôles et impressions.
+- [ ] **EDT.6** Heures prestées *(P1, M, après EDT.4, spec §§ 11.5, 12)* — `LessonException` (absence, remplacement, annulation, heure en plus ; journal) ; calcul du mois en SQL avec le calendrier de l'école ; fiche par enseignant (PDF) et export Excel pour la paie (7.3) et les primes.
 
 ### 6.5 Intelligence artificielle dans l'application (IA) — P1 / P2, V1.4
 
@@ -393,7 +411,8 @@ Intégration de **Claude** (API d'Anthropic) côté serveur. « Comme Claude Cod
    - tests : crédits et appels d'une autre école jamais lus ni débités ; 403 sans `ai.use` ou sans la permission hôte ; crédits épuisés ou plafond atteint → refus **sans appel à l'API** ; cumul exact en entiers ; même demande deux fois = un appel ; usage refusé sans son module hôte.
 - [ ] **IA.1.2** Console et crédits *(M, P1)* : page « IA » de la console (interrupteur, plafond et dépense du mois, par école et par usage, part des résultats gardés, alertes) ; carte « IA » de la fiche d'une école (usages affectés, rangés par module ; crédits du mois, consommés, restants ; derniers appels ; pause ; recharge) ; réglages (modèle, limites, prix) ; chaque changement au journal de la plateforme. Gestion : carte « Crédits IA » en lecture seule dans les paramètres ; bouton IA caché sans droit, grisé avec la raison sans crédit.
 - [ ] **IA.5** Grille de cours d'une section à partir d'un bulletin en PDF *(M, P1)* — exemple donné le 2026-10-13 : l'école envoie le PDF ou la photo d'un bulletin (fichier contrôlé comme en S.4, 3 pages au plus) → l'IA propose les cours, domaines et maxima de la section (données de 8.1) et les options du bulletin (8.3) → la personne corrige dans l'écran normal et enregistre. **L'IA produit des données vérifiées par un schéma, jamais du HTML ni un modèle exécuté** : le bulletin reste dessiné par notre code (document officiel, mise en page EPST, aucune injection possible). Un appel par section, puis plus aucun jeton. Dépend de 8.1 et 8.3.
-- [ ] **IA.2** Aide à l'emploi du temps *(M, P1)* : la direction décrit ses contraintes en phrases (« M. Kambale ne vient pas le vendredi, la 4e mécanique a l'atelier le mardi matin ») → l'IA les traduit en contraintes que la personne relit et valide → le solveur (EDT.3) calcule → l'IA explique les conflits et propose des assouplissements.
+- [ ] **IA.2a** Consignes en phrases → règles *(M, P0, après IA.1.1 et EDT.1b, spec § 9)* : usage `timetable_constraints` ; le DE écrit ses consignes (« M. Kambale ne vient pas le vendredi, la 4e Mécanique a l'atelier le mardi matin ») → l'IA rend des règles de la liste fermée, en JSON vérifié par schéma → le DE coche, corrige, enregistre ; une consigne hors liste est refusée avec la raison.
+- [ ] **IA.2b** Analyse et propositions *(M, P0, après IA.2a et EDT.3, spec § 9)* : usage `timetable_review` ; l'IA reçoit les chiffres calculés par le code (contrôles, conflits, charges, règle qui bloque), explique en mots simples (classe ou enseignant surchargé, jour trop chargé) et propose des actions structurées, chacune appliquée par l'écran normal puis vérifiée par le solveur ; elle ne déplace jamais une heure verrouillée.
 - [ ] **IA.3** Assistant de questions *(M, P2)* : « combien d'élèves de 5e A sont en retard de paiement ? », « quelles classes ont le plus d'absents ce mois ? » ; réponses tirées des données, avec le lien vers l'écran d'où elles viennent ; lecture seule. Usage le plus cher (conversation ouverte) : longueur d'une conversation et questions par jour limitées, réglées dans la console.
 - [ ] **IA.4** Aide à la rédaction *(S, P2)* : brouillons d'annonces, de convocations, de lettres de relance, d'appréciations de bulletin ; toujours un brouillon que la personne modifie et publie elle-même.
 
@@ -465,8 +484,8 @@ Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est 
 
 ### V1.4 — Emploi du temps et IA
 
-- [ ] **EDT.1 → EDT.4** (§ 6.4) *(P1)*
-- [ ] **IA.1.1, IA.1.2, IA.5, IA.2** (§ 6.5) *(P1)* ; **IA.3, IA.4** *(P2)*
+- ~~**EDT.0 → EDT.6**, **IA.1.1, IA.1.2, IA.2a, IA.2b**~~ avancés le 2026-10-20 (file, 15.1 → 15.11)
+- [ ] **IA.5** (§ 6.5) *(P1)* ; **IA.3, IA.4** *(P2)*
 
 ### V1.5 — Carte et présences (QR d'abord, NFC en option)
 
@@ -595,5 +614,7 @@ L.0 a mis à jour, dans la même PR : `06-suivi.md`, `07-a-fournir.md`, `01`, `0
 **V1.1** : 5.1 identité de la plateforme · 5.2 console · 5.3 console écoles · 5.4 comptes, appareils, journal, annonces de la plateforme · 5.5 notifications (Gestion, Portail) · 5.6 événements immédiats et à heure fixe · 5.7 communication (annonces au personnel, calendrier, convocations, circulaires).
 
 **Modules** : M.1 catalogue et droits côté serveur.
+
+**Emploi du temps** : EDT.0 spécification (`docs/specs/emploi-du-temps.md`) et nouvel ordre de la file (2026-10-20).
 
 **Retirées** : ~~4.6.2~~ serveur gratuit Oracle / DuckDNS · ~~4.8~~ mise en place à l'ITIG · ~~4.11~~ essai sur le même réseau · récupération des documents de l'ITIG et modèle d'imprimante (plus des préalables).
