@@ -134,8 +134,8 @@ Les images ne sont plus construites sur le serveur : GitHub Actions les fabrique
 4. Après la première construction : sur GitHub, ton profil → *Packages* → noter la taille de `mwangaza-backend` et `mwangaza-caddy-production` ; si le total dépasse 400 Mo, dire à Claude de passer à 2 versions gardées.
 Le jeton expire dans un an : le refaire alors (même chemin) et relancer l'étape 2 ; sans lui, `make deploy` s'arrête avec un message clair, le site en ligne continue de tourner.
 
-**Le jour où le dépôt repasse en privé** :
-1. Dépôt → *Settings* → *General* → tout en bas, *Danger Zone* → *Change repository visibility* → *Make private*.
+**Le jour où le dépôt repasse en privé** — étape 1 faite le 2026-10-20 (par Claude, à ta demande) ; **à toi : étapes 2 et 3** :
+1. ~~Dépôt → *Settings* → *General* → tout en bas, *Danger Zone* → *Change repository visibility* → *Make private*.~~ ✓
 2. **Rendre les deux images privées** (elles sont publiques tant que le dépôt l'est, et ne deviennent pas privées toutes seules) : GitHub → ton profil → *Packages* → `mwangaza-backend` → *Package settings* → *Danger Zone* → *Change visibility* → *Private* ; pareil pour `mwangaza-caddy-production`. Le serveur a déjà son jeton : rien à changer côté serveur. Tant qu'elles sont publiques, elles ne comptent pas dans les 500 Mo ; privées, elles comptent.
 3. `make deploy-check`, puis un `make deploy` quelconque : il doit finir sans erreur.
 4. Le plan gratuit d'un dépôt privé : 2 000 minutes d'Actions et 500 Mo de Packages par mois. Où regarder : *Settings* (ton compte) → *Billing and plans* → *Usage* (minutes d'Actions, stockage des paquets). Estimation : ≈ 300 minutes par mois (`docs/claude/recherches/perf-5c-…`). Une alerte à 75 % se règle dans *Billing* → *Budgets and alerts*.
@@ -299,8 +299,8 @@ Pas pris maintenant (regard senior, OPS.3) : **DNSSEC** et l'enregistrement **CA
 
 **6. GitHub (15 min)** — https://github.com/
 - a. Ta photo → « Settings » → « Password and authentication » → « Enable two-factor authentication » → scanner → code → **télécharger les codes de récupération**. Déjà actif : vérifier que tu as les codes.
-- b. Le dépôt est **public** et sa protection est **désactivée** (vérifié le 2026-10-17) : https://github.com/GUELORD-MWENDERWA/mwangaza/settings → partie « Security » → « Advanced Security » (ou « Code security ») → activer **Dependabot alerts**, **Secret Protection** (secret scanning) et **Push protection** (gratuits tant que le dépôt est public).
-- c. Le jour du passage en privé (§ 9 quinquies, à ton choix) : la protection des clés s'arrête (payante en privé), les alertes Dependabot restent, le contrôle avant chaque commit aussi.
+- b. *(Avant le 2026-10-20, quand le dépôt était public.)* Le dépôt était **public** et sa protection **désactivée** (vérifié le 2026-10-17) : https://github.com/GUELORD-MWENDERWA/mwangaza/settings → partie « Security » → « Advanced Security » (ou « Code security ») → activer **Dependabot alerts**, **Secret Protection** (secret scanning) et **Push protection** (gratuits tant que le dépôt est public).
+- c. **Dépôt privé depuis le 2026-10-20** (§ 9 quinquies) : la protection des clés côté GitHub s'arrête (payante en privé) ; les alertes Dependabot restent, et le contrôle avant chaque commit (`make hooks` : refus d'un `.env` ou d'une clé privée) devient la seule barrière, à garder installé.
 - d. « Settings » → « Developer settings » → « Personal access tokens » → « Tokens (classic) » : noter la date d'expiration de `mwangaza-serveur`.
 
 **7. Backblaze, Sentry, Healthchecks, UptimeRobot (20 min)** — double authentification par application sur chacun : Backblaze (https://secure.backblaze.com/ → « My Settings », partie sécurité), Sentry (avatar → « User Settings » → « Security » → « Two-Factor Authentication »), Healthchecks (« Account » → « Account Settings » → « Two-factor Authentication »), UptimeRobot (réglages du compte → « Two-factor authentication »). Cocher la dernière colonne du tableau « Comptes de la plateforme ».
