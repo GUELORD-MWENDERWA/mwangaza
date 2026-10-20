@@ -7,6 +7,7 @@ const ALL_MODULES: Schemas["ModulesEnum"][] = [
   "students",
   "finance",
   "academics",
+  "timetable",
   "communication",
   "portal",
   "notifications",
@@ -35,6 +36,7 @@ export const PERMISSIONS = {
     "school.configure",
     "classes.manage",
     "courses.configure",
+    "timetable.manage",
     "roles.manage",
     "students.view",
     "students.edit",
@@ -58,6 +60,7 @@ export const PERMISSIONS = {
   study_director: [
     "classes.manage",
     "courses.configure",
+    "timetable.manage",
     "grades.enter_any",
     "grades.validate",
     "students.view",

@@ -54,6 +54,7 @@ TABLE = {
     "finance.close_register": ". . . ✔ ✔ . . .",
     "finance.view_reports": "✔ . . ✔ . . ✔ .",
     "finance.import_prior_payments": "✔ . . ✔ . . . .",
+    "timetable.manage": "✔ ✔ . . . . . .",
     "announcements.publish": "✔ ✔ ✔ . . ✔ . .",
     "audit.view": "✔ . . . . . ✔ .",
 }

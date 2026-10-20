@@ -89,7 +89,7 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 | Règlement des études (règles de délibération) | `School.settings["pass_rules"]` et `Level.pass_rules` (`schools/pass_rules.py`), décision proposée : `academics/resits.py` |
 | Cours principal, branche d'option, pratique (atelier) | `Course.category` (`main`, `option`, `practical`, `general`) |
 
-- Backend : une app Django par domaine (`core`, `accounts`, `schools`, `students`, `finance`, `academics`, `payroll`, `portal`, `notifications`, `sync`, `audit`). Logique métier dans `services.py`, pas dans les vues.
+- Backend : une app Django par domaine (`core`, `accounts`, `schools`, `students`, `finance`, `academics`, `timetable`, `payroll`, `portal`, `notifications`, `sync`, `audit`). Logique métier dans `services.py`, pas dans les vues.
 - Front : dossiers par fonctionnalité (`features/finance/...`). Client API typé généré depuis l'OpenAPI (`packages/api`).
 - Messages de commit en français, style conventionnel : `feat(finance): encaissement partiel`.
 

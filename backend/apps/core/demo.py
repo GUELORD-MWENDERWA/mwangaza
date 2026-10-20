@@ -35,6 +35,7 @@ from apps.portal.demo import (
 from apps.schools.demo import DemoSpace, create_demo_look, create_demo_organisation
 from apps.students.demo import create_demo_students
 from apps.sync.demo import create_demo_devices
+from apps.timetable.demo import create_demo_timetable
 
 # Chaque tâche qui ajoute un modèle ajoute ici son étape (`docs/07-a-fournir.md` § 4). Une étape
 # ne touche qu'aux espaces reçus, jamais au reste de la plateforme, et peut être rejouée.
@@ -43,6 +44,7 @@ STEPS: list[Callable[[list[DemoSpace]], None]] = [
     create_demo_accounts,
     create_demo_organisation,
     create_demo_courses,
+    create_demo_timetable,
     create_demo_fees,
     create_demo_students,
     create_demo_grades,

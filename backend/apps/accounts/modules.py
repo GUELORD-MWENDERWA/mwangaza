@@ -37,6 +37,8 @@ MODULES: dict[str, tuple[Promise, tuple[str, ...]]] = {
     ),
     # Sans permission : ils ouvrent des fonctions (portail des parents, notifications à l'écran,
     # travail hors-ligne), pas des droits du personnel.
+    # Emploi du temps (bloc EDT) : grilles, salles, puis règles, calcul et publication.
+    "timetable": (_("Timetable"), ("timetable.manage",)),
     "portal": (_("Parent portal"), ()),
     "notifications": (_("Notifications and reminders"), ()),
     "offline": (_("Offline work and synchronisation"), ()),
@@ -47,6 +49,8 @@ DEPENDENCIES: dict[str, tuple[str, ...]] = {
     "finance": ("students",),
     # Les notes sont celles des élèves inscrits.
     "academics": ("students",),
+    # L'horaire place les cours des classes.
+    "timetable": ("academics",),
     "portal": ("students",),
 }
 MODULE_CHOICES = [(code, label) for code, (label, _permissions) in MODULES.items()]
@@ -63,7 +67,10 @@ def resolve(wanted, current=()) -> list[str]:
     un module activé ; refuse (`ValueError`, texte pour l'utilisateur) de retirer un module dont
     un module actif dépend. Résultat dans l'ordre du catalogue."""
     chosen = set(wanted)
-    for code in wanted:
+    # Dépendances en chaîne (emploi du temps → cours → élèves).
+    todo = list(wanted)
+    while todo:
+        code = todo.pop()
         for needed in DEPENDENCIES.get(code, ()):
             if needed in current and needed not in chosen:
                 message = _("%(module)s is still needed by %(by)s.") % {
@@ -71,5 +78,7 @@ def resolve(wanted, current=()) -> list[str]:
                     "by": MODULES[code][0],
                 }
                 raise ValueError(str(message))
-            chosen.add(needed)
+            if needed not in chosen:
+                chosen.add(needed)
+                todo.append(needed)
     return [code for code in ALL_MODULES if code in chosen]

@@ -68,6 +68,7 @@ MODULE_ICONS = {
     "students": "students",
     "finance": "cash",
     "academics": "book",
+    "timetable": "calendar",
     "portal": "users",
     "communication": "megaphone",
     "notifications": "bell",
@@ -88,6 +89,11 @@ MODULE_FEATURES = {
         _("Courses, maximum marks and marks by term"),
         _("Conduct, deliberation, resits"),
         _("Report cards with an authenticity QR code, mark sheets, summaries"),
+    ),
+    "timetable": (
+        _("Time grid with breaks, short days and two shifts"),
+        _("Rooms, workshops and laboratories"),
+        _("Hours of each class compared with its week"),
     ),
     "portal": (
         _("Payments, receipts and due dates"),

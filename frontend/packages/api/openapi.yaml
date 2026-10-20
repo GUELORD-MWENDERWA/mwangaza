@@ -775,6 +775,11 @@ paths:
           - discipline.incident_recorded
           - discipline.incident_cancelled
           - discipline.grade_overridden
+          - timetable.grid_changed
+          - timetable.grid_deleted
+          - timetable.room_changed
+          - timetable.class_changed
+          - timetable.rules_changed
           - application.grade_overridden
           - resit.grade_changed
           - deliberation.decided
@@ -906,6 +911,11 @@ paths:
           * `discipline.incident_recorded` - Offence recorded
           * `discipline.incident_cancelled` - Offence cancelled
           * `discipline.grade_overridden` - Conduct grade corrected
+          * `timetable.grid_changed` - Time grid changed
+          * `timetable.grid_deleted` - Time grid deleted
+          * `timetable.room_changed` - Room changed
+          * `timetable.class_changed` - Time grid or room of a class changed
+          * `timetable.rules_changed` - Timetable rules changed
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
           * `deliberation.decided` - Deliberation decision recorded
@@ -1002,6 +1012,7 @@ paths:
           - staff
           - students
           - support
+          - timetable
           type: string
           minLength: 1
         description: |-
@@ -1024,6 +1035,7 @@ paths:
           * `staff` - staff
           * `students` - students
           * `support` - support
+          * `timetable` - timetable
       - in: query
         name: entity
         schema:
@@ -1216,6 +1228,11 @@ paths:
           - discipline.incident_recorded
           - discipline.incident_cancelled
           - discipline.grade_overridden
+          - timetable.grid_changed
+          - timetable.grid_deleted
+          - timetable.room_changed
+          - timetable.class_changed
+          - timetable.rules_changed
           - application.grade_overridden
           - resit.grade_changed
           - deliberation.decided
@@ -1347,6 +1364,11 @@ paths:
           * `discipline.incident_recorded` - Offence recorded
           * `discipline.incident_cancelled` - Offence cancelled
           * `discipline.grade_overridden` - Conduct grade corrected
+          * `timetable.grid_changed` - Time grid changed
+          * `timetable.grid_deleted` - Time grid deleted
+          * `timetable.room_changed` - Room changed
+          * `timetable.class_changed` - Time grid or room of a class changed
+          * `timetable.rules_changed` - Timetable rules changed
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
           * `deliberation.decided` - Deliberation decision recorded
@@ -1443,6 +1465,7 @@ paths:
           - staff
           - students
           - support
+          - timetable
           type: string
           minLength: 1
         description: |-
@@ -1465,6 +1488,7 @@ paths:
           * `staff` - staff
           * `students` - students
           * `support` - support
+          * `timetable` - timetable
       - in: query
         name: entity
         schema:
@@ -15446,6 +15470,492 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/timetable/classes/:
+    get:
+      operationId: timetable_classes_list
+      description: 'Classes de l''année en cours : grille, salle habituelle, heures
+        de cours et places.'
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimetableClass'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/classes/{id}/:
+    patch:
+      operationId: timetable_classes_partial_update
+      description: 'Change la grille ou la salle habituelle d''une classe (vide :
+        les retire).'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTimetableClassUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTimetableClassUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTimetableClassUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimetableClass'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/grids/:
+    get:
+      operationId: timetable_grids_list
+      description: Grilles horaires de l'école (par défaut en premier) avec leurs
+        cases.
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimeGrid'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: timetable_grids_create
+      description: |-
+        Nouvelle grille ; sans cases, la semaine proposée (5 jours de 7 heures, samedi de 4,
+        récréations après la 3e et la 5e heure) calculée avec la durée et le début donnés.
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimeGridCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TimeGridCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TimeGridCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeGrid'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/grids/{id}/:
+    put:
+      operationId: timetable_grids_update
+      description: Enregistre les réglages et toute la semaine d'une grille, d'un
+        bloc.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimeGridWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TimeGridWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TimeGridWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeGrid'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: timetable_grids_destroy
+      description: |-
+        Supprime une grille (jamais celle par défaut) ; ses classes suivent la grille par
+        défaut.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/rooms/:
+    get:
+      operationId: timetable_rooms_list
+      description: Salles, ateliers et laboratoires, retirés compris.
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Room'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: timetable_rooms_create
+      description: Ajoute une salle.
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoomCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RoomCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RoomCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/rooms/{id}/:
+    patch:
+      operationId: timetable_rooms_partial_update
+      description: Change le nom, le type ou les places d'une salle, ou la retire
+        (`is_active`).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRoomUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRoomUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRoomUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/rules/:
+    get:
+      operationId: timetable_rules_retrieve
+      description: Règles générales de l'emploi du temps de l'école.
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimetableRules'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    put:
+      operationId: timetable_rules_update
+      description: Enregistre les règles générales.
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimetableRulesRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TimetableRulesRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TimetableRulesRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimetableRules'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/tracks/:
     get:
       operationId: tracks_list
@@ -16176,6 +16686,11 @@ components:
       - discipline.incident_recorded
       - discipline.incident_cancelled
       - discipline.grade_overridden
+      - timetable.grid_changed
+      - timetable.grid_deleted
+      - timetable.room_changed
+      - timetable.class_changed
+      - timetable.rules_changed
       - application.grade_overridden
       - resit.grade_changed
       - deliberation.decided
@@ -16306,6 +16821,11 @@ components:
         * `discipline.incident_recorded` - Offence recorded
         * `discipline.incident_cancelled` - Offence cancelled
         * `discipline.grade_overridden` - Conduct grade corrected
+        * `timetable.grid_changed` - Time grid changed
+        * `timetable.grid_deleted` - Time grid deleted
+        * `timetable.room_changed` - Room changed
+        * `timetable.class_changed` - Time grid or room of a class changed
+        * `timetable.rules_changed` - Timetable rules changed
         * `application.grade_overridden` - Application grade corrected
         * `resit.grade_changed` - Resit grade changed
         * `deliberation.decided` - Deliberation decision recorded
@@ -20754,6 +21274,7 @@ components:
       - staff
       - students
       - support
+      - timetable
       type: string
     EmailChange:
       type: object
@@ -23039,6 +23560,7 @@ components:
       - finance
       - communication
       - academics
+      - timetable
       - portal
       - notifications
       - offline
@@ -23048,6 +23570,7 @@ components:
         * `finance` - Fees, cash desk and payments
         * `communication` - Announcements
         * `academics` - Courses, grades and report cards
+        * `timetable` - Timetable
         * `portal` - Parent portal
         * `notifications` - Notifications and reminders
         * `offline` - Offline work and synchronisation
@@ -24904,6 +25427,22 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PermissionsEnum'
+    PatchedRoomUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        kind:
+          $ref: '#/components/schemas/RoomKindEnum'
+        capacity:
+          type: integer
+          maximum: 500
+          minimum: 1
+          nullable: true
+        is_active:
+          type: boolean
     PatchedRuleUpdateRequest:
       type: object
       properties:
@@ -25153,6 +25692,17 @@ components:
           items:
             $ref: '#/components/schemas/PlatformRoleEnum'
           minItems: 1
+    PatchedTimetableClassUpdateRequest:
+      type: object
+      properties:
+        time_grid:
+          type: string
+          format: uuid
+          nullable: true
+        home_room:
+          type: string
+          format: uuid
+          nullable: true
     PatchedTrackUpdateRequest:
       type: object
       properties:
@@ -25512,6 +26062,7 @@ components:
       - finance.close_register
       - finance.view_reports
       - finance.import_prior_payments
+      - timetable.manage
       - announcements.publish
       - audit.view
       type: string
@@ -25538,6 +26089,7 @@ components:
         * `finance.close_register` - Close a cash register
         * `finance.view_reports` - View financial reports
         * `finance.import_prior_payments` - Record what students paid before the school started here
+        * `timetable.manage` - Configure the timetable: time grids, rooms and rules
         * `announcements.publish` - Publish announcements
         * `audit.view` - View the audit log
     Person:
@@ -27318,6 +27870,73 @@ components:
       required:
       - id
       - name
+    Room:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 80
+        kind:
+          $ref: '#/components/schemas/RoomKindEnum'
+        capacity:
+          type: integer
+          maximum: 500
+          minimum: 1
+          nullable: true
+          title: Places
+        is_active:
+          type: boolean
+          title: In use
+        classes:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Classes de l'année en cours qui y ont leur salle habituelle.
+      required:
+      - id
+      - name
+      - kind
+      - capacity
+      - is_active
+      - classes
+    RoomCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        kind:
+          $ref: '#/components/schemas/RoomKindEnum'
+        capacity:
+          type: integer
+          maximum: 500
+          minimum: 1
+          nullable: true
+      required:
+      - kind
+      - name
+    RoomKindEnum:
+      enum:
+      - classroom
+      - workshop
+      - lab
+      - computer
+      - sports
+      - other
+      type: string
+      description: |-
+        * `classroom` - Classroom
+        * `workshop` - Workshop
+        * `lab` - Laboratory
+        * `computer` - Computer room
+        * `sports` - Sports ground
+        * `other` - Other
     Row:
       type: object
       properties:
@@ -30230,6 +30849,240 @@ components:
             $ref: '#/components/schemas/TermInputRequest'
       required:
       - terms
+    TimeGrid:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 60
+        lesson_minutes:
+          type: integer
+          maximum: 90
+          minimum: 30
+          title: Lesson length (minutes)
+        start_time:
+          type: string
+          format: time
+          title: Start of the first lesson
+        is_default:
+          type: boolean
+          title: Default grid
+        lesson_count:
+          type: integer
+          description: Heures de cours par semaine (places).
+        class_count:
+          type: integer
+          description: Classes de l'année en cours qui la suivent.
+        slots:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeSlot'
+          readOnly: true
+      required:
+      - id
+      - name
+      - lesson_minutes
+      - start_time
+      - is_default
+      - lesson_count
+      - class_count
+      - slots
+    TimeGridCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 60
+        lesson_minutes:
+          type: integer
+          maximum: 90
+          minimum: 30
+        start_time:
+          type: string
+          format: time
+        is_default:
+          type: boolean
+        slots:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeSlotInputRequest'
+          description: 'Sans cases : la semaine proposée, calculée avec cette durée
+            et ce début.'
+      required:
+      - name
+    TimeGridWriteRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 60
+        lesson_minutes:
+          type: integer
+          maximum: 90
+          minimum: 30
+        start_time:
+          type: string
+          format: time
+        is_default:
+          type: boolean
+          default: false
+        slots:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeSlotInputRequest'
+      required:
+      - lesson_minutes
+      - name
+      - slots
+      - start_time
+    TimeSlot:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        weekday:
+          type: integer
+          maximum: 7
+          minimum: 1
+          title: Day
+        index:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          nullable: true
+          title: Lesson number
+        kind:
+          $ref: '#/components/schemas/TimeSlotKindEnum'
+        start:
+          type: string
+          format: time
+        end:
+          type: string
+          format: time
+      required:
+      - id
+      - weekday
+      - index
+      - kind
+      - start
+      - end
+    TimeSlotInputRequest:
+      type: object
+      properties:
+        weekday:
+          type: integer
+          maximum: 7
+          minimum: 1
+        index:
+          type: integer
+          maximum: 12
+          minimum: 1
+          nullable: true
+          description: Numéro de l'heure dans le jour ; vide pour une récréation.
+        kind:
+          $ref: '#/components/schemas/TimeSlotKindEnum'
+        start:
+          type: string
+          format: time
+        end:
+          type: string
+          format: time
+      required:
+      - end
+      - kind
+      - start
+      - weekday
+    TimeSlotKindEnum:
+      enum:
+      - lesson
+      - break
+      type: string
+      description: |-
+        * `lesson` - Lesson
+        * `break` - Break
+    TimetableClass:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        time_grid:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Vide : grille par défaut.'
+        home_room:
+          type: string
+          format: uuid
+          nullable: true
+        course_hours:
+          type: integer
+          description: Heures par semaine des cours enseignés.
+        missing_hours:
+          type: integer
+          description: Cours enseignés sans heures saisies.
+        capacity:
+          type: integer
+          nullable: true
+          description: Heures de cours de sa grille ; vide sans grille.
+      required:
+      - id
+      - name
+      - time_grid
+      - home_room
+      - course_hours
+      - missing_hours
+      - capacity
+    TimetableRules:
+      type: object
+      properties:
+        max_same_course_per_day:
+          type: integer
+          maximum: 6
+          minimum: 1
+        teacher_max_day_hours:
+          type: integer
+          maximum: 12
+          minimum: 1
+        no_gaps:
+          type: boolean
+        main_courses_early:
+          type: boolean
+      required:
+      - max_same_course_per_day
+      - teacher_max_day_hours
+      - no_gaps
+      - main_courses_early
+    TimetableRulesRequest:
+      type: object
+      properties:
+        max_same_course_per_day:
+          type: integer
+          maximum: 6
+          minimum: 1
+        teacher_max_day_hours:
+          type: integer
+          maximum: 12
+          minimum: 1
+        no_gaps:
+          type: boolean
+        main_courses_early:
+          type: boolean
+      required:
+      - main_courses_early
+      - max_same_course_per_day
+      - no_gaps
+      - teacher_max_day_hours
     TotalsRow:
       type: object
       properties:

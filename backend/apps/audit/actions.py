@@ -106,6 +106,12 @@ class Action(models.TextChoices):
     DISCIPLINE_INCIDENT_RECORDED = "discipline.incident_recorded", _("Offence recorded")
     DISCIPLINE_INCIDENT_CANCELLED = "discipline.incident_cancelled", _("Offence cancelled")
     DISCIPLINE_GRADE_OVERRIDDEN = "discipline.grade_overridden", _("Conduct grade corrected")
+    # Emploi du temps (EDT.1a) : grilles, salles, grille et salle des classes, règles générales.
+    TIME_GRID_CHANGED = "timetable.grid_changed", _("Time grid changed")
+    TIME_GRID_DELETED = "timetable.grid_deleted", _("Time grid deleted")
+    ROOM_CHANGED = "timetable.room_changed", _("Room changed")
+    CLASS_TIMETABLE_CHANGED = "timetable.class_changed", _("Time grid or room of a class changed")
+    TIMETABLE_RULES_CHANGED = "timetable.rules_changed", _("Timetable rules changed")
     APPLICATION_GRADE_OVERRIDDEN = "application.grade_overridden", _("Application grade corrected")
     RESIT_GRADE_CHANGED = "resit.grade_changed", _("Resit grade changed")
     # Délibération (8.4.2) : décision d'un élève, date, proclamation des résultats, réouverture.

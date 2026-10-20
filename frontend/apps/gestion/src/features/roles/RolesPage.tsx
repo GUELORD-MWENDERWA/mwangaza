@@ -47,6 +47,7 @@ const GROUPS: {
     key: "teaching",
     permissions: [
       "courses.configure",
+      "timetable.manage",
       "grades.enter",
       "grades.enter_any",
       "grades.validate",

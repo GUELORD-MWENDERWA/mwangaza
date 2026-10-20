@@ -157,6 +157,8 @@ def _copy_classes(source: AcademicYear, year: AcademicYear, *, actor: User) -> t
             track_id=group.track_id,
             section=group.section,
             capacity=group.capacity,
+            time_grid_id=group.time_grid_id,
+            home_room_id=group.home_room_id,
             created_by=actor,
         )
         for group in old

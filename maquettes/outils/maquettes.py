@@ -165,6 +165,8 @@ ACTIVE_FOR = {
     "bulletin-education-de-base.html": "notes-saisie.html",
     "cours-maxima.html": "notes-saisie.html",
     "charges-enseignants.html": "notes-saisie.html",
+    "grille-horaire.html": "notes-saisie.html",
+    "salles.html": "notes-saisie.html",
     "guide-premiere-connexion.html": "caisse-encaissement.html",
 }
 
@@ -356,6 +358,8 @@ GESTION = [
     ("application", "Application : cote par période", "V1.2", "Plus tard · 8.5.1c", True),
     ("cours-maxima", "Cours et maxima par classe", "V1.2", "Plus tard · 6.1", True),
     ("charges-enseignants", "Charges des enseignants", "V1.2", "Plus tard · 8.1", True),
+    ("grille-horaire", "Grille horaire et capacité des classes", "V1.2", "Plus tard · EDT.1a", True),
+    ("salles", "Salles et ateliers", "V1.2", "Plus tard · EDT.1a", True),
     ("bulletin", "Bulletin officiel — humanités techniques", "V1.2", "Plus tard · 6.3", True),
     ("bulletin-education-de-base", "Bulletin officiel — 7e-8e EB", "V1.2", "Plus tard · 6.3", True),
 ]
