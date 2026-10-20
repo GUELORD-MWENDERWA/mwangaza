@@ -13,7 +13,7 @@ x-logging: &logging
 
 # Mémoire (PERF.5a) : serveur de 2 Go, 2 Go de swap. Chaque conteneur a une limite ET la même
 # limite swap comprise (`memswap_limit`) : un conteneur qui déborde est arrêté et relancé seul au
-# lieu de ralentir toute la machine. Somme des limites ≈ 1,78 Go, ≈ 300 Mo laissés au système
+# lieu de ralentir toute la machine. Somme des limites ≈ 1,73 Go, ≈ 350 Mo laissés au système
 # (`migrate`, 384m, ne tourne qu'au démarrage). Ces limites valent aussi pour `make prod-local`,
 # pour mesurer comme sur le serveur (`make perf`).
 x-backend: &backend
@@ -117,15 +117,16 @@ services:
       retries: 5
       start_period: 60s
 
-  # Tâches courantes (PERF.5a) : file `celery` (notifications, purges, passage du planificateur),
-  # 2 travailleurs. Un travailleur est renouvelé après 100 tâches ou si sa mémoire dépasse 150 Mo
-  # (le seuil est lu sur la mémoire du travailleur, qui partage déjà ≈ 60 Mo avec le processus
-  # principal : 75 + 2 × ≈ 110 reste sous la limite du conteneur, 288 Mo, avec de la marge).
+  # Tâches courantes (PERF.5a, PERF.8) : file `celery` (notifications, purges, passage du
+  # planificateur). UN travailleur au repos, un second seulement quand des tâches attendent
+  # (`--autoscale=2,1`, rendu après 30 s sans travail) : ≈ 135 Mo au repos au lieu de ≈ 210.
+  # Un travailleur est renouvelé après 100 tâches ou si sa mémoire dépasse 150 Mo (mémoire
+  # partagée avec le processus principal comprise).
   worker:
     <<: *backend
     mem_limit: 288m
     memswap_limit: 288m
-    command: celery -A config worker -Q celery -n worker@%h --loglevel=info --concurrency=2 --max-tasks-per-child=100 --max-memory-per-child=150000
+    command: celery -A config worker -Q celery -n worker@%h --loglevel=info --autoscale=2,1 --max-tasks-per-child=100 --max-memory-per-child=150000
 
   # Tâches lourdes : file `heavy` (PDF, import d'une liste, espaces de démonstration), UN seul
   # travail à la fois, renouvelé tous les 5 travaux ou au-delà de 240 Mo ; limite du conteneur
@@ -137,12 +138,20 @@ services:
     command: celery -A config worker -Q heavy -n heavy@%h --loglevel=info --concurrency=1 --max-tasks-per-child=5 --max-memory-per-child=240000
 
   # Planificateur (relances, purges de la nuit) : un petit service à part, qu'aucun travailleur
-  # ne peut plus emporter en s'arrêtant. Il ne fait qu'envoyer les tâches aux travailleurs.
+  # ne peut emporter en s'arrêtant. Il ne fait que poser le nom des tâches dans Redis, sans Django
+  # (`backend/beat.py`, PERF.8) : ≈ 50 Mo au lieu de ≈ 110, et il ne reçoit que l'adresse de
+  # Redis, ni mot de passe de la base, ni clé secrète, ni accès aux fichiers des écoles.
   scheduler:
     <<: *backend
-    mem_limit: 144m
-    memswap_limit: 144m
-    command: celery -A config beat -s /tmp/celerybeat-schedule --loglevel=info
+    mem_limit: 96m
+    memswap_limit: 96m
+    command: celery -A beat beat -s /tmp/celerybeat-schedule --loglevel=info
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    volumes: []
+    depends_on:
+      redis:
+        condition: service_started
 
   # Migrations (un seul serveur), puis droits du compte de l'application : seul conteneur qui a le
   # compte propriétaire des tables. Il tourne à chaque `up`, avant `django` et `celery`, et s'arrête.
